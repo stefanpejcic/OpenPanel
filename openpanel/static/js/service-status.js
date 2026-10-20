@@ -41,13 +41,13 @@ function pollServiceStatusBadge(badge) {
             });
             if (label) label.textContent = text;
 
-            setTimeout(tick, SERVICE_STATUS_POLL_MS);
+            setTimeout(() => opVisible(tick), SERVICE_STATUS_POLL_MS);
         } catch (err) {
             console.error('Service status poll error:', err);
         }
     };
 
-    setTimeout(tick, SERVICE_STATUS_POLL_MS);
+    setTimeout(() => opVisible(tick), SERVICE_STATUS_POLL_MS);
 }
 
 document.addEventListener('DOMContentLoaded', () => {

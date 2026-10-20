@@ -74,8 +74,9 @@ func Open(optionFile string) (*sql.DB, error) {
 	}
 
 	pool.SetMaxOpenConns(10) // matches pool_size=10
-	pool.SetMaxIdleConns(10)
+	pool.SetMaxIdleConns(3)
 	pool.SetConnMaxLifetime(time.Hour)
+	pool.SetConnMaxIdleTime(5 * time.Minute)
 
 	return pool, nil
 }

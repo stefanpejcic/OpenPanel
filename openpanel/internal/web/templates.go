@@ -1,14 +1,17 @@
 // Package web renders the panel's pages. Templates live under web/templates/ (Go html/template syntax) and are embedded into the binary via go:embed, independent of the top-level templates/ directory.
-// Each "page" is its own *template.Template combining a shared layout with that page's content block, parsed once at startup and cached - parsing per request would be wasteful and, since template.Funcs()/re-parsing mutates a template in place, unsafe to share across concurrent requests.
+// Each "page" is its own *template.Template combining a shared layout with that page's content block, parsed on first use and cached - parsing per request would be wasteful and, since template.Funcs()/re-parsing mutates a template in place, unsafe to share across concurrent requests.
 package web
 
 import (
 	"embed"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"unicode"
 )
 
@@ -19,7 +22,7 @@ var templateFS embed.FS
 
 // funcMap holds only stateless helpers - anything request-scoped (the translator, CSRF token, flashes) is passed as template data instead, see internal/core/i18n's Translator doc comment for why.
 var funcMap = template.FuncMap{
-	"static": func(path string) string { return "/static/" + path },
+	"static": StaticURL,
 	// admin custom code from in_header.html/in_footer.html, loaded at startup
 	"customHeader": func() template.HTML { return customHeaderHTML },
 	"customFooter": func() template.HTML { return customFooterHTML },
@@ -101,12 +104,25 @@ const dateRangePartial = "partials/_date_range.html"
 
 const aiPartial = "partials/_ai_assistant.html"
 
-// Page is a parsed, ready-to-execute template set for one route.
+// Page is the template set for one route, parsed on first use since parsing all of them up front cost ~115MB
 type Page struct {
-	tmpl *template.Template
+	paths []string
+	mu    sync.Mutex
+	tmpl  *template.Template
+	used  atomic.Int64
 }
 
-// MustLoadPage parses files (relative to web/templates/) into a single template set - by convention the layout file among them defines a top-level {{define "layout"}} that Render executes. Panics on a parse error, since a broken template is a startup-time bug, not a runtime condition to recover from.
+// pageCacheSize is how many parsed pages stay in memory, the least recently used one gets parsed again on its next visit
+const pageCacheSize = 32
+
+var (
+	pagesMu     sync.Mutex
+	allPages    []*Page
+	loadedPages []*Page
+	pageClock   atomic.Int64
+)
+
+// MustLoadPage registers files (relative to web/templates/) as one template set - by convention the layout file among them defines a top-level {{define "layout"}} that Render executes. Parsing waits for the first Render, ParseAllPages covers broken templates in tests.
 func MustLoadPage(files ...string) *Page {
 	paths := make([]string, 0, len(files)+1)
 	hasBase, hasBulk, hasDateRange, hasHeader, hasAI := false, false, false, false, false
@@ -129,8 +145,72 @@ func MustLoadPage(files ...string) *Page {
 	if hasHeader && !hasAI {
 		paths = append(paths, "templates/"+aiPartial)
 	}
-	t := template.Must(template.New("layout").Funcs(funcMap).ParseFS(templateFS, paths...))
-	return &Page{tmpl: t}
+	p := &Page{paths: paths}
+	pagesMu.Lock()
+	allPages = append(allPages, p)
+	pagesMu.Unlock()
+	return p
+}
+
+func (p *Page) parse() (*template.Template, error) {
+	return template.New("layout").Funcs(funcMap).ParseFS(templateFS, p.paths...)
+}
+
+// template returns the parsed set, parsing it now if it isn't cached
+func (p *Page) template() *template.Template {
+	p.used.Store(pageClock.Add(1))
+	p.mu.Lock()
+	t := p.tmpl
+	fresh := t == nil
+	if fresh {
+		t = template.Must(p.parse())
+		p.tmpl = t
+	}
+	p.mu.Unlock()
+	if fresh {
+		trackLoadedPage(p)
+	}
+	return t
+}
+
+// trackLoadedPage remembers p as parsed and drops the least recently used page once there are too many
+func trackLoadedPage(p *Page) {
+	pagesMu.Lock()
+	defer pagesMu.Unlock()
+	for _, q := range loadedPages {
+		if q == p {
+			return
+		}
+	}
+	loadedPages = append(loadedPages, p)
+	if len(loadedPages) <= pageCacheSize {
+		return
+	}
+	oldest := 0
+	for i, q := range loadedPages {
+		if q.used.Load() < loadedPages[oldest].used.Load() {
+			oldest = i
+		}
+	}
+	victim := loadedPages[oldest]
+	loadedPages = append(loadedPages[:oldest], loadedPages[oldest+1:]...)
+	victim.mu.Lock()
+	victim.tmpl = nil
+	victim.mu.Unlock()
+}
+
+// ParseAllPages parses every page without caching it, so tests still catch a broken template
+func ParseAllPages() error {
+	pagesMu.Lock()
+	pages := append([]*Page{}, allPages...)
+	pagesMu.Unlock()
+	var errs []error
+	for _, p := range pages {
+		if _, err := p.parse(); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	return errors.Join(errs...)
 }
 
 // layoutFiles is the standard authenticated-layout template set every panel page is built on
@@ -154,7 +234,7 @@ func LoadPage(files ...string) *Page {
 func (p *Page) Render(w http.ResponseWriter, status int, data any) error {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(status)
-	return p.tmpl.ExecuteTemplate(w, "layout", data)
+	return p.template().ExecuteTemplate(w, "layout", data)
 }
 
 // MustLoadFragment parses files the same way MustLoadPage does (same FuncMap, same embedded FS), but without a "layout" wrapper to execute - for standalone fragments like an email body that get rendered to a buffer via ExecuteTemplate(name, ...) rather than served as a page.

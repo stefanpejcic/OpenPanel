@@ -1,7 +1,9 @@
 package errorlogs
 
 import (
+	"fmt"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -30,7 +32,7 @@ func TestRenderErrorLogsPage(t *testing.T) {
 	}
 	layout := testLayout(mgr)
 	layout.BulkActions = errorLogsBulkActions(layout.T)
-	data := buildPageData(layout, q, res, []Target{{Value: "a.com"}, {Value: "a.com/blog", Sub: true}, {Value: "b.com"}}, "")
+	data := buildPageData(layout, q, res, []Target{{Value: "a.com"}, {Value: "a.com/blog", Sub: true}, {Value: "b.com"}}, "", nil)
 
 	w := httptest.NewRecorder()
 	if err := errorLogsPage.Render(w, 200, data); err != nil {
@@ -56,12 +58,43 @@ func TestRenderErrorLogsPage(t *testing.T) {
 
 func TestRenderErrorLogsEmpty(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
-	data := buildPageData(testLayout(mgr), Query{}, Result{Entries: []Entry{}}, nil, "")
+	data := buildPageData(testLayout(mgr), Query{}, Result{Entries: []Entry{}}, nil, "", nil)
 	w := httptest.NewRecorder()
 	if err := errorLogsPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)
 	}
 	if !strings.Contains(w.Body.String(), "No errors found for these filters.") {
 		t.Error("empty state missing")
+	}
+}
+
+func TestErrorLogsPages(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	entries := make([]Entry, 250)
+	for i := range entries {
+		entries[i] = Entry{Time: time.Unix(1792085165, 0), Service: "caddy", Level: "error", Message: fmt.Sprintf("msg-%03d", i)}
+	}
+	res := Result{Total: 250, Entries: entries}
+
+	data := buildPageData(testLayout(mgr), Query{}, res, nil, "", url.Values{"level": {"error"}, "page": {"2"}})
+	if data.Page != 2 || data.TotalPages != 3 || len(data.Rows) != 100 || data.Rows[0].Message != "msg-100" {
+		t.Fatalf("page 2: page=%d pages=%d rows=%d", data.Page, data.TotalPages, len(data.Rows))
+	}
+	if data.PrevURL != "/error-logs?level=error&page=1" || data.NextURL != "/error-logs?level=error&page=3" {
+		t.Errorf("pager links %q %q", data.PrevURL, data.NextURL)
+	}
+
+	last := buildPageData(testLayout(mgr), Query{}, res, nil, "", url.Values{"page": {"99"}})
+	if last.Page != 3 || len(last.Rows) != 50 || last.NextURL != "" {
+		t.Errorf("past the end: page=%d rows=%d next=%q", last.Page, len(last.Rows), last.NextURL)
+	}
+
+	w := httptest.NewRecorder()
+	if err := errorLogsPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, "Page 2 of 3") || strings.Contains(body, "msg-099") || !strings.Contains(body, "msg-199") {
+		t.Error("page 2 didn't render just its own rows and the pager")
 	}
 }

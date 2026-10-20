@@ -122,6 +122,8 @@ func openPool(userContext string) (*sql.DB, error) {
 	// one connection, reused - this is a per-user mysqld for light panel-side queries, not app traffic
 	db.SetMaxOpenConns(1)
 	db.SetConnMaxLifetime(time.Hour)
+	// don't keep a connection open in every user's mysqld once they stop using the panel
+	db.SetConnMaxIdleTime(5 * time.Minute)
 
 	return db, nil
 }

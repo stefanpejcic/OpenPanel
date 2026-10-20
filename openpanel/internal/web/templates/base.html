@@ -15,6 +15,8 @@
     <link rel="icon" type="image/x-icon" href="{{if .Favicon}}{{.Favicon}}{{else}}{{static "images/favicon.svg"}}{{end}}">
     <meta name="robots" content="noindex,nofollow">
     <script type="text/javascript"> var csrf_token = "{{.CSRFToken}}"; </script>
+    <!-- polls skip hidden tabs, catch up when shown again and slow down after a while -->
+    <script>window.opPoll=function(fn,ms){var n=0,stopped=false,t;function tick(){if(stopped)return;if(!document.hidden){n++;fn();}t=setTimeout(tick,n>10?Math.max(ms,5000):ms);}function vis(){if(!stopped&&!document.hidden){clearTimeout(t);tick();}}document.addEventListener('visibilitychange',vis);t=setTimeout(tick,ms);return{stop:function(){stopped=true;clearTimeout(t);document.removeEventListener('visibilitychange',vis);}};};window.opStop=function(p){if(p&&p.stop)p.stop();};window.opVisible=function(fn){if(!document.hidden)return fn();var h=function(){if(!document.hidden){document.removeEventListener('visibilitychange',h);fn();}};document.addEventListener('visibilitychange',h);};</script>
     <!-- logout is POST only, turn every /logout link into a form submit -->
     <script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href="/logout"]');if(!a)return;e.preventDefault();var f=document.createElement('form');f.method='post';f.action='/logout';var i=document.createElement('input');i.type='hidden';i.name='csrf_token';i.value=csrf_token;f.appendChild(i);document.body.appendChild(f);f.submit();});</script>
 

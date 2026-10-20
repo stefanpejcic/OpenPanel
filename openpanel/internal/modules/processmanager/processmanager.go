@@ -10,9 +10,9 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
-	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -60,67 +60,28 @@ func getPodmanProcesses(ctx context.Context, userContext string) ([]Process, err
 		log.Printf("PROCESSMANAGER - user %s: compose config has no services", userContext)
 	}
 
+	running := runningContainerNames(ctx, userContext)
+	perService := make([][]Process, len(serviceNames))
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, 4)
+	for i, name := range serviceNames {
+		// same substring match as docker.IsServiceRunning's name= filter, one podman ps for all of them
+		if !containsAny(running, name) {
+			continue
+		}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			perService[i] = topProcesses(ctx, userContext, name)
+		}()
+	}
+	wg.Wait()
+
 	var processes []Process
-
-	for _, name := range serviceNames {
-		if !docker.IsServiceRunning(ctx, userContext, name) {
-			continue
-		}
-
-		argv := podmanmanager.PodmanArgv(userContext, append([]string{"top", name}, topDescriptors...)...)
-		cmd := podmanmanager.Command(ctx, userContext, argv)
-		var stderr bytes.Buffer
-		cmd.Stderr = &stderr
-		out, cmdErr := cmd.Output()
-		if cmdErr != nil {
-			log.Printf("PROCESSMANAGER - user %s: `podman top %s` failed: %v: %s", userContext, name, cmdErr, strings.TrimSpace(stderr.String()))
-			continue
-		}
-
-		lines := strings.Split(string(out), "\n")
-		if len(lines) < 2 {
-			log.Printf("PROCESSMANAGER - user %s: `podman top %s` returned no rows (raw output: %q)", userContext, name, string(out))
-			continue
-		}
-
-		// First line is the header (USER PID PPID %CPU STIME TTY TIME COMMAND); skip it.
-		for _, line := range lines[1:] {
-			stripped := strings.TrimSpace(line)
-			if stripped == "" {
-				continue
-			}
-
-			tokens := strings.Fields(stripped)
-			if len(tokens) < 7 {
-				continue
-			}
-			if _, digitErr := strconv.Atoi(tokens[1]); digitErr != nil {
-				continue
-			}
-
-			timeIndex := -1
-			for i := 6; i < len(tokens)-1; i++ {
-				if timeFieldRE.MatchString(tokens[i]) {
-					timeIndex = i
-					break
-				}
-			}
-			if timeIndex == -1 {
-				continue
-			}
-
-			processes = append(processes, Process{
-				Container: name,
-				UID:       tokens[0],
-				PID:       tokens[1],
-				PPID:      tokens[2],
-				C:         tokens[3],
-				STIME:     strings.Join(tokens[4:timeIndex-1], " "),
-				TTY:       tokens[timeIndex-1],
-				TIME:      tokens[timeIndex],
-				CMD:       strings.Join(tokens[timeIndex+1:], " "),
-			})
-		}
+	for _, ps := range perService {
+		processes = append(processes, ps...)
 	}
 
 	sort.SliceStable(processes, func(i, j int) bool {
@@ -130,6 +91,85 @@ func getPodmanProcesses(ctx context.Context, userContext string) ([]Process, err
 	})
 
 	return processes, nil
+}
+
+// topProcesses runs `podman top` for one service container
+func topProcesses(ctx context.Context, userContext, name string) []Process {
+	argv := podmanmanager.PodmanArgv(userContext, append([]string{"top", name}, topDescriptors...)...)
+	cmd := podmanmanager.Command(ctx, userContext, argv)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	out, cmdErr := cmd.Output()
+	if cmdErr != nil {
+		log.Printf("PROCESSMANAGER - user %s: `podman top %s` failed: %v: %s", userContext, name, cmdErr, strings.TrimSpace(stderr.String()))
+		return nil
+	}
+
+	lines := strings.Split(string(out), "\n")
+	if len(lines) < 2 {
+		log.Printf("PROCESSMANAGER - user %s: `podman top %s` returned no rows (raw output: %q)", userContext, name, string(out))
+		return nil
+	}
+
+	var processes []Process
+	// First line is the header (USER PID PPID %CPU STIME TTY TIME COMMAND); skip it.
+	for _, line := range lines[1:] {
+		stripped := strings.TrimSpace(line)
+		if stripped == "" {
+			continue
+		}
+
+		tokens := strings.Fields(stripped)
+		if len(tokens) < 7 {
+			continue
+		}
+		if _, digitErr := strconv.Atoi(tokens[1]); digitErr != nil {
+			continue
+		}
+
+		timeIndex := -1
+		for i := 6; i < len(tokens)-1; i++ {
+			if timeFieldRE.MatchString(tokens[i]) {
+				timeIndex = i
+				break
+			}
+		}
+		if timeIndex == -1 {
+			continue
+		}
+
+		processes = append(processes, Process{
+			Container: name,
+			UID:       tokens[0],
+			PID:       tokens[1],
+			PPID:      tokens[2],
+			C:         tokens[3],
+			STIME:     strings.Join(tokens[4:timeIndex-1], " "),
+			TTY:       tokens[timeIndex-1],
+			TIME:      tokens[timeIndex],
+			CMD:       strings.Join(tokens[timeIndex+1:], " "),
+		})
+	}
+	return processes
+}
+
+// runningContainerNames lists the user's running containers in one podman call
+func runningContainerNames(ctx context.Context, userContext string) []string {
+	argv := podmanmanager.PodmanArgv(userContext, "ps", "--filter", "status=running", "--format", "{{.Names}}")
+	out, err := podmanmanager.Command(ctx, userContext, argv).Output()
+	if err != nil {
+		return nil
+	}
+	return strings.Fields(string(out))
+}
+
+func containsAny(names []string, sub string) bool {
+	for _, n := range names {
+		if strings.Contains(n, sub) {
+			return true
+		}
+	}
+	return false
 }
 
 // isDisplayableCmd filters out entrypoint/healthcheck noise rows that aren't useful to show the user

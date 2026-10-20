@@ -1,11 +1,14 @@
 package web
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 // overridablePaths maps a served static path to its file name in the override dir, everything else is embedded only
@@ -37,13 +40,20 @@ func NewStaticAssets(fsys fs.FS, overrideDir string, customCode bool) (*StaticAs
 	}
 
 	embeddedHandler := http.FileServerFS(fsys)
+	assetFS = fsys
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rel := strings.TrimPrefix(r.URL.Path, "/")
 		if diskPath, ok := overrides[rel]; ok {
+			w.Header().Set("Cache-Control", "no-cache")
 			http.ServeFile(w, r, diskPath)
 			return
 		}
+		// embedded files have no mod time, so without an ETag the browser downloads them again on every page
+		if h := assetHash(rel); h != "" {
+			w.Header().Set("ETag", `"`+h+`"`)
+		}
+		w.Header().Set("Cache-Control", staticCacheControl(rel, r.URL.Query().Get("v") != ""))
 		embeddedHandler.ServeHTTP(w, r)
 	})
 
@@ -62,5 +72,50 @@ func (s *StaticAssets) ServeRootFile(rel string) http.HandlerFunc {
 		req := r.Clone(r.Context())
 		req.URL.Path = "/" + rel
 		s.handler.ServeHTTP(w, req)
+	}
+}
+
+var (
+	assetFS     fs.FS
+	assetHashes sync.Map
+)
+
+// StaticURL is the {{static}} template func, embedded files get ?v=<content hash> so browsers can keep them for good
+func StaticURL(rel string) string {
+	if h := assetHash(rel); h != "" {
+		return "/static/" + rel + "?v=" + h
+	}
+	return "/static/" + rel
+}
+
+// assetHash is a short content hash of an embedded file, "" for overridable files, directories and missing files
+func assetHash(rel string) string {
+	if assetFS == nil {
+		return ""
+	}
+	if _, ok := overridablePaths[rel]; ok {
+		return ""
+	}
+	if v, ok := assetHashes.Load(rel); ok {
+		return v.(string)
+	}
+	h := ""
+	if b, err := fs.ReadFile(assetFS, rel); err == nil {
+		sum := sha256.Sum256(b)
+		h = hex.EncodeToString(sum[:6])
+	}
+	assetHashes.Store(rel, h)
+	return h
+}
+
+// staticCacheControl: versioned URLs never change, vendor files only change with an upgrade, the rest gets checked each time
+func staticCacheControl(rel string, versioned bool) string {
+	switch {
+	case versioned:
+		return "public, max-age=31536000, immutable"
+	case strings.HasPrefix(rel, "vendor/"), strings.HasPrefix(rel, "flags/"):
+		return "public, max-age=86400"
+	default:
+		return "no-cache"
 	}
 }

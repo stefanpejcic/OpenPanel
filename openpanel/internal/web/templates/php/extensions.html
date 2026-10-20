@@ -190,21 +190,21 @@
     });
 
     function pollInstallStatus(installId) {
-        if (pollTimer) { clearInterval(pollTimer); }
-        pollTimer = setInterval(function() {
+        if (pollTimer) { opStop(pollTimer); }
+        pollTimer = opPoll(function() {
             fetch('/php/php' + version + '/install-extensions/status?install_id=' + installId)
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
                     showBanner(data.message || data.status);
                     if (data.status === 'done' || data.status === 'error') {
-                        clearInterval(pollTimer);
+                        opStop(pollTimer);
                         if (data.status === 'done') {
                             setTimeout(function() { window.location.reload(); }, 1500);
                         }
                     }
                 })
                 .catch(function() {
-                    clearInterval(pollTimer);
+                    opStop(pollTimer);
                 });
         }, 2000);
     }

@@ -5,10 +5,10 @@
 
 {{if eq .View "code"}}
       <!-- Include CodeMirror, clike and Dracula theme files -->
-      <link rel="stylesheet" href="/static/vendor/codemirror/codemirror.min.css">
-      <script src="/static/vendor/codemirror/codemirror.min.js"></script>
-      <script src="/static/vendor/codemirror/mode/clike/clike.min.js"></script>
-      <link rel="stylesheet" href="/static/vendor/codemirror/theme/dracula.min.css">
+      <link rel="stylesheet" href="{{static "vendor/codemirror/codemirror.min.css"}}">
+      <script src="{{static "vendor/codemirror/codemirror.min.js"}}"></script>
+      <script src="{{static "vendor/codemirror/mode/clike/clike.min.js"}}"></script>
+      <link rel="stylesheet" href="{{static "vendor/codemirror/theme/dracula.min.css"}}">
       <style>
          .CodeMirror {min-height: 50vh;height: auto;}
       </style>
@@ -657,7 +657,7 @@ document.addEventListener('keydown', (e) => {
 });
 if (window.registerShortcut) registerShortcut(['N'], {{toJSON (.T.Get "Add new cron job")}});
 </script>
-<script src="/static/js/table-sort.js"></script>
+<script src="{{static "js/table-sort.js"}}"></script>
 
 <!-- END templates/system/cronjobs.html -->
 {{end}}

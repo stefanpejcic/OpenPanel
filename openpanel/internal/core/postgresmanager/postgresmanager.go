@@ -60,6 +60,7 @@ func openPool(userContext, database string) (*sql.DB, error) {
 	db.SetMaxOpenConns(5)
 	db.SetMaxIdleConns(1)
 	db.SetConnMaxLifetime(time.Hour)
+	db.SetConnMaxIdleTime(5 * time.Minute)
 
 	return db, nil
 }

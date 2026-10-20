@@ -62,7 +62,8 @@ func openClient(ctx context.Context, userContext string) (*mongo.Client, error) 
 	connectCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(options.Client().ApplyURI(uri))
+	// clients stay cached per user, so keep each one small and quiet when idle
+	client, err := mongo.Connect(options.Client().ApplyURI(uri).SetMaxPoolSize(4).SetMaxConnIdleTime(5 * time.Minute).SetHeartbeatInterval(time.Minute))
 	if err != nil {
 		return nil, err
 	}

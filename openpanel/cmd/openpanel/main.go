@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"strings"
 	"syscall"
 	"time"
@@ -35,11 +36,20 @@ const (
 	defaultListenAddr = ":" + defaultAdminPort
 	// where OpenAdmin saves custom code (custom.css/js, in_header/in_footer.html), robots.txt and security.txt can go here too
 	defaultStaticOverrideDir = "/etc/openpanel/openpanel/custom_code"
+	// soft limit so the GC hands memory back after heavy pages, GOMEMLIMIT overrides it
+	defaultMemoryLimit = 128 << 20
 )
 
 var licenseErrorPage = web.MustLoadPage("system/license_error.html")
 
 func main() {
+	if shouldRunAsInit() {
+		os.Exit(runAsInit())
+	}
+	if os.Getenv("GOMEMLIMIT") == "" {
+		debug.SetMemoryLimit(defaultMemoryLimit)
+	}
+
 	// opencli docker-backup runs this after each user's backup so /backups/list shows it without a manual reindex
 	if len(os.Args) == 3 && os.Args[1] == "backups-reindex" {
 		if err := backups.ReindexUser(os.Args[2]); err != nil {
@@ -108,10 +118,6 @@ func main() {
 	}
 	log.Printf("BOOTSTRAP - static assets embedded (override dir %s: custom_css=%v custom_js=%v)",
 		staticOverrideDir, a.CustomCSS, a.CustomJS)
-	mux.Handle("GET /static/", http.StripPrefix("/static/", staticAssets.Handler()))
-	// only these two root-level files are served this way, anything else 404s
-	mux.HandleFunc("GET /robots.txt", staticAssets.ServeRootFile("robots.txt"))
-	mux.HandleFunc("GET /security.txt", staticAssets.ServeRootFile("security.txt"))
 
 	modules.RegisterAll(mux, a)
 
@@ -121,6 +127,15 @@ func main() {
 	})(handler)
 	handler = auth.LoadUser(a)(handler)
 	handler = exemptAPIFromCSRF(csrfMiddleware, handler)
+
+	// static files skip the session and csrf work so they don't get a cookie and can be cached
+	root := http.NewServeMux()
+	root.Handle("GET /static/", http.StripPrefix("/static/", staticAssets.Handler()))
+	// only these two root-level files are served this way, anything else 404s
+	root.HandleFunc("GET /robots.txt", staticAssets.ServeRootFile("robots.txt"))
+	root.HandleFunc("GET /security.txt", staticAssets.ServeRootFile("security.txt"))
+	root.Handle("/", handler)
+	handler = web.Gzip(root)
 	// outermost, a blocked bot gets nothing else, not even the login page
 	handler = auth.BlockUseragents()(handler)
 

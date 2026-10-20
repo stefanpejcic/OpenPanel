@@ -14,6 +14,9 @@ import (
 const (
 	defaultLimit = 500
 	maxLimit     = 5000
+	// the page splits rows into pages instead of rendering all of them
+	rowsPerPage    = 100
+	maxRowsPerPage = 1000
 )
 
 // parseBound takes a YYYY-MM-DD day from the picker or an RFC3339 time from the API, endOfDay picks the last moment of a day
@@ -64,10 +67,13 @@ func parseQuery(r *http.Request, now time.Time) Query {
 	return q
 }
 
-// load resolves the user, checks the domain/service filters belong to them and runs the collection
-func load(a *appctx.App, r *http.Request) (Query, Result, []Target, int, string) {
+// load resolves the user, checks the domain/service filters belong to them and runs the collection, limit replaces the default row cap when the request didn't set one
+func load(a *appctx.App, r *http.Request, limit int) (Query, Result, []Target, int, string) {
 	ctx := r.Context()
 	q := parseQuery(r, time.Now())
+	if limit > 0 && r.URL.Query().Get("limit") == "" {
+		q.Limit = limit
+	}
 
 	userID, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
@@ -109,7 +115,13 @@ func exportLine(e Entry) string {
 }
 
 func handlePage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	q, res, targets, status, errMsg := load(a, r)
+	format := r.URL.Query().Get("format")
+	// the html page is paged, so it can hold more rows than the json/txt default
+	limit := 0
+	if format != "json" && format != "txt" {
+		limit = maxLimit
+	}
+	q, res, targets, status, errMsg := load(a, r, limit)
 	if status == http.StatusInternalServerError {
 		http.Error(w, errMsg, status)
 		return
@@ -141,7 +153,7 @@ func handlePage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 }
 
 func handleAPI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	q, res, _, status, errMsg := load(a, r)
+	q, res, _, status, errMsg := load(a, r, 0)
 	writeJSONResult(w, q, res, status, errMsg)
 }
 

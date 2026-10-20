@@ -15,7 +15,7 @@ func TestHeaderRendersAIAssistantOnlyWhenAllowed(t *testing.T) {
 	for _, allowed := range []bool{true, false} {
 		var b bytes.Buffer
 		data := LayoutData{UserAllowed: map[string]bool{"ai_assistant": allowed}, T: tr, RequestPath: "/dashboard"}
-		if err := page.tmpl.ExecuteTemplate(&b, "header", data); err != nil {
+		if err := page.template().ExecuteTemplate(&b, "header", data); err != nil {
 			t.Fatalf("allowed=%v: %v", allowed, err)
 		}
 		if got := bytes.Contains(b.Bytes(), []byte(`id="ai-assistant-btn"`)); got != allowed {

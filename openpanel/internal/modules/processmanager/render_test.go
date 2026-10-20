@@ -64,4 +64,20 @@ func TestRenderProcessManagerPage(t *testing.T) {
 			t.Error("expected truncation link for long command")
 		}
 	})
+	t.Run("quote in command keeps the search expression valid", func(t *testing.T) {
+		data := ProcessManagerPageData{
+			LayoutData:  baseLayout(mgr, "/process-manager"),
+			ProcessData: []Process{{Container: "mongodb", PID: "7", CMD: "mongosh --eval 'db.ping()'"}},
+		}
+		w := httptest.NewRecorder()
+		if err := processManagerPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if strings.Contains(w.Body.String(), "'mongosh --eval") {
+			t.Error("command still wrapped in single quotes")
+		}
+		if !strings.Contains(w.Body.String(), "&#34;mongosh --eval &#39;db.ping()&#39;&#34;.toLowerCase()") {
+			t.Error("command not embedded as a JSON string")
+		}
+	})
 }

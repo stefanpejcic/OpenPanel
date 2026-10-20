@@ -246,9 +246,9 @@ document.addEventListener("DOMContentLoaded", () => {
             countEl.classList.remove("hidden");
         }
 
-        clearInterval(refreshTimer);
+        opStop(refreshTimer);
         if (seconds == 60)
-            refreshTimer = setInterval(() => updateVisitors(seconds), 30000);
+            refreshTimer = opPoll(() => updateVisitors(seconds), 30000);
     }
 
     updateVisitors(selectEl.value);

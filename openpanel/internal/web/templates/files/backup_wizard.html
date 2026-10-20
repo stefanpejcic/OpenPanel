@@ -29,10 +29,10 @@
                 if (!d.in_progress) { location.reload(); }
                 else {
                     if (d.in_progress_size) size = d.in_progress_size;
-                    setTimeout(poll, 5000);
+                    setTimeout(() => opVisible(poll), 5000);
                 }
-            }).catch(() => setTimeout(poll, 10000));
-            setTimeout(poll, 5000);
+            }).catch(() => setTimeout(() => opVisible(poll), 10000));
+            setTimeout(() => opVisible(poll), 5000);
          ">
         <svg class="mt-0.5 size-5 shrink-0 text-blue-500 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M4 9a9 9 0 0 1 15-4.5M20 15a9 9 0 0 1-15 4.5"/>

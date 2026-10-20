@@ -11,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // testApp builds a minimal *appctx.App good enough to exercise route wiring and any handler paths that don't touch the DB (e.g. the login page's GET request) - a lightweight substitute for appctx.New(), which requires reading real files under /etc/openpanel that aren't writable in a sandboxed test environment
@@ -142,5 +143,13 @@ func TestRegisterAllWiresRoutes(t *testing.T) {
 				t.Errorf("Location = %q, want /login", got)
 			}
 		})
+	}
+}
+
+// pages parse lazily now, so a broken template has to be caught here instead of at startup
+func TestAllPagesParse(t *testing.T) {
+	RegisterAll(http.NewServeMux(), testApp(t))
+	if err := web.ParseAllPages(); err != nil {
+		t.Fatal(err)
 	}
 }

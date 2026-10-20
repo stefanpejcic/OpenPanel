@@ -214,7 +214,7 @@
     {{else}}
         {{$userAllowed := .UserAllowed}}
         {{range .ProcessData}}
-<tr x-show="searchQuery === '' || '{{.Container}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.PID}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.CMD}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-gray-50 hover:dark:bg-gray-900">
+<tr x-show="searchQuery === '' || {{toJSON .Container}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON .PID}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON .CMD}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-gray-50 hover:dark:bg-gray-900">
 {{template "bulk_row_checkbox" (dict "T" $.T "Key" (printf "%s/%v" .Container .PID) "Label" (printf "%s %v" .Container .PID))}}
                 <td x-show="columns.container" class="whitespace-nowrap p-0 text-sm font-medium text-gray-900 dark:text-gray-50" data-sort-col="container">
                     <a href="/{{if index $userAllowed "services"}}services/{{.Container}}{{else if index $userAllowed "docker"}}containers{{else}}#{{end}}">{{.Container}}</a>
@@ -297,7 +297,7 @@ function sendPID(pid, container, btn) {
         });
 }
 </script>
-<script src="/static/js/table-sort.js"></script>
+<script src="{{static "js/table-sort.js"}}"></script>
 
 <!-- END templates/system/process_manager.html -->
 {{end}}

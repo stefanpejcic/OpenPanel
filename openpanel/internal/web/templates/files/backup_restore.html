@@ -52,7 +52,7 @@
             const resp = await fetch('/backups/jobs');
             if (resp.ok) this.jobs = await resp.json();
         } catch (e) {}
-        if (this.jobs.queue.length) this.jobsTimer = setTimeout(() => this.loadJobs(), 3000);
+        if (this.jobs.queue.length) this.jobsTimer = setTimeout(() => opVisible(() => this.loadJobs()), 3000);
     },
     fmtDuration(from, to) {
         if (!from) return '–';
@@ -78,12 +78,12 @@
         return this.isItemTab(this.tab) ? this.selectedCount() > 0 : !!this.selectedFile;
     },
     startPolling() {
-        this.pollInterval = setInterval(() => {
+        this.pollInterval = opPoll(() => {
             fetch('/backups/list?output=json')
                 .then(r => r.json())
                 .then(data => {
                     if (Array.isArray(data)) {
-                        clearInterval(this.pollInterval);
+                        opStop(this.pollInterval);
                         window.location.reload();
                     }
                 }).catch(() => {});

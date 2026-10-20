@@ -34,7 +34,7 @@ Each row shows the time in your browser's timezone, the severity, the service it
 * **Search**: only entries whose message contains the text, for example `Fatal error`, `wp-content` or `502`.
 * **Date**: today, the last 7 or 30 days, 3 or 6 months, or any range picked in the calendar. Without a date, the newest entries are shown.
 
-The newest 500 entries are shown. If there are more, narrow the filters to see the rest.
+Errors are shown 100 per page, newest first, up to the newest 5,000. If there are more, narrow the filters to see the rest.
 
 ## Sharing errors with support
 

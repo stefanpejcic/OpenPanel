@@ -1,6 +1,9 @@
 package podmanmanager
 
 import (
+	"context"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -87,5 +90,29 @@ func TestBuildWPCLIBaseCommand(t *testing.T) {
 	argv := BuildWPCLIBaseCommand("someuser", "php")
 	if argv[0] != "podman" || argv[len(argv)-1] != "/usr/local/bin/wp" {
 		t.Errorf("unexpected argv shape: %v", argv)
+	}
+}
+
+func TestComposeConfigIsCached(t *testing.T) {
+	dir := t.TempDir()
+	calls := filepath.Join(dir, "calls")
+	script := "#!/bin/sh\necho x >> " + calls + "\necho 'services: {web: {image: nginx}}'\n"
+	if err := os.WriteFile(filepath.Join(dir, "podman-compose"), []byte(script), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("PATH", dir+":"+os.Getenv("PATH"))
+
+	for i := 0; i < 3; i++ {
+		cfg, err := LoadComposeConfig(context.Background(), "no-such-user-compose-cache-test")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, ok := cfg["services"]; !ok {
+			t.Fatalf("services missing: %v", cfg)
+		}
+	}
+	b, _ := os.ReadFile(calls)
+	if n := strings.Count(string(b), "x"); n != 1 {
+		t.Errorf("podman-compose ran %d times, want 1", n)
 	}
 }

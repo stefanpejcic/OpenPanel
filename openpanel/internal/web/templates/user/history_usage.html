@@ -3,8 +3,8 @@
 {{define "content"}}
 <!-- START templates/user/history_usage.html -->
 
-<script src="/static/vendor/chartjs/chart.umd.js"></script>
-<script src="/static/vendor/chartjs/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script src="{{static "vendor/chartjs/chart.umd.js"}}"></script>
+<script src="{{static "vendor/chartjs/chartjs-adapter-date-fns.bundle.min.js"}}"></script>
 
 <!-- page header -->
 <section aria-label="{{.T.Get "Usage Header"}}" x-data="{ searchQuery: '' }">

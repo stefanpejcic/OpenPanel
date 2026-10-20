@@ -7,7 +7,9 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
 	"syscall"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -81,9 +83,7 @@ func Command(ctx context.Context, userContext string, argv []string) *exec.Cmd {
 
 // LoadComposeConfig runs `podman-compose config` for <context> and returns the merged compose file, parsing its default YAML output since it has no --format flag like docker-compose does
 func LoadComposeConfig(ctx context.Context, userContext string) (map[string]any, error) {
-	argv := PodmanComposeArgv("-f", "/home/"+userContext+"/docker-compose.yml", "config")
-	cmd := Command(ctx, userContext, argv)
-	out, err := cmd.Output()
+	out, err := composeConfigOutput(ctx, userContext)
 	if err != nil {
 		return nil, err
 	}
@@ -118,4 +118,51 @@ func BuildComposeUpDownCommand(userContext, containerName, action string) (argv 
 	default:
 		return nil, dir, false
 	}
+}
+
+// composeConfigTTL is a backstop, the cache is normally dropped as soon as docker-compose.yml or .env changes
+const composeConfigTTL = 10 * time.Minute
+
+type composeConfigEntry struct {
+	stamp string
+	at    time.Time
+	out   []byte
+}
+
+var (
+	composeConfigMu    sync.Mutex
+	composeConfigCache = map[string]composeConfigEntry{}
+)
+
+// composeFilesStamp changes whenever the compose file or the .env it reads does
+func composeFilesStamp(userContext string) string {
+	stamp := ""
+	for _, name := range []string{"docker-compose.yml", ".env"} {
+		if info, err := os.Stat("/home/" + userContext + "/" + name); err == nil {
+			stamp += fmt.Sprintf("%d:%d;", info.ModTime().UnixNano(), info.Size())
+		} else {
+			stamp += "-;"
+		}
+	}
+	return stamp
+}
+
+// composeConfigOutput caches `podman-compose config`, it's a python process that takes ~0.5s and the containers, logs, cron and process pages all need it
+func composeConfigOutput(ctx context.Context, userContext string) ([]byte, error) {
+	stamp := composeFilesStamp(userContext)
+	composeConfigMu.Lock()
+	e, ok := composeConfigCache[userContext]
+	composeConfigMu.Unlock()
+	if ok && e.stamp == stamp && time.Since(e.at) < composeConfigTTL {
+		return e.out, nil
+	}
+	argv := PodmanComposeArgv("-f", "/home/"+userContext+"/docker-compose.yml", "config")
+	out, err := Command(ctx, userContext, argv).Output()
+	if err != nil {
+		return nil, err
+	}
+	composeConfigMu.Lock()
+	composeConfigCache[userContext] = composeConfigEntry{stamp: stamp, at: time.Now(), out: out}
+	composeConfigMu.Unlock()
+	return out, nil
 }
