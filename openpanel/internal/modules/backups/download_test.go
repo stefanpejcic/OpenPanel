@@ -88,3 +88,47 @@ func TestDownloadTargetsRejectsBadItems(t *testing.T) {
 		}
 	}
 }
+
+func TestStreamItemsSingleDumpEarlyLayoutStopsBeforeHTML(t *testing.T) {
+	archive := makeArchive(t, []tarEntry{
+		{name: "/backup", body: nil},
+		{name: "/backup/00-meta/mysql.json", body: []byte(`{"format":1,"engine":"mysql","databases":["shop"]}`)},
+		{name: "/backup/01-mysql/shop.sql", body: []byte("CREATE TABLE shop;")},
+		{name: "/backup/html/big.bin", body: randomBytes(t, 2<<20)},
+	})
+	targets, err := downloadTargets("databases", []string{"mysql/shop"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	cr := &countingReader{r: bytes.NewReader(archive)}
+	w := httptest.NewRecorder()
+	sent, err := streamItems(w, cr, "databases", "u-2026.tar.gz", targets)
+	if err != nil || sent != 1 || w.Body.String() != "CREATE TABLE shop;" {
+		t.Fatalf("sent=%d err=%v body=%q", sent, err, w.Body.String())
+	}
+	if cr.n > len(archive)/2 {
+		t.Errorf("read %d of %d bytes, should stop at the dump", cr.n, len(archive))
+	}
+}
+
+func TestStreamItemsDomainEarlyLayoutStopsBeforeHTML(t *testing.T) {
+	archive := earlyLayoutArchive(t)
+	targets, err := downloadTargets("domains", []string{"a.com"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	cr := &countingReader{r: bytes.NewReader(archive)}
+	w := httptest.NewRecorder()
+	sent, err := streamItems(w, cr, "domains", "u-2026.tar.gz", targets)
+	if err != nil || sent != 1 {
+		t.Fatalf("sent=%d err=%v", sent, err)
+	}
+	gz, _ := gzip.NewReader(w.Body)
+	h, err := tar.NewReader(gz).Next()
+	if err != nil || h.Name != "vhosts/a.com.conf" {
+		t.Errorf("got %v %v, want vhosts/a.com.conf", h, err)
+	}
+	if cr.n > len(archive)/2 {
+		t.Errorf("read %d of %d bytes, should stop before html/", cr.n, len(archive))
+	}
+}

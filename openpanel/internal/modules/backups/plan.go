@@ -173,6 +173,7 @@ func restoreSelected(ctx context.Context, store remoteStore, backup string, plan
 	defer gz.Close()
 
 	var extracted []string
+	layout := newArchiveLayout()
 	tr := tar.NewReader(gz)
 	for {
 		header, err := tr.Next()
@@ -182,8 +183,9 @@ func restoreSelected(ctx context.Context, store remoteStore, backup string, plan
 		if err != nil {
 			return extracted, err
 		}
-		name := strings.Trim(header.Name, "/")
-		if pastAll(name, targets) {
+		raw := strings.Trim(header.Name, "/")
+		name := layout.observe(raw)
+		if layout.pastAll(raw, targets) {
 			break
 		}
 		if header.Typeflag != tar.TypeReg {

@@ -80,21 +80,31 @@ func dumpDBName(member string) (string, bool) {
 	return name, name != ""
 }
 
-// restoreDatabasesFromTar restores every dump under backup/mysql/ and backup/postgres/ (or only the one named only) straight off the archive, returns the restored database names
-func restoreDatabasesFromTar(ctx context.Context, userContext, localPath, only string) ([]string, error) {
-	f, err := os.Open(localPath)
-	if err != nil {
-		return nil, err
+// dumpEngine returns the engine of a dump under backup/mysql/ or backup/postgres/ (canonical names)
+func dumpEngine(name string) (string, bool) {
+	for _, engine := range []string{"mysql", "postgres"} {
+		if strings.HasPrefix(name, "backup/"+engine+"/") {
+			return engine, true
+		}
 	}
-	defer f.Close()
+	return "", false
+}
 
-	gz, err := gzip.NewReader(f)
+// restoreDumpInto is swapped in tests, the real one needs the account's db container
+var restoreDumpInto = restoreDump
+
+// restoreDatabasesFromTar restores every dump in the archive (or only the one named only) straight off the stream, returns the restored database names
+// with only set it stops right after that dump or once the dump dirs are past, on archives with 01- dump dirs that's before html/
+func restoreDatabasesFromTar(ctx context.Context, userContext string, archive io.Reader, only string) ([]string, error) {
+	gz, err := gzip.NewReader(archive)
 	if err != nil {
 		return nil, err
 	}
 	defer gz.Close()
 
 	var restored []string
+	layout := newArchiveLayout()
+	dumpDirs := []string{"backup/mysql", "backup/postgres"}
 	tr := tar.NewReader(gz)
 	for {
 		header, err := tr.Next()
@@ -104,18 +114,17 @@ func restoreDatabasesFromTar(ctx context.Context, userContext, localPath, only s
 		if err != nil {
 			return restored, err
 		}
+
+		raw := strings.Trim(header.Name, "/")
+		name := layout.observe(raw)
+		if only != "" && layout.pastAll(raw, dumpDirs) {
+			break
+		}
 		if header.Typeflag != tar.TypeReg {
 			continue
 		}
-
-		name := strings.Trim(header.Name, "/")
-		var engine string
-		switch {
-		case strings.HasPrefix(name, "backup/mysql/"):
-			engine = "mysql"
-		case strings.HasPrefix(name, "backup/postgres/"):
-			engine = "postgres"
-		default:
+		engine, ok := dumpEngine(name)
+		if !ok {
 			continue
 		}
 		dbName, ok := dumpDBName(name)
@@ -131,10 +140,13 @@ func restoreDatabasesFromTar(ctx context.Context, userContext, localPath, only s
 			}
 			dump = zr
 		}
-		if err := restoreDump(ctx, userContext, engine, dbName, dump); err != nil {
+		if err := restoreDumpInto(ctx, userContext, engine, dbName, dump); err != nil {
 			return restored, err
 		}
 		restored = append(restored, dbName)
+		if only != "" {
+			break
+		}
 	}
 	return restored, nil
 }
@@ -173,20 +185,16 @@ var restoreSections = map[string]struct {
 var selectiveRestoreTargets = map[string]bool{"paths": true, "mailboxes": true, "domains": true, "dns_zones": true}
 
 // restoreFilesFromTar writes every file of the archive (or only those under the "only" prefixes) to where the plan says, chowned to the account's uid so its rootless containers can read them
-func restoreFilesFromTar(localPath string, plan *restorePlan, uid int, only []string) ([]string, error) {
-	f, err := os.Open(localPath)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-
-	gz, err := gzip.NewReader(f)
+// with only set it stops reading once it's past those prefixes
+func restoreFilesFromTar(archive io.Reader, plan *restorePlan, uid int, only []string) ([]string, error) {
+	gz, err := gzip.NewReader(archive)
 	if err != nil {
 		return nil, err
 	}
 	defer gz.Close()
 
 	var extracted []string
+	layout := newArchiveLayout()
 	tr := tar.NewReader(gz)
 	for {
 		header, err := tr.Next()
@@ -196,10 +204,14 @@ func restoreFilesFromTar(localPath string, plan *restorePlan, uid int, only []st
 		if err != nil {
 			return extracted, err
 		}
+		raw := strings.Trim(header.Name, "/")
+		name := layout.observe(raw)
+		if len(only) > 0 && layout.pastAll(raw, only) {
+			break
+		}
 		if header.Typeflag != tar.TypeReg {
 			continue
 		}
-		name := strings.Trim(header.Name, "/")
 		if len(only) > 0 && !slices.ContainsFunc(only, func(prefix string) bool { return insidePath(name, prefix) }) {
 			continue
 		}
@@ -348,53 +360,33 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 		return restoreSelectedItems(ctx, a, req, store, safeName, restoreTarget, plan)
 	}
 
-	localPath, cleanup, fetchErr := fetchArchive(ctx, store, safeName)
-	if fetchErr != nil {
-		return http.StatusInternalServerError, map[string]any{"error": fetchErr.Error()}
-	}
-	defer cleanup()
-
 	uid, _ := a.GetUID(ctx, req.UserContext)
 
-	switch restoreTarget {
-	case "all":
-		extracted, err := restoreFilesFromTar(localPath, plan, uid, nil)
-		if err != nil {
-			return http.StatusInternalServerError, map[string]any{"error": err.Error()}
-		}
-		applyRestored(ctx, req.UserContext, extracted, plan)
-		if _, err := restoreDatabasesFromTar(ctx, req.UserContext, localPath, ""); err != nil {
-			return http.StatusInternalServerError, map[string]any{"error": err.Error()}
-		}
-		_ = logger.RecordUserAction(a.Config, req.Username, "restored full backup from "+safeName, req.IP)
-		return http.StatusOK, map[string]any{"success": true, "message": "Full restore completed."}
-
-	case "database":
-		if database == "" {
+	// a single database or section is streamed, reading stops once it's restored and everything but html/ comes before the website files
+	if restoreTarget != "all" && restoreTarget != "files" {
+		if restoreTarget == "database" && database == "" {
 			return http.StatusBadRequest, map[string]any{"error": "No database specified."}
 		}
-		restored, err := restoreDatabasesFromTar(ctx, req.UserContext, localPath, database)
+		rc, err := store.Open(ctx, safeName)
 		if err != nil {
 			return http.StatusInternalServerError, map[string]any{"error": err.Error()}
 		}
-		if len(restored) == 0 {
-			return http.StatusNotFound, map[string]any{"error": "Database '" + database + "' not found in this backup."}
-		}
-		_ = logger.RecordUserAction(a.Config, req.Username, "restored database '"+database+"' from backup "+safeName, req.IP)
-		return http.StatusOK, map[string]any{"success": true, "message": "Database '" + database + "' restored successfully."}
+		defer rc.Close()
 
-	case "files":
-		extracted, err := restoreFilesFromTar(localPath, plan, uid, nil)
-		if err != nil {
-			return http.StatusInternalServerError, map[string]any{"error": err.Error()}
+		if restoreTarget == "database" {
+			restored, err := restoreDatabasesFromTar(ctx, req.UserContext, rc, database)
+			if err != nil {
+				return http.StatusInternalServerError, map[string]any{"error": err.Error()}
+			}
+			if len(restored) == 0 {
+				return http.StatusNotFound, map[string]any{"error": "Database '" + database + "' not found in this backup."}
+			}
+			_ = logger.RecordUserAction(a.Config, req.Username, "restored database '"+database+"' from backup "+safeName, req.IP)
+			return http.StatusOK, map[string]any{"success": true, "message": "Database '" + database + "' restored successfully."}
 		}
-		applyRestored(ctx, req.UserContext, extracted, plan)
-		_ = logger.RecordUserAction(a.Config, req.Username, "restored files from backup "+safeName, req.IP)
-		return http.StatusOK, map[string]any{"success": true, "message": "Files restored (" + strconv.Itoa(len(extracted)) + " items)."}
 
-	default:
 		section := restoreSections[restoreTarget]
-		extracted, err := restoreFilesFromTar(localPath, plan, uid, section.prefixes)
+		extracted, err := restoreFilesFromTar(rc, plan, uid, section.prefixes)
 		if err != nil {
 			return http.StatusInternalServerError, map[string]any{"error": err.Error()}
 		}
@@ -405,6 +397,37 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 		_ = logger.RecordUserAction(a.Config, req.Username, "restored "+strings.ToLower(section.label)+" from backup "+safeName, req.IP)
 		return http.StatusOK, map[string]any{"success": true, "message": section.label + " restored (" + strconv.Itoa(len(extracted)) + " items)."}
 	}
+
+	// full and all-files restores download first, a dropped connection then can't leave the site half restored
+	localPath, cleanup, fetchErr := fetchArchive(ctx, store, safeName)
+	if fetchErr != nil {
+		return http.StatusInternalServerError, map[string]any{"error": fetchErr.Error()}
+	}
+	defer cleanup()
+	f, err := os.Open(localPath)
+	if err != nil {
+		return http.StatusInternalServerError, map[string]any{"error": err.Error()}
+	}
+	defer f.Close()
+
+	extracted, err := restoreFilesFromTar(f, plan, uid, nil)
+	if err != nil {
+		return http.StatusInternalServerError, map[string]any{"error": err.Error()}
+	}
+	applyRestored(ctx, req.UserContext, extracted, plan)
+	if restoreTarget == "files" {
+		_ = logger.RecordUserAction(a.Config, req.Username, "restored files from backup "+safeName, req.IP)
+		return http.StatusOK, map[string]any{"success": true, "message": "Files restored (" + strconv.Itoa(len(extracted)) + " items)."}
+	}
+
+	if _, err := f.Seek(0, io.SeekStart); err != nil {
+		return http.StatusInternalServerError, map[string]any{"error": err.Error()}
+	}
+	if _, err := restoreDatabasesFromTar(ctx, req.UserContext, f, ""); err != nil {
+		return http.StatusInternalServerError, map[string]any{"error": err.Error()}
+	}
+	_ = logger.RecordUserAction(a.Config, req.Username, "restored full backup from "+safeName, req.IP)
+	return http.StatusOK, map[string]any{"success": true, "message": "Full restore completed."}
 }
 
 // handleDownloadBackup downloads a remote backup archive and streams it back to the client

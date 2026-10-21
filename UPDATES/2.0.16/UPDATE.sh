@@ -125,6 +125,38 @@ if [ -f /usr/local/opencli/lib/backups.sh ]; then
 else
     echo "opencli lib/backups.sh missing, mail backup mounts not added - run opencli update first."
 fi
+# everything but the website files goes in front of html/ in the archive as backup/01-<name>, so restoring a database, vhosts or mail stops reading early
+# runs after the mail mounts above, opencli older than 2.0.16 only finds the plain mail_data line
+migrate_compose_early_dirs() {
+    local f="$1"
+    [ -f "$f" ] || return 1
+    grep -qE "^      - (mysql_dumps|pg_dumps|mail_data|webserver_data):/backup/(mysql|postgres|mail|vhosts):ro$" "$f" || return 1
+    echo "Moving db dumps, mail and vhosts in front of html/ in the backup archive in $f..."
+    [ -f "$f.bak-2.0.16" ] || cp -a "$f" "$f.bak-2.0.16"
+    sed -i -E 's#^      - (mysql_dumps|pg_dumps|mail_data|webserver_data):/backup/(mysql|postgres|mail|vhosts):ro$#      - \1:/backup/01-\2:ro#' "$f"
+}
+
+# BACKUP_SOURCES pointing at one of the moved folders has to follow it
+migrate_backup_env_early_dirs() {
+    local f="$1"
+    [ -f "$f" ] || return 0
+    grep -qE "^BACKUP_SOURCES=/backup/(mysql|postgres|mail|vhosts)/?$" "$f" || return 0
+    echo "Pointing BACKUP_SOURCES at the moved folder in $f..."
+    sed -i -E 's#^BACKUP_SOURCES=/backup/(mysql|postgres|mail|vhosts)/?$#BACKUP_SOURCES=/backup/01-\1#' "$f"
+}
+
+migrate_compose_early_dirs /etc/openpanel/docker/compose/1.0/docker-compose.yml
+migrate_backup_env_early_dirs /etc/openpanel/backups/backup.env
+mariadb --defaults-extra-file="$config_file" -D "$mysql_database" -N -e "SELECT username, server FROM users;" 2>/dev/null \
+    | while IFS=$'\t' read -r username ctx; do
+        case "$ctx" in ""|default|root) continue ;; esac
+        migrate_backup_env_early_dirs "/home/$ctx/backup.env"
+        # a user-scheduled backup container keeps running with the old mounts until it is recreated
+        if migrate_compose_early_dirs "/home/$ctx/docker-compose.yml" && declare -F backup_service_reload >/dev/null; then
+            backup_service_reload "$username" "$ctx"
+        fi
+    done
+
 # running php-fpm containers keep their old pool size until they are recreated, a plain restart keeps the old mounts
 # running db containers pick up the new volume on their next recreate, opencli docker-backup does that before it backs the user up
 

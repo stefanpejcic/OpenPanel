@@ -81,10 +81,10 @@
                 <select class="relative block w-full appearance-none truncate rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-indigo-200 focus:dark:ring-indigo-700/30 focus:border-indigo-500 focus:dark:border-indigo-700" name="values[{{.Key}}]" id="{{.Key}}">
                     <option value="/backup" {{if eq .Value "/backup"}}selected{{end}}>{{$.T.Get "Everything"}}</option>
                     <option value="/backup/html" {{if eq .Value "/backup/html"}}selected{{end}}>{{$.T.Get "Website Files"}} (/var/www/html/)</option>
-                    <option value="/backup/mail" {{if eq .Value "/backup/mail"}}selected{{end}}>{{$.T.Get "Emails"}}</option>
-                    <option value="/backup/vhosts" {{if eq .Value "/backup/vhosts"}}selected{{end}}>{{$.T.Get "VirtualHosts"}}</option>
-                    <option value="/backup/mysql" {{if eq .Value "/backup/mysql"}}selected{{end}}>{{$.T.Get "MySQL Databases"}}</option>
-                    <option value="/backup/postgres" {{if eq .Value "/backup/postgres"}}selected{{end}}>{{$.T.Get "PostgreSQL Databases"}}</option>
+                    <option value="/backup/01-mail" {{if eq .Value "/backup/01-mail"}}selected{{end}}>{{$.T.Get "Emails"}}</option>
+                    <option value="/backup/01-vhosts" {{if eq .Value "/backup/01-vhosts"}}selected{{end}}>{{$.T.Get "VirtualHosts"}}</option>
+                    <option value="/backup/01-mysql" {{if eq .Value "/backup/01-mysql"}}selected{{end}}>{{$.T.Get "MySQL Databases"}}</option>
+                    <option value="/backup/01-postgres" {{if eq .Value "/backup/01-postgres"}}selected{{end}}>{{$.T.Get "PostgreSQL Databases"}}</option>
 
                     <option value="/backup/crons.ini" {{if eq .Value "/backup/crons.ini"}}selected{{end}}>{{$.T.Get "Cron Jobs"}}</option>
 

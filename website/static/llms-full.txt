@@ -135,6 +135,7 @@ Below the welcome message, quick action buttons open the most common tasks: **Cr
 
 The dashboard page contains widgets:
 
+- **Daily Summary** widget: Displays yesterday's traffic and issues for all accounts combined. Shown only when the [Daily Summary module](/docs/admin/settings/modules/#daily-summary) is enabled.
 - **User Activity** widget: Displays real-time combined activity log of all OpenPanel users.
 - **Latest News** widget: Displays blog articles from the OpenPanel blog.
 - **System Information** widget: Displays Information about your server configuration: Hostname, IPv4 address, OS, OpenPanel version, Server Time, Kernel, CPU type, Uptime, Number of Running Processes and available Package Updates.
@@ -156,6 +157,21 @@ Hovering over each metric provides detailed information:
 
 ![Resource usage bar in the top-right corner of OpenAdmin with the load tooltip open](/img/openadmin-screenshots/001_dashboard-sse.png#gh-light-mode-only)
 ![Resource usage bar in the top-right corner of OpenAdmin with the load tooltip open](/img/openadmin-screenshots/001_dashboard-sse_dark.png#gh-dark-mode-only)
+
+## Daily Summary
+
+The **Daily Summary** widget adds up the [daily summaries](/docs/panel/statistics/daily_summary/) of all OpenPanel accounts for the most recent day that has them (up to 7 days back). Resellers see only their own accounts.
+
+It shows:
+
+- **Requests** (with the change from the day before), **Visitors**, **Data sent**, **Server errors** and **WAF blocks**
+- **Needs attention**: issues found on user accounts, each with a link to the user
+- **Busiest websites**: the top 5 websites by number of requests
+
+The widget is shown only when:
+
+- the **`summary`** module is enabled on [**Settings > Modules**](/docs/admin/settings/modules/#daily-summary), and
+- at least one user has the **summary** feature in their [feature set](/docs/admin/plans/feature-manager/) and already has a saved summary (they are saved each day at 06:15 for the previous day).
 
 ## User Activity
 
@@ -285,6 +301,8 @@ Each notification has a severity: **Critical** (e.g. a service is down and Senti
 
 Use the filters next to the search box to show only unread or resolved notifications, a single severity, or a single category (Service, Resources, Security, DNS, Traffic, System, Update, Action).
 
+Notifications are shown 100 per page, newest first, with **Previous** and **Next** below the table.
+
 Notifications that need attention are shown as unread. When Sentinel detects the same issue again while it's still unread, the notification shows how many times it was detected and when it was last seen, instead of adding a new one. Once the issue is gone, Sentinel marks it as read and shows a **Resolved after …** badge. Things Sentinel fixed on its own, like restarting a stopped container, are added as already-read Info entries for history and are not emailed. See [opencli sentinel](/docs/articles/opencli/sentinel) for details.
 
 Under the page title, **Last check** shows when [`opencli sentinel`](/docs/articles/opencli/sentinel) last completed its checks (it runs from cron every 5 minutes). The line turns amber if Sentinel hasn't run in over 15 minutes, which usually means its cron job is disabled or failing.
@@ -295,7 +313,7 @@ To manage notification settings, click the **Edit Settings** button on the Notif
 
 ## Bulk Actions
 
-Tick the checkbox of one or more notifications, or the checkbox in the table header to select all notifications shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
+Tick the checkbox of one or more notifications, or the checkbox in the table header to select all notifications on the current page. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 
 ![Two notifications selected with the bulk actions bar offering Mark as read and Delete](/img/openadmin-screenshots/002_notifications-bulk.png#gh-light-mode-only)
 ![Two notifications selected with the bulk actions bar offering Mark as read and Delete](/img/openadmin-screenshots/002_notifications-bulk_dark.png#gh-dark-mode-only)
@@ -909,7 +927,7 @@ The interface displays a table of existing reseller users with the following col
 ![Resellers page listing reseller accounts with their status, security, activity, limits and actions](/img/openadmin-screenshots/accounts/resellers-list_dark.png#gh-dark-mode-only)
 
 - **Username**  
-  The unique identifier of the reseller user.
+  The unique identifier of the reseller user, with the name of their [Reseller Package](/docs/admin/plans/reseller_packages) below it when they're on one.
 
 - **Status**  
   Indicates whether the reseller account is active or suspended.
@@ -933,7 +951,7 @@ Click the arrows next to a column name to sort the table by that column.
 
 Each row also has an Edit menu with the available actions:
 
-- **Edit Plans & Limits** - set the reseller's Max Accounts, Max Disk Usage (in blocks), and the hosting plans they're allowed to assign to their users.
+- **Edit Plans & Limits** - move the reseller to another [Reseller Package](/docs/admin/plans/reseller_packages) with **Apply Package**, or set their Max Accounts, Max Disk Usage (in blocks), and the hosting plans they're allowed to assign to their users by hand. Limits set by hand are replaced when the reseller's package is edited or another package is applied.
 - **Rename** - change the reseller's username.
 - **Change Password** - set a new password for the reseller.
 - **Activity Log** - open the reseller's [Activity Log](/docs/admin/accounts/activity).
@@ -941,13 +959,13 @@ Each row also has an Edit menu with the available actions:
 - **Suspend** / **Unsuspend** - temporarily disable the reseller's access.
 - **Delete** - permanently remove the reseller account.
 
-To create a new reseller, click **Create New**, set a username and password, and click **Create**.
+To create a new reseller, click **Create New**, set a username and password, optionally pick a **Reseller Package**, and click **Create**. The package's limits are applied to the new reseller. Without a package, or before any packages exist, the reseller gets the default limits from `/etc/openpanel/openadmin/config/reseller_template.json`.
 
 Resellers can be turned off for the whole server with the **Disable Resellers** button next to **Create New**, and turned back on with **Enable Resellers**. While reseller accounts exist the **Disable Resellers** button is greyed out, hover it to see how many reseller accounts have to be deleted first.
 
 ---
 
-Reseller users have access only to the features and account management tools assigned to them by the root administrator. They cannot exceed the limits defined in their reseller settings (Max Accounts, Max Disk Usage, and the Hosting Plans made available to them).
+Reseller users have access only to the features and account management tools assigned to them by the root administrator. They cannot exceed the limits defined in their reseller settings (Max Accounts, Max Disk Usage, and the Hosting Plans made available to them), see [How limits are enforced](/docs/admin/plans/reseller_packages#how-limits-are-enforced).
 
 ---
 
@@ -978,6 +996,29 @@ When a Reseller logs in, they see a **Reseller Account** page (`/account`) inste
 ![Reseller Account page with the My Activity Log button, Change Password and Branding](/img/openadmin-screenshots/accounts/resellers-account_dark.png#gh-dark-mode-only)
 
 Resellers also have their own **Two-Factor Authentication** and **Passkeys** pages under Security, scoped to their own login only.
+
+## Pages resellers can use
+
+Besides their users, [User Packages](/docs/admin/plans/hosting_plans), the Feature Manager and their own account, resellers can open these OpenAdmin pages. Each one only shows the users a reseller owns, those users' domains, databases and the emails on those domains:
+
+| Page | What resellers can do |
+|---|---|
+| **Domains > Domains** | List, add, suspend, unsuspend and delete their users' domains, change PHP version, WAF, HSTS, Cloudflare and DNS for them, and use the bulk actions. The SSL, VirtualHost, Caddy and config file editors stay with administrators. |
+| **Domains > DNS Zone Editor** | Edit the DNS zones of their users' domains. |
+| **Domains > Rate Limiting** | Set default, custom or no rate limits for their users' domains. The server default can only be changed by administrators. |
+| **Databases** | See the MySQL, MariaDB, PostgreSQL and MongoDB databases of their users, and export, import or open them in phpMyAdmin. See [MySQL Databases](/docs/admin/databases/mysql). |
+| **Emails > Accounts** | Add email accounts on their users' domains, change their password, quota and send/receive restrictions, delete them and open webmail. |
+| **Emails > Queue** | See queued messages sent from their users' domains or sent only to their users, and retry or delete them. Retry all and Delete all only act on those messages. |
+| **Emails > Email Deliverability** | See the DKIM, SPF and DMARC status of their users' domains. See [Email Deliverability](/docs/admin/emails/deliverability). |
+| **Backups > Import Account** | Upload and restore OpenPanel backups as their own users, within their limits, and see the logs of their own imports. See [Imports by resellers](/docs/admin/backups/cpanel#imports-by-resellers). |
+| **Services > FTP** | See FTP accounts on their users' domains and set their quota. The Configuration tab isn't shown. |
+| **Security > Web Firewall (Coraza)** | The Domains and Logs tabs for their users' domains, including per domain and per user WAF rules. The overview and server wide rules stay with administrators. |
+| **Security > ImunifyAV** | A list of their users with the last scan and infected files. **Scan** queues a scan of the user's files and **Open** opens ImunifyAV logged in as that user, so only that user's files are shown. Installing ImunifyAV is up to the administrator. |
+| **Server > Resource Usage** | View server load, memory, CPU, disk and network usage, without the links to the process manager or the Drop Cache buttons. |
+| **Server > Scheduled Actions** | View the system jobs and their schedule, read only. |
+| **Settings > Locales** | Install and update locales. Setting the default locale and deleting locales stays with administrators. |
+
+The same rules apply to the API endpoints behind these pages when they're called with a reseller's token, see the [OpenAdmin API](/docs/articles/dev-experience/openadmin-api/).
 
 Business guide: [How to offer reseller hosting with OpenPanel](/docs/articles/hosting-business/reseller-hosting/)
 
@@ -1605,6 +1646,12 @@ Other sessions already open on the server are shown next to the page description
 ![Web Terminal with a root shell on the server and the shell dropdown](/img/openadmin-screenshots/advanced/terminal-page.png#gh-light-mode-only)
 ![Web Terminal with a root shell on the server and the shell dropdown](/img/openadmin-screenshots/advanced/terminal-page_dark.png#gh-dark-mode-only)
 
+## Open with a command
+
+Add `?cmd=` to the terminal address to type a command as soon as the shell is ready, for example `/terminal?cmd=uptime` or `/terminal/john/mariadb?cmd=mariadb%20wp_blog`. The [Terminal action on the Databases page](/docs/admin/databases/mysql#terminal) uses it to open a database client.
+
+The command is run right away only when you came from a link inside OpenAdmin. When the link comes from anywhere else, like an email or chat, the command is typed but not run, and the terminal asks you to check it and press Enter.
+
 :::info 
 The web terminal is available to Super Admin and Admin (staff) logins. Reseller logins will see a 403 error on this page.
 
@@ -1777,13 +1824,134 @@ Use **OpenAdmin > Backups > Import Account** to create an OpenPanel account from
 ![Account Imports page with the import logs and the Import Account button](/img/openadmin-screenshots/advanced/cpanel-page_dark.png#gh-dark-mode-only)
 
 :::info
-This menu item is only available with an **Enterprise** license and is hidden for reseller logins. A **View Logs** button on the same page links to the account import history.
+This menu item is only available with an **Enterprise** license. A **View Logs** button on the same page links to the account import history.
 :::
+
+Instead of picking a backup that's already on the server you can upload one: choose the `.tar.gz` file under **Backup file**, click **Upload** and it's selected once the upload finishes. Uploads are saved to `/home/reseller_imports/<your username>/`.
+
+### Imports by resellers
+
+Resellers can import **OpenPanel** backups too, cPanel and CyberPanel imports are only available to administrators.
+
+- A reseller can only restore backups they uploaded themselves.
+- The restored account belongs to the reseller and counts toward their limits: the import is refused when the reseller has reached Max Accounts or Max Disk Usage, or when the plan from the backup doesn't exist on this server or isn't assigned to the reseller.
+- An existing account is never overwritten.
+- Resellers only see the logs of their own imports.
 
 For detailed instructions, see the [Import cPanel backup guide](https://openpanel.com/docs/articles/transfers/import-cpanel-backup-to-openpanel/)
 
 ![Import Account from backup form opened from the Import Account button](/img/openadmin-screenshots/advanced/cpanel-form.png#gh-light-mode-only)
 ![Import Account from backup form opened from the Import Account button](/img/openadmin-screenshots/advanced/cpanel-form_dark.png#gh-dark-mode-only)
+
+---
+
+// File: admin/databases/mysql
+
+# MySQL Databases
+
+The MySQL tab lists the MySQL and MariaDB databases of every user on the server.
+
+Use **OpenAdmin > Databases > MySQL** to access it.
+
+![Databases page on the MySQL tab listing every database with its owner, MySQL or MariaDB type, number of tables, size and the Terminal, phpMyAdmin, Export and Import actions](/img/openadmin-screenshots/databases/mysql-list.png#gh-light-mode-only)
+![Databases page on the MySQL tab listing every database with its owner, MySQL or MariaDB type, number of tables, size and the Terminal, phpMyAdmin, Export and Import actions](/img/openadmin-screenshots/databases/mysql-list_dark.png#gh-dark-mode-only)
+
+Every user has their own MySQL or MariaDB service. The list is read from the files of each user's database, so OpenAdmin doesn't connect to any of them and users whose service is stopped are listed too. The header shows how many databases there are, across how many users, and their total size.
+
+| Column | Description |
+|---|---|
+| **Database** | Name of the database. |
+| **Owner** | The OpenPanel user the database belongs to. Click it to open the user. |
+| **Type** | **MySQL** or **MariaDB**, the service the user runs. |
+| **Tables** | Number of tables in the database. |
+| **Size** | Size of the database files on disk. |
+| **Actions** | [phpMyAdmin](#phpmyadmin), [Terminal](#terminal), [Export](#export) and [Import](#import). |
+
+Use the search box to filter the list by database or owner, and click a column name to sort by it.
+
+System databases like `mysql`, `sys` and `performance_schema` are not listed.
+
+## phpMyAdmin
+
+**phpMyAdmin** logs you in to the owner's OpenPanel in a new tab and opens the database in phpMyAdmin, the same as when the user clicks phpMyAdmin themselves. It's shown only when the phpMyAdmin module is enabled.
+
+## Terminal
+
+**Terminal** opens a terminal in the owner's MySQL or MariaDB container, already inside the database's `mysql` or `mariadb` client. It's shown to Super Admin and Admin logins only, like [Terminal](/docs/admin/advanced/terminal).
+
+## Export
+
+Click **Export** and pick **SQL (.sql)** or **Gzip (.sql.gz)**. The dump is downloaded straight to your browser, also for big databases, and nothing is saved on the server.
+
+![Export menu of a database with SQL and Gzip downloads](/img/openadmin-screenshots/databases/mysql-export.png#gh-light-mode-only)
+![Export menu of a database with SQL and Gzip downloads](/img/openadmin-screenshots/databases/mysql-export_dark.png#gh-dark-mode-only)
+
+If the dump fails before it starts, the page shows the error instead. If it fails in the middle, the browser marks the download as failed so you don't keep a cut off file.
+
+## Import
+
+Click **Import**, choose a `.sql` or `.sql.gz` file and click **Import**. The file runs against the existing database while it uploads, a `.gz` file is unpacked on the fly, and the progress bar shows how much is uploaded. Tables in the dump replace the ones with the same name.
+
+![Import dialog of a database with the file picker for a .sql or .sql.gz dump and the Import button](/img/openadmin-screenshots/databases/mysql-import.png#gh-light-mode-only)
+![Import dialog of a database with the file picker for a .sql or .sql.gz dump and the Import button](/img/openadmin-screenshots/databases/mysql-import_dark.png#gh-dark-mode-only)
+
+Export and Import need the owner's MySQL or MariaDB service to be running. When it's stopped they show an error, and the service is not started for you.
+
+## Resellers
+
+Resellers can open the Databases page too. They only see the databases of their own users, and can export and import them. The Terminal action is not shown to resellers.
+
+---
+
+// File: admin/databases/postgresql
+
+# PostgreSQL Databases
+
+The PostgreSQL tab lists the PostgreSQL databases of every user on the server.
+
+Use **OpenAdmin > Databases > PostgreSQL** to access it.
+
+![Databases page on the PostgreSQL tab with the Refresh button and the table of PostgreSQL databases from running services](/img/openadmin-screenshots/databases/postgresql-list.png#gh-light-mode-only)
+![Databases page on the PostgreSQL tab with the Refresh button and the table of PostgreSQL databases from running services](/img/openadmin-screenshots/databases/postgresql-list_dark.png#gh-dark-mode-only)
+
+PostgreSQL doesn't keep database names in a form that can be read from its files, so OpenAdmin asks each user's PostgreSQL service for them. Only users with a running service are checked, a few at a time, and the result is kept for 2 minutes. Click **Refresh** to check again right away.
+
+| Column | Description |
+|---|---|
+| **Database** | Name of the database. |
+| **Owner** | The OpenPanel user the database belongs to. |
+| **Role** | The PostgreSQL role that owns the database. |
+| **Size** | Size of the database. |
+
+Users who have PostgreSQL but whose service is stopped are listed above the table under **Not running**. Their service is not started to list the databases. Users whose service didn't answer are listed with the error.
+
+Resellers can open this tab too, and only see the databases of their own users.
+
+---
+
+// File: admin/databases/mongodb
+
+# MongoDB Databases
+
+The MongoDB tab lists the MongoDB databases of every user on the server.
+
+Use **OpenAdmin > Databases > MongoDB** to access it.
+
+![Databases page on the MongoDB tab with the Refresh button and the table of MongoDB databases from running services](/img/openadmin-screenshots/databases/mongodb-list.png#gh-light-mode-only)
+![Databases page on the MongoDB tab with the Refresh button and the table of MongoDB databases from running services](/img/openadmin-screenshots/databases/mongodb-list_dark.png#gh-dark-mode-only)
+
+MongoDB doesn't keep database names in a form that can be read from its files, so OpenAdmin asks each user's MongoDB service for them. Only users with a running service are checked, a few at a time, and the result is kept for 2 minutes. Click **Refresh** to check again right away.
+
+| Column | Description |
+|---|---|
+| **Database** | Name of the database. |
+| **Owner** | The OpenPanel user the database belongs to. |
+| **Collections** | Number of collections in the database. |
+| **Size** | Size of the database on disk. |
+
+The `admin`, `local` and `config` databases are not listed. Users who have MongoDB but whose service is stopped are listed above the table under **Not running**. Their service is not started to list the databases. Users whose service didn't answer are listed with the error.
+
+Resellers can open this tab too, and only see the databases of their own users.
 
 ---
 
@@ -3140,6 +3308,20 @@ The table includes the following information:
 
 A search box is also available to filter the list by email address.
 
+## Add an Email Account
+
+Click **Add Email** in the top right to open the form:
+
+- **Email**: the part before the @, and the domain picked from the domains on the server. The domain's owner is shown below it.
+- **Password**: type one, or click **Generate** for a random one and **Show** to see it.
+- **Storage quota**: the mailbox size in KiB, MiB, GiB or TiB, 0 for unlimited.
+- **Send welcome email**: sends the new mailbox a welcome message.
+
+![Add Email form with the username, a domain picked from the existing domains, its owner, the password with Generate and Show, the storage quota and Send welcome email](/img/openadmin-screenshots/emails/emails-add.png#gh-light-mode-only)
+![Add Email form with the username, a domain picked from the existing domains, its owner, the password with Generate and Show, the storage quota and Send welcome email](/img/openadmin-screenshots/emails/emails-add_dark.png#gh-dark-mode-only)
+
+Click **Add Email** to create it. The account is created the same way as when the user adds it in OpenPanel, with `opencli email-setup email add`, and the quota is set right after. The mail server has to be running.
+
 ## Bulk Actions
 
 Tick the checkbox of one or more email accounts, or the checkbox in the table header to select all email accounts shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
@@ -3404,6 +3586,50 @@ Click **Remove rules**, pick **All users** or one user, and click **Remove** twi
 
 ---
 
+// File: admin/emails/deliverability
+
+# Email Deliverability
+
+Email Deliverability shows which domains need DNS changes so their emails don't end up in spam.
+
+Use **OpenAdmin > Emails > Email Deliverability** to access it.
+
+![Email Deliverability page with the number of domains that need DNS changes and the DKIM, SPF, DMARC and overall status of every domain](/img/openadmin-screenshots/emails/deliverability-list.png#gh-light-mode-only)
+![Email Deliverability page with the number of domains that need DNS changes and the DKIM, SPF, DMARC and overall status of every domain](/img/openadmin-screenshots/emails/deliverability-list_dark.png#gh-dark-mode-only)
+
+Every domain on the server is checked the same way as on the user's own **Emails > Deliverability** page in OpenPanel. The header shows how many domains need changes.
+
+| Record | OK when |
+|---|---|
+| **DKIM** | The `mail._domainkey` TXT record matches the DKIM key the mail server generated for the domain. **Mismatch** means a different key is published. |
+| **SPF** | The domain's SPF record allows the owner's dedicated IP address, or the server's IP when the user has none. **Wrong IP** means an SPF record exists but doesn't include that address. |
+| **DMARC** | A `_dmarc` TXT record exists. |
+
+**Status** is **Good** when all three are OK, otherwise **Needs changes**. Click **Edit DNS** to open the domain in the [DNS Zone Editor](/docs/admin/domains/dns).
+
+Use the search box to filter by domain or owner, and click a column name to sort by it.
+
+The records are looked up in DNS a few domains at a time and the results are kept for 5 minutes. Click **Check again** to look them up right away, for example after changing a DNS zone.
+
+## Domain Details
+
+Click a domain to see the record that is published now and the one it should be, ready to copy into the DNS zone.
+
+![Details of a domain with the current and expected DKIM, SPF and DMARC records](/img/openadmin-screenshots/emails/deliverability-details.png#gh-light-mode-only)
+![Details of a domain with the current and expected DKIM, SPF and DMARC records](/img/openadmin-screenshots/emails/deliverability-details_dark.png#gh-dark-mode-only)
+
+The expected SPF and DMARC records come from the server's DNS zone template. A domain without email has no DKIM key yet, so there is no expected DKIM record for it.
+
+## Resellers
+
+Resellers can open Email Deliverability too, and only see the domains of their own users.
+
+:::info
+Emails are only available on [OpenPanel Enterprise edition](/enterprise)
+:::
+
+---
+
 // File: admin/plans/hosting_plans
 
 # User Packages
@@ -3619,6 +3845,202 @@ opencli plan-delete 'Standard plan'
 Note: A package cannot be deleted if it has users assigned to it.
 
 Need a starting point? See [Suggested hosting plan limits](/docs/articles/hosting-business/hosting-plan-templates/).
+
+---
+
+// File: admin/plans/reseller_packages
+
+# Reseller Packages
+
+Reseller packages are limit templates for [reseller accounts](/docs/admin/accounts/resellers), the same way [User Packages](/docs/admin/plans/hosting_plans) are for users. Pick a package when creating a reseller, or let your billing system create resellers on a package through the API, and its limits are applied automatically.
+
+:::info
+Resellers is an Enterprise-only feature.
+:::
+
+Each package sets:
+
+| Field | Description |
+|---|---|
+| **Name** | Used to pick the package in OpenAdmin, OpenCLI, the API and billing systems. Letters, numbers, `-` and `_` only, up to 64 characters. |
+| **Description** | Optional note, for example `10 accounts, 50 GB`. |
+| **Max Accounts** | How many user accounts resellers on this package can have. `0` means unlimited. |
+| **Max Disk Usage** | Total disk space for all accounts of the reseller, in GB. `0` means unlimited. |
+| **User Packages** | Which [User Packages](/docs/admin/plans/hosting_plans) resellers on this package can assign to their users. |
+
+Resellers created without a package get the default limits from `/etc/openpanel/openadmin/config/reseller_template.json`.
+
+## List reseller packages
+
+<Tabs>
+  <TabItem value="openadmin-reseller-package-list" label="With OpenAdmin" default>
+
+Navigate to **OpenAdmin > Hosting Plans > Reseller Packages**. The table shows each package's name and description, Max Accounts, Max Disk, the number of User Packages it allows and how many resellers are on it (hover the number to see who). Click the arrows next to a column name to sort the table by that column, unlimited (`0`) sorts as the largest value.
+
+![Reseller Packages page listing packages with their max accounts, max disk, number of user packages and resellers on each](/img/openadmin-screenshots/plans/reseller_packages-list.png#gh-light-mode-only)
+![Reseller Packages page listing packages with their max accounts, max disk, number of user packages and resellers on each](/img/openadmin-screenshots/plans/reseller_packages-list_dark.png#gh-dark-mode-only)
+
+  </TabItem>
+  <TabItem value="API-reseller-package-list" label="With API">
+
+```bash
+curl -X GET https://SERVER:2087/api/plans/resellers -H "Authorization: Bearer TOKEN_HERE"
+```
+
+Example output:
+
+```json
+[
+  {
+    "name": "reseller_basic",
+    "description": "10 accounts, 50 GB",
+    "max_accounts": 10,
+    "max_disk_blocks": 51200000,
+    "allowed_plans": [1, 2],
+    "resellers": ["reseller1"]
+  }
+]
+```
+
+  </TabItem>
+</Tabs>
+
+## Create a reseller package
+
+<Tabs>
+  <TabItem value="openadmin-reseller-package-new" label="With OpenAdmin" default>
+
+On **OpenAdmin > Hosting Plans > Reseller Packages** click **Create New**, fill in the name, description, Max Accounts and Max Disk Usage, tick the User Packages resellers on it can assign, and click **Create**.
+
+![Create New reseller package form with name, description, max accounts, max disk usage and the user packages resellers can assign](/img/openadmin-screenshots/plans/reseller_packages-new.png#gh-light-mode-only)
+![Create New reseller package form with name, description, max accounts, max disk usage and the user packages resellers can assign](/img/openadmin-screenshots/plans/reseller_packages-new_dark.png#gh-dark-mode-only)
+
+  </TabItem>
+  <TabItem value="API-reseller-package-new" label="With API">
+
+```bash
+curl -X POST https://SERVER:2087/api/plans/resellers \
+  -H "Authorization: Bearer TOKEN_HERE" -H "Content-Type: application/json" \
+  -d '{"action":"create","name":"reseller_basic","description":"10 accounts, 50 GB","max_accounts":10,"max_disk_blocks":51200000,"allowed_plans":[1,2]}'
+```
+
+Over the API the disk limit is set in blocks, 1 GB is `1024000` blocks. `allowed_plans` takes plan IDs, as a list (`[1,2]`) or a string (`"1,2"`).
+
+  </TabItem>
+</Tabs>
+
+## Edit a reseller package
+
+<Tabs>
+  <TabItem value="openadmin-reseller-package-edit" label="With OpenAdmin" default>
+
+Click the package name, or open the package's **Edit** menu and click **Edit**, change the limits and click **Save**. The page header lists the resellers on the package.
+
+![Edit page of a reseller package listing the resellers on it, with its limits and allowed user packages](/img/openadmin-screenshots/plans/reseller_packages-edit.png#gh-light-mode-only)
+![Edit page of a reseller package listing the resellers on it, with its limits and allowed user packages](/img/openadmin-screenshots/plans/reseller_packages-edit_dark.png#gh-dark-mode-only)
+
+  </TabItem>
+  <TabItem value="API-reseller-package-edit" label="With API">
+
+```bash
+curl -X POST https://SERVER:2087/api/plans/resellers \
+  -H "Authorization: Bearer TOKEN_HERE" -H "Content-Type: application/json" \
+  -d '{"action":"update","name":"reseller_basic","max_accounts":20,"max_disk_blocks":102400000,"allowed_plans":[1,2,3]}'
+```
+
+`update` replaces all limits of the package, send every field.
+
+  </TabItem>
+</Tabs>
+
+Saving a package applies the new limits to every reseller on it. If a reseller already has more accounts or uses more disk than the new limits allow, they keep their old limits and the notice lists them.
+
+## Delete a reseller package
+
+<Tabs>
+  <TabItem value="openadmin-reseller-package-delete" label="With OpenAdmin" default>
+
+Open the package's **Edit** menu, click **Delete** and confirm. **Delete** isn't shown while resellers are on the package, move them to another package first.
+
+![Edit menu of a reseller package with the Edit and Delete options](/img/openadmin-screenshots/plans/reseller_packages-menu.png#gh-light-mode-only)
+![Edit menu of a reseller package with the Edit and Delete options](/img/openadmin-screenshots/plans/reseller_packages-menu_dark.png#gh-dark-mode-only)
+
+  </TabItem>
+  <TabItem value="API-reseller-package-delete" label="With API">
+
+```bash
+curl -X POST https://SERVER:2087/api/plans/resellers \
+  -H "Authorization: Bearer TOKEN_HERE" -H "Content-Type: application/json" \
+  -d '{"action":"delete","name":"reseller_basic"}'
+```
+
+  </TabItem>
+</Tabs>
+
+## Create a reseller on a package
+
+<Tabs>
+  <TabItem value="openadmin-reseller-on-package" label="With OpenAdmin" default>
+
+On **Accounts > Resellers** click **Create New**, set the username and password, pick the package from **Reseller Package** and click **Create**.
+
+  </TabItem>
+  <TabItem value="CLI-reseller-on-package" label="With OpenCLI">
+
+```bash
+opencli admin new <username> <password> --reseller --plan=<package>
+```
+
+  </TabItem>
+  <TabItem value="API-reseller-on-package" label="With API">
+
+```bash
+curl -X POST https://SERVER:2087/api/settings/resellers \
+  -H "Authorization: Bearer TOKEN_HERE" -H "Content-Type: application/json" \
+  -d '{"action":"create","username":"reseller1","password":"secret123","plan":"reseller_basic"}'
+```
+
+  </TabItem>
+</Tabs>
+
+## Move a reseller to another package
+
+Use this to upgrade or downgrade a reseller. Moving to a package with fewer accounts or less disk than the reseller already uses is refused with a message saying what to free up first.
+
+<Tabs>
+  <TabItem value="openadmin-reseller-change-package" label="With OpenAdmin" default>
+
+On **Accounts > Resellers** open **Edit Plans & Limits** for the reseller, pick the package under **Reseller Package** and click **Apply Package**.
+
+![Edit Plans & Limits page of a reseller with the Reseller Package picker and the Apply Package button above the custom limits](/img/openadmin-screenshots/accounts/resellers-package.png#gh-light-mode-only)
+![Edit Plans & Limits page of a reseller with the Reseller Package picker and the Apply Package button above the custom limits](/img/openadmin-screenshots/accounts/resellers-package_dark.png#gh-dark-mode-only)
+
+  </TabItem>
+  <TabItem value="CLI-reseller-change-package" label="With OpenCLI">
+
+```bash
+opencli admin update <username> --plan=<package>
+```
+
+  </TabItem>
+  <TabItem value="API-reseller-change-package" label="With API">
+
+```bash
+curl -X POST https://SERVER:2087/api/settings/resellers \
+  -H "Authorization: Bearer TOKEN_HERE" -H "Content-Type: application/json" \
+  -d '{"action":"change_plan","username":"reseller1","plan":"reseller_pro"}'
+```
+
+  </TabItem>
+</Tabs>
+
+Limits changed by hand on **Edit Plans & Limits** stay until the reseller's package is edited or another package is applied, then they're replaced by the package's limits.
+
+## How limits are enforced
+
+- **Max Accounts** - the reseller can't create a new user, and no user can be moved to them, once they have this many accounts.
+- **User Packages** - users of the reseller can only be created on, or changed to, the allowed packages. This also applies when an administrator does it for the reseller.
+- **Max Disk Usage** - a soft limit. Once the reseller's users together reach it, the reseller can't create new users, users can't be moved to them, and their users can't be changed to a package with more disk space. Existing accounts keep working. Disk usage is recalculated by the [files-calculate_resellers_storage](/docs/articles/server/openadmin-system-crons/#files-calculate_resellers_storage) cron job, so it can take a while to catch up.
 
 ---
 
@@ -4142,7 +4564,9 @@ This page manages passkeys for your **own** login. To disable passkeys for a Res
 
 # Blocked User Agents
 
-Block visitors whose HTTP `User-Agent` header matches an entry on a blacklist — useful for keeping out known bad bots and scrapers.
+Block requests to the OpenPanel user panel whose HTTP `User-Agent` header matches an entry on a blacklist, useful for keeping vulnerability scanners and known bad bots away from the login page.
+
+It protects the panel itself (port 2083), not the websites hosted on the server. To limit bots on websites, use [Rate Limiting](/docs/admin/domains/ratelimit) or block user agents in the domain's VirtualHost.
 
 Use **OpenAdmin > Security > Blocked User Agents** to manage it. The page is available to the **Super Admin** and **Admin** roles - resellers can't access it.
 
@@ -4156,6 +4580,8 @@ Set **Enable** to **Yes** and click **Save settings** to turn user-agent blockin
 ## Editing the List
 
 Edit the list of blocked user-agent strings (one per line) in the text area, then click **Save settings**.
+
+A request is blocked when its `User-Agent` contains any line of the list, ignoring case. Empty lines and lines starting with `#` are skipped, so `#BLEXBot` keeps that entry in the list without blocking it. Blocked requests get a `403 Forbidden`. Changes to the list and to **Enable** apply within a few seconds, OpenPanel doesn't need to be restarted.
 
 The list is stored at `/etc/openpanel/openpanel/conf/blacklist_useragents.txt` on the server.
 
@@ -4552,7 +4978,7 @@ Additional display settings include:
 
 ## Onboarding
 
-- **Enable Onboarding Wizard:** Show a short guided setup wizard to new users on their first login, before they've added a domain or a database. See the [Onboarding page](/docs/panel/dashboard/onboarding) for what users see.
+- **Enable Onboarding Wizard:** Show a short guided setup wizard to new users on their first login. Steps the user has already set up are skipped (Webserver once they have a domain, Database once they have a database, Backups once a destination is configured, 2FA once it's enabled). See the [Onboarding page](/docs/panel/dashboard/onboarding) for what users see.
 
 The wizard doesn't have its own separate list of steps to configure - each step just mirrors a feature already enabled in [Feature Manager](/docs/admin/plans/feature-manager) (Webserver, PHP, Database, Varnish, Backups, WAF, IP Blocker, 2FA, Passkeys). Disable a feature there for a plan and its onboarding step disappears too for users on that plan.
 
@@ -4562,7 +4988,7 @@ To reset the wizard for a single user (for testing, or if they ask to see it aga
 rm /home/USERNAME/onboarding.completed
 ```
 
-They'll be offered the wizard again next time they log in, as long as they still have no domains or databases.
+They'll be offered the wizard again next time they log in, minus any steps they've already set up.
 
 You can also add your own custom steps to the wizard - for example, a step to enable Redis - without modifying OpenPanel itself. See [Add Custom Steps to the Onboarding Wizard](/docs/articles/dev-experience/add-custom-steps-to-onboarding-wizard).
 
@@ -5901,16 +6327,33 @@ Customize options:
 
 ## Error Logs
 
-The **`error_logs`** module lets users see PHP, webserver, database and HTTP 5xx errors for all of their websites on a single page, without opening individual containers.
+The **`error_logs`** module lets users see PHP, web server, database, application and HTTP 5xx errors for all of their websites on a single page, without opening individual containers.
 
 When enabled:
 * Users can access the [**Statistics > Error Logs** page](/docs/panel/statistics/error_logs/).
+* WordPress sites show their latest errors on the Debugging tab of the site manager.
+* Users can turn on the **Daily error report** email on the [Notifications](/docs/panel/account/notifications/#daily-error-report) page, sent by the `opencli user-error_report --all` cron job at 07:30.
 * The same data is available from the `/api/error-logs` API endpoint.
 
 When disabled:
-* Users can not access the *Statistics > Error Logs* page.
+* Users can not access the *Statistics > Error Logs* page and get no error report emails.
 
-Errors are read live from the user's PHP-FPM, webserver and database containers (for OpenLiteSpeed and LiteSpeed, from `/usr/local/lsws/logs/error.log` inside the container) and from the Caddy domain access logs (5xx responses only), so nothing extra runs in the background.
+Errors are read live from the user's PHP-FPM, web server, database and application containers (for OpenLiteSpeed and LiteSpeed, from `/usr/local/lsws/logs/error.log` inside the container) and from the Caddy domain access logs (5xx responses only), so nothing extra runs in the background.
+
+
+## Daily Summary
+
+The **`summary`** module saves a summary of each day for every user: what needs their attention first, with a link to the page that fixes it, then the day's traffic, logins and account changes.
+
+When enabled:
+* The `opencli user-daily_summary --all` cron job saves the previous day's summary for each user at 06:15, kept for 90 days.
+* Users can access the [**Statistics > Daily Summary** page](/docs/panel/statistics/daily_summary/).
+* Users can turn on the **Daily summary** email on the [Notifications](/docs/panel/account/notifications/#daily-summary) page.
+
+When disabled:
+* No summaries are saved, and users can not access the *Statistics > Daily Summary* page.
+
+The checks in a summary follow the user's features, for example vulnerable plugins are only checked when the user has WordPress, and backups are left out when you [manage backups](/docs/admin/backups/user/) for the user.
 
 
 ## Docroot
@@ -6450,6 +6893,7 @@ Receive notifications when specific server-level actions are detected:
 * **Unusual traffic or SYN flood:** Fires when suspicious traffic or DDoS attacks are detected. When enabled, an additional **Website traffic** section appears where you can set the **Max total connections** and **Max connections per IP** thresholds (on ports 80/443) that trigger the notification.
 
   Under each field the highest value recorded by Sentinel (it saves the number of connections every 5 minutes, for up to 30 days) is shown with a recommended limit of 2× that peak, at least 500 total and 50 per IP. Click **Use** to fill it in. A warning shows if the limit is at or below the recorded peak, since you'd have been alerted then. Recommendations show once there are domains on the server and Sentinel has collected at least 24 hours of data.
+* **Visitors blocked by rate limit:** Checked every 6 hours, fires when visitors to a domain got **429 Too Many Requests** from the [request rate limits](/docs/admin/domains/ratelimit/). The notification lists each domain with how many requests were blocked and the IPs blocked the most. Users who turned on **Visitors blocked by rate limit** on their [Notifications](/docs/panel/account/notifications/#visitors-blocked-by-rate-limit) page also get an email about their own domains. Off by default.
 * **Out of Memory (OOM) errors:** Checks journal logs for system services and user processes killed by OOM in the last 24 hours.
 * **DNS issue detected:** Triggered when the panel domain or nameservers are misconfigured or not resolving to this server. Disable if using external nameservers or a Cloudflare proxy.
 * **OpenAdmin login from new IP:** Triggered when the OpenAdmin panel is accessed from an unrecognized IP address.
@@ -11793,7 +12237,7 @@ If you need a condition that isn't one of the wizard's existing `opts` flags, ca
 
 ## Testing
 
-The wizard only shows automatically to a user with no domains and no databases yet, on their first login. To see your changes without creating a throwaway account, delete the onboarding marker file for a test user and reload the dashboard - see [resetting onboarding for a user](/docs/admin/settings/openpanel/#onboarding).
+The wizard only shows automatically until the user finishes or dismisses it. To see your changes without creating a throwaway account, delete the onboarding marker file for a test user and reload the dashboard - see [resetting onboarding for a user](/docs/admin/settings/openpanel/#onboarding).
 
 ---
 
@@ -12255,6 +12699,8 @@ Some endpoints below are destructive or high-privilege (rebooting the server, ch
 }
 ```
 
+To create the account for a reseller add `"reseller": "<reseller>"`, the reseller's [limits](/docs/admin/plans/reseller_packages#how-limits-are-enforced) are checked. Accounts created with a reseller's own token always belong to that reseller.
+
 **Response:**
 
 ```json
@@ -12414,6 +12860,29 @@ This is the same single-click whole-account backup OpenPanel's own self-service 
 ### Delete Plan
 
 `DELETE /api/plans/{plan_id}`
+
+### Reseller Packages
+
+`GET /api/plans/resellers`
+`POST /api/plans/resellers`
+
+Lists, creates, updates and deletes [Reseller Packages](/docs/admin/plans/reseller_packages). Administrators only.
+
+**Request Body (create or update):**
+
+```json
+{ "action": "create", "name": "reseller_basic", "description": "10 accounts, 50 GB", "max_accounts": 10, "max_disk_blocks": 51200000, "allowed_plans": [1, 2] }
+```
+
+`max_disk_blocks` is in blocks, 1 GB is `1024000`. `0` means unlimited for both limits. `update` replaces all fields of the package and applies it to every reseller on it.
+
+**Request Body (delete):**
+
+```json
+{ "action": "delete", "name": "reseller_basic" }
+```
+
+Deleting is refused while resellers are on the package.
 
 ---
 
@@ -13218,6 +13687,18 @@ Restricted to the Super Administrator. Changes the actual root SSH password on t
 
 Other supported actions: `suspend`, `unsuspend`, `delete`, `rename_user` (with `new_username`), `reset_password` (with `new_password`), `disable_2fa`, `disable_passkeys`.
 
+### Reseller tokens
+
+A reseller's API token can call these endpoints, each limited to the reseller's own users, their domains and the emails on those domains, the same way the [pages resellers can use](/docs/admin/accounts/resellers#pages-resellers-can-use) are:
+
+- `GET /api/domains`, `POST /api/domains/new`, `GET/POST /api/domains/{domain}/dns`, `GET/POST /api/domains/docroot/{domain}` and `POST /api/domains/{suspend|unsuspend|delete}/{domain}`
+- `GET/POST/DELETE /api/emails/accounts` and `GET/POST /api/emails/queue` (`scope: "all"` only acts on the reseller's visible messages)
+- `GET/POST /api/import/openpanel`, `POST /api/import/upload`, `GET /api/import/backup-files` and `GET /api/import/logs/account/{log}`
+- `GET /api/server/crons` (read only)
+- `GET/POST /api/settings/locales` (installing and updating only)
+
+Anything outside their scope returns `403`.
+
 ### Resellers
 
 `GET /api/settings/resellers`
@@ -13226,8 +13707,18 @@ Other supported actions: `suspend`, `unsuspend`, `delete`, `rename_user` (with `
 **Request Body (create):**
 
 ```json
-{ "action": "create", "username": "reseller1", "password": "secret123" }
+{ "action": "create", "username": "reseller1", "password": "secret123", "plan": "reseller_basic" }
 ```
+
+`plan` is optional, it creates the reseller on that [Reseller Package](/docs/admin/plans/reseller_packages). Creating is refused while resellers are disabled.
+
+**Request Body (move to another reseller package):**
+
+```json
+{ "action": "change_plan", "username": "reseller1", "plan": "reseller_pro" }
+```
+
+Moving to a package with fewer accounts or less disk than the reseller already uses is refused.
 
 **Request Body (update limits):**
 
@@ -13235,7 +13726,7 @@ Other supported actions: `suspend`, `unsuspend`, `delete`, `rename_user` (with `
 { "action": "update", "username": "reseller1", "allowed_plans": "1,2", "max_accounts": "10", "max_disk_blocks": "1000" }
 ```
 
-Other supported actions: `suspend`, `unsuspend`, `delete`, `rename_user`, `reset_password`, `disable_2fa`, `disable_passkeys`. A reseller token can only manage its own account and is restricted to `reset_password`.
+Other supported actions: `suspend`, `unsuspend`, `delete`, `rename_user`, `reset_password`, `disable_2fa`, `disable_passkeys`. A reseller token can only manage its own account and is restricted to `reset_password`. The list (`GET`) includes each reseller's `reseller_plan`.
 
 ### Resellers Enabled Toggle
 
@@ -13447,15 +13938,25 @@ Runs `opencli report --public --non-interactive` and returns the generated repor
 
 ## Import & Transfer
 
-### Import from cPanel / CyberPanel Backup
+### Import from cPanel / CyberPanel / OpenPanel Backup
 
-`GET /api/import/{panel_type}` — list import job statuses (`{panel_type}` is `cpanel` or `cyberpanel`)
+`GET /api/import/{panel_type}` — list import job statuses (`{panel_type}` is `cpanel`, `cyberpanel` or `openpanel`)
 `POST /api/import/{panel_type}` — start an import in the background
 
 **Request Body:**
 
 ```json
 { "path": "/root/backup-user.tar.gz", "plan_name": "default_plan_apache" }
+```
+
+For `openpanel` only `path` is needed, the plan comes from the backup. Resellers can only use `openpanel` with a backup they uploaded, see [Imports by resellers](/docs/admin/backups/cpanel#imports-by-resellers).
+
+### Upload a Backup
+
+`POST /api/import/upload` — `multipart/form-data` with the `.tar.gz` in a `file` field, saved to `/home/reseller_imports/<username>/`. The response has the `path` to pass to `POST /api/import/openpanel`.
+
+```bash
+curl -X POST https://SERVER:2087/api/import/upload -H "Authorization: Bearer TOKEN_HERE" -F "file=@alice_2026-10-16_10-00-00.tar.gz"
 ```
 
 ### View Import Log
@@ -13466,7 +13967,7 @@ Runs `opencli report --public --non-interactive` and returns the generated repor
 
 `GET /api/import/backup-files`
 
-Scans `/`, `/home`, and `/root` for `backup-*.tar.gz` files.
+Scans `/`, `/home`, and `/root` for `backup-*.tar.gz` files, plus your uploads. For a reseller it only lists their own uploads.
 
 ### OpenPanel-to-OpenPanel Transfers
 
@@ -17627,22 +18128,30 @@ Tip: give reseller plans a clear name prefix (e.g. `R-Starter`, `R-Business`) so
 
 ---
 
-## Step 2: Create a Reseller
+## Step 2: Create Reseller Packages
+
+Go to **OpenAdmin → Hosting Plans → Reseller Packages** and create one package per reseller tier you sell (see [Pricing Reseller Hosting](#pricing-reseller-hosting) below), each with:
+
+- **Max Accounts** - how many client accounts resellers on it can create,
+- **Max Disk Usage** - their total disk allowance across all clients,
+- **User Packages** - which plans they may assign.
+
+See [Reseller Packages](/docs/admin/plans/reseller_packages/).
+
+---
+
+## Step 3: Create a Reseller
 
 1. Go to **OpenAdmin → Accounts → Resellers**.
-2. Click **Create New**, enter a username and password, and click **Create**.
-3. Open the reseller's menu → **Edit Plans & Limits** and set:
-   - **Max Accounts** - how many client accounts they can create,
-   - **Max Disk Usage** - their total disk allowance across all clients,
-   - **Hosting Plans** - which plans they may assign.
+2. Click **Create New**, enter a username and password, pick a **Reseller Package** and click **Create**.
 
-See [Resellers](/docs/admin/accounts/resellers/).
+To give one reseller different limits, open their menu → **Edit Plans & Limits** and change them there. See [Resellers](/docs/admin/accounts/resellers/).
 
 The reseller logs in at your OpenAdmin address (e.g. `https://panel.yourhost.com:2087`) and manages their users from **Accounts → Users**.
 
 ---
 
-## Step 3: Reseller Branding
+## Step 4: Reseller Branding
 
 Resellers can set their own **logo** from their **Reseller Account** page - it's shown instead of your logo in their clients' OpenPanel. Combined with custom nameservers on their own domain, their clients see the reseller's brand.
 
@@ -17650,9 +18159,9 @@ For your own company branding, see [White-label OpenPanel](/docs/articles/hostin
 
 ---
 
-## Step 4: Automate It with Billing
+## Step 5: Automate It with Billing
 
-Sell reseller packages through your billing system, so resellers are created and suspended automatically when they pay (or don't). OpenPanel integrates with [WHMCS](/docs/articles/extensions/openpanel-and-whmcs/), [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/), [Blesta](/docs/articles/extensions/openpanel-and-blesta/), [ClientExec](/docs/articles/extensions/openpanel-and-clientexec/) and [WISECP](/docs/articles/extensions/openpanel-and-wisecp/).
+Sell reseller packages through your billing system, so resellers are created and suspended automatically when they pay (or don't). The [OpenAdmin API](/docs/articles/dev-experience/openadmin-api/#resellers) creates a reseller on a package with `{"action":"create", ..., "plan":"<package>"}` and upgrades or downgrades it with `change_plan`. OpenPanel integrates with [WHMCS](/docs/articles/extensions/openpanel-and-whmcs/), [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/), [Blesta](/docs/articles/extensions/openpanel-and-blesta/), [ClientExec](/docs/articles/extensions/openpanel-and-clientexec/) and [WISECP](/docs/articles/extensions/openpanel-and-wisecp/).
 
 Resellers who run their own billing system can use the same modules to automate *their* client accounts.
 
@@ -17662,7 +18171,7 @@ Resellers who run their own billing system can use the same modules to automate 
 
 From **Accounts → Resellers** you can see each reseller's account usage (e.g. `12/20`), disk usage and plans, and:
 
-- **Edit Plans & Limits** - upgrade or downgrade a reseller package,
+- **Edit Plans & Limits** - move the reseller to another reseller package to upgrade or downgrade them, or set custom limits,
 - **Suspend / Unsuspend** - e.g. for unpaid invoices,
 - **Rename**, **Change Password**, remove **2FA / Passkeys** if a reseller is locked out,
 - **Delete** the reseller.
@@ -19865,6 +20374,7 @@ Manually editing these files can break the panel or be overwritten during update
 | `/etc/openpanel/openadmin/config/quick_start.dismissed`, `tour.skip` | flag file | Onboarding/tour dismissal flags |
 | `/etc/openpanel/openadmin/ssh_whitelist.conf` | text | SSH login IP whitelist |
 | `/etc/openpanel/openadmin/resellers/<name>.json` | JSON | Per-reseller configuration (allowed plans, etc.) |
+| `/etc/openpanel/openadmin/reseller_plans/<name>.json` | JSON | [Reseller Packages](/docs/admin/plans/reseller_packages) |
 | `/etc/openpanel/openadmin/usage_stats.json` | JSON | Usage/telemetry state |
 | `/etc/openpanel/openadmin/service/openadmin.service` | systemd unit | Installed as the `admin` systemd service |
 | `/usr/local/admin/custom.css` | CSS | Custom OpenAdmin UI override |
@@ -20314,9 +20824,9 @@ Commands:
   log                                           Display the last 25 lines of the OpenAdmin error log.
   logs                                          Display live logs for all OpenAdmin services.
   list                                          List all current admin users.
-  new <user> <pass> [--reseller|--super]        Add a new user, optionally as a reseller or super admin.
+  new <user> <pass> [--reseller|--super] [--plan=<name>] Add a new user, optionally as a reseller (on a reseller plan) or super admin.
   password <user> <pass>                        Reset the password for the specified admin user.
-  update <user> --allowed_plans=[] --max_accounts=<int> --max_disk_blocks=1000000 --logo_url=<url> Assign plans, limits, and branding for reseller.
+  update <user> --plan=<name> --allowed_plans=[] --max_accounts=<int> --max_disk_blocks=1000000 --logo_url=<url> Assign a reseller plan, limits, and branding for reseller.
   rename <old> <new>                            Change the admin username.
   suspend <user>                                Suspend admin user.
   unsuspend <user>                              Unsuspend admin user.
@@ -20338,6 +20848,8 @@ Examples:
   opencli admin list
   opencli admin new stefan SuperStrong1
   opencli admin new stefan SuperStrong1 --reseller
+  opencli admin new stefan SuperStrong1 --reseller --plan=reseller_basic
+  opencli admin update stefan --plan=reseller_pro
   opencli admin new stefan SuperStrong1 --super
   opencli admin password stefan SuperStrong2
   opencli admin rename stefan pejcic
@@ -20463,6 +20975,22 @@ Reseller user 'reseller1' created.
 ```
 </details>
 
+To create the reseller on a [Reseller Package](/docs/admin/plans/reseller_packages) add `--plan=<package>`:
+
+```bash
+opencli admin new <username> <password> --reseller --plan=<package>
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin new reseller1 SuperStrong1 --reseller --plan=reseller_basic
+Reseller user 'reseller1' created.
+Reseller reseller1 updated successfully.
+```
+</details>
+
 ### Create Super Admin
 
 To create the super admin account (the `admin` role). Only one super admin can exist:
@@ -20488,6 +21016,12 @@ To set allowed plans, limits and logo for a reseller account. Only the flags tha
 opencli admin update <username> --allowed_plans=<id1,id2> --max_accounts=<NUMBER> --max_disk_blocks=<NUMBER> --logo_url=<URL>
 ```
 
+To move the reseller to a [Reseller Package](/docs/admin/plans/reseller_packages) pass `--plan=<package>`. It sets Max Accounts, Max Disk Usage and allowed plans from the package, other flags passed together with it take precedence over the package's values. Moving to a package with fewer accounts or less disk than the reseller already uses is refused:
+
+```bash
+opencli admin update <username> --plan=<package>
+```
+
 
 <details>
   <summary>Example output</summary>
@@ -20495,6 +21029,9 @@ opencli admin update <username> --allowed_plans=<id1,id2> --max_accounts=<NUMBER
 ```bash
 # opencli admin update reseller1 --allowed_plans=1,2 --max_accounts=10
 Reseller reseller1 updated successfully.
+
+# opencli admin update reseller1 --plan=reseller_small
+Error: Reseller 'reseller1' has 12 accounts, plan 'reseller_small' allows only 10. Remove accounts first.
 ```
 </details>
 
@@ -20689,7 +21226,7 @@ All Tests Passed!
 
 #### Options
 
-Any option from `notifications.ini` can be read or updated. The main options are:
+Any option from `notifications.ini` can be read or updated, `update` only changes options that are already in the file, so add a missing one to the file first. The main options are:
 
 | Option        | Description                                                        | Default |
 |---------------|--------------------------------------------------------------------|---------|
@@ -20707,6 +21244,9 @@ Any option from `notifications.ini` can be read or updated. The main options are
 | `du`          | Notify when disk usage (%) is above this value.                    | `85`    |
 | `swap`        | Notify when SWAP usage (%) is above this value.                    | `85`    |
 | `webhook_url` | Also send notifications to these webhooks (e.g. Discord), multiple URLs are separated by spaces. | empty   |
+| `ratelimit`   | Notify when visitors were blocked by the request rate limits, checked every 6 hours. | `no` |
+| `max_total_conn` | Notify when total connections to ports 80/443 are above this value. | `5000` |
+| `max_conn_per_ip` | Notify when one IP has more connections to port 80 or 443 than this value. | `200` |
 
 The `[ACTIONS]` section of the file has a `yes`/`no` option for each OpenCLI action that sends a notification, for example `user_create`, `domains_add`, `admin_api` or `docker_backup` (sent when `opencli docker-backup` fails).
 
@@ -26997,6 +27537,21 @@ Uninstall complete.
 ```
 </details>
 
+## Scan notifications
+
+After ImunifyAV is installed, every malware scan it starts and finishes is reported by `opencli imunify notify`, which runs on its own when ImunifyAV writes a scan event. Each scan is one notification in OpenAdmin, sent by email and webhook when it finishes, with the number of files checked and up to 5 malicious files. To turn these off, disable **ImunifyAV scan started/finished** under User Actions in **OpenAdmin > Settings > Notifications**.
+
+When a finished scan of a user's home folder found malware, that user also gets a **Malware found** email listing up to 20 infected files, if they have [Malware found](/docs/panel/account/notifications/#malware-found) turned on.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli imunify notify
+stefan notified by email about 2 malicious file(s).
+```
+</details>
+
 ---
 
 // File: articles/opencli/license
@@ -27522,6 +28077,10 @@ opencli user-check
 Description: Performs comprehensive security checks on user files, rootless Podman instance and containers.
 Usage: opencli user-check <USERNAME>
 ------------------------
+opencli user-daily_summary
+Description: Save yesterday's summary for users with the Summary module and email it to those who turned it on.
+Usage: opencli user-daily_summary <USERNAME> [--date YYYY-MM-DD] [--dry-run] OR opencli user-daily_summary --all [--date YYYY-MM-DD] [--dry-run]
+------------------------
 opencli user-delete
 Description: Delete user account and permanently remove all their data.
 Usage: opencli user-delete <username> [-y]
@@ -27529,6 +28088,10 @@ Usage: opencli user-delete <username> [-y]
 opencli user-email
 Description: Change email for user
 Usage: opencli user-email <USERNAME> <NEW_EMAIL>
+------------------------
+opencli user-error_report
+Description: Email users the errors found in their websites' logs in the last 24 hours.
+Usage: opencli user-error_report <USERNAME> [--dry-run] OR opencli user-error_report --all [--dry-run]
 ------------------------
 opencli user-ip
 Description: Assign or remove dedicated IP to a user.
@@ -28343,10 +28906,11 @@ Checking logins, resources, and DNS...
 [✔] No SWAP configured.
 [✔] All nameservers resolve to local IPs.
 [✔] No dead user containers found (checked in 2s).
+[✔] Mail queue 0 < threshold 500
 --------------------------------------------------------------------------------
 All Tests Passed!
 --------------------------------------------------------------------------------
-18 PASS  0 WARN  0 FAIL
+19 PASS  0 WARN  0 FAIL
 --------------------------------------------------------------------------------
 ```
 </details>
@@ -28431,9 +28995,112 @@ john: starting required container mysql
 ```
 </details>
 
+### Rate limits
+
+When **Visitors blocked by rate limit** is turned on in **OpenAdmin > Settings > Notifications** (`ratelimit=yes` in `/etc/openpanel/openadmin/config/notifications.ini`, off by default), Sentinel checks every 6 hours whether visitors got *429 Too Many Requests* from the [request rate limits](/docs/admin/domains/ratelimit/). It reads the last 6 hours of every domain's access log with `opencli domains-ratelimit stats --all --hours 6 --json`.
+
+If any domain had blocked requests, a *Rate limit reached on N domain(s)* warning lists up to 10 domains with how many requests were blocked and the IP blocked the most. Each domain's owner who turned on **Visitors blocked by rate limit** on their [Notifications](/docs/panel/account/notifications/#visitors-blocked-by-rate-limit) page also gets an email about their own domains.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel
+...
+[!] Rate limits blocked visitors on 2 domain(s) in the last 6h.
+stefan: notified about rate limited domains.
+...
+# opencli sentinel
+...
+[✔] Rate limit check skipped (last run 1h 12m ago).
+...
+```
+</details>
+
+### Disk cleanup
+
+When disk usage on `/` is over the `du` threshold, Sentinel tries to free space on its own, safest step first, and stops as soon as the disk is back under the threshold:
+
+1. Vacuum the systemd journal to 500MB (`journalctl --vacuum-size=500M`).
+2. Clear the package manager cache (`apt-get clean`, `dnf clean all` or `yum clean all`).
+3. Delete old logs: crashlogs and reports in `/var/log/openpanel/admin/` older than 7 days, update logs in `/var/log/openpanel/updates/` older than 30 days, rotated archives in `/var/log` (`*.gz`, `*.1`, `*.old`, not `wtmp`/`btmp`) older than 7 days, and Sentinel/OpenCLI temp files in `/tmp` older than a day.
+4. Shrink every log in `/var/log` that uses more than 1GB to its last 100MB, in place so Caddy and other services keep writing to it. The journal, `lastlog`, `wtmp` and `btmp` are skipped.
+5. Prune unused podman data older than 24 hours for the server and every user, and remove images from the shared image store `/var/lib/containers/shared-storage` that no container of root or any user uses and that weren't pulled in the last 24 hours. If a container list can't be read, no images are removed.
+6. Empty the Trash of every user, same as *Empty Trash* in the File Manager (`/home/USERNAME/.local/share/Trash`, the `.trash_restore` list is kept but emptied). Trash folders that are symlinks are skipped. This is last because it's the only step that deletes user data.
+
+The *Running out of Disk Space!* alert then says how much each step freed, where the disk is now, which logs were shrunk, which images were removed and whose Trash was emptied, e.g. *Disk was 91%, Sentinel freed 3.1GB and it is now at 82% (threshold 85%). Cleaned up systemd journal: 1.2GB, package cache: 300MB, old and rotated logs: 1.6GB. Stopped once the disk was under the threshold.* If the disk is still over the threshold after every step, it also suggests `du -xh / --max-depth=2 | sort -rh | head` to find what is using the space. The cleanup runs at most once every 24 hours, until then only the alert is sent.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel
+...
+[!] Disk was 91%, sentinel freed 3.1GB, disk is now at 82%. Cleaned up systemd journal: 1.2GB, package cache: 300MB, old and rotated logs: 1.6GB. Stopped once the disk was under the threshold.
+...
+# opencli sentinel
+...
+[✘] Disk was 93% > threshold 85%, cleanup freed 1.1GB and it is still at 92%. Cleaned up systemd journal: 200MB, package cache: 0B, old and rotated logs: 100MB, logs over 1GB: 0B, unused podman data and images: 300MB, users' Trash: 512MB. Removed 1 unused image(s) from the shared store: docker.io/library/redis:7.4. Emptied the Trash of 1 user(s): stefan (512MB).
+...
+```
+</details>
+
+### Top users
+
+High load, CPU and RAM alerts name the 3 users using the most CPU (or RAM for the RAM alert), read from each user's `user-UID.slice` cgroup, e.g. *Top users: stefan (45% CPU, 1.2GB RAM, 3% IO wait), pejcic (12% CPU, 800MB RAM, 0% IO wait).* CPU is the share of all server cores over one second and IO wait is the `some avg10` value from the slice's `io.pressure`. Each user is already capped by their plan's CPU and RAM limits on that slice, so Sentinel only reports them and doesn't throttle anyone.
+
+### Blocking abusive IPs
+
+An IP with more than `max_conn_per_ip` connections to port 80 or 443 is blocked with `csf -td` for 60 minutes, and CSF unblocks it on its own after that. If CSF isn't installed, the alert says the IP was not blocked. Sentinel never blocks IPv6 addresses, IPs in the SSH whitelist from OpenAdmin > Settings > Notifications, private ranges, the server's own IPs, IPs in `/etc/csf/csf.allow` or `/etc/csf/csf.ignore`, or Cloudflare ranges (read from `trusted_proxies` in the Caddyfile). The *High traffic from* alert says for every IP whether it was blocked, and if not, why.
+
+On a possible SYN flood, Sentinel also turns on SYN cookies (`net.ipv4.tcp_syncookies=1`) if they're off, until the next reboot, and says so in the *Possible SYN flood* alert.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel
+...
+Checking traffic:
+[✘] High connections from 203.0.113.5 on port 443: 812
+    [→] blocked for 60 min
+    [→] Domain hit: example.com
+[✘] High connections from 104.16.5.5 on port 443: 640
+    [→] not blocked: Cloudflare
+    [→] Domain hit: example.com
+...
+# opencli sentinel
+...
+[✘] Possible SYN flood on :443 — 1500 in SYN_RECV
+    [→] Sentinel turned on SYN cookies (net.ipv4.tcp_syncookies=1) until the next reboot.
+...
+```
+</details>
+
+### Mail queue
+
+Sentinel checks the queue of the `openadmin_mailserver` container on every run. When more than 500 emails are waiting, not counting ones on hold, a *Large mail queue!* alert lists the 5 senders with the most queued emails and the OpenPanel user each one belongs to. A sudden big queue from one mailbox usually means its password was stolen or a website form is abused by spammers.
+
+Sentinel also puts all queued emails of the top sender on hold if it has at least 250 queued and belongs to a local account. Bounces and relayed mail are never held. Held emails are not delivered until you release them with `opencli email-server unhold ALL` (or one `QUEUE_ID`), or delete them with `opencli email-server delete QUEUE_ID`, see them with `opencli email-server queue`. Once the queue is back under the threshold, the alert is marked as resolved.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel
+...
+[✔] Mail queue 3 < threshold 500
+...
+# opencli sentinel
+...
+[✘] Mail queue 650 > threshold 500. Sentinel put 600 email(s) from info@example.com on hold. Review them with: opencli email-server queue, then release them all with: opencli email-server unhold ALL or delete one with: opencli email-server delete QUEUE_ID.
+...
+```
+</details>
+
 ### Timeouts
 
-So a hung `podman` command can't stop monitoring, every podman call Sentinel makes has a timeout, each check in the parallel part (logins, disk, load, RAM, CPU, SWAP, DNS, user containers) is stopped after 10 minutes, and the whole run is stopped after 15 minutes. A stopped check sends a *Sentinel checks did not finish* alert listing which checks hung, and a stopped run sends a critical *Sentinel checks timed out!* alert. Both are resolved on the next run that finishes in time. If a previous run is still going, the new one exits with *Error: Another instance is already running.*
+So a hung `podman` command can't stop monitoring, every podman call Sentinel makes has a timeout, each check in the parallel part (logins, disk, load, RAM, CPU, SWAP, DNS, user containers, rate limits, mail queue) is stopped after 10 minutes, and the whole run is stopped after 15 minutes. A stopped check sends a *Sentinel checks did not finish* alert listing which checks hung, and a stopped run sends a critical *Sentinel checks timed out!* alert. Both are resolved on the next run that finishes in time. If a previous run is still going, the new one exits with *Error: Another instance is already running.*
 
 <details>
   <summary>Example output</summary>
@@ -28732,6 +29399,8 @@ opencli update
 ...
 ---- Cleaning up previous images ----
 ---- Updating installed locales ----
+[INFO] Updated locale: de-de
+[INFO] Updated locale: sr-rs
 ---- [✔] Locales updated: 2, failed: 0 ----
 ---- Updating OpenAdmin modules ----
 ---- Updating OpenAdmin ----
@@ -28792,6 +29461,8 @@ opencli update --force
 ...
 ---- Cleaning up previous images ----
 ---- Updating installed locales ----
+[INFO] Updated locale: de-de
+[INFO] Updated locale: sr-rs
 ---- [✔] Locales updated: 2, failed: 0 ----
 ---- Updating OpenAdmin modules ----
 ---- Updating OpenAdmin ----
@@ -28861,13 +29532,16 @@ Update only translation files *(locale files from [stefanpejcic/openpanel-transl
 opencli update --translations
 ```
 
+Each locale download is tried up to 3 times with a 60 second limit per try, a locale that can't be downloaded is counted as failed and keeps its current file, and the update continues.
+
 <details>
   <summary>Example output</summary>
 
 ```bash
 # opencli update --translations
 Updating installed locales
-Compiling updated .mo files
+[INFO] Updated locale: de-de
+[INFO] Updated locale: sr-rs
 [✔] Locales updated: 2, failed: 0
 [INFO] Restarting OpenPanel service
 [INFO] [✔] Translations updated and OpenPanel restarted
@@ -28914,6 +29588,8 @@ opencli update --modules
 Updating OpenAdmin modules
 ```
 </details>
+
+If the file can't be downloaded or isn't valid JSON, the current `features.json` is kept.
 
 ## Templates
 
@@ -29536,8 +30212,10 @@ opencli user-backup --account <USER> [--output <DIR>] [--quiet]
 To restore a user account from a `.tar.gz` backup created with `user-backup`:
 
 ```bash
-opencli user-restore --file <ARCHIVE> [--force] [--new-username=<NAME>] [--temp-dir=<PATH>] [--quiet]
+opencli user-restore --file <ARCHIVE> [--force] [--new-username=<NAME>] [--reseller=<NAME>] [--temp-dir=<PATH>] [--quiet]
 ```
+
+`--reseller=<NAME>` restores the account for a reseller: it's refused when the reseller has reached their account or disk limit, when the plan from the backup doesn't exist or isn't assigned to the reseller, or together with `--force`. The restored account is owned by the reseller.
 
 <details>
   <summary>Example output</summary>
@@ -30149,6 +30827,85 @@ Both files are replaced in one step when the report is done, they never contain 
     }
   ]
 }
+```
+</details>
+
+### Daily Summary
+
+Command: `opencli user-daily_summary` saves a day's summary for every user with the [Daily Summary](/docs/admin/settings/modules/#daily-summary) module, shown on their [Statistics > Daily Summary](/docs/panel/statistics/daily_summary/) page, and emails it to users who turned on **Daily summary** on their Notifications page. It runs every day at 06:15 for the previous day, and each user gets a summary by email at most once. Saved summaries are kept for 90 days.
+
+```bash
+opencli user-daily_summary <USERNAME|--all> [--date YYYY-MM-DD] [--dry-run]
+```
+
+- `--date` builds the summary of that day instead of yesterday.
+- `--dry-run` prints the email instead of saving and sending it.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-daily_summary --all
+Checking stefan
+  Summary for 2026-10-15: 2 need attention, 3 worth a look, saved.
+  stefan notified by email.
+Checking john
+  john doesn't have the Summary module.
+
+# opencli user-daily_summary stefan --date 2026-10-15 --dry-run
+  Summary for 2026-10-15: 1 need attention, 1 worth a look.
+  Subject: ⚠ 1 thing needs your attention – 15 Oct summary for stefan
+  Hi stefan,
+
+  Here's how your account did on Thursday, 15 October. Your 2 websites handled 5,452 requests from 1,448 visitors, 12% more than the day before. 1 thing needs your attention.
+
+  NEEDS YOUR ATTENTION
+
+  1. blog.example.com has 3 known security holes
+     They're in Astra and Contact Form 7. An update usually fixes them.
+     → Update WordPress and its plugins: https://server.example.com:2083/website?domain=blog.example.com
+
+  WORTH A LOOK
+
+  • Your disk is 86% full
+     You're using 8.6 GB of 10.0 GB.
+     → See what uses the space: https://server.example.com:2083/disk-usage/
+  ...
+  See the full summary: https://server.example.com:2083/summary/2026-10-15
+```
+</details>
+
+### Error Report
+
+Command: `opencli user-error_report` emails users the errors and critical errors found in their websites' logs in the last 24 hours, the same ones shown on the [Error Logs](/docs/panel/statistics/error_logs/) page. Only users with the Error Logs feature who turned on **Daily error report** on their Notifications page get it, at most once a day and only when there were errors. It runs every day at 07:30.
+
+```bash
+opencli user-error_report <USERNAME|--all> [--dry-run]
+```
+
+`--dry-run` prints the email instead of sending it.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-error_report --all
+Checking stefan
+  stefan notified by email about 3 error(s).
+Checking john
+  john has the daily error report turned off.
+
+# opencli user-error_report stefan --dry-run
+  To: stefan@example.com
+  Subject: Daily error report for account stefan
+  In the last 24 hours, 2 error(s) were found in the logs of account stefan.
+
+  By website:
+  - example.com: 2
+
+  Latest errors:
+  - 2026-10-15 19:49 UTC [critical] php-fpm-8.3 (example.com): Fatal error: Uncaught Error: Call to undefined function nonexistent_fn() in /var/www/html/example.com/index.php:3
+  - 2026-10-15 19:42 UTC [critical] php-fpm-8.3 (example.com): Fatal error: Uncaught Error: Call to undefined function nonexistent_fn() in /var/www/html/example.com/index.php:5
 ```
 </details>
 
@@ -31141,8 +31898,11 @@ opencli websites-vulnerability --all
    [+] Vulnerabilities detected and saved.
 
 Summary: 2 Sites, 5 Plugins, 3 Themes in 00:00:14
+[+] stefan notified by email about 2 new finding(s).
 ```
 </details>
+
+With `--all`, which runs every two days from cron, each website owner gets one email listing the new findings on their WordPress websites, if they have **Vulnerable WordPress site** turned on in [Notifications](/docs/panel/account/notifications/#vulnerable-wordpress-site). A finding is new when the website's previous scan didn't have it, so the same vulnerability isn't emailed again. Scanning a single website doesn't send emails.
 
 ### PageSpeed
 
@@ -40076,6 +40836,9 @@ Released on October 15, 2026.
 Not yet released.
 
 ### 🐛 Bug Fixes
+- [emails created via terminal do not appear in OpenPanel UI on /emails UNTIL new email is created via gui #1201](https://github.com/stefanpejcic/OpenPanel/issues/1201)
+- [User backups for emails contain only dangling symliks #1197](https://github.com/stefanpejcic/OpenPanel/issues/1197)
+- [OpenPanel 2.0.15 update gets stuck at “Updating installed locales” on servers with multiple languages #1199](https://github.com/stefanpejcic/OpenPanel/issues/1199)
 - [Bug handling suspended domains: user can delete domain and add it again to remove a suspension #1198](https://github.com/stefanpejcic/OpenPanel/issues/1198)
 - `opencli sentinel` OOM alerts now list the killed processes with user, PID, container, memory and time instead of only a count, and kills inside users' rootless containers are no longer left out of the details.
 - Fixed several bugs with `opencli docker-backup` script.
@@ -40085,20 +40848,48 @@ Not yet released.
 - The Suspended Website editor on OpenAdmin > Domains > Domain Templates saved to `/etc/openpanel/nginx/suspended_website.html`, which isn't used, it now edits `/etc/openpanel/caddy/templates/suspended_domain.html` that Caddy serves.
 - Suspending and then unsuspending an account reactivated its domains that were suspended on their own, they now stay suspended.
 - `opencli domains-unsuspend` on a domain of a suspended account deleted the saved copy of its original vhost, and `opencli domains-suspend` overwrote it, both now refuse until the account is unsuspended.
+- The header row of the tables on Access Logs, WAF Logs, Email Import and Passkeys had a dark border instead of the light one used on other pages.
+- [OpenPanel update gets stuck at "Updating installed locales" on servers with multiple languages #1199](https://github.com/stefanpejcic/OpenPanel/issues/1199): `opencli update` now stops a stuck locale download after 60 seconds (up to 3 tries) and continues, and a failed download no longer empties the existing locale or `features.json` file.
+- Creating a reseller through `/api/settings/resellers` now uses `opencli admin new --reseller` like OpenAdmin does, so the limits from `reseller_template.json` are applied, and it's refused while resellers are disabled.
+- A reseller could create users through `POST /api/users` without any of their limits being checked, the users are now created under the reseller and their limits apply.
+- Changing a user's plan didn't check whether the plan is allowed for the user's reseller, `opencli user-change_plan` now refuses plans the reseller can't assign.
+- Resellers whose allowed plans were set from Edit Plans & Limits or the API saw no plans on Hosting Plans, and every plan on Add User. Edit Plans & Limits also didn't show which plans were already selected.
+- A reseller without a limits file in `/etc/openpanel/openadmin/resellers/` had no limits at all, the file is now created from `reseller_template.json` when it's missing.
+- `opencli admin update` exited with 0 even when the update failed.
 
 ### 💡 New
+- [Reseller Packages #1177](https://github.com/stefanpejcic/OpenPanel/discussions/1177): new [Hosting Plans > Reseller Packages](/docs/admin/plans/reseller_packages/) page with limit templates (max accounts, max disk, allowed user packages) for reseller accounts. Pick a package when creating a reseller or move a reseller to another one from Edit Plans & Limits, and editing a package updates all resellers on it. Moving to a package below the reseller's current usage is refused.
+- `opencli admin new USER PASS --reseller --plan=PACKAGE` and `opencli admin update USER --plan=PACKAGE` create a reseller on a package and move it to another one.
+- New `/api/plans/resellers` API endpoint to manage reseller packages, and `/api/settings/resellers` accepts `plan` on create and a new `change_plan` action, so billing systems can sell reseller hosting.
+- Max Disk Usage of a reseller is now a soft limit: once reached, the reseller can't create users, users can't be moved to them and their users can't be changed to a plan with more disk.
+- `POST /api/users` accepts `reseller` to create the account for a reseller.
+- Resellers can now use [more OpenAdmin pages](/docs/admin/accounts/resellers#pages-resellers-can-use), each limited to their own users, domains and emails: Domains, DNS Zone Editor, Rate Limiting, Email Accounts and Queue, Import Account, FTP, Web Firewall domains and logs, ImunifyAV per user, Resource Usage, Scheduled Actions (read only) and Locales, plus the same API endpoints with a reseller token.
+- Import Account can upload a backup from your computer, and `opencli user-restore --reseller=NAME` restores an account for a reseller within their limits.
 - `opencli waf user USERNAME enable|disable` turns CorazaWAF on or off for all current and new domains of a user, and `opencli waf user USERNAME` shows the user's WAF status.
 - Backups > Restore is redesigned: it opens with backup stats and a tile per type (Everything, Website Files, Databases, Emails, Domains, Cron Jobs), and each type lists its own backups so you can restore just what you need. The Databases tab lists each database once with an older-backup picker and restores several at a time, and any restore that brings back cron jobs now restarts the cron container so they take effect.
 - [Domains suspended by the Administrator are locked for the user #1166](https://github.com/stefanpejcic/OpenPanel/discussions/1166): OpenPanel shows **Suspended by Admin** with the reason and refuses to unsuspend, delete or change the domain, its VirtualHosts or its DNS zone. Users can still suspend and unsuspend their own domains. See [Suspend a domain](/docs/admin/domains/domains/#suspend-a-domain).
 - [Suspension reasons](/docs/admin/domains/file_templates/#suspension-reasons): pick a reason and an optional comment when suspending a domain in OpenAdmin, from the bulk actions or the API. Visitors see the reason's page and the user sees its name. Reasons are managed on OpenAdmin > Domains > Domain Templates, with Copyright / DMCA Violation, Overdue Payment / Billing and Phishing / Security Violation included.
 - `opencli domains-suspend` has new `--by=admin|user` and `--template=<reason>` flags, and `opencli domains-unsuspend` has `--by=admin|user`.
+- [Error Logs #1179](https://github.com/stefanpejcic/OpenPanel/discussions/1179): new [Statistics > Error Logs](/docs/panel/statistics/error_logs/) page with PHP, web server, database, application and HTTP 5xx errors of all websites in one place, filtered by website (including subfolder sites), service, severity, date and text, with Copy and Download for support. WordPress sites show their latest errors on the Debugging tab. Enable the `error_logs` module in OpenAdmin > Settings > Modules.
+- New [Daily Summary](/docs/panel/statistics/daily_summary/) module: every morning each user's previous day is saved, starting with what needs attention and a link to the page that fixes it, then traffic per website, disk, CPU and memory use, logins and account changes. Shown on Statistics > Daily Summary and kept for 90 days, and the Dashboard shows a notice when yesterday's summary found something. Enable the `summary` module in OpenAdmin > Settings > Modules.
+- New email notifications on [Account > Notifications](/docs/panel/account/notifications/): **Vulnerable WordPress site**, **Visitors blocked by rate limit**, **Daily summary** and **Daily error report**. Options for features the user doesn't have are hidden.
+- `opencli user-daily_summary` saves the daily summaries and emails them to users who turned them on, `opencli user-error_report` sends the daily error report. Both run daily from cron and have a `--dry-run` flag.
+- `opencli sentinel` can check every 6 hours whether visitors were blocked by the request rate limits and notify the admin and the domain owners, turned on with **Visitors blocked by rate limit** in OpenAdmin > Settings > Notifications (off by default).
+- `opencli sentinel` now blocks IPs with too many connections for 60 minutes using CSF, Cloudflare, whitelisted and server IPs are never blocked.
+- `opencli sentinel` alerts when more than 500 emails are in the mail queue with the top senders, and puts the queued emails of the top local sender on hold.
 
 ### 💅 Polish
+- `opencli sentinel` now frees disk space in steps when disk usage is over the threshold, safest first (journal, package cache, old logs, logs over 1GB, unused podman data and shared images, users' Trash), stops once it's back under the threshold, and the alert says what each step freed.
+- `opencli sentinel` high load, CPU and RAM alerts now name the 3 users using the most.
+- `opencli sentinel` turns on SYN cookies when it detects a possible SYN flood.
 - `opencli waf enable` no longer turns WAF back on for domains of users that have it turned off with `opencli waf user USERNAME disable`.
 - For accounts with admin-configured backups, the Backups page now opens Restore & Download directly since there is nothing to configure.
 - Downloading a backup from Backups > Restore now streams it straight from the destination instead of saving a temporary copy first.
 - The VirtualHost, Varnish and Caddy templates moved from OpenAdmin > Domains > Domain Templates to their own [VirtualHost Templates](/docs/admin/domains/vhost_templates/) tab at `/domains/vhost-templates`, and to the new `/api/domains/vhost-templates` API endpoint. `/api/domains/file-templates` now only handles `default_page`, `suspended_user` and `suspended_website`.
 - The Git column on OpenAdmin > Websites is now shown by default.
+- `opencli websites-vulnerability --all` now emails each website owner the new vulnerabilities found on their WordPress websites.
+- `opencli imunify notify` now also emails the user when an ImunifyAV scan finds malware in their account.
+- The date range picker from Account > Activity is now shared, and used on Statistics > Error Logs too.
 
 ---
 
@@ -45521,7 +46312,9 @@ Each alert is sent once per certificate, and all affected domains of the account
 
 ### Malware found
 
-Sends an email when the scheduled malware scan finds infected files and moves them to quarantine. The email lists up to 20 files with the malware signature found in each, and points to the **Malware Scanner > Quarantine** page to delete or restore them.
+Sends an email when a malware scan finds infected files on the account:
+- the scheduled ClamAV scan moves them to quarantine. The email lists up to 20 files with the malware signature found in each, and points to the **Malware Scanner > Quarantine** page to delete or restore them.
+- when your provider uses ImunifyAV, a finished scan that found malware in your account lists up to 20 of the files. ImunifyAV doesn't quarantine them, so remove or clean them, or ask your provider for help.
 
 Scans you start yourself from the Malware Scanner page don't send an email, since you see the results right away.
 
@@ -45530,9 +46323,20 @@ Scans you start yourself from the Malware Scanner page don't send an email, sinc
 
 ![Malware found email listing two quarantined files with their malware signatures, when the scan ran and what to do next](/img/openpanel-screenshots/account/notifications-email-malware.png)
 
+![Malware found email from an ImunifyAV scan listing two infected files and what to do next](/img/openpanel-screenshots/account/notifications-email-malware-imunify.png)
+
+### Vulnerable WordPress site
+
+Sends an email when WordPress, a plugin or a theme on one of your WordPress websites has a known security vulnerability. The server checks every WordPress site every two days, and the email lists each new finding with the website, the plugin or theme and the vulnerable versions. A vulnerability already reported in an earlier email isn't sent again. This option only shows up when your hosting plan includes WordPress.
+
+![Vulnerable WordPress site card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-wp-vulnerability.png#gh-light-mode-only)
+![Vulnerable WordPress site card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-wp-vulnerability_dark.png#gh-dark-mode-only)
+
+![Vulnerable WordPress email listing two Contact Form 7 vulnerabilities on blog.example.com and an Astra theme vulnerability, with tips to update](/img/openpanel-screenshots/account/notifications-email-wp-vulnerability.png)
+
 ### Email me if this alert gets turned off
 
-Every security alert except **SSL certificate problem** and **Malware found** has this option, and it's on by default. When it's on and someone turns the alert itself off, an email is sent listing the alerts that were turned off. This way nobody can quietly turn off your login or password alerts before doing something with your account.
+Every security alert except **SSL certificate problem**, **Malware found** and **Vulnerable WordPress site** has this option, and it's on by default. When it's on and someone turns the alert itself off, an email is sent listing the alerts that were turned off. This way nobody can quietly turn off your login or password alerts before doing something with your account.
 
 To really stop an alert, turn off this option first, save, and then turn off the alert.
 
@@ -45558,7 +46362,9 @@ Once the limit is reached, websites and email can stop working. Delete files you
 Sends an email when one of your email accounts uses 90% of its quota, showing a usage bar for each account that is almost full.
 
 ![Mailbox almost full card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-mailbox.png#gh-light-mode-only)
-![Mailbox almost full card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-mailbox_dark.png#gh-dark-mode-only) It's sent once per email account, and again only after usage drops below 90% and reaches it again.
+![Mailbox almost full card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-mailbox_dark.png#gh-dark-mode-only)
+
+It's sent once per email account, and again only after usage drops below 90% and reaches it again.
 
 When a mailbox is full, new emails to it are rejected. Delete old emails or raise the quota on the [Email Accounts](/docs/panel/emails/) page.
 
@@ -45587,6 +46393,39 @@ The email is sent at most once a day.
 ![Service stopped card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-service_dark.png#gh-dark-mode-only)
 
 ![Services restarted email listing MySQL that ran out of memory and PHP, both restarted, with tips for services that keep stopping](/img/openpanel-screenshots/account/notifications-email-service.png)
+
+### Visitors blocked by rate limit
+
+Sends an email when visitors to one of your domains got **429 Too Many Requests** because they sent more requests per minute than the domain's rate limit allows. For each domain it lists how many requests were blocked out of all requests, and the IP that was blocked the most. One IP with most of the blocks is usually a bot or a scraper. If real visitors are being blocked, ask your provider to raise the limit.
+
+It's off by default, and only sent when your provider turned on the rate limit check in OpenAdmin. Blocks are checked every 6 hours.
+
+![Visitors blocked by rate limit card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-visitors-blocked.png#gh-light-mode-only)
+![Visitors blocked by rate limit card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-visitors-blocked_dark.png#gh-dark-mode-only)
+
+![Visitors blocked by rate limit email listing two domains with how many requests were blocked and the IP blocked the most](/img/openpanel-screenshots/account/notifications-email-visitors-blocked.png)
+
+### Daily summary
+
+Sends one email every morning with the previous day's [Daily Summary](/docs/panel/statistics/daily_summary/): what needs your attention first, each with a link to the page that fixes it, then what's worth a look, what's all good, and the day's traffic, logins and account changes. The subject says how many things need your attention.
+
+It's off by default, and only shows up when your hosting plan includes the Daily Summary page.
+
+![Daily summary card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-daily-summary.png#gh-light-mode-only)
+![Daily summary card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-daily-summary_dark.png#gh-dark-mode-only)
+
+![Daily summary email with disk, files, CPU and memory bars, one thing that needs attention, two worth a look, the all good list, the websites, logins and changes, and a link to the full summary](/img/openpanel-screenshots/account/notifications-email-daily-summary.png)
+
+### Daily error report
+
+Sends one email a day with the errors and critical errors found in your websites' logs in the last 24 hours: how many per website, and the 20 newest with their time, service and first line of the message. It's not sent on days without errors. For the full messages and stack traces, open the [Error Logs](/docs/panel/statistics/error_logs/) page.
+
+It's off by default, and only shows up when your hosting plan includes the Error Logs page.
+
+![Daily error report card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-error-report.png#gh-light-mode-only)
+![Daily error report card with the Email me switch and a Learn more link](/img/openpanel-screenshots/account/notifications-error-report_dark.png#gh-dark-mode-only)
+
+![Daily error report email with the number of errors per website and the latest errors with their time, severity and service](/img/openpanel-screenshots/account/notifications-email-error-report.png)
 
 ### Upgrade offer
 
@@ -46107,8 +46946,13 @@ Toggle WordPress’s built-in debugging tools (WP_DEBUG, WP_DEBUG_LOG, etc.) dir
 These are great for testing or development sites — not recommended for production.
 For details, check [Debugging in WordPress](https://wordpress.org/documentation/article/debugging-in-wordpress/) for more information on these options.
 
-![Debugging tab with toggles for WP_DEBUG, WP_DEBUG_LOG, WP_DEBUG_DISPLAY, SCRIPT_DEBUG and SAVEQUERIES](/img/openpanel-screenshots/applications/wordpress-debugging.png#gh-light-mode-only)
-![Debugging tab with toggles for WP_DEBUG, WP_DEBUG_LOG, WP_DEBUG_DISPLAY, SCRIPT_DEBUG and SAVEQUERIES](/img/openpanel-screenshots/applications/wordpress-debugging_dark.png#gh-dark-mode-only)
+![Debugging tab with the latest errors of the site at the top, then the toggles for WP_DEBUG, WP_DEBUG_LOG, WP_DEBUG_DISPLAY, SCRIPT_DEBUG and SAVEQUERIES](/img/openpanel-screenshots/applications/wordpress-debugging.png#gh-light-mode-only)
+![Debugging tab with the latest errors of the site at the top, then the toggles for WP_DEBUG, WP_DEBUG_LOG, WP_DEBUG_DISPLAY, SCRIPT_DEBUG and SAVEQUERIES](/img/openpanel-screenshots/applications/wordpress-debugging_dark.png#gh-dark-mode-only)
+
+When your hosting plan includes [Error Logs](/docs/panel/statistics/error_logs/), the tab starts with the site's 10 newest errors: PHP, web server and HTTP 5xx errors of this site only, not of other sites in its subfolders. Click an error to see the whole message, **Refresh** to load them again, and **View Logs** to open the Error Logs page filtered to this site.
+
+![Error Logs section of the Debugging tab listing the site's latest errors with their severity, time and service, with View Logs and Refresh links](/img/openpanel-screenshots/applications/wordpress-debugging-errors.png#gh-light-mode-only)
+![Error Logs section of the Debugging tab listing the site's latest errors with their severity, time and service, with View Logs and Refresh links](/img/openpanel-screenshots/applications/wordpress-debugging-errors_dark.png#gh-dark-mode-only)
 
 ### Backups
 
@@ -47918,7 +48762,7 @@ By default, everything will be backed up. In case you need to backup only a spec
 | **PostgreSQL Databases**    |  Backups only PostgreSQL databases. |
 | **Cron Jobs**    |  Backups only the `crons.ini` file. |
 
-Databases are not copied from their live data directories. Right before the archive is created, every MySQL/MariaDB database is dumped with `mysqldump`/`mariadb-dump` (`--single-transaction --routines --triggers --events`) and every PostgreSQL database with `pg_dump`, into `backup/mysql/<database>.sql` and `backup/postgres/<database>.sql`. If any database fails to dump, the whole backup run fails so it doesn't go unnoticed. The names of the dumped databases are also written to a small `backup/00-meta/` folder that is always the first thing in the archive, so the panel can index a backup without downloading it.
+Databases are not copied from their live data directories. Right before the archive is created, every MySQL/MariaDB database is dumped with `mysqldump`/`mariadb-dump` (`--single-transaction --routines --triggers --events`) and every PostgreSQL database with `pg_dump`, into `backup/01-mysql/<database>.sql` and `backup/01-postgres/<database>.sql`, right after `backup/00-meta/` so a database can be restored without reading the website files (archives made before 2.0.16 have them at the end, in `backup/mysql/` and `backup/postgres/`). If any database fails to dump, the whole backup run fails so it doesn't go unnoticed. The names of the dumped databases are also written to a small `backup/00-meta/` folder that is always the first thing in the archive, so the panel can index a backup without downloading it.
 
 Emails and DNS zones are backed up too. Each domain's mailboxes are mounted into the backup at `backup/emails/<domain>/` (the older `backup/mail/` folder only holds links to them) and each domain's DNS zone at `backup/dns/<domain>.zone`. The `backup/00-meta/` folder also lists the website files, mailboxes, domains and DNS zones in the backup, so single items can be restored without downloading the whole archive.
 
@@ -49298,7 +50142,7 @@ The page reloads with the selected style. Your choice is saved in your browser, 
 To help new users get their account ready quickly, OpenPanel can show a guided setup wizard the first time you log in.
 
 :::info
-The Onboarding wizard must be enabled by the Administrator. If it's enabled and you don't see it, it's because your account already has a domain or a database — it's only offered before you've started using the account.
+The Onboarding wizard must be enabled by the Administrator. Steps for things you've already set up are left out: the Webserver step is skipped once you have a domain, Database once you have a database, Backups once a backup destination is configured, and the 2FA option once 2FA is enabled.
 :::
 
 ## When it appears
@@ -53528,6 +54372,76 @@ By following these best practices and maintaining efficient inode usage, you can
 
 ---
 
+// File: panel/statistics/daily_summary
+
+# Daily Summary
+
+The **Statistics > Daily Summary** page shows what happened on your account and websites each day. It starts with what needs fixing, each with a button that opens the page where you fix it, and ends with the day's numbers.
+
+![Daily Summary with the day in one sentence, requests, unique IPs, bandwidth, error pages and firewall blocks, the problems found with a button to fix each one, and the All good list](/img/openpanel-screenshots/statistics/daily_summary-page.png#gh-light-mode-only)
+![Daily Summary with the day in one sentence, requests, unique IPs, bandwidth, error pages and firewall blocks, the problems found with a button to fix each one, and the All good list](/img/openpanel-screenshots/statistics/daily_summary-page_dark.png#gh-dark-mode-only)
+
+:::info
+If you do not see the Daily Summary page, ask your provider to enable the [Daily Summary module](/docs/admin/settings/modules/#daily-summary) for your hosting plan.
+:::
+
+It opens with one sentence about the day: how many requests your websites handled from how many visitors, compared with the day before, and whether anything needs you. Below it are the day's totals: requests, unique IPs, bandwidth, error pages and attacks blocked by the web firewall.
+
+A summary of the previous day is saved every morning and kept for 90 days. Pick a day from the date list at the top, or use the arrows to go to the previous or next day. Until the first one is saved, the page says it will be ready the next morning.
+
+## Problems found
+
+Each problem has a colored dot. Red means it **needs your attention**: visitors notice it or it puts the account at risk. Yellow means it's **worth a look**: it may need action. Each one says in plain words what happened and what to do, with a button to the page where you can do it. When three or more websites had error pages without a known cause, they're grouped into one item that lists each website with how many times it happened. The suggestion depends on what your hosting plan includes. For example, a full disk links to the Trash when it holds a big share of the space, to Disk Usage otherwise, and asks you to contact your provider when your plan has neither page.
+
+| Check | Shown when |
+|---|---|
+| Vulnerable WordPress sites | WordPress, a plugin or a theme has a known vulnerability (needs the WordPress feature) |
+| Malware | the latest malware scan found infected files that day |
+| Server errors | visitors got a 5xx error, with the cause from the [Error Logs](/docs/panel/statistics/error_logs/) when your plan has them. Many errors, or 1% or more of the website's requests, need your attention, a few are worth a look |
+| SSL certificates | a certificate expires within 14 days or has expired |
+| Cron jobs | a cron job failed. A job that failed every run needs your attention |
+| Services | a service ran out of memory or stopped unexpectedly and was restarted |
+| Disk and files | the account uses 85% or more of its disk space or file limit, 95% needs your attention |
+| CPU and memory | the account used 90% or more of its CPU or memory limit in one of the hourly checks. When that happened in a quarter of the day or more, it needs your attention |
+| Processes | the account had 90% or more of the processes its plan allows running at once |
+| Rate limits | visitors got 429 Too Many Requests. When most blocks came from one IP, it suggests blocking it. Blocks from the server itself are never suggested for blocking |
+| Backups | there are no backups, or the newest is more than 7 days old (not shown when your provider manages backups for you) |
+| Mailboxes | an email account is 90% full |
+| Logins | someone logged in from an IP that wasn't used in the 30 days before, with a suggestion to turn on two-factor authentication when it's off |
+
+Checks for features your plan doesn't include are left out. **All good** (**What went well** in the email) lists the good news: checks that found nothing, attacks the web firewall stopped, the last backup, and your busiest page of the day.
+
+## Websites
+
+![Websites card listing each website by requests with its unique IPs, bandwidth, 404s and firewall blocks](/img/openpanel-screenshots/statistics/daily_summary-websites.png#gh-light-mode-only)
+![Websites card listing each website by requests with its unique IPs, bandwidth, 404s and firewall blocks](/img/openpanel-screenshots/statistics/daily_summary-websites_dark.png#gh-dark-mode-only)
+
+Every website with traffic that day, busiest first, with a bar for its share of the requests. Under each one are its unique IP addresses, bandwidth, 404 Not Found responses, requests blocked by the rate limit and attacks blocked by the web firewall, and a red badge when visitors got 5xx errors. Websites in subfolders, like `example.com/blog`, are listed on their own. The first 8 are shown, click **Show all** for the rest.
+
+Unique IPs count every visitor's address, bots included, so they are higher than the visitors analytics tools report. Bandwidth is what your websites sent to visitors.
+
+## Resource usage, logins and changes
+
+![Resource Usage card with disk space, files and folders, CPU and memory at the busiest hour as bars, next to the panel logins with country flags, then the changes made to the account](/img/openpanel-screenshots/statistics/daily_summary-usage.png#gh-light-mode-only)
+![Resource Usage card with disk space, files and folders, CPU and memory at the busiest hour as bars, next to the panel logins with country flags, then the changes made to the account](/img/openpanel-screenshots/statistics/daily_summary-usage_dark.png#gh-dark-mode-only)
+
+* **Resource Usage**: disk space and files against your plan's limits, and the CPU and memory used in the busiest hour of the day, from the hourly checks also shown on the [Resource Usage](/docs/panel/statistics/resource_usage/) page.
+* **Panel logins**: each login to OpenPanel with its IP address and country. IPs not used in the 30 days before are marked **New IP**.
+* **Changes to your account**: the changes made that day, the same ones shown in the [Activity log](/docs/panel/security/account_activity/). Long lists show the first 10, click **Show all** for the rest.
+
+## On the dashboard
+
+When yesterday's summary found something, the Dashboard shows a notice with the number of problems and a **View summary** button that opens that day. It shows once for each summary, and not while the setup wizard is open.
+
+![Dashboard toast saying yesterday's summary found something to check, with the number of items that need attention and worth a look and a View summary button](/img/openpanel-screenshots/statistics/daily_summary-toast.png#gh-light-mode-only)
+![Dashboard toast saying yesterday's summary found something to check, with the number of items that need attention and worth a look and a View summary button](/img/openpanel-screenshots/statistics/daily_summary-toast_dark.png#gh-dark-mode-only)
+
+## Getting it by email
+
+To get the summary every morning, turn on **Daily summary** on the [Notifications](/docs/panel/account/notifications/#daily-summary) page. The email has the same sections, with disk, CPU and memory drawn as bars, links straight to each fix, and ends with a link to that day on this page. The summaries are saved on this page whether the email is on or off.
+
+---
+
 // File: panel/statistics/goaccess
 
 # Visitor Statistics
@@ -53579,38 +54493,56 @@ By default, 1,000 results are shown per page. This limit is configurable by the 
 
 # Error Logs
 
-The **Error Logs** page is available in your OpenPanel dashboard only if the **Error Logs** module is enabled on the server and your hosting plan includes it.
+The **Statistics > Error Logs** page shows the errors of all your websites in one place, so you don't need to know which service or container to check.
 
-It shows errors for all of your websites in one place, so you don't have to know which service or container to check.
+![Error Logs page with the website, service, severity, search and date filters above a table of errors with their time, severity, service, website and message](/img/openpanel-screenshots/statistics/error_logs-page.png#gh-light-mode-only)
+![Error Logs page with the website, service, severity, search and date filters above a table of errors with their time, severity, service, website and message](/img/openpanel-screenshots/statistics/error_logs-page_dark.png#gh-dark-mode-only)
+
+:::info
+If you do not see the Error Logs page, ask your provider to enable the [Error Logs module](/docs/admin/settings/modules/#error-logs) for your hosting plan.
+:::
 
 Errors are collected from:
 
-* **PHP**: warnings, notices, deprecations, fatal errors (with the stack trace) and messages written with `error_log()`, from every PHP version you use
+* **PHP**: warnings, notices, deprecations, fatal errors with their stack trace, and messages written with `error_log()`, from every PHP version you use.
 * **Web server**: errors and warnings from Apache, Nginx, OpenResty, OpenLiteSpeed or LiteSpeed. With OpenLiteSpeed or LiteSpeed, PHP runs inside the web server, so PHP errors are listed under that service instead of a PHP version.
-* **Database**: errors and warnings from MySQL, MariaDB or PostgreSQL
-* **HTTP 5xx responses**: requests to your domains that ended with a 500, 502, 503 or 504 response
+* **Database**: errors and warnings from MySQL, MariaDB or PostgreSQL. Startup messages are left out.
+* **Applications**: errors from Node.js, Python, Ruby, Java and n8n applications, and from containers connected to a domain, with their stack traces. Applications print all their output, so only lines that look like errors or warnings are shown.
+* **HTTP 5xx responses**: requests to your domains that ended with a 500, 502, 503 or 504 error.
 
-Each entry shows the time (in your browser's timezone), the severity, the service it came from, the domain it belongs to and the message. Click a row to see the full message.
+Each row shows the time in your browser's timezone, the severity, the service it came from, the website it belongs to and the message. Click a row to see the whole message with its stack trace. Click a column name to sort by it, severity sorts from Critical down to Info.
 
 ## Filtering
 
-* **Domain**: show only errors for one of your domains. A PHP error is matched to a domain by the path of the file that caused it.
-* **Service**: show only one source, for example a single PHP version.
-* **Severity**: show everything, only warnings and errors, or only errors.
-* **Time range**: the last hour, 6 hours, 24 hours (default), 7 days, 30 days, or a custom range.
-* **Search**: show only entries whose message contains the text, for example `Fatal error`, `wp-content` or `502`.
+![Error Logs filters: website with subfolder sites, service, severity, search, the date range picker and the Apply and Reset buttons](/img/openpanel-screenshots/statistics/error_logs-filters.png#gh-light-mode-only)
+![Error Logs filters: website with subfolder sites, service, severity, search, the date range picker and the Apply and Reset buttons](/img/openpanel-screenshots/statistics/error_logs-filters_dark.png#gh-dark-mode-only)
 
-The newest 500 entries are shown. If there are more, narrow the filters to see the rest.
+* **Website**: one of your domains, or a website installed in a subfolder like `example.com/blog`, listed under its domain. A PHP error is matched to a website by the path of the file that caused it, and a 5xx response by the requested URL. Picking a domain also shows the errors of the websites in its subfolders.
+* **Service**: one source, for example a single PHP version, the web server or one application.
+* **Severity**: everything, only warnings and errors, or only errors.
+* **Search**: only entries whose message contains the text, for example `Fatal error`, `wp-content` or `502`.
+* **Date**: today, the last 7 or 30 days, 3 or 6 months, or any range picked in the calendar. Without a date, the newest entries are shown.
+
+Errors are shown 100 per page, newest first, up to the newest 5,000. If there are more, narrow the filters to see the rest.
 
 ## Sharing errors with support
 
-* **Copy** puts the entries you ticked on your clipboard, or all visible entries if none are ticked.
-* **Download** saves all entries that match the current filters as a `.txt` file.
+Select errors with the checkboxes, or all of them with the checkbox in the table header, and use the bar at the bottom of the page:
 
-Both give one line per entry with the time in UTC, severity, service, domain and message, ready to paste into a support ticket.
+![Two errors selected with the bulk actions bar offering Copy and Download](/img/openpanel-screenshots/statistics/error_logs-bulk.png#gh-light-mode-only)
+![Two errors selected with the bulk actions bar offering Copy and Download](/img/openpanel-screenshots/statistics/error_logs-bulk_dark.png#gh-dark-mode-only)
+
+* **Copy** puts the selected errors on your clipboard.
+* **Download** saves the selected errors as a `.txt` file.
+
+Both give one line per error with the time in UTC, severity, service, website and message, ready to paste into a support ticket.
+
+## Daily error report
+
+To get the errors by email once a day, turn on **Daily error report** on the [Notifications](/docs/panel/account/notifications/#daily-error-report) page.
 
 :::info
-Applications that write their own log files are not shown here. For example, WordPress with `WP_DEBUG_LOG` enabled writes to `wp-content/debug.log`, which you can open from the File Manager.
+Applications that write their own log files are not shown here. For example, WordPress with `WP_DEBUG_LOG` enabled writes to `wp-content/debug.log`, which you can open from the File Manager. The latest errors of a WordPress site are also shown on its [Debugging](/docs/panel/applications/wordpress/#debugging) tab.
 :::
 
 ---

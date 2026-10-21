@@ -80,6 +80,7 @@ func classifyTarListing(backup, listing string) BackupInfo {
 		if entry == "" {
 			continue
 		}
+		entry, _ = canonicalName(entry)
 		sawEntries = true
 		parts := strings.Split(entry, "/")
 		if len(parts) < 2 || parts[0] != "backup" {
@@ -184,10 +185,11 @@ func classifyArchiveStream(backup string, r io.Reader, listAll bool, saveList fu
 		if err != nil {
 			return BackupInfo{}, false, err
 		}
-		names = append(names, header.Name)
 		name := strings.Trim(header.Name, "/")
-		if strings.HasPrefix(name, "backup/mysql/") || strings.HasPrefix(name, "backup/postgres/") {
-			if db, ok := dumpDBName(name); ok {
+		canonical, _ := canonicalName(name)
+		names = append(names, canonical)
+		if _, isDump := dumpEngine(canonical); isDump {
+			if db, ok := dumpDBName(canonical); ok {
 				dbSizes[db] += header.Size
 			}
 		}

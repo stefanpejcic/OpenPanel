@@ -119,6 +119,7 @@ func streamItems(w http.ResponseWriter, archive io.Reader, kind, backup string, 
 	var tw *tar.Writer
 	var outGz *gzip.Writer
 	sent := 0
+	layout := newArchiveLayout()
 	tr := tar.NewReader(gz)
 	for {
 		header, err := tr.Next()
@@ -131,8 +132,9 @@ func streamItems(w http.ResponseWriter, archive io.Reader, kind, backup string, 
 			}
 			break
 		}
-		name := strings.Trim(header.Name, "/")
-		if pastAll(name, targets) {
+		raw := strings.Trim(header.Name, "/")
+		name := layout.observe(raw)
+		if layout.pastAll(raw, targets) {
 			break
 		}
 		if header.Typeflag != tar.TypeReg && header.Typeflag != tar.TypeDir {

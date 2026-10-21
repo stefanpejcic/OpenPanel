@@ -140,6 +140,7 @@ func collectEntries(ctx context.Context, store remoteStore, backup string, targe
 	defer gz.Close()
 
 	found := map[string][]byte{}
+	layout := newArchiveLayout()
 	tr := tar.NewReader(gz)
 	for {
 		header, err := tr.Next()
@@ -149,8 +150,9 @@ func collectEntries(ctx context.Context, store remoteStore, backup string, targe
 		if err != nil {
 			return found, err
 		}
-		name := strings.Trim(header.Name, "/")
-		if pastAll(name, targets) {
+		raw := strings.Trim(header.Name, "/")
+		name := layout.observe(raw)
+		if layout.pastAll(raw, targets) {
 			break
 		}
 		if header.Typeflag != tar.TypeReg {
@@ -246,7 +248,7 @@ func restoreSelectedItems(ctx context.Context, a *appctx.App, req restoreRequest
 
 	var extracted []string
 	if restoreTarget == "domains" {
-		// vhosts come last in the archive, read them first so a missing domain can be added with its own docroot
+		// read the vhosts first so a missing domain can be added with its own docroot
 		contents, err := collectEntries(ctx, store, backup, targets)
 		if err != nil {
 			return http.StatusInternalServerError, map[string]any{"error": err.Error()}
