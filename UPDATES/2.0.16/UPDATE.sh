@@ -292,3 +292,16 @@ if [ -f /etc/openpanel/caddy/Caddyfile ]; then
     done
     podman pull docker.io/openpanel/caddy-coraza:latest >/dev/null 2>&1 || echo "Failed to pull the new caddy image, it will be pulled on the next caddy recreate."
 fi
+
+# php images get security fixes upstream, pull each php version in use and recreate only the running php-fpm containers on it, so they also pick up the container-sized pool from fpm-tuning.sh above
+# docker-update pulls every image once into the shared store, skips versions nothing runs, and reloads each user's webserver after its php-fpm container is recreated
+if [ -x /usr/local/opencli/docker/update.sh ] && grep -q "TARGET_IMAGE" /usr/local/opencli/docker/update.sh; then
+    php_images=$(grep -hoE "^    image:[[:space:]]*['\"]?(docker\.io/)?shinsenter/php:[0-9.]+-fpm" /etc/openpanel/docker/compose/1.0/docker-compose.yml /home/*/docker-compose.yml 2>/dev/null \
+        | sed -E "s/^    image:[[:space:]]*['\"]?(docker\.io\/)?//" | sort -uV)
+    for image in $php_images; do
+        echo "Updating $image..."
+        opencli docker-update "$image" -y || echo "Failed to update $image, run: opencli docker-update $image"
+    done
+else
+    echo "opencli docker-update can't update a single image, php images not updated - run opencli update first, then: opencli docker-update shinsenter/php:8.4-fpm"
+fi

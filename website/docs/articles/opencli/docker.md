@@ -24,45 +24,50 @@ opencli docker <USERNAME> <container>
 
 ### Update
 
-Checks for image updates across root's stack and every non-suspended user's stack (via [skopeo](https://github.com/containers/skopeo)), prints what's available, and optionally pulls + recreates the affected services. Each image is pulled at most once into the shared image store, so multiple stacks referencing the same image only download it once.
+Checks for image updates across root's stack and every non-suspended user's stack (via [skopeo](https://github.com/containers/skopeo)), prints what's available, and optionally pulls the new images and recreates the running containers that use an outdated image. Nothing else in a stack is stopped or started. Each image is pulled at most once into the shared image store, so multiple stacks referencing the same image only download it once.
 
 ```bash
-opencli docker-update [options]
+opencli docker-update [IMAGE] [options]
 ```
+
+With `IMAGE` (e.g. `shinsenter/php:8.4-fpm`) only that image is checked, pulled, and only the running containers that use it are recreated. After a php-fpm container is recreated, the user's webserver is reloaded so it connects to the new container. Containers created depending on the recreated one (e.g. a webserver with `depends_on` on php-fpm) are recreated with it. Containers that aren't running are left alone and use the new image on their next start.
 
 <details>
   <summary>Example output</summary>
 
 ```bash
-# opencli docker-update
-Checking 14 unique image(s)...
-  ^  docker.io/library/mariadb:latest - update available
-  ^  docker.io/library/nginx:latest - update available
-  +  docker.io/library/redis:8.6.2-alpine - not pulled yet
-
-3 image(s) have an update available, affecting 2 context(s):
-  - root
-  - user: stefan
-
-Apply these updates now? [y/N] (auto-cancel in 10s): y
-2026-09-24 10:20:01 : === Update run started ===
-2026-09-24 10:20:01 : pull docker.io/library/mariadb:latest
-2026-09-24 10:20:12 : pull docker.io/library/nginx:latest
-2026-09-24 10:20:19 : pull docker.io/library/redis:8.6.2-alpine
-2026-09-24 10:20:24 : recreating stack for root (down/up)
-2026-09-24 10:20:41 :   root is back up
-2026-09-24 10:20:41 : recreating stack for user: stefan (down/up)
-2026-09-24 10:20:55 :   user: stefan is back up
-2026-09-24 10:20:55 : === Update run finished ===
+# opencli docker-update shinsenter/php:8.5-fpm -y
+shinsenter/php:8.5-fpm
+  registry: sha256:9acaa2a26e7aa41cb873c7766fb68b480c18fff118627070c8fee952d3f33f7d
+  shared store: newer image available, will be pulled
+  recreate: user: stefan: php-fpm-8.5, then reload its webserver
+  recreate: user: demo: php-fpm-8.5, then reload its webserver
+  not running, left alone: user: test: php-fpm-8.5
+1 pull(s), 2 container(s) to recreate.
+2026-10-21 15:54:07 : === Update run started ===
+2026-10-21 15:54:07 : pull shinsenter/php:8.5-fpm into the shared store
+2026-10-21 15:54:17 : recreating php-fpm-8.5 for user: stefan
+2026-10-21 15:54:30 :   reloaded apache (USR1) for user: stefan
+2026-10-21 15:54:30 : recreating php-fpm-8.5 for user: demo
+2026-10-21 15:54:45 :   reloaded apache (USR1) for user: demo
+2026-10-21 15:54:45 : === Update run finished ===
 ```
 </details>
+
+Update every PHP version used on the server:
+
+```bash
+for v in 5.6 7.0 7.1 7.2 7.3 7.4 8.0 8.1 8.2 8.3 8.4 8.5; do
+  opencli docker-update shinsenter/php:${v}-fpm -y
+done
+```
 
 Options:
 
 - `-y`, `--yes` - apply updates without prompting for confirmation.
 - `--dry-run` - only check and print available updates, never prompt or apply.
 
-With no options, available updates are printed and confirmation is asked for 10 seconds — if there's no answer in that time, the script exits without changing anything.
+With no options, available updates are printed and confirmation is asked for 10 seconds — if there's no answer in that time, the script exits without changing anything. Every run is logged to `/var/log/openpanel/admin/docker/<date>.log`.
 
 ### Autostart
 
