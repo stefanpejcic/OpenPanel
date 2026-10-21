@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# opencli update runs this as wget -O - URL | bash, so a command below that reads stdin (apt-get, podman) would eat the rest of the script and bash would go on mid-line; the rest is saved to a file and run from there with stdin closed
+if [ -z "${BASH_SOURCE[0]:-}" ] || [ ! -f "${BASH_SOURCE[0]}" ]; then
+    self=$(mktemp) && cat > "$self" && OP_UPDATE_SELF="$self" exec bash "$self" "$@" </dev/null
+fi
+[ -n "${OP_UPDATE_SELF:-}" ] && trap 'rm -f "$OP_UPDATE_SELF"' EXIT
+
 # PHP2Shell (CVE-2026-109618, CVE-2026-109619): https://github.com/stefanpejcic/OpenPanel/issues/1203
 # 2.0.16 pulled shinsenter/php before upstream rebuilt 8.3 and 8.2 (and on servers that updated early, 8.5 and 8.4 too), and didn't cover phpMyAdmin and Roundcube
 # docker-update now checks the PHP version inside each image and skips the recreate, reporting a failure, while an image still has the old PHP

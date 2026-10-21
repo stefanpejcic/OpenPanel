@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# opencli update runs this as wget -O - URL | bash, so a command below that reads stdin (apt-get, podman) would eat the rest of the script and bash would go on mid-line; the rest is saved to a file and run from there with stdin closed
+if [ -z "${BASH_SOURCE[0]:-}" ] || [ ! -f "${BASH_SOURCE[0]}" ]; then
+    self=$(mktemp) && cat > "$self" && OP_UPDATE_SELF="$self" exec bash "$self" "$@" </dev/null
+fi
+[ -n "${OP_UPDATE_SELF:-}" ] && trap 'rm -f "$OP_UPDATE_SELF"' EXIT
+
 # docker_backup notification is new in 2.0.16, add it so it can be toggled from OpenAdmin > Settings > Notifications
 NOTIFICATIONS_INI="/etc/openpanel/openadmin/config/notifications.ini"
 if [ -f "$NOTIFICATIONS_INI" ] && ! grep -q "^docker_backup=" "$NOTIFICATIONS_INI"; then
