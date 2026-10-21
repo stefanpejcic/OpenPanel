@@ -4,6 +4,7 @@
 
 | Version| Release date | 
 |---|---|
+|__[2.0.17](/docs/changelog/2.0.17)__|  |
 |__[1.7.67](/docs/changelog/1.7.67)__|  |
 
 ### Latest

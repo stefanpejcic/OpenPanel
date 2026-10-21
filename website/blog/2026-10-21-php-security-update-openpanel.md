@@ -14,6 +14,22 @@ Both bugs affect every PHP installation that serves web requests, PHP-FPM includ
 
 <!-- truncate -->
 
+:::warning Update, October 21, 2026
+When 2.0.16 was released, the `shinsenter/php` images for 8.3 and 8.2 were not rebuilt yet, and servers that updated before 17:23 UTC also got the old 8.5 and 8.4 images. phpMyAdmin and Roundcube, which run PHP too, were not covered ([#1203](https://github.com/stefanpejcic/OpenPanel/issues/1203)).
+
+**OpenPanel 2.0.17** pulls every PHP version again and only recreates containers on images that have the fixed PHP, updates phpMyAdmin and Roundcube, and keeps the Roundcube database when it's recreated. Until then, check the PHP version your server actually runs:
+
+```bash
+podman exec phpmyadmin php -r 'echo PHP_VERSION, PHP_EOL;'
+podman exec openadmin_roundcube php -r 'echo PHP_VERSION, PHP_EOL;'
+for v in 8.2 8.3 8.4 8.5; do
+  echo -n "$v: "; podman run --rm --entrypoint php docker.io/shinsenter/php:$v-fpm -r 'echo PHP_VERSION, PHP_EOL;'
+done
+```
+
+Anything below 8.2.35, 8.3.36, 8.4.27 or 8.5.12 is still vulnerable. If you can't wait, the [manual patch guide](/docs/articles/security/php2shell-patch-php-before-images-are-rebuilt) rebuilds PHP inside the images.
+:::
+
 ## The vulnerabilities
 
 | CVE | Advisory | Severity | What goes wrong |

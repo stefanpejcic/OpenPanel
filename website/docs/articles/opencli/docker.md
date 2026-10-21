@@ -32,6 +32,8 @@ opencli docker-update [IMAGE] [options]
 
 With `IMAGE` (e.g. `shinsenter/php:8.4-fpm`) only that image is checked, pulled, and only the running containers that use it are recreated. After a php-fpm container is recreated, the user's webserver is reloaded so it connects to the new container. Containers created depending on the recreated one (e.g. a webserver with `depends_on` on php-fpm) are recreated with it. Containers that aren't running are left alone and use the new image on their next start.
 
+After pulling an image with PHP in it, the PHP version inside it is checked. If it's older than its branch's latest security release, the image's containers are not recreated and the run is reported as failed, run the command again once the image is rebuilt.
+
 <details>
   <summary>Example output</summary>
 
