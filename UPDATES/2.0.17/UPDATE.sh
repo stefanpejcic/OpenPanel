@@ -25,22 +25,6 @@ podman ps --format '{{.Names}}' 2>/dev/null | while read -r name; do
     podman mount "$name" >/dev/null 2>&1 </dev/null || echo "Failed to remount $name, restart it with: podman stop $name && podman umount --force $name && podman start $name"
 done
 
-# every php version in use, versions whose image isn't rebuilt yet are reported and left as they are
-php_images=$(grep -hoE "^    image:[[:space:]]*['\"]?(docker\.io/)?shinsenter/php:[0-9.]+-fpm" /etc/openpanel/docker/compose/1.0/docker-compose.yml /home/*/docker-compose.yml 2>/dev/null \
-    | sed -E "s/^    image:[[:space:]]*['\"]?(docker\.io\/)?//" | sort -uV)
-for image in $php_images; do
-    echo "Updating $image..."
-    opencli docker-update "$image" -y || echo "Not all containers on $image were updated, run again later: opencli docker-update $image"
-done
-
-# phpMyAdmin is in root's stack, docker-update recreates it if it's running
-if podman container exists phpmyadmin; then
-    pma_image=$(podman inspect -f '{{.ImageName}}' phpmyadmin 2>/dev/null)
-    pma_image="${pma_image:-phpmyadmin:latest}"
-    echo "Updating $pma_image..."
-    opencli docker-update "$pma_image" -y || echo "phpMyAdmin was not updated, run again later: opencli docker-update $pma_image"
-fi
-
 # Roundcube runs from the mail stack, which docker-update doesn't manage; its sqlite db (contacts, identities, settings) is in the container layer, so it's moved to the host first and kept from now on
 MAIL_DIR=/usr/local/mail/openmail
 MAIL_COMPOSE="$MAIL_DIR/compose.yml"
@@ -112,3 +96,24 @@ update_roundcube() {
     echo "Roundcube now runs PHP $(podman exec "$RC_CONTAINER" php -r 'echo PHP_VERSION;' 2>/dev/null)."
 }
 update_roundcube
+
+# phpMyAdmin and every php version in use go through docker-update in their own unit: on a server with many accounts this takes longer than the 300 seconds opencli update gives this script, which got killed in the middle of it in 2.0.16
+# the unit first waits for a php update 2.0.16 started in the background, so two docker-update runs never overlap; php versions whose image isn't rebuilt yet are reported and left as they are, newest versions go first
+images=""
+if podman container exists phpmyadmin; then
+    pma_image=$(podman inspect -f '{{.ImageName}}' phpmyadmin 2>/dev/null)
+    images="${pma_image:-phpmyadmin:latest} "
+fi
+images+=$(grep -hoE "^    image:[[:space:]]*['\"]?(docker\.io/)?shinsenter/php:[0-9.]+-fpm" /etc/openpanel/docker/compose/1.0/docker-compose.yml /home/*/docker-compose.yml 2>/dev/null \
+    | sed -E "s/^    image:[[:space:]]*['\"]?(docker\.io\/)?//" | sort -urV | tr '\n' ' ')
+if [ -n "${images// /}" ]; then
+    IMAGES_LOG=/var/log/openpanel/updates/2.0.17-images.log
+    mkdir -p "$(dirname "$IMAGES_LOG")"
+    IMAGES_RUN='while systemctl list-units --no-legend --plain "openpanel-php-update-*" 2>/dev/null | grep -q " active "; do echo "Waiting for the PHP update from 2.0.16 to finish..."; sleep 30; done; for image in '"$images"'; do echo "Updating $image..."; opencli docker-update "$image" -y || echo "Not all containers on $image were updated, run again later: opencli docker-update $image"; done; echo "Image update finished."'
+    echo "Updating phpMyAdmin and PHP images in the background ($images), follow it with: tail -f $IMAGES_LOG"
+    if ! systemd-run --unit="openpanel-image-update-$(date +%s)" --collect --quiet --setenv=HOME=/root \
+            -p StandardOutput="append:$IMAGES_LOG" -p StandardError="append:$IMAGES_LOG" \
+            /bin/bash -c "$IMAGES_RUN" 2>/dev/null; then
+        setsid nohup /bin/bash -c "$IMAGES_RUN" >> "$IMAGES_LOG" 2>&1 </dev/null &
+    fi
+fi

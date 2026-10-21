@@ -301,13 +301,21 @@ fi
 
 # php images get security fixes upstream, pull each php version in use and recreate only the running php-fpm containers on it, so they also pick up the container-sized pool from fpm-tuning.sh above
 # docker-update pulls every image once into the shared store, skips versions nothing runs, and reloads each user's webserver after its php-fpm container is recreated
+# it runs in its own unit: on a server with many accounts it takes longer than the 300 seconds opencli update gives this script, which got killed in the middle of it; newest versions go first
 if [ -x /usr/local/opencli/docker/update.sh ] && grep -q "TARGET_IMAGE" /usr/local/opencli/docker/update.sh; then
     php_images=$(grep -hoE "^    image:[[:space:]]*['\"]?(docker\.io/)?shinsenter/php:[0-9.]+-fpm" /etc/openpanel/docker/compose/1.0/docker-compose.yml /home/*/docker-compose.yml 2>/dev/null \
-        | sed -E "s/^    image:[[:space:]]*['\"]?(docker\.io\/)?//" | sort -uV)
-    for image in $php_images; do
-        echo "Updating $image..."
-        opencli docker-update "$image" -y || echo "Failed to update $image, run: opencli docker-update $image"
-    done
+        | sed -E "s/^    image:[[:space:]]*['\"]?(docker\.io\/)?//" | sort -urV | tr '\n' ' ')
+    if [ -n "$php_images" ]; then
+        PHP_LOG=/var/log/openpanel/updates/2.0.16-php.log
+        mkdir -p "$(dirname "$PHP_LOG")"
+        PHP_RUN='for image in '"$php_images"'; do echo "Updating $image..."; opencli docker-update "$image" -y || echo "Failed to update $image, run: opencli docker-update $image"; done; echo "PHP update finished."'
+        echo "Updating PHP images in the background ($php_images), follow it with: tail -f $PHP_LOG"
+        if ! systemd-run --unit="openpanel-php-update-$(date +%s)" --collect --quiet --setenv=HOME=/root \
+                -p StandardOutput="append:$PHP_LOG" -p StandardError="append:$PHP_LOG" \
+                /bin/bash -c "$PHP_RUN" 2>/dev/null; then
+            setsid nohup /bin/bash -c "$PHP_RUN" >> "$PHP_LOG" 2>&1 </dev/null &
+        fi
+    fi
 else
     echo "opencli docker-update can't update a single image, php images not updated - run opencli update first, then: opencli docker-update shinsenter/php:8.4-fpm"
 fi
