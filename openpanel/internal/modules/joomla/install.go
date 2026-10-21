@@ -2,10 +2,8 @@ package joomla
 
 import (
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -14,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
@@ -90,13 +89,13 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	docrootWithoutWWW := strings.TrimPrefix(strings.TrimPrefix(installPath, "/var/www/html/"), "/")
 	hostOSPath := filepath.Join(htmlVolume, docrootWithoutWWW)
 
-	if _, statErr := os.Stat(hostOSPath); statErr == nil {
-		if entries, readErr := os.ReadDir(hostOSPath); readErr == nil && len(entries) > 0 {
+	if _, statErr := tenantfs.Stat(hostOSPath); statErr == nil {
+		if entries, readErr := tenantfs.ReadDir(hostOSPath); readErr == nil && len(entries) > 0 {
 			emit(map[string]any{"error": "Directory " + installPath + " already exists and is not empty."})
 			return
 		}
 	}
-	if mkErr := os.MkdirAll(hostOSPath, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(hostOSPath, 0o755); mkErr != nil {
 		emit(map[string]any{"error": "Error creating document root: " + mkErr.Error()})
 		return
 	}
@@ -114,10 +113,10 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	archiveName := "Joomla_" + version + "-Stable-Full_Package.tar.gz"
 	archiveDir := "/etc/openpanel/joomla/archives"
 	archivePath := filepath.Join(archiveDir, archiveName)
-	if _, statErr := os.Stat(archivePath); statErr != nil {
+	if _, statErr := tenantfs.Stat(archivePath); statErr != nil {
 		downloadURL := "https://github.com/joomla/joomla-cms/releases/download/" + version + "/" + archiveName
 		emit(map[string]any{"status": "Downloading " + downloadURL})
-		_ = os.MkdirAll(archiveDir, 0o755)
+		_ = tenantfs.MkdirAll(archiveDir, 0o755)
 		if runErr := exec.CommandContext(ctx, "wget", "-q", "-P", archiveDir, downloadURL).Run(); runErr != nil {
 			emit(map[string]any{"error": "Error downloading Joomla " + version + ": " + runErr.Error()})
 			return
@@ -127,7 +126,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	emit(map[string]any{"status": "Extracting files to " + installPath})
-	if runErr := exec.CommandContext(ctx, "tar", "-xzf", archivePath, "-C", hostOSPath).Run(); runErr != nil {
+	if runErr := tenantfs.ExtractTar(ctx, archivePath, hostOSPath, 0); runErr != nil {
 		emit(map[string]any{"error": "Error extracting Joomla archive: " + runErr.Error()})
 		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
@@ -141,8 +140,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
 	}
-	uidStr := strconv.Itoa(uid)
-	if chownErr := exec.Command("chown", "-R", uidStr+":"+uidStr, hostOSPath).Run(); chownErr != nil {
+	if chownErr := tenantfs.ChownR(hostOSPath, uid, uid); chownErr != nil {
 		emit(map[string]any{"error": "Could not set file ownership: " + chownErr.Error()})
 		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
@@ -213,9 +211,9 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	emit(map[string]any{"status": "Deploying admin login helper"})
 	loginFilePath := filepath.Join(hostOSPath, openpanelLoginFileName)
-	if writeErr := os.WriteFile(loginFilePath, []byte(openpanelLoginPHP), 0o644); writeErr == nil {
+	if writeErr := tenantfs.WriteFile(loginFilePath, []byte(openpanelLoginPHP), 0o644); writeErr == nil {
 		if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
-			_ = os.Lchown(loginFilePath, uid, uid)
+			_ = tenantfs.Lchown(loginFilePath, uid, uid)
 		}
 	}
 

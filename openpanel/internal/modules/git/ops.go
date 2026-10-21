@@ -6,11 +6,13 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 )
 
@@ -137,13 +139,12 @@ func branchCommit(ctx context.Context, userContext, name, branch string) (string
 }
 
 // chownTree is swapped out in tests, deployed files must belong to the account's uid or its containers can't touch them
-var chownTree = func(ctx context.Context, userContext, hostPath string) error {
+var chownTree = func(userContext string, root *os.Root, rel string) error {
 	uid, err := podmanmanager.GetUID(userContext)
 	if err != nil {
 		return err
 	}
-	ids := strconv.Itoa(uid) + ":" + strconv.Itoa(uid)
-	return exec.CommandContext(ctx, "chown", "-R", ids, hostPath).Run()
+	return paths.ChownTree(root, rel, uid)
 }
 
 // runActions is swapped out in tests, it runs the post-deploy commands inside the chosen container
@@ -159,22 +160,46 @@ func deployRepo(ctx context.Context, userContext string, r Repo) (commit, output
 	if !ok {
 		return "", "", errors.New("branch " + r.Branch + " has no commits yet, push to it first")
 	}
-	hostPath, err := targetHostPath(userContext, r.TargetDir)
+	root, err := paths.OpenUserRoot("HOME", userContext)
 	if err != nil {
 		return "", "", err
 	}
-	if err := os.MkdirAll(hostPath, 0o755); err != nil {
+	defer root.Close()
+	target, err := root.Rel(strings.TrimPrefix(strings.TrimPrefix(r.TargetDir, htmlRoot), "/"), false)
+	if err != nil {
+		return "", "", err
+	}
+	if err := root.MkdirAll(target, 0o755); err != nil {
 		return "", "", err
 	}
 
 	cctx, cancel := context.WithTimeout(ctx, deployTimeout)
 	defer cancel()
 	dir := repoDir(userContext, r.Name)
-	out, err := runGit(cctx, userContext, nil, "--git-dir="+dir, "--work-tree="+hostPath, "checkout", "-f", "-q", r.Branch)
+	// git checks out into a root-only staging tree, the target is writable by the account so only os.Root ever writes there
+	stage := stageDir(userContext, r.Name)
+	if err := os.MkdirAll(stage, 0o700); err != nil {
+		return "", "", err
+	}
+	before := trackedFiles(cctx, userContext, dir, stage)
+	out, err := runGit(cctx, userContext, nil, "--git-dir="+dir, "--work-tree="+stage, "checkout", "-f", "-q", r.Branch)
 	if err != nil {
 		return "", out, err
 	}
-	if err := chownTree(cctx, userContext, hostPath); err != nil {
+	after := trackedFiles(cctx, userContext, dir, stage)
+	for name := range before {
+		if after[name] {
+			continue
+		}
+		// files dropped by the new commit go from the target too, like checkout -f used to do
+		if rel, relErr := root.Rel(path.Join(target, name), true); relErr == nil {
+			_ = root.Remove(rel)
+		}
+	}
+	if err := paths.CopyDirInto(root.Root, target, stage); err != nil {
+		return "", out, err
+	}
+	if err := chownTree(userContext, root.Root, target); err != nil {
 		return commit, out, errors.New("files deployed but setting their owner failed: " + err.Error())
 	}
 
@@ -297,5 +322,21 @@ func removeRepo(userContext, name string) error {
 	if !isValidRepoName(name) {
 		return errors.New("invalid repository name")
 	}
+	_ = os.RemoveAll(stageDir(userContext, name))
 	return os.RemoveAll(repoDir(userContext, name))
+}
+
+// trackedFiles lists what the deploy index currently holds
+func trackedFiles(ctx context.Context, userContext, gitDir, workTree string) map[string]bool {
+	files := map[string]bool{}
+	out, err := runGit(ctx, userContext, nil, "--git-dir="+gitDir, "--work-tree="+workTree, "ls-files", "-z")
+	if err != nil {
+		return files
+	}
+	for _, name := range strings.Split(out, "\x00") {
+		if name != "" {
+			files[name] = true
+		}
+	}
+	return files
 }

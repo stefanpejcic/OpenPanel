@@ -10,13 +10,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 const (
@@ -72,10 +72,10 @@ func fetchAndCacheScreenshot(ctx context.Context, a *appctx.App, domain string) 
 		return err
 	}
 
-	if err := os.MkdirAll(screenshotCacheDir, 0o755); err != nil {
+	if err := tenantfs.MkdirAll(screenshotCacheDir, 0o755); err != nil {
 		return err
 	}
-	return os.WriteFile(screenshotCachePath(domain), imgBytes, 0o644)
+	return tenantfs.WriteFile(screenshotCachePath(domain), imgBytes, 0o644)
 }
 
 // TriggerScreenshotGeneration kicks off screenshot generation for a freshly installed site in the background and returns immediately - every CMS/app install.go calls this right after its own "INSERT INTO sites" succeeds, so the screenshot is already cached by the time the install-complete redirect lands the user on /website. Uses a detached context (5s cap) instead of the request's own, since the install's HTTP response has already been sent by the time that would get cancelled - a slow/unreachable API just falls back to the page's own on-demand fetch.
@@ -116,7 +116,7 @@ func handleScreenshot(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, statErr := os.Stat(cachePath); statErr != nil {
+	if _, statErr := tenantfs.Stat(cachePath); statErr != nil {
 		if err := fetchAndCacheScreenshot(ctx, a, domain); err != nil {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return

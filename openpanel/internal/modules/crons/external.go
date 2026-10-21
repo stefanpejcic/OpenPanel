@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
@@ -28,7 +29,7 @@ func AddJob(ctx context.Context, userContext, comment, schedule, container, comm
 // RemoveJobByComment deletes the [job-exec "<comment>"] block (if any) from userContext's crons.ini and restarts the cron container - the uninstall-time counterpart to AddJob. A missing crons.ini or an absent comment are both treated as success (nothing to remove).
 func RemoveJobByComment(ctx context.Context, userContext, comment string) error {
 	path := cronFilePath(userContext)
-	content, err := os.ReadFile(path)
+	content, err := tenantfs.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -55,7 +56,7 @@ func RemoveJobByComment(ctx context.Context, userContext, comment string) error 
 	if newContent != "" {
 		newContent += "\n\n"
 	}
-	if writeErr := os.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
 		return writeErr
 	}
 	restartOrActivateCron(ctx, userContext)
@@ -64,7 +65,7 @@ func RemoveJobByComment(ctx context.Context, userContext, comment string) error 
 
 // HasJob reports whether userContext's crons.ini has an enabled [job-exec "<comment>"] block
 func HasJob(userContext, comment string) bool {
-	content, err := os.ReadFile(cronFilePath(userContext))
+	content, err := tenantfs.ReadFile(cronFilePath(userContext))
 	if err != nil {
 		return false
 	}
@@ -78,7 +79,7 @@ func HasJob(userContext, comment string) bool {
 
 // Reload applies userContext's crons.ini after something else rewrote it (a backup restore), cron only gets started when the file has jobs
 func Reload(ctx context.Context, userContext string) {
-	content, _ := os.ReadFile(cronFilePath(userContext))
+	content, _ := tenantfs.ReadFile(cronFilePath(userContext))
 	if strings.Contains(string(content), "[job-exec") {
 		restartOrActivateCron(ctx, userContext)
 	} else if docker.IsServiceRunning(ctx, userContext, "cron") {

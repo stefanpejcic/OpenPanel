@@ -3,7 +3,6 @@ package phpapp
 import (
 	"database/sql"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -13,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
@@ -72,13 +72,13 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	emit(map[string]any{"status": "Checking if existing installation processes are running.."})
 	lockDir := "/etc/openpanel/openpanel/core/users/" + currentUsername
-	_ = os.MkdirAll(lockDir, 0o755)
+	_ = tenantfs.MkdirAll(lockDir, 0o755)
 	lockPath := lockDir + "/krompir.lock"
-	if lockErr := os.WriteFile(lockPath, nil, 0o644); lockErr != nil {
+	if lockErr := tenantfs.WriteFile(lockPath, nil, 0o644); lockErr != nil {
 		emit(map[string]any{"error": "Error creating " + lockPath + ": " + lockErr.Error()})
 		return
 	}
-	defer os.Remove(lockPath)
+	defer tenantfs.Remove(lockPath)
 
 	var topDomain string
 	var docrootNull, phpVersionNull sql.NullString
@@ -146,7 +146,7 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if initialProject != "" {
 		if isArchiveURL(initialProject) {
 			// unlike composer create-project (which creates its own target directory), extraction needs somewhere to extract into
-			if mkErr := os.MkdirAll(hostOSPath, 0o755); mkErr != nil {
+			if mkErr := tenantfs.MkdirAll(hostOSPath, 0o755); mkErr != nil {
 				emit(map[string]any{"error": "Error creating document root: " + mkErr.Error()})
 				return
 			}
@@ -169,7 +169,7 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 	} else if autorunComposerInstall {
 		// no initial_project means the directory (with its own composer.json) is expected to already exist - composer install can't materialize one from nothing
-		if _, statErr := os.Stat(hostOSPath); statErr != nil {
+		if _, statErr := tenantfs.Stat(hostOSPath); statErr != nil {
 			emit(map[string]any{"error": "Directory " + installPath + " does not exist. Set an initial project, or create the directory (with a composer.json) first."})
 			return
 		}

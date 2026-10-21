@@ -5,13 +5,13 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -43,7 +43,7 @@ func disableRuleForDomain(ctx context.Context, domain, ruleID string) (alreadyDi
 		return false, errScoringRule
 	}
 	path := domainConfigPath(domain)
-	content, readErr := os.ReadFile(path)
+	content, readErr := tenantfs.ReadFile(path)
 	if readErr != nil {
 		return false, errNoDomainConf
 	}
@@ -55,7 +55,7 @@ func disableRuleForDomain(ctx context.Context, domain, ruleID string) (alreadyDi
 	}
 	removedRules = append([]string{excludedRuleID}, append(removedRules, ruleID)...)
 	removedTags = append([]string{excludedTag}, filterOut(removedTags, excludedTag)...)
-	if writeErr := os.WriteFile(path, []byte(rewriteDirectivesBlock(string(content), removedRules, removedTags)), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(path, []byte(rewriteDirectivesBlock(string(content), removedRules, removedTags)), 0o644); writeErr != nil {
 		return false, writeErr
 	}
 	if reloadErr := reloadCaddy(ctx); reloadErr != nil {
@@ -110,7 +110,7 @@ func enableRuleForDomain(ctx context.Context, domain, ruleID string) error {
 		return errInvalidRuleID
 	}
 	path := domainConfigPath(domain)
-	content, readErr := os.ReadFile(path)
+	content, readErr := tenantfs.ReadFile(path)
 	if readErr != nil {
 		return errNoDomainConf
 	}
@@ -120,7 +120,7 @@ func enableRuleForDomain(ctx context.Context, domain, ruleID string) error {
 	}
 	removedRules = append([]string{excludedRuleID}, filterOut(removedRules, ruleID)...)
 	removedTags = append([]string{excludedTag}, filterOut(removedTags, excludedTag)...)
-	if writeErr := os.WriteFile(path, []byte(rewriteDirectivesBlock(string(content), removedRules, removedTags)), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(path, []byte(rewriteDirectivesBlock(string(content), removedRules, removedTags)), 0o644); writeErr != nil {
 		return writeErr
 	}
 	if reloadErr := reloadCaddy(ctx); reloadErr != nil {

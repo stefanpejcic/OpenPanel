@@ -4,13 +4,13 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -32,7 +32,7 @@ type DomainWAFRow struct {
 
 func domainWAFRow(domain string, detected map[string][]string) DomainWAFRow {
 	row := DomainWAFRow{Status: "Not Found", Level: defaultLevel}
-	content, err := os.ReadFile(domainConfigPath(domain))
+	content, err := tenantfs.ReadFile(domainConfigPath(domain))
 	if err != nil {
 		return row
 	}
@@ -59,7 +59,7 @@ func setWAFForDomains(ctx context.Context, domains []string, enabled bool) (chan
 	}
 	for _, d := range domains {
 		path := domainConfigPath(d)
-		content, readErr := os.ReadFile(path)
+		content, readErr := tenantfs.ReadFile(path)
 		if readErr != nil {
 			failed = append(failed, d)
 			continue
@@ -68,7 +68,7 @@ func setWAFForDomains(ctx context.Context, domains []string, enabled bool) (chan
 		if updated == string(content) {
 			continue
 		}
-		if writeErr := os.WriteFile(path, []byte(updated), 0o644); writeErr != nil {
+		if writeErr := tenantfs.WriteFile(path, []byte(updated), 0o644); writeErr != nil {
 			failed = append(failed, d)
 			continue
 		}

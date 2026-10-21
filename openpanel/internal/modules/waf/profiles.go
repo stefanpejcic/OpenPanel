@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"regexp"
 	"strings"
 
@@ -14,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -62,7 +62,7 @@ func pluginFile(key, stage string) string {
 }
 
 func fileExists(path string) bool {
-	_, err := os.Stat(path)
+	_, err := tenantfs.Stat(path)
 	return err == nil
 }
 
@@ -255,7 +255,7 @@ func setDomainProfiles(ctx context.Context, domain string, keys []string, level 
 	}
 
 	path := domainConfigPath(domain)
-	content, err := os.ReadFile(path)
+	content, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return nil, "", errNoDomainConf
 	}
@@ -282,12 +282,12 @@ func setDomainProfiles(ctx context.Context, domain string, keys []string, level 
 		return nil, "", err
 	}
 	if newContent != string(content) {
-		if err := os.WriteFile(path, []byte(newContent), 0o644); err != nil {
+		if err := tenantfs.WriteFile(path, []byte(newContent), 0o644); err != nil {
 			return nil, "", err
 		}
 		if err := reloadCaddy(ctx); err != nil {
 			// put the old conf back so a bad plugin file can't leave caddy unable to reload
-			_ = os.WriteFile(path, content, 0o644)
+			_ = tenantfs.WriteFile(path, content, 0o644)
 			_ = reloadCaddy(ctx)
 			return nil, "", errProfileReload
 		}
@@ -296,7 +296,7 @@ func setDomainProfiles(ctx context.Context, domain string, keys []string, level 
 }
 
 func currentProfiles(domain string) []string {
-	content, err := os.ReadFile(domainConfigPath(domain))
+	content, err := tenantfs.ReadFile(domainConfigPath(domain))
 	if err != nil {
 		return nil
 	}

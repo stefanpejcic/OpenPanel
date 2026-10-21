@@ -2,7 +2,6 @@ package emails
 
 import (
 	"net/http"
-	"os"
 	"regexp"
 	"strings"
 
@@ -10,6 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -21,7 +21,7 @@ const defaultAliasesFile = "/usr/local/mail/openmail/docker-data/dms/config/post
 
 // checkCurrentDefaultAliasForDomain looks up the current default (catch-all) alias for domain.
 func checkCurrentDefaultAliasForDomain(domain string) string {
-	content, err := os.ReadFile(defaultAliasesFile)
+	content, err := tenantfs.ReadFile(defaultAliasesFile)
 	if err != nil {
 		return ""
 	}
@@ -38,7 +38,7 @@ func setDefaultAliasForDomain(domain, destination string) error {
 	pattern := regexp.MustCompile(`(?m)^/\*@` + regexp.QuoteMeta(domain) + `/[ \t]+\S+[ \t]*\n?`)
 
 	content := ""
-	if data, err := os.ReadFile(defaultAliasesFile); err == nil {
+	if data, err := tenantfs.ReadFile(defaultAliasesFile); err == nil {
 		content = string(data)
 	}
 
@@ -56,7 +56,7 @@ func setDefaultAliasForDomain(domain, destination string) error {
 		content = pattern.ReplaceAllString(content, "")
 	}
 
-	return os.WriteFile(defaultAliasesFile, []byte(content), 0o644)
+	return tenantfs.WriteFile(defaultAliasesFile, []byte(content), 0o644)
 }
 
 // handleDefaultAlias views and updates a domain's default (catch-all) email address.

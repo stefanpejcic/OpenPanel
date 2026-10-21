@@ -269,8 +269,10 @@ The destination server needs OpenPanel installed. Files, databases, domains, sit
 To create a full account `.tar.gz` backup of a single user (files, databases, mail, and configuration):
 
 ```bash
-opencli user-backup --account <USER> [--output <DIR>] [--quiet]
+opencli user-backup --account <USER> [--output <DIR>] [--quiet] [--no-throttle]
 ```
+
+Without `--output` the archive goes to `/var/www/html/_backups/` in the user's files, and the backup stops if that folder points through a symlink. The tar and compression steps run at low CPU and IO priority (`nice`, `ionice`), `--no-throttle` runs them at normal priority.
 
 <details>
   <summary>Example output</summary>

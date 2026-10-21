@@ -15,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -125,7 +126,7 @@ func apiDNSGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	content, readErr := os.ReadFile(path)
+	content, readErr := tenantfs.ReadFile(path)
 	if readErr != nil {
 		writeAPIDNSJSON(w, http.StatusInternalServerError, map[string]string{"error": readErr.Error()})
 		return
@@ -154,7 +155,7 @@ func apiDNSRawGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := zoneFilePath(domain)
-	content, readErr := os.ReadFile(path)
+	content, readErr := tenantfs.ReadFile(path)
 	if readErr != nil {
 		writeAPIDNSJSON(w, http.StatusNotFound, map[string]string{"error": "Zone file not found"})
 		return
@@ -196,7 +197,7 @@ func apiDNSRawPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	tmpPath := tmpFile.Name()
-	defer os.Remove(tmpPath)
+	defer tenantfs.Remove(tmpPath)
 	if _, writeErr := tmpFile.WriteString(newContent); writeErr != nil {
 		_ = tmpFile.Close()
 		writeAPIDNSJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
@@ -217,7 +218,7 @@ func apiDNSRawPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := zoneFilePath(domain)
-	if writeErr := os.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
 		writeAPIDNSJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
@@ -304,7 +305,7 @@ func apiDNSAddRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		newRecord = name + " " + ttl + " IN " + recordType + " " + record
 	}
 
-	f, openErr := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	f, openErr := tenantfs.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if openErr != nil {
 		writeAPIDNSJSON(w, http.StatusInternalServerError, map[string]string{"error": openErr.Error()})
 		return
@@ -366,7 +367,7 @@ func apiDNSUpdateRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	serial := strings.TrimSpace(body.Serial)
 
-	content, readErr := os.ReadFile(path)
+	content, readErr := tenantfs.ReadFile(path)
 	if readErr != nil {
 		writeAPIDNSJSON(w, http.StatusInternalServerError, map[string]string{"error": readErr.Error()})
 		return
@@ -395,7 +396,7 @@ func apiDNSUpdateRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	newLines = append(newLines, newBlock)
 	newLines = append(newLines, lines[endRowID:]...)
 
-	if writeErr := os.WriteFile(path, []byte(strings.Join(newLines, "")), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(path, []byte(strings.Join(newLines, "")), 0o644); writeErr != nil {
 		writeAPIDNSJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
@@ -442,7 +443,7 @@ func apiDNSDeleteRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		hasEndRowID = true
 	}
 
-	content, readErr := os.ReadFile(path)
+	content, readErr := tenantfs.ReadFile(path)
 	if readErr != nil {
 		writeAPIDNSJSON(w, http.StatusInternalServerError, map[string]string{"error": readErr.Error()})
 		return
@@ -466,7 +467,7 @@ func apiDNSDeleteRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		lines = append(lines[:rowID-1], lines[rowID:]...)
 	}
 
-	if writeErr := os.WriteFile(path, []byte(strings.Join(lines, "")), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(path, []byte(strings.Join(lines, "")), 0o644); writeErr != nil {
 		writeAPIDNSJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
@@ -519,7 +520,7 @@ func apiDNSExport(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := zoneFilePath(domain)
-	content, readErr := os.ReadFile(path)
+	content, readErr := tenantfs.ReadFile(path)
 	if readErr != nil {
 		writeAPIDNSJSON(w, http.StatusNotFound, map[string]string{"error": "Zone file not found"})
 		return

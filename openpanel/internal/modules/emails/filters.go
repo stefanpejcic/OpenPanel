@@ -3,7 +3,6 @@ package emails
 import (
 	"errors"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -12,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sieveparser"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -41,12 +41,12 @@ func resolveSievePath(email string, userDomains map[string]bool) (path string, f
 // writeSieve writes the Sieve filter content to disk, creating the parent directory first if it doesn't already exist
 func writeSieve(resolvedPath, content string) error {
 	dir := filepath.Dir(resolvedPath)
-	if _, err := os.Stat(dir); err != nil {
-		if mkErr := os.MkdirAll(dir, 0o755); mkErr != nil {
+	if _, err := tenantfs.Stat(dir); err != nil {
+		if mkErr := tenantfs.MkdirAll(dir, 0o755); mkErr != nil {
 			return mkErr
 		}
 	}
-	return os.WriteFile(resolvedPath, []byte(content), 0o644)
+	return tenantfs.WriteFile(resolvedPath, []byte(content), 0o644)
 }
 
 // handleFiltersForUser renders the list of mail filters for the current user.
@@ -104,7 +104,7 @@ func handleFilterView(a *appctx.App, w http.ResponseWriter, r *http.Request, vie
 	}
 
 	rawContent := ""
-	if data, readErr := os.ReadFile(resolvedPath); readErr == nil {
+	if data, readErr := tenantfs.ReadFile(resolvedPath); readErr == nil {
 		rawContent = string(data)
 	}
 

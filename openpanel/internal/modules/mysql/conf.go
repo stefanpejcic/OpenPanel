@@ -3,7 +3,6 @@ package mysql
 import (
 	"context"
 	"net/http"
-	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -14,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -37,7 +37,7 @@ const confKeysFile = "/etc/openpanel/mysql/keys.txt"
 var availableConfKeys = defaultConfKeys
 
 func loadConfKeys() {
-	content, err := os.ReadFile(confKeysFile)
+	content, err := tenantfs.ReadFile(confKeysFile)
 	if err != nil {
 		availableConfKeys = defaultConfKeys
 		return
@@ -64,7 +64,7 @@ func mysqlConfPath(userContext string) string {
 
 // readMySQLConfigFile returns the contents of a user's custom.cnf, or "" if it doesn't exist
 func readMySQLConfigFile(userContext string) string {
-	content, err := os.ReadFile(mysqlConfPath(userContext))
+	content, err := tenantfs.ReadFile(mysqlConfPath(userContext))
 	if err != nil {
 		return ""
 	}
@@ -107,7 +107,7 @@ func configEntriesToMap(entries []ConfigEntry) map[string]string {
 func updateMySQLConfigFile(userContext string, newConfig map[string]string, keyOrder []string) {
 	path := mysqlConfPath(userContext)
 	var existingLines []string
-	if content, err := os.ReadFile(path); err == nil {
+	if content, err := tenantfs.ReadFile(path); err == nil {
 		existingLines = strings.SplitAfter(string(content), "\n")
 		if len(existingLines) > 0 && existingLines[len(existingLines)-1] == "" {
 			existingLines = existingLines[:len(existingLines)-1]
@@ -153,7 +153,7 @@ func updateMySQLConfigFile(userContext string, newConfig map[string]string, keyO
 		newLines = append(newLines, key+" = "+safeValue+"\n")
 	}
 
-	_ = os.WriteFile(path, []byte(strings.Join(newLines, "")), 0o644)
+	_ = tenantfs.WriteFile(path, []byte(strings.Join(newLines, "")), 0o644)
 }
 
 // applyResult is how a config save went, Running tells whether the database is up after a rollback
@@ -166,7 +166,7 @@ type applyResult struct {
 // applyMySQLConfig writes the settings and restarts, putting the old custom.cnf back when the database doesn't come up with them
 func applyMySQLConfig(ctx context.Context, userContext, service string, newConfig map[string]string) applyResult {
 	path := mysqlConfPath(userContext)
-	previous, readErr := os.ReadFile(path)
+	previous, readErr := tenantfs.ReadFile(path)
 	updateMySQLConfigFile(userContext, newConfig, availableConfKeys)
 	if restartAndWait(ctx, userContext, service) {
 		return applyResult{OK: true, Running: true}
@@ -174,9 +174,9 @@ func applyMySQLConfig(ctx context.Context, userContext, service string, newConfi
 	// grab the reason before the next restart replaces the log
 	reason := startupErrors(ctx, userContext, service)
 	if readErr == nil {
-		_ = os.WriteFile(path, previous, 0o644)
+		_ = tenantfs.WriteFile(path, previous, 0o644)
 	} else {
-		_ = os.Remove(path)
+		_ = tenantfs.Remove(path)
 	}
 	return applyResult{Running: restartAndWait(ctx, userContext, service), Reason: reason}
 }

@@ -1,11 +1,11 @@
 package moodle
 
 import (
-	"os"
 	"path/filepath"
 	"regexp"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 var (
@@ -16,7 +16,7 @@ var (
 // extractMoodleDatabaseInfoForBackup is a local copy of websites.extractMoodleDatabaseInfo (unexported in another package, so duplicated here, same pattern every other CMS module already uses rather than sharing across module packages) - reads the approot's config.php directly (docroot is a symlink to <approot>/public, not where config.php lives, see moodle.go's package doc comment), keyed off domain the same way install.go/manage.go derive the approot directory
 func extractMoodleDatabaseInfoForBackup(userContext, domain string) map[string]string {
 	approotHostPath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", appkit.SiteSlug(domain)+"_moodleapp")
-	content, err := os.ReadFile(filepath.Join(approotHostPath, "config.php"))
+	content, err := tenantfs.ReadFile(filepath.Join(approotHostPath, "config.php"))
 	if err != nil {
 		return map[string]string{"error": "config.php not found"}
 	}

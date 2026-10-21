@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -239,7 +239,7 @@ func renderWAFLogPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dom
 		TotalLines: totalLines, TotalAllowedLinesForShowAll: totalAllowedForShowAll,
 		PageEntries: buildLogPageEntries(currentPage, totalPages),
 	}
-	if content, err := os.ReadFile(domainConfigPath(domainName)); err == nil {
+	if content, err := tenantfs.ReadFile(domainConfigPath(domainName)); err == nil {
 		data.DisabledRules, _ = parseWAFRemovals(string(content))
 	}
 	if err := wafLogsPage.Render(w, http.StatusOK, data); err != nil {

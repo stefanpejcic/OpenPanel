@@ -3,7 +3,6 @@ package php
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"regexp"
 	"strings"
 
@@ -12,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -110,14 +110,14 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		confFile := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_webserver_data/_data/" + domainURL + ".conf"
-		content, readErr := os.ReadFile(confFile)
+		content, readErr := tenantfs.ReadFile(confFile)
 		if readErr != nil {
 			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to read vhost configuration for %(domain_url)s: %(error)s", "domain_url", domainURL, "error", readErr.Error()), target)
 			return
 		}
 
 		updated := strings.ReplaceAll(string(content), "php-fpm-"+oldPHPVersion, "php-fpm-"+newPHPVersion)
-		_ = os.WriteFile(confFile, []byte(updated), 0o644)
+		_ = tenantfs.WriteFile(confFile, []byte(updated), 0o644)
 
 		if strings.Contains(updated, "php-fpm-"+oldPHPVersion) {
 			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error occurred while updating PHP version for domain %(domain_url)s", "domain_url", domainURL), target)
@@ -171,7 +171,7 @@ func buildPHPDomainRows(userContext string, domainsList []appctx.Domain, phpVers
 	for _, d := range domainsList {
 		version := "/"
 		configPath := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_webserver_data/_data/" + d.DomainURL + ".conf"
-		if content, err := os.ReadFile(configPath); err == nil {
+		if content, err := tenantfs.ReadFile(configPath); err == nil {
 			if m := domainConfDeclaredVersionRE.FindStringSubmatch(string(content)); m != nil {
 				version = m[1]
 			}

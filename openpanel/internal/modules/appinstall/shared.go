@@ -6,7 +6,6 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"os/exec"
 	stdpath "path"
 	"regexp"
 	"sort"
@@ -17,6 +16,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -266,7 +266,7 @@ func HandleCheckFileExists(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if runErr := exec.CommandContext(r.Context(), "test", "-f", realFilePath).Run(); runErr != nil {
+	if info, statErr := tenantfs.Stat(realFilePath); statErr != nil || !info.Mode().IsRegular() {
 		web.WriteJSON(w, http.StatusOK, map[string]string{"message": file + " does not exist."})
 		return
 	}

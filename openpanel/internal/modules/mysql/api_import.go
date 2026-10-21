@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -10,6 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -64,8 +64,8 @@ func apiMySQLImportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	tempFilePath := filepath.Join(targetDir, filename)
 
 	imported, errDetail := importDatabaseDump(ctx, userContext, mysqlVersion, dbName, targetDir, tempFilePath, file)
-	if _, statErr := os.Stat(tempFilePath); statErr == nil {
-		_ = os.Remove(tempFilePath)
+	if _, statErr := tenantfs.Stat(tempFilePath); statErr == nil {
+		_ = tenantfs.Remove(tempFilePath)
 	}
 	if !imported {
 		writeAPIMySQLJSON(w, http.StatusInternalServerError, map[string]string{"error": "Import failed: " + errDetail})

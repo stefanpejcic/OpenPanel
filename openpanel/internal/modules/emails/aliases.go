@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -15,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -31,7 +31,7 @@ func aliasesCacheFile(username string) string {
 
 // readAliasesFile parses the cached aliases.yml, keeping only entries whose source domain belongs to userDomains.
 func readAliasesFile(username string, userDomains map[string]bool) []AliasEntry {
-	data, err := os.ReadFile(aliasesCacheFile(username))
+	data, err := tenantfs.ReadFile(aliasesCacheFile(username))
 	if err != nil {
 		return nil
 	}
@@ -61,7 +61,7 @@ func readAliasesFile(username string, userDomains map[string]bool) []AliasEntry 
 // GetAliasList returns the user's alias list, cached 1h; the cache is (re)populated from `opencli` on first access
 func GetAliasList(ctx context.Context, a *appctx.App, userID int, username string, userDomains map[string]bool) []AliasEntry {
 	result, _ := cache.Memoize(ctx, a.Cache, "alias_list:"+username, time.Hour, func() ([]AliasEntry, error) {
-		if _, err := os.Stat(aliasesCacheFile(username)); err != nil {
+		if _, err := tenantfs.Stat(aliasesCacheFile(username)); err != nil {
 			domains, _ := a.AllDomainsForUser(ctx, userID)
 			ImportUserAliases(username, domainSet(domains))
 		}
@@ -84,9 +84,9 @@ func InvalidateAliasCache(ctx context.Context, a *appctx.App, userID int, userna
 // ImportUserAliases rewrites the user's cached aliases.yml from `opencli email-setup alias list`, keeping only aliases whose source domain is in userDomains
 func ImportUserAliases(currentUsername string, userDomains map[string]bool) {
 	path := aliasesCacheFile(currentUsername)
-	if _, err := os.Stat(path); err != nil {
-		_ = os.MkdirAll(filepath.Dir(path), 0o755)
-		_ = os.WriteFile(path, nil, 0o644)
+	if _, err := tenantfs.Stat(path); err != nil {
+		_ = tenantfs.MkdirAll(filepath.Dir(path), 0o755)
+		_ = tenantfs.WriteFile(path, nil, 0o644)
 	}
 
 	out, err := exec.Command("opencli", "email-setup", "alias", "list").Output()
@@ -113,8 +113,8 @@ func ImportUserAliases(currentUsername string, userDomains map[string]bool) {
 		}
 	}
 
-	_ = os.MkdirAll(filepath.Dir(path), 0o755)
-	_ = os.WriteFile(path, []byte(strings.Join(filtered, "\n")+"\n"), 0o644)
+	_ = tenantfs.MkdirAll(filepath.Dir(path), 0o755)
+	_ = tenantfs.WriteFile(path, []byte(strings.Join(filtered, "\n")+"\n"), 0o644)
 }
 
 // routes

@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
@@ -14,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
@@ -246,7 +246,7 @@ func apiPM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	content, _ := os.ReadFile(envFile)
+	content, _ := tenantfs.ReadFile(envFile)
 	lines := strings.Split(string(content), "\n")
 	newLines := make([]string, 0, len(lines))
 	for _, line := range lines {
@@ -270,7 +270,7 @@ func apiPM2Update(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			newLines = append(newLines, line)
 		}
 	}
-	_ = os.WriteFile(envFile, []byte(strings.Join(newLines, "\n")), 0o644)
+	_ = tenantfs.WriteFile(envFile, []byte(strings.Join(newLines, "\n")), 0o644)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "updated PM2 application settings for "+siteNameLower, reqip.ClientIP(r))
 	writeAPIPM2JSON(w, http.StatusOK, map[string]string{"message": "Settings saved. Restart the application for changes to take effect."})
@@ -337,7 +337,7 @@ func apiPM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		serviceNameUp := strings.ToUpper(serviceName.String)
 		commentPrefix := "# " + kind.PyOrNode + ": " + serviceNameUp
 		prefix := serviceNameUp + "_" + kind.PyOrNode + "_"
-		content, _ := os.ReadFile(envFile)
+		content, _ := tenantfs.ReadFile(envFile)
 		lines := strings.Split(string(content), "\n")
 		filtered := make([]string, 0, len(lines))
 		for _, line := range lines {
@@ -347,7 +347,7 @@ func apiPM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			}
 			filtered = append(filtered, line)
 		}
-		_ = os.WriteFile(envFile, []byte(strings.Join(filtered, "\n")), 0o644)
+		_ = tenantfs.WriteFile(envFile, []byte(strings.Join(filtered, "\n")), 0o644)
 	}
 
 	if _, execErr := a.DB.ExecContext(ctx, "DELETE FROM sites WHERE site_name = ?", siteName); execErr != nil {

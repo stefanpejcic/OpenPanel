@@ -64,6 +64,14 @@ func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			flashOnlySession(a, r, w, "error", "No files were uploaded")
 		}
 
+		root, perr := paths.OpenUserRoot("HOME", user.Context)
+		if perr != nil {
+			status, msg := pathErrorStatus(perr)
+			http.Error(w, msg, status)
+			return
+		}
+		defer root.Close()
+
 		allSuccess := true
 		var errs []string
 
@@ -82,7 +90,7 @@ func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				errs = append(errs, "Invalid filename: "+fh.Filename)
 				continue
 			}
-			destPath, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, safeName), false)
+			destPath, perr := root.Rel(filepath.Join(pathParam, safeName), false)
 			if perr != nil {
 				allSuccess = false
 				status, msg := pathErrorStatus(perr)
@@ -96,7 +104,7 @@ func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				errs = append(errs, "Failed to save "+fh.Filename)
 				continue
 			}
-			dst, createErr := os.OpenFile(destPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
+			dst, createErr := root.OpenFile(destPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
 			if createErr != nil {
 				_ = src.Close()
 				allSuccess = false
@@ -112,7 +120,7 @@ func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			if chownErr := chownToUser(ctx, a, destPath, user.Context); chownErr != nil {
+			if chownErr := chownToUser(ctx, a, root, destPath, user.Context); chownErr != nil {
 				allSuccess = false
 				errs = append(errs, "Failed to set ownership on "+fh.Filename)
 			}

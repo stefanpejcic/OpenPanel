@@ -3,7 +3,6 @@ package waf
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
@@ -11,6 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -46,7 +46,7 @@ func handleWAFLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	logFilePath := wafLogPath(domainName)
-	info, statErr := os.Stat(logFilePath)
+	info, statErr := tenantfs.Stat(logFilePath)
 	if statErr != nil {
 		flashAndRedirectLog(a, w, r, "error", web.Tr(a, r, "Log file not found for domain %(domain_name)s.", "domain_name", domainName))
 		return
@@ -56,7 +56,7 @@ func handleWAFLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	content, readErr := os.ReadFile(logFilePath)
+	content, readErr := tenantfs.ReadFile(logFilePath)
 	if readErr != nil {
 		flashAndRedirectLog(a, w, r, "danger", web.Tr(a, r, "Error reading log file: %(error)s", "error", readErr.Error()))
 		return

@@ -11,6 +11,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/searchdata"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dashboard"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
@@ -308,7 +309,7 @@ func searchEmails(a *appctx.App, w http.ResponseWriter, r *http.Request, userID 
 func searchFTP(w http.ResponseWriter, userContext string) {
 	usersListFile := "/etc/openpanel/ftp/users/" + userContext + "/users.list"
 	var items []item
-	if content, err := os.ReadFile(usersListFile); err == nil {
+	if content, err := tenantfs.ReadFile(usersListFile); err == nil {
 		for _, line := range strings.Split(string(content), "\n") {
 			parts := strings.Split(strings.TrimSpace(line), "|")
 			if len(parts) >= 3 && parts[0] != "" {
@@ -340,7 +341,7 @@ func searchContainers(a *appctx.App, w http.ResponseWriter, r *http.Request, use
 func searchServices(w http.ResponseWriter, userContext string) {
 	composePath := "/home/" + userContext + "/docker-compose.yml"
 	var names []string
-	if data, err := os.ReadFile(composePath); err == nil {
+	if data, err := tenantfs.ReadFile(composePath); err == nil {
 		var composeData map[string]any
 		if yaml.Unmarshal(data, &composeData) == nil {
 			if svcMap, ok := composeData["services"].(map[string]any); ok {
@@ -365,7 +366,7 @@ func searchServices(w http.ResponseWriter, userContext string) {
 func searchCrons(w http.ResponseWriter, userContext string) {
 	cronFilePath := "/home/" + userContext + "/crons.ini"
 	var items []item
-	if content, err := os.ReadFile(cronFilePath); err == nil {
+	if content, err := tenantfs.ReadFile(cronFilePath); err == nil {
 		for _, job := range crons.ParseCronFile(string(content)) {
 			name := job.Comment
 			if name == "" {
@@ -468,7 +469,7 @@ func searchFolders(a *appctx.App, w http.ResponseWriter, r *http.Request, userCo
 
 // walkLimitedDepth visits root and its subdirectories up to maxDepth levels below root, calling visit(dir, entries) for each - visit returns false to stop the walk early (result cap reached)
 func walkLimitedDepth(root string, baseDepth, maxDepth int, visit func(dir string, entries []os.DirEntry) bool) error {
-	entries, err := os.ReadDir(root)
+	entries, err := tenantfs.ReadDir(root)
 	if err != nil {
 		return nil //nolint:nilerr // unreadable dirs are skipped silently rather than failing the whole search
 	}

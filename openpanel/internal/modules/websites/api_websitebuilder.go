@@ -5,8 +5,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
-	"os"
-	"os/exec"
 	"path"
 	"path/filepath"
 	"strconv"
@@ -17,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dashboard"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -70,11 +69,11 @@ func apiWebsiteBuilderGet(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	html := ""
-	if content, readErr := os.ReadFile(filepath.Join(siteDir, "index.html")); readErr == nil {
+	if content, readErr := tenantfs.ReadFile(filepath.Join(siteDir, "index.html")); readErr == nil {
 		html = string(content)
 	}
 	css := ""
-	if content, readErr := os.ReadFile(filepath.Join(siteDir, "style.css")); readErr == nil {
+	if content, readErr := tenantfs.ReadFile(filepath.Join(siteDir, "style.css")); readErr == nil {
 		css = string(content)
 	}
 
@@ -109,22 +108,21 @@ func apiWebsiteBuilderSave(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if mkErr := os.MkdirAll(siteDir, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(siteDir, 0o755); mkErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
 		return
 	}
-	if wErr := os.WriteFile(filepath.Join(siteDir, "index.html"), []byte(body.HTML), 0o644); wErr != nil {
+	if wErr := tenantfs.WriteFile(filepath.Join(siteDir, "index.html"), []byte(body.HTML), 0o644); wErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": wErr.Error()})
 		return
 	}
-	if wErr := os.WriteFile(filepath.Join(siteDir, "style.css"), []byte(body.CSS), 0o644); wErr != nil {
+	if wErr := tenantfs.WriteFile(filepath.Join(siteDir, "style.css"), []byte(body.CSS), 0o644); wErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": wErr.Error()})
 		return
 	}
 
 	if uid, uidErr := a.GetUID(ctx, userContext); uidErr == nil {
-		uidStr := strconv.Itoa(uid)
-		_ = exec.CommandContext(ctx, "chown", "-R", uidStr+":"+uidStr, siteDir).Run()
+		_ = tenantfs.ChownR(siteDir, uid, uid)
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "saved website builder content for "+domain, reqip.ClientIP(r))
@@ -196,13 +194,13 @@ func apiWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	volume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + stripped
 
 	for _, fname := range []string{"index.html", "index.php", ".htaccess"} {
-		if _, statErr := os.Stat(path.Join(volume, fname)); statErr == nil {
+		if _, statErr := tenantfs.Stat(path.Join(volume, fname)); statErr == nil {
 			web.WriteJSON(w, http.StatusConflict, map[string]string{"error": fname + " already exists — website creation cannot proceed"})
 			return
 		}
 	}
 
-	if mkErr := os.MkdirAll(volume, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(volume, 0o755); mkErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
 		return
 	}
@@ -219,19 +217,18 @@ func apiWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.Requ
 <style>* { box-sizing: border-box; } body {margin: 0;}</style>
 </body>
 </html>`
-	if wErr := os.WriteFile(path.Join(volume, "index.html"), []byte(htmlContent), 0o644); wErr != nil {
+	if wErr := tenantfs.WriteFile(path.Join(volume, "index.html"), []byte(htmlContent), 0o644); wErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": wErr.Error()})
 		return
 	}
-	if wErr := os.WriteFile(path.Join(volume, "style.css"), []byte("* { box-sizing: border-box; } body {margin: 0;}"), 0o644); wErr != nil {
+	if wErr := tenantfs.WriteFile(path.Join(volume, "style.css"), []byte("* { box-sizing: border-box; } body {margin: 0;}"), 0o644); wErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": wErr.Error()})
 		return
 	}
 
-	_ = exec.CommandContext(ctx, "chmod", "-R", "755", volume).Run()
+	_ = tenantfs.ChmodR(volume, 0o755)
 	if uid, uidErr := a.GetUID(ctx, userContext); uidErr == nil {
-		uidStr := strconv.Itoa(uid)
-		_ = exec.CommandContext(ctx, "chown", "-R", uidStr+":"+uidStr, volume).Run()
+		_ = tenantfs.ChownR(volume, uid, uid)
 	}
 
 	if _, insertErr := a.DB.ExecContext(ctx, "INSERT INTO sites (site_name, domain_id, type) VALUES (?, ?, ?)", siteName, domainIDStr, "websitebuilder"); insertErr != nil {
@@ -289,8 +286,8 @@ func apiWebsiteBuilderRemove(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 	realPath := strings.TrimPrefix(docroot, "/var/www/html/")
 	volume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + realPath
-	_ = os.Remove(filepath.Join(volume, "index.html"))
-	_ = os.Remove(filepath.Join(volume, "style.css"))
+	_ = tenantfs.Remove(filepath.Join(volume, "index.html"))
+	_ = tenantfs.Remove(filepath.Join(volume, "style.css"))
 
 	if _, delErr := a.DB.ExecContext(ctx, "DELETE FROM sites WHERE id = ?", siteID); delErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": delErr.Error()})

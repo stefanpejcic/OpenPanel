@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"os"
 	"os/exec"
 	"strings"
 
@@ -17,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/postgresmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
@@ -289,25 +289,25 @@ func apiPsqlImportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request
 	defer file.Close()
 
 	targetDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_mysql_dumps/_data/"
-	if mkErr := os.MkdirAll(targetDir, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(targetDir, 0o755); mkErr != nil {
 		writeAPIPsqlJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
 		return
 	}
 	tempPath := targetDir + header.Filename
 
-	out, createErr := os.Create(tempPath)
+	out, createErr := tenantfs.Create(tempPath)
 	if createErr != nil {
 		writeAPIPsqlJSON(w, http.StatusInternalServerError, map[string]string{"error": createErr.Error()})
 		return
 	}
 	if _, copyErr := out.ReadFrom(file); copyErr != nil {
 		_ = out.Close()
-		_ = os.Remove(tempPath)
+		_ = tenantfs.Remove(tempPath)
 		writeAPIPsqlJSON(w, http.StatusInternalServerError, map[string]string{"error": copyErr.Error()})
 		return
 	}
 	_ = out.Close()
-	defer os.Remove(tempPath)
+	defer tenantfs.Remove(tempPath)
 
 	containerPath := "/tmp/" + header.Filename
 	cpArgv := podmanmanager.PodmanArgv(userContext, "cp", tempPath, "postgres:"+containerPath)

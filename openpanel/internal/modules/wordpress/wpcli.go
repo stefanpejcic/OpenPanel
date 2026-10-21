@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -22,6 +21,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -145,7 +145,7 @@ func wpCLIParams(r *http.Request) map[string]string {
 // getWPConfigDBInfo mirrors get_wp_config_db_info().
 func getWPConfigDBInfo(realPath string) (dbName, tablePrefix string, err error) {
 	wpConfigFile := filepath.Join(realPath, "wp-config.php")
-	content, readErr := os.ReadFile(wpConfigFile)
+	content, readErr := tenantfs.ReadFile(wpConfigFile)
 	if readErr != nil {
 		return "", "", fmt.Errorf("wp-config.php not found")
 	}
@@ -422,7 +422,7 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	case "maintenance-mode":
 		fullPath := filepath.Join(hostosPath, ".maintenance")
 		if r.Method == http.MethodGet {
-			if _, statErr := os.Stat(fullPath); statErr == nil {
+			if _, statErr := tenantfs.Stat(fullPath); statErr == nil {
 				web.WriteJSON(w, http.StatusOK, map[string]string{"status": "enabled"})
 			} else {
 				web.WriteJSON(w, http.StatusOK, map[string]string{"status": "disabled"})
@@ -436,9 +436,9 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if act == "enable" {
-			_ = os.WriteFile(fullPath, []byte("<?php $upgrading = time(); ?>"), 0o644)
+			_ = tenantfs.WriteFile(fullPath, []byte("<?php $upgrading = time(); ?>"), 0o644)
 		} else {
-			_ = os.Remove(fullPath)
+			_ = tenantfs.Remove(fullPath)
 		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, act+"d maintenance mode", reqip.ClientIP(r))
 		web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Maintenance mode " + act + "d successfully."})
@@ -517,18 +517,18 @@ func handleWPCLILogin(a *appctx.App, w http.ResponseWriter, r *http.Request, cur
 
 	muFilePath := filepath.Join(realPath, "wp-content", "mu-plugins", "openpanel-login.php")
 	muPluginDir := filepath.Dir(muFilePath)
-	if mkErr := os.MkdirAll(muPluginDir, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(muPluginDir, 0o755); mkErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed deploying login handler", "details": mkErr.Error()})
 		return
 	}
 	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
-		_ = os.Lchown(muPluginDir, uid, uid)
-		if writeErr := os.WriteFile(muFilePath, []byte(openpanelMuPluginPHP), 0o644); writeErr != nil {
+		_ = tenantfs.Lchown(muPluginDir, uid, uid)
+		if writeErr := tenantfs.WriteFile(muFilePath, []byte(openpanelMuPluginPHP), 0o644); writeErr != nil {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed deploying login handler", "details": writeErr.Error()})
 			return
 		}
-		_ = os.Lchown(muFilePath, uid, uid)
-	} else if writeErr := os.WriteFile(muFilePath, []byte(openpanelMuPluginPHP), 0o644); writeErr != nil {
+		_ = tenantfs.Lchown(muFilePath, uid, uid)
+	} else if writeErr := tenantfs.WriteFile(muFilePath, []byte(openpanelMuPluginPHP), 0o644); writeErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed deploying login handler", "details": writeErr.Error()})
 		return
 	}

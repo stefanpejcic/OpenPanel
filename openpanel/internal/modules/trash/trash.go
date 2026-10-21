@@ -2,6 +2,7 @@
 package trash
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"os/exec"
@@ -12,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -68,10 +70,10 @@ func handleFilesInTrash(a *appctx.App, w http.ResponseWriter, r *http.Request, p
 		directory = trashBase
 	}
 
-	info, statErr := os.Stat(directory)
+	info, statErr := tenantfs.Stat(directory)
 	if statErr != nil || !info.IsDir() {
 		if directory == trashBase {
-			if mkdirErr := os.MkdirAll(trashBase, 0o755); mkdirErr != nil {
+			if mkdirErr := tenantfs.MkdirAll(trashBase, 0o755); mkdirErr != nil {
 				renderTrashPage(a, w, r, title, pathParam, nil)
 				return
 			}
@@ -86,13 +88,13 @@ func handleFilesInTrash(a *appctx.App, w http.ResponseWriter, r *http.Request, p
 		flag = "-l"
 	}
 
-	out, cmdErr := exec.CommandContext(r.Context(), "ls", flag, directory).Output()
+	out, cmdErr := listTrashDir(r.Context(), trashBase, directory, flag)
 	if cmdErr != nil {
 		renderTrashPage(a, w, r, title, pathParam, nil)
 		return
 	}
 
-	trashInfoContent, _ := os.ReadFile(rawTrashInfoPath(userContext))
+	trashInfoContent, _ := tenantfs.ReadFile(rawTrashInfoPath(userContext))
 	filesInfo := parseLsOutputTrash(string(out), string(trashInfoContent))
 
 	if r.URL.Query().Get("output") == "json" {
@@ -118,4 +120,28 @@ func isWithin(candidate, base string) bool {
 		return false
 	}
 	return rel == "." || (!strings.HasPrefix(rel, "..") && rel != "..")
+}
+
+// listTrashDir runs ls on directory opened through a root on the trash, so a symlink inside a trashed folder can't point the listing elsewhere
+func listTrashDir(ctx context.Context, trashBase, directory, flag string) ([]byte, error) {
+	rel, err := filepath.Rel(trashBase, directory)
+	if err != nil {
+		return nil, err
+	}
+	root, err := os.OpenRoot(trashBase)
+	if err != nil {
+		return nil, err
+	}
+	defer root.Close()
+	dir, err := root.Open(rel)
+	if err != nil {
+		return nil, err
+	}
+	defer dir.Close()
+	if info, err := dir.Stat(); err != nil || !info.IsDir() {
+		return nil, os.ErrNotExist
+	}
+	cmd := exec.CommandContext(ctx, "ls", flag, "/proc/self/fd/3/")
+	cmd.ExtraFiles = []*os.File{dir}
+	return cmd.Output()
 }

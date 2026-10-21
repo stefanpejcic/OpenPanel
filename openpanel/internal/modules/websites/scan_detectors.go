@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // this file holds the eight walkers handleSitesScan (scan.go) calls, one per CMS type - each mirrors wordpress/manage.go's walkForWPConfig + handleScanWordPress shape: walk the user's html_data volume for that type's marker config file, skip anything already tracked, extract the DB name/host, repair the host if it's empty/localhost/127.0.0.1 (localhost is kept when the user's PHP can reach the mysql socket), verify connectivity, then insert (see scan.go for why the host-repair step is needed here but not by WordPress's original wp-cli-mediated scan)
@@ -20,7 +21,7 @@ var (
 )
 
 func scanWordPress(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, dbHost string, outcome *scanOutcome) {
-	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
+	_ = tenantfs.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -42,7 +43,7 @@ func scanWordPress(ctx context.Context, a *appctx.App, userID int, userContext, 
 		}
 
 		configFile := path
-		content, readErr := os.ReadFile(configFile)
+		content, readErr := tenantfs.ReadFile(configFile)
 		if readErr != nil {
 			return nil
 		}
@@ -81,7 +82,7 @@ var (
 )
 
 func scanJoomla(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, dbHost string, outcome *scanOutcome) {
-	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
+	_ = tenantfs.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -102,7 +103,7 @@ func scanJoomla(ctx context.Context, a *appctx.App, userID int, userContext, bas
 			return nil
 		}
 
-		content, readErr := os.ReadFile(path)
+		content, readErr := tenantfs.ReadFile(path)
 		if readErr != nil {
 			return nil
 		}
@@ -134,7 +135,7 @@ func scanJoomla(ctx context.Context, a *appctx.App, userID int, userContext, bas
 }
 
 func scanJoomlaVersion(root string) string {
-	content, err := os.ReadFile(filepath.Join(root, "libraries", "src", "Version.php"))
+	content, err := tenantfs.ReadFile(filepath.Join(root, "libraries", "src", "Version.php"))
 	if err != nil {
 		return "Unknown"
 	}
@@ -156,7 +157,7 @@ var (
 )
 
 func scanOpenCart(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, dbHost string, outcome *scanOutcome) {
-	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
+	_ = tenantfs.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -170,11 +171,11 @@ func scanOpenCart(ctx context.Context, a *appctx.App, userID int, userContext, b
 			return nil
 		}
 		root := filepath.Dir(path)
-		content, readErr := os.ReadFile(path)
+		content, readErr := tenantfs.ReadFile(path)
 		if readErr != nil || !scanOCDBHostnameRE.Match(content) {
 			return nil
 		}
-		if info, statErr := os.Stat(filepath.Join(root, "admin", "config.php")); statErr != nil || info.IsDir() {
+		if info, statErr := tenantfs.Stat(filepath.Join(root, "admin", "config.php")); statErr != nil || info.IsDir() {
 			return nil
 		}
 
@@ -197,7 +198,7 @@ func scanOpenCart(ctx context.Context, a *appctx.App, userID int, userContext, b
 			return nil
 		}
 		adminConfigPath := filepath.Join(root, "admin", "config.php")
-		adminContent, _ := os.ReadFile(adminConfigPath)
+		adminContent, _ := tenantfs.ReadFile(adminConfigPath)
 		if _, ok := scanRepairHostInFile(adminConfigPath, string(adminContent), scanOCDBHostnameRE, "define('DB_HOSTNAME', '"+dbHost+"')"); !ok {
 			outcome.skipped = append(outcome.skipped, siteName+" (could not repair DB host in admin/config.php)")
 			return nil
@@ -226,7 +227,7 @@ var (
 )
 
 func scanNextcloud(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, dbHost string, outcome *scanOutcome) {
-	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
+	_ = tenantfs.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -247,7 +248,7 @@ func scanNextcloud(ctx context.Context, a *appctx.App, userID int, userContext, 
 			return nil
 		}
 
-		content, readErr := os.ReadFile(path)
+		content, readErr := tenantfs.ReadFile(path)
 		if readErr != nil {
 			return nil
 		}
@@ -286,7 +287,7 @@ var (
 )
 
 func scanPrestashop(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, dbHost string, outcome *scanOutcome) {
-	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
+	_ = tenantfs.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -311,7 +312,7 @@ func scanPrestashop(ctx context.Context, a *appctx.App, userID int, userContext,
 			return nil
 		}
 
-		content, readErr := os.ReadFile(path)
+		content, readErr := tenantfs.ReadFile(path)
 		if readErr != nil {
 			return nil
 		}
@@ -333,8 +334,8 @@ func scanPrestashop(ctx context.Context, a *appctx.App, userID int, userContext,
 		}
 
 		// PrestaShop's compiled Symfony cache bakes in DB credentials - clear it after any repair so a stale container config doesn't 500 the front-end even though parameters.php is now correct, same fix applied by prestashop/clone.go
-		_ = os.RemoveAll(filepath.Join(root, "var", "cache", "prod"))
-		_ = os.RemoveAll(filepath.Join(root, "var", "cache", "dev"))
+		_ = tenantfs.RemoveAll(filepath.Join(root, "var", "cache", "prod"))
+		_ = tenantfs.RemoveAll(filepath.Join(root, "var", "cache", "dev"))
 
 		version := scanReadVersionSimple(filepath.Join(root, "src", "Core", "Version.php"), regexp.MustCompile(`const VERSION\s*=\s*'([^']*)'`))
 		if insertErr := insertScannedSite(ctx, a, siteName, domainName, "prestashop", version); insertErr != nil {
@@ -367,7 +368,7 @@ func stripPHPCommentLinesForScan(content string) string {
 }
 
 func scanDrupal(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, dbHost string, outcome *scanOutcome) {
-	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
+	_ = tenantfs.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -396,7 +397,7 @@ func scanDrupal(ctx context.Context, a *appctx.App, userID int, userContext, bas
 			return nil
 		}
 
-		content, readErr := os.ReadFile(path)
+		content, readErr := tenantfs.ReadFile(path)
 		if readErr != nil {
 			return nil
 		}
@@ -416,7 +417,7 @@ func scanDrupal(ctx context.Context, a *appctx.App, userID int, userContext, bas
 		if host != dbHost && (host == "" || host == "localhost" || host == "127.0.0.1") {
 			newContent := scanDrupalDBHostRE.ReplaceAllString(fullText, "'host' => '"+dbHost+"'")
 			if newContent != fullText {
-				if writeErr := os.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
+				if writeErr := tenantfs.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
 					outcome.skipped = append(outcome.skipped, siteName+" (could not repair DB host in sites/default/settings.php)")
 					return nil
 				}
@@ -439,7 +440,7 @@ func scanDrupal(ctx context.Context, a *appctx.App, userID int, userContext, bas
 }
 
 func scanDrupalVersion(root string) string {
-	content, err := os.ReadFile(filepath.Join(root, "composer.lock"))
+	content, err := tenantfs.ReadFile(filepath.Join(root, "composer.lock"))
 	if err != nil {
 		return "Unknown"
 	}
@@ -467,7 +468,7 @@ var (
 )
 
 func scanMatomo(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, dbHost string, outcome *scanOutcome) {
-	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
+	_ = tenantfs.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -488,7 +489,7 @@ func scanMatomo(ctx context.Context, a *appctx.App, userID int, userContext, bas
 			return nil
 		}
 
-		content, readErr := os.ReadFile(path)
+		content, readErr := tenantfs.ReadFile(path)
 		if readErr != nil {
 			return nil
 		}
@@ -531,7 +532,7 @@ var (
 
 // scanMoodle differs from every other detector: Moodle's config.php doesn't live under any domain's docroot (docroot is a symlink to <approot>/public, see the moodle package), so instead of walking under each domain's directory, this walks the whole html_data root for any config.php with the "$CFG->dbhost" marker and derives the domain from the config's own $CFG->wwwroot rather than the file's path - generalizes to both this panel's "<slug>_moodleapp" convention and a hypothetical migrated Moodle layout placed directly under a domain's docroot.
 func scanMoodle(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, dbHost string, outcome *scanOutcome) {
-	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
+	_ = tenantfs.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -544,7 +545,7 @@ func scanMoodle(ctx context.Context, a *appctx.App, userID int, userContext, bas
 		if d.Name() != "config.php" {
 			return nil
 		}
-		content, readErr := os.ReadFile(path)
+		content, readErr := tenantfs.ReadFile(path)
 		if readErr != nil || !scanMoodleDBHostRE.Match(content) {
 			return nil
 		}
@@ -595,7 +596,7 @@ func scanMoodle(ctx context.Context, a *appctx.App, userID int, userContext, bas
 
 // scanReadVersionSimple reads path and applies re, returning "Unknown" on any failure - the common shape of every getXVersion-style function elsewhere, duplicated here per this package's local-helper convention.
 func scanReadVersionSimple(path string, re *regexp.Regexp) string {
-	content, err := os.ReadFile(path)
+	content, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return "Unknown"
 	}
@@ -616,7 +617,7 @@ var (
 )
 
 func scanMediaWiki(ctx context.Context, a *appctx.App, userID int, userContext, baseDirectory, wwwBaseDirectory, dbHost string, outcome *scanOutcome) {
-	_ = filepath.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
+	_ = tenantfs.WalkDir(baseDirectory, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -637,7 +638,7 @@ func scanMediaWiki(ctx context.Context, a *appctx.App, userID int, userContext, 
 			return nil
 		}
 
-		content, readErr := os.ReadFile(path)
+		content, readErr := tenantfs.ReadFile(path)
 		if readErr != nil {
 			return nil
 		}
@@ -682,7 +683,7 @@ func scanRepairHostInFile(path, currentText string, hostRE *regexp.Regexp, repla
 	if newContent == currentText {
 		return false, true
 	}
-	if writeErr := os.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
 		return false, false
 	}
 	return true, true

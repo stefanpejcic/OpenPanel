@@ -2,7 +2,6 @@ package postgresql
 
 import (
 	"net/http"
-	"os"
 	"regexp"
 	"strings"
 
@@ -11,6 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -32,7 +32,7 @@ const confKeysFile = "/etc/openpanel/postgres/keys.txt"
 var availableConfKeys = defaultConfKeys
 
 func loadConfKeys() {
-	content, err := os.ReadFile(confKeysFile)
+	content, err := tenantfs.ReadFile(confKeysFile)
 	if err != nil {
 		availableConfKeys = defaultConfKeys
 		return
@@ -56,7 +56,7 @@ func postgresConfPath(userContext string) string {
 
 // readPostgresConfigFile reads the user's custom PostgreSQL config file.
 func readPostgresConfigFile(userContext string) (string, error) {
-	content, err := os.ReadFile(postgresConfPath(userContext))
+	content, err := tenantfs.ReadFile(postgresConfPath(userContext))
 	if err != nil {
 		return "", err
 	}
@@ -91,7 +91,7 @@ func parsePostgresConfigContent(content string) map[string]string {
 // updatePostgresConfigFile replaces each key in newConfig's existing (possibly commented-out) line in place, or appends a new line if the key isn't present yet
 func updatePostgresConfigFile(userContext string, newConfig map[string]string, keyOrder []string) {
 	path := postgresConfPath(userContext)
-	content, _ := os.ReadFile(path)
+	content, _ := tenantfs.ReadFile(path)
 	lines := strings.Split(string(content), "\n")
 	if len(lines) > 0 && lines[len(lines)-1] == "" {
 		lines = lines[:len(lines)-1]
@@ -124,7 +124,7 @@ func updatePostgresConfigFile(userContext string, newConfig map[string]string, k
 		}
 	}
 
-	_ = os.WriteFile(path, []byte(strings.Join(lines, "\n")+"\n"), 0o644)
+	_ = tenantfs.WriteFile(path, []byte(strings.Join(lines, "\n")+"\n"), 0o644)
 }
 
 // handleEditPostgresConfig saves the submitted config values and restarts the postgres container to apply them, then renders the current config

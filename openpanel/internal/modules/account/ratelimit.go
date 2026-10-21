@@ -13,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -99,7 +100,7 @@ func blockIPTemporarily(ip string, blockLimit int) {
 	const tempbanPath = "/var/lib/csf/csf.tempban"
 	const errorLogPath = "/var/log/openpanel/user/error.log"
 
-	if _, err := os.Stat(tempbanPath); err != nil {
+	if _, err := tenantfs.Stat(tempbanPath); err != nil {
 		appendLine(errorLogPath, fmt.Sprintf("%s - Failed to block IP %s (after %d failed logins) on Firewall: CSF is not installed.",
 			time.Now().Format(time.RFC3339), ip, blockLimit))
 		return
@@ -117,10 +118,10 @@ func blockIPTemporarily(ip string, blockLimit int) {
 }
 
 func appendLine(path, line string) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+	if err := tenantfs.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
-	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	f, err := tenantfs.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		return err
 	}

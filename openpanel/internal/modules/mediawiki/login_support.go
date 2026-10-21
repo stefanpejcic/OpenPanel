@@ -1,10 +1,11 @@
 package mediawiki
 
 import (
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 var (
@@ -20,7 +21,7 @@ func extractMediaWikiDatabaseInfoForLogin(userContext, directory string) map[str
 		return map[string]string{"error": "invalid docroot"}
 	}
 	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
-	content, err := os.ReadFile(filepath.Join(mappedDir, "LocalSettings.php"))
+	content, err := tenantfs.ReadFile(filepath.Join(mappedDir, "LocalSettings.php"))
 	if err != nil {
 		return map[string]string{"error": "LocalSettings.php not found"}
 	}

@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"io/fs"
 	"net/http"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -19,6 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
@@ -33,7 +33,7 @@ var (
 
 // cronTimeZone is the zone the user's cron container runs schedules in: its TZ, else the host's zone when /etc/localtime is mounted into it, else UTC like ofelia defaults to
 func cronTimeZone(userContext string) *time.Location {
-	raw, err := os.ReadFile(filepath.Join("/home", userContext, "docker-compose.yml"))
+	raw, err := tenantfs.ReadFile(filepath.Join("/home", userContext, "docker-compose.yml"))
 	if err != nil {
 		return time.UTC
 	}
@@ -109,7 +109,7 @@ var (
 func hostLocation() *time.Location {
 	hostZoneOnce.Do(func() {
 		hostZone = time.UTC
-		data, err := os.ReadFile(hostLocaltimePath)
+		data, err := tenantfs.ReadFile(hostLocaltimePath)
 		if err != nil {
 			return
 		}
@@ -129,7 +129,7 @@ func hostLocation() *time.Location {
 			if d.IsDir() || !strings.Contains(rel, "/") && rel != "UTC" {
 				return nil
 			}
-			if b, err := os.ReadFile(path); err == nil && bytes.Equal(b, data) {
+			if b, err := tenantfs.ReadFile(path); err == nil && bytes.Equal(b, data) {
 				name = rel
 			}
 			return nil
@@ -260,7 +260,7 @@ func setCronTimeZone(ctx context.Context, userContext, tz string) error {
 		return errString("Unknown time zone.")
 	}
 	path := filepath.Join("/home", userContext, "docker-compose.yml")
-	raw, err := os.ReadFile(path)
+	raw, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return err
 	}
@@ -271,11 +271,11 @@ func setCronTimeZone(ctx context.Context, userContext, tz string) error {
 	if got, _ := cronServiceZone([]byte(updated)); got != tz {
 		return errString("Could not set TZ in docker-compose.yml.")
 	}
-	info, _ := os.Stat(path)
-	if err := os.WriteFile(path, []byte(updated), info.Mode().Perm()); err != nil {
+	info, _ := tenantfs.Stat(path)
+	if err := tenantfs.WriteFile(path, []byte(updated), info.Mode().Perm()); err != nil {
 		return err
 	}
-	jobs, _ := os.ReadFile(cronFilePath(userContext))
+	jobs, _ := tenantfs.ReadFile(cronFilePath(userContext))
 	if hasCronJobs(strings.Split(string(jobs), "\n")) {
 		// up -d recreates the container, a restart would keep the old environment
 		docker.StartOrStopContainer(ctx, userContext, "cron", "activate", "detached")

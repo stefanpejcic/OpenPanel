@@ -1,11 +1,11 @@
 package mysql
 
 import (
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gopkg.in/yaml.v3"
 )
 
@@ -34,7 +34,7 @@ func mysqlSocketReady(userContext string) bool {
 	}
 	home := filepath.Join(userHomeRoot, userContext)
 
-	raw, err := os.ReadFile(filepath.Join(home, "docker-compose.yml"))
+	raw, err := tenantfs.ReadFile(filepath.Join(home, "docker-compose.yml"))
 	if err != nil {
 		return false
 	}
@@ -72,7 +72,7 @@ func mysqlSocketReady(userContext string) bool {
 		return false
 	}
 	for _, p := range inis {
-		content, err := os.ReadFile(p)
+		content, err := tenantfs.ReadFile(p)
 		if err != nil || !mysqliSocketRE.Match(content) || !pdoSocketRE.Match(content) {
 			return false
 		}

@@ -24,6 +24,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
@@ -335,7 +336,7 @@ func varnishStatusFor(ctx context.Context, a *appctx.App, s *wpCacheSite) varnis
 	v.ServiceRunning = docker.IsServiceRunning(ctx, s.UserContext, "varnish")
 	v.DomainStatus = cache.DomainVarnishStatus(s.Domain)
 	v.Enabled = v.ServiceRunning && v.DomainStatus == "On"
-	if content, err := os.ReadFile(vclPath(s.UserContext)); err == nil {
+	if content, err := tenantfs.ReadFile(vclPath(s.UserContext)); err == nil {
 		if ttl, ok := parseVCLTTLs(string(content))[s.Domain]; ok {
 			v.TTL, v.TTLCustom = ttl, true
 		}
@@ -432,7 +433,7 @@ func parseRedisInfo(info string) map[string]string {
 
 func redisStatusFor(ctx context.Context, a *appctx.App, s *wpCacheSite) redisCacheStatus {
 	rs := redisCacheStatus{Allowed: userAllowed(ctx, a, s, "redis")}
-	if dropin, err := os.ReadFile(filepath.Join(s.HostPath, "wp-content", "object-cache.php")); err == nil {
+	if dropin, err := tenantfs.ReadFile(filepath.Join(s.HostPath, "wp-content", "object-cache.php")); err == nil {
 		rs.Enabled = strings.Contains(string(dropin), redisDropinMarker)
 	}
 	ram, _ := docker.GetEnvValue(s.UserContext, "REDIS_RAM")
@@ -521,7 +522,7 @@ echo $pos === false ? $out : substr($out, $pos + 4);
 `
 
 func readUserIniOpcacheOff(hostPath string) bool {
-	content, err := os.ReadFile(filepath.Join(hostPath, ".user.ini"))
+	content, err := tenantfs.ReadFile(filepath.Join(hostPath, ".user.ini"))
 	if err != nil {
 		return false
 	}
@@ -588,7 +589,7 @@ func measurementPath(s *wpCacheSite) string {
 }
 
 func loadMeasurement(s *wpCacheSite) *cacheMeasurement {
-	raw, err := os.ReadFile(measurementPath(s))
+	raw, err := tenantfs.ReadFile(measurementPath(s))
 	if err != nil {
 		return nil
 	}
@@ -612,14 +613,14 @@ func saveMeasurement(s *wpCacheSite, m *cacheMeasurement) error {
 		m.History = m.History[len(m.History)-measureHistoryLen:]
 	}
 	path := measurementPath(s)
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+	if err := tenantfs.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
 	raw, err := json.Marshal(m)
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, raw, 0o644)
+	return tenantfs.WriteFile(path, raw, 0o644)
 }
 
 func wpCacheStatus(ctx context.Context, a *appctx.App, s *wpCacheSite) wpCacheStatusResponse {
@@ -669,7 +670,7 @@ func setVarnishTTL(ctx context.Context, s *wpCacheSite, ttl int) (string, error)
 		return "", errors.New("invalid cache lifetime")
 	}
 	path := vclPath(s.UserContext)
-	content, err := os.ReadFile(path)
+	content, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return "", errors.New("Varnish configuration file not found")
 	}
@@ -682,12 +683,12 @@ func setVarnishTTL(ctx context.Context, s *wpCacheSite, ttl int) (string, error)
 		return "", err
 	}
 	// write in place, the file is bind-mounted into the varnish container
-	if err := os.WriteFile(path, []byte(updated), 0o644); err != nil {
+	if err := tenantfs.WriteFile(path, []byte(updated), 0o644); err != nil {
 		return "", err
 	}
 	if docker.IsServiceRunning(ctx, s.UserContext, "varnish") {
 		if err := reloadVarnishVCL(ctx, s.UserContext); err != nil {
-			_ = os.WriteFile(path, content, 0o644)
+			_ = tenantfs.WriteFile(path, content, 0o644)
 			_ = reloadVarnishVCL(ctx, s.UserContext)
 			return "", fmt.Errorf("Varnish rejected the new configuration: %v", err)
 		}
@@ -744,8 +745,8 @@ func setRedisForSite(ctx context.Context, s *wpCacheSite, on bool) (string, erro
 	_, _ = s.wp(ctx, "redis", "disable", "--skip-themes")
 	// drop-in can outlive the plugin, remove it ourselves if it's still ours
 	dropin := filepath.Join(s.HostPath, "wp-content", "object-cache.php")
-	if content, err := os.ReadFile(dropin); err == nil && strings.Contains(string(content), redisDropinMarker) {
-		_ = os.Remove(dropin)
+	if content, err := tenantfs.ReadFile(dropin); err == nil && strings.Contains(string(content), redisDropinMarker) {
+		_ = tenantfs.Remove(dropin)
 	}
 	if out, err := s.wp(ctx, "plugin", "deactivate", "redis-cache", "--skip-themes"); err != nil && !strings.Contains(out, "already deactivated") && !strings.Contains(out, "not installed") {
 		return "", fmt.Errorf("could not deactivate the Redis Object Cache plugin: %s", out)
@@ -792,7 +793,7 @@ func setOpcacheForSite(ctx context.Context, s *wpCacheSite, on bool) (string, er
 		return "", errors.New("per-site OPcache toggle is not available on OpenLiteSpeed, it does not read .user.ini files")
 	}
 	path := filepath.Join(s.HostPath, ".user.ini")
-	content, err := os.ReadFile(path)
+	content, err := tenantfs.ReadFile(path)
 	existed := err == nil
 	if err != nil && !os.IsNotExist(err) {
 		return "", err
@@ -800,15 +801,15 @@ func setOpcacheForSite(ctx context.Context, s *wpCacheSite, on bool) (string, er
 	updated := setUserIniOpcache(string(content), on)
 	switch {
 	case updated == "" && existed:
-		_ = os.Remove(path)
+		_ = tenantfs.Remove(path)
 	case updated != "":
-		if err := os.WriteFile(path, []byte(updated), 0o644); err != nil {
+		if err := tenantfs.WriteFile(path, []byte(updated), 0o644); err != nil {
 			return "", err
 		}
 		if !existed {
-			if info, statErr := os.Stat(s.HostPath); statErr == nil {
+			if info, statErr := tenantfs.Stat(s.HostPath); statErr == nil {
 				if st, ok := info.Sys().(*syscall.Stat_t); ok {
-					_ = os.Lchown(path, int(st.Uid), int(st.Gid))
+					_ = tenantfs.Lchown(path, int(st.Uid), int(st.Gid))
 				}
 			}
 		}
@@ -982,7 +983,7 @@ func handleWPCacheAction(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		}
 		flushRedisForSite(ctx, s)
 		// another object cache plugin (memcached etc.) only knows how to flush itself
-		if dropin, readErr := os.ReadFile(filepath.Join(s.HostPath, "wp-content", "object-cache.php")); readErr == nil && !strings.Contains(string(dropin), redisDropinMarker) {
+		if dropin, readErr := tenantfs.ReadFile(filepath.Join(s.HostPath, "wp-content", "object-cache.php")); readErr == nil && !strings.Contains(string(dropin), redisDropinMarker) {
 			_, _ = s.wp(ctx, "cache", "flush", "--skip-themes")
 		}
 		msg = "All caches purged for " + s.Site + "."

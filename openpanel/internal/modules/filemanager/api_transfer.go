@@ -43,6 +43,14 @@ func apiUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	root, perr := paths.OpenUserRoot("HOME", user.Context)
+	if perr != nil {
+		status, msg := pathErrorStatus(perr)
+		web.WriteJSON(w, status, map[string]string{"error": msg})
+		return
+	}
+	defer root.Close()
+
 	uploaded := []string{}
 	var errs []string
 
@@ -60,7 +68,7 @@ func apiUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			errs = append(errs, "Invalid filename: "+fh.Filename)
 			continue
 		}
-		destPath, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, safeName), false)
+		destPath, perr := root.Rel(filepath.Join(pathParam, safeName), false)
 		if perr != nil {
 			_, msg := pathErrorStatus(perr)
 			errs = append(errs, safeName+": "+msg)
@@ -72,7 +80,7 @@ func apiUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			errs = append(errs, "Failed to save "+fh.Filename)
 			continue
 		}
-		dst, createErr := os.OpenFile(destPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
+		dst, createErr := root.OpenFile(destPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
 		if createErr != nil {
 			_ = src.Close()
 			errs = append(errs, "Failed to save "+fh.Filename)
@@ -86,7 +94,7 @@ func apiUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		if chownErr := chownToUser(ctx, a, destPath, user.Context); chownErr != nil {
+		if chownErr := chownToUser(ctx, a, root, destPath, user.Context); chownErr != nil {
 			errs = append(errs, "Failed to set ownership on "+fh.Filename)
 		}
 
@@ -135,24 +143,29 @@ func apiExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		extractionPath = strings.TrimPrefix(extractionPathInput, "/")
 	}
 
-	destinationPath, perr := paths.SecureUserPath("HOME", user.Context, extractionPath, false)
+	root, destinationPath, perr := openUserPath(user, extractionPath, false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
-	if mkErr := os.MkdirAll(destinationPath, 0o755); mkErr != nil {
+	defer root.Close()
+	if mkErr := root.MkdirAll(destinationPath, 0o755); mkErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error occurred before starting archive extraction: " + mkErr.Error()})
 		return
 	}
-	archivePath, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, selectedFile), true)
+	archivePath, perr := root.Rel(filepath.Join(pathParam, selectedFile), true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
+	if archiveKind(selectedFile) == "" {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Unsupported file format!"})
+		return
+	}
 
-	if verr := validateArchiveMembers(archivePath, selectedFile, destinationPath); verr != nil {
+	if verr := validateArchiveMembers(root, archivePath, selectedFile, destinationPath); verr != nil {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": verr.Error()})
 		return
 	}
@@ -164,22 +177,7 @@ func apiExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	timeoutCtx, cancel := context.WithTimeout(ctx, time.Duration(maxTime*float64(time.Minute)))
 	defer cancel()
 
-	var extractErr error
-	switch {
-	case strings.HasSuffix(selectedFile, ".zip"):
-		extractErr = runCommand(timeoutCtx, "unzip", "-o", archivePath, "-d", destinationPath)
-	case strings.HasSuffix(selectedFile, ".tar.gz"), strings.HasSuffix(selectedFile, ".tgz"):
-		extractErr = runCommand(timeoutCtx, "tar", "--no-same-owner", "--no-same-permissions", "-xzf", archivePath, "-C", destinationPath)
-	case strings.HasSuffix(selectedFile, ".tar"):
-		extractErr = runCommand(timeoutCtx, "tar", "--no-same-owner", "--no-same-permissions", "-xf", archivePath, "-C", destinationPath)
-	case strings.HasSuffix(selectedFile, ".gz"):
-		extractErr = extractSingleGzip(archivePath, selectedFile, destinationPath)
-	default:
-		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Unsupported file format!"})
-		return
-	}
-
-	if extractErr != nil {
+	if extractErr := extractArchive(timeoutCtx, root, archivePath, selectedFile, destinationPath); extractErr != nil {
 		if timeoutCtx.Err() == context.DeadlineExceeded {
 			web.WriteJSON(w, http.StatusGatewayTimeout, map[string]string{"error": fmt.Sprintf("Extraction timed out after %g minutes!", maxTime)})
 			return
@@ -188,8 +186,8 @@ func apiExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	chownRecursive(ctx, a, destinationPath, user.Context)
-	_ = logger.RecordUserAction(a.Config, user.Username, "Extracted "+selectedFile+" into "+destinationPath+" using File Manager API", reqip.ClientIP(r))
+	chownRecursive(ctx, a, root, destinationPath, user.Context)
+	_ = logger.RecordUserAction(a.Config, user.Username, "Extracted "+selectedFile+" into "+root.Abs(destinationPath)+" using File Manager API", reqip.ClientIP(r))
 	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "File extracted successfully"})
 }
 
@@ -234,33 +232,30 @@ func apiCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parentPath, perr := paths.SecureUserPath("HOME", user.Context, pathParam, true)
+	root, parentPath, perr := openUserPath(user, pathParam, true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
+	defer root.Close()
 
 	archiveRelPath := archiveNameRaw
 	if !strings.HasSuffix(archiveRelPath, "."+ext) {
 		archiveRelPath += "." + ext
 	}
-	archivePath, perr := paths.SecureUserPath("HOME", user.Context, archiveRelPath, false)
+	archivePath, perr := root.Rel(archiveRelPath, false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
 
-	validatedFiles := make([]string, 0, len(body.SelectedFiles))
-	for _, f := range body.SelectedFiles {
-		filePath, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, f), true)
-		if perr != nil {
-			status, msg := pathErrorStatus(perr)
-			web.WriteJSON(w, status, map[string]string{"error": msg})
-			return
-		}
-		validatedFiles = append(validatedFiles, filepath.Base(filePath))
+	validatedFiles, perr := selectedArchiveEntries(root, pathParam, parentPath, body.SelectedFiles)
+	if perr != nil {
+		status, msg := pathErrorStatus(perr)
+		web.WriteJSON(w, status, map[string]string{"error": msg})
+		return
 	}
 
 	if !supportedArchiveExt(ext) {
@@ -268,20 +263,15 @@ func apiCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	maxTime := atoiDefault(a.Config.Get("filemanager_compress_max_time", "5"), 5)
-	out, cmdErr := createArchive(ctx, ext, parentPath, archivePath, validatedFiles, maxTime)
-	if cmdErr != nil {
-		errMsg := strings.TrimSpace(string(out))
-		if errMsg == "" {
-			errMsg = "Unknown error"
-		}
-		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Archive creation failed: " + errMsg})
+	if cmdErr := createArchive(ctx, root, ext, parentPath, archivePath, validatedFiles, maxTime); cmdErr != nil {
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Archive creation failed: " + cmdErr.Error()})
 		return
 	}
 
 	_ = logger.RecordUserAction(a.Config, user.Username, "Created archive "+filepath.Base(archiveRelPath)+" with File Manager API", reqip.ClientIP(r))
 
 	warning := ""
-	if chownErr := chownToUser(ctx, a, archivePath, user.Context); chownErr != nil {
+	if chownErr := chownToUser(ctx, a, root, archivePath, user.Context); chownErr != nil {
 		warning = "Failed to set archive ownership"
 	}
 	web.WriteJSON(w, http.StatusCreated, map[string]string{"message": "Archive created successfully.", "path": archiveRelPath, "warning": warning})

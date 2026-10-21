@@ -19,6 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -62,7 +63,7 @@ var inProgressLogNameRE = regexp.MustCompile(`_backup_(\d{4}-\d{2}-\d{2}_\d{2}-\
 // inProgressInfo mirrors _in_progress_info(): (started, currentSize, inProgressFilename) for the currently-running backup, best-effort from the newest matching log file and the newest .tar.gz on disk
 func inProgressInfo(currentUsername, userContext string) (started, currentSize, inProgressFile string) {
 	logDir := "/var/log/openpanel/admin/backups"
-	if entries, err := os.ReadDir(logDir); err == nil {
+	if entries, err := tenantfs.ReadDir(logDir); err == nil {
 		type logEntry struct {
 			name    string
 			modTime time.Time
@@ -89,7 +90,7 @@ func inProgressInfo(currentUsername, userContext string) (started, currentSize, 
 	}
 
 	dir := backupDir(userContext)
-	if entries, err := os.ReadDir(dir); err == nil {
+	if entries, err := tenantfs.ReadDir(dir); err == nil {
 		type tarEntry struct {
 			name    string
 			modTime time.Time
@@ -128,7 +129,7 @@ type BackupFile struct {
 // listBackups mirrors _list_backups().
 func listBackups(userContext, inProgressFile string) []BackupFile {
 	dir := backupDir(userContext)
-	entries, err := os.ReadDir(dir)
+	entries, err := tenantfs.ReadDir(dir)
 	if err != nil {
 		return nil
 	}
@@ -234,7 +235,7 @@ func handleBackupWizardCreate(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if err := os.MkdirAll(backupDir(userContext), 0o755); err != nil {
+	if err := tenantfs.MkdirAll(backupDir(userContext), 0o755); err != nil {
 		flashAndRedirectToWizard(a, w, r, "error", "Failed to start backup.")
 		return
 	}
@@ -275,7 +276,7 @@ func handleBackupWizardDownload(a *appctx.App, w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	info, statErr := os.Stat(filePath)
+	info, statErr := tenantfs.Stat(filePath)
 	if statErr != nil {
 		flashAndRedirectToWizard(a, w, r, "error", "Backup file not found.")
 		return
@@ -291,7 +292,7 @@ func handleBackupWizardDownload(a *appctx.App, w http.ResponseWriter, r *http.Re
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "downloaded backup "+safeName, reqip.ClientIP(r))
 
-	f, openErr := os.Open(filePath)
+	f, openErr := tenantfs.Open(filePath)
 	if openErr != nil {
 		flashAndRedirectToWizard(a, w, r, "error", "Backup file not found.")
 		return

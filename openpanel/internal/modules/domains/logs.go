@@ -3,11 +3,11 @@ package domains
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -48,7 +48,7 @@ func handleViewDomainAccessLog(a *appctx.App, w http.ResponseWriter, r *http.Req
 	}
 
 	logFilePath := "/var/log/caddy/domlogs/" + domainName + "/access.log"
-	info, statErr := os.Stat(logFilePath)
+	info, statErr := tenantfs.Stat(logFilePath)
 	if statErr != nil {
 		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Log file not found for domain %(domain_name)s.", "domain_name", domainName), "/domains/log")
 		return
@@ -58,7 +58,7 @@ func handleViewDomainAccessLog(a *appctx.App, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	content, err := os.ReadFile(logFilePath)
+	content, err := tenantfs.ReadFile(logFilePath)
 	if err != nil {
 		web.FlashRedirect(a, w, r, "danger", web.Tr(a, r, "Error reading log file: %(error)s", "error", err.Error()), "/domains/log")
 		return

@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -14,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
@@ -95,10 +95,10 @@ func handleOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	archiveName := "ojs-" + dotted + ".tar.gz"
 	archiveDir := "/etc/openpanel/ojs/archives"
 	archivePath := filepath.Join(archiveDir, archiveName)
-	if _, statErr := os.Stat(archivePath); statErr != nil {
+	if _, statErr := tenantfs.Stat(archivePath); statErr != nil {
 		downloadURL := ojsDownloadURL(dotted)
 		emit(map[string]any{"status": "Downloading " + downloadURL})
-		_ = os.MkdirAll(archiveDir, 0o755)
+		_ = tenantfs.MkdirAll(archiveDir, 0o755)
 		if runErr := exec.CommandContext(ctx, "wget", "-q", "-O", archivePath, downloadURL).Run(); runErr != nil {
 			emit(map[string]any{"error": "Error downloading OJS " + dotted + ": " + runErr.Error()})
 			return
@@ -108,50 +108,50 @@ func handleOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	emit(map[string]any{"status": "Extracting new version to a fresh directory"})
-	_ = os.RemoveAll(newApprootHostPath)
+	_ = tenantfs.RemoveAll(newApprootHostPath)
 	if unpackErr := unpackOJSArchive(ctx, archivePath, newApprootHostPath); unpackErr != nil {
 		emit(map[string]any{"error": "Error extracting OJS archive: " + unpackErr.Error()})
-		_ = os.RemoveAll(newApprootHostPath)
+		_ = tenantfs.RemoveAll(newApprootHostPath)
 		return
 	}
 
 	emit(map[string]any{"status": "Copying existing config.inc.php into the new version"})
 	oldConfigPath := filepath.Join(approotHostPath, "config.inc.php")
 	newConfigPath := filepath.Join(newApprootHostPath, "config.inc.php")
-	configContent, readErr := os.ReadFile(oldConfigPath)
+	configContent, readErr := tenantfs.ReadFile(oldConfigPath)
 	if readErr != nil {
 		emit(map[string]any{"error": "Could not read existing config.inc.php: " + readErr.Error()})
-		_ = os.RemoveAll(newApprootHostPath)
+		_ = tenantfs.RemoveAll(newApprootHostPath)
 		return
 	}
-	if writeErr := os.WriteFile(newConfigPath, configContent, 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(newConfigPath, configContent, 0o644); writeErr != nil {
 		emit(map[string]any{"error": "Could not write config.inc.php into new version: " + writeErr.Error()})
-		_ = os.RemoveAll(newApprootHostPath)
+		_ = tenantfs.RemoveAll(newApprootHostPath)
 		return
 	}
 
 	emit(map[string]any{"status": "Setting files permissions and owner to '" + userContext + "'"})
 	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
-		_ = exec.Command("chown", "-R", strconv.Itoa(uid)+":"+strconv.Itoa(uid), newApprootHostPath).Run()
+		_ = tenantfs.ChownR(newApprootHostPath, uid, uid)
 	}
 
 	emit(map[string]any{"status": "Switching web root to the new version"})
 	docrootSymlinkHostPath, symlinkErr := resolveOJSDocrootSymlink(userContext, selectedDomain)
 	if symlinkErr != nil {
 		emit(map[string]any{"error": symlinkErr.Error()})
-		_ = os.RemoveAll(newApprootHostPath)
+		_ = tenantfs.RemoveAll(newApprootHostPath)
 		return
 	}
-	if rmErr := os.Remove(docrootSymlinkHostPath); rmErr != nil {
+	if rmErr := tenantfs.Remove(docrootSymlinkHostPath); rmErr != nil {
 		emit(map[string]any{"error": "Could not remove existing web root symlink: " + rmErr.Error()})
-		_ = os.RemoveAll(newApprootHostPath)
+		_ = tenantfs.RemoveAll(newApprootHostPath)
 		return
 	}
-	if symErr := os.Symlink(newApprootContainerPath, docrootSymlinkHostPath); symErr != nil {
+	if symErr := tenantfs.Symlink(newApprootContainerPath, docrootSymlinkHostPath); symErr != nil {
 		emit(map[string]any{"error": "Could not point web root at the new version: " + symErr.Error()})
 		// Best-effort roll back the symlink to the old (untouched) tree.
-		_ = os.Symlink("/var/www/html/"+slug+"_ojsapp", docrootSymlinkHostPath)
-		_ = os.RemoveAll(newApprootHostPath)
+		_ = tenantfs.Symlink("/var/www/html/"+slug+"_ojsapp", docrootSymlinkHostPath)
+		_ = tenantfs.RemoveAll(newApprootHostPath)
 		return
 	}
 
@@ -161,22 +161,22 @@ func handleOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if runErr != nil {
 		emit(map[string]any{"error": "tools/upgrade.php upgrade failed: " + strings.TrimSpace(string(out))})
 		emit(map[string]any{"status": "Rolling back web root to the previous version"})
-		_ = os.Remove(docrootSymlinkHostPath)
-		_ = os.Symlink("/var/www/html/"+slug+"_ojsapp", docrootSymlinkHostPath)
-		_ = os.RemoveAll(newApprootHostPath)
+		_ = tenantfs.Remove(docrootSymlinkHostPath)
+		_ = tenantfs.Symlink("/var/www/html/"+slug+"_ojsapp", docrootSymlinkHostPath)
+		_ = tenantfs.RemoveAll(newApprootHostPath)
 		return
 	}
 
 	emit(map[string]any{"status": "Finalizing: replacing previous version"})
-	_ = os.RemoveAll(approotHostPath)
-	if renameErr := os.Rename(newApprootHostPath, approotHostPath); renameErr != nil {
+	_ = tenantfs.RemoveAll(approotHostPath)
+	if renameErr := tenantfs.Rename(newApprootHostPath, approotHostPath); renameErr != nil {
 		// upgrade already succeeded and the symlink points at ".new" - not fatal, just repoint the symlink at wherever the dir ended up
 		emit(map[string]any{"status": "Warning: could not rename new version into place: " + renameErr.Error()})
-		_ = os.Remove(docrootSymlinkHostPath)
-		_ = os.Symlink(newApprootContainerPath, docrootSymlinkHostPath)
+		_ = tenantfs.Remove(docrootSymlinkHostPath)
+		_ = tenantfs.Symlink(newApprootContainerPath, docrootSymlinkHostPath)
 	} else {
-		_ = os.Remove(docrootSymlinkHostPath)
-		_ = os.Symlink("/var/www/html/"+slug+"_ojsapp", docrootSymlinkHostPath)
+		_ = tenantfs.Remove(docrootSymlinkHostPath)
+		_ = tenantfs.Symlink("/var/www/html/"+slug+"_ojsapp", docrootSymlinkHostPath)
 	}
 
 	if _, execErr := a.DB.ExecContext(ctx, "UPDATE sites SET version = ? WHERE site_name = ? AND type = 'ojs'", dotted, selectedDomain); execErr != nil {
@@ -196,7 +196,7 @@ func resolveOJSDocrootSymlink(userContext, selectedDomain string) (string, error
 
 	// docroot on disk is "/var/www/html/<selectedDomain>" mapped onto htmlVolume, same relation install.go's hostOSPath construction relies on
 	hostOSPath := filepath.Join(htmlVolume, selectedDomain)
-	if info, statErr := os.Lstat(hostOSPath); statErr == nil && info.Mode()&os.ModeSymlink != 0 {
+	if info, statErr := tenantfs.Lstat(hostOSPath); statErr == nil && info.Mode()&os.ModeSymlink != 0 {
 		return hostOSPath, nil
 	}
 	return "", &execError{msg: "Could not locate the OJS web root symlink for " + selectedDomain + " (expected it to point at " + approotContainerPath + ")"}

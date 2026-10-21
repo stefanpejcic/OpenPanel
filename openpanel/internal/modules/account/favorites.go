@@ -16,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -42,17 +43,17 @@ func favoritesMax(a *appctx.App) int {
 }
 
 func ensureFavoritesFile(path string) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+	if err := tenantfs.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return err
 	}
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return os.WriteFile(path, []byte("[]"), 0o644)
+	if _, err := tenantfs.Stat(path); os.IsNotExist(err) {
+		return tenantfs.WriteFile(path, []byte("[]"), 0o644)
 	}
 	return nil
 }
 
 func readFavoritesFile(path string) ([]Favorite, error) {
-	content, err := os.ReadFile(path)
+	content, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +85,7 @@ func addFavorite(a *appctx.App, ctx context.Context, path, username, link, title
 	}
 
 	var favorites []Favorite
-	if _, err := os.Stat(path); err == nil {
+	if _, err := tenantfs.Stat(path); err == nil {
 		favorites, _ = readFavoritesFile(path)
 	}
 
@@ -99,7 +100,7 @@ func addFavorite(a *appctx.App, ctx context.Context, path, username, link, title
 
 	favorites = append(favorites, Favorite{Link: newLink, Title: title})
 	content, _ := json.Marshal(favorites)
-	if err := os.WriteFile(path, content, 0o644); err != nil {
+	if err := tenantfs.WriteFile(path, content, 0o644); err != nil {
 		return nil, &favoriteErr{"Failed to save favorite", http.StatusInternalServerError}
 	}
 
@@ -117,7 +118,7 @@ func deleteFavorite(a *appctx.App, ctx context.Context, path, username, link, ip
 	}
 
 	var favorites []Favorite
-	if _, err := os.Stat(path); err == nil {
+	if _, err := tenantfs.Stat(path); err == nil {
 		favorites, _ = readFavoritesFile(path)
 	}
 
@@ -129,7 +130,7 @@ func deleteFavorite(a *appctx.App, ctx context.Context, path, username, link, ip
 	}
 
 	content, _ := json.Marshal(kept)
-	if err := os.WriteFile(path, content, 0o644); err != nil {
+	if err := tenantfs.WriteFile(path, content, 0o644); err != nil {
 		return nil, &favoriteErr{"Failed to save favorite", http.StatusInternalServerError}
 	}
 

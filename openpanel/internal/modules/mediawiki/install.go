@@ -3,10 +3,8 @@ package mediawiki
 import (
 	"context"
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -15,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
@@ -90,13 +89,13 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	docrootWithoutWWW := strings.TrimPrefix(strings.TrimPrefix(installPath, "/var/www/html/"), "/")
 	hostOSPath := filepath.Join(htmlVolume, docrootWithoutWWW)
 
-	if _, statErr := os.Stat(hostOSPath); statErr == nil {
-		if entries, readErr := os.ReadDir(hostOSPath); readErr == nil && len(entries) > 0 {
+	if _, statErr := tenantfs.Stat(hostOSPath); statErr == nil {
+		if entries, readErr := tenantfs.ReadDir(hostOSPath); readErr == nil && len(entries) > 0 {
 			emit(map[string]any{"error": "Directory " + installPath + " already exists and is not empty."})
 			return
 		}
 	}
-	if mkErr := os.MkdirAll(hostOSPath, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(hostOSPath, 0o755); mkErr != nil {
 		emit(map[string]any{"error": "Error creating document root: " + mkErr.Error()})
 		return
 	}
@@ -119,12 +118,12 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	archiveName := "mediawiki-" + version + ".tar.gz"
 	archiveDir := "/etc/openpanel/mediawiki/archives"
 	archivePath := filepath.Join(archiveDir, archiveName)
-	if _, statErr := os.Stat(archivePath); statErr != nil {
+	if _, statErr := tenantfs.Stat(archivePath); statErr != nil {
 		downloadURL := "https://releases.wikimedia.org/mediawiki/" + branch + "/" + archiveName
 		emit(map[string]any{"status": "Downloading " + downloadURL})
-		_ = os.MkdirAll(archiveDir, 0o755)
+		_ = tenantfs.MkdirAll(archiveDir, 0o755)
 		if runErr := exec.CommandContext(ctx, "wget", "-q", "-O", archivePath, downloadURL).Run(); runErr != nil {
-			_ = os.Remove(archivePath)
+			_ = tenantfs.Remove(archivePath)
 			emit(map[string]any{"error": "Error downloading MediaWiki " + version + ": " + runErr.Error()})
 			return
 		}
@@ -133,7 +132,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	emit(map[string]any{"status": "Extracting files to " + installPath})
-	if runErr := exec.CommandContext(ctx, "tar", "-xzf", archivePath, "-C", hostOSPath, "--strip-components=1").Run(); runErr != nil {
+	if runErr := tenantfs.ExtractTar(ctx, archivePath, hostOSPath, 1); runErr != nil {
 		emit(map[string]any{"error": "Error extracting MediaWiki archive: " + runErr.Error()})
 		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
@@ -154,8 +153,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
 	}
-	uidStr := strconv.Itoa(uid)
-	if chownErr := exec.Command("chown", "-R", uidStr+":"+uidStr, hostOSPath).Run(); chownErr != nil {
+	if chownErr := tenantfs.ChownR(hostOSPath, uid, uid); chownErr != nil {
 		emit(map[string]any{"error": "Could not set file ownership: " + chownErr.Error()})
 		emitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
@@ -231,8 +229,8 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	emit(map[string]any{"status": "Deploying admin login helper"})
 	loginFilePath := filepath.Join(hostOSPath, openpanelLoginFileName)
-	if writeErr := os.WriteFile(loginFilePath, []byte(openpanelLoginPHP), 0o644); writeErr == nil {
-		_ = os.Lchown(loginFilePath, uid, uid)
+	if writeErr := tenantfs.WriteFile(loginFilePath, []byte(openpanelLoginPHP), 0o644); writeErr == nil {
+		_ = tenantfs.Lchown(loginFilePath, uid, uid)
 	}
 
 	emit(map[string]any{"status": "Registering cron job (maintenance/runJobs.php, every minute)"})

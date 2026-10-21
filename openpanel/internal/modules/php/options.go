@@ -14,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -57,10 +58,10 @@ func configEntriesToMap(entries []ConfigEntry) map[string]string {
 // loadKeysFromFile returns the editable option keys: a per-user override file, else a global override file, else the built-in default key list
 func loadKeysFromFile(userContext string) []string {
 	userFilePath := "/home/" + userContext + "/php.ini/options.txt"
-	if content, err := os.ReadFile(userFilePath); err == nil {
+	if content, err := tenantfs.ReadFile(userFilePath); err == nil {
 		return splitNonEmptyLines(content)
 	}
-	if content, err := os.ReadFile("/etc/openpanel/php/options.txt"); err == nil {
+	if content, err := tenantfs.ReadFile("/etc/openpanel/php/options.txt"); err == nil {
 		return splitNonEmptyLines(content)
 	}
 	return []string{
@@ -93,7 +94,7 @@ var iniValueNewlines = strings.NewReplacer("\r", "", "\n", "")
 // updatePHPConfigFile deletes, updates, or appends each key in keyOrder, then overwrites the file in place so the bind mount in the php container sees it without a restart
 func updatePHPConfigFile(userContext, version string, keyOrder []string, values map[string]string) error {
 	phpIniFile := "/home/" + userContext + "/php.ini/" + version + ".ini"
-	content, err := os.ReadFile(phpIniFile)
+	content, err := tenantfs.ReadFile(phpIniFile)
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
@@ -126,7 +127,7 @@ func updatePHPConfigFile(userContext, version string, keyOrder []string, values 
 		lines = out
 	}
 
-	return os.WriteFile(phpIniFile, []byte(strings.Join(lines, "\n")), 0o644)
+	return tenantfs.WriteFile(phpIniFile, []byte(strings.Join(lines, "\n")), 0o644)
 }
 
 // AvailableTimezones lists the IANA timezones available for the date.timezone option - the Go stdlib has no bundled zone list, so this walks /usr/share/zoneinfo and filters out the non-zone metadata files it also contains
@@ -245,7 +246,7 @@ func handlePHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request, ver
 		return
 	}
 
-	currentContent, readErr := os.ReadFile("/home/" + userContext + "/php.ini/" + version + ".ini")
+	currentContent, readErr := tenantfs.ReadFile("/home/" + userContext + "/php.ini/" + version + ".ini")
 	if readErr != nil {
 		writeJSONError(w, http.StatusInternalServerError, readErr.Error())
 		return

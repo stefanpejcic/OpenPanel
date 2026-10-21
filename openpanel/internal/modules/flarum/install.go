@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -17,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
@@ -98,8 +98,8 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	docrootWithoutWWW := strings.TrimPrefix(strings.TrimPrefix(installPath, "/var/www/html/"), "/")
 	hostOSPath := filepath.Join(htmlVolume, docrootWithoutWWW)
 
-	if _, statErr := os.Stat(hostOSPath); statErr == nil {
-		if entries, readErr := os.ReadDir(hostOSPath); readErr == nil && len(entries) > 0 {
+	if _, statErr := tenantfs.Stat(hostOSPath); statErr == nil {
+		if entries, readErr := tenantfs.ReadDir(hostOSPath); readErr == nil && len(entries) > 0 {
 			emit(map[string]any{"error": "Directory " + installPath + " already exists and is not empty."})
 			return
 		}

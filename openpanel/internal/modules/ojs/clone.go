@@ -2,8 +2,6 @@ package ojs
 
 import (
 	"net/http"
-	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -12,6 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -82,43 +81,43 @@ func handleOJSClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	dstFilesHostPath := filepath.Join(htmlVolume, dstSlug+"_ojsfiles")
 	dstFilesContainerPath := "/var/www/html/" + dstSlug + "_ojsfiles"
 
-	if info, statErr := os.Stat(srcApprootHostPath); statErr != nil || !info.IsDir() {
+	if info, statErr := tenantfs.Stat(srcApprootHostPath); statErr != nil || !info.IsDir() {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Source OJS app directory not found: " + srcApprootHostPath})
 		return
 	}
 
-	if mkErr := os.MkdirAll(dstApprootHostPath, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(dstApprootHostPath, 0o755); mkErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy OJS files: " + mkErr.Error()})
 		return
 	}
-	if cpErr := exec.CommandContext(ctx, "cp", "-a", srcApprootHostPath+"/.", dstApprootHostPath+"/").Run(); cpErr != nil {
+	if cpErr := tenantfs.CopyDir(srcApprootHostPath, dstApprootHostPath); cpErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy OJS app files: " + cpErr.Error()})
 		return
 	}
-	if mkErr := os.MkdirAll(dstFilesHostPath, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(dstFilesHostPath, 0o755); mkErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to create OJS files directory: " + mkErr.Error()})
 		return
 	}
-	if cpErr := exec.CommandContext(ctx, "cp", "-a", srcFilesHostPath+"/.", dstFilesHostPath+"/").Run(); cpErr != nil {
+	if cpErr := tenantfs.CopyDir(srcFilesHostPath, dstFilesHostPath); cpErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy OJS files directory: " + cpErr.Error()})
 		return
 	}
 	cmsclone.ChownRecursive(ctx, userContext, dstApprootHostPath, dstFilesHostPath)
-	_ = exec.Command("chmod", "-R", "777", dstFilesHostPath).Run()
+	_ = tenantfs.ChmodR(dstFilesHostPath, 0o777)
 
 	// the symlink target must be the container-visible path, not the host filesystem path - same gotcha install.go's symlink call documents
 	const wwwBaseDirectory = "/var/www/html/"
 	dstHostOSPath := strings.Replace(filepath.Clean(docroot), wwwBaseDirectory, htmlVolume, 1)
-	if _, statErr := os.Lstat(dstHostOSPath); statErr == nil {
+	if _, statErr := tenantfs.Lstat(dstHostOSPath); statErr == nil {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Destination path " + docroot + " already exists."})
-		_ = os.RemoveAll(dstApprootHostPath)
-		_ = os.RemoveAll(dstFilesHostPath)
+		_ = tenantfs.RemoveAll(dstApprootHostPath)
+		_ = tenantfs.RemoveAll(dstFilesHostPath)
 		return
 	}
-	if symErr := os.Symlink(dstApprootContainerPath, dstHostOSPath); symErr != nil {
+	if symErr := tenantfs.Symlink(dstApprootContainerPath, dstHostOSPath); symErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error creating web root symlink: " + symErr.Error()})
-		_ = os.RemoveAll(dstApprootHostPath)
-		_ = os.RemoveAll(dstFilesHostPath)
+		_ = tenantfs.RemoveAll(dstApprootHostPath)
+		_ = tenantfs.RemoveAll(dstFilesHostPath)
 		return
 	}
 
@@ -133,7 +132,7 @@ func handleOJSClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	configFile := filepath.Join(dstApprootHostPath, "config.inc.php")
-	content, readErr := os.ReadFile(configFile)
+	content, readErr := tenantfs.ReadFile(configFile)
 	if readErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": readErr.Error()})
 		return
@@ -144,7 +143,7 @@ func handleOJSClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	strContent = iniDatabasePasswordRE.ReplaceAllString(strContent, iniBare("password", escapedPassword))
 	strContent = iniBaseURLRE.ReplaceAllString(strContent, iniQuoted("base_url", "https://"+dstDomainWithSubdir))
 	strContent = iniFilesDirRE.ReplaceAllString(strContent, iniBare("files_dir", dstFilesContainerPath))
-	if writeErr := os.WriteFile(configFile, []byte(strContent), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(configFile, []byte(strContent), 0o644); writeErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": writeErr.Error()})
 		return
 	}

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -13,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -120,14 +120,14 @@ func apiPHPDomainSet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	confFile := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_webserver_data/_data/" + domainURL + ".conf"
-	content, readErr := os.ReadFile(confFile)
+	content, readErr := tenantfs.ReadFile(confFile)
 	if readErr != nil {
 		writeJSONError(w, http.StatusInternalServerError, "Failed to read vhost configuration for "+domainURL+": "+readErr.Error())
 		return
 	}
 
 	updated := strings.ReplaceAll(string(content), "php-fpm-"+oldVersion, "php-fpm-"+newVersion)
-	if writeErr := os.WriteFile(confFile, []byte(updated), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(confFile, []byte(updated), 0o644); writeErr != nil {
 		writeJSONError(w, http.StatusInternalServerError, "Failed to write vhost configuration for "+domainURL+": "+writeErr.Error())
 		return
 	}

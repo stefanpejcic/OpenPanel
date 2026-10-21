@@ -265,3 +265,17 @@ func TestRemoveUserSymlinkRejectsTraversal(t *testing.T) {
 		}
 	}
 }
+
+func TestCleanSubdir(t *testing.T) {
+	ok := map[string]string{"": "", "/": "", "blog": "blog", "/blog/": "blog", "a/b-c_d.e": "a/b-c_d.e"}
+	for in, want := range ok {
+		if got, err := CleanSubdir(in); err != nil || got != want {
+			t.Errorf("CleanSubdir(%q) = %q, %v, want %q", in, got, err, want)
+		}
+	}
+	for _, in := range []string{"..", "../x", "a/../../b", "a//b", "./a", "a/.", "a b", "a\\b", "%2e%2e"} {
+		if _, err := CleanSubdir(in); err == nil {
+			t.Errorf("CleanSubdir(%q) passed", in)
+		}
+	}
+}

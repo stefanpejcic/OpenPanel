@@ -3,10 +3,8 @@ package nextcloud
 import (
 	"context"
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -15,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
@@ -24,28 +23,12 @@ import (
 // unpackNextcloudUpdateArchive is unpackNextcloudArchive's update-time sibling: replaces every top-level entry except config/ and data/, deleting the old copy first to mirror Nextcloud's documented rsync --delete update behavior
 func unpackNextcloudUpdateArchive(ctx context.Context, archivePath, destDir string) error {
 	tmpDir := destDir + ".update-tmp"
-	script := `set -e
-rm -rf "$2"
-mkdir -p "$2"
-unzip -q "$1" "nextcloud/*" -d "$2"
-cd "$2/nextcloud"
-for f in .[!.]* ..?* *; do
-  [ -e "$f" ] || continue
-  case "$f" in
-    config|data) continue ;;
-  esac
-  rm -rf "$3/$f"
-  mv "$f" "$3/"
-done
-rm -rf "$2"
-`
-	cmd := exec.CommandContext(ctx, "sh", "-c", script, "sh", archivePath, tmpDir, destDir)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		_ = os.RemoveAll(tmpDir)
-		return &execError{msg: strings.TrimSpace(string(out)), err: err}
+	defer tenantfs.RemoveAll(tmpDir)
+	_ = tenantfs.RemoveAll(tmpDir)
+	if err := tenantfs.ExtractZipSubdir(ctx, archivePath, "nextcloud", tmpDir); err != nil {
+		return err
 	}
-	return nil
+	return tenantfs.ReplaceContents(tmpDir, destDir, "config", "data")
 }
 
 // handleNextcloudUpdate updates an install in place: downloads the latest release, replaces core files, then runs occ upgrade wrapped in maintenance mode - streams NDJSON progress like install does
@@ -110,10 +93,10 @@ func handleNextcloudUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request
 	archiveName := "nextcloud-" + version + ".zip"
 	archiveDir := "/etc/openpanel/nextcloud/archives"
 	archivePath := filepath.Join(archiveDir, archiveName)
-	if _, statErr := os.Stat(archivePath); statErr != nil {
+	if _, statErr := tenantfs.Stat(archivePath); statErr != nil {
 		downloadURL := "https://download.nextcloud.com/server/releases/" + archiveName
 		emit(map[string]any{"status": "Downloading " + downloadURL})
-		_ = os.MkdirAll(archiveDir, 0o755)
+		_ = tenantfs.MkdirAll(archiveDir, 0o755)
 		if runErr := exec.CommandContext(ctx, "wget", "-q", "-P", archiveDir, downloadURL).Run(); runErr != nil {
 			emit(map[string]any{"error": "Error downloading Nextcloud " + version + ": " + runErr.Error()})
 			return
@@ -136,7 +119,7 @@ func handleNextcloudUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	emit(map[string]any{"status": "Setting files permissions and owner to '" + userContext + "'"})
 	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
-		_ = exec.Command("chown", "-R", strconv.Itoa(uid)+":"+strconv.Itoa(uid), hostOSPath).Run()
+		_ = tenantfs.ChownR(hostOSPath, uid, uid)
 	}
 
 	emit(map[string]any{"status": "Running occ upgrade"})

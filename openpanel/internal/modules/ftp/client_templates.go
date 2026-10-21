@@ -3,11 +3,11 @@ package ftp
 import (
 	"encoding/xml"
 	"io"
-	"os"
 	"strconv"
 	"strings"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/config"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // ftpServerConfPath optionally overrides the FTP server host/port shown on the /ftp page and baked into downloaded client configs - a missing file (the common case) just means "use the auto-detected defaults", a var (not const) so tests can point it at a temp file
@@ -41,7 +41,7 @@ func resolveFTPHostPort(defaultHost string) (host, port string) {
 
 // renderFTPClientTemplate reads an optional admin-provided template file at path, substitutes {host}/{port}/{username}/{path} placeholders, and returns (content, true) when the file exists, is non-empty, and the result is well-formed XML - returns ("", false) otherwise so callers fall back to their own hardcoded generator
 func renderFTPClientTemplate(path, host, port, username, ftpPath string) (string, bool) {
-	data, err := os.ReadFile(path)
+	data, err := tenantfs.ReadFile(path)
 	if err != nil || strings.TrimSpace(string(data)) == "" {
 		return "", false
 	}

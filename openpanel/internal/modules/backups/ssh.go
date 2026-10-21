@@ -4,17 +4,17 @@ import (
 	"context"
 	"io"
 	"net"
-	"os"
 	"strings"
 	"time"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
 )
 
 // loadPrivateKey auto-detects the key algorithm (Ed25519/ECDSA/RSA/DSA) from the PEM headers via ssh.ParsePrivateKey, and is used uniformly everywhere an SSH connection is opened - a restore shouldn't need a different key type than a reindex against the same destination
 func loadPrivateKey(path, passphrase string) (ssh.Signer, error) {
-	pemBytes, err := os.ReadFile(path)
+	pemBytes, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

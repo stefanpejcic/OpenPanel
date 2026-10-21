@@ -2,11 +2,12 @@
 package appinstall
 
 import (
-	"os"
 	stdpath "path"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // Kind captures every point where the Python, NodeJS, and Ruby install flows diverge. The values themselves live in nodejs.go/python.go/ruby.go, one file per type; the rest of the package works the same regardless of which Kind it's handed.
@@ -178,6 +179,6 @@ func normalizeRequirements(raw string) string {
 
 // fileExists checks the small paths this package cares about (backup files during the install's rollback path)
 func fileExists(path string) bool {
-	_, err := os.Stat(path)
+	_, err := tenantfs.Stat(path)
 	return err == nil
 }

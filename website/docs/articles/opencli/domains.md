@@ -540,6 +540,8 @@ Setup a custom SSL for a domain:
 opencli domains-ssl <DOMAIN_NAME> custom <CERT_PATH> <KEY_PATH>
 ```
 
+Both paths must be regular files inside `/var/www/html/` (symlinks and `..` are refused), the certificate must not be expired and the key must be a valid private key.
+
 <details>
   <summary>Example output</summary>
 
@@ -616,6 +618,8 @@ To update a docroot for a domain:
 ```bash
 opencli domains-docroot <DOMAIN_NAME> update <docroot> [--debug]
 ```
+
+The new docroot must start with `/var/www/html/`, can only contain letters, numbers, dots, dashes, underscores and slashes, and can't contain `..` or point through a symlink.
 
 <details>
   <summary>Example output</summary>

@@ -2,10 +2,11 @@ package aiassistant
 
 import (
 	"encoding/json"
-	"os"
 	"path/filepath"
 	"sort"
 	"sync"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 var permMu sync.Mutex
@@ -21,7 +22,7 @@ func permPath(username string) string {
 
 func loadPermissions(username string) permissions {
 	var p permissions
-	if raw, err := os.ReadFile(permPath(username)); err == nil {
+	if raw, err := tenantfs.ReadFile(permPath(username)); err == nil {
 		_ = json.Unmarshal(raw, &p)
 	}
 	return p
@@ -57,8 +58,8 @@ func setAlwaysAllowed(username, name string, allow bool) error {
 	if err != nil {
 		return err
 	}
-	if err := os.MkdirAll(filepath.Dir(permPath(username)), 0o755); err != nil {
+	if err := tenantfs.MkdirAll(filepath.Dir(permPath(username)), 0o755); err != nil {
 		return err
 	}
-	return os.WriteFile(permPath(username), raw, 0o600)
+	return tenantfs.WriteFile(permPath(username), raw, 0o600)
 }

@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // remoteStore abstracts listing and fetching backup archives from whichever destination is currently configured in backup.env. doReindex, handleRestoreFromBackup and handleDownloadBackup all go through this interface, so adding a new destination type only means adding one more implementation here.
@@ -70,10 +72,10 @@ func fetchArchive(ctx context.Context, store remoteStore, filename string) (loca
 	if err != nil {
 		return "", nil, err
 	}
-	cleanup = func() { _ = os.RemoveAll(tmpDir) }
+	cleanup = func() { _ = tenantfs.RemoveAll(tmpDir) }
 
 	localPath = filepath.Join(tmpDir, filepath.Base(filename))
-	localFile, err := os.Create(localPath)
+	localFile, err := tenantfs.Create(localPath)
 	if err != nil {
 		cleanup()
 		return "", nil, err

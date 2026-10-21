@@ -3,7 +3,6 @@ package websites
 import (
 	"database/sql"
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -14,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -237,7 +237,7 @@ func apiPagespeedGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	filename := strings.ReplaceAll(strings.ReplaceAll(domain, "://", "_"), "/", "_") + ".json"
 	filePath := filepath.Join("/etc/openpanel/openpanel/websites", filename)
 
-	if content, readErr := os.ReadFile(filePath); readErr == nil {
+	if content, readErr := tenantfs.ReadFile(filePath); readErr == nil {
 		writeRawJSON(w, http.StatusOK, content)
 		return
 	}
@@ -301,7 +301,7 @@ func apiWPVulnerabilityGet(a *appctx.App, w http.ResponseWriter, r *http.Request
 	filename := strings.ReplaceAll(strings.ReplaceAll(domain, "://", "_"), "/", "_") + ".json"
 	filePath := filepath.Join("/etc/openpanel/wordpress/vulnerability", filename)
 
-	if content, readErr := os.ReadFile(filePath); readErr == nil {
+	if content, readErr := tenantfs.ReadFile(filePath); readErr == nil {
 		writeRawJSON(w, http.StatusOK, content)
 		return
 	}
@@ -310,7 +310,7 @@ func apiWPVulnerabilityGet(a *appctx.App, w http.ResponseWriter, r *http.Request
 	time.Sleep(2 * time.Second)
 
 	data := map[string]any{"core_version_": map[string]any{}, "plugin_": map[string]any{}, "theme_": map[string]any{}}
-	if content, readErr := os.ReadFile(filePath); readErr == nil {
+	if content, readErr := tenantfs.ReadFile(filePath); readErr == nil {
 		writeRawJSON(w, http.StatusOK, content)
 		return
 	}

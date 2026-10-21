@@ -3,7 +3,6 @@ package php
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -11,6 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -46,7 +46,7 @@ func apiPHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	availableKeys := loadKeysFromFile(userContext)
 
 	if r.Method == http.MethodGet {
-		content, readErr := os.ReadFile("/home/" + userContext + "/php.ini/" + version + ".ini")
+		content, readErr := tenantfs.ReadFile("/home/" + userContext + "/php.ini/" + version + ".ini")
 		if readErr != nil {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": readErr.Error()})
 			return

@@ -19,6 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -29,7 +30,7 @@ func listPath(userHome, backup, kind string) string {
 
 func listsExist(userHome, backup string, kinds []string) bool {
 	for _, kind := range kinds {
-		if _, err := os.Stat(listPath(userHome, backup, kind)); err != nil {
+		if _, err := tenantfs.Stat(listPath(userHome, backup, kind)); err != nil {
 			return false
 		}
 	}
@@ -38,24 +39,24 @@ func listsExist(userHome, backup string, kinds []string) bool {
 
 func saveList(userHome, backup, kind string, r io.Reader) error {
 	dest := listPath(userHome, backup, kind)
-	if err := os.MkdirAll(filepath.Dir(dest), 0o700); err != nil {
+	if err := tenantfs.MkdirAll(filepath.Dir(dest), 0o700); err != nil {
 		return err
 	}
 	tmp := dest + ".tmp"
-	f, err := os.Create(tmp)
+	f, err := tenantfs.Create(tmp)
 	if err != nil {
 		return err
 	}
 	if _, err := io.Copy(f, r); err != nil {
 		f.Close()
-		os.Remove(tmp)
+		tenantfs.Remove(tmp)
 		return err
 	}
 	if err := f.Close(); err != nil {
-		os.Remove(tmp)
+		tenantfs.Remove(tmp)
 		return err
 	}
-	return os.Rename(tmp, dest)
+	return tenantfs.Rename(tmp, dest)
 }
 
 // pruneFileLists drops lists of archives that are gone from the destination
@@ -64,13 +65,13 @@ func pruneFileLists(userHome string, backups []string) {
 	for _, b := range backups {
 		keep[filepath.Base(b)] = true
 	}
-	entries, _ := os.ReadDir(filepath.Join(userHome, "backup_files"))
+	entries, _ := tenantfs.ReadDir(filepath.Join(userHome, "backup_files"))
 	for _, e := range entries {
 		name := strings.TrimSuffix(e.Name(), ".tsv")
 		if dot := strings.LastIndex(name, "."); dot > 0 && keep[name[:dot]] {
 			continue
 		}
-		_ = os.Remove(filepath.Join(userHome, "backup_files", e.Name()))
+		_ = tenantfs.Remove(filepath.Join(userHome, "backup_files", e.Name()))
 	}
 }
 
@@ -88,7 +89,7 @@ type backupFileEntry struct {
 
 // listBackupDir returns the folders (with file count and total size) and files directly inside dir of a saved file list
 func listBackupDir(listPath, dir string) ([]backupDirEntry, []backupFileEntry, error) {
-	f, err := os.Open(listPath)
+	f, err := tenantfs.Open(listPath)
 	if err != nil {
 		return nil, nil, err
 	}

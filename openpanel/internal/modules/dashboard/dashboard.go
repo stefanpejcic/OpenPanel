@@ -23,6 +23,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/emails"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -353,8 +354,8 @@ func handleTourComplete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userContext, _ := data["context"].(string)
 	tourSkipFile := fmt.Sprintf("/home/%s/skip.tour", userContext)
 
-	if _, err := os.Stat(tourSkipFile); os.IsNotExist(err) {
-		if err := os.WriteFile(tourSkipFile, nil, 0o644); err != nil {
+	if _, err := tenantfs.Stat(tourSkipFile); os.IsNotExist(err) {
+		if err := tenantfs.WriteFile(tourSkipFile, nil, 0o644); err != nil {
 			writeJSONError(w, http.StatusInternalServerError, "Could not save tour state.")
 			return
 		}
@@ -374,8 +375,8 @@ func handleOnboardingComplete(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	userContext, _ := data["context"].(string)
 	markerFile := fmt.Sprintf("/home/%s/onboarding.completed", userContext)
 
-	if _, err := os.Stat(markerFile); os.IsNotExist(err) {
-		if err := os.WriteFile(markerFile, nil, 0o644); err != nil {
+	if _, err := tenantfs.Stat(markerFile); os.IsNotExist(err) {
+		if err := tenantfs.WriteFile(markerFile, nil, 0o644); err != nil {
 			writeJSONError(w, http.StatusInternalServerError, "Could not save onboarding state.")
 			return
 		}
@@ -523,12 +524,12 @@ func buildDashboardData(a *appctx.App, ctx context.Context, userID int, injected
 	d.NS4 = a.Config.Get("ns4", "")
 
 	tourSkipFile := fmt.Sprintf("/home/%s/skip.tour", userContext)
-	_, statErr := os.Stat(tourSkipFile)
+	_, statErr := tenantfs.Stat(tourSkipFile)
 	d.TourShow = os.IsNotExist(statErr)
 
 	if a.Config.Get("onboarding", "") == "yes" {
 		onboardingDoneFile := fmt.Sprintf("/home/%s/onboarding.completed", userContext)
-		if _, err := os.Stat(onboardingDoneFile); os.IsNotExist(err) {
+		if _, err := tenantfs.Stat(onboardingDoneFile); os.IsNotExist(err) {
 			d.OnboardingShow = true
 			// admin owns the backup destination, so skip that wizard step
 			d.BackupsAdminManaged = userAllowed["backups"] && web.BackupsAdminManaged(userContext)
@@ -636,7 +637,7 @@ type quotaUser struct {
 
 func loadQuotaReport(a *appctx.App, ctx context.Context) (*quotaReport, error) {
 	return cache.Memoize(ctx, a.Cache, "_load_quota_report", 1800*time.Second, func() (*quotaReport, error) {
-		data, err := os.ReadFile("/etc/openpanel/openpanel/quota_report.json")
+		data, err := tenantfs.ReadFile("/etc/openpanel/openpanel/quota_report.json")
 		if err != nil {
 			return nil, nil //nolint:nilerr // missing/bad file -> nil, not an error
 		}
@@ -687,7 +688,7 @@ func getDiskAndInodesForUser(a *appctx.App, ctx context.Context, username string
 func countFTPAccounts(a *appctx.App, ctx context.Context, userContext string) int {
 	count, _ := cache.Memoize(ctx, a.Cache, "count_ftp_accounts:"+userContext, 360*time.Second, func() (int, error) {
 		path := fmt.Sprintf("/etc/openpanel/ftp/users/%s/users.list", userContext)
-		data, err := os.ReadFile(path)
+		data, err := tenantfs.ReadFile(path)
 		if err != nil {
 			return 0, nil //nolint:nilerr
 		}
@@ -703,7 +704,7 @@ func countFTPAccounts(a *appctx.App, ctx context.Context, userContext string) in
 func customMessageForUser(a *appctx.App, ctx context.Context, username string) string {
 	msg, _ := cache.Memoize(ctx, a.Cache, "custom_message_for_user_on_dashboard_page:"+username, 3600*time.Second, func() (string, error) {
 		path := fmt.Sprintf("/etc/openpanel/openpanel/core/users/%s/custom_message.html", username)
-		data, err := os.ReadFile(path)
+		data, err := tenantfs.ReadFile(path)
 		if err != nil {
 			return "", nil //nolint:nilerr
 		}
@@ -713,7 +714,7 @@ func customMessageForUser(a *appctx.App, ctx context.Context, username string) s
 }
 
 func readJSONFile(path string) map[string]any {
-	data, err := os.ReadFile(path)
+	data, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return nil
 	}

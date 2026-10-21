@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -14,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/dbtuning"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -71,7 +71,7 @@ func envSize(v string) int64 {
 func gatherPHPTuningStats(ctx context.Context, a *appctx.App, userID int, userContext, version string) PHPTuningStats {
 	s := PHPTuningStats{Version: version, Settings: map[string]string{}, AvailableKeys: loadKeysFromFile(userContext)}
 
-	if content, err := os.ReadFile("/home/" + userContext + "/php.ini/" + version + ".ini"); err == nil {
+	if content, err := tenantfs.ReadFile("/home/" + userContext + "/php.ini/" + version + ".ini"); err == nil {
 		file := configEntriesToMap(parseConfigContent(string(content)))
 		for _, k := range s.AvailableKeys {
 			if v, ok := file[k]; ok {
@@ -129,7 +129,7 @@ func gatherPHPTuningStats(ctx context.Context, a *appctx.App, userID int, userCo
 		}
 		s.Domains = append(s.Domains, row.DomainURL)
 		if rel, err := filepath.Rel("/var/www/html", filepath.Clean(docroots[row.DomainURL])); err == nil && !strings.HasPrefix(rel, "..") {
-			if _, err := os.Stat(filepath.Join(htmlRoot, rel, "wp-config.php")); err == nil {
+			if _, err := tenantfs.Stat(filepath.Join(htmlRoot, rel, "wp-config.php")); err == nil {
 				s.WordPressSites++
 			}
 		}
@@ -149,7 +149,7 @@ func handlePHPOptionsRecommendations(a *appctx.App, w http.ResponseWriter, r *ht
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid PHP version."})
 		return
 	}
-	if _, err := os.Stat("/home/" + userContext + "/php.ini/" + version + ".ini"); err != nil {
+	if _, err := tenantfs.Stat("/home/" + userContext + "/php.ini/" + version + ".ini"); err != nil {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "PHP " + version + " is not installed."})
 		return
 	}

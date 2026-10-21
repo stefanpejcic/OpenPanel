@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -20,6 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -95,7 +95,7 @@ func parseExtensionsTable(body string) map[string]map[string]bool {
 }
 
 func readExtensionsTableCache() (map[string]map[string]bool, bool) {
-	content, err := os.ReadFile(extensionsTableFile)
+	content, err := tenantfs.ReadFile(extensionsTableFile)
 	if err != nil {
 		return nil, false
 	}
@@ -107,7 +107,7 @@ func readExtensionsTableCache() (map[string]map[string]bool, bool) {
 }
 
 func fetchAvailableExtensionsTable(ctx context.Context) map[string]map[string]bool {
-	if info, err := os.Stat(extensionsTableFile); err == nil && time.Since(info.ModTime()) < extensionsTableTTL {
+	if info, err := tenantfs.Stat(extensionsTableFile); err == nil && time.Since(info.ModTime()) < extensionsTableTTL {
 		if data, ok := readExtensionsTableCache(); ok {
 			return data
 		}
@@ -141,9 +141,9 @@ func fetchAvailableExtensionsTable(ctx context.Context) map[string]map[string]bo
 		return map[string]map[string]bool{}
 	}
 
-	_ = os.MkdirAll(filepath.Dir(extensionsTableFile), 0o755)
+	_ = tenantfs.MkdirAll(filepath.Dir(extensionsTableFile), 0o755)
 	if b, err := json.Marshal(table); err == nil {
-		_ = os.WriteFile(extensionsTableFile, b, 0o644)
+		_ = tenantfs.WriteFile(extensionsTableFile, b, 0o644)
 	}
 	return table
 }
@@ -348,7 +348,7 @@ func extensionsHistoryFile(userContext, version string) string {
 }
 
 func loadExtensionsHistory(userContext, version string) []string {
-	content, err := os.ReadFile(extensionsHistoryFile(userContext, version))
+	content, err := tenantfs.ReadFile(extensionsHistoryFile(userContext, version))
 	if err != nil {
 		return nil
 	}
@@ -373,7 +373,7 @@ func loadExtensionsHistory(userContext, version string) []string {
 
 func saveExtensionsHistory(userContext, version string, names []string) []string {
 	dir := extensionsHistoryDir(userContext, version)
-	_ = os.MkdirAll(dir, 0o755)
+	_ = tenantfs.MkdirAll(dir, 0o755)
 
 	merged := map[string]bool{}
 	for _, n := range loadExtensionsHistory(userContext, version) {
@@ -394,8 +394,8 @@ func saveExtensionsHistory(userContext, version string, names []string) []string
 	path := extensionsHistoryFile(userContext, version)
 	tmp := path + ".tmp"
 	if b, err := json.Marshal(map[string][]string{"extensions": sortedNames}); err == nil {
-		if os.WriteFile(tmp, b, 0o644) == nil {
-			_ = os.Rename(tmp, path)
+		if tenantfs.WriteFile(tmp, b, 0o644) == nil {
+			_ = tenantfs.Rename(tmp, path)
 		}
 	}
 	return sortedNames
@@ -426,7 +426,7 @@ type installState struct {
 }
 
 func installStateFilePath(installID string) (string, error) {
-	if err := os.MkdirAll(installStateDir, 0o755); err != nil {
+	if err := tenantfs.MkdirAll(installStateDir, 0o755); err != nil {
 		return "", err
 	}
 	return filepath.Join(installStateDir, installID+".json"), nil
@@ -442,10 +442,10 @@ func saveInstallState(installID string, s installState) error {
 		return err
 	}
 	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o644); err != nil {
+	if err := tenantfs.WriteFile(tmp, data, 0o644); err != nil {
 		return err
 	}
-	return os.Rename(tmp, path)
+	return tenantfs.Rename(tmp, path)
 }
 
 func loadInstallState(installID string) (installState, bool) {
@@ -456,7 +456,7 @@ func loadInstallState(installID string) (installState, bool) {
 	if err != nil {
 		return installState{}, false
 	}
-	data, err := os.ReadFile(path)
+	data, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return installState{}, false
 	}
@@ -751,7 +751,7 @@ func handlePHPAvailableExtensions(a *appctx.App, w http.ResponseWriter, r *http.
 			}
 			extensions = append(extensions, availableExt{Name: name, Installed: active[lname] || disabled[lname]})
 		}
-		if info, statErr := os.Stat(extensionsTableFile); statErr == nil {
+		if info, statErr := tenantfs.Stat(extensionsTableFile); statErr == nil {
 			cachedUntil = info.ModTime().Add(extensionsTableTTL).Unix()
 		}
 	}

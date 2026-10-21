@@ -2,10 +2,10 @@ package domains
 
 import (
 	"net/http"
-	"os"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/waf"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -52,7 +52,7 @@ func handleDomainsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			PHPVersion: d.PHPVersion, SiteCount: d.SiteCount,
 		}
 		row.RedirectURL = getRedirectURL(d.DomainURL)
-		if _, statErr := os.Stat("/etc/bind/zones/" + d.DomainURL + ".zone"); statErr == nil {
+		if _, statErr := tenantfs.Stat("/etc/bind/zones/" + d.DomainURL + ".zone"); statErr == nil {
 			row.DNS = true
 		}
 		row.IsSubdomain = subdomainURLs[d.DomainURL]

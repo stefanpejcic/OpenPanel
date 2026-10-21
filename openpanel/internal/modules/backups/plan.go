@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // restorePlan knows where each archive entry goes on the host, emails and dns zones only for domains the account owns
@@ -25,14 +26,14 @@ type restorePlan struct {
 
 // domainSuspended reads the live caddy file, opencli domains-suspend swaps it for one serving suspended_domain.html
 func domainSuspended(domain string) bool {
-	content, err := os.ReadFile(filepath.Join("/etc/openpanel/caddy/domains", domain+".conf"))
+	content, err := tenantfs.ReadFile(filepath.Join("/etc/openpanel/caddy/domains", domain+".conf"))
 	return err == nil && strings.Contains(string(content), "suspended_domain.html")
 }
 
 // mailStoreRoot mirrors opencli's backup_mail_dir: email_storage_location when it's absolute, else the account's own mail dir
 func mailStoreRoot(userContext string) func(string) string {
 	store := ""
-	if content, err := os.ReadFile("/etc/openpanel/openadmin/config/admin.ini"); err == nil {
+	if content, err := tenantfs.ReadFile("/etc/openpanel/openadmin/config/admin.ini"); err == nil {
 		for _, line := range strings.Split(string(content), "\n") {
 			if v, ok := strings.CutPrefix(strings.TrimSpace(line), "email_storage_location="); ok {
 				store = strings.TrimSpace(v)
@@ -114,19 +115,19 @@ func writeTarEntry(tr io.Reader, dest, root string, uid int) error {
 		return errOutsideRoot
 	}
 	destDir := filepath.Dir(dest)
-	if err := os.MkdirAll(destDir, 0o755); err != nil {
+	if err := tenantfs.MkdirAll(destDir, 0o755); err != nil {
 		return err
 	}
 	if !within(destDir, root) {
 		return errOutsideRoot
 	}
-	if info, err := os.Lstat(dest); err == nil && info.Mode()&os.ModeSymlink != 0 {
+	if info, err := tenantfs.Lstat(dest); err == nil && info.Mode()&os.ModeSymlink != 0 {
 		return errOutsideRoot
 	}
 	if uid > 0 {
 		chownAncestors(destDir, root, uid)
 	}
-	out, err := os.Create(dest)
+	out, err := tenantfs.Create(dest)
 	if err != nil {
 		return err
 	}
@@ -138,7 +139,7 @@ func writeTarEntry(tr io.Reader, dest, root string, uid int) error {
 		return err
 	}
 	if uid > 0 {
-		_ = os.Lchown(dest, uid, uid)
+		_ = tenantfs.Lchown(dest, uid, uid)
 	}
 	return nil
 }

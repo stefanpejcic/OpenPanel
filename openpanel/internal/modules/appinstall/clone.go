@@ -5,14 +5,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
-	"os/exec"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -27,7 +27,7 @@ func RegisterPM2Clone(mux *http.ServeMux, a *appctx.App) {
 // readPrefixedEnvValues reads envFile and returns every PREFIX+KEY="value" line's KEY -> value, quotes stripped - the read-side counterpart of what handlePM2Update/HandleInstall write
 func readPrefixedEnvValues(envFile, prefix string) map[string]string {
 	values := map[string]string{}
-	content, err := os.ReadFile(envFile)
+	content, err := tenantfs.ReadFile(envFile)
 	if err != nil {
 		return values
 	}
@@ -128,19 +128,21 @@ func handlePM2Clone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	dstHostPath := strings.Replace(targetPath, wwwBase, hostBase, 1)
 
 	// copy the source app's files into place *before* triggering the install below - HandleInstall only considers it successful once the container is observed running, and the container immediately exits if its startup file doesn't exist yet, which HandleInstall would treat as a failed install and roll back. A fresh install avoids this via git_repo_url or a later file upload, but a clone needs its real files to land before the container-start check runs.
-	if info, statErr := os.Stat(srcHostPath); statErr != nil || !info.IsDir() {
+	if info, statErr := tenantfs.Stat(srcHostPath); statErr != nil || !info.IsDir() {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Source folder not found on disk: " + srcPath})
 		return
 	}
-	if mkErr := os.MkdirAll(dstHostPath, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(dstHostPath, 0o755); mkErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to prepare target folder: " + mkErr.Error()})
 		return
 	}
-	if cpErr := exec.CommandContext(ctx, "cp", "-a", srcHostPath+"/.", dstHostPath+"/").Run(); cpErr != nil {
+	if cpErr := tenantfs.CopyDir(srcHostPath, dstHostPath); cpErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy application files: " + cpErr.Error()})
 		return
 	}
-	_ = exec.CommandContext(ctx, "chown", "-R", userContext+":"+userContext, dstHostPath).Run()
+	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
+		_ = tenantfs.ChownR(dstHostPath, uid, uid)
+	}
 
 	installForm := url.Values{
 		"domain_id":    {targetDomainID},

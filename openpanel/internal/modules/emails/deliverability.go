@@ -4,7 +4,6 @@ import (
 	"context"
 	"net"
 	"net/http"
-	"os"
 	"regexp"
 	"strings"
 	"sync"
@@ -13,6 +12,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -26,7 +26,7 @@ var quotedChunkRE = regexp.MustCompile(`"([^"]*)"`)
 // readDKIMExpectedRecord reads the DKIM TXT record we generated for domain and reconstructs the full value from its (possibly split) quoted chunks
 func readDKIMExpectedRecord(domain string) (string, bool) {
 	keyFile := dkimKeysBasePath + "/" + domain + "/mail.txt"
-	content, err := os.ReadFile(keyFile)
+	content, err := tenantfs.ReadFile(keyFile)
 	if err != nil {
 		return "", false
 	}
@@ -44,7 +44,7 @@ func readDKIMExpectedRecord(domain string) (string, bool) {
 // zoneTemplateText reads the BIND zone template file, memoized 5 minutes.
 func zoneTemplateText(ctx context.Context, a *appctx.App) string {
 	text, _ := cache.Memoize(ctx, a.Cache, "email_zone_template_text", 5*time.Minute, func() (string, error) {
-		data, err := os.ReadFile(zoneTemplatePath)
+		data, err := tenantfs.ReadFile(zoneTemplatePath)
 		if err != nil {
 			return "", nil //nolint:nilerr // a missing template file just yields ""
 		}

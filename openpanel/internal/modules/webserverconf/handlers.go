@@ -2,7 +2,6 @@ package webserverconf
 
 import (
 	"net/http"
-	"os"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -11,6 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -51,7 +51,7 @@ func handleWebserverConf(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	existingContent := ""
 	if configFilePath != "" {
-		content, readErr := os.ReadFile(configFilePath)
+		content, readErr := tenantfs.ReadFile(configFilePath)
 		if readErr != nil {
 			renderWebserverConfPage(a, w, r, entry.PageTitle, webServer, entry.ConfFile, false, "")
 			return
@@ -82,12 +82,12 @@ func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 			return false
 		}
 
-		content, readErr := os.ReadFile(defaultConfPath)
+		content, readErr := tenantfs.ReadFile(defaultConfPath)
 		if readErr != nil {
 			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error restoring %(conf_file)s: %(error)s", "conf_file", entry.ConfFile, "error", readErr.Error()))
 			return false
 		}
-		if writeErr := os.WriteFile(configFilePath, content, 0o644); writeErr != nil {
+		if writeErr := tenantfs.WriteFile(configFilePath, content, 0o644); writeErr != nil {
 			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error restoring %(conf_file)s: %(error)s", "conf_file", entry.ConfFile, "error", writeErr.Error()))
 			return false
 		}
@@ -99,9 +99,9 @@ func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 			return false
 		}
 
-		previousContent, prevErr := os.ReadFile(configFilePath)
+		previousContent, prevErr := tenantfs.ReadFile(configFilePath)
 
-		if writeErr := os.WriteFile(configFilePath, []byte(newContent), 0o644); writeErr != nil {
+		if writeErr := tenantfs.WriteFile(configFilePath, []byte(newContent), 0o644); writeErr != nil {
 			flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Error writing to %(conf_file)s: %(error)s", "conf_file", entry.ConfFile, "error", writeErr.Error()))
 			return false
 		}
@@ -110,7 +110,7 @@ func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 			ok, testOutput := webserver.TestWebserverConfig(r.Context(), userContext, entry.ServiceName)
 			if !ok {
 				if prevErr == nil {
-					_ = os.WriteFile(configFilePath, previousContent, 0o644)
+					_ = tenantfs.WriteFile(configFilePath, previousContent, 0o644)
 				}
 				flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Configuration was not saved - it failed the %(service_name)s syntax check: %(test_output)s", "service_name", entry.ServiceName, "test_output", testOutput))
 				return false

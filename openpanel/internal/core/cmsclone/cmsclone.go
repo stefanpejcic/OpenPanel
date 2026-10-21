@@ -4,7 +4,6 @@ package cmsclone
 import (
 	"context"
 	"net/http"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -15,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 )
 
@@ -82,9 +82,8 @@ func ChownRecursive(ctx context.Context, userContext string, paths ...string) {
 	if err != nil {
 		return
 	}
-	idStr := strconv.Itoa(uid)
 	for _, p := range paths {
-		_ = exec.CommandContext(ctx, "chown", "-R", idStr+":"+idStr, p).Run()
+		_ = tenantfs.ChownR(p, uid, uid)
 	}
 }
 
@@ -127,17 +126,17 @@ func CreateDatabaseAndDump(ctx context.Context, userContext, mysqlVersion, dumpC
 
 // FinalizeParams bundles what FinalizeSite needs to invalidate the cache, upsert the sites row, log the activity, and write the success response
 type FinalizeParams struct {
-	App             *appctx.App
-	WriteJSON       func(w http.ResponseWriter, status int, v any)
-	UserID          int
-	Username        string
-	CMSDisplayName  string // e.g. "Joomla" - used in the activity-log message
-	CMSType         string // e.g. "joomla" - the sites.type value
-	ProvidedDomain  string
-	DstDomainWithSubdir string
-	DomainID        int
-	AdminEmail      string
-	Version         string
+	App                     *appctx.App
+	WriteJSON               func(w http.ResponseWriter, status int, v any)
+	UserID                  int
+	Username                string
+	CMSDisplayName          string // e.g. "Joomla" - used in the activity-log message
+	CMSType                 string // e.g. "joomla" - the sites.type value
+	ProvidedDomain          string
+	DstDomainWithSubdir     string
+	DomainID                int
+	AdminEmail              string
+	Version                 string
 	SrcPath, DstPath, DstDB string
 }
 

@@ -3,9 +3,10 @@ package domains
 import (
 	"crypto/x509"
 	"encoding/pem"
-	"os"
 	"path/filepath"
 	"time"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // sslBaseDir is where opencli domains-ssl keeps both acme and custom certs
@@ -37,7 +38,7 @@ func readSSLCertInfo(domain, httpsType string) SSLCertInfo {
 	if path == "" {
 		return SSLCertInfo{}
 	}
-	data, err := os.ReadFile(path)
+	data, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return SSLCertInfo{Problem: "missing"}
 	}

@@ -60,6 +60,8 @@ Create FTP sub-user for openpanel user:
 opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME> [--quota=<MB>] [--debug]
 ```
 
+The folder must be inside `/var/www/html/` and can't point through a symlink, the same goes for `opencli ftp-path`.
+
 `--quota` sets a disk quota right away, in MB (`500`) or with a unit (`500M`, `2G`), see [Quota](#quota).
 
 <details>

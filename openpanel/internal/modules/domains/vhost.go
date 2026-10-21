@@ -3,7 +3,6 @@ package domains
 import (
 	"context"
 	"net/http"
-	"os"
 	"os/exec"
 	"strings"
 
@@ -12,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -72,7 +72,7 @@ func vhostFilePath(userContext, domainName string) string {
 
 // readVhostContent reads a domain's raw virtual-host config file.
 func readVhostContent(userContext, domainName string) string {
-	content, err := os.ReadFile(vhostFilePath(userContext, domainName))
+	content, err := tenantfs.ReadFile(vhostFilePath(userContext, domainName))
 	if err != nil {
 		return ""
 	}
@@ -82,7 +82,7 @@ func readVhostContent(userContext, domainName string) string {
 // writeVhostContent saves the file, then validates+reloads via webserver.TestWebserverConfig rather than duplicating that logic here
 func writeVhostContent(ctx context.Context, domainName, userContext, webServerPreference, vhostContent string) (bool, string) {
 	path := vhostFilePath(userContext, domainName)
-	if err := os.WriteFile(path, []byte(vhostContent), 0o644); err != nil {
+	if err := tenantfs.WriteFile(path, []byte(vhostContent), 0o644); err != nil {
 		return false, "Error: VirtualHost file could not be saved."
 	}
 

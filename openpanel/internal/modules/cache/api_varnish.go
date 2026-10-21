@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -14,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -32,7 +32,7 @@ func varnishDomainStatuses(a *appctx.App, r *http.Request, userID int) map[strin
 	domains, _ := a.AllDomainsForUser(r.Context(), userID)
 	result := make(map[string]string, len(domains))
 	for _, d := range domains {
-		content, readErr := os.ReadFile("/etc/openpanel/caddy/domains/" + d.DomainURL + ".conf")
+		content, readErr := tenantfs.ReadFile("/etc/openpanel/caddy/domains/" + d.DomainURL + ".conf")
 		if readErr != nil {
 			result[d.DomainURL] = "Unknown"
 			continue

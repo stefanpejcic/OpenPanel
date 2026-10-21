@@ -3,10 +3,10 @@ package goaccess
 
 import (
 	"net/http"
-	"os"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -34,7 +34,7 @@ func handleDomainStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	logFilePath := "/var/log/caddy/stats/" + currentUsername + "/" + domainName + ".html"
-	content, readErr := os.ReadFile(logFilePath)
+	content, readErr := tenantfs.ReadFile(logFilePath)
 	if readErr != nil {
 		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Stats file for domain %(domain_name)s not found. Data is generated every 24h.", "domain_name", domainName), "/domains/stats")
 		return

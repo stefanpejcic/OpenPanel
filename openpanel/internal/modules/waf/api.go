@@ -3,7 +3,6 @@ package waf
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -15,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -70,7 +70,7 @@ func apiWAFDomainGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // readWAFStatus shares handleWAFDomain's GET-branch logic, factored out for the API's single-domain GET route which needs the values directly rather than a rendered page
 func readWAFStatus(domain string) (status string, removedRules, removedTags []string) {
-	content, readErr := os.ReadFile(domainConfigPath(domain))
+	content, readErr := tenantfs.ReadFile(domainConfigPath(domain))
 	if readErr != nil {
 		return "Not Found", nil, nil
 	}
@@ -109,14 +109,14 @@ func apiWAFDomainToggle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := domainConfigPath(domain)
-	content, readErr := os.ReadFile(path)
+	content, readErr := tenantfs.ReadFile(path)
 	if readErr != nil {
 		writeJSONError(w, http.StatusNotFound, "Config file not found for "+domain)
 		return
 	}
 	contentStr := setEngine(string(content), newStatus)
 
-	if writeErr := os.WriteFile(path, []byte(contentStr), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(path, []byte(contentStr), 0o644); writeErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
@@ -177,14 +177,14 @@ func apiWAFDomainRules(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	removedTags := append([]string{excludedTag}, filterOutFold(body.RemovedTags, excludedTag)...)
 
 	path := domainConfigPath(domain)
-	content, readErr := os.ReadFile(path)
+	content, readErr := tenantfs.ReadFile(path)
 	if readErr != nil {
 		writeJSONError(w, http.StatusNotFound, "Config file not found for "+domain)
 		return
 	}
 
 	newContent := rewriteDirectivesBlock(string(content), removedRules, removedTags)
-	if writeErr := os.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
@@ -219,7 +219,7 @@ func apiWAFLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	logPath := wafLogPath(domain)
-	content, readErr := os.ReadFile(logPath)
+	content, readErr := tenantfs.ReadFile(logPath)
 	if readErr != nil {
 		web.WriteJSON(w, http.StatusOK, map[string]any{"domain": domain, "entries": []json.RawMessage{}, "total": 0})
 		return

@@ -119,7 +119,7 @@ func withFakeAccount(t *testing.T) (userContext, htmlVolume string) {
 	}
 	restoreHome := paths.SetHomeVolumeForTest(htmlVolume)
 	oldChown, oldActions := chownTree, runActions
-	chownTree = func(context.Context, string, string) error { return nil }
+	chownTree = func(string, *os.Root, string) error { return nil }
 	t.Cleanup(func() { rootOverride = ""; chownTree, runActions = oldChown, oldActions; restoreHome() })
 	return userContext, filepath.Join(htmlVolume, userContext)
 }
@@ -428,5 +428,59 @@ func TestRunCLI(t *testing.T) {
 		if code := RunCLI(bad, &out); code == 0 {
 			t.Errorf("RunCLI(%v) should fail", bad)
 		}
+	}
+}
+
+// installs from before the staging dir have an index but an empty stage, a deploy still has to publish everything
+func TestDeployRepopulatesMissingStage(t *testing.T) {
+	userContext, volume := withFakeAccount(t)
+	ctx := context.Background()
+	r := Repo{Name: "site", Source: SourceLocal, Branch: "main", TargetDir: "/var/www/html/example.com", DeployMode: DeployManual}
+	if err := initRepo(ctx, userContext, &r); err != nil {
+		t.Fatalf("initRepo: %v", err)
+	}
+	work := t.TempDir()
+	gitIn(t, work, "init", "-q", "-b", "main")
+	os.WriteFile(filepath.Join(work, "index.html"), []byte("v1"), 0o644)
+	gitIn(t, work, "add", ".")
+	gitIn(t, work, "commit", "-q", "-m", "first")
+	gitIn(t, work, "push", "-q", repoDir(userContext, "site"), "main")
+	if _, _, err := deployRepo(ctx, userContext, r); err != nil {
+		t.Fatalf("deploy: %v", err)
+	}
+
+	os.RemoveAll(stageDir(userContext, "site"))
+	index := filepath.Join(volume, "example.com", "index.html")
+	os.WriteFile(index, []byte("edited"), 0o644)
+	if _, _, err := deployRepo(ctx, userContext, r); err != nil {
+		t.Fatalf("redeploy: %v", err)
+	}
+	if got, _ := os.ReadFile(index); string(got) != "v1" {
+		t.Fatalf("index.html = %q, want the tracked version restored", got)
+	}
+}
+
+func TestDeployRefusesSymlinkedTarget(t *testing.T) {
+	userContext, volume := withFakeAccount(t)
+	ctx := context.Background()
+	victim := t.TempDir()
+	if err := os.Symlink(victim, filepath.Join(volume, "example.com")); err != nil {
+		t.Fatal(err)
+	}
+	r := Repo{Name: "site", Source: SourceLocal, Branch: "main", TargetDir: "/var/www/html/example.com", DeployMode: DeployManual}
+	if err := initRepo(ctx, userContext, &r); err != nil {
+		t.Fatalf("initRepo: %v", err)
+	}
+	work := t.TempDir()
+	gitIn(t, work, "init", "-q", "-b", "main")
+	os.WriteFile(filepath.Join(work, "index.html"), []byte("v1"), 0o644)
+	gitIn(t, work, "add", ".")
+	gitIn(t, work, "commit", "-q", "-m", "first")
+	gitIn(t, work, "push", "-q", repoDir(userContext, "site"), "main")
+	if _, _, err := deployRepo(ctx, userContext, r); err == nil {
+		t.Fatal("deploy through a symlinked target succeeded")
+	}
+	if _, err := os.Stat(filepath.Join(victim, "index.html")); err == nil {
+		t.Fatal("deploy wrote outside the volume")
 	}
 }

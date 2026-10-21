@@ -18,8 +18,10 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -44,12 +46,12 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	lockPath := appkit.LockFilePath(currentUsername)
-	if info, statErr := os.Stat(lockPath); statErr == nil {
+	if info, statErr := tenantfs.Stat(lockPath); statErr == nil {
 		if time.Since(info.ModTime()) < 5*time.Minute {
 			web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Abort, another WordPress clone process is currently running."})
 			return
 		}
-		_ = os.Remove(lockPath)
+		_ = tenantfs.Remove(lockPath)
 	}
 
 	injectedData, _ := a.InjectData(ctx, userID)
@@ -123,12 +125,12 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	srcPath := strings.Replace(filepath.Clean(srcFolder), wwwBaseDirectory, baseDirectory, 1)
 	dstPath := strings.Replace(filepath.Clean(docroot), wwwBaseDirectory, baseDirectory, 1)
 
-	if info, statErr := os.Stat(srcPath); statErr != nil || !info.IsDir() {
+	if info, statErr := tenantfs.Stat(srcPath); statErr != nil || !info.IsDir() {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Source folder not found: " + srcFolder})
 		return
 	}
 
-	if mkErr := os.MkdirAll(dstPath, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(dstPath, 0o755); mkErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy WordPress files: " + mkErr.Error()})
 		return
 	}
@@ -136,17 +138,17 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	for _, item := range wordpressFiles {
 		srcItem := filepath.Join(srcPath, item)
 		dstItem := filepath.Join(dstPath, item)
-		info, statErr := os.Stat(srcItem)
+		info, statErr := tenantfs.Stat(srcItem)
 		if statErr != nil {
 			continue
 		}
 		var cpErr error
 		if info.IsDir() {
-			_ = os.MkdirAll(dstItem, 0o755)
-			cpErr = exec.CommandContext(ctx, "cp", "-a", srcItem+"/.", dstItem+"/").Run()
+			_ = tenantfs.MkdirAll(dstItem, 0o755)
+			cpErr = tenantfs.CopyDir(srcItem, dstItem)
 		} else {
-			_ = os.MkdirAll(filepath.Dir(dstItem), 0o755)
-			cpErr = exec.CommandContext(ctx, "cp", srcItem, dstItem).Run()
+			_ = tenantfs.MkdirAll(filepath.Dir(dstItem), 0o755)
+			cpErr = tenantfs.CopyFile(srcItem, dstItem, info.Mode().Perm())
 		}
 		if cpErr != nil {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy WordPress files: " + cpErr.Error()})
@@ -176,7 +178,7 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	wpConfigFile := filepath.Join(dstPath, "wp-config.php")
-	content, readErr := os.ReadFile(wpConfigFile)
+	content, readErr := tenantfs.ReadFile(wpConfigFile)
 	if readErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": readErr.Error()})
 		return
@@ -185,7 +187,7 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	strContent = cloneDBNameRE.ReplaceAllString(strContent, "define('DB_NAME', '"+cmsapp.EscapePHPSingleQuoted(dstDB)+"');")
 	strContent = cloneDBUserRE.ReplaceAllString(strContent, "define('DB_USER', '"+cmsapp.EscapePHPSingleQuoted(dstDBUser)+"');")
 	strContent = cloneDBPasswordRE.ReplaceAllString(strContent, "define('DB_PASSWORD', '"+cmsapp.EscapePHPSingleQuoted(dstDBUserPassword)+"');")
-	if writeErr := os.WriteFile(wpConfigFile, []byte(strContent), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(wpConfigFile, []byte(strContent), 0o644); writeErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": writeErr.Error()})
 		return
 	}
@@ -215,7 +217,7 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	_ = a.Cache.Delete(ctx, fmt.Sprintf("get_user_websites:%d", userID))
-	_ = os.Remove(lockPath)
+	_ = tenantfs.Remove(lockPath)
 
 	adminEmail := web.FormOr(r, "admin_email", "admin@"+dstDomain)
 	wpVersion := web.FormOr(r, "wordpress_version", "latest")
@@ -273,6 +275,11 @@ func handleRemoveWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request
 		web.FlashRedirect(a, w, r, "error", "WordPress installation not found in the database", "/sites")
 		return
 	}
+	// rows from before install validated the subdirectory can still hold ..
+	if _, subErr := paths.CleanSubdir(strings.Join(subdirectory, "/")); subErr != nil {
+		web.FlashRedirect(a, w, r, "error", subErr.Error(), "/sites")
+		return
+	}
 
 	realInstallPath := strings.TrimPrefix(docroot, "/var/www/html/")
 	if len(subdirectory) > 0 {
@@ -286,7 +293,7 @@ func handleRemoveWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	volume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + realInstallPath
 	wpConfigFile := filepath.Join(volume, "wp-config.php")
-	content, _ := os.ReadFile(wpConfigFile)
+	content, _ := tenantfs.ReadFile(wpConfigFile)
 
 	dbNameMatch := removeDBNameRE.FindStringSubmatch(string(content))
 	dbUserMatch := removeDBUserRE.FindStringSubmatch(string(content))
@@ -303,12 +310,12 @@ func handleRemoveWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request
 	var toDelete []string
 	for _, item := range wordpressFiles {
 		itemPath := filepath.Join(volume, item)
-		if _, statErr := os.Stat(itemPath); statErr == nil {
+		if _, statErr := tenantfs.Stat(itemPath); statErr == nil {
 			toDelete = append(toDelete, itemPath)
 		}
 	}
-	if len(toDelete) > 0 {
-		_ = exec.CommandContext(ctx, "rm", append([]string{"-rf"}, toDelete...)...).Run()
+	for _, p := range toDelete {
+		_ = tenantfs.RemoveAll(p)
 	}
 
 	if _, delErr := a.DB.ExecContext(ctx, "DELETE FROM sites WHERE id = ?", id); delErr != nil {
@@ -397,7 +404,7 @@ func checkSiteAlreadyExistsForUser(ctx context.Context, a *appctx.App, siteName 
 
 // walkForWPConfig walks base looking for wp-config.php files, never descending into skipDirs - mirrors os.walk(base_directory) with dirs[:] = [d for d in dirs if d not in SKIP_DIRS].
 func walkForWPConfig(base string, onFound func(dir string)) {
-	_ = filepath.WalkDir(base, func(path string, d os.DirEntry, err error) error {
+	_ = tenantfs.WalkDir(base, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -491,12 +498,12 @@ func handleScanWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	lockPath := appkit.LockFilePath(currentUsername)
-	if info, statErr := os.Stat(lockPath); statErr == nil {
+	if info, statErr := tenantfs.Stat(lockPath); statErr == nil {
 		if time.Since(info.ModTime()) < time.Minute {
 			_, _ = w.Write([]byte("Scan skipped. WordPress installation is currently running."))
 			return
 		}
-		_ = os.Remove(lockPath)
+		_ = tenantfs.Remove(lockPath)
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "initiated scan for WordPress installations", reqip.ClientIP(r))
@@ -610,7 +617,7 @@ func handleWordPressSecure(a *appctx.App, w http.ResponseWriter, r *http.Request
 		}
 
 		configPath := "/etc/openpanel/caddy/domains/" + domain + ".conf"
-		content, readErr := os.ReadFile(configPath)
+		content, readErr := tenantfs.ReadFile(configPath)
 		if readErr != nil {
 			web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Config file not found"})
 			return

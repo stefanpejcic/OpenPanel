@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
@@ -25,6 +24,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sysinfo"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -42,7 +42,7 @@ const adminIniPath = "/etc/openpanel/openadmin/config/admin.ini"
 // readEmailStorageLocation reads admin.ini's [EMAIL] email_storage_location value (default "/var/mail") - a minimal single-purpose INI reader since this is the only place that needs admin.ini's [EMAIL] section
 func readEmailStorageLocation() string {
 	const fallback = "/var/mail"
-	data, err := os.ReadFile(adminIniPath)
+	data, err := tenantfs.ReadFile(adminIniPath)
 	if err != nil {
 		return fallback
 	}
@@ -88,7 +88,7 @@ func cachedEmailsFile(username string) string {
 
 // readEmailsFile mirrors _read_emails_file(): lines starting with '*' whose domain (the part after '@' up to the next space) is in userDomains
 func readEmailsFile(username string, userDomains map[string]bool) []string {
-	data, err := os.ReadFile(cachedEmailsFile(username))
+	data, err := tenantfs.ReadFile(cachedEmailsFile(username))
 	if err != nil {
 		return nil
 	}
@@ -117,7 +117,7 @@ func readEmailsFile(username string, userDomains map[string]bool) []string {
 func GetEmailList(ctx context.Context, a *appctx.App, userID int, username string, userDomains map[string]bool) []string {
 	result, _ := cache.Memoize(ctx, a.Cache, emailsCacheKey(username), time.Hour, func() ([]string, error) {
 		path := cachedEmailsFile(username)
-		info, statErr := os.Stat(path)
+		info, statErr := tenantfs.Stat(path)
 		if statErr != nil || info.Size() == 0 {
 			domains, _ := a.AllDomainsForUser(ctx, userID)
 			ImportUserEmails(ctx, username, domainSet(domains))
@@ -151,9 +151,9 @@ func InvalidateEmailCache(ctx context.Context, a *appctx.App, userID int, userna
 // ImportUserEmails mirrors import_user_emails(): (re)writes the per-user on-disk email cache file from `opencli email-setup email list`
 func ImportUserEmails(ctx context.Context, currentUsername string, userDomains map[string]bool) {
 	path := cachedEmailsFile(currentUsername)
-	if _, err := os.Stat(path); err != nil {
-		_ = os.MkdirAll(strings.TrimSuffix(path, "/emails.yml"), 0o755)
-		_ = os.WriteFile(path, nil, 0o644)
+	if _, err := tenantfs.Stat(path); err != nil {
+		_ = tenantfs.MkdirAll(strings.TrimSuffix(path, "/emails.yml"), 0o755)
+		_ = tenantfs.WriteFile(path, nil, 0o644)
 	}
 
 	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
@@ -182,8 +182,8 @@ func ImportUserEmails(ctx context.Context, currentUsername string, userDomains m
 		}
 	}
 
-	_ = os.MkdirAll(strings.TrimSuffix(path, "/emails.yml"), 0o755)
-	_ = os.WriteFile(path, []byte(strings.Join(filtered, "\n")+"\n"), 0o644)
+	_ = tenantfs.MkdirAll(strings.TrimSuffix(path, "/emails.yml"), 0o755)
+	_ = tenantfs.WriteFile(path, []byte(strings.Join(filtered, "\n")+"\n"), 0o644)
 }
 
 // quota helpers
@@ -466,7 +466,7 @@ const dmsConfigDir = "/usr/local/mail/openmail/docker-data/dms/config"
 // readRestrictedAddresses returns the addresses listed in a postfix access file (lines like "user@domain REJECT")
 func readRestrictedAddresses(path string) map[string]bool {
 	set := map[string]bool{}
-	data, err := os.ReadFile(path)
+	data, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return set
 	}
@@ -491,7 +491,7 @@ func annotateEmailRows(rows []EmailListRow) {
 		if !ok || strings.Contains(user, "/") || strings.Contains(domain, "/") || strings.Contains(rows[i].Address, "..") {
 			continue
 		}
-		if fi, err := os.Stat(filepath.Join(baseMailPath, domain, user, "home", ".dovecot.sieve")); err == nil && fi.Size() > 0 {
+		if fi, err := tenantfs.Stat(filepath.Join(baseMailPath, domain, user, "home", ".dovecot.sieve")); err == nil && fi.Size() > 0 {
 			rows[i].HasFilter = true
 		}
 	}

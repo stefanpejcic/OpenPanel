@@ -2,10 +2,10 @@ package appinstall
 
 import (
 	"context"
-	"os"
 	"strconv"
 	"strings"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
@@ -18,7 +18,7 @@ func vhostConfPath(userContext, domainURL string) string {
 // editLswsConfig inserts an extprocessor+context proxy block into the OpenLiteSpeed vhost conf, skipping if a block for this service already exists, and restoring from a .bak on any write failure
 func editLswsConfig(userContext, domainURL, subdirectory, serviceName string, port int) string {
 	confPath := vhostConfPath(userContext, domainURL)
-	content, err := os.ReadFile(confPath)
+	content, err := tenantfs.ReadFile(confPath)
 	if err != nil {
 		return "Error: vhost configuration file does not exist."
 	}
@@ -62,7 +62,7 @@ func editLswsConfig(userContext, domainURL, subdirectory, serviceName string, po
 	}
 
 	updated := strings.TrimRight(vhostData, " \t\n\r") + "\n" + configBlock
-	if writeErr := os.WriteFile(confPath, []byte(updated), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(confPath, []byte(updated), 0o644); writeErr != nil {
 		if fileExists(backupPath) {
 			_ = copyFile(backupPath, confPath)
 		}
@@ -74,7 +74,7 @@ func editLswsConfig(userContext, domainURL, subdirectory, serviceName string, po
 // editApacheConfig inserts a ProxyPass/ProxyPassReverse pair before every occurrence of a marker line (</VirtualHost>, or the DirectoryIndex line for a root install). Unlike editLswsConfig, failures are just logged and swallowed - the install flow continues regardless.
 func editApacheConfig(userContext, domainURL, subdirectory, serviceName string, port int, wsUpgrade bool) {
 	confPath := vhostConfPath(userContext, domainURL)
-	content, err := os.ReadFile(confPath)
+	content, err := tenantfs.ReadFile(confPath)
 	if err != nil {
 		return
 	}
@@ -130,7 +130,7 @@ func editApacheConfig(userContext, domainURL, subdirectory, serviceName string, 
 	}
 	b.WriteString(vhostData[last:])
 
-	if writeErr := os.WriteFile(confPath, []byte(b.String()), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(confPath, []byte(b.String()), 0o644); writeErr != nil {
 		_ = copyFile(backupPath, confPath)
 	}
 }
@@ -138,7 +138,7 @@ func editApacheConfig(userContext, domainURL, subdirectory, serviceName string, 
 // editNginxConfig inserts a location/proxy_pass block into every "server {" block's "location / {" section, then runs nginx -t and restores the old file if it fails, returning the error or ""
 func editNginxConfig(ctx context.Context, userContext, domainURL, subdirectory, serviceName, webServer string, port int, wsUpgrade bool) string {
 	confPath := vhostConfPath(userContext, domainURL)
-	content, err := os.ReadFile(confPath)
+	content, err := tenantfs.ReadFile(confPath)
 	if err != nil {
 		return "Error: vhost configuration file does not exist."
 	}
@@ -149,7 +149,7 @@ func editNginxConfig(ctx context.Context, userContext, domainURL, subdirectory, 
 		return "Error: no server block found in vhost configuration."
 	}
 
-	proxyHeadersRaw, phErr := os.ReadFile("/etc/openpanel/nginx/vhosts/1.1/nginx_proxy_headers.txt")
+	proxyHeadersRaw, phErr := tenantfs.ReadFile("/etc/openpanel/nginx/vhosts/1.1/nginx_proxy_headers.txt")
 	if phErr != nil {
 		return "Error: " + phErr.Error()
 	}
@@ -198,15 +198,15 @@ func editNginxConfig(ctx context.Context, userContext, domainURL, subdirectory, 
 	}
 
 	updated := strings.Join(updatedBlocks, "")
-	if err := os.WriteFile(confPath, []byte(updated), 0o644); err != nil {
-		_ = os.WriteFile(confPath, content, 0o644)
+	if err := tenantfs.WriteFile(confPath, []byte(updated), 0o644); err != nil {
+		_ = tenantfs.WriteFile(confPath, content, 0o644)
 		return "Error: " + err.Error()
 	}
 
 	// nginx -t only works inside a running container
 	if docker.IsServiceRunning(ctx, userContext, webServer) {
 		if ok, out := webserver.TestWebserverConfig(ctx, userContext, webServer); !ok {
-			_ = os.WriteFile(confPath, content, 0o644)
+			_ = tenantfs.WriteFile(confPath, content, 0o644)
 			return "Error: proxy config failed " + webServer + " syntax check and was reverted: " + out
 		}
 	}
@@ -214,9 +214,9 @@ func editNginxConfig(ctx context.Context, userContext, domainURL, subdirectory, 
 }
 
 func copyFile(src, dst string) error {
-	data, err := os.ReadFile(src)
+	data, err := tenantfs.ReadFile(src)
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(dst, data, 0o644)
+	return tenantfs.WriteFile(dst, data, 0o644)
 }

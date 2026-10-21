@@ -3,7 +3,6 @@ package ftp
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 	"os/exec"
 	"strings"
 
@@ -12,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // RegisterAPI wires the FTP module's API routes onto mux - PATCH .../password and .../path share a username prefix with a literal suffix, so since Go's ServeMux requires a "{...}" wildcard to be the final segment, both are merged into one "{rest...}" catch-all and apiFTPPatchDispatch strips the known suffix by hand to recover the username, while apiregistry.Add still records each logical route separately for /api/endpoints
@@ -66,7 +66,7 @@ func apiFTPServiceCheck(w http.ResponseWriter, r *http.Request) bool {
 func apiServerIP(a *appctx.App, r *http.Request, currentUsername string) string {
 	ftpHost := a.GetCachedIPForUserOrPublicIPv4(r.Context(), currentUsername)
 	dedicatedIPPath := "/etc/openpanel/openpanel/core/users/" + currentUsername + "/ip.json"
-	if data, err := os.ReadFile(dedicatedIPPath); err == nil {
+	if data, err := tenantfs.ReadFile(dedicatedIPPath); err == nil {
 		var parsed struct {
 			IP string `json:"ip"`
 		}
@@ -356,7 +356,7 @@ func apiFTPConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	account := r.PathValue("account")
 
 	usersListFile := "/etc/openpanel/ftp/users/" + userContext + "/users.list"
-	content, readErr := os.ReadFile(usersListFile)
+	content, readErr := tenantfs.ReadFile(usersListFile)
 	if readErr != nil {
 		writeAPIFTPJSON(w, http.StatusNotFound, map[string]string{"error": "No FTP accounts found"})
 		return

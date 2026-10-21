@@ -5,16 +5,14 @@ import (
 	"context"
 	"database/sql"
 	"net/http"
-	"os"
-	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -72,8 +70,8 @@ func handleWebsiteBuilderRemove(a *appctx.App, w http.ResponseWriter, r *http.Re
 
 	realInstallPath := strings.Replace(installPath, "/var/www/html/", "", 1)
 	volume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + realInstallPath
-	_ = os.Remove(filepath.Join(volume, "index.html"))
-	_ = os.Remove(filepath.Join(volume, "style.css"))
+	_ = tenantfs.Remove(filepath.Join(volume, "index.html"))
+	_ = tenantfs.Remove(filepath.Join(volume, "style.css"))
 
 	if delErr := deleteSiteFromDB(ctx, a, userID, siteID); delErr != nil {
 		message := "An error occurred during website deletion."
@@ -175,23 +173,21 @@ func handleWebsiteBuilderEdit(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		htmlContent := r.Form.Get("html")
 		cssContent := r.Form.Get("css")
 
-		if mkErr := os.MkdirAll(htmlSiteDocroot, 0o755); mkErr != nil {
+		if mkErr := tenantfs.MkdirAll(htmlSiteDocroot, 0o755); mkErr != nil {
 			http.Error(w, mkErr.Error(), http.StatusInternalServerError)
 			return
 		}
-		if writeErr := os.WriteFile(htmlFile, []byte(htmlContent), 0o644); writeErr != nil {
+		if writeErr := tenantfs.WriteFile(htmlFile, []byte(htmlContent), 0o644); writeErr != nil {
 			http.Error(w, writeErr.Error(), http.StatusInternalServerError)
 			return
 		}
-		if writeErr := os.WriteFile(cssFile, []byte(cssContent), 0o644); writeErr != nil {
+		if writeErr := tenantfs.WriteFile(cssFile, []byte(cssContent), 0o644); writeErr != nil {
 			http.Error(w, writeErr.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		if uid, uidErr := a.GetUID(ctx, userContext); uidErr == nil {
-			uidStr := strconv.Itoa(uid)
-			chownArgv := []string{"chown", "-R", uidStr + ":" + uidStr, htmlSiteDocroot}
-			_ = exec.CommandContext(ctx, chownArgv[0], chownArgv[1:]...).Run()
+			_ = tenantfs.ChownR(htmlSiteDocroot, uid, uid)
 		}
 
 		_, _ = w.Write([]byte("Saved successfully"))
@@ -199,11 +195,11 @@ func handleWebsiteBuilderEdit(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 
 	htmlContent := ""
-	if data, readErr := os.ReadFile(htmlFile); readErr == nil {
+	if data, readErr := tenantfs.ReadFile(htmlFile); readErr == nil {
 		htmlContent = string(data)
 	}
 	cssContent := ""
-	if data, readErr := os.ReadFile(cssFile); readErr == nil {
+	if data, readErr := tenantfs.ReadFile(cssFile); readErr == nil {
 		cssContent = string(data)
 	}
 

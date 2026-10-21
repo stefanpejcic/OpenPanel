@@ -14,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -60,7 +61,7 @@ func handleUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	content, readErr := os.ReadFile(path)
+	content, readErr := tenantfs.ReadFile(path)
 	if readErr != nil {
 		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Error updating DNS record: " + readErr.Error()})
 		return
@@ -86,7 +87,7 @@ func handleUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 	newLines = append(newLines, newBlock)
 	newLines = append(newLines, lines[endRowID:]...)
 
-	if writeErr := os.WriteFile(path, []byte(strings.Join(newLines, "")), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(path, []byte(strings.Join(newLines, "")), 0o644); writeErr != nil {
 		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Error updating DNS record: " + writeErr.Error()})
 		return
 	}
@@ -130,7 +131,7 @@ func handleDeleteDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 
 	path := zoneFilePath(domain)
-	content, readErr := os.ReadFile(path)
+	content, readErr := tenantfs.ReadFile(path)
 	if readErr != nil {
 		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Error deleting DNS record: " + readErr.Error()})
 		return
@@ -154,7 +155,7 @@ func handleDeleteDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 		lines = append(lines[:rowID], lines[rowID+1:]...)
 	}
 
-	if writeErr := os.WriteFile(path, []byte(strings.Join(lines, "")), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(path, []byte(strings.Join(lines, "")), 0o644); writeErr != nil {
 		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Error deleting DNS record: " + writeErr.Error()})
 		return
 	}
@@ -235,14 +236,14 @@ func handleAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	f, openErr := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	f, openErr := tenantfs.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if openErr != nil {
 		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error adding DNS record: %(error)s", "error", openErr.Error()), redirectTarget)
 		return
 	}
 	// a zone ending without a newline would glue the record onto its last line
 	prefix := ""
-	if existing, _ := os.ReadFile(path); len(existing) > 0 && existing[len(existing)-1] != '\n' {
+	if existing, _ := tenantfs.ReadFile(path); len(existing) > 0 && existing[len(existing)-1] != '\n' {
 		prefix = "\n"
 	}
 	_, writeErr := f.WriteString(prefix + newRecord + "\n")
@@ -290,7 +291,7 @@ func handleSaveDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	tmpPath := tmpFile.Name()
-	defer os.Remove(tmpPath)
+	defer tenantfs.Remove(tmpPath)
 	_, writeErr := tmpFile.WriteString(newContent)
 	_ = tmpFile.Close()
 	if writeErr != nil {
@@ -310,7 +311,7 @@ func handleSaveDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := zoneFilePath(domain)
-	if err := os.WriteFile(path, []byte(newContent), 0o644); err != nil {
+	if err := tenantfs.WriteFile(path, []byte(newContent), 0o644); err != nil {
 		writeText(w, "Failed - zone validation error")
 		return
 	}
@@ -406,7 +407,7 @@ func handleExportDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	content, readErr := os.ReadFile(zoneFilePath(domain))
+	content, readErr := tenantfs.ReadFile(zoneFilePath(domain))
 	if readErr != nil {
 		writeText(w, "Zone file not found.")
 		return

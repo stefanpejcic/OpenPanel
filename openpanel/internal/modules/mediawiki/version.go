@@ -5,13 +5,13 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
 	"time"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 )
 
@@ -131,7 +131,7 @@ var mediawikiComposerPHPRequirementRE = regexp.MustCompile(`"php"\s*:\s*"[^0-9]*
 
 // minPHPVersionFromComposerJSON reads composer.json's require.php constraint out of an already-extracted MediaWiki tree, returns "" if it can't be determined (e.g. some future release restructures composer.json) - the caller treats that as "unknown, don't block the install"
 func minPHPVersionFromComposerJSON(installDir string) string {
-	content, err := os.ReadFile(filepath.Join(installDir, "composer.json"))
+	content, err := tenantfs.ReadFile(filepath.Join(installDir, "composer.json"))
 	if err != nil {
 		return ""
 	}

@@ -2,11 +2,11 @@ package appinstall
 
 import (
 	"context"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
@@ -92,7 +92,7 @@ func RemoveServiceProxies(ctx context.Context, userContext string, names ...stri
 	var changed []string
 	originals := map[string][]byte{}
 	for _, f := range files {
-		content, err := os.ReadFile(f)
+		content, err := tenantfs.ReadFile(f)
 		if err != nil {
 			continue
 		}
@@ -100,7 +100,7 @@ func RemoveServiceProxies(ctx context.Context, userContext string, names ...stri
 		if !ok {
 			continue
 		}
-		if os.WriteFile(f, []byte(updated), 0o644) != nil {
+		if tenantfs.WriteFile(f, []byte(updated), 0o644) != nil {
 			continue
 		}
 		originals[f] = content
@@ -114,7 +114,7 @@ func RemoveServiceProxies(ctx context.Context, userContext string, names ...stri
 	if isNginx && docker.IsServiceRunning(ctx, userContext, webServerType) {
 		if ok, _ := webserver.TestWebserverConfig(ctx, userContext, webServerType); !ok {
 			for f, content := range originals {
-				_ = os.WriteFile(f, content, 0o644)
+				_ = tenantfs.WriteFile(f, content, 0o644)
 			}
 			return nil
 		}

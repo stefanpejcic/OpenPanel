@@ -3,13 +3,13 @@ package php
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -55,7 +55,7 @@ func handlePHPIniEditor(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 		}
 		title = "PHP " + version + " INI Editor"
 
-		content, readErr := os.ReadFile(phpIniFilePath)
+		content, readErr := tenantfs.ReadFile(phpIniFilePath)
 		if readErr != nil {
 			writeJSONError(w, http.StatusInternalServerError, readErr.Error())
 			return
@@ -65,7 +65,7 @@ func handlePHPIniEditor(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 		if r.Method == http.MethodPost {
 			_ = r.ParseForm()
 			if newContent := r.Form.Get("editor_content"); newContent != "" {
-				if writeErr := os.WriteFile(phpIniFilePath, []byte(newContent), 0o644); writeErr != nil {
+				if writeErr := tenantfs.WriteFile(phpIniFilePath, []byte(newContent), 0o644); writeErr != nil {
 					web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error saving %(text)s php.ini file!", "text", text), "/php/php"+version+".ini/editor")
 					return
 				}

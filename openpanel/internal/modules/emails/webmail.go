@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -18,6 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -36,7 +36,7 @@ var (
 // loadDovecotMasterPass mirrors load_dovecot_master_pass().
 func loadDovecotMasterPass() string {
 	masterPassOnce.Do(func() {
-		data, err := os.ReadFile(dovecotMasterPassPath)
+		data, err := tenantfs.ReadFile(dovecotMasterPassPath)
 		if err != nil {
 			log.Printf("WEBMAIL - Could not read dovecot master password file %s: %v", dovecotMasterPassPath, err)
 			return

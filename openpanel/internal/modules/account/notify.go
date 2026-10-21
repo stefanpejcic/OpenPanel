@@ -8,7 +8,6 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -17,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sysinfo"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 const notifyConfigFilePath = "/etc/openpanel/openpanel/conf/openpanel.config"
@@ -133,7 +133,7 @@ func notificationDefault(key string) int {
 func getNotificationPreference(ctx context.Context, a *appctx.App, username, key string) int {
 	cacheKey := "get_from_file_value:" + username + ":" + key
 	v, _ := cache.Memoize(ctx, a.Cache, cacheKey, 300*time.Second, func() (int, error) {
-		content, err := os.ReadFile(notificationsFilePath(username))
+		content, err := tenantfs.ReadFile(notificationsFilePath(username))
 		if err != nil {
 			return notificationDefault(key), nil
 		}
@@ -150,7 +150,7 @@ func getNotificationPreference(ctx context.Context, a *appctx.App, username, key
 
 // loginIPIsKnown reports whether ip is already in the user's .lastlogin history, call it before the new login is appended
 func loginIPIsKnown(username, ip string) bool {
-	data, err := os.ReadFile("/etc/openpanel/openpanel/core/users/" + username + "/.lastlogin")
+	data, err := tenantfs.ReadFile("/etc/openpanel/openpanel/core/users/" + username + "/.lastlogin")
 	if err != nil || ip == "" {
 		return false
 	}
@@ -210,7 +210,7 @@ func generateRandomTokenOnce() string {
 	}
 	token := string(b)
 
-	content, err := os.ReadFile(notifyConfigFilePath)
+	content, err := tenantfs.ReadFile(notifyConfigFilePath)
 	if err != nil {
 		return token
 	}
@@ -225,7 +225,7 @@ func generateRandomTokenOnce() string {
 		}
 	}
 	if changed {
-		_ = os.WriteFile(notifyConfigFilePath, []byte(strings.Join(lines, "\n")), 0o644)
+		_ = tenantfs.WriteFile(notifyConfigFilePath, []byte(strings.Join(lines, "\n")), 0o644)
 	}
 	return token
 }

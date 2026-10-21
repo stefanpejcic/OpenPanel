@@ -3,7 +3,6 @@ package php
 
 import (
 	"context"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -12,6 +11,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
@@ -95,7 +95,7 @@ func GetPHPVForDomain(ctx context.Context, a *appctx.App, userContext, domainURL
 	}
 
 	confPath := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_webserver_data/_data/" + domainURL + ".conf"
-	if content, err := os.ReadFile(confPath); err == nil {
+	if content, err := tenantfs.ReadFile(confPath); err == nil {
 		lines := strings.SplitN(string(content), "\n", 2)
 		if len(lines) > 0 {
 			if m := domainConfVersionRE.FindStringSubmatch(lines[0]); m != nil {
@@ -130,7 +130,7 @@ func updatePHPVersionPreference(userContext, newPHPVersion string) bool {
 	}
 
 	configFilePath := "/home/" + userContext + "/.env"
-	content, err := os.ReadFile(configFilePath)
+	content, err := tenantfs.ReadFile(configFilePath)
 	if err != nil {
 		return false
 	}
@@ -142,7 +142,7 @@ func updatePHPVersionPreference(userContext, newPHPVersion string) bool {
 			lines[i] = placeholder + "=" + newPHPVersion
 		}
 	}
-	return os.WriteFile(configFilePath, []byte(strings.Join(lines, "\n")), 0o644) == nil
+	return tenantfs.WriteFile(configFilePath, []byte(strings.Join(lines, "\n")), 0o644) == nil
 }
 
 // FetchPHPVersions is memoized for 1h.
@@ -214,7 +214,7 @@ func stopPHPServiceIfRunningAndUnused(ctx context.Context, userContext, oldPHPVe
 	phpFPMVersion := "php-fpm-" + oldPHPVersion
 	basePath := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_webserver_data/_data/"
 
-	entries, err := os.ReadDir(basePath)
+	entries, err := tenantfs.ReadDir(basePath)
 	if err != nil {
 		return
 	}
@@ -222,7 +222,7 @@ func stopPHPServiceIfRunningAndUnused(ctx context.Context, userContext, oldPHPVe
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".conf") {
 			continue
 		}
-		content, err := os.ReadFile(basePath + entry.Name())
+		content, err := tenantfs.ReadFile(basePath + entry.Name())
 		if err != nil {
 			continue
 		}

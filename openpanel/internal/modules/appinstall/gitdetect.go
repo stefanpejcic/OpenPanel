@@ -12,6 +12,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -73,7 +74,7 @@ func detectEntryFile(ctx context.Context, gitURL string, appType string) (string
 	if mkErr != nil {
 		return "", mkErr
 	}
-	defer os.RemoveAll(tmpDir)
+	defer tenantfs.RemoveAll(tmpDir)
 
 	cloneCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
 	defer cancel()
@@ -89,7 +90,7 @@ func detectEntryFile(ctx context.Context, gitURL string, appType string) (string
 
 	switch appType {
 	case "nodejs":
-		if pkgBytes, readErr := os.ReadFile(tmpDir + "/package.json"); readErr == nil {
+		if pkgBytes, readErr := tenantfs.ReadFile(tmpDir + "/package.json"); readErr == nil {
 			var pkg struct {
 				Main string `json:"main"`
 			}

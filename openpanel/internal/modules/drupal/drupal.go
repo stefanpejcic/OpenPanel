@@ -3,12 +3,12 @@ package drupal
 
 import (
 	"net/http"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 )
 
@@ -55,7 +55,7 @@ func extractDrupalDatabaseInfoForBackup(userContext, docroot string) map[string]
 		return map[string]string{"error": "invalid docroot"}
 	}
 	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(docroot, wwwPrefix)
-	content, err := os.ReadFile(filepath.Join(mappedDir, "sites", "default", "settings.php"))
+	content, err := tenantfs.ReadFile(filepath.Join(mappedDir, "sites", "default", "settings.php"))
 	if err != nil {
 		return map[string]string{"error": "sites/default/settings.php not found"}
 	}

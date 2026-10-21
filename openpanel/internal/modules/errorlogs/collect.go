@@ -3,7 +3,6 @@ package errorlogs
 import (
 	"context"
 	"io"
-	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -13,6 +12,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
@@ -137,7 +137,7 @@ func fetchContainer(ctx context.Context, a *appctx.App, userContext string, src 
 
 // tailFile reads at most the last n bytes of path, dropping the first partial line
 func tailFile(path string, n int64) string {
-	f, err := os.Open(path)
+	f, err := tenantfs.Open(path)
 	if err != nil {
 		return ""
 	}

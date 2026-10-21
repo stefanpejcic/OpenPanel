@@ -3,12 +3,12 @@ package domains
 import (
 	"bufio"
 	"context"
-	"os"
 	"strings"
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // DomainWithSite is one row of a user's domains joined with their site count.
@@ -47,7 +47,7 @@ func domainsWithSites(ctx context.Context, a *appctx.App, userID int) ([]DomainW
 
 // getRedirectURL returns the first "redir <url>" line (not a comment) inside a domain's Caddy config, if any
 func getRedirectURL(domainURL string) string {
-	f, err := os.Open("/etc/openpanel/caddy/domains/" + domainURL + ".conf")
+	f, err := tenantfs.Open("/etc/openpanel/caddy/domains/" + domainURL + ".conf")
 	if err != nil {
 		return ""
 	}
@@ -89,7 +89,7 @@ func isRewriteCondEnabled(ctx context.Context, a *appctx.App, domainURL string) 
 func computeRewriteCondEnabled(domainURL string) SSLStatus {
 	status := SSLStatus{HTTPS: "Unknown", Suspended: "Not Suspended"}
 
-	f, err := os.Open("/etc/openpanel/caddy/domains/" + domainURL + ".conf")
+	f, err := tenantfs.Open("/etc/openpanel/caddy/domains/" + domainURL + ".conf")
 	if err != nil {
 		return status
 	}

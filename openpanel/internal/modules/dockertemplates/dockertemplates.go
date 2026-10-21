@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -19,6 +18,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 const (
@@ -108,7 +108,7 @@ func Load(ctx context.Context, a *appctx.App) []Template {
 			return list, nil
 		}
 		log.Printf("DOCKER TEMPLATES - %s: %v, using %s", SourceURL, err, localPath)
-		local, readErr := os.ReadFile(localPath)
+		local, readErr := tenantfs.ReadFile(localPath)
 		if readErr != nil {
 			return nil, readErr
 		}

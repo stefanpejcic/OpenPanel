@@ -8,14 +8,13 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // WebRoot is the only folder users can export into, as they see it
@@ -98,7 +97,7 @@ func SaveToFiles(cmd *exec.Cmd, userContext, localPath, base, ext string, gz boo
 	if err != nil {
 		return "", err
 	}
-	if info, statErr := os.Stat(dir); statErr != nil || !info.IsDir() {
+	if info, statErr := tenantfs.Stat(dir); statErr != nil || !info.IsDir() {
 		return "", errors.New("Export path " + localPath + " does not exist or is not a directory.")
 	}
 
@@ -110,7 +109,7 @@ func SaveToFiles(cmd *exec.Cmd, userContext, localPath, base, ext string, gz boo
 	display := filepath.Join(localPath, name)
 	writeErr := errors.New("Failed to write export to " + display + " - try export to browser instead.")
 
-	f, err := os.Create(dest)
+	f, err := tenantfs.Create(dest)
 	if err != nil {
 		return "", writeErr
 	}
@@ -118,11 +117,11 @@ func SaveToFiles(cmd *exec.Cmd, userContext, localPath, base, ext string, gz boo
 
 	out, err := cmd.StdoutPipe()
 	if err != nil {
-		_ = os.Remove(dest)
+		_ = tenantfs.Remove(dest)
 		return "", ErrDumpFailed
 	}
 	if err := cmd.Start(); err != nil {
-		_ = os.Remove(dest)
+		_ = tenantfs.Remove(dest)
 		return "", ErrDumpFailed
 	}
 	n, copyErr := copyDump(f, out, gz)
@@ -133,16 +132,15 @@ func SaveToFiles(cmd *exec.Cmd, userContext, localPath, base, ext string, gz boo
 	closeErr := f.Close()
 	switch {
 	case waitErr != nil || (copyErr == nil && n == 0):
-		_ = os.Remove(dest)
+		_ = tenantfs.Remove(dest)
 		return "", ErrDumpFailed
 	case copyErr != nil || closeErr != nil:
-		_ = os.Remove(dest)
+		_ = tenantfs.Remove(dest)
 		return "", writeErr
 	}
 
 	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
-		id := strconv.Itoa(uid)
-		_ = exec.Command("chown", id+":"+id, dest).Run()
+		_ = tenantfs.Lchown(dest, uid, uid)
 	}
 	return display, nil
 }

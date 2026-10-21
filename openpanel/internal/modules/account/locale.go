@@ -2,7 +2,6 @@ package account
 
 import (
 	"net/http"
-	"os"
 	"path/filepath"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -12,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -57,8 +57,8 @@ func handleAccountLocale(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			_ = logger.RecordUserAction(a.Config, username, "changed language to "+locale, reqip.ClientIP(r))
 
 			userLocaleFile := filepath.Join("/home", userContext, "locale")
-			if mkdirErr := os.MkdirAll(filepath.Dir(userLocaleFile), 0o755); mkdirErr == nil {
-				_ = os.WriteFile(userLocaleFile, []byte(locale), 0o644)
+			if mkdirErr := tenantfs.MkdirAll(filepath.Dir(userLocaleFile), 0o755); mkdirErr == nil {
+				_ = tenantfs.WriteFile(userLocaleFile, []byte(locale), 0o644)
 			}
 
 			redirectTo := r.Referer()

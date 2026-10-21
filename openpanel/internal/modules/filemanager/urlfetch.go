@@ -58,8 +58,8 @@ var safeHTTPClient = &http.Client{
 	},
 }
 
-// downloadToFile streams rawURL into dest (which must not exist yet) and removes the partial file on any error
-func downloadToFile(ctx context.Context, rawURL, dest string, maxBytes int64, progress func(pct int)) (err error) {
+// downloadToFile streams rawURL into dest under root (which must not exist yet) and removes the partial file on any error
+func downloadToFile(ctx context.Context, root *os.Root, rawURL, dest string, maxBytes int64, progress func(pct int)) (err error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
 	if err != nil {
 		return err
@@ -78,7 +78,7 @@ func downloadToFile(ctx context.Context, rawURL, dest string, maxBytes int64, pr
 	}
 
 	// O_EXCL so a symlink planted at the destination is never followed
-	f, err := os.OpenFile(dest, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
+	f, err := root.OpenFile(dest, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func downloadToFile(ctx context.Context, rawURL, dest string, maxBytes int64, pr
 			err = cerr
 		}
 		if err != nil {
-			_ = os.Remove(dest)
+			_ = root.Remove(dest)
 		}
 	}()
 

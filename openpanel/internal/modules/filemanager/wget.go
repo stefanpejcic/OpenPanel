@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -32,7 +33,7 @@ type downloadState struct {
 	Status             string `json:"status"`
 	Message            string `json:"message"`
 	URL                string `json:"url"`
-	ParentPath         string `json:"parent_path"`
+	ParentRel          string `json:"parent_rel"`
 	DisplayPath        string `json:"display_path"`
 	Context            string `json:"context"`
 	CurrentUsername    string `json:"current_username"`
@@ -154,23 +155,24 @@ func handleWgetFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	parentPath, perr := paths.SecureUserPath("HOME", user.Context, pathParam, false)
+	root, parentRel, perr := openUserPath(user, pathParam, false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		web.WriteJSON(w, status, map[string]any{"error": msg})
 		return
 	}
+	defer root.Close()
 	displayPath := filepath.Join("/var/www/html/", pathParam)
 
 	filename := filenameFromURL(rawURL)
-	if _, statErr := os.Stat(filepath.Join(parentPath, filename)); statErr == nil {
+	if _, statErr := root.Lstat(path.Join(parentRel, filename)); statErr == nil {
 		web.WriteJSON(w, http.StatusConflict, map[string]any{"error": "File already exists: " + filename})
 		return
 	}
 
 	info := downloadState{
 		Progress: 0, Status: "queued", Message: "Download queued...",
-		URL: rawURL, ParentPath: parentPath, DisplayPath: displayPath,
+		URL: rawURL, ParentRel: parentRel, DisplayPath: displayPath,
 		Context: user.Context, CurrentUsername: user.Username,
 	}
 	downloadID := uuid.NewString()
@@ -196,14 +198,26 @@ func runWgetWithProgress(a *appctx.App, downloadID string) {
 		_ = saveDownloadState(downloadID, cur)
 	}
 
-	if err := os.MkdirAll(info.ParentPath, 0o755); err != nil {
+	// reopen and recheck, the dir could have been swapped since the request was validated
+	root, err := paths.OpenUserRoot("HOME", info.Context)
+	if err != nil {
+		fail("Internal server error during download.")
+		return
+	}
+	defer root.Close()
+	parentRel, err := root.Rel(info.ParentRel, false)
+	if err != nil {
+		fail("Internal server error during download.")
+		return
+	}
+	if err := root.MkdirAll(parentRel, 0o755); err != nil {
 		fail("Internal server error during download.")
 		return
 	}
 
 	filename := filenameFromURL(info.URL)
-	downloadedFilePath := filepath.Join(info.ParentPath, filename)
-	info.DownloadedFilePath = downloadedFilePath
+	downloadedRel := path.Join(parentRel, filename)
+	info.DownloadedFilePath = root.Abs(downloadedRel)
 	info.Status, info.Message, info.Progress = "downloading", "Starting download...", 0
 	_ = saveDownloadState(downloadID, info)
 
@@ -213,7 +227,7 @@ func runWgetWithProgress(a *appctx.App, downloadID string) {
 	defer cancel()
 
 	lastPct := -1
-	err := downloadToFile(ctx, info.URL, downloadedFilePath, maxBytes, func(pct int) {
+	err = downloadToFile(ctx, root.Root, info.URL, downloadedRel, maxBytes, func(pct int) {
 		if pct == lastPct {
 			return
 		}
@@ -240,7 +254,7 @@ func runWgetWithProgress(a *appctx.App, downloadID string) {
 	final, _ := loadDownloadState(downloadID)
 	final.Progress, final.Status = 100, "done"
 	final.Message = "File downloaded from URL successfully to " + final.DisplayPath
-	if chownErr := chownToUser(ctx, a, downloadedFilePath, final.Context); chownErr != nil {
+	if chownErr := chownToUser(ctx, a, root, downloadedRel, final.Context); chownErr != nil {
 		final.Message += " (Failed to set ownership for the downloaded file.)"
 	}
 	_ = saveDownloadState(downloadID, final)

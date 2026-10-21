@@ -2,11 +2,9 @@ package cmsapp
 
 import (
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -17,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -75,14 +74,14 @@ func (app *App) HandleGetBackupDates(a *appctx.App, w http.ResponseWriter, r *ht
 	}
 
 	backupsPath := htmlVolume(userContext) + "backups/" + selectedDomain
-	if _, statErr := os.Stat(backupsPath); statErr != nil {
-		if mkErr := os.MkdirAll(backupsPath, 0o755); mkErr != nil {
+	if _, statErr := tenantfs.Stat(backupsPath); statErr != nil {
+		if mkErr := tenantfs.MkdirAll(backupsPath, 0o755); mkErr != nil {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
 			return
 		}
 	}
 
-	entries, readErr := os.ReadDir(backupsPath)
+	entries, readErr := tenantfs.ReadDir(backupsPath)
 	if readErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": readErr.Error()})
 		return
@@ -93,7 +92,7 @@ func (app *App) HandleGetBackupDates(a *appctx.App, w http.ResponseWriter, r *ht
 		if !entry.IsDir() || !backupFolderRE.MatchString(entry.Name()) {
 			continue
 		}
-		files, _ := os.ReadDir(filepath.Join(backupsPath, entry.Name()))
+		files, _ := tenantfs.ReadDir(filepath.Join(backupsPath, entry.Name()))
 		info := backupDateInfo{Date: entry.Name()}
 		for _, f := range files {
 			if strings.HasSuffix(f.Name(), ".sql") {
@@ -180,11 +179,11 @@ func (app *App) HandleRestoreBackup(a *appctx.App, w http.ResponseWriter, r *htt
 	ipAddress := reqip.ClientIP(r)
 
 	if app.DBMode == DBNone {
-		if _, statErr := os.Stat(targzPathOnHostOS); statErr != nil {
+		if _, statErr := tenantfs.Stat(targzPathOnHostOS); statErr != nil {
 			_, _ = w.Write([]byte("No files to restore, expected file: " + backupDatePathInContainer + "/files.tar.gz."))
 			return
 		}
-		if runErr := exec.CommandContext(ctx, "tar", "-xzf", targzPathOnHostOS, "-C", filesHostPath).Run(); runErr != nil {
+		if runErr := tenantfs.ExtractTar(ctx, targzPathOnHostOS, filesHostPath, 0); runErr != nil {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
 			return
 		}
@@ -197,21 +196,21 @@ func (app *App) HandleRestoreBackup(a *appctx.App, w http.ResponseWriter, r *htt
 	databaseSQLPathInContainer := filepath.Join(backupDatePathInContainer, "database.sql")
 	var restoredItems []string
 
-	if _, statErr := os.Stat(targzPathOnHostOS); statErr == nil {
-		if runErr := exec.CommandContext(ctx, "tar", "-xzf", targzPathOnHostOS, "-C", filesHostPath).Run(); runErr != nil {
+	if _, statErr := tenantfs.Stat(targzPathOnHostOS); statErr == nil {
+		if runErr := tenantfs.ExtractTar(ctx, targzPathOnHostOS, filesHostPath, 0); runErr != nil {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
 			return
 		}
 		if app.ChownAfterRestore {
 			if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
-				_ = exec.CommandContext(ctx, "chown", "-R", strconv.Itoa(uid)+":"+strconv.Itoa(uid), filesHostPath).Run()
+				_ = tenantfs.ChownR(filesHostPath, uid, uid)
 			}
 		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "restored "+app.Name+" "+app.filesLabel()+" backup from "+backupDatePathInContainer+" on "+selectedDomain, ipAddress)
 		restoredItems = append(restoredItems, "files")
 	}
 
-	if _, statErr := os.Stat(databaseSQLPathOnHostOS); statErr == nil {
+	if _, statErr := tenantfs.Stat(databaseSQLPathOnHostOS); statErr == nil {
 		dbInfo := app.DBInfo(userContext, docroot, selectedDomain)
 		dbName := dbInfo["database_name"]
 		tablePrefix := dbInfo["database_prefix"]
@@ -231,7 +230,7 @@ func (app *App) HandleRestoreBackup(a *appctx.App, w http.ResponseWriter, r *htt
 		if dbName != "" {
 			mysqlVersion := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
 			importArgv := podmanmanager.PodmanArgv(userContext, "exec", "-i", mysqlVersion, mysqlVersion, dbName)
-			f, openErr := os.Open(databaseSQLPathOnHostOS)
+			f, openErr := tenantfs.Open(databaseSQLPathOnHostOS)
 			if openErr != nil {
 				web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": openErr.Error()})
 				return
@@ -285,28 +284,28 @@ func (app *App) HandleRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Re
 
 	htmlVol := htmlVolume(userContext)
 	mysqlDumpVolume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_mysql_dumps/_data/"
-	_ = os.MkdirAll(htmlVol, 0o755)
+	_ = tenantfs.MkdirAll(htmlVol, 0o755)
 	if app.DBMode != DBNone {
-		_ = os.MkdirAll(mysqlDumpVolume, 0o755)
+		_ = tenantfs.MkdirAll(mysqlDumpVolume, 0o755)
 	}
 
 	uid, uidErr := podmanmanager.GetUID(userContext)
 	if uidErr == nil {
-		_ = os.Lchown(htmlVol, uid, uid)
+		_ = tenantfs.Lchown(htmlVol, uid, uid)
 		if app.DBMode != DBNone {
-			_ = os.Lchown(mysqlDumpVolume, uid, uid)
+			_ = tenantfs.Lchown(mysqlDumpVolume, uid, uid)
 		}
 	}
 
 	timestamp := time.Now().Format("2006-01-02_15-04-05")
 	backupDirectory := filepath.Join(htmlVol, "backups", selectedDomain, timestamp)
 	inPHPBackupDirectory := filepath.Join("/var/www/html/backups", selectedDomain, timestamp)
-	if mkErr := os.MkdirAll(backupDirectory, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(backupDirectory, 0o755); mkErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
 		return
 	}
 	if uidErr == nil {
-		_ = exec.CommandContext(ctx, "chown", strconv.Itoa(uid)+":"+strconv.Itoa(uid), backupDirectory).Run()
+		_ = tenantfs.Lchown(backupDirectory, uid, uid)
 	}
 
 	phpContainer := phpContainerFor(a, r, userContext, selectedDomain)
@@ -355,12 +354,12 @@ func (app *App) HandleRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Re
 		}
 
 		mysqlDumpPath := filepath.Join(mysqlDumpVolume, "database.sql")
-		if renameErr := os.Rename(mysqlDumpPath, filepath.Join(backupDirectory, "database.sql")); renameErr != nil {
+		if renameErr := tenantfs.Rename(mysqlDumpPath, filepath.Join(backupDirectory, "database.sql")); renameErr != nil {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": renameErr.Error()})
 			return
 		}
 		if uidErr == nil {
-			_ = exec.CommandContext(ctx, "chown", strconv.Itoa(uid)+":"+strconv.Itoa(uid), backupDirectory).Run()
+			_ = tenantfs.Lchown(backupDirectory, uid, uid)
 		}
 	}
 

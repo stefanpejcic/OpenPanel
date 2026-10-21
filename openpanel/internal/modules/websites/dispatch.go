@@ -4,13 +4,13 @@ import (
 	"database/sql"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -54,7 +54,7 @@ func getContainerFromDatabase(a *appctx.App, r *http.Request, siteName string) (
 func checkBackupFilesExist(a *appctx.App, r *http.Request, selectedDomain string) bool {
 	result, _ := cache.Memoize(r.Context(), a.Cache, "check_backup_files_exist:"+selectedDomain, 5*time.Minute, func() (bool, error) {
 		backupDir := "/var/www/html/backups/" + selectedDomain
-		entries, err := os.ReadDir(backupDir)
+		entries, err := tenantfs.ReadDir(backupDir)
 		if err != nil {
 			return false, nil
 		}
@@ -68,7 +68,7 @@ func checkBackupFilesExist(a *appctx.App, r *http.Request, selectedDomain string
 func dirHasEntries(userContext, containerPath string) bool {
 	rel := strings.TrimPrefix(containerPath, "/var/www/html/")
 	hostPath := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + rel
-	entries, err := os.ReadDir(hostPath)
+	entries, err := tenantfs.ReadDir(hostPath)
 	if err != nil {
 		return false
 	}
@@ -88,7 +88,7 @@ func explorerHref(base, userContext, docroot string) string {
 // getPagespeedInsightsAPIKey reads the user's PageSpeed Insights API key from disk, memoized for 60s since it's read on every page load.
 func getPagespeedInsightsAPIKey(a *appctx.App, r *http.Request, userContext string) string {
 	key, _ := cache.Memoize(r.Context(), a.Cache, "get_pagespeed_insights_api_key:"+userContext, 60*time.Second, func() (string, error) {
-		content, err := os.ReadFile("/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/pagespeed_api_key.txt")
+		content, err := tenantfs.ReadFile("/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/pagespeed_api_key.txt")
 		if err != nil {
 			return "", nil
 		}
@@ -302,7 +302,7 @@ func getPM2ForApplication(a *appctx.App, r *http.Request, userContext, prefix, a
 	}
 
 	envFile := "/home/" + userContext + "/.env"
-	contentBytes, err := os.ReadFile(envFile)
+	contentBytes, err := tenantfs.ReadFile(envFile)
 	if err == nil {
 		content := string(contentBytes)
 		for _, line := range strings.Split(content, "\n") {

@@ -2,7 +2,6 @@ package dynamicdns
 
 import (
 	"net/http"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -12,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dns"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -137,7 +137,7 @@ func handleDynamicDNSUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	entries, err := os.ReadDir(dns.ZoneFileDir)
+	entries, err := tenantfs.ReadDir(dns.ZoneFileDir)
 	if err != nil {
 		http.Error(w, "Invalid token", http.StatusNotFound)
 		return
@@ -150,7 +150,7 @@ func handleDynamicDNSUpdate(w http.ResponseWriter, r *http.Request) {
 		}
 		domain := strings.TrimSuffix(name, ".zone")
 
-		content, readErr := os.ReadFile(filepath.Join(dns.ZoneFileDir, name))
+		content, readErr := tenantfs.ReadFile(filepath.Join(dns.ZoneFileDir, name))
 		if readErr != nil {
 			continue
 		}

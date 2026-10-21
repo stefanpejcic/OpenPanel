@@ -1,11 +1,11 @@
 package ojs
 
 import (
-	"os"
 	"path/filepath"
 	"regexp"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // config.inc.php is INI format ("key = value" under "[section]"), not a PHP $CFG-> assignment file like Moodle/WordPress/Joomla, so these match a bare "key = ..." line - safe without anchoring on the section since key names don't collide across the sections this module touches
@@ -44,7 +44,7 @@ func ojsApprootDir(userContext, directory string) string {
 // extractOJSDatabaseInfoForLogin reads database name/username out of the approot's config.inc.php - just what autologin/backup need, no "database_prefix" since OJS has no per-site table prefix
 func extractOJSDatabaseInfoForLogin(userContext, domain string) map[string]string {
 	approot := ojsApprootDir(userContext, domain)
-	content, err := os.ReadFile(filepath.Join(approot, "config.inc.php"))
+	content, err := tenantfs.ReadFile(filepath.Join(approot, "config.inc.php"))
 	if err != nil {
 		return map[string]string{"error": "config.inc.php not found"}
 	}

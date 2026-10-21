@@ -33,6 +33,11 @@ var undeletableServices = map[string]bool{
 }
 
 func flashAndRedirectApp(a *appctx.App, w http.ResponseWriter, r *http.Request, category, message, path string) {
+	// the start/stop/restart buttons use xhr, which follows the redirect and would read a failure as success
+	if category == "error" && r.Header.Get("X-Requested-With") == "XMLHttpRequest" {
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": message})
+		return
+	}
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 	flash.Add(sess, category, message)
 	_ = a.Sessions.Save(r, w, sess)
@@ -131,13 +136,13 @@ func handlePM2Action(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		JOIN domains ON domains.domain_url = SUBSTRING_INDEX(sites.site_name, '/', 1)
 		WHERE sites.container LIKE ? AND domains.user_id = ?`, "%"+siteName+"%", userID)
 	if scanErr := row.Scan(&lookup.Type, &lookup.SiteName); scanErr != nil {
-		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Unable to detect container type for the application."})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Unable to detect container type for the application."})
 		return
 	}
 
 	kind, ok := kindByAppType(lookup.Type)
 	if !ok {
-		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Not a valid type, only NodeJS, Python, or Ruby applications can be edited."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Not a valid type, only NodeJS, Python, or Ruby applications can be edited."})
 		return
 	}
 
@@ -487,13 +492,13 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var serviceName, appType string
 	row := a.DB.QueryRowContext(ctx, "SELECT container, type FROM sites WHERE site_name = ?", siteName)
 	if scanErr := row.Scan(&serviceName, &appType); scanErr != nil {
-		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Unable to detect service name for the application."})
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Unable to detect service name for the application."})
 		return
 	}
 
 	kind, ok := kindByAppType(appType)
 	if !ok {
-		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Not a valid type, only NodeJS, Python, or Ruby applications can be removed."})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Not a valid type, only NodeJS, Python, or Ruby applications can be removed."})
 		return
 	}
 

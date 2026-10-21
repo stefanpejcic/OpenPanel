@@ -14,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -90,21 +91,21 @@ func handleCronjobsView(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 	}
 
 	path := cronFilePath(userContext)
-	if info, statErr := os.Stat(path); statErr == nil && info.Size() > int64(cronMaxFileSizeBytes(a)) {
+	if info, statErr := tenantfs.Stat(path); statErr == nil && info.Size() > int64(cronMaxFileSizeBytes(a)) {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]any{
 			"error": "Cron file exceeds the " + cronMaxFileSizeKB(a) + " KB limit. Please contact the administrator.",
 		})
 		return
 	}
 
-	if data, readErr := os.ReadFile(path); readErr != nil || !hasCronJobs(strings.Split(string(data), "\n")) {
+	if data, readErr := tenantfs.ReadFile(path); readErr != nil || !hasCronJobs(strings.Split(string(data), "\n")) {
 		stopIdleCron(ctx, userContext)
 	}
 
 	switch view {
 	case "code":
 		content := ""
-		if data, readErr := os.ReadFile(path); readErr == nil {
+		if data, readErr := tenantfs.ReadFile(path); readErr == nil {
 			content = string(data)
 		}
 		if r.URL.Query().Get("output") == "json" {
@@ -115,7 +116,7 @@ func handleCronjobsView(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 
 	case "table":
 		content := ""
-		if data, readErr := os.ReadFile(path); readErr == nil {
+		if data, readErr := tenantfs.ReadFile(path); readErr == nil {
 			content = string(data)
 		}
 		cronJobs := ParseCronFile(content)
@@ -142,7 +143,7 @@ func handleCronjobsView(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 
 	case "logs":
 		content := ""
-		if data, readErr := os.ReadFile(path); readErr == nil {
+		if data, readErr := tenantfs.ReadFile(path); readErr == nil {
 			content = string(data)
 		}
 		renderCronjobsLogsPage(a, w, r, ParseCronFile(content), r.URL.Query().Get("job"))
@@ -186,7 +187,7 @@ func writeCronFile(path, content string, truncate bool) error {
 	} else {
 		flags |= os.O_APPEND
 	}
-	f, err := os.OpenFile(path, flags, 0o644)
+	f, err := tenantfs.OpenFile(path, flags, 0o644)
 	if err != nil {
 		return err
 	}
@@ -268,7 +269,7 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		truncatedComment = strings.ReplaceAll(truncatedComment, `"`, `\"`)
 
 		if autoComment {
-			if existingContent, readErr := os.ReadFile(resolvedPath); readErr == nil {
+			if existingContent, readErr := tenantfs.ReadFile(resolvedPath); readErr == nil {
 				truncatedComment = uniqueCronComment(ParseCronFile(string(existingContent)), truncatedComment)
 			}
 		}
@@ -364,7 +365,7 @@ func handleEditCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	content, readErr := os.ReadFile(resolvedPath)
+	content, readErr := tenantfs.ReadFile(resolvedPath)
 	if readErr != nil {
 		web.FlashRedirect(a, w, r, "error", "Error saving cron job. Please try again.", "/cronjobs")
 		return
@@ -388,7 +389,7 @@ func handleEditCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if writeErr := os.WriteFile(resolvedPath, []byte(newContent), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(resolvedPath, []byte(newContent), 0o644); writeErr != nil {
 		web.FlashRedirect(a, w, r, "error", "Error saving cron job. Please try again.", "/cronjobs")
 		return
 	}
@@ -421,7 +422,7 @@ func handleDeleteCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	path := cronFilePath(userContext)
-	content, readErr := os.ReadFile(path)
+	content, readErr := tenantfs.ReadFile(path)
 	if readErr != nil {
 		web.FlashRedirect(a, w, r, "error", "Error deleting cron job.", "/cronjobs")
 		return
@@ -431,7 +432,7 @@ func handleDeleteCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	})
 	newLines := strings.Split(newContent, "\n")
 
-	if writeErr := os.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
 		web.FlashRedirect(a, w, r, "error", "Error deleting cron job.", "/cronjobs")
 		return
 	}

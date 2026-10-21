@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
@@ -14,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -89,7 +89,7 @@ func handleToggleCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	enable := r.Form.Get("enabled") == "1"
 
 	path := cronFilePath(userContext)
-	content, readErr := os.ReadFile(path)
+	content, readErr := tenantfs.ReadFile(path)
 	if readErr != nil {
 		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error saving cron job. Please try again."), "/cronjobs")
 		return
@@ -106,7 +106,7 @@ func handleToggleCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Cron job not found."), "/cronjobs")
 		return
 	}
-	if writeErr := os.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
 		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error saving cron job. Please try again."), "/cronjobs")
 		return
 	}
@@ -131,7 +131,7 @@ func init() {
 // moveCronJobsToService points the jobs that ran in the old web server or MySQL container at the new one after a type switch
 func moveCronJobsToService(ctx context.Context, userContext, from, to string) {
 	path := cronFilePath(userContext)
-	content, err := os.ReadFile(path)
+	content, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return
 	}
@@ -139,7 +139,7 @@ func moveCronJobsToService(ctx context.Context, userContext, from, to string) {
 	if moved == 0 {
 		return
 	}
-	if err := os.WriteFile(path, []byte(newContent), 0o644); err != nil {
+	if err := tenantfs.WriteFile(path, []byte(newContent), 0o644); err != nil {
 		log.Printf("CRONS - moving jobs from %s to %s: %v", from, to, err)
 		return
 	}

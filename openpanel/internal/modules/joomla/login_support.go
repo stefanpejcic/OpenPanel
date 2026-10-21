@@ -1,10 +1,11 @@
 package joomla
 
 import (
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // extractJoomlaDatabaseInfoForLogin is a local copy of websites.extractJoomlaDatabaseInfo (unexported in another package, so duplicated here, same pattern wordpress/drupal already use rather than sharing across module packages) - only the fields handleJoomlaLogin actually needs are populated
@@ -14,7 +15,7 @@ func extractJoomlaDatabaseInfoForLogin(userContext, directory string) map[string
 		return map[string]string{"error": "invalid docroot"}
 	}
 	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
-	content, err := os.ReadFile(filepath.Join(mappedDir, "configuration.php"))
+	content, err := tenantfs.ReadFile(filepath.Join(mappedDir, "configuration.php"))
 	if err != nil {
 		return map[string]string{"error": "configuration.php not found"}
 	}

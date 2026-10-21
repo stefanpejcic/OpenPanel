@@ -3,10 +3,8 @@ package prestashop
 import (
 	"context"
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -15,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
@@ -38,21 +37,10 @@ ln -s /var/www/html/.php-tmp /tmp
 
 // unpackPrestashopArchive extracts the real application from a GitHub release asset, which is a two-layer package: prestashop_<version>.zip contains an inner prestashop.zip, itself the actual flat-root application (no wrapper folder) - this extracts the inner zip to a temp file, then unzips that directly into destDir
 func unpackPrestashopArchive(ctx context.Context, archivePath, destDir string) error {
-	tmpDir := destDir + ".extract-tmp"
-	script := `set -e
-rm -rf "$2"
-mkdir -p "$2" "$3"
-unzip -q "$1" "prestashop.zip" -d "$2"
-unzip -q "$2/prestashop.zip" -d "$3"
-rm -rf "$2"
-`
-	cmd := exec.CommandContext(ctx, "sh", "-c", script, "sh", archivePath, tmpDir, destDir)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		_ = os.RemoveAll(tmpDir)
-		return &execError{msg: strings.TrimSpace(string(out)), err: err}
+	if err := tenantfs.MkdirAll(destDir, 0o755); err != nil {
+		return err
 	}
-	return nil
+	return tenantfs.ExtractNestedZip(ctx, archivePath, "prestashop.zip", destDir)
 }
 
 type execError struct {
@@ -132,13 +120,13 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	docrootWithoutWWW := strings.TrimPrefix(strings.TrimPrefix(installPath, "/var/www/html/"), "/")
 	hostOSPath := filepath.Join(htmlVolume, docrootWithoutWWW)
 
-	if _, statErr := os.Stat(hostOSPath); statErr == nil {
-		if entries, readErr := os.ReadDir(hostOSPath); readErr == nil && len(entries) > 0 {
+	if _, statErr := tenantfs.Stat(hostOSPath); statErr == nil {
+		if entries, readErr := tenantfs.ReadDir(hostOSPath); readErr == nil && len(entries) > 0 {
 			emit(map[string]any{"error": "Directory " + installPath + " already exists and is not empty."})
 			return
 		}
 	}
-	if mkErr := os.MkdirAll(hostOSPath, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(hostOSPath, 0o755); mkErr != nil {
 		emit(map[string]any{"error": "Error creating document root: " + mkErr.Error()})
 		return
 	}
@@ -156,10 +144,10 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	archiveName := "prestashop_" + version + ".zip"
 	archiveDir := "/etc/openpanel/prestashop/archives"
 	archivePath := filepath.Join(archiveDir, archiveName)
-	if _, statErr := os.Stat(archivePath); statErr != nil {
+	if _, statErr := tenantfs.Stat(archivePath); statErr != nil {
 		downloadURL := "https://github.com/PrestaShop/PrestaShop/releases/download/" + version + "/" + archiveName
 		emit(map[string]any{"status": "Downloading " + downloadURL})
-		_ = os.MkdirAll(archiveDir, 0o755)
+		_ = tenantfs.MkdirAll(archiveDir, 0o755)
 		if runErr := exec.CommandContext(ctx, "wget", "-q", "-P", archiveDir, downloadURL).Run(); runErr != nil {
 			emit(map[string]any{"error": "Error downloading PrestaShop " + version + ": " + runErr.Error()})
 			return
@@ -183,8 +171,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
 	}
-	uidStr := strconv.Itoa(uid)
-	if chownErr := exec.Command("chown", "-R", uidStr+":"+uidStr, hostOSPath).Run(); chownErr != nil {
+	if chownErr := tenantfs.ChownR(hostOSPath, uid, uid); chownErr != nil {
 		emit(map[string]any{"error": "Could not set file ownership: " + chownErr.Error()})
 		cmsapp.EmitCleanupFiles(ctx, userContext, phpContainer, installPath, emit)
 		return
@@ -278,23 +265,23 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	emit(map[string]any{"status": "Setting permissions on writable directories"})
 	writableDirs := []string{"var", "config", "img", "mails", "modules", "translations", "upload", "download", "themes"}
 	for _, d := range writableDirs {
-		_ = exec.Command("chmod", "-R", "777", filepath.Join(hostOSPath, d)).Run()
+		_ = tenantfs.ChmodR(filepath.Join(hostOSPath, d), 0o777)
 	}
 
 	emit(map[string]any{"status": "Securing admin directory"})
 	// see handleInstallStream's doc comment: doing this right after install avoids ever leaving admin/ at its guessable default name
 	adminDirName := "admin" + appkit.RandomString(20)
-	if renameErr := os.Rename(filepath.Join(hostOSPath, "admin"), filepath.Join(hostOSPath, adminDirName)); renameErr != nil {
+	if renameErr := tenantfs.Rename(filepath.Join(hostOSPath, "admin"), filepath.Join(hostOSPath, adminDirName)); renameErr != nil {
 		emit(map[string]any{"status": "Warning: could not rename admin directory: " + renameErr.Error()})
 		adminDirName = "admin"
 	}
-	_ = exec.Command("chmod", "-R", "777", filepath.Join(hostOSPath, adminDirName, "autoupgrade")).Run()
-	_ = exec.Command("chmod", "-R", "777", filepath.Join(hostOSPath, adminDirName, "themes")).Run()
+	_ = tenantfs.ChmodR(filepath.Join(hostOSPath, adminDirName, "autoupgrade"), 0o777)
+	_ = tenantfs.ChmodR(filepath.Join(hostOSPath, adminDirName, "themes"), 0o777)
 
 	emit(map[string]any{"status": "Deploying admin login helper"})
 	loginFilePath := filepath.Join(hostOSPath, adminDirName, openpanelLoginFileName)
-	if writeErr := os.WriteFile(loginFilePath, []byte(openpanelLoginPHP), 0o644); writeErr == nil {
-		_ = os.Lchown(loginFilePath, uid, uid)
+	if writeErr := tenantfs.WriteFile(loginFilePath, []byte(openpanelLoginPHP), 0o644); writeErr == nil {
+		_ = tenantfs.Lchown(loginFilePath, uid, uid)
 	}
 
 	// record exactly what this install created so a later uninstall can remove precisely that, not the whole docroot

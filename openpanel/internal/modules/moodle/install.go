@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -14,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
@@ -25,15 +25,10 @@ import (
 
 // unpackMoodleArchive extracts the GitHub tag tarball (a single top-level "moodle-X.Y.Z/" directory containing config-dist.php, admin/, lib/, and a public/ subdirectory that is the actual web root) directly into destDir, stripping that wrapper directory so destDir itself becomes the Moodle "app root" (approot) - config.php ends up at destDir/config.php, the web-served files at destDir/public/
 func unpackMoodleArchive(ctx context.Context, archivePath, destDir string) error {
-	if err := os.MkdirAll(destDir, 0o755); err != nil {
+	if err := tenantfs.MkdirAll(destDir, 0o755); err != nil {
 		return err
 	}
-	cmd := exec.CommandContext(ctx, "tar", "-xzf", archivePath, "-C", destDir, "--strip-components=1")
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return &execError{msg: strings.TrimSpace(string(out)), err: err}
-	}
-	return nil
+	return tenantfs.ExtractTar(ctx, archivePath, destDir, 1)
 }
 
 type execError struct {
@@ -116,9 +111,9 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	docrootWithoutWWW := strings.TrimPrefix(strings.TrimPrefix(installPath, "/var/www/html/"), "/")
 	hostOSPath := filepath.Join(htmlVolume, docrootWithoutWWW)
 
-	if info, statErr := os.Lstat(hostOSPath); statErr == nil {
+	if info, statErr := tenantfs.Lstat(hostOSPath); statErr == nil {
 		if info.Mode()&os.ModeSymlink == 0 {
-			if entries, readErr := os.ReadDir(hostOSPath); readErr == nil && len(entries) > 0 {
+			if entries, readErr := tenantfs.ReadDir(hostOSPath); readErr == nil && len(entries) > 0 {
 				emit(map[string]any{"error": "Directory " + installPath + " already exists and is not empty."})
 				return
 			}
@@ -146,12 +141,12 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	archiveName := "moodle-" + version + ".tar.gz"
 	archiveDir := "/etc/openpanel/moodle/archives"
 	archivePath := filepath.Join(archiveDir, archiveName)
-	if _, statErr := os.Stat(archivePath); statErr != nil {
+	if _, statErr := tenantfs.Stat(archivePath); statErr != nil {
 		downloadURL := moodleArchiveURL(version)
 		emit(map[string]any{"status": "Downloading " + downloadURL})
-		_ = os.MkdirAll(archiveDir, 0o755)
+		_ = tenantfs.MkdirAll(archiveDir, 0o755)
 		if runErr := exec.CommandContext(ctx, "wget", "-q", "-O", archivePath, downloadURL).Run(); runErr != nil {
-			_ = os.Remove(archivePath)
+			_ = tenantfs.Remove(archivePath)
 			emit(map[string]any{"error": "Error downloading Moodle " + version + ": " + runErr.Error()})
 			return
 		}
@@ -162,13 +157,13 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	emit(map[string]any{"status": "Extracting files to " + approotContainerPath})
 	if unpackErr := unpackMoodleArchive(ctx, archivePath, approotHostPath); unpackErr != nil {
 		emit(map[string]any{"error": "Error extracting Moodle archive: " + unpackErr.Error()})
-		_ = os.RemoveAll(approotHostPath)
+		_ = tenantfs.RemoveAll(approotHostPath)
 		return
 	}
 
-	if mkErr := os.MkdirAll(datarootHostPath, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(datarootHostPath, 0o755); mkErr != nil {
 		emit(map[string]any{"error": "Error creating moodledata directory: " + mkErr.Error()})
-		_ = os.RemoveAll(approotHostPath)
+		_ = tenantfs.RemoveAll(approotHostPath)
 		return
 	}
 
@@ -177,21 +172,20 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	uid, uidErr := podmanmanager.GetUID(userContext)
 	if uidErr != nil {
 		emit(map[string]any{"error": "Could not determine file owner: " + uidErr.Error()})
-		_ = os.RemoveAll(approotHostPath)
-		_ = os.RemoveAll(datarootHostPath)
+		_ = tenantfs.RemoveAll(approotHostPath)
+		_ = tenantfs.RemoveAll(datarootHostPath)
 		return
 	}
-	uidStr := strconv.Itoa(uid)
-	_ = exec.Command("chown", "-R", uidStr+":"+uidStr, approotHostPath).Run()
-	_ = exec.Command("chown", "-R", uidStr+":"+uidStr, datarootHostPath).Run()
+	_ = tenantfs.ChownR(approotHostPath, uid, uid)
+	_ = tenantfs.ChownR(datarootHostPath, uid, uid)
 
 	emit(map[string]any{"status": "Linking web root to Moodle's public/ directory"})
-	_ = os.Remove(hostOSPath)
+	_ = tenantfs.Remove(hostOSPath)
 	// the symlink target must be the container-visible path (/var/www/html/...), not approotHostPath's host filesystem path - the symlink is created host-side but read by the php-fpm container, which only sees its own /var/www/html/ bind mount, not the host's /home/<user>/docker-data/... tree, so a host-path symlink resolves fine via `ls` but is broken (ENOENT) from inside the container, causing a 403 on every request
-	if symErr := os.Symlink(approotContainerPath+"/public", hostOSPath); symErr != nil {
+	if symErr := tenantfs.Symlink(approotContainerPath+"/public", hostOSPath); symErr != nil {
 		emit(map[string]any{"error": "Error creating web root symlink: " + symErr.Error()})
-		_ = os.RemoveAll(approotHostPath)
-		_ = os.RemoveAll(datarootHostPath)
+		_ = tenantfs.RemoveAll(approotHostPath)
+		_ = tenantfs.RemoveAll(datarootHostPath)
 		return
 	}
 
@@ -270,7 +264,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	// Moodle writes cache/session data under dataroot only (config.php and the approot's PHP source stay read-only at runtime), but the php-fpm worker process's UID isn't the same UID that just ran the CLI installer above (that ran as this container's mapped "root" via podman exec, same worker-vs-install UID mismatch class of bug fixed for PrestaShop earlier) - --chmod=0777 above already asked Moodle's own installer to apply this to everything it creates under dataroot, but the dataroot directory itself (created by this Go process, not the installer) needs the same treatment explicitly
 	emit(map[string]any{"status": "Setting permissions on moodledata directory"})
-	_ = exec.Command("chmod", "-R", "777", datarootHostPath).Run()
+	_ = tenantfs.ChmodR(datarootHostPath, 0o777)
 
 	emit(map[string]any{"status": "Registering cron job (admin/cli/cron.php, every minute)"})
 	cronComment := moodleCronComment(selectedDomain)
@@ -295,8 +289,8 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 // emitCleanupFiles removes a failed install's docroot symlink and its backing approot/dataroot directories - always safe since install.go just created all three
 func emitCleanupFiles(hostOSPath, approotHostPath, datarootHostPath string, emit func(map[string]any)) {
-	_ = os.Remove(hostOSPath)
-	_ = os.RemoveAll(approotHostPath)
-	_ = os.RemoveAll(datarootHostPath)
+	_ = tenantfs.Remove(hostOSPath)
+	_ = tenantfs.RemoveAll(approotHostPath)
+	_ = tenantfs.RemoveAll(datarootHostPath)
 	emit(map[string]any{"status": "Cleanup: removed partially-installed files"})
 }

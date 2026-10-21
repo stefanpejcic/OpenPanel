@@ -8,12 +8,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
 	"strings"
 	"sync"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // readBackupEnv returns the full backup.env key/value map (commented lines excluded, quotes stripped), with SSH_IDENTITY_FILE rewritten from its /var/www/html/ docroot-relative form to the real host path - it's absent entirely for any non-SSH destination, and a Go map just returns "" for a missing key so the "ok" check below handles that without special-casing
@@ -22,7 +23,7 @@ func readBackupEnv(username string) (map[string]string, string) {
 	envFile := filepath.Join(userHome, "backup.env")
 
 	config := map[string]string{}
-	if content, err := os.ReadFile(envFile); err == nil {
+	if content, err := tenantfs.ReadFile(envFile); err == nil {
 		for _, line := range strings.Split(string(content), "\n") {
 			line = strings.TrimSpace(line)
 			if line == "" || strings.HasPrefix(line, "#") {
@@ -337,15 +338,15 @@ func ReindexUser(userContext string) error {
 		return fmt.Errorf("invalid user context %q", userContext)
 	}
 	config, userHome := readBackupEnv(userContext)
-	if _, err := os.Stat(userHome); err != nil {
+	if _, err := tenantfs.Stat(userHome); err != nil {
 		return err
 	}
 	jsonFile := filepath.Join(userHome, "available_backups.json")
 	lockFile := filepath.Join(userHome, "reindex.lock")
-	if _, err := os.Stat(lockFile); err == nil {
+	if _, err := tenantfs.Stat(lockFile); err == nil {
 		return errors.New("reindex already in progress")
 	}
-	if err := os.WriteFile(lockFile, []byte("running"), 0o644); err != nil {
+	if err := tenantfs.WriteFile(lockFile, []byte("running"), 0o644); err != nil {
 		return err
 	}
 	doReindex(userHome, config, backupNamePrefix(config, userContext), jsonFile, lockFile)
@@ -354,7 +355,7 @@ func ReindexUser(userContext string) error {
 	var failed struct {
 		Error string `json:"error"`
 	}
-	if content, err := os.ReadFile(jsonFile); err == nil && json.Unmarshal(content, &failed) == nil && failed.Error != "" {
+	if content, err := tenantfs.ReadFile(jsonFile); err == nil && json.Unmarshal(content, &failed) == nil && failed.Error != "" {
 		return errors.New(failed.Error)
 	}
 	return nil
@@ -363,11 +364,11 @@ func ReindexUser(userContext string) error {
 var validReindexContext = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
 func doReindex(userHome string, config map[string]string, prefix, jsonFile, lockFile string) {
-	defer os.Remove(lockFile)
+	defer tenantfs.Remove(lockFile)
 
 	writeError := func(msg string) {
 		b, _ := json.Marshal(map[string]string{"error": msg})
-		_ = os.WriteFile(jsonFile, b, 0o644)
+		_ = tenantfs.WriteFile(jsonFile, b, 0o644)
 	}
 
 	store, err := newRemoteStore(config)
@@ -393,7 +394,7 @@ func doReindex(userHome string, config map[string]string, prefix, jsonFile, lock
 
 	// archive names carry a timestamp and never change, so anything indexed fine last time is reused while its size still matches
 	known := map[string]BackupInfo{}
-	if content, err := os.ReadFile(jsonFile); err == nil {
+	if content, err := tenantfs.ReadFile(jsonFile); err == nil {
 		var previous []BackupInfo
 		if json.Unmarshal(content, &previous) == nil {
 			for _, info := range previous {
@@ -434,5 +435,5 @@ func doReindex(userHome string, config map[string]string, prefix, jsonFile, lock
 		writeError(err.Error())
 		return
 	}
-	_ = os.WriteFile(jsonFile, b, 0o644)
+	_ = tenantfs.WriteFile(jsonFile, b, 0o644)
 }

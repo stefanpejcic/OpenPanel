@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gopkg.in/yaml.v3"
 )
 
@@ -27,7 +28,7 @@ func homePath(userContext string, rel ...string) string {
 // LoadCompose reads and parses /home/<context>/docker-compose.yml, or returns an empty map if it doesn't exist
 func LoadCompose(userContext string) (map[string]any, error) {
 	path := homePath(userContext, "docker-compose.yml")
-	data, err := os.ReadFile(path)
+	data, err := tenantfs.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return map[string]any{}, nil
@@ -57,7 +58,7 @@ func SaveCompose(userContext string, data map[string]any) error {
 		return err
 	}
 	tmpPath := tmp.Name()
-	defer os.Remove(tmpPath) // no-op once the rename below succeeds
+	defer tenantfs.Remove(tmpPath) // no-op once the rename below succeeds
 
 	if _, err := tmp.Write(out); err != nil {
 		tmp.Close()
@@ -66,10 +67,10 @@ func SaveCompose(userContext string, data map[string]any) error {
 	if err := tmp.Close(); err != nil {
 		return err
 	}
-	if err := os.Chmod(tmpPath, 0o644); err != nil {
+	if err := tenantfs.Chmod(tmpPath, 0o644); err != nil {
 		return err
 	}
-	return os.Rename(tmpPath, path)
+	return tenantfs.Rename(tmpPath, path)
 }
 
 // servicesOf reads composeData["services"] as a map[string]map[string]any, tolerating a missing or wrong-typed key by returning an empty map
@@ -106,7 +107,7 @@ func mapKeys(composeData map[string]any, key string) []string {
 // LoadEnvFile parses /home/<context>/.env into a key->value map (values with surrounding double quotes stripped)
 func LoadEnvFile(userContext string) map[string]string {
 	env := map[string]string{}
-	data, err := os.ReadFile(homePath(userContext, ".env"))
+	data, err := tenantfs.ReadFile(homePath(userContext, ".env"))
 	if err != nil {
 		return env
 	}
@@ -121,7 +122,7 @@ func LoadEnvFile(userContext string) map[string]string {
 // SaveEnvFile writes env as the full contents of /home/<context>/.env, updating existing lines in place so comments and order survive, and appending new keys sorted
 func SaveEnvFile(userContext string, env map[string]string) error {
 	path := homePath(userContext, ".env")
-	existing, _ := os.ReadFile(path)
+	existing, _ := tenantfs.ReadFile(path)
 	line := func(k string) string { return k + `="` + strings.ReplaceAll(env[k], `"`, `\"`) + `"` }
 
 	var out []string
@@ -156,13 +157,13 @@ func SaveEnvFile(userContext string, env map[string]string) error {
 	for _, k := range added {
 		out = append(out, line(k))
 	}
-	return os.WriteFile(path, []byte(strings.Join(out, "\n")+"\n"), 0o644)
+	return tenantfs.WriteFile(path, []byte(strings.Join(out, "\n")+"\n"), 0o644)
 }
 
 // GetEnvValue looks up a single KEY=value from /home/<context>/.env. The bool return distinguishes "key not found" from "key present with an empty value" - "" is a valid value.
 func GetEnvValue(userContext, variableName string) (string, bool) {
 	variableName = strings.ToUpper(variableName)
-	data, err := os.ReadFile(homePath(userContext, ".env"))
+	data, err := tenantfs.ReadFile(homePath(userContext, ".env"))
 	if err != nil {
 		return "", false
 	}
@@ -189,7 +190,7 @@ func SetEnvValue(userContext, variableName, newValue string) string {
 
 	path := homePath(userContext, ".env")
 	var lines []string
-	if data, err := os.ReadFile(path); err == nil {
+	if data, err := tenantfs.ReadFile(path); err == nil {
 		lines = strings.Split(string(data), "\n")
 		if len(lines) > 0 && lines[len(lines)-1] == "" {
 			lines = lines[:len(lines)-1]
@@ -210,7 +211,7 @@ func SetEnvValue(userContext, variableName, newValue string) string {
 		lines = append(lines, variableName+`="`+newValue+`"`)
 	}
 
-	_ = os.WriteFile(path, []byte(strings.Join(lines, "\n")+"\n"), 0o644)
+	_ = tenantfs.WriteFile(path, []byte(strings.Join(lines, "\n")+"\n"), 0o644)
 	return ""
 }
 
@@ -400,7 +401,7 @@ func databaseFlavor(userContext, mysqlType string) string {
 // ensureMyCnfClientSocket adds an explicit "socket=" line to my.cnf's [client] section, pointing CLI tools like mysql/mysqldump at the shared /var/run/mysqld/mysqld.sock this compose file bind-mounts into every mysql-adjacent container - needed only for Percona, since mysql/mariadb's Debian-based images already default to that socket path but Percona's RPM-based image defaults to /var/lib/mysql/mysql.sock instead, which breaks import/export without this override.
 func ensureMyCnfClientSocket(userContext string) error {
 	path := homePath(userContext, "my.cnf")
-	data, err := os.ReadFile(path)
+	data, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return err
 	}
@@ -409,5 +410,5 @@ func ensureMyCnfClientSocket(userContext string) error {
 		return nil
 	}
 	content = strings.Replace(content, "[client]", "[client]\nsocket=/var/run/mysqld/mysqld.sock", 1)
-	return os.WriteFile(path, []byte(content), 0o644)
+	return tenantfs.WriteFile(path, []byte(content), 0o644)
 }

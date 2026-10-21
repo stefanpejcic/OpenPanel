@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -18,6 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sieveparser"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 )
 
@@ -798,7 +798,7 @@ func apiEmailFilterGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	raw := ""
-	if content, readErr := os.ReadFile(resolvedPath); readErr == nil {
+	if content, readErr := tenantfs.ReadFile(resolvedPath); readErr == nil {
 		raw = string(content)
 	}
 	writeAPIEmailsJSON(w, http.StatusOK, map[string]any{"email": email, "raw": raw, "parsed": sieveparser.Parse(raw)})

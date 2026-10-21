@@ -3,7 +3,6 @@ package account
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 	"path/filepath"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -12,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // RegisterLocaleAPI wires the /api/account/language routes onto mux, gated behind the "locale" feature flag
@@ -69,11 +69,11 @@ func apiLocaleUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	userLocaleFile := filepath.Join("/home", userContext, "locale")
-	if mkdirErr := os.MkdirAll(filepath.Dir(userLocaleFile), 0o755); mkdirErr != nil {
+	if mkdirErr := tenantfs.MkdirAll(filepath.Dir(userLocaleFile), 0o755); mkdirErr != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if writeErr := os.WriteFile(userLocaleFile, []byte(body.Locale), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(userLocaleFile, []byte(body.Locale), 0o644); writeErr != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}

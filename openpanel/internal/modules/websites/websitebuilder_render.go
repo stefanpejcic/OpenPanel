@@ -3,8 +3,6 @@ package websites
 import (
 	"log"
 	"net/http"
-	"os"
-	"os/exec"
 	"path"
 	"strconv"
 	"strings"
@@ -13,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dashboard"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -106,7 +105,7 @@ func createHTMLSiteStream(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	domainID := r.Form.Get("domain_id")
 
 	krompirPath := "/etc/openpanel/openpanel/core/users/" + currentUsername + "/krompir.lock"
-	if wErr := os.WriteFile(krompirPath, nil, 0o644); wErr != nil {
+	if wErr := tenantfs.WriteFile(krompirPath, nil, 0o644); wErr != nil {
 		emit(map[string]any{"error": "Error creating " + krompirPath + ": " + wErr.Error()})
 		return
 	}
@@ -144,14 +143,14 @@ func createHTMLSiteStream(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		{"index.php", "Error: index.php file already exists in " + installPath + " - Website creation cannot proceed!"},
 	}
 	for _, fc := range filesToCheck {
-		if _, statErr := os.Stat(path.Join(volume, fc.name)); statErr == nil {
+		if _, statErr := tenantfs.Stat(path.Join(volume, fc.name)); statErr == nil {
 			emit(map[string]any{"error": fc.errMsg})
 			return
 		}
 	}
 
 	emit(map[string]any{"status": "Creating files.."})
-	if mkErr := os.MkdirAll(volume, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(volume, 0o755); mkErr != nil {
 		emit(map[string]any{"error": mkErr.Error()})
 		return
 	}
@@ -168,24 +167,23 @@ func createHTMLSiteStream(a *appctx.App, w http.ResponseWriter, r *http.Request)
 <style>* { box-sizing: border-box; } body {margin: 0;}</style>
 </body>
 </html>`
-	if wErr := os.WriteFile(path.Join(volume, "index.html"), []byte(htmlContent), 0o644); wErr != nil {
+	if wErr := tenantfs.WriteFile(path.Join(volume, "index.html"), []byte(htmlContent), 0o644); wErr != nil {
 		emit(map[string]any{"error": wErr.Error()})
 		return
 	}
 
 	const cssContent = `* { box-sizing: border-box; } body {margin: 0;}`
-	if wErr := os.WriteFile(path.Join(volume, "style.css"), []byte(cssContent), 0o644); wErr != nil {
+	if wErr := tenantfs.WriteFile(path.Join(volume, "style.css"), []byte(cssContent), 0o644); wErr != nil {
 		emit(map[string]any{"error": wErr.Error()})
 		return
 	}
 
 	emit(map[string]any{"status": "Setting files permissions to '755'"})
-	_ = exec.CommandContext(ctx, "chmod", "-R", "755", volume).Run()
+	_ = tenantfs.ChmodR(volume, 0o755)
 
 	emit(map[string]any{"status": "Setting files owner to '" + userContext + "'"})
 	if uid, uidErr := a.GetUID(ctx, userContext); uidErr == nil {
-		uidStr := strconv.Itoa(uid)
-		_ = exec.CommandContext(ctx, "chown", "-R", uidStr+":"+uidStr, volume).Run()
+		_ = tenantfs.ChownR(volume, uid, uid)
 	}
 
 	emit(map[string]any{"status": "Saving website information to SiteManager"})
@@ -201,7 +199,7 @@ func createHTMLSiteStream(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	emit(map[string]any{"status": "Website creation completed!"})
 
-	_ = os.Remove(krompirPath)
+	_ = tenantfs.Remove(krompirPath)
 }
 
 func cacheKeyUserWebsites(userID int) string {

@@ -3,12 +3,12 @@ package appinstall
 import (
 	"encoding/json"
 	"net/http"
-	"os/exec"
 	stdpath "path"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -52,7 +52,7 @@ func apiCheckFileExists(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if runErr := exec.CommandContext(r.Context(), "test", "-f", realFilePath).Run(); runErr != nil {
+	if info, statErr := tenantfs.Stat(realFilePath); statErr != nil || !info.Mode().IsRegular() {
 		web.WriteJSON(w, http.StatusOK, map[string]any{"file": file, "exists": false})
 		return
 	}

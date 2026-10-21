@@ -10,7 +10,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"path/filepath"
 	"slices"
 	"strconv"
@@ -23,6 +22,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/postgresmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -154,7 +154,7 @@ func restoreDatabasesFromTar(ctx context.Context, userContext string, archive io
 // chownAncestors chowns dir and every parent directory up to (but not including) root - root is already correctly owned, this just fixes up new subdirectories os.MkdirAll created as real host root beneath it
 func chownAncestors(dir, root string, uid int) {
 	for dir != root && dir != "." && dir != string(filepath.Separator) && strings.HasPrefix(dir, root) {
-		_ = os.Lchown(dir, uid, uid)
+		_ = tenantfs.Lchown(dir, uid, uid)
 		dir = filepath.Dir(dir)
 	}
 }
@@ -234,12 +234,12 @@ func handleListBackupsFromDestination(a *appctx.App, w http.ResponseWriter, r *h
 	lockFile := filepath.Join(userHome, "reindex.lock")
 
 	if r.Method == http.MethodPost {
-		if _, statErr := os.Stat(lockFile); statErr == nil {
+		if _, statErr := tenantfs.Stat(lockFile); statErr == nil {
 			web.WriteJSON(w, http.StatusConflict, map[string]string{"message": "Reindex already in progress."})
 			return
 		}
 
-		if err := os.WriteFile(lockFile, []byte("running"), 0o644); err != nil {
+		if err := tenantfs.WriteFile(lockFile, []byte("running"), 0o644); err != nil {
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
 		}
@@ -254,13 +254,13 @@ func handleListBackupsFromDestination(a *appctx.App, w http.ResponseWriter, r *h
 	}
 
 	reindexing := false
-	if _, statErr := os.Stat(lockFile); statErr == nil {
+	if _, statErr := tenantfs.Stat(lockFile); statErr == nil {
 		reindexing = true
 	}
 
 	var backups []BackupInfo
 	var reindexErr string
-	if content, readErr := os.ReadFile(jsonFile); readErr == nil {
+	if content, readErr := tenantfs.ReadFile(jsonFile); readErr == nil {
 		var errPayload struct {
 			Error string `json:"error"`
 		}
@@ -404,7 +404,7 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 		return http.StatusInternalServerError, map[string]any{"error": fetchErr.Error()}
 	}
 	defer cleanup()
-	f, err := os.Open(localPath)
+	f, err := tenantfs.Open(localPath)
 	if err != nil {
 		return http.StatusInternalServerError, map[string]any{"error": err.Error()}
 	}

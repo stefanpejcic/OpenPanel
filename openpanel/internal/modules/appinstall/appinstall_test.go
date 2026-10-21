@@ -1,6 +1,8 @@
 package appinstall
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -244,5 +246,21 @@ func TestFormatPyFloat(t *testing.T) {
 		if got := formatPyFloat(in); got != want {
 			t.Errorf("formatPyFloat(%v) = %q, want %q", in, got, want)
 		}
+	}
+}
+
+func TestFlashAndRedirectAppXHRErrorIsNotASuccess(t *testing.T) {
+	r := httptest.NewRequest(http.MethodPost, "/pm2/stop/app", nil)
+	r.Header.Set("X-Requested-With", "XMLHttpRequest")
+	w := httptest.NewRecorder()
+
+	// the xhr error branch returns before touching the session, so no app is needed
+	flashAndRedirectApp(nil, w, r, "error", "Failed to stop container 'app'", "/website?domain=x")
+
+	if w.Code < 400 {
+		t.Fatalf("status = %d, want an error status so the button doesn't report success", w.Code)
+	}
+	if !strings.Contains(w.Body.String(), "Failed to stop container") {
+		t.Fatalf("body = %q, want the error message", w.Body.String())
 	}
 }

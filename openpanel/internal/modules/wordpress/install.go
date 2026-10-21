@@ -3,11 +3,9 @@ package wordpress
 import (
 	"context"
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -16,8 +14,10 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
@@ -121,7 +121,11 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	adminUsername := r.FormValue("admin_username")
 	adminPassword := r.FormValue("admin_password")
 	wordpressVersion := web.FormOr(r, "wordpress_version", "latest")
-	subdirectory := strings.ReplaceAll(strings.ToLower(r.FormValue("subdirectory")), " ", "")
+	subdirectory, subErr := paths.CleanSubdir(strings.ReplaceAll(strings.ToLower(r.FormValue("subdirectory")), " ", ""))
+	if subErr != nil {
+		emit(map[string]any{"error": subErr.Error()})
+		return
+	}
 	dbName := strings.ToLower(r.FormValue("db_name"))
 	if dbName == "" {
 		dbName = generateRandomString(6)
@@ -155,13 +159,13 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	hostOSPath := filepath.Join(htmlVolume, docrootWithoutWWW)
 
 	for _, fileName := range []string{".htaccess", "wp-config.php", "index.php"} {
-		if _, statErr := os.Stat(filepath.Join(hostOSPath, fileName)); statErr == nil {
+		if _, statErr := tenantfs.Stat(filepath.Join(hostOSPath, fileName)); statErr == nil {
 			emit(map[string]any{"error": "File " + fileName + " already exists in document root: " + installPath})
 			return
 		}
 	}
 
-	if mkErr := os.MkdirAll(hostOSPath, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(hostOSPath, 0o755); mkErr != nil {
 		emit(map[string]any{"error": "Error creating document root: " + mkErr.Error()})
 		return
 	}
@@ -169,10 +173,10 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	archiveName := "wordpress-" + wordpressVersion + ".tar.gz"
 	archiveDir := "/etc/openpanel/wordpress/archives"
 	archivePath := filepath.Join(archiveDir, archiveName)
-	if _, statErr := os.Stat(archivePath); statErr != nil {
+	if _, statErr := tenantfs.Stat(archivePath); statErr != nil {
 		downloadURL := "https://wordpress.org/" + archiveName
 		emit(map[string]any{"status": "Downloading " + downloadURL})
-		_ = os.MkdirAll(archiveDir, 0o755)
+		_ = tenantfs.MkdirAll(archiveDir, 0o755)
 		if runErr := exec.CommandContext(ctx, "wget", "-q", "-P", archiveDir, downloadURL).Run(); runErr != nil {
 			emit(map[string]any{"error": "Error downloading WordPress: " + runErr.Error()})
 			return
@@ -182,7 +186,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	emit(map[string]any{"status": "Extracting files to " + installPath})
-	if runErr := exec.CommandContext(ctx, "tar", "-xzf", archivePath, "--strip-components=1", "-C", hostOSPath).Run(); runErr != nil {
+	if runErr := tenantfs.ExtractTar(ctx, archivePath, hostOSPath, 1); runErr != nil {
 		emit(map[string]any{"error": "Error extracting WordPress archive: " + runErr.Error()})
 		emitCleanupFiles(hostOSPath, emit)
 		return
@@ -195,7 +199,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		emitCleanupFiles(hostOSPath, emit)
 		return
 	}
-	_ = os.WriteFile(filepath.Join(hostOSPath, ".htaccess"), []byte(htaccessContent), 0o644)
+	_ = tenantfs.WriteFile(filepath.Join(hostOSPath, ".htaccess"), []byte(htaccessContent), 0o644)
 
 	emit(map[string]any{"status": "Writing database logins to wp-config.php"})
 	wpConfigFile := filepath.Join(hostOSPath, "wp-config.php")
@@ -206,22 +210,22 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	content, _ := os.ReadFile(wpConfigFile)
+	content, _ := tenantfs.ReadFile(wpConfigFile)
 	strContent := string(content)
 	strContent = strings.Replace(strContent, "database_name_here", dbName, 1)
 	strContent = strings.Replace(strContent, "localhost", mysql.AppDBHost(userContext, mysqlVersion), 1)
 	strContent = strings.Replace(strContent, "username_here", dbUser, 1)
 	strContent = strings.Replace(strContent, "password_here", dbPassword, 1)
 	strContent = tablePrefixRE.ReplaceAllString(strContent, "${1}"+prefix+"${2}")
-	_ = os.WriteFile(wpConfigFile, []byte(strContent), 0o644)
+	_ = tenantfs.WriteFile(wpConfigFile, []byte(strContent), 0o644)
 
 	emit(map[string]any{"status": "Shuffling WordPress Salts in wp-config.php file"})
 	writeSaltsLocally(wpConfigFile)
 
 	muPluginSrc := "/etc/openpanel/wordpress/mu-plugin.php"
 	muPluginDestDir := filepath.Join(hostOSPath, "wp-content", "mu-plugins")
-	_ = os.MkdirAll(muPluginDestDir, 0o755)
-	if _, statErr := os.Stat(muPluginSrc); statErr == nil {
+	_ = tenantfs.MkdirAll(muPluginDestDir, 0o755)
+	if _, statErr := tenantfs.Stat(muPluginSrc); statErr == nil {
 		if copyErr := copyFile(muPluginSrc, filepath.Join(muPluginDestDir, "mu-plugin.php")); copyErr == nil {
 			emit(map[string]any{"status": "Added mu-plugin to force HTTPS for wp-admin behind Varnish."})
 		}
@@ -233,8 +237,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	emit(map[string]any{"status": "Setting files permissions and owner to '" + userContext + "'"})
 	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
-		uidStr := strconv.Itoa(uid)
-		_ = exec.Command("chown", uidStr+":"+uidStr, "-R", hostOSPath).Run()
+		_ = tenantfs.ChownR(hostOSPath, uid, uid)
 	}
 
 	if isLitespeed {
@@ -340,11 +343,11 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	userThemes := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/wpcli_themes.txt"
 
 	pluginFile := systemWidePlugins
-	if _, statErr := os.Stat(userPlugins); statErr == nil {
+	if _, statErr := tenantfs.Stat(userPlugins); statErr == nil {
 		pluginFile = userPlugins
 	}
 	themeFile := systemWideThemes
-	if _, statErr := os.Stat(userThemes); statErr == nil {
+	if _, statErr := tenantfs.Stat(userThemes); statErr == nil {
 		themeFile = userThemes
 	}
 	processInstallSet(ctx, userContext, wpBaseCmd, installPath, pluginFile, "plugin", emit)
@@ -377,15 +380,15 @@ func emitCleanupFiles(hostOSPath string, emit func(map[string]any)) {
 	var deleted, failed []string
 	for _, item := range wordpressFiles {
 		itemPath := filepath.Join(hostOSPath, item)
-		info, statErr := os.Lstat(itemPath)
+		info, statErr := tenantfs.Lstat(itemPath)
 		if statErr != nil {
 			continue
 		}
 		var rmErr error
 		if info.IsDir() {
-			rmErr = os.RemoveAll(itemPath)
+			rmErr = tenantfs.RemoveAll(itemPath)
 		} else {
-			rmErr = os.Remove(itemPath)
+			rmErr = tenantfs.Remove(itemPath)
 		}
 		if rmErr != nil {
 			failed = append(failed, item+": "+rmErr.Error())
@@ -421,7 +424,7 @@ func loadHtaccess(webServerType string) (string, error) {
 	if strings.Contains(strings.ToLower(webServerType), "litespeed") {
 		path = "/etc/openpanel/wordpress/htaccess/litespeed.htaccess"
 	}
-	content, err := os.ReadFile(path)
+	content, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return "", err
 	}
@@ -429,7 +432,7 @@ func loadHtaccess(webServerType string) (string, error) {
 }
 
 func setFSMethod(wpConfigFile string, emit func(map[string]any)) {
-	content, err := os.ReadFile(wpConfigFile)
+	content, err := tenantfs.ReadFile(wpConfigFile)
 	if err != nil {
 		emit(map[string]any{"status": "Error specifying FS_METHOD in wp-config.php"})
 		return
@@ -443,7 +446,7 @@ func setFSMethod(wpConfigFile string, emit func(map[string]any)) {
 		return
 	}
 	updated := string(content)[:idx] + "define( 'FS_METHOD', 'direct' );\n" + string(content)[idx:]
-	if writeErr := os.WriteFile(wpConfigFile, []byte(updated), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(wpConfigFile, []byte(updated), 0o644); writeErr != nil {
 		emit(map[string]any{"status": "Error specifying FS_METHOD in wp-config.php"})
 		return
 	}
@@ -468,12 +471,12 @@ var saltsBlockRE = regexp.MustCompile(`(?s)/\*\*#@\+.*?\*\*#@-\*/`)
 // writeSaltsLocally replaces the salts block in wp-config.php with a freshly generated set.
 func writeSaltsLocally(wpConfigPath string) {
 	newSalts := generateSaltsLocally()
-	content, err := os.ReadFile(wpConfigPath)
+	content, err := tenantfs.ReadFile(wpConfigPath)
 	if err != nil {
 		return
 	}
 	updated := saltsBlockRE.ReplaceAllString(string(content), "/**#@+\n"+newSalts+"\n/**#@-*/")
-	_ = os.WriteFile(wpConfigPath, []byte(updated), 0o644)
+	_ = tenantfs.WriteFile(wpConfigPath, []byte(updated), 0o644)
 }
 
 // waitForWPAvailable polls until WP-CLI reports the install is usable inside the container (30s timeout, 5s interval).
@@ -499,7 +502,7 @@ func isWPAvailableInContainer(ctx context.Context, userContext, phpContainer str
 
 // processInstallSet installs every plugin/theme slug listed (one per line) in filePath, activating/forcing each.
 func processInstallSet(ctx context.Context, userContext string, wpBaseCmd []string, installPath, filePath, wpType string, emit func(map[string]any)) {
-	content, err := os.ReadFile(filePath)
+	content, err := tenantfs.ReadFile(filePath)
 	if err != nil {
 		return
 	}
@@ -520,18 +523,18 @@ func processInstallSet(ctx context.Context, userContext string, wpBaseCmd []stri
 }
 
 func copyFile(src, dst string) error {
-	data, err := os.ReadFile(src)
+	data, err := tenantfs.ReadFile(src)
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(dst, data, 0o644)
+	return tenantfs.WriteFile(dst, data, 0o644)
 }
 
 var wpVersionRE = regexp.MustCompile(`\$wp_version\s*=\s*'([0-9][0-9A-Za-z.\-]*)'`)
 
 // installedWordPressVersion reads the real version from the extracted files, "latest" in the form would otherwise end up in Site Manager
 func installedWordPressVersion(hostPath, requested string) string {
-	data, err := os.ReadFile(filepath.Join(hostPath, "wp-includes", "version.php"))
+	data, err := tenantfs.ReadFile(filepath.Join(hostPath, "wp-includes", "version.php"))
 	if err == nil {
 		if m := wpVersionRE.FindSubmatch(data); m != nil {
 			return string(m[1])

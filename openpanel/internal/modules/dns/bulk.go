@@ -4,7 +4,6 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"net/http"
-	"os"
 	"regexp"
 	"sort"
 	"strconv"
@@ -15,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -66,7 +66,7 @@ func handleDNSBulk(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := zoneFilePath(domain)
-	content, readErr := os.ReadFile(path)
+	content, readErr := tenantfs.ReadFile(path)
 	if readErr != nil {
 		web.BulkError(a, w, r, "Zone file not found.")
 		return
@@ -112,7 +112,7 @@ func handleDNSBulk(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(targets) > 0 {
-		if writeErr := os.WriteFile(path, []byte(strings.Join(lines, "")), 0o644); writeErr != nil {
+		if writeErr := tenantfs.WriteFile(path, []byte(strings.Join(lines, "")), 0o644); writeErr != nil {
 			for _, i := range targets {
 				results[i].Message = "Error saving the zone file."
 			}

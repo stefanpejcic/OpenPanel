@@ -21,6 +21,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/sysinfo"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -57,8 +58,8 @@ func ensureUserToken(ctx context.Context, a *appctx.App, userContext string) (st
 	defer lock.Unlock()
 
 	tokenFile := "/home/" + userContext + "/pma.token"
-	if info, err := os.Stat(tokenFile); err == nil && time.Since(info.ModTime()) < pmaTokenReuseWindow {
-		if existing, err := os.ReadFile(tokenFile); err == nil && len(existing) == 64 {
+	if info, err := tenantfs.Stat(tokenFile); err == nil && time.Since(info.ModTime()) < pmaTokenReuseWindow {
+		if existing, err := tenantfs.ReadFile(tokenFile); err == nil && len(existing) == 64 {
 			return string(existing), nil
 		}
 	}
@@ -69,7 +70,7 @@ func ensureUserToken(ctx context.Context, a *appctx.App, userContext string) (st
 	}
 	token := hex.EncodeToString(tokenBytes)
 	// os.WriteFile alone leaves the write in this process's page cache - without an explicit fsync the phpMyAdmin container can read a stale token through its bind-mount before the write is visible on the other side
-	f, err := os.OpenFile(tokenFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o644)
+	f, err := tenantfs.OpenFile(tokenFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o644)
 	if err != nil {
 		return "", err
 	}
@@ -88,7 +89,7 @@ func ensureUserToken(ctx context.Context, a *appctx.App, userContext string) (st
 	if err != nil {
 		return "", err
 	}
-	_ = os.Lchown(tokenFile, uid, uid)
+	_ = tenantfs.Lchown(tokenFile, uid, uid)
 	return token, nil
 }
 

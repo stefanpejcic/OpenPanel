@@ -2,13 +2,13 @@ package dns
 
 import (
 	"net/http"
-	"os"
 	"strings"
 
 	"golang.org/x/net/publicsuffix"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -90,7 +90,7 @@ func handleEditDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	content, err := os.ReadFile(path)
+	content, err := tenantfs.ReadFile(path)
 	if err != nil {
 		web.FlashRedirect(a, w, r, "error", "Zone file not found.", "/domains/edit-dns-zone")
 		return
@@ -122,6 +122,6 @@ func handleEditDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 }
 
 func fileExists(path string) bool {
-	_, err := os.Stat(path)
+	_, err := tenantfs.Stat(path)
 	return err == nil
 }

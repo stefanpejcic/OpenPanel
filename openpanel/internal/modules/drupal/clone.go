@@ -1,10 +1,10 @@
 package drupal
 
 import (
-	"os/exec"
 	"path/filepath"
 	"regexp"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 )
 
@@ -17,7 +17,7 @@ var (
 )
 
 func cloneConfig(c *cmsapp.Clone) map[string]any {
-	_ = exec.CommandContext(c.Ctx, "chmod", "644", filepath.Join(c.DstPath, "sites", "default", "settings.php")).Run()
+	_ = tenantfs.Chmod(filepath.Join(c.DstPath, "sites", "default", "settings.php"), 0o644)
 	return c.RewriteConfig("sites/default/settings.php", func(s string) string {
 		s = cloneDrupalDatabaseRE.ReplaceAllString(s, "'database' => '"+cmsapp.EscapePHPSingleQuoted(c.DstDB)+"',")
 		s = cloneDrupalUsernameRE.ReplaceAllString(s, "'username' => '"+cmsapp.EscapePHPSingleQuoted(c.DstDBUser)+"',")

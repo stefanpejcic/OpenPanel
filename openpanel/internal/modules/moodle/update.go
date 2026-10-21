@@ -3,10 +3,8 @@ package moodle
 import (
 	"context"
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -15,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
@@ -24,28 +23,14 @@ import (
 // unpackMoodleUpdateArchive is unpackMoodleArchive's update-time sibling: extracts the new packaged tarball to a scratch dir, then replaces every top-level entry in approotHostPath except config.php - the tarball only ships config-dist.php (a template), never a real config.php, but the update path must still not overwrite the live one install.go itself wrote to approot's root
 func unpackMoodleUpdateArchive(ctx context.Context, archivePath, approotHostPath string) error {
 	tmpDir := approotHostPath + ".update-tmp"
-	defer os.RemoveAll(tmpDir)
-	if err := os.MkdirAll(tmpDir, 0o755); err != nil {
+	defer tenantfs.RemoveAll(tmpDir)
+	if err := tenantfs.MkdirAll(tmpDir, 0o755); err != nil {
 		return err
 	}
-	cmd := exec.CommandContext(ctx, "tar", "-xzf", archivePath, "-C", tmpDir, "--strip-components=1")
-	if out, err := cmd.CombinedOutput(); err != nil {
-		return &execError{msg: strings.TrimSpace(string(out)), err: err}
+	if err := tenantfs.ExtractTar(ctx, archivePath, tmpDir, 1); err != nil {
+		return err
 	}
-	script := `set -e
-cd "$1"
-for f in .[!.]* ..?* *; do
-  [ -e "$f" ] || continue
-  [ "$f" = "config.php" ] && continue
-  rm -rf "$2/$f"
-  mv "$f" "$2/"
-done
-`
-	cmd = exec.CommandContext(ctx, "sh", "-c", script, "sh", tmpDir, approotHostPath)
-	if out, err := cmd.CombinedOutput(); err != nil {
-		return &execError{msg: strings.TrimSpace(string(out)), err: err}
-	}
-	return nil
+	return tenantfs.ReplaceContents(tmpDir, approotHostPath, "config.php")
 }
 
 // handleMoodleUpdate updates an existing Moodle install in place: maintenance mode on, download+replace the packaged tarball's code (preserving config.php), then run admin/cli/upgrade.php - Moodle's own documented manual-update procedure, streaming NDJSON progress like install does
@@ -109,12 +94,12 @@ func handleMoodleUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	archiveName := "moodle-" + version + ".tar.gz"
 	archiveDir := "/etc/openpanel/moodle/archives"
 	archivePath := filepath.Join(archiveDir, archiveName)
-	if _, statErr := os.Stat(archivePath); statErr != nil {
+	if _, statErr := tenantfs.Stat(archivePath); statErr != nil {
 		downloadURL := moodleArchiveURL(version)
 		emit(map[string]any{"status": "Downloading " + downloadURL})
-		_ = os.MkdirAll(archiveDir, 0o755)
+		_ = tenantfs.MkdirAll(archiveDir, 0o755)
 		if runErr := exec.CommandContext(ctx, "wget", "-q", "-O", archivePath, downloadURL).Run(); runErr != nil {
-			_ = os.Remove(archivePath)
+			_ = tenantfs.Remove(archivePath)
 			emit(map[string]any{"error": "Error downloading Moodle " + version + ": " + runErr.Error()})
 			return
 		}
@@ -134,7 +119,7 @@ func handleMoodleUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	emit(map[string]any{"status": "Setting files permissions and owner to '" + userContext + "'"})
 	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
-		_ = exec.Command("chown", "-R", strconv.Itoa(uid)+":"+strconv.Itoa(uid), approotHostPath).Run()
+		_ = tenantfs.ChownR(approotHostPath, uid, uid)
 	}
 
 	emit(map[string]any{"status": "Running admin/cli/upgrade.php"})

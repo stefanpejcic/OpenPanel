@@ -1,10 +1,11 @@
 package nextcloud
 
 import (
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // extractNextcloudDatabaseInfoForLogin is a local copy of websites.extractNextcloudDatabaseInfo (unexported there, duplicated here like the other CMS modules do), only populates the fields handleNextcloudLogin needs
@@ -14,7 +15,7 @@ func extractNextcloudDatabaseInfoForLogin(userContext, directory string) map[str
 		return map[string]string{"error": "invalid docroot"}
 	}
 	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
-	content, err := os.ReadFile(filepath.Join(mappedDir, "config", "config.php"))
+	content, err := tenantfs.ReadFile(filepath.Join(mappedDir, "config", "config.php"))
 	if err != nil {
 		return map[string]string{"error": "config/config.php not found"}
 	}

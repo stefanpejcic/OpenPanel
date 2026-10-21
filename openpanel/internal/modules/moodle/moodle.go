@@ -4,11 +4,11 @@ package moodle
 import (
 	"context"
 	"net/http"
-	"os"
 	"path/filepath"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 )
@@ -40,9 +40,9 @@ var cms = cmsapp.New(cmsapp.App{
 	RemoveFiles: func(ctx context.Context, s *cmsapp.Site) {
 		_ = crons.RemoveJobByComment(ctx, s.UserContext, moodleCronComment(s.Name))
 		slug := appkit.SiteSlug(s.Name)
-		_ = os.Remove(s.HostPath)
-		_ = os.RemoveAll(filepath.Join(siteHTMLVolume(s.UserContext), slug+"_moodleapp"))
-		_ = os.RemoveAll(filepath.Join(siteHTMLVolume(s.UserContext), slug+"_moodledata"))
+		_ = tenantfs.Remove(s.HostPath)
+		_ = tenantfs.RemoveAll(filepath.Join(siteHTMLVolume(s.UserContext), slug+"_moodleapp"))
+		_ = tenantfs.RemoveAll(filepath.Join(siteHTMLVolume(s.UserContext), slug+"_moodledata"))
 	},
 	DBMode: cmsapp.DBPrefixed,
 	DBInfo: func(userContext, docroot, selectedDomain string) map[string]string {

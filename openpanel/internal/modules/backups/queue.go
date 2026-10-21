@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -16,6 +15,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -67,7 +67,7 @@ func (q *accountQueue) load() {
 		return
 	}
 	q.loaded = true
-	content, err := os.ReadFile(q.path)
+	content, err := tenantfs.ReadFile(q.path)
 	if err != nil || json.Unmarshal(content, &q.jobs) != nil {
 		return
 	}
@@ -103,8 +103,8 @@ func (q *accountQueue) save() {
 		return
 	}
 	tmp := q.path + ".tmp"
-	if os.WriteFile(tmp, b, 0o600) == nil {
-		_ = os.Rename(tmp, q.path)
+	if tenantfs.WriteFile(tmp, b, 0o600) == nil {
+		_ = tenantfs.Rename(tmp, q.path)
 	}
 }
 

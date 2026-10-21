@@ -3,7 +3,6 @@ package account
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -12,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // RegisterNotificationsAPI wires the /api/account/notifications routes onto mux, gated behind the "notifications" feature flag
@@ -87,11 +87,11 @@ func apiNotificationsUpdate(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		sb.WriteString(p.Key + "=" + p.Value + "\n")
 	}
 	path := notificationsFilePath(username)
-	if mkdirErr := os.MkdirAll(filepath.Dir(path), 0o755); mkdirErr != nil {
+	if mkdirErr := tenantfs.MkdirAll(filepath.Dir(path), 0o755); mkdirErr != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if writeErr := os.WriteFile(path, []byte(sb.String()), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(path, []byte(sb.String()), 0o644); writeErr != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}

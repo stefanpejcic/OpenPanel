@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
@@ -15,6 +14,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // HealthIssue is the {id, severity, message} shape consumed client-side by reportHealthIssues() to render dismissible health toasts
@@ -66,7 +66,7 @@ var serialNumberRE = regexp.MustCompile(`(\d{8})(\d{2})\s*;\s*Serial number`)
 // RestartDNSService bumps the zone's serial number (same date -> increment the daily counter, rolling over past 99; new date -> reset to 01) and reloads the zone via rndc
 func RestartDNSService(domainURL string) {
 	path := zoneFilePath(domainURL)
-	content, err := os.ReadFile(path)
+	content, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return
 	}
@@ -96,7 +96,7 @@ func RestartDNSService(domainURL string) {
 	}
 
 	if updated {
-		_ = os.WriteFile(path, []byte(strings.Join(lines, "")), 0o644)
+		_ = tenantfs.WriteFile(path, []byte(strings.Join(lines, "")), 0o644)
 	}
 
 	cctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -114,7 +114,7 @@ func cnameNameRE(name string) *regexp.Regexp {
 // CnameRecordExists checks whether a CNAME record with the given name already exists in the zone file, memoized for 10s since it's called repeatedly during record validation. Exported so the domains package's API handlers can reuse it instead of keeping their own copy.
 func CnameRecordExists(ctx context.Context, a *appctx.App, zoneFilePath, name string) bool {
 	exists, _ := cache.Memoize(ctx, a.Cache, "cname_record_exists:"+zoneFilePath+":"+name, 10*time.Second, func() (bool, error) {
-		content, err := os.ReadFile(zoneFilePath)
+		content, err := tenantfs.ReadFile(zoneFilePath)
 		if err != nil {
 			return false, nil
 		}

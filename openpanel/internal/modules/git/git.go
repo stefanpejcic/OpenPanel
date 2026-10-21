@@ -75,6 +75,11 @@ func repoDir(userContext, name string) string {
 	return filepath.Join(accountRoot(userContext), name+".git")
 }
 
+// stageDir is the root-only work tree a deploy checks out into before it's copied to the target
+func stageDir(userContext, name string) string {
+	return filepath.Join(accountRoot(userContext), name+".deploy")
+}
+
 func storePath(userContext string) string {
 	return filepath.Join(accountRoot(userContext), "repos.json")
 }

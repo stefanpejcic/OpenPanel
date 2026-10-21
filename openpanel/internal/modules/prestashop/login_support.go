@@ -1,10 +1,11 @@
 package prestashop
 
 import (
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // extractPrestashopDatabaseInfoForLogin is a local copy of websites.extractPrestashopDatabaseInfo (unexported there, duplicated here like the other CMS modules do), only populates the fields handlePrestashopLogin needs
@@ -14,7 +15,7 @@ func extractPrestashopDatabaseInfoForLogin(userContext, directory string) map[st
 		return map[string]string{"error": "invalid docroot"}
 	}
 	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
-	content, err := os.ReadFile(filepath.Join(mappedDir, "app", "config", "parameters.php"))
+	content, err := tenantfs.ReadFile(filepath.Join(mappedDir, "app", "config", "parameters.php"))
 	if err != nil {
 		return map[string]string{"error": "app/config/parameters.php not found"}
 	}

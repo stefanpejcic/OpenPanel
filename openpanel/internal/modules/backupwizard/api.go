@@ -2,7 +2,6 @@ package backupwizard
 
 import (
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
 
@@ -11,6 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -56,7 +56,7 @@ func apiBackupWizardCreate(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if mkdirErr := os.MkdirAll(backupDir(userContext), 0o755); mkdirErr != nil {
+	if mkdirErr := tenantfs.MkdirAll(backupDir(userContext), 0o755); mkdirErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to start backup."})
 		return
 	}
@@ -96,7 +96,7 @@ func apiBackupWizardDownload(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	info, statErr := os.Stat(filePath)
+	info, statErr := tenantfs.Stat(filePath)
 	if statErr != nil {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Backup file not found."})
 		return
@@ -112,7 +112,7 @@ func apiBackupWizardDownload(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "downloaded backup "+safeName+" via API", reqip.ClientIP(r))
 
-	f, openErr := os.Open(filePath)
+	f, openErr := tenantfs.Open(filePath)
 	if openErr != nil {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Backup file not found."})
 		return

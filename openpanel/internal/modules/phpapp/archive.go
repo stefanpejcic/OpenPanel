@@ -9,10 +9,11 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // isSafeMember reports whether an extracted member resolves to somewhere inside destinationPath - a zip-slip/tar-slip guard, duplicated from filemanager/archive.go's isSafeMember since it's unexported there
@@ -40,7 +41,7 @@ func validateArchiveMembers(archivePath, ext, destinationPath string) error {
 			}
 		}
 	case "tar.gz", "tgz", "tar":
-		f, err := os.Open(archivePath)
+		f, err := tenantfs.Open(archivePath)
 		if err != nil {
 			return fmt.Errorf("invalid archive: %w", err)
 		}
@@ -95,11 +96,11 @@ func downloadFile(ctx context.Context, url, dir, ext string) (string, error) {
 
 	const maxBytes = 200 << 20
 	if _, err := io.Copy(out, io.LimitReader(resp.Body, maxBytes+1)); err != nil {
-		os.Remove(out.Name())
+		tenantfs.Remove(out.Name())
 		return "", err
 	}
 	if info, statErr := out.Stat(); statErr == nil && info.Size() > maxBytes {
-		os.Remove(out.Name())
+		tenantfs.Remove(out.Name())
 		return "", fmt.Errorf("archive too large (over 200MB)")
 	}
 	return out.Name(), nil
@@ -127,7 +128,7 @@ func downloadAndExtractInitialProject(ctx context.Context, url, hostDestPath str
 	if err != nil {
 		return err
 	}
-	defer os.Remove(archivePath)
+	defer tenantfs.Remove(archivePath)
 
 	if err := validateArchiveMembers(archivePath, ext, hostDestPath); err != nil {
 		return err
@@ -136,17 +137,15 @@ func downloadAndExtractInitialProject(ctx context.Context, url, hostDestPath str
 	extractCtx, cancel := context.WithTimeout(ctx, 5*time.Minute)
 	defer cancel()
 
-	var cmd *exec.Cmd
+	var extractErr error
 	switch ext {
 	case "zip":
-		cmd = exec.CommandContext(extractCtx, "unzip", "-o", archivePath, "-d", hostDestPath)
-	case "tar.gz", "tgz":
-		cmd = exec.CommandContext(extractCtx, "tar", "-xzf", archivePath, "-C", hostDestPath)
-	case "tar":
-		cmd = exec.CommandContext(extractCtx, "tar", "-xf", archivePath, "-C", hostDestPath)
+		extractErr = tenantfs.ExtractZip(extractCtx, archivePath, hostDestPath, 0)
+	case "tar.gz", "tgz", "tar":
+		extractErr = tenantfs.ExtractTar(extractCtx, archivePath, hostDestPath, 0)
 	}
-	if out, runErr := cmd.CombinedOutput(); runErr != nil {
-		return fmt.Errorf("extraction failed: %s", strings.TrimSpace(string(out)))
+	if extractErr != nil {
+		return fmt.Errorf("extraction failed: %w", extractErr)
 	}
 	return nil
 }

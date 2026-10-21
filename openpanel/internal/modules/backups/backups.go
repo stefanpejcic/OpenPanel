@@ -2,13 +2,13 @@ package backups
 
 import (
 	"net/http"
-	"os"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -62,8 +62,8 @@ func handleBackupSettings(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	path := envFilePath(userContext)
 
 	if r.Method == http.MethodPost {
-		if _, statErr := os.Stat(path); statErr != nil {
-			_ = os.WriteFile(path, nil, 0o644)
+		if _, statErr := tenantfs.Stat(path); statErr != nil {
+			_ = tenantfs.WriteFile(path, nil, 0o644)
 		}
 
 		if isBackupInProgress(r.Context(), userContext) {
@@ -82,7 +82,7 @@ func handleBackupSettings(a *appctx.App, w http.ResponseWriter, r *http.Request)
 }
 
 func saveBackupSettings(a *appctx.App, r *http.Request, path, userContext, currentUsername string) error {
-	content, err := os.ReadFile(path)
+	content, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return err
 	}
@@ -135,7 +135,7 @@ func saveBackupSettings(a *appctx.App, r *http.Request, path, userContext, curre
 		}
 	}
 
-	if err := os.WriteFile(path, []byte(strings.Join(newLines, "\n")+"\n"), 0o644); err != nil {
+	if err := tenantfs.WriteFile(path, []byte(strings.Join(newLines, "\n")+"\n"), 0o644); err != nil {
 		return err
 	}
 
@@ -151,7 +151,7 @@ func saveBackupSettings(a *appctx.App, r *http.Request, path, userContext, curre
 }
 
 func renderBackupSettingsFromFile(a *appctx.App, w http.ResponseWriter, r *http.Request, path string) {
-	if _, err := os.Stat(path); err != nil {
+	if _, err := tenantfs.Stat(path); err != nil {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "env file not found"})
 		return
 	}
@@ -231,7 +231,7 @@ func handleBackupTarget(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid backup target: " + target})
 			return
 		}
-		content, readErr := os.ReadFile(path)
+		content, readErr := tenantfs.ReadFile(path)
 		if readErr != nil {
 			web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "env file not found"})
 			return
@@ -260,7 +260,7 @@ func handleBackupTarget(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		if err := os.WriteFile(path, []byte(strings.Join(newLines, "\n")+"\n"), 0o644); err != nil {
+		if err := tenantfs.WriteFile(path, []byte(strings.Join(newLines, "\n")+"\n"), 0o644); err != nil {
 			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
 		}
@@ -268,7 +268,7 @@ func handleBackupTarget(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		web.Flash(a, w, r, "success", web.Tr(a, r, "Backup target switched to '%(target)s' successfully.", "target", target))
 	}
 
-	if _, err := os.Stat(path); err != nil {
+	if _, err := tenantfs.Stat(path); err != nil {
 		renderBackupDestinationsPage(a, w, r, "")
 		return
 	}
@@ -285,7 +285,7 @@ func handleBackupTarget(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // ActiveBackupTarget is the one destination with uncommented keys in backup.env, or "" when none or several are
 func ActiveBackupTarget(userContext string) string {
-	content, err := os.ReadFile(envFilePath(userContext))
+	content, err := tenantfs.ReadFile(envFilePath(userContext))
 	if err != nil {
 		return ""
 	}
@@ -341,7 +341,7 @@ func handleBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	path := envFilePath(userContext)
 
-	if _, statErr := os.Stat(path); statErr != nil {
+	if _, statErr := tenantfs.Stat(path); statErr != nil {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "env file not found"})
 		return
 	}

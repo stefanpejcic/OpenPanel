@@ -16,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dns"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -696,7 +697,7 @@ func apiDomainsGetVhost(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := vhostFilePath(userContext, domain)
-	if _, statErr := os.Stat(path); statErr != nil {
+	if _, statErr := tenantfs.Stat(path); statErr != nil {
 		writeAPIDomainsJSON(w, http.StatusNotFound, map[string]string{"error": "VHost file not found for " + domain + "."})
 		return
 	}
@@ -760,7 +761,7 @@ func apiDomainsGetDNS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	zonePath := apiZoneFilePath(domain)
-	content, readErr := os.ReadFile(zonePath)
+	content, readErr := tenantfs.ReadFile(zonePath)
 	if readErr != nil {
 		writeAPIDomainsJSON(w, http.StatusNotFound, map[string]string{"error": "Zone file not found for " + domain + "."})
 		return
@@ -850,7 +851,7 @@ func apiDomainsSaveDNS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	tmpPath := tmpFile.Name()
-	defer os.Remove(tmpPath)
+	defer tenantfs.Remove(tmpPath)
 	if _, writeErr := tmpFile.WriteString(newContent); writeErr != nil {
 		_ = tmpFile.Close()
 		writeAPIDomainsJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
@@ -870,7 +871,7 @@ func apiDomainsSaveDNS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if writeErr := os.WriteFile(apiZoneFilePath(domain), []byte(newContent), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(apiZoneFilePath(domain), []byte(newContent), 0o644); writeErr != nil {
 		writeAPIDomainsJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
@@ -929,7 +930,7 @@ func apiDomainsAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	}
 
 	zonePath := apiZoneFilePath(domain)
-	if _, statErr := os.Stat(zonePath); statErr != nil {
+	if _, statErr := tenantfs.Stat(zonePath); statErr != nil {
 		writeAPIDomainsJSON(w, http.StatusNotFound, map[string]string{"error": "Zone file not found."})
 		return
 	}
@@ -956,7 +957,7 @@ func apiDomainsAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	f, openErr := os.OpenFile(zonePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	f, openErr := tenantfs.OpenFile(zonePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if openErr != nil {
 		writeAPIDomainsJSON(w, http.StatusInternalServerError, map[string]string{"error": openErr.Error()})
 		return
@@ -974,7 +975,7 @@ func apiDomainsAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Reques
 }
 
 func apiFileExists(path string) bool {
-	_, err := os.Stat(path)
+	_, err := tenantfs.Stat(path)
 	return err == nil
 }
 
@@ -1015,7 +1016,7 @@ func apiDomainsUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Req
 	serial := strings.TrimSpace(body.Serial)
 
 	zonePath := apiZoneFilePath(domain)
-	content, readErr := os.ReadFile(zonePath)
+	content, readErr := tenantfs.ReadFile(zonePath)
 	if readErr != nil {
 		writeAPIDomainsJSON(w, http.StatusNotFound, map[string]string{"error": "Zone file not found."})
 		return
@@ -1051,7 +1052,7 @@ func apiDomainsUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Req
 	newLines = append(newLines, block)
 	newLines = append(newLines, lines[endRowID:]...)
 
-	if writeErr := os.WriteFile(zonePath, []byte(strings.Join(newLines, "")), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(zonePath, []byte(strings.Join(newLines, "")), 0o644); writeErr != nil {
 		writeAPIDomainsJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
@@ -1091,7 +1092,7 @@ func apiDomainsDeleteDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Req
 	}
 
 	zonePath := apiZoneFilePath(domain)
-	content, readErr := os.ReadFile(zonePath)
+	content, readErr := tenantfs.ReadFile(zonePath)
 	if readErr != nil {
 		writeAPIDomainsJSON(w, http.StatusNotFound, map[string]string{"error": "Zone file not found."})
 		return
@@ -1116,7 +1117,7 @@ func apiDomainsDeleteDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Req
 		lines = append(lines[:zeroBased], lines[zeroBased+1:]...)
 	}
 
-	if writeErr := os.WriteFile(zonePath, []byte(strings.Join(lines, "")), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(zonePath, []byte(strings.Join(lines, "")), 0o644); writeErr != nil {
 		writeAPIDomainsJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
@@ -1178,7 +1179,7 @@ func apiDomainsExportDNS(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	zonePath := apiZoneFilePath(domain)
-	content, readErr := os.ReadFile(zonePath)
+	content, readErr := tenantfs.ReadFile(zonePath)
 	if readErr != nil {
 		writeAPIDomainsJSON(w, http.StatusNotFound, map[string]string{"error": "Zone file not found."})
 		return
@@ -1206,7 +1207,7 @@ func apiDomainsLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	logPath := "/var/log/caddy/domlogs/" + domain + "/access.log"
-	info, statErr := os.Stat(logPath)
+	info, statErr := tenantfs.Stat(logPath)
 	if statErr != nil {
 		writeAPIDomainsJSON(w, http.StatusNotFound, map[string]string{"error": "Log file not found for " + domain + "."})
 		return
@@ -1220,7 +1221,7 @@ func apiDomainsLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	itemsPerPage := web.AtoiDefault(a.Config.Get("domain_log_per_page", "1000"), 1000)
 	showAll := r.URL.Query().Get("show_all") == "true"
 
-	content, readErr := os.ReadFile(logPath)
+	content, readErr := tenantfs.ReadFile(logPath)
 	if readErr != nil {
 		writeAPIDomainsJSON(w, http.StatusInternalServerError, map[string]string{"error": readErr.Error()})
 		return

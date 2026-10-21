@@ -2,7 +2,6 @@ package domains
 
 import (
 	"net/http"
-	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -11,6 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -168,10 +168,10 @@ func insertOrReplaceRedirect(content, redirectURL string) string {
 }
 
 func readTextFile(path string) (string, error) {
-	content, err := os.ReadFile(path)
+	content, err := tenantfs.ReadFile(path)
 	return string(content), err
 }
 
 func writeTextFile(path, content string) error {
-	return os.WriteFile(path, []byte(content), 0o644)
+	return tenantfs.WriteFile(path, []byte(content), 0o644)
 }

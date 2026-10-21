@@ -2,13 +2,15 @@ package filemanager
 
 import (
 	"io"
+	"io/fs"
 	"os"
-	"path/filepath"
+	"path"
+	"strings"
 )
 
-// copyFile copies file contents and permission bits - it doesn't itself reject an existing destination, callers are expected to have already disambiguated dst to a non-existent path or a directory target
-func copyFile(src, dst string) error {
-	in, err := os.Open(src)
+// copyFile copies file contents and permission bits inside root - it doesn't itself reject an existing destination, callers are expected to have already disambiguated dst to a non-existent path or a directory target
+func copyFile(root *os.Root, src, dst string) error {
+	in, err := root.Open(src)
 	if err != nil {
 		return err
 	}
@@ -19,7 +21,7 @@ func copyFile(src, dst string) error {
 		return err
 	}
 
-	out, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, info.Mode().Perm())
+	out, err := root.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, info.Mode().Perm())
 	if err != nil {
 		return err
 	}
@@ -31,32 +33,45 @@ func copyFile(src, dst string) error {
 	return nil
 }
 
-// copyTree recursively copies a directory, failing if dst already exists.
-func copyTree(src, dst string) error {
-	if _, err := os.Stat(dst); err == nil {
+// copyTree recursively copies a directory inside root, failing if dst already exists.
+func copyTree(root *os.Root, src, dst string) error {
+	if _, err := root.Lstat(dst); err == nil {
 		return os.ErrExist
 	}
 
-	return filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
+	return fs.WalkDir(root.FS(), src, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		rel, err := filepath.Rel(src, path)
-		if err != nil {
-			return err
-		}
-		target := filepath.Join(dst, rel)
+		target := path.Join(dst, relTo(src, p))
 
-		if info.IsDir() {
-			return os.MkdirAll(target, info.Mode().Perm())
-		}
-		if info.Mode()&os.ModeSymlink != 0 {
-			linkTarget, err := os.Readlink(path)
+		switch {
+		case d.IsDir():
+			info, err := d.Info()
 			if err != nil {
 				return err
 			}
-			return os.Symlink(linkTarget, target)
+			return root.MkdirAll(target, info.Mode().Perm())
+		case d.Type()&fs.ModeSymlink != 0:
+			linkTarget, err := root.Readlink(p)
+			if err != nil {
+				return err
+			}
+			return root.Symlink(linkTarget, target)
+		case d.Type().IsRegular():
+			return copyFile(root, p, target)
 		}
-		return copyFile(path, target)
+		return nil
 	})
+}
+
+// relTo is p relative to base for slash paths that came out of fs.WalkDir(base)
+func relTo(base, p string) string {
+	if p == base {
+		return "."
+	}
+	if base == "." {
+		return p
+	}
+	return strings.TrimPrefix(p, base+"/")
 }

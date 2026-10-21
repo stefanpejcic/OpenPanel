@@ -16,6 +16,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 const cacheTTL = 5 * time.Second
@@ -138,9 +139,7 @@ func sortDuOutputBySize(out string) string {
 // diskUsageOutput runs `find . -maxdepth 1 -type d ! -name . -exec du -sh {} \;` under actualFolder, cached 5s
 func diskUsageOutput(ctx context.Context, a *appctx.App, userContext, actualFolder string) string {
 	out, _ := cache.Memoize(ctx, a.Cache, "disk_usage:"+userContext+":"+actualFolder, cacheTTL, func() (string, error) {
-		cmd := exec.CommandContext(ctx, "find", ".", "-maxdepth", "1", "-type", "d", "!", "-name", ".", "-exec", "du", "-sh", "{}", ";")
-		cmd.Dir = actualFolder
-		out, err := cmd.Output()
+		out, err := tenantfs.OutputIn(ctx, "/home/"+userContext, actualFolder, "find", ".", "-maxdepth", "1", "-type", "d", "!", "-name", ".", "-exec", "du", "-sh", "{}", ";")
 		if err != nil {
 			if _, ok := err.(*exec.ExitError); !ok {
 				return "", nil //nolint:nilerr // command failure -> empty output, not an error response

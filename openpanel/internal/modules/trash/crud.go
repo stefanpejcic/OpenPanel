@@ -11,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -46,12 +47,12 @@ func handleRestoreFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	trashedPath := filepath.Join(trashDir, itemName)
 	trashRestoreFile := filepath.Join(trashDir, ".trash_restore")
 
-	if _, err := os.Stat(trashedPath); err != nil {
+	if _, err := tenantfs.Stat(trashedPath); err != nil {
 		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "File or directory does not exist in Trash."})
 		return
 	}
 
-	restoreInfo, err := os.ReadFile(trashRestoreFile)
+	restoreInfo, err := tenantfs.ReadFile(trashRestoreFile)
 	if err != nil {
 		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: ".trash_restore file is missing."})
 		return
@@ -89,12 +90,12 @@ func handleRestoreFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := os.Rename(trashedPath, restoreDestination); err != nil {
+	if err := tenantfs.Rename(trashedPath, restoreDestination); err != nil {
 		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: err.Error()})
 		return
 	}
 
-	_ = os.WriteFile(trashRestoreFile, []byte(joinLines(linesToKeep)), 0o644)
+	_ = tenantfs.WriteFile(trashRestoreFile, []byte(joinLines(linesToKeep)), 0o644)
 
 	_ = logger.RecordUserAction(a.Config, username, "restored "+restoreDestination+" from Trash using File Manager", reqip.ClientIP(r))
 	web.WriteJSON(w, http.StatusOK, jsonResult{Success: true, Message: "Restored from Trash"})
@@ -124,7 +125,7 @@ func handleDeleteTrash(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	trashedPath := filepath.Join(trashDir, itemName)
 	trashRestoreFile := filepath.Join(trashDir, ".trash_restore")
 
-	info, err := os.Lstat(trashedPath)
+	info, err := tenantfs.Lstat(trashedPath)
 	if err != nil {
 		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "File or directory does not exist in Trash."})
 		return
@@ -133,13 +134,13 @@ func handleDeleteTrash(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var detectedType string
 	switch {
 	case info.IsDir():
-		if err := os.RemoveAll(trashedPath); err != nil {
+		if err := tenantfs.RemoveAll(trashedPath); err != nil {
 			web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: err.Error()})
 			return
 		}
 		detectedType = "directory"
 	case info.Mode().IsRegular() || info.Mode()&os.ModeSymlink != 0:
-		if err := os.Remove(trashedPath); err != nil {
+		if err := tenantfs.Remove(trashedPath); err != nil {
 			web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: err.Error()})
 			return
 		}
@@ -149,7 +150,7 @@ func handleDeleteTrash(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if content, err := os.ReadFile(trashRestoreFile); err == nil {
+	if content, err := tenantfs.ReadFile(trashRestoreFile); err == nil {
 		var keep []string
 		for _, line := range strings.Split(string(content), "\n") {
 			if line == "" {
@@ -159,7 +160,7 @@ func handleDeleteTrash(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				keep = append(keep, line)
 			}
 		}
-		_ = os.WriteFile(trashRestoreFile, []byte(joinLines(keep)), 0o644)
+		_ = tenantfs.WriteFile(trashRestoreFile, []byte(joinLines(keep)), 0o644)
 	}
 
 	_ = logger.RecordUserAction(a.Config, username, "permanently deleted "+detectedType+" "+trashedPath+" using File Manager", reqip.ClientIP(r))
@@ -176,7 +177,7 @@ func handleDeleteAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	trashDir := "/home/" + userContext + "/.local/share/Trash"
 
-	entries, err := os.ReadDir(trashDir)
+	entries, err := tenantfs.ReadDir(trashDir)
 	if err != nil {
 		flashAndRedirectToTrash(a, w, r, "error", "Unexpected error")
 		return
@@ -187,7 +188,7 @@ func handleDeleteAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if entry.Name() == ".trash_restore" {
 			continue
 		}
-		if clearErr = os.RemoveAll(filepath.Join(trashDir, entry.Name())); clearErr != nil {
+		if clearErr = tenantfs.RemoveAll(filepath.Join(trashDir, entry.Name())); clearErr != nil {
 			break
 		}
 	}
@@ -197,7 +198,7 @@ func handleDeleteAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := os.WriteFile(filepath.Join(trashDir, ".trash_restore"), nil, 0o644); err != nil {
+	if err := tenantfs.WriteFile(filepath.Join(trashDir, ".trash_restore"), nil, 0o644); err != nil {
 		flashAndRedirectToTrash(a, w, r, "error", "Unexpected error")
 		return
 	}
@@ -218,7 +219,7 @@ func handleRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	trashDir := "/home/" + userContext + "/.local/share/Trash"
 	trashRestorePath := filepath.Join(trashDir, ".trash_restore")
 
-	content, err := os.ReadFile(trashRestorePath)
+	content, err := tenantfs.ReadFile(trashRestorePath)
 	if err != nil {
 		flashAndRedirectToTrash(a, w, r, "info", "Nothing to restore")
 		return
@@ -252,13 +253,13 @@ func handleRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		trashedItemPath := filepath.Join(trashDir, key)
-		if _, statErr := os.Stat(trashedItemPath); statErr != nil {
+		if _, statErr := tenantfs.Stat(trashedItemPath); statErr != nil {
 			restoreErrors = append(restoreErrors, key+": not found in trash")
 			linesToKeep = append(linesToKeep, trimmed)
 			continue
 		}
 
-		if err := os.Rename(trashedItemPath, restorePath); err != nil {
+		if err := tenantfs.Rename(trashedItemPath, restorePath); err != nil {
 			restoreErrors = append(restoreErrors, key+": "+err.Error())
 			linesToKeep = append(linesToKeep, trimmed)
 			continue
@@ -267,12 +268,12 @@ func handleRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(restoreErrors) > 0 {
-		_ = os.WriteFile(trashRestorePath, []byte(joinLines(linesToKeep)), 0o644)
+		_ = tenantfs.WriteFile(trashRestorePath, []byte(joinLines(linesToKeep)), 0o644)
 		flashAndRedirectToTrash(a, w, r, "warning", "Some items could not be restored.")
 		return
 	}
 
-	_ = os.WriteFile(trashRestorePath, nil, 0o644)
+	_ = tenantfs.WriteFile(trashRestorePath, nil, 0o644)
 	flashAndRedirectToTrash(a, w, r, "success", "All items restored successfully")
 }
 
@@ -314,7 +315,7 @@ func handleTrashSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	target := filepath.Join("/home/"+userContext+"/.local/share/Trash", itemName)
-	if info, statErr := os.Lstat(target); statErr != nil || !info.IsDir() {
+	if info, statErr := tenantfs.Lstat(target); statErr != nil || !info.IsDir() {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Folder does not exist in Trash."})
 		return
 	}

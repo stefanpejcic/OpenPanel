@@ -1,10 +1,10 @@
 package opencart
 
 import (
-	"os"
 	"path/filepath"
 	"regexp"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
 )
@@ -33,7 +33,7 @@ func cloneConfig(c *cmsapp.Clone) map[string]any {
 
 	rewriteConfig := func(relPath string, isAdmin bool) error {
 		fp := filepath.Join(c.DstPath, relPath)
-		content, readErr := os.ReadFile(fp)
+		content, readErr := tenantfs.ReadFile(fp)
 		if readErr != nil {
 			return readErr
 		}
@@ -49,7 +49,7 @@ func cloneConfig(c *cmsapp.Clone) map[string]any {
 		strContent = cloneOCDBUsernameRE.ReplaceAllString(strContent, "define('DB_USERNAME', '"+cmsapp.EscapePHPSingleQuoted(c.DstDBUser)+"');")
 		strContent = cloneOCDBPasswordRE.ReplaceAllString(strContent, "define('DB_PASSWORD', '"+cmsapp.EscapePHPSingleQuoted(c.DstDBUserPassword)+"');")
 		strContent = cloneOCDBDatabaseRE.ReplaceAllString(strContent, "define('DB_DATABASE', '"+cmsapp.EscapePHPSingleQuoted(c.DstDB)+"');")
-		return os.WriteFile(fp, []byte(strContent), 0o644)
+		return tenantfs.WriteFile(fp, []byte(strContent), 0o644)
 	}
 
 	if rwErr := rewriteConfig("config.php", false); rwErr != nil {

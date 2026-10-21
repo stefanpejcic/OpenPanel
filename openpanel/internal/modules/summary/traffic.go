@@ -9,12 +9,12 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 	"time"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/errorlogs"
 )
 
@@ -44,7 +44,7 @@ func logFiles(dir string, from time.Time) []string {
 	}
 	var files []file
 	for _, m := range matches {
-		info, err := os.Stat(m)
+		info, err := tenantfs.Stat(m)
 		if err != nil || info.ModTime().Before(from) {
 			continue
 		}
@@ -60,7 +60,7 @@ func logFiles(dir string, from time.Time) []string {
 
 // eachLine calls fn for every line of a plain or gzipped log
 func eachLine(path string, fn func([]byte)) {
-	f, err := os.Open(path)
+	f, err := tenantfs.Open(path)
 	if err != nil {
 		return
 	}

@@ -3,8 +3,6 @@ package appinstall
 import (
 	"encoding/json"
 	"net/http"
-	"os"
-	"os/exec"
 	"regexp"
 	"sort"
 	"strings"
@@ -15,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -122,12 +121,12 @@ func handlePM2CreateBackup(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	timestamp := time.Now().Format("2006-01-02_15-04-05")
 	backupDir := pm2BackupsDir(userContext, lookup.SiteName) + "/" + timestamp
-	if mkErr := os.MkdirAll(backupDir, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(backupDir, 0o755); mkErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
 		return
 	}
 
-	if runErr := exec.CommandContext(ctx, "tar", "-czf", backupDir+"/files.tar.gz", "-C", installHostPath, ".").Run(); runErr != nil {
+	if runErr := tenantfs.WriteTarGz(ctx, installHostPath, backupDir+"/files.tar.gz"); runErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to archive files: " + runErr.Error()})
 		return
 	}
@@ -152,7 +151,7 @@ func handlePM2CreateBackup(a *appctx.App, w http.ResponseWriter, r *http.Request
 		EnvVars: getCurrentPM2EnvVars(userContext, lookup.Container),
 	}
 	manifestBytes, _ := json.MarshalIndent(manifest, "", "  ")
-	if writeErr := os.WriteFile(backupDir+"/settings.json", manifestBytes, 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(backupDir+"/settings.json", manifestBytes, 0o644); writeErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
@@ -176,7 +175,7 @@ func handlePM2ListBackups(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	entries, readErr := os.ReadDir(pm2BackupsDir(userContext, lookup.SiteName))
+	entries, readErr := tenantfs.ReadDir(pm2BackupsDir(userContext, lookup.SiteName))
 	if readErr != nil {
 		web.WriteJSON(w, http.StatusOK, []string{})
 		return
@@ -219,7 +218,7 @@ func handlePM2RestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	}
 	backupDir := pm2BackupsDir(userContext, lookup.SiteName) + "/" + backupDate
 
-	manifestBytes, readErr := os.ReadFile(backupDir + "/settings.json")
+	manifestBytes, readErr := tenantfs.ReadFile(backupDir + "/settings.json")
 	if readErr != nil {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Backup settings not found."})
 		return
@@ -249,16 +248,18 @@ func handlePM2RestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Reques
 
 	containerName := strings.ToLower(lookup.Container)
 
-	if info, statErr := os.Stat(backupDir + "/files.tar.gz"); statErr == nil && !info.IsDir() {
-		if mkErr := os.MkdirAll(installHostPath, 0o755); mkErr != nil {
+	if info, statErr := tenantfs.Stat(backupDir + "/files.tar.gz"); statErr == nil && !info.IsDir() {
+		if mkErr := tenantfs.MkdirAll(installHostPath, 0o755); mkErr != nil {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
 			return
 		}
-		if runErr := exec.CommandContext(ctx, "tar", "-xzf", backupDir+"/files.tar.gz", "-C", installHostPath).Run(); runErr != nil {
+		if runErr := tenantfs.ExtractTar(ctx, backupDir+"/files.tar.gz", installHostPath, 0); runErr != nil {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to extract files: " + runErr.Error()})
 			return
 		}
-		_ = exec.CommandContext(ctx, "chown", "-R", userContext+":"+userContext, installHostPath).Run()
+		if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
+			_ = tenantfs.ChownR(installHostPath, uid, uid)
+		}
 	}
 
 	if applyErr := applyPM2Settings(a, ctx, userContext, containerName, kind, manifest.pm2Settings); applyErr != nil {

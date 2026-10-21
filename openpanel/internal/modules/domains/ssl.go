@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"encoding/pem"
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -17,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -31,7 +31,7 @@ func triggerSSLGeneration(ctx context.Context, domainName string) (bool, string)
 	_ = exec.CommandContext(curlCtx, "curl", "-s", "-k", "-o", "/dev/null", "--max-time", "20", "https://"+domainName).Run()
 
 	leCert := "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/" + domainName + "/" + domainName + ".crt"
-	if _, err := os.Stat(leCert); err == nil {
+	if _, err := tenantfs.Stat(leCert); err == nil {
 		return true, "SSL certificate generated successfully for " + domainName + "."
 	}
 	return false, "Certificate was not generated yet. It may take a moment, please try again shortly."
@@ -146,7 +146,7 @@ func handleCustomSSLUpload(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 
 	dataDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data"
-	if err := os.MkdirAll(dataDir, 0o755); err != nil {
+	if err := tenantfs.MkdirAll(dataDir, 0o755); err != nil {
 		web.FlashRedirect(a, w, r, "error", err.Error(), "/domains/ssl?domain_name="+domainName)
 		return
 	}
@@ -157,12 +157,12 @@ func handleCustomSSLUpload(a *appctx.App, w http.ResponseWriter, r *http.Request
 	displayCertPath := "/var/www/html/" + domainName + "_tmp.crt"
 	displayKeyPath := "/var/www/html/" + domainName + "_tmp.key"
 
-	_ = os.WriteFile(certPath, []byte(certificate), 0o644)
-	_ = os.WriteFile(keyPath, []byte(privateKey), 0o644)
+	_ = tenantfs.WriteFile(certPath, []byte(certificate), 0o644)
+	_ = tenantfs.WriteFile(keyPath, []byte(privateKey), 0o644)
 
 	out, cmdErr := exec.CommandContext(ctx, "opencli", "domains-ssl", domainName, "custom", displayCertPath, displayKeyPath).CombinedOutput()
-	_ = os.Remove(certPath)
-	_ = os.Remove(keyPath)
+	_ = tenantfs.Remove(certPath)
+	_ = tenantfs.Remove(keyPath)
 
 	if cmdErr == nil {
 		web.FlashRedirect(a, w, r, "success", strings.TrimSpace(string(out)), "/domains/ssl?domain_name="+domainName)
@@ -187,16 +187,16 @@ func handleGetTLSAHash(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	leCert := "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/" + domain + "/" + domain + ".crt"
 
 	certPath, certType := "", ""
-	if _, err := os.Stat(customCert); err == nil {
+	if _, err := tenantfs.Stat(customCert); err == nil {
 		certPath, certType = customCert, "custom"
-	} else if _, err := os.Stat(leCert); err == nil {
+	} else if _, err := tenantfs.Stat(leCert); err == nil {
 		certPath, certType = leCert, "letsencrypt"
 	} else {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "No SSL certificate found for this domain."})
 		return
 	}
 
-	certData, err := os.ReadFile(certPath)
+	certData, err := tenantfs.ReadFile(certPath)
 	if err != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		return

@@ -1,10 +1,10 @@
 package phpbb
 
 import (
-	"os/exec"
 	"path/filepath"
 	"regexp"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 )
 
@@ -17,7 +17,7 @@ var (
 )
 
 func cloneConfig(c *cmsapp.Clone) map[string]any {
-	_ = exec.CommandContext(c.Ctx, "chmod", "644", filepath.Join(c.DstPath, "config.php")).Run()
+	_ = tenantfs.Chmod(filepath.Join(c.DstPath, "config.php"), 0o644)
 	return c.RewriteConfig("config.php", func(s string) string {
 		s = clonePhpbbDatabaseRE.ReplaceAllString(s, "$$dbname = '"+cmsapp.EscapePHPSingleQuoted(c.DstDB)+"';")
 		s = clonePhpbbUsernameRE.ReplaceAllString(s, "$$dbuser = '"+cmsapp.EscapePHPSingleQuoted(c.DstDBUser)+"';")

@@ -40,26 +40,27 @@ func apiCreateFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filePath, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, filename), false)
+	root, rel, perr := openUserPath(user, filepath.Join(pathParam, filename), false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
-	if _, statErr := os.Stat(filePath); statErr == nil {
-		web.WriteJSON(w, http.StatusConflict, map[string]string{"error": "Error creating file: already exists."})
-		return
-	}
+	defer root.Close()
 
-	f, createErr := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0o644)
+	f, createErr := root.OpenFile(rel, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o644)
 	if createErr != nil {
+		if os.IsExist(createErr) {
+			web.WriteJSON(w, http.StatusConflict, map[string]string{"error": "Error creating file: already exists."})
+			return
+		}
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error creating file! Check permissions."})
 		return
 	}
 	_ = f.Close()
 
 	warning := ""
-	if chownErr := chownToUser(ctx, a, filePath, user.Context); chownErr != nil {
+	if chownErr := chownToUser(ctx, a, root, rel, user.Context); chownErr != nil {
 		warning = "Failed to set ownership for the new file."
 	}
 
@@ -92,20 +93,21 @@ func apiCreateFolder(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	folderPath, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, folderName), false)
+	root, rel, perr := openUserPath(user, filepath.Join(pathParam, folderName), false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
+	defer root.Close()
 
-	if mkErr := os.MkdirAll(folderPath, 0o755); mkErr != nil {
+	if mkErr := root.MkdirAll(rel, 0o755); mkErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error creating directory! Check permissions."})
 		return
 	}
 
 	warning := ""
-	if chownErr := chownToUser(ctx, a, folderPath, user.Context); chownErr != nil {
+	if chownErr := chownToUser(ctx, a, root, rel, user.Context); chownErr != nil {
 		warning = "Failed to set ownership for the new folder."
 	}
 
@@ -137,20 +139,21 @@ func apiRenameFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	oldRelPath := filepath.Join(body.Path, body.OldName)
 	newRelPath := filepath.Join(body.Path, body.NewName)
 
-	oldPath, perr := paths.SecureUserPath("HOME", user.Context, oldRelPath, true)
+	root, oldPath, perr := openUserPath(user, oldRelPath, true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
-	newPath, perr := paths.SecureUserPath("HOME", user.Context, newRelPath, false)
+	defer root.Close()
+	newPath, perr := root.Rel(newRelPath, false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
 
-	if renameErr := os.Rename(oldPath, newPath); renameErr != nil {
+	if renameErr := root.Rename(oldPath, newPath); renameErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error renaming item! Check permissions or if the new name already exists."})
 		return
 	}
@@ -190,21 +193,29 @@ func apiChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	mode, _ := strconv.ParseUint(body.Permissions, 8, 32)
 
+	root, perr := paths.OpenUserRoot("HOME", user.Context)
+	if perr != nil {
+		status, msg := pathErrorStatus(perr)
+		web.WriteJSON(w, status, map[string]string{"error": msg})
+		return
+	}
+	defer root.Close()
+
 	changed := []string{}
 	var errored []string
 	for _, filename := range body.Filenames {
 		relPath := filepath.Join(body.Path, filename)
-		filePath, perr := paths.SecureUserPath("HOME", user.Context, relPath, true)
+		rel, perr := root.Rel(relPath, true)
 		if perr != nil {
 			errored = append(errored, filename)
 			continue
 		}
-		info, statErr := os.Lstat(filePath)
+		info, statErr := root.Lstat(rel)
 		if statErr != nil {
 			errored = append(errored, filename)
 			continue
 		}
-		if chmodErr := chmodPath(filePath, os.FileMode(mode), body.Recursive && info.IsDir()); chmodErr != nil {
+		if chmodErr := chmodPath(root, rel, os.FileMode(mode), body.Recursive && info.IsDir()); chmodErr != nil {
 			errored = append(errored, filename)
 			continue
 		}
@@ -212,7 +223,7 @@ func apiChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		if body.Recursive && info.IsDir() {
 			action += " recursively"
 		}
-		_ = logger.RecordUserAction(a.Config, user.Username, action+" for "+filePath+" using File Manager API", reqip.ClientIP(r))
+		_ = logger.RecordUserAction(a.Config, user.Username, action+" for "+root.Abs(rel)+" using File Manager API", reqip.ClientIP(r))
 		changed = append(changed, filename)
 	}
 

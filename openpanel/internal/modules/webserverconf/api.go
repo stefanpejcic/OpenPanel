@@ -11,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -45,7 +46,7 @@ func apiWebserverConfGet(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	label := apiWebserverConfLabels[webServer]
 	configFilePath := "/home/" + userContext + "/" + entry.ConfFile
 
-	content, readErr := os.ReadFile(configFilePath)
+	content, readErr := tenantfs.ReadFile(configFilePath)
 	if readErr != nil {
 		if os.IsNotExist(readErr) {
 			web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Config file not found: " + entry.ConfFile})
@@ -87,9 +88,9 @@ func apiWebserverConfPut(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	previousContent, prevErr := os.ReadFile(configFilePath)
+	previousContent, prevErr := tenantfs.ReadFile(configFilePath)
 
-	if writeErr := os.WriteFile(configFilePath, []byte(*body.Content), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(configFilePath, []byte(*body.Content), 0o644); writeErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
@@ -99,7 +100,7 @@ func apiWebserverConfPut(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		ok, testOutput := webserver.TestWebserverConfig(ctx, userContext, entry.ServiceName)
 		if !ok {
 			if prevErr == nil {
-				_ = os.WriteFile(configFilePath, previousContent, 0o644)
+				_ = tenantfs.WriteFile(configFilePath, previousContent, 0o644)
 			}
 			web.WriteJSON(w, http.StatusBadRequest, map[string]string{
 				"error": "Config rejected - failed " + entry.ServiceName + " syntax check: " + testOutput,

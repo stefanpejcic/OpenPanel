@@ -7,6 +7,8 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // LogRule is one rule that matched a request, in plain words for the Basic log view
@@ -229,7 +231,7 @@ const recentLogLines = 500
 
 // readLogTail returns up to max of the newest lines of a Coraza JSON log, newest first, reading backwards so big logs stay cheap
 func readLogTail(path string, max int) []json.RawMessage {
-	f, err := os.Open(path)
+	f, err := tenantfs.Open(path)
 	if err != nil {
 		return nil
 	}

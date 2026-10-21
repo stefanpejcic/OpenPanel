@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -18,6 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -150,7 +150,7 @@ func updateContainerPIDs(ctx context.Context, userContext, containerName, provid
 // setContainerEnvLimit rewrites envVar's value in the user's .env file, returning a non-empty error message on failure, "" on success
 func setContainerEnvLimit(userContext, envVar, value string) string {
 	envPath := homePath(userContext, ".env")
-	data, err := os.ReadFile(envPath)
+	data, err := tenantfs.ReadFile(envPath)
 	if err != nil {
 		return fmt.Sprintf(".env file not found at %s", envPath)
 	}
@@ -161,7 +161,7 @@ func setContainerEnvLimit(userContext, envVar, value string) string {
 			lines[i] = envVar + `="` + value + `"`
 		}
 	}
-	if err := os.WriteFile(envPath, []byte(strings.Join(lines, "\n")), 0o644); err != nil {
+	if err := tenantfs.WriteFile(envPath, []byte(strings.Join(lines, "\n")), 0o644); err != nil {
 		return fmt.Sprintf("Failed to update .env: %s", err)
 	}
 	return ""

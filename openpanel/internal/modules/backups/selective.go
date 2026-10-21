@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"os/exec"
 	"path"
 	"path/filepath"
@@ -20,6 +19,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dns"
@@ -41,7 +41,7 @@ var domainNameRE = regexp.MustCompile(`^[a-z0-9]([a-z0-9.-]*[a-z0-9])?$`)
 
 // readItems turns a saved mail/vhosts/dns list into items, vhosts and dns files become domain names
 func readItems(listFile, kind string, domains map[string]bool) ([]backupItem, error) {
-	f, err := os.Open(listFile)
+	f, err := tenantfs.Open(listFile)
 	if err != nil {
 		return nil, err
 	}
@@ -313,7 +313,7 @@ func applyRestored(ctx context.Context, userContext string, extracted []string, 
 	}
 	// the restored vhost picks the php version, php-domain also starts that php-fpm and records it on the domain
 	for _, p := range phpDomains {
-		content, err := os.ReadFile(p)
+		content, err := tenantfs.ReadFile(p)
 		if err != nil {
 			continue
 		}

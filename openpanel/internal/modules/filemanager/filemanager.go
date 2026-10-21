@@ -1,12 +1,9 @@
-// Package filemanager implements the file browser (list/upload/create/delete/rename/move/copy/compress/extract/permissions/edit), built on top of internal/core/paths' SecureUserPath guard for every user-supplied path
+// Package filemanager implements the file browser (list/upload/create/delete/rename/move/copy/compress/extract/permissions/edit), every file op goes through a paths.UserRoot handle so a swapped symlink can't redirect it
 package filemanager
 
 import (
 	"context"
 	"net/http"
-	"os"
-	"os/exec"
-	"path/filepath"
 	"slices"
 	"strconv"
 	"strings"
@@ -112,29 +109,36 @@ func pathErrorStatus(err error) (int, string) {
 	return http.StatusInternalServerError, err.Error()
 }
 
-// chownToUser sets ownership of path to the given user's uid - best-effort: the error is returned but not acted on here, leaving each caller to decide whether to flash a warning or ignore it
-func chownToUser(ctx context.Context, a *appctx.App, path, userContext string) error {
+// openUserPath opens the user's HOME root and validates userPath under it, callers Close the root
+func openUserPath(user injectedUser, userPath string, checkExists bool) (*paths.UserRoot, string, error) {
+	root, err := paths.OpenUserRoot("HOME", user.Context)
+	if err != nil {
+		return nil, "", err
+	}
+	rel, err := root.Rel(userPath, checkExists)
+	if err != nil {
+		_ = root.Close()
+		return nil, "", err
+	}
+	return root, rel, nil
+}
+
+// chownToUser sets ownership of rel to the given user's uid - best-effort: the error is returned but not acted on here, leaving each caller to decide whether to flash a warning or ignore it
+func chownToUser(ctx context.Context, a *appctx.App, root *paths.UserRoot, rel, userContext string) error {
 	uid, err := a.GetUID(ctx, userContext)
 	if err != nil || uid <= 0 {
 		return err
 	}
-	return os.Lchown(path, uid, uid)
+	return root.Lchown(rel, uid, uid)
 }
 
-// chownRecursive sets ownership of root and everything beneath it, used after extract/copy/move so the destination ends up owned by the target user rather than the panel process
-func chownRecursive(ctx context.Context, a *appctx.App, root, userContext string) {
+// chownRecursive sets ownership of rel and everything beneath it, used after extract/copy/move so the destination ends up owned by the target user rather than the panel process
+func chownRecursive(ctx context.Context, a *appctx.App, root *paths.UserRoot, rel, userContext string) {
 	uid, err := a.GetUID(ctx, userContext)
 	if err != nil || uid <= 0 {
 		return
 	}
-	// Lchown so a symlink in the tree never hands its target over to the user
-	_ = filepath.Walk(root, func(p string, info os.FileInfo, walkErr error) error {
-		if walkErr != nil {
-			return nil //nolint:nilerr // best-effort: a walk error here shouldn't abort chowning the rest of the tree
-		}
-		_ = os.Lchown(p, uid, uid)
-		return nil
-	})
+	_ = paths.ChownTree(root.Root, rel, uid)
 }
 
 func atoiDefault(s string, def int) int {
@@ -143,10 +147,4 @@ func atoiDefault(s string, def int) int {
 		return def
 	}
 	return n
-}
-
-// runCommand runs a command and returns its error, for the simple fire-and-check call sites in this package that don't need output
-func runCommand(ctx context.Context, name string, args ...string) error {
-	cmd := exec.CommandContext(ctx, name, args...)
-	return cmd.Run()
 }

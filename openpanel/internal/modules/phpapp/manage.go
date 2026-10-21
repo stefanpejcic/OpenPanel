@@ -12,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
@@ -28,8 +29,8 @@ func composerLogPath(username, siteName string) string {
 // appendComposerLog records one Composer run's output, prefixed with a timestamp/action header, so the manage page's Logs tab has a running history rather than just the last run
 func appendComposerLog(username, siteName, action string, output []byte) {
 	path := composerLogPath(username, siteName)
-	_ = os.MkdirAll(path[:strings.LastIndex(path, "/")], 0o755)
-	f, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	_ = tenantfs.MkdirAll(path[:strings.LastIndex(path, "/")], 0o755)
+	f, err := tenantfs.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
 		return
 	}
@@ -132,7 +133,7 @@ func handleComposerLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	content, err := os.ReadFile(composerLogPath(username, siteName))
+	content, err := tenantfs.ReadFile(composerLogPath(username, siteName))
 	if err != nil {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		_, _ = w.Write([]byte("No Composer runs recorded yet."))

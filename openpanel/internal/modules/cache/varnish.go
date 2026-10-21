@@ -6,7 +6,6 @@ import (
 	"errors"
 	"math"
 	"net/http"
-	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -17,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -151,7 +151,7 @@ func StartVarnish(opCtx context.Context, userContext string) (webserverFailed bo
 
 // DomainVarnishStatus reads the domain's caddy file: "On" when traffic goes through varnish, "Off" when straight to the webserver
 func DomainVarnishStatus(domain string) string {
-	content, err := os.ReadFile("/etc/openpanel/caddy/domains/" + domain + ".conf")
+	content, err := tenantfs.ReadFile("/etc/openpanel/caddy/domains/" + domain + ".conf")
 	if err != nil {
 		return "Unknown"
 	}

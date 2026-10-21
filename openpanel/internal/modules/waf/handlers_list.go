@@ -3,7 +3,6 @@ package waf
 import (
 	"log"
 	"net/http"
-	"os"
 	"os/exec"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -12,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -27,7 +27,7 @@ type WAFIssue struct {
 
 // StatusForDomain is the domain's SecRuleEngine value, "Not Found" when it has no conf
 func StatusForDomain(domainName string) string {
-	content, err := os.ReadFile(domainConfigPath(domainName))
+	content, err := tenantfs.ReadFile(domainConfigPath(domainName))
 	if err != nil {
 		return "Not Found"
 	}
@@ -75,13 +75,13 @@ func handleWAFList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		sess, _ := a.Sessions.Get(r, session.CookieName)
-		if content, readErr := os.ReadFile(configFilePath); readErr == nil {
+		if content, readErr := tenantfs.ReadFile(configFilePath); readErr == nil {
 			contentStr := string(content)
 			if validEngine(newStatus) {
 				contentStr = setEngine(contentStr, newStatus)
 			}
 
-			if writeErr := os.WriteFile(configFilePath, []byte(contentStr), 0o644); writeErr == nil {
+			if writeErr := tenantfs.WriteFile(configFilePath, []byte(contentStr), 0o644); writeErr == nil {
 				if reloadErr := reloadCaddy(r.Context()); reloadErr == nil {
 					_ = logger.RecordUserAction(a.Config, username, statusText+" WAF for domain "+domainName, reqip.ClientIP(r))
 					notifySentinel(domainName, statusText)

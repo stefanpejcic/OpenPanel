@@ -8,7 +8,6 @@ import (
 	"encoding/pem"
 	"fmt"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -17,6 +16,7 @@ import (
 	"time"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/backups"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/emails"
@@ -42,7 +42,7 @@ func (b *builder) checkVulnerabilities() {
 			continue
 		}
 		checked++
-		raw, err := os.ReadFile(vulnDir + strings.ReplaceAll(site.Name, "/", "_") + ".json")
+		raw, err := tenantfs.ReadFile(vulnDir + strings.ReplaceAll(site.Name, "/", "_") + ".json")
 		if err != nil {
 			continue
 		}
@@ -126,7 +126,7 @@ func certNotAfter(domain string) (time.Time, bool) {
 		sslDir + "acme-v02.api.letsencrypt.org-directory/" + domain + "/" + domain + ".crt",
 		sslDir + "custom/" + domain + "/" + domain + "/fullchain.pem",
 	} {
-		raw, err := os.ReadFile(p)
+		raw, err := tenantfs.ReadFile(p)
 		if err != nil {
 			continue
 		}
@@ -349,7 +349,7 @@ func (b *builder) ownServices() map[string]bool {
 }
 
 func (b *builder) hasCronJobs() bool {
-	raw, err := os.ReadFile(homeDir + b.userContext + "/crons.ini")
+	raw, err := tenantfs.ReadFile(homeDir + b.userContext + "/crons.ini")
 	if err != nil {
 		return false
 	}
@@ -389,7 +389,7 @@ func humanBytes(n int64) string {
 
 // checkDisk warns before the account runs out of disk or inodes and points at what can free space for this account
 func (b *builder) checkDisk(ctx context.Context) {
-	raw, err := os.ReadFile(quotaReportPath)
+	raw, err := tenantfs.ReadFile(quotaReportPath)
 	if err != nil {
 		return
 	}
@@ -466,7 +466,7 @@ func (b *builder) checkBackups() {
 	if !b.can("backups") || backups.AdminManagedBackups(b.userContext) {
 		return
 	}
-	raw, err := os.ReadFile(homeDir + b.userContext + "/available_backups.json")
+	raw, err := tenantfs.ReadFile(homeDir + b.userContext + "/available_backups.json")
 	if err != nil {
 		return
 	}
@@ -570,7 +570,7 @@ var activityLineRE = regexp.MustCompile(`^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)\s+(\S
 
 // collectActivity lists panel logins and account changes, a login from an IP not seen in 30 days gets flagged
 func (b *builder) collectActivity() {
-	f, err := os.Open(usersDir + b.username + "/activity.log")
+	f, err := tenantfs.Open(usersDir + b.username + "/activity.log")
 	if err != nil {
 		return
 	}
@@ -694,7 +694,7 @@ func (p *resourcePeak) add(pct int, at time.Time, used, cap string) {
 
 // checkResources reports when the account ran into its CPU, memory or process limit
 func (b *builder) checkResources() {
-	raw, err := os.ReadFile(homeDir + b.userContext + "/resource_usage.txt")
+	raw, err := tenantfs.ReadFile(homeDir + b.userContext + "/resource_usage.txt")
 	if err != nil {
 		return
 	}

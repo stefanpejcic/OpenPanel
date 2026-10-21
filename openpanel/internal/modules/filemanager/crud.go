@@ -2,8 +2,10 @@ package filemanager
 
 import (
 	"errors"
+	"io/fs"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -36,26 +38,27 @@ func handleCreateFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filePath, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, filename), false)
+	root, rel, perr := openUserPath(user, filepath.Join(pathParam, filename), false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		http.Error(w, msg, status)
 		return
 	}
-	if _, statErr := os.Stat(filePath); statErr == nil {
-		web.FlashRedirect(a, w, r, "error", "Error creating file: already exists.", filesRedirectPath(pathParam))
-		return
-	}
+	defer root.Close()
 
-	f, createErr := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0o644)
+	f, createErr := root.OpenFile(rel, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o644)
 	if createErr != nil {
+		if os.IsExist(createErr) {
+			web.FlashRedirect(a, w, r, "error", "Error creating file: already exists.", filesRedirectPath(pathParam))
+			return
+		}
 		web.FlashRedirect(a, w, r, "error", "Error creating file! Check permissions.", filesRedirectPath(pathParam))
 		return
 	}
 	_ = f.Close()
 
 	sess, _ := a.Sessions.Get(r, session.CookieName)
-	if chownErr := chownToUser(ctx, a, filePath, user.Context); chownErr != nil {
+	if chownErr := chownToUser(ctx, a, root, rel, user.Context); chownErr != nil {
 		flash.Add(sess, "error", "Failed to set ownership for the new file.")
 	}
 
@@ -90,20 +93,21 @@ func handleCreateFolder(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	folderPath, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, folderName), false)
+	root, rel, perr := openUserPath(user, filepath.Join(pathParam, folderName), false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		http.Error(w, msg, status)
 		return
 	}
+	defer root.Close()
 
-	if mkErr := os.MkdirAll(folderPath, 0o755); mkErr != nil {
+	if mkErr := root.MkdirAll(rel, 0o755); mkErr != nil {
 		web.FlashRedirect(a, w, r, "error", "Error creating directory! Check permissions.", filesRedirectPath(pathParam))
 		return
 	}
 
 	sess, _ := a.Sessions.Get(r, session.CookieName)
-	if chownErr := chownToUser(ctx, a, folderPath, user.Context); chownErr != nil {
+	if chownErr := chownToUser(ctx, a, root, rel, user.Context); chownErr != nil {
 		flash.Add(sess, "error", "Failed to set ownership for the new folder.")
 	}
 	flash.Add(sess, "success", "Folder created successfully.")
@@ -130,20 +134,21 @@ func handleRenameFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	oldRelPath := filepath.Join(pathParam, oldName)
 	newRelPath := filepath.Join(pathParam, newName)
 
-	oldPath, perr := paths.SecureUserPath("HOME", user.Context, oldRelPath, true)
+	root, oldPath, perr := openUserPath(user, oldRelPath, true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		http.Error(w, msg, status)
 		return
 	}
-	newPath, perr := paths.SecureUserPath("HOME", user.Context, newRelPath, false)
+	defer root.Close()
+	newPath, perr := root.Rel(newRelPath, false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		http.Error(w, msg, status)
 		return
 	}
 
-	if renameErr := os.Rename(oldPath, newPath); renameErr != nil {
+	if renameErr := root.Rename(oldPath, newPath); renameErr != nil {
 		web.FlashRedirect(a, w, r, "error", "Error renaming item! Check permissions or if the new name already exists.", filesRedirectPath(pathParam))
 		return
 	}
@@ -187,16 +192,17 @@ func handleDeleteFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	itemPath, perr := paths.SecureUserPath("HOME", user.Context, targetRelPath, true)
+	root, itemPath, perr := openUserPath(user, targetRelPath, true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
 		return
 	}
+	defer root.Close()
 	displayPath := filepath.Join(pathParam, itemName)
 
 	if mode == "trash" {
-		if _, trashErr := moveItemToTrash(ctx, a, itemPath, itemName, user.Context); trashErr != nil {
+		if _, trashErr := moveItemToTrash(ctx, a, root, itemPath, itemName, user.Context); trashErr != nil {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "message": "Delete failed: " + trashErr.Error()})
 			return
 		}
@@ -207,9 +213,9 @@ func handleDeleteFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	var rmErr error
 	if itemType == "directory" {
-		rmErr = os.RemoveAll(itemPath)
+		rmErr = root.RemoveAll(itemPath)
 	} else {
-		rmErr = os.Remove(itemPath)
+		rmErr = root.Remove(itemPath)
 	}
 	if rmErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "message": "Delete failed: " + rmErr.Error()})
@@ -221,16 +227,19 @@ func handleDeleteFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 var permissionsRE = regexp.MustCompile(`^[0-7]{3,4}$`)
 
-// chmodPath applies mode to path, and to everything under it when recursive is set and path is a directory
-func chmodPath(path string, mode os.FileMode, recursive bool) error {
+// chmodPath applies mode to rel, and to everything under it when recursive is set and rel is a directory, symlinks inside are skipped rather than followed
+func chmodPath(root *paths.UserRoot, rel string, mode os.FileMode, recursive bool) error {
 	if !recursive {
-		return os.Chmod(path, mode)
+		return root.Chmod(rel, mode)
 	}
-	return filepath.WalkDir(path, func(itemPath string, _ os.DirEntry, err error) error {
+	return fs.WalkDir(root.FS(), rel, func(itemPath string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		return os.Chmod(itemPath, mode)
+		if d.Type()&fs.ModeSymlink != 0 {
+			return nil
+		}
+		return root.Chmod(itemPath, mode)
 	})
 }
 
@@ -257,21 +266,29 @@ func handleChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 	mode, _ := strconv.ParseUint(permissions, 8, 32)
 
+	root, perr := paths.OpenUserRoot("HOME", user.Context)
+	if perr != nil {
+		status, msg := pathErrorStatus(perr)
+		http.Error(w, msg, status)
+		return
+	}
+	defer root.Close()
+
 	changed := 0
 	var errored []string
 	for _, filename := range filenames {
 		relPath := filepath.Join(pathParam, filename)
-		filePath, perr := paths.SecureUserPath("HOME", user.Context, relPath, true)
+		rel, perr := root.Rel(relPath, true)
 		if perr != nil {
 			errored = append(errored, filename)
 			continue
 		}
-		info, statErr := os.Lstat(filePath)
+		info, statErr := root.Lstat(rel)
 		if statErr != nil {
 			errored = append(errored, filename)
 			continue
 		}
-		if chmodErr := chmodPath(filePath, os.FileMode(mode), recursive && info.IsDir()); chmodErr != nil {
+		if chmodErr := chmodPath(root, rel, os.FileMode(mode), recursive && info.IsDir()); chmodErr != nil {
 			errored = append(errored, filename)
 			continue
 		}
@@ -279,7 +296,7 @@ func handleChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		if recursive && info.IsDir() {
 			action += " recursively"
 		}
-		_ = logger.RecordUserAction(a.Config, user.Username, action+" for "+filePath+" using File Manager", reqip.ClientIP(r))
+		_ = logger.RecordUserAction(a.Config, user.Username, action+" for "+root.Abs(rel)+" using File Manager", reqip.ClientIP(r))
 		changed++
 	}
 
@@ -320,27 +337,28 @@ func handleCopyItem(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	src, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, itemName), true)
+	root, src, perr := openUserPath(user, filepath.Join(pathParam, itemName), true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
 		return
 	}
-	dst, perr := paths.SecureUserPath("HOME", user.Context, destinationPath, false)
+	defer root.Close()
+	dst, perr := root.Rel(destinationPath, false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
 		return
 	}
-	if info, statErr := os.Stat(dst); statErr == nil && info.IsDir() {
-		dst = filepath.Join(dst, itemName)
+	if info, statErr := root.Stat(dst); statErr == nil && info.IsDir() {
+		dst = path.Join(dst, itemName)
 	}
 
 	var copyErr error
 	if itemType == "directory" {
-		copyErr = copyTree(src, dst)
+		copyErr = copyTree(root.Root, src, dst)
 	} else {
-		copyErr = copyFile(src, dst)
+		copyErr = copyFile(root.Root, src, dst)
 	}
 	if copyErr != nil {
 		if os.IsExist(copyErr) {
@@ -355,7 +373,7 @@ func handleCopyItem(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	chownRecursive(ctx, a, dst, user.Context)
+	chownRecursive(ctx, a, root, dst, user.Context)
 	_ = logger.RecordUserAction(a.Config, user.Username,
 		"copied "+itemType+" "+filepath.Join(pathParam, itemName)+" to "+destinationPath+" using File Manager", reqip.ClientIP(r))
 	web.WriteJSON(w, http.StatusOK, map[string]any{"success": true})
@@ -380,31 +398,32 @@ func handleMoveItem(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	src, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, itemName), true)
+	root, src, perr := openUserPath(user, filepath.Join(pathParam, itemName), true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
 		return
 	}
-	dst, perr := paths.SecureUserPath("HOME", user.Context, destinationPath, false)
+	defer root.Close()
+	dst, perr := root.Rel(destinationPath, false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
 		return
 	}
-	if info, statErr := os.Stat(dst); statErr == nil && info.IsDir() {
-		dst = filepath.Join(dst, itemName)
+	if info, statErr := root.Stat(dst); statErr == nil && info.IsDir() {
+		dst = path.Join(dst, itemName)
 	}
 
-	if moveErr := os.Rename(src, dst); moveErr != nil {
+	if moveErr := root.Rename(src, dst); moveErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": "Move failed: " + moveErr.Error()})
 		return
 	}
 
-	if info, statErr := os.Stat(dst); statErr == nil && info.IsDir() {
-		chownRecursive(ctx, a, dst, user.Context)
+	if info, statErr := root.Lstat(dst); statErr == nil && info.IsDir() {
+		chownRecursive(ctx, a, root, dst, user.Context)
 	} else {
-		_ = chownToUser(ctx, a, dst, user.Context)
+		_ = chownToUser(ctx, a, root, dst, user.Context)
 	}
 
 	_ = logger.RecordUserAction(a.Config, user.Username,

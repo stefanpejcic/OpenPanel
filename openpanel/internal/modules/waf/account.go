@@ -9,6 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -19,7 +20,7 @@ func wafDisabledMarkerPath(userContext string) string {
 
 // AccountWAFEnabled reports whether WAF is enabled by default for new domains on this account: enabled unless wafDisabledMarkerPath exists
 func AccountWAFEnabled(userContext string) bool {
-	_, err := os.Stat(wafDisabledMarkerPath(userContext))
+	_, err := tenantfs.Stat(wafDisabledMarkerPath(userContext))
 	return os.IsNotExist(err)
 }
 
@@ -27,15 +28,15 @@ func AccountWAFEnabled(userContext string) bool {
 func SetAccountWAFEnabled(userContext string, enabled bool) error {
 	path := wafDisabledMarkerPath(userContext)
 	if enabled {
-		if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+		if err := tenantfs.Remove(path); err != nil && !os.IsNotExist(err) {
 			return err
 		}
 		return nil
 	}
-	if _, err := os.Stat(path); err == nil {
+	if _, err := tenantfs.Stat(path); err == nil {
 		return nil
 	}
-	return os.WriteFile(path, nil, 0o644)
+	return tenantfs.WriteFile(path, nil, 0o644)
 }
 
 // injectedContext is like injected() (waf.go) but also returns the account's context, needed for /home/<context>/-rooted paths like wafDisabledMarkerPath - injected() only returns current_username since none of its other callers need context

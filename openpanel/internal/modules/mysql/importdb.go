@@ -5,11 +5,8 @@ import (
 	"context"
 	"io"
 	"net/http"
-	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -17,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -81,8 +79,8 @@ func handleMySQLImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			tempFilePath := filepath.Join(targetDir, filename)
 
 			imported, errDetail := importDatabaseDump(ctx, userContext, mysqlVersion, dbName, targetDir, tempFilePath, file)
-			if _, statErr := os.Stat(tempFilePath); statErr == nil {
-				_ = os.Remove(tempFilePath)
+			if _, statErr := tenantfs.Stat(tempFilePath); statErr == nil {
+				_ = tenantfs.Remove(tempFilePath)
 			}
 
 			if imported {
@@ -110,11 +108,11 @@ func handleMySQLImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 // importDatabaseDump saves the uploaded dump, chowns it to the account's UID, then streams it into the target database via `podman exec -i <mysql> <mysql> <dbname>` (mysql/mariadb CLI reads a plain .sql dump on stdin), returns (ok, stderr-detail-on-failure)
 func importDatabaseDump(ctx context.Context, userContext, mysqlVersion, dbName, targetDir, tempFilePath string, uploaded io.Reader) (bool, string) {
-	if mkErr := os.MkdirAll(targetDir, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(targetDir, 0o755); mkErr != nil {
 		return false, mkErr.Error()
 	}
 
-	out, createErr := os.Create(tempFilePath)
+	out, createErr := tenantfs.Create(tempFilePath)
 	if createErr != nil {
 		return false, createErr.Error()
 	}
@@ -125,11 +123,10 @@ func importDatabaseDump(ctx context.Context, userContext, mysqlVersion, dbName, 
 	}
 
 	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
-		uidStr := strconv.Itoa(uid)
-		_ = exec.Command("chown", "-R", uidStr+":"+uidStr, targetDir).Run()
+		_ = tenantfs.ChownR(targetDir, uid, uid)
 	}
 
-	inFile, openErr := os.Open(tempFilePath)
+	inFile, openErr := tenantfs.Open(tempFilePath)
 	if openErr != nil {
 		return false, openErr.Error()
 	}

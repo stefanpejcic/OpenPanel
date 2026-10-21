@@ -15,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
@@ -168,9 +169,9 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 
 	emit(map[string]any{"status": "Checking if existing installation processes are running.."})
 	lockDir := "/etc/openpanel/openpanel/core/users/" + currentUsername
-	_ = os.MkdirAll(lockDir, 0o755)
+	_ = tenantfs.MkdirAll(lockDir, 0o755)
 	lockPath := lockDir + "/krompir.lock"
-	if lockErr := os.WriteFile(lockPath, nil, 0o644); lockErr != nil {
+	if lockErr := tenantfs.WriteFile(lockPath, nil, 0o644); lockErr != nil {
 		emit(map[string]any{"error": "Error creating " + lockPath + ": " + lockErr.Error()})
 		return
 	}
@@ -265,7 +266,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	emit(map[string]any{"status": "Starting the actual install of " + kind.DisplayAppType + " application"})
 
 	templatePath := "/etc/openpanel/docker/compose/" + kind.AppType + ".yml"
-	templateBytes, tmplErr := os.ReadFile(templatePath)
+	templateBytes, tmplErr := tenantfs.ReadFile(templatePath)
 	if tmplErr != nil {
 		emit(map[string]any{"error": "Error reading/parsing template: " + tmplErr.Error()})
 		return
@@ -288,7 +289,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	composeBackup := composeFile + ".app_bak"
 	envBackup := envFile + ".app_bak"
 
-	composeContent, composeErr := os.ReadFile(composeFile)
+	composeContent, composeErr := tenantfs.ReadFile(composeFile)
 	if composeErr != nil {
 		emit(map[string]any{"error": "docker-compose.yml file does not exist, contact support!"})
 		return
@@ -352,7 +353,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		newLines = withVol
 	}
 
-	if writeErr := os.WriteFile(composeFile, []byte(strings.Join(newLines, "")), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(composeFile, []byte(strings.Join(newLines, "")), 0o644); writeErr != nil {
 		emit(map[string]any{"error": "Error updating compose file: " + writeErr.Error()})
 		return
 	}
@@ -380,7 +381,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 			"\n" + serviceNameUp + "_" + kind.PyOrNode + "_WEBHOOK_URL=\"https://" + topDomain + "/\"\n"
 	}
 
-	if envF, openErr := os.OpenFile(envFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644); openErr == nil {
+	if envF, openErr := tenantfs.OpenFile(envFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644); openErr == nil {
 		_, _ = envF.WriteString(envVariables)
 		_ = envF.Close()
 	} else {
@@ -394,7 +395,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		// `podman-compose up` itself failed - no container was ever created, so containerFailureDetail below has nothing to inspect. Report the real reason now rather than falling through to the poll loop, which would just time out.
 		_ = copyFile(composeBackup, composeFile)
 		_ = copyFile(envBackup, envFile)
-		_ = os.Remove(lockPath)
+		_ = tenantfs.Remove(lockPath)
 		emit(map[string]any{"error": "Container failed to start. " + startResult.Message})
 		return
 	}
@@ -420,7 +421,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		_ = copyFile(envBackup, envFile)
 		rmArgv := podmanmanager.PodmanArgv(userContext, "rm", "-f", serviceName)
 		_ = podmanmanager.Command(ctx, userContext, rmArgv).Run()
-		_ = os.Remove(lockPath)
+		_ = tenantfs.Remove(lockPath)
 		errMsg := "Container failed to start."
 		if failureDetail != "" {
 			errMsg += " " + failureDetail
@@ -432,8 +433,8 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 
 	emit(map[string]any{"status": "Container '" + serviceName + "' is running successfully."})
-	_ = os.Remove(composeBackup)
-	_ = os.Remove(envBackup)
+	_ = tenantfs.Remove(composeBackup)
+	_ = tenantfs.Remove(envBackup)
 
 	if kind.AppType == "n8n" {
 		emit(map[string]any{"status": "Creating n8n owner account"})
@@ -501,7 +502,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	emit(map[string]any{"status": "New " + kind.DisplayAppType + " application setup completed!"})
 	_ = logger.RecordUserAction(a.Config, currentUsername, "created a new "+kind.DisplayAppType+" application on domain "+selectedDomain, ipAddress)
 
-	_ = os.Remove(lockPath)
+	_ = tenantfs.Remove(lockPath)
 }
 
 // formatPyFloat formats a float for the .env values written here, keeping at least one digit after the decimal point - unlike strconv.FormatFloat's -1 precision, which drops a bare ".0"

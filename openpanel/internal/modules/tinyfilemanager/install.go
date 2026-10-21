@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -17,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
@@ -112,8 +112,8 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	docrootWithoutWWW := strings.TrimPrefix(strings.TrimPrefix(installPath, "/var/www/html/"), "/")
 	hostOSPath := filepath.Join(htmlVolume, docrootWithoutWWW)
 
-	if _, statErr := os.Stat(hostOSPath); statErr == nil {
-		if entries, readErr := os.ReadDir(hostOSPath); readErr == nil && len(entries) > 0 {
+	if _, statErr := tenantfs.Stat(hostOSPath); statErr == nil {
+		if entries, readErr := tenantfs.ReadDir(hostOSPath); readErr == nil && len(entries) > 0 {
 			emit(map[string]any{"error": "Directory " + installPath + " already exists and is not empty."})
 			return
 		}
@@ -194,7 +194,7 @@ func hashTinyFileManagerPassword(ctx context.Context, userContext, phpContainer,
 
 // writeTinyFileManagerAuthUsers reads the just-downloaded tinyfilemanager.php from the host OS path, replaces its default $auth_users block with a single admin entry, and writes it back - runs host-side, mirroring the htmlVolume-prefix pattern tinyphotogallery/sofawiki use
 func writeTinyFileManagerAuthUsers(filePath, adminUsername, passwordHash string) error {
-	content, readErr := os.ReadFile(filePath)
+	content, readErr := tenantfs.ReadFile(filePath)
 	if readErr != nil {
 		return readErr
 	}
@@ -211,5 +211,5 @@ func writeTinyFileManagerAuthUsers(filePath, adminUsername, passwordHash string)
 	newContent = append(newContent, []byte(replacement)...)
 	newContent = append(newContent, content[loc[1]:]...)
 
-	return os.WriteFile(filePath, newContent, 0o644)
+	return tenantfs.WriteFile(filePath, newContent, 0o644)
 }

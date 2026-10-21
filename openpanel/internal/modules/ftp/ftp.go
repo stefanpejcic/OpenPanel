@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
-	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -18,6 +17,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -126,7 +126,7 @@ type Account struct {
 
 // loadAccounts parses an FTP users.list file into Account records.
 func loadAccounts(usersListFile string) []Account {
-	content, err := os.ReadFile(usersListFile)
+	content, err := tenantfs.ReadFile(usersListFile)
 	if err != nil {
 		return nil
 	}
@@ -183,7 +183,7 @@ func handleFTPAccounts(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	userFolder := "/etc/openpanel/ftp/users/" + userContext
 	usersListFile := userFolder + "/users.list"
-	_ = os.MkdirAll(userFolder, 0o755)
+	_ = tenantfs.MkdirAll(userFolder, 0o755)
 
 	accounts := loadAccounts(usersListFile)
 
@@ -420,7 +420,7 @@ func handleFTPConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	}
 
 	usersListFile := "/etc/openpanel/ftp/users/" + userContext + "/users.list"
-	content, readErr := os.ReadFile(usersListFile)
+	content, readErr := tenantfs.ReadFile(usersListFile)
 	if readErr != nil {
 		flashAndRedirectToAccounts(a, w, r, "danger", "User has no FTP accounts.")
 		return
@@ -445,7 +445,7 @@ func handleFTPConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Reques
 
 	defaultHost := a.GetCachedIPForUserOrPublicIPv4(r.Context(), currentUsername)
 	dedicatedIPPath := "/etc/openpanel/openpanel/core/users/" + currentUsername + "/ip.json"
-	if data, err := os.ReadFile(dedicatedIPPath); err == nil {
+	if data, err := tenantfs.ReadFile(dedicatedIPPath); err == nil {
 		var parsed struct {
 			IP string `json:"ip"`
 		}

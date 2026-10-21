@@ -3,7 +3,6 @@ package crons
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -13,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
@@ -55,7 +55,7 @@ func apiCronsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := cronFilePath(userContext)
-	info, statErr := os.Stat(path)
+	info, statErr := tenantfs.Stat(path)
 	if statErr != nil {
 		serviceNames := cronContainers(ctx, userContext)
 		writeAPICronsJSON(w, http.StatusOK, map[string]any{"jobs": []crJob{}, "containers": serviceNames})
@@ -67,7 +67,7 @@ func apiCronsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	content, readErr := os.ReadFile(path)
+	content, readErr := tenantfs.ReadFile(path)
 	if readErr != nil {
 		writeAPICronsJSON(w, http.StatusOK, map[string]any{"jobs": []crJob{}, "containers": []string{}})
 		return
@@ -124,7 +124,7 @@ func apiCronsRawGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	content := ""
-	if data, readErr := os.ReadFile(path); readErr == nil {
+	if data, readErr := tenantfs.ReadFile(path); readErr == nil {
 		content = string(data)
 	}
 	writeAPICronsJSON(w, http.StatusOK, map[string]string{"content": content})
@@ -227,7 +227,7 @@ func apiCronsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if autoComment {
-		if existingContent, readErr := os.ReadFile(path); readErr == nil {
+		if existingContent, readErr := tenantfs.ReadFile(path); readErr == nil {
 			comment = uniqueCronComment(ParseCronFile(string(existingContent)), comment)
 		}
 	}
@@ -312,7 +312,7 @@ func apiCronsEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	content, readErr := os.ReadFile(path)
+	content, readErr := tenantfs.ReadFile(path)
 	if readErr != nil {
 		writeAPICronsJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error saving cron job: " + readErr.Error()})
 		return
@@ -335,7 +335,7 @@ func apiCronsEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if writeErr := os.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
 		writeAPICronsJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error saving cron job: " + writeErr.Error()})
 		return
 	}
@@ -376,7 +376,7 @@ func apiCronsDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	content, readErr := os.ReadFile(path)
+	content, readErr := tenantfs.ReadFile(path)
 	if readErr != nil {
 		writeAPICronsJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error deleting cron job: " + readErr.Error()})
 		return
@@ -386,7 +386,7 @@ func apiCronsDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	})
 	newLines := strings.Split(newContent, "\n")
 
-	if writeErr := os.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
 		writeAPICronsJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error deleting cron job: " + writeErr.Error()})
 		return
 	}

@@ -64,10 +64,38 @@ func baseDir(kind, context string) (string, error) {
 	}
 }
 
-// SecureUserPath resolves a user path inside HOME/HTML, blocking traversal and symlink escapes.
-func SecureUserPath(base, context, userInputPath string, checkExists bool) (string, error) {
-	const maxPathLength = 200
+// splitUserPath runs the lexical checks on a user-supplied path and returns its non-empty parts
+func splitUserPath(userInputPath string) ([]string, error) {
+	return splitPath(userInputPath, 200)
+}
 
+func splitPath(userInputPath string, maxPathLength int) ([]string, error) {
+	if len(userInputPath) > maxPathLength {
+		return nil, abort(403, "Path too long")
+	}
+
+	var parts []string
+	for _, part := range strings.Split(strings.ReplaceAll(userInputPath, "\\", "/"), "/") {
+		if part == "" || part == "." {
+			continue
+		}
+		if controlCharsRE.MatchString(part) {
+			return nil, abort(403, "Invalid characters in filename")
+		}
+		parts = append(parts, part)
+	}
+
+	lowered := strings.ToLower(userInputPath)
+	for _, pattern := range dangerousPatterns {
+		if strings.Contains(lowered, pattern) {
+			return nil, abort(403, "Suspicious path pattern detected")
+		}
+	}
+	return parts, nil
+}
+
+// SecureUserPath resolves a user path inside HOME/HTML, blocking traversal and symlink escapes. The returned string is only safe to show or check, anything that opens or writes it as root should go through OpenUserRoot instead
+func SecureUserPath(base, context, userInputPath string, checkExists bool) (string, error) {
 	if context == "" || strings.ContainsAny(context, "/\\") {
 		return "", abort(403, "Invalid context")
 	}
@@ -91,36 +119,14 @@ func SecureUserPath(base, context, userInputPath string, checkExists bool) (stri
 		return resolved, nil
 	}
 
-	if len(userInputPath) > maxPathLength {
-		return "", abort(403, "Path too long")
-	}
-
-	normalized := strings.ReplaceAll(userInputPath, "\\", "/")
-	pathParts := strings.Split(normalized, "/")
-	for _, part := range pathParts {
-		if part == "" {
-			continue
-		}
-		if controlCharsRE.MatchString(part) {
-			return "", abort(403, "Invalid characters in filename")
-		}
-	}
-
-	lowered := strings.ToLower(userInputPath)
-	for _, pattern := range dangerousPatterns {
-		if strings.Contains(lowered, pattern) {
-			return "", abort(403, "Suspicious path pattern detected")
-		}
+	nonEmptyParts, err := splitUserPath(userInputPath)
+	if err != nil {
+		return "", err
 	}
 
 	// walk the path and reject any symlink along the way, even if the end result would land inside userHome anyway
 	current := userHome
-	var nonEmptyParts []string
-	for _, part := range pathParts {
-		if part == "" {
-			continue
-		}
-		nonEmptyParts = append(nonEmptyParts, part)
+	for _, part := range nonEmptyParts {
 		current = filepath.Join(current, part)
 		if info, statErr := os.Lstat(current); statErr == nil && info.Mode()&os.ModeSymlink != 0 {
 			return "", abort(403, "Symlinks are not allowed")
@@ -241,4 +247,23 @@ func SetHomeVolumeForTest(dir string) func() {
 	old := homeVolumeOverride
 	homeVolumeOverride = dir
 	return func() { homeVolumeOverride = old }
+}
+
+var subdirPartRE = regexp.MustCompile(`^[A-Za-z0-9._-]+$`)
+
+// CleanSubdir checks a subfolder someone picked for an install or clone, "" means the docroot itself and anything with .. is refused
+func CleanSubdir(s string) (string, error) {
+	s = strings.Trim(strings.TrimSpace(s), "/")
+	if s == "" {
+		return "", nil
+	}
+	if len(s) > 200 {
+		return "", abort(400, "Subdirectory is too long")
+	}
+	for _, part := range strings.Split(s, "/") {
+		if part == "" || part == "." || part == ".." || !subdirPartRE.MatchString(part) {
+			return "", abort(400, "Invalid subdirectory: only letters, numbers, dots, dashes and underscores are allowed")
+		}
+	}
+	return s, nil
 }

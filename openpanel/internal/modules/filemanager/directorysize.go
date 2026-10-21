@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/url"
 	"os/exec"
-	"path/filepath"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -20,8 +19,6 @@ func HandleDirectorySize(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	baseDir := "/home/" + user.Context + "/docker-data/volumes/" + user.Context + "_html_data/_data"
-
 	folder := r.URL.Query().Get("folder")
 	if decoded, decErr := url.QueryUnescape(folder); decErr == nil {
 		folder = decoded
@@ -29,13 +26,14 @@ func HandleDirectorySize(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	folder = strings.TrimPrefix(folder, "/")
 	folder = strings.TrimPrefix(folder, "var/www/html/")
 
-	targetPath := filepath.Clean(filepath.Join(baseDir, folder))
-	if !strings.HasPrefix(targetPath, baseDir) {
+	root, rel, perr := openUserPath(user, folder, true)
+	if perr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Invalid folder path."})
 		return
 	}
+	defer root.Close()
 
-	out, runErr := exec.CommandContext(r.Context(), "du", "-sh", targetPath).Output()
+	out, runErr := runOnDir(r.Context(), root, rel, "du", "-sh")
 	if runErr != nil {
 		errMsg := runErr.Error()
 		if exitErr, ok := runErr.(*exec.ExitError); ok {

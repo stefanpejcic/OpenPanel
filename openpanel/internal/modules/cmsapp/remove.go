@@ -3,7 +3,6 @@ package cmsapp
 import (
 	"context"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -15,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -118,7 +118,7 @@ func (app *App) dropDBFromConfig(a *appctx.App, w http.ResponseWriter, r *http.R
 	if app.RemoveConfigPath != nil {
 		configFile = app.RemoveConfigPath(s)
 	}
-	content, _ := os.ReadFile(configFile)
+	content, _ := tenantfs.ReadFile(configFile)
 	text := string(content)
 	if app.RemoveConfigText != nil {
 		text = app.RemoveConfigText(text)

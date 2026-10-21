@@ -4,7 +4,7 @@ import (
 	"io"
 	"mime"
 	"net/http"
-	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -22,8 +22,8 @@ import (
 var allowedEditors = map[string]bool{"monaco": true, "ace": true, "codemirror": true, "text": true}
 
 // isEditableFile is a crude binary-file sniff: no NUL byte in the first 8KB
-func isEditableFile(realPath string) bool {
-	f, err := os.Open(realPath)
+func isEditableFile(root *paths.UserRoot, rel string) bool {
+	f, err := root.Open(rel)
 	if err != nil {
 		return false
 	}
@@ -103,15 +103,16 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 	fileExt := strings.ToLower(filepath.Ext(filePath))
 	filename := filepath.Base(filePath)
 
-	realPath, perr := paths.SecureUserPath("HOME", user.Context, filePath, false)
+	root, rel, perr := openUserPath(user, filePath, false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		http.Error(w, msg, status)
 		return
 	}
+	defer root.Close()
 
 	if !containsString(dottedExts, fileExt) && !containsAny(strings.ToLower(filename), bareNames) {
-		if !isEditableFile(realPath) {
+		if !isEditableFile(root, rel) {
 			web.FlashRedirect(a, w, r, "error", "Editing this file type is not allowed.", "/files")
 			return
 		}
@@ -128,17 +129,14 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 			contentToWrite = strings.TrimPrefix(contentToWrite, "\ufeff")
 		}
 
-		tmpPath := realPath + ".tmp"
-		writeErr := os.WriteFile(tmpPath, []byte(contentToWrite), 0o644)
-		if writeErr == nil {
-			writeErr = os.Rename(tmpPath, realPath)
-		}
+		// the body was read after the path check, so the write has to go through the root handle, not the path string
+		writeErr := root.WriteFileAtomic(rel, []byte(contentToWrite), 0o644)
 
 		sess, _ := a.Sessions.Get(r, session.CookieName)
 		if writeErr != nil {
 			flash.Add(sess, "error", "Error saving file.")
 		} else {
-			_ = chownToUser(ctx, a, realPath, user.Context)
+			_ = chownToUser(ctx, a, root, rel, user.Context)
 			flash.Add(sess, "success", "File saved successfully")
 			_ = logger.RecordUserAction(a.Config, user.Username, "edited file "+filePath, reqip.ClientIP(r))
 		}
@@ -154,27 +152,33 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 	fileLimitBytes := int64(fileLimitMB) * 1024 * 1024
 	var fileContent string
 
-	if !isNew {
-		info, statErr := os.Stat(realPath)
+	f, openErr := root.Open(rel)
+	if openErr != nil {
+		if !isNew {
+			web.FlashRedirect(a, w, r, "error", "Error accessing file size.", "/files")
+			return
+		}
+	} else {
+		defer f.Close()
+		info, statErr := f.Stat()
 		if statErr != nil {
 			web.FlashRedirect(a, w, r, "error", "Error accessing file size.", "/files")
 			return
 		}
-		if info.Size() > fileLimitBytes {
+		if !isNew && info.Size() > fileLimitBytes {
 			web.FlashRedirect(a, w, r, "error",
 				web.Tr(a, r, "File is too large to open in the editor (limit is %(file_limit_mb)s MB)", "file_limit_mb", strconv.Itoa(fileLimitMB)), "/files")
 			return
 		}
-	}
-
-	data, readErr := os.ReadFile(realPath)
-	if readErr != nil {
-		if !isNew {
-			web.FlashRedirect(a, w, r, "error", "Error reading file", "/files")
-			return
+		data, readErr := io.ReadAll(io.LimitReader(f, fileLimitBytes+1))
+		if readErr != nil {
+			if !isNew {
+				web.FlashRedirect(a, w, r, "error", "Error reading file", "/files")
+				return
+			}
+		} else {
+			fileContent = string(data)
 		}
-	} else {
-		fileContent = string(data)
 	}
 
 	if r.URL.Query().Get("output") == "json" {
@@ -203,14 +207,21 @@ func handleDownloadFile(a *appctx.App, w http.ResponseWriter, r *http.Request, f
 	}
 	pathParam := r.URL.Query().Get("path_param")
 
-	realPath, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, filename), true)
+	root, rel, perr := openUserPath(user, filepath.Join(pathParam, filename), true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		http.Error(w, msg, status)
 		return
 	}
+	defer root.Close()
 
-	info, statErr := os.Stat(realPath)
+	f, openErr := root.Open(rel)
+	if openErr != nil {
+		web.FlashRedirect(a, w, r, "error", "Error retrieving file size.", filesRedirectPath(pathParam))
+		return
+	}
+	defer f.Close()
+	info, statErr := f.Stat()
 	if statErr != nil {
 		web.FlashRedirect(a, w, r, "error", "Error retrieving file size.", filesRedirectPath(pathParam))
 		return
@@ -221,18 +232,11 @@ func handleDownloadFile(a *appctx.App, w http.ResponseWriter, r *http.Request, f
 		return
 	}
 
-	f, openErr := os.Open(realPath)
-	if openErr != nil {
-		web.FlashRedirect(a, w, r, "error", "Error retrieving file size.", filesRedirectPath(pathParam))
-		return
-	}
-	defer f.Close()
-
 	maxDuration := time.Duration(atoiDefault(a.Config.Get("filemanager_download_max_time", "60"), 60)) * time.Minute
 	deadline := time.Now().Add(maxDuration)
 
 	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", `attachment; filename="`+filepath.Base(realPath)+`"`)
+	w.Header().Set("Content-Disposition", `attachment; filename="`+path.Base(rel)+`"`)
 
 	buf := make([]byte, 8192)
 	for {
@@ -274,52 +278,45 @@ func handleViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filen
 	fileExt := strings.ToLower(filepath.Ext(filename))
 	baseName := filepath.Base(filename)
 
-	if !containsString(dottedExts, fileExt) && !containsAny(strings.ToLower(baseName), editBareNames) {
-		realPathCheck, perr := paths.SecureUserPath("HOME", user.Context, filename, false)
-		if perr == nil && !isEditableFile(realPathCheck) {
-			web.FlashRedirect(a, w, r, "error", "Editing this file type is not allowed.", "/files")
-			return
-		}
-	}
-
-	realPath, perr := paths.SecureUserPath("HOME", user.Context, filename, true)
+	root, rel, perr := openUserPath(user, filename, true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		http.Error(w, msg, status)
+		return
+	}
+	defer root.Close()
+
+	if !containsString(dottedExts, fileExt) && !containsAny(strings.ToLower(baseName), editBareNames) && !isEditableFile(root, rel) {
+		web.FlashRedirect(a, w, r, "error", "Editing this file type is not allowed.", "/files")
 		return
 	}
 
 	isNew := r.URL.Query().Get("new") == "true"
 	fileLimitMB := atoiDefault(a.Config.Get("filemanager_view_size", "500"), 500)
 
-	if !isNew {
-		info, statErr := os.Stat(realPath)
-		if statErr != nil {
-			web.FlashRedirect(a, w, r, "error", "Error accessing file size.", "/files")
-			return
-		}
-		if info.Size() > int64(fileLimitMB)*1024*1024 {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "File is too large to view in the browser (limit is %(file_limit_mb)s MB)", "file_limit_mb", strconv.Itoa(fileLimitMB)), "/files")
-			return
-		}
+	f, openErr := root.Open(rel)
+	if openErr != nil {
+		web.FlashRedirect(a, w, r, "error", "Error opening file.", "/files")
+		return
+	}
+	defer f.Close()
+	info, statErr := f.Stat()
+	if statErr != nil {
+		web.FlashRedirect(a, w, r, "error", "Error accessing file size.", "/files")
+		return
+	}
+	if !isNew && info.Size() > int64(fileLimitMB)*1024*1024 {
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "File is too large to view in the browser (limit is %(file_limit_mb)s MB)", "file_limit_mb", strconv.Itoa(fileLimitMB)), "/files")
+		return
 	}
 
 	mimeType := mime.TypeByExtension(filepath.Ext(filename))
 	if strings.HasPrefix(mimeType, "image/") {
-		http.ServeFile(w, r, realPath)
+		http.ServeContent(w, r, info.Name(), info.ModTime(), f)
 		return
 	}
 
-	var content []byte
-	if isNew {
-		if _, statErr := os.Stat(realPath); statErr != nil {
-			content = nil
-		} else {
-			content, err = os.ReadFile(realPath)
-		}
-	} else {
-		content, err = os.ReadFile(realPath)
-	}
+	content, err := io.ReadAll(f)
 	if err != nil {
 		web.FlashRedirect(a, w, r, "error", "Error opening file.", "/files")
 		return

@@ -172,6 +172,7 @@
         const xhr = new XMLHttpRequest();
         xhr.open('POST', `/pm2/start/${pm2Id}`, true);
         xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
         xhr.onload = function() {
@@ -179,7 +180,9 @@
                 showToast({{toJSON (.T.Get "Application started successfully.")}}, 'success');
                 setTimeout(() => { location.reload(); }, 1000);
             } else {
-                showToast({{toJSON (.T.Get "Error starting application.")}}, 'error');
+                let msg = {{toJSON (.T.Get "Error starting application.")}};
+                try { msg = JSON.parse(xhr.responseText).error || msg; } catch (e) {}
+                showToast(msg, 'error');
                 console.error('Start failed:', xhr.statusText);
             }
         };
@@ -202,6 +205,7 @@
         const xhr = new XMLHttpRequest();
         xhr.open('POST', `/pm2/stop/${pm2Id}`, true);
         xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
         xhr.onload = function() {
@@ -209,7 +213,9 @@
                 showToast({{toJSON (.T.Get "Application stopped successfully.")}}, 'success');
                 setTimeout(() => { location.reload(); }, 1000);
             } else {
-                showToast({{toJSON (.T.Get "Error stopping application.")}}, 'error');
+                let msg = {{toJSON (.T.Get "Error stopping application.")}};
+                try { msg = JSON.parse(xhr.responseText).error || msg; } catch (e) {}
+                showToast(msg, 'error');
                 console.error('Stop failed:', xhr.statusText);
             }
         };
@@ -233,6 +239,7 @@
         const xhr = new XMLHttpRequest();
         xhr.open('POST', `/pm2/restart/${pm2Id}`, true);
         xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
         xhr.onload = function() {
@@ -240,7 +247,9 @@
                 showToast({{toJSON (.T.Get "Application restarted successfully.")}}, 'success');
                 setTimeout(() => { location.reload(); }, 1000);
             } else {
-                showToast({{toJSON (.T.Get "Error restarting application.")}}, 'error');
+                let msg = {{toJSON (.T.Get "Error restarting application.")}};
+                try { msg = JSON.parse(xhr.responseText).error || msg; } catch (e) {}
+                showToast(msg, 'error');
                 console.error('Restart failed:', xhr.statusText);
             }
         };

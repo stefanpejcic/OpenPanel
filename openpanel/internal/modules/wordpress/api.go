@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
@@ -22,8 +21,10 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -371,7 +372,7 @@ func apiWordPressSecureGet(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 
 	configPath := "/etc/openpanel/caddy/domains/" + domainRoot + ".conf"
-	content, readErr := os.ReadFile(configPath)
+	content, readErr := tenantfs.ReadFile(configPath)
 	if readErr != nil {
 		writeAPIWPJSON(w, http.StatusNotFound, map[string]string{"error": "Config file not found"})
 		return
@@ -465,6 +466,10 @@ func apiWordPressRemove(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(siteName, "/")
 	domainRoot := parts[0]
 	subdirs := parts[1:]
+	if _, subErr := paths.CleanSubdir(strings.Join(subdirs, "/")); subErr != nil {
+		writeAPIWPJSON(w, http.StatusBadRequest, map[string]string{"error": subErr.Error()})
+		return
+	}
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, domainRoot) {
 		writeAPIWPJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
@@ -482,7 +487,7 @@ func apiWordPressRemove(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	volume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + realPath
 	wpConfigFile := filepath.Join(volume, "wp-config.php")
 
-	if content, readErr := os.ReadFile(wpConfigFile); readErr == nil {
+	if content, readErr := tenantfs.ReadFile(wpConfigFile); readErr == nil {
 		dbNameMatch := removeDBNameRE.FindStringSubmatch(string(content))
 		dbUserMatch := removeDBUserRE.FindStringSubmatch(string(content))
 		if dbNameMatch != nil && dbUserMatch != nil {
@@ -496,12 +501,12 @@ func apiWordPressRemove(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var toDelete []string
 	for _, item := range wordpressFiles {
 		itemPath := filepath.Join(volume, item)
-		if _, statErr := os.Stat(itemPath); statErr == nil {
+		if _, statErr := tenantfs.Stat(itemPath); statErr == nil {
 			toDelete = append(toDelete, itemPath)
 		}
 	}
-	if len(toDelete) > 0 {
-		_ = exec.CommandContext(ctx, "rm", append([]string{"-rf"}, toDelete...)...).Run()
+	for _, p := range toDelete {
+		_ = tenantfs.RemoveAll(p)
 	}
 
 	if _, delErr := a.DB.ExecContext(ctx, "DELETE FROM sites WHERE id = ?", siteID); delErr != nil {
@@ -810,12 +815,12 @@ func apiWordPressScan(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	lockPath := appkit.LockFilePath(currentUsername)
-	if info, statErr := os.Stat(lockPath); statErr == nil {
+	if info, statErr := tenantfs.Stat(lockPath); statErr == nil {
 		if time.Since(info.ModTime()) < time.Minute {
 			writeAPIWPJSON(w, http.StatusConflict, map[string]string{"error": "A WordPress installation is currently running"})
 			return
 		}
-		_ = os.Remove(lockPath)
+		_ = tenantfs.Remove(lockPath)
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "initiated scan for WordPress installations", reqip.ClientIP(r))

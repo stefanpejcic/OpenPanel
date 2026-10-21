@@ -1,12 +1,12 @@
 package prestashop
 
 import (
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 )
 
@@ -21,8 +21,8 @@ var (
 
 // var/cache/{prod,dev} holds a compiled service container with the source site's DB credentials baked in, which 500s the clone's first request until cleared
 func cloneClearCache(c *cmsapp.Clone) {
-	_ = os.RemoveAll(filepath.Join(c.DstPath, "var", "cache", "prod"))
-	_ = os.RemoveAll(filepath.Join(c.DstPath, "var", "cache", "dev"))
+	_ = tenantfs.RemoveAll(filepath.Join(c.DstPath, "var", "cache", "prod"))
+	_ = tenantfs.RemoveAll(filepath.Join(c.DstPath, "var", "cache", "dev"))
 }
 
 func cloneConfig(c *cmsapp.Clone) map[string]any {

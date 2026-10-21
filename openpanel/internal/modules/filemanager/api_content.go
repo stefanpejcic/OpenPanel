@@ -5,7 +5,7 @@ import (
 	"io"
 	"mime"
 	"net/http"
-	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -13,7 +13,6 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -40,15 +39,16 @@ func apiSaveFileContent(a *appctx.App, w http.ResponseWriter, r *http.Request, f
 	fileExt := strings.ToLower(filepath.Ext(filePath))
 	filename := filepath.Base(filePath)
 
-	realPath, perr := paths.SecureUserPath("HOME", user.Context, filePath, false)
+	root, rel, perr := openUserPath(user, filePath, false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
+	defer root.Close()
 
 	if !containsString(dottedExts, fileExt) && !containsAny(strings.ToLower(filename), bareNames) {
-		if !isEditableFile(realPath) {
+		if !isEditableFile(root, rel) {
 			web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "Editing this file type is not allowed."})
 			return
 		}
@@ -69,17 +69,12 @@ func apiSaveFileContent(a *appctx.App, w http.ResponseWriter, r *http.Request, f
 		contentToWrite = strings.TrimPrefix(contentToWrite, "\ufeff")
 	}
 
-	tmpPath := realPath + ".tmp"
-	writeErr := os.WriteFile(tmpPath, []byte(contentToWrite), 0o644)
-	if writeErr == nil {
-		writeErr = os.Rename(tmpPath, realPath)
-	}
-	if writeErr != nil {
+	if writeErr := root.WriteFileAtomic(rel, []byte(contentToWrite), 0o644); writeErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error saving file."})
 		return
 	}
 
-	_ = chownToUser(ctx, a, realPath, user.Context)
+	_ = chownToUser(ctx, a, root, rel, user.Context)
 	_ = logger.RecordUserAction(a.Config, user.Username, "edited file "+filePath+" via API", reqip.ClientIP(r))
 	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "File saved successfully"})
 }
@@ -94,14 +89,21 @@ func apiDownloadFile(a *appctx.App, w http.ResponseWriter, r *http.Request, file
 	}
 	pathParam := r.URL.Query().Get("path_param")
 
-	realPath, perr := paths.SecureUserPath("HOME", user.Context, filepath.Join(pathParam, filename), true)
+	root, rel, perr := openUserPath(user, filepath.Join(pathParam, filename), true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
+	defer root.Close()
 
-	info, statErr := os.Stat(realPath)
+	f, openErr := root.Open(rel)
+	if openErr != nil {
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Error retrieving file size."})
+		return
+	}
+	defer f.Close()
+	info, statErr := f.Stat()
 	if statErr != nil {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Error retrieving file size."})
 		return
@@ -112,20 +114,13 @@ func apiDownloadFile(a *appctx.App, w http.ResponseWriter, r *http.Request, file
 		return
 	}
 
-	f, openErr := os.Open(realPath)
-	if openErr != nil {
-		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Error retrieving file size."})
-		return
-	}
-	defer f.Close()
-
 	_ = logger.RecordUserAction(a.Config, user.Username, "downloaded "+filepath.Join(pathParam, filename)+" via File Manager API", reqip.ClientIP(r))
 
 	maxDuration := time.Duration(atoiDefault(a.Config.Get("filemanager_download_max_time", "60"), 60)) * time.Minute
 	deadline := time.Now().Add(maxDuration)
 
 	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", `attachment; filename="`+filepath.Base(realPath)+`"`)
+	w.Header().Set("Content-Disposition", `attachment; filename="`+path.Base(rel)+`"`)
 
 	buf := make([]byte, 8192)
 	for {
@@ -164,23 +159,27 @@ func apiViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filename
 	fileExt := strings.ToLower(filepath.Ext(filename))
 	baseName := filepath.Base(filename)
 
-	if !containsString(dottedExts, fileExt) && !containsAny(strings.ToLower(baseName), editBareNames) {
-		realPathCheck, perr := paths.SecureUserPath("HOME", user.Context, filename, false)
-		if perr == nil && !isEditableFile(realPathCheck) {
-			web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "Viewing this file type is not allowed."})
-			return
-		}
-	}
-
-	realPath, perr := paths.SecureUserPath("HOME", user.Context, filename, true)
+	root, rel, perr := openUserPath(user, filename, true)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
 		web.WriteJSON(w, status, map[string]string{"error": msg})
 		return
 	}
+	defer root.Close()
+
+	if !containsString(dottedExts, fileExt) && !containsAny(strings.ToLower(baseName), editBareNames) && !isEditableFile(root, rel) {
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "Viewing this file type is not allowed."})
+		return
+	}
 
 	fileLimitMB := atoiDefault(a.Config.Get("filemanager_view_size", "500"), 500)
-	info, statErr := os.Stat(realPath)
+	f, openErr := root.Open(rel)
+	if openErr != nil {
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Error accessing file size."})
+		return
+	}
+	defer f.Close()
+	info, statErr := f.Stat()
 	if statErr != nil {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Error accessing file size."})
 		return
@@ -192,11 +191,11 @@ func apiViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filename
 
 	mimeType := mime.TypeByExtension(filepath.Ext(filename))
 	if strings.HasPrefix(mimeType, "image/") {
-		http.ServeFile(w, r, realPath)
+		http.ServeContent(w, r, info.Name(), info.ModTime(), f)
 		return
 	}
 
-	content, readErr := os.ReadFile(realPath)
+	content, readErr := io.ReadAll(f)
 	if readErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error opening file."})
 		return

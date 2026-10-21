@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dns"
 )
 
@@ -69,7 +70,7 @@ func zoneFilePath(domain string) string {
 
 // parseDynamicDNSFromZone scans a domain's zone file for lines carrying a "; webcall=TOKEN updated=TS" marker comment, distinguishable from ordinary records by that comment alone
 func parseDynamicDNSFromZone(domain string) []DynDNSEntry {
-	content, err := os.ReadFile(zoneFilePath(domain))
+	content, err := tenantfs.ReadFile(zoneFilePath(domain))
 	if err != nil {
 		return nil
 	}
@@ -120,7 +121,7 @@ func buildZoneLine(subdomain, recordType, ip, token, updated string) string {
 // writeZoneLines writes lines back to domain's zone file under an exclusive flock, guarding against concurrent writers since this route and the public update webcall both write the same file
 func writeZoneLines(domain string, lines []string) error {
 	path := zoneFilePath(domain)
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, 0o644)
+	f, err := tenantfs.OpenFile(path, os.O_WRONLY|os.O_TRUNC, 0o644)
 	if err != nil {
 		return err
 	}
@@ -136,7 +137,7 @@ func writeZoneLines(domain string, lines []string) error {
 }
 
 func readZoneLines(domain string) ([]string, error) {
-	content, err := os.ReadFile(zoneFilePath(domain))
+	content, err := tenantfs.ReadFile(zoneFilePath(domain))
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +184,7 @@ func addDynamicDNSEntry(domain, subdomain, recordType, ip string) (token string,
 	token = generateToken(16)
 	newLine := buildZoneLine(subdomain, recordType, ip, token, "")
 
-	content, err := os.ReadFile(zoneFilePath(domain))
+	content, err := tenantfs.ReadFile(zoneFilePath(domain))
 	if err != nil {
 		return "", false
 	}
@@ -193,7 +194,7 @@ func addDynamicDNSEntry(domain, subdomain, recordType, ip string) (token string,
 	}
 	updated += newLine + "\n"
 
-	if err := os.WriteFile(zoneFilePath(domain), []byte(updated), 0o644); err != nil {
+	if err := tenantfs.WriteFile(zoneFilePath(domain), []byte(updated), 0o644); err != nil {
 		return "", false
 	}
 	dns.RestartDNSService(domain)

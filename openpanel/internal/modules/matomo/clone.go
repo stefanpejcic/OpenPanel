@@ -1,11 +1,11 @@
 package matomo
 
 import (
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 )
 
@@ -19,7 +19,7 @@ var (
 )
 
 func cloneConfig(c *cmsapp.Clone) map[string]any {
-	_ = exec.CommandContext(c.Ctx, "chmod", "644", filepath.Join(c.DstPath, "config", "config.ini.php")).Run()
+	_ = tenantfs.Chmod(filepath.Join(c.DstPath, "config", "config.ini.php"), 0o644)
 	escapedPassword := strings.ReplaceAll(c.DstDBUserPassword, `"`, `\"`)
 	return c.RewriteConfig("config/config.ini.php", func(s string) string {
 		s = cloneMatomoDBNameRE.ReplaceAllString(s, `dbname = "`+c.DstDB+`"`)

@@ -8,11 +8,11 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"math/big"
-	"os"
 	"regexp"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 const randomStringAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -34,14 +34,14 @@ func LockFilePath(username string) string {
 
 func CreateLockFile(username string) error {
 	dir := "/etc/openpanel/openpanel/core/users/" + username
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := tenantfs.MkdirAll(dir, 0o755); err != nil {
 		return err
 	}
-	return os.WriteFile(LockFilePath(username), nil, 0o644)
+	return tenantfs.WriteFile(LockFilePath(username), nil, 0o644)
 }
 
 func RemoveLockFile(username string) {
-	_ = os.Remove(LockFilePath(username))
+	_ = tenantfs.Remove(LockFilePath(username))
 }
 
 // DomainRow is the shape installers read from the domains table

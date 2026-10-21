@@ -1,11 +1,11 @@
 package mediawiki
 
 import (
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
@@ -22,7 +22,7 @@ var (
 )
 
 func cloneConfig(c *cmsapp.Clone) map[string]any {
-	_ = exec.CommandContext(c.Ctx, "chmod", "644", filepath.Join(c.DstPath, "LocalSettings.php")).Run()
+	_ = tenantfs.Chmod(filepath.Join(c.DstPath, "LocalSettings.php"), 0o644)
 	escapedPassword := strings.ReplaceAll(c.DstDBUserPassword, `"`, `\"`)
 	dstScriptPath := ""
 	if c.DstFolder != "" {

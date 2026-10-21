@@ -2,11 +2,12 @@ package aiassistant
 
 import (
 	"encoding/json"
-	"os"
 	"path/filepath"
 	"sort"
 	"sync"
 	"time"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 var usersDir = "/etc/openpanel/openpanel/core/users"
@@ -36,7 +37,7 @@ func currentMonth() string { return time.Now().UTC().Format("2006-01") }
 
 func loadUsage(username string) usageFile {
 	f := usageFile{Months: map[string]*monthUsage{}}
-	raw, err := os.ReadFile(usagePath(username))
+	raw, err := tenantfs.ReadFile(usagePath(username))
 	if err != nil {
 		return f
 	}
@@ -76,8 +77,8 @@ func saveUsage(username string, f usageFile) {
 	}
 	f.LastUsed = time.Now().UTC().Format(time.RFC3339)
 	if raw, err := json.Marshal(f); err == nil {
-		_ = os.MkdirAll(filepath.Dir(usagePath(username)), 0o755)
-		_ = os.WriteFile(usagePath(username), raw, 0o600)
+		_ = tenantfs.MkdirAll(filepath.Dir(usagePath(username)), 0o755)
+		_ = tenantfs.WriteFile(usagePath(username), raw, 0o600)
 	}
 }
 

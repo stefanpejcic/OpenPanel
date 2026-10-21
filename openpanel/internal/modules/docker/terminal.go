@@ -17,13 +17,14 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 const disableTerminalFlagFile = "/etc/openpanel/disable_openpanel_terminal_ui"
 
 // handleDockerTerminal renders either the service picker (no container_name) or the terminal page itself
 func handleDockerTerminal(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	if _, err := os.Stat(disableTerminalFlagFile); err == nil {
+	if _, err := tenantfs.Stat(disableTerminalFlagFile); err == nil {
 		http.Error(w, "Web Terminal access is disabled.", http.StatusForbidden)
 		return
 	}
@@ -75,7 +76,7 @@ var wsUpgrader = websocket.Upgrader{
 
 // handleDockerTerminalWS upgrades the request to a websocket and streams an interactive shell session inside the target container
 func handleDockerTerminalWS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	if _, err := os.Stat(disableTerminalFlagFile); err == nil {
+	if _, err := tenantfs.Stat(disableTerminalFlagFile); err == nil {
 		http.Error(w, "Web Terminal access is disabled.", http.StatusForbidden)
 		return
 	}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -13,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -67,9 +67,9 @@ func handleWAFDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		removedRules = append([]string{excludedRuleID}, filterOut(removedRules, excludedRuleID)...)
 		removedTags = append([]string{excludedTag}, filterOut(removedTags, excludedTag)...)
 
-		if content, readErr := os.ReadFile(configFilePath); readErr == nil {
+		if content, readErr := tenantfs.ReadFile(configFilePath); readErr == nil {
 			newContent := rewriteDirectivesBlock(string(content), removedRules, removedTags)
-			if writeErr := os.WriteFile(configFilePath, []byte(newContent), 0o644); writeErr == nil {
+			if writeErr := tenantfs.WriteFile(configFilePath, []byte(newContent), 0o644); writeErr == nil {
 				if reloadErr := reloadCaddy(r.Context()); reloadErr == nil {
 					_ = logger.RecordUserAction(a.Config, username, "updated WAF rules for domain "+domainName, reqip.ClientIP(r))
 					web.Flash(a, w, r, "success", "WAF configuration updated.")
@@ -92,7 +92,7 @@ func handleWAFDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var removedRules, removedTags, activeProfiles []string
 	level := defaultLevel
 
-	if content, readErr := os.ReadFile(configFilePath); readErr == nil {
+	if content, readErr := tenantfs.ReadFile(configFilePath); readErr == nil {
 		contentStr := string(content)
 		status = engineStatus(contentStr)
 

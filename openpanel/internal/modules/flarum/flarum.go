@@ -4,13 +4,13 @@ package flarum
 import (
 	"context"
 	"net/http"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 )
@@ -52,7 +52,7 @@ func extractFlarumDatabaseInfoForBackup(userContext, docroot string) map[string]
 		return map[string]string{"error": "invalid docroot"}
 	}
 	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(docroot, wwwPrefix)
-	content, err := os.ReadFile(filepath.Join(mappedDir, "config.php"))
+	content, err := tenantfs.ReadFile(filepath.Join(mappedDir, "config.php"))
 	if err != nil {
 		return map[string]string{"error": "config.php not found"}
 	}

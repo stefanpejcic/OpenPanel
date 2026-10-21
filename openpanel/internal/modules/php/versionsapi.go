@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"os"
 	"path/filepath"
 	"regexp"
 	"time"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // fetchLitespeedTags paginates the relevant litespeedtech Docker Hub repo's tags, extracts the lsphpXY suffix from each, and returns the distinct versions sorted desc
@@ -82,7 +83,7 @@ type VersionInfo struct {
 
 // fetchPHPVersionsAPI maintains a 3-day disk cache of https://api.openpanel.com/php-versions/, used by settings.html to badge each installed version (latest/next/future/EOL/secure)
 func fetchPHPVersionsAPI(ctx context.Context) map[string]VersionInfo {
-	if info, err := os.Stat(phpAPIVersionsFile); err == nil {
+	if info, err := tenantfs.Stat(phpAPIVersionsFile); err == nil {
 		if time.Since(info.ModTime()) < phpAPIVersionsTTL {
 			if data, ok := readVersionsAPICache(); ok {
 				return data
@@ -97,7 +98,7 @@ func fetchPHPVersionsAPI(ctx context.Context) map[string]VersionInfo {
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		os.Remove(phpAPIVersionsFile)
+		tenantfs.Remove(phpAPIVersionsFile)
 		return map[string]VersionInfo{}
 	}
 	defer resp.Body.Close()
@@ -133,16 +134,16 @@ func fetchPHPVersionsAPI(ctx context.Context) map[string]VersionInfo {
 		}
 	}
 
-	_ = os.MkdirAll(filepath.Dir(phpAPIVersionsFile), 0o755)
+	_ = tenantfs.MkdirAll(filepath.Dir(phpAPIVersionsFile), 0o755)
 	if b, err := json.Marshal(versionsData); err == nil {
-		_ = os.WriteFile(phpAPIVersionsFile, b, 0o644)
+		_ = tenantfs.WriteFile(phpAPIVersionsFile, b, 0o644)
 	}
 
 	return versionsData
 }
 
 func readVersionsAPICache() (map[string]VersionInfo, bool) {
-	content, err := os.ReadFile(phpAPIVersionsFile)
+	content, err := tenantfs.ReadFile(phpAPIVersionsFile)
 	if err != nil {
 		return nil, false
 	}

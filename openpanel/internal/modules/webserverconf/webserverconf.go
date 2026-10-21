@@ -1,9 +1,7 @@
 // Package webserverconf implements an in-browser editor for a user's main webserver configuration file, with a syntax-test-before-restart safety net and a restore-to-stock-defaults option.
 package webserverconf
 
-import (
-	"os"
-)
+import "gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 
 // defaultConfTemplates lists the stock configuration files shipped in openpanel-configuration, used to restore a user's webserver conf file back to the default
 var defaultConfTemplates = map[string]string{
@@ -38,6 +36,6 @@ func lookupWebserverConf(webServer string) webserverConfEntry {
 }
 
 func fileExists(path string) bool {
-	info, err := os.Stat(path)
+	info, err := tenantfs.Stat(path)
 	return err == nil && !info.IsDir()
 }

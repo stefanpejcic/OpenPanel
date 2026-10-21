@@ -3,9 +3,9 @@ package backups
 import (
 	"fmt"
 	"net/http"
-	"os"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -16,7 +16,7 @@ func adminManagedMarkerPath(userContext string) string {
 
 // AdminManagedBackups reports whether backup destinations/settings are admin-managed for this account: locked whenever adminManagedMarkerPath exists
 func AdminManagedBackups(userContext string) bool {
-	_, err := os.Stat(adminManagedMarkerPath(userContext))
+	_, err := tenantfs.Stat(adminManagedMarkerPath(userContext))
 	return err == nil
 }
 

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"os"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -12,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -69,7 +69,7 @@ func apiPHPIni(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	iniPath := apiIniPath(userContext, version)
 
 	if r.Method == http.MethodGet {
-		content, readErr := os.ReadFile(iniPath)
+		content, readErr := tenantfs.ReadFile(iniPath)
 		if readErr != nil {
 			web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "php.ini not found for version " + version})
 			return
@@ -89,12 +89,12 @@ func apiPHPIni(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, statErr := os.Stat(iniPath); statErr != nil {
+	if _, statErr := tenantfs.Stat(iniPath); statErr != nil {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "php.ini not found for version " + version})
 		return
 	}
 
-	if writeErr := os.WriteFile(iniPath, []byte(*body.Content), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(iniPath, []byte(*body.Content), 0o644); writeErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error writing file: " + writeErr.Error()})
 		return
 	}

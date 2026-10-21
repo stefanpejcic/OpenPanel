@@ -316,7 +316,7 @@ Usage: opencli user-add <USERNAME> <PASSWORD|generate> <EMAIL> "<PLAN_NAME>" [--
 ------------------------
 opencli user-backup
 Description: Creates a full account .tar.gz backup of a single OpenPanel user account.
-Usage: opencli user-backup --account <USER> [--output <DIR>] [--quiet]
+Usage: opencli user-backup --account <USER> [--output <DIR>] [--quiet] [--no-throttle]
 ------------------------
 opencli user-block_ip
 Description: View, add, or remove blocked IP addresses for a user's domains.

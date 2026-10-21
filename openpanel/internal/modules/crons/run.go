@@ -4,7 +4,6 @@ import (
 	"context"
 	"io"
 	"net/http"
-	"os"
 	"os/exec"
 	"strconv"
 	"sync"
@@ -17,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // runWsUpgrader mirrors docker/terminal.go's wsUpgrader - same-origin-only (no CheckOrigin override) since this streams command output from inside a user's container
@@ -53,7 +53,7 @@ func handleCronjobsRunWS(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	q := r.URL.Query()
-	content, readErr := os.ReadFile(cronFilePath(userContext))
+	content, readErr := tenantfs.ReadFile(cronFilePath(userContext))
 	if readErr != nil {
 		http.Error(w, "cron job not found", http.StatusNotFound)
 		return

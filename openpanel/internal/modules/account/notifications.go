@@ -3,7 +3,6 @@ package account
 import (
 	"context"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -13,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // NotificationPref is one key=value line from a user's notifications.yaml
@@ -59,7 +59,7 @@ var notificationDefs = []notificationDef{
 // readNotificationsPrefs returns every known key, a key missing from the file gets its default
 func readNotificationsPrefs(username string) []NotificationPref {
 	values := map[string]string{}
-	if content, err := os.ReadFile(notificationsFilePath(username)); err == nil {
+	if content, err := tenantfs.ReadFile(notificationsFilePath(username)); err == nil {
 		for _, line := range strings.Split(string(content), "\n") {
 			k, v, ok := strings.Cut(strings.TrimSpace(line), "=")
 			if ok && !strings.HasPrefix(k, "#") {
@@ -182,8 +182,8 @@ func handleAccountNotifications(a *appctx.App, w http.ResponseWriter, r *http.Re
 			sb.WriteString(p.Key + "=" + p.Value + "\n")
 		}
 		path := notificationsFilePath(username)
-		if mkdirErr := os.MkdirAll(filepath.Dir(path), 0o755); mkdirErr == nil {
-			_ = os.WriteFile(path, []byte(sb.String()), 0o644)
+		if mkdirErr := tenantfs.MkdirAll(filepath.Dir(path), 0o755); mkdirErr == nil {
+			_ = tenantfs.WriteFile(path, []byte(sb.String()), 0o644)
 		}
 
 		clearNotificationPrefsCache(ctx, a, username, prefs)

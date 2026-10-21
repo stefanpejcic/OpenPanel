@@ -3,12 +3,12 @@ package serverinfo
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // RegisterUsageAPI wires the resource-usage JSON API routes onto mux.
@@ -76,7 +76,7 @@ func apiUsageHistory(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	showAll := strings.ToLower(r.URL.Query().Get("show_all")) == "true"
 
-	content, readErr := os.ReadFile(usageFile)
+	content, readErr := tenantfs.ReadFile(usageFile)
 	if readErr != nil {
 		writeAPIUsageJSON(w, http.StatusOK, map[string]any{"entries": []apiUsageEntry{}, "total": 0, "page": page, "per_page": perPage, "total_pages": 0})
 		return

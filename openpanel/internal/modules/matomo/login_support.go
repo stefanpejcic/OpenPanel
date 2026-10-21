@@ -4,10 +4,11 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // generateSecretToken returns a long random hex string used as the login-helper's shared secret (see login_php.go)
@@ -32,19 +33,19 @@ func credentialsPath(selectedDomain string) string {
 func saveMatomoCredentials(selectedDomain, login, password string) (matomoCredentials, error) {
 	creds := matomoCredentials{Login: login, Password: password, Token: generateSecretToken()}
 	dir := filepath.Dir(credentialsPath(selectedDomain))
-	if err := os.MkdirAll(dir, 0o700); err != nil {
+	if err := tenantfs.MkdirAll(dir, 0o700); err != nil {
 		return creds, err
 	}
 	b, err := json.Marshal(creds)
 	if err != nil {
 		return creds, err
 	}
-	return creds, os.WriteFile(credentialsPath(selectedDomain), b, 0o600)
+	return creds, tenantfs.WriteFile(credentialsPath(selectedDomain), b, 0o600)
 }
 
 func loadMatomoCredentials(selectedDomain string) (matomoCredentials, error) {
 	var creds matomoCredentials
-	b, err := os.ReadFile(credentialsPath(selectedDomain))
+	b, err := tenantfs.ReadFile(credentialsPath(selectedDomain))
 	if err != nil {
 		return creds, err
 	}
@@ -53,7 +54,7 @@ func loadMatomoCredentials(selectedDomain string) (matomoCredentials, error) {
 }
 
 func removeMatomoCredentials(selectedDomain string) {
-	_ = os.Remove(credentialsPath(selectedDomain))
+	_ = tenantfs.Remove(credentialsPath(selectedDomain))
 }
 
 var (
@@ -68,7 +69,7 @@ func extractMatomoDatabaseInfoForBackup(userContext, docroot string) map[string]
 		return map[string]string{"error": "invalid docroot"}
 	}
 	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(docroot, wwwPrefix)
-	content, err := os.ReadFile(filepath.Join(mappedDir, "config", "config.ini.php"))
+	content, err := tenantfs.ReadFile(filepath.Join(mappedDir, "config", "config.ini.php"))
 	if err != nil {
 		return map[string]string{"error": "config/config.ini.php not found"}
 	}

@@ -2,12 +2,9 @@ package mediawiki
 
 import (
 	"context"
-	"fmt"
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -16,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
@@ -25,30 +23,14 @@ import (
 // unpackMediaWikiUpdateArchive extracts the new release tarball to a scratch dir, then replaces every top-level entry in installPath except LocalSettings.php (the live config maintenance/install.php wrote) and images/ (uploaded files) - MediaWiki's own documented manual-update procedure copies those two forward from the old tree into the new one, equivalent to just never touching them in place here
 func unpackMediaWikiUpdateArchive(ctx context.Context, archivePath, installPath string) error {
 	tmpDir := installPath + ".update-tmp"
-	defer os.RemoveAll(tmpDir)
-	if err := os.MkdirAll(tmpDir, 0o755); err != nil {
+	defer tenantfs.RemoveAll(tmpDir)
+	if err := tenantfs.MkdirAll(tmpDir, 0o755); err != nil {
 		return err
 	}
-	cmd := exec.CommandContext(ctx, "tar", "-xzf", archivePath, "-C", tmpDir, "--strip-components=1")
-	if out, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("%s", strings.TrimSpace(string(out)))
+	if err := tenantfs.ExtractTar(ctx, archivePath, tmpDir, 1); err != nil {
+		return err
 	}
-	script := `set -e
-cd "$1"
-for f in .[!.]* ..?* *; do
-  [ -e "$f" ] || continue
-  case "$f" in
-    LocalSettings.php|images) continue ;;
-  esac
-  rm -rf "$2/$f"
-  mv "$f" "$2/"
-done
-`
-	cmd = exec.CommandContext(ctx, "sh", "-c", script, "sh", tmpDir, installPath)
-	if out, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("%s", strings.TrimSpace(string(out)))
-	}
-	return nil
+	return tenantfs.ReplaceContents(tmpDir, installPath, "LocalSettings.php", "images")
 }
 
 // handleMediaWikiUpdate updates an existing MediaWiki install in place: download+replace the release tarball's code (preserving LocalSettings.php and images/), then run maintenance/update.php --quick - MediaWiki's own documented manual-update procedure, streaming NDJSON progress like install does
@@ -118,10 +100,10 @@ func handleMediaWikiUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request
 	archiveName := "mediawiki-" + version + ".tar.gz"
 	archiveDir := "/etc/openpanel/mediawiki/archives"
 	archivePath := filepath.Join(archiveDir, archiveName)
-	if _, statErr := os.Stat(archivePath); statErr != nil {
+	if _, statErr := tenantfs.Stat(archivePath); statErr != nil {
 		downloadURL := "https://releases.wikimedia.org/mediawiki/" + branch + "/" + archiveName
 		emit(map[string]any{"status": "Downloading " + downloadURL})
-		_ = os.MkdirAll(archiveDir, 0o755)
+		_ = tenantfs.MkdirAll(archiveDir, 0o755)
 		if runErr := exec.CommandContext(ctx, "wget", "-q", "-O", archivePath, downloadURL).Run(); runErr != nil {
 			emit(map[string]any{"error": "Error downloading MediaWiki " + version + ": " + runErr.Error()})
 			return
@@ -138,7 +120,7 @@ func handleMediaWikiUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	emit(map[string]any{"status": "Setting files permissions and owner to '" + userContext + "'"})
 	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
-		_ = exec.Command("chown", "-R", strconv.Itoa(uid)+":"+strconv.Itoa(uid), hostOSPath).Run()
+		_ = tenantfs.ChownR(hostOSPath, uid, uid)
 	}
 
 	emit(map[string]any{"status": "Running maintenance/update.php"})

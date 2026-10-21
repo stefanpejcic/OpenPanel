@@ -5,11 +5,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -25,7 +25,7 @@ type visitorsLogEntry struct {
 
 // readRecentVisitorIPs reads the log file backwards in 1KB blocks (newest entries first) so a short recent window on a huge log file doesn't require reading the whole thing, stopping as soon as an entry older than the window is seen.
 func readRecentVisitorIPs(logFile string, seconds int) []string {
-	f, err := os.Open(logFile)
+	f, err := tenantfs.Open(logFile)
 	if err != nil {
 		return nil
 	}

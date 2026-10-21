@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
@@ -14,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -98,7 +98,7 @@ func handleDomainsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		fullPublicKeyPath := filepath.Join(homePrefix, strings.TrimPrefix(normalizedPublic, userHomeDirectory))
-		if info, statErr := os.Stat(fullPublicKeyPath); statErr != nil || info.IsDir() {
+		if info, statErr := tenantfs.Stat(fullPublicKeyPath); statErr != nil || info.IsDir() {
 			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Public key file: %(onion_public_key)s does not exist!", "onion_public_key", onionPublicKey), "/domains/new")
 			return
 		}
@@ -109,7 +109,7 @@ func handleDomainsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		fullSecretKeyPath := filepath.Join(homePrefix, strings.TrimPrefix(normalizedSecret, userHomeDirectory))
-		if info, statErr := os.Stat(fullSecretKeyPath); statErr != nil || info.IsDir() {
+		if info, statErr := tenantfs.Stat(fullSecretKeyPath); statErr != nil || info.IsDir() {
 			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Secret key file: %(onion_secret_key)s does not exist!", "onion_secret_key", onionSecretKey), "/domains/new")
 			return
 		}

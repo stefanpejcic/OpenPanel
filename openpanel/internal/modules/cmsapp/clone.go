@@ -3,8 +3,6 @@ package cmsapp
 import (
 	"context"
 	"net/http"
-	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -13,6 +11,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cmsclone"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -37,12 +36,12 @@ type Clone struct {
 // RewriteConfig applies edit to a config file under the clone, then checks it now mentions the new db, failStep is the error step reported otherwise
 func (c *Clone) RewriteConfig(relPath string, edit func(string) string, failStep string) map[string]any {
 	configFile := filepath.Join(c.DstPath, relPath)
-	content, readErr := os.ReadFile(configFile)
+	content, readErr := tenantfs.ReadFile(configFile)
 	if readErr != nil {
 		return map[string]any{"status": "error", "details": readErr.Error()}
 	}
 	strContent := edit(string(content))
-	if writeErr := os.WriteFile(configFile, []byte(strContent), 0o644); writeErr != nil {
+	if writeErr := tenantfs.WriteFile(configFile, []byte(strContent), 0o644); writeErr != nil {
 		return map[string]any{"status": "error", "details": writeErr.Error()}
 	}
 	if !strings.Contains(strContent, c.DstDB) {
@@ -123,15 +122,15 @@ func (app *App) HandleClone(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	srcPath := strings.Replace(filepath.Clean(srcFolder), wwwBaseDirectory, baseDirectory, 1)
 	c.DstPath = strings.Replace(filepath.Clean(docroot), wwwBaseDirectory, baseDirectory, 1)
 
-	if info, statErr := os.Stat(srcPath); statErr != nil || !info.IsDir() {
+	if info, statErr := tenantfs.Stat(srcPath); statErr != nil || !info.IsDir() {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Source folder not found: " + srcFolder})
 		return
 	}
-	if mkErr := os.MkdirAll(c.DstPath, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(c.DstPath, 0o755); mkErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy " + app.Name + " files: " + mkErr.Error()})
 		return
 	}
-	if cpErr := exec.CommandContext(ctx, "cp", "-a", srcPath+"/.", c.DstPath+"/").Run(); cpErr != nil {
+	if cpErr := tenantfs.CopyDir(srcPath, c.DstPath); cpErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to copy " + app.Name + " files: " + cpErr.Error()})
 		return
 	}

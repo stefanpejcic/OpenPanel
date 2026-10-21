@@ -3,13 +3,13 @@ package serverinfo
 import (
 	"encoding/json"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -54,7 +54,7 @@ func handleUsageHistory(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	chartsMode := a.Config.Get("resource_usage_charts_mode", "one")
 
 	var usageData []ResourceUsageLine
-	if content, readErr := os.ReadFile(usageFilePath); readErr == nil {
+	if content, readErr := tenantfs.ReadFile(usageFilePath); readErr == nil {
 		for _, line := range strings.Split(string(content), "\n") {
 			line = strings.TrimSpace(line)
 			if line == "" {
@@ -191,7 +191,7 @@ func handleSystemHostingPlan(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 // getEnvPort reads /home/<context>/.env and, for host:port style values, returns just the port segment
 func getEnvPort(context, key string) string {
-	content, err := os.ReadFile("/home/" + context + "/.env")
+	content, err := tenantfs.ReadFile("/home/" + context + "/.env")
 	if err != nil {
 		return ""
 	}

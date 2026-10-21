@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"os"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -26,7 +26,7 @@ func capitalizedDomainsCacheKey(userContext string) string {
 // loadCapitalizedDomains reads (or returns the cached copy of) the full domain -> display-case map for one account
 func loadCapitalizedDomains(ctx context.Context, a *appctx.App, userContext string) map[string]string {
 	result, _ := cache.Memoize(ctx, a.Cache, capitalizedDomainsCacheKey(userContext), cache.DefaultTTL, func() (map[string]string, error) {
-		content, err := os.ReadFile(capitalizedDomainsFile(userContext))
+		content, err := tenantfs.ReadFile(capitalizedDomainsFile(userContext))
 		if err != nil {
 			return map[string]string{}, nil
 		}
@@ -42,7 +42,7 @@ func loadCapitalizedDomains(ctx context.Context, a *appctx.App, userContext stri
 func saveCapitalizedDomain(ctx context.Context, a *appctx.App, userContext, domainURL, capitalizedDomain string) error {
 	path := capitalizedDomainsFile(userContext)
 	userDomains := map[string]string{}
-	if content, err := os.ReadFile(path); err == nil {
+	if content, err := tenantfs.ReadFile(path); err == nil {
 		_ = json.Unmarshal(content, &userDomains)
 	}
 	userDomains[domainURL] = capitalizedDomain
@@ -51,7 +51,7 @@ func saveCapitalizedDomain(ctx context.Context, a *appctx.App, userContext, doma
 	if err != nil {
 		return err
 	}
-	if err := os.WriteFile(path, data, 0o644); err != nil {
+	if err := tenantfs.WriteFile(path, data, 0o644); err != nil {
 		return err
 	}
 

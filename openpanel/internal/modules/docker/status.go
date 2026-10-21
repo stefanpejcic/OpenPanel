@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // ContainerStatus holds a container's (state, health) pair. State is one of: created, restarting, running, removing, paused, exited, dead, or "not_found" if inspect failed (container doesn't exist, socket unreachable, etc.)
@@ -187,8 +188,6 @@ func fixSearchEngineOwnership(ctx context.Context, userContext, containerName st
 	if !ok {
 		return
 	}
-	ownership := fmt.Sprintf("%d:%d", hostUID, hostGID)
-
 	for _, volume := range fix.volumes {
 		volArgv := podmanmanager.PodmanArgv(userContext, "volume", "inspect", userContext+"_"+volume, "--format", "{{.Mountpoint}}")
 		mountOut, mountErr := podmanmanager.Command(ctx, userContext, volArgv).Output()
@@ -199,7 +198,8 @@ func fixSearchEngineOwnership(ctx context.Context, userContext, containerName st
 		if mountpoint == "" {
 			continue
 		}
-		_ = exec.CommandContext(ctx, "chown", "-R", ownership, mountpoint).Run()
+		// the mountpoint comes from podman but everything under it is the account's
+		_ = tenantfs.ChownR(mountpoint, hostUID, hostGID)
 	}
 }
 

@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"net/http"
 	"net/url"
-	"os"
 	"os/exec"
 	"strings"
 
@@ -16,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -73,7 +73,7 @@ func handleCronjobsBulk(a *appctx.App, mux http.Handler, w http.ResponseWriter, 
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	content, _ := os.ReadFile(cronFilePath(userContext))
+	content, _ := tenantfs.ReadFile(cronFilePath(userContext))
 	jobs := map[string]CronJob{}
 	for _, j := range ParseCronFile(string(content)) {
 		jobs[j.Key()] = j

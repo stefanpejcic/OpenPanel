@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
@@ -15,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -26,7 +26,7 @@ type quotaUsage struct {
 
 // loadQuotaUsage reads name|used_kb|quota_mb|over rows from the quota.usage file next to users.list
 func loadQuotaUsage(usersListFile string) map[string]quotaUsage {
-	content, err := os.ReadFile(filepath.Join(filepath.Dir(usersListFile), "quota.usage"))
+	content, err := tenantfs.ReadFile(filepath.Join(filepath.Dir(usersListFile), "quota.usage"))
 	if err != nil {
 		return nil
 	}

@@ -2,7 +2,6 @@ package trash
 
 import (
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -11,6 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -47,7 +47,7 @@ func apiDeleteAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	trashDir := "/home/" + userContext + "/.local/share/Trash"
 
-	entries, err := os.ReadDir(trashDir)
+	entries, err := tenantfs.ReadDir(trashDir)
 	if err != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, jsonResult{Success: false, Error: "Unexpected error"})
 		return
@@ -58,7 +58,7 @@ func apiDeleteAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if entry.Name() == ".trash_restore" {
 			continue
 		}
-		if clearErr = os.RemoveAll(filepath.Join(trashDir, entry.Name())); clearErr != nil {
+		if clearErr = tenantfs.RemoveAll(filepath.Join(trashDir, entry.Name())); clearErr != nil {
 			break
 		}
 	}
@@ -67,7 +67,7 @@ func apiDeleteAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := os.WriteFile(filepath.Join(trashDir, ".trash_restore"), nil, 0o644); err != nil {
+	if err := tenantfs.WriteFile(filepath.Join(trashDir, ".trash_restore"), nil, 0o644); err != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, jsonResult{Success: false, Error: "Unexpected error"})
 		return
 	}
@@ -88,7 +88,7 @@ func apiRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	trashDir := "/home/" + userContext + "/.local/share/Trash"
 	trashRestorePath := filepath.Join(trashDir, ".trash_restore")
 
-	content, err := os.ReadFile(trashRestorePath)
+	content, err := tenantfs.ReadFile(trashRestorePath)
 	if err != nil {
 		web.WriteJSON(w, http.StatusOK, map[string]any{"restored": []string{}, "errors": []string{}, "message": "Nothing to restore"})
 		return
@@ -123,13 +123,13 @@ func apiRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		trashedItemPath := filepath.Join(trashDir, key)
-		if _, statErr := os.Stat(trashedItemPath); statErr != nil {
+		if _, statErr := tenantfs.Stat(trashedItemPath); statErr != nil {
 			restoreErrors = append(restoreErrors, key+": not found in trash")
 			linesToKeep = append(linesToKeep, trimmed)
 			continue
 		}
 
-		if err := os.Rename(trashedItemPath, restorePath); err != nil {
+		if err := tenantfs.Rename(trashedItemPath, restorePath); err != nil {
 			restoreErrors = append(restoreErrors, key+": "+err.Error())
 			linesToKeep = append(linesToKeep, trimmed)
 			continue
@@ -146,9 +146,9 @@ func apiRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(linesToKeep) > 0 {
-		_ = os.WriteFile(trashRestorePath, []byte(joinLines(linesToKeep)), 0o644)
+		_ = tenantfs.WriteFile(trashRestorePath, []byte(joinLines(linesToKeep)), 0o644)
 	} else {
-		_ = os.WriteFile(trashRestorePath, nil, 0o644)
+		_ = tenantfs.WriteFile(trashRestorePath, nil, 0o644)
 	}
 
 	web.WriteJSON(w, http.StatusOK, map[string]any{"restored": restored, "errors": restoreErrors})

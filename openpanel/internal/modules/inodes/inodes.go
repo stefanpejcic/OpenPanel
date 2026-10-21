@@ -15,6 +15,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // Register wires the inodes-explorer route onto mux, gated behind the "inodes" feature flag
@@ -84,9 +85,7 @@ type countedFolder struct {
 // inodesOutput runs `find . -printf '%h\n'` under actualFolder and tallies the results per top-level folder, cached 10s - requires GNU find (`-printf` is a GNU findutils extension, not supported by BusyBox find), so the runtime image installs the `findutils` package for this
 func inodesOutput(ctx context.Context, a *appctx.App, userContext, actualFolder string) string {
 	out, _ := cache.Memoize(ctx, a.Cache, "inodes_explorer:"+userContext+":"+actualFolder, 10*time.Second, func() (string, error) {
-		cmd := exec.CommandContext(ctx, "find", ".", "-printf", "%h\n")
-		cmd.Dir = actualFolder
-		raw, err := cmd.Output()
+		raw, err := tenantfs.OutputIn(ctx, "/home/"+userContext, actualFolder, "find", ".", "-printf", "%h\n")
 		if err != nil {
 			if _, ok := err.(*exec.ExitError); !ok {
 				return "", nil //nolint:nilerr // command failure -> empty output, not an error response

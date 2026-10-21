@@ -5,10 +5,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -95,7 +95,7 @@ type wafLogEntry struct {
 func readWAFLogs(path string, seconds int) wafLogStats {
 	stats := wafLogStats{}
 
-	f, err := os.Open(path)
+	f, err := tenantfs.Open(path)
 	if err != nil {
 		return stats
 	}

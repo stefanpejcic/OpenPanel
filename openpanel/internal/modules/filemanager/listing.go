@@ -1,9 +1,12 @@
 package filemanager
 
 import (
+	"context"
+	"io/fs"
 	"net/http"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -28,7 +31,7 @@ func handleFolders(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPa
 		return
 	}
 
-	safeDir, perr := paths.SecureUserPath("HOME", user.Context, pathParam, true)
+	root, safeDir, perr := openUserPath(user, pathParam, true)
 	if perr != nil {
 		if pe, ok := perr.(*paths.Error); ok && pe.Code == http.StatusNotFound {
 			web.WriteJSON(w, http.StatusNotFound, map[string]any{"error": "The specified directory does not exist."})
@@ -39,7 +42,9 @@ func handleFolders(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPa
 		return
 	}
 
-	entries, err := os.ReadDir(safeDir)
+	defer root.Close()
+
+	entries, err := fs.ReadDir(root.FS(), safeDir)
 	if err != nil {
 		web.WriteJSON(w, http.StatusNotFound, map[string]any{"error": "The specified directory does not exist."})
 		return
@@ -50,9 +55,8 @@ func handleFolders(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPa
 		if !e.IsDir() {
 			continue
 		}
-		folderPath := filepath.Join(safeDir, e.Name())
 		hasSubfolders := false
-		if subEntries, subErr := os.ReadDir(folderPath); subErr == nil {
+		if subEntries, subErr := fs.ReadDir(root.FS(), path.Join(safeDir, e.Name())); subErr == nil {
 			for _, sub := range subEntries {
 				if sub.IsDir() {
 					hasSubfolders = true
@@ -88,11 +92,12 @@ func handleFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPara
 	images := stripQuotes(a.Config.Get("filemanager_image_extensions", ".jpg .jpeg .png .gif .webp .avif"))
 	archives := stripQuotes(a.Config.Get("filemanager_archives_extensions", ".zip .tar .gz .tar.gz"))
 
-	directory, perr := paths.SecureUserPath("HOME", user.Context, pathParam, true)
+	root, directory, perr := openUserPath(user, pathParam, true)
 	if perr != nil {
 		web.FlashRedirect(a, w, r, "error", "Directory does not exist.", "/files")
 		return
 	}
+	defer root.Close()
 
 	title := pathParam
 	if title == "" {
@@ -114,15 +119,14 @@ func handleFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPara
 	var readmeContent string
 	var hasReadme bool
 
-	out, lsErr := exec.CommandContext(ctx, "ls", lsFlag, directory).Output()
+	out, lsErr := runOnDir(ctx, root, directory, "ls", lsFlag)
 	if lsErr != nil {
 		if pathParam != "" {
 			flashOnlySession(a, r, w, "error", "Error accessing the specified directory.")
 		}
 	} else {
 		filesInfo = parseLsOutput(string(out))
-		readmePath := filepath.Join(directory, "README.md")
-		if data, readErr := os.ReadFile(readmePath); readErr == nil {
+		if data, readErr := root.ReadFile(path.Join(directory, "README.md")); readErr == nil {
 			readmeContent = string(data)
 			hasReadme = true
 		}
@@ -182,4 +186,19 @@ func handleFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPara
 		View: view, CurrentPage: page, TotalPages: totalPages, TotalFiles: totalFiles,
 		StartLineNumber: startLineNumber, EndLineNumber: endIndex,
 	})
+}
+
+// runOnDir runs name args... /proc/self/fd/3/ with rel already opened as fd 3, so the command sees that exact dir even if its path gets swapped
+func runOnDir(ctx context.Context, root *paths.UserRoot, rel, name string, args ...string) ([]byte, error) {
+	dir, err := root.Open(rel)
+	if err != nil {
+		return nil, err
+	}
+	defer dir.Close()
+	if info, err := dir.Stat(); err != nil || !info.IsDir() {
+		return nil, os.ErrNotExist
+	}
+	cmd := exec.CommandContext(ctx, name, append(args, "/proc/self/fd/3/")...)
+	cmd.ExtraFiles = []*os.File{dir}
+	return cmd.Output()
 }

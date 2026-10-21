@@ -4,13 +4,13 @@ import (
 	"html/template"
 	"net/http"
 	"net/url"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 func activityLogPath(username string) string {
@@ -19,7 +19,7 @@ func activityLogPath(username string) string {
 
 // readActivityLog returns the user's activity log newest-first (the file itself is append-only chronological, so this just reverses it), or nil if there's no log yet
 func readActivityLog(username string) []string {
-	content, err := os.ReadFile(activityLogPath(username))
+	content, err := tenantfs.ReadFile(activityLogPath(username))
 	if err != nil {
 		return nil
 	}

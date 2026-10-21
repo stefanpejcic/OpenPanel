@@ -2,18 +2,19 @@ package docker
 
 import (
 	"fmt"
-	"os"
 	"strings"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // ToggleProxyHTTPPort comments or uncomments the PROXY_HTTP_PORT line in a user's .env file, enabling or disabling the port varnish listens on
 func ToggleProxyHTTPPort(userContext, state string) error {
 	path := "/home/" + userContext + "/.env"
-	content, err := os.ReadFile(path)
+	content, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, []byte(RewriteProxyHTTPPortLines(string(content), state)), 0o644)
+	return tenantfs.WriteFile(path, []byte(RewriteProxyHTTPPortLines(string(content), state)), 0o644)
 }
 
 // RewriteProxyHTTPPortLines is ToggleProxyHTTPPort()'s pure line-rewriting half, split out for testability without touching the filesystem
@@ -61,11 +62,11 @@ func SwapWebserverComposePort(userContext, webserver, state string) error {
 	}
 
 	path := "/home/" + userContext + "/docker-compose.yml"
-	content, err := os.ReadFile(path)
+	content, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, []byte(RewriteComposePortBlock(string(content), webserver, old, replacement)), 0o644)
+	return tenantfs.WriteFile(path, []byte(RewriteComposePortBlock(string(content), webserver, old, replacement)), 0o644)
 }
 
 // composeWebservers lists every webserver service whose ports line in docker-compose.yml can use the varnish port variable. Only one runs per account at a time, but the admin can switch it later without re-toggling Varnish, so all their blocks need to agree on whether Varnish is on or off.

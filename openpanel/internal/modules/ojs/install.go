@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -14,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
@@ -26,15 +26,10 @@ import (
 
 // unpackOJSArchive extracts PKP's packaged tarball into destDir, stripping the top-level "ojs-{version}/" wrapper so destDir itself becomes the app root/web root
 func unpackOJSArchive(ctx context.Context, archivePath, destDir string) error {
-	if err := os.MkdirAll(destDir, 0o755); err != nil {
+	if err := tenantfs.MkdirAll(destDir, 0o755); err != nil {
 		return err
 	}
-	cmd := exec.CommandContext(ctx, "tar", "-xzf", archivePath, "-C", destDir, "--strip-components=1")
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return &execError{msg: strings.TrimSpace(string(out)), err: err}
-	}
-	return nil
+	return tenantfs.ExtractTar(ctx, archivePath, destDir, 1)
 }
 
 type execError struct {
@@ -78,7 +73,7 @@ func runOJSInstaller(ctx context.Context, userContext, phpContainer, approotCont
 
 // fixUpOJSConfig rewrites base_url and time_zone in the freshly-installed config.inc.php - both are left wrong/blank by tools/install.php when run non-interactively (base_url has no real HTTP request to derive from, timeZone is never prompted for on the CLI path)
 func fixUpOJSConfig(configPath, selectedDomain string) error {
-	content, err := os.ReadFile(configPath)
+	content, err := tenantfs.ReadFile(configPath)
 	if err != nil {
 		return err
 	}
@@ -87,7 +82,7 @@ func fixUpOJSConfig(configPath, selectedDomain string) error {
 	text = iniTimeZoneRE.ReplaceAllString(text, iniQuoted("time_zone", "UTC"))
 	// the CLI installer always writes allowed_hosts non-empty, which locks the site out with "400 Server host not allowed" unless reset back to the empty-string default
 	text = iniAllowedHostsRE.ReplaceAllString(text, iniQuoted("allowed_hosts", ""))
-	return os.WriteFile(configPath, []byte(text), 0o644)
+	return tenantfs.WriteFile(configPath, []byte(text), 0o644)
 }
 
 // handleInstallStream drives an OJS install end to end over NDJSON: download the tarball, extract into a sibling app-root dir (see ojs.go), symlink docroot to it, create a sibling files dir, create the DB, run tools/install.php via piped stdin, fix up base_url/time_zone, deploy the autologin helper, and register the per-minute scheduler.php cron job
@@ -155,9 +150,9 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	docrootWithoutWWW := strings.TrimPrefix(strings.TrimPrefix(installPath, "/var/www/html/"), "/")
 	hostOSPath := filepath.Join(htmlVolume, docrootWithoutWWW)
 
-	if info, statErr := os.Lstat(hostOSPath); statErr == nil {
+	if info, statErr := tenantfs.Lstat(hostOSPath); statErr == nil {
 		if info.Mode()&os.ModeSymlink == 0 {
-			if entries, readErr := os.ReadDir(hostOSPath); readErr == nil && len(entries) > 0 {
+			if entries, readErr := tenantfs.ReadDir(hostOSPath); readErr == nil && len(entries) > 0 {
 				emit(map[string]any{"error": "Directory " + installPath + " already exists and is not empty."})
 				return
 			}
@@ -194,12 +189,12 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	archiveName := "ojs-" + dotted + ".tar.gz"
 	archiveDir := "/etc/openpanel/ojs/archives"
 	archivePath := filepath.Join(archiveDir, archiveName)
-	if _, statErr := os.Stat(archivePath); statErr != nil {
+	if _, statErr := tenantfs.Stat(archivePath); statErr != nil {
 		downloadURL := ojsDownloadURL(dotted)
 		emit(map[string]any{"status": "Downloading " + downloadURL})
-		_ = os.MkdirAll(archiveDir, 0o755)
+		_ = tenantfs.MkdirAll(archiveDir, 0o755)
 		if runErr := exec.CommandContext(ctx, "wget", "-q", "-O", archivePath, downloadURL).Run(); runErr != nil {
-			_ = os.Remove(archivePath)
+			_ = tenantfs.Remove(archivePath)
 			emit(map[string]any{"error": "Error downloading OJS " + dotted + ": " + runErr.Error()})
 			return
 		}
@@ -210,13 +205,13 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	emit(map[string]any{"status": "Extracting files to " + approotContainerPath})
 	if unpackErr := unpackOJSArchive(ctx, archivePath, approotHostPath); unpackErr != nil {
 		emit(map[string]any{"error": "Error extracting OJS archive: " + unpackErr.Error()})
-		_ = os.RemoveAll(approotHostPath)
+		_ = tenantfs.RemoveAll(approotHostPath)
 		return
 	}
 
-	if mkErr := os.MkdirAll(filesHostPath, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(filesHostPath, 0o755); mkErr != nil {
 		emit(map[string]any{"error": "Error creating OJS files directory: " + mkErr.Error()})
-		_ = os.RemoveAll(approotHostPath)
+		_ = tenantfs.RemoveAll(approotHostPath)
 		return
 	}
 
@@ -225,29 +220,28 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	uid, uidErr := podmanmanager.GetUID(userContext)
 	if uidErr != nil {
 		emit(map[string]any{"error": "Could not determine file owner: " + uidErr.Error()})
-		_ = os.RemoveAll(approotHostPath)
-		_ = os.RemoveAll(filesHostPath)
+		_ = tenantfs.RemoveAll(approotHostPath)
+		_ = tenantfs.RemoveAll(filesHostPath)
 		return
 	}
-	uidStr := strconv.Itoa(uid)
-	_ = exec.Command("chown", "-R", uidStr+":"+uidStr, approotHostPath).Run()
-	_ = exec.Command("chown", "-R", uidStr+":"+uidStr, filesHostPath).Run()
+	_ = tenantfs.ChownR(approotHostPath, uid, uid)
+	_ = tenantfs.ChownR(filesHostPath, uid, uid)
 
 	emit(map[string]any{"status": "Linking web root to OJS app directory"})
-	_ = os.Remove(hostOSPath)
+	_ = tenantfs.Remove(hostOSPath)
 	// the domain docroot can be missing (deleted from the file manager), the link needs its parent dir
-	if mkErr := os.MkdirAll(filepath.Dir(hostOSPath), 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(filepath.Dir(hostOSPath), 0o755); mkErr != nil {
 		emit(map[string]any{"error": "Error creating web root parent directory: " + mkErr.Error()})
-		_ = os.RemoveAll(approotHostPath)
-		_ = os.RemoveAll(filesHostPath)
+		_ = tenantfs.RemoveAll(approotHostPath)
+		_ = tenantfs.RemoveAll(filesHostPath)
 		return
 	}
-	_ = exec.Command("chown", uidStr+":"+uidStr, filepath.Dir(hostOSPath)).Run()
+	_ = tenantfs.Lchown(filepath.Dir(hostOSPath), uid, uid)
 	// the symlink target must be the container-visible path, not the host filesystem path, since php-fpm only sees its own /var/www/html/ bind mount - same gotcha as moodle/install.go
-	if symErr := os.Symlink(approotContainerPath, hostOSPath); symErr != nil {
+	if symErr := tenantfs.Symlink(approotContainerPath, hostOSPath); symErr != nil {
 		emit(map[string]any{"error": "Error creating web root symlink: " + symErr.Error()})
-		_ = os.RemoveAll(approotHostPath)
-		_ = os.RemoveAll(filesHostPath)
+		_ = tenantfs.RemoveAll(approotHostPath)
+		_ = tenantfs.RemoveAll(filesHostPath)
 		return
 	}
 
@@ -316,12 +310,12 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	emit(map[string]any{"status": "Setting permissions on OJS files directory"})
-	_ = exec.Command("chmod", "-R", "777", filesHostPath).Run()
+	_ = tenantfs.ChmodR(filesHostPath, 0o777)
 
 	emit(map[string]any{"status": "Deploying admin login helper"})
 	loginFilePath := filepath.Join(approotHostPath, openpanelLoginFileName)
-	if writeErr := os.WriteFile(loginFilePath, []byte(openpanelLoginPHP), 0o644); writeErr == nil {
-		_ = os.Lchown(loginFilePath, uid, uid)
+	if writeErr := tenantfs.WriteFile(loginFilePath, []byte(openpanelLoginPHP), 0o644); writeErr == nil {
+		_ = tenantfs.Lchown(loginFilePath, uid, uid)
 	}
 
 	emit(map[string]any{"status": "Registering cron job (lib/pkp/tools/scheduler.php, every minute)"})
@@ -347,8 +341,8 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 // emitCleanupFiles removes a failed install's docroot symlink and its backing approot/files directories, always safe since install.go just created all three
 func emitCleanupFiles(hostOSPath, approotHostPath, filesHostPath string, emit func(map[string]any)) {
-	_ = os.Remove(hostOSPath)
-	_ = os.RemoveAll(approotHostPath)
-	_ = os.RemoveAll(filesHostPath)
+	_ = tenantfs.Remove(hostOSPath)
+	_ = tenantfs.RemoveAll(approotHostPath)
+	_ = tenantfs.RemoveAll(filesHostPath)
 	emit(map[string]any{"status": "Cleanup: removed partially-installed files"})
 }

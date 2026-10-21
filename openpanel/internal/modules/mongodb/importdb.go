@@ -4,11 +4,8 @@ import (
 	"context"
 	"io"
 	"net/http"
-	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -16,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -71,8 +69,8 @@ func handleMongoImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			tempFilePath := filepath.Join(targetDir, filename)
 
 			imported, importErr := importMongoDump(ctx, userContext, dbName, targetDir, tempFilePath, filename, file)
-			if _, statErr := os.Stat(tempFilePath); statErr == nil {
-				_ = os.Remove(tempFilePath)
+			if _, statErr := tenantfs.Stat(tempFilePath); statErr == nil {
+				_ = tenantfs.Remove(tempFilePath)
 			}
 
 			if imported {
@@ -101,11 +99,11 @@ func handleMongoImportDB(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 // importMongoDump saves the upload, chowns it to the account's UID, `podman cp`s it into the mongodb container, then `mongorestore`s it into the target database
 func importMongoDump(ctx context.Context, userContext, dbName, targetDir, tempFilePath, filename string, uploaded io.Reader) (bool, string) {
-	if mkErr := os.MkdirAll(targetDir, 0o755); mkErr != nil {
+	if mkErr := tenantfs.MkdirAll(targetDir, 0o755); mkErr != nil {
 		return false, mkErr.Error()
 	}
 
-	out, createErr := os.Create(tempFilePath)
+	out, createErr := tenantfs.Create(tempFilePath)
 	if createErr != nil {
 		return false, createErr.Error()
 	}
@@ -116,8 +114,7 @@ func importMongoDump(ctx context.Context, userContext, dbName, targetDir, tempFi
 	}
 
 	if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
-		uidStr := strconv.Itoa(uid)
-		_ = exec.Command("chown", "-R", uidStr+":"+uidStr, targetDir).Run()
+		_ = tenantfs.ChownR(targetDir, uid, uid)
 	}
 
 	containerFilePath := "/tmp/" + filename

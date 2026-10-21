@@ -2,7 +2,6 @@ package flarum
 
 import (
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -11,6 +10,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -64,7 +64,7 @@ func handleFlarumLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	logPath := filepath.Join(mappedDir, "storage", "logs", "flarum.log")
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	content, readErr := os.ReadFile(logPath)
+	content, readErr := tenantfs.ReadFile(logPath)
 	if readErr != nil {
 		_, _ = w.Write([]byte("No log file found yet at storage/logs/flarum.log."))
 		return

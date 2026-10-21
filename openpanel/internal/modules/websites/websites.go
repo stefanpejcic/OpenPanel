@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
@@ -20,6 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -254,7 +254,7 @@ func handlePageSpeed(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	filename := strings.ReplaceAll(strings.ReplaceAll(websiteParam, "://", "_"), "/", "_") + ".json"
 	filePath := filepath.Join("/etc/openpanel/openpanel/websites", filename)
 
-	if content, readErr := os.ReadFile(filePath); readErr == nil {
+	if content, readErr := tenantfs.ReadFile(filePath); readErr == nil {
 		var data map[string]any
 		if json.Unmarshal(content, &data) != nil {
 			data = map[string]any{"timestamp": nil, "website": domain, "desktop_speed": map[string]any{}, "mobile_speed": map[string]any{}}
@@ -317,12 +317,12 @@ func handleWPVulnerability(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 
 	data := map[string]any{"core_version_": map[string]any{}, "plugin_": map[string]any{}, "theme_": map[string]any{}}
-	if content, readErr := os.ReadFile(filePath); readErr == nil {
+	if content, readErr := tenantfs.ReadFile(filePath); readErr == nil {
 		_ = json.Unmarshal(content, &data)
 	} else {
 		_ = exec.CommandContext(ctx, "opencli", "websites-vulnerability", websiteParam).Run()
 		time.Sleep(2 * time.Second)
-		if content, readErr2 := os.ReadFile(filePath); readErr2 == nil {
+		if content, readErr2 := tenantfs.ReadFile(filePath); readErr2 == nil {
 			_ = json.Unmarshal(content, &data)
 		}
 	}
@@ -442,7 +442,7 @@ func applyCMSDBFields(text string, fields []cmsDBField) map[string]string {
 
 // readCMSConfig reads configPath and evaluates fields against its contents (after an optional preprocess step), producing the same {"error": "..."} / field-map shape every extract<CMS>DatabaseInfo function below returns.
 func readCMSConfig(configPath, label string, fields []cmsDBField, preprocess func(string) string) map[string]string {
-	content, err := os.ReadFile(configPath)
+	content, err := tenantfs.ReadFile(configPath)
 	if err != nil {
 		return map[string]string{"error": label + " not found"}
 	}
@@ -483,7 +483,7 @@ func extractDatabaseInfo(userContext, directory string) map[string]string {
 	if !ok {
 		return nil
 	}
-	content, err := os.ReadFile(filepath.Join(mappedDir, "wp-config.php"))
+	content, err := tenantfs.ReadFile(filepath.Join(mappedDir, "wp-config.php"))
 	if err != nil {
 		return map[string]string{"error": "wp-config.php not found"}
 	}
@@ -508,7 +508,7 @@ var wpVersionRE = regexp.MustCompile(`\$wp_version\s*=\s*['"]([^'"]+)['"]`)
 func getWPVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath)
-	content, err := os.ReadFile(filePath)
+	content, err := tenantfs.ReadFile(filePath)
 	if err != nil {
 		return "Unknown"
 	}
@@ -553,7 +553,7 @@ func extractDrupalDatabaseInfo(userContext, directory string) map[string]string 
 func getDrupalVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "composer.lock")
-	content, err := os.ReadFile(filePath)
+	content, err := tenantfs.ReadFile(filePath)
 	if err != nil {
 		return "Unknown"
 	}
@@ -598,7 +598,7 @@ func extractFlarumDatabaseInfo(userContext, directory string) map[string]string 
 func getFlarumVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "composer.lock")
-	content, err := os.ReadFile(filePath)
+	content, err := tenantfs.ReadFile(filePath)
 	if err != nil {
 		return "Unknown"
 	}
@@ -623,7 +623,7 @@ func getFlarumVersion(userContext, realPath string) string {
 func getDokuwikiVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "VERSION")
-	content, err := os.ReadFile(filePath)
+	content, err := tenantfs.ReadFile(filePath)
 	if err != nil {
 		return "Unknown"
 	}
@@ -655,7 +655,7 @@ var phpbbVersionRE = regexp.MustCompile(`PHPBB_VERSION',\s*'([^']*)'`)
 func getPhpbbVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "includes", "constants.php")
-	content, err := os.ReadFile(filePath)
+	content, err := tenantfs.ReadFile(filePath)
 	if err != nil {
 		return "Unknown"
 	}
@@ -686,7 +686,7 @@ func extractJoomlaDatabaseInfo(userContext, directory string) map[string]string 
 func getJoomlaVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "libraries", "src", "Version.php")
-	content, err := os.ReadFile(filePath)
+	content, err := tenantfs.ReadFile(filePath)
 	if err != nil {
 		return "Unknown"
 	}
@@ -721,7 +721,7 @@ func extractOpenCartDatabaseInfo(userContext, directory string) map[string]strin
 func getOpenCartVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "index.php")
-	content, err := os.ReadFile(filePath)
+	content, err := tenantfs.ReadFile(filePath)
 	if err != nil {
 		return "Unknown"
 	}
@@ -753,7 +753,7 @@ func extractNextcloudDatabaseInfo(userContext, directory string) map[string]stri
 func getNextcloudVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "version.php")
-	content, err := os.ReadFile(filePath)
+	content, err := tenantfs.ReadFile(filePath)
 	if err != nil {
 		return "Unknown"
 	}
@@ -785,7 +785,7 @@ func extractPrestashopDatabaseInfo(userContext, directory string) map[string]str
 func getPrestashopVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "src", "Core", "Version.php")
-	content, err := os.ReadFile(filePath)
+	content, err := tenantfs.ReadFile(filePath)
 	if err != nil {
 		return "Unknown"
 	}
@@ -817,7 +817,7 @@ func extractMatomoDatabaseInfo(userContext, directory string) map[string]string 
 func getMatomoVersion(userContext, realPath string) string {
 	relPath := strings.TrimPrefix(realPath, "/var/www/html/")
 	filePath := filepath.Join("/home/"+userContext+"/docker-data/volumes", userContext+"_html_data/_data", relPath, "core", "Version.php")
-	content, err := os.ReadFile(filePath)
+	content, err := tenantfs.ReadFile(filePath)
 	if err != nil {
 		return "Unknown"
 	}
@@ -881,7 +881,7 @@ func extractOJSDatabaseInfo(userContext, directory string) map[string]string {
 
 // getMoodleVersion reads $release out of public/version.php, the human-readable "5.2.1+ (Build: 20260807)"-style string every Moodle release ships - $version is the internal numeric build timestamp, not a human version, and version.php lives under public/, unlike config.php.
 func getMoodleVersion(userContext, directory string) string {
-	content, err := os.ReadFile(filepath.Join(moodleApprootDir(userContext, directory), "public", "version.php"))
+	content, err := tenantfs.ReadFile(filepath.Join(moodleApprootDir(userContext, directory), "public", "version.php"))
 	if err != nil {
 		return "Unknown"
 	}
@@ -913,7 +913,7 @@ func extractMediaWikiDatabaseInfo(userContext, directory string) map[string]stri
 func getMediaWikiVersion(userContext, directory string) string {
 	const wwwPrefix = "/var/www/html/"
 	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
-	content, err := os.ReadFile(filepath.Join(mappedDir, "includes", "Defines.php"))
+	content, err := tenantfs.ReadFile(filepath.Join(mappedDir, "includes", "Defines.php"))
 	if err != nil {
 		return "Unknown"
 	}
@@ -1075,7 +1075,7 @@ func handleWordPressWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request)
 }
 
 func handleWPCLISiteInfo(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext, wpConfigFile, docroot string, wpBase []string) {
-	content, readErr := os.ReadFile(wpConfigFile)
+	content, readErr := tenantfs.ReadFile(wpConfigFile)
 	if readErr != nil {
 		web.WriteJSON(w, http.StatusOK, wpCLIOptionListFallback(a, r, userContext, docroot, wpBase))
 		return
@@ -1236,7 +1236,7 @@ var defineBoolOrStringRE = regexp.MustCompile(`(?i)define\(\s*['"](?P<name>[^'"]
 
 func handleWPCLIDebugInfo(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext, wpConfigFile, docroot string, wpBase []string) {
 	debugConstants := map[string]string{"WP_DEBUG": "false", "WP_DEBUG_LOG": "false", "WP_DEBUG_DISPLAY": "false", "SCRIPT_DEBUG": "false", "SAVEQUERIES": "false"}
-	content, readErr := os.ReadFile(wpConfigFile)
+	content, readErr := tenantfs.ReadFile(wpConfigFile)
 	if readErr == nil {
 		fillDefinesFromContent(string(content), debugConstants)
 	} else {
@@ -1247,7 +1247,7 @@ func handleWPCLIDebugInfo(a *appctx.App, w http.ResponseWriter, r *http.Request,
 
 func handleWPCLIUpdateInfo(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext, wpConfigFile, docroot string, wpBase []string) {
 	updateConstants := map[string]string{"WP_AUTO_UPDATE_PLUGINS": "false", "WP_AUTO_UPDATE_THEMES": "false", "WP_AUTO_UPDATE_CORE": "minor"}
-	content, readErr := os.ReadFile(wpConfigFile)
+	content, readErr := tenantfs.ReadFile(wpConfigFile)
 	if readErr == nil {
 		fillDefinesFromContent(string(content), updateConstants)
 	} else {

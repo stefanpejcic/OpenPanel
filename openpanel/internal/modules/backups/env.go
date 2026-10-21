@@ -1,8 +1,9 @@
 package backups
 
 import (
-	"os"
 	"strings"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // KV is one env-file key=value pair, order-preserving (Go maps aren't, and templates render form fields in the file's line order)
@@ -12,7 +13,7 @@ type KV struct {
 
 // parseUncommentedEnv parses backup.env into key/value pairs: strips blank/comment lines, splits on the first "=", and strips a wrapping pair of quotes from the value - both single and double, since docker-volume-backup's templates write single-quoted values that would otherwise leak literal quote chars into the settings form. Matches readBackupEnv's handling of the same file for the SSH restore path.
 func parseUncommentedEnv(path string) ([]KV, error) {
-	content, err := os.ReadFile(path)
+	content, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}

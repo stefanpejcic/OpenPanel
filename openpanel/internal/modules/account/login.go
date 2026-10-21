@@ -11,7 +11,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -32,6 +31,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -324,7 +324,7 @@ func finishLoginSession(a *appctx.App, w http.ResponseWriter, r *http.Request, s
 // logUserLogin creates the Redis-backed session record RequireLogin validates on every later request, the .lastlogin history is written in the background
 func logUserLogin(a *appctx.App, r *http.Request, sess *sessions.Session, userID int, username, ip string) error {
 	userFolder := filepath.Join("/etc/openpanel/openpanel/core/users", username)
-	if err := os.MkdirAll(userFolder, 0o755); err != nil {
+	if err := tenantfs.MkdirAll(userFolder, 0o755); err != nil {
 		return err
 	}
 	maxRecords := web.AtoiDefault(a.Config.Get("max_login_records", ""), 20)
@@ -362,14 +362,14 @@ func appendLastLogin(a *appctx.App, lastLoginFile, ip string, loginTime time.Tim
 	lastLoginMu.Lock()
 	defer lastLoginMu.Unlock()
 	var records []string
-	if data, err := os.ReadFile(lastLoginFile); err == nil {
+	if data, err := tenantfs.ReadFile(lastLoginFile); err == nil {
 		records = strings.Split(strings.TrimRight(string(data), "\n"), "\n")
 	}
 	records = append(records, fmt.Sprintf("IP: %s - Country: %s - Login Time: %s", ip, country, loginTime.Format("2006-01-02 15:04:05")))
 	if len(records) > maxRecords {
 		records = records[len(records)-maxRecords:]
 	}
-	if err := os.WriteFile(lastLoginFile, []byte(strings.Join(records, "\n")+"\n"), 0o644); err != nil {
+	if err := tenantfs.WriteFile(lastLoginFile, []byte(strings.Join(records, "\n")+"\n"), 0o644); err != nil {
 		log.Printf("LOGIN - failed to write %s: %v", lastLoginFile, err)
 	}
 }
@@ -418,7 +418,7 @@ func handleAutologin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	tokenPath := fmt.Sprintf("/etc/openpanel/openpanel/core/users/%s/logintoken.txt", usernameToLogin)
-	tokenBytes, err := os.ReadFile(tokenPath)
+	tokenBytes, err := tenantfs.ReadFile(tokenPath)
 	if err != nil {
 		data.ErrorMessage = t.Get("Error reading token from user files.")
 		renderLogin(w, http.StatusOK, data)
@@ -456,7 +456,7 @@ func handleAutologin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		loginUsername = rest
 	}
 
-	_ = os.Remove(tokenPath)
+	_ = tenantfs.Remove(tokenPath)
 	if err := logUserLogin(a, r, sess, userID, loginUsername, ip); err != nil {
 		log.Printf("LOGIN - failed to record autologin session: %v", err)
 	}

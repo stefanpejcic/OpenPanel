@@ -2,11 +2,11 @@ package goaccess
 
 import (
 	"net/http"
-	"os"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -34,7 +34,7 @@ func apiStatsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	result := make([]domainStat, 0, len(domains))
 	for _, d := range domains {
 		logFile := "/var/log/caddy/stats/" + currentUsername + "/" + d.DomainURL + ".html"
-		_, statErr := os.Stat(logFile)
+		_, statErr := tenantfs.Stat(logFile)
 		result = append(result, domainStat{DomainURL: d.DomainURL, HasStats: statErr == nil})
 	}
 	web.WriteJSON(w, http.StatusOK, map[string]any{"domains": result})
@@ -58,7 +58,7 @@ func apiStatsDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	logFile := "/var/log/caddy/stats/" + currentUsername + "/" + domainName + ".html"
-	content, readErr := os.ReadFile(logFile)
+	content, readErr := tenantfs.ReadFile(logFile)
 	if readErr != nil {
 		web.WriteJSON(w, http.StatusNotFound, map[string]any{
 			"domain": domainName, "available": false, "message": "Stats file not found. Data is generated every 24h.",

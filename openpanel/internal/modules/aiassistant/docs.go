@@ -16,6 +16,8 @@ import (
 	"sync"
 	"time"
 	"unicode"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // only the end-user docs, admin/ and changelog/ are for server admins
@@ -71,8 +73,8 @@ func (d *docStore) get(ctx context.Context, url string) *docIndex {
 	}
 
 	if d.index == nil {
-		if info, err := os.Stat(d.cachePath); err == nil && time.Since(info.ModTime()) < docsMaxAge {
-			if raw, err := os.ReadFile(d.cachePath); err == nil {
+		if info, err := tenantfs.Stat(d.cachePath); err == nil && time.Since(info.ModTime()) < docsMaxAge {
+			if raw, err := tenantfs.ReadFile(d.cachePath); err == nil {
 				d.index, d.loadedAt, d.url = buildIndex(string(raw)), info.ModTime(), url
 				return d.index
 			}
@@ -86,7 +88,7 @@ func (d *docStore) get(ctx context.Context, url string) *docIndex {
 	if err != nil {
 		log.Printf("AI - fetching docs from %s failed: %v", url, err)
 		if d.index == nil {
-			if cached, err := os.ReadFile(d.cachePath); err == nil {
+			if cached, err := tenantfs.ReadFile(d.cachePath); err == nil {
 				d.index = buildIndex(string(cached))
 			}
 		}
@@ -94,7 +96,7 @@ func (d *docStore) get(ctx context.Context, url string) *docIndex {
 	}
 
 	filtered := filterDocs(raw)
-	_ = os.WriteFile(d.cachePath, []byte(filtered), 0o600)
+	_ = tenantfs.WriteFile(d.cachePath, []byte(filtered), 0o600)
 	d.index, d.loadedAt, d.url = buildIndex(filtered), time.Now(), url
 	return d.index
 }
