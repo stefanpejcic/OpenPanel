@@ -67,6 +67,10 @@ func GetAliasList(ctx context.Context, a *appctx.App, userID int, username strin
 		}
 		return readAliasesFile(username, userDomains), nil
 	})
+	// no aliases is [] in the API, not null
+	if result == nil {
+		result = []AliasEntry{}
+	}
 	return result
 }
 

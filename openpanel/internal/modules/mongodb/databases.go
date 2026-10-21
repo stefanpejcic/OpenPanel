@@ -93,7 +93,8 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !checkMongoInsideContainer(ctx, userContext) {
-		http.Redirect(w, r, "/mongodb", http.StatusFound)
+		// right after it's started MongoDB doesn't answer yet, say so instead of bouncing back without a word
+		web.FlashRedirect(a, w, r, "warning", "MongoDB is still starting, please try again in a moment.", "/mongodb")
 		return
 	}
 

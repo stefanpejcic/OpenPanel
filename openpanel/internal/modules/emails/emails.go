@@ -142,9 +142,10 @@ func GetEmailCount(ctx context.Context, a *appctx.App, userID int, username stri
 
 // InvalidateEmailCache mirrors invalidate_email_cache().
 func InvalidateEmailCache(ctx context.Context, a *appctx.App, userID int, username string) {
-	_ = a.Cache.Delete(ctx, emailsCacheKey(username))
 	domains, _ := a.AllDomainsForUser(ctx, userID)
 	ImportUserEmails(ctx, username, domainSet(domains))
+	// drop the cache only after the file is rewritten, otherwise a request in between caches the old list for an hour
+	_ = a.Cache.Delete(ctx, emailsCacheKey(username))
 }
 
 // ImportUserEmails mirrors import_user_emails(): (re)writes the per-user on-disk email cache file from `opencli email-setup email list`
@@ -698,7 +699,7 @@ func postSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, emai
 func deleteSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, email string, userID int, currentUsername string) {
 	ctx := r.Context()
 
-	out, err := exec.CommandContext(ctx, "opencli", "email-setup", "email", "del", email).CombinedOutput()
+	out, err := exec.CommandContext(ctx, "opencli", "email-setup", "email", "del", "-y", email).CombinedOutput()
 	if err == nil {
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "deleted email "+email, ipAddress)

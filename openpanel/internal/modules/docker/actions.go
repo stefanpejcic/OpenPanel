@@ -101,10 +101,12 @@ func updateContainerRAMOrCPU(a *appctx.App, ctx context.Context, userContext str
 		cmd := podmanmanager.Command(ctx, userContext, argv)
 		cmd.Dir = homePath(userContext)
 		if err := cmd.Run(); err != nil {
-			if _, ok := err.(*exec.ExitError); ok {
+			// a container that stopped or is restarting in between has no cgroup left to update, the .env value still applies on its next start
+			if _, ok := err.(*exec.ExitError); ok && IsServiceRunning(ctx, userContext, containerName) {
 				return "Docker command failed. Try again.", false
+			} else if !ok {
+				return "Unexpected error. Contact Administrator.", false
 			}
-			return "Unexpected error. Contact Administrator.", false
 		}
 	}
 

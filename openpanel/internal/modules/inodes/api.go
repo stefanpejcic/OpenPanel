@@ -8,6 +8,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // RegisterAPI wires the inodes API route onto mux.
@@ -40,7 +41,7 @@ func apiHandleInodes(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	actualFolder, resolveErr := resolveUnderHome(userContext, directory)
 	if resolveErr != nil {
-		writeJSON(w, map[string]string{"error": "Path traversal detected"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Path traversal detected"})
 		return
 	}
 

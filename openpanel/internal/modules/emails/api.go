@@ -356,7 +356,7 @@ func apiEmailDetailDelete(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	out, runErr := exec.CommandContext(ctx, "opencli", "email-setup", "email", "del", email).CombinedOutput()
+	out, runErr := exec.CommandContext(ctx, "opencli", "email-setup", "email", "del", "-y", email).CombinedOutput()
 	if runErr != nil {
 		writeAPIEmailsJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to delete " + email + ": " + strings.TrimSpace(string(out))})
 		return

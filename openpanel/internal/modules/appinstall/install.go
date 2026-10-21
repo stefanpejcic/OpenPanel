@@ -437,7 +437,9 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 
 	if kind.AppType == "n8n" {
 		emit(map[string]any{"status": "Creating n8n owner account"})
-		if setupErr := setupN8NOwner(ctx, userContext, serviceName, ownerEmail, ownerFirstName, ownerLastName, ownerPassword); setupErr != nil {
+		if setupErr := setupN8NOwner(ctx, userContext, serviceName, ownerEmail, ownerFirstName, ownerLastName, ownerPassword, func() {
+			emit(map[string]any{"status": "Waiting for n8n to finish setting up its database"})
+		}); setupErr != nil {
 			// best-effort - the app itself is already up, so a failure here (e.g. n8n not fully warmed up yet) just means the user completes n8n's own /setup wizard manually instead of skipping it
 			emit(map[string]any{"status": "Could not auto-create the n8n owner account, you'll need to complete n8n's setup manually: " + setupErr.Error()})
 		} else {
