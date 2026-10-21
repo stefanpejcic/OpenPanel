@@ -160,15 +160,17 @@ The mechanism used for pruning old backups is not very sophisticated and applies
 
 By default, everything will be backed up. In case you need to backup only a specific data, set `BACKUP_SOURCES`. On the **Backups > Configuration** page this is presented as a dropdown with the following options:
 
-| Setting | Description |
-|----------|----------|
-| **Everything**    |  Backups content of all docker volumes: website files, mysql/mariadb databases, postgre databases, vhosts files, cron jobs. |
-| **Website Files**    |  Backups only website files inside `/var/www/html/` directory. |
-| **Emails**    |  Backups only email files inside `/var/mail/` directory. |
-| **VirtualHosts**    |  Backups only Apache/Nginx VirtualHosts for domains. |
-| **MySQL Databases**    |  Backups only MySQL/MariaDB databases. |
-| **PostgreSQL Databases**    |  Backups only PostgreSQL databases. |
-| **Cron Jobs**    |  Backups only the `crons.ini` file. |
+| Setting | `BACKUP_SOURCES` | Description |
+|----------|----------|----------|
+| **Everything**    | `/backup` |  Backups content of all docker volumes: website files, mysql/mariadb databases, postgre databases, vhosts files, cron jobs. |
+| **Website Files**    | `/backup/html` |  Backups only website files inside `/var/www/html/` directory. |
+| **Emails**    | `/backup/01-mail` |  Backups only email files inside `/var/mail/` directory. |
+| **VirtualHosts**    | `/backup/01-vhosts` |  Backups only Apache/Nginx VirtualHosts for domains. |
+| **MySQL Databases**    | `/backup/01-mysql` |  Backups only MySQL/MariaDB databases. |
+| **PostgreSQL Databases**    | `/backup/01-postgres` |  Backups only PostgreSQL databases. |
+| **Cron Jobs**    | `/backup/crons.ini` |  Backups only the `crons.ini` file. |
+
+Before 2.0.16 the emails, VirtualHosts and database values were `/backup/mail`, `/backup/vhosts`, `/backup/mysql` and `/backup/postgres`, the update changes them in `backup.env` automatically.
 
 Databases are not copied from their live data directories. Right before the archive is created, every MySQL/MariaDB database is dumped with `mysqldump`/`mariadb-dump` (`--single-transaction --routines --triggers --events`) and every PostgreSQL database with `pg_dump`, into `backup/01-mysql/<database>.sql` and `backup/01-postgres/<database>.sql`. Everything except the website files is stored before `backup/html/` in the archive (`backup/01-mail/`, `backup/01-vhosts/`, `crons.ini`, `dns/`, `emails/`), so restoring a database, domains, emails or cron jobs stops reading the archive early instead of going through the website files. Archives made before 2.0.16 have the dumps, mail and vhosts after the website files, under `backup/mysql/`, `backup/postgres/`, `backup/mail/` and `backup/vhosts/`, and are still restored. If any database fails to dump, the whole backup run fails so it doesn't go unnoticed. The names of the dumped databases are also written to a small `backup/00-meta/` folder that is always the first thing in the archive, so the panel can index a backup without downloading it.
 

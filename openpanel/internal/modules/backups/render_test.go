@@ -92,6 +92,11 @@ func TestRenderBackupSettingsPage(t *testing.T) {
 		if !strings.Contains(body, `value="/backup"`) {
 			t.Error("expected BACKUP_SOURCES select to preserve the raw value")
 		}
+		for _, v := range []string{"/backup/01-mail", "/backup/01-vhosts", "/backup/01-mysql", "/backup/01-postgres"} {
+			if !strings.Contains(body, `value="`+v+`"`) {
+				t.Errorf("expected BACKUP_SOURCES option %s", v)
+			}
+		}
 	})
 }
 
