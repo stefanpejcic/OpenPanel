@@ -4,6 +4,7 @@ description: "PHP 8.5.12, 8.4.27, 8.3.36 and 8.2.35 fix two critical remote code
 slug: php-security-update-openpanel
 authors: stefanpejcic
 tags: [PHP, Security, PHP-FPM, Docker, OpenPanel, Updates]
+image: https://openpanel.com/img/blog/php_security_update_cover.png
 hide_table_of_contents: false
 ---
 
