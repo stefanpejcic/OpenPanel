@@ -228,3 +228,12 @@ func TestCronJobKey(t *testing.T) {
 		t.Error("toggling no-overlap must not change the key, the bulk edit looks jobs up by it")
 	}
 }
+
+func TestCronContainerMissing(t *testing.T) {
+	if !cronContainerMissing(`Error: Error: no container with name or ID "cron" found: no such container` + "\n") {
+		t.Error("expected true for podman's no such container error")
+	}
+	if cronContainerMissing("Error: OCI runtime error: something else") {
+		t.Error("expected false for other podman errors")
+	}
+}

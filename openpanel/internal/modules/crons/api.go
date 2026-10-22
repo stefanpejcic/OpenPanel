@@ -424,6 +424,10 @@ func apiCronsLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	body, status := docker.FetchContainerLog(ctx, a, userContext, "cron", lines)
 	if status != http.StatusOK {
+		if cronContainerMissing(body) {
+			writeAPICronsJSON(w, http.StatusNotFound, map[string]string{"error": "No cron log yet, the cron container is created with the first cron job."})
+			return
+		}
 		writeAPICronsJSON(w, status, map[string]string{"error": "Failed to fetch log: " + body})
 		return
 	}
@@ -447,4 +451,9 @@ func apiCronsLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeAPICronsJSON(w, http.StatusOK, map[string]any{"entries": matched})
+}
+
+// cronContainerMissing tells a podman "no such container" for the cron service apart from a real log read failure
+func cronContainerMissing(podmanOutput string) bool {
+	return strings.Contains(strings.ToLower(podmanOutput), "no such container")
 }
