@@ -24,6 +24,12 @@
         "name": "Address Importer"
     },
     {
+        "description": "Copy emails from another IMAP server into your account.",
+        "link": "/emails/migrate",
+        "module": "email_migrate",
+        "name": "Migrate Emails"
+    },
+    {
         "description": "Create default (catch-all) email addresses.",
         "link": "/emails/default",
         "module": "email_default",

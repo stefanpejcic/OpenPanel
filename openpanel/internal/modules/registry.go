@@ -218,6 +218,10 @@ var configured = map[string]Registrar{
 		emails.RegisterImport(mux, a)
 		emails.RegisterEmailImportAPI(mux, a)
 	},
+	"email_migrate": func(mux *http.ServeMux, a *appctx.App) {
+		emails.RegisterMigrate(mux, a)
+		emails.RegisterEmailMigrateAPI(mux, a)
+	},
 	"webmail": func(mux *http.ServeMux, a *appctx.App) {
 		emails.RegisterWebmail(mux, a)
 		emails.RegisterWebmailAPI(mux, a)

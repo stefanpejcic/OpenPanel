@@ -111,6 +111,20 @@ func RegisterImport(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /emails/import/confirm", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleConfirmEmailImport(a, w, r) }))
 }
 
+// RegisterMigrate wires the IMAP migration (imapsync) routes onto mux.
+func RegisterMigrate(mux *http.ServeMux, a *appctx.App) {
+	requireLogin := func(h http.HandlerFunc) http.Handler {
+		return auth.RequireLogin(a, "email_migrate")(h)
+	}
+
+	mux.Handle("GET /emails/migrate", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMigratePage(a, w, r) }))
+	mux.Handle("POST /emails/migrate", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMigrateStart(a, w, r) }))
+	mux.Handle("POST /emails/migrate/test", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMigrateTest(a, w, r) }))
+	mux.Handle("POST /emails/migrate/cancel", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMigrateCancel(a, w, r) }))
+	mux.Handle("GET /emails/migrate/status", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMigrateStatus(a, w, r) }))
+	mux.Handle("GET /emails/migrate/log/{id}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleMigrateLog(a, w, r) }))
+}
+
 var webmailInitOnce sync.Once
 
 // RegisterWebmail wires the webmail routes onto mux, and ensures the webmail master user exists once - only when "webmail" is an enabled module, since that's the only time this function is called at all

@@ -241,12 +241,13 @@ var sidebarAreas = []navArea{
 	{label: "Email", icon: emailIcon, menuID: "emails-menu", match: isEmailPath,
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
 			var tabs []NavLink
-			tabs = g.add(tabs, "emails", "/emails", "Accounts", isEmailPath(path) && !hasAnyPrefix(path, "/emails/aliases", "/emails/default", "/emails/filter", "/emails/deliverability", "/emails/import"), "")
+			tabs = g.add(tabs, "emails", "/emails", "Accounts", isEmailPath(path) && !hasAnyPrefix(path, "/emails/aliases", "/emails/default", "/emails/filter", "/emails/deliverability", "/emails/import", "/emails/migrate"), "")
 			tabs = g.add(tabs, "email_aliases", "/emails/aliases", "Aliases", strings.HasPrefix(path, "/emails/aliases"), "")
 			tabs = g.add(tabs, "email_default", "/emails/default", "Catch-all Address", strings.HasPrefix(path, "/emails/default"), "")
 			tabs = g.add(tabs, "email_filters", "/emails/filter", "Filters", strings.HasPrefix(path, "/emails/filter"), "")
 			tabs = g.add(tabs, "email_deliverability", "/emails/deliverability", "Deliverability", strings.HasPrefix(path, "/emails/deliverability"), "")
 			tabs = g.add(tabs, "email_import", "/emails/import", "Import", strings.HasPrefix(path, "/emails/import"), "")
+			tabs = g.add(tabs, "email_migrate", "/emails/migrate", "Migrate", strings.HasPrefix(path, "/emails/migrate"), "")
 			tabs = g.add(tabs, "webmail", "/webmail/", "Webmail", false, "_blank")
 			return tabs
 		}},

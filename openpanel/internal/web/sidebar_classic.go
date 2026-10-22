@@ -187,7 +187,7 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 	}
 
 	// Emails group
-	if has("emails", "email_filters", "email_aliases", "email_default", "email_import", "email_deliverability", "webmail") {
+	if has("emails", "email_filters", "email_aliases", "email_default", "email_import", "email_migrate", "email_deliverability", "webmail") {
 		var links []NavLink
 		if allowed["emails"] {
 			links = append(links,
@@ -205,6 +205,7 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 		links = add(links, "email_aliases", "/emails/aliases", "Aliases", strings.HasPrefix(path, "/emails/aliases"), "")
 		links = add(links, "email_default", "/emails/default", "Default Address", strings.HasPrefix(path, "/emails/default"), "")
 		links = add(links, "email_import", "/emails/import", "Address Importer", strings.HasPrefix(path, "/emails/import"), "")
+		links = add(links, "email_migrate", "/emails/migrate", "Migrate Emails", strings.HasPrefix(path, "/emails/migrate"), "")
 		links = add(links, "email_deliverability", "/emails/deliverability", "Email Deliverability", strings.HasPrefix(path, "/emails/deliverability"), "")
 		open := strings.HasPrefix(path, "/email")
 		groups = append(groups, NavGroup{"Emails", emailIcon, "emails-menu", links, open, open})

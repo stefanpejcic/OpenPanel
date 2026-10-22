@@ -27,6 +27,7 @@ var (
 	filterPage               = web.LoadPage("emails/filter.html")
 	importPage               = web.LoadPage("emails/import.html")
 	confirmImportPage        = web.LoadPage("emails/confirm_import.html")
+	migratePage              = web.LoadPage("emails/migrate.html")
 )
 
 func addressesOf(lines []string) []string {
@@ -404,5 +405,24 @@ func renderConfirmImportPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	data := ConfirmImportPageData{LayoutData: layout, ValidUsers: validUsers, InvalidUsers: invalidUsers}
 	if err := confirmImportPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("EMAILS - confirm import template render error: %v", err)
+	}
+}
+
+// MigratePageData is emails/migrate.html's template context.
+type MigratePageData struct {
+	web.LayoutData
+	Accounts []string
+	Status   MigrateStatus
+}
+
+func renderMigratePage(a *appctx.App, w http.ResponseWriter, r *http.Request, accounts []string, st MigrateStatus) {
+	layout, _, err := web.BuildLayoutData(a, w, r, "Migrate Emails")
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	data := MigratePageData{LayoutData: layout, Accounts: accounts, Status: st}
+	if err := migratePage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("EMAILS - migrate template render error: %v", err)
 	}
 }
