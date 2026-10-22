@@ -358,16 +358,16 @@ install_packages() {
                 run ln -sf /opt/podman-compose/bin/podman-compose /usr/local/bin/podman-compose
                 run hash -r
             fi
-            packages=(curl openssl cron tar dbus-user-session systemd dbus systemd-container systemd-oomd quota uidmap iptables podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs "$kernel_pkg" default-mysql-client sqlite3)
+            packages=(curl openssl git logrotate cron tar dbus-user-session systemd dbus systemd-container systemd-oomd quota uidmap iptables podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs "$kernel_pkg" default-mysql-client sqlite3)
             ;;
         yum)
             run yum install -y dnf-plugins-core yum-utils epel-release
-            packages=(curl openssl cronie tar dbus-user-session systemd dbus systemd-container quota uidmap iptables podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mariadb sqlite3)
+            packages=(curl openssl git logrotate cronie tar dbus-user-session systemd dbus systemd-container quota uidmap iptables podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mariadb sqlite3)
             ;;
         dnf)
             if [[ "$OS_ID" == "openeuler" ]]; then
                 run dnf install -y dnf-plugins-core yum-utils perl gcc tar
-                packages=(tar curl openssl ncurses wget cronie systemd dbus systemd-container systemd-oomd quota shadow-utils podman podman-compose crun netavark aardvark-dns passt slirp4netns fuse-overlayfs mariadb sqlite perl-Math-BigInt)
+                packages=(tar curl openssl git logrotate ncurses wget cronie systemd dbus systemd-container systemd-oomd quota shadow-utils podman podman-compose crun netavark aardvark-dns passt slirp4netns fuse-overlayfs mariadb sqlite perl-Math-BigInt)
                 wait_for_pkg_lock
                 install_pkgs_batch "${packages[@]}"
                 return
@@ -380,9 +380,9 @@ install_packages() {
             fi
             run dnf install -y yum-utils epel-release perl gcc
             if [[ -f /etc/fedora-release ]]; then
-                packages=(tar openssl wget dbus-user-session systemd dbus systemd-container systemd-oomd quota uidmap podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mysql sqlite perl-Math-BigInt)
+                packages=(tar openssl git logrotate wget dbus-user-session systemd dbus systemd-container systemd-oomd quota uidmap podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mysql sqlite perl-Math-BigInt)
             else
-                packages=(tar openssl ncurses wget systemd dbus systemd-container systemd-oomd quota shadow-utils podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mariadb sqlite perl-Math-BigInt)
+                packages=(tar openssl git logrotate ncurses wget systemd dbus systemd-container systemd-oomd quota shadow-utils podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mariadb sqlite perl-Math-BigInt)
             fi
             ;;
     esac
@@ -927,8 +927,9 @@ generate_ssl() {
     echo "Error was: $(podman logs --tail 100 caddy 2>&1 | grep -Ei 'tls|acme|certificate|renew|obtain|challenge' | tail -1)"
 }
 
+# output goes to the housekeeping log, so a failure shows why
 configure_waf() {
-    /usr/local/bin/opencli waf "$([[ "$CORAZA" == true ]] && printf '%s' enable || printf '%s' disable)" > /dev/null 2>&1
+    /usr/local/bin/opencli waf "$([[ "$CORAZA" == true ]] && printf '%s' enable || printf '%s' disable)" -y
 }
 
 setup_redis() { 

@@ -27,6 +27,8 @@ This also disables OWASP CRS rulesets for stacks OpenPanel doesn't use or rarely
 
 WAF is turned on for all existing domains, except domains of users that have it turned off with [`opencli waf user USERNAME disable`](#user).
 
+It is safe to run again, for example after a failed install: an OWASP CRS already downloaded to `/etc/openpanel/caddy/coreruleset` is reused, and a failed rules download keeps the existing `coraza_rules.conf`. The command exits with a non-zero code if the Coraza rules or OWASP CRS can't be downloaded or the web server container fails to restart.
+
 It also downloads the official OWASP CRS rule exclusion plugins for WordPress, Drupal, Nextcloud, DokuWiki, phpBB, XenForo and phpMyAdmin into `/etc/openpanel/caddy/coreruleset-plugins/`. Users can turn these on per domain as *App profiles* in OpenPanel > WAF, so the app's normal requests are not blocked as false positives.
 
 ```bash
