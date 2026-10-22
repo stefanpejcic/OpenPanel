@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os/exec"
+	"path"
 	"strings"
 	"time"
 
@@ -85,6 +86,23 @@ func isValidUsername(username string) bool {
 		}
 	}
 	return true
+}
+
+const ftpRoot = "/var/www/html/"
+
+// cleanFTPPath returns the path opencli should get, or false if it isn't plainly inside /var/www/html/
+func cleanFTPPath(p string) (string, bool) {
+	if !strings.HasPrefix(p, ftpRoot) || strings.Contains(p, "..") || strings.ContainsAny(p, "|*?[]\x00") {
+		return "", false
+	}
+	clean := path.Clean(p)
+	if clean == strings.TrimSuffix(ftpRoot, "/") {
+		return ftpRoot, true
+	}
+	if !strings.HasPrefix(clean, ftpRoot) {
+		return "", false
+	}
+	return clean, true
 }
 
 // isFTPContainerRunning reports whether the FTP container is currently running
@@ -260,11 +278,12 @@ func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		const realPath = "/var/www/html/"
-		if !strings.HasPrefix(ftpPath, realPath) {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "The FTP path must start with %(real_path)s", "real_path", realPath), "/ftp/new")
+		cleanPath, pathOK := cleanFTPPath(ftpPath)
+		if !pathOK {
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "The FTP path must start with %(real_path)s", "real_path", ftpRoot), "/ftp/new")
 			return
 		}
+		ftpPath = cleanPath
 
 		ftpUsername = ftpUsername + "@" + ftpDomain
 		if !isValidUsername(ftpUsername) {
@@ -384,10 +403,15 @@ func handleChangeFTPPath(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 			flashAndRedirectToAccounts(a, w, r, "error", "Invalid FTP username.")
 			return
 		}
-		const allowedPath = "/var/www/html/"
-		if !strings.HasPrefix(newPath, allowedPath) {
-			newPath = allowedPath + strings.TrimLeft(newPath, "/")
+		if !strings.HasPrefix(newPath, ftpRoot) {
+			newPath = ftpRoot + strings.TrimLeft(newPath, "/")
 		}
+		cleanPath, pathOK := cleanFTPPath(newPath)
+		if !pathOK {
+			flashAndRedirectToAccounts(a, w, r, "error", web.Tr(a, r, "The FTP path must start with %(real_path)s", "real_path", ftpRoot))
+			return
+		}
+		newPath = cleanPath
 
 		out, cmdErr := exec.CommandContext(r.Context(), "opencli", "ftp-path", usernameToModify, newPath, currentUsername).CombinedOutput()
 		if cmdErr != nil {

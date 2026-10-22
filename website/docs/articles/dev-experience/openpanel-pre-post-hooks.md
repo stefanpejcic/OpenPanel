@@ -36,11 +36,11 @@ All arguments passed to the `opencli` command are also forwarded to your hook sc
 For example, if the following command is executed:
 
 ```bash
-opencli domains-add example.com stefan --docroot /var/www/example --php_version 8.1 --skip_caddy --skip_vhost --skip_containers --skip_dns --debug
+opencli domains-add example.com stefan --docroot /var/www/html/example.com --php_version 8.1 --skip_caddy --skip_vhost --skip_containers --skip_dns --debug
 ```
 
 Your hook script will receive the same arguments:
 
 ```bash
-bash /etc/openpanel/openpanel/hooks/post_domains-add.sh example.com johndoe --docroot /var/www/example --php_version 8.1 --skip_caddy --skip_vhost --skip_containers --skip_dns --debug
+bash /etc/openpanel/openpanel/hooks/post_domains-add.sh example.com johndoe --docroot /var/www/html/example.com --php_version 8.1 --skip_caddy --skip_vhost --skip_containers --skip_dns --debug
 ```

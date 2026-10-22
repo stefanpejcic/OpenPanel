@@ -172,11 +172,12 @@ func apiFTPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	const allowedPath = "/var/www/html/"
-	if !strings.HasPrefix(ftpPath, allowedPath) {
-		writeAPIFTPJSON(w, http.StatusBadRequest, map[string]string{"error": "Path must start with " + allowedPath})
+	cleanPath, pathOK := cleanFTPPath(ftpPath)
+	if !pathOK {
+		writeAPIFTPJSON(w, http.StatusBadRequest, map[string]string{"error": "Path must be a folder inside " + ftpRoot})
 		return
 	}
+	ftpPath = cleanPath
 
 	fullUsername := ftpUser + "@" + ftpDomain
 	if !isValidUsername(fullUsername) {
@@ -302,10 +303,15 @@ func apiFTPPath(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	const allowedPath = "/var/www/html/"
-	if !strings.HasPrefix(newPath, allowedPath) {
-		newPath = allowedPath + strings.TrimLeft(newPath, "/")
+	if !strings.HasPrefix(newPath, ftpRoot) {
+		newPath = ftpRoot + strings.TrimLeft(newPath, "/")
 	}
+	cleanPath, pathOK := cleanFTPPath(newPath)
+	if !pathOK {
+		writeAPIFTPJSON(w, http.StatusBadRequest, map[string]string{"error": "Path must be a folder inside " + ftpRoot})
+		return
+	}
+	newPath = cleanPath
 
 	out, cmdErr := exec.CommandContext(r.Context(), "opencli", "ftp-path", username, newPath, currentUsername).CombinedOutput()
 	if cmdErr != nil {

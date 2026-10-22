@@ -182,13 +182,16 @@ func vhostPHPVersion(content []byte) string {
 	return ""
 }
 
+// same charset domains-add accepts, anything else in a restored vhost falls back to the default docroot
+var docrootCharsRE = regexp.MustCompile(`^[a-zA-Z0-9._/-]+$`)
+
 var vhostDocrootRE = regexp.MustCompile(`(?mi)^\s*(?:DocumentRoot|root|docRoot)\s+"?([^";\s]+)`)
 
 // vhostDocroot reads the docroot out of an apache/nginx/openlitespeed vhost, falling back to the panel's default
 func vhostDocroot(content []byte, domain string) string {
 	if m := vhostDocrootRE.FindSubmatch(content); m != nil {
 		clean := path.Clean(string(m[1]))
-		if strings.HasPrefix(clean, "/var/www/html/") {
+		if strings.HasPrefix(clean, "/var/www/html/") && docrootCharsRE.MatchString(clean) {
 			return clean
 		}
 	}

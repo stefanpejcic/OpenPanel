@@ -81,6 +81,8 @@ To add a domain name with custom docroot:
 opencli domains-add <DOMAIN_NAME> <USERNAME> --docroot DOCUMENT_ROOT
 ```
 
+The docroot must start with `/var/www/html/`, can only contain letters, numbers, dots, dashes, underscores and slashes, and can't contain `..`.
+
 <details>
   <summary>Example output</summary>
 
