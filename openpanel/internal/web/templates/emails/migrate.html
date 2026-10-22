@@ -3,6 +3,13 @@
 {{define "content"}}
 <!-- START templates/emails/migrate.html -->
 
+<style>
+    #migrateLiveLog { max-height: 24rem; }
+    #migrateLogView { max-height: 32rem; }
+    #migrateHistory .migrate-msg { max-width: 16rem; white-space: normal; }
+    #migrateHistory .migrate-wrap { overflow-wrap: anywhere; }
+</style>
+
 <div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
     <header>
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Migrate Emails"}}</h1>
@@ -18,9 +25,9 @@
             <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Migration in progress"}}</p>
             <p id="migrateRunningInfo" class="text-sm text-gray-500 dark:text-gray-500"></p>
         </div>
-        <button type="button" id="migrateCancel" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-red-600 bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 whitespace-nowrap">{{.T.Get "Cancel"}}</button>
+        <button type="button" id="migrateCancel" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-red-500 bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 whitespace-nowrap">{{.T.Get "Cancel"}}</button>
     </div>
-    <pre id="migrateLiveLog" class="mt-4 max-h-96 overflow-auto rounded bg-gray-900 p-3 text-xs text-gray-100 whitespace-pre-wrap break-all"></pre>
+    <pre id="migrateLiveLog" class="mt-4 overflow-auto rounded border border-gray-200 bg-gray-50 p-3 font-mono text-xs text-gray-800 whitespace-pre-wrap break-all dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200"></pre>
 </div>
 
 <!-- form -->
@@ -31,12 +38,12 @@
         <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Source server"}}</h2>
         <p class="mb-4 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "The server you are moving emails from."}}</p>
 
-        <div class="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-6">
-            <div class="sm:col-span-4">
+        <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+            <div class="col-span-full">
                 <label for="source_host" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "IMAP server"}}<span class="text-red-500">*</span></label>
                 <input type="text" name="source_host" id="source_host" maxlength="253" placeholder="imap.example.com" required class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
             </div>
-            <div class="sm:col-span-2">
+            <div class="sm:col-span-3">
                 <label for="source_security" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Security"}}</label>
                 <select name="source_security" id="source_security" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     <option value="ssl" selected>SSL/TLS</option>
@@ -44,11 +51,11 @@
                     <option value="none">{{.T.Get "None"}}</option>
                 </select>
             </div>
-            <div class="sm:col-span-2">
+            <div class="sm:col-span-3">
                 <label for="source_port" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Port"}}</label>
                 <input type="number" name="source_port" id="source_port" min="1" max="65535" value="993" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:border-blue-500">
             </div>
-            <div class="sm:col-span-4">
+            <div class="col-span-full">
                 <label for="source_user" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Username"}}<span class="text-red-500">*</span></label>
                 <input type="text" name="source_user" id="source_user" maxlength="254" placeholder="you@example.com" required class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:border-blue-500">
             </div>
@@ -64,7 +71,7 @@
         <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Destination account"}}</h2>
         <p class="mb-4 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "The email account on this server that receives the messages."}}</p>
 
-        <div class="grid grid-cols-1 gap-x-4 gap-y-5 sm:grid-cols-6">
+        <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
             <div class="col-span-full">
                 <label for="destination" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Email account"}}<span class="text-red-500">*</span></label>
                 <select name="destination" id="destination" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
@@ -89,7 +96,7 @@
 
         <div class="mx-auto my-6 h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
 
-        <div class="md:flex items-center md:justify-end md:space-x-4">
+        <div class="md:flex items-center justify-end md:space-x-4">
             <button type="button" id="migrateTest" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:opacity-50 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 w-full whitespace-nowrap sm:w-fit">{{.T.Get "Test connection"}}</button>
             <button type="submit" id="migrateStart" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:opacity-50 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Start migration"}}
                 <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg>
@@ -106,8 +113,7 @@
             <thead class="bg-gray-50 text-xs uppercase text-gray-500 dark:bg-gray-900 dark:text-gray-400">
                 <tr>
                     <th class="px-4 py-2">{{.T.Get "Started"}}</th>
-                    <th class="px-4 py-2">{{.T.Get "From"}}</th>
-                    <th class="px-4 py-2">{{.T.Get "To"}}</th>
+                    <th class="px-4 py-2">{{.T.Get "Migration"}}</th>
                     <th class="px-4 py-2">{{.T.Get "Status"}}</th>
                     <th class="px-4 py-2"></th>
                 </tr>
@@ -115,7 +121,7 @@
             <tbody id="migrateHistoryRows"></tbody>
         </table>
     </div>
-    <pre id="migrateLogView" class="mt-4 hidden max-h-[32rem] overflow-auto rounded bg-gray-900 p-3 text-xs text-gray-100 whitespace-pre-wrap break-all"></pre>
+    <pre id="migrateLogView" class="mt-4 hidden overflow-auto rounded border border-gray-200 bg-gray-50 p-3 font-mono text-xs text-gray-800 whitespace-pre-wrap break-all dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200"></pre>
 </div>
 
 {{else}}
@@ -146,10 +152,23 @@
         destFail: {{toJSON (.T.Get "Destination account: login failed")}},
         error: {{toJSON (.T.Get "Something went wrong, please try again.")}},
     };
+    // imapsync exit codes the log ends with, anything else is shown as is
+    const failReasons = {
+        EXIT_AUTHENTICATION_FAILURE_USER1: {{toJSON (.T.Get "Login to the source server failed, check the username and password.")}},
+        EXIT_AUTHENTICATION_FAILURE_USER2: {{toJSON (.T.Get "Login to the destination account failed, check its password.")}},
+        EXIT_CONNECTION_FAILURE_HOST1: {{toJSON (.T.Get "Could not connect to the source server, check the server, security and port.")}},
+        EXIT_CONNECTION_FAILURE_HOST2: {{toJSON (.T.Get "Could not connect to the destination server.")}},
+        EXIT_OVERQUOTA: {{toJSON (.T.Get "The destination account is full, raise its quota and run the migration again.")}},
+        EXIT_WITH_ERRORS: {{toJSON (.T.Get "Finished with errors, some messages were not copied. See the log.")}},
+        EXIT_WITH_ERRORS_MAX: {{toJSON (.T.Get "Stopped after too many errors. See the log.")}},
+        EXIT_CONNECTION_FAILURE: {{toJSON (.T.Get "Could not connect to the source server, check the server, security and port.")}},
+        EXIT_TLS_FAILURE: {{toJSON (.T.Get "The SSL/TLS connection failed, try another Security option.")}},
+        EXIT_BY_SIGNAL: {{toJSON (.T.Get "Stopped before finishing.")}},
+    };
     const statusClass = {
-        running: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300",
-        completed: "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
-        failed: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
+        running: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+        completed: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+        failed: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
         cancelled: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
     };
 
@@ -169,9 +188,9 @@
         if (Object.values(portFor).includes(port.value)) port.value = portFor[this.value];
     });
 
-    function cell(text) {
+    function cell(text, nowrap) {
         const td = document.createElement("td");
-        td.className = "px-4 py-2 whitespace-nowrap";
+        td.className = "px-4 py-2 align-top " + (nowrap ? "whitespace-nowrap" : "migrate-wrap");
         td.textContent = text;
         return td;
     }
@@ -183,7 +202,7 @@
         history.classList.toggle("hidden", jobs.length === 0);
 
         if (st.running && jobs.length) {
-            document.getElementById("migrateRunningInfo").textContent = jobs[0].source_user + "@" + jobs[0].source_host + " → " + jobs[0].destination;
+            document.getElementById("migrateRunningInfo").textContent = jobs[0].source_user + " (" + jobs[0].source_host + ") → " + jobs[0].destination;
             const atBottom = liveLog.scrollTop + liveLog.clientHeight >= liveLog.scrollHeight - 20;
             liveLog.textContent = st.log || "";
             if (atBottom) liveLog.scrollTop = liveLog.scrollHeight;
@@ -193,23 +212,31 @@
         jobs.forEach(function (job) {
             const tr = document.createElement("tr");
             tr.className = "border-t border-gray-200 dark:border-gray-800";
-            tr.appendChild(cell(new Date(job.started).toLocaleString()));
-            tr.appendChild(cell(job.source_user + "@" + job.source_host));
-            tr.appendChild(cell(job.destination));
-            const statusTd = cell("");
+            tr.appendChild(cell(new Date(job.started).toLocaleString(), true));
+            const migTd = cell("");
+            const from = document.createElement("p");
+            // non-breaking hyphens so an address doesn't wrap at a dash
+            from.textContent = job.source_user.replace(/-/g, "\u2011");
+            const host = document.createElement("p");
+            host.className = "text-xs text-gray-500";
+            host.textContent = job.source_host;
+            const to = document.createElement("p");
+            to.textContent = "→ " + job.destination.replace(/-/g, "\u2011");
+            migTd.append(from, host, to);
+            tr.appendChild(migTd);
+            const statusTd = cell("", true);
             const badge = document.createElement("span");
             badge.className = "rounded px-2 py-0.5 text-xs font-medium " + (statusClass[job.status] || "");
             badge.textContent = i18n[job.status] || job.status;
             statusTd.appendChild(badge);
-            if (job.message && job.status !== "running") {
-                badge.title = job.message;
-                const msg = document.createElement("span");
-                msg.className = "ms-2 text-xs text-gray-500";
-                msg.textContent = job.message;
+            if (job.message && job.status === "failed") {
+                const msg = document.createElement("p");
+                msg.className = "migrate-msg mt-1 break-words text-xs text-gray-500";
+                msg.textContent = failReasons[job.message] || job.message;
                 statusTd.appendChild(msg);
             }
             tr.appendChild(statusTd);
-            const actionTd = cell("");
+            const actionTd = cell("", true);
             const link = document.createElement("a");
             link.href = "#";
             link.className = "text-indigo-600 hover:underline dark:text-indigo-400";
@@ -266,7 +293,7 @@
             done();
             if (data.error) { showToast(data.error, "error"); return; }
             const ok = data.source && data.destination;
-            testResult.className = "mt-6 rounded border p-3 text-sm " + (ok ? "border-green-300 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/30 dark:text-green-300" : "border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300");
+            testResult.className = "mt-6 rounded border p-3 text-sm " + (ok ? "border-green-200 bg-green-50 text-green-800 dark:border-gray-800 dark:bg-green-900 dark:text-green-300" : "border-red-300 bg-red-50 text-red-800 dark:border-gray-800 dark:bg-red-900 dark:text-red-300");
             testResult.replaceChildren();
             [data.source ? i18n.sourceOk : i18n.sourceFail, data.destination ? i18n.destOk : i18n.destFail].forEach(function (line) {
                 const p = document.createElement("p");

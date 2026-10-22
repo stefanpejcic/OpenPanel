@@ -102,12 +102,13 @@ func TestResolveSource(t *testing.T) {
 }
 
 func TestImapsyncArgs(t *testing.T) {
-	a := &appctx.App{Config: config.Config{"imapsync_host": "mail.local", "imapsync_port": "9993"}}
+	a := &appctx.App{Config: config.Config{"imapsync_host": "mail.local", "imapsync_port": "9993", "imapsync_security": "ssl"}}
+	destHost, destPort, destSec := migrateDest(context.Background(), a, "user1")
 	req := validMigrateRequest()
 	req.SourceSecurity = "starttls"
 	req.SourceUser = "-weird"
 	_ = validateMigrateRequest(&req)
-	args := strings.Join(imapsyncArgs(a, req, "1.1.1.1", "job1"), " ")
+	args := strings.Join(imapsyncArgs(req, "1.1.1.1", destHost, destPort, destSec, "job1"), " ")
 	for _, want := range []string{"--host1=1.1.1.1", "--port1=143", "--tls1", "--user1=-weird", "--passfile1=/data/job1.p1", "--host2=mail.local", "--port2=9993", "--ssl2", "--user2=new@demo.rs", "--passfile2=/data/job1.p2"} {
 		if !strings.Contains(args, want) {
 			t.Errorf("args missing %q: %s", want, args)
@@ -215,7 +216,10 @@ func TestMigrationLifecycle(t *testing.T) {
 			t.Errorf("%s status = %s, want %s (%s)", j.ID, j.Status, want[j.ID], j.Message)
 		}
 	}
-	if st.Jobs[2].ExitCode != 161 || !strings.Contains(st.Jobs[2].Message, "EXIT_AUTHENTICATION_FAILURE_USER1") {
+	if st.Jobs[3].Message != "" {
+		t.Errorf("completed job should have no message, got %q", st.Jobs[3].Message)
+	}
+	if st.Jobs[2].ExitCode != 161 || st.Jobs[2].Message != "EXIT_AUTHENTICATION_FAILURE_USER1" {
 		t.Errorf("failed job exit info = %d %q", st.Jobs[2].ExitCode, st.Jobs[2].Message)
 	}
 	if _, err := os.Stat(filepath.Join(dir, "20261001-100000.p1")); !os.IsNotExist(err) {
@@ -279,7 +283,6 @@ func TestMigrateStartWritesPassfilesNotArgs(t *testing.T) {
 	// what startMigration does once the request passed the checks that need the DB
 	req := validMigrateRequest()
 	_ = validateMigrateRequest(&req)
-	a := &appctx.App{Config: config.Config{}}
 	id := newJobID(root)
 	_ = writeOwned(root, id+".p1", []byte(req.SourcePassword+"\n"), uid, gid)
 	data, err := root.ReadFile(id + ".p1")
@@ -290,7 +293,7 @@ func TestMigrateStartWritesPassfilesNotArgs(t *testing.T) {
 	if info.Mode().Perm() != 0o600 {
 		t.Errorf("passfile mode = %v", info.Mode().Perm())
 	}
-	args := imapsyncArgs(a, req, "1.1.1.1", id)
+	args := imapsyncArgs(req, "1.1.1.1", "185.7.32.112", "993", "ssl", id)
 	_, _ = fake.run(context.Background(), "ctx1", append([]string{"run", "--label", migrateJobLabel + "=" + id}, args...)...)
 	for _, arg := range fake.calls[0] {
 		if strings.Contains(arg, "s3cret") {
@@ -324,5 +327,33 @@ func TestRenderMigratePage(t *testing.T) {
 	}
 	if !strings.Contains(w.Body.String(), "No email accounts yet") {
 		t.Error("expected empty state")
+	}
+}
+
+func TestMigrateDestFallsBackTo143(t *testing.T) {
+	orig := dialIMAP
+	t.Cleanup(func() { dialIMAP = orig })
+	a := &appctx.App{Config: config.Config{"imapsync_host": "203.0.113.5"}}
+
+	dialIMAP = func(string) bool { return true }
+	if _, port, sec := migrateDest(context.Background(), a, "u"); port != "993" || sec != "ssl" {
+		t.Errorf("with 993 open got %s/%s", port, sec)
+	}
+	dialIMAP = func(string) bool { return false }
+	host, port, sec := migrateDest(context.Background(), a, "u")
+	if host != "203.0.113.5" || port != "143" || sec != "auto" {
+		t.Errorf("without 993 got %s:%s/%s", host, port, sec)
+	}
+	args := strings.Join(imapsyncArgs(validMigrateRequest(), "1.1.1.1", host, port, sec, "j"), " ")
+	if strings.Contains(args, "ssl2") || strings.Contains(args, "tls2") {
+		t.Errorf("auto should leave host2 security to imapsync: %s", args)
+	}
+}
+
+func TestLoginLinesKeepsOnlyResults(t *testing.T) {
+	out := "Host1: will try to use LOGIN authentication on host1\nHost1 failure: Error login on [x] with user [u] auth [LOGIN]: 2 NO [AUTHENTICATIONFAILED] Authentication failed.\nHost2: success login on [x] with user [d] auth [LOGIN]\nErr 1/1: Host1 failure: Error login on [x]\n"
+	got := loginLines(out)
+	if strings.Count(got, "\n") != 1 || !strings.Contains(got, "AUTHENTICATIONFAILED") || !strings.Contains(got, "Host2: success login") {
+		t.Errorf("loginLines = %q", got)
 	}
 }

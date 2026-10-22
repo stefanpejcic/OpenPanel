@@ -276,6 +276,17 @@ When disabled:
 * Users can not access the Address Importer page.
 
 
+## Email Migration
+
+The **`email_migrate`** module allows users to copy emails from another IMAP server into their email accounts.
+
+When enabled:
+* Users can access the [**Migrate Emails** page](/docs/panel/emails/migrate/)
+
+When disabled:
+* Users can not access the Migrate Emails page.
+
+
 ## Address Exporter
 
 The **`email_export`** module allows users to export to CSV file all their email addresses.

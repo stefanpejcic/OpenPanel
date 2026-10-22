@@ -117,7 +117,7 @@ func errStatus(err error) (int, string) {
 var (
 	migrateHostRE  = regexp.MustCompile(`^[A-Za-z0-9]([A-Za-z0-9-]{0,62})(\.[A-Za-z0-9]([A-Za-z0-9-]{0,62}))*\.?$`)
 	migrateJobIDRE = regexp.MustCompile(`^\d{8}-\d{6}(-\d{1,2})?$`)
-	migrateExitRE  = regexp.MustCompile(`Exiting with return value (\d+)\s*(.*)`)
+	migrateExitRE  = regexp.MustCompile(`Exiting with return value (\d+)(?: \(([^)]*)\))?`)
 	// folders nobody wants copied over, matched against the last part of the folder path
 	migrateJunkFolders = `(?i)(^|[./])(spam|junk|junk e-?mail|bulk mail|trash|bin|deleted items|deleted messages)$`
 )
@@ -207,9 +207,31 @@ func resolveSource(ctx context.Context, host string, allowPrivate bool) (string,
 	return picked.String(), nil
 }
 
-// migrateDest returns where the destination mailbox is reached from inside the account's containers
-func migrateDest(a *appctx.App) (host, port string) {
-	return a.Config.Get("imapsync_host", "host.containers.internal"), a.Config.Get("imapsync_port", "993")
+// dialIMAP is swapped out in tests
+var dialIMAP = func(addr string) bool {
+	conn, err := net.DialTimeout("tcp", addr, 2*time.Second)
+	if err != nil {
+		return false
+	}
+	conn.Close()
+	return true
+}
+
+// migrateDest returns where the destination mailbox is reached from inside the account's containers, the account's own IP since pasta doesn't route host.containers.internal to published ports
+func migrateDest(ctx context.Context, a *appctx.App, username string) (host, port, security string) {
+	host = a.Config.Get("imapsync_host", "")
+	if host == "" {
+		host = a.GetCachedIPForUserOrPublicIPv4(ctx, username)
+	}
+	port, security = a.Config.Get("imapsync_port", ""), a.Config.Get("imapsync_security", "")
+	if port != "" && security != "" {
+		return host, port, security
+	}
+	// mailservers set up with just an IP have no SSL and only listen on 143
+	if dialIMAP(net.JoinHostPort(host, "993")) {
+		return host, "993", "ssl"
+	}
+	return host, "143", "auto"
 }
 
 func migrateImage(a *appctx.App) string {
@@ -224,8 +246,7 @@ func migrateConfigInt(a *appctx.App, key string, def int) int {
 }
 
 // imapsyncArgs builds imapsync's own arguments, always in --opt=value form so a value starting with - can't be read as a flag
-func imapsyncArgs(a *appctx.App, req MigrateRequest, sourceIP, passPrefix string) []string {
-	destHost, destPort := migrateDest(a)
+func imapsyncArgs(req MigrateRequest, sourceIP, destHost, destPort, destSecurity, passPrefix string) []string {
 	args := []string{
 		"--host1=" + sourceIP,
 		"--port1=" + strconv.Itoa(req.SourcePort),
@@ -243,7 +264,17 @@ func imapsyncArgs(a *appctx.App, req MigrateRequest, sourceIP, passPrefix string
 		"--passfile1=/data/"+passPrefix+".p1",
 		"--host2="+destHost,
 		"--port2="+destPort,
-		"--ssl2",
+	)
+	// auto leaves it to imapsync, which uses STARTTLS when the server offers it
+	switch destSecurity {
+	case "ssl":
+		args = append(args, "--ssl2")
+	case "starttls":
+		args = append(args, "--tls2")
+	case "none":
+		args = append(args, "--notls2")
+	}
+	args = append(args,
 		"--user2="+req.Destination,
 		"--passfile2=/data/"+passPrefix+".p2",
 		"--noreleasecheck",
@@ -413,10 +444,10 @@ func fillJobStatus(root *os.Root, job *MigrateJob, runningID string) {
 	default:
 		last := m[len(m)-1]
 		job.ExitCode, _ = strconv.Atoi(last[1])
-		job.Message = strings.Trim(strings.TrimSpace(last[2]), "()")
 		job.Status = "completed"
 		if job.ExitCode != 0 {
-			job.Status = "failed"
+			// imapsync names the exit code, e.g. EXIT_AUTHENTICATION_FAILURE_USER1
+			job.Status, job.Message = "failed", strings.TrimSpace(last[2])
 		}
 	}
 }
@@ -600,8 +631,10 @@ func startMigration(ctx context.Context, a *appctx.App, userID int, username, us
 		"--entrypoint", "imapsync",
 		migrateImage(a),
 	}
-	args = append(args, imapsyncArgs(a, req, sourceIP, job.ID)...)
-	args = append(args, "--automap", "--nofoldersizes", "--logdir=/data", "--logfile="+job.ID+".log")
+	destHost, destPort, destSecurity := migrateDest(ctx, a, username)
+	args = append(args, imapsyncArgs(req, sourceIP, destHost, destPort, destSecurity, job.ID)...)
+	// file logging is off by default inside docker
+	args = append(args, "--automap", "--nofoldersizes", "--log", "--logdir=/data", "--logfile="+job.ID+".log")
 	if req.ExcludeJunk {
 		args = append(args, "--exclude="+migrateJunkFolders)
 	}
@@ -724,7 +757,8 @@ func testMigration(ctx context.Context, a *appctx.App, userID int, username, use
 		"--entrypoint", "imapsync",
 		migrateImage(a),
 	}
-	args = append(args, imapsyncArgs(a, req, sourceIP, prefix)...)
+	destHost, destPort, destSecurity := migrateDest(ctx, a, username)
+	args = append(args, imapsyncArgs(req, sourceIP, destHost, destPort, destSecurity, prefix)...)
 	args = append(args, "--justlogin", "--nolog")
 
 	runCtx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
@@ -748,7 +782,7 @@ func loginLines(out string) string {
 	var keep []string
 	for _, line := range strings.Split(out, "\n") {
 		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "Host1") || strings.HasPrefix(line, "Host2") || strings.Contains(line, "failure") {
+		if strings.Contains(line, "success login") || strings.Contains(line, "failure:") && !strings.HasPrefix(line, "Err ") {
 			keep = append(keep, line)
 		}
 	}

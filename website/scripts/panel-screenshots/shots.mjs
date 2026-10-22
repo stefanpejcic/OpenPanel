@@ -137,6 +137,41 @@ const bkPicker = async page => {
 };
 
 const MAIL_HOST = { 'demo.openpanel.com': 'mail.example.com' };
+// test server mailboxes for the migrate page, also with the non-breaking hyphens the table shows
+const MIGRATE_NAMES = {
+  'src-test@shared.tests.openpanel.org': 'info@oldhost.com',
+  'src‑test@shared.tests.openpanel.org': 'info@oldhost.com',
+  'dst-test@shared.tests.openpanel.org': 'info@example.com',
+  'dst‑test@shared.tests.openpanel.org': 'info@example.com',
+  'saassa@shared.tests.openpanel.org': 'sales@example.com',
+  '185.7.32.112': 'mail.oldhost.com',
+};
+const MIGRATE_LOG = [
+  'Host1: success login on [mail.oldhost.com] with user [info@oldhost.com] auth [LOGIN] or [LOGIN]',
+  'Host2: success login on [mail.example.com] with user [info@example.com] auth [LOGIN] or [LOGIN]',
+  '++++ Looping on each one of 4 folders to sync',
+  'Folder     1/4 [Drafts]                            -> [Drafts]                           ',
+  'Host1: folder [Drafts] has 3 messages in total (mentioned by SELECT)',
+  'Host2: folder [Drafts] has 0 messages in total (mentioned by SELECT)',
+  'msg Drafts/1 {2817}           copied to Drafts/1         12.40 msgs/s  34.112 KiB/s 2.751 KiB copied ',
+  'msg Drafts/2 {1904}           copied to Drafts/2         18.92 msgs/s  43.865 KiB/s 4.610 KiB copied ',
+  'msg Drafts/3 {5390}           copied to Drafts/3         22.37 msgs/s  73.441 KiB/s 9.874 KiB copied ',
+  'Folder     2/4 [INBOX]                             -> [INBOX]                            ',
+  'Host1: folder [INBOX] has 1284 messages in total (mentioned by SELECT)',
+  'Host2: folder [INBOX] has 0 messages in total (mentioned by SELECT)',
+  'Host1: folder [INBOX] considering 1284 messages',
+  'Host2: folder [INBOX] considering 0 messages',
+  'Host1: folder [INBOX] selected 1284 messages, duplicates 0',
+  'Host2: folder [INBOX] selected 0 messages, duplicates 0',
+  // same columns as a real run: msgs/s, KiB/s and the running total, which carries on from the Drafts folder
+  ...[[1, 4211], [2, 18734], [3, 2906], [4, 61873], [5, 3318], [6, 7702], [7, 12456], [8, 2290]].map(([n, size], i, list) => {
+    const total = 10111 + list.slice(0, i + 1).reduce((t, [, b]) => t + b, 0);
+    const secs = 0.45 + (i + 4) * 0.095;
+    return `msg INBOX/${n} {${size}}`.padEnd(30) + ` copied to INBOX/${n}`.padEnd(28) +
+      `${((i + 4) / secs).toFixed(2)} msgs/s  ${(total / 1024 / secs).toFixed(3)} KiB/s ${(total / 1024).toFixed(3)} KiB copied `;
+  }),
+].join('\n');
+
 
 // runs on every shot after its own prepare(), so selectors there can still use the real names
 export const globalPrepare = all(rename(DOMAINS, 'body'), maskIPs('main'), hideNotices);
@@ -1036,6 +1071,59 @@ export const pages = {
   'emails/import': {
     url: '/emails/import',
     shots: [{ name: 'form', alt: 'Import Emails form with the file picker for a CSV, XLSX or XLS file and the Upload button', crop: 'content' }],
+  },
+  // email_migrate is new in 2.0.18, until the demo has it: PANEL_URL=https://host:2083 node shoot.mjs emails/migrate
+  'emails/migrate': {
+    url: '/emails/migrate',
+    prepare: rename(MIGRATE_NAMES, 'body'),
+    shots: [
+      {
+        name: 'form',
+        alt: 'Migrate Emails form with the source server, security, port, username and password fields, the destination account and the Test connection and Start migration buttons',
+        prepare: async page => {
+          await page.fill('#source_host', 'mail.oldhost.com');
+          await page.fill('#source_user', 'info@oldhost.com');
+          await page.fill('#source_password', PASSWORD);
+          await page.selectOption('#destination', 'dst-test@shared.tests.openpanel.org');
+          await page.fill('#destination_password', PASSWORD);
+          await page.evaluate(() => document.activeElement.blur());
+          // what a passed Test connection leaves under the form, the test itself is a POST
+          await page.evaluate(() => {
+            const box = document.getElementById('migrateTestResult');
+            box.className = 'mt-6 rounded border p-3 text-sm border-green-200 bg-green-50 text-green-800 dark:border-gray-800 dark:bg-green-900 dark:text-green-300';
+            box.replaceChildren(...['Source server: login successful', 'Destination account: login successful'].map(t => Object.assign(document.createElement('p'), { textContent: t })));
+          });
+        },
+        crop: { from: '#migrateFormCard' },
+      },
+      {
+        name: 'running',
+        alt: 'Migration in progress with the live imapsync log and the Cancel button',
+        // a real run of a small mailbox is over in a second, so the running card gets a log in imapsync's format
+        prepare: async page => {
+          await page.evaluate(log => {
+            document.getElementById('migrateFormCard').classList.add('hidden');
+            document.getElementById('migrateRunning').classList.remove('hidden');
+            document.getElementById('migrateRunningInfo').textContent = 'info@oldhost.com (mail.oldhost.com) → info@example.com';
+            const pre = document.getElementById('migrateLiveLog');
+            pre.textContent = log;
+            pre.scrollTop = pre.scrollHeight;
+          }, MIGRATE_LOG);
+        },
+        crop: { from: '#migrateRunning' },
+      },
+      {
+        name: 'history',
+        alt: 'Recent migrations table with a failed and a completed migration and the log of the completed one',
+        prepare: async page => {
+          await page.locator('#migrateHistory a:has-text("View log")').nth(1).click();
+          await page.waitForTimeout(800);
+          await rename(MIGRATE_NAMES, 'body')(page);
+          await page.evaluate(() => { const pre = document.getElementById('migrateLogView'); pre.scrollTop = pre.scrollHeight; });
+        },
+        crop: { from: '#migrateHistory' },
+      },
+    ],
   },
   'emails/delete': {
     url: '/emails/delete/info@wp.tests.openpanel.org',
