@@ -45,3 +45,24 @@ func TestConfigEntriesToMap(t *testing.T) {
 		}
 	}
 }
+
+func TestGlobalValue(t *testing.T) {
+	cases := map[string]string{
+		"150":                     "150",
+		"64M":                     "67108864",
+		"1g":                      "1073741824",
+		"16K":                     "16384",
+		"0.5":                     "0.5",
+		"ON":                      "ON",
+		"off":                     "off",
+		"FILE,TABLE":              "'FILE,TABLE'",
+		"/var/log/slow.log":       "'/var/log/slow.log'",
+		"STRICT_TRANS_TABLES":     "'STRICT_TRANS_TABLES'",
+		"x'; DROP TABLE users;--": `'x\'; DROP TABLE users;--'`,
+	}
+	for in, want := range cases {
+		if got := globalValue(in); got != want {
+			t.Errorf("globalValue(%q) = %q, want %q", in, got, want)
+		}
+	}
+}

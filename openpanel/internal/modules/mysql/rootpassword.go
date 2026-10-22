@@ -2,14 +2,14 @@ package mysql
 
 import (
 	"net/http"
-	"os/exec"
+	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -52,24 +52,32 @@ func handleRootPasswordMySQL(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		if ok {
 			docker.SetEnvValue(userContext, "MYSQL_ROOT_PASSWORD", password)
 
-			sedCmd := "s/^password=.*/password=" + escapedPassword + "/"
-			myCnfPath := "/home/" + userContext + "/my.cnf"
-			if sedErr := exec.CommandContext(ctx, "sed", "-i", "-e", sedCmd, myCnfPath).Run(); sedErr != nil {
-				web.Flash(a, w, r, "error", "Password changed but failed to restart MySQL.")
+			if writeErr := setMyCnfPassword(userContext, password); writeErr != nil {
+				web.Flash(a, w, r, "error", "Password changed but failed to update stored configuration.")
 			} else {
 				mysqlmanager.InvalidatePool(userContext)
-
-				argv := podmanmanager.PodmanArgv(userContext, "restart", mysqlVersion)
-				if restartErr := podmanmanager.Command(ctx, userContext, argv).Run(); restartErr != nil {
-					web.Flash(a, w, r, "error", "Password changed but failed to restart MySQL.")
-				} else {
-					ipAddress := reqip.ClientIP(r)
-					_ = logger.RecordUserAction(a.Config, currentUsername, "changed MySQL root user password", ipAddress)
-					web.Flash(a, w, r, "success", "Successfully changed root password.")
-				}
+				ipAddress := reqip.ClientIP(r)
+				_ = logger.RecordUserAction(a.Config, currentUsername, "changed MySQL root user password", ipAddress)
+				web.Flash(a, w, r, "success", "Successfully changed root password.")
 			}
 		}
 	}
 
 	renderRootPasswordPage(a, w, r, mysqlVersion)
+}
+
+// setMyCnfPassword rewrites the password= line in place, a sed -i swaps the inode and the container's single-file bind mount keeps showing the old file until a restart
+func setMyCnfPassword(userContext, password string) error {
+	path := "/home/" + userContext + "/my.cnf"
+	content, err := tenantfs.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	lines := strings.Split(string(content), "\n")
+	for i, line := range lines {
+		if strings.HasPrefix(line, "password=") {
+			lines[i] = "password=" + password
+		}
+	}
+	return tenantfs.WriteFile(path, []byte(strings.Join(lines, "\n")), 0o600)
 }

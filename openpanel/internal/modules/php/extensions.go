@@ -500,10 +500,10 @@ func runExtensionInstall(installID string) {
 		cur.Message = "Extensions installed, restarting PHP-FPM to apply changes..."
 		_ = saveInstallState(installID, cur)
 
-		docker.ComposeContainer(context.Background(), info.Context, info.Service, "restart")
-		// nginx/openresty users get their webserver restarted right after php too
+		// php restarts first and synchronously so the webserver reload resolves the php container while it's up
+		_ = podmanmanager.Command(ctx, info.Context, podmanmanager.PodmanArgv(info.Context, "restart", info.Service)).Run()
 		if ws := strings.ToLower(strings.TrimSpace(webServer)); ws == "nginx" || ws == "openresty" {
-			docker.ComposeContainer(context.Background(), info.Context, ws, "restart")
+			_ = webserver.ReloadWebserver(ctx, info.Context, ws)
 		}
 		saveExtensionsHistory(info.Context, info.Version, info.Extensions)
 

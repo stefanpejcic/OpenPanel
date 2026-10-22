@@ -510,8 +510,7 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		webServerType == "openlitespeed", strings.Contains(strings.ToLower(webServerType), "litespeed"):
 		// lowercased - editApacheConfig/editNginxConfig/editLswsConfig wrote the proxy block using the lowercase install-time service name, but `serviceName` here is sites.container, which is always stored uppercase (see install.go's serviceNameUp), so passing it through as-is never matched and left the proxy block orphaned on every delete, for every app type, not just n8n
 		revertWebserverConfig(userContext, subdirectory, webServerType, selectedDomain, strings.ToLower(serviceName))
-		restartArgv := podmanmanager.PodmanArgv(userContext, "restart", webServerType)
-		_ = podmanmanager.Command(ctx, userContext, restartArgv).Run()
+		reloadWebserver(ctx, userContext, webServerType)
 	default:
 		_, _ = w.Write([]byte("unknown"))
 		return

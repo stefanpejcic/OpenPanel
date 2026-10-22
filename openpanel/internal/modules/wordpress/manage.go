@@ -210,10 +210,7 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	_ = podmanmanager.Command(ctx, userContext, cacheFlushArgv).Run()
 
 	if isLitespeed {
-		restartCmd := podmanmanager.Command(context.Background(), userContext, podmanmanager.PodmanArgv(userContext, "restart", webServer))
-		if startErr := restartCmd.Start(); startErr == nil {
-			go func() { _ = restartCmd.Wait() }()
-		}
+		_ = webserver.ReloadWebserver(context.Background(), userContext, webServer)
 	}
 
 	_ = a.Cache.Delete(ctx, fmt.Sprintf("get_user_websites:%d", userID))

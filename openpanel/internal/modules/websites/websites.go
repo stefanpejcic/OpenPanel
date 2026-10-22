@@ -320,8 +320,8 @@ func handleWPVulnerability(a *appctx.App, w http.ResponseWriter, r *http.Request
 	if content, readErr := tenantfs.ReadFile(filePath); readErr == nil {
 		_ = json.Unmarshal(content, &data)
 	} else {
+		// runs in the foreground, the report file exists once it returns
 		_ = exec.CommandContext(ctx, "opencli", "websites-vulnerability", websiteParam).Run()
-		time.Sleep(2 * time.Second)
 		if content, readErr2 := tenantfs.ReadFile(filePath); readErr2 == nil {
 			_ = json.Unmarshal(content, &data)
 		}

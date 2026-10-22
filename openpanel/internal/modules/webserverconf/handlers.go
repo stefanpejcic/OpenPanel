@@ -7,7 +7,6 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
@@ -65,7 +64,7 @@ func handleWebserverConf(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	renderWebserverConfPage(a, w, r, entry.PageTitle, webServer, entry.ConfFile, canRestoreDefault, existingContent)
 }
 
-// handleSaveOrRestore performs the POST action - either "restore_default" or the normal save-and-validate path, followed by a service restart - returns false once it has written a response (redirect), so the caller should stop
+// handleSaveOrRestore performs the POST action - either "restore_default" or the normal save-and-validate path, followed by a service reload - returns false once it has written a response (redirect), so the caller should stop
 func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, username, userContext, webServer string, entry webserverConfEntry, configFilePath string) bool {
 	_ = r.ParseForm()
 	action := r.Form.Get("action")
@@ -119,21 +118,20 @@ func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		actionDescription = "edited " + entry.ConfFile
 	}
 
-	// restart service - unlike the early-exit error branches above, every path from here on falls through to re-read the file and render the page directly, it does not redirect
+	// reload service - unlike the early-exit error branches above, every path from here on falls through to re-read the file and render the page directly, it does not redirect
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 	if docker.IsServiceRunning(r.Context(), userContext, entry.ServiceName) {
-		argv := podmanmanager.PodmanArgv(userContext, "restart", entry.ServiceName)
-		if runErr := podmanmanager.Command(r.Context(), userContext, argv).Run(); runErr != nil {
-			flash.Add(sess, "error", web.Tr(a, r, "Error restarting %(service_name)s container.", "service_name", entry.ServiceName))
+		if reloadErr := webserver.ReloadWebserver(r.Context(), userContext, entry.ServiceName); reloadErr != nil {
+			flash.Add(sess, "error", web.Tr(a, r, "Error reloading %(service_name)s container.", "service_name", entry.ServiceName))
 		} else {
 			var message string
 			if action == "restore_default" {
-				message = web.Tr(a, r, "Restored %(conf_file)s to the default configuration and %(service_name)s container restarted successfully.", "conf_file", entry.ConfFile, "service_name", entry.ServiceName)
+				message = web.Tr(a, r, "Restored %(conf_file)s to the default configuration and %(service_name)s container reloaded successfully.", "conf_file", entry.ConfFile, "service_name", entry.ServiceName)
 			} else {
-				message = web.Tr(a, r, "Changes saved to %(conf_file)s and %(service_name)s container restarted successfully.", "conf_file", entry.ConfFile, "service_name", entry.ServiceName)
+				message = web.Tr(a, r, "Changes saved to %(conf_file)s and %(service_name)s container reloaded successfully.", "conf_file", entry.ConfFile, "service_name", entry.ServiceName)
 			}
 			flash.Add(sess, "success", message)
-			_ = logger.RecordUserAction(a.Config, username, actionDescription+" and restarted "+entry.ServiceName, reqip.ClientIP(r))
+			_ = logger.RecordUserAction(a.Config, username, actionDescription+" and reloaded "+entry.ServiceName, reqip.ClientIP(r))
 		}
 	} else {
 		var message string

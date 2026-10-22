@@ -477,9 +477,8 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	emit(map[string]any{"status": "Restarting " + webServerType + " to apply the new proxy"})
-	restartArgv := podmanmanager.PodmanArgv(userContext, "restart", webServerType)
-	_ = podmanmanager.Command(ctx, userContext, restartArgv).Run()
+	emit(map[string]any{"status": "Reloading " + webServerType + " to apply the new proxy"})
+	reloadWebserver(ctx, userContext, webServerType)
 
 	emit(map[string]any{"status": "Installation finished, adding the new application to SiteManager"})
 

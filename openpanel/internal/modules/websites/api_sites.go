@@ -6,7 +6,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -306,8 +305,8 @@ func apiWPVulnerabilityGet(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// runs in the foreground, the report file exists once it returns
 	_ = exec.CommandContext(ctx, "opencli", "websites-vulnerability", domain).Run()
-	time.Sleep(2 * time.Second)
 
 	data := map[string]any{"core_version_": map[string]any{}, "plugin_": map[string]any{}, "theme_": map[string]any{}}
 	if content, readErr := tenantfs.ReadFile(filePath); readErr == nil {

@@ -312,8 +312,7 @@ func apiPM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if webServerType == "apache" || webServerType == "openresty" || webServerType == "nginx" ||
 		webServerType == "openlitespeed" || webServerType == "litespeed" {
 		revertWebserverConfig(userContext, subdirectory, webServerType, selectedDomain, serviceName.String)
-		restartArgv := podmanmanager.PodmanArgv(userContext, "restart", webServerType)
-		_ = podmanmanager.Command(ctx, userContext, restartArgv).Run()
+		reloadWebserver(ctx, userContext, webServerType)
 	}
 
 	composeData, loadErr := docker.LoadCompose(userContext)

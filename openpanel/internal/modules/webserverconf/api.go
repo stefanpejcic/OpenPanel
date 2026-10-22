@@ -9,7 +9,6 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
@@ -62,7 +61,7 @@ func apiWebserverConfGet(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-// apiWebserverConfPut saves new webserver config content, syntax-checks it, and restarts the service - rolling back on a failed check
+// apiWebserverConfPut saves new webserver config content, syntax-checks it, and reloads the service - rolling back on a failed check
 func apiWebserverConfPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, currentUsername, userContext, err := auth.Injected(a, r)
@@ -109,29 +108,25 @@ func apiWebserverConfPut(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	restarted := false
+	reloaded := false
 	if serviceRunning {
-		argv := podmanmanager.PodmanArgv(userContext, "restart", entry.ServiceName)
-		var stderr []byte
-		cmd := podmanmanager.Command(ctx, userContext, argv)
-		out, runErr := cmd.CombinedOutput()
-		if runErr != nil {
-			stderr = out
+		if reloadErr := webserver.ReloadWebserver(ctx, userContext, entry.ServiceName); reloadErr != nil {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{
-				"error": "Config saved but service restart failed: " + string(stderr),
+				"error": "Config saved but service reload failed: " + reloadErr.Error(),
 			})
 			return
 		}
-		restarted = true
+		reloaded = true
 	}
 
-	_ = logger.RecordUserAction(a.Config, currentUsername, "edited "+entry.ConfFile+" and restarted "+entry.ServiceName, reqip.ClientIP(r))
+	_ = logger.RecordUserAction(a.Config, currentUsername, "edited "+entry.ConfFile+" and reloaded "+entry.ServiceName, reqip.ClientIP(r))
 
 	message := "Config saved (service not running)"
-	if restarted {
-		message = "Config saved and service restarted"
+	if reloaded {
+		message = "Config saved and service reloaded"
 	}
+	// "restarted" stays in the response for existing API clients
 	web.WriteJSON(w, http.StatusOK, map[string]any{
-		"message": message, "web_server": webServer, "service": entry.ServiceName, "restarted": restarted,
+		"message": message, "web_server": webServer, "service": entry.ServiceName, "reloaded": reloaded, "restarted": reloaded,
 	})
 }

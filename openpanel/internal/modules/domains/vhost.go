@@ -3,13 +3,11 @@ package domains
 import (
 	"context"
 	"net/http"
-	"os/exec"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
@@ -79,23 +77,19 @@ func readVhostContent(userContext, domainName string) string {
 	return string(content)
 }
 
-// writeVhostContent saves the file, then validates+reloads via webserver.TestWebserverConfig rather than duplicating that logic here
+// writeVhostContent saves the file, then validates+reloads via webserver.ReloadWebserver
 func writeVhostContent(ctx context.Context, domainName, userContext, webServerPreference, vhostContent string) (bool, string) {
 	path := vhostFilePath(userContext, domainName)
+	previous, prevErr := tenantfs.ReadFile(path)
 	if err := tenantfs.WriteFile(path, []byte(vhostContent), 0o644); err != nil {
 		return false, "Error: VirtualHost file could not be saved."
 	}
 
-	reloadArgv := podmanmanager.PodmanArgv(userContext, "restart", webServerPreference)
-	restart := func() {
-		cmd := exec.CommandContext(ctx, reloadArgv[0], reloadArgv[1:]...)
-		cmd.Env = podmanmanager.PodmanEnv(userContext)
-		_ = cmd.Run()
-	}
-
 	if strings.Contains(strings.ToLower(webServerPreference), "litespeed") {
-		restart()
-		return true, "Successfully saved file and restarted " + webServerPreference + " service to apply changes."
+		if err := webserver.ReloadWebserver(ctx, userContext, webServerPreference); err != nil {
+			return false, "Saved file but reloading " + webServerPreference + " failed: " + err.Error()
+		}
+		return true, "Successfully saved file and reloaded " + webServerPreference + " service to apply changes."
 	}
 
 	if !webserver.HasConfigTest(webServerPreference) {
@@ -104,9 +98,15 @@ func writeVhostContent(ctx context.Context, domainName, userContext, webServerPr
 
 	ok, _ := webserver.TestWebserverConfig(ctx, userContext, webServerPreference)
 	if !ok {
+		// put the old file back so the next webserver restart doesn't die on it
+		if prevErr == nil {
+			_ = tenantfs.WriteFile(path, previous, 0o644)
+		}
 		return false, "Error saving virtual host configuration. Configuration test failed."
 	}
 
-	restart()
-	return true, "Successfully saved file and restarted " + webServerPreference + " service to apply changes."
+	if err := webserver.ReloadWebserver(ctx, userContext, webServerPreference); err != nil {
+		return false, "Saved file but reloading " + webServerPreference + " failed: " + err.Error()
+	}
+	return true, "Successfully saved file and reloaded " + webServerPreference + " service to apply changes."
 }

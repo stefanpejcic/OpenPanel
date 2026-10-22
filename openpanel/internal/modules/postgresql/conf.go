@@ -1,14 +1,19 @@
 package postgresql
 
 import (
+	"context"
+	"errors"
+	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/postgresmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
@@ -127,7 +132,74 @@ func updatePostgresConfigFile(userContext string, newConfig map[string]string, k
 	_ = tenantfs.WriteFile(path, []byte(strings.Join(lines, "\n")+"\n"), 0o644)
 }
 
-// handleEditPostgresConfig saves the submitted config values and restarts the postgres container to apply them, then renders the current config
+var pgSettingNameRE = regexp.MustCompile(`^[a-z_]+$`)
+
+// applyPostgresConfig stores the keys with ALTER SYSTEM and reloads, restarting only when postgres marks a setting pending_restart; a rejected value puts back what postgresql.auto.conf had and comes back as the error
+func applyPostgresConfig(ctx context.Context, userContext string, newConfig map[string]string) (restarted bool, err error) {
+	// compared against postgresql.auto.conf rather than postgre_custom.conf, the file was never mounted so it doesn't say what's running
+	rows, err := postgresmanager.Exec(ctx, userContext, "SELECT name, setting FROM pg_file_settings WHERE sourcefile LIKE '%postgresql.auto.conf'", "postgres")
+	if err != nil {
+		return false, errors.New("PostgreSQL is not running, start it and save again")
+	}
+	stored := map[string]string{}
+	for _, row := range rows {
+		stored[fmt.Sprint(row[0])] = fmt.Sprint(row[1])
+	}
+	alter := func(key, value string) error {
+		if value == "" {
+			_, err := postgresmanager.Exec(ctx, userContext, "ALTER SYSTEM RESET "+key, "postgres")
+			return err
+		}
+		_, err := postgresmanager.Exec(ctx, userContext, "ALTER SYSTEM SET "+key+" = '"+strings.ReplaceAll(value, "'", "''")+"'", "postgres")
+		return err
+	}
+
+	var applied []string
+	for key, value := range newConfig {
+		value = strings.Trim(strings.TrimSpace(value), "'")
+		if value == stored[key] {
+			continue
+		}
+		if !pgSettingNameRE.MatchString(key) {
+			return false, fmt.Errorf("invalid setting name %q", key)
+		}
+		if err := alter(key, value); err != nil {
+			for _, done := range applied {
+				_ = alter(done, stored[done])
+			}
+			return false, fmt.Errorf("%s: %v", key, err)
+		}
+		applied = append(applied, key)
+	}
+	if len(applied) == 0 {
+		return false, nil
+	}
+
+	if _, err := postgresmanager.Exec(ctx, userContext, "SELECT pg_reload_conf()", "postgres"); err != nil {
+		return false, err
+	}
+	// the reload is only signalled, give postgres a moment before asking what it couldn't apply
+	time.Sleep(time.Second)
+	rows, err = postgresmanager.Exec(ctx, userContext, "SELECT count(*) FROM pg_settings WHERE pending_restart", "postgres")
+	if err != nil || len(rows) == 0 || postgresmanager.ToInt(rows[0][0]) == 0 {
+		return false, nil
+	}
+
+	if err := podmanmanager.Command(ctx, userContext, podmanmanager.PodmanArgv(userContext, "restart", "postgres")).Run(); err != nil {
+		return false, err
+	}
+	postgresmanager.InvalidatePool(userContext, "postgres")
+	deadline := time.Now().Add(time.Minute)
+	for time.Now().Before(deadline) {
+		if _, err := postgresmanager.Exec(ctx, userContext, "SELECT 1", "postgres"); err == nil {
+			return true, nil
+		}
+		time.Sleep(2 * time.Second)
+	}
+	return true, errors.New("PostgreSQL did not come back after the restart")
+}
+
+// handleEditPostgresConfig saves the submitted config values and applies them with a reload, restarting only for settings that need it, then renders the current config
 func handleEditPostgresConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, currentUsername, userContext, err := auth.Injected(a, r)
@@ -139,18 +211,27 @@ func handleEditPostgresConfig(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
 		newConfig := map[string]string{}
+		// only fields the form sent, a missing one would otherwise be commented out of postgre_custom.conf
 		for _, key := range availableConfKeys {
-			newConfig[key] = r.Form.Get(key)
+			if r.Form.Has(key) {
+				newConfig[key] = r.Form.Get(key)
+			}
 		}
-		updatePostgresConfigFile(userContext, newConfig, availableConfKeys)
-		ipAddress := reqip.ClientIP(r)
-		_ = logger.RecordUserAction(a.Config, currentUsername, "edited PostgreSQL configuration", ipAddress)
-
-		argv := podmanmanager.PodmanArgv(userContext, "restart", "postgres")
-		if runErr := podmanmanager.Command(ctx, userContext, argv).Run(); runErr != nil {
-			web.Flash(a, w, r, "error", "PostgreSQL configuration was saved successfully but postgres service failed to start! Please revert the changes to restart postgres.")
-		} else {
-			web.Flash(a, w, r, "success", "PostgreSQL Configuration was edited successfully and service restarted to apply new settings.")
+		restarted, applyErr := applyPostgresConfig(ctx, userContext, newConfig)
+		switch {
+		case applyErr != nil && !restarted:
+			web.Flash(a, w, r, "error", "PostgreSQL configuration was not changed: "+applyErr.Error())
+		case applyErr != nil:
+			updatePostgresConfigFile(userContext, newConfig, availableConfKeys)
+			web.Flash(a, w, r, "error", "PostgreSQL configuration was saved but the service did not come back after the restart: "+applyErr.Error())
+		default:
+			updatePostgresConfigFile(userContext, newConfig, availableConfKeys)
+			_ = logger.RecordUserAction(a.Config, currentUsername, "edited PostgreSQL configuration", reqip.ClientIP(r))
+			if restarted {
+				web.Flash(a, w, r, "success", "PostgreSQL Configuration was edited successfully and service restarted to apply new settings.")
+			} else {
+				web.Flash(a, w, r, "success", "PostgreSQL Configuration was edited successfully and applied without a restart.")
+			}
 		}
 	}
 

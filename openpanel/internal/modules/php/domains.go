@@ -9,7 +9,6 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
@@ -107,6 +106,7 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to start PHP %(new_phpversion)s: %(message)s", "new_phpversion", newPHPVersion, "message", result.Message), target)
 				return
 			}
+			webserver.WaitListening(ctx, userContext, newPHPContainer)
 		}
 
 		confFile := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_webserver_data/_data/" + domainURL + ".conf"
@@ -124,16 +124,21 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		stopPHPServiceIfRunningAndUnused(ctx, userContext, oldPHPVersion)
-
 		_, _ = a.DB.ExecContext(ctx, "UPDATE domains SET php_version = ? WHERE domain_url = ?", newPHPVersion, domainURL)
 
-		reloadArgv := podmanmanager.PodmanArgv(userContext, "restart", webServer)
-		_ = podmanmanager.Command(ctx, userContext, reloadArgv).Run()
+		// old php only goes down once the webserver points elsewhere
+		reloadErr := webserver.ReloadWebserver(ctx, userContext, webServer)
+		if reloadErr == nil {
+			stopPHPServiceIfRunningAndUnused(ctx, userContext, oldPHPVersion)
+		}
 
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, fmt.Sprintf("changed PHP version for domain %s from %s to %s", domainURL, oldPHPVersion, newPHPVersion), ipAddress)
-		web.Flash(a, w, r, "success", web.Tr(a, r, "PHP version for domain %(domain_url)s updated from %(old_phpversion)s to %(new_phpversion)s", "domain_url", domainURL, "old_phpversion", oldPHPVersion, "new_phpversion", newPHPVersion))
+		if reloadErr != nil {
+			web.Flash(a, w, r, "error", web.Tr(a, r, "PHP version for domain %(domain_url)s was saved, but %(web_server)s could not apply it and still uses PHP %(old_phpversion)s: %(error)s", "domain_url", domainURL, "web_server", webServer, "old_phpversion", oldPHPVersion, "error", reloadErr.Error()))
+		} else {
+			web.Flash(a, w, r, "success", web.Tr(a, r, "PHP version for domain %(domain_url)s updated from %(old_phpversion)s to %(new_phpversion)s", "domain_url", domainURL, "old_phpversion", oldPHPVersion, "new_phpversion", newPHPVersion))
+		}
 
 		if redirectTo != "" {
 			http.Redirect(w, r, redirectTo, http.StatusFound)

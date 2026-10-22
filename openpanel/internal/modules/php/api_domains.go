@@ -10,7 +10,6 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
@@ -117,6 +116,7 @@ func apiPHPDomainSet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			writeJSONError(w, http.StatusInternalServerError, "Failed to start PHP "+newVersion+": "+result.Message)
 			return
 		}
+		webserver.WaitListening(ctx, userContext, newPHPContainer)
 	}
 
 	confFile := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_webserver_data/_data/" + domainURL + ".conf"
@@ -136,15 +136,20 @@ func apiPHPDomainSet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stopPHPServiceIfRunningAndUnused(ctx, userContext, oldVersion)
-
 	_, _ = a.DB.ExecContext(ctx, "UPDATE domains SET php_version = ? WHERE domain_url = ?", newVersion, domainURL)
 
-	reloadArgv := podmanmanager.PodmanArgv(userContext, "restart", webServer)
-	_ = podmanmanager.Command(ctx, userContext, reloadArgv).Run()
+	// old php only goes down once the webserver points elsewhere
+	reloadErr := webserver.ReloadWebserver(ctx, userContext, webServer)
+	if reloadErr == nil {
+		stopPHPServiceIfRunningAndUnused(ctx, userContext, oldVersion)
+	}
 
 	ipAddress := reqip.ClientIP(r)
 	_ = logger.RecordUserAction(a.Config, currentUsername, fmt.Sprintf("changed PHP version for domain %s from %s to %s", domainURL, oldVersion, newVersion), ipAddress)
+	if reloadErr != nil {
+		writeJSONError(w, http.StatusInternalServerError, "PHP version for domain "+domainURL+" was saved, but "+webServer+" could not apply it and still uses PHP "+oldVersion+": "+reloadErr.Error())
+		return
+	}
 
 	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"message":     fmt.Sprintf("PHP version for domain %s updated from %s to %s", domainURL, oldVersion, newVersion),

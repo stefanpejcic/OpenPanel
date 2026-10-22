@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"os/exec"
 	"strings"
 
 	"github.com/lib/pq"
@@ -761,7 +760,7 @@ func apiPsqlGetConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIPsqlJSON(w, http.StatusOK, map[string]any{"configuration": currentConfig, "available_keys": availableConfKeys})
 }
 
-// apiPsqlUpdateConfig writes submitted config values (filtered to the allowed key set) and restarts the postgres container to apply them
+// apiPsqlUpdateConfig applies submitted config values (filtered to the allowed key set) with a reload, restarting only for settings that need it
 func apiPsqlUpdateConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, currentUsername, userContext, err := auth.Injected(a, r)
@@ -794,15 +793,17 @@ func apiPsqlUpdateConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	restarted, applyErr := applyPostgresConfig(ctx, userContext, newConfig)
+	if applyErr != nil && !restarted {
+		writeAPIPsqlJSON(w, http.StatusUnprocessableEntity, map[string]any{"updated": false, "error": applyErr.Error()})
+		return
+	}
 	updatePostgresConfigFile(userContext, newConfig, availableConfKeys)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "updated PostgreSQL configuration via API", reqip.ClientIP(r))
-
-	argv := podmanmanager.PodmanArgv(userContext, "restart", "postgres")
-	restarted := false
-	if runErr := exec.CommandContext(ctx, argv[0], argv[1:]...).Run(); runErr == nil {
-		restarted = true
+	if applyErr != nil {
+		writeAPIPsqlJSON(w, http.StatusInternalServerError, map[string]any{"updated": true, "restarted": true, "error": applyErr.Error()})
+		return
 	}
-
 	writeAPIPsqlJSON(w, http.StatusOK, map[string]any{"updated": true, "restarted": restarted, "configuration": newConfig})
 }
 

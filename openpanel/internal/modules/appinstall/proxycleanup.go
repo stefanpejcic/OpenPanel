@@ -119,6 +119,6 @@ func RemoveServiceProxies(ctx context.Context, userContext string, names ...stri
 			return nil
 		}
 	}
-	restartWebserver(ctx, userContext, webServerType)
+	reloadWebserver(ctx, userContext, webServerType)
 	return changed
 }

@@ -1238,9 +1238,13 @@ func apiMySQLUpdateConfig(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 	res := applyMySQLConfig(ctx, userContext, mysqlVersion, newConfig)
+	if res.Rejected {
+		writeAPIMySQLJSON(w, http.StatusUnprocessableEntity, map[string]any{"updated": false, "rolled_back": true, "running": true, "error": "The database rejected these settings, nothing was changed. " + res.Reason})
+		return
+	}
 	if !res.OK {
 		writeAPIMySQLJSON(w, http.StatusUnprocessableEntity, map[string]any{"updated": false, "rolled_back": true, "running": res.Running, "error": strings.TrimSpace("The database did not start with these settings, the previous configuration was restored. " + res.Reason)})
 		return
 	}
-	writeAPIMySQLJSON(w, http.StatusOK, map[string]any{"updated": true, "restarted": true, "configuration": newConfig})
+	writeAPIMySQLJSON(w, http.StatusOK, map[string]any{"updated": true, "restarted": !res.Live, "configuration": newConfig})
 }

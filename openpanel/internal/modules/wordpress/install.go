@@ -365,7 +365,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	if isLitespeed {
 		emit(map[string]any{"status": "Reloading " + phpContainer + " to apply rewrite rules from .htaccess file"})
-		_ = podmanmanager.Command(ctx, userContext, podmanmanager.PodmanArgv(userContext, "restart", phpContainer)).Run()
+		_ = webserver.ReloadWebserver(ctx, userContext, phpContainer)
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed WordPress on domain "+selectedDomain, ipAddress)

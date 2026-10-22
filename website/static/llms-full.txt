@@ -5444,6 +5444,17 @@ When disabled:
 * Users can not access the Address Importer page.
 
 
+## Email Migration
+
+The **`email_migrate`** module allows users to copy emails from another IMAP server into their email accounts.
+
+When enabled:
+* Users can access the [**Migrate Emails** page](/docs/panel/emails/migrate/)
+
+When disabled:
+* Users can not access the Migrate Emails page.
+
+
 ## Address Exporter
 
 The **`email_export`** module allows users to export to CSV file all their email addresses.
@@ -14101,13 +14112,13 @@ All arguments passed to the `opencli` command are also forwarded to your hook sc
 For example, if the following command is executed:
 
 ```bash
-opencli domains-add example.com stefan --docroot /var/www/example --php_version 8.1 --skip_caddy --skip_vhost --skip_containers --skip_dns --debug
+opencli domains-add example.com stefan --docroot /var/www/html/example.com --php_version 8.1 --skip_caddy --skip_vhost --skip_containers --skip_dns --debug
 ```
 
 Your hook script will receive the same arguments:
 
 ```bash
-bash /etc/openpanel/openpanel/hooks/post_domains-add.sh example.com johndoe --docroot /var/www/example --php_version 8.1 --skip_caddy --skip_vhost --skip_containers --skip_dns --debug
+bash /etc/openpanel/openpanel/hooks/post_domains-add.sh example.com johndoe --docroot /var/www/html/example.com --php_version 8.1 --skip_caddy --skip_vhost --skip_containers --skip_dns --debug
 ```
 
 ---
@@ -23701,45 +23712,52 @@ opencli docker <USERNAME> <container>
 
 ### Update
 
-Checks for image updates across root's stack and every non-suspended user's stack (via [skopeo](https://github.com/containers/skopeo)), prints what's available, and optionally pulls + recreates the affected services. Each image is pulled at most once into the shared image store, so multiple stacks referencing the same image only download it once.
+Checks for image updates across root's stack and every non-suspended user's stack (via [skopeo](https://github.com/containers/skopeo)), prints what's available, and optionally pulls the new images and recreates the running containers that use an outdated image. Nothing else in a stack is stopped or started. Each image is pulled at most once into the shared image store, so multiple stacks referencing the same image only download it once.
 
 ```bash
-opencli docker-update [options]
+opencli docker-update [IMAGE] [options]
 ```
+
+With `IMAGE` (e.g. `shinsenter/php:8.4-fpm`) only that image is checked, pulled, and only the running containers that use it are recreated. After a php-fpm container is recreated, the user's webserver is reloaded so it connects to the new container. Containers created depending on the recreated one (e.g. a webserver with `depends_on` on php-fpm) are recreated with it. Containers that aren't running are left alone and use the new image on their next start.
+
+After pulling an image with PHP in it, the PHP version inside it is checked. If it's older than its branch's latest security release, the image's containers are not recreated and the run is reported as failed, run the command again once the image is rebuilt.
 
 <details>
   <summary>Example output</summary>
 
 ```bash
-# opencli docker-update
-Checking 14 unique image(s)...
-  ^  docker.io/library/mariadb:latest - update available
-  ^  docker.io/library/nginx:latest - update available
-  +  docker.io/library/redis:8.6.2-alpine - not pulled yet
-
-3 image(s) have an update available, affecting 2 context(s):
-  - root
-  - user: stefan
-
-Apply these updates now? [y/N] (auto-cancel in 10s): y
-2026-09-24 10:20:01 : === Update run started ===
-2026-09-24 10:20:01 : pull docker.io/library/mariadb:latest
-2026-09-24 10:20:12 : pull docker.io/library/nginx:latest
-2026-09-24 10:20:19 : pull docker.io/library/redis:8.6.2-alpine
-2026-09-24 10:20:24 : recreating stack for root (down/up)
-2026-09-24 10:20:41 :   root is back up
-2026-09-24 10:20:41 : recreating stack for user: stefan (down/up)
-2026-09-24 10:20:55 :   user: stefan is back up
-2026-09-24 10:20:55 : === Update run finished ===
+# opencli docker-update shinsenter/php:8.5-fpm -y
+shinsenter/php:8.5-fpm
+  registry: sha256:9acaa2a26e7aa41cb873c7766fb68b480c18fff118627070c8fee952d3f33f7d
+  shared store: newer image available, will be pulled
+  recreate: user: stefan: php-fpm-8.5, then reload its webserver
+  recreate: user: demo: php-fpm-8.5, then reload its webserver
+  not running, left alone: user: test: php-fpm-8.5
+1 pull(s), 2 container(s) to recreate.
+2026-10-21 15:54:07 : === Update run started ===
+2026-10-21 15:54:07 : pull shinsenter/php:8.5-fpm into the shared store
+2026-10-21 15:54:17 : recreating php-fpm-8.5 for user: stefan
+2026-10-21 15:54:30 :   reloaded apache (USR1) for user: stefan
+2026-10-21 15:54:30 : recreating php-fpm-8.5 for user: demo
+2026-10-21 15:54:45 :   reloaded apache (USR1) for user: demo
+2026-10-21 15:54:45 : === Update run finished ===
 ```
 </details>
+
+Update every PHP version used on the server:
+
+```bash
+for v in 5.6 7.0 7.1 7.2 7.3 7.4 8.0 8.1 8.2 8.3 8.4 8.5; do
+  opencli docker-update shinsenter/php:${v}-fpm -y
+done
+```
 
 Options:
 
 - `-y`, `--yes` - apply updates without prompting for confirmation.
 - `--dry-run` - only check and print available updates, never prompt or apply.
 
-With no options, available updates are printed and confirmation is asked for 10 seconds — if there's no answer in that time, the script exits without changing anything.
+With no options, available updates are printed and confirmation is asked for 10 seconds — if there's no answer in that time, the script exits without changing anything. Every run is logged to `/var/log/openpanel/admin/docker/<date>.log`.
 
 ### Autostart
 
@@ -24044,6 +24062,8 @@ To add a domain name with custom docroot:
 ```bash
 opencli domains-add <DOMAIN_NAME> <USERNAME> --docroot DOCUMENT_ROOT
 ```
+
+The docroot must start with `/var/www/html/`, can only contain letters, numbers, dots, dashes, underscores and slashes, and can't contain `..`.
 
 <details>
   <summary>Example output</summary>
@@ -24504,6 +24524,8 @@ Setup a custom SSL for a domain:
 opencli domains-ssl <DOMAIN_NAME> custom <CERT_PATH> <KEY_PATH>
 ```
 
+Both paths must be regular files inside `/var/www/html/` (symlinks and `..` are refused), the certificate must not be expired and the key must be a valid private key.
+
 <details>
   <summary>Example output</summary>
 
@@ -24580,6 +24602,8 @@ To update a docroot for a domain:
 ```bash
 opencli domains-docroot <DOMAIN_NAME> update <docroot> [--debug]
 ```
+
+The new docroot must start with `/var/www/html/`, can only contain letters, numbers, dots, dashes, underscores and slashes, and can't contain `..` or point through a symlink.
 
 <details>
   <summary>Example output</summary>
@@ -27204,6 +27228,8 @@ Create FTP sub-user for openpanel user:
 opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME> [--quota=<MB>] [--debug]
 ```
 
+The folder must be inside `/var/www/html/` and can't point through a symlink, the same goes for `opencli ftp-path`.
+
 `--quota` sets a disk quota right away, in MB (`500`) or with a unit (`500M`, `2G`), see [Quota](#quota).
 
 <details>
@@ -28063,7 +28089,7 @@ Usage: opencli user-add <USERNAME> <PASSWORD|generate> <EMAIL> "<PLAN_NAME>" [--
 ------------------------
 opencli user-backup
 Description: Creates a full account .tar.gz backup of a single OpenPanel user account.
-Usage: opencli user-backup --account <USER> [--output <DIR>] [--quiet]
+Usage: opencli user-backup --account <USER> [--output <DIR>] [--quiet] [--no-throttle]
 ------------------------
 opencli user-block_ip
 Description: View, add, or remove blocked IP addresses for a user's domains.
@@ -30165,8 +30191,10 @@ The destination server needs OpenPanel installed. Files, databases, domains, sit
 To create a full account `.tar.gz` backup of a single user (files, databases, mail, and configuration):
 
 ```bash
-opencli user-backup --account <USER> [--output <DIR>] [--quiet]
+opencli user-backup --account <USER> [--output <DIR>] [--quiet] [--no-throttle]
 ```
+
+Without `--output` the archive goes to `/var/www/html/_backups/` in the user's files, and the backup stops if that folder points through a symlink. The tar and compression steps run at low CPU and IO priority (`nice`, `ionice`), `--no-throttle` runs them at normal priority.
 
 <details>
   <summary>Example output</summary>
@@ -31103,6 +31131,8 @@ Response body inspection is turned off (`SecResponseBodyAccess Off` in `/etc/ope
 This also disables OWASP CRS rulesets for stacks OpenPanel doesn't use or rarely hosts, by renaming them to `.conf.disabled`: `REQUEST-944-APPLICATION-ATTACK-JAVA`, `RESPONSE-952-DATA-LEAKAGES-JAVA`, `RESPONSE-954-DATA-LEAKAGES-IIS` and `RESPONSE-956-DATA-LEAKAGES-RUBY`. They can be re-enabled from OpenAdmin > Security > CorazaWAF.
 
 WAF is turned on for all existing domains, except domains of users that have it turned off with [`opencli waf user USERNAME disable`](#user).
+
+It is safe to run again, for example after a failed install: an OWASP CRS already downloaded to `/etc/openpanel/caddy/coreruleset` is reused, and a failed rules download keeps the existing `coraza_rules.conf`. The command exits with a non-zero code if the Coraza rules or OWASP CRS can't be downloaded or the web server container fails to restart.
 
 It also downloads the official OWASP CRS rule exclusion plugins for WordPress, Drupal, Nextcloud, DokuWiki, phpBB, XenForo and phpMyAdmin into `/etc/openpanel/caddy/coreruleset-plugins/`. Users can turn these on per domain as *App profiles* in OpenPanel > WAF, so the app's normal requests are not blocked as false positives.
 
@@ -32126,6 +32156,182 @@ That's it! CSF/LFD will now send notifications to your specified email address.
 > **Note:** CSF/LFD is third-party software not developed or maintained by OpenPanel.
 > For support, please contact Sentinel Firewall directly:
 > [https://sentinelfirewall.org/](https://sentinelfirewall.org/)
+
+---
+
+// File: articles/security/php2shell-patch-php-before-images-are-rebuilt
+
+# PHP2Shell (CVE-2026-109618, CVE-2026-109619): patch PHP before the images are rebuilt
+
+PHP 8.5.12, 8.4.27, 8.3.36 and 8.2.35 fix PHP2Shell, two unauthenticated remote code execution bugs in PHP itself ([blog post](/blog/php-security-update-openpanel)). On OpenPanel, PHP serves requests in three places, and all three come from images OpenPanel does not build:
+
+| Where | Image | Runs PHP as |
+|---|---|---|
+| Every user's websites | `shinsenter/php:<version>-fpm` | PHP-FPM |
+| phpMyAdmin (port 2053) | `phpmyadmin:latest` | Apache mod_php |
+| Webmail | `roundcube/roundcubemail:latest` | Apache mod_php |
+
+`opencli docker-update` pulls the newest of those images, but it cannot install a fix the image's maintainers have not published yet. On October 21, 2026 at 18:12 UTC, hours after PHP's release, `shinsenter/php:8.3-fpm` still had PHP 8.3.35, `shinsenter/php:8.2-fpm` 8.2.34, `phpmyadmin:latest` 8.3.35 and `roundcube/roundcubemail:latest` 8.4.26.
+
+This guide patches PHP inside the images you already run, without waiting. [`Dockerfile`](/scripts/php-rebuild/Dockerfile) recompiles the image's own PHP from the php.net source with the image's own configure flags (the source is checked against php.net's SHA-256 and the PHP release managers' GPG signatures) and installs it over the old one. A patch release keeps the extension API, so the image's extensions (ionCube included) and its configuration stay as they are. [`php-rebuild.sh`](/scripts/php-rebuild/php-rebuild.sh) finds the newest release of the image's PHP branch and builds it. Both were used on an OpenPanel 2.0.15 server on the day of the release; a build takes about 12 minutes on 8 vCPUs.
+
+:::warning
+Run everything below as root in a plain SSH session (`tmux` or `nohup` for the builds), not with `systemd-run` or from a systemd service: podman leaves each container's `conmon` monitor in the calling unit, and systemd kills it when the unit ends.
+:::
+
+## 1. Check what you run
+
+```bash
+podman exec phpmyadmin php -r 'echo PHP_VERSION, PHP_EOL;'
+podman exec openadmin_roundcube php -r 'echo PHP_VERSION, PHP_EOL;'
+
+# the PHP a new account or a PHP version switch gets, from the shared image store:
+for v in 8.2 8.3 8.4 8.5; do
+  id=$(podman --root /var/lib/containers/shared-storage --runroot /run/containers/shared-storage \
+    image inspect --format '{{.Id}}' docker.io/shinsenter/php:$v-fpm 2>/dev/null) || continue
+  echo "$v: $(podman run --rm --entrypoint php "$id" -r 'echo PHP_VERSION;')"
+done
+
+# what the users' running php-fpm containers run:
+source /usr/local/opencli/lib/podman.sh
+for f in /home/*/docker-compose.yml; do
+  u=$(basename "$(dirname "$f")")
+  for c in $(podman_user "$u" ps --format '{{.Names}}' | grep '^php-fpm-'); do
+    echo "$u/$c: $(podman_user "$u" exec -u 0 "$c" php -r 'echo PHP_VERSION;')"
+  done
+done
+```
+
+Anything below 8.2.35, 8.3.36, 8.4.27 or 8.5.12 on its branch is vulnerable. PHP 8.1 and older get no official fix: move those sites to 8.2 or newer.
+
+Download the two files:
+
+```bash
+mkdir -p /root/php-rebuild && cd /root/php-rebuild
+curl -fsSLO https://openpanel.com/scripts/php-rebuild/Dockerfile
+curl -fsSLO https://openpanel.com/scripts/php-rebuild/php-rebuild.sh
+```
+
+## 2. phpMyAdmin
+
+```bash
+cd /root/php-rebuild
+bash php-rebuild.sh "$(podman inspect -f '{{.Image}}' phpmyadmin)" localhost/php-rebuild/phpmyadmin
+podman tag localhost/php-rebuild/phpmyadmin "$(podman inspect -f '{{.ImageName}}' phpmyadmin)"
+```
+
+The `openpanel` container depends on `phpmyadmin`, so podman will not remove phpMyAdmin while the panel exists, and the panel is recreated with it (down for about 40 seconds). Remove them one at a time: `podman rm openpanel phpmyadmin` checks both at once and refuses the second.
+
+```bash
+cd /root
+podman stop phpmyadmin openpanel
+podman rm openpanel
+podman rm phpmyadmin
+podman-compose up -d --no-deps phpmyadmin
+podman-compose up -d --no-deps openpanel
+podman exec phpmyadmin php -r 'echo PHP_VERSION, PHP_EOL;'
+```
+
+Port 2053 can answer 502 for the first few seconds.
+
+## 3. Roundcube
+
+:::danger
+Roundcube's SQLite database has no volume: `/var/roundcube/db/sqlite.db` lives inside the container. Recreating the container without copying it out and back deletes every webmail user's contacts, identities and settings.
+:::
+
+```bash
+cd /root/php-rebuild
+bash php-rebuild.sh "$(podman inspect -f '{{.Image}}' openadmin_roundcube)" localhost/php-rebuild/roundcube
+podman tag localhost/php-rebuild/roundcube "$(podman inspect -f '{{.ImageName}}' openadmin_roundcube)"
+
+podman stop openadmin_roundcube
+podman cp openadmin_roundcube:/var/roundcube/db/sqlite.db /root/php-rebuild/roundcube-sqlite.db
+podman rm openadmin_roundcube
+cd /usr/local/mail/openmail && podman-compose up -d --no-deps roundcube
+```
+
+The new container's first start copies Roundcube into place and only then creates its database. Wait for Apache before putting the old database back:
+
+```bash
+until podman logs openadmin_roundcube 2>&1 | grep -q 'resuming normal operations'; do sleep 2; done
+podman stop openadmin_roundcube
+podman cp /root/php-rebuild/roundcube-sqlite.db openadmin_roundcube:/var/roundcube/db/sqlite.db
+podman start openadmin_roundcube
+podman exec openadmin_roundcube php -r 'echo PHP_VERSION, PHP_EOL;'
+```
+
+Webmail is down for about a minute.
+
+## 4. Users' PHP (shinsenter/php)
+
+Every user's podman reads OpenPanel's shared image store, `/var/lib/containers/shared-storage`, so a rebuilt image placed there serves every account, including new accounts and PHP version switches. Rebuild each PHP version that is still vulnerable (8.3 here):
+
+```bash
+cd /root/php-rebuild
+S=(--root /var/lib/containers/shared-storage --runroot /run/containers/shared-storage)
+v=8.3
+img=docker.io/shinsenter/php:$v-fpm
+bash php-rebuild.sh "$(podman "${S[@]}" image inspect --format '{{.Id}}' $img)" localhost/php-rebuild/shinsenter-$v
+podman save -o shinsenter-$v.tar localhost/php-rebuild/shinsenter-$v
+podman "${S[@]}" load -i shinsenter-$v.tar
+podman "${S[@]}" tag localhost/php-rebuild/shinsenter-$v $img
+chmod -R o+rX /var/lib/containers/shared-storage
+```
+
+:::danger
+Always give `podman --root /var/lib/containers/shared-storage` its own `--runroot`, as above. With the default runroot (root's own), a pull or load that creates layers unmounts the layer of every running root container (caddy, the mail server, the panel, MySQL and the rest). They keep running, but the next restart of any of them fails. See [If a container won't restart](#if-a-container-wont-restart). `opencli docker-update` has the same problem: stefanpejcic/opencli#224.
+:::
+
+Then recreate the running `php-fpm-<version>` containers on the new image, through each user's own podman socket, and reload the user's web server so it connects to the new container:
+
+```bash
+source /usr/local/opencli/lib/podman.sh
+for f in /home/*/docker-compose.yml; do
+  u=$(basename "$(dirname "$f")")
+  podman_user "$u" ps --format '{{.Names}}' | grep -qx "php-fpm-$v" || continue
+  (cd "/home/$u" && CONTAINER_HOST=$(podman_user_socket "$u") podman-compose up -d --no-deps --force-recreate "php-fpm-$v")
+  until podman_user "$u" logs --since 5m "php-fpm-$v" 2>&1 | grep -q 'ready to handle connections'; do sleep 1; done
+  podman_user "$u" exec nginx nginx -s reload 2>/dev/null ||
+    podman_user "$u" exec openresty openresty -s reload 2>/dev/null ||
+    podman_user "$u" exec apache apachectl -k graceful 2>/dev/null || true
+  echo "$u: $(podman_user "$u" exec -u 0 "php-fpm-$v" php -r 'echo PHP_VERSION;')"
+done
+```
+
+php-fpm listens about 20 seconds after its container starts (the image runs its own start tasks first), and the user's sites answer 502 meanwhile. Check the version printed for each user:
+
+- If a user's web server was created depending on php-fpm, podman-compose cannot remove php-fpm and leaves it on the old image. Recreate that user's web server together with it.
+- A user whose own image store holds a copy of the image uses that copy instead of the shared one. Load and tag the rebuild there too: `podman_user <user> load -i shinsenter-$v.tar`, then `podman_user <user> tag localhost/php-rebuild/shinsenter-$v $img`.
+
+OpenLiteSpeed runs its own `lsphp`, not shinsenter/php, and is not covered here.
+
+## 5. When the upstream images catch up
+
+The rebuilt images carry the upstream names, so `opencli docker-update` replaces them with the maintainers' own once those are newer. Check that a newer image really is fixed before you run it, without touching the local tags:
+
+```bash
+podman --root /tmp/probe/root --runroot /tmp/probe/run run --rm --entrypoint php docker.io/library/phpmyadmin:latest -r 'echo PHP_VERSION;'
+rm -rf /tmp/probe
+```
+
+OpenPanel 2.0.16's update runs `opencli docker-update` for every PHP version. Installed while a maintainer has not rebuilt yet, it replaces a rebuilt image in the shared store with the vulnerable upstream one, so run the checks in step 1 again after the update.
+
+## If a container won't restart
+
+After a shared-store pull or load with the default runroot, a root container that is stopped and started fails with `crun: executable file '/init' not found` or `creating temporary passwd file ... no such file or directory`, and `podman exec` can report `unable to find user root`. Find the containers in that state:
+
+```bash
+for c in $(podman ps --format '{{.Names}}'); do
+  [ -e "$(podman inspect -f '{{.GraphDriver.Data.MergedDir}}' "$c")/etc" ] || echo "$c: layer not mounted"
+done
+```
+
+Fix them one at a time, or reboot the server:
+
+```bash
+podman stop <container> && podman umount --force <container> && podman start <container>
+```
 
 ---
 
@@ -40833,9 +41039,10 @@ Released on October 15, 2026.
 
 // File: changelog/2.0.16
 
-Not yet released.
+Released on October 21, 2026.
 
 ### 🐛 Bug Fixes
+- `opencli docker-update` left a container on the old image when another container was created depending on it (e.g. apache on php-fpm), because podman-compose couldn't remove it, started it again and reported success. The container and its dependents are now removed and recreated.
 - [emails created via terminal do not appear in OpenPanel UI on /emails UNTIL new email is created via gui #1201](https://github.com/stefanpejcic/OpenPanel/issues/1201)
 - [User backups for emails contain only dangling symliks #1197](https://github.com/stefanpejcic/OpenPanel/issues/1197)
 - [OpenPanel 2.0.15 update gets stuck at “Updating installed locales” on servers with multiple languages #1199](https://github.com/stefanpejcic/OpenPanel/issues/1199)
@@ -40856,6 +41063,14 @@ Not yet released.
 - Resellers whose allowed plans were set from Edit Plans & Limits or the API saw no plans on Hosting Plans, and every plan on Add User. Edit Plans & Limits also didn't show which plans were already selected.
 - A reseller without a limits file in `/etc/openpanel/openadmin/resellers/` had no limits at all, the file is now created from `reseller_template.json` when it's missing.
 - `opencli admin update` exited with 0 even when the update failed.
+- `opencli files-fix_permissions` no longer changes owners or modes through symlinks inside the user's files, and refuses a path outside `/var/www/html/`.
+- `opencli ftp-add` and `opencli ftp-path` refuse a folder that points through a symlink, and set ownership and modes only inside `/var/www/html/`.
+- `opencli domains-add` creates the docroot, the default page and the vhost file without following symlinks in the user's volumes.
+- `opencli domains-docroot update` now validates the new docroot (before it checked the old one), and creates it and edits the vhost without following symlinks.
+- `opencli domains-ssl custom` refuses `..` and symlinked certificate or key paths, and checks that the key is a valid private key.
+- `opencli php-domain --update`, `opencli domains-varnish` and `opencli domains-delete` no longer follow symlinks when editing vhost files, adding the WordPress helper plugin or removing .onion folders.
+- `opencli files-malware_scan` moves infected files into `.quarantine` without following symlinks on either side.
+- `opencli user-backup` writes the archive into the user's `_backups` folder without following symlinks, and stops if the folder itself is a symlink.
 
 ### 💡 New
 - [Reseller Packages #1177](https://github.com/stefanpejcic/OpenPanel/discussions/1177): new [Hosting Plans > Reseller Packages](/docs/admin/plans/reseller_packages/) page with limit templates (max accounts, max disk, allowed user packages) for reseller accounts. Pick a package when creating a reseller or move a reseller to another one from Edit Plans & Limits, and editing a package updates all resellers on it. Moving to a package below the reseller's current usage is refused.
@@ -40879,6 +41094,7 @@ Not yet released.
 - `opencli sentinel` alerts when more than 500 emails are in the mail queue with the top senders, and puts the queued emails of the top local sender on hold.
 
 ### 💅 Polish
+- The update pulls the latest image of every PHP version used on the server and recreates the running php-fpm containers on it, for the [critical PHP vulnerabilities CVE-2026-109618 and CVE-2026-109619](/blog/php-security-update-openpanel). `opencli docker-update IMAGE` now updates a single image, recreates only the running containers that use it, and reloads the user's webserver after a php-fpm container is recreated. [Docs](/docs/articles/opencli/docker#update)
 - `opencli sentinel` now frees disk space in steps when disk usage is over the threshold, safest first (journal, package cache, old logs, logs over 1GB, unused podman data and shared images, users' Trash), stops once it's back under the threshold, and the alert says what each step freed.
 - `opencli sentinel` high load, CPU and RAM alerts now name the 3 users using the most.
 - `opencli sentinel` turns on SYN cookies when it detects a possible SYN flood.
@@ -40890,6 +41106,32 @@ Not yet released.
 - `opencli websites-vulnerability --all` now emails each website owner the new vulnerabilities found on their WordPress websites.
 - `opencli imunify notify` now also emails the user when an ImunifyAV scan finds malware in their account.
 - The date range picker from Account > Activity is now shared, and used on Statistics > Error Logs too.
+
+---
+
+// File: changelog/2.0.17
+
+Released on October 22, 2026.
+
+### 🐛 Bug Fixes
+- `opencli domains-add --docroot` now rejects docroots with `..` or characters other than letters, numbers, dots, dashes, underscores and slashes, the same rule as `opencli domains-docroot`. Restoring a domain from a backup also falls back to the default docroot when the backed up vhost has one like that.
+- `opencli domains-suspend`, `opencli domains-unsuspend` and `opencli domains-cloudflare` now reject domain names that aren't plain hostnames instead of using them in the caddy file path.
+- FTP accounts: the panel now refuses a path with `..` or one that doesn't stay inside `/var/www/html/` when creating an account or changing its path, before calling `opencli ftp-add` / `opencli ftp-path`, which already rejected it.
+- Changing the PHP version of an OpenLiteSpeed or LiteSpeed account pinned it to the `1.8.5-lsphpXX` / `6.3.5-lsphpXX` image, whose PHP gets no security fixes ([#1203](https://github.com/stefanpejcic/OpenPanel/issues/1203#issuecomment-6328047388)). It now uses the current `1.9.3` / `6.3.7` release, and the update moves every OpenLiteSpeed and LiteSpeed account to it with the same lsphp version (accounts on `latest` keep the lsphp version they run now, `latest` moved to lsphp 8.5) and recreates the running web servers. Accounts with ionCube encoded files are left as they are, the newer images have no ionCube loader.
+- [PHP2Shell: 2.0.16 can leave PHP vulnerable (no version check; shinsenter 8.3/8.2 not rebuilt yet), and phpMyAdmin/Roundcube are not covered #1203](https://github.com/stefanpejcic/OpenPanel/issues/1203): the update pulls every PHP version in use again, and also updates phpMyAdmin and Roundcube to images with the fixed PHP. `opencli docker-update` now reads the PHP version inside each pulled image and doesn't recreate containers on an image that still has a PHP older than its branch's security release (8.2.35, 8.3.36, 8.4.27, 8.5.12); it reports the run as failed instead, so run it again once the image is rebuilt. [Docs](/docs/articles/opencli/docker#update)
+- [docker-update, autostart: give the shared image store its own runroot (shared-store pulls unmount root's containers) opencli#224](https://github.com/stefanpejcic/opencli/pull/224): pulls into the shared image store used root's runroot, which unmounted the layers of every running root container (caddy, openpanel, mysql, the mail server...) so their next restart failed with `executable file '/init' not found`. `opencli docker-update` and `opencli docker-autostart` now pull into the shared store with its own runroot, and the update remounts the layers of affected containers without stopping them.
+- Roundcube kept its SQLite database (contacts, identities, settings of webmail users) inside the container, so recreating it for a new image lost them. The update moves it to `/usr/local/mail/openmail/docker-data/roundcube/db` and mounts it from there. The mail server is restarted once for this, mail is unavailable for about a minute.
+- Users' podman stopped responding for some time after `opencli docker-update` or `opencli docker-autostart` pulled into the shared image store, because the store stayed readable by root only until all pulls were done. Permissions are now fixed after every pull, and a user's podman socket that gave up meanwhile is started again.
+- `podman_ensure_running`, used to bring back a stopped caddy, FTP, DNS, mail or OpenPanel container, could remove other containers of the same stack (e.g. ClamAV and phpMyAdmin) and not start them again.
+
+---
+
+// File: changelog/2.0.18
+
+Not yet released.
+
+### 💡 New
+- **Email Migration** (*OpenPanel > Email > Migrate*): users can copy all folders and messages from another IMAP server (cPanel, Plesk, Gmail, Outlook...) into one of their email accounts. The migration runs in the background as an `imapsync` container under the user's account, one at a time per user, and removes itself when it's done; the log is kept so it can be checked later. A **Test connection** button checks both logins first, messages already copied are skipped so a migration can be run again, and Spam, Junk and Trash folders are skipped by default. Private and reserved source addresses are refused, passwords are passed in files that are deleted once imapsync has logged in, and the server runs at most 10 migrations at once (`imapsync_max_jobs` in `openpanel.config`). The update enables the new `email_migrate` module on servers that have the email modules, and adds it to every feature set that has `email_import`. [Docs](/docs/panel/emails/migrate/)
 
 ---
 
@@ -41084,20 +41326,22 @@ Released on 17. September 2026.
 
 | Version| Release date | 
 |---|---|
-|__[2.0.15](/docs/changelog/2.0.15)__| October 30, 2026 |
-|__[2.0.16](/docs/changelog/2.0.16)__| October 30, 2026 |
+|__[2.0.18](/docs/changelog/2.0.18)__|  |
 |__[1.7.67](/docs/changelog/1.7.67)__|  |
 
 ### Latest
 
 | Version| Release date | 
 |---|---|
-|__[2.0.14](/docs/changelog/2.0.14)__| October 15, 2026 |
+|__[2.0.17](/docs/changelog/2.0.17)__| October 22, 2026 |
 
 ### Previous versions
 
 | Version| Release date | 
 |---|---|
+|__[2.0.16](/docs/changelog/2.0.16)__| October 21, 2026 |
+|__[2.0.15](/docs/changelog/2.0.15)__| October 15, 2026 |
+|__[2.0.14](/docs/changelog/2.0.14)__| October 15, 2026 |
 |__[2.0.13](/docs/changelog/2.0.13)__| October 01, 2026 |
 |__[2.0.12](/docs/changelog/2.0.12)__| September 30, 2026 |
 |__[2.0.11](/docs/changelog/2.0.11)__| September 24, 2026 |
@@ -42536,6 +42780,58 @@ Content-Type: application/json
 
 ```json
 {"message": "...", "created": 3, "results": [{"email": "info@example.com", "status": "created"}]}
+```
+
+### Migrate from another IMAP server
+
+Needs the `email_migrate` feature. Copies folders and messages from another IMAP server into one of your mailboxes with imapsync, in the background. Only one migration runs at a time per account.
+
+Test both logins first (waits for the result):
+
+```bash
+POST /api/emails/migrate/test
+Content-Type: application/json
+
+{
+  "source_host": "imap.oldhost.com",
+  "source_port": 993,
+  "source_security": "ssl",
+  "source_user": "info@example.com",
+  "source_password": "...",
+  "destination": "info@example.com",
+  "destination_password": "..."
+}
+```
+
+```json
+{"source": true, "destination": true, "output": "Host1: success login on [...]\nHost2: success login on [...]"}
+```
+
+Start the migration with the same body. `source_security` is `ssl` (default), `starttls` or `none`, `source_port` defaults to 993 for `ssl` and 143 otherwise, and `exclude_junk` (default `true`) skips Spam, Junk and Trash folders:
+
+```bash
+POST /api/emails/migrate
+```
+
+```json
+{"id": "20261022-174801", "source_host": "imap.oldhost.com", "source_user": "info@example.com", "destination": "info@example.com", "started": "2026-10-22T17:48:01Z", "status": "running", "exit_code": 0}
+```
+
+Status of the running migration and the last 10 migrations, with the end of the newest log. `status` is `running`, `completed`, `failed` or `cancelled`:
+
+```bash
+GET /api/emails/migrate
+```
+
+```json
+{"running": false, "jobs": [{"id": "20261022-174801", "status": "completed", "exit_code": 0, "...": "..."}, {"id": "20261021-090000", "status": "failed", "exit_code": 161, "message": "EXIT_AUTHENTICATION_FAILURE_USER1", "...": "..."}], "log": "..."}
+```
+
+Cancel the running migration (messages copied so far are kept), or get the log of one:
+
+```bash
+POST /api/emails/migrate/cancel
+GET /api/emails/migrate/log/20261022-174801
 ```
 
 ---
@@ -48752,19 +49048,21 @@ The mechanism used for pruning old backups is not very sophisticated and applies
 
 By default, everything will be backed up. In case you need to backup only a specific data, set `BACKUP_SOURCES`. On the **Backups > Configuration** page this is presented as a dropdown with the following options:
 
-| Setting | Description |
-|----------|----------|
-| **Everything**    |  Backups content of all docker volumes: website files, mysql/mariadb databases, postgre databases, vhosts files, cron jobs. |
-| **Website Files**    |  Backups only website files inside `/var/www/html/` directory. |
-| **Emails**    |  Backups only email files inside `/var/mail/` directory. |
-| **VirtualHosts**    |  Backups only Apache/Nginx VirtualHosts for domains. |
-| **MySQL Databases**    |  Backups only MySQL/MariaDB databases. |
-| **PostgreSQL Databases**    |  Backups only PostgreSQL databases. |
-| **Cron Jobs**    |  Backups only the `crons.ini` file. |
+| Setting | `BACKUP_SOURCES` | Description |
+|----------|----------|----------|
+| **Everything**    | `/backup` |  Backups content of all docker volumes: website files, mysql/mariadb databases, postgre databases, vhosts files, cron jobs. |
+| **Website Files**    | `/backup/html` |  Backups only website files inside `/var/www/html/` directory. |
+| **Emails**    | `/backup/01-mail` |  Backups only email files inside `/var/mail/` directory. |
+| **VirtualHosts**    | `/backup/01-vhosts` |  Backups only Apache/Nginx VirtualHosts for domains. |
+| **MySQL Databases**    | `/backup/01-mysql` |  Backups only MySQL/MariaDB databases. |
+| **PostgreSQL Databases**    | `/backup/01-postgres` |  Backups only PostgreSQL databases. |
+| **Cron Jobs**    | `/backup/crons.ini` |  Backups only the `crons.ini` file. |
 
-Databases are not copied from their live data directories. Right before the archive is created, every MySQL/MariaDB database is dumped with `mysqldump`/`mariadb-dump` (`--single-transaction --routines --triggers --events`) and every PostgreSQL database with `pg_dump`, into `backup/01-mysql/<database>.sql` and `backup/01-postgres/<database>.sql`, right after `backup/00-meta/` so a database can be restored without reading the website files (archives made before 2.0.16 have them at the end, in `backup/mysql/` and `backup/postgres/`). If any database fails to dump, the whole backup run fails so it doesn't go unnoticed. The names of the dumped databases are also written to a small `backup/00-meta/` folder that is always the first thing in the archive, so the panel can index a backup without downloading it.
+Before 2.0.16 the emails, VirtualHosts and database values were `/backup/mail`, `/backup/vhosts`, `/backup/mysql` and `/backup/postgres`, the update changes them in `backup.env` automatically.
 
-Emails and DNS zones are backed up too. Each domain's mailboxes are mounted into the backup at `backup/emails/<domain>/` (the older `backup/mail/` folder only holds links to them) and each domain's DNS zone at `backup/dns/<domain>.zone`. The `backup/00-meta/` folder also lists the website files, mailboxes, domains and DNS zones in the backup, so single items can be restored without downloading the whole archive.
+Databases are not copied from their live data directories. Right before the archive is created, every MySQL/MariaDB database is dumped with `mysqldump`/`mariadb-dump` (`--single-transaction --routines --triggers --events`) and every PostgreSQL database with `pg_dump`, into `backup/01-mysql/<database>.sql` and `backup/01-postgres/<database>.sql`. Everything except the website files is stored before `backup/html/` in the archive (`backup/01-mail/`, `backup/01-vhosts/`, `crons.ini`, `dns/`, `emails/`), so restoring a database, domains, emails or cron jobs stops reading the archive early instead of going through the website files. Archives made before 2.0.16 have the dumps, mail and vhosts after the website files, under `backup/mysql/`, `backup/postgres/`, `backup/mail/` and `backup/vhosts/`, and are still restored. If any database fails to dump, the whole backup run fails so it doesn't go unnoticed. The names of the dumped databases are also written to a small `backup/00-meta/` folder that is always the first thing in the archive, so the panel can index a backup without downloading it.
+
+Emails and DNS zones are backed up too. Each domain's mailboxes are mounted into the backup at `backup/emails/<domain>/` (the older `backup/01-mail/` folder, `backup/mail/` in archives made before 2.0.16, only holds links to them) and each domain's DNS zone at `backup/dns/<domain>.zone`. The `backup/00-meta/` folder also lists the website files, mailboxes, domains and DNS zones in the backup, so single items can be restored without downloading the whole archive.
 
 
 ## Schedule
@@ -51135,6 +51433,84 @@ After uploading the file:
 Click **Start Import** to begin the import process. A log will appear below the table to show the progress and status of the operation.
 
 Once completed, all valid email accounts will be successfully imported.
+
+---
+
+// File: panel/emails/migrate
+
+# Migrate Emails
+
+The **Migrate Emails** page copies all folders and messages from an email account on another server (cPanel, Plesk, DirectAdmin, Gmail, Outlook or any other IMAP server) into one of your email accounts on OpenPanel.
+
+The migration runs in the background with [imapsync](https://imapsync.lamiral.info/), so you can close the page while it works. Nothing is deleted on the old server, and messages that were already copied are skipped, so you can run the same migration again, for example right before you switch the domain's MX records.
+
+## Before you start
+
+* Create the email account you want to migrate into under [**Email > Accounts**](/docs/panel/emails/new/). You need its password.
+* Get the IMAP server, username and password of the old account from your old provider. For Gmail, Outlook and other providers with two-factor login, create an **app password** and use it instead of your normal password.
+
+## Starting a migration
+
+1. Go to **OpenPanel > Email > Migrate**.
+2. Under **Source server**, enter the old server's details:
+
+   | Field | Description |
+   |---|---|
+   | **IMAP server** | Hostname or IP address of the old server, e.g. `imap.gmail.com` or `mail.oldhost.com`. |
+   | **Security** | `SSL/TLS` (port 993), `STARTTLS` (port 143) or `None`. Use SSL/TLS unless the old server doesn't support it. |
+   | **Port** | Changes with **Security**, set it by hand only if the old server uses a different port. |
+   | **Username** | Usually the full email address. |
+   | **Password** | The password, or the app password, of the old account. |
+
+3. Under **Destination account**, select your email account on this server and enter its password.
+4. Leave **Skip Spam, Junk and Trash folders** checked unless you want those copied too.
+5. Click **Test connection**. It logs in to both servers and shows whether each login worked, without copying anything.
+6. Click **Start migration**.
+
+![Migrate Emails form with the source server, security, port, username and password fields, the destination account and the Test connection and Start migration buttons](/img/openpanel-screenshots/emails/migrate-form.png#gh-light-mode-only)
+![Migrate Emails form with the source server, security, port, username and password fields, the destination account and the Test connection and Start migration buttons](/img/openpanel-screenshots/emails/migrate-form_dark.png#gh-dark-mode-only)
+
+:::info
+The source server can't be a private or reserved address (e.g. `192.168.x.x` or `10.x.x.x`). To migrate from a server on a private network, ask your hosting provider.
+:::
+
+## Following the progress
+
+While a migration runs, the page shows its log as it is written, and the form is hidden. Only one migration can run at a time for your account, so start the next one when this one is done.
+
+Click **Cancel** to stop it. Messages copied until then stay in the destination account, and running the migration again continues where it stopped.
+
+![Migration in progress with the live imapsync log and the Cancel button](/img/openpanel-screenshots/emails/migrate-running.png#gh-light-mode-only)
+![Migration in progress with the live imapsync log and the Cancel button](/img/openpanel-screenshots/emails/migrate-running_dark.png#gh-dark-mode-only)
+
+## Recent migrations
+
+**Recent migrations** lists your last 10 migrations with the source and destination, and whether each one **Completed**, **Failed** or was **Cancelled**. Click **View log** to see the full log, for example to find which login failed or which messages couldn't be copied.
+
+![Recent migrations table with a completed migration and its log](/img/openpanel-screenshots/emails/migrate-history.png#gh-light-mode-only)
+![Recent migrations table with a completed migration and its log](/img/openpanel-screenshots/emails/migrate-history_dark.png#gh-dark-mode-only)
+
+Common reasons for a failed migration:
+
+* **Authentication failed** on host1 (the old server) or host2 (this server): check the username and password, and use an app password for Gmail and Outlook.
+* **Can not open imap connection**: check the IMAP server, security and port, and that the old server allows IMAP access.
+* **Quota exceeded**: the destination account is full. Raise its quota under **Email > Accounts** and run the migration again.
+
+## For administrators
+
+The page is available when the `email_migrate` module is enabled under **OpenAdmin > Settings > Modules** and is in the user's [feature set](/docs/admin/plans/feature-manager/). These optional `openpanel.config` settings change how migrations run:
+
+| Setting | Default | Description |
+|---|---|---|
+| `imapsync_max_jobs` | `10` | Migrations running at once on the whole server. |
+| `imapsync_timeout_hours` | `24` | A migration is stopped after this many hours. |
+| `imapsync_memory` / `imapsync_cpus` | `512m` / `1` | Limits for each migration container. |
+| `imapsync_starts_per_hour` / `imapsync_tests_per_hour` | `10` / `30` | Per user. |
+| `imapsync_allow_private` | `no` | Set to `yes` to allow private source addresses. |
+| `imapsync_host`, `imapsync_port`, `imapsync_security` | user's IP, 993 or 143 | Where the destination mailbox is reached. Port 993 with SSL is used when it is open, otherwise 143. |
+| `imapsync_image` | `docker.io/gilleslamiral/imapsync:latest` | The imapsync image. |
+
+Each migration runs as an `imapsync` container under the user's account and is removed when it finishes. Logs are kept in `/home/<username>/imapsync/`.
 
 ---
 

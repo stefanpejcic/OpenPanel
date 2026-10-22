@@ -327,7 +327,7 @@ func applyRestored(ctx context.Context, userContext string, extracted []string, 
 	}
 	if vhostsDone {
 		if ws := webserver.GetEnvFileValue(userContext, "WEB_SERVER"); ws != "" && docker.IsServiceRunning(ctx, userContext, ws) {
-			docker.ComposeContainer(ctx, userContext, ws, "restart")
+			_ = webserver.ReloadWebserver(ctx, userContext, ws)
 		}
 	}
 }

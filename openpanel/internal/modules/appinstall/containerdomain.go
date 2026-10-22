@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
@@ -32,10 +32,10 @@ func attachContainerDomain(ctx context.Context, userContext, domain, service str
 	default:
 		return errors.New("unknown webserver, add the proxy manually")
 	}
-	restartWebserver(ctx, userContext, webServerType)
+	reloadWebserver(ctx, userContext, webServerType)
 	return nil
 }
 
-func restartWebserver(ctx context.Context, userContext, webServerType string) {
-	_ = podmanmanager.Command(ctx, userContext, podmanmanager.PodmanArgv(userContext, "restart", webServerType)).Run()
+func reloadWebserver(ctx context.Context, userContext, webServerType string) {
+	_ = webserver.ReloadWebserver(ctx, userContext, webServerType)
 }

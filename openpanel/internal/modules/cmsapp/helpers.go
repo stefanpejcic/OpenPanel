@@ -30,9 +30,10 @@ func EnsureContainerRunning(ctx context.Context, userContext, container string) 
 		return true
 	}
 	docker.StartOrStopContainer(ctx, userContext, container, "activate", "detached")
-	const attempts = 15
+	// checked often, a container usually comes up in a second or two
+	const attempts = 60
 	for i := 0; i < attempts; i++ {
-		time.Sleep(2 * time.Second)
+		time.Sleep(500 * time.Millisecond)
 		if docker.IsServiceRunning(ctx, userContext, container) {
 			return true
 		}

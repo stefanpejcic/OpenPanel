@@ -1,4 +1,4 @@
-// Package webserverconf implements an in-browser editor for a user's main webserver configuration file, with a syntax-test-before-restart safety net and a restore-to-stock-defaults option.
+// Package webserverconf implements an in-browser editor for a user's main webserver configuration file, with a syntax-test-before-reload safety net and a restore-to-stock-defaults option.
 package webserverconf
 
 import "gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
