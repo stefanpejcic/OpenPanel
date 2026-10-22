@@ -30,7 +30,7 @@ podman exec openadmin_roundcube php -r 'echo PHP_VERSION, PHP_EOL;'
 
 # the PHP a new account or a PHP version switch gets, from the shared image store:
 for v in 8.2 8.3 8.4 8.5; do
-  id=$(podman --root /var/lib/containers/shared-storage --runroot /run/containers/shared-storage \
+  id=$(podman --root /var/lib/containers/shared-storage \
     image inspect --format '{{.Id}}' docker.io/shinsenter/php:$v-fpm 2>/dev/null) || continue
   echo "$v: $(podman run --rm --entrypoint php "$id" -r 'echo PHP_VERSION;')"
 done
@@ -108,22 +108,22 @@ Webmail is down for about a minute.
 
 ## 4. Users' PHP (shinsenter/php)
 
-Every user's podman reads OpenPanel's shared image store, `/var/lib/containers/shared-storage`, so a rebuilt image placed there serves every account, including new accounts and PHP version switches. Rebuild each PHP version that is still vulnerable (8.3 here):
+Every user's podman reads OpenPanel's shared image store, `/var/lib/containers/shared-storage`, so a rebuilt image placed there serves every account, including new accounts and PHP version switches. Rebuild each PHP version that is still vulnerable (8.3 here) and copy it into the store with `skopeo` (installed by `opencli docker-update` since 2.0.16, otherwise `apt-get install -y skopeo`):
 
 ```bash
 cd /root/php-rebuild
-S=(--root /var/lib/containers/shared-storage --runroot /run/containers/shared-storage)
+S=/var/lib/containers/shared-storage
 v=8.3
 img=docker.io/shinsenter/php:$v-fpm
-bash php-rebuild.sh "$(podman "${S[@]}" image inspect --format '{{.Id}}' $img)" localhost/php-rebuild/shinsenter-$v
+bash php-rebuild.sh "$(podman --root $S image inspect --format '{{.Id}}' $img)" localhost/php-rebuild/shinsenter-$v
 podman save -o shinsenter-$v.tar localhost/php-rebuild/shinsenter-$v
-podman "${S[@]}" load -i shinsenter-$v.tar
-podman "${S[@]}" tag localhost/php-rebuild/shinsenter-$v $img
-chmod -R o+rX /var/lib/containers/shared-storage
+skopeo copy docker-archive:shinsenter-$v.tar "containers-storage:[overlay@$S+/run/containers/shared-storage]$img"
+chmod -R o+rX $S
+find $S -name '*.lock' -exec chmod o+rw {} \;
 ```
 
 :::danger
-Always give `podman --root /var/lib/containers/shared-storage` its own `--runroot`, as above. With the default runroot (root's own), a pull or load that creates layers unmounts the layer of every running root container (caddy, the mail server, the panel, MySQL and the rest). They keep running, but the next restart of any of them fails. See [If a container won't restart](#if-a-container-wont-restart). `opencli docker-update` has the same problem: stefanpejcic/opencli#224.
+Never pull or load into the shared store with `podman --root /var/lib/containers/shared-storage`. With the default runroot (root's own), a pull or load that creates layers unmounts the layer of every running root container (caddy, the mail server, the panel, MySQL and the rest): they keep running, but the next restart of any of them fails. See [If a container won't restart](#if-a-container-wont-restart). podman refuses a different `--runroot` for that store (`database configuration mismatch`), so writes go through skopeo with the store's own runroot, as above and as `opencli docker-update` does since OpenPanel 2.0.17. Reads (`image inspect`, `images`) are fine with `podman --root`. The `chmod` lines are the ones OpenPanel's own scripts run after writing to the store, so the users' podman can read it and take its locks.
 :::
 
 Then recreate the running `php-fpm-<version>` containers on the new image, through each user's own podman socket, and reload the user's web server so it connects to the new container:
@@ -158,11 +158,11 @@ podman --root /tmp/probe/root --runroot /tmp/probe/run run --rm --entrypoint php
 rm -rf /tmp/probe
 ```
 
-OpenPanel 2.0.16's update runs `opencli docker-update` for every PHP version. Installed while a maintainer has not rebuilt yet, it replaces a rebuilt image in the shared store with the vulnerable upstream one, so run the checks in step 1 again after the update.
+Since OpenPanel 2.0.17, `opencli docker-update` checks the PHP version inside an image and leaves the containers alone while it is still unpatched, and the 2.0.17 update moves Roundcube's database to a volume before it updates Roundcube. Run the checks in step 1 again after any update.
 
 ## If a container won't restart
 
-After a shared-store pull or load with the default runroot, a root container that is stopped and started fails with `crun: executable file '/init' not found` or `creating temporary passwd file ... no such file or directory`, and `podman exec` can report `unable to find user root`. Find the containers in that state:
+After a pull or load into the shared store with `podman --root`, a root container that is stopped and started fails with `crun: executable file '/init' not found` or `creating temporary passwd file ... no such file or directory`, and `podman exec` can report `unable to find user root`. Find the containers in that state:
 
 ```bash
 for c in $(podman ps --format '{{.Names}}'); do
@@ -170,7 +170,7 @@ for c in $(podman ps --format '{{.Names}}'); do
 done
 ```
 
-Fix them one at a time, or reboot the server:
+The 2.0.17 update runs `podman mount <container>` for each running container in that state, to put its layer back without stopping it. A container that fails to start needs a forced unmount first, or reboot the server:
 
 ```bash
 podman stop <container> && podman umount --force <container> && podman start <container>
