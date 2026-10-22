@@ -286,7 +286,7 @@
                 <input type="password" name="admin_password" id="admin_password" required
                     x-model="password"
                     x-ref="input"
-                    @input="checkStrength(); password = password.replace(/\s/g, '')"
+                    @input="checkStrength(); password = password.replace(/\s/g, '').replace(/^-+/, '')"
                     @keydown.space.prevent
                     class="relative block w-full appearance-none rounded-l border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"/>
                 <button type="button" id="generatePassword"
@@ -357,7 +357,7 @@
                         <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="db_password">
                             {{.T.Get "DB password"}}<span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="db_password" id="db_password" required
+                        <input type="text" name="db_password" id="db_password" required oninput="this.value = this.value.replace(/^-+/, '')"
                             class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
                     </div>
                 </div>
@@ -506,10 +506,12 @@
 {{define "cmsinstall_script_3"}}<script type="module">
     function generateRandomStrongPassword(length) {
         const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+";
+        // installers pass the password as its own CLI argument, a leading - reads as an option (#1207)
+        const firstCharset = charset.replace("-", "");
         let result = "";
         for (let i = 0; i < length; i++) {
-            const randomIndex = Math.floor(Math.random() * charset.length);
-            result += charset.charAt(randomIndex);
+            const chars = i === 0 ? firstCharset : charset;
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
         }
         return result;
     }
