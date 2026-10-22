@@ -112,6 +112,12 @@ func GetPHPVForDomain(ctx context.Context, a *appctx.App, userContext, domainURL
 	return version
 }
 
+// current openlitespeed and litespeed releases, a php version change pins the account to <release>-lsphpXX so bump these when litespeed ships a new release (the old 1.8.5/6.3.5 pins kept accounts on a php without security fixes)
+const (
+	openLiteSpeedRelease = "1.9.3"
+	liteSpeedRelease     = "6.3.7"
+)
+
 // updatePHPVersionPreference mirrors update_php_version_preference().
 func updatePHPVersionPreference(userContext, newPHPVersion string) bool {
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
@@ -121,10 +127,10 @@ func updatePHPVersionPreference(userContext, newPHPVersion string) bool {
 	switch webServer {
 	case "openlitespeed":
 		placeholder = "OPENLITESPEED_VERSION"
-		newPHPVersion = "1.8.5-lsphp" + strings.ReplaceAll(newPHPVersion, ".", "")
+		newPHPVersion = openLiteSpeedRelease + "-lsphp" + strings.ReplaceAll(newPHPVersion, ".", "")
 	case "litespeed":
 		placeholder = "LITESPEED_VERSION"
-		newPHPVersion = "6.3.5-lsphp" + strings.ReplaceAll(newPHPVersion, ".", "")
+		newPHPVersion = liteSpeedRelease + "-lsphp" + strings.ReplaceAll(newPHPVersion, ".", "")
 	default:
 		placeholder = "DEFAULT_PHP_VERSION"
 	}

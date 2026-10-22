@@ -14,6 +14,8 @@ if [ ! -x "$DOCKER_UPDATE" ] || ! grep -q "^readonly PHP_FIXED=" "$DOCKER_UPDATE
     echo "opencli docker-update has no PHP version check, PHP images not updated - run opencli update first, then run this update again."
     exit 0
 fi
+# shellcheck disable=SC1091
+. /usr/local/opencli/lib/podman.sh
 
 # 2.0.16's shared store pulls used root's runroot, which unmounts every running root container's layer: they keep running, but their next restart or recreate fails ("executable file '/init' not found", "removing mount point ... directory not empty")
 # podman mount puts the layer back for a running container without stopping it, containers whose layer is still mounted are left alone
@@ -97,13 +99,60 @@ update_roundcube() {
 }
 update_roundcube
 
-# phpMyAdmin and every php version in use go through docker-update in their own unit: on a server with many accounts this takes longer than the 300 seconds opencli update gives this script, which got killed in the middle of it in 2.0.16
+# openlitespeed/litespeed bring their own php (lsphp), a php version change in OpenPanel pinned them to 1.8.5-lsphpXX / 6.3.5-lsphpXX whose lsphp has no security fixes: https://github.com/stefanpejcic/OpenPanel/issues/1203#issuecomment-6328047388
+# each account moves to the current release with the same lsphp branch, "latest" is pinned to the branch the container runs now since latest moved to lsphp 8.5; the background unit below recreates the running ones
+OLS_RELEASE=1.9.3
+LS_RELEASE=6.3.7
+litespeed_images=""
+for envf in /home/*/.env; do
+    [ -f "$envf" ] || continue
+    ctx=$(basename "$(dirname "$envf")")
+    ws=$(grep -m1 '^WEB_SERVER=' "$envf" | cut -d= -f2- | tr -d '"[:space:]')
+    case "$ws" in
+        openlitespeed) key=OPENLITESPEED_VERSION; release=$OLS_RELEASE ;;
+        litespeed) key=LITESPEED_VERSION; release=$LS_RELEASE ;;
+        *) continue ;;
+    esac
+    tag=$(grep -m1 "^$key=" "$envf" | cut -d= -f2- | tr -d '"[:space:]')
+    branch=""
+    if [[ "$tag" =~ ^[0-9.]+-lsphp([0-9]+)$ ]]; then
+        branch="${BASH_REMATCH[1]}"
+    else
+        # latest or empty: the branch the running container serves with
+        branch=$(podman_ctx "$ctx" exec "$ws" readlink -f /usr/local/lsws/fcgi-bin/lsphp 2>/dev/null </dev/null | grep -oE 'lsphp[0-9]+' | head -1 | grep -oE '[0-9]+')
+    fi
+    if [ -z "$branch" ]; then
+        echo "Could not tell which lsphp $ctx's $ws uses ($key=${tag:-empty}), left as it is - set $key=$release-lsphpXX in $envf by hand."
+        continue
+    fi
+    new="$release-lsphp$branch"
+    [ "$tag" = "$new" ] && continue
+    # the newer images have no ionCube loader, a site with ionCube encoded files would stop working
+    if timeout 120 grep -rlIq --include=*.php -m1 -E "ionCube Loader|ioncube_loader" "/home/$ctx/docker-data/volumes/${ctx}_html_data/_data" 2>/dev/null; then
+        echo "$ctx has ionCube encoded files and the $ws $new image has no ionCube loader, left on $key=${tag:-empty} - update it by hand."
+        continue
+    fi
+    echo "Moving $ctx's $ws from ${tag:-latest} to $new..."
+    [ -f "$envf.bak-2.0.17" ] || cp -a "$envf" "$envf.bak-2.0.17"
+    if grep -q "^$key=" "$envf"; then
+        # written in place so the file keeps its owner and mode
+        sed "s|^$key=.*|$key=\"$new\"|" "$envf" > /tmp/op_2017_env && cat /tmp/op_2017_env > "$envf"
+        rm -f /tmp/op_2017_env
+    else
+        printf '%s="%s"\n' "$key" "$new" >> "$envf"
+    fi
+    litespeed_images+="litespeedtech/$ws:$new "
+done
+litespeed_images=$(echo "$litespeed_images" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+# phpMyAdmin, the litespeed images above and every php version in use go through docker-update in their own unit: on a server with many accounts this takes longer than the 300 seconds opencli update gives this script, which got killed in the middle of it in 2.0.16
 # the unit first waits for a php update 2.0.16 started in the background, so two docker-update runs never overlap; php versions whose image isn't rebuilt yet are reported and left as they are, newest versions go first
 images=""
 if podman container exists phpmyadmin; then
     pma_image=$(podman inspect -f '{{.ImageName}}' phpmyadmin 2>/dev/null)
     images="${pma_image:-phpmyadmin:latest} "
 fi
+images+="$litespeed_images"
 images+=$(grep -hoE "^    image:[[:space:]]*['\"]?(docker\.io/)?shinsenter/php:[0-9.]+-fpm" /etc/openpanel/docker/compose/1.0/docker-compose.yml /home/*/docker-compose.yml 2>/dev/null \
     | sed -E "s/^    image:[[:space:]]*['\"]?(docker\.io\/)?//" | sort -urV | tr '\n' ' ')
 if [ -n "${images// /}" ]; then
