@@ -2,6 +2,7 @@ package fixpermissions
 
 import (
 	"encoding/json"
+	"mime"
 	"net/http"
 	"os/exec"
 	"path/filepath"
@@ -36,16 +37,8 @@ func apiFixPermissionsRun(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 	username, _ := injected["current_username"].(string)
 
-	var body struct {
-		Directory string `json:"directory"`
-	}
-	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
-		_ = r.ParseForm()
-		body.Directory = r.Form.Get("directory")
-	}
-
 	baseDirectory := "/var/www/html"
-	raw := strings.TrimSpace(body.Directory)
+	raw := strings.TrimSpace(apiDirectory(r))
 	args := []string{"files-fix_permissions", username}
 
 	if raw != "" && raw != "/" {
@@ -68,4 +61,20 @@ func apiFixPermissionsRun(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	_ = logger.RecordUserAction(a.Config, username, "fixed permissions via API", reqip.ClientIP(r))
 	writeAPIFixPermsJSON(w, http.StatusOK, map[string]string{"message": "Permissions fixed."})
+}
+
+// apiDirectory reads directory from a form post or a JSON body, trying JSON first drained form bodies so the whole account got fixed
+func apiDirectory(r *http.Request) string {
+	ct, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	if ct == "application/x-www-form-urlencoded" || ct == "multipart/form-data" {
+		return r.FormValue("directory")
+	}
+	var body struct {
+		Directory string `json:"directory"`
+	}
+	if json.NewDecoder(r.Body).Decode(&body) == nil {
+		return body.Directory
+	}
+	// no JSON body, a ?directory= query still works
+	return r.FormValue("directory")
 }
