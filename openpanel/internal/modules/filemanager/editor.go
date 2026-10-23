@@ -147,7 +147,7 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 		}
 		_ = a.Sessions.Save(r, w, sess)
 
-		http.Redirect(w, r, "/file-manager/edit-file/"+filePath, http.StatusFound)
+		http.Redirect(w, r, "/file-manager/edit-file/"+escapeURLPath(filePath), http.StatusFound)
 		return
 	}
 

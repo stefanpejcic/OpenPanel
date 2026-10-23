@@ -68,7 +68,7 @@ func handleCreateFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	if r.Form.Get("open") == "true" {
 		pathForRedirect := filepath.Join(pathParam, filename)
-		http.Redirect(w, r, "/file-manager/edit-file/"+pathForRedirect+"?new=true", http.StatusFound)
+		http.Redirect(w, r, "/file-manager/edit-file/"+escapeURLPath(pathForRedirect)+"?new=true", http.StatusFound)
 		return
 	}
 

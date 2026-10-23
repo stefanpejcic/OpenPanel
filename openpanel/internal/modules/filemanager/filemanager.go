@@ -4,6 +4,7 @@ package filemanager
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"slices"
 	"strconv"
 	"strings"
@@ -98,7 +99,16 @@ func filesRedirectPath(pathParam string) string {
 	if pathParam == "" {
 		return "/files"
 	}
-	return "/files/" + pathParam
+	return "/files/" + escapeURLPath(pathParam)
+}
+
+// escapeURLPath escapes each segment of a slash path so names with # % ? or spaces survive a redirect
+func escapeURLPath(p string) string {
+	parts := strings.Split(p, "/")
+	for i, part := range parts {
+		parts[i] = url.PathEscape(part)
+	}
+	return strings.Join(parts, "/")
 }
 
 // pathErrorStatus extracts the HTTP status from a *paths.Error, defaulting to 500 for anything else
