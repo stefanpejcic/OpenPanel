@@ -53,7 +53,11 @@ func handleFixPermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 			}
 		}
 
-		_ = exec.CommandContext(ctx, "opencli", args...).Run()
+		// the page used to say "Permissions are fixed!" whatever opencli returned
+		if runErr := exec.CommandContext(ctx, "opencli", args...).Run(); runErr != nil {
+			http.Error(w, "Fixing permissions failed.", http.StatusInternalServerError)
+			return
+		}
 
 		sess, _ := a.Sessions.Get(r, session.CookieName)
 		flash.Add(sess, "success", "Success.")
