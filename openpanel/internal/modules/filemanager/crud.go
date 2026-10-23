@@ -148,7 +148,11 @@ func handleRenameFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if renameErr := root.Rename(oldPath, newPath); renameErr != nil {
+	if renameErr := renameNoReplace(root.Root, oldPath, newPath); renameErr != nil {
+		if errors.Is(renameErr, os.ErrExist) {
+			web.FlashRedirect(a, w, r, "error", "Error renaming item: the new name already exists.", filesRedirectPath(pathParam))
+			return
+		}
 		web.FlashRedirect(a, w, r, "error", "Error renaming item! Check permissions or if the new name already exists.", filesRedirectPath(pathParam))
 		return
 	}
@@ -415,7 +419,11 @@ func handleMoveItem(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		dst = path.Join(dst, itemName)
 	}
 
-	if moveErr := root.Rename(src, dst); moveErr != nil {
+	if moveErr := renameNoReplace(root.Root, src, dst); moveErr != nil {
+		if errors.Is(moveErr, os.ErrExist) {
+			web.WriteJSON(w, http.StatusConflict, map[string]any{"success": false, "error": "Destination already exists"})
+			return
+		}
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": "Move failed: " + moveErr.Error()})
 		return
 	}

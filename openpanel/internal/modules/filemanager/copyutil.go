@@ -65,6 +65,16 @@ func copyTree(root *os.Root, src, dst string) error {
 	})
 }
 
+// renameNoReplace is root.Rename but won't replace an existing dst
+func renameNoReplace(root *os.Root, src, dst string) error {
+	if src != dst {
+		if _, err := root.Lstat(dst); err == nil {
+			return os.ErrExist
+		}
+	}
+	return root.Rename(src, dst)
+}
+
 // relTo is p relative to base for slash paths that came out of fs.WalkDir(base)
 func relTo(base, p string) string {
 	if p == base {

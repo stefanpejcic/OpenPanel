@@ -1,6 +1,7 @@
 package filemanager
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 	"os"
@@ -150,7 +151,11 @@ func apiRenameFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if renameErr := root.Rename(oldPath, newPath); renameErr != nil {
+	if renameErr := renameNoReplace(root.Root, oldPath, newPath); renameErr != nil {
+		if errors.Is(renameErr, os.ErrExist) {
+			web.WriteJSON(w, http.StatusConflict, map[string]string{"error": "Error renaming item: the new name already exists."})
+			return
+		}
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error renaming item! Check permissions or if the new name already exists."})
 		return
 	}
