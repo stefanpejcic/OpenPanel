@@ -49,6 +49,11 @@ func editSizeMB(a *appctx.App) int {
 	return atoiDefault(a.Config.Get("filemanager_edit_size", "5"), 5)
 }
 
+// uploadSizeMB is the per-file upload limit, the upload handlers used to default to 5 while the page said 2000
+func uploadSizeMB(a *appctx.App) int {
+	return atoiDefault(a.Config.Get("filemanager_upload_size", "2000"), 2000)
+}
+
 func imageExtensions(a *appctx.App) []string {
 	raw := stripQuotes(a.Config.Get("filemanager_image_extensions", ".jpg .jpeg .png .gif .webp .avif"))
 	return strings.Fields(raw)

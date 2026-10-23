@@ -405,23 +405,64 @@ document.addEventListener("DOMContentLoaded", function () {
         xhr.send(formData);
     });
 
-    {{if .FilemanagerUploadSize}}
+    // the limit is per file, one request can carry a few files so a bigger selection goes out as several requests
     const MAX_UPLOAD_SIZE_MB = {{.FilemanagerUploadSize}};
     const MAX_UPLOAD_SIZE_BYTES = MAX_UPLOAD_SIZE_MB * 1024 * 1024;
-    {{end}}
+    const MAX_BATCH_BYTES = ({{.FilemanagerUploadBatchSize}} || Infinity) * 1024 * 1024;
+
+    // uploadBatches splits files into requests under MAX_BATCH_BYTES, files over the per-file limit go in tooBig and are never sent
+    function uploadBatches(files) {
+        const batches = [], tooBig = [];
+        let batch = [], bytes = 0;
+        files.forEach(f => {
+            if (MAX_UPLOAD_SIZE_BYTES && f.size > MAX_UPLOAD_SIZE_BYTES) {
+                tooBig.push(f);
+                return;
+            }
+            if (batch.length && bytes + f.size > MAX_BATCH_BYTES) {
+                batches.push(batch);
+                batch = [];
+                bytes = 0;
+            }
+            batch.push(f);
+            bytes += f.size;
+        });
+        if (batch.length) batches.push(batch);
+        return { batches, tooBig };
+    }
 
     uploadForm.addEventListener('submit', (event) => {
         event.preventDefault();
 
-        {{if .FilemanagerUploadSize}}
-        const files_submit = Array.from(document.getElementById('fileUpload').files);
-        const totalSize = files_submit.reduce((sum, file) => sum + file.size, 0);
-        if (totalSize > MAX_UPLOAD_SIZE_BYTES) {
-            showToast('{{.T.Get "Total file size exceeds {max}MB limit."}}'.replace('{max}', MAX_UPLOAD_SIZE_MB), 'warning');
+        const fileInput = document.getElementById('fileUpload');
+        const selected = Array.from(fileInput.files);
+        if (selected.length === 0) {
+            showToast("{{.T.Get "Please select files to upload."}}", 'warning');
             return;
         }
-        {{end}}
+        const { batches, tooBig } = uploadBatches(selected);
+        if (tooBig.length) {
+            showToast('{{.T.Get "Over the %(size)s MB upload limit:"}}'.replace('%(size)s', MAX_UPLOAD_SIZE_MB) + ' ' + tooBig.map(f => f.name).join(', '), 'warning');
+            return;
+        }
+        fileInput.value = '';
 
+        changeToWgetLink.disabled = true;
+        uploadInProgress = true;
+        let next = 0;
+        const sendNext = (cancelled) => {
+            if (cancelled || next >= batches.length) {
+                changeToWgetLink.disabled = false;
+                uploadInProgress = false;
+                return;
+            }
+            uploadBatch(batches[next++], sendNext);
+        };
+        sendNext(false);
+    });
+
+    // uploadBatch sends one request with its own progress row and calls done once it's over, done(true) when cancelled
+    function uploadBatch(uploadFiles, done) {
         const uploadProgressContainer = document.getElementById('upload-progress-container');
         const classesToAdd = ['mt-6', 'border', 'rounded-xl', 'shadow-sm', 'p-6', 'dark:bg-neutral-800', 'dark:border-neutral-700'];
         classesToAdd.forEach(className => {
@@ -429,14 +470,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 uploadProgressContainer.classList.add(className);
             }
         });
-
-        const fileInput = document.getElementById('fileUpload');
-        const uploadFiles = fileInput.files;
-
-        if (uploadFiles.length === 0) {
-            showToast("{{.T.Get "Please select files to upload."}}", 'warning');
-            return;
-        }
 
         const currentFileName = uploadFiles.length === 1 ? uploadFiles[0].name : `${uploadFiles.length} files`;
         const formData = new FormData();
@@ -453,8 +486,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const progressContainer = document.createElement('div');
         progressContainer.classList.add('mb-4', 'justify-between', 'items-center');
-
-        document.getElementById('fileUpload').value = '';
 
         progressContainer.innerHTML = `
             <div class="flex items-center justify-between  gap-x-3">
@@ -495,8 +526,7 @@ document.addEventListener("DOMContentLoaded", function () {
             progressBar.classList.remove('bg-blue-600');
             progressBar.classList.add('bg-red-500');
             cancelButton.innerHTML = '<svg class="shrink-0 size-4 text-red-500" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"> <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path> </svg>';
-            changeToWgetLink.disabled = false;
-            uploadInProgress = false;
+            done(true);
         });
 
         xhr.upload.onprogress = function (e) {
@@ -516,8 +546,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 progressBar.classList.add('bg-teal-500');
                 cancelButton.innerHTML = '<svg class="shrink-0 size-4 text-teal-500" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"> <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path> </svg>';
                 cancelButton.classList.remove('cancel-btn');
-                changeToWgetLink.disabled = false;
-                uploadInProgress = false;
+                done(false);
             } else {
                 progressBar.classList.remove('bg-blue-600');
                 progressBar.classList.add('bg-orange-500');
@@ -525,8 +554,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 progressContainer.querySelector('.text-sm').innerText = `${currentFileName} upload failed`;
                 cancelButton.innerHTML = '<svg class="shrink-0 size-4 text-red-500" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"> <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path> </svg>';
                 cancelButton.classList.remove('cancel-btn');
-                changeToWgetLink.disabled = false;
-                uploadInProgress = false;
+                done(false);
             }
         };
 
@@ -537,18 +565,14 @@ document.addEventListener("DOMContentLoaded", function () {
             progressContainer.querySelector('.text-sm').innerText = `${currentFileName} upload failed`;
             cancelButton.innerHTML = '<svg class="shrink-0 size-4 text-red-500" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"> <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path> </svg>';
             cancelButton.classList.remove('cancel-btn');
-            changeToWgetLink.disabled = false;
-            uploadInProgress = false;
+            done(false);
         };
-
-        changeToWgetLink.disabled = true;
-        uploadInProgress = true;
 
         const csrf = getCsrfToken();
         if (csrf) xhr.setRequestHeader('X-CSRF-Token', csrf);
 
         xhr.send(formData);
-    });
+    }
 
     window.addEventListener('beforeunload', function (e) {
         if (uploadInProgress) {

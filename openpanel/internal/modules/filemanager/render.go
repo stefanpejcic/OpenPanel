@@ -160,6 +160,7 @@ type FilesPageData struct {
 	ReadmeContent string
 
 	FilemanagerEditSize, FilemanagerViewSize, FilemanagerDownloadSize, FilemanagerUploadSize int
+	FilemanagerUploadBatchSize                                                               int
 	Extensions, Images, Archives                                                             string
 
 	CurrentPage, TotalPages, TotalFiles int
@@ -180,7 +181,7 @@ func renderFilesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, p fi
 		Breadcrumbs: buildBreadcrumbs(p.PathParam),
 		HasReadme:   p.HasReadme, ReadmeContent: p.ReadmeContent,
 		FilemanagerEditSize: p.FilemanagerEditSize, FilemanagerViewSize: p.FilemanagerViewSize,
-		FilemanagerDownloadSize: p.FilemanagerDownloadSize, FilemanagerUploadSize: p.FilemanagerUploadSize,
+		FilemanagerDownloadSize: p.FilemanagerDownloadSize, FilemanagerUploadSize: p.FilemanagerUploadSize, FilemanagerUploadBatchSize: uploadBatchMB(p.FilemanagerUploadSize),
 		Extensions: p.Extensions, Images: p.Images, Archives: p.Archives,
 		CurrentPage: p.CurrentPage, TotalPages: p.TotalPages, TotalFiles: p.TotalFiles,
 		StartLineNumber: p.StartLineNumber, EndLineNumber: p.EndLineNumber,
@@ -228,8 +229,9 @@ func renderFilesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, p fi
 // UploadPageData is upload_file.html's template context.
 type UploadPageData struct {
 	web.LayoutData
-	PathParam             string
-	FilemanagerUploadSize int
+	PathParam                  string
+	FilemanagerUploadSize      int
+	FilemanagerUploadBatchSize int
 }
 
 func renderUploadPage(a *appctx.App, w http.ResponseWriter, r *http.Request, pathParam string, uploadSizeMB int) {
@@ -238,7 +240,7 @@ func renderUploadPage(a *appctx.App, w http.ResponseWriter, r *http.Request, pat
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := UploadPageData{LayoutData: layout, PathParam: pathParam, FilemanagerUploadSize: uploadSizeMB}
+	data := UploadPageData{LayoutData: layout, PathParam: pathParam, FilemanagerUploadSize: uploadSizeMB, FilemanagerUploadBatchSize: uploadBatchMB(uploadSizeMB)}
 	if err := uploadPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("FILEMANAGER - upload template render error: %v", err)
 	}

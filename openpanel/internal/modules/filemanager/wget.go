@@ -265,7 +265,7 @@ func runWgetWithProgress(a *appctx.App, downloadID string) {
 	_ = saveDownloadState(downloadID, info)
 
 	maxTime := time.Duration(atoiDefault(a.Config.Get("filemanager_download_max_time", "60"), 60)) * time.Minute
-	maxBytes := int64(atoiDefault(a.Config.Get("filemanager_upload_size", "2000"), 2000)) << 20
+	maxBytes := int64(uploadSizeMB(a)) << 20
 	ctx, cancel := context.WithTimeout(context.Background(), maxTime)
 	defer cancel()
 

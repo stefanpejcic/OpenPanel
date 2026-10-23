@@ -1,6 +1,7 @@
 package filemanager
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -36,6 +37,40 @@ func parseUploadForm(r *http.Request) error {
 	return r.ParseMultipartForm(uploadMemory)
 }
 
+// uploadBatchFactor is how many times the per-file limit one upload request may carry, the pages split bigger selections into several requests
+const uploadBatchFactor = 2
+
+// uploadSlack covers the multipart headers and the path_param field on top of the files themselves
+const uploadSlack = 1 << 20
+
+// uploadBatchMB is the most one upload request may carry, filemanager_upload_size is per file and a request holds several files
+func uploadBatchMB(fileLimitMB int) int {
+	return uploadBatchFactor * fileLimitMB
+}
+
+// errUploadTooLarge is a request over the batch cap, nothing of it is saved
+var errUploadTooLarge = errors.New("upload too large")
+
+// readUploadForm parses an upload, refusing it before reading anything when Content-Length is over the cap and cutting it off once it passes the cap otherwise
+func readUploadForm(w http.ResponseWriter, r *http.Request, fileLimitMB int) error {
+	limit := int64(uploadBatchMB(fileLimitMB))<<20 + uploadSlack
+	if r.ContentLength > limit {
+		return errUploadTooLarge
+	}
+	r.Body = http.MaxBytesReader(w, r.Body, limit)
+	err := parseUploadForm(r)
+	var tooBig *http.MaxBytesError
+	if errors.As(err, &tooBig) {
+		return errUploadTooLarge
+	}
+	return err
+}
+
+// uploadTooLargeMessage is the 413 text, it gives both limits since either one can be the reason
+func uploadTooLargeMessage(fileLimitMB int) string {
+	return fmt.Sprintf("The upload is too big: one upload can be at most %d MB in total and %d MB per file.", uploadBatchMB(fileLimitMB), fileLimitMB)
+}
+
 // uploadSucceeded is true only when files were sent and none of them failed, rejected names count as failures too
 func uploadSucceeded(files int, allSuccess bool, errs []string) bool {
 	return files > 0 && allSuccess && len(errs) == 0
@@ -50,7 +85,7 @@ func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileLimitMB := atoiDefault(a.Config.Get("filemanager_upload_size", "5"), 1000)
+	fileLimitMB := uploadSizeMB(a)
 	fileLimitBytes := int64(fileLimitMB) * 1024 * 1024
 
 	var pathParam string
@@ -61,13 +96,19 @@ func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		// the /files drop zone posts via XHR and wants errors back inline instead of a flash
 		wantsJSON := strings.Contains(r.Header.Get("Accept"), "application/json")
-		pathParam = r.URL.Query().Get("path_param")
-		if pp := r.FormValue("path_param"); pp != "" {
-			pathParam = pp
-		}
 
-		if parseErr := parseUploadForm(r); parseErr != nil {
-			web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"error": "Error uploading files: " + parseErr.Error()})
+		// r.FormValue used to run here and read the whole body before any size check
+		if readErr := readUploadForm(w, r, fileLimitMB); readErr != nil {
+			if errors.Is(readErr, errUploadTooLarge) {
+				msg := uploadTooLargeMessage(fileLimitMB)
+				if wantsJSON {
+					web.WriteJSON(w, http.StatusRequestEntityTooLarge, map[string]any{"success": false, "errors": []string{msg}})
+				} else {
+					http.Error(w, msg, http.StatusRequestEntityTooLarge)
+				}
+				return
+			}
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"error": "Error uploading files: " + readErr.Error()})
 			return
 		}
 		pathParam = r.Form.Get("path_param")

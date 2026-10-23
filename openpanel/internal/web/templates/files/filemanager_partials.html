@@ -41,6 +41,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const progress = document.getElementById('upload-progress-container');
     const defaultText = uploadText.innerHTML;
     const pathParam = "{{.PathParam}}";
+    // the limit is per file, one request can carry a few files and the rest waits for the next request
+    const MAX_FILE_MB = {{.FilemanagerUploadSize}};
+    const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024;
+    const MAX_BATCH_BYTES = ({{.FilemanagerUploadBatchSize}} || Infinity) * 1024 * 1024;
 
     // idle | pending (dropped, waiting for confirm) | uploading | error
     let state = 'idle';
@@ -133,7 +137,21 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function startNextBatch() {
-        const batch = items.filter(it => it.status === 'queued');
+        // over the per-file limit the server would only refuse them after receiving the whole upload
+        items.forEach(it => {
+            if (it.status === 'queued' && MAX_FILE_BYTES && it.file.size > MAX_FILE_BYTES) {
+                it.status = 'error';
+                errors.push("{{.T.Get "%(file)s exceeds the upload limit of %(size)s MB."}}".replace('%(file)s', it.file.name).replace('%(size)s', MAX_FILE_MB));
+            }
+        });
+        // one request carries at most MAX_BATCH_BYTES, whatever doesn't fit goes in the next round
+        const batch = [];
+        let bytes = 0;
+        for (const it of items.filter(it => it.status === 'queued')) {
+            if (batch.length && bytes + it.file.size > MAX_BATCH_BYTES) break;
+            batch.push(it);
+            bytes += it.file.size;
+        }
         if (!batch.length) return finish();
 
         state = 'uploading';
