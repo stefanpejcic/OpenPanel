@@ -50,7 +50,7 @@ func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fileLimitMB := atoiDefault(a.Config.Get("filemanager_upload_size", "5"), 1000)
+	fileLimitMB := uploadSizeMB(a)
 	fileLimitBytes := int64(fileLimitMB) * 1024 * 1024
 
 	var pathParam string

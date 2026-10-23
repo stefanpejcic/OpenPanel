@@ -7,6 +7,9 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/config"
 )
 
 func TestParseUploadFormSpillsBigFilesToDisk(t *testing.T) {
@@ -58,6 +61,20 @@ func TestUploadSucceeded(t *testing.T) {
 	for _, c := range cases {
 		if got := uploadSucceeded(c.files, c.allSuccess, c.errs); got != c.want {
 			t.Errorf("%s: uploadSucceeded = %v, want %v", c.name, got, c.want)
+		}
+	}
+}
+
+// the handlers defaulted to 5 MB while the pages and wget said 2000
+func TestUploadSizeMB(t *testing.T) {
+	cases := map[string]int{"": 2000, "300": 300, "junk": 2000}
+	for raw, want := range cases {
+		cfg := config.Config{}
+		if raw != "" {
+			cfg["filemanager_upload_size"] = raw
+		}
+		if got := uploadSizeMB(&appctx.App{Config: cfg}); got != want {
+			t.Errorf("filemanager_upload_size=%q: got %d, want %d", raw, got, want)
 		}
 	}
 }
