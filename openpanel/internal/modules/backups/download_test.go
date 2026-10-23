@@ -157,3 +157,39 @@ func TestStreamItemsReportsCutOffArchive(t *testing.T) {
 		t.Fatalf("whole archive: sent=%d err=%v", sent, err)
 	}
 }
+
+// the listing and restore take compressed and timestamped dumps, downloading one used to find nothing
+func TestStreamItemsFindsAnyDumpName(t *testing.T) {
+	for _, member := range []string{"/backup/mysql/wp_db.sql.gz", "/backup/mysql/wp_db_2026-01-01_00-00-00.sql", "/backup/01-mysql/wp_db_2026-01-01_00-00-00.sql.gz"} {
+		archive := makeArchive(t, []tarEntry{
+			{name: "/backup", body: nil},
+			{name: "/backup/mysql/wp_db_old.sql", body: []byte("not this one")},
+			{name: member, body: []byte("dump")},
+			{name: "/backup/postgres/wp_db.sql", body: []byte("other engine")},
+		})
+		targets, err := downloadTargets("databases", []string{"mysql/wp_db"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		w := httptest.NewRecorder()
+		sent, err := streamItems(w, bytes.NewReader(archive), "databases", "u-2026.tar.gz", targets)
+		if err != nil || sent != 1 || w.Body.String() != "dump" {
+			t.Errorf("%s: sent=%d err=%v body=%q", member, sent, err, w.Body.String())
+		}
+	}
+
+	archive := makeArchive(t, []tarEntry{
+		{name: "/backup", body: nil},
+		{name: "/backup/mysql/shop.sql.gz", body: []byte("shop")},
+		{name: "/backup/mysql/wp_2026-01-01_00-00-00.sql", body: []byte("wp")},
+		{name: "/backup/postgres/wp.sql", body: []byte("pg")},
+	})
+	targets, err := downloadTargets("databases", []string{"mysql/shop", "mysql/wp"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	w := httptest.NewRecorder()
+	if sent, err := streamItems(w, bytes.NewReader(archive), "databases", "u-2026.tar.gz", targets); err != nil || sent != 2 {
+		t.Fatalf("two dumps: sent=%d err=%v", sent, err)
+	}
+}
