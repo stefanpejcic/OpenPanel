@@ -47,16 +47,37 @@ func renderFTPClientTemplate(path, host, port, username, ftpPath string) (string
 	}
 
 	content := strings.NewReplacer(
-		"{host}", host,
-		"{port}", port,
-		"{username}", username,
-		"{path}", ftpPath,
+		"{host}", xmlText(host),
+		"{port}", xmlText(port),
+		"{username}", xmlText(username),
+		"{path}", xmlText(ftpPath),
 	).Replace(string(data))
 
 	if !isWellFormedXML(content) {
 		return "", false
 	}
 	return content, true
+}
+
+// xmlText escapes s for XML text or attribute values, folder names can have & < > or quotes in them
+func xmlText(s string) string {
+	var b strings.Builder
+	_ = xml.EscapeText(&b, []byte(s))
+	return b.String()
+}
+
+// ftpClientConfig is the cyberduck or filezilla file for one account, from the admin template when there's a usable one
+func ftpClientConfig(clientType, host, port, username, ftpPath string) string {
+	if clientType == "cyberduck" {
+		if rendered, ok := renderFTPClientTemplate(ftpCyberduckTemplatePath, host, port, username, ftpPath); ok {
+			return rendered
+		}
+		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bookmark>\n    <hostname>" + xmlText(host) + "</hostname>\n    <username>" + xmlText(username) + "</username>\n    <protocol>ftp</protocol>\n    <path>" + xmlText(ftpPath) + "</path>\n</bookmark>"
+	}
+	if rendered, ok := renderFTPClientTemplate(ftpFileZillaTemplatePath, host, port, username, ftpPath); ok {
+		return rendered
+	}
+	return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<FileZilla3>\n    <Servers>\n        <Server>\n            <Host>" + xmlText(host) + "</Host>\n            <Port>" + xmlText(port) + "</Port>\n            <Protocol>0</Protocol>\n            <Type>0</Type>\n            <User>" + xmlText(username) + "</User>\n            <Logontype>2</Logontype>\n            <EncodingType>Auto</EncodingType>\n            <Name>" + xmlText(username) + "</Name>\n            <RemoteDir>" + xmlText(ftpPath) + "</RemoteDir>\n            <UsePassive>1</UsePassive>\n            <BypassProxy>0</BypassProxy>\n            <Encryption>0</Encryption>\n        </Server>\n    </Servers>\n</FileZilla3>"
 }
 
 // isWellFormedXML reports whether s parses as a complete XML document, without requiring it to match any particular schema/struct

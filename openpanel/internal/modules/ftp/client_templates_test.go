@@ -113,3 +113,29 @@ func TestRenderFTPClientTemplateValid(t *testing.T) {
 		}
 	}
 }
+
+func TestFTPClientConfigEscapesXML(t *testing.T) {
+	// & in a folder name used to make the admin template "invalid" and the built-in file unimportable
+	const dir = `/var/www/html/R&D <"x'>`
+	for _, clientType := range []string{"cyberduck", "filezilla"} {
+		content := ftpClientConfig(clientType, "ftp.example.com", "2121", "bob@example.com", dir)
+		if !isWellFormedXML(content) {
+			t.Errorf("%s: built-in config isn't well-formed XML: %s", clientType, content)
+		}
+		if !strings.Contains(content, "R&amp;D &lt;&#34;x&#39;&gt;") {
+			t.Errorf("%s: path not escaped: %s", clientType, content)
+		}
+	}
+
+	path := filepath.Join(t.TempDir(), "cyberduck.conf")
+	if err := os.WriteFile(path, []byte(`<bookmark><path>{path}</path><nick name="{username}"/></bookmark>`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	content, ok := renderFTPClientTemplate(path, "h", "21", `bob"x@example.com`, dir)
+	if !ok {
+		t.Fatalf("admin template rejected for a path with & in it: %s", content)
+	}
+	if !strings.Contains(content, "<path>/var/www/html/R&amp;D") || !strings.Contains(content, `name="bob&#34;x@example.com"`) {
+		t.Errorf("admin template values not escaped: %s", content)
+	}
+}

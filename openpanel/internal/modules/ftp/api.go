@@ -135,25 +135,8 @@ func apiFTPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var body struct {
-		Username string          `json:"username"`
-		Password string          `json:"password"`
-		Domain   string          `json:"domain"`
-		Path     string          `json:"path"`
-		Quota    json.RawMessage `json:"quota"`
-	}
-	rawQuota := ""
-	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
-		_ = r.ParseForm()
-		body.Username = r.Form.Get("username")
-		body.Password = r.Form.Get("password")
-		body.Domain = r.Form.Get("domain")
-		body.Path = r.Form.Get("path")
-		rawQuota = r.Form.Get("quota")
-	} else {
-		rawQuota = rawQuotaString(body.Quota)
-	}
-	ftpQuota, quotaOK := normalizeQuota(rawQuota, "M")
+	body := readFTPAPIBody(r)
+	ftpQuota, quotaOK := normalizeQuota(body.Quota, "M")
 	if !quotaOK {
 		writeAPIFTPJSON(w, http.StatusBadRequest, map[string]string{"error": "quota must be a number of MB, a value like 500M or 2G, or 'unlimited'"})
 		return
@@ -247,14 +230,7 @@ func apiFTPPassword(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var body struct {
-		Password string `json:"password"`
-	}
-	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
-		_ = r.ParseForm()
-		body.Password = r.Form.Get("password")
-	}
-	newPassword := strings.TrimSpace(body.Password)
+	newPassword := strings.TrimSpace(readFTPAPIBody(r).Password)
 	if newPassword == "" {
 		writeAPIFTPJSON(w, http.StatusBadRequest, map[string]string{"error": "password is required"})
 		return
@@ -290,23 +266,13 @@ func apiFTPPath(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var body struct {
-		Path string `json:"path"`
-	}
-	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
-		_ = r.ParseForm()
-		body.Path = r.Form.Get("path")
-	}
-	newPath := strings.TrimSpace(body.Path)
+	newPath := strings.TrimSpace(readFTPAPIBody(r).Path)
 	if newPath == "" {
 		writeAPIFTPJSON(w, http.StatusBadRequest, map[string]string{"error": "path is required"})
 		return
 	}
 
-	if !strings.HasPrefix(newPath, ftpRoot) {
-		newPath = ftpRoot + strings.TrimLeft(newPath, "/")
-	}
-	cleanPath, pathOK := cleanFTPPath(newPath)
+	cleanPath, pathOK := cleanFTPPath(ftpPathInput(newPath))
 	if !pathOK {
 		writeAPIFTPJSON(w, http.StatusBadRequest, map[string]string{"error": "Path must be a folder inside " + ftpRoot})
 		return
@@ -390,18 +356,10 @@ func apiFTPConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	var xmlContent, filename string
 	if configType == "cyberduck" {
 		filename = account + "_cyberduck.ftpbookmark"
-		if rendered, ok := renderFTPClientTemplate(ftpCyberduckTemplatePath, host, port, accountData.Username, accountData.Path); ok {
-			xmlContent = rendered
-		} else {
-			xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bookmark>\n    <hostname>" + host + "</hostname>\n    <username>" + accountData.Username + "</username>\n    <protocol>ftp</protocol>\n    <path>" + accountData.Path + "</path>\n</bookmark>"
-		}
+		xmlContent = ftpClientConfig("cyberduck", host, port, accountData.Username, accountData.Path)
 	} else {
 		filename = account + "_filezilla.xml"
-		if rendered, ok := renderFTPClientTemplate(ftpFileZillaTemplatePath, host, port, accountData.Username, accountData.Path); ok {
-			xmlContent = rendered
-		} else {
-			xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<FileZilla3>\n    <Servers>\n        <Server>\n            <Host>" + host + "</Host>\n            <Port>" + port + "</Port>\n            <Protocol>0</Protocol>\n            <Type>0</Type>\n            <User>" + accountData.Username + "</User>\n            <Logontype>2</Logontype>\n            <EncodingType>Auto</EncodingType>\n            <Name>" + account + "</Name>\n            <RemoteDir>" + accountData.Path + "</RemoteDir>\n            <UsePassive>1</UsePassive>\n        </Server>\n    </Servers>\n</FileZilla3>"
-		}
+		xmlContent = ftpClientConfig("filezilla", host, port, accountData.Username, accountData.Path)
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "downloaded "+configType+" config for FTP account "+account, reqip.ClientIP(r))

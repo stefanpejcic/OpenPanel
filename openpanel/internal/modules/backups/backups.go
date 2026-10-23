@@ -66,19 +66,35 @@ func handleBackupSettings(a *appctx.App, w http.ResponseWriter, r *http.Request)
 			_ = tenantfs.WriteFile(path, nil, 0o644)
 		}
 
-		if isBackupInProgress(r.Context(), userContext) {
-			web.FlashRedirect(a, w, r, "error", "A backup is currently in progress. Please wait until it finishes before saving settings. Or if you want to interrupt the backup process: stop and start the backup service.", r.URL.String())
+		status, msg := updateBackupSettings(a, r, path, userContext, currentUsername)
+		// the API and the onboarding wizard read the status, a refused or failed save used to come back as the unchanged settings
+		if status != http.StatusOK && r.URL.Query().Get("output") == "json" {
+			web.WriteJSON(w, status, map[string]string{"error": msg})
 			return
 		}
-
-		if postErr := saveBackupSettings(a, r, path, userContext, currentUsername); postErr != nil {
-			web.Flash(a, w, r, "error", "Error updating settings.")
-		} else {
-			web.Flash(a, w, r, "success", "Settings updated successfully.")
+		switch status {
+		case http.StatusConflict:
+			web.FlashRedirect(a, w, r, "error", msg, r.URL.String())
+			return
+		case http.StatusOK:
+			web.Flash(a, w, r, "success", msg)
+		default:
+			web.Flash(a, w, r, "error", msg)
 		}
 	}
 
 	renderBackupSettingsFromFile(a, w, r, path)
+}
+
+// updateBackupSettings saves the posted settings unless a backup is running, returns the status and message to show
+func updateBackupSettings(a *appctx.App, r *http.Request, path, userContext, currentUsername string) (int, string) {
+	if isBackupInProgress(r.Context(), userContext) {
+		return http.StatusConflict, "A backup is currently in progress. Please wait until it finishes before saving settings. Or if you want to interrupt the backup process: stop and start the backup service."
+	}
+	if err := saveBackupSettings(a, r, path, userContext, currentUsername); err != nil {
+		return http.StatusInternalServerError, "Error updating settings."
+	}
+	return http.StatusOK, "Settings updated successfully."
 }
 
 func saveBackupSettings(a *appctx.App, r *http.Request, path, userContext, currentUsername string) error {

@@ -105,6 +105,18 @@ func cleanFTPPath(p string) (string, bool) {
 	return clean, true
 }
 
+// ftpPathInput turns a typed path into a full one, anything not already under the web root is taken as relative to it
+func ftpPathInput(p string) string {
+	p = strings.TrimSpace(p)
+	if p == strings.TrimSuffix(ftpRoot, "/") {
+		return ftpRoot
+	}
+	if strings.HasPrefix(p, ftpRoot) {
+		return p
+	}
+	return ftpRoot + strings.TrimLeft(p, "/")
+}
+
 // isFTPContainerRunning reports whether the FTP container is currently running
 func isFTPContainerRunning(ctx context.Context, containerName string) bool {
 	out, err := exec.CommandContext(ctx, "podman", "ps", "--filter", "name="+containerName, "--format", "{{.Names}}").Output()
@@ -403,10 +415,7 @@ func handleChangeFTPPath(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 			flashAndRedirectToAccounts(a, w, r, "error", "Invalid FTP username.")
 			return
 		}
-		if !strings.HasPrefix(newPath, ftpRoot) {
-			newPath = ftpRoot + strings.TrimLeft(newPath, "/")
-		}
-		cleanPath, pathOK := cleanFTPPath(newPath)
+		cleanPath, pathOK := cleanFTPPath(ftpPathInput(newPath))
 		if !pathOK {
 			flashAndRedirectToAccounts(a, w, r, "error", web.Tr(a, r, "The FTP path must start with %(real_path)s", "real_path", ftpRoot))
 			return
@@ -484,19 +493,11 @@ func handleFTPConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	case "cyberduck":
 		filename = account + "_cyberduck.ftpbookmark"
 		mimeType = "application/xml"
-		if rendered, ok := renderFTPClientTemplate(ftpCyberduckTemplatePath, host, port, accountData.Username, accountData.Path); ok {
-			content2 = rendered
-		} else {
-			content2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bookmark>\n    <hostname>" + host + "</hostname>\n    <username>" + accountData.Username + "</username>\n    <protocol>ftp</protocol>\n    <path>" + accountData.Path + "</path>\n</bookmark>"
-		}
+		content2 = ftpClientConfig("cyberduck", host, port, accountData.Username, accountData.Path)
 	case "filezilla":
 		filename = account + "_filezilla.xml"
 		mimeType = "application/xml"
-		if rendered, ok := renderFTPClientTemplate(ftpFileZillaTemplatePath, host, port, accountData.Username, accountData.Path); ok {
-			content2 = rendered
-		} else {
-			content2 = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<FileZilla3>\n    <Servers>\n        <Server>\n            <Host>" + host + "</Host>\n            <Port>" + port + "</Port>\n            <Protocol>0</Protocol>\n            <Type>0</Type>\n            <User>" + accountData.Username + "</User>\n            <Logontype>2</Logontype>\n            <EncodingType>Auto</EncodingType>\n            <Name>" + account + "</Name>\n            <RemoteDir>" + accountData.Path + "</RemoteDir>\n            <UsePassive>1</UsePassive>\n            <BypassProxy>0</BypassProxy>\n            <Encryption>0</Encryption>\n        </Server>\n    </Servers>\n</FileZilla3>"
-		}
+		content2 = ftpClientConfig("filezilla", host, port, accountData.Username, accountData.Path)
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "downloaded "+clientType+" configuration for FTP account "+account, reqip.ClientIP(r))

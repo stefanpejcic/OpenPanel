@@ -222,17 +222,7 @@ func apiFTPQuota(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var body struct {
-		Quota json.RawMessage `json:"quota"`
-	}
-	raw := ""
-	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr == nil {
-		raw = rawQuotaString(body.Quota)
-	} else {
-		_ = r.ParseForm()
-		raw = r.Form.Get("quota")
-	}
-	quota, valid := normalizeQuota(raw, "M")
+	quota, valid := normalizeQuota(readFTPAPIBody(r).Quota, "M")
 	if !valid {
 		writeAPIFTPJSON(w, http.StatusBadRequest, map[string]string{"error": "quota must be a number of MB, a value like 500M or 2G, or 'unlimited'"})
 		return

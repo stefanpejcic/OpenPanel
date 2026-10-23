@@ -33,7 +33,8 @@ func downloadTargets(kind string, values []string) ([]string, error) {
 			if !ok || (engine != "mysql" && engine != "postgres") || !dumpNameRE.MatchString(name) {
 				return nil, fmt.Errorf("invalid database: %s", v)
 			}
-			targets = append(targets, "backup/"+engine+"/"+name+".sql")
+			// no extension, the dump can be .sql, .sql.gz or timestamped like restore accepts
+			targets = append(targets, "backup/"+engine+"/"+name)
 		case "mailboxes":
 			domain, user, ok := strings.Cut(strings.ToLower(v), "/")
 			if !ok || !domainNameRE.MatchString(domain) || user == "" || strings.ContainsAny(user, "/\x00") || user == "." || user == ".." {
@@ -99,6 +100,10 @@ func handleDownloadItems(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		return
 	}
+	if err != nil {
+		// headers are already out, so drop the connection to make the browser mark the download as failed instead of saving a truncated file
+		panic(http.ErrAbortHandler)
+	}
 	if sent == 0 {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "The selected items were not found in this backup."})
 		return
@@ -106,7 +111,7 @@ func handleDownloadItems(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	_ = logger.RecordUserAction(a.Config, username, "downloaded "+strings.Join(r.Form["items"], ", ")+" from backup "+backup, reqip.ClientIP(r))
 }
 
-// streamItems copies the entries under targets out of the archive to w, returns how many it sent
+// streamItems copies the entries under targets out of the archive to w, returns how many it sent, an item cut off by an error counts so the caller knows output started
 func streamItems(w http.ResponseWriter, archive io.Reader, kind, backup string, targets []string) (int, error) {
 	gz, err := gzip.NewReader(archive)
 	if err != nil {
@@ -119,6 +124,13 @@ func streamItems(w http.ResponseWriter, archive io.Reader, kind, backup string, 
 	var tw *tar.Writer
 	var outGz *gzip.Writer
 	sent := 0
+	matches, stopAt := insidePath, targets
+	if kind == "databases" {
+		matches, stopAt = isDumpOf, nil
+		for _, t := range targets {
+			stopAt = append(stopAt, path.Dir(t))
+		}
+	}
 	layout := newArchiveLayout()
 	tr := tar.NewReader(gz)
 	for {
@@ -127,14 +139,11 @@ func streamItems(w http.ResponseWriter, archive io.Reader, kind, backup string, 
 			break
 		}
 		if err != nil {
-			if sent == 0 {
-				return 0, err
-			}
-			break
+			return sent, err
 		}
 		raw := strings.Trim(header.Name, "/")
 		name := layout.observe(raw)
-		if layout.pastAll(raw, targets) {
+		if layout.pastAll(raw, stopAt) {
 			break
 		}
 		if header.Typeflag != tar.TypeReg && header.Typeflag != tar.TypeDir {
@@ -142,7 +151,7 @@ func streamItems(w http.ResponseWriter, archive io.Reader, kind, backup string, 
 		}
 		wanted := false
 		for _, t := range targets {
-			if insidePath(name, t) {
+			if matches(name, t) {
 				wanted = true
 				break
 			}
@@ -155,10 +164,16 @@ func streamItems(w http.ResponseWriter, archive io.Reader, kind, backup string, 
 			if header.Typeflag != tar.TypeReg {
 				continue
 			}
-			w.Header().Set("Content-Type", "application/sql")
+			contentType := "application/sql"
+			if strings.HasSuffix(name, ".gz") {
+				contentType = "application/gzip"
+			}
+			w.Header().Set("Content-Type", contentType)
 			w.Header().Set("Content-Disposition", "attachment; filename=\""+path.Base(name)+"\"")
 			w.Header().Set("Content-Length", strconv.FormatInt(header.Size, 10))
-			_, _ = io.Copy(w, tr)
+			if _, err := io.Copy(w, tr); err != nil {
+				return 1, err
+			}
 			sent++
 			break
 		}
@@ -175,11 +190,11 @@ func streamItems(w http.ResponseWriter, archive io.Reader, kind, backup string, 
 			out.Name += "/"
 		}
 		if err := tw.WriteHeader(&out); err != nil {
-			break
+			return sent + 1, err
 		}
 		if header.Typeflag == tar.TypeReg {
 			if _, err := io.Copy(tw, tr); err != nil {
-				break
+				return sent + 1, err
 			}
 		}
 		sent++
@@ -189,4 +204,11 @@ func streamItems(w http.ResponseWriter, archive io.Reader, kind, backup string, 
 		_ = outGz.Close()
 	}
 	return sent, nil
+}
+
+// isDumpOf reports whether member is a dump of target, backup/<engine>/<db> from downloadTargets
+func isDumpOf(member, target string) bool {
+	engine, isEngine := dumpEngine(member)
+	db, isDump := dumpDBName(member)
+	return isEngine && isDump && target == "backup/"+engine+"/"+db
 }
