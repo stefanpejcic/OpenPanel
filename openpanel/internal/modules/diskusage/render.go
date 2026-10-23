@@ -75,13 +75,10 @@ func parseDuOutput(output, urlPath string) []Row {
 		if strings.TrimSpace(line) == "" {
 			continue
 		}
-		fields := strings.Fields(line)
-		if len(fields) < 2 {
+		count, directory, ok := splitDuLine(line)
+		if !ok {
 			continue
 		}
-		count := fields[0]
-		directory := strings.TrimPrefix(line, count)
-		directory = strings.TrimLeft(directory, " \t")
 
 		row := Row{Directory: directory, Count: count, Href: base + url.PathEscape(directory) + "/"}
 		if strings.HasPrefix(base, "/disk-usage/files/") {
@@ -90,6 +87,19 @@ func parseDuOutput(output, urlPath string) []Row {
 		rows = append(rows, row)
 	}
 	return rows
+}
+
+// splitDuLine splits a du line at the tab, trimming spaces after the size cut leading spaces off folder names
+func splitDuLine(line string) (size, name string, ok bool) {
+	if size, name, ok = strings.Cut(line, "\t"); ok {
+		return size, name, name != ""
+	}
+	// not du's own format, split at the first run of whitespace
+	fields := strings.Fields(line)
+	if len(fields) < 2 {
+		return "", "", false
+	}
+	return fields[0], strings.TrimLeft(strings.TrimPrefix(line, fields[0]), " "), true
 }
 
 // DiskUsagePageData is disk_usage.html's template context.

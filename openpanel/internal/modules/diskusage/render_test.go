@@ -73,3 +73,11 @@ func TestParseDuOutputEscapesCurrentPath(t *testing.T) {
 		}
 	}
 }
+
+// a folder named " lead" used to link to /disk-usage/lead/
+func TestParseDuOutputKeepsLeadingSpaces(t *testing.T) {
+	rows := parseDuOutput("4.0K\t lead\n8.0K\tplain\n", "/disk-usage/")
+	if len(rows) != 2 || rows[0].Directory != " lead" || rows[0].Href != "/disk-usage/%20lead/" || rows[1].Directory != "plain" {
+		t.Fatalf("got %+v", rows)
+	}
+}

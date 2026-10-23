@@ -75,13 +75,9 @@ func parseInodesOutput(output, urlPath string) []Row {
 		if strings.TrimSpace(line) == "" {
 			continue
 		}
-		fields := strings.Fields(line)
-		if len(fields) < 2 {
-			continue
-		}
-		count := fields[0]
-		directory := strings.TrimLeft(strings.TrimPrefix(line, count), " \t")
-		if directory == "." {
+		// inodesOutput writes "<count> <name>", trimming more than that one space cut leading spaces off folder names
+		count, directory, ok := strings.Cut(line, " ")
+		if !ok || directory == "" || directory == "." {
 			continue
 		}
 

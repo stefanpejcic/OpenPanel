@@ -52,12 +52,11 @@ func apiHandleInodes(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if line == "" {
 			continue
 		}
-		fields := strings.Fields(line)
-		if len(fields) < 2 {
+		rawCount, folder, ok := strings.Cut(line, " ")
+		if !ok || folder == "" {
 			continue
 		}
-		count, _ := strconv.Atoi(fields[0])
-		folder := strings.TrimLeft(strings.TrimPrefix(line, fields[0]), " \t")
+		count, _ := strconv.Atoi(rawCount)
 		entries = append(entries, inodesEntry{Folder: folder, InodeCount: count})
 	}
 	if entries == nil {

@@ -59,3 +59,11 @@ func TestParseInodesOutputEscapesCurrentPath(t *testing.T) {
 		}
 	}
 }
+
+// a folder named " lead" used to link to /inodes-explorer/lead/
+func TestParseInodesOutputKeepsLeadingSpaces(t *testing.T) {
+	rows := parseInodesOutput("7  lead\n3 plain\n", "/inodes-explorer/")
+	if len(rows) != 2 || rows[0].Directory != " lead" || rows[0].Href != "/inodes-explorer/%20lead/" || rows[1].Directory != "plain" {
+		t.Fatalf("got %+v", rows)
+	}
+}
