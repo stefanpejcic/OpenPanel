@@ -79,6 +79,7 @@
             {{if eq .Key "BACKUP_SOURCES"}}
             <div class="relative w-full mt-2">
                 <select class="relative block w-full appearance-none truncate rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-indigo-200 focus:dark:ring-indigo-700/30 focus:border-indigo-500 focus:dark:border-indigo-700" name="values[{{.Key}}]" id="{{.Key}}">
+                    {{if not (eq .Value "/backup" "/backup/html" "/backup/01-mail" "/backup/01-vhosts" "/backup/01-mysql" "/backup/01-postgres" "/backup/crons.ini")}}<option value="{{.Value}}" selected>{{if .Value}}{{.Value}}{{else}}{{$.T.Get "(not set)"}}{{end}}</option>{{end}}
                     <option value="/backup" {{if eq .Value "/backup"}}selected{{end}}>{{$.T.Get "Everything"}}</option>
                     <option value="/backup/html" {{if eq .Value "/backup/html"}}selected{{end}}>{{$.T.Get "Website Files"}} (/var/www/html/)</option>
                     <option value="/backup/01-mail" {{if eq .Value "/backup/01-mail"}}selected{{end}}>{{$.T.Get "Emails"}}</option>
@@ -93,6 +94,7 @@
             {{else if eq .Key "NOTIFICATION_LEVEL"}}
             <div class="relative w-full mt-2">
                 <select class="relative block w-full appearance-none truncate rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-indigo-200 focus:dark:ring-indigo-700/30 focus:border-indigo-500 focus:dark:border-indigo-700" name="values[{{.Key}}]" id="{{.Key}}">
+                    {{if not (eq .Value "info" "error")}}<option value="{{.Value}}" selected>{{if .Value}}{{.Value}}{{else}}{{$.T.Get "(not set)"}}{{end}}</option>{{end}}
                     <option value="info" {{if eq .Value "info"}}selected{{end}}>{{$.T.Get "INFO"}}</option>
                     <option value="error" {{if eq .Value "error"}}selected{{end}}>{{$.T.Get "ERROR"}}</option>
                 </select>
