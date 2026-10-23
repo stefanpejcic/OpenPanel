@@ -47,7 +47,7 @@ func apiSaveFileContent(a *appctx.App, w http.ResponseWriter, r *http.Request, f
 	}
 	defer root.Close()
 
-	if !containsString(dottedExts, fileExt) && !containsAny(strings.ToLower(filename), bareNames) {
+	if !containsString(dottedExts, fileExt) && !hasBareName(strings.ToLower(filename), bareNames) {
 		if !isEditableFile(root, rel) {
 			web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "Editing this file type is not allowed."})
 			return
@@ -167,7 +167,7 @@ func apiViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filename
 	}
 	defer root.Close()
 
-	if !containsString(dottedExts, fileExt) && !containsAny(strings.ToLower(baseName), editBareNames) && !isEditableFile(root, rel) {
+	if !containsString(dottedExts, fileExt) && !hasBareName(strings.ToLower(baseName), editBareNames) && !isEditableFile(root, rel) {
 		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "Viewing this file type is not allowed."})
 		return
 	}

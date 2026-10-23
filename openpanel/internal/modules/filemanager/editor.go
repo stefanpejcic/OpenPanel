@@ -62,13 +62,29 @@ func splitExtNames(exts []string) (dotted, bare []string) {
 	return dotted, bare
 }
 
-func containsAny(haystack string, needles []string) bool {
-	for _, n := range needles {
-		if strings.Contains(haystack, n) {
-			return true
+// hasBareName reports whether one of the bare entries is a whole part of name, so "env" matches .env.local but not envelope.pdf
+func hasBareName(name string, bare []string) bool {
+	for _, b := range bare {
+		if b == "" {
+			continue
+		}
+		for from := 0; ; {
+			i := strings.Index(name[from:], b)
+			if i == -1 {
+				break
+			}
+			start, end := from+i, from+i+len(b)
+			if (start == 0 || isNameSep(name[start-1])) && (end == len(name) || isNameSep(name[end])) {
+				return true
+			}
+			from = start + 1
 		}
 	}
 	return false
+}
+
+func isNameSep(c byte) bool {
+	return c == '.' || c == '_' || c == '-'
 }
 
 func containsString(list []string, s string) bool {
@@ -111,7 +127,7 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 	}
 	defer root.Close()
 
-	if !containsString(dottedExts, fileExt) && !containsAny(strings.ToLower(filename), bareNames) {
+	if !containsString(dottedExts, fileExt) && !hasBareName(strings.ToLower(filename), bareNames) {
 		if !isEditableFile(root, rel) {
 			web.FlashRedirect(a, w, r, "error", "Editing this file type is not allowed.", "/files")
 			return
@@ -286,7 +302,7 @@ func handleViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filen
 	}
 	defer root.Close()
 
-	if !containsString(dottedExts, fileExt) && !containsAny(strings.ToLower(baseName), editBareNames) && !isEditableFile(root, rel) {
+	if !containsString(dottedExts, fileExt) && !hasBareName(strings.ToLower(baseName), editBareNames) && !isEditableFile(root, rel) {
 		web.FlashRedirect(a, w, r, "error", "Editing this file type is not allowed.", "/files")
 		return
 	}
