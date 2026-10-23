@@ -98,6 +98,7 @@ func handleExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // archiveKind maps a filename to the extractor that handles it, "" when it isn't supported
 func archiveKind(name string) string {
+	name = strings.ToLower(name)
 	switch {
 	case strings.HasSuffix(name, ".zip"):
 		return "zip"
@@ -109,6 +110,15 @@ func archiveKind(name string) string {
 		return "gz"
 	}
 	return ""
+}
+
+// gzOutputName is the file a .gz extracts to, its name without the .gz in any case
+func gzOutputName(selectedFile string) string {
+	name := path.Base(selectedFile)
+	if ext := path.Ext(name); strings.EqualFold(ext, ".gz") {
+		name = strings.TrimSuffix(name, ext)
+	}
+	return path.Base(name)
 }
 
 // memberRel maps an archive member name to a path under destRel, false if it would climb out of it
@@ -204,7 +214,7 @@ func validateArchiveMembers(root *paths.UserRoot, archiveRel, selectedFile, dest
 			}
 		}
 	case "gz":
-		outName := path.Base(strings.TrimSuffix(selectedFile, ".gz"))
+		outName := gzOutputName(selectedFile)
 		if !isSafeMember(root, destRel, outName) {
 			return fmt.Errorf("Unsafe file path in gzip: %s", outName)
 		}
@@ -285,7 +295,7 @@ func extractArchive(ctx context.Context, root *paths.UserRoot, archiveRel, selec
 			return err
 		}
 		defer gz.Close()
-		outName := path.Base(strings.TrimSuffix(selectedFile, ".gz"))
+		outName := gzOutputName(selectedFile)
 		return paths.WriteFileFrom(root.Root, path.Join(destRel, outName), paths.CtxReader(ctx, gz), 0o644)
 	}
 	return fmt.Errorf("unsupported archive %q", selectedFile)
