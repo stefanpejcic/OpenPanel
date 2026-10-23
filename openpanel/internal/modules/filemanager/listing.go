@@ -22,6 +22,26 @@ type FolderInfo struct {
 	HasSubfolders bool   `json:"has_subfolders"`
 }
 
+// hasSubfolder reads dir in batches and stops at the first folder, reading and sorting every entry was slow on big upload dirs
+func hasSubfolder(root *paths.UserRoot, dir string) bool {
+	f, err := root.Open(dir)
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+	for {
+		entries, err := f.ReadDir(256)
+		for _, e := range entries {
+			if e.IsDir() {
+				return true
+			}
+		}
+		if err != nil {
+			return false
+		}
+	}
+}
+
 // handleFolders serves the copy/move modal's folder picker.
 func handleFolders(a *appctx.App, w http.ResponseWriter, r *http.Request, pathParam string) {
 	ctx := r.Context()
@@ -55,17 +75,8 @@ func handleFolders(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPa
 		if !e.IsDir() {
 			continue
 		}
-		hasSubfolders := false
-		if subEntries, subErr := fs.ReadDir(root.FS(), path.Join(safeDir, e.Name())); subErr == nil {
-			for _, sub := range subEntries {
-				if sub.IsDir() {
-					hasSubfolders = true
-					break
-				}
-			}
-		}
 		folderInfo = append(folderInfo, FolderInfo{
-			Name: e.Name(), Path: filepath.Join(pathParam, e.Name()), HasSubfolders: hasSubfolders,
+			Name: e.Name(), Path: filepath.Join(pathParam, e.Name()), HasSubfolders: hasSubfolder(root, path.Join(safeDir, e.Name())),
 		})
 	}
 
