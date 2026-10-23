@@ -1,10 +1,10 @@
 package filemanager
 
 import (
-	"encoding/json"
 	"io"
 	"mime"
 	"net/http"
+	"net/url"
 	"path"
 	"path/filepath"
 	"strconv"
@@ -57,10 +57,9 @@ func apiSaveFileContent(a *appctx.App, w http.ResponseWriter, r *http.Request, f
 	var body struct {
 		Content string `json:"content"`
 	}
-	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
-		_ = r.ParseForm()
-		body.Content = r.Form.Get("editor_content")
-	}
+	decodeAPIBody(r, &body, func(form url.Values) {
+		body.Content = form.Get("editor_content")
+	})
 
 	contentToWrite := body.Content
 	if containsString(unixLineEndingExts, fileExt) || containsString(unixLineEndingExts, strings.ToLower(filename)) {
