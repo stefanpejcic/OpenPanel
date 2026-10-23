@@ -1,6 +1,7 @@
 package fixpermissions
 
 import (
+	"context"
 	"encoding/json"
 	"mime"
 	"net/http"
@@ -54,7 +55,8 @@ func apiFixPermissionsRun(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	if runErr := exec.CommandContext(ctx, "opencli", args...).Run(); runErr != nil {
+	// a client that times out mustn't kill the fix halfway
+	if runErr := exec.CommandContext(context.WithoutCancel(ctx), "opencli", args...).Run(); runErr != nil {
 		writeAPIFixPermsJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to fix permissions."})
 		return
 	}

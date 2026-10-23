@@ -2,6 +2,7 @@
 package fixpermissions
 
 import (
+	"context"
 	"net/http"
 	"os/exec"
 	"path/filepath"
@@ -53,8 +54,8 @@ func handleFixPermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 			}
 		}
 
-		// the page used to say "Permissions are fixed!" whatever opencli returned
-		if runErr := exec.CommandContext(ctx, "opencli", args...).Run(); runErr != nil {
+		// leaving the page used to kill the fix halfway, and a failed one used to show as "Permissions are fixed!"
+		if runErr := exec.CommandContext(context.WithoutCancel(ctx), "opencli", args...).Run(); runErr != nil {
 			http.Error(w, "Fixing permissions failed.", http.StatusInternalServerError)
 			return
 		}
