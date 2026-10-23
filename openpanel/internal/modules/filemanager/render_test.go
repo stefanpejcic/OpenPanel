@@ -2,6 +2,7 @@ package filemanager
 
 import (
 	"net/http/httptest"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -35,7 +36,7 @@ func TestRenderFilesPage(t *testing.T) {
 			Directories: rows[:1], Files: rows[1:], Rows: rows,
 			ShowUpLink: true, UpLink: "/files?view=classic",
 			HasReadme: true, ReadmeContent: "# hello",
-			FilemanagerUploadSize: 500, FilemanagerEditSize: 5, FilemanagerViewSize: 5, FilemanagerDownloadSize: 500,
+			FilemanagerUploadSize: 500, FilemanagerEditSize: 5, FilemanagerViewSize: 5, FilemanagerDownloadSize: 500, FilemanagerUploadBatchSize: 1000,
 			Extensions: ".txt .php", Images: ".jpg .png", Archives: ".zip .tar",
 			CurrentPage: 1, TotalPages: 1, TotalFiles: 3, StartLineNumber: 1, EndLineNumber: 3,
 			PageEntries: buildPageEntries(1, 1),
@@ -49,6 +50,10 @@ func TestRenderFilesPage(t *testing.T) {
 			if !strings.Contains(body, want) {
 				t.Errorf("rendered files page missing %q", want)
 			}
+		}
+		// the drop zone splits a selection into requests of this size
+		if !regexp.MustCompile(`MAX_BATCH_BYTES = \(\s*1000\s*\|\|`).MatchString(body) {
+			t.Error("drop zone doesn't get the upload batch size")
 		}
 	})
 
@@ -128,7 +133,7 @@ func TestBuildBreadcrumbs(t *testing.T) {
 func TestRenderUploadPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := UploadPageData{
-		LayoutData: baseLayout(mgr, "/file-manager/upload"), PathParam: "documents", FilemanagerUploadSize: 500,
+		LayoutData: baseLayout(mgr, "/file-manager/upload"), PathParam: "documents", FilemanagerUploadSize: 500, FilemanagerUploadBatchSize: 1000,
 	}
 	w := httptest.NewRecorder()
 	if err := uploadPage.Render(w, 200, data); err != nil {
@@ -139,6 +144,9 @@ func TestRenderUploadPage(t *testing.T) {
 		if !strings.Contains(body, want) {
 			t.Errorf("rendered upload page missing %q", want)
 		}
+	}
+	if !regexp.MustCompile(`MAX_BATCH_BYTES = \(\s*1000\s*\|\|`).MatchString(body) {
+		t.Error("upload page doesn't get the upload batch size")
 	}
 }
 
