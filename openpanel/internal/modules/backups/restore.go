@@ -469,5 +469,8 @@ func handleDownloadBackup(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	w.Header().Set("Content-Type", "application/gzip")
 	w.Header().Set("Content-Disposition", "attachment; filename=\""+safeName+"\"")
-	_, _ = io.Copy(w, rc)
+	if _, copyErr := io.Copy(w, rc); copyErr != nil {
+		// no Content-Length here, so drop the connection or the browser saves the cut off archive as complete
+		panic(http.ErrAbortHandler)
+	}
 }

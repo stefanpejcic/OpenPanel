@@ -132,3 +132,28 @@ func TestStreamItemsDomainEarlyLayoutStopsBeforeHTML(t *testing.T) {
 		t.Errorf("read %d of %d bytes, should stop before html/", cr.n, len(archive))
 	}
 }
+
+// a destination that drops mid-download used to end as a clean, complete looking archive
+func TestStreamItemsReportsCutOffArchive(t *testing.T) {
+	archive := makeArchive(t, []tarEntry{
+		{name: "/backup", body: nil},
+		{name: "/backup/html/a.bin", body: randomBytes(t, 1<<20)},
+		{name: "/backup/html/b.bin", body: randomBytes(t, 1<<20)},
+	})
+	targets, err := downloadTargets("paths", []string{"a.bin", "b.bin"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, cut := range []int{len(archive) / 4, len(archive) * 3 / 4} {
+		w := httptest.NewRecorder()
+		sent, err := streamItems(w, bytes.NewReader(archive[:cut]), "paths", "u-2026.tar.gz", targets)
+		if err == nil || sent == 0 {
+			t.Errorf("cut at %d of %d: sent=%d err=%v, want an error after output started", cut, len(archive), sent, err)
+		}
+	}
+
+	w := httptest.NewRecorder()
+	if sent, err := streamItems(w, bytes.NewReader(archive), "paths", "u-2026.tar.gz", targets); err != nil || sent != 2 {
+		t.Fatalf("whole archive: sent=%d err=%v", sent, err)
+	}
+}

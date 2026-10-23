@@ -99,6 +99,10 @@ func handleDownloadItems(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 		return
 	}
+	if err != nil {
+		// headers are already out, so drop the connection to make the browser mark the download as failed instead of saving a truncated file
+		panic(http.ErrAbortHandler)
+	}
 	if sent == 0 {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "The selected items were not found in this backup."})
 		return
@@ -106,7 +110,7 @@ func handleDownloadItems(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	_ = logger.RecordUserAction(a.Config, username, "downloaded "+strings.Join(r.Form["items"], ", ")+" from backup "+backup, reqip.ClientIP(r))
 }
 
-// streamItems copies the entries under targets out of the archive to w, returns how many it sent
+// streamItems copies the entries under targets out of the archive to w, returns how many it sent, an item cut off by an error counts so the caller knows output started
 func streamItems(w http.ResponseWriter, archive io.Reader, kind, backup string, targets []string) (int, error) {
 	gz, err := gzip.NewReader(archive)
 	if err != nil {
@@ -127,10 +131,7 @@ func streamItems(w http.ResponseWriter, archive io.Reader, kind, backup string, 
 			break
 		}
 		if err != nil {
-			if sent == 0 {
-				return 0, err
-			}
-			break
+			return sent, err
 		}
 		raw := strings.Trim(header.Name, "/")
 		name := layout.observe(raw)
@@ -158,7 +159,9 @@ func streamItems(w http.ResponseWriter, archive io.Reader, kind, backup string, 
 			w.Header().Set("Content-Type", "application/sql")
 			w.Header().Set("Content-Disposition", "attachment; filename=\""+path.Base(name)+"\"")
 			w.Header().Set("Content-Length", strconv.FormatInt(header.Size, 10))
-			_, _ = io.Copy(w, tr)
+			if _, err := io.Copy(w, tr); err != nil {
+				return 1, err
+			}
 			sent++
 			break
 		}
@@ -175,11 +178,11 @@ func streamItems(w http.ResponseWriter, archive io.Reader, kind, backup string, 
 			out.Name += "/"
 		}
 		if err := tw.WriteHeader(&out); err != nil {
-			break
+			return sent + 1, err
 		}
 		if header.Typeflag == tar.TypeReg {
 			if _, err := io.Copy(tw, tr); err != nil {
-				break
+				return sent + 1, err
 			}
 		}
 		sent++
