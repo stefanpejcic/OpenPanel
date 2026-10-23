@@ -198,6 +198,9 @@ func vhostDocroot(content []byte, domain string) string {
 	return "/var/www/html/" + domain
 }
 
+// swapped in tests
+var addMissingDomain = ensureDomain
+
 // ensureDomain adds a domain from the backup back to the account when it's gone, the plan's domain limit still applies
 func ensureDomain(ctx context.Context, a *appctx.App, userID int, username, domain, docroot, phpVersion string, plan *restorePlan) error {
 	if plan.domains[domain] {
@@ -249,21 +252,21 @@ func restoreSelectedItems(ctx context.Context, a *appctx.App, req restoreRequest
 	}
 	uid, _ := a.GetUID(ctx, userContext)
 
-	var extracted []string
+	// failed is what couldn't be restored, reported even when other items were
+	var extracted, failed []string
 	if restoreTarget == "domains" {
 		// read the vhosts first so a missing domain can be added with its own docroot
 		contents, err := collectEntries(ctx, store, backup, targets)
 		if err != nil {
 			return http.StatusInternalServerError, map[string]any{"error": err.Error()}
 		}
-		var failed []string
 		for _, t := range targets {
 			domain, isVhost := strings.CutSuffix(strings.TrimPrefix(t, "backup/vhosts/"), ".conf")
 			content, ok := contents[t]
 			if !isVhost || !ok {
 				continue
 			}
-			if err := ensureDomain(ctx, a, userID, username, domain, vhostDocroot(content, domain), vhostPHPVersion(content), plan); err != nil {
+			if err := addMissingDomain(ctx, a, userID, username, domain, vhostDocroot(content, domain), vhostPHPVersion(content), plan); err != nil {
 				failed = append(failed, err.Error())
 				continue
 			}
@@ -293,7 +296,11 @@ func restoreSelectedItems(ctx context.Context, a *appctx.App, req restoreRequest
 
 	applyRestored(ctx, userContext, extracted, plan)
 	_ = logger.RecordUserAction(a.Config, username, "restored "+strings.Join(req.Form["items"], ", ")+" from backup "+backup, req.IP)
-	return http.StatusOK, map[string]any{"success": true, "message": "Restored (" + strconv.Itoa(len(extracted)) + " items)."}
+	message := "Restored (" + strconv.Itoa(len(extracted)) + " items)."
+	if len(failed) > 0 {
+		return http.StatusOK, map[string]any{"success": true, "message": message + " Not restored: " + strings.Join(failed, "; "), "failed": failed}
+	}
+	return http.StatusOK, map[string]any{"success": true, "message": message}
 }
 
 // applyRestored makes restored config take effect: cron jobs, dns zones and vhosts
