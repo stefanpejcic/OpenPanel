@@ -67,3 +67,19 @@ func TestParseInodesOutputKeepsLeadingSpaces(t *testing.T) {
 		t.Fatalf("got %+v", rows)
 	}
 }
+
+// the File Manager link only showed under /inodes-explorer/files/, which isn't the File Manager's root
+func TestFileManagerLinkForDocroot(t *testing.T) {
+	cases := map[string]string{
+		"/inodes-explorer/docker-data/volumes/u_html_data/_data/":     "/files/site",
+		"/inodes-explorer/docker-data/volumes/u_html_data/_data/a b/": "/files/a%20b/site",
+		"/inodes-explorer/files/":                                     "",
+		"/inodes-explorer/":                                           "",
+		"/inodes-explorer/docker-data/volumes/u_mysql_data/_data/":    "",
+	}
+	for urlPath, want := range cases {
+		if rows := parseInodesOutput("3 site", urlPath); len(rows) != 1 || rows[0].FileManagerHref != want {
+			t.Errorf("under %q: %+v, want FileManagerHref %q", urlPath, rows, want)
+		}
+	}
+}

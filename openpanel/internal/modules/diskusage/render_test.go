@@ -81,3 +81,19 @@ func TestParseDuOutputKeepsLeadingSpaces(t *testing.T) {
 		t.Fatalf("got %+v", rows)
 	}
 }
+
+// the File Manager link only showed under /disk-usage/files/, which isn't the File Manager's root
+func TestFileManagerLinkForDocroot(t *testing.T) {
+	cases := map[string]string{
+		"/disk-usage/docker-data/volumes/u_html_data/_data/":     "/files/site",
+		"/disk-usage/docker-data/volumes/u_html_data/_data/a b/": "/files/a%20b/site",
+		"/disk-usage/files/": "",
+		"/disk-usage/":       "",
+		"/disk-usage/docker-data/volumes/u_mysql_data/_data/": "",
+	}
+	for urlPath, want := range cases {
+		if rows := parseDuOutput("4.0K\tsite", urlPath); len(rows) != 1 || rows[0].FileManagerHref != want {
+			t.Errorf("under %q: %+v, want FileManagerHref %q", urlPath, rows, want)
+		}
+	}
+}

@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -53,6 +54,18 @@ func buildBreadcrumbs(root, urlPath string) []Breadcrumb {
 	return crumbs
 }
 
+// docrootVolume is the account's html_data volume under the home dir, the only folder the File Manager shows
+var docrootVolume = regexp.MustCompile(`^/disk-usage/docker-data/volumes/[^/]+_html_data/_data/`)
+
+// fileManagerBase is the /files/ link for the folder at base, the old /disk-usage/files/ check pointed at /home/<ctx>/files which the File Manager never shows
+func fileManagerBase(base string) (string, bool) {
+	prefix := docrootVolume.FindString(base)
+	if prefix == "" {
+		return "", false
+	}
+	return "/files/" + strings.TrimPrefix(base, prefix), true
+}
+
 // escapePath escapes each segment of the decoded URL path, html/template leaves # ? and %XX in hrefs as they are
 func escapePath(p string) string {
 	parts := strings.Split(p, "/")
@@ -81,8 +94,8 @@ func parseDuOutput(output, urlPath string) []Row {
 		}
 
 		row := Row{Directory: directory, Count: count, Href: base + url.PathEscape(directory) + "/"}
-		if strings.HasPrefix(base, "/disk-usage/files/") {
-			row.FileManagerHref = strings.Replace(base, "disk-usage/files", "files", 1) + url.PathEscape(directory)
+		if fmBase, ok := fileManagerBase(base); ok {
+			row.FileManagerHref = fmBase + url.PathEscape(directory)
 		}
 		rows = append(rows, row)
 	}
