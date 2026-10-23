@@ -102,19 +102,12 @@ func apiRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	for _, line := range strings.Split(string(content), "\n") {
 		trimmed := strings.TrimSpace(line)
-		if trimmed == "" || !strings.Contains(trimmed, "=") {
+		key, meta, ok := splitRestoreLine(trimmed)
+		if !ok {
 			continue
 		}
-		key, value, _ := strings.Cut(trimmed, "=")
 
-		var originalPath string
-		if idx := strings.Index(value, "|deletion_date="); idx != -1 {
-			originalPath = strings.TrimSpace(value[:idx])
-		} else {
-			originalPath = strings.TrimSpace(value)
-		}
-
-		restorePath := absPath(originalPath)
+		restorePath := absPath(meta.originalPath)
 
 		if !isWithin(restorePath, allowedBase) {
 			restoreErrors = append(restoreErrors, key+": invalid restore path")
@@ -129,7 +122,7 @@ func apiRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		if err := tenantfs.Rename(trashedItemPath, restorePath); err != nil {
+		if err := restoreItem(trashedItemPath, restorePath); err != nil {
 			restoreErrors = append(restoreErrors, key+": "+err.Error())
 			linesToKeep = append(linesToKeep, trimmed)
 			continue

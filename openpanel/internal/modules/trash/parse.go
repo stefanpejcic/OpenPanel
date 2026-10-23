@@ -27,21 +27,41 @@ type trashMeta struct {
 func parseTrashRestoreFile(content string) map[string]trashMeta {
 	metadata := make(map[string]trashMeta)
 	for _, line := range strings.Split(content, "\n") {
-		line = strings.TrimSpace(line)
-		if line == "" || !strings.Contains(line, "=") {
-			continue
-		}
-		left, right, ok := strings.Cut(line, "=")
-		if !ok {
-			continue
-		}
-		if idx := strings.Index(right, "|deletion_date="); idx != -1 {
-			metadata[left] = trashMeta{originalPath: right[:idx], deletionDate: right[idx+len("|deletion_date="):]}
-		} else {
-			metadata[left] = trashMeta{originalPath: right}
+		if name, meta, ok := splitRestoreLine(strings.TrimSpace(line)); ok {
+			metadata[name] = meta
 		}
 	}
 	return metadata
+}
+
+// splitRestoreLine splits one .trash_restore line, names can't hold "/" so the first "=/" is where the name ends even if it has "=" in it
+func splitRestoreLine(line string) (string, trashMeta, bool) {
+	name, value, ok := strings.Cut(line, "=")
+	if i := strings.Index(line, "=/"); i > 0 {
+		name, value, ok = line[:i], line[i+1:], true
+	}
+	if !ok || name == "" {
+		return "", trashMeta{}, false
+	}
+	if i := strings.LastIndex(value, "|deletion_date="); i != -1 {
+		return name, trashMeta{originalPath: value[:i], deletionDate: value[i+len("|deletion_date="):]}, true
+	}
+	return name, trashMeta{originalPath: value}, true
+}
+
+// dropRestoreLine returns content's lines without name's entry, matching the whole name so "a" doesn't also drop "a=b.txt"
+func dropRestoreLine(content, name string) []string {
+	var keep []string
+	for _, line := range strings.Split(content, "\n") {
+		if line == "" {
+			continue
+		}
+		if n, _, ok := splitRestoreLine(strings.TrimSpace(line)); ok && n == name {
+			continue
+		}
+		keep = append(keep, line)
+	}
+	return keep
 }
 
 // parseLsOutputTrash parses `ls -l`/`ls -la` output into structured entries, enriched with deletion date/original path looked up from .trash_restore's content
