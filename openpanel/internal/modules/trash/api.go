@@ -47,28 +47,13 @@ func apiDeleteAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	trashDir := "/home/" + userContext + "/.local/share/Trash"
 
-	entries, err := tenantfs.ReadDir(trashDir)
-	if err != nil {
+	failed, emptyErr := emptyTrash(trashDir)
+	if emptyErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, jsonResult{Success: false, Error: "Unexpected error"})
 		return
 	}
-
-	var clearErr error
-	for _, entry := range entries {
-		if entry.Name() == ".trash_restore" {
-			continue
-		}
-		if clearErr = tenantfs.RemoveAll(filepath.Join(trashDir, entry.Name())); clearErr != nil {
-			break
-		}
-	}
-	if clearErr != nil {
-		web.WriteJSON(w, http.StatusInternalServerError, jsonResult{Success: false, Error: "Unexpected error"})
-		return
-	}
-
-	if err := tenantfs.WriteFile(filepath.Join(trashDir, ".trash_restore"), nil, 0o644); err != nil {
-		web.WriteJSON(w, http.StatusInternalServerError, jsonResult{Success: false, Error: "Unexpected error"})
+	if len(failed) > 0 {
+		web.WriteJSON(w, http.StatusInternalServerError, jsonResult{Success: false, Error: "Could not delete " + strings.Join(failed, ", ") + " from the trash."})
 		return
 	}
 
