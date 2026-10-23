@@ -1,6 +1,44 @@
 package filemanager
 
-import "testing"
+import (
+	"bytes"
+	"mime/multipart"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"testing"
+)
+
+func TestParseUploadFormSpillsBigFilesToDisk(t *testing.T) {
+	var body bytes.Buffer
+	mw := multipart.NewWriter(&body)
+	part, err := mw.CreateFormFile("files", "big.bin")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := part.Write(make([]byte, uploadMemory+1<<20)); err != nil {
+		t.Fatal(err)
+	}
+	if err := mw.Close(); err != nil {
+		t.Fatal(err)
+	}
+	r := httptest.NewRequest(http.MethodPost, "/x", &body)
+	r.Header.Set("Content-Type", mw.FormDataContentType())
+
+	if err := parseUploadForm(r); err != nil {
+		t.Fatal(err)
+	}
+	defer r.MultipartForm.RemoveAll()
+	f, err := r.MultipartForm.File["files"][0].Open()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	// with the upload size limit as the budget a whole 2000 MB upload could sit in RAM
+	if _, onDisk := f.(*os.File); !onDisk {
+		t.Fatalf("a %d MB file part was kept in memory, want it in a temp file", (uploadMemory+1<<20)>>20)
+	}
+}
 
 func TestUploadSucceeded(t *testing.T) {
 	cases := []struct {

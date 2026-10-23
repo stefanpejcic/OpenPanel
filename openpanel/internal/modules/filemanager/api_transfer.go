@@ -31,7 +31,7 @@ func apiUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	fileLimitMB := atoiDefault(a.Config.Get("filemanager_upload_size", "5"), 1000)
 	fileLimitBytes := int64(fileLimitMB) * 1024 * 1024
 
-	if parseErr := r.ParseMultipartForm(fileLimitBytes + 1<<20); parseErr != nil {
+	if parseErr := parseUploadForm(r); parseErr != nil {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Error uploading files: " + parseErr.Error()})
 		return
 	}

@@ -28,6 +28,14 @@ func secureFilename(name string) string {
 	return name
 }
 
+// uploadMemory is how much of an upload stays in RAM, the rest of a bigger file goes to a temp file
+const uploadMemory = 32 << 20
+
+// parseUploadForm parses an upload with a fixed memory budget, passing the upload size limit kept whole files in RAM
+func parseUploadForm(r *http.Request) error {
+	return r.ParseMultipartForm(uploadMemory)
+}
+
 // uploadSucceeded is true only when files were sent and none of them failed, rejected names count as failures too
 func uploadSucceeded(files int, allSuccess bool, errs []string) bool {
 	return files > 0 && allSuccess && len(errs) == 0
@@ -58,7 +66,7 @@ func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			pathParam = pp
 		}
 
-		if parseErr := r.ParseMultipartForm(fileLimitBytes + 1<<20); parseErr != nil {
+		if parseErr := parseUploadForm(r); parseErr != nil {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"error": "Error uploading files: " + parseErr.Error()})
 			return
 		}
