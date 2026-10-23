@@ -124,17 +124,31 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 	fileExt := strings.ToLower(filepath.Ext(filePath))
 	filename := filepath.Base(filePath)
 
+	// output=json callers (the API) get a JSON error instead of a redirect to /files
+	wantsJSON := r.URL.Query().Get("output") == "json"
+	fail := func(status int, msg string) {
+		if wantsJSON {
+			web.WriteJSON(w, status, map[string]string{"error": msg})
+			return
+		}
+		web.FlashRedirect(a, w, r, "error", msg, "/files")
+	}
+
 	root, rel, perr := openUserPath(user, filePath, false)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
-		http.Error(w, msg, status)
+		if wantsJSON {
+			web.WriteJSON(w, status, map[string]string{"error": msg})
+		} else {
+			http.Error(w, msg, status)
+		}
 		return
 	}
 	defer root.Close()
 
 	if !containsString(dottedExts, fileExt) && !hasBareName(strings.ToLower(filename), bareNames) {
 		if !isEditableFile(root, rel) {
-			web.FlashRedirect(a, w, r, "error", "Editing this file type is not allowed.", "/files")
+			fail(http.StatusForbidden, "Editing this file type is not allowed.")
 			return
 		}
 	}
@@ -176,25 +190,25 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 	f, openErr := root.Open(rel)
 	if openErr != nil {
 		if !isNew {
-			web.FlashRedirect(a, w, r, "error", "Error accessing file size.", "/files")
+			fail(http.StatusNotFound, "Error accessing file size.")
 			return
 		}
 	} else {
 		defer f.Close()
 		info, statErr := f.Stat()
 		if statErr != nil {
-			web.FlashRedirect(a, w, r, "error", "Error accessing file size.", "/files")
+			fail(http.StatusNotFound, "Error accessing file size.")
 			return
 		}
 		if !isNew && info.Size() > fileLimitBytes {
-			web.FlashRedirect(a, w, r, "error",
-				web.Tr(a, r, "File is too large to open in the editor (limit is %(file_limit_mb)s MB)", "file_limit_mb", strconv.Itoa(fileLimitMB)), "/files")
+			fail(http.StatusRequestEntityTooLarge,
+				web.Tr(a, r, "File is too large to open in the editor (limit is %(file_limit_mb)s MB)", "file_limit_mb", strconv.Itoa(fileLimitMB)))
 			return
 		}
 		data, readErr := io.ReadAll(io.LimitReader(f, fileLimitBytes+1))
 		if readErr != nil {
 			if !isNew {
-				web.FlashRedirect(a, w, r, "error", "Error reading file", "/files")
+				fail(http.StatusInternalServerError, "Error reading file")
 				return
 			}
 		} else {
@@ -202,7 +216,7 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 		}
 	}
 
-	if r.URL.Query().Get("output") == "json" {
+	if wantsJSON {
 		web.WriteJSON(w, http.StatusOK, fileContent)
 		return
 	}
