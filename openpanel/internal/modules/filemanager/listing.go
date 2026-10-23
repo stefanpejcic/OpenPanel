@@ -72,6 +72,14 @@ func handleFolders(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPa
 	web.WriteJSON(w, http.StatusOK, map[string]any{"folders": folderInfo})
 }
 
+// filesPerPage is the listing page size, falling back to 500 since OpenAdmin accepts 0 and the paging divides by it
+func filesPerPage(a *appctx.App) int {
+	if n := atoiDefault(a.Config.Get("filemanager_files_per_page", "500"), 500); n > 0 {
+		return n
+	}
+	return 500
+}
+
 // handleFiles serves the main file-manager listing page.
 func handleFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, pathParam string) {
 	// the malware scanner has its own page for quarantined files
@@ -113,7 +121,7 @@ func handleFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPara
 	filemanagerViewSize := atoiDefault(a.Config.Get("filemanager_view_size", "5"), 5)
 	filemanagerDownloadSize := atoiDefault(a.Config.Get("filemanager_download_size", "2000"), 2000)
 	filemanagerUploadSize := atoiDefault(a.Config.Get("filemanager_upload_size", "2000"), 2000)
-	filemanagerFilesPerPage := atoiDefault(a.Config.Get("filemanager_files_per_page", "500"), 500)
+	filemanagerFilesPerPage := filesPerPage(a)
 
 	var filesInfo []FileEntry
 	var readmeContent string
