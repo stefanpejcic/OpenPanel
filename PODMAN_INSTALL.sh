@@ -553,8 +553,7 @@ podman_setup() {
     fi
 
     mkdir -p /var/lib/containers/storage /run/containers/storage "$SHARED_STORE"
-    chmod -R o+rX "$SHARED_STORE"
-    find "$SHARED_STORE" -name '*.lock' -exec chmod o+rw {} \;
+    open_shared_store
 
     find /var/lib/containers/storage /run/containers/storage -mindepth 1 -delete 2>/dev/null || true
     cat > /etc/containers/storage.conf <<EOF
@@ -596,13 +595,19 @@ EOF
 }
 
 
+# every root pull into the shared store rewrites its images.json/layers.json as 0600 and adds root-only 0700 layers -- rootless user podmans then
+# exit 125 on start (opencli user-add fails), so this has to run right after each pull, not once after a batch
+open_shared_store() {
+    chmod -R o+rX "$SHARED_STORE"
+    find "$SHARED_STORE" -name '*.lock' -exec chmod o+rw {} + 2>/dev/null || true
+    command -v restorecon &>/dev/null && restorecon -R "$SHARED_STORE" >/dev/null 2>&1 || true
+}
+
 pull_sytem_images() {
     echo "Pulling shared images..."
     run podman --root "$SHARED_STORE" pull docker.io/library/alpine:latest || die 1 "Failed to pull alpine"
     [[ "$SKIP_DNS_SERVER" == true ]] || { run podman --root "$SHARED_STORE" pull docker.io/ubuntu/bind9:latest; }
-    chmod -R o+rX "$SHARED_STORE"
-    find "$SHARED_STORE" -name '*.lock' -exec chmod o+rw {} \; 2>/dev/null || true
-    command -v restorecon &>/dev/null && restorecon -R "$SHARED_STORE" >/dev/null 2>&1 || true
+    open_shared_store
 }
 
 prefetch_shared_images() {
@@ -630,13 +635,9 @@ prefetch_shared_images() {
             else
                 echo "[$(date +%T)] prefetch FAIL: $img" >> "$LOG_FILE"
             fi
+            # after every image, not once at the end: users can be created while this is still running
+            open_shared_store
         done
-
-        # newly pulled layers are root-owned 0600/0700 — rootless user podmans
-        chmod -R o+rX "$SHARED_STORE"
-        find "$SHARED_STORE" -name '*.lock' -exec chmod o+rw {} \; 2>/dev/null || true
-        command -v restorecon &>/dev/null && restorecon -R "$SHARED_STORE" >/dev/null 2>&1 || true
-
     ) >/dev/null 2>&1 &
     disown
 }
