@@ -493,11 +493,8 @@ function initDirectorySizeCalculate() {
             this.textContent = FM.i18n.calculating;
 
             const folderName = this.getAttribute('data-folder');
-            const currentUrl = window.location.href.split(/[?#]/)[0];
-            const pathParam  = currentUrl.split('/files/')[1];
-            const url = pathParam
-                ? `/json/directory-size?folder=${pathParam}/${encodeURIComponent(folderName)}`
-                : `/json/directory-size?folder=${encodeURIComponent(folderName)}`;
+            const folder = FM.pathParam ? FM.pathParam + '/' + folderName : folderName;
+            const url = `/json/directory-size?folder=${encodeURIComponent(folder)}`;
 
             fetch(url, { headers: { 'X-CSRF-Token': csrf_token } })
                 .then(r => r.json())
