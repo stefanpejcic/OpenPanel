@@ -711,7 +711,7 @@ function openPicker(action, items) {
     let cur = FM.pathParam.replace(/^\/|\/$/g, '');
     let busy = false;
 
-    const archiveBase = items[0].fileName.replace(/\.(tar\.gz|tgz|tar|zip)$/i, '');
+    const archiveBase = items[0].fileName.replace(/\.(tar\.gz|tgz|tar|zip|gz)$/i, '');
     $('fmPickerTitle').textContent = items.length > 1
         ? `${FM.i18n[action]} ${items.length} ${FM.i18n.items}`
         : `${FM.i18n[action]} ${items[0].fileName}`;
