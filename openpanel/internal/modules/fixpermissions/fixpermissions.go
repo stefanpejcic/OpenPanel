@@ -74,5 +74,6 @@ func isRelativeTo(path, base string) bool {
 	if err != nil {
 		return false
 	}
-	return rel == "." || !strings.HasPrefix(rel, "..")
+	// only a real step up counts, a folder named ..old is inside base
+	return rel == "." || (rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)))
 }
