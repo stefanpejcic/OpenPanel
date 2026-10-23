@@ -30,3 +30,25 @@ func TestCleanFTPPath(t *testing.T) {
 		}
 	}
 }
+
+func TestFTPPathInput(t *testing.T) {
+	cases := map[string]string{
+		// no trailing slash used to become /var/www/html/var/www/html
+		"/var/www/html":        "/var/www/html/",
+		"/var/www/html/":       "/var/www/html/",
+		"/var/www/html/site":   "/var/www/html/site",
+		" /var/www/html/site ": "/var/www/html/site",
+		"site":                 "/var/www/html/site",
+		"/site":                "/var/www/html/site",
+		"/var/www/html/site/":  "/var/www/html/site",
+		"\t/var/www/html\n":    "/var/www/html/",
+	}
+	for in, want := range cases {
+		if got, ok := cleanFTPPath(ftpPathInput(in)); !ok || got != want {
+			t.Errorf("cleanFTPPath(ftpPathInput(%q)) = %q, %v; want %q", in, got, ok, want)
+		}
+	}
+	if got, ok := cleanFTPPath(ftpPathInput("/var/www/html/../etc")); ok {
+		t.Errorf("traversal accepted as %q", got)
+	}
+}

@@ -105,6 +105,18 @@ func cleanFTPPath(p string) (string, bool) {
 	return clean, true
 }
 
+// ftpPathInput turns a typed path into a full one, anything not already under the web root is taken as relative to it
+func ftpPathInput(p string) string {
+	p = strings.TrimSpace(p)
+	if p == strings.TrimSuffix(ftpRoot, "/") {
+		return ftpRoot
+	}
+	if strings.HasPrefix(p, ftpRoot) {
+		return p
+	}
+	return ftpRoot + strings.TrimLeft(p, "/")
+}
+
 // isFTPContainerRunning reports whether the FTP container is currently running
 func isFTPContainerRunning(ctx context.Context, containerName string) bool {
 	out, err := exec.CommandContext(ctx, "podman", "ps", "--filter", "name="+containerName, "--format", "{{.Names}}").Output()
@@ -403,10 +415,7 @@ func handleChangeFTPPath(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 			flashAndRedirectToAccounts(a, w, r, "error", "Invalid FTP username.")
 			return
 		}
-		if !strings.HasPrefix(newPath, ftpRoot) {
-			newPath = ftpRoot + strings.TrimLeft(newPath, "/")
-		}
-		cleanPath, pathOK := cleanFTPPath(newPath)
+		cleanPath, pathOK := cleanFTPPath(ftpPathInput(newPath))
 		if !pathOK {
 			flashAndRedirectToAccounts(a, w, r, "error", web.Tr(a, r, "The FTP path must start with %(real_path)s", "real_path", ftpRoot))
 			return

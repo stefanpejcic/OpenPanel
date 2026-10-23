@@ -272,10 +272,7 @@ func apiFTPPath(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !strings.HasPrefix(newPath, ftpRoot) {
-		newPath = ftpRoot + strings.TrimLeft(newPath, "/")
-	}
-	cleanPath, pathOK := cleanFTPPath(newPath)
+	cleanPath, pathOK := cleanFTPPath(ftpPathInput(newPath))
 	if !pathOK {
 		writeAPIFTPJSON(w, http.StatusBadRequest, map[string]string{"error": "Path must be a folder inside " + ftpRoot})
 		return
