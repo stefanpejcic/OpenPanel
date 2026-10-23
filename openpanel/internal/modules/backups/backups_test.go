@@ -207,3 +207,23 @@ func TestUpdateBackupSettingsErrors(t *testing.T) {
 		t.Errorf("unreadable env file: status %d, want 500", status)
 	}
 }
+
+// Trim used to strip every quote at either end, so a password ending in " lost it
+func TestUnquoteEnv(t *testing.T) {
+	cases := map[string]string{
+		`"mybucket"`: "mybucket",
+		`'x y'`:      "x y",
+		`secret"`:    `secret"`,
+		`"secret`:    `"secret`,
+		`'"x"'`:      `"x"`,
+		`"a'`:        `"a'`,
+		`""`:         "",
+		`"`:          `"`,
+		`plain`:      "plain",
+	}
+	for in, want := range cases {
+		if got := unquoteEnv(in); got != want {
+			t.Errorf("unquoteEnv(%s) = %q, want %q", in, got, want)
+		}
+	}
+}

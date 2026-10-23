@@ -36,7 +36,7 @@ func readBackupEnv(username string) (map[string]string, string) {
 			if !ok {
 				continue
 			}
-			value = strings.Trim(strings.TrimSpace(value), `"'`)
+			value = unquoteEnv(strings.TrimSpace(value))
 			config[strings.TrimSpace(key)] = value
 		}
 	}
