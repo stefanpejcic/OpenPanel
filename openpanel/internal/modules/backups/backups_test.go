@@ -1,9 +1,15 @@
 package backups
 
 import (
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"testing"
+
+	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 func TestParseUncommentedEnv(t *testing.T) {
@@ -166,5 +172,38 @@ func TestFilterBackupNames(t *testing.T) {
 	}
 	if got := filterBackupNames(names, ""); len(got) != 3 {
 		t.Errorf("empty prefix should keep everything, kept %v", got)
+	}
+}
+
+// a refused or failed save has to come back as an error, the API used to report the unchanged settings as success
+func TestUpdateBackupSettingsErrors(t *testing.T) {
+	bin := t.TempDir()
+	podman := filepath.Join(bin, "podman")
+	t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
+
+	path := filepath.Join(t.TempDir(), "backup.env")
+	if err := os.WriteFile(path, []byte("BACKUP_RETENTION_DAYS=7\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	form := url.Values{"settings[BACKUP_RETENTION_DAYS]": {"30"}}
+	r := web.WithForm(httptest.NewRequest(http.MethodPut, "/api/backups/settings", nil), form)
+	a := &appctx.App{}
+
+	// podman exec ... test -f <lock> succeeding means a backup is running
+	if err := os.WriteFile(podman, []byte("#!/bin/sh\nexit 0\n"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if status, _ := updateBackupSettings(a, r, path, "u-test", "u"); status != http.StatusConflict {
+		t.Errorf("backup running: status %d, want 409", status)
+	}
+	if b, _ := os.ReadFile(path); string(b) != "BACKUP_RETENTION_DAYS=7\n" {
+		t.Errorf("settings changed while a backup was running: %q", b)
+	}
+
+	if err := os.WriteFile(podman, []byte("#!/bin/sh\nexit 1\n"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if status, _ := updateBackupSettings(a, r, t.TempDir(), "u-test", "u"); status != http.StatusInternalServerError {
+		t.Errorf("unreadable env file: status %d, want 500", status)
 	}
 }
