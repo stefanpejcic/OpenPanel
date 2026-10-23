@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync/atomic"
 
 	"github.com/go-webauthn/webauthn/webauthn"
 
@@ -24,12 +25,27 @@ CREATE TABLE IF NOT EXISTS user_passkeys (
 	name VARCHAR(100) NOT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	last_used_at TIMESTAMP NULL,
+	backup_eligible TINYINT(1) NULL,
 	INDEX idx_user_id (user_id)
 ) ENGINE=InnoDB`
 
+// tables created before backup_eligible existed need it added
+const addBackupEligibleSQL = `ALTER TABLE user_passkeys ADD COLUMN IF NOT EXISTS backup_eligible TINYINT(1) NULL`
+
+var passkeysTableReady atomic.Bool
+
 func ensurePasskeysTable(ctx context.Context, a *appctx.App) error {
-	_, err := a.DB.ExecContext(ctx, createPasskeysTableSQL)
-	return err
+	if passkeysTableReady.Load() {
+		return nil
+	}
+	if _, err := a.DB.ExecContext(ctx, createPasskeysTableSQL); err != nil {
+		return err
+	}
+	if _, err := a.DB.ExecContext(ctx, addBackupEligibleSQL); err != nil {
+		return err
+	}
+	passkeysTableReady.Store(true)
+	return nil
 }
 
 // rpIDAndOrigin computes the WebAuthn Relying Party ID (host without port) and origin (scheme+host), which must match the browser's clientDataJSON.origin byte-for-byte. Trusts X-Forwarded-Proto first since this backend usually sits behind a Caddy TLS-terminating proxy.

@@ -1,6 +1,7 @@
 package account
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -159,8 +160,8 @@ func handlePasskeysRegisterComplete(a *appctx.App, w http.ResponseWriter, r *htt
 		return
 	}
 	if _, execErr := a.DB.ExecContext(ctx,
-		"INSERT INTO user_passkeys (user_id, credential_id, public_key, sign_count, name) VALUES (?, ?, ?, ?, ?)",
-		userID, credentialID, publicKey, credential.Authenticator.SignCount, name); execErr != nil {
+		"INSERT INTO user_passkeys (user_id, credential_id, public_key, sign_count, name, backup_eligible) VALUES (?, ?, ?, ?, ?, ?)",
+		userID, credentialID, publicKey, credential.Authenticator.SignCount, name, credential.Flags.BackupEligible); execErr != nil {
 		writeJSONErrorPasskeys(w, http.StatusInternalServerError, "Could not save passkey.")
 		return
 	}
@@ -260,7 +261,18 @@ func handlePasskeysLoginComplete(a *appctx.App, w http.ResponseWriter, r *http.R
 		return
 	}
 
-	var matchedPasskeyID int
+	parsed, parseErr := protocol.ParseCredentialRequestResponse(r)
+	if parseErr != nil {
+		_ = a.Sessions.Save(r, w, sess)
+		writeJSONErrorPasskeys(w, http.StatusBadRequest, parseErr.Error())
+		return
+	}
+	assertedBE := parsed.Response.AuthenticatorData.Flags.HasBackupEligible()
+
+	var (
+		matchedPasskeyID int
+		storedBE         sql.NullBool
+	)
 
 	handler := func(rawID, userHandle []byte) (webauthn.User, error) {
 		targetUserID, convErr := strconv.Atoi(string(userHandle))
@@ -280,9 +292,9 @@ func handlePasskeysLoginComplete(a *appctx.App, w http.ResponseWriter, r *http.R
 			username     string
 		)
 		row := a.DB.QueryRowContext(ctx,
-			"SELECT p.id, p.public_key, p.sign_count, u.username FROM user_passkeys p JOIN users u ON u.id = p.user_id WHERE p.user_id = ? AND p.credential_id = ?",
+			"SELECT p.id, p.public_key, p.sign_count, u.username, p.backup_eligible FROM user_passkeys p JOIN users u ON u.id = p.user_id WHERE p.user_id = ? AND p.credential_id = ?",
 			targetUserID, credentialID)
-		if err := row.Scan(&passkeyRowID, &publicKeyB64, &signCount, &username); err != nil {
+		if err := row.Scan(&passkeyRowID, &publicKeyB64, &signCount, &username, &storedBE); err != nil {
 			return nil, err
 		}
 
@@ -298,11 +310,16 @@ func handlePasskeysLoginComplete(a *appctx.App, w http.ResponseWriter, r *http.R
 			PublicKey: publicKey,
 		}
 		cred.Authenticator.SignCount = signCount
+		// go-webauthn rejects a BE mismatch, older rows never stored it so trust this login's flag once
+		cred.Flags.BackupEligible = assertedBE
+		if storedBE.Valid {
+			cred.Flags.BackupEligible = storedBE.Bool
+		}
 
 		return &passkeyUser{userID: targetUserID, username: username, credentials: []webauthn.Credential{cred}}, nil
 	}
 
-	user, credential, finishErr := wa.FinishPasskeyLogin(handler, sessionData, r)
+	user, credential, finishErr := wa.ValidatePasskeyLogin(handler, sessionData, parsed)
 	if finishErr != nil {
 		_ = a.Sessions.Save(r, w, sess)
 		writeJSONErrorPasskeys(w, http.StatusBadRequest, finishErr.Error())
@@ -317,6 +334,9 @@ func handlePasskeysLoginComplete(a *appctx.App, w http.ResponseWriter, r *http.R
 
 	_, _ = a.DB.ExecContext(ctx, "UPDATE user_passkeys SET sign_count = ?, last_used_at = NOW() WHERE id = ?",
 		credential.Authenticator.SignCount, matchedPasskeyID)
+	if !storedBE.Valid {
+		_, _ = a.DB.ExecContext(ctx, "UPDATE user_passkeys SET backup_eligible = ? WHERE id = ?", assertedBE, matchedPasskeyID)
+	}
 
 	finishLoginSession(a, w, r, sess, pu.userID, pu.username, "logged in with a passkey", "passkey")
 
