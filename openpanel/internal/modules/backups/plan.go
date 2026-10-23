@@ -5,9 +5,11 @@ import (
 	"compress/gzip"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -144,20 +146,48 @@ func writeTarEntry(tr io.Reader, dest, root string, uid int) error {
 	return nil
 }
 
-// extractEntry writes one regular archive entry through the plan, returns the host path it landed at
-func (p *restorePlan) extractEntry(tr io.Reader, name string, uid int) (string, bool) {
+// extractEntry writes one regular archive entry through the plan, returns the host path it landed at or "" when the plan skips it
+func (p *restorePlan) extractEntry(tr io.Reader, name string, uid int) (string, error) {
 	dest, root, chown, ok := p.dest(name)
 	if !ok {
-		return "", false
+		return "", nil
 	}
 	owner := uid
 	if !chown {
 		owner = 0
 	}
-	if writeTarEntry(tr, dest, root, owner) != nil {
-		return "", false
+	if err := writeTarEntry(tr, dest, root, owner); err != nil {
+		return "", err
 	}
-	return dest, true
+	return dest, nil
+}
+
+// writeFailures counts archive entries that couldn't be written, it comes back as the error next to whatever did get restored
+type writeFailures struct {
+	count int
+	first error
+}
+
+func (f *writeFailures) add(name string, err error) {
+	if f.count == 0 {
+		f.first = fmt.Errorf("%s: %w", strings.TrimPrefix(name, "backup/"), err)
+	}
+	f.count++
+}
+
+func (f *writeFailures) Error() string {
+	if f.count == 1 {
+		return "1 item could not be written: " + f.first.Error()
+	}
+	return strconv.Itoa(f.count) + " items could not be written, the first one: " + f.first.Error()
+}
+
+// err is nil when everything was written
+func (f *writeFailures) err() error {
+	if f.count == 0 {
+		return nil
+	}
+	return f
 }
 
 // restoreSelected streams the archive and restores only the entries inside targets (full archive paths), it stops reading once it's past the last one
@@ -174,6 +204,7 @@ func restoreSelected(ctx context.Context, store remoteStore, backup string, plan
 	defer gz.Close()
 
 	var extracted []string
+	var failures writeFailures
 	layout := newArchiveLayout()
 	tr := tar.NewReader(gz)
 	for {
@@ -194,12 +225,14 @@ func restoreSelected(ctx context.Context, store remoteStore, backup string, plan
 		}
 		for _, t := range targets {
 			if insidePath(name, t) {
-				if dest, ok := plan.extractEntry(tr, name, uid); ok {
+				if dest, err := plan.extractEntry(tr, name, uid); err != nil {
+					failures.add(name, err)
+				} else if dest != "" {
 					extracted = append(extracted, dest)
 				}
 				break
 			}
 		}
 	}
-	return extracted, nil
+	return extracted, failures.err()
 }

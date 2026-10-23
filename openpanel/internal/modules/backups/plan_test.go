@@ -59,13 +59,13 @@ func TestWriteTarEntryRefusesSymlinkEscape(t *testing.T) {
 	if err := os.Symlink(outside, filepath.Join(tmp, "html", "evil")); err != nil {
 		t.Fatal(err)
 	}
-	if _, ok := plan.extractEntry(strings.NewReader("x"), "backup/html/evil/passwd", 0); ok {
+	if _, err := plan.extractEntry(strings.NewReader("x"), "backup/html/evil/passwd", 0); err == nil {
 		t.Error("write through a symlink out of the volume should be refused")
 	}
 	if _, err := os.Stat(filepath.Join(outside, "passwd")); err == nil {
 		t.Error("file was written outside the volume")
 	}
-	if _, ok := plan.extractEntry(strings.NewReader("ok"), "backup/html/sub/ok.txt", 0); !ok {
+	if dest, err := plan.extractEntry(strings.NewReader("ok"), "backup/html/sub/ok.txt", 0); err != nil || dest == "" {
 		t.Error("normal write should work")
 	}
 }

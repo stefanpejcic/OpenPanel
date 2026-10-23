@@ -1,9 +1,12 @@
 package backups
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"net/url"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -38,5 +41,33 @@ func TestRestoreSelectedItemsReportsFailedDomains(t *testing.T) {
 	failed, _ := out["failed"].([]string)
 	if status != 200 || !strings.Contains(msg, "Restored (1 items).") || !strings.Contains(msg, "b.com belongs to another account") || len(failed) != 1 {
 		t.Fatalf("got %d %v", status, out)
+	}
+}
+
+// an entry that's in the backup but can't be written used to be reported as not found
+func TestRestoreReportsWriteFailures(t *testing.T) {
+	plan, tmp := testPlan(t)
+	// a file sits where the backup has a folder
+	if err := os.WriteFile(filepath.Join(tmp, "html", "site"), []byte("not a folder"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	archive := makeArchive(t, []tarEntry{
+		{name: "/backup", body: nil},
+		{name: "/backup/html/ok.txt", body: []byte("ok")},
+		{name: "/backup/html/site/index.php", body: []byte("<?php")},
+	})
+
+	extracted, err := restoreFilesFromTar(bytes.NewReader(archive), plan, 0, nil)
+	var failures *writeFailures
+	if len(extracted) != 1 || !errors.As(err, &failures) || failures.count != 1 || !strings.Contains(err.Error(), "html/site/index.php") {
+		t.Fatalf("restoreFilesFromTar: extracted %v, err %v", extracted, err)
+	}
+
+	store := &fakeStore{archives: map[string][]byte{"b.tar.gz": archive}}
+	a := &appctx.App{Cache: cache.New(filepath.Join(t.TempDir(), "no-redis.sock"))}
+	req := restoreRequest{Username: "u", UserContext: "u-test-nonexistent", Form: url.Values{"items": {"site"}}}
+	status, out := restoreSelectedItems(context.Background(), a, req, store, "b.tar.gz", "paths", plan)
+	if status != 500 || !strings.Contains(fmt.Sprint(out["error"]), "could not be written") {
+		t.Fatalf("restoreSelectedItems: got %d %v, want a write error instead of not found", status, out)
 	}
 }

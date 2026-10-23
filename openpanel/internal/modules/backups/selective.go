@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -270,25 +271,33 @@ func restoreSelectedItems(ctx context.Context, a *appctx.App, req restoreRequest
 				failed = append(failed, err.Error())
 				continue
 			}
-			if dest, ok := plan.extractEntry(bytes.NewReader(content), t, uid); ok {
+			if dest, err := plan.extractEntry(bytes.NewReader(content), t, uid); err != nil {
+				failed = append(failed, domain+": "+err.Error())
+			} else if dest != "" {
 				extracted = append(extracted, dest)
 			}
 			// written after domains-add so the backed up zone replaces the fresh default one
 			zone := "backup/dns/" + domain + ".zone"
 			if zoneContent, ok := contents[zone]; ok {
-				if dest, ok := plan.extractEntry(bytes.NewReader(zoneContent), zone, 0); ok {
+				if dest, err := plan.extractEntry(bytes.NewReader(zoneContent), zone, 0); err != nil {
+					failed = append(failed, domain+" zone: "+err.Error())
+				} else if dest != "" {
 					extracted = append(extracted, dest)
 				}
 			}
 		}
-		if len(failed) > 0 && len(extracted) == 0 {
-			return http.StatusInternalServerError, map[string]any{"error": strings.Join(failed, "; ")}
-		}
 	} else {
 		extracted, err = restoreSelected(ctx, store, backup, plan, uid, targets)
-		if err != nil {
+		var failures *writeFailures
+		if errors.As(err, &failures) {
+			failed = append(failed, failures.Error())
+		} else if err != nil {
 			return http.StatusInternalServerError, map[string]any{"error": err.Error()}
 		}
+	}
+	// found in the backup but nothing could be written, that's not "not found"
+	if len(failed) > 0 && len(extracted) == 0 {
+		return http.StatusInternalServerError, map[string]any{"error": strings.Join(failed, "; ")}
 	}
 	if len(extracted) == 0 {
 		return http.StatusNotFound, map[string]any{"error": "The selected items were not found in this backup."}

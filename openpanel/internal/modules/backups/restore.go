@@ -6,6 +6,7 @@ import (
 	"compress/gzip"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -194,6 +195,7 @@ func restoreFilesFromTar(archive io.Reader, plan *restorePlan, uid int, only []s
 	defer gz.Close()
 
 	var extracted []string
+	var failures writeFailures
 	layout := newArchiveLayout()
 	tr := tar.NewReader(gz)
 	for {
@@ -215,11 +217,13 @@ func restoreFilesFromTar(archive io.Reader, plan *restorePlan, uid int, only []s
 		if len(only) > 0 && !slices.ContainsFunc(only, func(prefix string) bool { return insidePath(name, prefix) }) {
 			continue
 		}
-		if dest, ok := plan.extractEntry(tr, name, uid); ok {
+		if dest, err := plan.extractEntry(tr, name, uid); err != nil {
+			failures.add(name, err)
+		} else if dest != "" {
 			extracted = append(extracted, dest)
 		}
 	}
-	return extracted, nil
+	return extracted, failures.err()
 }
 
 // handleListBackupsFromDestination serves the list of remote backups (from the cached index file) and, on POST, kicks off a background reindex against the SSH destination
@@ -384,7 +388,8 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 
 		section := restoreSections[restoreTarget]
 		extracted, err := restoreFilesFromTar(rc, plan, uid, section.prefixes)
-		if err != nil {
+		var failures *writeFailures
+		if err != nil && (!errors.As(err, &failures) || len(extracted) == 0) {
 			return http.StatusInternalServerError, map[string]any{"error": err.Error()}
 		}
 		if len(extracted) == 0 {
@@ -392,7 +397,7 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 		}
 		applyRestored(ctx, req.UserContext, extracted, plan)
 		_ = logger.RecordUserAction(a.Config, req.Username, "restored "+strings.ToLower(section.label)+" from backup "+safeName, req.IP)
-		return http.StatusOK, map[string]any{"success": true, "message": section.label + " restored (" + strconv.Itoa(len(extracted)) + " items)."}
+		return http.StatusOK, map[string]any{"success": true, "message": withWriteFailures(section.label+" restored ("+strconv.Itoa(len(extracted))+" items).", failures)}
 	}
 
 	// full and all-files restores download first, a dropped connection then can't leave the site half restored
@@ -408,13 +413,14 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 	defer f.Close()
 
 	extracted, err := restoreFilesFromTar(f, plan, uid, nil)
-	if err != nil {
+	var failures *writeFailures
+	if err != nil && (!errors.As(err, &failures) || len(extracted) == 0) {
 		return http.StatusInternalServerError, map[string]any{"error": err.Error()}
 	}
 	applyRestored(ctx, req.UserContext, extracted, plan)
 	if restoreTarget == "files" {
 		_ = logger.RecordUserAction(a.Config, req.Username, "restored files from backup "+safeName, req.IP)
-		return http.StatusOK, map[string]any{"success": true, "message": "Files restored (" + strconv.Itoa(len(extracted)) + " items)."}
+		return http.StatusOK, map[string]any{"success": true, "message": withWriteFailures("Files restored ("+strconv.Itoa(len(extracted))+" items).", failures)}
 	}
 
 	if _, err := f.Seek(0, io.SeekStart); err != nil {
@@ -424,7 +430,15 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 		return http.StatusInternalServerError, map[string]any{"error": err.Error()}
 	}
 	_ = logger.RecordUserAction(a.Config, req.Username, "restored full backup from "+safeName, req.IP)
-	return http.StatusOK, map[string]any{"success": true, "message": "Full restore completed."}
+	return http.StatusOK, map[string]any{"success": true, "message": withWriteFailures("Full restore completed.", failures)}
+}
+
+// withWriteFailures adds what couldn't be written to a success message
+func withWriteFailures(message string, failures *writeFailures) string {
+	if failures == nil {
+		return message
+	}
+	return message + " " + failures.Error()
 }
 
 // handleDownloadBackup downloads a remote backup archive and streams it back to the client
