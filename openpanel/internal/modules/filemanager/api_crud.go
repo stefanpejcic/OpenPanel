@@ -1,8 +1,9 @@
 package filemanager
 
 import (
-	"encoding/json"
+	"errors"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -21,11 +22,10 @@ func apiCreateFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		Path     string `json:"path"`
 		Filename string `json:"filename"`
 	}
-	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
-		_ = r.ParseForm()
-		body.Path = r.Form.Get("path_param")
-		body.Filename = r.Form.Get("filename")
-	}
+	decodeAPIBody(r, &body, func(form url.Values) {
+		body.Path = form.Get("path_param")
+		body.Filename = form.Get("filename")
+	})
 	filename := strings.TrimSpace(body.Filename)
 	pathParam := strings.TrimPrefix(body.Path, "/")
 
@@ -74,11 +74,10 @@ func apiCreateFolder(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		Path       string `json:"path"`
 		Foldername string `json:"foldername"`
 	}
-	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
-		_ = r.ParseForm()
-		body.Path = r.Form.Get("path_param")
-		body.Foldername = r.Form.Get("foldername")
-	}
+	decodeAPIBody(r, &body, func(form url.Values) {
+		body.Path = form.Get("path_param")
+		body.Foldername = form.Get("foldername")
+	})
 	folderName := strings.TrimSpace(body.Foldername)
 	pathParam := strings.TrimPrefix(body.Path, "/")
 
@@ -101,8 +100,15 @@ func apiCreateFolder(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	defer root.Close()
 
-	if mkErr := root.MkdirAll(rel, 0o755); mkErr != nil {
-		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error creating directory! Check permissions."})
+	if mkErr := mkdirNew(root.Root, rel, folderName); mkErr != nil {
+		switch {
+		case errors.Is(mkErr, errFolderNameSlash):
+			web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Folder name can't contain a slash."})
+		case errors.Is(mkErr, os.ErrExist):
+			web.WriteJSON(w, http.StatusConflict, map[string]string{"error": "Error creating directory: already exists."})
+		default:
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error creating directory! Check permissions."})
+		}
 		return
 	}
 
@@ -122,12 +128,11 @@ func apiRenameFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		OldName string `json:"old_name"`
 		NewName string `json:"new_name"`
 	}
-	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
-		_ = r.ParseForm()
-		body.Path = r.Form.Get("path_param")
-		body.OldName = r.Form.Get("old_name")
-		body.NewName = r.Form.Get("new_name")
-	}
+	decodeAPIBody(r, &body, func(form url.Values) {
+		body.Path = form.Get("path_param")
+		body.OldName = form.Get("old_name")
+		body.NewName = form.Get("new_name")
+	})
 
 	ctx := r.Context()
 	user, err := currentUser(ctx, a, r)
@@ -153,7 +158,11 @@ func apiRenameFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if renameErr := root.Rename(oldPath, newPath); renameErr != nil {
+	if renameErr := renameNoReplace(root.Root, oldPath, newPath); renameErr != nil {
+		if errors.Is(renameErr, os.ErrExist) {
+			web.WriteJSON(w, http.StatusConflict, map[string]string{"error": "Error renaming item: the new name already exists."})
+			return
+		}
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error renaming item! Check permissions or if the new name already exists."})
 		return
 	}
@@ -171,13 +180,12 @@ func apiChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		Permissions string   `json:"permissions"`
 		Recursive   bool     `json:"recursive"`
 	}
-	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
-		_ = r.ParseForm()
-		body.Path = r.Form.Get("path_param")
-		body.Filenames = r.Form["filename"]
-		body.Permissions = r.Form.Get("permissions")
-		body.Recursive = r.Form.Get("recursive") == "on"
-	}
+	decodeAPIBody(r, &body, func(form url.Values) {
+		body.Path = form.Get("path_param")
+		body.Filenames = form["filename"]
+		body.Permissions = form.Get("permissions")
+		body.Recursive = form.Get("recursive") == "on"
+	})
 
 	if !permissionsRE.MatchString(body.Permissions) {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid permissions format."})

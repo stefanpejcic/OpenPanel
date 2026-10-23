@@ -81,8 +81,57 @@ func TestUserRootWriteAfterParentSwapStaysInside(t *testing.T) {
 	if got, _ := os.ReadFile(canary); string(got) != "OLD_INERT_MARKER" {
 		t.Fatalf("victim canary = %q, want it untouched", got)
 	}
-	if _, err := os.Stat(filepath.Join(victim, "canary.php.tmp")); err == nil {
-		t.Fatal("temp file landed in the victim dir")
+	if leftovers, _ := filepath.Glob(filepath.Join(victim, "*.tmp")); len(leftovers) > 0 {
+		t.Fatalf("temp file landed in the victim dir: %v", leftovers)
+	}
+}
+
+func TestWriteFileAtomicKeepsModeAndUserTmpFiles(t *testing.T) {
+	home, context := withHomeVolume(t)
+	write := func(name, content string, mode os.FileMode) {
+		t.Helper()
+		p := filepath.Join(home, name)
+		if err := os.WriteFile(p, []byte(content), mode); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.Chmod(p, mode); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write("secret.php", "old", 0o600)
+	write("run.sh", "old", 0o755)
+	// the user's own file, it used to be clobbered by the fixed "<name>.tmp" temp name
+	write("secret.php.tmp", "user data", 0o644)
+
+	root, err := OpenUserRoot("HOME", context)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer root.Close()
+
+	for name, wantMode := range map[string]os.FileMode{"secret.php": 0o600, "run.sh": 0o755, "new.txt": 0o644} {
+		if err := root.WriteFileAtomic(name, []byte("new"), 0o644); err != nil {
+			t.Fatalf("WriteFileAtomic(%s): %v", name, err)
+		}
+		info, err := os.Stat(filepath.Join(home, name))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got, _ := os.ReadFile(filepath.Join(home, name)); string(got) != "new" {
+			t.Errorf("%s = %q, want %q", name, got, "new")
+		}
+		if info.Mode().Perm() != wantMode {
+			t.Errorf("%s mode = %o, want %o", name, info.Mode().Perm(), wantMode)
+		}
+	}
+	if got, _ := os.ReadFile(filepath.Join(home, "secret.php.tmp")); string(got) != "user data" {
+		t.Errorf("secret.php.tmp = %q, want it untouched", got)
+	}
+	leftovers, _ := filepath.Glob(filepath.Join(home, "*.tmp"))
+	for _, l := range leftovers {
+		if filepath.Base(l) != "secret.php.tmp" {
+			t.Errorf("temp file left behind: %s", l)
+		}
 	}
 }
 

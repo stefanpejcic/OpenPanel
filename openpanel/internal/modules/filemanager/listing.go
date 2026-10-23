@@ -90,7 +90,7 @@ func handleFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPara
 	extensions := stripQuotes(a.Config.Get("filemanager_edit_extensions",
 		".txt .md error_log .log env gitconfig cfg htaccess Gemfile .ini .php .sh .html .json .htm .html5 .xml .py .php5 .php7 .php8 .sql .css .js .conf .java"))
 	images := stripQuotes(a.Config.Get("filemanager_image_extensions", ".jpg .jpeg .png .gif .webp .avif"))
-	archives := stripQuotes(a.Config.Get("filemanager_archives_extensions", ".zip .tar .gz .tar.gz"))
+	archives := stripQuotes(a.Config.Get("filemanager_archives_extensions", ".zip .tar .gz .tar.gz .tgz"))
 
 	root, directory, perr := openUserPath(user, pathParam, true)
 	if perr != nil {
@@ -109,7 +109,7 @@ func handleFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPara
 		lsFlag = "-l"
 	}
 
-	filemanagerEditSize := atoiDefault(a.Config.Get("filemanager_edit_size", "5"), 5)
+	filemanagerEditSize := editSizeMB(a)
 	filemanagerViewSize := atoiDefault(a.Config.Get("filemanager_view_size", "5"), 5)
 	filemanagerDownloadSize := atoiDefault(a.Config.Get("filemanager_download_size", "2000"), 2000)
 	filemanagerUploadSize := atoiDefault(a.Config.Get("filemanager_upload_size", "2000"), 2000)

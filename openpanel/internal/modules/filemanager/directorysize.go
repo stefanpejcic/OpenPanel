@@ -2,7 +2,6 @@ package filemanager
 
 import (
 	"net/http"
-	"net/url"
 	"os/exec"
 	"strings"
 
@@ -19,14 +18,7 @@ func HandleDirectorySize(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	folder := r.URL.Query().Get("folder")
-	if decoded, decErr := url.QueryUnescape(folder); decErr == nil {
-		folder = decoded
-	}
-	folder = strings.TrimPrefix(folder, "/")
-	folder = strings.TrimPrefix(folder, "var/www/html/")
-
-	root, rel, perr := openUserPath(user, folder, true)
+	root, rel, perr := openUserPath(user, sizeFolder(r), true)
 	if perr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Invalid folder path."})
 		return
@@ -45,6 +37,12 @@ func HandleDirectorySize(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	size := strings.SplitN(string(out), "\t", 2)[0]
 	web.WriteJSON(w, http.StatusOK, map[string]string{"size": size})
+}
+
+// sizeFolder is the folder query param as a path under the user's files, Query() already decoded it so it isn't decoded again
+func sizeFolder(r *http.Request) string {
+	folder := strings.TrimPrefix(r.URL.Query().Get("folder"), "/")
+	return strings.TrimPrefix(folder, "var/www/html/")
 }
 
 // RegisterDirectorySize wires up the always-on directory-size route.

@@ -2,10 +2,10 @@ package filemanager
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -116,12 +116,11 @@ func apiExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		Path               string `json:"path"`
 		ExtractDestination string `json:"extract_destination"`
 	}
-	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
-		_ = r.ParseForm()
-		body.ArchiveName = r.Form.Get("archiveName")
-		body.Path = r.Form.Get("path_param")
-		body.ExtractDestination = r.Form.Get("extractDestination")
-	}
+	decodeAPIBody(r, &body, func(form url.Values) {
+		body.ArchiveName = form.Get("archiveName")
+		body.Path = form.Get("path_param")
+		body.ExtractDestination = form.Get("extractDestination")
+	})
 	selectedFile := strings.TrimSpace(body.ArchiveName)
 	pathParam := strings.TrimPrefix(body.Path, "/")
 	extractionPathInput := strings.TrimSpace(body.ExtractDestination)
@@ -199,13 +198,12 @@ func apiCompressFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		Path          string   `json:"path"`
 		SelectedFiles []string `json:"selected_files"`
 	}
-	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
-		_ = r.ParseForm()
-		body.ArchiveName = r.Form.Get("archiveName")
-		body.Extension = r.Form.Get("extension")
-		body.Path = r.Form.Get("pathParam")
-		body.SelectedFiles = r.Form["selectedFiles[]"]
-	}
+	decodeAPIBody(r, &body, func(form url.Values) {
+		body.ArchiveName = form.Get("archiveName")
+		body.Extension = form.Get("extension")
+		body.Path = form.Get("pathParam")
+		body.SelectedFiles = form["selectedFiles[]"]
+	})
 	archiveNameRaw := strings.TrimPrefix(strings.TrimSpace(body.ArchiveName), "/")
 	ext := strings.TrimSpace(body.Extension)
 	pathParam := strings.TrimPrefix(body.Path, "/")

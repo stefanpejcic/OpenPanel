@@ -1,11 +1,14 @@
 package trash
 
 import (
+	"errors"
+	"io/fs"
 	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -62,16 +65,12 @@ func handleRestoreFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var linesToKeep []string
 	for _, line := range strings.Split(string(restoreInfo), "\n") {
 		trimmed := strings.TrimSpace(line)
-		if trimmed == "" || !strings.Contains(trimmed, "=") {
+		key, meta, ok := splitRestoreLine(trimmed)
+		if !ok {
 			continue
 		}
-		key, value, _ := strings.Cut(trimmed, "=")
 		if key == itemName {
-			if idx := strings.Index(value, "|deletion_date="); idx != -1 {
-				restoreDestination = strings.TrimSpace(value[:idx])
-			} else {
-				restoreDestination = strings.TrimSpace(value)
-			}
+			restoreDestination = meta.originalPath
 			continue
 		}
 		linesToKeep = append(linesToKeep, trimmed)
@@ -90,7 +89,11 @@ func handleRestoreFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := tenantfs.Rename(trashedPath, restoreDestination); err != nil {
+	if err := restoreItem(trashedPath, restoreDestination); err != nil {
+		if errors.Is(err, errRestoreExists) {
+			web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: "Can't restore: an item with the same name is already in the original folder."})
+			return
+		}
 		web.WriteJSON(w, http.StatusOK, jsonResult{Success: false, Error: err.Error()})
 		return
 	}
@@ -151,16 +154,7 @@ func handleDeleteTrash(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if content, err := tenantfs.ReadFile(trashRestoreFile); err == nil {
-		var keep []string
-		for _, line := range strings.Split(string(content), "\n") {
-			if line == "" {
-				continue
-			}
-			if !strings.HasPrefix(line, itemName+"=") {
-				keep = append(keep, line)
-			}
-		}
-		_ = tenantfs.WriteFile(trashRestoreFile, []byte(joinLines(keep)), 0o644)
+		_ = tenantfs.WriteFile(trashRestoreFile, []byte(joinLines(dropRestoreLine(string(content), itemName))), 0o644)
 	}
 
 	_ = logger.RecordUserAction(a.Config, username, "permanently deleted "+detectedType+" "+trashedPath+" using File Manager", reqip.ClientIP(r))
@@ -232,19 +226,12 @@ func handleRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	for _, line := range strings.Split(string(content), "\n") {
 		trimmed := strings.TrimSpace(line)
-		if trimmed == "" || !strings.Contains(trimmed, "=") {
+		key, meta, ok := splitRestoreLine(trimmed)
+		if !ok {
 			continue
 		}
-		key, value, _ := strings.Cut(trimmed, "=")
 
-		var originalPath string
-		if idx := strings.Index(value, "|deletion_date="); idx != -1 {
-			originalPath = strings.TrimSpace(value[:idx])
-		} else {
-			originalPath = strings.TrimSpace(value)
-		}
-
-		restorePath := absPath(originalPath)
+		restorePath := absPath(meta.originalPath)
 
 		if !isWithin(restorePath, allowedBase) {
 			restoreErrors = append(restoreErrors, key+": invalid restore path")
@@ -259,7 +246,7 @@ func handleRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		if err := tenantfs.Rename(trashedItemPath, restorePath); err != nil {
+		if err := restoreItem(trashedItemPath, restorePath); err != nil {
 			restoreErrors = append(restoreErrors, key+": "+err.Error())
 			linesToKeep = append(linesToKeep, trimmed)
 			continue
@@ -275,6 +262,42 @@ func handleRestoreAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	_ = tenantfs.WriteFile(trashRestorePath, nil, 0o644)
 	flashAndRedirectToTrash(a, w, r, "success", "All items restored successfully")
+}
+
+var errRestoreExists = errors.New("an item with the same name is already in the original folder")
+
+// restoreItem moves a trashed item back to dest, recreating dest's folder if it was deleted but never replacing what's there now
+func restoreItem(trashedPath, dest string) error {
+	if _, err := tenantfs.Lstat(dest); err == nil {
+		return errRestoreExists
+	}
+	info, err := tenantfs.Lstat(trashedPath)
+	if err != nil {
+		return err
+	}
+	missing := missingDirs(filepath.Dir(dest))
+	if err := tenantfs.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
+		return err
+	}
+	// we run as root, so hand recreated folders to whoever owns the item
+	if st, ok := info.Sys().(*syscall.Stat_t); ok {
+		for _, dir := range missing {
+			_ = tenantfs.Lchown(dir, int(st.Uid), int(st.Gid))
+		}
+	}
+	return tenantfs.Rename(trashedPath, dest)
+}
+
+// missingDirs lists dir and any of its parents that don't exist yet, outermost first
+func missingDirs(dir string) []string {
+	var missing []string
+	for d := dir; d != filepath.Dir(d); d = filepath.Dir(d) {
+		if _, err := tenantfs.Lstat(d); !errors.Is(err, fs.ErrNotExist) {
+			break
+		}
+		missing = append([]string{d}, missing...)
+	}
+	return missing
 }
 
 func joinLines(lines []string) string {

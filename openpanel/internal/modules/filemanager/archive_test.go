@@ -3,6 +3,7 @@ package filemanager
 import (
 	"archive/tar"
 	"bytes"
+	"compress/gzip"
 	"context"
 	"os"
 	"path/filepath"
@@ -171,5 +172,43 @@ func TestRunOnDirListsPinnedDir(t *testing.T) {
 	}
 	if !names[".htaccess"] || len(names) != 1 {
 		t.Fatalf("listing = %v\n%s", names, strings.TrimSpace(string(out)))
+	}
+}
+
+func TestArchiveKindIgnoresCase(t *testing.T) {
+	// the UI offers Extract for Backup.ZIP, the server used to refuse it
+	for name, want := range map[string]string{
+		"Backup.ZIP": "zip", "site.TAR.GZ": "tar.gz", "site.TGZ": "tar.gz", "x.Tar": "tar", "data.GZ": "gz", "notes.txt": "",
+	} {
+		if got := archiveKind(name); got != want {
+			t.Errorf("archiveKind(%q) = %q, want %q", name, got, want)
+		}
+	}
+}
+
+func TestExtractUppercaseGzNextToItself(t *testing.T) {
+	root, home := withUserRoot(t)
+	var buf bytes.Buffer
+	gw := gzip.NewWriter(&buf)
+	gw.Write([]byte("hello"))
+	gw.Close()
+	archive := buf.Bytes()
+	if err := os.WriteFile(filepath.Join(home, "data.GZ"), archive, 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	ctx := context.Background()
+	if err := validateArchiveMembers(root, "data.GZ", "data.GZ", "."); err != nil {
+		t.Fatalf("validate: %v", err)
+	}
+	if err := extractArchive(ctx, root, "data.GZ", "data.GZ", "."); err != nil {
+		t.Fatalf("extract: %v", err)
+	}
+	// stripping only a lowercase ".gz" would name the output data.GZ and write over the archive
+	if got, _ := os.ReadFile(filepath.Join(home, "data")); string(got) != "hello" {
+		t.Fatalf("data = %q, want %q", got, "hello")
+	}
+	if got, _ := os.ReadFile(filepath.Join(home, "data.GZ")); !bytes.Equal(got, archive) {
+		t.Fatal("data.GZ was overwritten by its own output")
 	}
 }

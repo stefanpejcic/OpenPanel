@@ -4,9 +4,11 @@ import (
 	"errors"
 	"io"
 	"io/fs"
+	"math/rand/v2"
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"syscall"
 )
@@ -120,17 +122,42 @@ func (u *UserRoot) Abs(rel string) string {
 	return filepath.Join(u.Home, rel)
 }
 
-// WriteFileAtomic writes to a temp file next to name and renames it over, both inside the root
+// WriteFileAtomic writes to a temp file next to name and renames it over, both inside the root, an existing file keeps its mode
 func (u *UserRoot) WriteFileAtomic(name string, data []byte, perm os.FileMode) error {
-	tmp := name + ".tmp"
-	if err := u.WriteFile(tmp, data, perm); err != nil {
+	if info, err := u.Lstat(name); err == nil && info.Mode().IsRegular() {
+		perm = info.Mode().Perm()
+	}
+	tmp, f, err := u.createTemp(name, perm)
+	if err != nil {
 		return err
 	}
-	if err := u.Rename(tmp, name); err != nil {
+	_, err = f.Write(data)
+	if err == nil {
+		// the umask trims OpenFile's perm, so set it exactly
+		err = f.Chmod(perm)
+	}
+	if closeErr := f.Close(); err == nil {
+		err = closeErr
+	}
+	if err == nil {
+		err = u.Rename(tmp, name)
+	}
+	if err != nil {
 		_ = u.Remove(tmp)
-		return err
 	}
-	return nil
+	return err
+}
+
+// createTemp opens a new uniquely named temp file next to name, O_EXCL so it never truncates an existing file
+func (u *UserRoot) createTemp(name string, perm os.FileMode) (string, *os.File, error) {
+	for range 10 {
+		tmp := name + "." + strconv.FormatUint(rand.Uint64(), 36) + ".tmp"
+		f, err := u.OpenFile(tmp, os.O_WRONLY|os.O_CREATE|os.O_EXCL, perm)
+		if !errors.Is(err, fs.ErrExist) {
+			return tmp, f, err
+		}
+	}
+	return "", nil, fs.ErrExist
 }
 
 // ChownTree lchowns name and everything under it without following symlinks
