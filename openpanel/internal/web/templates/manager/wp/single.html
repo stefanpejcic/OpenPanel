@@ -1324,7 +1324,7 @@
                     showToast({{toJSON (.T.Get "Saving update preferences... Please wait.")}}, 'loading');
 
                     fetch("/wordpress/wp-cli/update_update_preferences?" + formData, {
-                        method: "GET",
+                        method: "POST",
                         headers: { 'X-CSRF-TOKEN': csrf_token }
                     })
                         .then(response => response.json())
@@ -1358,7 +1358,7 @@
                     showToast({{toJSON (.T.Get "Saving general settings... Please wait.")}}, 'loading');
 
                     fetch(`/wordpress/wp-cli/update_site_information?website=${selectedDomain}&docroot=${docroot}&` + formData.toString(), {
-                        method: "GET",
+                        method: "POST",
                         headers: { 'X-CSRF-TOKEN': csrf_token }
                     })
                         .then(response => response.json())
@@ -1592,7 +1592,7 @@
                     showToast({{toJSON (.T.Get "Saving debugging options... Please wait.")}}, 'loading');
 
                     fetch("/wordpress/wp-cli/update_debug?" + formData, {
-                        method: "GET",
+                        method: "POST",
                         headers: { 'X-CSRF-TOKEN': csrf_token }
                     })
                         .then(response => response.json())
@@ -1999,12 +1999,15 @@ function GetWPSiteInfo() {
             document.getElementById('php-version').textContent = phpVersion;
 
             if (databaseHost === "localhost" || databaseHost === "mysql" || databaseHost === "mariadb" || databaseHost === "127.0.0.1") {
-                document.getElementById('database-host').innerHTML = `${databaseHost}`;
+                document.getElementById('database-host').textContent = databaseHost;
                 if (databaseHost === "mariadb") {
                     document.getElementById('db-type-text').innerHTML = {{toJSON (.T.Get "MariaDB:")}};
                 }
             } else {
-                document.getElementById('database-host').innerHTML = `${databaseHost} <span class="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 text-sm font-medium me-2 px-2.5 py-0.5 rounded" data-tooltip-target="tooltip-no-db-size" data-tooltip-placement="left">REMOTE</span>`;
+                // DB_HOST comes straight from wp-config.php, so only the badge goes in as markup
+                const databaseHostEl = document.getElementById('database-host');
+                databaseHostEl.textContent = databaseHost + ' ';
+                databaseHostEl.insertAdjacentHTML('beforeend', `<span class="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300 text-sm font-medium me-2 px-2.5 py-0.5 rounded" data-tooltip-target="tooltip-no-db-size" data-tooltip-placement="left">REMOTE</span>`);
             }
 
             document.getElementById('database-name').textContent = databaseName;
@@ -2057,7 +2060,8 @@ function attachupdatebtnlistener() {
             showToast({{toJSON (.T.Get "Update in progress...")}}, 'loading');
             try {
                 const response = await fetch(`/wordpress/wp-cli/update_now?website=` + domainName + `&docroot=` + docroot, {
-                    method: 'GET',
+                    method: 'POST',
+                    headers: { 'X-CSRF-Token': csrf_token }
                 });
                 const jsonResponse = await response.json();
                 if (jsonResponse.message === {{toJSON (.T.Get "WordPress updated successfully")}}) {

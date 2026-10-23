@@ -47,7 +47,7 @@ var cmsRemoveTypes = map[string]bool{
 var cmsBackupTypes = cmsRemoveTypes
 
 // cmsUpdateTypes covers every type with a real one-click "Update now" CLI flow - Joomla/OpenCart/PrestaShop are browser-link-only by design, and PM2 apps (nodejs/python/ruby) require a version/requirements form, not a simple bulk update.
-// Every type here except wordpress uses the generic POST /<type>/update?domain=&docroot= route; wordpress instead has its own GET /wordpress/wp-cli/update_now?website=&docroot=, handled as a special case in dispatchBulk.
+// Every type here except wordpress uses the generic POST /<type>/update?domain=&docroot= route; wordpress instead has its own POST /wordpress/wp-cli/update_now?website=&docroot=, handled as a special case in dispatchBulk.
 var cmsUpdateTypes = map[string]bool{
 	"wordpress": true, "drupal": true, "nextcloud": true, "matomo": true, "moodle": true, "mediawiki": true, "flarum": true, "dokuwiki": true, "ojs": true,
 }
@@ -122,7 +122,7 @@ func dispatchBulkItem(a *appctx.App, mux *http.ServeMux, r *http.Request, action
 		}
 		if typeLower == "wordpress" {
 			q := url.Values{"website": {item.SiteName}, "docroot": {item.Docroot}}
-			return internalDispatch(mux, r, item.SiteName, "GET", "/wordpress/wp-cli/update_now", nil, q)
+			return internalDispatch(mux, r, item.SiteName, "POST", "/wordpress/wp-cli/update_now", nil, q)
 		}
 		q := url.Values{"domain": {item.SiteName}, "docroot": {item.Docroot}}
 		return internalDispatch(mux, r, item.SiteName, "POST", "/"+typeLower+"/update", nil, q)

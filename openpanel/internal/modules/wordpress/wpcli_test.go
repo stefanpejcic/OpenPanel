@@ -49,6 +49,30 @@ func TestSanitizePHPVersion(t *testing.T) {
 	}
 }
 
+func TestWPCLIRealPath(t *testing.T) {
+	vol := "/home/alice/docker-data/volumes/alice_html_data/_data"
+	ok := map[string]string{
+		"/var/www/html/example.com":      vol + "/example.com",
+		"/var/www/html/example.com/blog": vol + "/example.com/blog",
+		"example.com":                    vol + "/example.com",
+	}
+	for in, want := range ok {
+		got, valid := wpCLIRealPath(vol, in)
+		if !valid || got != want {
+			t.Errorf("wpCLIRealPath(%q) = %q, %v, want %q", in, got, valid, want)
+		}
+	}
+	for _, in := range []string{
+		"/var/www/html/../../../../../bob/docker-data/volumes/bob_html_data/_data/site",
+		"../../../../../bob/docker-data/volumes/bob_html_data/_data",
+		"/var/www/html/../../../../../../etc",
+	} {
+		if got, valid := wpCLIRealPath(vol, in); valid {
+			t.Errorf("wpCLIRealPath(%q) = %q, should be refused", in, got)
+		}
+	}
+}
+
 func TestPHPSerializeAssoc(t *testing.T) {
 	got := phpSerializeAssoc(map[string]any{"user_id": 5, "expires": 1234}, []string{"user_id", "expires"})
 	want := `a:2:{s:7:"user_id";i:5;s:7:"expires";i:1234;}`

@@ -46,13 +46,16 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	lockPath := appkit.LockFilePath(currentUsername)
-	if info, statErr := tenantfs.Stat(lockPath); statErr == nil {
-		if time.Since(info.ModTime()) < 5*time.Minute {
-			web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Abort, another WordPress clone process is currently running."})
-			return
-		}
-		_ = tenantfs.Remove(lockPath)
+	if info, statErr := tenantfs.Stat(lockPath); statErr == nil && time.Since(info.ModTime()) < 5*time.Minute {
+		web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Abort, another WordPress clone process is currently running."})
+		return
 	}
+	// the lock used to be checked but never taken, so two clones could run at once
+	if lockErr := appkit.CreateLockFile(currentUsername); lockErr != nil {
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error creating lock file: " + lockErr.Error()})
+		return
+	}
+	defer appkit.RemoveLockFile(currentUsername)
 
 	injectedData, _ := a.InjectData(ctx, userID)
 	planID, _ := injectedData["hosting_plan"].(int)
@@ -79,6 +82,13 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	srcDomain := strings.Split(providedDomain, "/")[0]
+	// without this a clone could attach a sites row to another account's domain
+	if !a.CheckDomainBelongsToUser(ctx, userID, srcDomain) || !a.CheckDomainBelongsToUser(ctx, userID, dstDomain) {
+		http.Error(w, "You do not own this domain.", http.StatusForbidden)
+		return
+	}
+
 	var domainID int
 	var docroot, phpVersion string
 	row := a.DB.QueryRowContext(ctx, "SELECT domain_id, docroot, php_version FROM domains WHERE domain_url = ?", dstDomain)
@@ -93,8 +103,6 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		dstDomainWithSubdir = dstDomain + "/" + dstFolder
 	}
 
-	srcDomain := strings.Split(providedDomain, "/")[0]
-
 	if !validateDomain(srcDomain) || !validateDomain(dstDomain) || !validateDB(srcDB) || !validateDB(dstDB) ||
 		!validateDB(dstDBUser) || !cmsclone.ValidDocroot(srcFolder) || !cmsclone.ValidDocroot(docroot) {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid input or unsafe docroot"})
@@ -108,15 +116,9 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		phpContainer = "php-fpm-" + phpVersion
 	}
 
-	mysqlVersion := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
-	var dumpCmd string
-	switch mysqlVersion {
-	case "mysql":
-		dumpCmd = "mysqldump --column-statistics=0 --set-gtid-purged=OFF"
-	case "mariadb":
-		dumpCmd = "mariadb-dump --gtid"
-	default:
-		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unsupported MYSQL_TYPE: " + mysqlVersion})
+	dumpCmd, mysqlVersion, dumpCmdErr := cmsclone.SelectDumpCommand(userContext)
+	if dumpCmdErr != nil {
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": dumpCmdErr.Error()})
 		return
 	}
 
@@ -155,25 +157,15 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 			return
 		}
 	}
+	cmsclone.ChownRecursive(ctx, userContext, dstPath)
 
-	escapedPassword := escapeMySQLString(dstDBUserPassword)
-	cloneQueries := []string{
-		"CREATE DATABASE IF NOT EXISTS `" + dstDB + "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
-		"CREATE USER IF NOT EXISTS '" + dstDBUser + "'@'%' IDENTIFIED BY '" + escapedPassword + "'",
-		"GRANT ALL PRIVILEGES ON `" + dstDB + "`.* TO '" + dstDBUser + "'@'%'",
-		"FLUSH PRIVILEGES",
-	}
-	for _, q := range cloneQueries {
-		if _, execErr := mysqlmanager.Exec(ctx, userContext, q, ""); execErr != nil {
-			web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": execErr.Error()})
-			return
+	// the old inline dump wrapped db names in backticks inside bash -c, which ran them as commands and left the clone's database empty
+	if _, dbErr := cmsclone.CreateDatabaseAndDump(ctx, userContext, mysqlVersion, dumpCmd, srcDB, dstDB, dstDBUser, dstDBUserPassword); dbErr != nil {
+		if cmsclone.DumpStageFailed(dbErr) {
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "step": "command_failed"})
+		} else {
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": dbErr.Error()})
 		}
-	}
-
-	dumpTablesCmd := dumpCmd + " --single-transaction --quick `" + srcDB + "` | " + mysqlVersion + " `" + dstDB + "`"
-	fullDBArgv := podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, "bash", "-c", dumpTablesCmd)
-	if runErr := podmanmanager.Command(ctx, userContext, fullDBArgv).Run(); runErr != nil {
-		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "step": "command_failed", "command": strings.Join(fullDBArgv, " ")})
 		return
 	}
 
@@ -214,7 +206,6 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	_ = a.Cache.Delete(ctx, fmt.Sprintf("get_user_websites:%d", userID))
-	_ = tenantfs.Remove(lockPath)
 
 	adminEmail := web.FormOr(r, "admin_email", "admin@"+dstDomain)
 	wpVersion := web.FormOr(r, "wordpress_version", "latest")
@@ -418,6 +409,18 @@ func walkForWPConfig(base string, onFound func(dir string)) {
 	})
 }
 
+// walkUserWPInstalls finds wp-config.php files in the account's html volume and passes each install's path as the php container sees it
+func walkUserWPInstalls(userContext string, onFound func(containerRoot string)) {
+	baseDirectory := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data"
+	walkForWPConfig(baseDirectory+"/", func(root string) {
+		onFound(containerPathForHostRoot(baseDirectory, root))
+	})
+}
+
+func containerPathForHostRoot(baseDirectory, root string) string {
+	return "/var/www/html" + strings.TrimPrefix(root, baseDirectory)
+}
+
 func phpContainerForUser(userContext string) string {
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 	if strings.Contains(strings.ToLower(webServer), "litespeed") {
@@ -438,11 +441,11 @@ func handleReloadWordPressData(a *appctx.App, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	const baseDirectory = "/var/www/html/"
 	phpContainer := phpContainerForUser(userContext)
 	wpBase := podmanmanager.BuildWPCLIBaseCommand(userContext, phpContainer)
 
-	walkForWPConfig(baseDirectory, func(root string) {
+	// used to walk the panel's own /var/www/html instead of the account's volume, so it never found anything
+	walkUserWPInstalls(userContext, func(root string) {
 		siteURLArgv := append(append([]string{}, wpBase...), "--skip-themes", "--allow-root", "--path="+root, "option", "get", "siteurl")
 		out, _ := podmanmanager.Command(ctx, userContext, siteURLArgv).Output()
 		siteURL := strings.TrimSpace(string(out))
@@ -456,7 +459,7 @@ func handleReloadWordPressData(a *appctx.App, w http.ResponseWriter, r *http.Req
 		if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
 			return
 		}
-		if !checkSiteAlreadyExistsForUser(ctx, a, domainName) {
+		if !checkSiteAlreadyExistsForUser(ctx, a, siteName) {
 			return
 		}
 
@@ -472,7 +475,7 @@ func handleReloadWordPressData(a *appctx.App, w http.ResponseWriter, r *http.Req
 		if versionErr != nil {
 			return
 		}
-		version := string(versionOut)
+		version := strings.TrimSpace(string(versionOut))
 
 		if _, execErr := a.DB.ExecContext(ctx, "UPDATE sites SET admin_email = ?, version = ? WHERE site_name = ?", adminEmail, version, siteName); execErr != nil {
 			return
@@ -633,7 +636,10 @@ func handleWordPressSecure(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// POST
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 	domain := strings.Split(providedDomain, "/")[0]
 	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)

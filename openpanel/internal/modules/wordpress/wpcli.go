@@ -119,6 +119,23 @@ func sanitizeAdminUser(u string) (string, bool) {
 	return u, true
 }
 
+// wpCLIRealPath maps a container docroot onto the host html volume, refusing anything that lands outside it
+func wpCLIRealPath(htmlVolume, domainDirectory string) (string, bool) {
+	const wwwPrefix = "/var/www/html/"
+	var docrootWithoutWWW string
+	if strings.HasPrefix(domainDirectory, wwwPrefix) {
+		docrootWithoutWWW = domainDirectory[len(wwwPrefix):]
+	} else {
+		docrootWithoutWWW = strings.TrimPrefix(filepath.Clean(domainDirectory), "/")
+	}
+	// cleaned before tenantfs ever sees it, so a .. here would land in another account's volume
+	realPath := filepath.Clean(filepath.Join(htmlVolume, docrootWithoutWWW))
+	if realPath != htmlVolume && !strings.HasPrefix(realPath, htmlVolume+"/") {
+		return "", false
+	}
+	return realPath, true
+}
+
 // wpCLIParams mirrors `request.get_json(silent=True) or request.form or request.args`: a JSON body if present, else the merged form/query values.
 func wpCLIParams(r *http.Request) map[string]string {
 	if strings.Contains(r.Header.Get("Content-Type"), "application/json") {
@@ -337,7 +354,7 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	domainDirectory, ok = sanitizeWPCLIPath(domainDirectory)
-	if !ok {
+	if !ok || strings.Contains(domainDirectory, "..") {
 		http.Error(w, "Invalid document root.", http.StatusBadRequest)
 		return
 	}
@@ -372,13 +389,11 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	htmlVolume := filepath.Join("/home", userContext, "docker-data", "volumes", userContext+"_html_data", "_data")
-	var docrootWithoutWWW string
-	if strings.HasPrefix(domainDirectory, wwwPrefix) {
-		docrootWithoutWWW = domainDirectory[len(wwwPrefix):]
-	} else {
-		docrootWithoutWWW = strings.TrimPrefix(filepath.Clean(domainDirectory), "/")
+	realPath, ok := wpCLIRealPath(htmlVolume, domainDirectory)
+	if !ok {
+		http.Error(w, "Invalid document root.", http.StatusBadRequest)
+		return
 	}
-	realPath := filepath.Clean(filepath.Join(htmlVolume, docrootWithoutWWW))
 
 	switch action {
 	case "login":
@@ -430,6 +445,10 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
 		act := strings.ToLower(params["subcmd"])
 		if act != "enable" && act != "disable" {
 			http.Error(w, "Use 'enable' or 'disable'", http.StatusBadRequest)
@@ -457,6 +476,12 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			out = "none"
 		}
 		web.WriteJSON(w, http.StatusOK, map[string]string{"type": out})
+		return
+	}
+
+	// session cookies are SameSite=Lax, so a GET here could be fired from a link on another site
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 

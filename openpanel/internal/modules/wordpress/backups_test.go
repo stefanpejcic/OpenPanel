@@ -1,6 +1,7 @@
 package wordpress
 
 import (
+	"strings"
 	"testing"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
@@ -29,6 +30,32 @@ func TestBackupDateRE(t *testing.T) {
 	}
 	if backupDateRE.MatchString("2026-01-01") {
 		t.Error("date without time component must not match")
+	}
+}
+
+func TestValidSiteName(t *testing.T) {
+	for _, s := range []string{"example.com", "example.com/blog", "example.com/blog/v2", "example.com/"} {
+		if !validSiteName(s) {
+			t.Errorf("validSiteName(%q) should pass", s)
+		}
+	}
+	for _, s := range []string{"", "example.com/a;id", "example.com/$(id)", "example.com/a b", "example.com/../x", "exa mple.com", "example.com/`id`"} {
+		if validSiteName(s) {
+			t.Errorf("validSiteName(%q) should fail", s)
+		}
+	}
+}
+
+func TestFilesBackupArgvHasNoShell(t *testing.T) {
+	argv := filesBackupArgv("alice", "php-fpm-8.3", "/var/www/html/example.com", "/var/www/html/backups/example.com/2026-01-01_10-00-00")
+	for _, a := range argv {
+		if a == "bash" || a == "sh" || a == "-c" {
+			t.Fatalf("files backup should not go through a shell: %v", argv)
+		}
+	}
+	tail := strings.Join(argv[len(argv)-5:], " ")
+	if tail != "-czf /var/www/html/backups/example.com/2026-01-01_10-00-00/files.tar.gz -C /var/www/html/example.com ." {
+		t.Errorf("unexpected tar args: %s", tail)
 	}
 }
 

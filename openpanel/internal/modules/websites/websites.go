@@ -1005,17 +1005,31 @@ var wsAllowedWPCLIActions = map[string]bool{
 	"update_now": true, "update_update_preferences": true, "debug_info": true, "update_info": true,
 }
 
+// these change the site, so the panel UI has to POST them with its CSRF token (the token-auth API keeps GET)
+var wsWriteWPCLIActions = map[string]bool{
+	"update_debug": true, "update_site_information": true, "update_now": true, "update_update_preferences": true,
+}
+
 var wsDocrootSafeRE = regexp.MustCompile(`^[a-zA-Z0-9_/.-]+$`)
 
 // handleWordPressWPCLI dispatches a scoped set of `wp` CLI actions (site info, debug flags, update preferences, ...) for the site-manager single-page UI.
 func handleWordPressWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	action := r.PathValue("action")
+	if !wsAllowedWPCLIActions[action] {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid action"})
+		return
+	}
+	if wsWriteWPCLIActions[action] && r.Method != http.MethodPost && !strings.HasPrefix(r.URL.Path, "/api/") {
+		web.WriteJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+		return
+	}
+
 	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	action := r.PathValue("action")
 
 	website := r.URL.Query().Get("website")
 	if website == "" {
@@ -1023,10 +1037,6 @@ func handleWordPressWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 	docroot := r.URL.Query().Get("docroot")
 
-	if !wsAllowedWPCLIActions[action] {
-		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid action"})
-		return
-	}
 	if website == "" || docroot == "" {
 		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Missing required parameters"})
 		return

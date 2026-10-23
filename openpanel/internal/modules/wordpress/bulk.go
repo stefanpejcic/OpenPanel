@@ -68,7 +68,7 @@ func handleWordPressBulk(a *appctx.App, mux http.Handler, w http.ResponseWriter,
 		id := url.Values{"id": {strconv.Itoa(ref.id)}}
 		switch action {
 		case "update":
-			return web.Call(web.BulkCall{Method: http.MethodGet, Path: "/wordpress/wp-cli/update_now", Query: url.Values{"website": {site}, "docroot": {ref.docroot}}})
+			return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/wordpress/wp-cli/update_now", Query: url.Values{"website": {site}, "docroot": {ref.docroot}}})
 		case "backup":
 			return web.Call(web.BulkCall{Method: http.MethodPost, Path: "/wordpress/backup/run/" + site, Query: url.Values{"docroot": {ref.docroot}, "backup_database": {"true"}, "backup_files": {"true"}}})
 		case "detach":

@@ -14,6 +14,20 @@ func TestWPManagerRuleRE(t *testing.T) {
 	}
 }
 
+func TestContainerPathForHostRoot(t *testing.T) {
+	base := "/home/alice/docker-data/volumes/alice_html_data/_data"
+	cases := map[string]string{
+		base + "/example.com":      "/var/www/html/example.com",
+		base + "/example.com/blog": "/var/www/html/example.com/blog",
+		base:                       "/var/www/html",
+	}
+	for root, want := range cases {
+		if got := containerPathForHostRoot(base, root); got != want {
+			t.Errorf("containerPathForHostRoot(%q) = %q, want %q", root, got, want)
+		}
+	}
+}
+
 func TestEscapeMySQLString(t *testing.T) {
 	if got := escapeMySQLString(`o'brien\`); got != `o\'brien\\` {
 		t.Errorf("escapeMySQLString = %q", got)
