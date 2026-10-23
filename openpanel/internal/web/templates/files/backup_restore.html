@@ -490,7 +490,7 @@
                     class="inline-flex items-center gap-1.5 border-b-2 py-3 font-medium transition">
                     <span class="size-4 shrink-0">{{template "bk_icon" "queue"}}</span>
                     <span>{{.T.Get "Queue"}}</span>
-                    <span class="rounded-full bg-gray-100 px-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300" x-text="backupsFor('queue').length"></span>
+                    <span class="rounded-full bg-gray-100 px-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300" x-text="jobs.queue.length"></span>
                 </button>
             </li>
             <li class="shrink-0">
@@ -499,7 +499,7 @@
                     class="inline-flex items-center gap-1.5 border-b-2 py-3 font-medium transition">
                     <span class="size-4 shrink-0">{{template "bk_icon" "logs"}}</span>
                     <span>{{.T.Get "Logs"}}</span>
-                    <span class="rounded-full bg-gray-100 px-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300" x-text="backupsFor('logs').length"></span>
+                    <span class="rounded-full bg-gray-100 px-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300" x-text="jobs.logs.length"></span>
                 </button>
             </li>
         </ul>
