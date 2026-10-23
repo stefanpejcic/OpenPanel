@@ -28,6 +28,11 @@ func secureFilename(name string) string {
 	return name
 }
 
+// uploadSucceeded is true only when files were sent and none of them failed, rejected names count as failures too
+func uploadSucceeded(files int, allSuccess bool, errs []string) bool {
+	return files > 0 && allSuccess && len(errs) == 0
+}
+
 // handleUploadFiles handles both the initial GET (render the upload form) and the POST that actually saves the submitted files
 func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -129,7 +134,7 @@ func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		if wantsJSON {
-			if allSuccess && len(errs) == 0 && len(files) > 0 {
+			if uploadSucceeded(len(files), allSuccess, errs) {
 				flashOnlySession(a, r, w, "success", "Files uploaded successfully.")
 				web.WriteJSON(w, http.StatusOK, map[string]any{"success": true})
 			} else {
@@ -141,9 +146,12 @@ func handleUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if allSuccess {
+		switch {
+		case len(files) == 0:
+			// "No files were uploaded" is already flashed above
+		case uploadSucceeded(len(files), allSuccess, errs):
 			flashOnlySession(a, r, w, "success", "Files uploaded successfully.")
-		} else {
+		default:
 			flashOnlySession(a, r, w, "error", web.Tr(a, r, "Some files failed: %(errs)s", "errs", strings.Join(errs, "; ")))
 		}
 	}
