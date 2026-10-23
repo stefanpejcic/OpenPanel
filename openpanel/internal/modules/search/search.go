@@ -3,6 +3,7 @@ package search
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -467,6 +468,8 @@ func searchFolders(a *appctx.App, w http.ResponseWriter, r *http.Request, userCo
 	web.WriteJSON(w, http.StatusOK, results)
 }
 
+var errStopWalk = errors.New("search result cap reached")
+
 // walkLimitedDepth visits root and its subdirectories up to maxDepth levels below root, calling visit(dir, entries) for each - visit returns false to stop the walk early (result cap reached)
 func walkLimitedDepth(root string, baseDepth, maxDepth int, visit func(dir string, entries []os.DirEntry) bool) error {
 	entries, err := tenantfs.ReadDir(root)
@@ -474,7 +477,8 @@ func walkLimitedDepth(root string, baseDepth, maxDepth int, visit func(dir strin
 		return nil //nolint:nilerr // unreadable dirs are skipped silently rather than failing the whole search
 	}
 	if !visit(root, entries) {
-		return nil
+		// an error so the parent loops stop too, nil only ended this folder and siblings kept adding results
+		return errStopWalk
 	}
 	if strings.Count(root, string(os.PathSeparator))-baseDepth >= maxDepth {
 		return nil
