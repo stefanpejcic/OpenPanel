@@ -44,6 +44,10 @@ func apiHandleInodes(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Path traversal detected"})
 		return
 	}
+	if !isFolder(actualFolder) {
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Directory not found"})
+		return
+	}
 
 	output := inodesOutput(ctx, a, userContext, actualFolder)
 

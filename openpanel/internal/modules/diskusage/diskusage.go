@@ -37,6 +37,12 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	}))
 }
 
+// isFolder reports whether the resolved folder exists, running on a missing one used to come back as an empty list
+func isFolder(p string) bool {
+	info, err := tenantfs.Stat(p)
+	return err == nil && info.IsDir()
+}
+
 // resolveUnderHome resolves directory (a user-supplied relative or absolute-looking path) under /home/<context>/, rejecting any escape. Unlike filemanager's secure_user_path, the volume root here is the raw account home directory, not the docroot volume - deliberately simpler since this browser only needs to stay within the home dir.
 func resolveUnderHome(userContext, directory string) (string, error) {
 	volume := "/home/" + userContext + "/"
@@ -68,6 +74,10 @@ func handleDiskUsage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	actualFolder, resolveErr := resolveUnderHome(userContext, directory)
 	if resolveErr != nil {
 		http.Error(w, "Invalid directory", http.StatusForbidden)
+		return
+	}
+	if !isFolder(actualFolder) {
+		http.Error(w, "Directory not found", http.StatusNotFound)
 		return
 	}
 

@@ -29,6 +29,12 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	}))
 }
 
+// isFolder reports whether the resolved folder exists, running on a missing one used to come back as an empty list
+func isFolder(p string) bool {
+	info, err := tenantfs.Stat(p)
+	return err == nil && info.IsDir()
+}
+
 // resolveUnderHome is the same inline path-traversal guard used by internal/modules/diskusage (see that package's comment) - not shared cross-package since it's a handful of lines duplicated across two near-identical, independently-gated modules
 func resolveUnderHome(userContext, directory string) (string, error) {
 	volume := "/home/" + userContext + "/"
@@ -64,6 +70,10 @@ func handleInodesExplorer(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	actualFolder, resolveErr := resolveUnderHome(userContext, directory)
 	if resolveErr != nil {
 		http.Error(w, "Invalid directory", http.StatusForbidden)
+		return
+	}
+	if !isFolder(actualFolder) {
+		http.Error(w, "Directory not found", http.StatusNotFound)
 		return
 	}
 
