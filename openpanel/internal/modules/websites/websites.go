@@ -1062,11 +1062,12 @@ func handleWordPressWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	website := r.URL.Query().Get("website")
+	// FormValue covers both the query string (API, reads) and the POSTed Debugging/Updates forms
+	website := r.FormValue("website")
 	if website == "" {
-		website = r.URL.Query().Get("domain")
+		website = r.FormValue("domain")
 	}
-	docroot := r.URL.Query().Get("docroot")
+	docroot := r.FormValue("docroot")
 
 	if website == "" || docroot == "" {
 		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Missing required parameters"})
@@ -1101,13 +1102,13 @@ func handleWordPressWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	case "site_info":
 		handleWPCLISiteInfo(a, w, r, userContext, wpConfigFile, docroot, wpBase)
 	case "update_debug":
-		handleWPCLIUpdateDebug(a, w, r, currentUsername, userContext, docroot, phpContainer, website)
+		handleWPCLIUpdateDebug(a, w, r, currentUsername, userContext, docroot, phpContainer, website, isLitespeed)
 	case "update_site_information":
 		handleWPCLIUpdateSiteInfo(a, w, r, currentUsername, userContext, docroot, wpBase, website)
 	case "update_now":
 		handleWPCLIUpdateNow(a, w, r, currentUsername, userContext, docroot, wpBase)
 	case "update_update_preferences":
-		handleWPCLIUpdatePreferences(a, w, r, currentUsername, userContext, docroot, phpContainer)
+		handleWPCLIUpdatePreferences(a, w, r, currentUsername, userContext, docroot, phpContainer, isLitespeed)
 	case "debug_info":
 		handleWPCLIDebugInfo(a, w, r, userContext, wpConfigFile, docroot, wpBase)
 	case "update_info":
@@ -1178,14 +1179,17 @@ func toStringCell(v any) string {
 
 const wpCLIPHPEnvFlags = "php -d memory_limit=-1 -d open_basedir=none -d disable_functions= -d display_errors=0 -d error_log=/dev/null /usr/local/bin/wp config set"
 
-func handleWPCLIUpdateDebug(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, docroot, phpContainer, website string) {
-	debugOptions := map[string]string{
-		"WP_DEBUG":         onOff(r.URL.Query().Get("WP_DEBUG")),
-		"WP_DEBUG_LOG":     onOff(r.URL.Query().Get("WP_DEBUG_LOG")),
-		"WP_DEBUG_DISPLAY": onOff(r.URL.Query().Get("WP_DEBUG_DISPLAY")),
-		"SCRIPT_DEBUG":     onOff(r.URL.Query().Get("SCRIPT_DEBUG")),
-		"SAVEQUERIES":      onOff(r.URL.Query().Get("SAVEQUERIES")),
+// debugOptionsFrom reads the Debugging form's checkboxes, an unticked box isn't sent at all so it means off
+func debugOptionsFrom(r *http.Request) map[string]string {
+	opts := map[string]string{}
+	for _, opt := range []string{"WP_DEBUG", "WP_DEBUG_LOG", "WP_DEBUG_DISPLAY", "SCRIPT_DEBUG", "SAVEQUERIES"} {
+		opts[opt] = onOff(r.FormValue(opt))
 	}
+	return opts
+}
+
+func handleWPCLIUpdateDebug(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, docroot, phpContainer, website string, isLitespeed bool) {
+	debugOptions := debugOptionsFrom(r)
 	wpBaseCmd := wpCLIPHPEnvFlags + " --raw --type=constant --path=" + docroot + " --skip-themes --allow-root"
 	var commands []string
 	for _, opt := range []string{"WP_DEBUG", "WP_DEBUG_LOG", "WP_DEBUG_DISPLAY", "SCRIPT_DEBUG", "SAVEQUERIES"} {
@@ -1196,6 +1200,10 @@ func handleWPCLIUpdateDebug(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	if runErr := podmanmanager.Command(r.Context(), userContext, argv).Run(); runErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
 		return
+	}
+	// fpm only re-reads wp-config.php once a minute otherwise, so the change looked like it did nothing
+	if !isLitespeed {
+		reloadPHPFPMIn(r.Context(), userContext, phpContainer)
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "updated debug options for WordPress website "+website, reqip.ClientIP(r))
 	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Debugging options updated successfully"})
@@ -1232,19 +1240,23 @@ func handleWPCLIUpdateNow(a *appctx.App, w http.ResponseWriter, r *http.Request,
 	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "WordPress updated successfully"})
 }
 
-func handleWPCLIUpdatePreferences(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, docroot, phpContainer string) {
-	q := r.URL.Query()
+// updatePrefsFrom reads the Updates form's radio buttons, defaulting to off when one isn't picked
+func updatePrefsFrom(r *http.Request) map[string]string {
 	get := func(key, def string) string {
-		if v := q.Get(key); v != "" {
+		if v := r.FormValue(key); v != "" {
 			return v
 		}
 		return def
 	}
-	updateOpts := map[string]string{
+	return map[string]string{
 		"WP_AUTO_UPDATE_PLUGINS": get("WP_AUTO_UPDATE_PLUGINS", "false"),
 		"WP_AUTO_UPDATE_THEMES":  get("WP_AUTO_UPDATE_THEMES", "false"),
 		"WP_AUTO_UPDATE_CORE":    get("WP_AUTO_UPDATE_CORE", "false"),
 	}
+}
+
+func handleWPCLIUpdatePreferences(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, docroot, phpContainer string, isLitespeed bool) {
+	updateOpts := updatePrefsFrom(r)
 	allowedValues := map[string]map[string]bool{
 		"WP_AUTO_UPDATE_PLUGINS": {"true": true, "false": true},
 		"WP_AUTO_UPDATE_THEMES":  {"true": true, "false": true},
@@ -1272,6 +1284,9 @@ func handleWPCLIUpdatePreferences(a *appctx.App, w http.ResponseWriter, r *http.
 	if runErr := podmanmanager.Command(r.Context(), userContext, argv).Run(); runErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
 		return
+	}
+	if !isLitespeed {
+		reloadPHPFPMIn(r.Context(), userContext, phpContainer)
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "edited auto-update preferences for WordPress website in "+docroot, reqip.ClientIP(r))
 	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Update preferences saved successfully"})

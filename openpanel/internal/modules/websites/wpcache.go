@@ -827,7 +827,12 @@ func reloadPHPFPM(ctx context.Context, s *wpCacheSite) {
 	if s.Litespeed {
 		return
 	}
-	_, _ = podmanOutput(ctx, s.UserContext, 15*time.Second, "exec", s.PHPContainer, "sh", "-c",
+	reloadPHPFPMIn(ctx, s.UserContext, s.PHPContainer)
+}
+
+// reloadPHPFPMIn sends the fpm master in container a graceful reload
+func reloadPHPFPMIn(ctx context.Context, userContext, container string) {
+	_, _ = podmanOutput(ctx, userContext, 15*time.Second, "exec", container, "sh", "-c",
 		`for p in /proc/[0-9]*; do grep -q "php-fpm: master" "$p/cmdline" 2>/dev/null && kill -USR2 "${p#/proc/}"; done; true`)
 }
 

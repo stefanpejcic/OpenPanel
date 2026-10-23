@@ -1323,9 +1323,10 @@
 
                     showToast({{toJSON (.T.Get "Saving update preferences... Please wait.")}}, 'loading');
 
-                    fetch("/wordpress/wp-cli/update_update_preferences?" + formData, {
+                    fetch("/wordpress/wp-cli/update_update_preferences", {
                         method: "POST",
-                        headers: { 'X-CSRF-TOKEN': csrf_token }
+                        headers: { 'X-CSRF-TOKEN': csrf_token, 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: formData
                     })
                         .then(response => response.json())
                         .then(response => {
@@ -1591,9 +1592,10 @@
 
                     showToast({{toJSON (.T.Get "Saving debugging options... Please wait.")}}, 'loading');
 
-                    fetch("/wordpress/wp-cli/update_debug?" + formData, {
+                    fetch("/wordpress/wp-cli/update_debug", {
                         method: "POST",
-                        headers: { 'X-CSRF-TOKEN': csrf_token }
+                        headers: { 'X-CSRF-TOKEN': csrf_token, 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: formData
                     })
                         .then(response => response.json())
                         .then(response => {
