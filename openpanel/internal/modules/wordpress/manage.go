@@ -27,13 +27,6 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-// escapeMySQLString mirrors escape_mysql_string() (duplicated per-package, same as mysql.escapeMySQLString - see that function's doc comment)
-func escapeMySQLString(value string) string {
-	value = strings.ReplaceAll(value, `\`, `\\`)
-	value = strings.ReplaceAll(value, `'`, `\'`)
-	return value
-}
-
 // ---------------------- CLONE ---------------------- //
 
 // handleCloneWordPress mirrors clone_wordpress().
@@ -156,24 +149,12 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	escapedPassword := escapeMySQLString(dstDBUserPassword)
-	cloneQueries := []string{
-		"CREATE DATABASE IF NOT EXISTS `" + dstDB + "` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
-		"CREATE USER IF NOT EXISTS '" + dstDBUser + "'@'%' IDENTIFIED BY '" + escapedPassword + "'",
-		"GRANT ALL PRIVILEGES ON `" + dstDB + "`.* TO '" + dstDBUser + "'@'%'",
-		"FLUSH PRIVILEGES",
-	}
-	for _, q := range cloneQueries {
-		if _, execErr := mysqlmanager.Exec(ctx, userContext, q, ""); execErr != nil {
-			web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": execErr.Error()})
-			return
+	if _, dbErr := cmsclone.CreateDatabaseAndDump(ctx, userContext, mysqlVersion, dumpCmd, srcDB, dstDB, dstDBUser, dstDBUserPassword); dbErr != nil {
+		if cmsclone.DumpStageFailed(dbErr) {
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "step": "command_failed"})
+		} else {
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "details": dbErr.Error()})
 		}
-	}
-
-	dumpTablesCmd := dumpCmd + " --single-transaction --quick `" + srcDB + "` | " + mysqlVersion + " `" + dstDB + "`"
-	fullDBArgv := podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, "bash", "-c", dumpTablesCmd)
-	if runErr := podmanmanager.Command(ctx, userContext, fullDBArgv).Run(); runErr != nil {
-		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"status": "error", "step": "command_failed", "command": strings.Join(fullDBArgv, " ")})
 		return
 	}
 

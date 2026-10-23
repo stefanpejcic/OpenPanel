@@ -14,12 +14,6 @@ func TestWPManagerRuleRE(t *testing.T) {
 	}
 }
 
-func TestEscapeMySQLString(t *testing.T) {
-	if got := escapeMySQLString(`o'brien\`); got != `o\'brien\\` {
-		t.Errorf("escapeMySQLString = %q", got)
-	}
-}
-
 func TestEscapePHPSingleQuoted(t *testing.T) {
 	if got := cmsapp.EscapePHPSingleQuoted(`pass'word\`); got != `pass\'word\\` {
 		t.Errorf("escapePHPSingleQuoted = %q", got)
