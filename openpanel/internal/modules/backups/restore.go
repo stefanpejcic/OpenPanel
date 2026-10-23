@@ -321,7 +321,8 @@ func handleRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	// direct restores (the API) wait for the account's queue, only one restore runs at a time
 	q := queueFor(userContext)
 	q.restore.Lock()
-	status, body := performRestore(r.Context(), a, restoreRequest{UserID: userID, Username: currentUsername, UserContext: userContext, IP: reqip.ClientIP(r), Form: r.Form})
+	// a client that gives up mustn't stop a restore halfway, the database is already dropped by then
+	status, body := performRestore(context.WithoutCancel(r.Context()), a, restoreRequest{UserID: userID, Username: currentUsername, UserContext: userContext, IP: reqip.ClientIP(r), Form: r.Form})
 	q.restore.Unlock()
 	web.WriteJSON(w, status, body)
 }
