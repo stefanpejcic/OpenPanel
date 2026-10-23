@@ -54,14 +54,13 @@ func apiSaveFileContent(a *appctx.App, w http.ResponseWriter, r *http.Request, f
 		}
 	}
 
-	var body struct {
-		Content string `json:"content"`
+	content, ok := apiContentBody(r)
+	if !ok {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Missing content field."})
+		return
 	}
-	decodeAPIBody(r, &body, func(form url.Values) {
-		body.Content = form.Get("editor_content")
-	})
 
-	contentToWrite := body.Content
+	contentToWrite := content
 	if containsString(unixLineEndingExts, fileExt) || containsString(unixLineEndingExts, strings.ToLower(filename)) {
 		contentToWrite = strings.ReplaceAll(contentToWrite, "\r\n", "\n")
 		contentToWrite = strings.ReplaceAll(contentToWrite, "\r", "\n")
@@ -76,6 +75,26 @@ func apiSaveFileContent(a *appctx.App, w http.ResponseWriter, r *http.Request, f
 	_ = chownToUser(ctx, a, root, rel, user.Context)
 	_ = logger.RecordUserAction(a.Config, user.Username, "edited file "+filePath+" via API", reqip.ClientIP(r))
 	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "File saved successfully"})
+}
+
+// apiContentBody reads content from JSON or a form post, ok is false when no content field was sent at all
+func apiContentBody(r *http.Request) (string, bool) {
+	var body struct {
+		Content *string `json:"content"`
+	}
+	decodeAPIBody(r, &body, func(form url.Values) {
+		for _, key := range []string{"editor_content", "content"} {
+			if form.Has(key) {
+				v := form.Get(key)
+				body.Content = &v
+				return
+			}
+		}
+	})
+	if body.Content == nil {
+		return "", false
+	}
+	return *body.Content, true
 }
 
 // apiDownloadFile is handleDownloadFile (editor.go) with JSON error responses instead of flash+redirect - the success path (streaming the file) is unchanged
