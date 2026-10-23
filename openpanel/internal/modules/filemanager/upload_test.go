@@ -2,10 +2,14 @@ package filemanager
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -76,5 +80,60 @@ func TestUploadSizeMB(t *testing.T) {
 		if got := uploadSizeMB(&appctx.App{Config: cfg}); got != want {
 			t.Errorf("filemanager_upload_size=%q: got %d, want %d", raw, got, want)
 		}
+	}
+}
+
+type readCounter struct {
+	r io.Reader
+	n int
+}
+
+func (c *readCounter) Read(p []byte) (int, error) {
+	k, err := c.r.Read(p)
+	c.n += k
+	return k, err
+}
+
+// an upload over the limit used to be read in full and only then refused file by file
+func TestReadUploadForm(t *testing.T) {
+	form := func(sizes ...int) ([]byte, string) {
+		var buf bytes.Buffer
+		mw := multipart.NewWriter(&buf)
+		for i, size := range sizes {
+			fw, _ := mw.CreateFormFile("files", fmt.Sprintf("f%d.bin", i))
+			_, _ = fw.Write(bytes.Repeat([]byte("x"), size))
+		}
+		_ = mw.Close()
+		return buf.Bytes(), mw.FormDataContentType()
+	}
+	request := func(body []byte, ct string, length int64) (*http.Request, *readCounter) {
+		rc := &readCounter{r: bytes.NewReader(body)}
+		r := httptest.NewRequest(http.MethodPost, "/x", rc)
+		r.ContentLength = length
+		r.Header.Set("Content-Type", ct)
+		return r, rc
+	}
+	// 1 MB per file makes the cap 2 MB plus the slack
+	capBytes := 2<<20 + uploadSlack
+
+	body, ct := form(8 << 20)
+	r, rc := request(body, ct, int64(len(body)))
+	if err := readUploadForm(httptest.NewRecorder(), r, 1); !errors.Is(err, errUploadTooLarge) || rc.n != 0 {
+		t.Errorf("Content-Length over the cap: err %v after reading %d bytes, want errUploadTooLarge before reading", err, rc.n)
+	}
+
+	r, rc = request(body, ct, -1)
+	if err := readUploadForm(httptest.NewRecorder(), r, 1); !errors.Is(err, errUploadTooLarge) || rc.n > capBytes+64<<10 {
+		t.Errorf("no Content-Length: err %v after reading %d bytes, want errUploadTooLarge near %d", err, rc.n, capBytes)
+	}
+
+	// several files under the cap is the normal batch from the pages
+	body, ct = form(900<<10, 900<<10)
+	r, _ = request(body, ct, int64(len(body)))
+	if err := readUploadForm(httptest.NewRecorder(), r, 1); err != nil || len(r.MultipartForm.File["files"]) != 2 {
+		t.Fatalf("two 900 KB files: err %v", err)
+	}
+	if !strings.Contains(uploadTooLargeMessage(1), "2 MB in total and 1 MB per file") {
+		t.Errorf("message: %s", uploadTooLargeMessage(1))
 	}
 }

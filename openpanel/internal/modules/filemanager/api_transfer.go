@@ -2,6 +2,7 @@ package filemanager
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -31,8 +32,12 @@ func apiUploadFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	fileLimitMB := uploadSizeMB(a)
 	fileLimitBytes := int64(fileLimitMB) * 1024 * 1024
 
-	if parseErr := parseUploadForm(r); parseErr != nil {
-		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Error uploading files: " + parseErr.Error()})
+	if readErr := readUploadForm(w, r, fileLimitMB); readErr != nil {
+		if errors.Is(readErr, errUploadTooLarge) {
+			web.WriteJSON(w, http.StatusRequestEntityTooLarge, map[string]string{"error": uploadTooLargeMessage(fileLimitMB)})
+			return
+		}
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Error uploading files: " + readErr.Error()})
 		return
 	}
 	pathParam := r.Form.Get("path_param")
