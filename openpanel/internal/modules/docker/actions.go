@@ -92,15 +92,11 @@ func updateContainerRAMOrCPU(a *appctx.App, ctx context.Context, userContext str
 
 	// `podman update` needs a live cgroup to write to and fails (crun exit 125) against a stopped/exited container - podman inspect succeeds on those too, so it can't tell live from stopped. Skip the live update rather than surfacing that as a failure: the .env value above is already what the next `podman-compose up` will use.
 	if IsServiceRunning(ctx, userContext, containerName) {
-		var argv []string
+		flags := []string{"--cpus", value}
 		if action == "ram" {
-			argv = podmanmanager.PodmanArgv(userContext, "update", "--memory-swap", value, "--memory", value, containerName)
-		} else {
-			argv = podmanmanager.PodmanArgv(userContext, "update", "--cpus", value, containerName)
+			flags = []string{"--memory-swap", value, "--memory", value}
 		}
-		cmd := podmanmanager.Command(ctx, userContext, argv)
-		cmd.Dir = homePath(userContext)
-		if err := cmd.Run(); err != nil {
+		if err := podmanUpdate(ctx, userContext, containerName, flags...); err != nil {
 			// a container that stopped or is restarting in between has no cgroup left to update, the .env value still applies on its next start
 			if _, ok := err.(*exec.ExitError); ok && IsServiceRunning(ctx, userContext, containerName) {
 				return "Docker command failed. Try again.", false
@@ -130,10 +126,7 @@ func updateContainerPIDs(ctx context.Context, userContext, containerName, provid
 		if podmanValue == "0" {
 			podmanValue = "-1"
 		}
-		argv := podmanmanager.PodmanArgv(userContext, "update", "--pids-limit", podmanValue, containerName)
-		cmd := podmanmanager.Command(ctx, userContext, argv)
-		cmd.Dir = homePath(userContext)
-		if err := cmd.Run(); err != nil {
+		if err := podmanUpdate(ctx, userContext, containerName, "--pids-limit", podmanValue); err != nil {
 			if _, ok := err.(*exec.ExitError); ok {
 				return "Docker command failed. Try again.", false
 			}
@@ -145,6 +138,22 @@ func updateContainerPIDs(ctx context.Context, userContext, containerName, provid
 		return fmt.Sprintf("PIDs limit for container %s removed (unlimited).", containerName), true
 	}
 	return fmt.Sprintf("Max PIDs for container %s set to %s", containerName, providedValue), true
+}
+
+// podmanUpdate runs `podman update` with flags on containerName
+func podmanUpdate(ctx context.Context, userContext, containerName string, flags ...string) error {
+	run := func(extra ...string) ([]byte, error) {
+		args := append(append(append([]string{"update"}, extra...), flags...), containerName)
+		cmd := podmanmanager.Command(ctx, userContext, podmanmanager.PodmanArgv(userContext, args...))
+		cmd.Dir = homePath(userContext)
+		return cmd.CombinedOutput()
+	}
+	out, err := run()
+	// podman 5.x rejects any update on a container with healthcheck disabled, --no-healthcheck keeps it disabled and works around that
+	if err != nil && strings.Contains(string(out), "healthcheck-timeout must be at least") {
+		_, err = run("--no-healthcheck")
+	}
+	return err
 }
 
 // setContainerEnvLimit rewrites envVar's value in the user's .env file, returning a non-empty error message on failure, "" on success
