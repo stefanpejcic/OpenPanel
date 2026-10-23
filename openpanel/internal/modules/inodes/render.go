@@ -53,6 +53,15 @@ func buildBreadcrumbs(root, urlPath string) []Breadcrumb {
 	return crumbs
 }
 
+// escapePath escapes each segment of the decoded URL path, html/template leaves # ? and %XX in hrefs as they are
+func escapePath(p string) string {
+	parts := strings.Split(p, "/")
+	for i, part := range parts {
+		parts[i] = url.PathEscape(part)
+	}
+	return strings.Join(parts, "/")
+}
+
 // Row is one folders_to_navigate table row.
 type Row struct {
 	Directory, Count, Href, FileManagerHref string
@@ -60,6 +69,7 @@ type Row struct {
 
 // parseInodesOutput splits each "<count> <path>" line of inodesOutput into a table row, skipping the "." directory row
 func parseInodesOutput(output, urlPath string) []Row {
+	base := escapePath(urlPath)
 	var rows []Row
 	for _, line := range strings.Split(output, "\n") {
 		if strings.TrimSpace(line) == "" {
@@ -75,9 +85,9 @@ func parseInodesOutput(output, urlPath string) []Row {
 			continue
 		}
 
-		row := Row{Directory: directory, Count: count, Href: urlPath + url.PathEscape(directory) + "/"}
-		if strings.HasPrefix(urlPath, "/inodes-explorer/files/") {
-			row.FileManagerHref = strings.Replace(urlPath, "inodes-explorer/files", "files", 1) + url.PathEscape(directory)
+		row := Row{Directory: directory, Count: count, Href: base + url.PathEscape(directory) + "/"}
+		if strings.HasPrefix(base, "/inodes-explorer/files/") {
+			row.FileManagerHref = strings.Replace(base, "inodes-explorer/files", "files", 1) + url.PathEscape(directory)
 		}
 		rows = append(rows, row)
 	}
@@ -112,7 +122,7 @@ func renderInodesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, ino
 	}
 	if urlPath != "/inodes-explorer/" {
 		data.ShowUpLink = true
-		trimmed := strings.TrimSuffix(urlPath, "/")
+		trimmed := strings.TrimSuffix(escapePath(urlPath), "/")
 		if idx := strings.LastIndex(trimmed, "/"); idx != -1 {
 			data.UpLink = trimmed[:idx]
 		}

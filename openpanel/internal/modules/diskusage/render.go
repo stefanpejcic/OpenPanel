@@ -53,6 +53,15 @@ func buildBreadcrumbs(root, urlPath string) []Breadcrumb {
 	return crumbs
 }
 
+// escapePath escapes each segment of the decoded URL path, html/template leaves # ? and %XX in hrefs as they are
+func escapePath(p string) string {
+	parts := strings.Split(p, "/")
+	for i, part := range parts {
+		parts[i] = url.PathEscape(part)
+	}
+	return strings.Join(parts, "/")
+}
+
 // Row is one folders_to_navigate table row.
 type Row struct {
 	Directory, Count, Href, FileManagerHref string
@@ -60,6 +69,7 @@ type Row struct {
 
 // parseDuOutput splits each "<size> <path>" line of `du` output into a table row
 func parseDuOutput(output, urlPath string) []Row {
+	base := escapePath(urlPath)
 	var rows []Row
 	for _, line := range strings.Split(output, "\n") {
 		if strings.TrimSpace(line) == "" {
@@ -73,9 +83,9 @@ func parseDuOutput(output, urlPath string) []Row {
 		directory := strings.TrimPrefix(line, count)
 		directory = strings.TrimLeft(directory, " \t")
 
-		row := Row{Directory: directory, Count: count, Href: urlPath + url.PathEscape(directory) + "/"}
-		if strings.HasPrefix(urlPath, "/disk-usage/files/") {
-			row.FileManagerHref = strings.Replace(urlPath, "disk-usage/files", "files", 1) + url.PathEscape(directory)
+		row := Row{Directory: directory, Count: count, Href: base + url.PathEscape(directory) + "/"}
+		if strings.HasPrefix(base, "/disk-usage/files/") {
+			row.FileManagerHref = strings.Replace(base, "disk-usage/files", "files", 1) + url.PathEscape(directory)
 		}
 		rows = append(rows, row)
 	}
@@ -110,7 +120,7 @@ func renderDiskUsagePage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	}
 	if urlPath != "/disk-usage/" {
 		data.ShowUpLink = true
-		trimmed := strings.TrimSuffix(urlPath, "/")
+		trimmed := strings.TrimSuffix(escapePath(urlPath), "/")
 		if idx := strings.LastIndex(trimmed, "/"); idx != -1 {
 			data.UpLink = trimmed[:idx]
 		}

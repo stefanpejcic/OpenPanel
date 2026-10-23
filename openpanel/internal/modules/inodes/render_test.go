@@ -45,3 +45,17 @@ func TestParseInodesOutput(t *testing.T) {
 		t.Fatalf("expected 2 rows (\".\" excluded), got %d: %+v", len(rows), rows)
 	}
 }
+
+// links were built from the decoded path, so a folder named a#b sent the browser to /inodes-explorer/a
+func TestParseInodesOutputEscapesCurrentPath(t *testing.T) {
+	cases := map[string]string{
+		"/inodes-explorer/a#b/":  "/inodes-explorer/a%23b/sub/",
+		"/inodes-explorer/a?b/":  "/inodes-explorer/a%3Fb/sub/",
+		"/inodes-explorer/x%41/": "/inodes-explorer/x%2541/sub/",
+	}
+	for urlPath, want := range cases {
+		if rows := parseInodesOutput("3 sub", urlPath); len(rows) != 1 || rows[0].Href != want {
+			t.Errorf("parseInodesOutput under %q: %+v, want Href %q", urlPath, rows, want)
+		}
+	}
+}

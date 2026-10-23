@@ -58,3 +58,18 @@ func TestBuildBreadcrumbs(t *testing.T) {
 		t.Errorf("unexpected path: %q", crumbs[1].Path)
 	}
 }
+
+// links were built from the decoded path, so a folder named a#b sent the browser to /disk-usage/a
+func TestParseDuOutputEscapesCurrentPath(t *testing.T) {
+	cases := map[string]string{
+		"/disk-usage/a#b/":  "/disk-usage/a%23b/sub/",
+		"/disk-usage/a?b/":  "/disk-usage/a%3Fb/sub/",
+		"/disk-usage/x%41/": "/disk-usage/x%2541/sub/",
+		"/disk-usage/é/":    "/disk-usage/%C3%A9/sub/",
+	}
+	for urlPath, want := range cases {
+		if rows := parseDuOutput("4.0K\tsub", urlPath); len(rows) != 1 || rows[0].Href != want {
+			t.Errorf("parseDuOutput under %q: %+v, want Href %q", urlPath, rows, want)
+		}
+	}
+}
