@@ -279,22 +279,30 @@ func handleDownloadFile(a *appctx.App, w http.ResponseWriter, r *http.Request, f
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Header().Set("Content-Disposition", `attachment; filename="`+path.Base(rel)+`"`)
 
+	sendFile(w, f, info.Size(), func() bool { return time.Now().After(deadline) })
+}
+
+// sendFile streams f with its size declared, a download cut off by the time limit or a read error drops the connection so the browser doesn't keep a short file as complete
+func sendFile(w http.ResponseWriter, f io.Reader, size int64, expired func() bool) {
+	w.Header().Set("Content-Length", strconv.FormatInt(size, 10))
 	buf := make([]byte, 8192)
-	for {
-		if time.Now().After(deadline) {
-			return
+	var sent int64
+	for sent < size {
+		if expired() {
+			panic(http.ErrAbortHandler)
 		}
 		n, readErr := f.Read(buf)
 		if n > 0 {
 			if _, writeErr := w.Write(buf[:n]); writeErr != nil {
 				return
 			}
-		}
-		if readErr == io.EOF {
-			return
+			sent += int64(n)
 		}
 		if readErr != nil {
-			return
+			if readErr == io.EOF && sent >= size {
+				return
+			}
+			panic(http.ErrAbortHandler)
 		}
 	}
 }
