@@ -11,6 +11,8 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
@@ -60,6 +62,8 @@ func handleFixPermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 			return
 		}
 
+		// the API logged its runs but the page didn't
+		_ = logger.RecordUserAction(a.Config, username, "fixed permissions", reqip.ClientIP(r))
 		sess, _ := a.Sessions.Get(r, session.CookieName)
 		flash.Add(sess, "success", "Success.")
 		_ = a.Sessions.Save(r, w, sess)
