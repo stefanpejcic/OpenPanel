@@ -80,10 +80,34 @@ func handleFavicon(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 var dbNameSafeRE = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 
+// configDBNameRE and tablePrefixSafeRE gate values read back from a site's config file before they go into SQL run with the account's mysql root login
+var (
+	configDBNameRE    = regexp.MustCompile(`^[A-Za-z0-9_$][A-Za-z0-9_$.-]*$`)
+	tablePrefixSafeRE = regexp.MustCompile(`^[A-Za-z0-9_]+$`)
+)
+
+// wpDocrootInContainer maps a docroot onto the path the php container sees, wp-cli runs in there so the host volume path never existed for it
+func wpDocrootInContainer(docroot string) (string, bool) {
+	folder := strings.TrimPrefix(strings.TrimPrefix(docroot, "/"), "var/www/html/")
+	if strings.Contains(folder, "..") {
+		return "", false
+	}
+	return filepath.Join("/var/www/html", folder), true
+}
+
+// wpDBSizeFromOutput takes the size from a `wp db size --human-readable` row like "dbname	852 KB", keeping the unit
+func wpDBSizeFromOutput(row string) (string, bool) {
+	columns := strings.Fields(row)
+	if len(columns) < 2 {
+		return "", false
+	}
+	return strings.Join(columns[1:], " "), true
+}
+
 // handleDatabaseSize reports either a WordPress install's on-disk size (via `wp db size`) or a raw database's size, depending on which query parameter was supplied.
 func handleDatabaseSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, _, userContext, err := auth.Injected(a, r)
+	userID, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -95,10 +119,12 @@ func handleDatabaseSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	switch {
 	case docroot != "" && domain != "":
-		baseDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data"
-		folder := strings.TrimPrefix(strings.TrimPrefix(docroot, "/"), "var/www/html/")
-		docrootInContainer := filepath.Join(baseDir, folder)
-		if !strings.HasPrefix(docrootInContainer, baseDir) {
+		if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+			http.Error(w, "You do not own this domain.", http.StatusForbidden)
+			return
+		}
+		docrootInContainer, ok := wpDocrootInContainer(docroot)
+		if !ok {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Invalid folder path."})
 			return
 		}
@@ -122,12 +148,12 @@ func handleDatabaseSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to retrieve size"})
 			return
 		}
-		columns := strings.Fields(lines[1])
-		if len(columns) < 2 {
+		size, ok := wpDBSizeFromOutput(lines[1])
+		if !ok {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unexpected output format"})
 			return
 		}
-		web.WriteJSON(w, http.StatusOK, map[string]string{"size": columns[1]})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"size": size})
 
 	case database != "":
 		if !dbNameSafeRE.MatchString(database) {
@@ -282,6 +308,11 @@ func handlePageSpeed(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // ---------------------- WP VULNERABILITY ---------------------- //
 
 // handleWPVulnerability serves the cached WordPress vulnerability report on GET (running a scan first if none exists yet), or triggers a fresh scan on POST.
+// isLocalRedirect only lets redirect_to point back into the panel, browsers read /\host like //host
+func isLocalRedirect(p string) bool {
+	return strings.HasPrefix(p, "/") && !strings.HasPrefix(p, "//") && !strings.Contains(p, `\`) && !strings.Contains(p, "://")
+}
+
 func handleWPVulnerability(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, _, err := auth.Injected(a, r)
@@ -308,7 +339,7 @@ func handleWPVulnerability(a *appctx.App, w http.ResponseWriter, r *http.Request
 		_ = exec.CommandContext(ctx, "opencli", "websites-vulnerability", websiteParam).Run()
 		_ = logger.RecordUserAction(a.Config, currentUsername, "initiated refresh for WP vulnerability data on website "+websiteParam, reqip.ClientIP(r))
 
-		if redirectTo := r.FormValue("redirect_to"); redirectTo != "" {
+		if redirectTo := r.FormValue("redirect_to"); isLocalRedirect(redirectTo) {
 			http.Redirect(w, r, redirectTo, http.StatusFound)
 			return
 		}
@@ -1048,7 +1079,7 @@ func handleWordPressWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if !wsDocrootSafeRE.MatchString(docroot) {
+	if !wsDocrootSafeRE.MatchString(docroot) || strings.Contains(docroot, "..") {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid docroot"})
 		return
 	}
@@ -1097,6 +1128,10 @@ func handleWPCLISiteInfo(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		return
 	}
 	dbName, tablePrefix := dbNameMatch[1], tablePrefixMatch[1]
+	if !configDBNameRE.MatchString(dbName) || !tablePrefixSafeRE.MatchString(tablePrefix) {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "wp-config.php has an unsupported DB_NAME or table prefix"})
+		return
+	}
 
 	rows, execErr := mysqlmanager.Exec(r.Context(), userContext,
 		"SELECT option_name, option_value FROM `"+tablePrefix+"options` WHERE option_name IN "+

@@ -490,7 +490,7 @@ func apiWordPressRemove(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if content, readErr := tenantfs.ReadFile(wpConfigFile); readErr == nil {
 		dbNameMatch := removeDBNameRE.FindStringSubmatch(string(content))
 		dbUserMatch := removeDBUserRE.FindStringSubmatch(string(content))
-		if dbNameMatch != nil && dbUserMatch != nil {
+		if dbNameMatch != nil && dbUserMatch != nil && droppableDB(dbNameMatch[1]) && validWPConfigName(dbUserMatch[1]) {
 			dbName, dbUser := dbNameMatch[1], dbUserMatch[1]
 			_, _ = mysqlmanager.Exec(ctx, userContext, "DROP DATABASE IF EXISTS `"+dbName+"`", "")
 			_, _ = mysqlmanager.Exec(ctx, userContext, "DROP USER IF EXISTS '"+dbUser+"'@'%'", "")
@@ -867,7 +867,7 @@ func apiWordPressScan(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			domainName = siteName[:idx]
 		}
 
-		if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
+		if !a.CheckDomainBelongsToUser(ctx, userID, domainName) || !validSiteName(siteName) {
 			return
 		}
 		if checkSiteAlreadyExistsForUser(ctx, a, siteName) {

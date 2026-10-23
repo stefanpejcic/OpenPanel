@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -170,6 +171,10 @@ func getWPConfigDBInfo(realPath string) (dbName, tablePrefix string, err error) 
 	tablePrefixMatch := tablePrefixValueRE.FindStringSubmatch(string(content))
 	if dbNameMatch == nil || tablePrefixMatch == nil {
 		return "", "", fmt.Errorf("wp-config.php not found")
+	}
+	// both go straight into SQL, WordPress itself only allows letters, digits and _ in the prefix
+	if !validWPConfigName(dbNameMatch[1]) || !tablePrefixSafeRE.MatchString(tablePrefixMatch[1]) {
+		return "", "", fmt.Errorf("wp-config.php has an unsupported DB_NAME or table prefix")
 	}
 	return dbNameMatch[1], tablePrefixMatch[1], nil
 }
@@ -397,7 +402,7 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	switch action {
 	case "login":
-		handleWPCLILogin(a, w, r, currentUsername, userContext, domain, realPath, adminUsername)
+		handleWPCLILogin(a, w, r, currentUsername, userContext, domainParam, realPath, adminUsername)
 		return
 	case "users":
 		roleFilter := r.URL.Query().Get("role")
@@ -504,8 +509,20 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Success", "output": strings.TrimSpace(out)})
 }
 
+// loginBaseURL keeps the stored siteurl only while it points at the site's own domain, otherwise the one-time admin token would go to whatever host siteurl names
+func loginBaseURL(storedSiteURL, site string) string {
+	domain, _, _ := strings.Cut(site, "/")
+	domain = strings.ToLower(domain)
+	if u, err := url.Parse(strings.TrimSpace(storedSiteURL)); err == nil && (u.Scheme == "https" || u.Scheme == "http") {
+		if host := strings.ToLower(u.Hostname()); host == domain || host == "www."+domain {
+			return strings.TrimSuffix(u.Scheme+"://"+u.Host+u.EscapedPath(), "/")
+		}
+	}
+	return "https://" + strings.TrimSuffix(site, "/")
+}
+
 // handleWPCLILogin mirrors the "login" action branch of wp_cli(): generates a one-time autologin link for an administrator via the mu-plugin above.
-func handleWPCLILogin(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, domain, realPath, adminUsername string) {
+func handleWPCLILogin(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, site, realPath, adminUsername string) {
 	ctx := r.Context()
 
 	admins, usersErr := getWPUsers(ctx, userContext, realPath, "administrator")
@@ -577,11 +594,11 @@ func handleWPCLILogin(a *appctx.App, w http.ResponseWriter, r *http.Request, cur
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to create login link", "details": rowsErr.Error()})
 		return
 	}
-	siteURL := "https://" + domain
+	storedSiteURL := ""
 	if len(siteURLRows) > 0 {
-		siteURL = mysqlmanager.ToString(siteURLRows[0][0])
+		storedSiteURL = mysqlmanager.ToString(siteURLRows[0][0])
 	}
-	siteURL = strings.TrimSuffix(siteURL, "/")
+	siteURL := loginBaseURL(storedSiteURL, site)
 
 	insertQuery := "INSERT INTO `" + optionsTable + "` (option_name, option_value, autoload) VALUES ('" + optionName + "', '" + optionValue + "', 'no') ON DUPLICATE KEY UPDATE option_value = '" + optionValue + "'"
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, insertQuery, dbName); execErr != nil {

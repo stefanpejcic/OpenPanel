@@ -219,6 +219,11 @@ func handleRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		if tablePrefixMatch != nil {
 			tablePrefix = tablePrefixMatch[1]
 		}
+		// both come from wp-config.php and go into SQL run with the account's mysql root login
+		if (dbName != "" && !validWPConfigName(dbName)) || (tablePrefix != "" && !tablePrefixSafeRE.MatchString(tablePrefix)) {
+			web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "wp-config.php has an unsupported DB_NAME or table prefix."})
+			return
+		}
 
 		if dbName != "" && tablePrefix != "" {
 			if rows, execErr := mysqlmanager.Exec(ctx, userContext, "SHOW TABLES IN `"+dbName+"` LIKE '"+tablePrefix+"%'", ""); execErr == nil {
@@ -229,7 +234,7 @@ func handleRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 				if len(tables) > 0 {
 					var quoted []string
 					for _, t := range tables {
-						quoted = append(quoted, "`"+t+"`")
+						quoted = append(quoted, "`"+strings.ReplaceAll(t, "`", "``")+"`")
 					}
 					_, _ = mysqlmanager.Exec(ctx, userContext, "DROP TABLE "+strings.Join(quoted, ", "), dbName)
 				}
@@ -354,6 +359,10 @@ func handleRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		dbName := strings.TrimSpace(string(dbNameOut))
 		if dbNameErr != nil || dbName == "" {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to retrieve db_name from wp-cli."})
+			return
+		}
+		if !validWPConfigName(dbName) || !tablePrefixSafeRE.MatchString(tablePrefix) {
+			web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "wp-config.php has an unsupported DB_NAME or table prefix."})
 			return
 		}
 

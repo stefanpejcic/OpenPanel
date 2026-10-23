@@ -286,13 +286,13 @@ func handleRemoveWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request
 	dbNameMatch := removeDBNameRE.FindStringSubmatch(string(content))
 	dbUserMatch := removeDBUserRE.FindStringSubmatch(string(content))
 
-	if dbNameMatch != nil && dbUserMatch != nil {
+	if dbNameMatch != nil && dbUserMatch != nil && droppableDB(dbNameMatch[1]) && validWPConfigName(dbUserMatch[1]) {
 		dbName, dbUser := dbNameMatch[1], dbUserMatch[1]
 		_, _ = mysqlmanager.Exec(ctx, userContext, "DROP DATABASE IF EXISTS `"+dbName+"`", "")
 		_, _ = mysqlmanager.Exec(ctx, userContext, "DROP USER IF EXISTS '"+dbUser+"'@'%'", "")
 		appkit.InvalidateMySQLCaches(ctx, a, userContext, currentUsername)
 	} else {
-		web.Flash(a, w, r, "warning", "Database name or user not found in wp-config.php")
+		web.Flash(a, w, r, "warning", "Database name or user in wp-config.php is missing or unsafe, so the database was kept")
 	}
 
 	var toDelete []string
@@ -540,7 +540,8 @@ func handleScanWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			domainName = siteName[:idx]
 		}
 
-		if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
+		// siteurl comes from the site's own database, so the folder part gets the same check installs do
+		if !a.CheckDomainBelongsToUser(ctx, userID, domainName) || !validSiteName(siteName) {
 			return
 		}
 		if checkSiteAlreadyExistsForUser(ctx, a, siteName) {

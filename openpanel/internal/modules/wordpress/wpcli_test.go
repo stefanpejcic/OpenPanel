@@ -73,6 +73,66 @@ func TestWPCLIRealPath(t *testing.T) {
 	}
 }
 
+func TestGetWPConfigDBInfoRejectsSQL(t *testing.T) {
+	write := func(t *testing.T, dbName, prefix string) string {
+		dir := t.TempDir()
+		cfg := "<?php\ndefine( 'DB_NAME', '" + dbName + "' );\n$table_prefix = '" + prefix + "';\n"
+		if err := os.WriteFile(filepath.Join(dir, "wp-config.php"), []byte(cfg), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		return dir
+	}
+	if db, prefix, err := getWPConfigDBInfo(write(t, "acct_wp1", "wp_")); err != nil || db != "acct_wp1" || prefix != "wp_" {
+		t.Fatalf("normal config = %q, %q, %v", db, prefix, err)
+	}
+	if _, _, err := getWPConfigDBInfo(write(t, "my-site.db", "x7_")); err != nil {
+		t.Errorf("dots and dashes in DB_NAME should still work: %v", err)
+	}
+	bad := [][2]string{
+		{"acct_wp1", "wp_users` WHERE 1; DROP DATABASE other; -- "},
+		{"x` ; DROP DATABASE other; -- ", "wp_"},
+		{"-e", "wp_"},
+		{"acct_wp1", "wp-"},
+	}
+	for _, c := range bad {
+		if db, prefix, err := getWPConfigDBInfo(write(t, c[0], c[1])); err == nil {
+			t.Errorf("DB_NAME %q / prefix %q should be refused, got %q, %q", c[0], c[1], db, prefix)
+		}
+	}
+}
+
+func TestDroppableDB(t *testing.T) {
+	for _, n := range []string{"acct_wp1", "my-site.db"} {
+		if !droppableDB(n) {
+			t.Errorf("droppableDB(%q) should be true", n)
+		}
+	}
+	for _, n := range []string{"mysql", "INFORMATION_SCHEMA", "performance_schema", "sys", "", "a`b", "-x"} {
+		if droppableDB(n) {
+			t.Errorf("droppableDB(%q) should be false", n)
+		}
+	}
+}
+
+func TestLoginBaseURL(t *testing.T) {
+	cases := []struct{ stored, site, want string }{
+		{"https://example.com", "example.com", "https://example.com"},
+		{"http://www.example.com/blog/", "example.com/blog", "http://www.example.com/blog"},
+		{"https://example.com:8443/blog", "example.com/blog", "https://example.com:8443/blog"},
+		{"", "example.com/blog", "https://example.com/blog"},
+		// anything else would hand the one-time admin token to another host
+		{"https://evil.test", "example.com", "https://example.com"},
+		{"https://example.com@evil.test/", "example.com", "https://example.com"},
+		{"https://example.com.evil.test", "example.com", "https://example.com"},
+		{"javascript:alert(1)", "example.com", "https://example.com"},
+	}
+	for _, c := range cases {
+		if got := loginBaseURL(c.stored, c.site); got != c.want {
+			t.Errorf("loginBaseURL(%q, %q) = %q, want %q", c.stored, c.site, got, c.want)
+		}
+	}
+}
+
 func TestPHPSerializeAssoc(t *testing.T) {
 	got := phpSerializeAssoc(map[string]any{"user_id": 5, "expires": 1234}, []string{"user_id", "expires"})
 	want := `a:2:{s:7:"user_id";i:5;s:7:"expires";i:1234;}`

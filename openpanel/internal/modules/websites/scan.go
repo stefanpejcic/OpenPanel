@@ -40,6 +40,9 @@ func scanCheckSiteExists(a *appctx.App, siteName string) bool {
 
 // scanVerifyDB confirms dbName is actually reachable via a root-level information_schema query against the mysql/mariadb container, rather than logging in as the site's own DB user - same check style every module's backups.go already uses for table listing.
 func scanVerifyDB(ctx context.Context, userContext, dbName string) bool {
+	if !configDBNameRE.MatchString(dbName) {
+		return false
+	}
 	rows, err := mysqlmanager.Exec(ctx, userContext, "SELECT schema_name FROM information_schema.schemata WHERE schema_name = '"+dbName+"'", "")
 	return err == nil && len(rows) > 0
 }
