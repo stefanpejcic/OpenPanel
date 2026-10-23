@@ -12,9 +12,10 @@ import (
 
 // RegisterAPI wires the disk-usage API route onto mux.
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
-	apiregistry.Handle(mux, a, "disk_usage", "GET /api/disk-usage/{directory...}", func(w http.ResponseWriter, r *http.Request) {
-		apiHandleDiskUsage(a, w, r)
-	})
+	h := func(w http.ResponseWriter, r *http.Request) { apiHandleDiskUsage(a, w, r) }
+	// the documented path without a trailing slash used to get a redirect to the {directory...} route
+	apiregistry.Handle(mux, a, "disk_usage", "GET /api/disk-usage", h)
+	apiregistry.Handle(mux, a, "disk_usage", "GET /api/disk-usage/{directory...}", h)
 }
 
 type diskUsageEntry struct {
