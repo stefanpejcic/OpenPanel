@@ -189,14 +189,13 @@
       const goUpElement = document.getElementById('goUp');
 
       if (goUpElement) {
-        goUpElement.addEventListener('click', async function() {
+        goUpElement.addEventListener('click', async function(event) {
+          // the link used to navigate anyway while this fetched the current folder again, its href is already the parent
+          event.preventDefault();
           const toastMessage = `{{.T.Get "Calculating disk usage for parent directory.."}}`;
           showToast(toastMessage, 'loading');
 
-          var currentUrl = window.location.href;
-          var parts = currentUrl.split('/');
-          parts.pop();
-          var newUrl = parts.join('/');
+          var newUrl = goUpElement.href;
 
           try {
             const response = await fetch(newUrl);
@@ -222,6 +221,7 @@
 
           } catch (error) {
             console.error('Error fetching data:', error);
+            window.location.href = newUrl;
           }
         });
       }
