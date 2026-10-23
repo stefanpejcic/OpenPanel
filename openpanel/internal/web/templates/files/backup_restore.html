@@ -79,10 +79,11 @@
     },
     startPolling() {
         this.pollInterval = opPoll(() => {
-            fetch('/backups/list?output=json')
+            // the old list or an error object both come back while or after indexing, only the reindexing flag says it's done
+            fetch('/backups/list?output=json&status=1')
                 .then(r => r.json())
                 .then(data => {
-                    if (Array.isArray(data)) {
+                    if (!data.reindexing) {
                         opStop(this.pollInterval);
                         window.location.reload();
                     }
