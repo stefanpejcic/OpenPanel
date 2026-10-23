@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -13,7 +15,9 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -65,12 +69,24 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	status := docker.GetContainerStatus(ctx, userContext, mysqlVersion)
-	if status.State == "not_found" {
+	switch status.State {
+	case "not_found":
 		docker.StartOrStopContainer(ctx, userContext, mysqlVersion, "activate", "detached")
+	case "exited", "created":
+		// sentinel stops the database of an account that has none after a while, opening this page brings it back; not asked
+		// whether it's up yet, that waits on the socket for up to 15s while the page can list from disk and refresh
+		startContainerInBackground(userContext, mysqlVersion)
+		status = docker.ContainerStatus{State: "running", Health: "starting"}
+	default:
+		status.Health = resolveContainerHealth(ctx, userContext, status)
 	}
-	status.Health = resolveContainerHealth(ctx, userContext, status)
 
 	var databaseInfo []DatabaseRow
+	fromDisk := status.Health != "healthy"
+	if fromDisk {
+		// listed from the datadir until the service answers, so the user sees their databases are still there
+		databaseInfo = databasesFromDisk(userContext, showAll)
+	}
 	if status.Health == "healthy" {
 		dbWhere, assignedWhere := "", ""
 		if !showAll {
@@ -112,13 +128,53 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if r.URL.Query().Get("output") == "json" {
 		web.WriteJSON(w, http.StatusOK, map[string]any{
 			"container_state": status.State, "health_status": status.Health,
-			"databases": databaseInfo, "show_all": showAll,
+			"databases": databaseInfo, "show_all": showAll, "from_disk": fromDisk,
 		})
 		return
 	}
 
-	dbToastID, dbToastMessage := zeroUserDatabasesToast(databaseInfo)
-	renderDatabasesPage(a, w, r, status, mysqlVersion, databaseInfo, unit, showAll, dbToastID, dbToastMessage)
+	// users aren't known while listing from disk, every database would look unassigned
+	var dbToastID, dbToastMessage string
+	if !fromDisk {
+		dbToastID, dbToastMessage = zeroUserDatabasesToast(databaseInfo)
+	}
+	renderDatabasesPage(a, w, r, status, mysqlVersion, databaseInfo, unit, showAll, fromDisk, dbToastID, dbToastMessage)
+}
+
+// startContainerInBackground starts a stopped container as it is, quicker than a compose up which recreates it
+func startContainerInBackground(userContext, name string) {
+	cmd := podmanmanager.Command(context.Background(), userContext, podmanmanager.PodmanArgv(userContext, "start", name))
+	if cmd.Start() == nil {
+		go func() { _ = cmd.Wait() }()
+	}
+}
+
+var mysqlEncodedCharRE = regexp.MustCompile(`@([0-9a-fA-F]{4})`)
+
+// databasesFromDisk lists the database directories in the account's datadir, mysqld stores a name like my-db as my@002ddb
+func databasesFromDisk(userContext string, showAll bool) []DatabaseRow {
+	entries, err := tenantfs.ReadDir("/home/" + userContext + "/docker-data/volumes/" + userContext + "_mysql_data/_data")
+	if err != nil {
+		return nil
+	}
+	var rows []DatabaseRow
+	for _, e := range entries {
+		if !e.IsDir() || strings.HasPrefix(e.Name(), "#") || e.Name() == "lost+found" {
+			continue
+		}
+		name := mysqlEncodedCharRE.ReplaceAllStringFunc(e.Name(), func(m string) string {
+			n, err := strconv.ParseUint(m[1:], 16, 32)
+			if err != nil {
+				return m
+			}
+			return string(rune(n))
+		})
+		if !showAll && slices.Contains(restricted.databases, name) {
+			continue
+		}
+		rows = append(rows, DatabaseRow{Database: name, IsSystem: isSystemMySQLDatabase(name)})
+	}
+	return rows
 }
 
 // zeroUserDatabasesToast builds the "these databases have no users assigned" warning toast text, pluralized for 1/2/many databases, returns ("", "") when there's nothing to warn about

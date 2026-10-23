@@ -143,7 +143,8 @@ func CheckMySQLNotTemporary(ctx context.Context, userContext, mysqlVersion strin
 
 // resolveContainerHealth wraps docker.GetContainerStatus()'s Health field to patch over one staleness window: Podman's HEALTHCHECK only re-runs on its own interval, so a container can already be answering queries fine while the cached health status still reads "starting"/"unhealthy" for a few more seconds - rather than trust that stale field, do one live SELECT 1 and treat that as authoritative, the same "check real runtime state instead of a racy signal" pattern used for the PHP extensions/info start-check and Varnish's enable-action check
 func resolveContainerHealth(ctx context.Context, userContext string, status docker.ContainerStatus) string {
-	if status.Health == "healthy" || status.State != "running" {
+	// without the socket a query waits up to 15s for it to show up
+	if status.Health == "healthy" || status.State != "running" || !mysqlmanager.SocketExists(userContext) {
 		return status.Health
 	}
 	if CheckMySQLInsideContainer(ctx, userContext, false) {

@@ -523,6 +523,16 @@ function exportModal(dbName) {
             </tr>
             {{end}}
         {{else}}
+        {{/* read from the datadir while the service starts, users and actions come with the next refresh */}}
+        {{range .Databases}}
+        <tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 opacity-60">
+            <td class="w-10 py-4 pl-4 sm:pl-6 pr-2"></td>
+            <td class="p-4 text-sm whitespace-nowrap font-medium text-gray-900 dark:text-gray-50 text-left">{{.Database}}</td>
+            <td class="db_size_cell whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" style="display:none;">—</td>
+            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">—</td>
+            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{if .IsSystem}}<span class="bg-gray-100 text-gray-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-300">{{$.T.Get "System Database"}}</span>{{end}}</td>
+        </tr>
+        {{end}}
         <tr>
             <td colspan="5" class="p-6 text-center">
                 {{$.T.Get .StatusDetail}}
@@ -531,6 +541,15 @@ function exportModal(dbName) {
         </tr>
         {{end}}
     {{else}}
+        {{range .Databases}}
+        <tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 opacity-60">
+            <td class="w-10 py-4 pl-4 sm:pl-6 pr-2"></td>
+            <td class="p-4 text-sm whitespace-nowrap font-medium text-gray-900 dark:text-gray-50 text-left">{{.Database}}</td>
+            <td class="db_size_cell whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" style="display:none;">—</td>
+            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">—</td>
+            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{if .IsSystem}}<span class="bg-gray-100 text-gray-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-300">{{$.T.Get "System Database"}}</span>{{end}}</td>
+        </tr>
+        {{end}}
         <tr>
             <td colspan="5" class="p-6 text-center">
                 {{$.T.Get .StatusDetail}}

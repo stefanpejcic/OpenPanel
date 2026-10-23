@@ -50,23 +50,25 @@ type DatabasesPageData struct {
 	Databases      []DatabaseRow
 	Unit           string
 	ShowAll        bool
+	FromDisk       bool
 	DBToastID      string
 	DBToastMessage string
 }
 
-func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, mysqlVersion string, databases []DatabaseRow, unit string, showAll bool, dbToastID, dbToastMessage string) {
+func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, mysqlVersion string, databases []DatabaseRow, unit string, showAll, fromDisk bool, dbToastID, dbToastMessage string) {
 	layout, injectedData, err := web.BuildLayoutData(a, w, r, "Databases")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if len(databases) > 0 {
+	// the bulk actions list the database users, which needs the service up
+	if len(databases) > 0 && !fromDisk {
 		userContext, _ := injectedData["context"].(string)
 		layout.BulkActions = databasesBulkActions(layout.T, mysqlUserOptions(r.Context(), userContext))
 	}
 	data := DatabasesPageData{
 		LayoutData: layout, ServiceStatusData: serviceStatusData(status),
-		Service: mysqlVersion, Databases: databases, Unit: unit, ShowAll: showAll,
+		Service: mysqlVersion, Databases: databases, Unit: unit, ShowAll: showAll, FromDisk: fromDisk,
 		DBToastID: dbToastID, DBToastMessage: dbToastMessage,
 	}
 	if err := databasesPage.Render(w, http.StatusOK, data); err != nil {

@@ -36,7 +36,8 @@ func GetContainerStatus(ctx context.Context, userContext, serviceName string) Co
 		return ContainerStatus{State: "not_found", Health: "none"}
 	}
 	health := "none"
-	if len(parts) > 1 {
+	// a stopped container keeps its last health result, "healthy" there would send callers off to query a dead socket
+	if len(parts) > 1 && parts[0] == "running" {
 		health = parts[1]
 	}
 	return ContainerStatus{State: parts[0], Health: health}

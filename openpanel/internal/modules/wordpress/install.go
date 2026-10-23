@@ -307,14 +307,17 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		"--url=https://"+selectedDomain, "--title="+websiteName, "--admin_user="+adminUsername,
 		"--admin_password="+adminPassword, "--admin_email="+adminEmail, "--path="+installPath, "--allow-root")
 
-	if runErr := podmanmanager.Command(ctx, userContext, installArgv).Run(); runErr != nil {
-		time.Sleep(10 * time.Second)
-		if retryErr := podmanmanager.Command(ctx, userContext, installArgv).Run(); retryErr != nil {
-			emit(map[string]any{"error": "Error running wp core install: " + retryErr.Error()})
-			emitCleanupFiles(hostOSPath, emit)
-			emitCleanupDatabase(ctx, userContext, mysqlVersion, dbName, dbUser, dbHost, emit)
-			return
-		}
+	// a just created database or php container can take a few seconds, retried every 2s instead of one retry after 10s
+	runErr := podmanmanager.Command(ctx, userContext, installArgv).Run()
+	for attempt := 0; runErr != nil && attempt < 5; attempt++ {
+		time.Sleep(2 * time.Second)
+		runErr = podmanmanager.Command(ctx, userContext, installArgv).Run()
+	}
+	if runErr != nil {
+		emit(map[string]any{"error": "Error running wp core install: " + runErr.Error()})
+		emitCleanupFiles(hostOSPath, emit)
+		emitCleanupDatabase(ctx, userContext, mysqlVersion, dbName, dbUser, dbHost, emit)
+		return
 	}
 
 	var wpEvalParts []string
