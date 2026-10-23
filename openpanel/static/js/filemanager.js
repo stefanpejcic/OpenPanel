@@ -169,7 +169,12 @@ function parseLsDate(str) {
     const withTime = str.match(/^(\w{3})\s+(\d+)\s+(\d+):(\d+)$/);
     if (withTime) {
         const [, mon, day, hour, min] = withTime;
-        return new Date(`${mon} ${day} ${currentYear} ${hour}:${min}`).getTime();
+        const t = new Date(`${mon} ${day} ${currentYear} ${hour}:${min}`).getTime();
+        // ls only shows a time for the last 6 months, so a date days ahead is last year's, the slack covers server/browser timezones
+        if (t > Date.now() + 2 * 86400000) {
+            return new Date(`${mon} ${day} ${currentYear - 1} ${hour}:${min}`).getTime();
+        }
+        return t;
     }
 
     const withYear = str.match(/^(\w{3})\s+(\d+)\s+(\d{4})$/);
@@ -706,7 +711,7 @@ function openPicker(action, items) {
     let cur = FM.pathParam.replace(/^\/|\/$/g, '');
     let busy = false;
 
-    const archiveBase = items[0].fileName.replace(/\.(tar\.gz|tgz|tar|zip)$/i, '');
+    const archiveBase = items[0].fileName.replace(/\.(tar\.gz|tgz|tar|zip|gz)$/i, '');
     $('fmPickerTitle').textContent = items.length > 1
         ? `${FM.i18n[action]} ${items.length} ${FM.i18n.items}`
         : `${FM.i18n[action]} ${items[0].fileName}`;

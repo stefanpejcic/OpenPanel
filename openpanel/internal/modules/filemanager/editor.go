@@ -200,7 +200,8 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 			fail(http.StatusNotFound, "Error accessing file size.")
 			return
 		}
-		if !isNew && info.Size() > fileLimitBytes {
+		// new=true only means the file may not exist yet, it must not skip the limit or the editor loads a cut-off copy
+		if info.Size() > fileLimitBytes {
 			fail(http.StatusRequestEntityTooLarge,
 				web.Tr(a, r, "File is too large to open in the editor (limit is %(file_limit_mb)s MB)", "file_limit_mb", strconv.Itoa(fileLimitMB)))
 			return
@@ -326,7 +327,6 @@ func handleViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filen
 		return
 	}
 
-	isNew := r.URL.Query().Get("new") == "true"
 	fileLimitMB := atoiDefault(a.Config.Get("filemanager_view_size", "500"), 500)
 
 	f, openErr := root.Open(rel)
@@ -340,7 +340,7 @@ func handleViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filen
 		web.FlashRedirect(a, w, r, "error", "Error accessing file size.", "/files")
 		return
 	}
-	if !isNew && info.Size() > int64(fileLimitMB)*1024*1024 {
+	if info.Size() > int64(fileLimitMB)*1024*1024 {
 		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "File is too large to view in the browser (limit is %(file_limit_mb)s MB)", "file_limit_mb", strconv.Itoa(fileLimitMB)), "/files")
 		return
 	}

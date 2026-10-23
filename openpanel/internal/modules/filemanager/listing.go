@@ -22,6 +22,26 @@ type FolderInfo struct {
 	HasSubfolders bool   `json:"has_subfolders"`
 }
 
+// hasSubfolder reads dir in batches and stops at the first folder, reading and sorting every entry was slow on big upload dirs
+func hasSubfolder(root *paths.UserRoot, dir string) bool {
+	f, err := root.Open(dir)
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+	for {
+		entries, err := f.ReadDir(256)
+		for _, e := range entries {
+			if e.IsDir() {
+				return true
+			}
+		}
+		if err != nil {
+			return false
+		}
+	}
+}
+
 // handleFolders serves the copy/move modal's folder picker.
 func handleFolders(a *appctx.App, w http.ResponseWriter, r *http.Request, pathParam string) {
 	ctx := r.Context()
@@ -55,21 +75,20 @@ func handleFolders(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPa
 		if !e.IsDir() {
 			continue
 		}
-		hasSubfolders := false
-		if subEntries, subErr := fs.ReadDir(root.FS(), path.Join(safeDir, e.Name())); subErr == nil {
-			for _, sub := range subEntries {
-				if sub.IsDir() {
-					hasSubfolders = true
-					break
-				}
-			}
-		}
 		folderInfo = append(folderInfo, FolderInfo{
-			Name: e.Name(), Path: filepath.Join(pathParam, e.Name()), HasSubfolders: hasSubfolders,
+			Name: e.Name(), Path: filepath.Join(pathParam, e.Name()), HasSubfolders: hasSubfolder(root, path.Join(safeDir, e.Name())),
 		})
 	}
 
 	web.WriteJSON(w, http.StatusOK, map[string]any{"folders": folderInfo})
+}
+
+// filesPerPage is the listing page size, falling back to 500 since OpenAdmin accepts 0 and the paging divides by it
+func filesPerPage(a *appctx.App) int {
+	if n := atoiDefault(a.Config.Get("filemanager_files_per_page", "500"), 500); n > 0 {
+		return n
+	}
+	return 500
 }
 
 // handleFiles serves the main file-manager listing page.
@@ -113,7 +132,7 @@ func handleFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPara
 	filemanagerViewSize := atoiDefault(a.Config.Get("filemanager_view_size", "5"), 5)
 	filemanagerDownloadSize := atoiDefault(a.Config.Get("filemanager_download_size", "2000"), 2000)
 	filemanagerUploadSize := atoiDefault(a.Config.Get("filemanager_upload_size", "2000"), 2000)
-	filemanagerFilesPerPage := atoiDefault(a.Config.Get("filemanager_files_per_page", "500"), 500)
+	filemanagerFilesPerPage := filesPerPage(a)
 
 	var filesInfo []FileEntry
 	var readmeContent string
