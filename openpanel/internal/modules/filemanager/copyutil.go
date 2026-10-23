@@ -1,6 +1,7 @@
 package filemanager
 
 import (
+	"errors"
 	"io"
 	"io/fs"
 	"os"
@@ -64,6 +65,16 @@ func copyTree(root *os.Root, src, dst string) error {
 		}
 		return nil
 	})
+}
+
+var errFolderNameSlash = errors.New("folder name can't contain a slash")
+
+// mkdirNew makes one new folder, unlike MkdirAll it fails if it already exists and won't build a/b/c from one name
+func mkdirNew(root *os.Root, rel, name string) error {
+	if strings.ContainsAny(name, `/\`) {
+		return errFolderNameSlash
+	}
+	return root.Mkdir(rel, 0o755)
 }
 
 // renameNoReplace is root.Rename but won't replace an existing dst

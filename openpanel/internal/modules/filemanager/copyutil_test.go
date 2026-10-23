@@ -59,6 +59,31 @@ func TestCopyTreeStillCopiesFiles(t *testing.T) {
 	}
 }
 
+func TestMkdirNew(t *testing.T) {
+	root, home := withUserRoot(t)
+	if err := os.Mkdir(filepath.Join(home, "site"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	// MkdirAll used to report an existing folder as created
+	if err := mkdirNew(root.Root, "site", "site"); !errors.Is(err, os.ErrExist) {
+		t.Fatalf("existing folder: err = %v, want ErrExist", err)
+	}
+	// and build a nested tree out of one name
+	if err := mkdirNew(root.Root, "a/b/c", "a/b/c"); !errors.Is(err, errFolderNameSlash) {
+		t.Fatalf("name with a slash: err = %v, want errFolderNameSlash", err)
+	}
+	if _, err := os.Stat(filepath.Join(home, "a")); err == nil {
+		t.Fatal("a/ got created for the name \"a/b/c\"")
+	}
+	if err := mkdirNew(root.Root, "blog", "blog"); err != nil {
+		t.Fatalf("new folder: %v", err)
+	}
+	if info, err := os.Stat(filepath.Join(home, "blog")); err != nil || !info.IsDir() {
+		t.Fatalf("blog not created: %v", err)
+	}
+}
+
 func TestRenameNoReplace(t *testing.T) {
 	root, home := withUserRoot(t)
 	writeHomeFile(t, home, "a.txt", "a")

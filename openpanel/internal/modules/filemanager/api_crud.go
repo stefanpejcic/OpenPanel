@@ -100,8 +100,15 @@ func apiCreateFolder(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	defer root.Close()
 
-	if mkErr := root.MkdirAll(rel, 0o755); mkErr != nil {
-		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error creating directory! Check permissions."})
+	if mkErr := mkdirNew(root.Root, rel, folderName); mkErr != nil {
+		switch {
+		case errors.Is(mkErr, errFolderNameSlash):
+			web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Folder name can't contain a slash."})
+		case errors.Is(mkErr, os.ErrExist):
+			web.WriteJSON(w, http.StatusConflict, map[string]string{"error": "Error creating directory: already exists."})
+		default:
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error creating directory! Check permissions."})
+		}
 		return
 	}
 

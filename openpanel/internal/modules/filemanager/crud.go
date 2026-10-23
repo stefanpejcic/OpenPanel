@@ -101,8 +101,15 @@ func handleCreateFolder(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	defer root.Close()
 
-	if mkErr := root.MkdirAll(rel, 0o755); mkErr != nil {
-		web.FlashRedirect(a, w, r, "error", "Error creating directory! Check permissions.", filesRedirectPath(pathParam))
+	if mkErr := mkdirNew(root.Root, rel, folderName); mkErr != nil {
+		msg := "Error creating directory! Check permissions."
+		switch {
+		case errors.Is(mkErr, errFolderNameSlash):
+			msg = "Folder name can't contain a slash."
+		case errors.Is(mkErr, os.ErrExist):
+			msg = "Error creating directory: already exists."
+		}
+		web.FlashRedirect(a, w, r, "error", msg, filesRedirectPath(pathParam))
 		return
 	}
 
