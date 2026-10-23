@@ -143,6 +143,11 @@ function updateDocroot() {
     pathField.value = docroot || '';
 }
 
+// the first domain is preselected without a change event, so sync its docroot once on load
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('domain').value) updateDocroot();
+});
+
 </script>
 
 
