@@ -207,7 +207,7 @@ func handleDeleteFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	if mode == "trash" {
 		if _, trashErr := moveItemToTrash(ctx, a, root, itemPath, itemName, user.Context); trashErr != nil {
-			web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "message": "Delete failed: " + trashErr.Error()})
+			web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": "Delete failed: " + trashErr.Error()})
 			return
 		}
 		_ = logger.RecordUserAction(a.Config, user.Username, "moved "+itemType+" "+displayPath+" to Trash using File Manager", reqip.ClientIP(r))
@@ -222,7 +222,7 @@ func handleDeleteFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		rmErr = root.Remove(itemPath)
 	}
 	if rmErr != nil {
-		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "message": "Delete failed: " + rmErr.Error()})
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"success": false, "error": "Delete failed: " + rmErr.Error()})
 		return
 	}
 	_ = logger.RecordUserAction(a.Config, user.Username, "deleted "+itemType+" "+displayPath+" using File Manager", reqip.ClientIP(r))
