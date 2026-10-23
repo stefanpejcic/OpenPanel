@@ -109,7 +109,7 @@ func handleFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPara
 		lsFlag = "-l"
 	}
 
-	filemanagerEditSize := atoiDefault(a.Config.Get("filemanager_edit_size", "5"), 5)
+	filemanagerEditSize := editSizeMB(a)
 	filemanagerViewSize := atoiDefault(a.Config.Get("filemanager_view_size", "5"), 5)
 	filemanagerDownloadSize := atoiDefault(a.Config.Get("filemanager_download_size", "2000"), 2000)
 	filemanagerUploadSize := atoiDefault(a.Config.Get("filemanager_upload_size", "2000"), 2000)

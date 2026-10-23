@@ -44,6 +44,11 @@ func editExtensions(a *appctx.App) []string {
 	return strings.Fields(raw)
 }
 
+// editSizeMB is the editor's size limit, from the same key openpanel.config and OpenAdmin use
+func editSizeMB(a *appctx.App) int {
+	return atoiDefault(a.Config.Get("filemanager_edit_size", "5"), 5)
+}
+
 func imageExtensions(a *appctx.App) []string {
 	raw := stripQuotes(a.Config.Get("filemanager_image_extensions", ".jpg .jpeg .png .gif .webp .avif"))
 	return strings.Fields(raw)
@@ -148,7 +153,7 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 
 	// GET
 	isNew := r.URL.Query().Get("new") == "true"
-	fileLimitMB := atoiDefault(a.Config.Get("filemanager_editor_size", "5"), 5)
+	fileLimitMB := editSizeMB(a)
 	fileLimitBytes := int64(fileLimitMB) * 1024 * 1024
 	var fileContent string
 
