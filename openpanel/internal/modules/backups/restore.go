@@ -96,7 +96,7 @@ var restoreDumpInto = restoreDump
 
 // restoreDatabasesFromTar restores every dump in the archive (or only the one named only) straight off the stream, returns the restored database names
 // with only set it stops right after that dump or once the dump dirs are past, on archives with 01- dump dirs that's before html/
-func restoreDatabasesFromTar(ctx context.Context, userContext string, archive io.Reader, only string) ([]string, error) {
+func restoreDatabasesFromTar(ctx context.Context, userContext string, archive io.Reader, only, onlyEngine string) ([]string, error) {
 	gz, err := gzip.NewReader(archive)
 	if err != nil {
 		return nil, err
@@ -125,7 +125,8 @@ func restoreDatabasesFromTar(ctx context.Context, userContext string, archive io
 			continue
 		}
 		engine, ok := dumpEngine(name)
-		if !ok {
+		// a mysql and a postgres database can share a name, the page says which one it means
+		if !ok || (onlyEngine != "" && engine != onlyEngine) {
 			continue
 		}
 		dbName, ok := dumpDBName(name)
@@ -335,6 +336,10 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 		restoreTarget = "all"
 	}
 	database := strings.TrimSpace(req.Form.Get("database"))
+	engine := strings.TrimSpace(req.Form.Get("engine"))
+	if engine != "" && engine != "mysql" && engine != "postgres" {
+		return http.StatusBadRequest, map[string]any{"error": "Unknown database engine: " + engine}
+	}
 	if _, ok := restoreSections[restoreTarget]; !ok && !selectiveRestoreTargets[restoreTarget] && restoreTarget != "all" && restoreTarget != "database" && restoreTarget != "files" {
 		return http.StatusBadRequest, map[string]any{"error": "Unknown restore target: " + restoreTarget}
 	}
@@ -376,7 +381,7 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 		defer rc.Close()
 
 		if restoreTarget == "database" {
-			restored, err := restoreDatabasesFromTar(ctx, req.UserContext, rc, database)
+			restored, err := restoreDatabasesFromTar(ctx, req.UserContext, rc, database, engine)
 			if err != nil {
 				return http.StatusInternalServerError, map[string]any{"error": err.Error()}
 			}
@@ -427,7 +432,7 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 	if _, err := f.Seek(0, io.SeekStart); err != nil {
 		return http.StatusInternalServerError, map[string]any{"error": err.Error()}
 	}
-	if _, err := restoreDatabasesFromTar(ctx, req.UserContext, f, ""); err != nil {
+	if _, err := restoreDatabasesFromTar(ctx, req.UserContext, f, "", ""); err != nil {
 		return http.StatusInternalServerError, map[string]any{"error": err.Error()}
 	}
 	_ = logger.RecordUserAction(a.Config, req.Username, "restored full backup from "+safeName, req.IP)
