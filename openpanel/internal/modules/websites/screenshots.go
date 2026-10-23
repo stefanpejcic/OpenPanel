@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"strings"
 	"time"
@@ -17,12 +18,13 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
+	"golang.org/x/net/idna"
 )
 
 const (
 	screenshotCacheDir     = "/etc/openpanel/wordpress/screenshots"
 	screenshotFallbackAPI  = "https://api.openpanel.com/screenshots"
-	screenshotFetchTimeout = 5 * time.Second
+	screenshotFetchTimeout = 25 * time.Second // heavy sites take 10-15s on the API
 )
 
 // screenshotAPIBase resolves the `screenshots` config value: a configured, non-"local" value is used as-is; anything else (unset or "local", the old local-Playwright selector) falls back to OpenPanel's hosted API.
@@ -43,6 +45,10 @@ func screenshotCachePath(domain string) string {
 // fetchAndCacheScreenshot fetches the API's {"base64": "..."} envelope, decodes it, and writes the PNG to the local cache.
 func fetchAndCacheScreenshot(ctx context.Context, a *appctx.App, domain string) error {
 	apiURL := screenshotAPIBase(a) + "/" + domain
+	// the API loads the site from this server's IP, so it works before DNS points here, older APIs ignore it
+	if ip := screenshotServerIP(ctx, a, domain); ip != "" {
+		apiURL += "?ip=" + url.QueryEscape(ip)
+	}
 
 	fetchCtx, cancel := context.WithTimeout(ctx, screenshotFetchTimeout)
 	defer cancel()
@@ -78,10 +84,24 @@ func fetchAndCacheScreenshot(ctx context.Context, a *appctx.App, domain string) 
 	return tenantfs.WriteFile(screenshotCachePath(domain), imgBytes, 0o644)
 }
 
-// TriggerScreenshotGeneration kicks off screenshot generation for a freshly installed site in the background and returns immediately - every CMS/app install.go calls this right after its own "INSERT INTO sites" succeeds, so the screenshot is already cached by the time the install-complete redirect lands the user on /website. Uses a detached context (5s cap) instead of the request's own, since the install's HTTP response has already been sent by the time that would get cancelled - a slow/unreachable API just falls back to the page's own on-demand fetch.
+// screenshotServerIP is the IP the domain's owner is served from, "" when the owner can't be found
+func screenshotServerIP(ctx context.Context, a *appctx.App, domain string) string {
+	host, _, _ := strings.Cut(domain, "/")
+	host, err := idna.ToASCII(host)
+	if err != nil {
+		return ""
+	}
+	var username string
+	if err := a.DB.QueryRowContext(ctx, "SELECT u.username FROM domains d JOIN users u ON u.id = d.user_id WHERE d.domain_url = ?", host).Scan(&username); err != nil {
+		return ""
+	}
+	return a.GetCachedIPForUserOrPublicIPv4(ctx, username)
+}
+
+// TriggerScreenshotGeneration kicks off screenshot generation for a freshly installed site in the background and returns immediately - every CMS/app install.go calls this right after its own "INSERT INTO sites" succeeds, so the screenshot is already cached by the time the install-complete redirect lands the user on /website. Uses a detached context (screenshotFetchTimeout cap) instead of the request's own, since the install's HTTP response has already been sent by the time that would get cancelled - a slow/unreachable API just falls back to the page's own on-demand fetch.
 func TriggerScreenshotGeneration(a *appctx.App, domain string) {
 	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), screenshotFetchTimeout)
 		defer cancel()
 		if err := fetchAndCacheScreenshot(ctx, a, domain); err != nil {
 			log.Printf("WEBSITES - background screenshot generation for %s failed: %v", domain, err)
