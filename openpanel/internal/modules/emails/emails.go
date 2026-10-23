@@ -208,11 +208,15 @@ func quotaToBytes(value string) (float64, error) {
 	return num * mult, nil
 }
 
-// emailSetQuota returns (message, ok); ok=false with an empty message means "invalid quota format"
-func emailSetQuota(email, gb, format, maxEmailQuota string, maxEmailQuotaNumeric float64, allocatedUnit string) (string, bool) {
+// emailQuotaFor works out the quota to apply, "" means unlimited, ok=false means an invalid format
+func emailQuotaFor(gb, format, maxEmailQuota string, maxEmailQuotaNumeric float64, allocatedUnit string) (string, bool) {
+	planMax := fmt.Sprintf("%s%s", trimFloat(maxEmailQuotaNumeric), allocatedUnit)
 	if gb == "0" {
-		_ = exec.Command("opencli", "email-setup", "quota", "del", email).Run()
-		return "deleted quota", true
+		// 0 means unlimited, which a plan with a quota limit doesn't allow
+		if maxEmailQuota != "0" {
+			return planMax, true
+		}
+		return "", true
 	}
 
 	validFormats := map[string]bool{"B": true, "k": true, "M": true, "G": true, "T": true}
@@ -225,17 +229,25 @@ func emailSetQuota(email, gb, format, maxEmailQuota string, maxEmailQuotaNumeric
 	if maxEmailQuota != "0" {
 		reqBytes, reqErr := quotaToBytes(requestedQuota)
 		maxBytes, maxErr := quotaToBytes(maxEmailQuota)
-		if reqErr == nil && maxErr == nil {
-			if reqBytes > maxBytes {
-				requestedQuota = fmt.Sprintf("%s%s", trimFloat(maxEmailQuotaNumeric), allocatedUnit)
-			}
-		} else {
-			requestedQuota = fmt.Sprintf("%s%s", trimFloat(maxEmailQuotaNumeric), allocatedUnit)
+		if reqErr != nil || maxErr != nil || reqBytes > maxBytes {
+			requestedQuota = planMax
 		}
 	}
+	return requestedQuota, true
+}
 
-	_ = exec.Command("opencli", "email-setup", "quota", "set", email, requestedQuota).Run()
-	return "set quota to " + requestedQuota, true
+// emailSetQuota returns (message, ok); ok=false with an empty message means "invalid quota format"
+func emailSetQuota(email, gb, format, maxEmailQuota string, maxEmailQuotaNumeric float64, allocatedUnit string) (string, bool) {
+	quota, ok := emailQuotaFor(gb, format, maxEmailQuota, maxEmailQuotaNumeric, allocatedUnit)
+	if !ok {
+		return "", false
+	}
+	if quota == "" {
+		_ = exec.Command("opencli", "email-setup", "quota", "del", email).Run()
+		return "deleted quota", true
+	}
+	_ = exec.Command("opencli", "email-setup", "quota", "set", email, quota).Run()
+	return "set quota to " + quota, true
 }
 
 // trimFloat formats a float without a trailing ".0" when it's a whole number - the max quota value is often a whole number in practice

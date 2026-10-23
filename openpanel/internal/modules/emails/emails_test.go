@@ -215,3 +215,28 @@ func TestParseEmailListRowNearQuota(t *testing.T) {
 		t.Fatal("80% should not be near quota")
 	}
 }
+
+func TestEmailQuotaFor(t *testing.T) {
+	cases := []struct {
+		name, gb, format, planMax string
+		planNum                   float64
+		unit, want                string
+		ok                        bool
+	}{
+		{"unlimited on a plan without a limit", "0", "G", "0", 0, "", "", true},
+		// this used to delete the quota and give an unlimited mailbox on a capped plan
+		{"unlimited on a capped plan gets the plan max", "0", "G", "2G", 2, "G", "2G", true},
+		{"under the plan max", "1", "G", "2G", 2, "G", "1G", true},
+		{"over the plan max is clamped", "5", "G", "2G", 2, "G", "2G", true},
+		{"no plan limit keeps the request", "5", "G", "0", 0, "", "5G", true},
+		{"invalid unit", "5", "X", "2G", 2, "G", "", false},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got, ok := emailQuotaFor(c.gb, c.format, c.planMax, c.planNum, c.unit)
+			if got != c.want || ok != c.ok {
+				t.Fatalf("emailQuotaFor(%q, %q) = (%q, %v), want (%q, %v)", c.gb, c.format, got, ok, c.want, c.ok)
+			}
+		})
+	}
+}
