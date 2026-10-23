@@ -238,7 +238,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 	_ = tenantfs.Lchown(filepath.Dir(hostOSPath), uid, uid)
 	// the symlink target must be the container-visible path, not the host filesystem path, since php-fpm only sees its own /var/www/html/ bind mount - same gotcha as moodle/install.go
-	if symErr := tenantfs.Symlink(approotContainerPath, hostOSPath); symErr != nil {
+	if symErr := cmsapp.SymlinkDocroot(userContext, approotContainerPath, hostOSPath); symErr != nil {
 		emit(map[string]any{"error": "Error creating web root symlink: " + symErr.Error()})
 		_ = tenantfs.RemoveAll(approotHostPath)
 		_ = tenantfs.RemoveAll(filesHostPath)

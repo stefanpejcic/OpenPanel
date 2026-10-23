@@ -12,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -114,7 +115,7 @@ func handleOJSClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		_ = tenantfs.RemoveAll(dstFilesHostPath)
 		return
 	}
-	if symErr := tenantfs.Symlink(dstApprootContainerPath, dstHostOSPath); symErr != nil {
+	if symErr := cmsapp.SymlinkDocroot(userContext, dstApprootContainerPath, dstHostOSPath); symErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error creating web root symlink: " + symErr.Error()})
 		_ = tenantfs.RemoveAll(dstApprootHostPath)
 		_ = tenantfs.RemoveAll(dstFilesHostPath)

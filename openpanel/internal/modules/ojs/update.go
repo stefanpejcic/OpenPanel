@@ -147,10 +147,10 @@ func handleOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		_ = tenantfs.RemoveAll(newApprootHostPath)
 		return
 	}
-	if symErr := tenantfs.Symlink(newApprootContainerPath, docrootSymlinkHostPath); symErr != nil {
+	if symErr := cmsapp.SymlinkDocroot(userContext, newApprootContainerPath, docrootSymlinkHostPath); symErr != nil {
 		emit(map[string]any{"error": "Could not point web root at the new version: " + symErr.Error()})
 		// Best-effort roll back the symlink to the old (untouched) tree.
-		_ = tenantfs.Symlink("/var/www/html/"+slug+"_ojsapp", docrootSymlinkHostPath)
+		_ = cmsapp.SymlinkDocroot(userContext, "/var/www/html/"+slug+"_ojsapp", docrootSymlinkHostPath)
 		_ = tenantfs.RemoveAll(newApprootHostPath)
 		return
 	}
@@ -162,7 +162,7 @@ func handleOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		emit(map[string]any{"error": "tools/upgrade.php upgrade failed: " + strings.TrimSpace(string(out))})
 		emit(map[string]any{"status": "Rolling back web root to the previous version"})
 		_ = tenantfs.Remove(docrootSymlinkHostPath)
-		_ = tenantfs.Symlink("/var/www/html/"+slug+"_ojsapp", docrootSymlinkHostPath)
+		_ = cmsapp.SymlinkDocroot(userContext, "/var/www/html/"+slug+"_ojsapp", docrootSymlinkHostPath)
 		_ = tenantfs.RemoveAll(newApprootHostPath)
 		return
 	}
@@ -173,10 +173,10 @@ func handleOJSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		// upgrade already succeeded and the symlink points at ".new" - not fatal, just repoint the symlink at wherever the dir ended up
 		emit(map[string]any{"status": "Warning: could not rename new version into place: " + renameErr.Error()})
 		_ = tenantfs.Remove(docrootSymlinkHostPath)
-		_ = tenantfs.Symlink(newApprootContainerPath, docrootSymlinkHostPath)
+		_ = cmsapp.SymlinkDocroot(userContext, newApprootContainerPath, docrootSymlinkHostPath)
 	} else {
 		_ = tenantfs.Remove(docrootSymlinkHostPath)
-		_ = tenantfs.Symlink("/var/www/html/"+slug+"_ojsapp", docrootSymlinkHostPath)
+		_ = cmsapp.SymlinkDocroot(userContext, "/var/www/html/"+slug+"_ojsapp", docrootSymlinkHostPath)
 	}
 
 	if _, execErr := a.DB.ExecContext(ctx, "UPDATE sites SET version = ? WHERE site_name = ? AND type = 'ojs'", dotted, selectedDomain); execErr != nil {

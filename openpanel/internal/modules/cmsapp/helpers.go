@@ -12,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/installmanifest"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
@@ -22,6 +23,17 @@ func IsValidSubdirectory(subdirectory string) bool {
 		return true
 	}
 	return !strings.Contains(subdirectory, "..") && !strings.HasPrefix(subdirectory, "/")
+}
+
+// SymlinkDocroot points linkPath at target and gives the link itself to the user, Apache refuses a docroot symlink owned by root (AH00037)
+func SymlinkDocroot(userContext, target, linkPath string) error {
+	if err := tenantfs.Symlink(target, linkPath); err != nil {
+		return err
+	}
+	if uid, err := podmanmanager.GetUID(userContext); err == nil {
+		_ = tenantfs.Lchown(linkPath, uid, uid)
+	}
+	return nil
 }
 
 // EnsureContainerRunning starts the container if it isn't already running, polling briefly for it to come up

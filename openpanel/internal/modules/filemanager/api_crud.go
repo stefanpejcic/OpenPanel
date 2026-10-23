@@ -187,8 +187,8 @@ func apiChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		body.Recursive = form.Get("recursive") == "on"
 	})
 
-	if !permissionsRE.MatchString(body.Permissions) {
-		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid permissions format."})
+	if msg := permissionsError(body.Permissions); msg != "" {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": msg})
 		return
 	}
 

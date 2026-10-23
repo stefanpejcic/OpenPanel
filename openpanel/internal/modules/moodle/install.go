@@ -182,7 +182,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	emit(map[string]any{"status": "Linking web root to Moodle's public/ directory"})
 	_ = tenantfs.Remove(hostOSPath)
 	// the symlink target must be the container-visible path (/var/www/html/...), not approotHostPath's host filesystem path - the symlink is created host-side but read by the php-fpm container, which only sees its own /var/www/html/ bind mount, not the host's /home/<user>/docker-data/... tree, so a host-path symlink resolves fine via `ls` but is broken (ENOENT) from inside the container, causing a 403 on every request
-	if symErr := tenantfs.Symlink(approotContainerPath+"/public", hostOSPath); symErr != nil {
+	if symErr := cmsapp.SymlinkDocroot(userContext, approotContainerPath+"/public", hostOSPath); symErr != nil {
 		emit(map[string]any{"error": "Error creating web root symlink: " + symErr.Error()})
 		_ = tenantfs.RemoveAll(approotHostPath)
 		_ = tenantfs.RemoveAll(datarootHostPath)

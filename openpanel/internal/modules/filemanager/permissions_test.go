@@ -14,3 +14,16 @@ func TestPermissionsFormat(t *testing.T) {
 		}
 	}
 }
+
+func TestPermissionsError(t *testing.T) {
+	special := "Special permission bits (setuid, setgid, sticky) are not supported, use three digits like 755."
+	for value, want := range map[string]string{
+		"755": "", "0644": "",
+		"1777": special, "4755": special, "7777": special,
+		"0": "Invalid permissions format.", "888": "Invalid permissions format.", "00755": "Invalid permissions format.",
+	} {
+		if got := permissionsError(value); got != want {
+			t.Errorf("permissionsError(%q) = %q, want %q", value, got, want)
+		}
+	}
+}

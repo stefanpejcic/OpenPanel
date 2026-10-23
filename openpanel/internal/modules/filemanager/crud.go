@@ -239,6 +239,19 @@ func handleDeleteFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // a leading special digit (1777, 2755, 4755) used to pass and then get dropped by os.FileMode, the UI only sends three digits
 var permissionsRE = regexp.MustCompile(`^0?[0-7]{3}$`)
 
+var specialPermissionsRE = regexp.MustCompile(`^[1-7][0-7]{3}$`)
+
+// permissionsError is "" for a valid mode, setuid/setgid/sticky are refused on purpose since they're risky in a web root
+func permissionsError(permissions string) string {
+	switch {
+	case permissionsRE.MatchString(permissions):
+		return ""
+	case specialPermissionsRE.MatchString(permissions):
+		return "Special permission bits (setuid, setgid, sticky) are not supported, use three digits like 755."
+	}
+	return "Invalid permissions format."
+}
+
 // chmodPath applies mode to rel, and to everything under it when recursive is set and rel is a directory, symlinks inside are skipped rather than followed
 func chmodPath(root *paths.UserRoot, rel string, mode os.FileMode, recursive bool) error {
 	if !recursive {
@@ -264,8 +277,8 @@ func handleChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	pathParam := r.Form.Get("path_param")
 	recursive := r.Form.Get("recursive") == "on"
 
-	if !permissionsRE.MatchString(permissions) {
-		web.FlashRedirect(a, w, r, "error", "Invalid permissions format.", filesRedirectPath(pathParam))
+	if msg := permissionsError(permissions); msg != "" {
+		web.FlashRedirect(a, w, r, "error", msg, filesRedirectPath(pathParam))
 		return
 	}
 
