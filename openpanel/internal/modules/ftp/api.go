@@ -115,10 +115,13 @@ func apiFTPList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		entries = append(entries, e)
 	}
 
+	// same host and port as the /ftp page and the config downloads, the admin's server.conf override used to be ignored here
+	ftpHost, ftpPort := resolveFTPHostPort(apiServerIP(a, r, currentUsername))
 	writeAPIFTPJSON(w, http.StatusOK, map[string]any{
 		"accounts":  entries,
 		"server_ip": a.GetCachedIPForUserOrPublicIPv4(r.Context(), currentUsername),
-		"ftp_host":  apiServerIP(a, r, currentUsername),
+		"ftp_host":  ftpHost,
+		"ftp_port":  ftpPort,
 	})
 }
 
