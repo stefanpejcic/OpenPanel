@@ -8,11 +8,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
+	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
 	"strings"
 	"sync"
+	"time"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
@@ -343,11 +346,10 @@ func ReindexUser(userContext string) error {
 	}
 	jsonFile := filepath.Join(userHome, "available_backups.json")
 	lockFile := filepath.Join(userHome, "reindex.lock")
-	if _, err := tenantfs.Stat(lockFile); err == nil {
-		return errors.New("reindex already in progress")
-	}
-	if err := tenantfs.WriteFile(lockFile, []byte("running"), 0o644); err != nil {
+	if took, err := takeReindexLock(lockFile); err != nil {
 		return err
+	} else if !took {
+		return errors.New("reindex already in progress")
 	}
 	doReindex(userHome, config, backupNamePrefix(config, userContext), jsonFile, lockFile)
 
@@ -363,8 +365,58 @@ func ReindexUser(userContext string) error {
 
 var validReindexContext = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
+// reindexLockStale is how long reindex.lock can go untouched before it's taken as left over from a reindex that died with the panel
+const reindexLockStale = 10 * time.Minute
+
+// reindexLockTouch is how often a running reindex touches its lock, a var so tests can speed it up
+var reindexLockTouch = time.Minute
+
+// takeReindexLock creates lockFile, false means a live reindex holds it, a stale one is replaced
+func takeReindexLock(lockFile string) (bool, error) {
+	for range 2 {
+		f, err := tenantfs.OpenFile(lockFile, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
+		if err == nil {
+			_, _ = f.WriteString("running")
+			return true, f.Close()
+		}
+		if !errors.Is(err, fs.ErrExist) {
+			return false, err
+		}
+		if reindexRunning(lockFile) {
+			return false, nil
+		}
+		_ = tenantfs.Remove(lockFile)
+	}
+	return false, nil
+}
+
+// reindexRunning reports a lock that a running reindex is still touching
+func reindexRunning(lockFile string) bool {
+	info, err := tenantfs.Stat(lockFile)
+	return err == nil && time.Since(info.ModTime()) < reindexLockStale
+}
+
+// keepLockFresh touches lockFile until the returned stop is called
+func keepLockFresh(lockFile string) (stop func()) {
+	done := make(chan struct{})
+	ticker := time.NewTicker(reindexLockTouch)
+	go func() {
+		defer ticker.Stop()
+		for {
+			select {
+			case <-done:
+				return
+			case <-ticker.C:
+				_ = tenantfs.WriteFile(lockFile, []byte("running"), 0o644)
+			}
+		}
+	}()
+	return func() { close(done) }
+}
+
 func doReindex(userHome string, config map[string]string, prefix, jsonFile, lockFile string) {
 	defer tenantfs.Remove(lockFile)
+	defer keepLockFresh(lockFile)()
 
 	writeError := func(msg string) {
 		b, _ := json.Marshal(map[string]string{"error": msg})

@@ -234,13 +234,13 @@ func handleListBackupsFromDestination(a *appctx.App, w http.ResponseWriter, r *h
 	lockFile := filepath.Join(userHome, "reindex.lock")
 
 	if r.Method == http.MethodPost {
-		if _, statErr := tenantfs.Stat(lockFile); statErr == nil {
-			web.WriteJSON(w, http.StatusConflict, map[string]string{"message": "Reindex already in progress."})
+		took, lockErr := takeReindexLock(lockFile)
+		if lockErr != nil {
+			http.Error(w, "internal error", http.StatusInternalServerError)
 			return
 		}
-
-		if err := tenantfs.WriteFile(lockFile, []byte("running"), 0o644); err != nil {
-			http.Error(w, "internal error", http.StatusInternalServerError)
+		if !took {
+			web.WriteJSON(w, http.StatusConflict, map[string]string{"message": "Reindex already in progress."})
 			return
 		}
 		go doReindex(userHome, config, backupNamePrefix(config, userContext), jsonFile, lockFile)
@@ -253,10 +253,7 @@ func handleListBackupsFromDestination(a *appctx.App, w http.ResponseWriter, r *h
 		return
 	}
 
-	reindexing := false
-	if _, statErr := tenantfs.Stat(lockFile); statErr == nil {
-		reindexing = true
-	}
+	reindexing := reindexRunning(lockFile)
 
 	var backups []BackupInfo
 	var reindexErr string
