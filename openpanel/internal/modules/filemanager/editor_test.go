@@ -3,6 +3,7 @@ package filemanager
 import (
 	"errors"
 	"io"
+	"mime"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -63,4 +64,21 @@ func TestSendFile(t *testing.T) {
 	// the file got shorter after its size was taken
 	w = httptest.NewRecorder()
 	aborted(t, func() { sendFile(w, strings.NewReader(data[:100]), size, func() bool { return false }) })
+}
+
+// non-ASCII names used to go into filename="..." as raw UTF-8
+func TestAttachmentHeader(t *testing.T) {
+	for _, name := range []string{"plain.txt", "with space.txt", "отчёт ä.txt", `back\slash.txt`, "semi;colon.txt"} {
+		h := attachmentHeader(name)
+		for _, c := range h {
+			if c > 127 {
+				t.Errorf("%q: header %q isn't plain ASCII", name, h)
+				break
+			}
+		}
+		disposition, params, err := mime.ParseMediaType(h)
+		if err != nil || disposition != "attachment" || params["filename"] != name {
+			t.Errorf("%q: header %q decodes to %q %q (%v)", name, h, disposition, params["filename"], err)
+		}
+	}
 }

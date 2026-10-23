@@ -277,9 +277,17 @@ func handleDownloadFile(a *appctx.App, w http.ResponseWriter, r *http.Request, f
 	deadline := time.Now().Add(maxDuration)
 
 	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", `attachment; filename="`+path.Base(rel)+`"`)
+	w.Header().Set("Content-Disposition", attachmentHeader(path.Base(rel)))
 
 	sendFile(w, f, info.Size(), func() bool { return time.Now().After(deadline) })
+}
+
+// attachmentHeader is the Content-Disposition for a download, mime puts non-ASCII names in filename*= instead of raw UTF-8
+func attachmentHeader(name string) string {
+	if v := mime.FormatMediaType("attachment", map[string]string{"filename": name}); v != "" {
+		return v
+	}
+	return "attachment"
 }
 
 // sendFile streams f with its size declared, a download cut off by the time limit or a read error drops the connection so the browser doesn't keep a short file as complete

@@ -138,7 +138,7 @@ func apiDownloadFile(a *appctx.App, w http.ResponseWriter, r *http.Request, file
 	deadline := time.Now().Add(maxDuration)
 
 	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", `attachment; filename="`+path.Base(rel)+`"`)
+	w.Header().Set("Content-Disposition", attachmentHeader(path.Base(rel)))
 
 	sendFile(w, f, info.Size(), func() bool { return time.Now().After(deadline) })
 }
