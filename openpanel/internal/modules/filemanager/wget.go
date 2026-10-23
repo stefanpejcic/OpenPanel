@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -25,7 +26,13 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-const wgetStateDir = "/tmp/filemanager_wget_states"
+var wgetStateDir = "/tmp/filemanager_wget_states"
+
+// state files left this long are from finished or abandoned downloads, running ones rewrite theirs on every progress update
+const wgetStateMaxAge = 24 * time.Hour
+
+// wgetLogMu makes "log the finished download once" a single step across concurrent status polls
+var wgetLogMu sync.Mutex
 
 // downloadState is the shared progress/status record for a wget download, persisted to disk so status polling survives across requests/goroutines
 type downloadState struct {
@@ -78,6 +85,41 @@ func loadDownloadState(downloadID string) (downloadState, bool) {
 		return downloadState{}, false
 	}
 	return s, true
+}
+
+// loadDownloadStateFor is loadDownloadState for the account that started the download, anyone else gets not found
+func loadDownloadStateFor(downloadID, userContext string) (downloadState, bool) {
+	s, ok := loadDownloadState(downloadID)
+	if !ok || s.Context == "" || s.Context != userContext {
+		return downloadState{}, false
+	}
+	return s, true
+}
+
+// claimDoneLog marks a finished download as logged and reports true only to the first caller
+func claimDoneLog(downloadID string) (downloadState, bool) {
+	wgetLogMu.Lock()
+	defer wgetLogMu.Unlock()
+	s, ok := loadDownloadState(downloadID)
+	if !ok || s.Status != "done" || s.Logged {
+		return s, false
+	}
+	s.Logged = true
+	_ = saveDownloadState(downloadID, s)
+	return s, true
+}
+
+// pruneDownloadStates deletes state files older than maxAge, nothing else ever removed them
+func pruneDownloadStates(maxAge time.Duration) {
+	entries, err := os.ReadDir(wgetStateDir)
+	if err != nil {
+		return
+	}
+	for _, e := range entries {
+		if info, err := e.Info(); err == nil && info.Mode().IsRegular() && time.Since(info.ModTime()) > maxAge {
+			_ = os.Remove(filepath.Join(wgetStateDir, e.Name()))
+		}
+	}
 }
 
 var extensionSuffixRE = regexp.MustCompile(`\.[A-Za-z0-9]{1,10}$`)
@@ -175,6 +217,7 @@ func handleWgetFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		URL: rawURL, ParentRel: parentRel, DisplayPath: displayPath,
 		Context: user.Context, CurrentUsername: user.Username,
 	}
+	pruneDownloadStates(wgetStateMaxAge)
 	downloadID := uuid.NewString()
 	if err := saveDownloadState(downloadID, info); err != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]any{"error": "Internal server error during download."})
@@ -263,16 +306,21 @@ func runWgetWithProgress(a *appctx.App, downloadID string) {
 // handleWgetStatus reports the current progress/status of a download, logging the completed action exactly once the first time it's seen done
 func handleWgetStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	downloadID := r.PathValue("download_id")
-	info, ok := loadDownloadState(downloadID)
+	user, err := currentUser(r.Context(), a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	info, ok := loadDownloadStateFor(downloadID, user.Context)
 	if !ok {
 		web.WriteJSON(w, http.StatusNotFound, map[string]any{"error": "Download not found"})
 		return
 	}
 
 	if info.Status == "done" && !info.Logged {
-		_ = logger.RecordUserAction(a.Config, info.CurrentUsername, "downloaded file from URL "+info.URL+" via File Manager", reqip.ClientIP(r))
-		info.Logged = true
-		_ = saveDownloadState(downloadID, info)
+		if claimed, first := claimDoneLog(downloadID); first {
+			_ = logger.RecordUserAction(a.Config, claimed.CurrentUsername, "downloaded file from URL "+claimed.URL+" via File Manager", reqip.ClientIP(r))
+		}
 	}
 
 	web.WriteJSON(w, http.StatusOK, map[string]any{
