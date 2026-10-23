@@ -236,7 +236,8 @@ func handleDeleteFile(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	web.WriteJSON(w, http.StatusOK, map[string]any{"success": true, "message": "Deleted permanently"})
 }
 
-var permissionsRE = regexp.MustCompile(`^[0-7]{3,4}$`)
+// a leading special digit (1777, 2755, 4755) used to pass and then get dropped by os.FileMode, the UI only sends three digits
+var permissionsRE = regexp.MustCompile(`^0?[0-7]{3}$`)
 
 // chmodPath applies mode to rel, and to everything under it when recursive is set and rel is a directory, symlinks inside are skipped rather than followed
 func chmodPath(root *paths.UserRoot, rel string, mode os.FileMode, recursive bool) error {
