@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// copyFile copies file contents and permission bits inside root - it doesn't itself reject an existing destination, callers are expected to have already disambiguated dst to a non-existent path or a directory target
+// copyFile copies file contents and permission bits inside root, failing if dst already exists
 func copyFile(root *os.Root, src, dst string) error {
 	in, err := root.Open(src)
 	if err != nil {
@@ -21,7 +21,8 @@ func copyFile(root *os.Root, src, dst string) error {
 		return err
 	}
 
-	out, err := root.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, info.Mode().Perm())
+	// O_EXCL, dst can resolve back to src when copying into the same folder
+	out, err := root.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_EXCL, info.Mode().Perm())
 	if err != nil {
 		return err
 	}
