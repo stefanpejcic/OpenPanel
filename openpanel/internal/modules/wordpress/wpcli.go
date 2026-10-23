@@ -490,6 +490,11 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if action == "download" && verifyType == "plugins" {
+		handleReinstallPlugins(a, w, r, currentUsername, userContext, domainParam, baseDocker)
+		return
+	}
+
 	var subcmd []string
 	if action == "verify-checksum" || action == "download" {
 		sc, typeOK := subActions[verifyType]
@@ -507,6 +512,69 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	out, _ := safeRunWPCLI(ctx, userContext, cmd)
 	_ = logger.RecordUserAction(a.Config, currentUsername, "Executed command: wp "+strings.Join(subcmd, " ")+" for website "+domainParam+" using WP Manager", reqip.ClientIP(r))
 	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Success", "output": strings.TrimSpace(out)})
+}
+
+type wpPlugin struct {
+	Name    string `json:"name"`
+	Status  string `json:"status"`
+	Version string `json:"version"`
+}
+
+// pluginsToReinstall picks the regular plugins out of `wp plugin list --format=json`, must-use plugins and drop-ins can't come from wordpress.org
+func pluginsToReinstall(listJSON []byte) ([]wpPlugin, error) {
+	var all []wpPlugin
+	if err := json.Unmarshal(listJSON, &all); err != nil {
+		return nil, err
+	}
+	var out []wpPlugin
+	for _, p := range all {
+		if p.Status == "must-use" || p.Status == "dropin" || strings.HasPrefix(p.Name, "-") || !wpCLINameRE.MatchString(p.Name) {
+			continue
+		}
+		if strings.HasPrefix(p.Version, "-") || !wpCLINameRE.MatchString(p.Version) {
+			p.Version = ""
+		}
+		out = append(out, p)
+	}
+	return out, nil
+}
+
+func lastLine(s string) string {
+	lines := strings.Split(strings.TrimSpace(s), "\n")
+	return strings.TrimSpace(lines[len(lines)-1])
+}
+
+// handleReinstallPlugins puts every plugin back from wordpress.org at the version it's on now, the old plugins branch only ran plugin list so nothing got reinstalled
+func handleReinstallPlugins(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, site string, baseDocker []string) {
+	ctx := r.Context()
+	listCtx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+	listArgv := append(append([]string{}, baseDocker...), "plugin", "list", "--format=json", "--fields=name,status,version", "--skip-themes", "--skip-plugins")
+	listOut, listErr := podmanmanager.Command(listCtx, userContext, listArgv).Output()
+	plugins, parseErr := pluginsToReinstall(listOut)
+	if listErr != nil || parseErr != nil {
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Could not list the site's plugins.", "output": strings.TrimSpace(string(listOut))})
+		return
+	}
+
+	var lines []string
+	reinstalled := 0
+	for _, p := range plugins {
+		argv := append(append([]string{}, baseDocker...), "plugin", "install", p.Name, "--force", "--skip-themes", "--skip-plugins")
+		if p.Version != "" {
+			argv = append(argv, "--version="+p.Version)
+		}
+		out, runErr := safeRunWPCLI(ctx, userContext, argv)
+		if runErr == nil {
+			reinstalled++
+		}
+		lines = append(lines, p.Name+": "+lastLine(out))
+	}
+	_ = logger.RecordUserAction(a.Config, currentUsername, fmt.Sprintf("reinstalled %d of %d plugins for website %s using WP Manager", reinstalled, len(plugins), site), reqip.ClientIP(r))
+	web.WriteJSON(w, http.StatusOK, map[string]string{
+		"message": fmt.Sprintf("Reinstalled %d of %d plugins.", reinstalled, len(plugins)),
+		"output":  strings.Join(lines, "\n"),
+	})
 }
 
 // loginBaseURL keeps the stored siteurl only while it points at the site's own domain, otherwise the one-time admin token would go to whatever host siteurl names

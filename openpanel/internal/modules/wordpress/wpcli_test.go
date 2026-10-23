@@ -114,6 +114,28 @@ func TestDroppableDB(t *testing.T) {
 	}
 }
 
+func TestPluginsToReinstall(t *testing.T) {
+	list := `[{"name":"akismet","status":"inactive","version":"5.5"},{"name":"hello","status":"active","version":"1.7.2"},
+{"name":"mu-plugin","status":"must-use","version":""},{"name":"advanced-cache.php","status":"dropin","version":""},
+{"name":"--require=x.php","status":"active","version":"1"},{"name":"odd","status":"active","version":"--exec=x"}]`
+	got, err := pluginsToReinstall([]byte(list))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []wpPlugin{{"akismet", "inactive", "5.5"}, {"hello", "active", "1.7.2"}, {"odd", "active", ""}}
+	if len(got) != len(want) {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+	for i := range want {
+		if got[i] != want[i] {
+			t.Errorf("plugin %d = %v, want %v", i, got[i], want[i])
+		}
+	}
+	if _, err := pluginsToReinstall([]byte("Warning: not json")); err == nil {
+		t.Error("non-JSON output should fail")
+	}
+}
+
 func TestLoginBaseURL(t *testing.T) {
 	cases := []struct{ stored, site, want string }{
 		{"https://example.com", "example.com", "https://example.com"},
