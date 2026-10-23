@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"math/big"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -42,6 +43,21 @@ func CreateLockFile(username string) error {
 
 func RemoveLockFile(username string) {
 	_ = tenantfs.Remove(LockFilePath(username))
+}
+
+const backupsHtaccess = "# added by OpenPanel: backups hold database dumps and copies of wp-config.php, never serve them\nRequire all denied\n"
+
+// ProtectBackupsDir puts a deny-all .htaccess in htmlVolume/backups unless one is already there, so apache and litespeed won't serve dumps even if a docroot ends up pointing at that folder
+func ProtectBackupsDir(htmlVolume string) {
+	dir := filepath.Join(htmlVolume, "backups")
+	path := filepath.Join(dir, ".htaccess")
+	if _, err := tenantfs.Lstat(path); err == nil {
+		return
+	}
+	if tenantfs.MkdirAll(dir, 0o755) != nil {
+		return
+	}
+	_ = tenantfs.WriteFile(path, []byte(backupsHtaccess), 0o644)
 }
 
 // DomainRow is the shape installers read from the domains table

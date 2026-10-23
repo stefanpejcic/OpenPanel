@@ -33,11 +33,20 @@ func resolveUnderVarWWWHTML(raw string) (resolved string, ok bool) {
 	if cleaned != strings.TrimSuffix(base, "/") && !strings.HasPrefix(cleaned+"/", base) {
 		return cleaned, false
 	}
-	if !pathCharsRE.MatchString(cleaned) {
+	if !pathCharsRE.MatchString(cleaned) || insideBackups(cleaned) {
 		return cleaned, false
 	}
 	return cleaned, true
 }
+
+// backupsDir holds every site's backups, database dumps and wp-config.php copies included, so a docroot there would publish them
+const backupsDir = "/var/www/html/backups"
+
+func insideBackups(cleaned string) bool {
+	return cleaned == backupsDir || strings.HasPrefix(cleaned, backupsDir+"/")
+}
+
+const backupsDocrootError = "Docroot can't be the backups folder, it holds database dumps and copies of wp-config.php."
 
 // handleDomainsNew adds a new domain for this account.
 func handleDomainsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {

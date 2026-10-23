@@ -58,6 +58,7 @@ func handleGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	appkit.ProtectBackupsDir("/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data")
 	backupsPath := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/backups/" + selectedDomain
 	if _, statErr := tenantfs.Stat(backupsPath); statErr != nil {
 		if mkErr := tenantfs.MkdirAll(backupsPath, 0o755); mkErr != nil {
@@ -316,6 +317,7 @@ func handleRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	mysqlDumpVolume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_mysql_dumps/_data/"
 	_ = tenantfs.MkdirAll(htmlVolume, 0o755)
 	_ = tenantfs.MkdirAll(mysqlDumpVolume, 0o755)
+	appkit.ProtectBackupsDir(htmlVolume)
 
 	uid, uidErr := podmanmanager.GetUID(userContext)
 	if uidErr == nil {

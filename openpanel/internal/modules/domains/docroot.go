@@ -48,6 +48,10 @@ func handleDomainDocroot(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			web.FlashRedirect(a, w, r, "error", "docroot must be provided.", "/domains/docroot")
 			return
 		}
+		if !ok && insideBackups(docroot) {
+			web.FlashRedirect(a, w, r, "error", backupsDocrootError, "/domains/docroot")
+			return
+		}
 		if !ok {
 			web.FlashRedirect(a, w, r, "error", "Docroot must be inside '/var/www/html/' directory.", "/domains/docroot")
 			return

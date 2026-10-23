@@ -73,6 +73,7 @@ func (app *App) HandleGetBackupDates(a *appctx.App, w http.ResponseWriter, r *ht
 		return
 	}
 
+	appkit.ProtectBackupsDir(htmlVolume(userContext))
 	backupsPath := htmlVolume(userContext) + "backups/" + selectedDomain
 	if _, statErr := tenantfs.Stat(backupsPath); statErr != nil {
 		if mkErr := tenantfs.MkdirAll(backupsPath, 0o755); mkErr != nil {
@@ -285,6 +286,7 @@ func (app *App) HandleRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Re
 	htmlVol := htmlVolume(userContext)
 	mysqlDumpVolume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_mysql_dumps/_data/"
 	_ = tenantfs.MkdirAll(htmlVol, 0o755)
+	appkit.ProtectBackupsDir(htmlVol)
 	if app.DBMode != DBNone {
 		_ = tenantfs.MkdirAll(mysqlDumpVolume, 0o755)
 	}

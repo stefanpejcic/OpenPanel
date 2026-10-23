@@ -136,6 +136,7 @@ func main() {
 	root.HandleFunc("GET /security.txt", staticAssets.ServeRootFile("security.txt"))
 	root.Handle("/", handler)
 	handler = web.Gzip(root)
+	handler = frameGuard(handler)
 	// outermost, a blocked bot gets nothing else, not even the login page
 	handler = auth.BlockUseragents()(handler)
 
@@ -180,6 +181,15 @@ func main() {
 	if err := srv.Shutdown(shutdownCtx); err != nil {
 		log.Printf("BOOTSTRAP - shutdown error: %v", err)
 	}
+}
+
+// frameGuard keeps other sites from framing the panel, SameSite=Lax doesn't stop a customer site on the same domain from overlaying a logged-in page
+func frameGuard(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+		w.Header().Set("Content-Security-Policy", "frame-ancestors 'self'")
+		next.ServeHTTP(w, r)
+	})
 }
 
 // exemptAPIFromCSRF skips CSRF for /api/*, /mcp and git push/webhook URLs since those bring their own credentials instead of the session cookie

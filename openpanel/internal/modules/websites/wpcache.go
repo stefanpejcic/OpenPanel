@@ -168,7 +168,39 @@ func (s *wpCacheSite) redisPrefix() string {
 
 // ---------------------- VARNISH TTL (VCL) ---------------------- //
 
-func vclPath(userContext string) string { return "/home/" + userContext + "/default.vcl" }
+func vclHome(userContext string) string { return "/home/" + userContext }
+
+// openVCL opens the account's home as an os.Root, the panel runs as root and the account owns that folder, so a default.vcl symlink must not send the read or write anywhere else
+func openVCL(home string) (*os.Root, error) {
+	root, err := os.OpenRoot(home)
+	if err != nil {
+		return nil, err
+	}
+	if info, err := root.Lstat("default.vcl"); err != nil || !info.Mode().IsRegular() {
+		root.Close()
+		return nil, errors.New("default.vcl is missing or not a regular file")
+	}
+	return root, nil
+}
+
+func readVCL(home string) ([]byte, error) {
+	root, err := openVCL(home)
+	if err != nil {
+		return nil, err
+	}
+	defer root.Close()
+	return root.ReadFile("default.vcl")
+}
+
+// writeVCL writes in place, the file is bind-mounted into the varnish container
+func writeVCL(home string, data []byte) error {
+	root, err := openVCL(home)
+	if err != nil {
+		return err
+	}
+	defer root.Close()
+	return root.WriteFile("default.vcl", data, 0o644)
+}
 
 // parseVCLTTLs returns the per-host lifetimes from our managed block
 func parseVCLTTLs(vcl string) map[string]int {
@@ -336,7 +368,7 @@ func varnishStatusFor(ctx context.Context, a *appctx.App, s *wpCacheSite) varnis
 	v.ServiceRunning = docker.IsServiceRunning(ctx, s.UserContext, "varnish")
 	v.DomainStatus = cache.DomainVarnishStatus(s.Domain)
 	v.Enabled = v.ServiceRunning && v.DomainStatus == "On"
-	if content, err := tenantfs.ReadFile(vclPath(s.UserContext)); err == nil {
+	if content, err := readVCL(vclHome(s.UserContext)); err == nil {
 		if ttl, ok := parseVCLTTLs(string(content))[s.Domain]; ok {
 			v.TTL, v.TTLCustom = ttl, true
 		}
@@ -669,8 +701,8 @@ func setVarnishTTL(ctx context.Context, s *wpCacheSite, ttl int) (string, error)
 	if !wpCacheTTLChoices[ttl] {
 		return "", errors.New("invalid cache lifetime")
 	}
-	path := vclPath(s.UserContext)
-	content, err := tenantfs.ReadFile(path)
+	home := vclHome(s.UserContext)
+	content, err := readVCL(home)
 	if err != nil {
 		return "", errors.New("Varnish configuration file not found")
 	}
@@ -682,13 +714,12 @@ func setVarnishTTL(ctx context.Context, s *wpCacheSite, ttl int) (string, error)
 	if err != nil {
 		return "", err
 	}
-	// write in place, the file is bind-mounted into the varnish container
-	if err := tenantfs.WriteFile(path, []byte(updated), 0o644); err != nil {
+	if err := writeVCL(home, []byte(updated)); err != nil {
 		return "", err
 	}
 	if docker.IsServiceRunning(ctx, s.UserContext, "varnish") {
 		if err := reloadVarnishVCL(ctx, s.UserContext); err != nil {
-			_ = tenantfs.WriteFile(path, content, 0o644)
+			_ = writeVCL(home, content)
 			_ = reloadVarnishVCL(ctx, s.UserContext)
 			return "", fmt.Errorf("Varnish rejected the new configuration: %v", err)
 		}

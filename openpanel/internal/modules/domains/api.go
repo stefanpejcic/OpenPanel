@@ -473,6 +473,10 @@ func apiDomainsSetDocroot(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 	resolved, ok := resolveUnderVarWWWHTML(newDocroot)
+	if !ok && insideBackups(resolved) {
+		writeAPIDomainsJSON(w, http.StatusBadRequest, map[string]string{"error": backupsDocrootError})
+		return
+	}
 	if !ok {
 		writeAPIDomainsJSON(w, http.StatusBadRequest, map[string]string{"error": "docroot must be inside '/var/www/html/'."})
 		return
