@@ -135,25 +135,8 @@ func apiFTPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var body struct {
-		Username string          `json:"username"`
-		Password string          `json:"password"`
-		Domain   string          `json:"domain"`
-		Path     string          `json:"path"`
-		Quota    json.RawMessage `json:"quota"`
-	}
-	rawQuota := ""
-	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
-		_ = r.ParseForm()
-		body.Username = r.Form.Get("username")
-		body.Password = r.Form.Get("password")
-		body.Domain = r.Form.Get("domain")
-		body.Path = r.Form.Get("path")
-		rawQuota = r.Form.Get("quota")
-	} else {
-		rawQuota = rawQuotaString(body.Quota)
-	}
-	ftpQuota, quotaOK := normalizeQuota(rawQuota, "M")
+	body := readFTPAPIBody(r)
+	ftpQuota, quotaOK := normalizeQuota(body.Quota, "M")
 	if !quotaOK {
 		writeAPIFTPJSON(w, http.StatusBadRequest, map[string]string{"error": "quota must be a number of MB, a value like 500M or 2G, or 'unlimited'"})
 		return
@@ -247,14 +230,7 @@ func apiFTPPassword(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var body struct {
-		Password string `json:"password"`
-	}
-	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
-		_ = r.ParseForm()
-		body.Password = r.Form.Get("password")
-	}
-	newPassword := strings.TrimSpace(body.Password)
+	newPassword := strings.TrimSpace(readFTPAPIBody(r).Password)
 	if newPassword == "" {
 		writeAPIFTPJSON(w, http.StatusBadRequest, map[string]string{"error": "password is required"})
 		return
@@ -290,14 +266,7 @@ func apiFTPPath(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var body struct {
-		Path string `json:"path"`
-	}
-	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
-		_ = r.ParseForm()
-		body.Path = r.Form.Get("path")
-	}
-	newPath := strings.TrimSpace(body.Path)
+	newPath := strings.TrimSpace(readFTPAPIBody(r).Path)
 	if newPath == "" {
 		writeAPIFTPJSON(w, http.StatusBadRequest, map[string]string{"error": "path is required"})
 		return
