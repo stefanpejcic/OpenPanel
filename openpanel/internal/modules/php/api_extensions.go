@@ -36,6 +36,10 @@ func apiPHPExtensionsList(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	version := r.PathValue("version")
+	if !usableVersion(ctx, a, userContext, version) {
+		writeJSONError(w, http.StatusBadRequest, "Invalid or unavailable PHP version")
+		return
+	}
 	service, isLitespeed := phpExtensionsService(userContext, version)
 	_, _ = ensurePHPServiceRunning(ctx, userContext, service)
 
@@ -99,8 +103,16 @@ func apiPHPExtensionToggle(a *appctx.App, w http.ResponseWriter, r *http.Request
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid extension name"})
 		return
 	}
+	if strings.EqualFold(extension, ioncubeExtension) {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "ionCube Loader is provided by OpenPanel and can't be enabled or disabled here"})
+		return
+	}
 
 	version := r.PathValue("version")
+	if !usableVersion(ctx, a, userContext, version) {
+		writeJSONError(w, http.StatusBadRequest, "Invalid or unavailable PHP version")
+		return
+	}
 	service, isLitespeed := phpExtensionsService(userContext, version)
 	if ok, errMsg := ensurePHPServiceRunning(ctx, userContext, service); !ok {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to start PHP " + version + ": " + errMsg})
@@ -145,6 +157,10 @@ func apiPHPExtensionsAvailable(a *appctx.App, w http.ResponseWriter, r *http.Req
 		return
 	}
 	version := r.PathValue("version")
+	if !usableVersion(ctx, a, userContext, version) {
+		writeJSONError(w, http.StatusBadRequest, "Invalid or unavailable PHP version")
+		return
+	}
 	service, isLitespeed := phpExtensionsService(userContext, version)
 
 	type availableExt struct {
@@ -208,7 +224,7 @@ func apiPHPExtensionsInstall(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	var extensions []string
 	for _, e := range raw {
 		e = strings.TrimSpace(e)
-		if extensionNameRE.MatchString(e) {
+		if extensionNameRE.MatchString(e) && !strings.EqualFold(e, ioncubeExtension) {
 			extensions = append(extensions, e)
 		}
 	}
@@ -218,6 +234,10 @@ func apiPHPExtensionsInstall(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	}
 
 	version := r.PathValue("version")
+	if !usableVersion(ctx, a, userContext, version) {
+		writeJSONError(w, http.StatusBadRequest, "Invalid or unavailable PHP version")
+		return
+	}
 	service, _ := phpExtensionsService(userContext, version)
 	if ok, errMsg := ensurePHPServiceRunning(ctx, userContext, service); !ok {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to start PHP " + version + ": " + errMsg})
@@ -250,11 +270,18 @@ func apiPHPExtensionsInstallStatus(a *appctx.App, w http.ResponseWriter, r *http
 		return
 	}
 	version := r.PathValue("version")
+	if !usableVersion(ctx, a, userContext, version) {
+		writeJSONError(w, http.StatusBadRequest, "Invalid or unavailable PHP version")
+		return
+	}
 	service, _ := phpExtensionsService(userContext, version)
 	installID := r.URL.Query().Get("install_id")
 
 	containerBusy := isInstallRunningInContainer(ctx, userContext, service)
 	info, ok := loadInstallState(installID)
+	if ok && info.Context != userContext {
+		ok = false
+	}
 
 	if ok {
 		if info.Status == "done" && !info.Logged {

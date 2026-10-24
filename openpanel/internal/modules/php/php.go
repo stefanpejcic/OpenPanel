@@ -168,6 +168,17 @@ func updatePHPVersionPreference(userContext, newPHPVersion string) error {
 	return nil
 }
 
+// usableVersion is a plain major.minor the account can run, the extension and info pages build container names and paths from it
+func usableVersion(ctx context.Context, a *appctx.App, userContext, version string) bool {
+	if !phpVersionFormRE.MatchString(version) {
+		return false
+	}
+	if ws := webserver.GetEnvFileValue(userContext, "WEB_SERVER"); strings.Contains(strings.ToLower(ws), "litespeed") {
+		return true
+	}
+	return containsString(FetchPHPVersions(ctx, a, userContext), version)
+}
+
 // FetchPHPVersions is memoized for 1h.
 func FetchPHPVersions(ctx context.Context, a *appctx.App, userContext string) []string {
 	versions, _ := cache.Memoize(ctx, a.Cache, "fetch_php_versions:"+userContext, time.Hour, func() ([]string, error) {

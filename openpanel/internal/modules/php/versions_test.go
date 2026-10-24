@@ -33,6 +33,33 @@ func TestCheckDefaultVersion(t *testing.T) {
 	}
 }
 
+func TestConfFileExtension(t *testing.T) {
+	cases := map[string]string{
+		"docker-php-ext-pdo.ini":                "pdo",
+		"docker-php-ext-pdo_mysql.ini":          "pdo_mysql",
+		"docker-php-ext-pdo_mysql.ini.disabled": "pdo_mysql",
+		"20-xdebug.ini":                         "xdebug",
+		"opcache.ini.disabled":                  "opcache",
+	}
+	for fname, want := range cases {
+		if got := confFileExtension(fname); got != want {
+			t.Errorf("confFileExtension(%q) = %q, want %q", fname, got, want)
+		}
+	}
+	// a substring match picked pdo_mysql's file when pdo was asked for
+	if confFileExtension("docker-php-ext-pdo_mysql.ini") == "pdo" {
+		t.Error("pdo must not match pdo_mysql's file")
+	}
+}
+
+func TestLoadInstallStateRejectsNonUUID(t *testing.T) {
+	for _, id := range []string{"", "x", "../x", "123e4567-e89b-12d3-a456-42661417400"} {
+		if _, ok := loadInstallState(id); ok {
+			t.Errorf("loadInstallState(%q) should refuse an id that isn't a uuid", id)
+		}
+	}
+}
+
 func TestSetEnvLine(t *testing.T) {
 	env := "WEB_SERVER=apache\nDEFAULT_PHP_VERSION=8.4\nMYSQL_TYPE=mariadb\n"
 	got, found := setEnvLine(env, "DEFAULT_PHP_VERSION", "8.5")
