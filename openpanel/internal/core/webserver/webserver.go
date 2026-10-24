@@ -12,11 +12,12 @@ import (
 	"time"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // GetEnvFileValue reads one KEY=value line from /home/<context>/.env, stripping a wrapping pair of quotes
 func GetEnvFileValue(userContext, key string) string {
-	content, err := os.ReadFile("/home/" + userContext + "/.env")
+	content, err := tenantfs.ReadFile("/home/" + userContext + "/.env")
 	if err != nil {
 		return ""
 	}

@@ -108,7 +108,7 @@ func configEntriesToMap(entries []ConfigEntry) map[string]string {
 }
 
 // updateMySQLConfigFile rewrites existing lines whose key is in newConfig (dropping ones set to an empty value), leaves every other line untouched, then appends any newConfig keys that weren't already present
-func updateMySQLConfigFile(userContext string, newConfig map[string]string, keyOrder []string) {
+func updateMySQLConfigFile(userContext string, newConfig map[string]string, keyOrder []string) error {
 	path := mysqlConfPath(userContext)
 	var existingLines []string
 	if content, err := tenantfs.ReadFile(path); err == nil {
@@ -157,7 +157,7 @@ func updateMySQLConfigFile(userContext string, newConfig map[string]string, keyO
 		newLines = append(newLines, key+" = "+safeValue+"\n")
 	}
 
-	_ = tenantfs.WriteFile(path, []byte(strings.Join(newLines, "")), 0o644)
+	return tenantfs.WriteFile(path, []byte(strings.Join(newLines, "")), 0o644)
 }
 
 // applyResult is how a config save went, Running tells whether the database is up after a rollback, Live that it applied without a restart, Rejected that the server refused a value before anything restarted
@@ -173,7 +173,10 @@ type applyResult struct {
 func applyMySQLConfig(ctx context.Context, userContext, service string, newConfig map[string]string) applyResult {
 	path := mysqlConfPath(userContext)
 	previous, readErr := tenantfs.ReadFile(path)
-	updateMySQLConfigFile(userContext, newConfig, availableConfKeys)
+	if writeErr := updateMySQLConfigFile(userContext, newConfig, availableConfKeys); writeErr != nil {
+		// couldn't persist custom.cnf (e.g. it was swapped for a symlink), don't apply anything live
+		return applyResult{Running: true, Rejected: true, Reason: writeErr.Error()}
+	}
 	live, rejected := setGlobals(ctx, userContext, configEntriesToMap(parseMySQLConfigContent(string(previous))), newConfig)
 	if live {
 		return applyResult{OK: true, Running: true, Live: true}
@@ -314,8 +317,11 @@ func handleEditMySQLConfig(a *appctx.App, w http.ResponseWriter, r *http.Request
 		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "edited MySQL configuration", reqip.ClientIP(r))
 		if mysqlVersion != "mysql" && mysqlVersion != "mariadb" {
-			updateMySQLConfigFile(userContext, newConfig, availableConfKeys)
-			web.Flash(a, w, r, "error", "Unknown database service, cannot restart")
+			if writeErr := updateMySQLConfigFile(userContext, newConfig, availableConfKeys); writeErr != nil {
+				web.Flash(a, w, r, "error", web.Tr(a, r, "Could not save the configuration file."))
+			} else {
+				web.Flash(a, w, r, "error", "Unknown database service, cannot restart")
+			}
 		} else if res := applyMySQLConfig(ctx, userContext, mysqlVersion, newConfig); res.OK && res.Live {
 			web.Flash(a, w, r, "success", web.Tr(a, r, "%(mysql_version)s configuration updated and applied without a restart.", "mysql_version", mysqlVersion))
 		} else if res.OK {

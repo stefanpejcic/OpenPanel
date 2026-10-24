@@ -474,7 +474,10 @@ func apiContainerChangeImage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	SetEnvValue(userContext, envVar, value)
+	if errMsg := SetEnvValue(userContext, envVar, value); errMsg != "" {
+		writeAPIDockerJSON(w, http.StatusInternalServerError, map[string]string{"error": "Could not update the environment file: " + errMsg})
+		return
+	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, fmt.Sprintf("changed image tag for %s to %s", service, value), reqip.ClientIP(r))
 	writeAPIDockerJSON(w, http.StatusOK, map[string]string{"message": fmt.Sprintf("Successfully changed image tag for %s to %s!", service, value), "service": service})
 }

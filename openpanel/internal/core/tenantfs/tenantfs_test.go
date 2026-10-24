@@ -8,8 +8,15 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"syscall"
 	"testing"
+	"time"
 )
+
+// homeDirOf returns the account home (/home/<ctx>) for one of its volume data dirs
+func homeDirOf(volume string) string {
+	return filepath.Dir(filepath.Dir(filepath.Dir(filepath.Dir(volume))))
+}
 
 // fakeHome makes <tmp>/alice/docker-data/volumes/alice_html_data/_data and a victim dir next to it
 func fakeHome(t *testing.T) (volume, victim string) {
@@ -189,5 +196,89 @@ func TestOutputInStaysUnderBase(t *testing.T) {
 	}
 	if _, err := OutputIn(context.Background(), base, base+"/../..", "ls"); err == nil {
 		t.Fatal("OutputIn allowed .. out of base")
+	}
+}
+
+func TestHomeRootRegularFileRoundTrips(t *testing.T) {
+	volume, _ := fakeHome(t)
+	home := homeDirOf(volume)
+
+	cfg := filepath.Join(home, "custom.cnf")
+	if err := WriteFile(cfg, []byte("k=v\n"), 0o640); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+	if got, err := ReadFile(cfg); err != nil || string(got) != "k=v\n" {
+		t.Fatalf("ReadFile = %q, %v", got, err)
+	}
+	if fi, err := Stat(cfg); err != nil || fi.Mode().Perm() != 0o640 {
+		t.Fatalf("Stat = %v, %v", fi, err)
+	}
+
+	// a config one level down, like php.ini/8.4.ini
+	if err := MkdirAll(filepath.Join(home, "php.ini"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	ini := filepath.Join(home, "php.ini", "8.4.ini")
+	if err := WriteFile(ini, []byte("memory_limit=256M"), 0o644); err != nil {
+		t.Fatalf("WriteFile nested: %v", err)
+	}
+	if got, _ := ReadFile(ini); string(got) != "memory_limit=256M" {
+		t.Fatalf("nested ReadFile = %q", got)
+	}
+}
+
+// the home-root escape: the account swaps a config file (or a dir above it) for a symlink and the
+// panel reads or writes it as root
+func TestHomeRootSymlinkRefused(t *testing.T) {
+	volume, _ := fakeHome(t)
+	home := homeDirOf(volume)
+	secret := filepath.Join(filepath.Dir(home), "secret.key") // a root-only file outside the account
+	if err := os.WriteFile(secret, []byte("TOPSECRET"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg := filepath.Join(home, "custom.cnf")
+	if err := os.Symlink(secret, cfg); err != nil {
+		t.Fatal(err)
+	}
+	if got, err := ReadFile(cfg); err == nil {
+		t.Errorf("ReadFile followed a home symlink, got %q", got)
+	}
+	if err := WriteFile(cfg, []byte("PWN"), 0o644); err == nil {
+		t.Error("WriteFile followed a home symlink")
+	}
+	if _, err := Stat(cfg); err == nil {
+		t.Error("Stat followed a home symlink")
+	}
+	if got, _ := os.ReadFile(secret); string(got) != "TOPSECRET" {
+		t.Fatalf("secret changed: %q", got)
+	}
+
+	// an intermediate component is a symlink: php.ini -> elsewhere, then read php.ini/secret.key
+	if err := os.Symlink(filepath.Dir(secret), filepath.Join(home, "php.ini")); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := ReadFile(filepath.Join(home, "php.ini", "secret.key")); err == nil {
+		t.Error("ReadFile followed a symlinked intermediate dir")
+	}
+}
+
+// a fifo planted at a config path must not stall or be treated as a file
+func TestHomeRootFifoRefused(t *testing.T) {
+	volume, _ := fakeHome(t)
+	home := homeDirOf(volume)
+	fifo := filepath.Join(home, "custom.cnf")
+	if err := syscall.Mkfifo(fifo, 0o644); err != nil {
+		t.Skipf("mkfifo: %v", err)
+	}
+	done := make(chan error, 1)
+	go func() { _, err := ReadFile(fifo); done <- err }()
+	select {
+	case err := <-done:
+		if err == nil {
+			t.Error("ReadFile accepted a fifo at a config path")
+		}
+	case <-time.After(3 * time.Second):
+		t.Error("ReadFile blocked on a fifo")
 	}
 }
