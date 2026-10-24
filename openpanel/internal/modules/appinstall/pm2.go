@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -17,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -543,7 +543,7 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	envFile := "/home/" + userContext + "/.env"
 	serviceNameUp := strings.ToUpper(serviceName)
 	if fileExists(envFile) {
-		content, _ := os.ReadFile(envFile)
+		content, _ := tenantfs.ReadFile(envFile)
 		lines := strings.Split(string(content), "\n")
 		prefix := serviceNameUp + "_" + kind.PyOrNode + "_"
 		commentPrefix := "# " + kind.PyOrNode + ": " + serviceNameUp
@@ -555,7 +555,7 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			}
 			filtered = append(filtered, line)
 		}
-		_ = os.WriteFile(envFile, []byte(strings.Join(filtered, "\n")), 0o644)
+		_ = tenantfs.WriteFile(envFile, []byte(strings.Join(filtered, "\n")), 0o644)
 		web.Flash(a, w, r, "success", web.Tr(a, r, "Environment variables for '%(service_name)s' removed from .env", "service_name", serviceName))
 	} else {
 		web.Flash(a, w, r, "warning", web.Tr(a, r, ".env file not found at %(env_file)s", "env_file", envFile))
@@ -577,7 +577,7 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // revertWebserverConfig's Apache branch searches for what editApacheConfig() actually writes ("http://{service_name}"), not "http://localhost" - matching the real inserted lines is what makes the revert find and remove them
 func revertWebserverConfig(userContext, subdirectory, webServerType, domainURL, serviceName string) {
 	vhostsPath := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_webserver_data/_data/" + domainURL + ".conf"
-	content, err := os.ReadFile(vhostsPath)
+	content, err := tenantfs.ReadFile(vhostsPath)
 	if err != nil {
 		return
 	}
@@ -593,7 +593,7 @@ func revertWebserverConfig(userContext, subdirectory, webServerType, domainURL, 
 			proxyLine = "\tProxyPass / http://" + serviceName
 			reverseProxyLine = "\tProxyPassReverse / http://" + serviceName
 		}
-		_ = os.WriteFile(backupPath, content, 0o644)
+		_ = tenantfs.WriteFile(backupPath, content, 0o644)
 
 		var updated []string
 		for _, line := range strings.SplitAfter(string(content), "\n") {
@@ -602,12 +602,12 @@ func revertWebserverConfig(userContext, subdirectory, webServerType, domainURL, 
 			}
 			updated = append(updated, line)
 		}
-		if writeErr := os.WriteFile(vhostsPath, []byte(strings.Join(updated, "")), 0o644); writeErr != nil {
+		if writeErr := tenantfs.WriteFile(vhostsPath, []byte(strings.Join(updated, "")), 0o644); writeErr != nil {
 			_ = copyFile(backupPath, vhostsPath)
 		}
 
 	case webServerType == "nginx" || webServerType == "openresty":
-		_ = os.WriteFile(backupPath, content, 0o644)
+		_ = tenantfs.WriteFile(backupPath, content, 0o644)
 
 		markerStart := "location / {"
 		if subdirectory != "" {
@@ -637,16 +637,16 @@ func revertWebserverConfig(userContext, subdirectory, webServerType, domainURL, 
 				updated = append(updated, line)
 			}
 		}
-		_ = os.WriteFile(vhostsPath, []byte(strings.Join(updated, "")), 0o644)
+		_ = tenantfs.WriteFile(vhostsPath, []byte(strings.Join(updated, "")), 0o644)
 
 	case strings.Contains(strings.ToLower(webServerType), "litespeed"):
-		_ = os.WriteFile(backupPath, content, 0o644)
+		_ = tenantfs.WriteFile(backupPath, content, 0o644)
 
 		svc := regexp.QuoteMeta(strings.ToLower(serviceName))
 		pattern := regexp.MustCompile(`(?s)\n# PM2-PROXY-START:` + svc + `.+?# PM2-PROXY-END:` + svc + `\n`)
 		cleaned := strings.TrimRight(pattern.ReplaceAllString(string(content), "\n"), " \t\n\r") + "\n"
 
-		if writeErr := os.WriteFile(vhostsPath, []byte(cleaned), 0o644); writeErr != nil {
+		if writeErr := tenantfs.WriteFile(vhostsPath, []byte(cleaned), 0o644); writeErr != nil {
 			_ = copyFile(backupPath, vhostsPath)
 		}
 	}

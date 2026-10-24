@@ -211,7 +211,9 @@ func SetEnvValue(userContext, variableName, newValue string) string {
 		lines = append(lines, variableName+`="`+newValue+`"`)
 	}
 
-	_ = tenantfs.WriteFile(path, []byte(strings.Join(lines, "\n")+"\n"), 0o644)
+	if err := tenantfs.WriteFile(path, []byte(strings.Join(lines, "\n")+"\n"), 0o644); err != nil {
+		return err.Error()
+	}
 	return ""
 }
 

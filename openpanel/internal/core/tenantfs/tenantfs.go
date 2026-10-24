@@ -82,38 +82,53 @@ func IsVolumePath(p string) bool {
 	return ok || err != nil
 }
 
-func do(p string, inRoot func(*os.Root, string) error, plain func() error) error {
+// do routes an op three ways: through the volume's os.Root, through the strict home resolver for a
+// path under an account home, or straight to os for everything else (system paths like /etc/openpanel).
+func do(p string, inRoot func(*os.Root, string) error, inHome func(base, rel string) error, plain func() error) error {
 	root, rel, err := open(p)
 	if err != nil {
 		return err
 	}
-	if root == nil {
-		return plain()
+	if root != nil {
+		defer root.Close()
+		return inRoot(root, rel)
 	}
-	defer root.Close()
-	return inRoot(root, rel)
+	if base, hrel, ok := homeSplit(p); ok {
+		return inHome(base, hrel)
+	}
+	return plain()
 }
 
 func ReadFile(p string) ([]byte, error) {
 	var data []byte
-	err := do(p, func(r *os.Root, rel string) (err error) { data, err = r.ReadFile(rel); return }, func() (err error) { data, err = os.ReadFile(p); return })
+	err := do(p, func(r *os.Root, rel string) (err error) { data, err = r.ReadFile(rel); return },
+		func(base, rel string) (err error) { data, err = homeReadFile(base, rel); return },
+		func() (err error) { data, err = os.ReadFile(p); return })
 	return data, err
 }
 
 func WriteFile(p string, data []byte, perm os.FileMode) error {
-	return do(p, func(r *os.Root, rel string) error { return r.WriteFile(rel, data, perm) }, func() error { return os.WriteFile(p, data, perm) })
+	return do(p, func(r *os.Root, rel string) error { return r.WriteFile(rel, data, perm) },
+		func(base, rel string) error { return homeWriteFile(base, rel, data, perm) },
+		func() error { return os.WriteFile(p, data, perm) })
 }
 
 func MkdirAll(p string, perm os.FileMode) error {
-	return do(p, func(r *os.Root, rel string) error { return r.MkdirAll(rel, perm) }, func() error { return os.MkdirAll(p, perm) })
+	return do(p, func(r *os.Root, rel string) error { return r.MkdirAll(rel, perm) },
+		func(base, rel string) error { return homeMkdirAll(base, rel, perm) },
+		func() error { return os.MkdirAll(p, perm) })
 }
 
 func Mkdir(p string, perm os.FileMode) error {
-	return do(p, func(r *os.Root, rel string) error { return r.Mkdir(rel, perm) }, func() error { return os.Mkdir(p, perm) })
+	return do(p, func(r *os.Root, rel string) error { return r.Mkdir(rel, perm) },
+		func(base, rel string) error { return homeMkdir(base, rel, perm) },
+		func() error { return os.Mkdir(p, perm) })
 }
 
 func Remove(p string) error {
-	return do(p, func(r *os.Root, rel string) error { return r.Remove(rel) }, func() error { return os.Remove(p) })
+	return do(p, func(r *os.Root, rel string) error { return r.Remove(rel) },
+		func(base, rel string) error { return homeRemove(base, rel) },
+		func() error { return os.Remove(p) })
 }
 
 func RemoveAll(p string) error {
@@ -122,47 +137,65 @@ func RemoveAll(p string) error {
 			return &fs.PathError{Op: "removeall", Path: p, Err: ErrEscape}
 		}
 		return r.RemoveAll(rel)
-	}, func() error { return os.RemoveAll(p) })
+	},
+		func(base, rel string) error { return homeRemoveAll(base, rel) },
+		func() error { return os.RemoveAll(p) })
 }
 
 func Stat(p string) (fs.FileInfo, error) {
 	var fi fs.FileInfo
-	err := do(p, func(r *os.Root, rel string) (err error) { fi, err = r.Stat(rel); return }, func() (err error) { fi, err = os.Stat(p); return })
+	err := do(p, func(r *os.Root, rel string) (err error) { fi, err = r.Stat(rel); return },
+		func(base, rel string) (err error) { fi, err = homeStat(base, rel); return },
+		func() (err error) { fi, err = os.Stat(p); return })
 	return fi, err
 }
 
 func Lstat(p string) (fs.FileInfo, error) {
 	var fi fs.FileInfo
-	err := do(p, func(r *os.Root, rel string) (err error) { fi, err = r.Lstat(rel); return }, func() (err error) { fi, err = os.Lstat(p); return })
+	err := do(p, func(r *os.Root, rel string) (err error) { fi, err = r.Lstat(rel); return },
+		func(base, rel string) (err error) { fi, err = homeLstat(base, rel); return },
+		func() (err error) { fi, err = os.Lstat(p); return })
 	return fi, err
 }
 
 func Chmod(p string, mode os.FileMode) error {
-	return do(p, func(r *os.Root, rel string) error { return r.Chmod(rel, mode) }, func() error { return os.Chmod(p, mode) })
+	return do(p, func(r *os.Root, rel string) error { return r.Chmod(rel, mode) },
+		func(base, rel string) error { return homeChmod(base, rel, mode) },
+		func() error { return os.Chmod(p, mode) })
 }
 
-// Chown follows a final symlink only while it stays inside the volume
+// Chown never follows a final symlink on a home path; in a volume it may follow while staying inside
 func Chown(p string, uid, gid int) error {
-	return do(p, func(r *os.Root, rel string) error { return r.Chown(rel, uid, gid) }, func() error { return os.Chown(p, uid, gid) })
+	return do(p, func(r *os.Root, rel string) error { return r.Chown(rel, uid, gid) },
+		func(base, rel string) error { return homeChown(base, rel, uid, gid) },
+		func() error { return os.Chown(p, uid, gid) })
 }
 
 func Lchown(p string, uid, gid int) error {
-	return do(p, func(r *os.Root, rel string) error { return r.Lchown(rel, uid, gid) }, func() error { return os.Lchown(p, uid, gid) })
+	return do(p, func(r *os.Root, rel string) error { return r.Lchown(rel, uid, gid) },
+		func(base, rel string) error { return homeChown(base, rel, uid, gid) },
+		func() error { return os.Lchown(p, uid, gid) })
 }
 
 func Symlink(target, p string) error {
-	return do(p, func(r *os.Root, rel string) error { return r.Symlink(target, rel) }, func() error { return os.Symlink(target, p) })
+	return do(p, func(r *os.Root, rel string) error { return r.Symlink(target, rel) },
+		func(base, rel string) error { return homeSymlink(target, base, rel) },
+		func() error { return os.Symlink(target, p) })
 }
 
 func Readlink(p string) (string, error) {
 	var s string
-	err := do(p, func(r *os.Root, rel string) (err error) { s, err = r.Readlink(rel); return }, func() (err error) { s, err = os.Readlink(p); return })
+	err := do(p, func(r *os.Root, rel string) (err error) { s, err = r.Readlink(rel); return },
+		func(base, rel string) (err error) { s, err = homeReadlink(base, rel); return },
+		func() (err error) { s, err = os.Readlink(p); return })
 	return s, err
 }
 
 func ReadDir(p string) ([]fs.DirEntry, error) {
 	var entries []fs.DirEntry
-	err := do(p, func(r *os.Root, rel string) (err error) { entries, err = fs.ReadDir(r.FS(), rel); return }, func() (err error) { entries, err = os.ReadDir(p); return })
+	err := do(p, func(r *os.Root, rel string) (err error) { entries, err = fs.ReadDir(r.FS(), rel); return },
+		func(base, rel string) (err error) { entries, err = homeReadDir(base, rel); return },
+		func() (err error) { entries, err = os.ReadDir(p); return })
 	return entries, err
 }
 
@@ -172,11 +205,14 @@ func OpenFile(p string, flag int, perm os.FileMode) (*os.File, error) {
 	if err != nil {
 		return nil, err
 	}
-	if root == nil {
-		return os.OpenFile(p, flag, perm)
+	if root != nil {
+		defer root.Close()
+		return root.OpenFile(rel, flag, perm)
 	}
-	defer root.Close()
-	return root.OpenFile(rel, flag, perm)
+	if base, hrel, ok := homeSplit(p); ok {
+		return openHomeFile(base, hrel, flag, perm)
+	}
+	return os.OpenFile(p, flag, perm)
 }
 
 func Open(p string) (*os.File, error) { return OpenFile(p, os.O_RDONLY, 0) }
@@ -185,49 +221,69 @@ func Create(p string) (*os.File, error) {
 	return OpenFile(p, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0o666)
 }
 
-// Rename handles both ends in volumes, in different volumes or outside any
+// Rename handles both ends in volumes, in home dirs, in different ones or outside any
 func Rename(oldPath, newPath string) error {
-	oldRoot, oldRel, err := open(oldPath)
-	if err != nil {
-		return err
-	}
-	if oldRoot != nil {
-		defer oldRoot.Close()
-	}
-	newRoot, newRel, err := open(newPath)
-	if err != nil {
-		return err
-	}
-	if newRoot != nil {
-		defer newRoot.Close()
-	}
-	if oldRoot == nil && newRoot == nil {
+	if !isVolumeOrHome(oldPath) && !isVolumeOrHome(newPath) {
 		return os.Rename(oldPath, newPath)
 	}
-	oldDir, err := parentDir(oldRoot, oldRel, oldPath)
+	oldDir, oldName, err := renameEnd(oldPath)
 	if err != nil {
 		return err
 	}
 	defer oldDir.Close()
-	newDir, err := parentDir(newRoot, newRel, newPath)
+	newDir, newName, err := renameEnd(newPath)
 	if err != nil {
 		return err
 	}
 	defer newDir.Close()
-	if err := syscall.Renameat(int(oldDir.Fd()), filepath.Base(oldPath), int(newDir.Fd()), filepath.Base(newPath)); err != nil {
+	if err := syscall.Renameat(int(oldDir.Fd()), oldName, int(newDir.Fd()), newName); err != nil {
 		return &os.LinkError{Op: "rename", Old: oldPath, New: newPath, Err: err}
 	}
 	return nil
 }
 
-func parentDir(root *os.Root, rel, p string) (*os.File, error) {
-	if root == nil {
-		return os.Open(filepath.Dir(p))
+// isVolumeOrHome reports whether p is inside a volume or directly under an account home
+func isVolumeOrHome(p string) bool {
+	if IsVolumePath(p) {
+		return true
 	}
-	if rel == "." {
-		return nil, &fs.PathError{Op: "rename", Path: p, Err: ErrEscape}
+	_, _, ok := homeSplit(p)
+	return ok
+}
+
+// renameEnd opens the parent dir of p for a renameat, going through the volume root, the strict home
+// resolver, or plain os. name is the final component. The caller closes the returned dir.
+func renameEnd(p string) (dir *os.File, name string, err error) {
+	root, rel, err := open(p)
+	if err != nil {
+		return nil, "", err
 	}
-	return root.Open(path.Dir(rel))
+	if root != nil {
+		defer root.Close()
+		if rel == "." {
+			return nil, "", &fs.PathError{Op: "rename", Path: p, Err: ErrEscape}
+		}
+		d, derr := root.Open(path.Dir(rel))
+		if derr != nil {
+			return nil, "", derr
+		}
+		return d, filepath.Base(p), nil
+	}
+	if base, hrel, ok := homeSplit(p); ok {
+		if hrel == "" || hrel == "." {
+			return nil, "", &fs.PathError{Op: "rename", Path: p, Err: ErrEscape}
+		}
+		pfd, hname, herr := resolveHomeParent(base, hrel)
+		if herr != nil {
+			return nil, "", herr
+		}
+		return os.NewFile(uintptr(pfd), base+"/"+hrel), hname, nil
+	}
+	d, derr := os.Open(filepath.Dir(p))
+	if derr != nil {
+		return nil, "", derr
+	}
+	return d, filepath.Base(p), nil
 }
 
 // WalkDir is filepath.WalkDir, inside a volume symlinks are never followed out of it
