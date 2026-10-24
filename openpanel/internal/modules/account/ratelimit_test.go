@@ -1,6 +1,10 @@
 package account
 
-import "testing"
+import (
+	"strings"
+	"testing"
+	"time"
+)
 
 func TestLoginRateLimiterAllow(t *testing.T) {
 	l := &loginRateLimiter{limit: 3, windows: map[string]*window{}}
@@ -42,5 +46,20 @@ func TestClearFailedAttempts(t *testing.T) {
 
 	if ok {
 		t.Error("expected failed attempts counter to be cleared")
+	}
+}
+
+func TestTempbanEntry(t *testing.T) {
+	now := time.Unix(1700000000, 0)
+	if got, ok := tempbanEntry("203.0.113.7", now); !ok || got != "1700000000|203.0.113.7||in|3600|Too many failed login attempts" {
+		t.Errorf("valid ip: got %q, %v", got, ok)
+	}
+	if got, ok := tempbanEntry("::ffff:203.0.113.7", now); !ok || !strings.HasPrefix(got, "1700000000|203.0.113.7|") {
+		t.Errorf("mapped ipv4: got %q, %v", got, ok)
+	}
+	for _, bad := range []string{"", "not-an-ip", "203.0.113.7|22", "203.0.113.0/24", "127.0.0.1", "::1", "0.0.0.0", "fe80::1%eth0"} {
+		if got, ok := tempbanEntry(bad, now); ok {
+			t.Errorf("%q should be refused, got %q", bad, got)
+		}
 	}
 }

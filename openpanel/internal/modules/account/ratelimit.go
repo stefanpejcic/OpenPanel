@@ -3,6 +3,7 @@ package account
 import (
 	"fmt"
 	"net/http"
+	"net/netip"
 	"os"
 	"path/filepath"
 	"strings"
@@ -106,8 +107,11 @@ func blockIPTemporarily(ip string, blockLimit int) {
 		return
 	}
 
-	entry := fmt.Sprintf("%d|%s||in|3600|Too many failed login attempts",
-		time.Now().Unix(), ip)
+	entry, ok := tempbanEntry(ip, time.Now())
+	if !ok {
+		appendLine(errorLogPath, fmt.Sprintf("%s - Not blocking %q on Firewall: not a valid client IP.", time.Now().Format(time.RFC3339), ip))
+		return
+	}
 	if err := appendLine(tempbanPath, entry); err != nil {
 		appendLine(errorLogPath, fmt.Sprintf("%s - An unexpected error occurred: %v", time.Now().Format(time.RFC3339), err))
 		return
@@ -115,6 +119,15 @@ func blockIPTemporarily(ip string, blockLimit int) {
 
 	appendLine(failedLoginLogPath, fmt.Sprintf("%s IP: %s temporary blocked on CSF due to %d failed logins.",
 		time.Now().Format("2006-01-02 15:04:05"), ip, blockLimit))
+}
+
+// tempbanEntry is the csf.tempban line for ip, refusing anything that isn't one plain address or that would lock out our own proxy
+func tempbanEntry(ip string, now time.Time) (string, bool) {
+	addr, err := netip.ParseAddr(ip)
+	if err != nil || addr.Zone() != "" || addr.IsLoopback() || addr.IsUnspecified() {
+		return "", false
+	}
+	return fmt.Sprintf("%d|%s||in|3600|Too many failed login attempts", now.Unix(), addr.Unmap()), true
 }
 
 func appendLine(path, line string) error {
