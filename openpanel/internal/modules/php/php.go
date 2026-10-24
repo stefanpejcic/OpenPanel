@@ -3,6 +3,8 @@ package php
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -118,10 +120,26 @@ const (
 	liteSpeedRelease     = "6.3.7"
 )
 
-// updatePHPVersionPreference mirrors update_php_version_preference().
-func updatePHPVersionPreference(userContext, newPHPVersion string) bool {
+// setEnvLine replaces every key=... line in content, found is false when there's no such line to replace
+func setEnvLine(content, key, value string) (updated string, found bool) {
+	lines := strings.Split(content, "\n")
+	prefix := key + "="
+	for i, line := range lines {
+		if strings.HasPrefix(line, prefix) {
+			lines[i] = prefix + value
+			found = true
+		}
+	}
+	return strings.Join(lines, "\n"), found
+}
+
+// updatePHPVersionPreference mirrors update_php_version_preference(), it used to report success even when .env had no line to change
+func updatePHPVersionPreference(userContext, newPHPVersion string) error {
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 	newPHPVersion = strings.TrimPrefix(newPHPVersion, "php")
+	if !phpVersionFormRE.MatchString(newPHPVersion) {
+		return errors.New("invalid PHP version format")
+	}
 
 	var placeholder string
 	switch webServer {
@@ -138,17 +156,16 @@ func updatePHPVersionPreference(userContext, newPHPVersion string) bool {
 	configFilePath := "/home/" + userContext + "/.env"
 	content, err := tenantfs.ReadFile(configFilePath)
 	if err != nil {
-		return false
+		return errors.New("the account's .env file could not be read")
 	}
-
-	lines := strings.Split(string(content), "\n")
-	prefix := placeholder + "="
-	for i, line := range lines {
-		if strings.HasPrefix(line, prefix) {
-			lines[i] = placeholder + "=" + newPHPVersion
-		}
+	updated, found := setEnvLine(string(content), placeholder, newPHPVersion)
+	if !found {
+		return fmt.Errorf("the account's .env file has no %s line to update", placeholder)
 	}
-	return tenantfs.WriteFile(configFilePath, []byte(strings.Join(lines, "\n")), 0o644) == nil
+	if err := tenantfs.WriteFile(configFilePath, []byte(updated), 0o644); err != nil {
+		return errors.New("the account's .env file could not be written")
+	}
+	return nil
 }
 
 // FetchPHPVersions is memoized for 1h.
