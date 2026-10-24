@@ -3,7 +3,6 @@ package php
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -48,18 +47,15 @@ func apiPHPDefault(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if isLitespeed {
-			versionFloat, parseErr := strconv.ParseFloat(newVersion, 64)
-			if parseErr != nil || !litespeedDefaultVersions[versionFloat] {
-				writeJSONError(w, http.StatusBadRequest, "Default PHP version for OpenLitespeed can not be set to "+newVersion+" - only available tags are: 8.5 8.4 8.3 8.2")
-				return
-			}
+		if msg := checkDefaultVersion(newVersion, isLitespeed, FetchPHPVersions(ctx, a, userContext)); msg != "" {
+			writeJSONError(w, http.StatusBadRequest, msg)
+			return
 		}
 
 		previousVersion, _ := computeDefaultPHPVersionAndService(ctx, userContext, webServer, isLitespeed)
 
-		if !updatePHPVersionPreference(userContext, newVersion) {
-			writeJSONError(w, http.StatusNotFound, "Configuration file not found")
+		if prefErr := updatePHPVersionPreference(userContext, newVersion); prefErr != nil {
+			writeJSONError(w, http.StatusInternalServerError, "Default PHP version could not be changed: "+prefErr.Error())
 			return
 		}
 

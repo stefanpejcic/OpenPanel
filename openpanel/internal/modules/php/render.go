@@ -68,10 +68,8 @@ func phpVersionChoices(installed []string, current string, isLitespeed bool, api
 	sort.Slice(versions, func(i, j int) bool { return versionLess(versions[j], versions[i]) })
 	var out []PHPVersionChoice
 	for _, v := range versions {
-		if isLitespeed {
-			if f, err := strconv.ParseFloat(v, 64); err != nil || !litespeedDefaultVersions[f] {
-				continue
-			}
+		if isLitespeed && !litespeedDefaultVersions[v] {
+			continue
 		}
 		info, known := api[v]
 		// the API only lists recent versions, anything older than all of them is long past end of life

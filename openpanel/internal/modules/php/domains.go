@@ -73,7 +73,6 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
 		domainURL := r.Form.Get("domain_url")
-		oldPHPVersion := r.Form.Get("old_php_version")
 		newPHPVersion := r.Form.Get("new_php_version")
 		redirectTo := r.Form.Get("redirect_to")
 		if redirectTo == "" || !strings.HasPrefix(redirectTo, "/") || strings.HasPrefix(redirectTo, "//") || strings.Contains(redirectTo, "://") {
@@ -94,8 +93,20 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			web.FlashRedirect(a, w, r, "error", "Invalid or unavailable PHP version selected.", target)
 			return
 		}
-		if oldPHPVersion == "" || !phpVersionFormRE.MatchString(oldPHPVersion) {
-			web.FlashRedirect(a, w, r, "error", "Invalid current PHP version.", target)
+		confFile := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_webserver_data/_data/" + domainURL + ".conf"
+		content, readErr := tenantfs.ReadFile(confFile)
+		if readErr != nil {
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to read vhost configuration for %(domain_url)s: %(error)s", "domain_url", domainURL, "error", readErr.Error()), target)
+			return
+		}
+		// the page's old_php_version can be stale, what the vhost points at is what's really in use
+		oldPHPVersion := currentVhostVersion(string(content))
+		if oldPHPVersion == "" {
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Could not determine the current PHP version for domain %(domain_url)s", "domain_url", domainURL), target)
+			return
+		}
+		if oldPHPVersion == newPHPVersion {
+			web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Domain %(domain_url)s already uses PHP %(new_phpversion)s, nothing to change", "domain_url", domainURL, "new_phpversion", newPHPVersion), target)
 			return
 		}
 
@@ -109,18 +120,21 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			webserver.WaitListening(ctx, userContext, newPHPContainer)
 		}
 
-		confFile := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_webserver_data/_data/" + domainURL + ".conf"
-		content, readErr := tenantfs.ReadFile(confFile)
-		if readErr != nil {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to read vhost configuration for %(domain_url)s: %(error)s", "domain_url", domainURL, "error", readErr.Error()), target)
+		updateFailed := func() {
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error occurred while updating PHP version for domain %(domain_url)s", "domain_url", domainURL), target)
+		}
+		updated, ok := switchVhostVersion(string(content), oldPHPVersion, newPHPVersion)
+		if !ok {
+			updateFailed()
 			return
 		}
-
-		updated := strings.ReplaceAll(string(content), "php-fpm-"+oldPHPVersion, "php-fpm-"+newPHPVersion)
-		_ = tenantfs.WriteFile(confFile, []byte(updated), 0o644)
-
-		if strings.Contains(updated, "php-fpm-"+oldPHPVersion) {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error occurred while updating PHP version for domain %(domain_url)s", "domain_url", domainURL), target)
+		// a failed write used to go unnoticed since only the copy in memory was checked
+		if writeErr := tenantfs.WriteFile(confFile, []byte(updated), 0o644); writeErr != nil {
+			updateFailed()
+			return
+		}
+		if written, err := tenantfs.ReadFile(confFile); err != nil || currentVhostVersion(string(written)) != newPHPVersion {
+			updateFailed()
 			return
 		}
 
@@ -206,6 +220,20 @@ func buildPHPDomainRows(userContext string, domainsList []appctx.Domain, phpVers
 	}
 
 	return rows, counts, outdatedDomains
+}
+
+// currentVhostVersion is the php-fpm version a vhost points at, the same php-fpm-X.Y:port line the domains table reads, "" when there's none
+func currentVhostVersion(content string) string {
+	if m := domainConfDeclaredVersionRE.FindStringSubmatch(content); m != nil {
+		return m[1]
+	}
+	return ""
+}
+
+// switchVhostVersion points every php-fpm-<from> reference at <to>, ok is false when nothing changed or a reference was left behind
+func switchVhostVersion(content, from, to string) (string, bool) {
+	updated := strings.ReplaceAll(content, "php-fpm-"+from, "php-fpm-"+to)
+	return updated, updated != content && !strings.Contains(updated, "php-fpm-"+from)
 }
 
 func containsString(list []string, s string) bool {

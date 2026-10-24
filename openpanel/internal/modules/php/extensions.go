@@ -201,11 +201,7 @@ func getActiveAndDisabledExtensions(ctx context.Context, userContext, service st
 		if !strings.HasSuffix(fname, ".disabled") {
 			continue
 		}
-		name := strings.ToLower(fname)
-		if m := extConfNameRE.FindStringSubmatch(fname); m != nil {
-			name = strings.ToLower(m[1])
-		}
-		disabled[name] = true
+		disabled[confFileExtension(fname)] = true
 	}
 	return active, disabled
 }
@@ -224,13 +220,23 @@ func findExtensionConfFile(ctx context.Context, userContext, service, extension 
 	}
 	argv := podmanmanager.PodmanArgv(userContext, "exec", service, "sh", "-c", "ls -1 "+confDPath+"/ 2>/dev/null")
 	out, _ := runShort(ctx, userContext, argv)
-	needle := strings.ToLower(extension)
 	for _, fname := range strings.Split(out, "\n") {
-		if strings.HasSuffix(fname, suffix) && strings.Contains(strings.ToLower(fname), needle) {
+		if strings.HasSuffix(fname, suffix) && confFileExtension(fname) == strings.ToLower(extension) {
 			return fname
 		}
 	}
 	return ""
+}
+
+var confFilePriorityRE = regexp.MustCompile(`^\d+-`)
+
+// confFileExtension is the extension a conf.d file loads, matching by substring used to pick pdo_mysql's file for pdo
+func confFileExtension(fname string) string {
+	base := strings.TrimSuffix(strings.TrimSuffix(fname, ".disabled"), ".ini")
+	if m := extConfNameRE.FindStringSubmatch(base); m != nil {
+		return strings.ToLower(m[1])
+	}
+	return strings.ToLower(confFilePriorityRE.ReplaceAllString(base, ""))
 }
 
 // toggleExtension enables or disables an extension by renaming its conf.d file to (or from) a .disabled suffix inside the PHP container
@@ -449,7 +455,8 @@ func saveInstallState(installID string, s installState) error {
 }
 
 func loadInstallState(installID string) (installState, bool) {
-	if installID == "" {
+	// ids are uuids we hand out, anything else never names a state file
+	if _, err := uuid.Parse(installID); err != nil {
 		return installState{}, false
 	}
 	path, err := installStateFilePath(installID)
@@ -613,6 +620,10 @@ func handlePHPExtensions(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	}
 
 	version := phpVersionFromSegment(versionSeg)
+	if !usableVersion(ctx, a, userContext, version) {
+		web.FlashRedirect(a, w, r, "error", "Invalid or unavailable PHP version.", "/php/extensions")
+		return
+	}
 	service, isLitespeed := phpExtensionsService(userContext, version)
 	if ok, errMsg := ensurePHPServiceRunning(ctx, userContext, service); !ok {
 		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to start PHP %(version)s: %(err_msg)s", "version", version, "err_msg", errMsg), "/php/extensions")
@@ -721,6 +732,10 @@ func handlePHPAvailableExtensions(a *appctx.App, w http.ResponseWriter, r *http.
 	}
 
 	version := phpVersionFromSegment(versionSeg)
+	if !usableVersion(ctx, a, userContext, version) {
+		writeJSONError(w, http.StatusBadRequest, "Invalid or unavailable PHP version.")
+		return
+	}
 	service, isLitespeed := phpExtensionsService(userContext, version)
 
 	type availableExt struct {
@@ -767,6 +782,11 @@ func handlePHPExtensionsHistory(a *appctx.App, w http.ResponseWriter, r *http.Re
 		return
 	}
 	version := phpVersionFromSegment(versionSeg)
+	// the history lives under a folder named after the version
+	if !usableVersion(r.Context(), a, userContext, version) {
+		writeJSONError(w, http.StatusBadRequest, "Invalid or unavailable PHP version.")
+		return
+	}
 
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
@@ -801,6 +821,10 @@ func handlePHPInstallExtensions(a *appctx.App, w http.ResponseWriter, r *http.Re
 		return
 	}
 	version := phpVersionFromSegment(versionSeg)
+	if !usableVersion(ctx, a, userContext, version) {
+		writeJSONError(w, http.StatusBadRequest, "Invalid or unavailable PHP version.")
+		return
+	}
 
 	_ = r.ParseMultipartForm(1 << 20)
 	raw := r.Form["extensions[]"]
@@ -849,11 +873,19 @@ func handlePHPInstallExtensionsStatus(a *appctx.App, w http.ResponseWriter, r *h
 		return
 	}
 	version := phpVersionFromSegment(versionSeg)
+	if !usableVersion(ctx, a, userContext, version) {
+		writeJSONError(w, http.StatusBadRequest, "Invalid or unavailable PHP version.")
+		return
+	}
 	service, _ := phpExtensionsService(userContext, version)
 	installID := r.URL.Query().Get("install_id")
 
 	containerBusy := isInstallRunningInContainer(ctx, userContext, service)
 	info, ok := loadInstallState(installID)
+	// another account's install is treated as unknown
+	if ok && info.Context != userContext {
+		ok = false
+	}
 
 	if ok {
 		if info.Status == "done" && !info.Logged {

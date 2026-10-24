@@ -3,6 +3,8 @@ package php
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -118,10 +120,26 @@ const (
 	liteSpeedRelease     = "6.3.7"
 )
 
-// updatePHPVersionPreference mirrors update_php_version_preference().
-func updatePHPVersionPreference(userContext, newPHPVersion string) bool {
+// setEnvLine replaces every key=... line in content, found is false when there's no such line to replace
+func setEnvLine(content, key, value string) (updated string, found bool) {
+	lines := strings.Split(content, "\n")
+	prefix := key + "="
+	for i, line := range lines {
+		if strings.HasPrefix(line, prefix) {
+			lines[i] = prefix + value
+			found = true
+		}
+	}
+	return strings.Join(lines, "\n"), found
+}
+
+// updatePHPVersionPreference mirrors update_php_version_preference(), it used to report success even when .env had no line to change
+func updatePHPVersionPreference(userContext, newPHPVersion string) error {
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 	newPHPVersion = strings.TrimPrefix(newPHPVersion, "php")
+	if !phpVersionFormRE.MatchString(newPHPVersion) {
+		return errors.New("invalid PHP version format")
+	}
 
 	var placeholder string
 	switch webServer {
@@ -138,17 +156,27 @@ func updatePHPVersionPreference(userContext, newPHPVersion string) bool {
 	configFilePath := "/home/" + userContext + "/.env"
 	content, err := tenantfs.ReadFile(configFilePath)
 	if err != nil {
+		return errors.New("the account's .env file could not be read")
+	}
+	updated, found := setEnvLine(string(content), placeholder, newPHPVersion)
+	if !found {
+		return fmt.Errorf("the account's .env file has no %s line to update", placeholder)
+	}
+	if err := tenantfs.WriteFile(configFilePath, []byte(updated), 0o644); err != nil {
+		return errors.New("the account's .env file could not be written")
+	}
+	return nil
+}
+
+// usableVersion is a plain major.minor the account can run, the extension and info pages build container names and paths from it
+func usableVersion(ctx context.Context, a *appctx.App, userContext, version string) bool {
+	if !phpVersionFormRE.MatchString(version) {
 		return false
 	}
-
-	lines := strings.Split(string(content), "\n")
-	prefix := placeholder + "="
-	for i, line := range lines {
-		if strings.HasPrefix(line, prefix) {
-			lines[i] = placeholder + "=" + newPHPVersion
-		}
+	if ws := webserver.GetEnvFileValue(userContext, "WEB_SERVER"); strings.Contains(strings.ToLower(ws), "litespeed") {
+		return true
 	}
-	return tenantfs.WriteFile(configFilePath, []byte(strings.Join(lines, "\n")), 0o644) == nil
+	return containsString(FetchPHPVersions(ctx, a, userContext), version)
 }
 
 // FetchPHPVersions is memoized for 1h.

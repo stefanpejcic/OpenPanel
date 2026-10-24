@@ -204,23 +204,21 @@ func toggleLitespeedExtension(ctx context.Context, userContext, container, versi
 		return false, "Extension is not installed, or is already disabled."
 	}
 
-	cmds := make([]string, 0, len(toRename))
+	// one mv per file with plain arguments, quoting names into sh -c broke on a quote in a file name
 	for _, fname := range toRename {
 		dst := fname + ".disabled"
 		if enable {
 			dst = strings.TrimSuffix(fname, ".disabled")
 		}
-		cmds = append(cmds, "mv '"+confDir+"/"+fname+"' '"+confDir+"/"+dst+"'")
-	}
-
-	cctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-	argv2 := podmanmanager.PodmanArgv(userContext, "exec", container, "sh", "-c", strings.Join(cmds, " && "))
-	cmd := podmanmanager.Command(cctx, userContext, argv2)
-	var stderr strings.Builder
-	cmd.Stderr = &stderr
-	if err := cmd.Run(); err != nil {
-		return false, strings.TrimSpace(stderr.String())
+		cctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		cmd := podmanmanager.Command(cctx, userContext, podmanmanager.PodmanArgv(userContext, "exec", container, "mv", confDir+"/"+fname, confDir+"/"+dst))
+		var stderr strings.Builder
+		cmd.Stderr = &stderr
+		err := cmd.Run()
+		cancel()
+		if err != nil {
+			return false, strings.TrimSpace(stderr.String())
+		}
 	}
 	return true, ""
 }

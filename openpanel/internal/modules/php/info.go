@@ -31,6 +31,11 @@ func handlePHPInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	service := ""
 
 	if version != "" {
+		// the version picks which container gets started, so only ones the account has
+		if !usableVersion(ctx, a, userContext, version) {
+			web.FlashRedirect(a, w, r, "error", "Invalid or unavailable PHP version.", "/php/domains")
+			return
+		}
 		webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 		if strings.Contains(strings.ToLower(webServer), "litespeed") {
 			service = strings.ToLower(webServer)
@@ -69,7 +74,8 @@ func handlePHPInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 					msg = runErr.Error()
 				}
 			}
-			writeJSONError(w, http.StatusInternalServerError, strings.TrimSpace(msg))
+			// this is an html page, a raw json error used to replace it
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Could not read PHP %(version)s info: %(message)s", "version", version, "message", strings.TrimSpace(msg)), "/php/domains")
 			return
 		}
 		phpInfoContent = strings.TrimSpace(string(out))

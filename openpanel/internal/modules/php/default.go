@@ -3,7 +3,6 @@ package php
 import (
 	"context"
 	"net/http"
-	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -20,7 +19,25 @@ func writeJSONError(w http.ResponseWriter, status int, message string) {
 	web.WriteJSON(w, status, map[string]string{"error": message})
 }
 
-var litespeedDefaultVersions = map[float64]bool{8.5: true, 8.4: true, 8.3: true, 8.2: true}
+// litespeedDefaultVersions are compared as exact strings, parsing them as floats let 8.50 through as 8.5 and wrote an image tag that doesn't exist
+var litespeedDefaultVersions = map[string]bool{"8.5": true, "8.4": true, "8.3": true, "8.2": true}
+
+// checkDefaultVersion returns why version can't be the default, or "" when it can
+func checkDefaultVersion(version string, isLitespeed bool, installed []string) string {
+	if !phpVersionFormRE.MatchString(version) {
+		return "Invalid PHP version format"
+	}
+	if isLitespeed {
+		if !litespeedDefaultVersions[version] {
+			return "Default PHP version for OpenLitespeed can not be set to " + version + " - only available tags are: 8.5 8.4 8.3 8.2"
+		}
+		return ""
+	}
+	if !containsString(installed, version) {
+		return "PHP " + version + " is not available on this account"
+	}
+	return ""
+}
 
 // handleDefaultPHPVersion gets or sets the default PHP version applied to newly created domains
 func handleDefaultPHPVersion(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -37,25 +54,22 @@ func handleDefaultPHPVersion(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
-		newPHPVersion := r.Form.Get("new_php_version")
-		if newPHPVersion == "" {
-			writeJSONError(w, http.StatusBadRequest, "Invalid input data")
+		newPHPVersion := strings.TrimSpace(r.Form.Get("new_php_version"))
+		fail := func(status int, msg string) {
+			if outputJSON {
+				writeJSONError(w, status, msg)
+				return
+			}
+			web.FlashRedirect(a, w, r, "error", msg, "/php/default")
+		}
+
+		// on php-fpm anything used to be accepted, a version that isn't installed broke every new domain
+		if msg := checkDefaultVersion(newPHPVersion, isLitespeed, FetchPHPVersions(ctx, a, userContext)); msg != "" {
+			fail(http.StatusBadRequest, msg)
 			return
 		}
 
-		if isLitespeed {
-			versionFloat, parseErr := strconv.ParseFloat(newPHPVersion, 64)
-			if parseErr != nil {
-				web.FlashRedirect(a, w, r, "error", "Invalid PHP version format", "/php/default")
-				return
-			}
-			if !litespeedDefaultVersions[versionFloat] {
-				web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Default PHP version for OpenLitespeed can not be set to %(new_phpversion)s - only available tags are: 8.5 8.4 8.3 8.2", "new_phpversion", newPHPVersion), "/php/default")
-				return
-			}
-		}
-
-		if updatePHPVersionPreference(userContext, newPHPVersion) {
+		if prefErr := updatePHPVersionPreference(userContext, newPHPVersion); prefErr == nil {
 			ipAddress := reqip.ClientIP(r)
 			_ = logger.RecordUserAction(a.Config, currentUsername, "changed default PHP version for new domains to "+newPHPVersion, ipAddress)
 			message := web.Tr(a, r, "PHP version %(new_phpversion)s set as default for new domains", "new_phpversion", newPHPVersion)
@@ -78,8 +92,7 @@ func handleDefaultPHPVersion(a *appctx.App, w http.ResponseWriter, r *http.Reque
 			}
 			web.Flash(a, w, r, "success", message)
 		} else {
-			web.Flash(a, w, r, "error", web.Tr(a, r, "Default PHP version could not be changed to %(new_phpversion)s", "new_phpversion", newPHPVersion))
-			writeJSONError(w, http.StatusNotFound, "Configuration file not found")
+			fail(http.StatusInternalServerError, web.Tr(a, r, "Default PHP version could not be changed to %(new_phpversion)s", "new_phpversion", newPHPVersion)+": "+prefErr.Error())
 			return
 		}
 	}
