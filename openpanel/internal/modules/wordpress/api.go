@@ -490,7 +490,7 @@ func apiWordPressRemove(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if content, readErr := tenantfs.ReadFile(wpConfigFile); readErr == nil {
 		dbNameMatch := removeDBNameRE.FindStringSubmatch(string(content))
 		dbUserMatch := removeDBUserRE.FindStringSubmatch(string(content))
-		if dbNameMatch != nil && dbUserMatch != nil {
+		if dbNameMatch != nil && dbUserMatch != nil && droppableDB(dbNameMatch[1]) && validWPConfigName(dbUserMatch[1]) {
 			dbName, dbUser := dbNameMatch[1], dbUserMatch[1]
 			_, _ = mysqlmanager.Exec(ctx, userContext, "DROP DATABASE IF EXISTS `"+dbName+"`", "")
 			_, _ = mysqlmanager.Exec(ctx, userContext, "DROP USER IF EXISTS '"+dbUser+"'@'%'", "")
@@ -565,7 +565,6 @@ func apiWordPressReload(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	const baseDirectory = "/var/www/html/"
 	phpContainer := phpContainerForUser(userContext)
 	wpBase := podmanmanager.BuildWPCLIBaseCommand(userContext, phpContainer)
 
@@ -576,7 +575,7 @@ func apiWordPressReload(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	updated := []updatedSite{}
 
-	walkForWPConfig(baseDirectory, func(root string) {
+	walkUserWPInstalls(userContext, func(root string) {
 		siteURLArgv := append(append([]string{}, wpBase...), "--skip-themes", "--allow-root", "--path="+root, "option", "get", "siteurl")
 		out, _ := podmanmanager.Command(ctx, userContext, siteURLArgv).Output()
 		siteURL := strings.TrimSpace(string(out))
@@ -590,7 +589,7 @@ func apiWordPressReload(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
 			return
 		}
-		if !checkSiteAlreadyExistsForUser(ctx, a, domainName) {
+		if !checkSiteAlreadyExistsForUser(ctx, a, siteName) {
 			return
 		}
 
@@ -694,6 +693,14 @@ func apiWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if !strings.HasSuffix(normalizedDir, normalizedSub) {
 			domainDirectory = strings.TrimSuffix(domainDirectory, "/") + "/" + subdirectory
 		}
+	}
+	if !apiWPCLISafeRE.MatchString(domainDirectory) || strings.Contains(domainDirectory, "..") {
+		writeAPIWPJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid docroot"})
+		return
+	}
+	if _, phpOK := sanitizePHPVersion(phpVersion); !phpOK {
+		writeAPIWPJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid php_version"})
+		return
 	}
 
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
@@ -860,7 +867,7 @@ func apiWordPressScan(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			domainName = siteName[:idx]
 		}
 
-		if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
+		if !a.CheckDomainBelongsToUser(ctx, userID, domainName) || !validSiteName(siteName) {
 			return
 		}
 		if checkSiteAlreadyExistsForUser(ctx, a, siteName) {

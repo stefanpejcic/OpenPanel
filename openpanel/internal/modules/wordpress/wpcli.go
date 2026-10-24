@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -119,6 +120,23 @@ func sanitizeAdminUser(u string) (string, bool) {
 	return u, true
 }
 
+// wpCLIRealPath maps a container docroot onto the host html volume, refusing anything that lands outside it
+func wpCLIRealPath(htmlVolume, domainDirectory string) (string, bool) {
+	const wwwPrefix = "/var/www/html/"
+	var docrootWithoutWWW string
+	if strings.HasPrefix(domainDirectory, wwwPrefix) {
+		docrootWithoutWWW = domainDirectory[len(wwwPrefix):]
+	} else {
+		docrootWithoutWWW = strings.TrimPrefix(filepath.Clean(domainDirectory), "/")
+	}
+	// cleaned before tenantfs ever sees it, so a .. here would land in another account's volume
+	realPath := filepath.Clean(filepath.Join(htmlVolume, docrootWithoutWWW))
+	if realPath != htmlVolume && !strings.HasPrefix(realPath, htmlVolume+"/") {
+		return "", false
+	}
+	return realPath, true
+}
+
 // wpCLIParams mirrors `request.get_json(silent=True) or request.form or request.args`: a JSON body if present, else the merged form/query values.
 func wpCLIParams(r *http.Request) map[string]string {
 	if strings.Contains(r.Header.Get("Content-Type"), "application/json") {
@@ -153,6 +171,10 @@ func getWPConfigDBInfo(realPath string) (dbName, tablePrefix string, err error) 
 	tablePrefixMatch := tablePrefixValueRE.FindStringSubmatch(string(content))
 	if dbNameMatch == nil || tablePrefixMatch == nil {
 		return "", "", fmt.Errorf("wp-config.php not found")
+	}
+	// both go straight into SQL, WordPress itself only allows letters, digits and _ in the prefix
+	if !validWPConfigName(dbNameMatch[1]) || !tablePrefixSafeRE.MatchString(tablePrefixMatch[1]) {
+		return "", "", fmt.Errorf("wp-config.php has an unsupported DB_NAME or table prefix")
 	}
 	return dbNameMatch[1], tablePrefixMatch[1], nil
 }
@@ -337,7 +359,7 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	domainDirectory, ok = sanitizeWPCLIPath(domainDirectory)
-	if !ok {
+	if !ok || strings.Contains(domainDirectory, "..") {
 		http.Error(w, "Invalid document root.", http.StatusBadRequest)
 		return
 	}
@@ -372,17 +394,15 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	htmlVolume := filepath.Join("/home", userContext, "docker-data", "volumes", userContext+"_html_data", "_data")
-	var docrootWithoutWWW string
-	if strings.HasPrefix(domainDirectory, wwwPrefix) {
-		docrootWithoutWWW = domainDirectory[len(wwwPrefix):]
-	} else {
-		docrootWithoutWWW = strings.TrimPrefix(filepath.Clean(domainDirectory), "/")
+	realPath, ok := wpCLIRealPath(htmlVolume, domainDirectory)
+	if !ok {
+		http.Error(w, "Invalid document root.", http.StatusBadRequest)
+		return
 	}
-	realPath := filepath.Clean(filepath.Join(htmlVolume, docrootWithoutWWW))
 
 	switch action {
 	case "login":
-		handleWPCLILogin(a, w, r, currentUsername, userContext, domain, realPath, adminUsername)
+		handleWPCLILogin(a, w, r, currentUsername, userContext, domainParam, realPath, adminUsername)
 		return
 	case "users":
 		roleFilter := r.URL.Query().Get("role")
@@ -430,6 +450,10 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
 		act := strings.ToLower(params["subcmd"])
 		if act != "enable" && act != "disable" {
 			http.Error(w, "Use 'enable' or 'disable'", http.StatusBadRequest)
@@ -460,6 +484,17 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// session cookies are SameSite=Lax, so a GET here could be fired from a link on another site
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if action == "download" && verifyType == "plugins" {
+		handleReinstallPlugins(a, w, r, currentUsername, userContext, domainParam, baseDocker)
+		return
+	}
+
 	var subcmd []string
 	if action == "verify-checksum" || action == "download" {
 		sc, typeOK := subActions[verifyType]
@@ -479,8 +514,83 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Success", "output": strings.TrimSpace(out)})
 }
 
+type wpPlugin struct {
+	Name    string `json:"name"`
+	Status  string `json:"status"`
+	Version string `json:"version"`
+}
+
+// pluginsToReinstall picks the regular plugins out of `wp plugin list --format=json`, must-use plugins and drop-ins can't come from wordpress.org
+func pluginsToReinstall(listJSON []byte) ([]wpPlugin, error) {
+	var all []wpPlugin
+	if err := json.Unmarshal(listJSON, &all); err != nil {
+		return nil, err
+	}
+	var out []wpPlugin
+	for _, p := range all {
+		if p.Status == "must-use" || p.Status == "dropin" || strings.HasPrefix(p.Name, "-") || !wpCLINameRE.MatchString(p.Name) {
+			continue
+		}
+		if strings.HasPrefix(p.Version, "-") || !wpCLINameRE.MatchString(p.Version) {
+			p.Version = ""
+		}
+		out = append(out, p)
+	}
+	return out, nil
+}
+
+func lastLine(s string) string {
+	lines := strings.Split(strings.TrimSpace(s), "\n")
+	return strings.TrimSpace(lines[len(lines)-1])
+}
+
+// handleReinstallPlugins puts every plugin back from wordpress.org at the version it's on now, the old plugins branch only ran plugin list so nothing got reinstalled
+func handleReinstallPlugins(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, site string, baseDocker []string) {
+	ctx := r.Context()
+	listCtx, cancel := context.WithTimeout(ctx, 60*time.Second)
+	defer cancel()
+	listArgv := append(append([]string{}, baseDocker...), "plugin", "list", "--format=json", "--fields=name,status,version", "--skip-themes", "--skip-plugins")
+	listOut, listErr := podmanmanager.Command(listCtx, userContext, listArgv).Output()
+	plugins, parseErr := pluginsToReinstall(listOut)
+	if listErr != nil || parseErr != nil {
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Could not list the site's plugins.", "output": strings.TrimSpace(string(listOut))})
+		return
+	}
+
+	var lines []string
+	reinstalled := 0
+	for _, p := range plugins {
+		argv := append(append([]string{}, baseDocker...), "plugin", "install", p.Name, "--force", "--skip-themes", "--skip-plugins")
+		if p.Version != "" {
+			argv = append(argv, "--version="+p.Version)
+		}
+		out, runErr := safeRunWPCLI(ctx, userContext, argv)
+		if runErr == nil {
+			reinstalled++
+		}
+		lines = append(lines, p.Name+": "+lastLine(out))
+	}
+	_ = logger.RecordUserAction(a.Config, currentUsername, fmt.Sprintf("reinstalled %d of %d plugins for website %s using WP Manager", reinstalled, len(plugins), site), reqip.ClientIP(r))
+	web.WriteJSON(w, http.StatusOK, map[string]string{
+		"message": fmt.Sprintf("Reinstalled %d of %d plugins.", reinstalled, len(plugins)),
+		"output":  strings.Join(lines, "\n"),
+	})
+}
+
+// loginBaseURL keeps the stored siteurl only while it points at the site's own domain, otherwise the one-time admin token would go to whatever host siteurl names
+func loginBaseURL(storedSiteURL, site string) string {
+	domain, _, _ := strings.Cut(site, "/")
+	domain = strings.ToLower(domain)
+	if u, err := url.Parse(strings.TrimSpace(storedSiteURL)); err == nil && (u.Scheme == "https" || u.Scheme == "http") {
+		if host := strings.ToLower(u.Hostname()); host == domain || host == "www."+domain {
+			return strings.TrimSuffix(u.Scheme+"://"+u.Host+u.EscapedPath(), "/")
+		}
+	}
+	return "https://" + strings.TrimSuffix(site, "/")
+}
+
 // handleWPCLILogin mirrors the "login" action branch of wp_cli(): generates a one-time autologin link for an administrator via the mu-plugin above.
-func handleWPCLILogin(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, domain, realPath, adminUsername string) {
+func handleWPCLILogin(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, site, realPath, adminUsername string) {
 	ctx := r.Context()
 
 	admins, usersErr := getWPUsers(ctx, userContext, realPath, "administrator")
@@ -552,11 +662,11 @@ func handleWPCLILogin(a *appctx.App, w http.ResponseWriter, r *http.Request, cur
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to create login link", "details": rowsErr.Error()})
 		return
 	}
-	siteURL := "https://" + domain
+	storedSiteURL := ""
 	if len(siteURLRows) > 0 {
-		siteURL = mysqlmanager.ToString(siteURLRows[0][0])
+		storedSiteURL = mysqlmanager.ToString(siteURLRows[0][0])
 	}
-	siteURL = strings.TrimSuffix(siteURL, "/")
+	siteURL := loginBaseURL(storedSiteURL, site)
 
 	insertQuery := "INSERT INTO `" + optionsTable + "` (option_name, option_value, autoload) VALUES ('" + optionName + "', '" + optionValue + "', 'no') ON DUPLICATE KEY UPDATE option_value = '" + optionValue + "'"
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, insertQuery, dbName); execErr != nil {

@@ -6,6 +6,20 @@ import (
 	"testing"
 )
 
+func TestDocrootRefusesBackupsFolder(t *testing.T) {
+	// a docroot here would publish every site's database dump and wp-config.php copy
+	for _, in := range []string{"/var/www/html/backups", "/var/www/html/backups/", "/var/www/html/backups/example.com", "/var/www/html/./backups", "/var/www/html/x/../backups/a"} {
+		if got, ok := resolveUnderVarWWWHTML(in); ok || !insideBackups(got) {
+			t.Errorf("resolveUnderVarWWWHTML(%q) = %q, %v, want refused as the backups folder", in, got, ok)
+		}
+	}
+	for _, in := range []string{"/var/www/html/backups2", "/var/www/html/example.com/backups", "/var/www/html/example.com"} {
+		if _, ok := resolveUnderVarWWWHTML(in); !ok {
+			t.Errorf("resolveUnderVarWWWHTML(%q) should be allowed", in)
+		}
+	}
+}
+
 func TestHTTPURLRERejectsEmbeddedWhitespace(t *testing.T) {
 	valid := []string{"http://example.com", "https://example.com/path?q=1"}
 	invalid := []string{"", "ftp://example.com", "http://example.com\nDirective evil", "http://exa mple.com", "http://example.com\r\nDirective evil"}

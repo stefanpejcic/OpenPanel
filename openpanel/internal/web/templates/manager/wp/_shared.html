@@ -153,6 +153,14 @@
         if (securityTab.dataset.checked === "true") return;
         securityTab.dataset.checked = "true";
 
+        // vulnerability and safe browsing data comes from third-party APIs, so it never goes in as markup
+        function escHTML(s) {
+            return String(s ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+        }
+        function safeLink(u) {
+            return /^https?:\/\//i.test(String(u || '')) ? escHTML(u) : '#';
+        }
+
         function createVulnRow(type, name, version, latest, vulnerabilities, link) {
             let vulnHTML = '';
             if (vulnerabilities && vulnerabilities.length > 0) {
@@ -176,19 +184,19 @@
                     } else if (s.link.startsWith("https://www.cve.org")) {
                     	svgIcon = `<svg width="30" height="11" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 320.65 93.91"><defs><style>.cls-1{fill-rule:evenodd;fill:url(#linear-gradient);}.cls-2{font-size:18px;fill:#ff940e;font-family:ArialMT, Arial;}</style><linearGradient id="linear-gradient" x1="152.2" y1="90.17" x2="152.2" y2="5.62" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#f68826"/><stop offset="0.45" stop-color="#faa227"/><stop offset="1" stop-color="#fdb714"/></linearGradient></defs><path class="cls-1" d="M99.83,88.73l13.75-17.79H56.86a38.82,38.82,0,0,1-5.67-.4,34.11,34.11,0,0,1-5.31-1.23,30.85,30.85,0,0,1-4.8-2,24.78,24.78,0,0,1-4.17-2.7h0a22.28,22.28,0,0,1-3.46-3.4,21.7,21.7,0,0,1-2.59-4.06,20.67,20.67,0,0,1-1.62-4.63,23.3,23.3,0,0,1-.54-5,23,23,0,0,1,.56-5.06,20.43,20.43,0,0,1,1.68-4.68,23.07,23.07,0,0,1,6-7.55,24.74,24.74,0,0,1,4.14-2.78,30.15,30.15,0,0,1,4.78-2.05,31.58,31.58,0,0,1,5.33-1.28,36.22,36.22,0,0,1,5.68-.43h41.4v-9h18v-9h9v9h-9v9h9.52l26.61,39.24,1.95,2.88,2-2.84L196.93,5.63H297.85l-13.9,18H210.34l-.73,1L179.25,67.62l-9.7,13.72a23.11,23.11,0,0,1-2.89,3.28,36.14,36.14,0,0,1-3.65,3,12.89,12.89,0,0,1-4,1.89,18.14,18.14,0,0,1-5.12.67,19,19,0,0,1-5-.62,12.63,12.63,0,0,1-3.92-1.79,23.76,23.76,0,0,1-3.48-2.88,25.93,25.93,0,0,1-2.93-3.52L99.31,24.72l-.73-1h8.71V5.62H56.86a73.24,73.24,0,0,0-10.67.75A59.88,59.88,0,0,0,36.43,8.6a52.92,52.92,0,0,0-8.66,3.58A44.37,44.37,0,0,0,20.46,17a39.78,39.78,0,0,0-5.91,5.91,38.75,38.75,0,0,0-4.49,7,33.93,33.93,0,0,0-2.81,7.82,38.33,38.33,0,0,0-.94,8.64A39.24,39.24,0,0,0,7.25,55a35.86,35.86,0,0,0,2.83,8,40.55,40.55,0,0,0,4.5,7.23,41.25,41.25,0,0,0,5.92,6.19h0a45.86,45.86,0,0,0,7.33,5.08,55.52,55.52,0,0,0,8.66,3.89,56.45,56.45,0,0,0,9.74,2.45,65.94,65.94,0,0,0,10.63.82h43ZM134.36,5.62v9h9v-9ZM253,39H214V88.72h70.36L298.1,70.94H236.5V54.16h44.58L292.94,39Z"/><text class="cls-2" transform="translate(303.31 19.09)">®</text></svg>`;
                     } else {
-                        svgIcon = s.name;
+                        svgIcon = escHTML(s.name);
                     }
 
-                	return `<a href="${s.link}" target="_blank" class="inline-block ml-1 hover:opacity-80 transition">${svgIcon}</a>`;
+                	return `<a href="${safeLink(s.link)}" target="_blank" rel="noopener noreferrer" class="inline-block ml-1 hover:opacity-80 transition">${svgIcon}</a>`;
 
                 }).join('');
 
 	            vulnHTML += `
                 <div class="items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 mb-2">
-                    <span class="text-sm font-bold capitalize text-gray-700 dark:text-gray-300">${v.name}</span>
-                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">${displayDesc}</div>
-                    <div class="mt-2 text-xs text-gray-500 hidden">Fixed in: ${v.operator.max_version}</div>
-                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">Date: ${displayDate}</div>
+                    <span class="text-sm font-bold capitalize text-gray-700 dark:text-gray-300">${escHTML(v.name)}</span>
+                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">${escHTML(displayDesc)}</div>
+                    <div class="mt-2 text-xs text-gray-500 hidden">Fixed in: ${escHTML(v.operator && v.operator.max_version)}</div>
+                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">Date: ${escHTML(displayDate)}</div>
                     <div class="mt-2 text-sm text-gray-600 dark:text-gray-400 space-x-2">Source: ${sourcesHTML}</div>
                 </div>`;
 
@@ -197,9 +205,9 @@
                 vulnHTML = '<div class="flex items-center space-x-2"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-emerald-500 dark:text-emerald-400"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path></svg><p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{$.T.Get "None"}}</p></div>';
             }
 
-            let linkHTML = link ? `<a href="${link}" target="_blank" class="text-blue-500 hover:underline">${name}</a>` : name;
+            let linkHTML = link ? `<a href="${safeLink(link)}" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">${escHTML(name)}</a>` : escHTML(name);
 
-            return `<p class="py-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex gap-2">${type} ${linkHTML}${latest ? ` &nbsp;(Updated: ${latest})` : ''}</p><div class="grid grid-cols-1 gap-2">${vulnHTML}</div>`;
+            return `<p class="py-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex gap-2">${type} ${linkHTML}${latest ? ` &nbsp;(Updated: ${escHTML(latest)})` : ''}</p><div class="grid grid-cols-1 gap-2">${vulnHTML}</div>`;
         }
 
         function fetchWPVulnerabilities() {
@@ -305,11 +313,11 @@
             } else if (response.status === "danger") {
                 html = `<div class="flex items-center space-x-2"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-red-500 dark:text-red-400"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"></path></svg><p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "The website is flagged for threats:"}}</p></div><ul class="list-disc list-inside text-sm text-red-500 dark:text-red-300">`;
                 response.threats.forEach(function(threat) {
-                    html += `<li>${threat.threatType} on ${threat.platformType}</li>`;
+                    html += `<li>${escHTML(threat.threatType)} on ${escHTML(threat.platformType)}</li>`;
                 });
                 html += '</ul>';
             } else if (response.error) {
-                html = `<div class="flex items-center space-x-2">⚠️<p class="text-sm font-medium text-gray-900 dark:text-gray-50">${response.error}</p></div>`;
+                html = `<div class="flex items-center space-x-2">⚠️<p class="text-sm font-medium text-gray-900 dark:text-gray-50">${escHTML(response.error)}</p></div>`;
             }
             resultsContainer.innerHTML = html;
         })

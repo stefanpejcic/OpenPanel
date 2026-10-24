@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"math/big"
 	"regexp"
+	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
@@ -49,6 +50,20 @@ var (
 // validateDomain/validateDB check a domain/db-name-like value for the restricted character set these routes accept as user input.
 func validateDomain(name string) bool { return name != "" && validDomainRE.MatchString(name) }
 func validateDB(name string) bool     { return name != "" && validDBRE.MatchString(name) }
+
+// wpConfigNameRE is what DB_NAME/DB_USER read back from wp-config.php may hold before going into SQL, anything that can write that file could otherwise plant SQL that runs with the account's mysql root login
+var wpConfigNameRE = regexp.MustCompile(`^[A-Za-z0-9_$][A-Za-z0-9_$.-]*$`)
+
+func validWPConfigName(name string) bool { return wpConfigNameRE.MatchString(name) }
+
+// droppableDB keeps uninstall away from mysql's own schemas whatever wp-config.php names
+func droppableDB(name string) bool {
+	switch strings.ToLower(name) {
+	case "mysql", "information_schema", "performance_schema", "sys":
+		return false
+	}
+	return validWPConfigName(name)
+}
 
 func lookupDomainByURL(ctx context.Context, a *appctx.App, domainURL string) (appkit.DomainRow, bool, error) {
 	var d appkit.DomainRow

@@ -319,12 +319,11 @@
                         badgeClass = 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
                         badgeText = 'Unknown';
                 }
-                span.innerHTML = `
-                    ${version}
-                    <span class="${badgeClass} text-sm font-medium me-2 px-2.5 py-0.5">
-                        ${badgeText}
-                    </span>
-                `;
+                // textContent already decoded the version, so it can't go back in as markup
+                const badge = document.createElement('span');
+                badge.className = `${badgeClass} text-sm font-medium me-2 px-2.5 py-0.5`;
+                badge.textContent = badgeText;
+                span.replaceChildren(document.createTextNode(version + ' '), badge);
             });
         })
         .catch(error => {

@@ -19,6 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/mysql"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/waf"
@@ -86,6 +87,8 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		emit(map[string]any{"error": "Error creating lock file: " + err.Error()})
 		return
 	}
+	// every early return used to leave the lock behind and block scan/clone for minutes
+	defer appkit.RemoveLockFile(currentUsername)
 
 	dom, found, dbErr := appkit.LookupDomainByID(ctx, a, domainID)
 	if dbErr != nil {
@@ -101,6 +104,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	phpVersion := dom.PHPVersion.String
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, selectedDomain) {
+		emit(map[string]any{"error": "You do not own this domain."})
 		return
 	}
 
@@ -146,6 +150,10 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 	if !strings.HasSuffix(prefix, "_") {
 		prefix += "_"
+	}
+	if msg := validateInstallInputs(wordpressVersion, dbName, dbUser, prefix); msg != "" {
+		emit(map[string]any{"error": msg})
+		return
 	}
 
 	installPath := docroot
@@ -215,7 +223,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	strContent = strings.Replace(strContent, "database_name_here", dbName, 1)
 	strContent = strings.Replace(strContent, "localhost", mysql.AppDBHost(userContext, mysqlVersion), 1)
 	strContent = strings.Replace(strContent, "username_here", dbUser, 1)
-	strContent = strings.Replace(strContent, "password_here", dbPassword, 1)
+	strContent = strings.Replace(strContent, "password_here", cmsapp.EscapePHPSingleQuoted(dbPassword), 1)
 	strContent = tablePrefixRE.ReplaceAllString(strContent, "${1}"+prefix+"${2}")
 	_ = tenantfs.WriteFile(wpConfigFile, []byte(strContent), 0o644)
 
@@ -281,7 +289,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	const dbHost = "%"
 	queries := []string{
 		"CREATE DATABASE IF NOT EXISTS `" + dbName + "`",
-		"CREATE USER IF NOT EXISTS '" + dbUser + "'@'" + dbHost + "' IDENTIFIED BY '" + dbPassword + "'",
+		"CREATE USER IF NOT EXISTS '" + dbUser + "'@'" + dbHost + "' IDENTIFIED BY '" + escapeMySQLString(dbPassword) + "'",
 		"GRANT ALL PRIVILEGES ON `" + dbName + "`.* TO '" + dbUser + "'@'%'",
 		"FLUSH PRIVILEGES",
 	}
@@ -326,7 +334,8 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		emit(map[string]any{"status": "Setting pretty permalinks for WordPress"})
 	}
 	if siteDescription != "" {
-		escaped := strings.ReplaceAll(siteDescription, "'", "\\'")
+		// escaping only quotes let a trailing backslash break out of the PHP string
+		escaped := cmsapp.EscapePHPSingleQuoted(siteDescription)
 		wpEvalParts = append(wpEvalParts, "update_option( 'blogdescription', '"+escaped+"' );")
 		emit(map[string]any{"status": "Setting site tagline to '" + siteDescription + "'"})
 	}
@@ -374,10 +383,34 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed WordPress on domain "+selectedDomain, ipAddress)
 	web.Flash(a, w, r, "success", web.Tr(a, r, "WordPress installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
 	emit(map[string]any{"status": "WordPress installation completed!"})
-	appkit.RemoveLockFile(currentUsername)
 }
 
 var tablePrefixRE = regexp.MustCompile(`(\$table_prefix\s*=\s*')[^']*(';)`)
+
+// escapeMySQLString mirrors escape_mysql_string() (duplicated per-package, same as mysql.escapeMySQLString - see that function's doc comment)
+func escapeMySQLString(value string) string {
+	value = strings.ReplaceAll(value, `\`, `\\`)
+	value = strings.ReplaceAll(value, `'`, `\'`)
+	return value
+}
+
+// wordpressVersionRE keeps the version a plain release name, it ends up in the archive path so a "/" or ".." would pick any .tar.gz on the host
+var wordpressVersionRE = regexp.MustCompile(`^(latest|[0-9]+(\.[0-9]+)*(-[A-Za-z0-9]+)?)$`)
+
+// validateInstallInputs returns an error message for install form values that get spliced into paths, SQL or wp-config.php
+func validateInstallInputs(version, dbName, dbUser, prefix string) string {
+	switch {
+	case !wordpressVersionRE.MatchString(version):
+		return "Invalid WordPress version."
+	case !validateDB(dbName):
+		return "Invalid database name: only letters, numbers and underscores are allowed."
+	case !validateDB(dbUser):
+		return "Invalid database user: only letters, numbers and underscores are allowed."
+	case !tablePrefixSafeRE.MatchString(prefix):
+		return "Invalid table prefix: only letters, numbers and underscores are allowed."
+	}
+	return ""
+}
 
 func emitCleanupFiles(hostOSPath string, emit func(map[string]any)) {
 	var deleted, failed []string
@@ -414,6 +447,10 @@ func emitCleanupFiles(hostOSPath string, emit func(map[string]any)) {
 }
 
 func emitCleanupDatabase(ctx context.Context, userContext, mysqlVersion, dbName, dbUser, dbHost string, emit func(map[string]any)) {
+	if _, execErr := mysqlmanager.Exec(ctx, userContext, "DROP DATABASE IF EXISTS `"+dbName+"`", ""); execErr != nil {
+		emit(map[string]any{"error": "Cleanup: failed to drop database/user: " + execErr.Error()})
+		return
+	}
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, "DROP USER IF EXISTS '"+dbUser+"'@'"+dbHost+"'", ""); execErr != nil {
 		emit(map[string]any{"error": "Cleanup: failed to drop database/user: " + execErr.Error()})
 		return

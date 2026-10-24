@@ -13,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
@@ -22,6 +23,16 @@ import (
 )
 
 var backupFolderRE = regexp.MustCompile(`^20\d{2}-`)
+
+// validSiteName checks a domain or domain/folder taken from the URL, since it ends up in host paths and wp-cli/tar args
+func validSiteName(site string) bool {
+	domain, folder, _ := strings.Cut(site, "/")
+	if !validateDomain(domain) {
+		return false
+	}
+	_, err := paths.CleanSubdir(folder)
+	return err == nil
+}
 
 type backupDateInfo struct {
 	Date           string `json:"date"`
@@ -42,7 +53,12 @@ func handleGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
+	if !validSiteName(selectedDomain) {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid domain."})
+		return
+	}
 
+	appkit.ProtectBackupsDir("/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data")
 	backupsPath := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/backups/" + selectedDomain
 	if _, statErr := tenantfs.Stat(backupsPath); statErr != nil {
 		if mkErr := tenantfs.MkdirAll(backupsPath, 0o755); mkErr != nil {
@@ -107,6 +123,10 @@ func handleRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
+	if !validSiteName(selectedDomain) {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid domain."})
+		return
+	}
 	// a caller-supplied docroot is only used together with php_version, it gets joined into host paths so it must stay inside the html volume
 	if phpVersion != "" && docroot != "" {
 		if !appkit.SafeDocroot("/var/www/html/" + strings.TrimPrefix(strings.TrimPrefix(docroot, "/var/www/html/"), "/")) {
@@ -134,14 +154,13 @@ func handleRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	docrootOnHostOS := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + docroot + "/"
 	docrootInContainer := "/var/www/html/" + docroot + "/"
-	backupsPathOnHostOS := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/backups/" + docroot + "/"
-	backupsPathInContainer := "/var/www/html/backups/" + docroot + "/"
+	// run and get_dates keep backups under the site name, going by the docroot folder missed them whenever it wasn't named after the domain
+	backupsPathOnHostOS := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/backups/" + selectedDomain + "/"
+	backupsPathInContainer := "/var/www/html/backups/" + selectedDomain + "/"
 
 	if hasSubdir {
 		docrootOnHostOS += subdirectory
 		docrootInContainer += subdirectory
-		backupsPathOnHostOS += subdirectory
-		backupsPathInContainer += subdirectory
 	}
 
 	if !backupDateRE.MatchString(backupDate) {
@@ -164,6 +183,10 @@ func handleRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		if runErr := tenantfs.ExtractTar(ctx, targzPathOnHostOS, docrootOnHostOS, 0); runErr != nil {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
 			return
+		}
+		// files the restore recreates come out root-owned, and WordPress can't update or delete those later
+		if uid, uidErr := podmanmanager.GetUID(userContext); uidErr == nil {
+			_ = tenantfs.ChownR(docrootOnHostOS, uid, uid)
 		}
 		_ = logger.RecordUserAction(a.Config, currentUsername, "restored WordPress files backup from "+backupDatePathInContainer+" on "+selectedDomain, ipAddress)
 		restoredItems = append(restoredItems, "files")
@@ -197,6 +220,11 @@ func handleRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		if tablePrefixMatch != nil {
 			tablePrefix = tablePrefixMatch[1]
 		}
+		// both come from wp-config.php and go into SQL run with the account's mysql root login
+		if (dbName != "" && !validWPConfigName(dbName)) || (tablePrefix != "" && !tablePrefixSafeRE.MatchString(tablePrefix)) {
+			web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "wp-config.php has an unsupported DB_NAME or table prefix."})
+			return
+		}
 
 		if dbName != "" && tablePrefix != "" {
 			if rows, execErr := mysqlmanager.Exec(ctx, userContext, "SHOW TABLES IN `"+dbName+"` LIKE '"+tablePrefix+"%'", ""); execErr == nil {
@@ -207,7 +235,7 @@ func handleRestoreBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 				if len(tables) > 0 {
 					var quoted []string
 					for _, t := range tables {
-						quoted = append(quoted, "`"+t+"`")
+						quoted = append(quoted, "`"+strings.ReplaceAll(t, "`", "``")+"`")
 					}
 					_, _ = mysqlmanager.Exec(ctx, userContext, "DROP TABLE "+strings.Join(quoted, ", "), dbName)
 				}
@@ -248,6 +276,11 @@ var (
 	tablePrefixValueRE = regexp.MustCompile(`\$table_prefix\s*=\s*['"]([^'"]+)['"]`)
 )
 
+// filesBackupArgv tars docroot without a shell, the site name in the backup path used to go through bash -c
+func filesBackupArgv(userContext, phpContainer, docroot, backupDir string) []string {
+	return podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "tar", "-czf", backupDir+"/files.tar.gz", "-C", docroot, ".")
+}
+
 // handleRunBackup mirrors run_wordpress_backup().
 func handleRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -267,6 +300,10 @@ func handleRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
+	if !validSiteName(selectedDomain) {
+		http.Error(w, "Invalid domain.", http.StatusBadRequest)
+		return
+	}
 
 	backupDatabase := r.URL.Query().Get("backup_database") == "true"
 	backupFiles := r.URL.Query().Get("backup_files") == "true"
@@ -280,6 +317,7 @@ func handleRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	mysqlDumpVolume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_mysql_dumps/_data/"
 	_ = tenantfs.MkdirAll(htmlVolume, 0o755)
 	_ = tenantfs.MkdirAll(mysqlDumpVolume, 0o755)
+	appkit.ProtectBackupsDir(htmlVolume)
 
 	uid, uidErr := podmanmanager.GetUID(userContext)
 	if uidErr == nil {
@@ -323,6 +361,10 @@ func handleRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		dbName := strings.TrimSpace(string(dbNameOut))
 		if dbNameErr != nil || dbName == "" {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to retrieve db_name from wp-cli."})
+			return
+		}
+		if !validWPConfigName(dbName) || !tablePrefixSafeRE.MatchString(tablePrefix) {
+			web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "wp-config.php has an unsupported DB_NAME or table prefix."})
 			return
 		}
 
@@ -371,7 +413,7 @@ func handleRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if backupFiles {
-		tarArgv := podmanmanager.PodmanArgv(userContext, "exec", phpContainer, "bash", "-c", "cd "+docroot+" && tar -czf "+inPHPBackupDirectory+"/files.tar.gz .")
+		tarArgv := filesBackupArgv(userContext, phpContainer, docroot, inPHPBackupDirectory)
 		if runErr := podmanmanager.Command(ctx, userContext, tarArgv).Run(); runErr != nil {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
 			return

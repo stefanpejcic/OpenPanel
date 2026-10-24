@@ -80,10 +80,34 @@ func handleFavicon(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 var dbNameSafeRE = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 
+// configDBNameRE and tablePrefixSafeRE gate values read back from a site's config file before they go into SQL run with the account's mysql root login
+var (
+	configDBNameRE    = regexp.MustCompile(`^[A-Za-z0-9_$][A-Za-z0-9_$.-]*$`)
+	tablePrefixSafeRE = regexp.MustCompile(`^[A-Za-z0-9_]+$`)
+)
+
+// wpDocrootInContainer maps a docroot onto the path the php container sees, wp-cli runs in there so the host volume path never existed for it
+func wpDocrootInContainer(docroot string) (string, bool) {
+	folder := strings.TrimPrefix(strings.TrimPrefix(docroot, "/"), "var/www/html/")
+	if strings.Contains(folder, "..") {
+		return "", false
+	}
+	return filepath.Join("/var/www/html", folder), true
+}
+
+// wpDBSizeFromOutput takes the size from a `wp db size --human-readable` row like "dbname	852 KB", keeping the unit
+func wpDBSizeFromOutput(row string) (string, bool) {
+	columns := strings.Fields(row)
+	if len(columns) < 2 {
+		return "", false
+	}
+	return strings.Join(columns[1:], " "), true
+}
+
 // handleDatabaseSize reports either a WordPress install's on-disk size (via `wp db size`) or a raw database's size, depending on which query parameter was supplied.
 func handleDatabaseSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	_, _, userContext, err := auth.Injected(a, r)
+	userID, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -95,10 +119,12 @@ func handleDatabaseSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	switch {
 	case docroot != "" && domain != "":
-		baseDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data"
-		folder := strings.TrimPrefix(strings.TrimPrefix(docroot, "/"), "var/www/html/")
-		docrootInContainer := filepath.Join(baseDir, folder)
-		if !strings.HasPrefix(docrootInContainer, baseDir) {
+		if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+			http.Error(w, "You do not own this domain.", http.StatusForbidden)
+			return
+		}
+		docrootInContainer, ok := wpDocrootInContainer(docroot)
+		if !ok {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Invalid folder path."})
 			return
 		}
@@ -122,12 +148,12 @@ func handleDatabaseSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to retrieve size"})
 			return
 		}
-		columns := strings.Fields(lines[1])
-		if len(columns) < 2 {
+		size, ok := wpDBSizeFromOutput(lines[1])
+		if !ok {
 			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unexpected output format"})
 			return
 		}
-		web.WriteJSON(w, http.StatusOK, map[string]string{"size": columns[1]})
+		web.WriteJSON(w, http.StatusOK, map[string]string{"size": size})
 
 	case database != "":
 		if !dbNameSafeRE.MatchString(database) {
@@ -282,6 +308,11 @@ func handlePageSpeed(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // ---------------------- WP VULNERABILITY ---------------------- //
 
 // handleWPVulnerability serves the cached WordPress vulnerability report on GET (running a scan first if none exists yet), or triggers a fresh scan on POST.
+// isLocalRedirect only lets redirect_to point back into the panel, browsers read /\host like //host
+func isLocalRedirect(p string) bool {
+	return strings.HasPrefix(p, "/") && !strings.HasPrefix(p, "//") && !strings.Contains(p, `\`) && !strings.Contains(p, "://")
+}
+
 func handleWPVulnerability(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, currentUsername, _, err := auth.Injected(a, r)
@@ -308,7 +339,7 @@ func handleWPVulnerability(a *appctx.App, w http.ResponseWriter, r *http.Request
 		_ = exec.CommandContext(ctx, "opencli", "websites-vulnerability", websiteParam).Run()
 		_ = logger.RecordUserAction(a.Config, currentUsername, "initiated refresh for WP vulnerability data on website "+websiteParam, reqip.ClientIP(r))
 
-		if redirectTo := r.FormValue("redirect_to"); redirectTo != "" {
+		if redirectTo := r.FormValue("redirect_to"); isLocalRedirect(redirectTo) {
 			http.Redirect(w, r, redirectTo, http.StatusFound)
 			return
 		}
@@ -1005,28 +1036,39 @@ var wsAllowedWPCLIActions = map[string]bool{
 	"update_now": true, "update_update_preferences": true, "debug_info": true, "update_info": true,
 }
 
+// these change the site, so the panel UI has to POST them with its CSRF token (the token-auth API keeps GET)
+var wsWriteWPCLIActions = map[string]bool{
+	"update_debug": true, "update_site_information": true, "update_now": true, "update_update_preferences": true,
+}
+
 var wsDocrootSafeRE = regexp.MustCompile(`^[a-zA-Z0-9_/.-]+$`)
 
 // handleWordPressWPCLI dispatches a scoped set of `wp` CLI actions (site info, debug flags, update preferences, ...) for the site-manager single-page UI.
 func handleWordPressWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	action := r.PathValue("action")
+	if !wsAllowedWPCLIActions[action] {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid action"})
+		return
+	}
+	if wsWriteWPCLIActions[action] && r.Method != http.MethodPost && !strings.HasPrefix(r.URL.Path, "/api/") {
+		web.WriteJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "Method not allowed"})
+		return
+	}
+
 	userID, currentUsername, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	action := r.PathValue("action")
 
-	website := r.URL.Query().Get("website")
+	// FormValue covers both the query string (API, reads) and the POSTed Debugging/Updates forms
+	website := r.FormValue("website")
 	if website == "" {
-		website = r.URL.Query().Get("domain")
+		website = r.FormValue("domain")
 	}
-	docroot := r.URL.Query().Get("docroot")
+	docroot := r.FormValue("docroot")
 
-	if !wsAllowedWPCLIActions[action] {
-		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid action"})
-		return
-	}
 	if website == "" || docroot == "" {
 		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Missing required parameters"})
 		return
@@ -1038,7 +1080,7 @@ func handleWordPressWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if !wsDocrootSafeRE.MatchString(docroot) {
+	if !wsDocrootSafeRE.MatchString(docroot) || strings.Contains(docroot, "..") {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid docroot"})
 		return
 	}
@@ -1060,13 +1102,13 @@ func handleWordPressWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	case "site_info":
 		handleWPCLISiteInfo(a, w, r, userContext, wpConfigFile, docroot, wpBase)
 	case "update_debug":
-		handleWPCLIUpdateDebug(a, w, r, currentUsername, userContext, docroot, phpContainer, website)
+		handleWPCLIUpdateDebug(a, w, r, currentUsername, userContext, docroot, phpContainer, website, isLitespeed)
 	case "update_site_information":
 		handleWPCLIUpdateSiteInfo(a, w, r, currentUsername, userContext, docroot, wpBase, website)
 	case "update_now":
 		handleWPCLIUpdateNow(a, w, r, currentUsername, userContext, docroot, wpBase)
 	case "update_update_preferences":
-		handleWPCLIUpdatePreferences(a, w, r, currentUsername, userContext, docroot, phpContainer)
+		handleWPCLIUpdatePreferences(a, w, r, currentUsername, userContext, docroot, phpContainer, isLitespeed)
 	case "debug_info":
 		handleWPCLIDebugInfo(a, w, r, userContext, wpConfigFile, docroot, wpBase)
 	case "update_info":
@@ -1087,6 +1129,10 @@ func handleWPCLISiteInfo(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		return
 	}
 	dbName, tablePrefix := dbNameMatch[1], tablePrefixMatch[1]
+	if !configDBNameRE.MatchString(dbName) || !tablePrefixSafeRE.MatchString(tablePrefix) {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "wp-config.php has an unsupported DB_NAME or table prefix"})
+		return
+	}
 
 	rows, execErr := mysqlmanager.Exec(r.Context(), userContext,
 		"SELECT option_name, option_value FROM `"+tablePrefix+"options` WHERE option_name IN "+
@@ -1133,14 +1179,17 @@ func toStringCell(v any) string {
 
 const wpCLIPHPEnvFlags = "php -d memory_limit=-1 -d open_basedir=none -d disable_functions= -d display_errors=0 -d error_log=/dev/null /usr/local/bin/wp config set"
 
-func handleWPCLIUpdateDebug(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, docroot, phpContainer, website string) {
-	debugOptions := map[string]string{
-		"WP_DEBUG":         onOff(r.URL.Query().Get("WP_DEBUG")),
-		"WP_DEBUG_LOG":     onOff(r.URL.Query().Get("WP_DEBUG_LOG")),
-		"WP_DEBUG_DISPLAY": onOff(r.URL.Query().Get("WP_DEBUG_DISPLAY")),
-		"SCRIPT_DEBUG":     onOff(r.URL.Query().Get("SCRIPT_DEBUG")),
-		"SAVEQUERIES":      onOff(r.URL.Query().Get("SAVEQUERIES")),
+// debugOptionsFrom reads the Debugging form's checkboxes, an unticked box isn't sent at all so it means off
+func debugOptionsFrom(r *http.Request) map[string]string {
+	opts := map[string]string{}
+	for _, opt := range []string{"WP_DEBUG", "WP_DEBUG_LOG", "WP_DEBUG_DISPLAY", "SCRIPT_DEBUG", "SAVEQUERIES"} {
+		opts[opt] = onOff(r.FormValue(opt))
 	}
+	return opts
+}
+
+func handleWPCLIUpdateDebug(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, docroot, phpContainer, website string, isLitespeed bool) {
+	debugOptions := debugOptionsFrom(r)
 	wpBaseCmd := wpCLIPHPEnvFlags + " --raw --type=constant --path=" + docroot + " --skip-themes --allow-root"
 	var commands []string
 	for _, opt := range []string{"WP_DEBUG", "WP_DEBUG_LOG", "WP_DEBUG_DISPLAY", "SCRIPT_DEBUG", "SAVEQUERIES"} {
@@ -1151,6 +1200,10 @@ func handleWPCLIUpdateDebug(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	if runErr := podmanmanager.Command(r.Context(), userContext, argv).Run(); runErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
 		return
+	}
+	// fpm only re-reads wp-config.php once a minute otherwise, so the change looked like it did nothing
+	if !isLitespeed {
+		reloadPHPFPMIn(r.Context(), userContext, phpContainer)
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "updated debug options for WordPress website "+website, reqip.ClientIP(r))
 	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Debugging options updated successfully"})
@@ -1187,19 +1240,23 @@ func handleWPCLIUpdateNow(a *appctx.App, w http.ResponseWriter, r *http.Request,
 	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "WordPress updated successfully"})
 }
 
-func handleWPCLIUpdatePreferences(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, docroot, phpContainer string) {
-	q := r.URL.Query()
+// updatePrefsFrom reads the Updates form's radio buttons, defaulting to off when one isn't picked
+func updatePrefsFrom(r *http.Request) map[string]string {
 	get := func(key, def string) string {
-		if v := q.Get(key); v != "" {
+		if v := r.FormValue(key); v != "" {
 			return v
 		}
 		return def
 	}
-	updateOpts := map[string]string{
+	return map[string]string{
 		"WP_AUTO_UPDATE_PLUGINS": get("WP_AUTO_UPDATE_PLUGINS", "false"),
 		"WP_AUTO_UPDATE_THEMES":  get("WP_AUTO_UPDATE_THEMES", "false"),
 		"WP_AUTO_UPDATE_CORE":    get("WP_AUTO_UPDATE_CORE", "false"),
 	}
+}
+
+func handleWPCLIUpdatePreferences(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, docroot, phpContainer string, isLitespeed bool) {
+	updateOpts := updatePrefsFrom(r)
 	allowedValues := map[string]map[string]bool{
 		"WP_AUTO_UPDATE_PLUGINS": {"true": true, "false": true},
 		"WP_AUTO_UPDATE_THEMES":  {"true": true, "false": true},
@@ -1227,6 +1284,9 @@ func handleWPCLIUpdatePreferences(a *appctx.App, w http.ResponseWriter, r *http.
 	if runErr := podmanmanager.Command(r.Context(), userContext, argv).Run(); runErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
 		return
+	}
+	if !isLitespeed {
+		reloadPHPFPMIn(r.Context(), userContext, phpContainer)
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, "edited auto-update preferences for WordPress website in "+docroot, reqip.ClientIP(r))
 	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "Update preferences saved successfully"})
