@@ -37,6 +37,11 @@ func TestIsRelativeTo(t *testing.T) {
 		{"/var/www/html/sub", "/var/www/html", true},
 		{"/etc/passwd", "/var/www/html", false},
 		{"/var/www/html2", "/var/www/html", false},
+		// these used to be refused as if they were outside
+		{"/var/www/html/..old", "/var/www/html", true},
+		{"/var/www/html/...", "/var/www/html", true},
+		{"/var/www", "/var/www/html", false},
+		{"/var/www/html/../etc", "/var/www/html", false},
 	}
 	for _, c := range cases {
 		if got := isRelativeTo(c.path, c.base); got != c.want {
