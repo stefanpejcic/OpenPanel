@@ -1,6 +1,7 @@
 package crons
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"path/filepath"
@@ -422,10 +423,10 @@ func apiCronsLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, status := docker.FetchContainerLog(ctx, a, userContext, "cron", lines)
+	body, status, missing := fetchCronLog(ctx, a, userContext, lines)
 	if status != http.StatusOK {
-		if cronContainerMissing(body) {
-			writeAPICronsJSON(w, http.StatusNotFound, map[string]string{"error": "No cron log yet, the cron container is created with the first cron job."})
+		if missing {
+			writeAPICronsJSON(w, http.StatusNotFound, map[string]string{"error": "No cron log yet, the cron container isn't running or is created with the first cron job."})
 			return
 		}
 		writeAPICronsJSON(w, status, map[string]string{"error": "Failed to fetch log: " + body})
@@ -451,6 +452,16 @@ func apiCronsLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeAPICronsJSON(w, http.StatusOK, map[string]any{"entries": matched})
+}
+
+// fetchCronLog reads the cron container's log, missing is true when there's no running cron container to read it from
+func fetchCronLog(ctx context.Context, a *appctx.App, userContext string, lines int) (body string, status int, missing bool) {
+	body, status = docker.FetchContainerLog(ctx, a, userContext, "cron", lines)
+	if status == http.StatusOK {
+		return body, status, false
+	}
+	// a stopped or restarting cron container (ofelia exits on a crons.ini without jobs) has no log to show either
+	return body, status, cronContainerMissing(body) || !docker.IsServiceRunning(ctx, userContext, "cron")
 }
 
 // cronContainerMissing tells a podman "no such container" for the cron service apart from a real log read failure

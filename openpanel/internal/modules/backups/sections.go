@@ -21,7 +21,7 @@ var sectionKeys = map[string][]string{
 	"webdav": {"WEBDAV_URL", "WEBDAV_USERNAME", "WEBDAV_PATH", "WEBDAV_PASSWORD", "WEBDAV_URL_INSECURE"},
 	"ssh": {
 		"SSH_HOST_NAME", "SSH_PORT", "SSH_REMOTE_PATH", "SSH_USER", "SSH_PASSWORD",
-		"SSH_IDENTITY_FILE", "SSH_IDENTITY_PASSPHRASE",
+		"SSH_IDENTITY_FILE", "SSH_IDENTITY_PASSPHRASE", "SSH_HOST_PUBLIC_KEY",
 	},
 	"azure": {
 		"AZURE_STORAGE_ACCOUNT_NAME", "AZURE_STORAGE_PRIMARY_ACCOUNT_KEY", "AZURE_STORAGE_CONNECTION_STRING",
@@ -39,9 +39,12 @@ func isSectionKey(target, key string) bool {
 	return false
 }
 
-// isBackupInProgress checks the backup container's lock file via `podman exec backup test -f /var/run/lock/dockervolumebackup.lock`
+// backupLockFile is flocked by docker-volume-backup during a run and never removed afterwards
+const backupLockFile = "/var/run/lock/dockervolumebackup.lock"
+
+// isBackupInProgress reports a backup holding the lock, the file alone stays behind after every run and blocked saving settings for good
 func isBackupInProgress(ctx context.Context, userContext string) bool {
-	argv := podmanmanager.PodmanArgv(userContext, "exec", "backup", "test", "-f", "/var/run/lock/dockervolumebackup.lock")
+	argv := podmanmanager.PodmanArgv(userContext, "exec", "backup", "sh", "-c", "test -f "+backupLockFile+" && ! flock -n "+backupLockFile+" true")
 	cmd := exec.CommandContext(ctx, argv[0], argv[1:]...)
 	cmd.Env = podmanmanager.PodmanEnv(userContext)
 	err := cmd.Run()

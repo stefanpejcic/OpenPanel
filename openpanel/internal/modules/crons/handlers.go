@@ -41,10 +41,10 @@ func handleCronjobsLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, status := docker.FetchContainerLog(ctx, a, userContext, "cron", lines)
+	body, status, missing := fetchCronLog(ctx, a, userContext, lines)
 	if status != http.StatusOK {
-		// no cron container yet just means nothing has run
-		if cronContainerMissing(body) {
+		// no running cron container just means nothing has run
+		if missing {
 			web.WriteJSON(w, http.StatusOK, []map[string]string{})
 			return
 		}

@@ -1,6 +1,8 @@
 package backups
 
 import (
+	"log"
+	"maps"
 	"net/http"
 	"strings"
 
@@ -125,9 +127,11 @@ func saveBackupSettings(a *appctx.App, r *http.Request, path, userContext, curre
 	for k, v := range parseFormGroups(r, "settings") {
 		updated[k] = v
 	}
+	before := maps.Clone(envDict)
 	for k, v := range updated {
 		envDict[k] = v
 	}
+	pinSSHHostKey(before, envDict, updated, fetchHostKey)
 
 	var newLines []string
 	existing := map[string]bool{}
@@ -162,8 +166,33 @@ func saveBackupSettings(a *appctx.App, r *http.Request, path, userContext, curre
 		docker.StartOrStopContainer(ctx, userContext, "backup", "deactivate", "")
 	}
 	docker.StartOrStopContainer(ctx, userContext, "backup", "activate", "")
+	// compose down backup takes docker-proxy with it and the up is --no-deps, without the proxy every backup fails before it starts
+	docker.StartComposeServiceIfNotRunning(ctx, userContext, "docker-proxy")
 
 	return nil
+}
+
+// pinSSHHostKey stores the SSH destination's host key when there's none yet or the host changed, docker-volume-backup won't connect without it
+func pinSSHHostKey(before, after, updated map[string]string, fetch func(map[string]string) (string, error)) {
+	host := unquoteEnv(after["SSH_HOST_NAME"])
+	if host == "" {
+		return
+	}
+	if typed := unquoteEnv(updated["SSH_HOST_PUBLIC_KEY"]); typed != "" {
+		return
+	}
+	moved := unquoteEnv(before["SSH_HOST_NAME"]) != host || unquoteEnv(before["SSH_PORT"]) != unquoteEnv(after["SSH_PORT"])
+	if unquoteEnv(after["SSH_HOST_PUBLIC_KEY"]) != "" && !moved {
+		return
+	}
+	key, err := fetch(map[string]string{"SSH_HOST_NAME": host, "SSH_PORT": unquoteEnv(after["SSH_PORT"]), "SSH_USER": unquoteEnv(after["SSH_USER"])})
+	if err != nil {
+		log.Printf("BACKUPS - could not read the host key of %s: %v", host, err)
+		return
+	}
+	value := `"` + key + `"`
+	updated["SSH_HOST_PUBLIC_KEY"] = value
+	after["SSH_HOST_PUBLIC_KEY"] = value
 }
 
 func renderBackupSettingsFromFile(a *appctx.App, w http.ResponseWriter, r *http.Request, path string) {

@@ -2,6 +2,7 @@ package docker
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"os/exec"
 	"strconv"
@@ -20,12 +21,23 @@ func FetchContainerLog(ctx context.Context, a *appctx.App, userContext, serviceN
 		Status int
 	}
 	key := "_fetch_container_log:" + userContext + ":" + serviceName + ":" + strconv.Itoa(tail)
-	r, _ := cache.Memoize(ctx, a.Cache, key, 60*time.Second, func() (result, error) {
+	var failed result
+	r, err := cache.Memoize(ctx, a.Cache, key, 60*time.Second, func() (result, error) {
 		body, status := runPodmanLogs(ctx, userContext, "logs", "--tail", strconv.Itoa(tail), serviceName)
+		if status != http.StatusOK {
+			// returning an error keeps a failed read out of the cache, it used to stick for a minute
+			failed = result{Body: body, Status: status}
+			return result{}, errLogFetch
+		}
 		return result{Body: body, Status: status}, nil
 	})
+	if err != nil {
+		return failed.Body, failed.Status
+	}
 	return r.Body, r.Status
 }
+
+var errLogFetch = errors.New("podman logs failed")
 
 // FetchContainerLogSince is uncached and skips lines older than since, podman keeps logs from before a restart
 func FetchContainerLogSince(ctx context.Context, userContext, serviceName string, tail int, since time.Duration) (string, int) {

@@ -2,7 +2,10 @@ package backups
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"io"
+	"io/fs"
 	"net"
 	"strings"
 	"time"
@@ -29,33 +32,89 @@ func loadPrivateKey(path, passphrase string) (ssh.Signer, error) {
 	return signer, nil
 }
 
-// dialSSH connects to the remote backup host and unconditionally trusts its host key (a known, pre-existing tradeoff, not something introduced here) - auth mirrors what the "backup" container's own docker-volume-backup tool accepts: a private key (SSH_IDENTITY_FILE) when present, otherwise a plain password (SSH_PASSWORD), which is a normal supported setup
-func dialSSH(config map[string]string) (*ssh.Client, error) {
-	var authMethod ssh.AuthMethod
+// sshAuthMethods mirrors docker-volume-backup: the key file when it can be read, the password otherwise, the template's default SSH_IDENTITY_FILE used to fail every password-only destination
+func sshAuthMethods(config map[string]string) ([]ssh.AuthMethod, error) {
+	var methods []ssh.AuthMethod
 	if keyPath := config["SSH_IDENTITY_FILE"]; keyPath != "" {
 		signer, err := loadPrivateKey(keyPath, config["SSH_IDENTITY_PASSPHRASE"])
-		if err != nil {
+		switch {
+		case err == nil:
+			methods = append(methods, ssh.PublicKeys(signer))
+		case !errors.Is(err, fs.ErrNotExist) || config["SSH_PASSWORD"] == "":
 			return nil, err
 		}
-		authMethod = ssh.PublicKeys(signer)
-	} else {
-		authMethod = ssh.Password(config["SSH_PASSWORD"])
 	}
+	if password := config["SSH_PASSWORD"]; password != "" {
+		methods = append(methods, ssh.Password(password))
+	}
+	if len(methods) == 0 {
+		return nil, errors.New("no SSH password or identity file configured")
+	}
+	return methods, nil
+}
 
+// hostKeyCallback checks SSH_HOST_PUBLIC_KEY when there is one, older backup.env files don't have it so those still trust the host on connect
+func hostKeyCallback(config map[string]string) (ssh.HostKeyCallback, error) {
+	raw := strings.TrimSpace(config["SSH_HOST_PUBLIC_KEY"])
+	if raw == "" {
+		return ssh.InsecureIgnoreHostKey(), nil //nolint:gosec // no pinned key to check against yet
+	}
+	key, _, _, _, err := ssh.ParseAuthorizedKey([]byte(raw))
+	if err != nil {
+		return nil, fmt.Errorf("invalid SSH_HOST_PUBLIC_KEY: %w", err)
+	}
+	return ssh.FixedHostKey(key), nil
+}
+
+func sshAddr(config map[string]string) string {
 	port := config["SSH_PORT"]
 	if port == "" {
 		port = "22"
 	}
+	return net.JoinHostPort(config["SSH_HOST_NAME"], port)
+}
 
+// dialSSH connects to the remote backup host with the same auth and host key the backup container uses
+func dialSSH(config map[string]string) (*ssh.Client, error) {
+	auth, err := sshAuthMethods(config)
+	if err != nil {
+		return nil, err
+	}
+	hostKey, err := hostKeyCallback(config)
+	if err != nil {
+		return nil, err
+	}
 	clientConfig := &ssh.ClientConfig{
 		User:            config["SSH_USER"],
-		Auth:            []ssh.AuthMethod{authMethod},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), //nolint:gosec // trusts the remote host key on first connect, see dialSSH doc comment
+		Auth:            auth,
+		HostKeyCallback: hostKey,
 		Timeout:         15 * time.Second,
 	}
+	return ssh.Dial("tcp", sshAddr(config), clientConfig)
+}
 
-	addr := net.JoinHostPort(config["SSH_HOST_NAME"], port)
-	return ssh.Dial("tcp", addr, clientConfig)
+// errGotHostKey stops the handshake once the host key is in, fetchHostKey doesn't need to log in
+var errGotHostKey = errors.New("got host key")
+
+// fetchHostKey reads the destination's host key in authorized_keys form, docker-volume-backup refuses SSH without one
+func fetchHostKey(config map[string]string) (string, error) {
+	var found string
+	clientConfig := &ssh.ClientConfig{
+		User: config["SSH_USER"],
+		HostKeyCallback: func(_ string, _ net.Addr, key ssh.PublicKey) error {
+			found = strings.TrimSpace(string(ssh.MarshalAuthorizedKey(key)))
+			return errGotHostKey
+		},
+		Timeout: 15 * time.Second,
+	}
+	_, err := ssh.Dial("tcp", sshAddr(config), clientConfig)
+	if found != "" {
+		return found, nil
+	}
+	if err == nil {
+		err = errors.New("no host key received")
+	}
+	return "", err
 }
 
 // runSSHCommand runs a single command over a fresh channel/session on the shared connection and returns stdout only
