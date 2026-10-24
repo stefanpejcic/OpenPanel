@@ -262,6 +262,7 @@ func handleLoginTwofa(a *appctx.App, w http.ResponseWriter, r *http.Request, ses
 	}
 
 	clearTwofaPending(sess)
+	forgetTwofaGuesses(userID)
 	completeLogin(a, w, r, sess, userID, username, "logged in with 2FA code", "2fa")
 }
 

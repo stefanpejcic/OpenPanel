@@ -3,6 +3,7 @@ package account
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/gorilla/sessions"
@@ -37,12 +38,36 @@ func takeTwofaAttempt(sess *sessions.Session) (int, bool) {
 	userID, _ := sess.Values[sessTwofaPendingUser].(int)
 	at, _ := sess.Values[sessTwofaPendingAt].(int64)
 	attempts, _ := sess.Values[sessTwofaAttempts].(int)
-	if userID <= 0 || time.Since(time.Unix(at, 0)) > twofaPendingTTL || attempts >= twofaMaxAttempts {
+	if userID <= 0 || time.Since(time.Unix(at, 0)) > twofaPendingTTL || attempts >= twofaMaxAttempts || !allowTwofaGuess(userID, time.Now()) {
 		clearTwofaPending(sess)
 		return 0, false
 	}
 	sess.Values[sessTwofaAttempts] = attempts + 1
 	return userID, true
+}
+
+// twofaGuesses counts 2FA tries per user on our side, since the count in the session cookie resets when an older cookie is sent again
+var twofaGuesses = struct {
+	sync.Mutex
+	byUser map[int]*window
+}{byUser: map[int]*window{}}
+
+func allowTwofaGuess(userID int, now time.Time) bool {
+	twofaGuesses.Lock()
+	defer twofaGuesses.Unlock()
+	w, ok := twofaGuesses.byUser[userID]
+	if !ok || now.Sub(w.start) >= twofaPendingTTL {
+		w = &window{start: now}
+		twofaGuesses.byUser[userID] = w
+	}
+	w.count++
+	return w.count <= twofaMaxAttempts
+}
+
+func forgetTwofaGuesses(userID int) {
+	twofaGuesses.Lock()
+	delete(twofaGuesses.byUser, userID)
+	twofaGuesses.Unlock()
 }
 
 // claimTOTPCode makes a valid code single-use per user, it fails open if Redis is down
