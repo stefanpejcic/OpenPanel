@@ -138,23 +138,9 @@ func apiDownloadFile(a *appctx.App, w http.ResponseWriter, r *http.Request, file
 	deadline := time.Now().Add(maxDuration)
 
 	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Disposition", `attachment; filename="`+path.Base(rel)+`"`)
+	w.Header().Set("Content-Disposition", attachmentHeader(path.Base(rel)))
 
-	buf := make([]byte, 8192)
-	for {
-		if time.Now().After(deadline) {
-			return
-		}
-		n, readErr := f.Read(buf)
-		if n > 0 {
-			if _, writeErr := w.Write(buf[:n]); writeErr != nil {
-				return
-			}
-		}
-		if readErr == io.EOF || readErr != nil {
-			return
-		}
-	}
+	sendFile(w, f, info.Size(), func() bool { return time.Now().After(deadline) })
 }
 
 // apiViewFile is handleViewFile (editor.go) with JSON error responses instead of flash+redirect - the success path (serving raw content) is unchanged

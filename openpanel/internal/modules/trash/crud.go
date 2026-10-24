@@ -171,29 +171,13 @@ func handleDeleteAll(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	trashDir := "/home/" + userContext + "/.local/share/Trash"
 
-	entries, err := tenantfs.ReadDir(trashDir)
-	if err != nil {
+	failed, emptyErr := emptyTrash(trashDir)
+	if emptyErr != nil {
 		flashAndRedirectToTrash(a, w, r, "error", "Unexpected error")
 		return
 	}
-
-	var clearErr error
-	for _, entry := range entries {
-		if entry.Name() == ".trash_restore" {
-			continue
-		}
-		if clearErr = tenantfs.RemoveAll(filepath.Join(trashDir, entry.Name())); clearErr != nil {
-			break
-		}
-	}
-
-	if clearErr != nil {
-		flashAndRedirectToTrash(a, w, r, "error", "Unexpected error")
-		return
-	}
-
-	if err := tenantfs.WriteFile(filepath.Join(trashDir, ".trash_restore"), nil, 0o644); err != nil {
-		flashAndRedirectToTrash(a, w, r, "error", "Unexpected error")
+	if len(failed) > 0 {
+		flashAndRedirectToTrash(a, w, r, "error", web.Tr(a, r, "Could not delete %(items)s from the trash.", "items", strings.Join(failed, ", ")))
 		return
 	}
 
@@ -349,4 +333,41 @@ func handleTrashSize(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	web.WriteJSON(w, http.StatusOK, map[string]string{"size": strings.SplitN(string(out), "\t", 2)[0]})
+}
+
+// removeTrashEntry is swapped in tests, a delete as root almost never fails
+var removeTrashEntry = tenantfs.RemoveAll
+
+// emptyTrash deletes everything in trashDir and keeps the .trash_restore lines of whatever is left, stopping at the first failure used to leave lines for items already deleted
+func emptyTrash(trashDir string) (failed []string, err error) {
+	entries, err := tenantfs.ReadDir(trashDir)
+	if err != nil {
+		return nil, err
+	}
+	left := map[string]bool{}
+	for _, entry := range entries {
+		if entry.Name() == ".trash_restore" {
+			continue
+		}
+		if rmErr := removeTrashEntry(filepath.Join(trashDir, entry.Name())); rmErr != nil {
+			failed = append(failed, entry.Name())
+			left[entry.Name()] = true
+		}
+	}
+
+	restorePath := filepath.Join(trashDir, ".trash_restore")
+	var keep []string
+	if len(left) > 0 {
+		if content, readErr := tenantfs.ReadFile(restorePath); readErr == nil {
+			for _, line := range strings.Split(string(content), "\n") {
+				if name, _, ok := splitRestoreLine(strings.TrimSpace(line)); ok && left[name] {
+					keep = append(keep, line)
+				}
+			}
+		}
+	}
+	if len(keep) == 0 {
+		return failed, tenantfs.WriteFile(restorePath, nil, 0o644)
+	}
+	return failed, tenantfs.WriteFile(restorePath, []byte(joinLines(keep)), 0o644)
 }

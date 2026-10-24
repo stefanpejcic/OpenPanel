@@ -2,6 +2,7 @@ package filemanager
 
 import (
 	"context"
+	"io"
 	"io/fs"
 	"net/http"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
@@ -145,7 +147,7 @@ func handleFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPara
 		}
 	} else {
 		filesInfo = parseLsOutput(string(out))
-		if data, readErr := root.ReadFile(path.Join(directory, "README.md")); readErr == nil {
+		if data, ok := readReadme(root, path.Join(directory, "README.md")); ok {
 			readmeContent = string(data)
 			hasReadme = true
 		}
@@ -205,6 +207,25 @@ func handleFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPara
 		View: view, CurrentPage: page, TotalPages: totalPages, TotalFiles: totalFiles,
 		StartLineNumber: startLineNumber, EndLineNumber: endIndex,
 	})
+}
+
+// readmeMaxBytes is the biggest README.md shown under a listing
+const readmeMaxBytes = 1 << 20
+
+// readReadme reads README.md for the listing, a bigger one or one that isn't a regular file is skipped, it used to be read whole on every visit
+func readReadme(root *paths.UserRoot, rel string) ([]byte, bool) {
+	// non-blocking so a fifo named README.md can't hang the listing before the type check
+	f, err := root.OpenFile(rel, os.O_RDONLY|syscall.O_NONBLOCK, 0)
+	if err != nil {
+		return nil, false
+	}
+	defer f.Close()
+	info, err := f.Stat()
+	if err != nil || !info.Mode().IsRegular() || info.Size() > readmeMaxBytes {
+		return nil, false
+	}
+	data, err := io.ReadAll(io.LimitReader(f, readmeMaxBytes))
+	return data, err == nil
 }
 
 // runOnDir runs name args... /proc/self/fd/3/ with rel already opened as fd 3, so the command sees that exact dir even if its path gets swapped

@@ -103,6 +103,7 @@ func apiRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		BackupFile    string   `json:"backup_file"`
 		RestoreTarget string   `json:"restore_target"`
 		Database      string   `json:"database"`
+		Engine        string   `json:"engine"`
 		Items         []string `json:"items"`
 	}
 	if err := decodeJSONBody(r, &body); err != nil {
@@ -114,6 +115,7 @@ func apiRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		"backup_file":    {body.BackupFile},
 		"restore_target": {body.RestoreTarget},
 		"database":       {body.Database},
+		"engine":         {body.Engine},
 		"items":          body.Items,
 	}
 	handleRestoreFromBackup(a, w, web.WithForm(r, form))

@@ -112,3 +112,47 @@ func TestRestoreItemRecreatesDeletedFolder(t *testing.T) {
 		}
 	}
 }
+
+// emptying used to stop at the first item it couldn't delete and leave .trash_restore lines for items already gone
+func TestEmptyTrashKeepsGoing(t *testing.T) {
+	dir := t.TempDir()
+	restore := "a.txt=/home/u/_data/a.txt|deletion_date=d1\nb.txt=/home/u/_data/b.txt|deletion_date=d2\nc.txt=/home/u/_data/c.txt|deletion_date=d3\n"
+	if err := os.WriteFile(filepath.Join(dir, ".trash_restore"), []byte(restore), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	for _, n := range []string{"a.txt", "b.txt", "c.txt"} {
+		if err := os.WriteFile(filepath.Join(dir, n), []byte(n), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	orig := removeTrashEntry
+	removeTrashEntry = func(p string) error {
+		if filepath.Base(p) == "b.txt" {
+			return errors.New("device busy")
+		}
+		return orig(p)
+	}
+	t.Cleanup(func() { removeTrashEntry = orig })
+
+	failed, err := emptyTrash(dir)
+	if err != nil || !reflect.DeepEqual(failed, []string{"b.txt"}) {
+		t.Fatalf("failed %v, err %v", failed, err)
+	}
+	for n, want := range map[string]bool{"a.txt": false, "b.txt": true, "c.txt": false} {
+		if _, statErr := os.Stat(filepath.Join(dir, n)); (statErr == nil) != want {
+			t.Errorf("%s still there: %v, want %v", n, statErr == nil, want)
+		}
+	}
+	got, _ := os.ReadFile(filepath.Join(dir, ".trash_restore"))
+	if string(got) != "b.txt=/home/u/_data/b.txt|deletion_date=d2\n" {
+		t.Errorf(".trash_restore = %q", got)
+	}
+
+	removeTrashEntry = orig
+	if failed, err := emptyTrash(dir); err != nil || len(failed) != 0 {
+		t.Fatalf("second empty: failed %v, err %v", failed, err)
+	}
+	if got, _ := os.ReadFile(filepath.Join(dir, ".trash_restore")); len(got) != 0 {
+		t.Errorf(".trash_restore after a clean empty = %q", got)
+	}
+}

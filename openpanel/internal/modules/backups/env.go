@@ -27,7 +27,7 @@ func parseUncommentedEnv(path string) ([]KV, error) {
 		if !ok {
 			continue
 		}
-		value = strings.Trim(strings.TrimSpace(value), `"'`)
+		value = unquoteEnv(strings.TrimSpace(value))
 		out = append(out, KV{Key: strings.TrimSpace(key), Value: value})
 	}
 	return out, nil
@@ -68,4 +68,12 @@ func groupBySections(entries []KV) EnvSections {
 	}
 
 	return result
+}
+
+// unquoteEnv drops one matching pair of wrapping quotes like compose does, Trim used to also eat quotes that are part of the value
+func unquoteEnv(v string) string {
+	if len(v) >= 2 && (v[0] == '"' || v[0] == '\'') && v[len(v)-1] == v[0] {
+		return v[1 : len(v)-1]
+	}
+	return v
 }

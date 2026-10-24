@@ -312,6 +312,7 @@
                 formData.append('backup_file', item.file);
                 formData.append('restore_target', item.target);
                 if (item.database) formData.append('database', item.database);
+                if (item.engine) formData.append('engine', item.engine);
                 for (const pick of (item.picks || [])) formData.append('items', pick);
                 const resp = await fetch('/backups/queue', { method: 'POST', body: formData });
                 const data = await resp.json();
