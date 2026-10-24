@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -53,6 +54,27 @@ func buildBreadcrumbs(root, urlPath string) []Breadcrumb {
 	return crumbs
 }
 
+// docrootVolume is the account's html_data volume under the home dir, the only folder the File Manager shows
+var docrootVolume = regexp.MustCompile(`^/disk-usage/docker-data/volumes/[^/]+_html_data/_data/`)
+
+// fileManagerBase is the /files/ link for the folder at base, the old /disk-usage/files/ check pointed at /home/<ctx>/files which the File Manager never shows
+func fileManagerBase(base string) (string, bool) {
+	prefix := docrootVolume.FindString(base)
+	if prefix == "" {
+		return "", false
+	}
+	return "/files/" + strings.TrimPrefix(base, prefix), true
+}
+
+// escapePath escapes each segment of the decoded URL path, html/template leaves # ? and %XX in hrefs as they are
+func escapePath(p string) string {
+	parts := strings.Split(p, "/")
+	for i, part := range parts {
+		parts[i] = url.PathEscape(part)
+	}
+	return strings.Join(parts, "/")
+}
+
 // Row is one folders_to_navigate table row.
 type Row struct {
 	Directory, Count, Href, FileManagerHref string
@@ -60,26 +82,37 @@ type Row struct {
 
 // parseDuOutput splits each "<size> <path>" line of `du` output into a table row
 func parseDuOutput(output, urlPath string) []Row {
+	base := escapePath(urlPath)
 	var rows []Row
 	for _, line := range strings.Split(output, "\n") {
 		if strings.TrimSpace(line) == "" {
 			continue
 		}
-		fields := strings.Fields(line)
-		if len(fields) < 2 {
+		count, directory, ok := splitDuLine(line)
+		if !ok {
 			continue
 		}
-		count := fields[0]
-		directory := strings.TrimPrefix(line, count)
-		directory = strings.TrimLeft(directory, " \t")
 
-		row := Row{Directory: directory, Count: count, Href: urlPath + url.PathEscape(directory) + "/"}
-		if strings.HasPrefix(urlPath, "/disk-usage/files/") {
-			row.FileManagerHref = strings.Replace(urlPath, "disk-usage/files", "files", 1) + url.PathEscape(directory)
+		row := Row{Directory: directory, Count: count, Href: base + url.PathEscape(directory) + "/"}
+		if fmBase, ok := fileManagerBase(base); ok {
+			row.FileManagerHref = fmBase + url.PathEscape(directory)
 		}
 		rows = append(rows, row)
 	}
 	return rows
+}
+
+// splitDuLine splits a du line at the tab, trimming spaces after the size cut leading spaces off folder names
+func splitDuLine(line string) (size, name string, ok bool) {
+	if size, name, ok = strings.Cut(line, "\t"); ok {
+		return size, name, name != ""
+	}
+	// not du's own format, split at the first run of whitespace
+	fields := strings.Fields(line)
+	if len(fields) < 2 {
+		return "", "", false
+	}
+	return fields[0], strings.TrimLeft(strings.TrimPrefix(line, fields[0]), " "), true
 }
 
 // DiskUsagePageData is disk_usage.html's template context.
@@ -110,7 +143,7 @@ func renderDiskUsagePage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	}
 	if urlPath != "/disk-usage/" {
 		data.ShowUpLink = true
-		trimmed := strings.TrimSuffix(urlPath, "/")
+		trimmed := strings.TrimSuffix(escapePath(urlPath), "/")
 		if idx := strings.LastIndex(trimmed, "/"); idx != -1 {
 			data.UpLink = trimmed[:idx]
 		}

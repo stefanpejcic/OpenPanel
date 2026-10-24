@@ -13,9 +13,10 @@ import (
 
 // RegisterAPI wires the inodes API route onto mux.
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
-	apiregistry.Handle(mux, a, "inodes", "GET /api/inodes/{directory...}", func(w http.ResponseWriter, r *http.Request) {
-		apiHandleInodes(a, w, r)
-	})
+	h := func(w http.ResponseWriter, r *http.Request) { apiHandleInodes(a, w, r) }
+	// the documented path without a trailing slash used to get a redirect to the {directory...} route
+	apiregistry.Handle(mux, a, "inodes", "GET /api/inodes", h)
+	apiregistry.Handle(mux, a, "inodes", "GET /api/inodes/{directory...}", h)
 }
 
 type inodesEntry struct {
@@ -44,6 +45,10 @@ func apiHandleInodes(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Path traversal detected"})
 		return
 	}
+	if !isFolder(actualFolder) {
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Directory not found"})
+		return
+	}
 
 	output := inodesOutput(ctx, a, userContext, actualFolder)
 
@@ -52,12 +57,11 @@ func apiHandleInodes(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if line == "" {
 			continue
 		}
-		fields := strings.Fields(line)
-		if len(fields) < 2 {
+		rawCount, folder, ok := strings.Cut(line, " ")
+		if !ok || folder == "" {
 			continue
 		}
-		count, _ := strconv.Atoi(fields[0])
-		folder := strings.TrimLeft(strings.TrimPrefix(line, fields[0]), " \t")
+		count, _ := strconv.Atoi(rawCount)
 		entries = append(entries, inodesEntry{Folder: folder, InodeCount: count})
 	}
 	if entries == nil {

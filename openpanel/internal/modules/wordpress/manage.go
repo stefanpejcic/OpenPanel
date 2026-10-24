@@ -27,13 +27,6 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-// escapeMySQLString mirrors escape_mysql_string() (duplicated per-package, same as mysql.escapeMySQLString - see that function's doc comment)
-func escapeMySQLString(value string) string {
-	value = strings.ReplaceAll(value, `\`, `\\`)
-	value = strings.ReplaceAll(value, `'`, `\'`)
-	return value
-}
-
 // ---------------------- CLONE ---------------------- //
 
 // handleCloneWordPress mirrors clone_wordpress().

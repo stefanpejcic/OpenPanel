@@ -2,6 +2,7 @@
 package fixpermissions
 
 import (
+	"context"
 	"net/http"
 	"os/exec"
 	"path/filepath"
@@ -10,6 +11,8 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 )
 
@@ -53,8 +56,14 @@ func handleFixPermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 			}
 		}
 
-		_ = exec.CommandContext(ctx, "opencli", args...).Run()
+		// leaving the page used to kill the fix halfway, and a failed one used to show as "Permissions are fixed!"
+		if runErr := exec.CommandContext(context.WithoutCancel(ctx), "opencli", args...).Run(); runErr != nil {
+			http.Error(w, "Fixing permissions failed.", http.StatusInternalServerError)
+			return
+		}
 
+		// the API logged its runs but the page didn't
+		_ = logger.RecordUserAction(a.Config, username, "fixed permissions", reqip.ClientIP(r))
 		sess, _ := a.Sessions.Get(r, session.CookieName)
 		flash.Add(sess, "success", "Success.")
 		_ = a.Sessions.Save(r, w, sess)
@@ -69,5 +78,6 @@ func isRelativeTo(path, base string) bool {
 	if err != nil {
 		return false
 	}
-	return rel == "." || !strings.HasPrefix(rel, "..")
+	// only a real step up counts, a folder named ..old is inside base
+	return rel == "." || (rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)))
 }

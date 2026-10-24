@@ -153,13 +153,12 @@
         createChart(tableData);
     }
 
-    document.getElementById('goUp')?.addEventListener('click', async function() {
+    document.getElementById('goUp')?.addEventListener('click', async function(event) {
+        // the link used to navigate anyway while this fetched the current folder again, its href is already the parent
+        event.preventDefault();
         showToast(`{{.T.Get "Calculating inodes count for parent directory.."}}`, 'primary');
 
-        const currentUrl = window.location.href;
-        const parts = currentUrl.split('/');
-        parts.pop();
-        const newUrl = parts.join('/');
+        const newUrl = this.href;
 
         try {
             const response = await fetch(newUrl);
@@ -185,6 +184,7 @@
 
         } catch (error) {
             console.error('Error fetching data:', error);
+            window.location.href = newUrl;
         }
     });
 

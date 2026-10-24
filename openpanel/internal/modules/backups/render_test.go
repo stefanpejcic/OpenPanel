@@ -3,6 +3,7 @@ package backups
 import (
 	"net/http/httptest"
 	"reflect"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -96,6 +97,26 @@ func TestRenderBackupSettingsPage(t *testing.T) {
 			if !strings.Contains(body, `value="`+v+`"`) {
 				t.Errorf("expected BACKUP_SOURCES option %s", v)
 			}
+		}
+	})
+
+	// a value that isn't one of the options left nothing selected, so saving any other setting sent the first option
+	t.Run("values not in the dropdowns", func(t *testing.T) {
+		data := BackupSettingsPageData{
+			LayoutData: baseLayout(mgr, "/backups/settings"), Target: "s3",
+			Settings: []KV{{Key: "BACKUP_SOURCES", Value: "/backup/mysql"}, {Key: "NOTIFICATION_LEVEL", Value: ""}},
+		}
+		w := httptest.NewRecorder()
+		if err := backupSettingsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		selected := regexp.MustCompile(`<option value="([^"]*)" selected>`).FindAllStringSubmatch(w.Body.String(), -1)
+		var got []string
+		for _, m := range selected {
+			got = append(got, m[1])
+		}
+		if !reflect.DeepEqual(got, []string{"/backup/mysql", ""}) {
+			t.Errorf("selected options %q, want the saved values kept", got)
 		}
 	})
 }

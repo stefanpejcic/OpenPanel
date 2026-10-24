@@ -42,7 +42,7 @@ func TestRestoreDatabaseEarlyLayoutStopsAtDump(t *testing.T) {
 	got := fakeRestores(t)
 	archive := earlyLayoutArchive(t)
 	cr := &countingReader{r: bytes.NewReader(archive)}
-	restored, err := restoreDatabasesFromTar(context.Background(), "u", cr, "wp_db")
+	restored, err := restoreDatabasesFromTar(context.Background(), "u", cr, "wp_db", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,7 +58,7 @@ func TestRestoreDatabaseEarlyLayoutMissingStopsBeforeHTML(t *testing.T) {
 	fakeRestores(t)
 	archive := earlyLayoutArchive(t)
 	cr := &countingReader{r: bytes.NewReader(archive)}
-	restored, err := restoreDatabasesFromTar(context.Background(), "u", cr, "nope")
+	restored, err := restoreDatabasesFromTar(context.Background(), "u", cr, "nope", "")
 	if err != nil || len(restored) != 0 {
 		t.Fatalf("restored=%v err=%v", restored, err)
 	}
@@ -69,7 +69,7 @@ func TestRestoreDatabaseEarlyLayoutMissingStopsBeforeHTML(t *testing.T) {
 
 func TestRestoreDatabasesAllEngines(t *testing.T) {
 	got := fakeRestores(t)
-	restored, err := restoreDatabasesFromTar(context.Background(), "u", bytes.NewReader(earlyLayoutArchive(t)), "")
+	restored, err := restoreDatabasesFromTar(context.Background(), "u", bytes.NewReader(earlyLayoutArchive(t)), "", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,7 +80,7 @@ func TestRestoreDatabasesAllEngines(t *testing.T) {
 
 func TestRestoreDatabaseLegacyLayout(t *testing.T) {
 	got := fakeRestores(t)
-	restored, err := restoreDatabasesFromTar(context.Background(), "u", bytes.NewReader(newFormatArchive(t, true)), "analytics")
+	restored, err := restoreDatabasesFromTar(context.Background(), "u", bytes.NewReader(newFormatArchive(t, true)), "analytics", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -178,5 +178,24 @@ func TestCanonicalName(t *testing.T) {
 		if got, _ := canonicalName(in); got != want {
 			t.Errorf("canonicalName(%q) = %q, want %q", in, got, want)
 		}
+	}
+}
+
+// only the name used to be matched, so picking the PostgreSQL app restored the MySQL one
+func TestRestoreDatabasePicksEngine(t *testing.T) {
+	archive := makeArchive(t, []tarEntry{
+		{name: "/backup", body: nil},
+		{name: "/backup/01-mysql/app.sql", body: []byte("mysql dump")},
+		{name: "/backup/01-postgres/app.sql", body: []byte("pg dump")},
+	})
+	got := fakeRestores(t)
+	restored, err := restoreDatabasesFromTar(context.Background(), "u", bytes.NewReader(archive), "app", "postgres")
+	if err != nil || !reflect.DeepEqual(restored, []string{"app"}) || got["postgres/app"] != "pg dump" || len(got) != 1 {
+		t.Fatalf("restored=%v err=%v got=%v", restored, err, got)
+	}
+
+	got = fakeRestores(t)
+	if _, err := restoreDatabasesFromTar(context.Background(), "u", bytes.NewReader(archive), "app", ""); err != nil || got["mysql/app"] != "mysql dump" || len(got) != 1 {
+		t.Fatalf("no engine given: err=%v got=%v", err, got)
 	}
 }

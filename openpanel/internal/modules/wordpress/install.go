@@ -387,6 +387,13 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 var tablePrefixRE = regexp.MustCompile(`(\$table_prefix\s*=\s*')[^']*(';)`)
 
+// escapeMySQLString mirrors escape_mysql_string() (duplicated per-package, same as mysql.escapeMySQLString - see that function's doc comment)
+func escapeMySQLString(value string) string {
+	value = strings.ReplaceAll(value, `\`, `\\`)
+	value = strings.ReplaceAll(value, `'`, `\'`)
+	return value
+}
+
 // wordpressVersionRE keeps the version a plain release name, it ends up in the archive path so a "/" or ".." would pick any .tar.gz on the host
 var wordpressVersionRE = regexp.MustCompile(`^(latest|[0-9]+(\.[0-9]+)*(-[A-Za-z0-9]+)?)$`)
 

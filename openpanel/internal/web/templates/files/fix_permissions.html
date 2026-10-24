@@ -82,7 +82,8 @@
         body: `directory=${encodeURIComponent(selectedDirectory)}`,
     })
         .then(response => {
-            if (!response.ok) {
+            // a redirect means nothing ran, e.g. the session expired and this is the login page
+            if (!response.ok || response.redirected) {
                 throw new Error('{{.T.Get "Network response was not ok"}}');
             }
             return response.text();
@@ -90,6 +91,8 @@
         .then(data => {
             console.log(data);
             showScanCompleteMessage();
+            toastMessage = '{{.T.Get "Permissions successfully fixed for all files and subdirectories inside the directory"}} ' + selectedDirectory;
+            showToast(toastMessage, 'success');
         })
         .catch(error => {
             console.error('Fixing permissions failed:', error);
@@ -97,9 +100,6 @@
             showToast(toastMessage, 'error');
         })
         .finally(() => {
-            toastMessage = '{{.T.Get "Permissions successfully fixed for all files and subdirectories inside the directory"}} ' + selectedDirectory;
-            showToast(toastMessage, 'success');
-
             document.getElementById('scanning-btn').style.display = 'none';
             document.getElementById('start-scan-btn').style.display = 'flex';
         });
