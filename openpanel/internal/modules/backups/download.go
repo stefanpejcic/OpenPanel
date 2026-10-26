@@ -83,6 +83,10 @@ func handleDownloadItems(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	config, _ := readBackupEnv(userContext)
+	if !mayAccessBackup(userContext, config, backup) {
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "This backup does not belong to your account."})
+		return
+	}
 	store, err := newRemoteStore(config)
 	if err != nil {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
