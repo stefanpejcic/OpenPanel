@@ -1008,6 +1008,16 @@ configure_imunifyav() {
     [[ "$IMUNIFY_AV" == true ]] && run /usr/local/bin/opencli imunify install && run /usr/local/bin/opencli imunify start
 }
 
+# openadmin controls the debian unit names (ssh, cron) but EL only ships sshd and crond, alias them or the services and ssh pages fail with "unit not found"
+alias_unit() {
+    local name=$1 real=$2 path
+    systemctl cat "${name}.service" &>/dev/null && return 0
+    path=$(systemctl show -p FragmentPath --value "${real}.service" 2>/dev/null)
+    [[ -n "$path" ]] || return 0
+    ln -sf "$path" "/etc/systemd/system/${name}.service"
+    run systemctl daemon-reload
+}
+
 configure_ssh() {
     ln -sf "${ETC_DIR}ssh/admin_welcome.sh" /etc/profile.d/welcome.sh
     chmod +x /etc/profile.d/welcome.sh
@@ -1019,12 +1029,14 @@ configure_ssh() {
         grep -q "^DebianBanner no" /etc/ssh/sshd_config || echo "DebianBanner no" >> /etc/ssh/sshd_config
     fi
     run systemctl restart sshd 2>/dev/null || run systemctl restart ssh
+    alias_unit ssh sshd
     ok "SSH configured."
 }
 
 setup_cron() {
     install -m 600 -o root -g root "${ETC_DIR}cron" /etc/cron.d/openpanel
     [[ "$PACKAGE_MANAGER" =~ ^(dnf|yum)$ ]] && { run restorecon -R /etc/cron.d; run systemctl restart crond; }
+    alias_unit cron crond
     ok "Cron configured."
 }
 
