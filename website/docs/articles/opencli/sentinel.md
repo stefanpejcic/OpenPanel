@@ -377,6 +377,20 @@ When SWAP usage is over the threshold and there is enough free RAM, Sentinel cle
 </details>
 
 ### MySQL service inactive alert
+
+When MariaDB doesn't answer, Sentinel recreates the `openpanel_mysql` container. A container that started less than 5 minutes ago is left alone and checked again on the next run, since on its first start MariaDB creates the panel database with networking turned off.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli sentinel
+...
+[!] MariaDB started 21s ago and isn't answering yet — will re-check next run.
+...
+```
+</details>
+
 ![sentinel_mysql.png](/img/docs-content/761C3HNt-sentinel-mysql.png)
 
 ### Nameservers resolution alert
