@@ -10,7 +10,6 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
@@ -49,7 +48,7 @@ var flarumBackupDBNameRE = regexp.MustCompile(`'database'\s*=>\s*'([^']*)'`)
 // extractFlarumDatabaseInfoForBackup reads config.php straight off the host filesystem
 func extractFlarumDatabaseInfoForBackup(userContext, docroot string) map[string]string {
 	const wwwPrefix = "/var/www/html/"
-	if !appkit.SafeDocroot(docroot) {
+	if !strings.HasPrefix(docroot, wwwPrefix) {
 		return map[string]string{"error": "invalid docroot"}
 	}
 	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(docroot, wwwPrefix)

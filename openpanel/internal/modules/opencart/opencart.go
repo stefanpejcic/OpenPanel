@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 )
@@ -46,9 +45,6 @@ func opencartDBInfoForBackup(userContext, docroot string) map[string]string {
 		return info
 	}
 	const wwwPrefix = "/var/www/html/"
-	if !appkit.SafeDocroot(docroot) {
-		return map[string]string{"error": "invalid docroot"}
-	}
 	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(docroot, wwwPrefix)
 	content, err := tenantfs.ReadFile(filepath.Join(mappedDir, "config.php"))
 	if err != nil {

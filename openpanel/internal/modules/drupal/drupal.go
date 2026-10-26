@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 )
@@ -52,7 +51,7 @@ var (
 // extractDrupalDatabaseInfoForBackup reads settings.php straight off the host filesystem, skipping the doc comment block the same way websites.extractDrupalDatabaseInfo does so the placeholder example lines don't match first
 func extractDrupalDatabaseInfoForBackup(userContext, docroot string) map[string]string {
 	const wwwPrefix = "/var/www/html/"
-	if !appkit.SafeDocroot(docroot) {
+	if !strings.HasPrefix(docroot, wwwPrefix) {
 		return map[string]string{"error": "invalid docroot"}
 	}
 	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(docroot, wwwPrefix)
