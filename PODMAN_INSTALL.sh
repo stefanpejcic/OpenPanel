@@ -709,6 +709,10 @@ setup_compose() {
         [[ "$OS_VERSION_ID" == "13" ]] && grep -q "skip-ssl" "$mysql_cnf" || echo "skip-ssl = true" >> "$mysql_cnf"
     fi
 
+    # every compose edit has to land before the first `up`: podman-compose labels containers with a hash of the whole config and an `up` that finds another hash
+    # recreates the service and its deps, so the first `opencli user-add` (it starts openpanel) restarted mysql in the middle of its INSERT
+    pin_bind_ip
+
     [[ "$REPAIR" == true ]] && {
         run podman-compose -f /root/docker-compose.yml down
         run podman volume rm root_mysql
@@ -724,15 +728,18 @@ setup_compose() {
     ln -sf / /hostfs 2>/dev/null || true
 }
 
+pin_bind_ip() {
+    [[ "$SKIP_DNS_SERVER" == true ]] && return
+    echo "Pinning BIND9 to the server's real IP because Podman's aardvark-dns holds port 53 on each bridge gateway IP..."
+    BIND_IP=$(hostname -I | awk '{print $1}')
+    sed -i -E 's#^( *- *")([0-9.]+:)?(53:53/(tcp|udp)")#\1'"$BIND_IP"':\3#' /root/docker-compose.yml
+}
+
 setup_bind() {
     [[ "$SKIP_DNS_SERVER" == true ]] && { echo "Skipping BIND (--skip-dns-server)."; return; }
     echo "Setting up BIND DNS..."
     install -d -m 755 /etc/bind
     cp -r "${ETC_DIR}bind9/"* /etc/bind/
-
-    echo "Pinning BIND9 to the server's real IP because Podman's aardvark-dns holds port 53 on each bridge gateway IP..."
-    BIND_IP=$(hostname -I | awk '{print $1}')
-    sed -i -E 's#^( *- *")([0-9.]+:)?(53:53/(tcp|udp)")#\1'"$BIND_IP"':\3#' /root/docker-compose.yml | grep 53:53
 
     if [[ "$OS_ID" == "ubuntu" || "$OS_ID" == "debian" ]]; then
         local resolved_conf="/etc/systemd/resolved.conf"
