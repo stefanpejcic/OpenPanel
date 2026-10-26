@@ -261,7 +261,7 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		fail(err.Error())
 		return
 	}
-	if err := checkHostPaths(composeData, r.Form["volume_name"]); err != nil {
+	if err := checkHostPaths(composeData, r.Form["volume_name"], userContext); err != nil {
 		fail(err.Error())
 		return
 	}
@@ -445,7 +445,7 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			renderContainerFormPage(a, w, r, formView)
 			return
 		}
-		if err := checkHostPaths(composeData, r.Form["volume_name"]); err != nil {
+		if err := checkHostPaths(composeData, r.Form["volume_name"], userContext); err != nil {
 			formView.Error = err.Error()
 			renderContainerFormPage(a, w, r, formView)
 			return

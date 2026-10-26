@@ -130,7 +130,7 @@ func apiContainerCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
 		return
 	}
-	if volErr := checkHostPaths(composeData, volNames); volErr != nil {
+	if volErr := checkHostPaths(composeData, volNames, userContext); volErr != nil {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
 		return
 	}
@@ -233,7 +233,7 @@ func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
 		return
 	}
-	if volErr := checkHostPaths(composeData, volNames); volErr != nil {
+	if volErr := checkHostPaths(composeData, volNames, userContext); volErr != nil {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
 		return
 	}

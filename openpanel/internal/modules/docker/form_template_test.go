@@ -67,11 +67,11 @@ func TestCheckHostPaths(t *testing.T) {
 		"php": map[string]any{"volumes": []any{"/etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro"}},
 	}}
 	ok := []string{"html_data", "", "./data", "./sockets/mysqld", "/etc/openpanel/wordpress/wp-cli.phar", "/run/user/${USER_ID}/podman/podman.sock"}
-	if err := checkHostPaths(compose, ok); err != nil {
+	if err := checkHostPaths(compose, ok, "alice"); err != nil {
 		t.Fatal(err)
 	}
 	for _, bad := range []string{"/", "/etc", "/home/ctx", "./", ".", "./..", "./../x", "./a/../../x", "./features.txt", "./docker-compose.yml", "./.env", "./.config/containers", "${HOME}/x", "./a:/b", "~/x"} {
-		if checkHostPaths(compose, []string{bad}) == nil {
+		if checkHostPaths(compose, []string{bad}, "alice") == nil {
 			t.Errorf("%q should be rejected", bad)
 		}
 	}
