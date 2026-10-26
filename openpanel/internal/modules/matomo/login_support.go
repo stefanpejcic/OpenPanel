@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
@@ -65,7 +66,7 @@ var (
 // extractMatomoDatabaseInfoForBackup reads config/config.ini.php straight off the host filesystem - same "read config from host path" pattern as every other CMS module's login_support.go, just parsing Matomo's INI format with a small regex instead of a PHP array/define() list
 func extractMatomoDatabaseInfoForBackup(userContext, docroot string) map[string]string {
 	const wwwPrefix = "/var/www/html/"
-	if !strings.HasPrefix(docroot, wwwPrefix) {
+	if !appkit.SafeDocroot(docroot) {
 		return map[string]string{"error": "invalid docroot"}
 	}
 	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(docroot, wwwPrefix)
