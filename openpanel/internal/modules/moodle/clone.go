@@ -65,8 +65,9 @@ func handleMoodleClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	srcDomain := strings.Split(providedDomain, "/")[0]
 
-	if !cmsclone.ValidDomain(srcDomain) || !cmsclone.ValidDomain(dstDomain) || !cmsclone.ValidDB(srcDB) || !cmsclone.ValidDB(dstDB) || !cmsclone.ValidDB(dstDBUser) {
-		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid input"})
+	// subdirectory is joined onto the destination docroot in ResolveDestination, so a "../.." in it can climb out of /var/www/html entirely - validate the resolved docroot the same way the shared cmsapp clone does
+	if !cmsclone.ValidDomain(srcDomain) || !cmsclone.ValidDomain(dstDomain) || !cmsclone.ValidDB(srcDB) || !cmsclone.ValidDB(dstDB) || !cmsclone.ValidDB(dstDBUser) || !cmsclone.ValidDocroot(docroot) {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid input or unsafe docroot"})
 		return
 	}
 	if !a.CheckDomainBelongsToUser(ctx, userID, srcDomain) || !a.CheckDomainBelongsToUser(ctx, userID, dstDomain) {
