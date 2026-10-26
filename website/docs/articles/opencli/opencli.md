@@ -68,7 +68,7 @@ Usage: opencli docker-autostart [-f|--force]
 ------------------------
 opencli docker-backup
 Description: Generates a backup for all users.
-Usage: opencli docker-backup
+Usage: opencli docker-backup [--parallel=N]   (skip a user: touch /home/<context>/backup.off)
 ------------------------
 opencli docker-collect_stats
 Description: Collect resource usage information for user(s).
@@ -80,7 +80,7 @@ Usage: opencli docker-logs [--all|--system|--users|<USERNAME>]
 ------------------------
 opencli docker-update
 Description: Check for image updates across root's stack and every
-Usage: opencli docker-update [-y|--yes] [--dry-run]
+Usage: opencli docker-update [IMAGE] [-y|--yes] [--dry-run]
 ------------------------
 opencli domain
 Description: View and set domain/ip for accessing panels.
@@ -93,6 +93,10 @@ Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [-
 opencli domains-all
 Description: Lists all domain names currently hosted on the server.
 Usage: opencli domains-all [--docroot] [--php_version] [--json]
+------------------------
+opencli domains-cloudflare
+Description: Enable/disable/check Cloudflare-only access to domains.
+Usage: opencli domains-cloudflare <enable|disable|status> <DOMAIN_NAME [DOMAIN_NAME...]|--all> [-y]
 ------------------------
 opencli domains-delete
 Description: Delete a domain name.
@@ -118,9 +122,13 @@ opencli domains-hsts
 Description: Manage HSTS for a domain
 Usage: opencli domains-hsts <domain> [enable|disable]
 ------------------------
+opencli domains-ratelimit
+Description: Set the per-ip and per-domain request rate limits in Caddy, server default or per domain.
+Usage: opencli domains-ratelimit [status] [--json]
+------------------------
 opencli domains-ssl
 Description: Check SSL for domain, add custom certificate, view files.
-Usage: opencli domains-ssl <DOMAIN_NAME> [status|info|logs|auto|custom] [path/to/fullchain.pem path/to/key.pem]
+Usage: opencli domains-ssl <DOMAIN_NAME> [status|info|logs|auto|selfsigned|custom] [path/to/fullchain.pem path/to/key.pem] | opencli domains-ssl --notify
 ------------------------
 opencli domains-stats
 Description: Parse caddy access logs for users domains and generate static html
@@ -132,7 +140,7 @@ Usage: opencli domains-suspend <DOMAIN-NAME> [--comment="<COMMENT>"] [--by=admin
 ------------------------
 opencli domains-test
 Description: Test a website speed through every layer (DNS, Caddy/WAF, Varnish, webserver, PHP, database), check limits and settings, and show the biggest issue with a fix.
-Usage: opencli domains-test <DOMAIN_NAME>[/SUBFOLDER] [RUNS]
+Usage: opencli domains-test <DOMAIN_NAME>[/SUBFOLDER] [RUNS] [--load <N|auto>]
 ------------------------
 opencli domains-unsuspend
 Description: Unsuspend a domain name
@@ -164,7 +172,7 @@ Usage: opencli email-quotas
 ------------------------
 opencli email-ratelimit
 Description: Configure rate-limiting using postfwd for domains and users.
-Usage: opencli email-ratelimit [--username=<user>] [--domain=<domain>] [--all-users] [--delete-user=<user>] [--delete-domain=<domain>] [--skip-reload]
+Usage: opencli email-ratelimit [--username=<user>] [--domain=<domain>] [--all-users] [--delete-user=<user>] [--delete-domain=<domain>] [--skip-reload] [--notify]
 ------------------------
 opencli email-server
 Description: Manage mailserver
@@ -207,7 +215,7 @@ Description: Create FTP sub-user for openpanel user.
 Usage: opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME> [--quota=<MB>] [--debug]
 ------------------------
 opencli ftp-connections
-Description: Display all active FTP connection or for particular OpenPanel user.
+Description: Display all active FTP connections, or only those for domains owned by an OpenPanel user.
 Usage: opencli ftp-connections [OPENPANEL_USERNAME]
 ------------------------
 opencli ftp-delete
@@ -280,11 +288,11 @@ Usage: opencli plan-usage <PLAN_NAME> [--json]
 ------------------------
 opencli port
 Description: View and change port for accessing openpanel.
-Usage: opencli port [set <port> | default]
+Usage: opencli port [set <port> | default] [--no-restart]
 ------------------------
 opencli proxy
 Description: View and change proxy path '/openpanel' for accessing openpanel.
-Usage: opencli proxy [set <path>|default]
+Usage: opencli proxy [set <path>|default] [--no-restart]
 ------------------------
 opencli report
 Description: Generate a system report and send it to OpenPanel support team.
@@ -292,7 +300,7 @@ Usage: opencli report [--public|--link|--upload] [--non-interactive] [--user <US
 ------------------------
 opencli sentinel
 Description: Check system services, traffic and resource usage, and log/send custom notifications on request.
-Usage: opencli sentinel [--startup] [--report] [--action=<name> --title=<title> --message=<msg>]
+Usage: opencli sentinel [--startup] [--report] [--action=<name> --title=<title> --message=<msg> [--severity=<level>] [--details=<json> [--merge-key=<key>]] [--no-send]]
 ------------------------
 opencli server-logrotate
 Description: Configures logrotate for caddy, openpanel, syslog.
@@ -304,7 +312,7 @@ Usage: opencli server-migrate -h <DESTINATION_IP> --user root --password <DESTIN
 ------------------------
 opencli update
 Description: Check if update is available, install updates.
-Usage: opencli update [--check | --force | --admin | --panel | --cli | --translations | --system | --modules | --compose | --env | --php]
+Usage: opencli update [--check | --force [--no-restart] | --admin | --panel | --cli | --translations | --system | --modules | --compose | --env | --php | --wp | --ols | --apache | --clamav | --phpmyadmin | --postgres | --skeleton | --ssh | --varnish | --cron]
 ------------------------
 opencli user-2fa
 Description: Check or disable 2FA for a user.
@@ -324,7 +332,7 @@ Usage: opencli user-block_ip <username> [--list='ip_here another_ip' | --delete-
 ------------------------
 opencli user-change_plan
 Description: Change plan for a user and apply new plan limits.
-Usage: opencli user-change_plan <USERNAME> <NEW_PLAN_NAME>
+Usage: opencli user-change_plan <USERNAME> <NEW_PLAN_NAME> [--debug]
 ------------------------
 opencli user-check
 Description: Performs comprehensive security checks on user files, rootless Podman instance and containers.
@@ -368,7 +376,7 @@ Usage: opencli user-password <USERNAME> <NEW_PASSWORD | random>
 ------------------------
 opencli user-quota
 Description: Report or set disk and inodes for users.
-Usage: opencli user-quota <username|--all>
+Usage: opencli user-quota [--update <username|--all>]
 ------------------------
 opencli user-rename
 Description: Rename username.
@@ -380,7 +388,7 @@ Usage: opencli user-report <USERNAME|--all> [--section <name,...>] [--json]
 ------------------------
 opencli user-restore
 Description: Restores a single OpenPanel user account from a full account .tar.gz backup.
-Usage: opencli user-restore --file <ARCHIVE> [--force] [--new-username=NAME] [--quiet] [--temp-dir=<PATH> ]
+Usage: opencli user-restore --file <ARCHIVE> [--force] [--new-username=NAME] [--reseller=NAME] [--quiet] [--temp-dir=<PATH> ]
 ------------------------
 opencli user-suspend
 Description: Suspend user: stop all containers and suspend domains.
@@ -392,7 +400,7 @@ Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> 
 ------------------------
 opencli user-unsuspend
 Description: Unsuspend user: start all containers and unsuspend domains
-Usage: opencli user-unsuspend <USERNAME>
+Usage: opencli user-unsuspend <USERNAME> [--debug]
 ------------------------
 opencli user-varnish
 Description: Enable/disable Varnish Caching for user and display current status.
@@ -400,7 +408,7 @@ Usage: opencli user-varnish <USERNAME> [enable|disable|status]
 ------------------------
 opencli version
 Description: Displays the current (installed) version of OpenPanel container image.
-Usage: opencli version
+Usage: opencli version 
 ------------------------
 opencli waf
 Description: Manage CorazaWAF

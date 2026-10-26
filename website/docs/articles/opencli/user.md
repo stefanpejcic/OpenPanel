@@ -115,6 +115,7 @@ opencli user-list --total --json
 
 #### List all users Quotas
 
+Same as [`opencli user-quota`](#quota), regenerates and prints the quota report for all users:
 
 ```bash
 opencli user-list --quota
@@ -416,7 +417,7 @@ add `-y` flag to disable prompt.
 To unsuspend (enable access) to user, run the follwowing command:
 
 ```bash
-opencli user-unsuspend <USERNAME>
+opencli user-unsuspend <USERNAME> [--debug]
 ```
 
 <details>
@@ -543,7 +544,7 @@ https://srv.example.com:2083/login_autologin?admin_token=b7f3c9e2a1d84f06&userna
 Command: `opencli user-change_plan` allows you to change plan for a user.
 
 ```bash
-opencli user-change_plan <username> "<new_plan_name>"
+opencli user-change_plan <username> "<new_plan_name>" [--debug]
 ```
 
 <details>
@@ -562,23 +563,52 @@ Plan changed successfully for user stefan from Standard plan to Developer Plus
 
 ### Quota
 
-Command: `opencli user-quota` enforces and recalculates disk and inodes for specific or all users.
+Without arguments, `opencli user-quota` regenerates the quota report for all users (`/etc/openpanel/openpanel/quota_report.json`, read by the OpenPanel and OpenAdmin UIs), prints it and emails users who are close to their disk or inodes limit. It doesn't change any quotas.
 
 ```bash
-opencli user-quota <username|--all>
+opencli user-quota
+```
+
+<details>
+  <summary>Example output</summary>
+
+```json
+{
+  "timestamp": "2026-10-26T10:16:01Z",
+  "users": [
+    {"username":"stefan","uid":1000,"home_path":"/home/stefan/","disk_used":269744,"disk_soft":5120000,"disk_hard":5120000,"inodes_used":130,"inodes_soft":1000000,"inodes_hard":1000000}
+  ]
+}
+```
+</details>
+
+To set disk and inodes quotas from the user's plan limits, use `--update` with a username or `--all` for all active users:
+
+```bash
+opencli user-quota --update <username|--all>
 ```
 
 <details>
   <summary>Example output</summary>
 
 ```bash
-# opencli user-quota stefan
-[2026-01-28 17:51:40] Processing user: stefan
-[2026-01-28 17:51:40] Quota set for user stefan: 20480000 blocks (20 GB) and 2500000 inodes
-[2026-01-28 17:51:40] Updating repquota file...
-[2026-01-28 17:51:40] Repquota file updated successfully: /etc/openpanel/openpanel/core/users/repquota
+# opencli user-quota --update stefan
+[2026-10-26 17:51:40] Processing user: stefan
+[2026-10-26 17:51:40] Quota set for user stefan: 20480000 blocks (20 GB) and 2500000 inodes
+
+# opencli user-quota --update --all
+[2026-10-26 17:51:40] Fetching list of active users...
+[2026-10-26 17:51:40] Found 2 active users to process
+[2026-10-26 17:51:40] Processing user: stefan
+[2026-10-26 17:51:40] Quota set for user stefan: 20480000 blocks (20 GB) and 2500000 inodes
+[2026-10-26 17:51:41] Processing user: pejcic
+[2026-10-26 17:51:41] Quota set for user pejcic: 10240000 blocks (10 GB) and 1000000 inodes
+[2026-10-26 17:51:41] Successfully processed all 2 users
+[2026-10-26 17:51:41] DONE: All users processed successfully
 ```
 </details>
+
+After an update the report is regenerated and the UI cache is cleared.
 
 ### Check / Disable 2FA
 

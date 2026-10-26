@@ -443,7 +443,8 @@ The domain's mail and DNS zone mounts are removed from the user's `backup` servi
 Check SSL for domain, add custom certificate, view files.
 
 ```bash
-opencli domains-ssl <DOMAIN_NAME> [status|info|logs|auto|custom] [path/to/fullchain.pem path/to/key.pem]
+opencli domains-ssl <DOMAIN_NAME> [status|info|logs|auto|selfsigned|custom] [path/to/fullchain.pem path/to/key.pem]
+opencli domains-ssl --notify
 ```
 
 ### Examples
@@ -466,6 +467,8 @@ Usage examples for domain example.com:
   opencli domains-ssl example.com info
 - Set AutoSSL for the domain (default):
   opencli domains-ssl example.com auto
+- Use a self-signed certificate until the domain points to this server, then Let's Encrypt:
+  opencli domains-ssl example.com selfsigned
 - Add custom certificate for the domain:
   opencli domains-ssl example.com custom /var/www/html/fullchain.pem /var/www/html/key.pem
 - View SSL-related lines for the domain from Caddy logs:
@@ -488,6 +491,8 @@ opencli domains-ssl <DOMAIN_NAME> status
 AutoSSL
 ```
 </details>
+
+Possible values are `AutoSSL`, `AutoSSL with self-signed fallback`, `Custom SSL` and `Unknown`.
 
 ### Info
 
@@ -569,6 +574,26 @@ opencli domains-ssl <DOMAIN_NAME> auto
 Updated example.com to use AutoSSL.
 ```
 </details>
+
+### Self-signed
+
+Use AutoSSL with a self-signed fallback, for domains that don't point to this server yet:
+```bash
+opencli domains-ssl <DOMAIN_NAME> selfsigned
+```
+
+Caddy tries Let's Encrypt first and falls back to a certificate from its local CA when that fails. Every renewal tries Let's Encrypt again, so once the domain points to the server it gets a trusted certificate on its own. The command also requests the first certificate right away. Use `auto` to switch back to plain AutoSSL.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-ssl example.com selfsigned
+Updated example.com to use a self-signed certificate until Let's Encrypt can issue one.
+```
+</details>
+
+### Notify
 
 Email users about SSL certificates that need attention:
 ```bash
@@ -1287,21 +1312,25 @@ To check status for a domain:
 
 ```bash
 opencli domains-cloudflare status <DOMAIN_NAME>
-
 ```
+
+<details>
+  <summary>Example output</summary>
 
 ```bash
 # opencli domains-cloudflare status example.com
 Cloudflare-only mode for example.com is ENABLED.
-
 ```
+</details>
 
 To check status for all domains:
 
 ```bash
 opencli domains-cloudflare status --all
-
 ```
+
+<details>
+  <summary>Example output</summary>
 
 ```bash
 # opencli domains-cloudflare status --all
@@ -1311,30 +1340,34 @@ Cloudflare-only status for all domains:
   mysite.org: DISABLED
 ----------------------------------------
 Summary: 1 enabled, 1 disabled out of 2 domain(s).
-
 ```
+</details>
 
 To enable Cloudflare-only access for a single domain:
 
 ```bash
 opencli domains-cloudflare enable <DOMAIN_NAME>
-
 ```
+
+<details>
+  <summary>Example output</summary>
 
 ```bash
 # opencli domains-cloudflare enable example.com
 Enabled: /etc/openpanel/caddy/domains/example.com.conf
 Reloading Caddy to apply the setting...
 SUCCESS: Caddy reloaded successfully.
-
 ```
+</details>
 
 To enable Cloudflare-only access globally for all (current and new) domains:
 
 ```bash
 opencli domains-cloudflare enable --all [-y]
-
 ```
+
+<details>
+  <summary>Example output</summary>
 
 ```bash
 # opencli domains-cloudflare enable --all -y
@@ -1355,30 +1388,34 @@ Allowing server IPs:
 Updated: /etc/openpanel/caddy/templates/cloudflare.only
 Reloading Caddy to apply the setting...
 SUCCESS: Caddy reloaded successfully.
-
 ```
+</details>
 
 To disable Cloudflare-only access for a single domain:
 
 ```bash
 opencli domains-cloudflare disable <DOMAIN_NAME>
-
 ```
+
+<details>
+  <summary>Example output</summary>
 
 ```bash
 # opencli domains-cloudflare disable example.com
 Disabled: /etc/openpanel/caddy/domains/example.com.conf
 Reloading Caddy to apply the setting...
 SUCCESS: Caddy reloaded successfully.
-
 ```
+</details>
 
 To disable Cloudflare-only access globally for all (current and new) domains:
 
 ```bash
 opencli domains-cloudflare disable --all [-y]
-
 ```
+
+<details>
+  <summary>Example output</summary>
 
 ```bash
 # opencli domains-cloudflare disable --all -y
@@ -1387,5 +1424,139 @@ Disabled: /etc/openpanel/caddy/domains/mysite.org.conf
 Total domains disabled: 2
 Reloading Caddy to apply the setting...
 SUCCESS: Caddy reloaded successfully.
-
 ```
+</details>
+
+## Rate limit
+
+Set per-IP and per-domain request rate limits in Caddy, as a server default or per domain.
+
+```bash
+opencli domains-ratelimit [status] [--json]
+opencli domains-ratelimit default <per_ip> <per_site>
+opencli domains-ratelimit <TARGETS> <per_ip> <per_site>|default|off
+opencli domains-ratelimit stats [TARGETS] [--hours 24] [--json]
+```
+
+Limits are requests per minute, per visitor IP and per domain, `0` turns that limit off. `<TARGETS>` is one or more domain names, `--all` or `--user <USERNAME>`, mixed freely.
+
+Before the first change the command adds the rate limit snippets (`/etc/openpanel/caddy/ratelimit.conf`) and their import to the Caddyfile, adds Cloudflare ranges as trusted proxies so limits apply to the real visitor IP, and pulls a Caddy image with the rate limit module if the running one doesn't have it. If Caddy rejects the new config, all files are restored and nothing is changed.
+
+### Status
+
+Show the server default and the setting of every domain:
+```bash
+opencli domains-ratelimit
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-ratelimit
+Server default: 120/min per IP, 2000/min per domain (0 = off)
+----------------------------------------
+  example.com: default
+  example.net: 600/min per IP, 20000/min per domain
+  example.org: off
+```
+</details>
+
+Same in JSON format, where `default` is resolved to the limits that actually apply:
+```bash
+opencli domains-ratelimit --json
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-ratelimit --json
+{"default":{"per_ip":120,"per_site":2000},"domains":[{"domain":"example.com","mode":"default","per_ip":120,"per_site":2000},{"domain":"example.net","mode":"custom","per_ip":600,"per_site":20000},{"domain":"example.org","mode":"off","per_ip":0,"per_site":0}]}
+```
+</details>
+
+### Default
+
+Set the server default, used by every domain set to `default`:
+```bash
+opencli domains-ratelimit default <per_ip> <per_site>
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-ratelimit default 120 2000
+Server default set to 120/min per IP, 2000/min per domain (0 = off).
+SUCCESS: Caddy reloaded.
+```
+</details>
+
+### Domains
+
+Set custom limits for domains:
+```bash
+opencli domains-ratelimit <TARGETS> <per_ip> <per_site>
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-ratelimit --user stefan example.net 600 20000
+Updated: example.com 600/min per IP, 20000/min per domain
+Updated: example.net 600/min per IP, 20000/min per domain
+SUCCESS: Caddy reloaded.
+```
+</details>
+
+Switch domains back to the server default, or turn rate limits off for them:
+```bash
+opencli domains-ratelimit <TARGETS> default
+opencli domains-ratelimit <TARGETS> off
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-ratelimit example.com default
+Updated: example.com uses the server default
+SUCCESS: Caddy reloaded.
+
+# opencli domains-ratelimit example.org off
+Updated: example.org has no rate limits
+SUCCESS: Caddy reloaded.
+```
+</details>
+
+Domains whose vhost has no `import /etc/openpanel/caddy/redirects.conf` line (suspended or custom vhosts) are skipped with `SKIPPED: <domain> ...`.
+
+### Stats
+
+Show requests, blocked requests (429), the busiest minute for the domain and the busiest minute for a single IP, from the domain access logs. Without targets all domains are shown, `--hours` sets the window (1-720, default 24):
+```bash
+opencli domains-ratelimit stats [TARGETS] [--hours 24] [--json]
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-ratelimit stats example.com
+Domain (last 24h)                          Requests     429s     Peak/min    Peak/min/IP
+example.com                                   18342       57          412            135
+```
+</details>
+
+With `--json` it also lists the 5 IPs that got the most 429 responses:
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-ratelimit stats example.com --json
+[{"domain":"example.com","hours":24,"requests":18342,"blocked":57,"peak_minute":412,"peak_ip_minute":135,"top_blocked":[{"ip":"203.0.113.7","count":49},{"ip":"198.51.100.23","count":8}]}]
+```
+</details>

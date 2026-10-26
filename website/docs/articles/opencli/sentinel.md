@@ -322,7 +322,18 @@ opencli sentinel --action=admin_api --title="OpenAdmin API is on" --message="API
 ```
 </details>
 
-Nothing is printed when the notification is logged. The message above is shown only when notifications for that action are disabled in `notifications.ini`.
+Nothing is printed when the notification is logged. The message above is shown only when notifications for that action are disabled in `notifications.ini`, and `[!] This alert is snoozed: <title>` when that title is snoozed.
+
+Optional flags for `--action`:
+
+- `--severity=<info|warning|critical>` - severity of the notification, any other value falls back to `info` (default).
+- `--details=<json>` - a JSON object stored as the notification's `details`, the action name is added to it as `action`. Anything that isn't a JSON object is replaced with `{}`.
+- `--merge-key=<key>` - if an earlier notification has the same value for `<key>` in its `details`, that entry is updated (title, message, severity, details) and marked unread again instead of adding a new one, e.g. a scan that started and then finished. Needs `--details` with that key.
+- `--no-send` - only log it on the Notifications page, don't send the email/webhook.
+
+```bash
+opencli sentinel --action=docker_backup --severity=critical --title="Backup failed" --message="Backup of stefan failed." --details='{"job":"42"}' --merge-key=job --no-send
+```
 
 
 <details>

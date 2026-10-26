@@ -34,7 +34,7 @@ Updated api to on
 </details>
 
 :::info
-To apply the new setting, the OpenPanel UI container is restarted, except for these options: `email`, `autoupdate`, `autopatch`, `key`, `max_cpu`, `max_ram`.
+To apply the new setting, the OpenPanel UI container is restarted, except for these options: `email`, `autoupdate`, `autopatch`, `key`, `default_php_version`, `max_cpu`, `max_ram`.
 :::
 
 ## Available Options
@@ -1701,6 +1701,38 @@ Updated menu_style to modern
 ```
 </details>
 
+### `applications_dashboard_items`
+
+Items shown in the **Websites** section of the OpenPanel dashboard, in this order, separated by spaces or commas. Available: `websites`, `wordpress`, `autoinstaller`, `git`, and the apps `joomla`, `drupal`, `website_builder`, `prestashop`, `opencart`, `phpbb`, `flarum`, `mediawiki`, `dokuwiki`, `sofawiki`, `matomo`, `nextcloud`, `tinyphotogallery`, `tinyfilemanager`, `moodle`, `ojs`, `nodejs`, `python`, `ruby`, `java`, `n8n`, `php`, `docker`. Unknown items are ignored and users still only see items for features on their plan. Empty shows the default items. Default is `websites wordpress autoinstaller`.
+
+**Check current value**:
+```bash
+opencli config get applications_dashboard_items
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config get applications_dashboard_items
+websites wordpress autoinstaller
+```
+</details>
+
+**Set new value**:
+```bash
+opencli config update applications_dashboard_items 'websites wordpress nextcloud docker'
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config update applications_dashboard_items 'websites wordpress nextcloud docker'
+Updated applications_dashboard_items to websites wordpress nextcloud docker
+```
+</details>
+
 ### `filemanager_edit_size`
 Maximum file size (in MB) allowed for editing files using the File Manager.
 
@@ -2192,3 +2224,301 @@ mysql_enforce_username_prefix=yes
 ```bash
 opencli config update mysql_enforce_username_prefix yes
 ```
+
+### AI Assistant
+
+Keys in the `[AI]` section configure the [AI Assistant](/docs/admin/settings/openpanel/#ai-assistant). They can also be set from **OpenAdmin > Settings > OpenPanel**. The assistant is only available after the provider has an API key and a model (for `custom` a base URL and a model).
+
+### `ai_provider`
+
+AI provider: `openrouter` (default), `openai`, `anthropic`, or `custom` for any OpenAI-compatible API such as Ollama.
+
+**Check current value**:
+```bash
+opencli config get ai_provider
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config get ai_provider
+openrouter
+```
+</details>
+
+**Set new value**:
+```bash
+opencli config update ai_provider anthropic
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config update ai_provider anthropic
+Updated ai_provider to anthropic
+```
+</details>
+
+### `ai_api_key`
+
+API key from the provider. Optional for `custom` providers that don't need one.
+
+**Check current value**:
+```bash
+opencli config get ai_api_key
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config get ai_api_key
+Parameter ai_api_key has no value.
+```
+</details>
+
+**Set new value**:
+```bash
+opencli config update ai_api_key sk-or-v1-abc123
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config update ai_api_key sk-or-v1-abc123
+Updated ai_api_key to sk-or-v1-abc123
+```
+</details>
+
+### `ai_model`
+
+Model name. Empty uses `openrouter/auto` with OpenRouter or `claude-opus-5-5` with Anthropic, required for `openai` and `custom`.
+
+**Check current value**:
+```bash
+opencli config get ai_model
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config get ai_model
+Parameter ai_model has no value.
+```
+</details>
+
+**Set new value**:
+```bash
+opencli config update ai_model gpt-5-mini
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config update ai_model gpt-5-mini
+Updated ai_model to gpt-5-mini
+```
+</details>
+
+### `ai_base_url`
+
+Only for `custom`, the URL that serves `/chat/completions`. Empty uses `https://openrouter.ai/api/v1` for OpenRouter and `https://api.openai.com/v1` for OpenAI.
+
+**Check current value**:
+```bash
+opencli config get ai_base_url
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config get ai_base_url
+Parameter ai_base_url has no value.
+```
+</details>
+
+**Set new value**:
+```bash
+opencli config update ai_base_url http://ollama:11434/v1
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config update ai_base_url http://ollama:11434/v1
+Updated ai_base_url to http://ollama:11434/v1
+```
+</details>
+
+### `ai_name`
+
+Name shown at the top of the chat. Default is *AI Assistant*.
+
+**Check current value**:
+```bash
+opencli config get ai_name
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config get ai_name
+Parameter ai_name has no value.
+```
+</details>
+
+**Set new value**:
+```bash
+opencli config update ai_name 'Support Bot'
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config update ai_name 'Support Bot'
+Updated ai_name to Support Bot
+```
+</details>
+
+### `ai_instructions`
+
+Extra instructions added to the assistant's prompt, for example your support email or policies.
+
+**Check current value**:
+```bash
+opencli config get ai_instructions
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config get ai_instructions
+Parameter ai_instructions has no value.
+```
+</details>
+
+**Set new value**:
+```bash
+opencli config update ai_instructions 'Our support email is support@example.com'
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config update ai_instructions 'Our support email is support@example.com'
+Updated ai_instructions to Our support email is support@example.com
+```
+</details>
+
+### `ai_monthly_limit`
+
+Requests each user can make per month, `0` for unlimited. Default is `100`.
+
+**Check current value**:
+```bash
+opencli config get ai_monthly_limit
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config get ai_monthly_limit
+100
+```
+</details>
+
+**Set new value**:
+```bash
+opencli config update ai_monthly_limit 500
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config update ai_monthly_limit 500
+Updated ai_monthly_limit to 500
+```
+</details>
+
+### `ai_max_tokens`
+
+Upper limit for the length of each answer. Default is `2048`.
+
+**Check current value**:
+```bash
+opencli config get ai_max_tokens
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config get ai_max_tokens
+2048
+```
+</details>
+
+**Set new value**:
+```bash
+opencli config update ai_max_tokens 4096
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config update ai_max_tokens 4096
+Updated ai_max_tokens to 4096
+```
+</details>
+
+### `ai_actions`
+
+What the assistant can do in the user's account: `off` (only answers questions), `read` (default, can also look up account data) or `all` (can also make changes, after the user approves each one). Any other value falls back to `read`.
+
+**Check current value**:
+```bash
+opencli config get ai_actions
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config get ai_actions
+read
+```
+</details>
+
+**Set new value**:
+```bash
+opencli config update ai_actions all
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config update ai_actions all
+Updated ai_actions to all
+```
+</details>
+
+Two optional keys aren't in the default config but are read when added to the `[AI]` section by hand: `ai_docs_url`, the documentation the assistant answers from (default `https://openpanel.com/llms-full.txt`), and `ai_docs_chars`, how many characters of it are sent with each question (default `14000`). `opencli config update` only changes keys that already exist in the file.
+
+### Unused keys
+
+`template` and `admin_template` in `[PANEL]` and `wp_autodownload` in `[APPS]` are still in the default config, but current OpenPanel and OpenAdmin versions don't read them, so changing them has no effect.

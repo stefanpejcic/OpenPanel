@@ -15,15 +15,16 @@ opencli plan-list
 
 ```bash
 # opencli plan-list
-+----+----------------+------------------------+---------------+----------------+-------------+-----------+------------+--------------+----------+------+------+-----------+-------------+-----------------+
-| id | name           | description            | domains_limit | websites_limit | email_limit | ftp_limit | disk_limit | inodes_limit | db_limit | cpu  | ram  | bandwidth | feature_set | max_email_quota |
-+----+----------------+------------------------+---------------+----------------+-------------+-----------+------------+--------------+----------+------+------+-----------+-------------+-----------------+
-|  1 | Standard plan  | Small plan for testing |             0 |             10 |           0 |         0 | 5 GB       |      1000000 |        0 | 2    | 2g   |        10 | basic       | 10G             |
-|  2 | Developer Plus | 4 cores, 6G ram        |             0 |             10 |           0 |         0 | 10 GB      |      1000000 |        0 | 4    | 6g   |       100 | default     | 0               |
-|  3 | example        | ddfsds                 |             1 |              1 |           1 |         1 | 10 GB      |      1000000 |        1 | 1    | 1g   |       100 | default     | 10G             |
-+----+----------------+------------------------+---------------+----------------+-------------+-----------+------------+--------------+----------+------+------+-----------+-------------+-----------------+
++----+----------------+------------------------+---------------+----------------+-------------+-----------+------------+--------------+----------+-----+-----+-----------+-------------+-----------------+------------------+----------------+-----------------------------+
+| id | name           | description            | domains_limit | websites_limit | email_limit | ftp_limit | disk_limit | inodes_limit | db_limit | cpu | ram | bandwidth | feature_set | max_email_quota | max_hourly_email | upsell_plan_id | upsell_url                  |
++----+----------------+------------------------+---------------+----------------+-------------+-----------+------------+--------------+----------+-----+-----+-----------+-------------+-----------------+------------------+----------------+-----------------------------+
+|  1 | Standard plan  | Small plan for testing |             0 |             10 |           0 |         0 | 5 GB       |      1000000 |        0 | 2   | 2g  |       100 | basic       | 10G             |              100 |              2 | NULL                        |
+|  2 | Developer Plus | 4 cores, 6G ram        |             0 |             10 |           0 |         0 | 10 GB      |      1000000 |        0 | 4   | 6g  |       500 | default     | 0               |                0 | NULL           | https://example.com/upgrade |
++----+----------------+------------------------+---------------+----------------+-------------+-----------+------------+--------------+----------+-----+-----+-----------+-------------+-----------------+------------------+----------------+-----------------------------+
 ```
 </details>
+
+The `upsell_plan_id` and `upsell_url` columns are added by OpenAdmin and hold the plan's [upsell plan](/docs/admin/plans/hosting_plans/) and its upgrade URL, used on Enterprise for the **Dashboard > Upgrade** page and the *Upgrade to* section in limit emails.
 
 You can also format the data as JSON:
 
@@ -41,19 +42,21 @@ opencli plan-list --json
     "id": "1",
     "name": "Standard plan",
     "description": "Small plan for testing",
-    "email_limit": "0",
-    "ftp_limit": "0",
     "domains_limit": "0",
     "websites_limit": "10",
+    "email_limit": "0",
+    "ftp_limit": "0",
     "disk_limit": "5 GB",
     "inodes_limit": "1000000",
     "db_limit": "0",
     "cpu": "2",
     "ram": "2g",
-    "bandwidth": "10",
+    "bandwidth": "100",
     "feature_set": "basic",
     "max_email_quota": "10G",
-    "max_hourly_email": "100"
+    "max_hourly_email": "100",
+    "upsell_plan_id": "2",
+    "upsell_url": null
   }
 ]
 ```

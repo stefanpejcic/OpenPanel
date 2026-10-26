@@ -146,6 +146,18 @@ Admin User 'support' created.
 ```
 </details>
 
+The username must be 5-30 letters, numbers or underscores, and the same rule applies to the new name in `admin rename`. The password must be 6-30 characters without spaces, the same rule OpenAdmin uses, and can't start with `$$`, also for `admin password`.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli admin new support abc
+ERROR: Password is invalid. It must be between 6 and 30 characters and can't contain spaces.
+       docs: https://openpanel.com/docs/articles/opencli/admin/#create-new-admin
+```
+</details>
+
 
 ### Create new Reseller
 

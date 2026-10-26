@@ -52,6 +52,26 @@ opencli update
 ```
 </details>
 
+Add `--no-restart` to install the update without restarting the `openpanel` container and the `admin` service. The new versions are applied on their next restart, and `/root/openpanel_restart_needed` and `/root/openadmin_restart_needed` are created so OpenAdmin shows that a restart is needed:
+```bash
+opencli update --force --no-restart
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli update --force --no-restart
+...
+---- [✔] image openpanel/openpanel:2.0.18 downloaded successfully ----
+---- Updating version in /root/.env ----
+---- [!] Skipping OpenPanel restart, restart the 'openpanel' container to apply the new version ----
+...
+---- [!] OpenAdmin updated, restart the 'admin' service to apply it ----
+...
+```
+</details>
+
 If both `autoupdate` and `autopatch` are disabled, nothing is installed:
 
 <details>
