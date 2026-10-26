@@ -59,7 +59,7 @@ enterprise-a1b2c3d4e5
 ```
 </details>
 
-Verify the current license key:
+Verify the current license key, this only checks the key and doesn't restart any services:
 ```bash
 opencli license verify
 ```
@@ -70,7 +70,6 @@ opencli license verify
 ```bash
 # opencli license verify
 License is valid
-OpenPanel and OpenAdmin are restarted to apply Enterprise features.
 ```
 </details>
 

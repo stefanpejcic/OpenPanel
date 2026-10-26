@@ -57,7 +57,7 @@ on
 
 ## API list
 
-`opencli api list` displays all available api endpoints for the installed OpenAdmin version.
+`opencli api list` displays all API endpoints of the installed OpenAdmin version, with the access they need and a curl example for each. The list is built into the OpenAdmin binary from the same source as the API docs on **OpenAdmin > Settings > API**, and the examples use the OpenAdmin URL from `opencli admin`.
 
 ```bash
 opencli api list
@@ -68,22 +68,31 @@ opencli api list
 
 ```bash
 # opencli api list
-Endpoint: /api/
-Description: On GET returns api status, on POST returns access token
-Type: GET POST
-Examples:
-  curl -X GET http://localhost:2087/api/
-  curl -X POST http://localhost:2087/api/ -H "Content-Type: application/json" -d '{"username":"admin", "password":"kQsUFhwkzBCw3M57"}'
+# Authentication
+
+Endpoint: GET /api/
+Description: Health check - confirms the API is reachable.
+Access: No authentication.
+Example:
+  curl -X GET 'https://server.example.com:2087/api/'
 
 --------------------------------------------------------------------------------
 
-Endpoint: /api/whoami
-Description: protected route that can be accessed only with a token and returns a username
-Type: GET
-Examples:
+Endpoint: POST /api/
+Description: Log in with username/password and obtain a JWT Bearer token, valid for 15 minutes.
+Access: No authentication.
+Example:
+  curl -X POST 'https://server.example.com:2087/api/' -H "Content-Type: application/json" -d '{"username":"admin","password":"secret"}'
+
+--------------------------------------------------------------------------------
+
+Endpoint: GET /api/whoami
+Description: Returns the username embedded in the caller's JWT access token. Reads the identity directly from the token claims rather than the database, so it still answers even if the user row backing the token has since been deleted.
+Access: Any authenticated user.
+Example:
+  curl -X GET 'https://server.example.com:2087/api/whoami' -H "Authorization: Bearer TOKEN_HERE"
 
 --------------------------------------------------------------------------------
 ...
 ```
 </details>
-

@@ -353,6 +353,9 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 	}
 
 	config, _ := readBackupEnv(req.UserContext)
+	if !mayAccessBackup(req.UserContext, config, safeName) {
+		return http.StatusForbidden, map[string]any{"error": "This backup does not belong to your account."}
+	}
 	store, storeErr := newRemoteStore(config)
 	if storeErr != nil {
 		return http.StatusBadRequest, map[string]any{"error": storeErr.Error()}
@@ -447,6 +450,23 @@ func withWriteFailures(message string, failures *writeFailures) string {
 	return message + " " + failures.Error()
 }
 
+// mayAccessBackup reports whether safeName belongs to this account. With an own (per-account) destination
+// every archive there is the account's own; with an admin-managed shared destination accounts are told
+// apart only by their filename prefix, so require it and fail closed when the prefix can't be worked out.
+func mayAccessBackup(userContext string, config map[string]string, safeName string) bool {
+	return backupNameAllowed(AdminManagedBackups(userContext), config, userContext, safeName)
+}
+
+// backupNameAllowed is the testable core of mayAccessBackup: an own destination allows any name, a
+// shared (admin-managed) one requires this account's prefix and fails closed when it can't be worked out.
+func backupNameAllowed(adminManaged bool, config map[string]string, userContext, safeName string) bool {
+	if !adminManaged {
+		return true
+	}
+	prefix := backupNamePrefix(config, userContext)
+	return prefix != "" && strings.HasPrefix(safeName, prefix)
+}
+
 // handleDownloadBackup downloads a remote backup archive and streams it back to the client
 func handleDownloadBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	_, currentUsername, userContext, err := auth.Injected(a, r)
@@ -468,6 +488,10 @@ func handleDownloadBackup(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	config, _ := readBackupEnv(userContext)
+	if !mayAccessBackup(userContext, config, safeName) {
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "This backup does not belong to your account."})
+		return
+	}
 	store, storeErr := newRemoteStore(config)
 	if storeErr != nil {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": storeErr.Error()})

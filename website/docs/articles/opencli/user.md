@@ -436,12 +436,15 @@ To change a username run:
 opencli user-rename <USERNAME> <NEW_USERNAME>
 ```
 
+Only the username used to log in and in `opencli` commands changes. The account's context stays the same, so its home directory, system user, containers, volumes, FTP accounts and quotas keep using the original name.
+
 <details>
   <summary>Example output</summary>
 
 ```bash
 # opencli user-rename stefan pejcic
 User 'stefan' successfully renamed to 'pejcic'.
+Files, containers and the system user stay under context 'stefan'.
 ```
 </details>
 
