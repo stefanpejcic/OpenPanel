@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -96,8 +98,9 @@ const podmanSocketVolume = "/run/user/${USER_ID}/podman/podman.sock"
 var hostPathDenied = map[string]bool{"features.txt": true, "docker-compose.yml": true}
 
 // checkHostPaths only lets bind mounts point inside the account's home (./folder), anything already in the compose file stays allowed so editing a template service still works
-func checkHostPaths(composeData map[string]any, names []string) error {
+func checkHostPaths(composeData map[string]any, names []string, userContext string) error {
 	existing := existingVolumeSources(composeData)
+	home := homePath(userContext)
 	for _, n := range names {
 		n = strings.TrimSpace(n)
 		isPath := strings.ContainsAny(n, "/\\") || strings.HasPrefix(n, ".") || strings.HasPrefix(n, "~")
@@ -107,8 +110,38 @@ func checkHostPaths(composeData map[string]any, names []string) error {
 		if !safeRelativeHostPath(n) {
 			return fmt.Errorf("Volume %q is not allowed. Use a named volume or a folder inside your account like ./data.", n)
 		}
+		if bindSourceEscapes(home, strings.TrimPrefix(n, "./")) {
+			return fmt.Errorf("Volume %q resolves outside your account through a symlink. Use a real folder inside your account.", n)
+		}
 	}
 	return nil
+}
+
+// bindSourceEscapes reports whether the relative bind source rel, resolved under the account home, leaves
+// the home through a symlink. checkHostPaths only validates the path string, but podman follows a symlink
+// at mount time, so a "./data" that is really a link to / would still escape without this.
+func bindSourceEscapes(homeDir, rel string) bool {
+	cur := homeDir
+	for _, part := range strings.Split(rel, "/") {
+		if part == "" || part == "." {
+			continue
+		}
+		cur = filepath.Join(cur, part)
+		fi, err := os.Lstat(cur)
+		if err != nil {
+			return false // nothing exists here yet, so there's no symlink to follow out
+		}
+		if fi.Mode()&os.ModeSymlink != 0 {
+			target, err := filepath.EvalSymlinks(cur)
+			if err != nil {
+				return true
+			}
+			if r, err := filepath.Rel(homeDir, target); err != nil || r == ".." || strings.HasPrefix(r, ".."+string(filepath.Separator)) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func safeRelativeHostPath(n string) bool {
