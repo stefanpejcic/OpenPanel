@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"net/url"
@@ -205,7 +206,11 @@ func StartInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) (*Insta
 
 	emit(map[string]any{"status": "Checking if existing installation processes are running.."})
 	if err := appkit.CreateLockFile(currentUsername); err != nil {
-		emit(map[string]any{"error": "Error creating lock file: " + err.Error()})
+		msg := "Error creating lock file: " + err.Error()
+		if errors.Is(err, appkit.ErrInstallInProgress) {
+			msg = err.Error()
+		}
+		emit(map[string]any{"error": msg})
 		return nil, false
 	}
 	ok := false

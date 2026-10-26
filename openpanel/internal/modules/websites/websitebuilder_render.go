@@ -9,6 +9,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
@@ -104,11 +105,11 @@ func createHTMLSiteStream(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	_ = r.ParseForm()
 	domainID := r.Form.Get("domain_id")
 
-	krompirPath := "/etc/openpanel/openpanel/core/users/" + currentUsername + "/krompir.lock"
-	if wErr := tenantfs.WriteFile(krompirPath, nil, 0o644); wErr != nil {
-		emit(map[string]any{"error": "Error creating " + krompirPath + ": " + wErr.Error()})
+	if wErr := appkit.CreateLockFile(currentUsername); wErr != nil {
+		emit(map[string]any{"error": wErr.Error()})
 		return
 	}
+	defer appkit.RemoveLockFile(currentUsername)
 
 	var selectedDomain, docroot, phpVersion string
 	row := a.DB.QueryRowContext(ctx, "SELECT domain_url, docroot, php_version FROM domains WHERE domain_id = ?", domainID)
@@ -198,8 +199,6 @@ func createHTMLSiteStream(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	web.Flash(a, w, r, "success", web.Tr(a, r, "Website created successfully on %(selected_domain)s", "selected_domain", selectedDomain))
 
 	emit(map[string]any{"status": "Website creation completed!"})
-
-	_ = tenantfs.Remove(krompirPath)
 }
 
 func cacheKeyUserWebsites(userID int) string {

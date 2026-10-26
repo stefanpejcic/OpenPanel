@@ -168,13 +168,11 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	envFile := "/home/" + userContext + "/.env"
 
 	emit(map[string]any{"status": "Checking if existing installation processes are running.."})
-	lockDir := "/etc/openpanel/openpanel/core/users/" + currentUsername
-	_ = tenantfs.MkdirAll(lockDir, 0o755)
-	lockPath := lockDir + "/krompir.lock"
-	if lockErr := tenantfs.WriteFile(lockPath, nil, 0o644); lockErr != nil {
-		emit(map[string]any{"error": "Error creating " + lockPath + ": " + lockErr.Error()})
+	if lockErr := appkit.CreateLockFile(currentUsername); lockErr != nil {
+		emit(map[string]any{"error": lockErr.Error()})
 		return
 	}
+	defer appkit.RemoveLockFile(currentUsername)
 
 	var topDomain string
 	var docrootNull sql.NullString
@@ -395,7 +393,6 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		// `podman-compose up` itself failed - no container was ever created, so containerFailureDetail below has nothing to inspect. Report the real reason now rather than falling through to the poll loop, which would just time out.
 		_ = copyFile(composeBackup, composeFile)
 		_ = copyFile(envBackup, envFile)
-		_ = tenantfs.Remove(lockPath)
 		emit(map[string]any{"error": "Container failed to start. " + startResult.Message})
 		return
 	}
@@ -421,7 +418,6 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		_ = copyFile(envBackup, envFile)
 		rmArgv := podmanmanager.PodmanArgv(userContext, "rm", "-f", serviceName)
 		_ = podmanmanager.Command(ctx, userContext, rmArgv).Run()
-		_ = tenantfs.Remove(lockPath)
 		errMsg := "Container failed to start."
 		if failureDetail != "" {
 			errMsg += " " + failureDetail
@@ -500,8 +496,6 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 
 	emit(map[string]any{"status": "New " + kind.DisplayAppType + " application setup completed!"})
 	_ = logger.RecordUserAction(a.Config, currentUsername, "created a new "+kind.DisplayAppType+" application on domain "+selectedDomain, ipAddress)
-
-	_ = tenantfs.Remove(lockPath)
 }
 
 // formatPyFloat formats a float for the .env values written here, keeping at least one digit after the decimal point - unlike strconv.FormatFloat's -1 precision, which drops a bare ".0"
