@@ -164,6 +164,28 @@ func TestBackupNamePrefix(t *testing.T) {
 	}
 }
 
+func TestBackupNameAllowed(t *testing.T) {
+	cfg := map[string]string{"BACKUP_FILENAME": "$USERNAME-%Y-%m-%dT%H-%M-%S.tar.gz"} // prefix "alice-"
+	cases := []struct {
+		name         string
+		adminManaged bool
+		config       map[string]string
+		safeName     string
+		want         bool
+	}{
+		{"own destination allows any name", false, cfg, "bob-2026-10-08.tar.gz", true},
+		{"shared: own prefix allowed", true, cfg, "alice-2026-10-08.tar.gz", true},
+		{"shared: other account's prefix rejected", true, cfg, "bob-2026-10-08.tar.gz", false},
+		{"shared: unknown prefix fails closed", true, map[string]string{"BACKUP_FILENAME": "$HOSTNAME-%Y.tar.gz"}, "alice-2026-10-08.tar.gz", false},
+		{"shared: no config fails closed", true, map[string]string{}, "alice-2026-10-08.tar.gz", false},
+	}
+	for _, c := range cases {
+		if got := backupNameAllowed(c.adminManaged, c.config, "alice", c.safeName); got != c.want {
+			t.Errorf("%s: backupNameAllowed(%v, %q) = %v, want %v", c.name, c.adminManaged, c.safeName, got, c.want)
+		}
+	}
+}
+
 func TestFilterBackupNames(t *testing.T) {
 	names := []string{"alice-2026-10-07T00-00-00.tar.gz", "bob-2026-10-07T00-00-00.tar.gz", "alice-2026-10-08T00-00-00.tar.gz"}
 	got := filterBackupNames(names, "alice-")
