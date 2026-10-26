@@ -112,6 +112,10 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	version := strings.TrimSpace(r.FormValue("opencart_version"))
+	if version != "" && !cmsapp.ValidVersion(version) {
+		emit(map[string]any{"error": "Invalid OpenCart version."})
+		return
+	}
 	if version == "" {
 		var latestErr error
 		version, latestErr = latestOpenCartVersion(ctx)
