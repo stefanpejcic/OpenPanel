@@ -71,7 +71,6 @@ Manually editing these files can break the panel or be overwritten during update
 | `/etc/openpanel/openadmin/usage_stats.json` | JSON | Usage/telemetry state |
 | `/etc/openpanel/openadmin/service/openadmin.service` | systemd unit | Installed as the `admin` systemd service |
 | `/usr/local/admin/custom.css` | CSS | Custom OpenAdmin UI override |
-| `/usr/local/admin/modules/api/available_endpoints.txt` | text | Enabled API endpoints |
 | `/usr/local/admin/modules/security/csf.pl` | script | ConfigServer Firewall control script |
 | `/usr/local/admin/core/search/filtered.json`, `filter.json` | JSON | Command-palette / search index |
 | `/usr/local/admin/templates/emails/` | dir | Admin email report templates |
