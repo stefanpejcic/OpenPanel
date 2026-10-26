@@ -328,7 +328,10 @@ func apiEmailDetailPatch(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	newPassword := strings.TrimSpace(body.Password)
 	if newPassword != "" {
-		_ = exec.CommandContext(ctx, "opencli", "email-setup", "email", "update", email, newPassword).Run()
+		// pass the password on stdin ("-"), not argv, so it isn't exposed in the process list
+		updCmd := exec.CommandContext(ctx, "opencli", "email-setup", "email", "update", email, "-")
+		updCmd.Stdin = strings.NewReader(newPassword + "\n")
+		_ = updCmd.Run()
 		actions = append(actions, "updated password")
 	}
 

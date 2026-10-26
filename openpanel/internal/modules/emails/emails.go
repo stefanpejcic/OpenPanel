@@ -698,7 +698,10 @@ func postSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, emai
 			http.Error(w, "ERROR: Password does not meet the required strength.", http.StatusBadRequest)
 			return
 		}
-		_ = exec.CommandContext(ctx, "opencli", "email-setup", "email", "update", email, emailPassword).Run()
+		// pass the password on stdin ("-"), not argv, so it isn't exposed in the process list
+		updCmd := exec.CommandContext(ctx, "opencli", "email-setup", "email", "update", email, "-")
+		updCmd.Stdin = strings.NewReader(emailPassword + "\n")
+		_ = updCmd.Run()
 		actionsTaken = append(actionsTaken, "updated password")
 	}
 

@@ -162,7 +162,10 @@ func apiEmailImportConfirm(a *appctx.App, w http.ResponseWriter, r *http.Request
 			continue
 		}
 
-		out, cmdErr := exec.CommandContext(ctx, "opencli", "email-setup", "email", "add", email, password, "--wait").CombinedOutput()
+		// pass the password on stdin ("-"), not argv, so it isn't exposed in the process list
+		addCmd := exec.CommandContext(ctx, "opencli", "email-setup", "email", "add", email, "-", "--wait")
+		addCmd.Stdin = strings.NewReader(password + "\n")
+		out, cmdErr := addCmd.CombinedOutput()
 		if cmdErr != nil {
 			errorMessage := strings.TrimSpace(string(out))
 			if strings.Contains(errorMessage, "Supplied non-number argument") || strings.Contains(errorMessage, "User doesn't exist") {
