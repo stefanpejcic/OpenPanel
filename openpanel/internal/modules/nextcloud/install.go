@@ -113,6 +113,10 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	version := strings.TrimSpace(r.FormValue("nextcloud_version"))
+	if version != "" && !cmsapp.ValidVersion(version) {
+		emit(map[string]any{"error": "Invalid Nextcloud version."})
+		return
+	}
 	if version == "" {
 		var latestErr error
 		version, latestErr = latestNextcloudVersion(ctx)
