@@ -171,11 +171,14 @@ func apiFTPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	args := []string{"ftp-add", fullUsername, ftpPassword, ftpPath, currentUsername}
+	// pass the password on stdin ("-"), not argv, so it isn't exposed in the process list
+	args := []string{"ftp-add", fullUsername, "-", ftpPath, currentUsername}
 	if ftpQuota != "unlimited" {
 		args = append(args, "--quota="+ftpQuota)
 	}
-	out, cmdErr := exec.CommandContext(ctx, "opencli", args...).CombinedOutput()
+	addCmd := exec.CommandContext(ctx, "opencli", args...)
+	addCmd.Stdin = strings.NewReader(ftpPassword + "\n")
+	out, cmdErr := addCmd.CombinedOutput()
 	if cmdErr != nil {
 		writeAPIFTPJSON(w, http.StatusInternalServerError, map[string]string{"error": strings.TrimSpace(string(out))})
 		return
@@ -239,7 +242,10 @@ func apiFTPPassword(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	out, cmdErr := exec.CommandContext(r.Context(), "opencli", "ftp-password", username, newPassword, currentUsername).CombinedOutput()
+	// pass the password on stdin ("-"), not argv, so it isn't exposed in the process list
+	pwCmd := exec.CommandContext(r.Context(), "opencli", "ftp-password", username, "-", currentUsername)
+	pwCmd.Stdin = strings.NewReader(newPassword + "\n")
+	out, cmdErr := pwCmd.CombinedOutput()
 	if cmdErr != nil {
 		writeAPIFTPJSON(w, http.StatusInternalServerError, map[string]string{"error": strings.TrimSpace(string(out))})
 		return

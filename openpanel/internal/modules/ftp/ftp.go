@@ -303,11 +303,14 @@ func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		args := []string{"ftp-add", ftpUsername, ftpPassword, ftpPath, currentUsername}
+		// pass the password on stdin ("-"), not argv, so it isn't exposed in the process list
+		args := []string{"ftp-add", ftpUsername, "-", ftpPath, currentUsername}
 		if ftpQuota != "unlimited" {
 			args = append(args, "--quota="+ftpQuota)
 		}
-		out, cmdErr := exec.CommandContext(ctx, "opencli", args...).CombinedOutput()
+		addCmd := exec.CommandContext(ctx, "opencli", args...)
+		addCmd.Stdin = strings.NewReader(ftpPassword + "\n")
+		out, cmdErr := addCmd.CombinedOutput()
 		if cmdErr != nil {
 			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error creating FTP user %(ftp_username)s: %(output)s", "ftp_username", ftpUsername, "output", string(out)), "/ftp/new")
 			return
@@ -378,7 +381,10 @@ func handleChangeFTPPassword(a *appctx.App, w http.ResponseWriter, r *http.Reque
 			return
 		}
 
-		out, cmdErr := exec.CommandContext(r.Context(), "opencli", "ftp-password", username, newPassword, currentUsername).CombinedOutput()
+		// pass the password on stdin ("-"), not argv, so it isn't exposed in the process list
+		pwCmd := exec.CommandContext(r.Context(), "opencli", "ftp-password", username, "-", currentUsername)
+		pwCmd.Stdin = strings.NewReader(newPassword + "\n")
+		out, cmdErr := pwCmd.CombinedOutput()
 		if cmdErr != nil {
 			flashAndRedirectToAccounts(a, w, r, "error", web.Tr(a, r, "Error changing FTP password: %(output)s", "output", string(out)))
 			return
