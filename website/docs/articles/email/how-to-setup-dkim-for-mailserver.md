@@ -20,6 +20,22 @@ To generate DKIM keys for a domain, run:
 opencli email-setup config dkim domain DOMAIN_NAME_HERE
 ```
 
+When the mailserver is installed, OpenPanel already generates a 2048-bit key for every newly added domain, so you only need to run this for domains that don't have a key yet.
+
+### Key length
+
+Keys are 2048-bit by default. To generate a different size, add the `keysize` option. Supported values are `1024`, `2048` and `4096`:
+
+```bash
+opencli email-setup config dkim keysize 1024 domain DOMAIN_NAME_HERE
+```
+
+A 2048-bit public key is longer than the 255 characters a single `TXT` string can hold, so the record has to be split into multiple parts (see [Formatting the TXT record value](#external-dns) below). If your DNS provider can't store a split or long `TXT` record, use `1024`: the record then fits in a single string. Otherwise keep `2048`, which is the recommended size; `1024` is the minimum that receivers accept.
+
+:::warning
+Existing keys are never overwritten. If the domain already has a DKIM key, the command above does nothing. To change the key length of an existing key, follow [Regenerate an existing DKIM key](#4-regenerate-an-existing-dkim-key).
+:::
+
 ---
 
 ## 2. DNS record
@@ -96,6 +112,37 @@ Currently mailserver needs to be stopped and started again in order to start sig
 
 ---
 
-## 4. Troubleshooting
+## 4. Regenerate an existing DKIM key
+
+To change the key length of a domain that already has a DKIM key (for example, to switch from 2048-bit to 1024-bit), delete the old key and generate a new one.
+
+1. Delete the existing key:
+   ```bash
+   rm -rf /usr/local/mail/openmail/docker-data/dms/config/opendkim/keys/DOMAIN_NAME_HERE
+   ```
+   The mailserver keeps signing with the old key until it is restarted in step 4.
+
+2. Generate the new key:
+   ```bash
+   opencli email-setup config dkim keysize 1024 domain DOMAIN_NAME_HERE
+   ```
+
+3. Replace the DNS record. The old public key no longer matches, so the existing `mail._domainkey` record has to be replaced, not added to.
+
+   **OpenPanel DNS:** remove the old record from the zone, append the new one and reload the zone:
+   ```bash
+   sed -i '/^mail\._domainkey/{:a;/)/!{N;ba};d}' /etc/bind/zones/DOMAIN_NAME_HERE.zone
+   cat /usr/local/mail/openmail/docker-data/dms/config/opendkim/keys/DOMAIN_NAME_HERE/mail.txt >> /etc/bind/zones/DOMAIN_NAME_HERE.zone
+   opencli domains-dns check DOMAIN_NAME_HERE && opencli domains-dns reload DOMAIN_NAME_HERE
+   ```
+   If you use a secondary (slave) DNS server, also increase the serial number in the zone's `SOA` record before reloading so the change is transferred.
+
+   **External DNS:** edit the existing `mail._domainkey` `TXT` record and replace its value with the new key, formatted as described in [External DNS](#external-dns).
+
+4. Once `dig` returns the new key (see [Test DNS](#test-dns)), [restart the mailserver](#3-restart-mailserver) so it starts signing with the new key.
+
+---
+
+## 5. Troubleshooting
 
 [MxToolbox has a DKIM Verifier](https://mxtoolbox.com/dkim.aspx) that you can use to check your DKIM DNS record(s).
