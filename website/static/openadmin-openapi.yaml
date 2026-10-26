@@ -1334,11 +1334,10 @@ paths:
       - bearerAuth: []
   /api/plans:
     get:
-      summary: Lists all hosting plans. Unlike the HTML admin pages, this carries no role gate beyond
-        a valid token -- reseller-scoping of the plan list depends on a page-scoped 'current user' concept
-        a bearer token never populates, so every authenticated caller (admin, user, or reseller) sees
-        every plan.
-      description: '**Access:** Any authenticated user.'
+      summary: Lists hosting plans. Admins see every plan; a reseller only sees the plans in their allowed_plans,
+        same as the Plans page.
+      description: '**Access:** Administrator/user role, or a reseller limited to the plans assigned to
+        them.'
       operationId: get_plans
       tags:
       - Plans
@@ -1445,7 +1444,8 @@ paths:
       summary: Creates a new hosting plan by invoking 'opencli plan-create' with the given fields (all
         default to 0/'1'/'default' when omitted). If the acting token belongs to a reseller, the plan
         is created scoped to that reseller.
-      description: '**Access:** Any authenticated user.'
+      description: '**Access:** Administrator/user role, or a reseller limited to the plans assigned to
+        them.'
       operationId: post_plans
       tags:
       - Plans
@@ -1667,8 +1667,11 @@ paths:
   /api/plans/{plan_id}:
     get:
       summary: Returns a single plan's details by numeric ID. Routes with a non-numeric plan_id never
-        reach this handler and are reported as a plain 404.
-      description: '**Access:** Any authenticated user.'
+        reach this handler and are reported as a plain 404. A reseller gets 404 for a plan outside their
+        allowed_plans, and 403 when trying to change or delete a plan that also has other owners' accounts
+        on it.
+      description: '**Access:** Administrator/user role, or a reseller limited to the plans assigned to
+        them.'
       operationId: get_plans_plan_id
       tags:
       - Plans
@@ -1764,8 +1767,11 @@ paths:
     put:
       summary: Edits an existing plan by invoking 'opencli plan-edit' with the given fields. name/description
         fall back to the literal string 'None' when omitted (mirroring the CLI's own convention); other
-        numeric fields default to '0'/'1'/'100'/'default'.
-      description: '**Access:** Any authenticated user.'
+        numeric fields default to '0'/'1'/'100'/'default'. A reseller gets 404 for a plan outside their
+        allowed_plans, and 403 when trying to change or delete a plan that also has other owners' accounts
+        on it.
+      description: '**Access:** Administrator/user role, or a reseller limited to the plans assigned to
+        them.'
       operationId: put_plans_plan_id
       tags:
       - Plans
@@ -1826,8 +1832,10 @@ paths:
       - bearerAuth: []
     patch:
       summary: Same handler as PUT /api/plans/{plan_id} -- partially or fully edits an existing plan via
-        'opencli plan-edit'.
-      description: '**Access:** Any authenticated user.'
+        'opencli plan-edit'. A reseller gets 404 for a plan outside their allowed_plans, and 403 when
+        trying to change or delete a plan that also has other owners' accounts on it.
+      description: '**Access:** Administrator/user role, or a reseller limited to the plans assigned to
+        them.'
       operationId: patch_plans_plan_id
       tags:
       - Plans
@@ -1871,8 +1879,11 @@ paths:
       security:
       - bearerAuth: []
     delete:
-      summary: Deletes a plan by numeric ID via 'opencli plan-delete <id> --json'.
-      description: '**Access:** Any authenticated user.'
+      summary: Deletes a plan by numeric ID via 'opencli plan-delete <plan name> --json'. A reseller gets
+        404 for a plan outside their allowed_plans, and 403 when trying to change or delete a plan that
+        also has other owners' accounts on it.
+      description: '**Access:** Administrator/user role, or a reseller limited to the plans assigned to
+        them.'
       operationId: delete_plans_plan_id
       tags:
       - Plans
