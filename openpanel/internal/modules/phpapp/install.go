@@ -71,14 +71,11 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	emit(map[string]any{"status": "Checking if existing installation processes are running.."})
-	lockDir := "/etc/openpanel/openpanel/core/users/" + currentUsername
-	_ = tenantfs.MkdirAll(lockDir, 0o755)
-	lockPath := lockDir + "/krompir.lock"
-	if lockErr := tenantfs.WriteFile(lockPath, nil, 0o644); lockErr != nil {
-		emit(map[string]any{"error": "Error creating " + lockPath + ": " + lockErr.Error()})
+	if lockErr := appkit.CreateLockFile(currentUsername); lockErr != nil {
+		emit(map[string]any{"error": lockErr.Error()})
 		return
 	}
-	defer tenantfs.Remove(lockPath)
+	defer appkit.RemoveLockFile(currentUsername)
 
 	var topDomain string
 	var docrootNull, phpVersionNull sql.NullString

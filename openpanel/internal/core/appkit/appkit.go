@@ -7,10 +7,14 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
+	"errors"
+	"io/fs"
 	"math/big"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
@@ -28,17 +32,38 @@ func RandomString(length int) string {
 	return string(b)
 }
 
+// lockBaseDir is where per-user lock files live, tests point it at a temp dir
+var lockBaseDir = "/etc/openpanel/openpanel/core/users/"
+
 // LockFilePath is the per-user krompir.lock so only one app install runs per user at a time
 func LockFilePath(username string) string {
-	return "/etc/openpanel/openpanel/core/users/" + username + "/krompir.lock"
+	return lockBaseDir + username + "/krompir.lock"
 }
 
+// ErrInstallInProgress means another install or update already holds this user's lock
+var ErrInstallInProgress = errors.New("another installation is already in progress for this account")
+
+// a lock left behind by a crashed install would block every later one, so one older than this is treated as stale and taken over
+const installLockStaleAfter = 30 * time.Minute
+
+// CreateLockFile atomically takes the per-user install lock, returning ErrInstallInProgress if a fresh one is already held
 func CreateLockFile(username string) error {
-	dir := "/etc/openpanel/openpanel/core/users/" + username
+	dir := lockBaseDir + username
 	if err := tenantfs.MkdirAll(dir, 0o755); err != nil {
 		return err
 	}
-	return tenantfs.WriteFile(LockFilePath(username), nil, 0o644)
+	path := LockFilePath(username)
+	if fi, err := tenantfs.Stat(path); err == nil && time.Since(fi.ModTime()) > installLockStaleAfter {
+		_ = tenantfs.Remove(path)
+	}
+	f, err := tenantfs.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o644)
+	if err != nil {
+		if errors.Is(err, fs.ErrExist) {
+			return ErrInstallInProgress
+		}
+		return err
+	}
+	return f.Close()
 }
 
 func RemoveLockFile(username string) {
