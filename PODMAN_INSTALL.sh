@@ -42,7 +42,7 @@ custom_username=""
 custom_password=""
 license_key=""
 
-readonly DEFAULT_PANEL_VERSION="2.0.17"
+readonly DEFAULT_PANEL_VERSION="2.0.18"
 readonly CONTAINER_ENGINE="podman"
 readonly SHARED_STORE="/var/lib/containers/shared-storage"
 readonly ETC_DIR="/etc/openpanel/"
