@@ -101,6 +101,10 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	version := joomlaVersion
+	if version != "" && !cmsapp.ValidVersion(version) {
+		emit(map[string]any{"error": "Invalid Joomla version."})
+		return
+	}
 	if version == "" {
 		var latestErr error
 		version, latestErr = latestJoomlaVersion(ctx)

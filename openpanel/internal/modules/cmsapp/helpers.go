@@ -3,6 +3,7 @@ package cmsapp
 import (
 	"context"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -17,6 +18,14 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 )
+
+// validVersionRE matches a plain dotted numeric version like "5.0.2" - no slashes, no "..", nothing that could bend a download URL or archive path
+var validVersionRE = regexp.MustCompile(`^[0-9]+(\.[0-9]+){1,3}$`)
+
+// ValidVersion reports whether a user-supplied version is a plain dotted number safe to drop into an archive path or download URL - an empty string is not valid, callers treat "" as "use latest" before calling this
+func ValidVersion(version string) bool {
+	return validVersionRE.MatchString(version)
+}
 
 func IsValidSubdirectory(subdirectory string) bool {
 	if subdirectory == "" {

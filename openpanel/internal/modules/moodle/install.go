@@ -130,6 +130,10 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	datarootContainerPath := "/var/www/html/" + slug + "_moodledata"
 
 	version := strings.TrimSpace(r.FormValue("moodle_version"))
+	if version != "" && !cmsapp.ValidVersion(version) {
+		emit(map[string]any{"error": "Invalid Moodle version."})
+		return
+	}
 	if version == "" {
 		var latestErr error
 		version, latestErr = latestMoodleVersion(ctx)
