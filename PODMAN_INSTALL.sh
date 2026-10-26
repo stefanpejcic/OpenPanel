@@ -449,6 +449,8 @@ download_files() {
     curl -sSL https://github.com/stefanpejcic/openpanel-configuration/archive/refs/heads/main.tar.gz -o /tmp/main.tar.gz && tar -xzf /tmp/main.tar.gz -C "$tmp_extract" --strip-components=1
     mkdir -p "$ETC_DIR"
     cp -a "${tmp_extract}/." "$ETC_DIR"
+    # cp -a drags the user_tmp_t label from /tmp along, put the normal /etc labels back
+    command -v restorecon &>/dev/null && restorecon -R "$ETC_DIR" >/dev/null 2>&1 || true
     rm -rf /tmp/main.tar.gz "$tmp_extract"
     [[ -f "$CONFIG_FILE" ]] || die 1 "Config file ${CONFIG_FILE} is missing after downloading configuration from Github."
 
@@ -529,6 +531,15 @@ fix_selinux_storage_labels() {
     run restorecon -RF /var/lib/containers/storage /run/containers/storage "$SHARED_STORE"
 }
 
+# none of the host paths the containers mount (/etc/openpanel, /home, /tmp/redis, /var/log/caddy, /root/initialize.sql) have a container label, so with
+# selinux enforcing caddy, redis, mariadb init and the file manager all get permission denied - turn off label separation for containers only, the host stays enforcing
+disable_selinux_container_labels() {
+    command -v getenforce &>/dev/null || return 0
+    [[ "$(getenforce)" == "Disabled" ]] && return 0
+    mkdir -p /etc/containers/containers.conf.d
+    printf '[containers]\nlabel = false\n' > /etc/containers/containers.conf.d/99-openpanel-selinux.conf
+}
+
 podman_setup() {
     # https://feldspaten.org/2021/07/16/podman-graph-driver-overwritten/
     # Some VPS providers clone "fresh" servers from a template/golden image
@@ -572,6 +583,7 @@ ignore_chown_errors = "true"
 EOF
 
     fix_selinux_storage_labels
+    disable_selinux_container_labels
 
     # netavark is the backend; drop leftover CNI configs that only produce warnings on Debian
     #rm -f /etc/cni/net.d/*-podman-bridge.conflist
@@ -1003,6 +1015,16 @@ configure_imunifyav() {
     [[ "$IMUNIFY_AV" == true ]] && run /usr/local/bin/opencli imunify install && run /usr/local/bin/opencli imunify start
 }
 
+# openadmin controls the debian unit names (ssh, cron) but EL only ships sshd and crond, alias them or the services and ssh pages fail with "unit not found"
+alias_unit() {
+    local name=$1 real=$2 path
+    systemctl cat "${name}.service" &>/dev/null && return 0
+    path=$(systemctl show -p FragmentPath --value "${real}.service" 2>/dev/null)
+    [[ -n "$path" ]] || return 0
+    ln -sf "$path" "/etc/systemd/system/${name}.service"
+    run systemctl daemon-reload
+}
+
 configure_ssh() {
     ln -sf "${ETC_DIR}ssh/admin_welcome.sh" /etc/profile.d/welcome.sh
     chmod +x /etc/profile.d/welcome.sh
@@ -1014,12 +1036,14 @@ configure_ssh() {
         grep -q "^DebianBanner no" /etc/ssh/sshd_config || echo "DebianBanner no" >> /etc/ssh/sshd_config
     fi
     run systemctl restart sshd 2>/dev/null || run systemctl restart ssh
+    alias_unit ssh sshd
     ok "SSH configured."
 }
 
 setup_cron() {
     install -m 600 -o root -g root "${ETC_DIR}cron" /etc/cron.d/openpanel
     [[ "$PACKAGE_MANAGER" =~ ^(dnf|yum)$ ]] && { run restorecon -R /etc/cron.d; run systemctl restart crond; }
+    alias_unit cron crond
     ok "Cron configured."
 }
 
