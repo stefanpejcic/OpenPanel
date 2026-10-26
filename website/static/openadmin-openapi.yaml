@@ -1538,6 +1538,132 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/plans/resellers:
+    get:
+      summary: Lists reseller plans (packages) with their account and disk limits, the user plans resellers
+        on them may assign, and the resellers currently on each plan.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: get_plans_resellers
+      tags:
+      - Plans
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+    post:
+      summary: Creates, updates or deletes a reseller plan (action create/update/delete); updating a plan
+        reapplies its limits to the resellers on it. allowed_plans accepts [1,2], ["1","2"] or "1,2".
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: post_plans_resellers
+      tags:
+      - Plans
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  example: create
+                name:
+                  type: string
+                  example: reseller_basic
+                description:
+                  type: string
+                  example: 10 accounts, 50 GB
+                max_accounts:
+                  type: integer
+                  example: 10
+                max_disk_blocks:
+                  type: integer
+                  example: 51200000
+                allowed_plans:
+                  type: array
+                  items:
+                    type: integer
+                    example: 1
+                  example:
+                  - 1
+                  - 2
+              example:
+                action: create
+                name: reseller_basic
+                description: 10 accounts, 50 GB
+                max_accounts: 10
+                max_disk_blocks: 51200000
+                allowed_plans:
+                - 1
+                - 2
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: OK
+                  plan:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: reseller_basic
+                      description:
+                        type: string
+                        example: 10 accounts, 50 GB
+                      max_accounts:
+                        type: integer
+                        example: 10
+                      max_disk_blocks:
+                        type: integer
+                        example: 51200000
+                      allowed_plans:
+                        type: array
+                        items:
+                          type: integer
+                          example: 1
+                        example:
+                        - 1
+                        - 2
+                    example:
+                      name: reseller_basic
+                      description: 10 accounts, 50 GB
+                      max_accounts: 10
+                      max_disk_blocks: 51200000
+                      allowed_plans:
+                      - 1
+                      - 2
+                example:
+                  success: true
+                  message: OK
+                  plan:
+                    name: reseller_basic
+                    description: 10 accounts, 50 GB
+                    max_accounts: 10
+                    max_disk_blocks: 51200000
+                    allowed_plans:
+                    - 1
+                    - 2
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/plans/{plan_id}:
     get:
       summary: Returns a single plan's details by numeric ID. Routes with a non-numeric plan_id never
@@ -4773,9 +4899,9 @@ paths:
       security:
       - bearerAuth: []
     post:
-      summary: Runs one reseller-account action (create/reset_password/rename_user/update/suspend/unsuspend/delete/disable_2fa/disable_passkeys);
-        a caller with the reseller role can only ever reset their own password through this endpoint regardless
-        of the submitted action/username.
+      summary: Runs one reseller-account action (create/reset_password/rename_user/update/change_plan/update_branding/suspend/unsuspend/delete/disable_2fa/disable_passkeys);
+        create and change_plan accept a reseller plan name in plan; a caller with the reseller role can
+        only ever reset their own password through this endpoint regardless of the submitted action/username.
       description: '**Access:** Any authenticated user.'
       operationId: post_settings_resellers
       tags:
@@ -5536,7 +5662,8 @@ paths:
   /api/settings/locales:
     get:
       summary: Lists translation locales available on GitHub, marking which are installed locally and
-        which one is the current default.
+        which one is the current default. update_available is true when the installed file differs from
+        the latest version on GitHub.
       description: '**Access:** Administrator or user role (the reseller role is blocked).'
       operationId: get_settings_locales
       tags:
@@ -5574,8 +5701,6 @@ paths:
                           example: true
                         update_available:
                           type: boolean
-                          description: True when the installed file differs from the latest version
-                            on GitHub.
                           example: false
                       example:
                         locale: en
@@ -5583,17 +5708,20 @@ paths:
                         path: /etc/openpanel/openadmin/translations/en
                         installed: true
                         is_default: true
+                        update_available: false
                     example:
                     - locale: en
                       provider: OpenPanel
                       path: /etc/openpanel/openadmin/translations/en
                       installed: true
                       is_default: true
+                      update_available: false
                     - locale: de-DE
                       provider: Community
                       path: ''
                       installed: false
                       is_default: false
+                      update_available: false
                 example:
                   default_locale: en
                   translations:
@@ -5602,26 +5730,25 @@ paths:
                     path: /etc/openpanel/openadmin/translations/en
                     installed: true
                     is_default: true
+                    update_available: false
                   - locale: de-DE
                     provider: Community
                     path: ''
                     installed: false
                     is_default: false
+                    update_available: false
         default:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
     post:
-      summary: Installs a locale ('locale' field), updates an installed one ('update' field), deletes
-        one ('delete' field), or sets the panel's default locale ('default' field); exactly one field is
-        expected per call. Pass 'all' to 'locale' to install every available locale, or to 'update' to
-        update every locale that has an update available.
-      description: '**Access:** Administrator or user role (the reseller role is blocked).
-
-
-        With `{"locale": "all"}` or any `update` value the response also carries `installed` and `failed`
-        arrays, and `success` is false if any locale failed to download. The default locale can''t be
-        deleted.'
+      summary: 'Installs a locale (''locale'' field), updates an installed one (''update'' field), deletes
+        one (''delete'' field), or sets the panel''s default locale (''default'' field); exactly one field
+        is expected per call. Pass ''all'' to ''locale'' to install every available locale, or to ''update''
+        to update every locale that has an update available. With {"locale": "all"} or any ''update''
+        value the response also carries ''installed'' and ''failed'' arrays, and success is false if any
+        locale failed to download. The default locale can''t be deleted.'
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
       operationId: post_settings_locales
       tags:
       - Settings - Locales
@@ -5646,6 +5773,8 @@ paths:
                   example: ''
               example:
                 locale: de-DE
+                update: ''
+                delete: ''
                 default: ''
       responses:
         '200':
@@ -5663,22 +5792,24 @@ paths:
                     example: Locale 'de-DE' installed successfully.
                   installed:
                     type: array
-                    description: Only returned when locale is 'all' or for update. Locales that were installed
-                      or updated.
                     items:
                       type: string
+                      example: de-de
                     example:
                     - de-de
                     - sr-rs
                   failed:
                     type: array
-                    description: Only returned when locale is 'all' or for update.
                     items:
                       type: string
                     example: []
                 example:
                   success: true
                   message: Locale 'de-DE' installed successfully.
+                  installed:
+                  - de-de
+                  - sr-rs
+                  failed: []
         default:
           $ref: '#/components/responses/Error'
       security:
