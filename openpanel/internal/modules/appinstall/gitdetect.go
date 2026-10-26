@@ -3,7 +3,10 @@ package appinstall
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 
@@ -69,7 +72,41 @@ func detectStartupFile(ctx context.Context, gitURL string, appType string) (stri
 	return "/var/www/html/" + file, nil
 }
 
+// resolvePublicGitHost rejects a clone URL whose host resolves to a private, loopback, link-local, CGNAT
+// or otherwise non-public address, so a user-supplied repo URL can't make the panel (running as root)
+// clone from an internal service or the cloud metadata endpoint (SSRF).
+func resolvePublicGitHost(rawURL string) error {
+	parsed, err := url.Parse(rawURL)
+	if err != nil {
+		return fmt.Errorf("invalid repository URL")
+	}
+	host := parsed.Hostname()
+	if host == "" {
+		return fmt.Errorf("no host in repository URL")
+	}
+	ips, err := net.LookupIP(host)
+	if err != nil || len(ips) == 0 {
+		return fmt.Errorf("could not resolve repository host")
+	}
+	for _, ip := range ips {
+		if !gitIPIsPublic(ip) {
+			return fmt.Errorf("repository host is not a public address")
+		}
+	}
+	return nil
+}
+
+var gitCGNAT = &net.IPNet{IP: net.IPv4(100, 64, 0, 0), Mask: net.CIDRMask(10, 32)}
+
+func gitIPIsPublic(ip net.IP) bool {
+	return !(ip.IsPrivate() || ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() ||
+		ip.IsInterfaceLocalMulticast() || ip.IsMulticast() || ip.IsUnspecified() || gitCGNAT.Contains(ip))
+}
+
 func detectEntryFile(ctx context.Context, gitURL string, appType string) (string, error) {
+	if err := resolvePublicGitHost(gitURL); err != nil {
+		return "", err
+	}
 	tmpDir, mkErr := os.MkdirTemp("", "opdetect-*")
 	if mkErr != nil {
 		return "", mkErr
