@@ -33,7 +33,9 @@ func verifyPassword(a *appctx.App, ctx context.Context, username, password strin
 	err := row.Scan(&userID, &twofa, &otp, &pwHash)
 	if err == sql.ErrNoRows {
 		var suspendedID int
-		suspRow := a.DB.QueryRowContext(ctx, "SELECT id FROM users WHERE username LIKE ?", "SUSPENDED_%"+username)
+		// only SUSPENDED_<14 digit timestamp>_<username>, a LIKE here also matched other names ending in it
+		suspRow := a.DB.QueryRowContext(ctx,
+			"SELECT id FROM users WHERE username REGEXP '^SUSPENDED_[0-9]{14}_' AND SUBSTRING(username, 26) = ? LIMIT 1", username)
 		if suspRow.Scan(&suspendedID) == nil {
 			return loginResult{}, t.Get("Your account is suspended. Please contact support.")
 		}
