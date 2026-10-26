@@ -21,6 +21,13 @@ import (
 // homeRoot is where account homes live, tests point it at a temp dir
 var homeRoot = "/home/"
 
+// SetHomeRootForTest points the account home checks at dir for other packages' tests, call the returned func to undo
+func SetHomeRootForTest(dir string) func() {
+	old := homeRoot
+	homeRoot = strings.TrimSuffix(dir, "/") + "/"
+	return func() { homeRoot = old }
+}
+
 // ErrEscape is returned when a host path climbs out of the volume it starts in
 var ErrEscape = errors.New("path escapes the account volume")
 

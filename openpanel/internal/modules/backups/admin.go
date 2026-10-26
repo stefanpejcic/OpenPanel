@@ -11,8 +11,11 @@ import (
 
 // adminManagedMarkerPath is the per-account switch that hands backup destination/settings management to the admin - the account can still list and restore backups but can't view or change where/how they're stored. Lives under core/users like krompir.lock and every other per-account marker, not /home, since it's provisioned via OpenAdmin's /etc/openpanel/skeleton/ template (copied into core/users/<username>/ by opencli's user-add) rather than backup.env's direct /home copy
 func adminManagedMarkerPath(userContext string) string {
-	return fmt.Sprintf("/etc/openpanel/openpanel/core/users/%s/admin.backups", userContext)
+	return fmt.Sprintf("%s%s/admin.backups", coreUsersRoot, userContext)
 }
+
+// coreUsersRoot holds the per-account config dirs, tests point it at a temp dir
+var coreUsersRoot = "/etc/openpanel/openpanel/core/users/"
 
 // AdminManagedBackups reports whether backup destinations/settings are admin-managed for this account: locked whenever adminManagedMarkerPath exists
 func AdminManagedBackups(userContext string) bool {
