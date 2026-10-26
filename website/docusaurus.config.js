@@ -91,6 +91,15 @@ const siteConfig = {
                                   return item;
                               });
 
+                              // Docusaurus sorts file names as text (2.0.19 before 2.0.2), so put changelog versions in numeric order
+                              if (args.item.dirName === 'changelog') {
+                                  const isVersion = (item) => item.type === 'doc' && /\/\d+(\.\d+)*$/.test(item.id);
+                                  const versions = modifiedSidebarItems
+                                      .filter(isVersion)
+                                      .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+                                  return modifiedSidebarItems.map((item) => (isVersion(item) ? versions.shift() : item));
+                              }
+
                               return modifiedSidebarItems;
                           },
                       },
