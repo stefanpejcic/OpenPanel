@@ -60,6 +60,11 @@ func handleMediaWikiUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request
 		emit(map[string]any{"error": "You do not own this domain."})
 		return
 	}
+	// docroot becomes a host path (hostOSPath below) that ReplaceContents and ChownR write to, so a "../.." in it could climb out of the account volume - reject anything that isn't a plain path under /var/www/html
+	if !appkit.SafeDocroot(docroot) {
+		emit(map[string]any{"error": "invalid docroot"})
+		return
+	}
 
 	emit(map[string]any{"status": "Checking if existing installation processes are running.."})
 	if err := appkit.CreateLockFile(currentUsername); err != nil {
