@@ -51,6 +51,10 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	domainID := in.DomainID
 	dom := in.Domain
 	subdirectory := in.Subdirectory
+	if !cmsapp.IsValidSubdirectory(subdirectory) {
+		emit(map[string]any{"error": "Invalid subdirectory."})
+		return
+	}
 
 	docroot := dom.Docroot.String
 	selectedDomain := dom.DomainURL
