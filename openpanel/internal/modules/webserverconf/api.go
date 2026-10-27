@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -94,20 +95,19 @@ func apiWebserverConfPut(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	serviceRunning := docker.IsServiceRunning(ctx, userContext, entry.ServiceName)
-	if serviceRunning {
-		ok, testOutput := webserver.TestWebserverConfig(ctx, userContext, entry.ServiceName)
-		if !ok {
-			if prevErr == nil {
-				_ = tenantfs.WriteFile(configFilePath, previousContent, 0o644)
-			}
-			web.WriteJSON(w, http.StatusBadRequest, map[string]string{
-				"error": "Config rejected - failed " + entry.ServiceName + " syntax check: " + testOutput,
-			})
-			return
+	if ok, testOutput := webserver.TestWebserverConfig(ctx, userContext, entry.ServiceName); !ok {
+		if prevErr == nil {
+			_ = tenantfs.WriteFile(configFilePath, previousContent, 0o644)
 		}
+		failure := describeTestFailure(requestTr(a, r), entry, testOutput)
+		web.WriteJSON(w, http.StatusBadRequest, map[string]any{
+			"error":    "Config rejected - failed " + entry.ServiceName + " syntax check: " + strings.Join(failure.Problems, "; "),
+			"problems": failure.Problems, "hints": failure.Hints, "line": failure.Line, "test_output": testOutput,
+		})
+		return
 	}
 
+	serviceRunning := docker.IsServiceRunning(ctx, userContext, entry.ServiceName)
 	reloaded := false
 	if serviceRunning {
 		if reloadErr := webserver.ReloadWebserver(ctx, userContext, entry.ServiceName); reloadErr != nil {

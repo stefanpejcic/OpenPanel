@@ -8,6 +8,13 @@
       <style>
          .CodeMirror {min-height: 50vh;height: auto;}
          div.CodeMirror-sizer {min-height: 500px!important;}
+         .conf-test-error {border-bottom: 1px solid #fecaca; background: #fef2f2; color: #991b1b; padding: 1rem 1.5rem; font-size: .875rem;}
+         .dark .conf-test-error {border-color: rgba(248, 113, 113, .3); background: rgba(239, 68, 68, .1); color: #fca5a5;}
+         .conf-test-error ul {margin-top: .5rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .8125rem; overflow-wrap: anywhere;}
+         .conf-test-error li + li {margin-top: .25rem;}
+         .conf-test-error p + p, .conf-test-error ul + p {margin-top: .5rem;}
+         .conf-test-error a {text-decoration: underline;}
+         .CodeMirror .conf-error-line {background: rgba(239, 68, 68, .2);}
       </style>
 
 <form method="post">
@@ -28,6 +35,18 @@
     </div>
 </div>
 
+    {{with .TestFailure}}
+    <div class="conf-test-error" role="alert">
+        <p class="font-medium">{{$.T.Get "Not saved. The config test reported:"}}</p>
+        <ul>
+            {{range .Problems}}<li>{{.}}</li>{{end}}
+        </ul>
+        {{range .Hints}}<p>{{.}}</p>{{end}}
+        {{if .Line}}<p><a href="#" onclick="editor.focus(); editor.setCursor({line: {{.Line}} - 1, ch: 0}); editor.scrollIntoView(null, 200); return false;">{{$.T.Get "Go to line"}} {{.Line}}</a></p>{{end}}
+        {{if and .VhostDomain (index $.UserAllowed "edit_vhost")}}<p><a href="/domains/vhosts?domain={{.VhostDomain}}">{{$.T.Get "Open the VirtualHost file of"}} {{.VhostDomain}}</a></p>{{end}}
+    </div>
+    {{end}}
+
     <div id="editor-container" class="overflow-auto">
         <textarea id="editor" name="editor_content" rows="40" cols="100">{{.FileContent}}</textarea>
     </div>
@@ -38,6 +57,11 @@ var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
     mode: "javascript",
     lineNumbers: true,
 });
+{{with .TestFailure}}{{if .Line}}
+if ({{.Line}} <= editor.lineCount()) {
+    editor.addLineClass({{.Line}} - 1, 'background', 'conf-error-line');
+}
+{{end}}{{end}}
 </script>
 
 </form>
