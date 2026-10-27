@@ -9,7 +9,7 @@ sidebar_position: 1
 There are two mutually exclusive modes, controlled entirely by the schedule of the `opencli docker-backup` [System Cron Job](/docs/admin/advanced/crons/):
 
 - **User Configured** (default) — each user manages their own backup from their own account, when the Backups module is enabled for them. Nothing runs centrally; the cron entry is set to a disabled placeholder schedule.
-- **Admin Configured** — the Administrator runs backups for *every* user centrally, on one schedule, via `opencli docker-backup`. Users can no longer view or change their own backup destination or settings in the panel — they can still list existing backups and restore from them (their **Backups** page opens the Restore & Download page directly), but where and how backups are stored is entirely up to the Administrator.
+- **Admin Configured** — the Administrator runs backups centrally, on one schedule, via `opencli docker-backup`, for every account it manages: the accounts with an `admin.backups` marker (see below). Users of those accounts can no longer view or change their own backup destination or settings in the panel — they can still list existing backups and restore from them (their **Backups** page opens the Restore & Download page directly), but where and how backups are stored is entirely up to the Administrator.
 
 See the [Configuring OpenPanel Backups](/docs/articles/backups/configuring-backups/) article for the fuller comparison between the two approaches.
 
@@ -27,13 +27,13 @@ Saving updates the `opencli docker-backup` cron entry's schedule accordingly.
 
 Saving to Daily/Weekly/Monthly also drops an empty `admin.backups` marker file into `/etc/openpanel/skeleton/`, so every account created *from then on* is provisioned admin-configured (its Backups > Destinations and Backups > Settings pages are locked, per-account, from the moment it's created). Switching back to Disabled removes the marker from the skeleton, so accounts created afterward go back to fully user-configured.
 
-This only affects **new** accounts — it doesn't touch any account that already exists. To lock down an existing account's backup destination/settings after the fact, create an empty `admin.backups` file yourself in that account's own config directory:
+This only affects **new** accounts — it doesn't touch any account that already exists. To hand an existing account's backups to the Administrator after the fact, create an empty `admin.backups` file yourself in that account's own config directory:
 
 ```bash
 touch /etc/openpanel/openpanel/core/users/<username>/admin.backups
 ```
 
-Removing that file returns the account to user-configured (assuming the Backups module itself is still enabled for it).
+`opencli docker-backup` only backs up accounts that have this file, accounts without it manage their own backups and are skipped. Removing the file returns the account to user-configured (assuming the Backups module itself is still enabled for it).
 
 ### Configuration
 
@@ -51,4 +51,4 @@ Raw log of every `opencli docker-backup` run (`/var/log/openpanel/admin/docker-b
 ![User Backups Runs tab with the log of past backup runs](/img/openadmin-screenshots/backups/user-runs.png#gh-light-mode-only)
 ![User Backups Runs tab with the log of past backup runs](/img/openadmin-screenshots/backups/user-runs_dark.png#gh-dark-mode-only)
 
-**Run Backup Now** triggers `opencli docker-backup` immediately for every user. It's only available in **Admin Configured** mode — in Disabled mode there's no central schedule for it to act on, since each user's own settings apply instead.
+**Run Backup Now** triggers `opencli docker-backup` immediately for every account the Administrator manages. It's only available in **Admin Configured** mode — in Disabled mode there's no central schedule for it to act on, since each user's own settings apply instead.

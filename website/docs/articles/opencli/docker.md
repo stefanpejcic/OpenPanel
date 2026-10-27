@@ -113,7 +113,14 @@ Shared store disk usage: 1.5G (1.47 GB) at /var/lib/containers/shared-storage
 
 ### Backup
 
-Generates a backup for all users, or for one with `--account`. This is the bulk/system-wide counterpart to `opencli user-backup`, see [Users](/docs/articles/opencli/user/#backup-user).
+Backs up every account whose backups the hosting provider manages, or one with `--account`. This is the bulk/system-wide counterpart to `opencli user-backup`, see [Users](/docs/articles/opencli/user/#backup-user).
+
+The provider manages an account's backups when the account has an `admin.backups` marker in `/etc/openpanel/openpanel/core/users/<context>/`, see [User Backups](/docs/admin/backups/user/). Accounts without it manage their own backups and are skipped:
+
+```bash
+2026-09-24 02:00:01 : Skipping user: demo (manages its own backups)
+2026-09-24 02:00:01 : Skipped 1 users that manage their own backups: demo
+```
 
 ```bash
 opencli docker-backup
@@ -194,6 +201,7 @@ opencli docker-backup --account=stefan
 - the user doesn't exist: `ERROR: user stefan does not exist`
 - the user is suspended: `ERROR: user stefan is suspended, suspended accounts are not backed up`
 - the user is excluded: `ERROR: user stefan is excluded from backups (/home/stefan/backup.off exists)`
+- the user manages its own backups: `ERROR: user stefan manages its own backups (/etc/openpanel/openpanel/core/users/stefan/admin.backups doesn't exist)`
 
 Only one backup of an account runs at a time. When the account is already being backed up, `--account` exits with code `75` (`ERROR: a backup of user stefan is already running`), and a run for all users skips that account instead of counting it as failed:
 
