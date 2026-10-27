@@ -113,7 +113,7 @@ Shared store disk usage: 1.5G (1.47 GB) at /var/lib/containers/shared-storage
 
 ### Backup
 
-Generates a backup for all users. This is the bulk/system-wide counterpart to `opencli user-backup`, see [Users](/docs/articles/opencli/user/#backup-user).
+Generates a backup for all users, or for one with `--account`. This is the bulk/system-wide counterpart to `opencli user-backup`, see [Users](/docs/articles/opencli/user/#backup-user).
 
 ```bash
 opencli docker-backup
@@ -134,6 +134,7 @@ opencli docker-backup
 ...
 2026-09-24 02:00:40 : --- end of backup container output for user: stefan ---
 2026-09-24 02:00:41 : Backup completed for user: stefan (context: stefan) | Time taken: 40s
+2026-09-24 02:00:41 : Backups reindexed for user: stefan
 2026-09-24 02:00:41 : ------------------------------
 2026-09-24 02:00:41 : Processing user: demo (2/2)
 ...
@@ -165,11 +166,51 @@ opencli docker-backup --parallel=4
 ```
 </details>
 
+- `--account=USERNAME` - back up only this user, now. It can't be combined with `--parallel`.
+
+```bash
+opencli docker-backup --account=stefan
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-backup --account=stefan
+2026-09-24 10:15:02 : === Backup of user stefan started at 2026-09-24 10:15:02 ===
+2026-09-24 10:15:02 : Processing user: stefan
+2026-09-24 10:15:02 : docker-proxy is ready for context: stefan (after 0s)
+2026-09-24 10:15:04 : --- backup container output for user: stefan ---
+...
+2026-09-24 10:15:20 : --- end of backup container output for user: stefan ---
+2026-09-24 10:15:21 : Backup completed for user: stefan (context: stefan) | Time taken: 16s
+2026-09-24 10:15:21 : Backups reindexed for user: stefan
+2026-09-24 10:15:21 : === Backup of user stefan finished at 2026-09-24 10:15:21 ===
+```
+</details>
+
+`--account` checks the user the same way the scheduled run does, and exits with code `1` without backing up when one of these applies:
+
+- the user doesn't exist: `ERROR: user stefan does not exist`
+- the user is suspended: `ERROR: user stefan is suspended, suspended accounts are not backed up`
+- the user is excluded: `ERROR: user stefan is excluded from backups (/home/stefan/backup.off exists)`
+
+Only one backup of an account runs at a time. When the account is already being backed up, `--account` exits with code `75` (`ERROR: a backup of user stefan is already running`), and a run for all users skips that account instead of counting it as failed:
+
+```bash
+2026-09-24 02:00:03 : Skipping user: stefan (a backup of this account is already running)
+...
+2026-09-24 02:01:15 : Skipped 1 users that were already being backed up: stefan
+2026-09-24 02:01:15 : Successfully processed 1 of 2 users
+```
+
+After each successful backup, the user's backup list in OpenPanel is reindexed so the new backup shows up there right away.
+
 To skip a user, create `/home/<context>/backup.off`. Everything is logged to `/var/log/openpanel/admin/docker-backup.log`.
 
 Before backing up a user, a running `mysql`, `mariadb` or `postgres` container that was created before the `backup_meta` volume was added to the user's `docker-compose.yml` is recreated once (`Recreating mysql for context: stefan to add the backup_meta volume`), so its dumps get listed in the archive's `backup/00-meta/` folder.
 
-If the backup fails for any user, or the list of active users can't be read from the database, a critical **Backup failed** notification is added in OpenAdmin with the failed usernames and the log path. Set `docker_backup=no` in `/etc/openpanel/openadmin/config/notifications.ini` (or turn off *Backup failed* under OpenAdmin > Settings > Notifications) to disable it.
+If the backup fails for any user (also with `--account`), or the list of active users can't be read from the database, a critical **Backup failed** notification is added in OpenAdmin with the failed usernames and the log path. Set `docker_backup=no` in `/etc/openpanel/openadmin/config/notifications.ini` (or turn off *Backup failed* under OpenAdmin > Settings > Notifications) to disable it.
 
 ### logs
 
