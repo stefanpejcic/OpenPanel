@@ -135,69 +135,35 @@ func editApacheConfig(userContext, domainURL, subdirectory, serviceName string, 
 	}
 }
 
-// editNginxConfig inserts a location/proxy_pass block into every "server {" block's "location / {" section, then runs nginx -t and restores the old file if it fails, returning the error or ""
+// editNginxConfig adds the app's proxy to every server block of the domain's vhost (see addNginxProxy), then runs nginx -t and restores the old file if it fails, returning the error or ""
 func editNginxConfig(ctx context.Context, userContext, domainURL, subdirectory, serviceName, webServer string, port int, wsUpgrade bool) string {
 	confPath := vhostConfPath(userContext, domainURL)
 	content, err := tenantfs.ReadFile(confPath)
 	if err != nil {
 		return "Error: vhost configuration file does not exist."
 	}
-	nginxConfigData := string(content)
-
-	serverBlocks := strings.Split(nginxConfigData, "server {")
-	if len(serverBlocks) < 2 {
-		return "Error: no server block found in vhost configuration."
-	}
 
 	proxyHeadersRaw, phErr := tenantfs.ReadFile("/etc/openpanel/nginx/vhosts/1.1/nginx_proxy_headers.txt")
 	if phErr != nil {
 		return "Error: " + phErr.Error()
 	}
-	proxyHeaders := string(proxyHeadersRaw)
+	headers := strings.Split(strings.TrimSpace(string(proxyHeadersRaw)), "\n")
 	// no LoadModule needed for nginx (unlike Apache's mod_proxy_wstunnel) - ngx_http_proxy_module handles the Upgrade handshake natively once these headers are forwarded and HTTP/1.1 is used towards the upstream. Needed by apps like n8n whose UI depends on a WebSocket connection back through the proxy (its real-time push channel).
 	if wsUpgrade {
 		// default headers file already has proxy_http_version, nginx fails on a duplicate
-		if !strings.Contains(proxyHeaders, "proxy_http_version") {
-			proxyHeaders += "\n            proxy_http_version 1.1;"
+		if !strings.Contains(string(proxyHeadersRaw), "proxy_http_version") {
+			headers = append(headers, "proxy_http_version 1.1;")
 		}
-		proxyHeaders += "\n            proxy_set_header Upgrade $http_upgrade;\n            proxy_set_header Connection \"upgrade\";"
+		headers = append(headers, "proxy_set_header Upgrade $http_upgrade;", `proxy_set_header Connection "upgrade";`)
 	}
 
-	proxyURL := "http://" + serviceName
-	if port != 0 {
-		proxyURL += ":" + strconv.Itoa(port)
+	updated, addErr := addNginxProxy(string(content), nginxProxy{
+		Service: serviceName, Port: port, Subdirectory: subdirectory,
+		Resolver: nginxResolver(ctx, userContext), Headers: headers,
+	})
+	if addErr != nil {
+		return "Error: " + addErr.Error()
 	}
-	proxyURL += "/"
-
-	var configLines string
-	if subdirectory != "" {
-		configLines = "\n        location /" + subdirectory + "/ {\n            proxy_pass " + proxyURL + ";\n            " + proxyHeaders + "\n        }\n        "
-	} else {
-		configLines = "\n        proxy_pass " + proxyURL + ";\n            " + proxyHeaders + "\n        "
-	}
-
-	updatedBlocks := make([]string, len(serverBlocks))
-	updatedBlocks[0] = serverBlocks[0]
-	for i := 1; i < len(serverBlocks); i++ {
-		block := "server {" + serverBlocks[i]
-		markerPos := strings.Index(strings.ToLower(block), "location / {")
-		if markerPos == -1 {
-			return "Error: no location / block found in vhost configuration."
-		}
-		if subdirectory != "" {
-			block = block[:markerPos] + configLines + "\n" + block[markerPos:]
-		} else {
-			locationBlockEnd := strings.Index(block[markerPos:], "}")
-			if locationBlockEnd == -1 {
-				return "Error: location / block is not closed in vhost configuration."
-			}
-			locationBlockEnd += markerPos
-			block = block[:locationBlockEnd] + "\n" + configLines + block[locationBlockEnd:]
-		}
-		updatedBlocks[i] = block
-	}
-
-	updated := strings.Join(updatedBlocks, "")
 	if err := tenantfs.WriteFile(confPath, []byte(updated), 0o644); err != nil {
 		_ = tenantfs.WriteFile(confPath, content, 0o644)
 		return "Error: " + err.Error()

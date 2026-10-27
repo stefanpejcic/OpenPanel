@@ -11,7 +11,7 @@ const nginxHeaders = "proxy_http_version 1.1;\nproxy_set_header Host $host;\npro
 const nginxVhost = "server {\n    listen 80;\n    location / {\n        try_files $uri $uri/ /index.php?$args;\n        autoindex on;\n    }\n}\n"
 
 func TestStripNginxRootProxy(t *testing.T) {
-	// same insert editNginxConfig does for a root install
+	// what editNginxConfig used to insert for a root install, older vhosts still have it
 	end := strings.Index(nginxVhost, "    }\n}")
 	insert := "\n        proxy_pass http://kuma:3001/;\n            " + nginxHeaders + "\n        "
 	withProxy := nginxVhost[:end] + "\n" + insert + nginxVhost[end:]

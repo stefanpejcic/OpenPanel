@@ -25,6 +25,10 @@ func stripServiceProxies(content string, names ...string) (string, bool) {
 		if name == "" {
 			continue
 		}
+		// marked nginx blocks from addNginxProxy, a root one gives back the location / it replaced
+		nginxBlockRE := regexp.MustCompile(`(?ms)^[ \t]*` + regexp.QuoteMeta(nginxProxyStart+name) + `\n.*?^[ \t]*` + regexp.QuoteMeta(nginxProxyEnd+name) + `(?:\n|\z)`)
+		out = nginxBlockRE.ReplaceAllStringFunc(out, restoreNginxProxy)
+
 		host := hostRE(name)
 		apacheRE := regexp.MustCompile(`^\s*ProxyPass(?:Reverse)?\s+\S+\s+` + host)
 		nginxRE := regexp.MustCompile(`^\s*proxy_pass\s+` + host)
