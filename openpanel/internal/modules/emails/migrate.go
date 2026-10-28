@@ -59,8 +59,11 @@ var lookupIP = func(ctx context.Context, host string) ([]net.IP, error) {
 	return ips, nil
 }
 
-// one start at a time so the per-user and server-wide limits can't race
+// guards the limit checks and the start reservation, never held across podman run
 var migrateStartMu sync.Mutex
+
+// userContext -> job ID of a start still inside podman run, "" until the job is written
+var migrateStarting sync.Map
 
 // MigrateRequest is one migration's input, shared by the web form and the API
 type MigrateRequest struct {
@@ -477,6 +480,10 @@ func migrationStatus(ctx context.Context, userContext string) (MigrateStatus, er
 	running, runningID := containerState(ctx, userContext, migrateContainer)
 	if !running {
 		runningID = ""
+		// a first start can sit in podman run for minutes pulling the image, its passfiles are still needed
+		if id := startingJob(userContext); id != "" {
+			running, runningID = true, id
+		}
 	}
 	st.Running = running
 	for _, id := range jobIDs(root) {
@@ -528,17 +535,28 @@ func allowRate(ctx context.Context, a *appctx.App, key string, limit int) bool {
 	return n <= int64(limit)
 }
 
-// activeMigrations counts accounts with a running import across the server, dropping ones that have finished
+// startingJob returns the job userContext is still starting, "" if none
+func startingJob(userContext string) string {
+	v, _ := migrateStarting.Load(userContext)
+	id, _ := v.(string)
+	return id
+}
+
+// activeMigrations counts accounts with a running or starting import across the server, dropping ones that have finished
 func activeMigrations(ctx context.Context, a *appctx.App) int {
+	count := 0
+	migrateStarting.Range(func(_, _ any) bool { count++; return true })
 	if a.Cache == nil {
-		return 0
+		return count
 	}
 	members, err := a.Cache.Raw().SMembers(ctx, migrateActiveKey).Result()
 	if err != nil {
-		return 0
+		return count
 	}
-	count := 0
 	for _, uc := range members {
+		if _, starting := migrateStarting.Load(uc); starting {
+			continue
+		}
 		if running, _ := containerState(ctx, uc, migrateContainer); running {
 			count++
 		} else {
@@ -572,6 +590,22 @@ func newJobID(root *os.Root) string {
 	return id
 }
 
+// reserveStart checks the limits and takes the account's start slot, the caller deletes it once podman run returns
+func reserveStart(ctx context.Context, a *appctx.App, userContext string) error {
+	migrateStartMu.Lock()
+	defer migrateStartMu.Unlock()
+
+	_, starting := migrateStarting.Load(userContext)
+	if running, _ := containerState(ctx, userContext, migrateContainer); running || starting {
+		return &migrateError{http.StatusConflict, "A migration is already running. Wait for it to finish or cancel it first."}
+	}
+	if activeMigrations(ctx, a) >= migrateConfigInt(a, "imapsync_max_jobs", 10) {
+		return &migrateError{http.StatusServiceUnavailable, "The server is busy with other migrations, please try again in a few minutes."}
+	}
+	migrateStarting.Store(userContext, "")
+	return nil
+}
+
 // startMigration validates req and starts the account's imapsync container in the background
 func startMigration(ctx context.Context, a *appctx.App, userID int, username, userContext string, req MigrateRequest) (MigrateJob, error) {
 	var job MigrateJob
@@ -589,15 +623,10 @@ func startMigration(ctx context.Context, a *appctx.App, userID int, username, us
 		return job, err
 	}
 
-	migrateStartMu.Lock()
-	defer migrateStartMu.Unlock()
-
-	if running, _ := containerState(ctx, userContext, migrateContainer); running {
-		return job, &migrateError{http.StatusConflict, "A migration is already running. Wait for it to finish or cancel it first."}
+	if err := reserveStart(ctx, a, userContext); err != nil {
+		return job, err
 	}
-	if activeMigrations(ctx, a) >= migrateConfigInt(a, "imapsync_max_jobs", 10) {
-		return job, &migrateError{http.StatusServiceUnavailable, "The server is busy with other migrations, please try again in a few minutes."}
-	}
+	defer migrateStarting.Delete(userContext)
 
 	root, uid, gid, err := openJobDir(userContext)
 	if err != nil {
@@ -609,6 +638,8 @@ func startMigration(ctx context.Context, a *appctx.App, userID int, username, us
 		ID: newJobID(root), SourceHost: req.SourceHost, SourceUser: req.SourceUser,
 		Destination: req.Destination, Started: time.Now().UTC(),
 	}
+	// set before the job file exists, so a status call never sees it as dead and drops its passfiles
+	migrateStarting.Store(userContext, job.ID)
 	if err := writeOwned(root, job.ID+".p1", []byte(req.SourcePassword+"\n"), uid, gid); err != nil {
 		return job, err
 	}
@@ -688,6 +719,9 @@ func dropPassfilesAfterLogin(userContext, id string) {
 func cancelMigration(ctx context.Context, userContext string) error {
 	running, id := containerState(ctx, userContext, migrateContainer)
 	if !running {
+		if startingJob(userContext) != "" {
+			return &migrateError{http.StatusConflict, "The migration is still starting, try again in a moment."}
+		}
 		return &migrateError{http.StatusConflict, "No migration is running."}
 	}
 	root, uid, gid, err := openJobDir(userContext)
