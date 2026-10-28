@@ -357,3 +357,62 @@ func TestLoginLinesKeepsOnlyResults(t *testing.T) {
 		t.Errorf("loginLines = %q", got)
 	}
 }
+
+func TestParseDovecotSize(t *testing.T) {
+	for in, want := range map[string]int64{"10M": 10 << 20, "10240000\n": 10240000, "0": 0, "unlimited": 0, "2 G": 2 << 30, "512kB": 512 << 10} {
+		if got, ok := parseDovecotSize(in); !ok || got != want {
+			t.Errorf("parseDovecotSize(%q) = %d, %v, want %d", in, got, ok, want)
+		}
+	}
+	for _, in := range []string{"", "abc", "-5", "10X", "1x0M"} {
+		if _, ok := parseDovecotSize(in); ok {
+			t.Errorf("parseDovecotSize(%q) should fail", in)
+		}
+	}
+}
+
+func TestStatusCountsTooBig(t *testing.T) {
+	home, _ := withMigrateHome(t)
+	dir := filepath.Join(home, "ctx1", "imapsync")
+	root, uid, gid, err := openJobDir("ctx1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer root.Close()
+
+	skip := "msg INBOX/8 skipped (11479514 exceeds maxsize limit 10485761 bytes)\n"
+	for _, j := range []struct {
+		job MigrateJob
+		log string
+	}{
+		{MigrateJob{ID: "20261001-100000", MaxSize: 10 << 20}, "copied\n" + skip + skip + "Exiting with return value 0 (EX_OK: successful termination) 0/50 nb_errors/max_errors\n"},
+		// killed before imapsync wrote its summary, so the count isn't final yet
+		{MigrateJob{ID: "20261002-100000", MaxSize: 10 << 20}, skip},
+		{MigrateJob{ID: "20261003-100000"}, skip + "Exiting with return value 0 (EX_OK: successful termination) 0/50 nb_errors/max_errors\n"},
+	} {
+		_ = writeJob(root, j.job, uid, gid)
+		_ = os.WriteFile(filepath.Join(dir, j.job.ID+".log"), []byte(j.log), 0o600)
+	}
+
+	st, err := migrationStatus(context.Background(), "ctx1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := map[string]int{}
+	for _, j := range st.Jobs {
+		got[j.ID] = j.TooBig
+	}
+	if got["20261001-100000"] != 2 || got["20261002-100000"] != 0 || got["20261003-100000"] != 0 {
+		t.Errorf("too_big = %v", got)
+	}
+	if st.Jobs[2].Status != "completed" || st.Jobs[2].Message != "" {
+		t.Errorf("skipped messages shouldn't fail the job: %+v", st.Jobs[2])
+	}
+	saved, _ := readJob(root, "20261001-100000")
+	if !saved.SizeChecked || saved.TooBig != 2 || saved.Status != "" {
+		t.Errorf("count not saved in the job file: %+v", saved)
+	}
+	if unfinished, _ := readJob(root, "20261002-100000"); unfinished.SizeChecked {
+		t.Error("an unfinished job shouldn't be counted yet")
+	}
+}

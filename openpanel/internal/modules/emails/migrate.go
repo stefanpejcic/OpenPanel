@@ -1,6 +1,8 @@
 package emails
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -10,6 +12,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -72,6 +75,7 @@ type MigrateRequest struct {
 	Destination    string `json:"destination"`
 	DestPassword   string `json:"destination_password"`
 	ExcludeJunk    bool   `json:"exclude_junk"`
+	ImportOversize bool   `json:"import_oversize"`
 }
 
 // MigrateJob is the <id>.json kept next to each log, Status/ExitCode/Message are filled in when read
@@ -83,9 +87,19 @@ type MigrateJob struct {
 	Started     time.Time `json:"started"`
 	Cancelled   bool      `json:"cancelled,omitempty"`
 	StartError  string    `json:"start_error,omitempty"`
-	Status      string    `json:"status"`
-	ExitCode    int       `json:"exit_code"`
-	Message     string    `json:"message,omitempty"`
+	MaxSize     int64     `json:"max_size,omitempty"`
+	TooBig      int       `json:"too_big,omitempty"`
+	SizeChecked bool      `json:"size_checked,omitempty"`
+	// messages over MaxSize saved past the limit, when the admin allows it and the user asked
+	ImportOversize bool   `json:"import_oversize,omitempty"`
+	OversizeCap    int64  `json:"oversize_cap,omitempty"`
+	BigCopied      int    `json:"big_copied,omitempty"`
+	BigOverCap     int    `json:"big_over_cap,omitempty"`
+	BigFailed      int    `json:"big_failed,omitempty"`
+	BigDone        bool   `json:"big_done,omitempty"`
+	Status         string `json:"status"`
+	ExitCode       int    `json:"exit_code"`
+	Message        string `json:"message,omitempty"`
 }
 
 // MigrateStatus is what the page polls while a job runs
@@ -232,6 +246,58 @@ func migrateDest(ctx context.Context, a *appctx.App, username string) (host, por
 		return host, "993", "ssl"
 	}
 	return host, "143", "auto"
+}
+
+// runMailserver runs a command in the mailserver container and returns its stdout, swapped out in tests
+var runMailserver = func(ctx context.Context, stdin io.Reader, args ...string) ([]byte, error) {
+	argv := []string{"exec", mailserverContainerName}
+	if stdin != nil {
+		argv = []string{"exec", "-i", mailserverContainerName}
+	}
+	cmd := exec.CommandContext(ctx, "podman", append(argv, args...)...)
+	cmd.Stdin = stdin
+	out, err := cmd.Output()
+	var ee *exec.ExitError
+	if errors.As(err, &ee) && len(ee.Stderr) > 0 {
+		err = errors.New(lastLine(string(ee.Stderr)))
+	}
+	return out, err
+}
+
+// mailserverSizeLimit asks the mailserver for the biggest message dovecot will store and the setting that holds it, 0 when there's no limit or it can't tell
+func mailserverSizeLimit(ctx context.Context) (int64, string) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	// the setting is quota_mail_size on dovecot 2.4 and a quota plugin setting on 2.3
+	for _, setting := range []string{"quota_mail_size", "plugin/quota_max_mail_size"} {
+		out, err := runMailserver(ctx, nil, "doveconf", "-h", setting)
+		if err != nil {
+			continue
+		}
+		if n, ok := parseDovecotSize(string(out)); ok {
+			return n, setting
+		}
+	}
+	return 0, ""
+}
+
+// parseDovecotSize reads a dovecot size like 10M or 10240000, units are powers of 1024
+func parseDovecotSize(s string) (int64, bool) {
+	s = strings.ToLower(strings.TrimSpace(s))
+	if s == "unlimited" {
+		return 0, true
+	}
+	digits := strings.TrimRightFunc(s, func(r rune) bool { return r < '0' || r > '9' })
+	n, err := strconv.ParseInt(digits, 10, 64)
+	if err != nil || n < 0 {
+		return 0, false
+	}
+	shift := map[string]uint{"": 0, "b": 0, "k": 10, "kb": 10, "m": 20, "mb": 20, "g": 30, "gb": 30, "t": 40, "tb": 40}
+	unit, ok := shift[strings.TrimSpace(s[len(digits):])]
+	if !ok {
+		return 0, false
+	}
+	return n << unit, true
 }
 
 func migrateImage(a *appctx.App) string {
@@ -435,7 +501,7 @@ func fillJobStatus(root *os.Root, job *MigrateJob, runningID string) {
 		job.Status, job.Message = "failed", job.StartError
 		return
 	}
-	m := migrateExitRE.FindAllStringSubmatch(readTail(root, job.ID+".log", 8*1024), -1)
+	m := migrateExitRE.FindAllStringSubmatch(readTail(root, job.ID+".log", 32*1024), -1)
 	switch {
 	case job.Cancelled:
 		job.Status, job.Message = "cancelled", "Cancelled by user."
@@ -452,6 +518,28 @@ func fillJobStatus(root *os.Root, job *MigrateJob, runningID string) {
 	}
 }
 
+// countTooBig counts, once per finished job, the messages imapsync skipped for being over the mailserver's limit, and saves the count in the job file
+func countTooBig(root *os.Root, job *MigrateJob, uid, gid int) {
+	if job.MaxSize == 0 || job.SizeChecked || !migrateExitRE.MatchString(readTail(root, job.ID+".log", 32*1024)) {
+		return
+	}
+	f, err := root.Open(job.ID + ".log")
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	n := 0
+	sc := bufio.NewScanner(f)
+	sc.Buffer(make([]byte, 64*1024), 1024*1024)
+	for sc.Scan() {
+		if bytes.Contains(sc.Bytes(), []byte("exceeds maxsize limit")) {
+			n++
+		}
+	}
+	job.TooBig, job.SizeChecked = n, true
+	_ = writeJob(root, *job, uid, gid)
+}
+
 // pruneJobs keeps the newest migrateKeepJobs jobs and drops the rest along with their logs
 func pruneJobs(root *os.Root, keepID string) {
 	ids := jobIDs(root)
@@ -462,13 +550,14 @@ func pruneJobs(root *os.Root, keepID string) {
 		_ = root.Remove(id + ".json")
 		_ = root.Remove(id + ".log")
 		removePassfiles(root, id)
+		_ = root.RemoveAll(oversizeDir(id))
 	}
 }
 
 // migrationStatus lists the account's jobs and the log of the newest one, and cleans up passfiles left by jobs that are no longer running
 func migrationStatus(ctx context.Context, userContext string) (MigrateStatus, error) {
 	st := MigrateStatus{Jobs: []MigrateJob{}}
-	root, _, _, err := openJobDir(userContext)
+	root, uid, gid, err := openJobDir(userContext)
 	if err != nil {
 		return st, err
 	}
@@ -479,6 +568,10 @@ func migrationStatus(ctx context.Context, userContext string) (MigrateStatus, er
 		runningID = ""
 	}
 	st.Running = running
+	// imapsync is done but its large messages are still being saved
+	if imp := importingJob(userContext); !running && imp != nil {
+		st.Running, runningID = true, imp.id
+	}
 	for _, id := range jobIDs(root) {
 		job, err := readJob(root, id)
 		if err != nil {
@@ -487,6 +580,8 @@ func migrationStatus(ctx context.Context, userContext string) (MigrateStatus, er
 		job.ID = id
 		if id != runningID {
 			removePassfiles(root, id)
+			_ = root.RemoveAll(oversizeDir(id))
+			countTooBig(root, &job, uid, gid)
 		}
 		fillJobStatus(root, &job, runningID)
 		st.Jobs = append(st.Jobs, job)
@@ -578,6 +673,12 @@ func startMigration(ctx context.Context, a *appctx.App, userID int, username, us
 	if err := validateMigrateRequest(&req); err != nil {
 		return job, err
 	}
+	if req.ImportOversize && oversizeCap(a) == 0 {
+		return job, userErr("Copying messages over the size limit is not turned on for this server.")
+	}
+	if importingJob(userContext) != nil {
+		return job, &migrateError{http.StatusConflict, "A migration is still copying large messages. Wait for it to finish or cancel it first."}
+	}
 	if !ownsMailbox(ctx, a, userID, username, req.Destination) {
 		return job, &migrateError{http.StatusForbidden, "The destination must be one of your email accounts."}
 	}
@@ -605,9 +706,15 @@ func startMigration(ctx context.Context, a *appctx.App, userID int, username, us
 	}
 	defer root.Close()
 
+	maxSize, _ := mailserverSizeLimit(ctx)
+	var capBytes int64
+	if req.ImportOversize && maxSize > 0 {
+		capBytes = oversizeCap(a)
+	}
 	job = MigrateJob{
 		ID: newJobID(root), SourceHost: req.SourceHost, SourceUser: req.SourceUser,
-		Destination: req.Destination, Started: time.Now().UTC(),
+		Destination: req.Destination, Started: time.Now().UTC(), MaxSize: maxSize,
+		ImportOversize: capBytes > 0, OversizeCap: capBytes,
 	}
 	if err := writeOwned(root, job.ID+".p1", []byte(req.SourcePassword+"\n"), uid, gid); err != nil {
 		return job, err
@@ -628,8 +735,12 @@ func startMigration(ctx context.Context, a *appctx.App, userID int, username, us
 		"--memory", a.Config.Get("imapsync_memory", "512m"), "--cpus", a.Config.Get("imapsync_cpus", "1"), "--pids-limit", "128",
 		"--timeout", strconv.Itoa(migrateConfigInt(a, "imapsync_timeout_hours", 24) * 3600),
 		"-v", jobDir(userContext) + ":/data",
-		"--entrypoint", "imapsync",
-		migrateImage(a),
+	}
+	// for the large message import the fetch script runs imapsync itself, then downloads what it skipped
+	if job.ImportOversize {
+		args = append(args, "--entrypoint", "perl", migrateImage(a), "-e", oversizeFetchScript, "--", strconv.FormatInt(job.OversizeCap, 10))
+	} else {
+		args = append(args, "--entrypoint", "imapsync", migrateImage(a))
 	}
 	destHost, destPort, destSecurity := migrateDest(ctx, a, username)
 	args = append(args, imapsyncArgs(req, sourceIP, destHost, destPort, destSecurity, job.ID)...)
@@ -637,6 +748,10 @@ func startMigration(ctx context.Context, a *appctx.App, userID int, username, us
 	args = append(args, "--automap", "--nofoldersizes", "--log", "--logdir=/data", "--logfile="+job.ID+".log")
 	if req.ExcludeJunk {
 		args = append(args, "--exclude="+migrateJunkFolders)
+	}
+	// skip what the mailserver would refuse anyway, imapsync gives up after 50 refusals and never reaches the later folders
+	if job.MaxSize > 0 {
+		args = append(args, "--maxsize="+strconv.FormatInt(job.MaxSize+1, 10))
 	}
 
 	// not tied to the request, the first run pulls the image and a closed tab shouldn't abort that
@@ -654,6 +769,12 @@ func startMigration(ctx context.Context, a *appctx.App, userID int, username, us
 	}
 	pruneJobs(root, job.ID)
 	go dropPassfilesAfterLogin(userContext, job.ID)
+	if job.ImportOversize {
+		imp := &oversizeImport{id: job.ID}
+		oversizeImports.Store(userContext, imp)
+		deadline := time.Now().Add(time.Duration(migrateConfigInt(a, "imapsync_timeout_hours", 24)+1) * time.Hour)
+		go watchOversize(a, userID, username, userContext, imp, deadline)
+	}
 	job.Status = "running"
 	return job, nil
 }
@@ -686,6 +807,13 @@ func dropPassfilesAfterLogin(userContext, id string) {
 
 // cancelMigration stops the running job and marks it cancelled
 func cancelMigration(ctx context.Context, userContext string) error {
+	// once imapsync has exited there's no container to stop, the import checks this between messages
+	if imp := importingJob(userContext); imp != nil {
+		if running, _ := containerState(ctx, userContext, migrateContainer); !running {
+			imp.cancelled.Store(true)
+			return nil
+		}
+	}
 	running, id := containerState(ctx, userContext, migrateContainer)
 	if !running {
 		return &migrateError{http.StatusConflict, "No migration is running."}
@@ -826,6 +954,7 @@ func migrateFormRequest(r *http.Request) MigrateRequest {
 		Destination:    r.FormValue("destination"),
 		DestPassword:   r.FormValue("destination_password"),
 		ExcludeJunk:    r.FormValue("exclude_junk") != "",
+		ImportOversize: r.FormValue("import_oversize") != "",
 	}
 }
 
