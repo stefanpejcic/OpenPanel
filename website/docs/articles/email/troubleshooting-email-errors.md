@@ -44,6 +44,18 @@ doveadm(stefan@stefi.openpanel.site): Error: User lookup failed: Internal error 
 
 ----
 
+## Websites can't connect to the mail server on the same server
+
+PHP applications such as WHMCS ticket importing or WordPress SMTP plugins fail to connect to the local mail server with errors like:
+
+```
+stream_socket_client(): Unable to connect to ssl://mail.example.com:995 (Connection refused)
+```
+
+**Solution**: See [How to Connect Websites to the Mail Server on the Same Server](/docs/articles/email/connect-to-local-mail-server-from-websites/).
+
+----
+
 ---
 
 ## Emails Going to Spam?
