@@ -188,6 +188,29 @@ func (p PlanDetails) UpgradeMessage() string {
 	return fmt.Sprintf(" Upgrade to the %s plan for higher limits.", p.UpsellPlanName)
 }
 
+// WebsitesLimitError is non-nil once the account's plan has no room for another website, 0 or an unreadable plan means unlimited
+func (a *App) WebsitesLimitError(ctx context.Context, userID int) error {
+	injected, _ := a.InjectData(ctx, userID)
+	planID, _ := injected["hosting_plan"].(int)
+	plan, err := a.QueryPlanDetailsByID(ctx, planID)
+	if err != nil {
+		return nil
+	}
+	limit, _ := strconv.Atoi(strings.TrimSpace(plan.WebsitesLimit))
+	if limit <= 0 {
+		return nil
+	}
+	// not cached, the dashboard's 30s cached list would let a quick second install through
+	var count int
+	if err := a.DB.QueryRowContext(ctx, "SELECT COUNT(*) FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?)", userID).Scan(&count); err != nil {
+		return nil
+	}
+	if count >= limit {
+		return fmt.Errorf("Website limit reached for your hosting plan (%d of %d).%s", count, limit, plan.UpgradeMessage())
+	}
+	return nil
+}
+
 // QueryPlanDetailsByID returns the full plans row for planID, cached 5 minutes; columns are nullable so a NULL doesn't fail the scan, just comes back empty
 func (a *App) QueryPlanDetailsByID(ctx context.Context, planID int) (PlanDetails, error) {
 	return cache.Memoize(ctx, a.Cache, fmt.Sprintf("query_plan_details_by_id:%d", planID), 300*time.Second, func() (PlanDetails, error) {

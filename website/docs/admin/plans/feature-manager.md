@@ -40,12 +40,16 @@ Use the search box to filter features by name or description, and **Enable All**
 | **Name** | **Page** | **Type** | **Description** |
 | --- | --- | --- | --- |
 | Email Notifications | `/account/notifications` | Community | Users can configure notification preferences from their account and they will receive emails. |
-| Settings (Email & Password Change) | `/account/settings` | Community | Users can change username, password and email address for the account in their user panel. |
+| Settings (Email & Password Change) | `/account` | Community | Users can change username, password and email address for the account in their user panel. |
 | Active Sessions | `/account/sessions` | Community | Users can view all active sessions for their account, in their user panel. |
-| Locales (Language Change) | `/account/languages` | Community | Users can switch languages in their user panel. |
+| Locales (Language Change) | `/account/language` | Community | Users can switch languages in their user panel. |
 | Favorites (Bookmarks) | `/account/favorites` | Community | Users can add panel pages to favorites and manage them from their account. |
-| Varnish Caching | `/cache/varnish` | Community | Users can use Varnish Caching and enable/disable cache per domain. |
+| Varnish Caching | `/cache/varnish` | Enterprise | Users can use Varnish Caching and enable/disable cache per domain. |
 | Docker (Containers) | `/containers` | Enterprise | Users can allocate resources to their containers and start/stop them when needed. |
+| Web Terminal | `/containers/terminal` | Enterprise | Users can open an interactive shell inside their containers from the user panel. |
+| Change Container Image Tag | `/containers/image/change` | Enterprise | Users can change the image tag used by a container from the user panel. |
+| Switch WebServer | `/containers/webserver` | Enterprise | Users can switch the webserver used for their account from the user panel. |
+| Switch MySQL Type | `/containers/mysql` | Enterprise | Users can switch between MySQL, MariaDB and Percona for their account from the user panel. |
 | FTP accounts | `/ftp` | Enterprise | Users can create and manage FTP accounts. The FTP server must be configured separately. |
 | Webmail (Roundcube) | `/webmail` | Enterprise | Users can auto-login to webmail (Roundcube) for email accounts. The Roundcube service must be configured separately. |
 | Email accounts | `/emails` | Enterprise | Users can create and manage email accounts. The mail server must be configured separately. |
@@ -53,6 +57,7 @@ Use the search box to filter features by name or description, and **Enable All**
 | Email Filters | `/emails/filter` | Enterprise | Users can configure filters and forwarders for their emails. |
 | Email Aliases | `/emails/aliases` | Enterprise | Users can manage aliases (forward from a non-existing address). |
 | Address Importer | `/emails/import` | Enterprise | Users can import email addresses from a CSV file. |
+| Email Migration | `/emails/migrate` | Enterprise | Users can copy emails from another IMAP server into their email accounts. |
 | Address Exporter | `/emails/export` | Enterprise | Users can export email addresses into a CSV file. |
 | Default Address | `/emails/default` | Enterprise | Users can create default (catch-all) email addresses. |
 | MySQL | `/mysql` | Community | Users can manage MySQL databases and users. |
@@ -61,36 +66,58 @@ Use the search box to filter features by name or description, and **Enable All**
 | MySQL Configuration | `/mysql/configuration` | Community | Users can edit MySQL configuration from their user panel. |
 | MySQL Process List | `/mysql/processlist` | Community | Users can view the MySQL processlist from the user panel. |
 | MySQL Root Password | `/mysql/root-password` | Community | Users can change the password for their MySQL root user from the user panel. |
+| MongoDB | `/mongodb` | Enterprise | Users can manage MongoDB databases. |
+| Import MongoDB Databases | `/mongodb/import` | Enterprise | Users can import files into MongoDB databases from their user panel. |
 | PostgreSQL | `/postgresql` | Enterprise | Users can manage PostgreSQL databases and users. |
 | Remote PostgreSQL | `/postgresql/remote-postgresql` | Enterprise | Users can enable/disable remote access to PostgreSQL databases. |
 | Import PostgreSQL Databases | `/postgresql/import` | Enterprise | Users can import .sql files into PostgreSQL databases from their user panel. |
 | PostgreSQL Configuration | `/postgresql/configuration` | Enterprise | Users can edit PostgreSQL configuration from their user panel. |
-| pgAdmin | `/postgresql/pgadmin` | Enterprise | Users can manage pgAdmin and use it to connect to their PostgreSQL databases. |
 | PHP | `/php` | Community | Users can change the PHP version for domains, set limits, and set the default version for new domains. |
 | PHP Options | `/php/options` | Community | Users can edit configured `php.ini` directives using the Options page. |
-| PHP.INI Editor | `/php/ini` | Community | Users can directly edit the `php.ini` file for any PHP version. |
-| PHP Extensions | `/php/extensions` | Beta | Users can manage extensions for their PHP versions. |
+| PHP.INI Editor | `/php/php_ini_editor` | Community | Users can directly edit the `php.ini` file for any PHP version. |
+| PHP Extensions | `/php/extensions` | Enterprise | Users can manage extensions for their PHP versions. |
 | phpMyAdmin | `/mysql/phpmyadmin` | Community | Users can manage phpMyAdmin and use it to connect to their MySQL databases. |
 | Cronjobs | `/cronjobs` | Community | Users can configure cronjobs. |
-| Backups | `/backups` | Beta | Users can configure backups. |
+| Backups | `/backups` | Enterprise | Users can configure backups. |
 | Backup Wizard | `/backup-wizard` | Community | Users can generate and download a full account backup. |
 | WordPress | `/wordpress` | Community | WordPress can be installed via the AutoInstaller and users can manage sites with the WP Manager. |
+| Drupal | `/drupal/install` | Enterprise | Drupal can be installed using the Autoinstaller and users can use the Site Manager to manage websites. |
+| Flarum | `/flarum/install` | Enterprise | Flarum can be installed using the Autoinstaller and users can use the Site Manager to manage websites. |
+| SofaWiki | `/sofawiki/install` | Enterprise | SofaWiki can be installed using the Autoinstaller and users can use the Site Manager to manage websites. |
+| TinyPhotoGallery | `/tinyphotogallery/install` | Community | TinyPhotoGallery can be installed using the Autoinstaller and users can use the Site Manager to manage websites. |
+| TinyFileManager | `/tinyfilemanager/install` | Community | TinyFileManager can be installed using the Autoinstaller and users can use the Site Manager to manage websites. |
+| OJS | `/ojs/install` | Enterprise | Open Journal Systems can be installed using the Autoinstaller and users can use the Site Manager to manage websites. |
+| MediaWiki | `/mediawiki/install` | Enterprise | MediaWiki can be installed using the Autoinstaller and users can use the Site Manager to manage websites. |
+| DokuWiki | `/dokuwiki/install` | Community | DokuWiki can be installed using the Autoinstaller and users can use the Site Manager to manage websites. |
+| phpBB | `/phpbb/install` | Community | phpBB can be installed using the Autoinstaller and users can use the Site Manager to manage websites. |
+| OpenCart | `/opencart/install` | Enterprise | OpenCart can be installed using the Autoinstaller and users can use the Site Manager to manage websites. |
+| PrestaShop | `/prestashop/install` | Enterprise | PrestaShop can be installed using the Autoinstaller and users can use the Site Manager to manage websites. |
+| NextCloud | `/nextcloud/install` | Community | NextCloud can be installed using the Autoinstaller and users can use the Site Manager to manage websites. |
+| Matomo | `/matomo/install` | Community | Matomo can be installed using the Autoinstaller and users can use the Site Manager to manage websites. |
+| Moodle | `/moodle/install` | Enterprise | Moodle can be installed using the Autoinstaller and users can use the Site Manager to manage websites. |
+| Joomla | `/joomla/install` | Enterprise | Joomla Content Management System (CMS) can be installed using the Autoinstaller and managed via Site Manager. |
 | Website Builder | `/website-builder` | Community | Users can create HTML websites using the GrapesJS drag-and-drop editor. |
 | Python Applications | `/python` | Enterprise | Containerized Python applications can be set up from the AutoInstaller. |
 | NodeJS Applications | `/nodejs` | Enterprise | Containerized NodeJS applications can be set up from the AutoInstaller. |
+| Ruby Applications | `/ruby` | Enterprise | Containerized Ruby applications can be setup from the Autoinstaller. |
+| Java Applications | `/java` | Enterprise | Containerized Java applications can be setup from the Autoinstaller. |
 | AutoInstaller | `/auto-installer` | Community | Users can use the Auto-Installer page to manage websites and install applications. |
+| n8n | `/n8n` | Enterprise | n8n can be set up from the Autoinstaller. |
 | Disk Usage Explorer | `/disk-usage` | Enterprise | Users can access the Disk Usage page to browse current disk usage per directory. |
 | Inodes Explorer | `/inodes-explorer` | Enterprise | Users can access the Inodes Usage page to browse current inode usage per directory. |
-| Resources Usage | `/usage` | Community | Docker stats are collected for containers and users can browse the data on the Resource Usage page. |
+| Resources Usage | `/server/usage` | Community | Docker stats are collected for containers and users can browse the data on the Resource Usage page. |
 | Server Info | `/server/info` | Community | Users can view their hosting plan limits and server information on the Server Information page. |
 | Webserver Configuration | `/server/webserver_conf` | Community | Users can edit the Nginx/Apache configuration for their webserver containers. |
 | Coraza WAF | `/waf` | Enterprise | Coraza WAF is automatically enabled for new domains, and users can enable/disable protection per domain. |
 | File Manager | `/files` | Community | Users have access to the File Manager to manage website files (`/var/www/html/`). Disable this feature for 'Email-only' or 'DNS-only' plans. |
 | Trash | `/files.trash` | Enterprise | Users can view and manage the Trash folder. |
-| ClamAV (Malware Scanner) | `/malware-scanner` | Beta | The ClamAV service is started and users can run scans against their files. |
+| ClamAV (Malware Scanner) | `/malware-scanner` | Enterprise | The ClamAV service is started and users can run scans against their files. |
 | Fix Permissions | `/fix-permissions` | Community | Users have access to the Fix Permissions tool to change owner and permissions for website files. |
-| DNS | `/dns` | Community | BIND9 runs locally and a DNS zone is created for new domains. Users manage records via the Zone Editor. |
-| Domain Redirects | `/domains/redirects` | Enterprise | Users can create and manage redirects for their domains. |
+| Git | `/git` | Enterprise | Users can deploy websites from Git repositories: clone from GitHub, GitLab or Bitbucket, or push to repositories hosted on the server over HTTPS. |
+| AI Assistant | `` | Enterprise | Users get an AI chat assistant in the top bar that answers questions using the OpenPanel documentation and, if allowed on Settings > OpenPanel, looks things up or makes changes in their account after they approve them. |
+| DNS | `/domains/edit-dns-zone` | Community | BIND9 runs locally and a DNS zone is created for new domains. Users manage records via the Zone Editor. |
+| Dynamic DNS | `/domains/dynamic-dns` | Enterprise | Users can create subdomains that are updated via webhooks. |
+| Domain Redirects | `/domains/redirect` | Enterprise | Users can create and manage redirects for their domains. |
 | Edit VirtualHosts | `/domains/vhosts` | Enterprise | Users can edit Virtual Host files for their domains. |
 | Domains | `/domains` | Community | Users can add and manage domains. Disable this feature for 'Email-only' or 'DB-only' plans. |
 | Suspend domains | `/domains/suspend` | Enterprise | Users can suspend a domain to temporarily disable website access. |
@@ -99,6 +126,8 @@ Use the search box to filter features by name or description, and **Enable All**
 | Capitalize Domains | `/domains/capitalize` | Enterprise | Users can capitalize letters in their domain names. |
 | Domain Logs | `/domains/log` | Community | Users can view raw webserver access logs for their domains. |
 | GoAccess | `/domains/stats` | Community | GoAccess runs on a schedule to generate HTML reports from domain logs, viewable from the Domain Logs page. |
+| Error Logs | `/error-logs` | Community | Users can view PHP, webserver, database and HTTP 5xx errors for their websites from a single Error Logs page. |
+| Daily Summary | `/summary` | Community | A summary of each day is saved for users: what needs their attention with links to fix it, website traffic, logins and account changes. Users can also get it by email. |
 | Process Manager | `/process-manager` | Community | Users can view/kill processes from the Process Manager page. |
 | Redis | `/cache/redis` | Community | Users can configure Redis from their user panel. |
 | Valkey | `/cache/valkey` | Community | Users can configure Valkey from their user panel. |
@@ -106,12 +135,11 @@ Use the search box to filter features by name or description, and **Enable All**
 | Services | `/services` | Community | Users can start/stop and view logs for any service. |
 | Elasticsearch | `/cache/elasticsearch` | Community | Users can configure Elasticsearch from their user panel. |
 | Opensearch | `/cache/opensearch` | Community | Users can configure Opensearch from their user panel. |
-| Temporary Links | `/websites` | Enterprise | Users can test websites using temporary OpenPanel subdomains. Links expire after 15 minutes. |
-| Login History | `/account/loginlog` | Community | Users can view the last 20 IPs that logged into their account. |
+| Temporary Links | `/sites` | Enterprise | Users can test websites using temporary OpenPanel subdomains. Links expire after 15 minutes. |
+| Login History | `/account/login-history` | Community | Users can view recent logins to their account, the number kept is set by the admin. |
 | 2FA | `/account/2fa` | Community | Users can enable Two-Factor Authentication (2FA) for their account. |
 | Passkeys | `/account/passkeys` | Enterprise | Users can configure Passkeys for their account. |
 | Activity Log | `/account/activity` | Community | Users can browse all recorded actions for their account. |
-| Dynamic DNS | `/domains/dynamic-dns` | Enterprise | Users can create subdomains that are updated via webhooks. |
 | IP Blocker | `/security/ip-blocker` | Enterprise | Users can block IP addresses from accessing their websites. |
 | API | `/api/login` | Enterprise | Users can use JWT tokens to perform panel actions via the API. |
 | MCP | `/account/mcp` | Enterprise | Users can use the MCP server to perform panel actions. |

@@ -11,7 +11,7 @@ const nginxHeaders = "proxy_http_version 1.1;\nproxy_set_header Host $host;\npro
 const nginxVhost = "server {\n    listen 80;\n    location / {\n        try_files $uri $uri/ /index.php?$args;\n        autoindex on;\n    }\n}\n"
 
 func TestStripNginxRootProxy(t *testing.T) {
-	// what editNginxConfig used to insert for a root install, older vhosts still have it
+	// same insert editNginxConfig does for a root install
 	end := strings.Index(nginxVhost, "    }\n}")
 	insert := "\n        proxy_pass http://kuma:3001/;\n            " + nginxHeaders + "\n        "
 	withProxy := nginxVhost[:end] + "\n" + insert + nginxVhost[end:]
@@ -66,5 +66,74 @@ func TestStripApacheKeepsMarkerIndent(t *testing.T) {
 	with := orig[:i] + "\tProxyPass / http://n8n:5678/ upgrade=websocket\n\tProxyPassReverse / http://n8n:5678/\n" + orig[i:]
 	if got, _ := stripServiceProxies(with, "n8n"); got != orig {
 		t.Fatalf("got %q", got)
+	}
+}
+
+// shape of the shipped nginx domain template, with the locations that used to win over the app
+const nginxDomainVhost = `server {
+    listen 80;
+    root /var/www/html/example.com;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+        index index.php index.html /default_page.html;
+        autoindex on;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass php-fpm-8.5:9000;
+    }
+
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+        expires max;
+    }
+}
+`
+
+func rootProxyLines(svc string) string {
+	return "\n        proxy_pass http://" + svc + ":5678/;\n            " + nginxHeaders + "\n        "
+}
+
+func TestRootAppTakesLocationAndDeleteRestoresIt(t *testing.T) {
+	added, errMsg := insertNginxProxy(nginxDomainVhost, "", "n8n", rootProxyLines("n8n"))
+	if errMsg != "" {
+		t.Fatal(errMsg)
+	}
+	if !strings.Contains(added, "location ^~ / { # OPENPANEL-APP:n8n\n") || !strings.Contains(added, "# OPENPANEL-APP:n8n try_files $uri") {
+		t.Fatalf("root app didn't take location / over:\n%s", added)
+	}
+	if strings.Count(added, "{") != strings.Count(added, "}") {
+		t.Fatalf("unbalanced braces:\n%s", added)
+	}
+
+	got, changed := stripServiceProxies(added, "n8n")
+	if !changed || strings.Contains(got, "OPENPANEL-APP") || strings.Contains(got, "proxy_") {
+		t.Fatalf("bad strip:\n%s", got)
+	}
+	if !strings.Contains(got, "    location / {\n        try_files $uri $uri/ /index.php?$args;") {
+		t.Fatalf("location / or try_files not restored:\n%s", got)
+	}
+	if strings.Count(got, "{") != strings.Count(got, "}") {
+		t.Fatalf("unbalanced braces:\n%s", got)
+	}
+}
+
+func TestRootAppStripLeavesOtherServiceAlone(t *testing.T) {
+	added, _ := insertNginxProxy(nginxDomainVhost, "", "kuma2", rootProxyLines("kuma2"))
+	got, changed := stripServiceProxies(added, "kuma")
+	if changed || got != added {
+		t.Fatalf("stripping kuma touched kuma2:\n%s", got)
+	}
+}
+
+func TestSubdirAppUsesPrefixPriorityAndDeleteRemovesIt(t *testing.T) {
+	lines := "\n        location ^~ /app/ {\n            proxy_pass http://kuma/;\n            " + nginxHeaders + "\n        }\n        "
+	added, errMsg := insertNginxProxy(nginxDomainVhost, "app", "kuma", lines)
+	if errMsg != "" || !strings.Contains(added, "location ^~ /app/ {") || !strings.Contains(added, "location / {\n        try_files") {
+		t.Fatalf("bad subdirectory insert (%s):\n%s", errMsg, added)
+	}
+	got, _ := stripServiceProxies(added, "kuma")
+	if strings.Contains(got, "/app/") || strings.Contains(got, "proxy_") || strings.Count(got, "{") != strings.Count(got, "}") {
+		t.Fatalf("bad strip:\n%s", got)
 	}
 }

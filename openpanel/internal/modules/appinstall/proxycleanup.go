@@ -25,10 +25,6 @@ func stripServiceProxies(content string, names ...string) (string, bool) {
 		if name == "" {
 			continue
 		}
-		// marked nginx blocks from addNginxProxy, a root one gives back the location / it replaced
-		nginxBlockRE := regexp.MustCompile(`(?ms)^[ \t]*` + regexp.QuoteMeta(nginxProxyStart+name) + `\n.*?^[ \t]*` + regexp.QuoteMeta(nginxProxyEnd+name) + `(?:\n|\z)`)
-		out = nginxBlockRE.ReplaceAllStringFunc(out, restoreNginxProxy)
-
 		host := hostRE(name)
 		apacheRE := regexp.MustCompile(`^\s*ProxyPass(?:Reverse)?\s+\S+\s+` + host)
 		nginxRE := regexp.MustCompile(`^\s*proxy_pass\s+` + host)
@@ -70,6 +66,10 @@ func stripServiceProxies(content string, names ...string) (string, bool) {
 			kept = append(kept, line)
 		}
 		out = strings.Join(kept, "")
+
+		// a root app's ^~ and commented try_files go back to how the vhost had them
+		out = strings.ReplaceAll(out, nginxRootAppHeader(name)+"\n", "location / {\n")
+		out = strings.ReplaceAll(out, nginxAppTag(name), "")
 
 		svc := regexp.QuoteMeta(name)
 		lsws := regexp.MustCompile(`(?s)\n?# PM2-PROXY-START:` + svc + `\n.*?# PM2-PROXY-END:` + svc + `\n?`)

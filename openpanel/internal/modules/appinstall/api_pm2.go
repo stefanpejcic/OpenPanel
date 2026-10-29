@@ -148,6 +148,9 @@ func apiPM2Action(a *appctx.App, w http.ResponseWriter, r *http.Request, action 
 		return
 	}
 
+	if action != "stop" {
+		refreshProxyUpstreams(ctx, userContext)
+	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, action+"ed PM2 application "+siteName, reqip.ClientIP(r))
 	writeAPIPM2JSON(w, http.StatusOK, map[string]string{"message": "Application " + siteName + " " + action + "ed successfully"})
 }

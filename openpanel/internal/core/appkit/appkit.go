@@ -44,7 +44,7 @@ func LockFilePath(username string) string {
 var ErrInstallInProgress = errors.New("another installation is already in progress for this account")
 
 // a lock left behind by a crashed install would block every later one, so one older than this is treated as stale and taken over
-const installLockStaleAfter = 30 * time.Minute
+const installLockStaleAfter = 15 * time.Minute
 
 // CreateLockFile atomically takes the per-user install lock, returning ErrInstallInProgress if a fresh one is already held
 func CreateLockFile(username string) error {

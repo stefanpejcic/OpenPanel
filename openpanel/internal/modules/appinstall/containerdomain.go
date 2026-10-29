@@ -36,6 +36,13 @@ func attachContainerDomain(ctx context.Context, userContext, domain, service str
 	return nil
 }
 
+// refreshProxyUpstreams reloads nginx/openresty after an app container is (re)created, they resolved its old IP at load time and would keep proxying there, apache looks it up per request
+func refreshProxyUpstreams(ctx context.Context, userContext string) {
+	if ws, _ := docker.GetEnvValue(userContext, "WEB_SERVER"); ws == "nginx" || ws == "openresty" {
+		reloadWebserver(ctx, userContext, ws)
+	}
+}
+
 func reloadWebserver(ctx context.Context, userContext, webServerType string) {
 	_ = webserver.ReloadWebserver(ctx, userContext, webServerType)
 }

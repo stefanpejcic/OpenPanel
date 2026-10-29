@@ -1,4 +1,13 @@
-import React, { useState } from "react";
+import React, {
+    createContext,
+    useContext,
+    useEffect,
+    useId,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
+import { createPortal } from "react-dom";
 import clsx from "clsx";
 
 import { CheckCircle } from "@site/src/refine-theme/icons/check-circle";
@@ -6,13 +15,27 @@ import { CrossCircle } from "@site/src/refine-theme/icons/cross-circle";
 import { EnterpriseGetInTouchButton } from "./enterprise-get-in-touch-button";
 import { ArrowLeftLongIcon } from "./icons/arrow-left-long";
 import { AnimatePresence, motion } from "framer-motion";
+import {
+    Feature,
+    formatDescription,
+    useFeatures,
+} from "./plan-features-list";
+
+// features.json entries by name, rows reference them with `feature`
+const FeaturesContext = createContext<Record<string, Feature>>({});
 
 export const EnterpriseTable = ({ className }: { className?: string }) => {
     const [activeTab, setActiveTab] = useState<"community" | "enterprise">(
         "enterprise",
     );
+    const features = useFeatures();
+    const featuresByName = useMemo(
+        () => Object.fromEntries(features.map((f) => [f.name, f])),
+        [features],
+    );
 
     return (
+        <FeaturesContext.Provider value={featuresByName}>
         <div
             className={clsx(
                 "flex flex-col",
@@ -89,6 +112,199 @@ export const EnterpriseTable = ({ className }: { className?: string }) => {
                 linkClassName={clsx("w-[344px]", "mx-auto")}
             />
         </div>
+        </FeaturesContext.Provider>
+    );
+};
+
+const TOOLTIP_WIDTH = 320;
+const TOOLTIP_GAP = 10;
+
+// hover card with the features.json description and docs link, rendered in a
+// portal because table rows clip overflow
+const FeatureTooltip = ({
+    features,
+    children,
+}: {
+    features: Feature[];
+    children: React.ReactNode;
+}) => {
+    const id = useId();
+    const anchorRef = useRef<HTMLSpanElement>(null);
+    const cardRef = useRef<HTMLDivElement>(null);
+    const closeTimer = useRef<ReturnType<typeof setTimeout>>();
+    // opened by a tap: ignore the emulated mouseleave/blur, close on outside tap
+    const pinned = useRef(false);
+    const [position, setPosition] = useState<{
+        top: number;
+        left: number;
+        arrowLeft: number;
+        above: boolean;
+    } | null>(null);
+
+    const open = () => {
+        clearTimeout(closeTimer.current);
+        const rect = anchorRef.current.getBoundingClientRect();
+        const above =
+            window.innerHeight - rect.bottom < 240 && rect.top > 240;
+        const left = Math.max(
+            16,
+            Math.min(rect.left, window.innerWidth - TOOLTIP_WIDTH - 16),
+        );
+        setPosition({
+            top: above ? rect.top - TOOLTIP_GAP : rect.bottom + TOOLTIP_GAP,
+            left,
+            arrowLeft: Math.min(rect.left - left + 16, TOOLTIP_WIDTH - 24),
+            above,
+        });
+    };
+
+    // short delay so the pointer can move from the row onto the card
+    const close = () => {
+        if (pinned.current) return;
+        clearTimeout(closeTimer.current);
+        closeTimer.current = setTimeout(() => setPosition(null), 150);
+    };
+
+    useEffect(() => {
+        if (!position) return;
+
+        const hide = () => {
+            pinned.current = false;
+            setPosition(null);
+        };
+        const hideOutside = (event: PointerEvent) => {
+            const target = event.target as Node;
+            if (
+                !anchorRef.current?.contains(target) &&
+                !cardRef.current?.contains(target)
+            ) {
+                hide();
+            }
+        };
+        const hideOnEscape = (event: KeyboardEvent) => {
+            if (event.key === "Escape") hide();
+        };
+
+        window.addEventListener("scroll", hide, { passive: true });
+        window.addEventListener("resize", hide);
+        document.addEventListener("pointerdown", hideOutside);
+        document.addEventListener("keydown", hideOnEscape);
+        return () => {
+            window.removeEventListener("scroll", hide);
+            window.removeEventListener("resize", hide);
+            document.removeEventListener("pointerdown", hideOutside);
+            document.removeEventListener("keydown", hideOnEscape);
+        };
+    }, [position]);
+
+    useEffect(() => () => clearTimeout(closeTimer.current), []);
+
+    return (
+        <>
+            <span
+                ref={anchorRef}
+                tabIndex={0}
+                aria-describedby={position ? id : undefined}
+                onPointerDown={(event) => {
+                    pinned.current = event.pointerType !== "mouse";
+                }}
+                onMouseEnter={open}
+                onMouseLeave={close}
+                onFocus={open}
+                onBlur={close}
+                onClick={open}
+                className={clsx(
+                    "cursor-help",
+                    "underline decoration-dotted underline-offset-4",
+                    "decoration-gray-400 dark:decoration-gray-500",
+                    "outline-none focus-visible:ring-2 focus-visible:ring-refine-blue rounded-sm",
+                )}
+            >
+                {children}
+            </span>
+            {position &&
+                createPortal(
+                    <div
+                        ref={cardRef}
+                        id={id}
+                        role="tooltip"
+                        onMouseEnter={() => clearTimeout(closeTimer.current)}
+                        onMouseLeave={close}
+                        style={{
+                            top: position.top,
+                            left: position.left,
+                            width: TOOLTIP_WIDTH,
+                            transform: position.above
+                                ? "translateY(-100%)"
+                                : undefined,
+                        }}
+                        className={clsx(
+                            "fixed z-50",
+                            "max-w-[calc(100vw-32px)]",
+                            "flex flex-col gap-3",
+                            "p-4",
+                            "rounded-xl",
+                            "border border-gray-200 dark:border-gray-700",
+                            "bg-gray-0 dark:bg-gray-800",
+                            "shadow-lg",
+                            "text-sm",
+                        )}
+                    >
+                        <span
+                            style={{ left: position.arrowLeft }}
+                            className={clsx(
+                                "absolute",
+                                "w-3 h-3",
+                                "rotate-45",
+                                "bg-gray-0 dark:bg-gray-800",
+                                "border-gray-200 dark:border-gray-700",
+                                position.above
+                                    ? "-bottom-[7px] border-r border-b"
+                                    : "-top-[7px] border-l border-t",
+                            )}
+                        />
+                        {features.map((feature) => (
+                            <div key={feature.name}>
+                                <div
+                                    className={clsx(
+                                        "text-xs",
+                                        "font-semibold",
+                                        "uppercase",
+                                        "tracking-wide",
+                                        "text-refine-blue dark:text-refine-cyan-alt",
+                                    )}
+                                >
+                                    {feature.title}
+                                </div>
+                                <p
+                                    className={clsx(
+                                        "mt-1 mb-0",
+                                        "text-gray-700 dark:text-gray-300",
+                                    )}
+                                >
+                                    {formatDescription(feature.description)}
+                                </p>
+                                {feature.help_link && (
+                                    <a
+                                        href={feature.help_link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={clsx(
+                                            "inline-block",
+                                            "mt-2",
+                                            "font-semibold",
+                                            "text-refine-blue dark:text-refine-cyan-alt",
+                                        )}
+                                    >
+                                        Read the docs →
+                                    </a>
+                                )}
+                            </div>
+                        ))}
+                    </div>,
+                    document.body,
+                )}
+        </>
     );
 };
 
@@ -222,12 +438,27 @@ const TableItemContentGroup = ({
 
 const TableItem = ({
     description,
+    feature,
     community,
     enterprise,
     activeTab,
     isLast,
     valueType,
+}: {
+    description: string;
+    feature?: string | string[];
+    community: React.ReactNode;
+    enterprise: React.ReactNode;
+    activeTab: "community" | "enterprise";
+    isLast: boolean;
+    valueType: Record<string, string>;
 }) => {
+    const featuresByName = useContext(FeaturesContext);
+    const details = [feature ?? []]
+        .flat()
+        .map((name) => featuresByName[name])
+        .filter(Boolean);
+
     return (
         <div
             className={clsx(
@@ -250,7 +481,13 @@ const TableItem = ({
                 )}
             >
                 <TableItemDescription isLast={isLast}>
-                    {description}
+                    {details.length > 0 ? (
+                        <FeatureTooltip features={details}>
+                            {description}
+                        </FeatureTooltip>
+                    ) : (
+                        description
+                    )}
                 </TableItemDescription>
                 <TableItemContentGroup
                     {...{ community, enterprise, activeTab, isLast, valueType }}
@@ -548,6 +785,7 @@ const tableData = [
             },            
             {
                 description: "WordPress Manager",
+                feature: "wordpress",
                 community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -557,6 +795,7 @@ const tableData = [
             },
             {
                 description: "Website Builder",
+                feature: "website_builder",
                 community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -566,6 +805,7 @@ const tableData = [
             },
             {
                 description: "NodeJS Applications",
+                feature: "nodejs",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -575,6 +815,7 @@ const tableData = [
             },
             {
                 description: "Python Applications",
+                feature: "python",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -584,6 +825,7 @@ const tableData = [
             },
             {
                 description: "Ruby Applications",
+                feature: "ruby",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -593,6 +835,17 @@ const tableData = [
             },
             {
                 description: "Java Applications",
+                feature: "java",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Git Deployments",
+                feature: "git",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -602,6 +855,17 @@ const tableData = [
             },
             {
                 description: "PHP Selector",
+                feature: "php",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "PHP Options",
+                feature: "php_options",
                 community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -611,6 +875,7 @@ const tableData = [
             },
             {
                 description: "PHP.INI Editor",
+                feature: "php_ini",
                 community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -620,6 +885,7 @@ const tableData = [
             },
             {
                 description: "PHP Extensions",
+                feature: "php_extensions",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -629,6 +895,7 @@ const tableData = [
             },
             {
                 description: "Temporary Domains",
+                feature: "temporary_links",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -638,7 +905,57 @@ const tableData = [
             },
             {
                 description: "Varnish Caching",
+                feature: "varnish",
                 community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "AutoInstaller",
+                feature: "autoinstaller",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "AutoInstaller Apps",
+                community: <TableText>NextCloud, Matomo, phpBB, DokuWiki, TinyFileManager, TinyPhotoGallery</TableText>,
+                enterprise: <TableText>All Community apps + Joomla, Drupal, Moodle, MediaWiki, OpenCart, PrestaShop, Flarum, SofaWiki, OJS, n8n</TableText>,
+                valueType: {
+                    community: "text",
+                    enterprise: "text",
+                },
+            },
+            {
+                description: "Cron Jobs",
+                feature: "crons",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Webserver Configuration",
+                feature: "webserver_conf",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Error Logs",
+                feature: "error_logs",
+                community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -652,6 +969,7 @@ const tableData = [
         items: [     
             {
                 description: "File Manager",
+                feature: "filemanager",
                 community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -661,6 +979,7 @@ const tableData = [
             },
             {
                 description: "FTP",
+                feature: "ftp",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -670,7 +989,18 @@ const tableData = [
             },
             {
                 description: "Malware Scanner",
+                feature: "malware_scan",
                 community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Fix Permissions",
+                feature: "fix_permissions",
+                community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -688,6 +1018,7 @@ const tableData = [
             },
             {
                 description: "Disk Usage Explorer",
+                feature: "disk_usage",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -697,6 +1028,7 @@ const tableData = [
             },
             {
                 description: "Inodes Explorer",
+                feature: "inodes",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -706,6 +1038,7 @@ const tableData = [
             },
             {
                 description: "Trash",
+                feature: "trash",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -720,6 +1053,7 @@ const tableData = [
         items: [
             {
                 description: "MySQL",
+                feature: "mysql",
                 community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -729,7 +1063,48 @@ const tableData = [
             },
             {
                 description: "phpMyAdmin",
+                feature: "phpmyadmin",
                 community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "MySQL Configuration",
+                feature: "mysql_conf",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "MySQL Process List",
+                feature: "mysql_processlist",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "MySQL Root Password",
+                feature: "mysql_root_password",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Switch MySQL Type (MySQL / MariaDB)",
+                feature: "change_db",
+                community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -756,6 +1131,17 @@ const tableData = [
             },
             {
                 description: "PostgreSQL",
+                feature: "postgresql",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "PostgreSQL Configuration",
+                feature: "postgresql_conf",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -765,6 +1151,7 @@ const tableData = [
             },
             {
                 description: "MongoDB",
+                feature: "mongodb",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -773,7 +1160,18 @@ const tableData = [
                 },
             },
             {
-                description: "Import Databases",
+                description: "Import MySQL Databases",
+                feature: "mysql_import",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Import PostgreSQL & MongoDB Databases",
+                feature: ["postgresql_import", "mongodb_import"],
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -782,14 +1180,25 @@ const tableData = [
                 },
             },
             {
-                description: "Remote Access",
+                description: "Remote MySQL",
+                feature: "remote_mysql",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Remote PostgreSQL",
+                feature: "remote_postgresql",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
                     enterprise: "icon",
                 },
-            },           
+            },
         ],
     },
 
@@ -852,6 +1261,16 @@ const tableData = [
                     enterprise: "icon",
                 },
             },          
+            {
+                description: "Switch WebServer",
+                feature: "change_ws",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
         ],
     },    
     {
@@ -910,6 +1329,17 @@ const tableData = [
             },
             {
                 description: "Login History",
+                feature: "login_history",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Two-Factor Authentication (2FA)",
+                feature: "twofa",
                 community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -919,7 +1349,78 @@ const tableData = [
             },
             {
                 description: "Passkeys",
+                feature: "passkeys",
                 community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Activity Log",
+                feature: "activity",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Active Sessions",
+                feature: "sessions",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Email Notifications",
+                feature: "notifications",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Daily Summary",
+                feature: "summary",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Change Email & Password",
+                feature: "account",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Locales (Language Change)",
+                feature: "locale",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Favorites (Bookmarks)",
+                feature: "favorites",
+                community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -934,6 +1435,7 @@ const tableData = [
         items: [
             {
                 description: "Total Domains",
+                feature: "domains",
                 community: <TableText>50</TableText>,
                 enterprise: <TableText>Unlimited</TableText>,
                 valueType: {
@@ -943,6 +1445,7 @@ const tableData = [
             },
             {
                 description: "Let's Encrypt",
+                feature: "ssl",
                 community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -960,7 +1463,48 @@ const tableData = [
                 },
             },
             {
+                description: "DNS Zone Editor",
+                feature: "dns",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Change Docroot",
+                feature: "docroot",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Domain Logs",
+                feature: "domain_logs",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "GoAccess",
+                feature: "goaccess",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
                 description: "Coraza WAF",
+                feature: "waf",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -988,6 +1532,7 @@ const tableData = [
             },
             {
                 description: "Dynamic DNS",
+                feature: "dynamic_dns",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -997,6 +1542,7 @@ const tableData = [
             },
             {
                 description: "Domain Redirects",
+                feature: "redirects",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -1006,6 +1552,7 @@ const tableData = [
             },
             {
                 description: "IP Blocker",
+                feature: "ip_blocker",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -1015,6 +1562,7 @@ const tableData = [
             },
             {
                 description: "Suspend Domains",
+                feature: "domain_suspend",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -1024,6 +1572,7 @@ const tableData = [
             },
             {
                 description: "Capitalize Domains",
+                feature: "capitalize_domains",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -1033,6 +1582,7 @@ const tableData = [
             },
             {
                 description: "Edit VirtualHosts",
+                feature: "edit_vhost",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -1047,6 +1597,7 @@ const tableData = [
         items: [
             {
                 description: "Email Accounts",
+                feature: "emails",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -1056,6 +1607,7 @@ const tableData = [
             },
             {
                 description: "Webmail",
+                feature: "webmail",
                 community: <CrossIcon />,
                 enterprise: <TableText>RoundCube</TableText>,
                 valueType: {
@@ -1065,6 +1617,7 @@ const tableData = [
             },
             {
                 description: "Email Deliverability (SPF, DKIM, DMARC)",
+                feature: "email_deliverability",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -1074,6 +1627,7 @@ const tableData = [
             },
             {
                 description: "Email Filters & Forwarders",
+                feature: "email_filters",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -1083,6 +1637,7 @@ const tableData = [
             },
             {
                 description: "Email Aliases",
+                feature: "email_aliases",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -1092,6 +1647,17 @@ const tableData = [
             },
             {
                 description: "Address Importer / Exporter",
+                feature: ["email_import", "email_export"],
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Email Migration (IMAP)",
+                feature: "email_migrate",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -1101,7 +1667,103 @@ const tableData = [
             },
             {
                 description: "Default (Catch-All) Address",
+                feature: "email_default",
                 community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+        ],
+    },
+    {
+        title: "Services",
+        items: [
+            {
+                description: "Redis",
+                feature: "redis",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Valkey",
+                feature: "valkey",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Memcached",
+                feature: "memcached",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Elasticsearch",
+                feature: "elasticsearch",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "OpenSearch",
+                feature: "opensearch",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Services (start/stop, logs)",
+                feature: "services",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Process Manager",
+                feature: "process_manager",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Resources Usage",
+                feature: "usage",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Server Info",
+                feature: "info",
+                community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -1115,6 +1777,7 @@ const tableData = [
         items: [
             {
                 description: "REST API",
+                feature: "api",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -1124,6 +1787,17 @@ const tableData = [
             },
             {
                 description: "MCP (Model Context Protocol)",
+                feature: "mcp",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "AI Assistant",
+                feature: "ai_assistant",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -1165,6 +1839,7 @@ const tableData = [
             },  
             {
                 description: "Users can manage Containers",
+                feature: "docker",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -1182,7 +1857,38 @@ const tableData = [
                 },
             },  
             {
+                description: "Web Terminal",
+                feature: "terminal",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Change Container Image Tag",
+                feature: "change_image",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Backup Wizard (full account download)",
+                feature: "backup_wizard",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
                 description: "User manages Backups",
+                feature: "backups",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {

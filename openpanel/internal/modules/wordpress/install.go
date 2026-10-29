@@ -90,6 +90,12 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	// every early return used to leave the lock behind and block scan/clone for minutes
 	defer appkit.RemoveLockFile(currentUsername)
 
+	// checked while holding the install lock, so two installs can't both take the last free slot
+	if limitErr := a.WebsitesLimitError(ctx, userID); limitErr != nil {
+		emit(map[string]any{"error": limitErr.Error()})
+		return
+	}
+
 	dom, found, dbErr := appkit.LookupDomainByID(ctx, a, domainID)
 	if dbErr != nil {
 		emit(map[string]any{"error": "An error occurred fetching docroot for domain from database."})

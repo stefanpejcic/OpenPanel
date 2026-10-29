@@ -281,17 +281,14 @@
 <g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="783.0" cy="1006.0" rx="6.800000000000001" ry="2"/><path d="M777.0 1006.0 v6 a6.800000000000001 2 0 0 0 13.600000000000001 0 v-6"/><path d="M791.0 1004.0 v6 M788.0 1007.0 l3 3 3-3"/></g>
 <text x="785.0" y="1046" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Import Database</text>
 <rect x="292.0" y="1067" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="303.0" y="1078.0" width="16" height="16" rx="2"/><path d="M315.0 1082.0 l3-3 M318.0 1079.0 v3 h-3"/><path d="M306.0 1084.0 l3 3-3 3"/></g>
-<text x="311.0" y="1120" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">pgAdmin</text>
+<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="303.0" y="1078.0" width="16" height="16" rx="2"/><path d="M306.0 1083.0 h10 M306.0 1087.0 h6"/></g>
+<text x="311.0" y="1120" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Process List</text>
 <rect x="450.0" y="1067" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="461.0" y="1078.0" width="16" height="16" rx="2"/><path d="M464.0 1083.0 h10 M464.0 1087.0 h6"/></g>
-<text x="469.0" y="1120" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Process List</text>
+<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M461.0 1080.0 h16 M461.0 1084.0 h16 M461.0 1088.0 h16"/><circle cx="465.0" cy="1080.0" r="1.5" fill="#3b82f6"/><circle cx="470.0" cy="1084.0" r="1.5" fill="#3b82f6"/><circle cx="466.0" cy="1088.0" r="1.5" fill="#3b82f6"/></g>
+<text x="469.0" y="1120" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Remote Access</text>
 <rect x="608.0" y="1067" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M619.0 1080.0 h16 M619.0 1084.0 h16 M619.0 1088.0 h16"/><circle cx="623.0" cy="1080.0" r="1.5" fill="#3b82f6"/><circle cx="628.0" cy="1084.0" r="1.5" fill="#3b82f6"/><circle cx="624.0" cy="1088.0" r="1.5" fill="#3b82f6"/></g>
-<text x="627.0" y="1120" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Remote Access</text>
-<rect x="766.0" y="1067" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="777.0" y="1078.0" width="16" height="16" rx="2"/><path d="M780.0 1083.0 h6 M780.0 1086.0 h8 M780.0 1089.0 h4"/></g>
-<text x="785.0" y="1120" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">PostgreSQL Config</text>
+<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="619.0" y="1078.0" width="16" height="16" rx="2"/><path d="M622.0 1083.0 h6 M622.0 1086.0 h8 M622.0 1089.0 h4"/></g>
+<text x="627.0" y="1120" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">PostgreSQL Config</text>
 <rect x="232" y="1154" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
 <rect x="232" y="1166" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
 <text x="250" y="1179" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Sites</text>
