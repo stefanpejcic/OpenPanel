@@ -90,12 +90,6 @@
                 <input type="checkbox" name="exclude_junk" id="exclude_junk" value="1" checked class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                 <label for="exclude_junk" class="text-sm text-gray-900 dark:text-white">{{.T.Get "Skip Spam, Junk and Trash folders"}}</label>
             </div>
-            {{if .OversizeMB}}
-            <div class="col-span-full flex items-center gap-2">
-                <input type="checkbox" name="import_oversize" id="import_oversize" value="1" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                <label for="import_oversize" class="text-sm text-gray-900 dark:text-white">{{printf (.T.Get "Also copy messages bigger than this server's size limit, up to %d MB") .OversizeMB}}</label>
-            </div>
-            {{end}}
         </div>
 
         <div id="migrateTestResult" class="mt-6 hidden rounded border p-3 text-sm"></div>
@@ -158,9 +152,6 @@
         destFail: {{toJSON (.T.Get "Destination account: login failed")}},
         error: {{toJSON (.T.Get "Something went wrong, please try again.")}},
         tooBig: {{toJSON (.T.Get "%d messages were bigger than this server's %s limit and were not copied.")}},
-        bigCopied: {{toJSON (.T.Get "%d messages bigger than this server's %s limit were copied anyway.")}},
-        bigOverCap: {{toJSON (.T.Get "%d messages were bigger than %s and were not copied.")}},
-        bigFailed: {{toJSON (.T.Get "%d large messages could not be copied. See the log.")}},
     };
     // imapsync exit codes the log ends with, anything else is shown as is
     const failReasons = {
@@ -246,22 +237,11 @@
                 msg.textContent = failReasons[job.message] || job.message;
                 statusTd.appendChild(msg);
             }
-            if (job.status !== "running") {
-                const mb = function (bytes) { return Math.round(bytes / 1048576) + " MB"; };
-                const notes = [];
-                if (job.big_done) {
-                    if (job.big_copied > 0) notes.push(i18n.bigCopied.replace("%d", job.big_copied).replace("%s", mb(job.max_size)));
-                    if (job.big_over_cap > 0) notes.push(i18n.bigOverCap.replace("%d", job.big_over_cap).replace("%s", mb(job.oversize_cap)));
-                    if (job.big_failed > 0) notes.push(i18n.bigFailed.replace("%d", job.big_failed));
-                } else if (job.too_big > 0) {
-                    notes.push(i18n.tooBig.replace("%d", job.too_big).replace("%s", mb(job.max_size)));
-                }
-                notes.forEach(function (text) {
-                    const p = document.createElement("p");
-                    p.className = "migrate-msg mt-1 break-words text-xs text-yellow-700 dark:text-yellow-400";
-                    p.textContent = text;
-                    statusTd.appendChild(p);
-                });
+            if (job.too_big > 0 && job.status !== "running") {
+                const big = document.createElement("p");
+                big.className = "migrate-msg mt-1 break-words text-xs text-yellow-700 dark:text-yellow-400";
+                big.textContent = i18n.tooBig.replace("%d", job.too_big).replace("%s", Math.round(job.max_size / 1048576) + " MB");
+                statusTd.appendChild(big);
             }
             tr.appendChild(statusTd);
             const actionTd = cell("", true);

@@ -413,8 +413,6 @@ type MigratePageData struct {
 	web.LayoutData
 	Accounts []string
 	Status   MigrateStatus
-	// imapsync_oversize_mb, 0 hides the option to copy messages over the mailserver's limit
-	OversizeMB int64
 }
 
 func renderMigratePage(a *appctx.App, w http.ResponseWriter, r *http.Request, accounts []string, st MigrateStatus) {
@@ -423,7 +421,7 @@ func renderMigratePage(a *appctx.App, w http.ResponseWriter, r *http.Request, ac
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := MigratePageData{LayoutData: layout, Accounts: accounts, Status: st, OversizeMB: oversizeCap(a) >> 20}
+	data := MigratePageData{LayoutData: layout, Accounts: accounts, Status: st}
 	if err := migratePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("EMAILS - migrate template render error: %v", err)
 	}
