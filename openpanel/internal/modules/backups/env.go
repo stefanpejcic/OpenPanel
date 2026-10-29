@@ -1,10 +1,28 @@
 package backups
 
 import (
+	"errors"
+	"os"
 	"strings"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
+
+// adminBackupEnvPath is the server default OpenAdmin's "apply to existing accounts" links every account's backup.env to
+var adminBackupEnvPath = "/etc/openpanel/backups/backup.env"
+
+// readEnvFile reads the account's backup.env, a symlink is only followed when it's OpenAdmin's link to the default on an admin-managed account
+func readEnvFile(userContext string) ([]byte, error) {
+	path := envFilePath(userContext)
+	content, err := tenantfs.ReadFile(path)
+	if !errors.Is(err, tenantfs.ErrSymlink) || !AdminManagedBackups(userContext) {
+		return content, err
+	}
+	if target, linkErr := tenantfs.Readlink(path); linkErr != nil || target != adminBackupEnvPath {
+		return nil, err
+	}
+	return os.ReadFile(adminBackupEnvPath)
+}
 
 // KV is one env-file key=value pair, order-preserving (Go maps aren't, and templates render form fields in the file's line order)
 type KV struct {
@@ -17,6 +35,11 @@ func parseUncommentedEnv(path string) ([]KV, error) {
 	if err != nil {
 		return nil, err
 	}
+	return parseEnv(content), nil
+}
+
+// parseEnv is parseUncommentedEnv for content that's already been read
+func parseEnv(content []byte) []KV {
 	var out []KV
 	for _, line := range strings.Split(string(content), "\n") {
 		line = strings.TrimSpace(line)
@@ -30,7 +53,7 @@ func parseUncommentedEnv(path string) ([]KV, error) {
 		value = unquoteEnv(strings.TrimSpace(value))
 		out = append(out, KV{Key: strings.TrimSpace(key), Value: value})
 	}
-	return out, nil
+	return out
 }
 
 // EnvSections is the parsed-and-grouped shape backup_settings()/backups() both build: which SECTIONS targets have at least one key present in the file, their values (file order), and the leftover "settings" keys

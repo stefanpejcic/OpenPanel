@@ -39,6 +39,32 @@ func TestRenderWebserverConfPage(t *testing.T) {
 	}
 }
 
+func TestRenderWebserverConfPageRejectedSave(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+
+	layout := baseLayout(mgr, "/server/webserver_conf")
+	layout.UserAllowed["edit_vhost"] = true
+	data := WebserverConfPageData{
+		LayoutData: layout, Service: "nginx", Path: "nginx.conf", FileContent: "http { broken",
+		TestFailure: &testFailure{
+			Problems:    []string{`nginx.conf, line 2: unexpected end of file`},
+			Hints:       []string{"php-fpm-8.4 could not be found."},
+			Line:        2,
+			VhostDomain: "a.com",
+		},
+	}
+	w := httptest.NewRecorder()
+	if err := webserverConfPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	for _, want := range []string{"http { broken", "nginx.conf, line 2: unexpected end of file", "php-fpm-8.4 could not be found.", "/domains/vhosts?domain=a.com", "editor.addLineClass( 2  - 1", "Go to line 2"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("expected %q in body", want)
+		}
+	}
+}
+
 func TestRenderWebserverConfPageNoRestoreOption(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 

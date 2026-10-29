@@ -46,6 +46,7 @@ opencli update
 ---- Updating OpenAdmin modules ----
 ---- Updating OpenAdmin ----
 ---- [✔] OpenAdmin update triggered (applying in background) ----
+---- Regenerating logrotate configs ----
 ---- [✔] Minor update - skipping system updates ----
 ---- Checking for custom post-update scripts ----
 ---- Update completed successfully! ----
@@ -128,6 +129,7 @@ opencli update --force
 ---- Updating OpenAdmin modules ----
 ---- Updating OpenAdmin ----
 ---- [✔] OpenAdmin update triggered (applying in background) ----
+---- Regenerating logrotate configs ----
 ---- [✔] Minor update - skipping system updates ----
 ---- Checking for custom post-update scripts ----
 ---- Update completed successfully! ----

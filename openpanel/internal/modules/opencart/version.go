@@ -3,28 +3,28 @@ package opencart
 import (
 	"context"
 	"encoding/json"
-	"net/http"
+	"errors"
 	"time"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/githubapi"
 )
 
 // latestOpenCartVersion asks GitHub's releases API for the latest stable tag, used server-side only when the install form's version field is left blank
 func latestOpenCartVersion(ctx context.Context) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.github.com/repos/opencart/opencart/releases/latest", nil)
+	body, err := githubapi.Get(ctx, "https://api.github.com/repos/opencart/opencart/releases/latest", 10*time.Second)
 	if err != nil {
 		return "", err
 	}
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
 
 	var release struct {
 		TagName string `json:"tag_name"`
 	}
-	if decodeErr := json.NewDecoder(resp.Body).Decode(&release); decodeErr != nil {
+	if decodeErr := json.Unmarshal(body, &release); decodeErr != nil {
 		return "", decodeErr
+	}
+	// an empty tag would build a download URL like .../download//opencart-.zip
+	if release.TagName == "" {
+		return "", errors.New("GitHub returned no OpenCart release")
 	}
 	return release.TagName, nil
 }

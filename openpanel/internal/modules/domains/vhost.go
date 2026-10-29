@@ -28,7 +28,7 @@ func handleEditVhosts(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
 		domainName := r.Form.Get("domain_name")
-		vhostContent := r.Form.Get("vhost_content")
+		vhostContent := web.FormText(r, "vhost_content")
 
 		if domainName == "" {
 			web.FlashRedirect(a, w, r, "error", "Invalid request. Domain name and Vhost content must be provided.", "/domains/vhosts")

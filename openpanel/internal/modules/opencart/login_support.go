@@ -5,13 +5,14 @@ import (
 	"regexp"
 	"strings"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // extractOpenCartDatabaseInfoForLogin is a local copy of websites.extractOpenCartDatabaseInfo (unexported there, duplicated here like the other CMS modules do), only populates the field handleOpenCartLogin needs
 func extractOpenCartDatabaseInfoForLogin(userContext, directory string) map[string]string {
 	const wwwPrefix = "/var/www/html/"
-	if !strings.HasPrefix(directory, wwwPrefix) {
+	if !appkit.SafeDocroot(directory) {
 		return map[string]string{"error": "invalid docroot"}
 	}
 	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)

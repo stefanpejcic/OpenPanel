@@ -45,7 +45,7 @@ func applyActions(ctx context.Context, userContext string, v url.Values, r *Repo
 		r.Actions, r.ActionsContainer = "", ""
 		return nil
 	}
-	actions := strings.TrimSpace(v.Get("actions"))
+	actions := strings.TrimSpace(strings.ReplaceAll(v.Get("actions"), "\r\n", "\n"))
 	container := strings.TrimSpace(v.Get("actions_container"))
 	if actions == "" {
 		r.Actions, r.ActionsContainer = "", ""

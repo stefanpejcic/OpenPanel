@@ -509,6 +509,7 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	case webServerType == "apache", webServerType == "openresty", webServerType == "nginx",
 		webServerType == "openlitespeed", strings.Contains(strings.ToLower(webServerType), "litespeed"):
 		// lowercased - editApacheConfig/editNginxConfig/editLswsConfig wrote the proxy block using the lowercase install-time service name, but `serviceName` here is sites.container, which is always stored uppercase (see install.go's serviceNameUp), so passing it through as-is never matched and left the proxy block orphaned on every delete, for every app type, not just n8n
+		// strips only the proxy lines and puts the vhost back if the webserver rejects it, the old line-skipping revert broke nginx vhosts
 		RemoveServiceProxies(ctx, userContext, strings.ToLower(serviceName))
 	default:
 		_, _ = w.Write([]byte("unknown"))

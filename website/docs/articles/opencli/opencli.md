@@ -67,8 +67,8 @@ Description: Prefetch (pull) container images for services listed as autostart, 
 Usage: opencli docker-autostart [-f|--force]
 ------------------------
 opencli docker-backup
-Description: Generates a backup for all users.
-Usage: opencli docker-backup [--parallel=N]   (skip a user: touch /home/<context>/backup.off)
+Description: Backs up every account whose backups the hosting provider manages, or one with --account.
+Usage: opencli docker-backup [--parallel=N | --account=USERNAME]   (skip a user: touch /home/<context>/backup.off)
 ------------------------
 opencli docker-collect_stats
 Description: Collect resource usage information for user(s).

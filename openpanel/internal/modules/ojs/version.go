@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
-	"net/http"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/githubapi"
 )
 
 // ojsVersionRE matches pkp/ojs's GitHub tag naming, inconsistent across history (newer tags are bare "3_5_0-5", older ones prefixed "ojs-3_1_2-4") - requiring the string to end right after the build number excludes pre-release tags like "3_4_0rc3"
@@ -28,10 +28,9 @@ type ojsVersion struct {
 
 // listOJSVersions hits the GitHub tags API (paginated, since real releases span more than one page of 100) and returns every stable "x.y.z-build" release, newest first
 func listOJSVersions(ctx context.Context) ([]ojsVersion, error) {
-	client := &http.Client{Timeout: 15 * time.Second}
 	var versions []ojsVersion
 	for page := 1; page <= 3; page++ {
-		tags, err := fetchOJSTagsPage(ctx, client, page)
+		tags, err := fetchOJSTagsPage(ctx, page)
 		if err != nil {
 			return nil, err
 		}
@@ -66,19 +65,9 @@ func listOJSVersions(ctx context.Context) ([]ojsVersion, error) {
 	return versions, nil
 }
 
-func fetchOJSTagsPage(ctx context.Context, client *http.Client, page int) ([]githubTag, error) {
+func fetchOJSTagsPage(ctx context.Context, page int) ([]githubTag, error) {
 	url := "https://api.github.com/repos/pkp/ojs/tags?per_page=100&page=" + strconv.Itoa(page)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Accept", "application/vnd.github+json")
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
+	body, err := githubapi.Get(ctx, url, 15*time.Second)
 	if err != nil {
 		return nil, err
 	}

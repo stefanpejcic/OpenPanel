@@ -9,6 +9,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/githubapi"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/installmanifest"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
@@ -125,11 +126,15 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	version := strings.TrimSpace(r.FormValue("matomo_version"))
+	if version != "" && !cmsapp.ValidVersion(version) {
+		emit(map[string]any{"error": "Invalid Matomo version."})
+		return
+	}
 	if version == "" {
 		var latestErr error
 		version, latestErr = latestMatomoVersion(ctx)
 		if latestErr != nil {
-			emit(map[string]any{"error": "Could not determine latest Matomo version: " + latestErr.Error()})
+			emit(map[string]any{"error": "Could not determine latest Matomo version: " + latestErr.Error() + githubapi.PickVersionHint(latestErr)})
 			return
 		}
 	}

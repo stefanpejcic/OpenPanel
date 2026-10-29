@@ -4,13 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
-	"net/http"
 	"regexp"
 	"sort"
 	"strings"
 	"time"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/githubapi"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 )
 
@@ -22,18 +21,7 @@ type githubTag struct {
 
 // listMoodleVersions hits the GitHub tags API and returns every stable "vX.Y.Z" tag (prerelease tags carry a "-rcN"/"-beta" suffix and are excluded by the exact-three-part regex), newest first - the tarball itself is GitHub's tag archive too (see install.go's moodleArchiveURL)
 func listMoodleVersions(ctx context.Context) ([]string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.github.com/repos/moodle/moodle/tags?per_page=100", nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Accept", "application/vnd.github+json")
-	client := &http.Client{Timeout: 15 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
+	body, err := githubapi.Get(ctx, "https://api.github.com/repos/moodle/moodle/tags?per_page=100", 15*time.Second)
 	if err != nil {
 		return nil, err
 	}

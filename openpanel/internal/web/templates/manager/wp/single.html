@@ -832,14 +832,14 @@
                 <div class="sm:max-w-3xl md:col-span-2">
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
 
-                        <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "If you suspect that this site is infected by malware, check the integrity of WordPress core files or Plugins by verifying them against their reference checksums from wordpress.org."}}</p>
+                        <p class="col-span-full my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "If you suspect that this site is infected by malware, check the integrity of WordPress core files or Plugins by verifying them against their reference checksums from wordpress.org."}}</p>
 
-                        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+                        <div class="col-span-full mt-2 gap-2 sm:mt-0 sm:flex">
                             <button type="button" id="verifyChecksums" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Check WP Core"}}</button>
                             <button type="button" id="verifyPluginsChecksums" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Check All Plugins"}}</button>
                         </div>
 
-                        <div id="checksumResults" class="mt-4"></div>
+                        <div id="checksumResults" class="col-span-full mt-4"></div>
 
                         <script>
                         var selectedDomain = {{toJSON .CurrentDomain}};
@@ -947,9 +947,9 @@
                 <div class="sm:max-w-3xl md:col-span-2">
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
 
-                        <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "If checksums fail to match, you can quickly reinstall WordPress core files or all plugins without affecting your site content."}}</p>
+                        <p class="col-span-full my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "If checksums fail to match, you can quickly reinstall WordPress core files or all plugins without affecting your site content."}}</p>
 
-                        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+                        <div class="col-span-full mt-2 gap-2 sm:mt-0 sm:flex">
                             <button type="button" id="reinstallCore" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap sm:mt-0"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20ZM13 12H16L12 16L8 12H11V8H13V12Z"></path></svg>{{.T.Get "Reinstall WP Core files"}}</button>
                             <button type="button" id="reinstallPlugins" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap sm:mt-0"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20ZM13 12H16L12 16L8 12H11V8H13V12Z"></path></svg>{{.T.Get "Reinstall All Plugins"}}</button>
                         </div>

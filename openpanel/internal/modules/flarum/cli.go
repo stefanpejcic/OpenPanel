@@ -7,6 +7,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -55,7 +56,7 @@ func handleFlarumLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "domain and docroot are required, or you do not own this domain", http.StatusBadRequest)
 		return
 	}
-	if !strings.HasPrefix(docroot, "/var/www/html/") {
+	if !appkit.SafeDocroot(docroot) {
 		http.Error(w, "invalid docroot", http.StatusBadRequest)
 		return
 	}

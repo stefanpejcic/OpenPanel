@@ -52,19 +52,21 @@ func handleWebserverConf(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	if configFilePath != "" {
 		content, readErr := tenantfs.ReadFile(configFilePath)
 		if readErr != nil {
-			renderWebserverConfPage(a, w, r, entry.PageTitle, webServer, entry.ConfFile, false, "")
+			renderWebserverConfPage(a, w, r, entry.PageTitle, webServer, entry.ConfFile, false, "", nil)
 			return
 		}
 		existingContent = string(content)
 	}
 
-	defaultConfPath, hasDefault := defaultConfTemplates[entry.ServiceName]
-	canRestoreDefault := hasDefault && fileExists(defaultConfPath)
-
-	renderWebserverConfPage(a, w, r, entry.PageTitle, webServer, entry.ConfFile, canRestoreDefault, existingContent)
+	renderWebserverConfPage(a, w, r, entry.PageTitle, webServer, entry.ConfFile, canRestoreDefault(entry), existingContent, nil)
 }
 
-// handleSaveOrRestore performs the POST action - either "restore_default" or the normal save-and-validate path, followed by a service reload - returns false once it has written a response (redirect), so the caller should stop
+func canRestoreDefault(entry webserverConfEntry) bool {
+	defaultConfPath, hasDefault := defaultConfTemplates[entry.ServiceName]
+	return hasDefault && fileExists(defaultConfPath)
+}
+
+// handleSaveOrRestore performs the POST action - either "restore_default" or the normal save-and-validate path, followed by a service reload - returns false once it has written a response (redirect or rejected edit), so the caller should stop
 func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, username, userContext, webServer string, entry webserverConfEntry, configFilePath string) bool {
 	_ = r.ParseForm()
 	action := r.Form.Get("action")
@@ -92,7 +94,7 @@ func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		}
 		actionDescription = "restored " + entry.ConfFile + " to default"
 	} else {
-		newContent := r.Form.Get("editor_content")
+		newContent := web.FormText(r, "editor_content")
 		if newContent == "" {
 			flashAndRedirect(a, w, r, "", "")
 			return false
@@ -105,15 +107,17 @@ func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 			return false
 		}
 
-		if docker.IsServiceRunning(r.Context(), userContext, entry.ServiceName) {
-			ok, testOutput := webserver.TestWebserverConfig(r.Context(), userContext, entry.ServiceName)
-			if !ok {
-				if prevErr == nil {
-					_ = tenantfs.WriteFile(configFilePath, previousContent, 0o644)
-				}
-				flashAndRedirect(a, w, r, "error", web.Tr(a, r, "Configuration was not saved - it failed the %(service_name)s syntax check: %(test_output)s", "service_name", entry.ServiceName, "test_output", testOutput))
-				return false
+		if ok, testOutput := webserver.TestWebserverConfig(r.Context(), userContext, entry.ServiceName); !ok {
+			if prevErr == nil {
+				_ = tenantfs.WriteFile(configFilePath, previousContent, 0o644)
 			}
+			// rendered here instead of a redirect so the editor keeps what the user typed
+			failure := describeTestFailure(requestTr(a, r), entry, testOutput)
+			sess, _ := a.Sessions.Get(r, session.CookieName)
+			flash.Add(sess, "error", web.Tr(a, r, "Configuration was not saved, the %(service_name)s config test found a problem. Your changes are still in the editor.", "service_name", entry.ServiceName))
+			_ = a.Sessions.Save(r, w, sess)
+			renderWebserverConfPage(a, w, r, entry.PageTitle, webServer, entry.ConfFile, canRestoreDefault(entry), newContent, &failure)
+			return false
 		}
 		actionDescription = "edited " + entry.ConfFile
 	}
@@ -122,7 +126,7 @@ func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 	if docker.IsServiceRunning(r.Context(), userContext, entry.ServiceName) {
 		if reloadErr := webserver.ReloadWebserver(r.Context(), userContext, entry.ServiceName); reloadErr != nil {
-			flash.Add(sess, "error", web.Tr(a, r, "Error reloading %(service_name)s container.", "service_name", entry.ServiceName))
+			flash.Add(sess, "error", web.Tr(a, r, "Changes were saved to %(conf_file)s, but reloading the %(service_name)s container failed: %(error)s", "conf_file", entry.ConfFile, "service_name", entry.ServiceName, "error", reloadErr.Error()))
 		} else {
 			var message string
 			if action == "restore_default" {

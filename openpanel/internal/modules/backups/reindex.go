@@ -23,10 +23,9 @@ import (
 // readBackupEnv returns the full backup.env key/value map (commented lines excluded, quotes stripped), with SSH_IDENTITY_FILE rewritten from its /var/www/html/ docroot-relative form to the real host path - it's absent entirely for any non-SSH destination, and a Go map just returns "" for a missing key so the "ok" check below handles that without special-casing
 func readBackupEnv(username string) (map[string]string, string) {
 	userHome := "/home/" + username
-	envFile := filepath.Join(userHome, "backup.env")
 
 	config := map[string]string{}
-	if content, err := tenantfs.ReadFile(envFile); err == nil {
+	if content, err := readEnvFile(username); err == nil {
 		for _, line := range strings.Split(string(content), "\n") {
 			line = strings.TrimSpace(line)
 			if line == "" || strings.HasPrefix(line, "#") {

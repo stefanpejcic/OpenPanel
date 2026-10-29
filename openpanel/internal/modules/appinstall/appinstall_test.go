@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
 	"gopkg.in/yaml.v3"
 )
 
@@ -201,7 +202,7 @@ func TestBuildAppRunCommand(t *testing.T) {
 		},
 		{Ruby, "1", "", "", "", "bundle install && ruby app.rb"},
 		{Ruby, "", "", "server.rb", "", "ruby server.rb"},
-		{Java, "1", "", "", "", "mvn install && java Main.java"},
+		{Java, "1", "", "", "", websites.MavenInstallCmd + " && java Main.java"},
 		{Java, "", "", "App.java", "", "java App.java"},
 	}
 	for _, c := range cases {
@@ -262,5 +263,15 @@ func TestFlashAndRedirectAppXHRErrorIsNotASuccess(t *testing.T) {
 	}
 	if !strings.Contains(w.Body.String(), "Failed to stop container") {
 		t.Fatalf("body = %q, want the error message", w.Body.String())
+	}
+}
+
+// the Maven step lands inside the compose template's sh -c "...", where compose would expand a $ and a quote would end the string
+func TestMavenInstallCmdFitsComposeCommand(t *testing.T) {
+	if strings.ContainsAny(websites.MavenInstallCmd, "$\"`\\\n") {
+		t.Errorf("MavenInstallCmd has a character that breaks sh -c \"...\" in docker-compose.yml: %q", websites.MavenInstallCmd)
+	}
+	if !strings.Contains(websites.MavenInstallCmd, "mvn install") || !strings.Contains(websites.MavenInstallCmd, "./mvnw install") {
+		t.Errorf("MavenInstallCmd should run ./mvnw or mvn install: %q", websites.MavenInstallCmd)
 	}
 }

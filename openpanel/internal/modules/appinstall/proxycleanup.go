@@ -114,8 +114,8 @@ func RemoveServiceProxies(ctx context.Context, userContext string, names ...stri
 		return changed
 	}
 
-	// put the files back if nginx won't take them, a dead proxy beats a dead webserver
-	if isNginx && docker.IsServiceRunning(ctx, userContext, webServerType) {
+	// put the files back if nginx won't take them, a dead proxy beats a dead webserver, a stopped one is tested in a throwaway container
+	if isNginx {
 		if ok, _ := webserver.TestWebserverConfig(ctx, userContext, webServerType); !ok {
 			for f, content := range originals {
 				_ = tenantfs.WriteFile(f, content, 0o644)

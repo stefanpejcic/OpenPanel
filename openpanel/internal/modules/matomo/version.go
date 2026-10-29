@@ -4,12 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
-	"net/http"
 	"regexp"
 	"sort"
 	"time"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/githubapi"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 )
 
@@ -24,18 +23,7 @@ type githubRelease struct {
 
 // listMatomoVersions hits the GitHub releases API and returns every stable version that ships a matomo-X.Y.Z.zip release asset, newest first - this asset is attached directly to the GitHub release (unlike PrestaShop, no separate download host is needed)
 func listMatomoVersions(ctx context.Context) ([]string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.github.com/repos/matomo-org/matomo/releases?per_page=40", nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Accept", "application/vnd.github+json")
-	client := &http.Client{Timeout: 15 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
+	body, err := githubapi.Get(ctx, "https://api.github.com/repos/matomo-org/matomo/releases?per_page=40", 15*time.Second)
 	if err != nil {
 		return nil, err
 	}

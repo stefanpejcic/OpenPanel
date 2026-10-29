@@ -308,8 +308,12 @@ func apiPM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	docker.StartOrStopContainer(ctx, userContext, strings.ToLower(serviceName.String), "deactivate", "")
 
-	// proxies are written with the lowercase service name, sites.container is uppercase
-	RemoveServiceProxies(ctx, userContext, strings.ToLower(serviceName.String))
+	webServerType, _ := docker.GetEnvValue(userContext, "WEB_SERVER")
+	if webServerType == "apache" || webServerType == "openresty" || webServerType == "nginx" ||
+		webServerType == "openlitespeed" || webServerType == "litespeed" {
+		// sites.container is stored uppercase, the proxy was written with the lowercase name
+		RemoveServiceProxies(ctx, userContext, strings.ToLower(serviceName.String))
+	}
 
 	composeData, loadErr := docker.LoadCompose(userContext)
 	if loadErr != nil {

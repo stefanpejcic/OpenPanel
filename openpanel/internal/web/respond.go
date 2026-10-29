@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
@@ -43,6 +44,11 @@ func FormOr(r *http.Request, key, def string) string {
 		return v
 	}
 	return def
+}
+
+// FormText reads a textarea field, browsers post those with CRLF and files on disk should keep LF
+func FormText(r *http.Request, key string) string {
+	return strings.ReplaceAll(r.FormValue(key), "\r\n", "\n")
 }
 
 func AtoiDefault(s string, def int) int {

@@ -251,6 +251,82 @@ func TestMigrationLifecycle(t *testing.T) {
 	}
 }
 
+func TestStatusKeepsStartingJob(t *testing.T) {
+	home, _ := withMigrateHome(t)
+	dir := filepath.Join(home, "ctx1", "imapsync")
+	ctx := context.Background()
+	t.Cleanup(func() { migrateStarting.Delete("ctx1") })
+
+	root, uid, gid, err := openJobDir("ctx1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer root.Close()
+	id := "20261005-100000"
+	_ = writeOwned(root, id+".p1", []byte("src\n"), uid, gid)
+	_ = writeOwned(root, id+".p2", []byte("dst\n"), uid, gid)
+	_ = writeJob(root, MigrateJob{ID: id}, uid, gid)
+
+	// podman run hasn't returned yet, e.g. still pulling the image
+	migrateStarting.Store("ctx1", id)
+	st, err := migrationStatus(ctx, "ctx1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !st.Running || st.Jobs[0].Status != "running" {
+		t.Errorf("starting job status = %+v", st)
+	}
+	if _, err := os.Stat(filepath.Join(dir, id+".p1")); err != nil {
+		t.Error("passfiles of a starting job must be kept")
+	}
+	if err := cancelMigration(ctx, "ctx1"); err == nil || !strings.Contains(err.Error(), "still starting") {
+		t.Errorf("cancel while starting = %v", err)
+	}
+
+	migrateStarting.Delete("ctx1")
+	st, _ = migrationStatus(ctx, "ctx1")
+	if st.Running || st.Jobs[0].Status != "failed" {
+		t.Errorf("after the start gave up = %+v", st.Jobs[0])
+	}
+	if _, err := os.Stat(filepath.Join(dir, id+".p1")); !os.IsNotExist(err) {
+		t.Error("passfiles should go once the job is no longer starting")
+	}
+}
+
+func TestReserveStart(t *testing.T) {
+	_, fake := withMigrateHome(t)
+	ctx := context.Background()
+	a := &appctx.App{Config: config.Config{"imapsync_max_jobs": "2"}}
+	t.Cleanup(func() {
+		for _, uc := range []string{"ctx1", "ctx2", "ctx3"} {
+			migrateStarting.Delete(uc)
+		}
+	})
+
+	if err := reserveStart(ctx, a, "ctx1"); err != nil {
+		t.Fatalf("first reserve: %v", err)
+	}
+	if status, _ := errStatus(reserveStart(ctx, a, "ctx1")); status != 409 {
+		t.Errorf("second start of the same account = %d, want 409", status)
+	}
+	// another account isn't blocked by a start that's still in podman run
+	if err := reserveStart(ctx, a, "ctx2"); err != nil {
+		t.Fatalf("other account: %v", err)
+	}
+	if n := activeMigrations(ctx, a); n != 2 {
+		t.Errorf("activeMigrations = %d, want 2 starting", n)
+	}
+	if status, _ := errStatus(reserveStart(ctx, a, "ctx3")); status != 503 {
+		t.Errorf("over imapsync_max_jobs = %d, want 503", status)
+	}
+
+	migrateStarting.Delete("ctx1")
+	fake.running = "20261005-100000"
+	if status, _ := errStatus(reserveStart(ctx, a, "ctx1")); status != 409 {
+		t.Errorf("start while the container runs = %d, want 409", status)
+	}
+}
+
 func TestPruneJobsKeepsNewest(t *testing.T) {
 	home, _ := withMigrateHome(t)
 	root, uid, gid, err := openJobDir("ctx1")
@@ -355,5 +431,64 @@ func TestLoginLinesKeepsOnlyResults(t *testing.T) {
 	got := loginLines(out)
 	if strings.Count(got, "\n") != 1 || !strings.Contains(got, "AUTHENTICATIONFAILED") || !strings.Contains(got, "Host2: success login") {
 		t.Errorf("loginLines = %q", got)
+	}
+}
+
+func TestParseDovecotSize(t *testing.T) {
+	for in, want := range map[string]int64{"10M": 10 << 20, "10240000\n": 10240000, "0": 0, "unlimited": 0, "2 G": 2 << 30, "512kB": 512 << 10} {
+		if got, ok := parseDovecotSize(in); !ok || got != want {
+			t.Errorf("parseDovecotSize(%q) = %d, %v, want %d", in, got, ok, want)
+		}
+	}
+	for _, in := range []string{"", "abc", "-5", "10X", "1x0M"} {
+		if _, ok := parseDovecotSize(in); ok {
+			t.Errorf("parseDovecotSize(%q) should fail", in)
+		}
+	}
+}
+
+func TestStatusCountsTooBig(t *testing.T) {
+	home, _ := withMigrateHome(t)
+	dir := filepath.Join(home, "ctx1", "imapsync")
+	root, uid, gid, err := openJobDir("ctx1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer root.Close()
+
+	skip := "msg INBOX/8 skipped (11479514 exceeds maxsize limit 10485761 bytes)\n"
+	for _, j := range []struct {
+		job MigrateJob
+		log string
+	}{
+		{MigrateJob{ID: "20261001-100000", MaxSize: 10 << 20}, "copied\n" + skip + skip + "Exiting with return value 0 (EX_OK: successful termination) 0/50 nb_errors/max_errors\n"},
+		// killed before imapsync wrote its summary, so the count isn't final yet
+		{MigrateJob{ID: "20261002-100000", MaxSize: 10 << 20}, skip},
+		{MigrateJob{ID: "20261003-100000"}, skip + "Exiting with return value 0 (EX_OK: successful termination) 0/50 nb_errors/max_errors\n"},
+	} {
+		_ = writeJob(root, j.job, uid, gid)
+		_ = os.WriteFile(filepath.Join(dir, j.job.ID+".log"), []byte(j.log), 0o600)
+	}
+
+	st, err := migrationStatus(context.Background(), "ctx1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := map[string]int{}
+	for _, j := range st.Jobs {
+		got[j.ID] = j.TooBig
+	}
+	if got["20261001-100000"] != 2 || got["20261002-100000"] != 0 || got["20261003-100000"] != 0 {
+		t.Errorf("too_big = %v", got)
+	}
+	if st.Jobs[2].Status != "completed" || st.Jobs[2].Message != "" {
+		t.Errorf("skipped messages shouldn't fail the job: %+v", st.Jobs[2])
+	}
+	saved, _ := readJob(root, "20261001-100000")
+	if !saved.SizeChecked || saved.TooBig != 2 || saved.Status != "" {
+		t.Errorf("count not saved in the job file: %+v", saved)
+	}
+	if unfinished, _ := readJob(root, "20261002-100000"); unfinished.SizeChecked {
+		t.Error("an unfinished job shouldn't be counted yet")
 	}
 }

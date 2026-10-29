@@ -276,7 +276,7 @@ func handleSaveDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = r.ParseForm()
-	newContent := r.Form.Get("zone_content")
+	newContent := web.FormText(r, "zone_content")
 	if newContent == "" {
 		writeText(w, "New content not provided.")
 		return

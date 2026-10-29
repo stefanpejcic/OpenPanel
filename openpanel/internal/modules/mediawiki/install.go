@@ -101,6 +101,10 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	version := strings.TrimSpace(r.FormValue("mediawiki_version"))
+	if version != "" && !cmsapp.ValidVersion(version) {
+		emit(map[string]any{"error": "Invalid MediaWiki version."})
+		return
+	}
 	if version == "" {
 		var latestErr error
 		version, latestErr = latestMediaWikiVersion(ctx)

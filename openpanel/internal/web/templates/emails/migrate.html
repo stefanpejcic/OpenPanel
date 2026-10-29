@@ -151,6 +151,7 @@
         destOk: {{toJSON (.T.Get "Destination account: login successful")}},
         destFail: {{toJSON (.T.Get "Destination account: login failed")}},
         error: {{toJSON (.T.Get "Something went wrong, please try again.")}},
+        tooBig: {{toJSON (.T.Get "%d messages were bigger than this server's %s limit and were not copied.")}},
     };
     // imapsync exit codes the log ends with, anything else is shown as is
     const failReasons = {
@@ -161,6 +162,7 @@
         EXIT_OVERQUOTA: {{toJSON (.T.Get "The destination account is full, raise its quota and run the migration again.")}},
         EXIT_WITH_ERRORS: {{toJSON (.T.Get "Finished with errors, some messages were not copied. See the log.")}},
         EXIT_WITH_ERRORS_MAX: {{toJSON (.T.Get "Stopped after too many errors. See the log.")}},
+        EXIT_ERR_APPEND: {{toJSON (.T.Get "The destination account refused some messages, they were not copied. See the log.")}},
         EXIT_CONNECTION_FAILURE: {{toJSON (.T.Get "Could not connect to the source server, check the server, security and port.")}},
         EXIT_TLS_FAILURE: {{toJSON (.T.Get "The SSL/TLS connection failed, try another Security option.")}},
         EXIT_BY_SIGNAL: {{toJSON (.T.Get "Stopped before finishing.")}},
@@ -234,6 +236,12 @@
                 msg.className = "migrate-msg mt-1 break-words text-xs text-gray-500";
                 msg.textContent = failReasons[job.message] || job.message;
                 statusTd.appendChild(msg);
+            }
+            if (job.too_big > 0 && job.status !== "running") {
+                const big = document.createElement("p");
+                big.className = "migrate-msg mt-1 break-words text-xs text-yellow-700 dark:text-yellow-400";
+                big.textContent = i18n.tooBig.replace("%d", job.too_big).replace("%s", Math.round(job.max_size / 1048576) + " MB");
+                statusTd.appendChild(big);
             }
             tr.appendChild(statusTd);
             const actionTd = cell("", true);
