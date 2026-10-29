@@ -1,4 +1,4 @@
-// Package webserver reads a per-user .env value, runs each web server's own config syntax test inside its container, and reloads it.
+// Package webserver reads a per-user .env value, runs each web server's own config syntax test, and reloads it.
 package webserver
 
 import (
@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 
@@ -32,39 +32,111 @@ func GetEnvFileValue(userContext, key string) string {
 }
 
 type configTest struct {
-	args           []string
+	cmd            string
 	successPattern *regexp.Regexp
+	// used instead of successPattern by a test that has no success line, it passes unless this matches
+	failPattern *regexp.Regexp
 }
 
-// webserverConfigTests holds the syntax-check command for each web server, run inside its container. No entry (e.g. LiteSpeed) means "can't validate" - callers should treat that as ok.
+func (t configTest) passed(output string) bool {
+	if t.failPattern != nil {
+		return !t.failPattern.MatchString(output)
+	}
+	return t.successPattern.MatchString(output)
+}
+
+// webserverConfigTests holds the syntax-check shell command for each web server. No entry (e.g. LiteSpeed) means "can't validate" - callers should treat that as ok.
 var webserverConfigTests = map[string]configTest{
-	"nginx":     {[]string{"nginx", "-t"}, regexp.MustCompile(`successful`)},
-	"openresty": {[]string{"nginx", "-t"}, regexp.MustCompile(`successful`)},
-	"apache":    {[]string{"apachectl", "configtest"}, regexp.MustCompile(`Syntax OK`)},
+	"nginx":     {cmd: "nginx -t", successPattern: regexp.MustCompile(`successful`)},
+	"openresty": {cmd: "nginx -t", successPattern: regexp.MustCompile(`successful`)},
+	"apache":    {cmd: "apachectl configtest", successPattern: regexp.MustCompile(`Syntax OK`)},
+	// -t exits 1 on plain warnings, writes nothing without /tmp/lshttpd (only a running server makes it) and leaves its log behind for the next run when a config won't load at all
+	"openlitespeed": {cmd: "mkdir -p /tmp/lshttpd && rm -f /tmp/lshttpd/testconf && exec /usr/local/lsws/bin/openlitespeed -t", failPattern: regexp.MustCompile(`\[ERROR\]`)},
 }
 
-// HasConfigTest reports whether serviceName has a built-in syntax-check command (nginx/openresty/apache) - LiteSpeed and anything else don't
+// HasConfigTest reports whether serviceName has a built-in syntax-check command, LiteSpeed Enterprise and anything else don't
 func HasConfigTest(serviceName string) bool {
 	_, ok := webserverConfigTests[serviceName]
 	return ok
 }
 
-// TestWebserverConfig runs the web server's config syntax test inside its container, returning (ok, output). Only meaningful while the container is running.
+// lookupFailed is nginx -t failing on a container name that aardvark-dns can't resolve yet
+var lookupFailed = regexp.MustCompile(`host not found`)
+
+// oneOffTestTimeout caps a test in a throwaway container, podman-compose pulls the image first if it's missing
+const oneOffTestTimeout = 2 * time.Minute
+
+// TestWebserverConfig runs the web server's config syntax test in its container, or in a throwaway one from the account's compose file while it's stopped, returning (ok, output)
 func TestWebserverConfig(ctx context.Context, userContext, serviceName string) (bool, string) {
 	test, ok := webserverConfigTests[serviceName]
 	if !ok {
 		return true, ""
 	}
+	if !isRunning(ctx, userContext, serviceName) {
+		return testInThrowaway(ctx, userContext, serviceName, test)
+	}
+	argv := podmanmanager.PodmanArgv(userContext, "exec", serviceName, "sh", "-c", test.cmd)
+	// retried since aardvark-dns briefly fails lookups right after a container is created or removed
+	ok, output := runConfigTest(ctx, userContext, argv, test)
+	for attempt := 1; !ok && attempt < 5 && lookupFailed.MatchString(output); attempt++ {
+		select {
+		case <-ctx.Done():
+			return false, output
+		case <-time.After(time.Second):
+		}
+		ok, output = runConfigTest(ctx, userContext, argv, test)
+	}
+	return ok, output
+}
 
-	argv := podmanmanager.PodmanArgv(userContext, append([]string{"exec", serviceName}, test.args...)...)
-	cmd := exec.CommandContext(ctx, argv[0], argv[1:]...)
-	cmd.Env = podmanmanager.PodmanEnv(userContext)
-	out, err := cmd.CombinedOutput()
+// mapComposeHosts points the account's container names at the throwaway container, nginx -t has to resolve upstreams whose containers may be stopped too
+const mapComposeHosts = `for h in "$@"; do echo "127.0.0.1 $h" >> /etc/hosts; done; `
+
+func testInThrowaway(ctx context.Context, userContext, serviceName string, test configTest) (bool, string) {
+	ctx, cancel := context.WithTimeout(ctx, oneOffTestTimeout)
+	defer cancel()
+	// podman-compose run leaves out the ports, so this can't clash with whatever holds them now
+	args := []string{"-f", "/home/" + userContext + "/docker-compose.yml",
+		"run", "--rm", "--no-deps", "-T", "--entrypoint", "sh", serviceName, "-c", mapComposeHosts + test.cmd, "sh"}
+	var hosts []string
+	if compose, err := podmanmanager.LoadComposeConfig(ctx, userContext); err == nil {
+		hosts = composeHostnames(compose)
+	}
+	ok, output := runConfigTest(ctx, userContext, podmanmanager.PodmanComposeArgv(append(args, hosts...)...), test)
+	if !ok && ctx.Err() == context.DeadlineExceeded {
+		return false, TestTimedOut
+	}
+	return ok, output
+}
+
+// composeHostnames is every service and container name in a compose config
+func composeHostnames(compose map[string]any) []string {
+	services, _ := compose["services"].(map[string]any)
+	names := make([]string, 0, len(services))
+	for name, svc := range services {
+		names = append(names, name)
+		if s, ok := svc.(map[string]any); ok {
+			if cn, _ := s["container_name"].(string); cn != "" && cn != name {
+				names = append(names, cn)
+			}
+		}
+	}
+	sort.Strings(names)
+	return names
+}
+
+func runConfigTest(ctx context.Context, userContext string, argv []string, test configTest) (bool, string) {
+	out, err := podmanmanager.Command(ctx, userContext, argv).CombinedOutput()
 	output := strings.TrimSpace(string(out))
 	if err != nil && output == "" {
-		return false, err.Error()
+		return false, TestNoOutput + ": " + err.Error()
 	}
-	return test.successPattern.MatchString(output), output
+	return test.passed(output), output
+}
+
+func isRunning(ctx context.Context, userContext, container string) bool {
+	out, err := podmanmanager.Command(ctx, userContext, podmanmanager.PodmanArgv(userContext, "inspect", "-f", "{{.State.Running}}", container)).Output()
+	return err == nil && strings.TrimSpace(string(out)) == "true"
 }
 
 // reloadSignals is the graceful reload signal each image's pid 1 (the server's master process) takes
@@ -93,7 +165,7 @@ func reloadWebserver(ctx context.Context, userContext, ws string) error {
 		return nil
 	}
 
-	if out, err := run("inspect", "-f", "{{.State.Running}}", ws); err != nil || strings.TrimSpace(string(out)) != "true" {
+	if !isRunning(ctx, userContext, ws) {
 		return restart()
 	}
 	// pid 1 in the litespeed container is our start.sh, lswsctrl restart is litespeed's own graceful restart
@@ -108,13 +180,7 @@ func reloadWebserver(ctx context.Context, userContext, ws string) error {
 		return restart()
 	}
 	// a reload with a broken config would be ignored silently, a restart would take every site down
-	// retried since aardvark-dns briefly fails lookups right after a container is created or removed
-	ok, testOut := TestWebserverConfig(ctx, userContext, ws)
-	for attempt := 1; !ok && attempt < 5; attempt++ {
-		time.Sleep(time.Second)
-		ok, testOut = TestWebserverConfig(ctx, userContext, ws)
-	}
-	if !ok {
+	if ok, testOut := TestWebserverConfig(ctx, userContext, ws); !ok {
 		return fmt.Errorf("%s config test failed, still running the previous config: %s", ws, testOut)
 	}
 	if _, err := run("kill", "--signal", signal, ws); err != nil {
