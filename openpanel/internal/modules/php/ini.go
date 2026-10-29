@@ -64,7 +64,7 @@ func handlePHPIniEditor(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 
 		if r.Method == http.MethodPost {
 			_ = r.ParseForm()
-			if newContent := r.Form.Get("editor_content"); newContent != "" {
+			if newContent := web.FormText(r, "editor_content"); newContent != "" {
 				if writeErr := tenantfs.WriteFile(phpIniFilePath, []byte(newContent), 0o644); writeErr != nil {
 					web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error saving %(text)s php.ini file!", "text", text), "/php/php"+version+".ini/editor")
 					return

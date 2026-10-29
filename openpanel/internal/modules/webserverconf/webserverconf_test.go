@@ -1,11 +1,6 @@
 package webserverconf
 
-import (
-	"net/http/httptest"
-	"net/url"
-	"strings"
-	"testing"
-)
+import "testing"
 
 func TestLookupWebserverConf(t *testing.T) {
 	cases := []struct {
@@ -43,14 +38,5 @@ func TestFileExists(t *testing.T) {
 	}
 	if !fileExists("webserverconf_test.go") {
 		t.Error("expected true for this test file")
-	}
-}
-
-func TestEditorContentNormalizesCRLF(t *testing.T) {
-	r := httptest.NewRequest("POST", "/server/webserver_conf", strings.NewReader("editor_content="+url.QueryEscape("Listen 80\r\n<IfModule x>\r\n</IfModule>\r\n")))
-	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	_ = r.ParseForm()
-	if got := editorContent(r); got != "Listen 80\n<IfModule x>\n</IfModule>\n" {
-		t.Fatalf("got %q", got)
 	}
 }

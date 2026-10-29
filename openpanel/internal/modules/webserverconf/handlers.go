@@ -2,7 +2,6 @@ package webserverconf
 
 import (
 	"net/http"
-	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -62,11 +61,6 @@ func handleWebserverConf(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	renderWebserverConfPage(a, w, r, entry.PageTitle, webServer, entry.ConfFile, canRestoreDefault(entry), existingContent, nil)
 }
 
-// browsers post textarea content with CRLF, without this every save rewrote each line of the config
-func editorContent(r *http.Request) string {
-	return strings.ReplaceAll(r.Form.Get("editor_content"), "\r\n", "\n")
-}
-
 func canRestoreDefault(entry webserverConfEntry) bool {
 	defaultConfPath, hasDefault := defaultConfTemplates[entry.ServiceName]
 	return hasDefault && fileExists(defaultConfPath)
@@ -100,7 +94,7 @@ func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		}
 		actionDescription = "restored " + entry.ConfFile + " to default"
 	} else {
-		newContent := editorContent(r)
+		newContent := web.FormText(r, "editor_content")
 		if newContent == "" {
 			flashAndRedirect(a, w, r, "", "")
 			return false

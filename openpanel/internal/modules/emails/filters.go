@@ -110,12 +110,12 @@ func handleFilterView(a *appctx.App, w http.ResponseWriter, r *http.Request, vie
 
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
-		newContent, ok := r.Form["new_content"]
+		_, ok := r.Form["new_content"]
 		if !ok {
 			web.FlashRedirect(a, w, r, "error", "No content provided.", "/emails/filter/"+email+"/"+viewMode)
 			return
 		}
-		if writeErr := writeSieve(resolvedPath, newContent[0]); writeErr != nil {
+		if writeErr := writeSieve(resolvedPath, web.FormText(r, "new_content")); writeErr != nil {
 			web.FlashRedirect(a, w, r, "error", "Error saving filter.", "/emails/filter/"+email+"/"+viewMode)
 			return
 		}

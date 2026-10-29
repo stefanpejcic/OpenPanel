@@ -243,7 +243,7 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if autoComment {
 		comment = container
 	}
-	crontabContent := r.Form.Get("crontab_content")
+	crontabContent := web.FormText(r, "crontab_content")
 
 	if crontabContent == "" {
 		if schedule == "" || command == "" || container == "" {
