@@ -358,7 +358,9 @@ install_packages() {
                 run ln -sf /opt/podman-compose/bin/podman-compose /usr/local/bin/podman-compose
                 run hash -r
             fi
-            packages=(curl openssl git logrotate cron tar dbus-user-session systemd dbus systemd-container systemd-oomd quota uidmap iptables podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs "$kernel_pkg" default-mysql-client sqlite3)
+            packages=(curl openssl git logrotate cron tar dbus-user-session systemd dbus systemd-container systemd-oomd quota uidmap iptables podman crun netavark aardvark-dns slirp4netns passt fuse-overlayfs "$kernel_pkg" default-mysql-client sqlite3)
+            # on 12, apt's 1.0.3 next to the venv one got used by the rest of the install (setup_opencli puts /usr/bin first in PATH), so everything after it saw those containers as changed and recreated them
+            [[ "$OS_VERSION_ID" == "12" && -x /opt/podman-compose/bin/podman-compose ]] || packages+=(podman-compose)
             ;;
         yum)
             run yum install -y dnf-plugins-core yum-utils epel-release
@@ -389,13 +391,15 @@ install_packages() {
 
     wait_for_pkg_lock
     install_pkgs_batch "${packages[@]}"
-    if [[ "$OS_ID" == "almalinux" ]] && [[ "$PACKAGE_MANAGER" =~ ^(dnf|yum)$ ]]; then
+    if [[ "$OS_ID" =~ ^(almalinux|rocky|centos)$ ]] && [[ "$PACKAGE_MANAGER" =~ ^(dnf|yum)$ ]]; then
         check_kernel_modules_reboot
     fi
 }
 
 check_kernel_modules_reboot() {
     [[ "$PACKAGE_MANAGER" =~ ^(dnf|yum)$ ]] || return 0
+    # EL10 moved ip_tables, iptable_nat and br_netfilter into kernel-modules-extra, nothing to do when the running kernel has them
+    modinfo ip_tables &>/dev/null && return 0
 
     local running installed
     running=$(uname -r)
@@ -408,6 +412,8 @@ check_kernel_modules_reboot() {
     [[ -n "$installed" ]] || return 0
 
     if [[ "$running" == "$installed" ]]; then
+        # same kernel, so the modules work without a reboot
+        run "$PACKAGE_MANAGER" install -y "kernel-modules-extra"
         ok "Running kernel ($running) matches the newest installed kernel."
         return 0
     fi
@@ -735,7 +741,14 @@ setup_compose() {
     run podman-compose -f /root/docker-compose.yml up -d openpanel_mysql
 
     local cid; cid=$(podman ps -q --filter "name=openpanel_mysql")
-    [[ -n "$cid" ]] && ok "MySQL service started." || die 1 "MySQL container is not running."
+    [[ -n "$cid" ]] || die 1 "MySQL container is not running."
+
+    # the first start runs initialize.sql with networking off, and the cron from the housekeeping step runs sentinel, which recreates a mysql that doesn't answer and leaves the panel schema half-built
+    local waited=0
+    until mariadb -e "SELECT 1" &>/dev/null || (( waited >= 180 )); do
+        sleep 2; (( waited += 2 ))
+    done
+    (( waited < 180 )) && ok "MySQL service started." || warn "MySQL is still not answering after 180s, check: podman logs openpanel_mysql"
 
     ln -sf / /hostfs 2>/dev/null || true
 }
