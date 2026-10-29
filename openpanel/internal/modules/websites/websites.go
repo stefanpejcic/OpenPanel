@@ -1113,7 +1113,7 @@ func handleWordPressWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	case "update_debug":
 		handleWPCLIUpdateDebug(a, w, r, currentUsername, userContext, docroot, phpContainer, website, isLitespeed)
 	case "update_site_information":
-		handleWPCLIUpdateSiteInfo(a, w, r, currentUsername, userContext, docroot, wpBase, website)
+		handleWPCLIUpdateSiteInfo(a, w, r, currentUsername, userContext, wpConfigFile, docroot, wpBase, website)
 	case "update_now":
 		handleWPCLIUpdateNow(a, w, r, currentUsername, userContext, docroot, wpBase)
 	case "update_update_preferences":
@@ -1125,34 +1125,43 @@ func handleWordPressWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 }
 
+// wpGeneralOptions are the wp_options rows the general settings tab shows and saves
+var wpGeneralOptions = []string{"siteurl", "home", "blogname", "blogdescription", "admin_email", "users_can_register", "default_ping_status", "blog_public"}
+
+// readWPGeneralOptions reads wpGeneralOptions straight from the site's database, one query instead of a wp-cli boot per option
+func readWPGeneralOptions(ctx context.Context, userContext, wpConfig string) (map[string]string, int, string) {
+	dbNameMatch := regexp.MustCompile(`define\(\s*['"]DB_NAME['"]\s*,\s*['"]([^'"]+)['"]`).FindStringSubmatch(wpConfig)
+	tablePrefixMatch := regexp.MustCompile(`\$table_prefix\s*=\s*['"]([^'"]+)['"]`).FindStringSubmatch(wpConfig)
+	if dbNameMatch == nil || tablePrefixMatch == nil {
+		return nil, http.StatusInternalServerError, "wp-config parse error"
+	}
+	dbName, tablePrefix := dbNameMatch[1], tablePrefixMatch[1]
+	if !configDBNameRE.MatchString(dbName) || !tablePrefixSafeRE.MatchString(tablePrefix) {
+		return nil, http.StatusBadRequest, "wp-config.php has an unsupported DB_NAME or table prefix"
+	}
+
+	rows, execErr := mysqlmanager.Exec(ctx, userContext,
+		"SELECT option_name, option_value FROM `"+tablePrefix+"options` WHERE option_name IN ('"+strings.Join(wpGeneralOptions, "','")+"')", dbName)
+	if execErr != nil {
+		return nil, http.StatusInternalServerError, "Failed reading WordPress options: " + execErr.Error()
+	}
+	options := map[string]string{}
+	for _, row := range rows {
+		options[toStringCell(row[0])] = toStringCell(row[1])
+	}
+	return options, http.StatusOK, ""
+}
+
 func handleWPCLISiteInfo(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext, wpConfigFile, docroot string, wpBase []string) {
 	content, readErr := tenantfs.ReadFile(wpConfigFile)
 	if readErr != nil {
 		web.WriteJSON(w, http.StatusOK, wpCLIOptionListFallback(a, r, userContext, docroot, wpBase))
 		return
 	}
-	dbNameMatch := regexp.MustCompile(`define\(\s*['"]DB_NAME['"]\s*,\s*['"]([^'"]+)['"]`).FindStringSubmatch(string(content))
-	tablePrefixMatch := regexp.MustCompile(`\$table_prefix\s*=\s*['"]([^'"]+)['"]`).FindStringSubmatch(string(content))
-	if dbNameMatch == nil || tablePrefixMatch == nil {
-		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "wp-config parse error"})
+	options, status, errMsg := readWPGeneralOptions(r.Context(), userContext, string(content))
+	if errMsg != "" {
+		web.WriteJSON(w, status, map[string]string{"error": errMsg})
 		return
-	}
-	dbName, tablePrefix := dbNameMatch[1], tablePrefixMatch[1]
-	if !configDBNameRE.MatchString(dbName) || !tablePrefixSafeRE.MatchString(tablePrefix) {
-		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "wp-config.php has an unsupported DB_NAME or table prefix"})
-		return
-	}
-
-	rows, execErr := mysqlmanager.Exec(r.Context(), userContext,
-		"SELECT option_name, option_value FROM `"+tablePrefix+"options` WHERE option_name IN "+
-			"('siteurl','home','blogname','blogdescription','admin_email','users_can_register','blog_public','default_ping_status')", dbName)
-	if execErr != nil {
-		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed reading WordPress options: " + execErr.Error()})
-		return
-	}
-	options := map[string]string{}
-	for _, row := range rows {
-		options[toStringCell(row[0])] = toStringCell(row[1])
 	}
 	web.WriteJSON(w, http.StatusOK, map[string]any{
 		"success": true, "site_url": options["siteurl"], "home_url": options["home"],
@@ -1225,13 +1234,21 @@ func onOff(v string) string {
 	return "false"
 }
 
-func handleWPCLIUpdateSiteInfo(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, docroot string, wpBase []string, website string) {
+func handleWPCLIUpdateSiteInfo(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, wpConfigFile, docroot string, wpBase []string, website string) {
 	q := r.URL.Query()
-	for _, opt := range []string{"siteurl", "home", "blogname", "blogdescription", "admin_email", "users_can_register", "default_ping_status", "blog_public"} {
+	// each wp option update is a podman exec plus a WordPress boot, so only run it for what actually changed, unreadable current values update everything like before
+	var current map[string]string
+	if content, readErr := tenantfs.ReadFile(wpConfigFile); readErr == nil {
+		current, _, _ = readWPGeneralOptions(r.Context(), userContext, string(content))
+	}
+	for _, opt := range wpGeneralOptions {
 		if !q.Has(opt) {
 			continue
 		}
 		value := q.Get(opt)
+		if old, ok := current[opt]; ok && old == value {
+			continue
+		}
 		argv := append(append([]string{}, wpBase...), "option", "update", opt, value, "--path="+docroot, "--skip-themes", "--allow-root")
 		_ = podmanmanager.Command(r.Context(), userContext, argv).Run()
 	}

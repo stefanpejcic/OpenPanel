@@ -11,6 +11,6 @@ opencli version
 
 ```bash
 # opencli version
-2.0.18
+2.0.19
 ```
 </details>
