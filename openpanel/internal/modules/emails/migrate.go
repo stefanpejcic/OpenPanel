@@ -1,6 +1,8 @@
 package emails
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -10,6 +12,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -86,6 +89,9 @@ type MigrateJob struct {
 	Started     time.Time `json:"started"`
 	Cancelled   bool      `json:"cancelled,omitempty"`
 	StartError  string    `json:"start_error,omitempty"`
+	MaxSize     int64     `json:"max_size,omitempty"`
+	TooBig      int       `json:"too_big,omitempty"`
+	SizeChecked bool      `json:"size_checked,omitempty"`
 	Status      string    `json:"status"`
 	ExitCode    int       `json:"exit_code"`
 	Message     string    `json:"message,omitempty"`
@@ -235,6 +241,42 @@ func migrateDest(ctx context.Context, a *appctx.App, username string) (host, por
 		return host, "993", "ssl"
 	}
 	return host, "143", "auto"
+}
+
+// mailserverMaxSize asks the mailserver for the biggest message dovecot will store, 0 when there's no limit or it can't tell
+func mailserverMaxSize(ctx context.Context) int64 {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	// the setting is quota_mail_size on dovecot 2.4 and a quota plugin setting on 2.3
+	for _, setting := range []string{"quota_mail_size", "plugin/quota_max_mail_size"} {
+		out, err := exec.CommandContext(ctx, "podman", "exec", mailserverContainerName, "doveconf", "-h", setting).Output()
+		if err != nil {
+			continue
+		}
+		if n, ok := parseDovecotSize(string(out)); ok {
+			return n
+		}
+	}
+	return 0
+}
+
+// parseDovecotSize reads a dovecot size like 10M or 10240000, units are powers of 1024
+func parseDovecotSize(s string) (int64, bool) {
+	s = strings.ToLower(strings.TrimSpace(s))
+	if s == "unlimited" {
+		return 0, true
+	}
+	digits := strings.TrimRightFunc(s, func(r rune) bool { return r < '0' || r > '9' })
+	n, err := strconv.ParseInt(digits, 10, 64)
+	if err != nil || n < 0 {
+		return 0, false
+	}
+	shift := map[string]uint{"": 0, "b": 0, "k": 10, "kb": 10, "m": 20, "mb": 20, "g": 30, "gb": 30, "t": 40, "tb": 40}
+	unit, ok := shift[strings.TrimSpace(s[len(digits):])]
+	if !ok {
+		return 0, false
+	}
+	return n << unit, true
 }
 
 func migrateImage(a *appctx.App) string {
@@ -455,6 +497,28 @@ func fillJobStatus(root *os.Root, job *MigrateJob, runningID string) {
 	}
 }
 
+// countTooBig counts, once per finished job, the messages imapsync skipped for being over the mailserver's limit, and saves the count in the job file
+func countTooBig(root *os.Root, job *MigrateJob, uid, gid int) {
+	if job.MaxSize == 0 || job.SizeChecked || !migrateExitRE.MatchString(readTail(root, job.ID+".log", 8*1024)) {
+		return
+	}
+	f, err := root.Open(job.ID + ".log")
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	n := 0
+	sc := bufio.NewScanner(f)
+	sc.Buffer(make([]byte, 64*1024), 1024*1024)
+	for sc.Scan() {
+		if bytes.Contains(sc.Bytes(), []byte("exceeds maxsize limit")) {
+			n++
+		}
+	}
+	job.TooBig, job.SizeChecked = n, true
+	_ = writeJob(root, *job, uid, gid)
+}
+
 // pruneJobs keeps the newest migrateKeepJobs jobs and drops the rest along with their logs
 func pruneJobs(root *os.Root, keepID string) {
 	ids := jobIDs(root)
@@ -471,7 +535,7 @@ func pruneJobs(root *os.Root, keepID string) {
 // migrationStatus lists the account's jobs and the log of the newest one, and cleans up passfiles left by jobs that are no longer running
 func migrationStatus(ctx context.Context, userContext string) (MigrateStatus, error) {
 	st := MigrateStatus{Jobs: []MigrateJob{}}
-	root, _, _, err := openJobDir(userContext)
+	root, uid, gid, err := openJobDir(userContext)
 	if err != nil {
 		return st, err
 	}
@@ -494,6 +558,7 @@ func migrationStatus(ctx context.Context, userContext string) (MigrateStatus, er
 		job.ID = id
 		if id != runningID {
 			removePassfiles(root, id)
+			countTooBig(root, &job, uid, gid)
 		}
 		fillJobStatus(root, &job, runningID)
 		st.Jobs = append(st.Jobs, job)
@@ -636,7 +701,7 @@ func startMigration(ctx context.Context, a *appctx.App, userID int, username, us
 
 	job = MigrateJob{
 		ID: newJobID(root), SourceHost: req.SourceHost, SourceUser: req.SourceUser,
-		Destination: req.Destination, Started: time.Now().UTC(),
+		Destination: req.Destination, Started: time.Now().UTC(), MaxSize: mailserverMaxSize(ctx),
 	}
 	// set before the job file exists, so a status call never sees it as dead and drops its passfiles
 	migrateStarting.Store(userContext, job.ID)
@@ -668,6 +733,10 @@ func startMigration(ctx context.Context, a *appctx.App, userID int, username, us
 	args = append(args, "--automap", "--nofoldersizes", "--log", "--logdir=/data", "--logfile="+job.ID+".log")
 	if req.ExcludeJunk {
 		args = append(args, "--exclude="+migrateJunkFolders)
+	}
+	// skip what the mailserver would refuse anyway, imapsync gives up after 50 refusals and never reaches the later folders
+	if job.MaxSize > 0 {
+		args = append(args, "--maxsize="+strconv.FormatInt(job.MaxSize+1, 10))
 	}
 
 	// not tied to the request, the first run pulls the image and a closed tab shouldn't abort that
