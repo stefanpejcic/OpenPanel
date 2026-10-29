@@ -2,7 +2,7 @@ import Link from "@docusaurus/Link";
 import React, { useEffect, useState } from "react";
 import clsx from "clsx";
 
-type Feature = {
+export type Feature = {
     name: string;
     title: string;
     description: string;
@@ -14,9 +14,40 @@ type Feature = {
 const FEATURES_URL =
     "https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json";
 
-const formatDescription = (description: string) => {
+export const formatDescription = (description: string) => {
     const stripped = description.replace(/^if enabled,\s*/i, "");
     return stripped.charAt(0).toUpperCase() + stripped.slice(1);
+};
+
+// shared by the modules list and the compare table, fetched once per page load
+let featuresPromise: Promise<Feature[]> | null = null;
+
+export const useFeatures = () => {
+    const [features, setFeatures] = useState<Feature[]>([]);
+
+    useEffect(() => {
+        let cancelled = false;
+
+        if (!featuresPromise) {
+            featuresPromise = fetch(FEATURES_URL)
+                .then((response) => response.json())
+                .catch((error) => {
+                    console.error("Failed to fetch features:", error);
+                    featuresPromise = null;
+                    return [];
+                });
+        }
+
+        featuresPromise.then((data: Feature[]) => {
+            if (!cancelled) setFeatures(data);
+        });
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    return features;
 };
 
 export const PlanFeaturesList = ({
@@ -26,26 +57,7 @@ export const PlanFeaturesList = ({
     type: "community" | "enterprise";
     className?: string;
 }) => {
-    const [features, setFeatures] = useState<Feature[]>([]);
-
-    useEffect(() => {
-        let cancelled = false;
-
-        fetch(FEATURES_URL)
-            .then((response) => response.json())
-            .then((data: Feature[]) => {
-                if (!cancelled) {
-                    setFeatures(data.filter((feature) => feature.type === type));
-                }
-            })
-            .catch((error) => {
-                console.error("Failed to fetch features:", error);
-            });
-
-        return () => {
-            cancelled = true;
-        };
-    }, [type]);
+    const features = useFeatures().filter((feature) => feature.type === type);
 
     if (features.length === 0) {
         return null;
