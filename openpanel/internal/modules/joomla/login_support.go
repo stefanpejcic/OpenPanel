@@ -5,13 +5,14 @@ import (
 	"regexp"
 	"strings"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // extractJoomlaDatabaseInfoForLogin is a local copy of websites.extractJoomlaDatabaseInfo (unexported in another package, so duplicated here, same pattern wordpress/drupal already use rather than sharing across module packages) - only the fields handleJoomlaLogin actually needs are populated
 func extractJoomlaDatabaseInfoForLogin(userContext, directory string) map[string]string {
 	const wwwPrefix = "/var/www/html/"
-	if !strings.HasPrefix(directory, wwwPrefix) {
+	if !appkit.SafeDocroot(directory) {
 		return map[string]string{"error": "invalid docroot"}
 	}
 	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)

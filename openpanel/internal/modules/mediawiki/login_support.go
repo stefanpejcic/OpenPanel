@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
@@ -17,7 +18,7 @@ var (
 // extractMediaWikiDatabaseInfoForLogin is a local copy of websites.extractMediaWikiDatabaseInfo (unexported in another package, so duplicated here, same pattern every other CMS module already uses rather than sharing across module packages) - reads LocalSettings.php directly, keyed off the docroot the same way install.go/manage.go derive it
 func extractMediaWikiDatabaseInfoForLogin(userContext, directory string) map[string]string {
 	const wwwPrefix = "/var/www/html/"
-	if !strings.HasPrefix(directory, wwwPrefix) {
+	if !appkit.SafeDocroot(directory) {
 		return map[string]string{"error": "invalid docroot"}
 	}
 	mappedDir := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(directory, wwwPrefix)
