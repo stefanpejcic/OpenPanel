@@ -54,7 +54,7 @@ When enabled:
 * Users can view all their active sessions, logs and terminate any session through the OpenPanel UI at: [**Security > Active Sessions**](/docs/panel/security/active_sessions/).
 
 When disabled:
-* Users can not access the *Accounts > Active Sessions* page.
+* Users can not access the *Security > Active Sessions* page.
 
 Customize sessions duration:
 * To **control session duration** edit 'Session duration' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#statistics).
@@ -65,10 +65,10 @@ Customize sessions duration:
 The **`locale`** (Languages) module allows users to change panel language.
 
 When enabled:
-* Users can change their preferred language for OpenPanel UI from the login page and [**Account > Language** page](/docs/panel/account/language/).
+* Users can change their preferred language for OpenPanel UI from the [**Account > Language** page](/docs/panel/account/language/).
 
 When disabled:
-* Users can not access the *Accounts > Change Language* page to change their locale.
+* Users can not access the *Account > Language* page to change their locale.
 * Users are forced to the Admin defined default locale.
 
 Customize locales:
@@ -88,11 +88,11 @@ When enabled:
 * Users can access the [**Account > Favorites** page](/docs/panel/account/favorites/).
 
 When disabled:
-* Users can not access the *Accounts > Favorites* page to manage favorites.
-* Users are not see favorites in the sidebar nor the ⭐ icon in top-right corner of pages.
+* Users can not access the *Account > Favorites* page to manage favorites.
+* Users do not see favorites in the sidebar nor the ⭐ icon in top-right corner of pages.
 
 Customize favorites:
-* To **control the total number of favorites for user** (default is 10) use [`favorites-items` config](https://dev.openpanel.com/cli/config.html#favorites-items).
+* To **control the total number of favorites for user** (default is 10) use [`favorites_items` config](https://dev.openpanel.com/cli/config.html#favorites-items).
 * To **edit user's favorites from terminal** edit their: `/etc/openpanel/openpanel/core/users/{current_username}/favorites.json` file.
 
 
@@ -108,7 +108,7 @@ When enabled:
 * Users can view logs for the Varnish service.
 
 When disabled:
-* Users do not have access to the *Caching > Varnish* page.
+* Users do not have access to the *Cache & Search > Varnish* page.
 * Varnish is used only if Administrator enabled it for user when creating the account. 
 
 Customize options:
@@ -134,7 +134,7 @@ When disabled:
 The web terminal, changing a service's image tag, and switching the webserver/MySQL type each live behind their own module below rather than `docker` - see **Web Terminal**, **Change Container Image Tag**, **Switch WebServer**, and **Switch MySQL Type**.
 
 
-## Web Terminal
+## Web Terminal {#terminal}
 
 The **`terminal`** module allows users to run podman exec commands from an interactive shell inside their containers.
 
@@ -142,13 +142,13 @@ When enabled:
 * Users can access [**Containers > Terminal**](/docs/panel/containers/terminal/) page to run podman exec commands.
 
 When disabled:
-* Users do not have access to the *Terminal* page.
+* Users do not have access to the *Containers > Terminal* page.
 
 Customize options:
 * [Disable the Terminal](/docs/articles/dev-experience/disable-openpanel-web-terminal/)
 
 
-## Change Container Image Tag
+## Change Container Image Tag {#change-image}
 
 The **`change_image`** module allows users to change the image tag used by a container.
 
@@ -156,10 +156,10 @@ When enabled:
 * Users can access [**Containers > Software Versions**](/docs/panel/containers/change/) page to change images tag.
 
 When disabled:
-* Users do not have access to the *Change Image Tag* page.
+* Users do not have access to the *Containers > Software Versions* page.
 
 
-## Switch WebServer
+## Switch WebServer {#change-ws}
 
 The **`change_ws`** module allows users to switch the webserver used for their account.
 
@@ -167,10 +167,10 @@ When enabled:
 * Users can access [**Web Server Config > Web Server Type**](/docs/panel/webserver/webserver_type/) page to switch webservers.
 
 When disabled:
-* Users do not have access to the *Switch Web Server* page.
+* Users do not have access to the *Web Server Config > Web Server Type* page.
 
 
-## Switch MySQL Type
+## Switch MySQL Type {#change-db}
 
 The **`change_db`** module allows users to switch between MySQL, MariaDB and Percona for their account.
 
@@ -178,7 +178,7 @@ When enabled:
 * Users can access [**MySQL > Server Type**](/docs/panel/mysql/server_type/) page to switch between MySQL, MariaDB and Percona.
 
 When disabled:
-* Users do not have access to the *Switch Database Server* page.
+* Users do not have access to the *MySQL > Server Type* page.
 
 
 ## Fix Permissions
@@ -213,7 +213,7 @@ Customize options:
 The **`emails`** module allows users to create and manage Email accounts.
 
 When enabled:
-* Users can access the [**Emails** pages](/docs/panel/emails/) to manage Email accounts.
+* Users can access the [**Email > Accounts** page](/docs/panel/emails/) to manage Email accounts.
 
 When disabled:
 * Users can not create and manage Email accounts.
@@ -233,7 +233,7 @@ Customize options:
 The **`webmail`** module allows users to auto-login to Roundcube webmail for their Email accounts.
 
 When enabled:
-* Users can access the [**Webmail**](/docs/panel/emails/webmail/) button.
+* Users can open Roundcube from the [**Email > Webmail**](/docs/panel/emails/webmail/) link and are logged in automatically.
 
 When disabled:
 * Users can not auto-login to webmail.
@@ -247,33 +247,33 @@ Customize options:
 The **`email_filters`** module allows users to configure filters and forwarders for their emails.
 
 When enabled:
-* Users can access the [**Email Filters** page](/docs/panel/emails/filters/)
+* Users can access the [**Email > Filters** page](/docs/panel/emails/filters/).
 
 When disabled:
-* Users can not access the Email Filters page.
+* Users can not access the *Email > Filters* page.
 
 
 
 ## Email Aliases
 
-The **`email_aliases`** module allows users to forwards mail from a non-existing address to one or more destinations.
+The **`email_aliases`** module allows users to forward mail from a non-existing address to one or more destinations.
 
 When enabled:
-* Users can access the [**Email Aliases** page](/docs/panel/emails/aliases/)
+* Users can access the [**Email > Aliases** page](/docs/panel/emails/aliases/).
 
 When disabled:
-* Users can not access the Email Aliases page.
+* Users can not access the *Email > Aliases* page.
 
 
-## Address Importer
+## Address Importer {#email-import}
 
 The **`email_import`** module allows users to import email addresses from a CSV file.
 
 When enabled:
-* Users can access the [**Address Importer** page](/docs/panel/emails/import/)
+* Users can access the [**Email > Import** page](/docs/panel/emails/import/).
 
 When disabled:
-* Users can not access the Address Importer page.
+* Users can not access the *Email > Import* page.
 
 
 ## Email Migration
@@ -281,21 +281,21 @@ When disabled:
 The **`email_migrate`** module allows users to copy emails from another IMAP server into their email accounts.
 
 When enabled:
-* Users can access the [**Migrate Emails** page](/docs/panel/emails/migrate/)
+* Users can access the [**Email > Migrate** page](/docs/panel/emails/migrate/).
 
 When disabled:
-* Users can not access the Migrate Emails page.
+* Users can not access the *Email > Migrate* page.
 
 
-## Address Exporter
+## Address Exporter {#email-export}
 
-The **`email_export`** module allows users to export to CSV file all their email addresses.
+The **`email_export`** module allows users to export all their email addresses to a CSV file.
 
 When enabled:
 * Users can export email addresses by visiting: `/emails/export`
 
 When disabled:
-* Users can not access the Address Exporter page.
+* Users can not export their email addresses.
 
 
 
@@ -304,10 +304,10 @@ When disabled:
 The **`email_default`** module allows users to create default (catch-all) email addresses.
 
 When enabled:
-* Users can access the [**Default Email Address** page](/docs/panel/emails/default_address/)
+* Users can access the [**Email > Catch-all Address** page](/docs/panel/emails/default_address/).
 
 When disabled:
-* Users can not access the Default Email Address page.
+* Users can not access the *Email > Catch-all Address* page.
 
 
 
@@ -316,10 +316,10 @@ When disabled:
 The **`email_deliverability`** module allows users to check and validate SPF, DKIM and DMARC records for their domains.
 
 When enabled:
-* Users can access the [**Email Deliverability** page](/docs/panel/emails/email_deliverability/) to view DNS records.
+* Users can access the [**Email > Deliverability** page](/docs/panel/emails/email_deliverability/) to view DNS records.
 
 When disabled:
-* Users can not access the Email Deliverability page.
+* Users can not access the *Email > Deliverability* page.
 
 
 ## MySQL
@@ -333,7 +333,7 @@ When enabled:
 * Users can access the [**MySQL > Databases > Database Wizard** page](/docs/panel/mysql/wizard/) to create database, user and assign privileges.
 * Users can access the [**MySQL > Users** page](/docs/panel/mysql/users/) to manage users.
 * Users can access the [**MySQL > Users > Create User** page](/docs/panel/mysql/new_user/) to create users.
-* Users can access the [**MySQL > Users > Change Password** page](#) to change password for a user.
+* Users can access the [**MySQL > Users > Change Password** page](/docs/panel/mysql/users/#change-user-password) to change password for a user.
 * Users can access the [**MySQL > Users > Assign User** page](/docs/panel/mysql/assign/) to assign all privileges to user over a database.
 * Users can access the [**MySQL > Users > Remove User** page](/docs/panel/mysql/remove/) to revoke all privileges to user over a database.
 
@@ -359,14 +359,14 @@ How-to guides:
 The **`mysql_root_password`** module allows users to change password for their MySQL root user from the user panel.
 
 When enabled:
-* Users can access the [**MySQL > Root Password** page](#) to change root user password.
+* Users can access the [**MySQL > Root Password** page](/docs/panel/mysql/root-password/) to change root user password.
 
 When disabled:
-* Users do not have access to the *MySQL Root Password* page.
+* Users do not have access to the *MySQL > Root Password* page.
 
 
 
-## MySQL Show Processes
+## MySQL Show Processes {#mysql-show-processlist}
 
 The **`mysql_processlist`** module allows users to view the MySQL process list.
 
@@ -374,7 +374,7 @@ When enabled:
 * Users can access the [**MySQL > Running Queries** page](/docs/panel/mysql/processlist/) to view all active processes.
 
 When disabled:
-* Users do not have access to the *MySQL Process List* page.
+* Users do not have access to the *MySQL > Running Queries* page.
 
 
 ## Remote MySQL
@@ -399,7 +399,7 @@ Customize options:
 The **`phpmyadmin`** module allows users to manage phpMyAdmin service.
 
 When enabled:
-* phpMyAdmin can be accessed by the user.
+* Users can open phpMyAdmin from the [**MySQL > phpMyAdmin**](/docs/panel/mysql/phpmyadmin/) link (opens in a new tab, logged in automatically).
 * phpMyAdmin is available on a `https://DOMAIN:2053` when domain is set, or `http://IP:8888` when IP is set for panel access.
 
 When disabled:
@@ -419,7 +419,7 @@ When enabled:
 * Users can access the [**MySQL > Import** page](/docs/panel/mysql/import/) to import files into a database.
 
 When disabled:
-* Users can not access the *MySQL > Import Database* page.
+* Users can not access the *MySQL > Import* page.
 
 Customize options:
 * To **set the max file size allowed for import** increase [`mysql_import_max_size_gb`](https://dev.openpanel.com/cli/config.html#mysql-import-max-size-gb) value.
@@ -433,10 +433,10 @@ How-to guides:
 The **`mysql_conf`** module allows users to edit mysql server configuration.
 
 When enabled:
-* Users can access the [**MySQL > Configuration** page](#) to edit service .cnf file.
+* Users can access the [**MySQL > Configuration** page](/docs/panel/mysql/configuration/) to edit service .cnf file.
 
 When disabled:
-* Users can not access the *MySQL > Edit Configuration* page.
+* Users can not access the *MySQL > Configuration* page.
 
 Customize options:
 * To **set available options for configuration** edit file: [`/etc/openpanel/mysql/keys.txt`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/mysql/keys.txt).
@@ -450,9 +450,21 @@ The **`mongodb`** module allows users to create and manage MongoDB databases.
 
 When enabled:
 * Users can access the [**MongoDB** section](/docs/panel/mongodb/databases/) to manage databases and users.
+* Users can view active queries on the [**MongoDB > Running Queries** page](/docs/panel/mongodb/processlist/).
 
 When disabled:
 * Users do not have access to the *MongoDB* section.
+
+
+## MongoDB Import
+
+The **`mongodb_import`** module allows users to import files into their MongoDB databases.
+
+When enabled:
+* Users can access the [**MongoDB > Import** page](/docs/panel/mongodb/import/) to import files into a database.
+
+When disabled:
+* Users can not access the *MongoDB > Import* page.
 
 
 ## PostgreSQL
@@ -460,7 +472,8 @@ When disabled:
 The **`postgresql`** module allows users to create and manage PostgreSQL databases and users.
 
 When enabled:
-* Users can access the *PostgreSQL* section.
+* Users can access the [**PostgreSQL** section](/docs/panel/postgresql/databases/) to manage databases and users.
+* Users can view active queries on the [**PostgreSQL > Running Queries** page](/docs/panel/postgresql/processlist/).
 
 When disabled:
 * Users do not have access to the *PostgreSQL* section.
@@ -472,7 +485,7 @@ The **`remote_postgresql`** module allows users to enable/disable remote access 
 When enabled:
 * Remote access is disabled by default.
 * Random port is allocated per user for their PostgreSQL instances.
-* Users can access the [**PostgreSQL > Remote Access** page](#) to enable/disable remote access.
+* Users can access the [**PostgreSQL > Remote Access** page](/docs/panel/postgresql/remote/) to enable/disable remote access.
 * Users can connect to any database from remote location once the option is enabled.
 
 When disabled:
@@ -487,10 +500,10 @@ Customize options:
 The **`postgresql_import`** module allows users to import files into their databases.
 
 When enabled:
-* Users can access the [**PostgreSQL > Import** page](#) to import files into a database.
+* Users can access the [**PostgreSQL > Import** page](/docs/panel/postgresql/import/) to import files into a database.
 
 When disabled:
-* Users can not access the *PostgreSQL > Import Database* page.
+* Users can not access the *PostgreSQL > Import* page.
 
 Customize options:
 * None
@@ -501,10 +514,10 @@ Customize options:
 The **`postgresql_conf`** module allows users to edit PostgreSQL server configuration.
 
 When enabled:
-* Users can access the [**PostgreSQL > Configuration** page](#) to edit service .cnf file.
+* Users can access the [**PostgreSQL > Configuration** page](/docs/panel/postgresql/configuration/) to edit `postgresql.conf` settings.
 
 When disabled:
-* Users can not access the *PostgreSQL > Edit Configuration* page.
+* Users can not access the *PostgreSQL > Configuration* page.
 
 
 ## Crons
@@ -520,7 +533,7 @@ When enabled:
 * Users can [import and export cronjobs](/docs/panel/cronjobs/#import--export)
 
 When disabled:
-* Users can not access the *Advanced > Cron Jobs* page nor modify crons.
+* Users can not access the *Cron Jobs* pages nor modify crons.
 
 Customize options:
 * To **pre-set cronjobs for new users** edit the `/etc/openpanel/ofelia/users.ini` file.
@@ -536,7 +549,7 @@ When enabled:
 * Users can access the [**Processes & Services > Processes** page](/docs/panel/processes/process_manager/).
 
 When disabled:
-* Users can not access the *Advanced > Process Manager* page.
+* Users can not access the *Processes & Services > Processes* page.
 
 Customize options:
 * None
@@ -550,7 +563,7 @@ When enabled:
 * Users can access the [**Server Info** page](/docs/panel/server_info/).
 
 When disabled:
-* Users can not access the *Advanced > Server Information* page.
+* Users can not access the *Server Info* page.
 
 Customize options:
 * None
@@ -579,7 +592,7 @@ When enabled:
 * Users can access the [**Security > Login History** page](/docs/panel/security/login_history/).
 
 When disabled:
-* Users can not access the *Account > Login History* page.
+* Users can not access the *Security > Login History* page.
 
 Customize options:
 * To **control number of logins stored per user** edit 'Login records to keep per user' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#statistics).
@@ -594,7 +607,7 @@ When enabled:
 * 2FA is required on login page if account has enabled it.
 
 When disabled:
-* Users can not access the *Advanced > Two-Factor Authentication* page nor manage 2FA.
+* Users can not access the *Security > Two-Factor Auth* page nor manage 2FA.
 
 Customize options:
 * To **enable 2FA widget** use [*OpenAdmin > Settings > OpenPanel* page and *Display 2FA widget* option](/docs/admin/settings/openpanel/).
@@ -602,13 +615,13 @@ Customize options:
 
 ## Passkeys
 
-The **`passkeys`** module allows users to seup [Passkeys](https://safety.google/intl/en_in/safety/authentication/passkey/) for their account.
+The **`passkeys`** module allows users to set up [Passkeys](https://safety.google/intl/en_in/safety/authentication/passkey/) for their account.
 
 NOTE: Passkeys require that a domain name is used for panel access.
 
 When enabled:
 * Users can access the [**Security > Passkeys** page](/docs/panel/security/passkeys).
-* 'Sign up with Passkey' is shown on login page.
+* 'Sign in with a passkey' is shown on the login page.
 
 When disabled:
 * Users can not login using Passkeys.
@@ -621,7 +634,7 @@ When enabled:
 * Users can access the [**Security > Activity Log** page](/docs/panel/security/account_activity).
 
 When disabled:
-* Users can not access the *Account > Activity Log* page.
+* Users can not access the *Security > Activity Log* page.
 
 Customize options:
 * To **edit activity log from terminal** open file: `/etc/openpanel/openpanel/core/users/{username}/activity.log`.
@@ -638,7 +651,7 @@ When enabled:
 * Users can configure backup schedule, encryption, retention and destination.
 
 When disabled:
-* Users do not have access to the *Files > Backups* page.
+* Users do not have access to the *Backups > Overview*, *Configuration* and *Destination* pages.
 * [Administrators need to configure backups for the user](/docs/articles/backups/configuring-backups/#1-admin-configured).
 
 ## Backup Wizard
@@ -646,10 +659,10 @@ When disabled:
 The **`backup_wizard`** module allows users to generate and download a full account backup.
 
 When enabled:
-* Users can access the *Backup Wizard* to generate and download a full backup of their account.
+* Users can access the [**Backups > Backup Wizard** page](/docs/panel/backups/backup-wizard/) to generate and download a full backup of their account.
 
 When disabled:
-* Users can not access the Backup Wizard.
+* Users can not access the *Backups > Backup Wizard* page.
 
 
 
@@ -660,11 +673,11 @@ The **`services`** module allows users to enable/disable services without the Do
 When enabled:
 * Users can access the [**Processes & Services > Services** page](/docs/panel/processes/services/).
 * Users can enable/disable services.
-* User view current service status, resource usage (CPU%, Memory%, Disk I/O, PIDs..), container name (to be used to connect to service from other containers).
+* Users can view current service status, resource usage (CPU%, Memory%, Disk I/O, PIDs..), container name (to be used to connect to service from other containers).
 * Users can view logs for services.
 
 When disabled:
-* Users do not have access to the *Advanced > Services* page.
+* Users do not have access to the *Processes & Services > Services* page.
 
 
 ## Memcached
@@ -674,11 +687,11 @@ The **`memcached`** module allows users to enable/disable Memcached service.
 When enabled:
 * Users can access the [**Cache & Search > Memcached** page](/docs/panel/caching/Memcached/).
 * Users can enable/disable Memcached service.
-* User can connect to the instance from other containers using: `elasticsearch:11211`
+* User can connect to the instance from other containers using: `memcached:11211`
 * Users can view logs for the Memcached service.
 
 When disabled:
-* Users do not have access to the *Caching > Memcached* page.
+* Users do not have access to the *Cache & Search > Memcached* page.
 
 ## Redis
 
@@ -691,7 +704,7 @@ When enabled:
 * Users can view logs for the Redis service.
 
 When disabled:
-* Users do not have access to the *Caching > Redis* page.
+* Users do not have access to the *Cache & Search > Redis* page.
 
 ## Valkey
 
@@ -704,7 +717,7 @@ When enabled:
 * Users can view logs for the Valkey service.
 
 When disabled:
-* Users do not have access to the *Caching > Valkey* page.
+* Users do not have access to the *Cache & Search > Valkey* page.
 
 
 ## ElasticSearch
@@ -718,7 +731,7 @@ When enabled:
 * Users can view logs for the ElasticSearch service.
 
 When disabled:
-* Users do not have access to the *Caching > ElasticSearch* page.
+* Users do not have access to the *Cache & Search > ElasticSearch* page.
 
 
 
@@ -733,7 +746,7 @@ When enabled:
 * Users can view logs for the OpenSearch service.
 
 When disabled:
-* Users do not have access to the *Caching > OpenSearch* page.
+* Users do not have access to the *Cache & Search > OpenSearch* page.
 
 
 ## Disk Usage Explorer
@@ -744,7 +757,7 @@ When enabled:
 * Users can access the [**Statistics > Disk Usage** page](/docs/panel/statistics/disk_usage/).
 
 When disabled:
-* Users do not have access to the *Files > Disk Usage* page.
+* Users do not have access to the *Statistics > Disk Usage* page.
 
 
 ## Inodes Explorer
@@ -755,20 +768,20 @@ When enabled:
 * Users can access the [**Statistics > Inode Usage** page](/docs/panel/statistics/inodes_explorer/).
 
 When disabled:
-* Users do not have access to the *Files > Inodes Explorer* page.
+* Users do not have access to the *Statistics > Inode Usage* page.
 
 
 
 
 
 ## AutoInstaller
-The **`autoinstaller`** module allows users to autoinstall WordPress, website Builder, Mautic, Python/NodeJS applications, etc.
+The **`autoinstaller`** module allows users to open the *Install App* page. Each application on it (WordPress, Website Builder, Drupal, NodeJS, Python, n8n, etc.) is shown only when its own module is enabled.
 
 When enabled:
 * Users can access the [**Websites > Install App** page](/docs/panel/applications/autoinstaller/).
 
 When disabled:
-* Users do not have access to the *Websites > Auto Installer* page.
+* Users do not have access to the *Websites > Install App* page.
 
 
 ## Drupal
@@ -986,15 +999,32 @@ When disabled:
 * phpBB is not available on the Autoinstaller page.
 * phpBB forums can not be managed via Openpanel.
 
+## n8n
+
+The **`n8n`** module allows users to install [n8n](https://n8n.io/) workflow automation in its own container on one of their domains.
+
+When enabled:
+* n8n is available on the Autoinstaller page.
+* Users can [install n8n using Auto Installer](/docs/panel/applications/n8n/): OpenPanel sets up the container, the reverse proxy with WebSocket support, the webhook URL and the n8n owner account.
+* Users can manage n8n applications using Site Manager.
+
+When disabled:
+* n8n is not available on the Autoinstaller page.
+
+How-to guides:
+* To **self-host n8n step by step** refer to [*How-to Guides > How to Self-Host n8n*](/docs/articles/apps/install-n8n/).
+
 
 ## PHP.INI Editor
-The **`php_ini`** module allows users to edit the PNP.INI files using a text editor.
+The **`php_ini`** module allows users to edit the PHP.INI files using a text editor.
 
 When enabled:
 * Users can access the [**PHP > php.ini Editor** page](/docs/panel/php/php_ini_editor/).
 
 When disabled:
-* Users do not have access to the *PHP > PHP.INI Editor* page.
+* Users do not have access to the *PHP > php.ini Editor* page.
+
+> **NOTE:** This page is part of the PHP section, so the [`php`](#php) module must be enabled too.
 
 
 ## WordPress
@@ -1010,7 +1040,7 @@ When enabled:
 * Users can [set themes and plugins to auto-install](/docs/panel/applications/wordpress/#themes-and-plugins-sets).
 
 When disabled:
-* Users can not access the *Websites > WP Manager* page.
+* Users can not access the *Websites > WordPress* page.
 * WordPress is not available in Autoinstaller.
 * WordPress websites can not be managed via Openpanel.
 
@@ -1036,18 +1066,28 @@ When disabled:
 * Website Builder is not available in Autoinstaller.
 * Static websites can not be managed via Openpanel.
 
+## Git
+
+The **`git`** module allows users to deploy websites from Git repositories: clone from GitHub, GitLab, Bitbucket or any other Git server, or create a repository on the server and push to it over HTTPS.
+
+When enabled:
+* Users can access the [**Websites > Git** page](/docs/panel/applications/git/) to add and deploy repositories.
+* The [Git tab](/docs/panel/applications/git/#git-tab-in-the-site-manager) is shown in the Site Manager for each website.
+* Repositories are stored outside the websites, so the `.git` folder is never in a public directory.
+
+When disabled:
+* Users can not access the *Websites > Git* page and the Git tab is not shown in the Site Manager.
+
 ## ClamAV
 
 The **`malware_scan`** module starts a ClamAV service and allows users to scan files.
-
-> **NOTE:** This module is tagged *BETA*.
 
 When enabled:
 * Users can access the [**Security > Malware Scanner** page](/docs/panel/security/malware-scanner/).
 * ClamAV service is started on the server.
 
 When disabled:
-* Users can not access the *Files > Malware Scanner* page.
+* Users can not access the *Security > Malware Scanner* page.
 * ClamAV service is not started on the server.
 
 Customize options:
@@ -1055,16 +1095,17 @@ Customize options:
 
 
 
-## Files
+## Files {#filemanager}
 
 The **`filemanager`** module allows users to manage files and folders using the File Manager.
 
 When enabled:
 * Users can access the [**Files > File Manager** page](/docs/panel/files/).
+* Users can access the [**Files > Download from URL** page](/docs/panel/files/wget/).
 * File Manager links are available on other pages: Domains, WP Manager, etc.
 
 When disabled:
-* Users can not access the *Files > File Manager* page.
+* Users can not access the *Files > File Manager* and *Files > Download from URL* pages.
 * No links to manage files are shown on other pages.
 
 
@@ -1073,7 +1114,7 @@ When disabled:
 The **`trash`** module allows users to manage their Trash folder.
 
 When enabled:
-* Users can access the [**Files > Trash** page](/docs/panel/files/).
+* Users can access the [**Files > Trash** page](/docs/panel/files/trash/).
 * User can delete to trash instead of permanently deleting files.
 
 When disabled:
@@ -1115,6 +1156,7 @@ The **`domain_suspend`** module allows users to suspend/unsuspend website access
 When enabled:
 * Users can access the [**Suspend a Domain** page](/docs/panel/domains/suspend/).
 * Users can access the [**Unsuspend a Domain** page](/docs/panel/domains/unsuspend/).
+* *Suspend* and *Unsuspend* bulk actions are available on the *Domains* page.
 
 When disabled:
 * Users can not suspend/unsuspend domains.
@@ -1127,29 +1169,30 @@ Customize options:
 The **`domain_logs`** module allows users to view the raw access log for their domains.
 
 When enabled:
-* Users can access the [**Statistics > Access Logs** page](/docs/panel/domains/docroot/).
+* Users can access the [**Statistics > Access Logs** page](/docs/panel/statistics/logs/).
 
 When disabled:
-* Users can not access the *Domains > Raw Access Logs* page.
+* Users can not access the *Statistics > Access Logs* page.
 
 
 
 ## GoAccess
 
-The **`goaccess`** module runs the GoAccess service on a scheduled basis to process raw domain logs and produce HTML reports accessible through the OpenPanel UI.
+The **`goaccess`** module runs GoAccess on a schedule to process raw domain logs and produce HTML reports accessible through the OpenPanel UI.
 
 When enabled:
-* GoAccess service is run on the server.
+* The `domains-stats` cron job generates the reports every day at 02:30.
 * Users can access the [**Statistics > Visitor Statistics** page](/docs/panel/statistics/goaccess/).
 
 When disabled:
-* Users can not access the *Domains > GoAccess* page.
+* Users can not access the *Statistics > Visitor Statistics* page.
+* The `domains-stats` cron job skips report generation.
 
 Customize options:
-* To **disable GoACcess report generation** update the: [*`goaccess_enable` value*](https://dev.openpanel.com/cli/config.html#goaccess-enable)
-* To **change how often the reports are generated (default = @daily)** edit the schedule for `domains-stats` cron and the [`goaccess_schedule` value](https://dev.openpanel.com/cli/config.html#goaccess-schedule).
-* To **generate the data manually** execute `domains-stats` cron.
-* To **force regeneration of the reports* refer to: [*OpenCLI Documentation > Parse domain access logs*](https://dev.openpanel.com/cli/domains.html#Parse-domain-access-logs).
+* To **disable GoAccess report generation** disable this module.
+* To **change how often the reports are generated (default = daily at 02:30)** edit the schedule for the `domains-stats` cron job.
+* To **generate the data manually** run `opencli domains-stats`, or `opencli domains-stats USERNAME` for a single user.
+* To **force regeneration of the reports** refer to: [*OpenCLI Documentation > Parse domain access logs*](https://dev.openpanel.com/cli/domains.html#Parse-domain-access-logs).
 
 
 ## Error Logs
@@ -1192,7 +1235,7 @@ When enabled:
 * Users can set a custom docroot when adding a domain.
 
 When disabled:
-* Users can not set a custom docroot when adding a domaina, and can not later change the docroot.
+* Users can not set a custom docroot when adding a domain, and can not later change the docroot.
 
 ## Redirects
 
@@ -1208,7 +1251,7 @@ When disabled:
 
 ## Capitalize Domains
 
-The **`capitalize_domains`** module allows users to set a capitalized version fo the domain for dispaly in the OpenPanel.
+The **`capitalize_domains`** module allows users to set a capitalized version of the domain for display in OpenPanel.
 
 When enabled:
 * Users can access the [**Domains > Capitalize Domains** page](/docs/panel/domains/capitalize/).
@@ -1225,7 +1268,7 @@ When enabled:
 * Users can access the [**Web Server Config > Domain VHosts** page](/docs/panel/webserver/vhosts/).
 
 When disabled:
-* Users can not access the *Domains > Edit VHosts File* page.
+* Users can not access the *Web Server Config > Domain VHosts* page.
 
 Customize options:
 * To **customize the vhost files for Apache/Nginx/OpenLiteSpeed** refer to: [*OpenAdmin > Domains > VirtualHost Templates*](/docs/admin/domains/vhost_templates/#apache-virtualhost)
@@ -1242,7 +1285,7 @@ When enabled:
 * Users can edit the `openlitespeed.conf` file for OpenLiteSpeed.
 
 When disabled:
-* Users can not access the *Advanced > WebServer Settings* page.
+* Users can not access the *Web Server Config > Server Settings* page.
 
 Customize options:
 * To **customize the default `httpd.conf` file for Apache** edit `/etc/openpanel/apache/httpd.conf` file.
@@ -1293,7 +1336,7 @@ When enabled:
 * Users can access the [**Security > IP Blocker** page](/docs/panel/security/ip-blocker/).
 
 When disabled:
-* Users can not access the *Advanced > IP Blocker* page.
+* Users can not access the *Security > IP Blocker* page.
 
 ## WAF
 
@@ -1309,7 +1352,7 @@ When enabled:
 When disabled:
 * `SecRuleEngine Off` is set for new domains.
 * `SecRuleEngine On` is replaced with `SecRuleEngine Off` for all existing domains.
-* Users can not access the *Advanced > WAF* page.
+* Users can not access the *Security > Web Firewall* page.
 * 'Firewall' widget is not displayed in Site Manager.
 
 Customize options:
@@ -1322,16 +1365,16 @@ The **`php`** module allows users to manage PHP versions and settings.
 When enabled:
 * Users can access the [**PHP > Version per Domain** page](/docs/panel/php/domains/).
 * Users can access the [**PHP > Default Version** page](/docs/panel/php/default/).
-* Users can access the [**PHP > Extensions** page](/docs/panel/php/extensions/).
-* Users can set PHP version per domain, set default version for new domains, edit options and view installed extensions.
+* Users can set PHP version per domain and the default version for new domains.
+* The [PHP Options](#php-options), [PHP Extensions](#php-extensions), [PHP.INI Editor](#phpini-editor) and [phpMyAdmin](#phpmyadmin) modules can be used (each still needs to be enabled on its own).
 
 When disabled:
-* Users can not access the *Select PHP Version*, *Default Version*, *Options*, *Extensions* pages.
-* Users can not set PHP version per domain, set default version for new domains, edit options and view installed extensions.
+* Users can not access any of the *PHP* pages, nor phpMyAdmin, even if those modules are enabled.
+* Users can not set PHP version per domain or the default version for new domains.
 
 Customize options:
-* To **set the default PHP version to be used for new users** refer to: [*OpenAdmin > Settings > User Defaults > Default PHP version*](/docs/panel/php/options/#available-options)
-* To **set default cpu/memory limits for PHP versions and additional PHP options** refer to: [*OpenAdmin > Settings > User Defaults > Services*](/docs/panel/php/options/#available-options)
+* To **set the default PHP version to be used for new users** refer to: [*OpenAdmin > Settings > User Defaults > Default PHP version*](/docs/admin/settings/defaults/)
+* To **set default cpu/memory limits for PHP versions and additional PHP options** refer to: [*OpenAdmin > Settings > User Defaults > Services*](/docs/admin/settings/defaults/)
 * To **install a PHP extension** refer to: [*How-to Guides > How to install a PHP extension in OpenPanel*](/docs/articles/websites/how-to-install-php-extensions-in-openpanel/).
 * To **increase PHP INI memory_limit** refer to: [*How-to Guides > How to set or increase PHP INI memory_limit or other values?*](/docs/articles/websites/how-to-set-or-increase-PHP-INI-memory-limit-or-other-values/).
 * To **set PHP settings per website** refer to: [*How-to Guides > PHP settings per website (folder)*](/docs/articles/websites/php-user-ini-files/).
@@ -1345,14 +1388,12 @@ When enabled:
 * Users can access the [**PHP > Options** page](/docs/panel/php/options/).
 
 When disabled:
-* Users can not access the *PHP Options* page.
+* Users can not access the *PHP > Options* page.
 
 Customize options:
 * To **customize PHP options available to users** refer to: **OpenAdmin > Settings > PHP > Available Options** or edit */etc/openpanel/php/options.txt* file.
 
 ## PHP Extensions
-
-> **NOTE:** This module is tagged *BETA*.
 
 The **`php_extensions`** module allows users to manage extensions for their PHP versions.
 
@@ -1448,14 +1489,14 @@ When enabled:
 * Users can access the [**Statistics > Resource Usage** page](/docs/panel/statistics/resource_usage/).
 
 When disabled:
-* Users can not access the *Advanced > Resource Usage* page.
+* Users can not access the *Statistics > Resource Usage* page.
 
 Customize options:
 * To **edit page settings** refer to: [**OpenAdmin > Settings > OpenPanel > Statistics** page](/docs/admin/settings/openpanel/#statistics).
 * To **change how often the stats are collected (default = @hourly)** edit the schedule for `docker-collect_stats --all` cron.
 * To **display one combined or separate charts for cpu/ram** edit [`resource_usage_charts_mode` value](https://dev.openpanel.com/cli/config.html#resource-usage-charts-mode).
 * To **change the number of items per page** edit [`resource_usage_items_per_page` value](https://dev.openpanel.com/cli/config.html#resource-usage-items-per-page).
-* To **rotate the** edit [`resource_usage_retention` value](https://dev.openpanel.com/cli/config.html#resource-usage-retention).
+* To **set how many hourly records are kept per user** (default 168, one week) edit [`resource_usage_retention` value](https://dev.openpanel.com/cli/config.html#resource-usage-retention).
 
 
 ## API
@@ -1463,11 +1504,12 @@ Customize options:
 The **`api`** module allows users to access the OpenPanel API using JWT tokens.
 
 When enabled:
-* Users can access the [*Account > API Reference* page](/docs/panel/account/api/).
-* Users can use the [OpenPanel API](/docs/panel/api/).
+* Users can access the [**Account > API** page](/docs/panel/account/api/) with all endpoints and examples.
+* Users can use the [OpenPanel API](/docs/panel/api/) with a JWT Bearer token.
 
 When disabled:
-* Users can not use the OpenPanel API.
+* Users can not access the *Account > API* page.
+* API requests are rejected, and so are [MCP](#mcp) requests, which go through the same API.
 
 ## MCP
 
@@ -1477,4 +1519,20 @@ When enabled:
 * Users can access the [**Account > AI Assistant (MCP)** page](/docs/panel/account/mcp/).
 
 When disabled:
-* Users can not access the *Account > MCP* page.
+* Users can not access the *Account > AI Assistant (MCP)* page.
+
+> **NOTE:** MCP requests run through the OpenPanel API, so the [`api`](#api) module must be enabled too.
+
+## AI Assistant
+
+The **`ai_assistant`** module adds an AI chat assistant to OpenPanel that answers questions using the OpenPanel documentation, the user's plan features and the page they are on.
+
+When enabled:
+* An [**AI** button](/docs/panel/dashboard/dashboard#ai-assistant) is shown in the header next to the search icon, on every page.
+* If allowed in settings, the assistant can also look things up or make changes in the user's account, after the user approves each action.
+
+When disabled:
+* The AI button is not shown and the assistant can not be used.
+
+Customize options:
+* To **set the provider, API key, model, limits and allowed actions** use [*OpenAdmin > Settings > OpenPanel > AI Assistant*](/docs/admin/settings/openpanel/#ai-assistant).
