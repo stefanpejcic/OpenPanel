@@ -34,8 +34,11 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /backups/jobs", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRestoreJobs(a, w, r) }))
 }
 
+// homeRoot is where account homes live, tests point it at a temp dir
+var homeRoot = "/home/"
+
 func envFilePath(userContext string) string {
-	return "/home/" + userContext + "/backup.env"
+	return homeRoot + userContext + "/backup.env"
 }
 
 // parseFormGroups pulls out every "values[KEY]"/"settings[KEY]" field into key->value. PostForm is a map and doesn't preserve field order, so callers needing stable ordering read the updated keys off the env file's own line order instead.
@@ -330,7 +333,7 @@ func handleBackupTarget(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // ActiveBackupTarget is the one destination with uncommented keys in backup.env, or "" when none or several are
 func ActiveBackupTarget(userContext string) string {
-	content, err := tenantfs.ReadFile(envFilePath(userContext))
+	content, err := readEnvFile(userContext)
 	if err != nil {
 		return ""
 	}
@@ -384,19 +387,12 @@ func handleBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/backups/list", http.StatusFound)
 		return
 	}
-	path := envFilePath(userContext)
-
-	if _, statErr := tenantfs.Stat(path); statErr != nil {
-		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "env file not found"})
-		return
-	}
-
-	entries, err := parseUncommentedEnv(path)
+	content, err := readEnvFile(userContext)
 	if err != nil {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "env file not found"})
 		return
 	}
-	grouped := groupBySections(entries)
+	grouped := groupBySections(parseEnv(content))
 	serviceActive := isBackupContainerRunning(r.Context(), userContext)
 
 	var target string
