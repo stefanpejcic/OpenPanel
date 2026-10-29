@@ -168,6 +168,7 @@ func handlePM2Action(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Failed to start container '%(site_name)s': %(error)s", "site_name", siteName, "error", runErr.Error()), "/website?domain="+nameForManager)
 			return
 		}
+		refreshProxyUpstreams(ctx, userContext)
 		flashAndRedirectApp(a, w, r, "success", web.Tr(a, r, "Started container for application '%(site_name)s'.", "site_name", siteName), "/website?domain="+nameForManager)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "started container for application "+siteName, ip)
 		return
@@ -188,6 +189,7 @@ func handlePM2Action(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			flashAndRedirectApp(a, w, r, "error", web.Tr(a, r, "Failed to restart container '%(site_name)s': %(error)s", "site_name", siteName, "error", runErr.Error()), "/website?domain="+nameForManager)
 			return
 		}
+		refreshProxyUpstreams(ctx, userContext)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "restarted container for application "+siteName, ip)
 		flashAndRedirectApp(a, w, r, "success", web.Tr(a, r, "Re-downloaded image and started container for application '%(site_name)s'.", "site_name", siteName), "/website?domain="+nameForManager)
 		return

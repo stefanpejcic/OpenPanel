@@ -67,6 +67,10 @@ func stripServiceProxies(content string, names ...string) (string, bool) {
 		}
 		out = strings.Join(kept, "")
 
+		// a root app's ^~ and commented try_files go back to how the vhost had them
+		out = strings.ReplaceAll(out, nginxRootAppHeader(name)+"\n", "location / {\n")
+		out = strings.ReplaceAll(out, nginxAppTag(name), "")
+
 		svc := regexp.QuoteMeta(name)
 		lsws := regexp.MustCompile(`(?s)\n?# PM2-PROXY-START:` + svc + `\n.*?# PM2-PROXY-END:` + svc + `\n?`)
 		out = lsws.ReplaceAllString(out, "\n")

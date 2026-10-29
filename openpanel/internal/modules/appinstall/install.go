@@ -174,6 +174,12 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 	defer appkit.RemoveLockFile(currentUsername)
 
+	// checked while holding the install lock, so two installs can't both take the last free slot
+	if limitErr := a.WebsitesLimitError(ctx, userID); limitErr != nil {
+		emit(map[string]any{"error": limitErr.Error()})
+		return
+	}
+
 	var topDomain string
 	var docrootNull sql.NullString
 	row := a.DB.QueryRowContext(ctx, "SELECT domain_url, docroot FROM domains WHERE domain_id = ?", domainID)

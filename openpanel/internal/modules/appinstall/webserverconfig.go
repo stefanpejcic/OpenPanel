@@ -2,6 +2,7 @@ package appinstall
 
 import (
 	"context"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -135,6 +136,52 @@ func editApacheConfig(userContext, domainURL, subdirectory, serviceName string, 
 	}
 }
 
+var nginxTryFilesRE = regexp.MustCompile(`(?m)^([ \t]*)(try_files[ \t])`)
+
+// nginxRootAppHeader replaces a root app's "location / {", stripServiceProxies turns it back
+func nginxRootAppHeader(service string) string {
+	return "location ^~ / { # OPENPANEL-APP:" + service
+}
+
+// nginxAppTag comments out a line a root app disables, the trailing space keeps kuma from matching kuma2
+func nginxAppTag(service string) string {
+	return "# OPENPANEL-APP:" + service + " "
+}
+
+// insertNginxProxy adds configLines to every server block, a subdirectory app gets its own location next to location /, a root app takes location / over
+func insertNginxProxy(conf, subdirectory, serviceName, configLines string) (string, string) {
+	serverBlocks := strings.Split(conf, "server {")
+	if len(serverBlocks) < 2 {
+		return "", "Error: no server block found in vhost configuration."
+	}
+	updatedBlocks := make([]string, len(serverBlocks))
+	updatedBlocks[0] = serverBlocks[0]
+	for i := 1; i < len(serverBlocks); i++ {
+		block := "server {" + serverBlocks[i]
+		markerPos := strings.Index(strings.ToLower(block), "location / {")
+		if markerPos == -1 {
+			return "", "Error: no location / block found in vhost configuration."
+		}
+		if subdirectory != "" {
+			block = block[:markerPos] + configLines + "\n" + block[markerPos:]
+		} else {
+			locationBlockEnd := strings.Index(block[markerPos:], "}")
+			if locationBlockEnd == -1 {
+				return "", "Error: location / block is not closed in vhost configuration."
+			}
+			locationBlockEnd += markerPos
+			// try_files would hand every path but / to PHP and the regex locations would serve the app's files from disk, both changes are tagged so delete can undo them
+			loc := block[markerPos:locationBlockEnd]
+			loc = nginxRootAppHeader(serviceName) + loc[len("location / {"):]
+			loc = nginxTryFilesRE.ReplaceAllString(loc, "${1}"+nginxAppTag(serviceName)+"${2}")
+			block = block[:markerPos] + loc + "\n" + configLines + block[locationBlockEnd:]
+		}
+		updatedBlocks[i] = block
+	}
+
+	return strings.Join(updatedBlocks, ""), ""
+}
+
 // editNginxConfig inserts a location/proxy_pass block into every "server {" block's "location / {" section, then runs nginx -t and restores the old file if it fails, returning the error or ""
 func editNginxConfig(ctx context.Context, userContext, domainURL, subdirectory, serviceName, webServer string, port int, wsUpgrade bool) string {
 	confPath := vhostConfPath(userContext, domainURL)
@@ -143,11 +190,6 @@ func editNginxConfig(ctx context.Context, userContext, domainURL, subdirectory, 
 		return "Error: vhost configuration file does not exist."
 	}
 	nginxConfigData := string(content)
-
-	serverBlocks := strings.Split(nginxConfigData, "server {")
-	if len(serverBlocks) < 2 {
-		return "Error: no server block found in vhost configuration."
-	}
 
 	proxyHeadersRaw, phErr := tenantfs.ReadFile("/etc/openpanel/nginx/vhosts/1.1/nginx_proxy_headers.txt")
 	if phErr != nil {
@@ -171,33 +213,16 @@ func editNginxConfig(ctx context.Context, userContext, domainURL, subdirectory, 
 
 	var configLines string
 	if subdirectory != "" {
-		configLines = "\n        location /" + subdirectory + "/ {\n            proxy_pass " + proxyURL + ";\n            " + proxyHeaders + "\n        }\n        "
+		// ^~ so the vhost's .php and static file regex locations can't grab the app's URLs
+		configLines = "\n        location ^~ /" + subdirectory + "/ {\n            proxy_pass " + proxyURL + ";\n            " + proxyHeaders + "\n        }\n        "
 	} else {
 		configLines = "\n        proxy_pass " + proxyURL + ";\n            " + proxyHeaders + "\n        "
 	}
 
-	updatedBlocks := make([]string, len(serverBlocks))
-	updatedBlocks[0] = serverBlocks[0]
-	for i := 1; i < len(serverBlocks); i++ {
-		block := "server {" + serverBlocks[i]
-		markerPos := strings.Index(strings.ToLower(block), "location / {")
-		if markerPos == -1 {
-			return "Error: no location / block found in vhost configuration."
-		}
-		if subdirectory != "" {
-			block = block[:markerPos] + configLines + "\n" + block[markerPos:]
-		} else {
-			locationBlockEnd := strings.Index(block[markerPos:], "}")
-			if locationBlockEnd == -1 {
-				return "Error: location / block is not closed in vhost configuration."
-			}
-			locationBlockEnd += markerPos
-			block = block[:locationBlockEnd] + "\n" + configLines + block[locationBlockEnd:]
-		}
-		updatedBlocks[i] = block
+	updated, errMsg := insertNginxProxy(nginxConfigData, subdirectory, serviceName, configLines)
+	if errMsg != "" {
+		return errMsg
 	}
-
-	updated := strings.Join(updatedBlocks, "")
 	if err := tenantfs.WriteFile(confPath, []byte(updated), 0o644); err != nil {
 		_ = tenantfs.WriteFile(confPath, content, 0o644)
 		return "Error: " + err.Error()

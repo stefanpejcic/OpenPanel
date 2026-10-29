@@ -13,10 +13,10 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
-	"gist.github.com/stefanpejcic/openpanel/internal/modules/dashboard"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -138,17 +138,14 @@ func apiWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	injectedData, err := a.InjectData(ctx, userID)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+	// same lock as the other installers, the limit is then checked uncached while holding it
+	if lockErr := appkit.CreateLockFile(currentUsername); lockErr != nil {
+		web.WriteJSON(w, http.StatusConflict, map[string]string{"error": lockErr.Error()})
 		return
 	}
-	planID, _ := injectedData["hosting_plan"].(int)
-	plan, _ := a.QueryPlanDetailsByID(ctx, planID)
-	websitesLimit := atoiDefaultWB(plan.WebsitesLimit, 0)
-	userWebsites, _ := dashboard.GetUserWebsites(a, ctx, userID)
-	if websitesLimit != 0 && len(userWebsites) >= websitesLimit {
-		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "You have reached the maximum number of sites allowed" + plan.UpgradeMessage()})
+	defer appkit.RemoveLockFile(currentUsername)
+	if limitErr := a.WebsitesLimitError(ctx, userID); limitErr != nil {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": limitErr.Error()})
 		return
 	}
 

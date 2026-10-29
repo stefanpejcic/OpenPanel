@@ -220,6 +220,12 @@ func StartInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) (*Insta
 		}
 	}()
 
+	// checked while holding the install lock, so two installs can't both take the last free slot
+	if limitErr := a.WebsitesLimitError(ctx, userID); limitErr != nil {
+		emit(map[string]any{"error": limitErr.Error()})
+		return nil, false
+	}
+
 	dom, found, dbErr := appkit.LookupDomainByID(ctx, a, domainID)
 	if dbErr != nil {
 		emit(map[string]any{"error": "An error occurred fetching docroot for domain from database."})
