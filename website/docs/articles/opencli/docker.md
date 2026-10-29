@@ -214,6 +214,8 @@ Only one backup of an account runs at a time. When the account is already being 
 
 After each successful backup, the user's backup list in OpenPanel is reindexed so the new backup shows up there right away.
 
+A `backup` container left running for the account (for example started by a full `podman-compose up`) is removed before the backup, so its hooks don't run twice.
+
 To skip a user, create `/home/<context>/backup.off`. Everything is logged to `/var/log/openpanel/admin/docker-backup.log`.
 
 Before backing up a user, a running `mysql`, `mariadb` or `postgres` container that was created before the `backup_meta` volume was added to the user's `docker-compose.yml` is recreated once (`Recreating mysql for context: stefan to add the backup_meta volume`), so its dumps get listed in the archive's `backup/00-meta/` folder.

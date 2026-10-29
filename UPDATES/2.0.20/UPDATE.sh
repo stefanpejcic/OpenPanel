@@ -59,3 +59,16 @@ for f in /home/*/docker-compose.yml; do
         echo "openresty for $ctx is not running after the change, the previous compose file is $f.bak-2.0.20"
     fi
 done
+
+# files-list.sh gives each run its own temp files, it could run in two backup containers at once and fail the backup on a clashing mv
+CONFIG_RAW="https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main"
+tmp=$(mktemp)
+if wget --timeout=15 --tries=2 -q -O "$tmp" "$CONFIG_RAW/backups/scripts/files-list.sh" && grep -q "TMP_SUFFIX" "$tmp"; then
+    echo "Updating /etc/openpanel/backups/scripts/files-list.sh..."
+    # written in place, backup containers bind-mount this file
+    cat "$tmp" > /etc/openpanel/backups/scripts/files-list.sh
+    chmod 755 /etc/openpanel/backups/scripts/files-list.sh
+else
+    echo "Failed to download $CONFIG_RAW/backups/scripts/files-list.sh"
+fi
+rm -f "$tmp"
