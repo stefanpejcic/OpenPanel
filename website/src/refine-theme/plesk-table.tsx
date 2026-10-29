@@ -979,15 +979,6 @@ const tableData = [
                 },
             },
             {
-                description: "pgAdmin",
-                plesk: <CheckIcon />,
-                openpanel: <CheckIcon />,
-                valueType: {
-                    plesk: "icon",
-                    openpanel: "icon",
-                },
-            },
-            {
                 description: "Import Databases",
                 plesk: <CrossIcon />,
                 openpanel: <CheckIcon />,

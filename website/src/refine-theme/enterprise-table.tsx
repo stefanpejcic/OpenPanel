@@ -601,7 +601,25 @@ const tableData = [
                 },
             },
             {
+                description: "Git Deployments",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
                 description: "PHP Selector",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "PHP Options",
                 community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -645,6 +663,51 @@ const tableData = [
                     enterprise: "icon",
                 },
             },
+            {
+                description: "AutoInstaller",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "AutoInstaller Apps",
+                community: <TableText>NextCloud, Matomo, phpBB, DokuWiki, TinyFileManager, TinyPhotoGallery</TableText>,
+                enterprise: <TableText>All Community apps + Joomla, Drupal, Moodle, MediaWiki, OpenCart, PrestaShop, Flarum, SofaWiki, OJS, n8n</TableText>,
+                valueType: {
+                    community: "text",
+                    enterprise: "text",
+                },
+            },
+            {
+                description: "Cron Jobs",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Webserver Configuration",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Error Logs",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
         ],
     },
     {
@@ -671,6 +734,15 @@ const tableData = [
             {
                 description: "Malware Scanner",
                 community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Fix Permissions",
+                community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -737,6 +809,42 @@ const tableData = [
                 },
             },
             {
+                description: "MySQL Configuration",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "MySQL Process List",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "MySQL Root Password",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Switch MySQL Type (MySQL / MariaDB)",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
                 description: "MariaDB",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
@@ -764,6 +872,15 @@ const tableData = [
                 },
             },
             {
+                description: "PostgreSQL Configuration",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
                 description: "MongoDB",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
@@ -773,7 +890,16 @@ const tableData = [
                 },
             },
             {
-                description: "Import Databases",
+                description: "Import MySQL Databases",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Import PostgreSQL & MongoDB Databases",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -782,14 +908,23 @@ const tableData = [
                 },
             },
             {
-                description: "Remote Access",
+                description: "Remote MySQL",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Remote PostgreSQL",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
                     enterprise: "icon",
                 },
-            },           
+            },
         ],
     },
 
@@ -852,6 +987,15 @@ const tableData = [
                     enterprise: "icon",
                 },
             },          
+            {
+                description: "Switch WebServer",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
         ],
     },    
     {
@@ -918,8 +1062,80 @@ const tableData = [
                 },
             },
             {
+                description: "Two-Factor Authentication (2FA)",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
                 description: "Passkeys",
                 community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Activity Log",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Active Sessions",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Email Notifications",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Daily Summary",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Change Email & Password",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Locales (Language Change)",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Favorites (Bookmarks)",
+                community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -953,6 +1169,42 @@ const tableData = [
             {
                 description: "Custom SSL",
                 community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "DNS Zone Editor",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Change Docroot",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Domain Logs",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "GoAccess",
+                community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -1100,8 +1352,103 @@ const tableData = [
                 },
             },
             {
+                description: "Email Migration (IMAP)",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
                 description: "Default (Catch-All) Address",
                 community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+        ],
+    },
+    {
+        title: "Services",
+        items: [
+            {
+                description: "Redis",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Valkey",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Memcached",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Elasticsearch",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "OpenSearch",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Services (start/stop, logs)",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Process Manager",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Resources Usage",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Server Info",
+                community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -1124,6 +1471,15 @@ const tableData = [
             },
             {
                 description: "MCP (Model Context Protocol)",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "AI Assistant",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -1181,6 +1537,33 @@ const tableData = [
                     enterprise: "icon",
                 },
             },  
+            {
+                description: "Web Terminal",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Change Container Image Tag",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Backup Wizard (full account download)",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
             {
                 description: "User manages Backups",
                 community: <CrossIcon />,

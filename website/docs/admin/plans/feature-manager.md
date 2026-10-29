@@ -65,7 +65,6 @@ Use the search box to filter features by name or description, and **Enable All**
 | Remote PostgreSQL | `/postgresql/remote-postgresql` | Enterprise | Users can enable/disable remote access to PostgreSQL databases. |
 | Import PostgreSQL Databases | `/postgresql/import` | Enterprise | Users can import .sql files into PostgreSQL databases from their user panel. |
 | PostgreSQL Configuration | `/postgresql/configuration` | Enterprise | Users can edit PostgreSQL configuration from their user panel. |
-| pgAdmin | `/postgresql/pgadmin` | Enterprise | Users can manage pgAdmin and use it to connect to their PostgreSQL databases. |
 | PHP | `/php` | Community | Users can change the PHP version for domains, set limits, and set the default version for new domains. |
 | PHP Options | `/php/options` | Community | Users can edit configured `php.ini` directives using the Options page. |
 | PHP.INI Editor | `/php/ini` | Community | Users can directly edit the `php.ini` file for any PHP version. |

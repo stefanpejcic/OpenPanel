@@ -186,11 +186,10 @@ PROXY_HTTP_PORT="127.0.0.1:32782:80"
 MYSQL_PORT="127.0.0.1:32777:3306"
 PMA_PORT="32779:80"
 POSTGRES_PORT="0:5432"
-PGADMIN_PORT="0:80"
 ```
 
 * Ports are generated during user creation but can be modified by the administrator. After changes, run `podman_compose_user USERNAME down` and `podman_compose_user USERNAME up -d` from `/home/USERNAME` for the changes to take effect.
 * ⚠️ Rootless Podman prevents the use of ports under **1024**.
-* Services should not expose ports externally unless remote access is required (e.g., phpMyAdmin, remote MySQL, or pgAdmin).
+* Services should not expose ports externally unless remote access is required (e.g., phpMyAdmin, or remote MySQL).
 
 ---

@@ -30,7 +30,6 @@ By default, this network includes:
 * MariaDB
 * phpMyAdmin
 * PostgreSQL
-* PgAdmin
 * Tor
 * PHP-FPM services
 

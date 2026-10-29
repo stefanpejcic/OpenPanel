@@ -482,22 +482,6 @@ Customize options:
 * None
 
 
-## pgAdmin
-
-The **`pgadmin`** module allows users to manage pgAdmin service.
-
-When enabled:
-* pgAdmin can be managed by the user.
-* Users have access to the *pgAdmin* section.
-* pgAdmin is available on a custom per-user port.
-
-When disabled:
-* Users do not have access to the *pgAdmin* section.
-
-Customize options:
-* To **change default CPU/RAM for pgAdmin** use the 'manage' button in top-rgiht corner.
-
-
 ## PostgreSQL Import
 
 The **`postgresql_import`** module allows users to import files into their databases.
