@@ -364,6 +364,15 @@ func handleWPVulnerability(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 var pm2SafeNameRE = regexp.MustCompile(`^[a-zA-Z0-9_.-]+$`)
 
+// MavenVersion is the Apache Maven release fetched into Java containers, the eclipse-temurin images ship a JDK but no mvn
+const MavenVersion = "3.9.11"
+
+// MavenInstallCmd runs the project's ./mvnw if it has one, otherwise fetches Maven once per container and runs mvn install, no $ or quotes so it fits inside the compose template's sh -c "..."
+const MavenInstallCmd = "(if [ -f ./mvnw ]; then sh ./mvnw install; else " +
+	"(command -v mvn >/dev/null 2>&1 || (mkdir -p /opt/maven && " +
+	"curl -fsSL https://archive.apache.org/dist/maven/maven-3/" + MavenVersion + "/binaries/apache-maven-" + MavenVersion + "-bin.tar.gz" +
+	" | tar -xz -C /opt/maven --strip-components=1 && ln -sf /opt/maven/bin/mvn /usr/local/bin/mvn)) && mvn install; fi)"
+
 // installPackagesInContainer runs the install command for the given package manager (pip/npm/pnpm/bundle) inside a site's container.
 func installPackagesInContainer(a *appctx.App, r *http.Request, userContext, siteName, installType string) (bool, string) {
 	if !pm2SafeNameRE.MatchString(siteName) {
@@ -386,7 +395,7 @@ func installPackagesInContainer(a *appctx.App, r *http.Request, userContext, sit
 	case "bundle":
 		argv = podmanmanager.PodmanArgv(userContext, "exec", siteName, "bundle", "install")
 	case "mvn":
-		argv = podmanmanager.PodmanArgv(userContext, "exec", siteName, "mvn", "install")
+		argv = podmanmanager.PodmanArgv(userContext, "exec", siteName, "sh", "-c", MavenInstallCmd)
 	default:
 		return false, "Unsupported install type"
 	}

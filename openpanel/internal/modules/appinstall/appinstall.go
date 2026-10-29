@@ -18,6 +18,7 @@ type Kind struct {
 	Title          string // page title / DISPLAY_APP_TYPE-based heading
 
 	InstallToken       string // e.g. "npm install", "pip install -r requirements.txt", "bundle install"
+	InstallCmd         string // what actually runs when it differs from InstallToken, which stays as-is to match the compose template
 	RunToken           string // e.g. "node", "python", "ruby"
 	DefaultStartupFile string // e.g. "index.js", "app.py", "app.rb"
 
@@ -153,6 +154,9 @@ func buildAppRunCommand(kind Kind, requirements, customCmd, startupFile, gitURL 
 	var installCmd string
 	if requirements == "1" {
 		installCmd = kind.InstallToken + " && "
+		if kind.InstallCmd != "" {
+			installCmd = kind.InstallCmd + " && "
+		}
 	}
 
 	defaultRun := kind.RunToken + " " + kind.DefaultStartupFile
