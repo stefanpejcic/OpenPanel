@@ -149,6 +149,7 @@
     var wasSelecting = false;
     var startRowIndex = null;
     var endRowIndex = null;
+    var anchorRow = null;
 
     var filemanagerTable = document.getElementById('filemanager_table');
 
@@ -423,12 +424,34 @@
         selectAllButton.className = selectAllActiveClass;
     }
 
-    // ---- Row click selection (with ctrl/cmd multi-select) ----
+    // ---- Row click selection (ctrl/cmd toggles a row, shift selects a range) ----
     if (filemanagerTable) {
         filemanagerTable.querySelectorAll('tbody tr.clickable-row').forEach(function (row) {
             row.addEventListener('click', function (event) {
                 var rowIndex = this.dataset.rowIndex;
 
+                // shift+click selects every row between the anchor and this one, ctrl/cmd+shift adds the range to the selection
+                if (event.shiftKey && anchorRow && anchorRow.isConnected) {
+                    var rows = Array.prototype.slice.call(filemanagerTable.querySelectorAll('tbody tr.clickable-row'));
+                    var from = rows.indexOf(anchorRow);
+                    var to = rows.indexOf(this);
+                    if (!event.ctrlKey && !event.metaKey) {
+                        filemanagerTable.querySelectorAll('tbody tr.selected-row').forEach(removeSelectedClass);
+                        selectedRows = [];
+                    }
+                    rows.slice(Math.min(from, to), Math.max(from, to) + 1).forEach(function (r) {
+                        addSelectedClass(r);
+                        if (selectedRows.indexOf(r.dataset.rowIndex) === -1) {
+                            selectedRows.push(r.dataset.rowIndex);
+                        }
+                    });
+                    sveselect = 0;
+                    updateSelectAllButton();
+                    toggleButtonState();
+                    return;
+                }
+
+                anchorRow = this;
                 if (event.ctrlKey || event.metaKey) {
                     toggleSelectedClass(this);
                     sveselect = 0;
@@ -488,7 +511,7 @@
 
     if (filemanagerTable) {
         filemanagerTable.addEventListener('mousedown', function (event) {
-            if (!event.ctrlKey && !event.metaKey && event.button === 0) {
+            if (!event.ctrlKey && !event.metaKey && !event.shiftKey && event.button === 0) {
                 isSelecting = true;
                 wasSelecting = true;
                 sveselect = 0;
@@ -584,6 +607,7 @@
                 filemanagerTable.querySelectorAll('tbody tr.selected-row').forEach(removeSelectedClass);
             }
             selectedRows = [];
+            anchorRow = null;
             sveselect = 0;
             updateSelectAllButton();
             toggleButtonState();

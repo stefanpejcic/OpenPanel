@@ -4,6 +4,7 @@ var wasSelecting = false;
 var isSelecting = false;
 var startRowIndex = null;
 var endRowIndex = null;
+var anchorRow = null;
 
 // HELPERS
 function setClassAll(selector, className) {
@@ -267,6 +268,28 @@ function initTableSelection() {
         row.addEventListener('click', function(event) {
             const rowIndex = this.dataset.rowIndex;
 
+            // shift+click selects every row between the anchor and this one, ctrl/cmd+shift adds the range to the selection
+            if (event.shiftKey && anchorRow && anchorRow.isConnected) {
+                const rows = Array.from(table.querySelectorAll('tbody tr.clickable-row'));
+                const from = rows.indexOf(anchorRow), to = rows.indexOf(this);
+                if (!event.ctrlKey && !event.metaKey) {
+                    table.querySelectorAll('tbody tr.selected-row').forEach(r =>
+                        r.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900')
+                    );
+                    selectedRows = [];
+                }
+                rows.slice(Math.min(from, to), Math.max(from, to) + 1).forEach(r => {
+                    r.classList.add('selected-row', 'bg-gray-200', 'dark:bg-gray-900');
+                    if (!selectedRows.includes(r.dataset.rowIndex)) selectedRows.push(r.dataset.rowIndex);
+                });
+                sveselect = 0;
+                setSelectAllLabel(false);
+                enableDisableButtons();
+                updateSelectedOptionsDisplay();
+                return;
+            }
+
+            anchorRow = this;
             if (event.ctrlKey || event.metaKey) {
                 toggleClasses(this, 'selected-row bg-gray-200 dark:bg-gray-900');
                 const idx = selectedRows.indexOf(rowIndex);
@@ -298,7 +321,7 @@ function initTableSelection() {
 
     // drag select
     table.addEventListener('mousedown', function(event) {
-        if (event.ctrlKey || event.metaKey || event.button !== 0) return;
+        if (event.ctrlKey || event.metaKey || event.shiftKey || event.button !== 0) return;
 
         isSelecting = true;
         wasSelecting = true;
@@ -375,6 +398,7 @@ function initTableSelection() {
                 r.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900')
             );
             selectedRows = [];
+            anchorRow = null;
             sveselect = 0;
             setSelectAllLabel(false);
             disableButtons();
