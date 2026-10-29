@@ -482,7 +482,7 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	siteName := r.PathValue("site_name")
-	selectedDomain, subdirectory, _ := strings.Cut(siteName, "/")
+	selectedDomain, _, _ := strings.Cut(siteName, "/")
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, selectedDomain) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
@@ -509,8 +509,8 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	case webServerType == "apache", webServerType == "openresty", webServerType == "nginx",
 		webServerType == "openlitespeed", strings.Contains(strings.ToLower(webServerType), "litespeed"):
 		// lowercased - editApacheConfig/editNginxConfig/editLswsConfig wrote the proxy block using the lowercase install-time service name, but `serviceName` here is sites.container, which is always stored uppercase (see install.go's serviceNameUp), so passing it through as-is never matched and left the proxy block orphaned on every delete, for every app type, not just n8n
-		revertWebserverConfig(userContext, subdirectory, webServerType, selectedDomain, strings.ToLower(serviceName))
-		reloadWebserver(ctx, userContext, webServerType)
+		// strips only the proxy lines and puts the vhost back if the webserver rejects it, the old line-skipping revert broke nginx vhosts
+		RemoveServiceProxies(ctx, userContext, strings.ToLower(serviceName))
 	default:
 		_, _ = w.Write([]byte("unknown"))
 		return
@@ -572,82 +572,4 @@ func handlePM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 	_ = a.Sessions.Save(r, w, sess)
 	http.Redirect(w, r, "/sites", http.StatusFound)
-}
-
-// revertWebserverConfig's Apache branch searches for what editApacheConfig() actually writes ("http://{service_name}"), not "http://localhost" - matching the real inserted lines is what makes the revert find and remove them
-func revertWebserverConfig(userContext, subdirectory, webServerType, domainURL, serviceName string) {
-	vhostsPath := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_webserver_data/_data/" + domainURL + ".conf"
-	content, err := tenantfs.ReadFile(vhostsPath)
-	if err != nil {
-		return
-	}
-	backupPath := vhostsPath + ".bak"
-
-	switch {
-	case webServerType == "apache":
-		var proxyLine, reverseProxyLine string
-		if subdirectory != "" {
-			proxyLine = "\tProxyPass /" + subdirectory + "/ http://" + serviceName
-			reverseProxyLine = "\tProxyPassReverse /" + subdirectory + "/ http://" + serviceName
-		} else {
-			proxyLine = "\tProxyPass / http://" + serviceName
-			reverseProxyLine = "\tProxyPassReverse / http://" + serviceName
-		}
-		_ = tenantfs.WriteFile(backupPath, content, 0o644)
-
-		var updated []string
-		for _, line := range strings.SplitAfter(string(content), "\n") {
-			if strings.Contains(line, proxyLine) || strings.Contains(line, reverseProxyLine) {
-				continue
-			}
-			updated = append(updated, line)
-		}
-		if writeErr := tenantfs.WriteFile(vhostsPath, []byte(strings.Join(updated, "")), 0o644); writeErr != nil {
-			_ = copyFile(backupPath, vhostsPath)
-		}
-
-	case webServerType == "nginx" || webServerType == "openresty":
-		_ = tenantfs.WriteFile(backupPath, content, 0o644)
-
-		markerStart := "location / {"
-		if subdirectory != "" {
-			markerStart = "location /" + subdirectory + "/ {"
-		}
-		const markerEnd = "proxy_set_header X-Real-IP $remote_addr;"
-
-		var updated []string
-		insideBlock := false
-		skipNext := false
-		for _, line := range strings.SplitAfter(string(content), "\n") {
-			stripped := strings.TrimSpace(line)
-			if strings.Contains(stripped, markerStart) {
-				insideBlock = true
-				continue
-			}
-			if insideBlock && strings.Contains(stripped, markerEnd) {
-				insideBlock = false
-				skipNext = true
-				continue
-			}
-			if skipNext {
-				skipNext = false
-				continue
-			}
-			if !insideBlock {
-				updated = append(updated, line)
-			}
-		}
-		_ = tenantfs.WriteFile(vhostsPath, []byte(strings.Join(updated, "")), 0o644)
-
-	case strings.Contains(strings.ToLower(webServerType), "litespeed"):
-		_ = tenantfs.WriteFile(backupPath, content, 0o644)
-
-		svc := regexp.QuoteMeta(strings.ToLower(serviceName))
-		pattern := regexp.MustCompile(`(?s)\n# PM2-PROXY-START:` + svc + `.+?# PM2-PROXY-END:` + svc + `\n`)
-		cleaned := strings.TrimRight(pattern.ReplaceAllString(string(content), "\n"), " \t\n\r") + "\n"
-
-		if writeErr := tenantfs.WriteFile(vhostsPath, []byte(cleaned), 0o644); writeErr != nil {
-			_ = copyFile(backupPath, vhostsPath)
-		}
-	}
 }

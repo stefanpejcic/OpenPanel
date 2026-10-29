@@ -286,7 +286,7 @@ func apiPM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	siteName := r.PathValue("site_name")
-	selectedDomain, subdirectory, _ := strings.Cut(siteName, "/")
+	selectedDomain, _, _ := strings.Cut(siteName, "/")
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, selectedDomain) {
 		writeAPIPM2JSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
@@ -311,8 +311,8 @@ func apiPM2Delete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	webServerType, _ := docker.GetEnvValue(userContext, "WEB_SERVER")
 	if webServerType == "apache" || webServerType == "openresty" || webServerType == "nginx" ||
 		webServerType == "openlitespeed" || webServerType == "litespeed" {
-		revertWebserverConfig(userContext, subdirectory, webServerType, selectedDomain, serviceName.String)
-		reloadWebserver(ctx, userContext, webServerType)
+		// sites.container is stored uppercase, the proxy was written with the lowercase name
+		RemoveServiceProxies(ctx, userContext, strings.ToLower(serviceName.String))
 	}
 
 	composeData, loadErr := docker.LoadCompose(userContext)

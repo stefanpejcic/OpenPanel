@@ -92,6 +92,13 @@ func TestRedact(t *testing.T) {
 }
 
 // gitIn runs a plain git command in a work dir for test setup
+// init -b needs git 2.28+, symbolic-ref names the branch on any version
+func initMain(t *testing.T, dir string) {
+	t.Helper()
+	gitIn(t, dir, "init", "-q")
+	gitIn(t, dir, "symbolic-ref", "HEAD", "refs/heads/main")
+}
+
 func gitIn(t *testing.T, dir string, args ...string) string {
 	t.Helper()
 	cmd := exec.Command("git", args...)
@@ -141,7 +148,7 @@ func TestLocalRepoDeployFlow(t *testing.T) {
 
 	// push like a client would, straight to the bare repo
 	work := t.TempDir()
-	gitIn(t, work, "init", "-q", "-b", "main")
+	initMain(t, work)
 	os.WriteFile(filepath.Join(work, "index.html"), []byte("v1"), 0o644)
 	os.WriteFile(filepath.Join(work, "old.txt"), []byte("old"), 0o644)
 	gitIn(t, work, "add", ".")
@@ -213,7 +220,8 @@ func TestRemoteRepoCloneAndPull(t *testing.T) {
 
 	// the remote is served over http so isValidRemoteURL is happy and the real transport is used
 	upstream := t.TempDir()
-	gitIn(t, upstream, "init", "-q", "-b", "trunk")
+	gitIn(t, upstream, "init", "-q")
+	gitIn(t, upstream, "symbolic-ref", "HEAD", "refs/heads/trunk")
 	os.WriteFile(filepath.Join(upstream, "a.txt"), []byte("1"), 0o644)
 	gitIn(t, upstream, "add", ".")
 	gitIn(t, upstream, "commit", "-q", "-m", "one")
@@ -309,7 +317,7 @@ func TestSmartHTTPPushAndClone(t *testing.T) {
 	host := strings.TrimPrefix(srv.URL, "http://")
 
 	work := t.TempDir()
-	gitIn(t, work, "init", "-q", "-b", "main")
+	initMain(t, work)
 	os.WriteFile(filepath.Join(work, "index.html"), []byte("pushed"), 0o644)
 	gitIn(t, work, "add", ".")
 	gitIn(t, work, "commit", "-q", "-m", "over http")
@@ -406,7 +414,7 @@ func TestRunCLI(t *testing.T) {
 	}
 	updateRepos(userContext, func(rs []Repo) ([]Repo, error) { return append(rs, r), nil })
 	work := t.TempDir()
-	gitIn(t, work, "init", "-q", "-b", "main")
+	initMain(t, work)
 	os.WriteFile(filepath.Join(work, "index.html"), []byte("cli"), 0o644)
 	gitIn(t, work, "add", ".")
 	gitIn(t, work, "commit", "-q", "-m", "one")
@@ -440,7 +448,7 @@ func TestDeployRepopulatesMissingStage(t *testing.T) {
 		t.Fatalf("initRepo: %v", err)
 	}
 	work := t.TempDir()
-	gitIn(t, work, "init", "-q", "-b", "main")
+	initMain(t, work)
 	os.WriteFile(filepath.Join(work, "index.html"), []byte("v1"), 0o644)
 	gitIn(t, work, "add", ".")
 	gitIn(t, work, "commit", "-q", "-m", "first")
@@ -472,7 +480,7 @@ func TestDeployRefusesSymlinkedTarget(t *testing.T) {
 		t.Fatalf("initRepo: %v", err)
 	}
 	work := t.TempDir()
-	gitIn(t, work, "init", "-q", "-b", "main")
+	initMain(t, work)
 	os.WriteFile(filepath.Join(work, "index.html"), []byte("v1"), 0o644)
 	gitIn(t, work, "add", ".")
 	gitIn(t, work, "commit", "-q", "-m", "first")

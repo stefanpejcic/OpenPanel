@@ -78,7 +78,12 @@ func initRepo(ctx context.Context, userContext string, r *Repo) error {
 	}
 
 	if r.Source == SourceLocal {
-		if _, err := runGit(ctx, userContext, nil, "init", "--bare", "-q", "-b", r.Branch, dir); err != nil {
+		// init -b needs git 2.28+, symbolic-ref names the branch on any version
+		if _, err := runGit(ctx, userContext, nil, "init", "--bare", "-q", dir); err != nil {
+			_ = os.RemoveAll(dir)
+			return err
+		}
+		if _, err := runGit(ctx, userContext, nil, "-C", dir, "symbolic-ref", "HEAD", "refs/heads/"+r.Branch); err != nil {
 			_ = os.RemoveAll(dir)
 			return err
 		}
