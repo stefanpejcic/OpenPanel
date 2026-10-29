@@ -28,11 +28,15 @@ func stripServiceProxies(content string, names ...string) (string, bool) {
 		host := hostRE(name)
 		apacheRE := regexp.MustCompile(`^\s*ProxyPass(?:Reverse)?\s+\S+\s+` + host)
 		nginxRE := regexp.MustCompile(`^\s*proxy_pass\s+` + host)
+		// the per-request form from nginxProxyLines starts with this set line instead
+		upstreamRE := regexp.MustCompile(`^\s*set\s+\$openpanel_upstream\s+` + host)
 
 		lines := strings.SplitAfter(out, "\n")
 		kept := make([]string, 0, len(lines))
 		// headers the installer adds right after proxy_pass go with it
 		inHeaders := false
+		// after the set line its resolver, rewrite and proxy_pass go too
+		perRequest := false
 		// editApacheConfig inserts right after the marker's indent, give that indent back to the marker line
 		indent := ""
 		for _, line := range lines {
@@ -47,21 +51,26 @@ func stripServiceProxies(content string, names ...string) (string, bool) {
 				line = indent + strings.TrimLeft(line, " ")
 				indent = ""
 			}
-			if nginxRE.MatchString(line) {
+			if nginxRE.MatchString(line) || upstreamRE.MatchString(line) {
 				for len(kept) > 0 && strings.TrimSpace(kept[len(kept)-1]) == "" {
 					kept = kept[:len(kept)-1]
 				}
 				inHeaders = true
+				perRequest = upstreamRE.MatchString(line)
 				continue
 			}
 			if inHeaders {
 				if strings.HasPrefix(trimmed, "proxy_") && !strings.HasPrefix(trimmed, "proxy_pass") {
 					continue
 				}
+				if perRequest && (strings.HasPrefix(trimmed, "resolver ") || strings.HasPrefix(trimmed, "rewrite ") || trimmed == "proxy_pass $openpanel_upstream;") {
+					continue
+				}
 				if trimmed == "" {
 					continue
 				}
 				inHeaders = false
+				perRequest = false
 			}
 			kept = append(kept, line)
 		}

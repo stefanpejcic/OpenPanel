@@ -2,10 +2,12 @@ package appinstall
 
 import (
 	"context"
+	"net"
 	"regexp"
 	"strconv"
 	"strings"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
@@ -182,6 +184,48 @@ func insertNginxProxy(conf, subdirectory, serviceName, configLines string) (stri
 	return strings.Join(updatedBlocks, ""), ""
 }
 
+// the subdirectory goes into a rewrite regex for the per-request form, anything else keeps the plain proxy_pass
+var nginxPlainSubdirRE = regexp.MustCompile(`^[A-Za-z0-9._~-]+(/[A-Za-z0-9._~-]+)*$`)
+
+// nginxProxyLines is the proxy part of an app's nginx block, with a resolver the upstream is looked up per request so a stopped app only 502s its own URLs instead of keeping nginx from starting
+func nginxProxyLines(upstream, subdirectory, resolver string) string {
+	if resolver == "" || (subdirectory != "" && !nginxPlainSubdirRE.MatchString(subdirectory)) {
+		return "proxy_pass " + upstream + "/;"
+	}
+	// the set line comes first, stripServiceProxies finds the app by it
+	lines := []string{"set $openpanel_upstream " + upstream + ";", "resolver " + resolver + " valid=10s ipv6=off;"}
+	if subdirectory != "" {
+		// a proxy_pass with variables can't swap the prefix like proxy_pass http://app/; does
+		lines = append(lines, "rewrite ^/"+regexp.QuoteMeta(subdirectory)+"/(.*)$ /$1 break;")
+	}
+	lines = append(lines, "proxy_pass $openpanel_upstream;")
+	return strings.Join(lines, "\n            ")
+}
+
+// nginxConfigLines is what insertNginxProxy adds, its own location for a subdirectory app or the lines that go inside location / for a root one
+func nginxConfigLines(subdirectory, proxyLines, proxyHeaders string) string {
+	if subdirectory != "" {
+		// ^~ so the vhost's .php and static file regex locations can't grab the app's URLs
+		return "\n        location ^~ /" + subdirectory + "/ {\n            " + proxyLines + "\n            " + proxyHeaders + "\n        }\n        "
+	}
+	return "\n        " + proxyLines + "\n            " + proxyHeaders + "\n        "
+}
+
+// nginxResolver is the gateway of the account's www network, where aardvark-dns answers for its containers, or "" if podman can't tell
+func nginxResolver(ctx context.Context, userContext string) string {
+	argv := podmanmanager.PodmanArgv(userContext, "network", "inspect", userContext+"_www", "--format", "{{range .Subnets}}{{.Gateway}} {{end}}")
+	out, err := podmanmanager.Command(ctx, userContext, argv).Output()
+	if err != nil {
+		return ""
+	}
+	for _, f := range strings.Fields(string(out)) {
+		if ip := net.ParseIP(f); ip != nil && ip.To4() != nil {
+			return ip.String()
+		}
+	}
+	return ""
+}
+
 // editNginxConfig inserts a location/proxy_pass block into every "server {" block's "location / {" section, then runs nginx -t and restores the old file if it fails, returning the error or ""
 func editNginxConfig(ctx context.Context, userContext, domainURL, subdirectory, serviceName, webServer string, port int, wsUpgrade bool) string {
 	confPath := vhostConfPath(userContext, domainURL)
@@ -205,19 +249,11 @@ func editNginxConfig(ctx context.Context, userContext, domainURL, subdirectory, 
 		proxyHeaders += "\n            proxy_set_header Upgrade $http_upgrade;\n            proxy_set_header Connection \"upgrade\";"
 	}
 
-	proxyURL := "http://" + serviceName
+	upstream := "http://" + serviceName
 	if port != 0 {
-		proxyURL += ":" + strconv.Itoa(port)
+		upstream += ":" + strconv.Itoa(port)
 	}
-	proxyURL += "/"
-
-	var configLines string
-	if subdirectory != "" {
-		// ^~ so the vhost's .php and static file regex locations can't grab the app's URLs
-		configLines = "\n        location ^~ /" + subdirectory + "/ {\n            proxy_pass " + proxyURL + ";\n            " + proxyHeaders + "\n        }\n        "
-	} else {
-		configLines = "\n        proxy_pass " + proxyURL + ";\n            " + proxyHeaders + "\n        "
-	}
+	configLines := nginxConfigLines(subdirectory, nginxProxyLines(upstream, subdirectory, nginxResolver(ctx, userContext)), proxyHeaders)
 
 	updated, errMsg := insertNginxProxy(nginxConfigData, subdirectory, serviceName, configLines)
 	if errMsg != "" {
