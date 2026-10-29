@@ -10,6 +10,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/appkit"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/githubapi"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
@@ -138,7 +139,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		var latestErr error
 		version, latestErr = latestMoodleVersion(ctx)
 		if latestErr != nil {
-			emit(map[string]any{"error": "Could not determine latest Moodle version: " + latestErr.Error()})
+			emit(map[string]any{"error": "Could not determine latest Moodle version: " + latestErr.Error() + githubapi.PickVersionHint(latestErr)})
 			return
 		}
 	}

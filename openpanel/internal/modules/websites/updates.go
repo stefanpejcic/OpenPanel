@@ -3,6 +3,7 @@ package websites
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"regexp"
@@ -14,6 +15,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/githubapi"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -38,21 +40,14 @@ func compareUpdateVersions(a, b string) int {
 }
 
 func fetchLatestGitHubRelease(ctx context.Context, repo string) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.github.com/repos/"+repo+"/releases/latest", nil)
+	body, err := githubapi.Get(ctx, "https://api.github.com/repos/"+repo+"/releases/latest", 10*time.Second)
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("Accept", "application/vnd.github+json")
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
 	var release struct {
 		TagName string `json:"tag_name"`
 	}
-	if decodeErr := json.NewDecoder(resp.Body).Decode(&release); decodeErr != nil {
+	if decodeErr := json.Unmarshal(body, &release); decodeErr != nil {
 		return "", decodeErr
 	}
 	return strings.TrimPrefix(release.TagName, "v"), nil
@@ -61,21 +56,14 @@ func fetchLatestGitHubRelease(ctx context.Context, repo string) (string, error) 
 var updatesDrupalTagRE = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
 
 func latestDrupalVersionForUpdates(ctx context.Context) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.github.com/repos/drupal/drupal/tags?per_page=100", nil)
+	body, err := githubapi.Get(ctx, "https://api.github.com/repos/drupal/drupal/tags?per_page=100", 10*time.Second)
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("Accept", "application/vnd.github+json")
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
 	var tags []struct {
 		Name string `json:"name"`
 	}
-	if decodeErr := json.NewDecoder(resp.Body).Decode(&tags); decodeErr != nil {
+	if decodeErr := json.Unmarshal(body, &tags); decodeErr != nil {
 		return "", decodeErr
 	}
 	var versions []string
@@ -124,24 +112,17 @@ var updatesGithubReleaseTagRE = regexp.MustCompile(`^\d+\.\d+\.\d+$`)
 
 // latestVersionWithZipAsset mirrors prestashop/version.go's and matomo/version.go's "only count a release that actually ships a downloadable asset" filter
 func latestVersionWithZipAsset(ctx context.Context, repo string) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.github.com/repos/"+repo+"/releases?per_page=40", nil)
+	body, err := githubapi.Get(ctx, "https://api.github.com/repos/"+repo+"/releases?per_page=40", 10*time.Second)
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("Accept", "application/vnd.github+json")
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
 	var releases []struct {
 		TagName string `json:"tag_name"`
 		Assets  []struct {
 			Name string `json:"name"`
 		} `json:"assets"`
 	}
-	if decodeErr := json.NewDecoder(resp.Body).Decode(&releases); decodeErr != nil {
+	if decodeErr := json.Unmarshal(body, &releases); decodeErr != nil {
 		return "", decodeErr
 	}
 	var versions []string
@@ -170,21 +151,14 @@ func latestVersionWithZipAsset(ctx context.Context, repo string) (string, error)
 var updatesMoodleTagRE = regexp.MustCompile(`^v\d+\.\d+\.\d+$`)
 
 func latestMoodleVersionForUpdates(ctx context.Context) (string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.github.com/repos/moodle/moodle/tags?per_page=100", nil)
+	body, err := githubapi.Get(ctx, "https://api.github.com/repos/moodle/moodle/tags?per_page=100", 10*time.Second)
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("Accept", "application/vnd.github+json")
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
 	var tags []struct {
 		Name string `json:"name"`
 	}
-	if decodeErr := json.NewDecoder(resp.Body).Decode(&tags); decodeErr != nil {
+	if decodeErr := json.Unmarshal(body, &tags); decodeErr != nil {
 		return "", decodeErr
 	}
 	var versions []string
@@ -287,7 +261,8 @@ func latestWordPressVersionForUpdates(ctx context.Context) (string, error) {
 
 // latestVersionsForAllTypes fetches every supported CMS's latest version concurrently and returns a lowercase-type -> version map, memoized for 6 hours since these barely change and this is 8 outbound API calls
 func latestVersionsForAllTypes(ctx context.Context, a *appctx.App) map[string]string {
-	result, _ := cache.Memoize(ctx, a.Cache, "sites_latest_versions", 6*time.Hour, func() (map[string]string, error) {
+	var fetched map[string]string
+	result, err := cache.Memoize(ctx, a.Cache, "sites_latest_versions", 6*time.Hour, func() (map[string]string, error) {
 		fetchers := map[string]func(context.Context) (string, error){
 			"wordpress": latestWordPressVersionForUpdates,
 			"drupal":    latestDrupalVersionForUpdates,
@@ -304,6 +279,7 @@ func latestVersionsForAllTypes(ctx context.Context, a *appctx.App) map[string]st
 
 		out := make(map[string]string, len(fetchers))
 		var mu sync.Mutex
+		rateLimited := false
 		var wg sync.WaitGroup
 		fetchCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
 		defer cancel()
@@ -313,6 +289,11 @@ func latestVersionsForAllTypes(ctx context.Context, a *appctx.App) map[string]st
 			go func(cmsType string, fetch func(context.Context) (string, error)) {
 				defer wg.Done()
 				version, err := fetch(fetchCtx)
+				if errors.Is(err, githubapi.ErrRateLimited) {
+					mu.Lock()
+					rateLimited = true
+					mu.Unlock()
+				}
 				if err != nil || version == "" {
 					return
 				}
@@ -322,8 +303,16 @@ func latestVersionsForAllTypes(ctx context.Context, a *appctx.App) map[string]st
 			}(cmsType, fetch)
 		}
 		wg.Wait()
+		fetched = out
+		// don't cache a rate limited lookup for 6 hours, /sites would show no updates until then
+		if rateLimited {
+			return out, githubapi.ErrRateLimited
+		}
 		return out, nil
 	})
+	if err != nil {
+		return fetched
+	}
 	return result
 }
 

@@ -4,31 +4,20 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
-	"net/http"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/githubapi"
 )
 
 var flarumVersionRE = regexp.MustCompile(`^v?\d+\.\d+\.\d+$`)
 
 // listFlarumVersions hits the GitHub tags API and returns every stable "vX.Y.Z" tag, newest first - mirrors the exact filtering the install/update tab's own client-side JS already does (flarum_install.html / flarum_app.html's versionRe), so the server-side "latest" fallback below can never disagree with what's shown in the UI, and excludes flarum/core's pre-release tags (still no stable v2.0.0 as of this writing) same as the frontend's regex
 func listFlarumVersions(ctx context.Context) ([]string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.github.com/repos/flarum/core/tags?per_page=100", nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Accept", "application/vnd.github+json")
-	client := &http.Client{Timeout: 15 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
+	body, err := githubapi.Get(ctx, "https://api.github.com/repos/flarum/core/tags?per_page=100", 15*time.Second)
 	if err != nil {
 		return nil, err
 	}

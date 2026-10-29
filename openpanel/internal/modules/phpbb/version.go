@@ -4,31 +4,20 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io"
-	"net/http"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/githubapi"
 )
 
 var listPhpbbVersionsRE = regexp.MustCompile(`^release-(\d+\.\d+\.\d+)$`)
 
 // listPhpbbVersions hits the GitHub tags API and returns every stable "release-X.Y.Z" tag (stripped of that prefix), newest first - mirrors phpbb_install.html's client-side filtering so the "latest" fallback below can never disagree with what's shown in the UI
 func listPhpbbVersions(ctx context.Context) ([]string, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://api.github.com/repos/phpbb/phpbb/tags?per_page=100", nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Accept", "application/vnd.github+json")
-	client := &http.Client{Timeout: 15 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
+	body, err := githubapi.Get(ctx, "https://api.github.com/repos/phpbb/phpbb/tags?per_page=100", 15*time.Second)
 	if err != nil {
 		return nil, err
 	}
