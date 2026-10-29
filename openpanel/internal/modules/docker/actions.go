@@ -195,6 +195,15 @@ func RestartContainer(ctx context.Context, userContext, containerName string) St
 	return StartStopResult{Success: true, Message: fmt.Sprintf("Container '%s' restarted successfully.", containerName)}
 }
 
+// restartIfRunning recreates a running service so it picks up an edited compose file and .env, a stopped one gets them on its next start
+func restartIfRunning(ctx context.Context, userContext, service string) (bool, StartStopResult) {
+	running, err := GetRunningContainers(ctx, userContext)
+	if err != nil || !containsString(running, service) {
+		return false, StartStopResult{Success: true}
+	}
+	return true, RestartContainer(ctx, userContext, service)
+}
+
 func handleContainersStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	data, err := a.InjectData(r.Context(), userID)

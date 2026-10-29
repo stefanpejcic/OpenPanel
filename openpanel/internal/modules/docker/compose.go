@@ -250,17 +250,21 @@ func ServiceKeyPrefix(serviceName string) string {
 	return envKeyReplacer.Replace(strings.ToUpper(serviceName))
 }
 
-// ParseEnvVars turns each "key: value" line from the form's freeform environment textarea into both a compose-file `${SERVICE_KEY}` placeholder and a `SERVICE_KEY=value` .env entry
+// ParseEnvVars turns each "key: value" or "KEY=value" line from the form's freeform environment textarea into both a compose-file `${SERVICE_KEY}` placeholder and a `SERVICE_KEY=value` .env entry
 func ParseEnvVars(rawLines []string, serviceKeyPrefix string) (environmentVars map[string]string, newEnvVars map[string]string) {
 	environmentVars = map[string]string{}
 	newEnvVars = map[string]string{}
 	for _, line := range rawLines {
-		k, v, ok := strings.Cut(line, ":")
-		if !ok {
+		// split on whichever of : or = comes first, so URL=https://x and TZ: Europe/Berlin both work like they do in the form
+		i := strings.IndexAny(line, ":=")
+		if i < 0 {
 			continue
 		}
-		key := strings.TrimSpace(k)
-		value := strings.TrimSpace(v)
+		key := strings.TrimSpace(line[:i])
+		value := strings.TrimSpace(line[i+1:])
+		if key == "" {
+			continue
+		}
 		envKey := serviceKeyPrefix + "_" + strings.ToUpper(key)
 		environmentVars[key] = "${" + envKey + "}"
 		newEnvVars[envKey] = value

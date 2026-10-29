@@ -502,10 +502,22 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		declareNewVolumes(composeData, r.Form["volume_name"], service)
 		services[service] = updatedService
 		composeData["services"] = services
-		_ = SaveCompose(userContext, composeData)
+		if err := SaveCompose(userContext, composeData); err != nil {
+			formView.Error = "Failed to save configuration: " + err.Error()
+			renderContainerFormPage(a, w, r, formView)
+			return
+		}
 
 		_ = logger.RecordUserAction(a.Config, username, "edited container "+service, reqip.ClientIP(r))
-		web.FlashRedirect(a, w, r, "success", "Container updated successfully.", "/containers/edit/"+service)
+		restarted, res := restartIfRunning(ctx, userContext, service)
+		switch {
+		case !res.Success:
+			web.FlashRedirect(a, w, r, "error", "Container updated, but it failed to restart: "+res.Message, "/containers/edit/"+service)
+		case restarted:
+			web.FlashRedirect(a, w, r, "success", "Container updated and restarted with the new settings.", "/containers/edit/"+service)
+		default:
+			web.FlashRedirect(a, w, r, "success", "Container updated, the new settings apply when it starts.", "/containers/edit/"+service)
+		}
 		return
 	}
 
