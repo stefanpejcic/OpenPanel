@@ -267,7 +267,12 @@ func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "edited container "+service, reqip.ClientIP(r))
-	writeAPIDockerJSON(w, http.StatusOK, map[string]any{"message": "Container updated successfully.", "service": service})
+	restarted, res := restartIfRunning(r.Context(), userContext, service)
+	if !res.Success {
+		writeAPIDockerJSON(w, http.StatusInternalServerError, map[string]any{"error": "Container updated, but it failed to restart: " + res.Message, "service": service})
+		return
+	}
+	writeAPIDockerJSON(w, http.StatusOK, map[string]any{"message": "Container updated successfully.", "service": service, "restarted": restarted})
 }
 
 // apiContainerDelete stops and removes a service, its image, and its per-service env vars - same as handleDeleteContainer's POST branch (containers.go). No confirmation step here; DELETE is the confirmation.

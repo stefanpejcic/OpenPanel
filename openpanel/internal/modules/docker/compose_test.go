@@ -96,6 +96,19 @@ func TestParseEnvVars(t *testing.T) {
 	}
 }
 
+func TestParseEnvVarsEqualsAndColonValues(t *testing.T) {
+	envVars, newEnvVars := ParseEnvVars([]string{"URL=https://example.com:8443/", "TZ: Europe/Berlin", "OPTS: -Da=b", "=nokey", ": nokey"}, "SVC")
+	want := map[string]string{"SVC_URL": "https://example.com:8443/", "SVC_TZ": "Europe/Berlin", "SVC_OPTS": "-Da=b"}
+	for k, v := range want {
+		if newEnvVars[k] != v {
+			t.Errorf("newEnvVars[%s] = %q, want %q", k, newEnvVars[k], v)
+		}
+	}
+	if len(envVars) != 3 || envVars["URL"] != "${SVC_URL}" {
+		t.Errorf("unexpected env vars: %v", envVars)
+	}
+}
+
 func TestVolumeEntryComposeVolumeString(t *testing.T) {
 	rw := VolumeEntry{Name: "data", Mount: "/var/data"}
 	if got := rw.ComposeVolumeString(); got != "data:/var/data" {
