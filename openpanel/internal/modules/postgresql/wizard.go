@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/lib/pq"
 
@@ -38,31 +39,23 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
-		databaseName := r.Form.Get("database_name")
-		dbUser := r.Form.Get("db_user")
+		databaseName := strings.TrimSpace(r.Form.Get("database_name"))
+		dbUser := strings.TrimSpace(r.Form.Get("db_user"))
 		password := r.Form.Get("password")
 
-		switch {
-		case databaseName == "":
-			web.FlashRedirect(a, w, r, "error", "Database name is required.", "/postgresql/wizard")
+		// failures keep what was typed in the form
+		fail := func(message string) {
+			web.Flash(a, w, r, "error", message)
+			renderWizardPage(a, w, r, databaseName, dbUser)
+		}
+		names := loadNames(ctx, userContext)
+		threshold := validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)
+		if msg := checkNewDatabase(databaseName, names); msg != "" {
+			fail(web.Tr(a, r, msg))
 			return
-		case !validators.IsValidIdentifier(databaseName):
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/postgresql/wizard")
-			return
-		case isRestrictedDatabase(databaseName):
-			web.FlashRedirect(a, w, r, "error", "This is a system database that can not be used.", "/postgresql/wizard")
-			return
-		case dbUser == "":
-			web.FlashRedirect(a, w, r, "error", "User name is required.", "/postgresql/wizard")
-			return
-		case !validators.IsValidIdentifier(dbUser):
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/postgresql/wizard")
-			return
-		case isRestrictedUser(dbUser):
-			web.FlashRedirect(a, w, r, "error", "This username is not allowed.", "/postgresql/wizard")
-			return
-		case !validators.IsPasswordStrongEnough(password, validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)):
-			web.FlashRedirect(a, w, r, "error", "Password does not meet the required strength.", "/postgresql/wizard")
+		}
+		if msg := checkNewUser(dbUser, password, threshold, names); msg != "" {
+			fail(web.Tr(a, r, msg))
 			return
 		}
 
@@ -82,17 +75,17 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 			dbUsage = postgresmanager.ToInt(rows[0][0])
 		}
 		if dbUsage >= dbLimit {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "You have reached the maximum number of databases allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()), "/postgresql/wizard")
+			fail(web.Tr(a, r, "You have reached the maximum number of databases allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()))
 			return
 		}
 
 		if _, execErr := postgresmanager.Exec(ctx, userContext, `CREATE DATABASE "`+databaseName+`"`, "postgres"); execErr != nil {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to create database: %(error)s", "error", execErr.Error()), "/postgresql/wizard")
+			fail(web.Tr(a, r, "Failed to create database: %(error)s", "error", execErr.Error()))
 			return
 		}
 
 		if _, execErr := postgresmanager.Exec(ctx, userContext, `CREATE USER "`+dbUser+`" WITH PASSWORD `+pq.QuoteLiteral(password), "postgres"); execErr != nil {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to create user: %(error)s", "error", execErr.Error()), "/postgresql/wizard")
+			fail(web.Tr(a, r, "Failed to create user: %(error)s", "error", execErr.Error()))
 			return
 		}
 
@@ -100,17 +93,16 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 			`GRANT USAGE ON SCHEMA public TO "` + dbUser + `"; ` +
 			`GRANT CREATE ON SCHEMA public TO "` + dbUser + `";`
 		if _, execErr := postgresmanager.Exec(ctx, userContext, grantSQL, databaseName); execErr != nil {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Database and user created, but failed to grant privileges: %(error)s", "error", execErr.Error()), "/postgresql/wizard")
+			fail(web.Tr(a, r, "Database and user created, but failed to grant privileges: %(error)s", "error", execErr.Error()))
 			return
 		}
 
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername,
 			"used wizard to create PostgreSQL database "+databaseName+" and user "+dbUser, ipAddress)
-		web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created database %(database_name)s, user %(db_user)s, and granted privileges.", "database_name", databaseName, "db_user", dbUser))
-		http.Redirect(w, r, "/postgresql", http.StatusFound)
+		renderWizardSuccess(a, w, r, databaseName, dbUser, password)
 		return
 	}
 
-	renderWizardPage(a, w, r)
+	renderWizardPage(a, w, r, "", "")
 }

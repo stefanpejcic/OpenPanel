@@ -3,6 +3,7 @@ package postgresql
 import (
 	"log"
 	"net/http"
+	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
@@ -38,9 +39,43 @@ type DatabasesPageData struct {
 	Unit         string
 	ShowAll      bool
 	StatusDetail string // longer explanatory text for the table's empty-state row while the service isn't running/healthy, "" when running+healthy
+	ServerInfo
+	DBLimit int // plan limit, 0 is unlimited
 }
 
-func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, databases []DatabaseRow, unit string, showAll bool) {
+// DBQuotaPct is how full the plan's database quota is, capped at 100
+func (d DatabasesPageData) DBQuotaPct() int {
+	if d.DBLimit <= 0 {
+		return 0
+	}
+	return min(d.UserDatabaseCount()*100/d.DBLimit, 100)
+}
+
+// UserDatabaseCount is the number of non-system databases, for the summary tile
+func (d DatabasesPageData) UserDatabaseCount() int {
+	n := 0
+	for _, db := range d.Databases {
+		if !db.IsSystem {
+			n++
+		}
+	}
+	return n
+}
+
+// UserCount is the number of distinct users assigned to any database
+func (d DatabasesPageData) UserCount() int {
+	seen := map[string]bool{}
+	for _, db := range d.Databases {
+		for _, u := range strings.Split(db.AssignedUsers, ",") {
+			if u = strings.TrimSpace(u); u != "" {
+				seen[u] = true
+			}
+		}
+	}
+	return len(seen)
+}
+
+func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, databases []DatabaseRow, unit string, showAll bool, info ServerInfo) {
 	layout, injectedData, err := web.BuildLayoutData(a, w, r, "PostgreSQL Databases")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -57,23 +92,57 @@ func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		ServiceStatusData: ServiceStatusData{ContainerState: status.State, HealthStatus: status.Health},
 		Databases:         databases, Unit: unit, ShowAll: showAll,
 		StatusDetail: postgresContainerStatusDetail(status.State, status.Health),
+		ServerInfo:   info, DBLimit: planDBLimit(r.Context(), a, injectedData),
 	}
 	if err := databasesPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - databases template render error: %v", err)
 	}
 }
 
-func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Create Database")
+// CreatePageData is the template context of the shared create pages (db/new.html, psql_user.html, wizard.html, assign.html)
+type CreatePageData struct {
+	web.LayoutData
+	Engine   web.DBEngine
+	Names    web.DBNames
+	DBLimit  int // plan limit, 0 is unlimited
+	DBUsage  int
+	FormName string // what was typed, kept after a failed submit
+	Created  string // the database or user just created, shows the done state
+
+	CreatedPassword  string // a new user's password, shown once
+	Success          bool   // wizard done
+	FormDatabaseName string
+	FormDBUser       string
+	CreatedDB        string
+	CreatedUser      string
+	Role             string // only MongoDB has roles, the shared wizard template reads it
+	DBUser           string // assign page preselection
+	DatabaseName     string
+}
+
+// createPage builds CreatePageData, listing the account's names unless done says they won't be shown
+func createPage(a *appctx.App, w http.ResponseWriter, r *http.Request, title string, done bool) (CreatePageData, bool) {
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, title)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
+		return CreatePageData{}, false
 	}
 	layout.Service = "postgres"
-	data := struct {
-		web.LayoutData
-		Engine web.DBEngine
-	}{layout, web.PostgreSQLEngine}
+	data := CreatePageData{LayoutData: layout, Engine: web.PostgreSQLEngine, DBLimit: planDBLimit(r.Context(), a, injectedData)}
+	if !done {
+		userContext, _ := injectedData["context"].(string)
+		data.Names = loadNames(r.Context(), userContext)
+		data.DBUsage = len(data.Names.Databases)
+	}
+	return data, true
+}
+
+func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request, formName, created string) {
+	data, ok := createPage(a, w, r, "Create Database", created != "")
+	if !ok {
+		return
+	}
+	data.FormName, data.Created = formName, created
 	if err := newDatabasePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - new database template render error: %v", err)
 	}
@@ -115,14 +184,13 @@ func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, stat
 	}
 }
 
-func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Create User")
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request, formName, created, password string) {
+	data, ok := createPage(a, w, r, "Create User", created != "")
+	if !ok {
 		return
 	}
-	layout.Service = "postgres"
-	if err := createUserPage.Render(w, http.StatusOK, struct{ web.LayoutData }{layout}); err != nil {
+	data.FormName, data.Created, data.CreatedPassword = formName, created, password
+	if err := createUserPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - create user template render error: %v", err)
 	}
 }
@@ -146,26 +214,35 @@ func renderChangePasswordPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 }
 
-func renderWizardPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Database Wizard")
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+func renderWizardPage(a *appctx.App, w http.ResponseWriter, r *http.Request, formDB, formUser string) {
+	data, ok := createPage(a, w, r, "Database Wizard", false)
+	if !ok {
 		return
 	}
-	layout.Service = "postgres"
-	if err := wizardPage.Render(w, http.StatusOK, struct{ web.LayoutData }{layout}); err != nil {
+	data.FormDatabaseName, data.FormDBUser = formDB, formUser
+	if err := wizardPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - wizard template render error: %v", err)
 	}
 }
 
-func renderAssignPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Assign User to Database")
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+func renderWizardSuccess(a *appctx.App, w http.ResponseWriter, r *http.Request, createdDB, createdUser, password string) {
+	data, ok := createPage(a, w, r, "Database Wizard", true)
+	if !ok {
 		return
 	}
-	layout.Service = "postgres"
-	if err := assignPage.Render(w, http.StatusOK, struct{ web.LayoutData }{layout}); err != nil {
+	data.Success, data.CreatedDB, data.CreatedUser, data.CreatedPassword = true, createdDB, createdUser, password
+	if err := wizardPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("POSTGRESQL - wizard success template render error: %v", err)
+	}
+}
+
+func renderAssignPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dbUser, databaseName string) {
+	data, ok := createPage(a, w, r, "Assign User to Database", false)
+	if !ok {
+		return
+	}
+	data.DBUser, data.DatabaseName = dbUser, databaseName
+	if err := assignPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - assign template render error: %v", err)
 	}
 }

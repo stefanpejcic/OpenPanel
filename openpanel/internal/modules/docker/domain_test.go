@@ -27,12 +27,12 @@ func TestBindSourceEscapes(t *testing.T) {
 		rel  string
 		want bool
 	}{
-		{"data", false},       // a real folder inside the account
-		{"data/sub", false},   // not created yet, nothing to follow
-		{"newfolder", false},  // doesn't exist yet
-		{"innerlink", false},  // symlink that stays inside the account
-		{"evil", true},        // symlink pointing out of the account
-		{"evil/x", true},      // path through a symlink that points out
+		{"data", false},      // a real folder inside the account
+		{"data/sub", false},  // not created yet, nothing to follow
+		{"newfolder", false}, // doesn't exist yet
+		{"innerlink", false}, // symlink that stays inside the account
+		{"evil", true},       // symlink pointing out of the account
+		{"evil/x", true},     // path through a symlink that points out
 	}
 	for _, c := range cases {
 		if got := bindSourceEscapes(home, c.rel); got != c.want {

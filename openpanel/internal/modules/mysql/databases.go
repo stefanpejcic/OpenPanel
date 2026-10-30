@@ -82,6 +82,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	var databaseInfo []DatabaseRow
+	var serverVersion string
 	fromDisk := status.Health != "healthy"
 	if fromDisk {
 		// listed from the datadir until the service answers, so the user sees their databases are still there
@@ -102,6 +103,8 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				FROM mysql.db
 				%s
 				GROUP BY Db
+			UNION ALL
+			SELECT 'version', VERSION(), NULL
 		`, dbWhere, assignedWhere)
 
 		rows, execErr := mysqlmanager.Exec(ctx, userContext, query, "")
@@ -110,8 +113,11 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		} else {
 			assignedLookup := map[string]string{}
 			for _, row := range rows {
-				if toStringCell(row[0]) == "assigned" {
+				switch toStringCell(row[0]) {
+				case "assigned":
 					assignedLookup[toStringCell(row[1])] = toStringCell(row[2])
+				case "version":
+					serverVersion = shortServerVersion(toStringCell(row[1]))
 				}
 			}
 			for _, row := range rows {
@@ -138,7 +144,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if !fromDisk {
 		dbToastID, dbToastMessage = zeroUserDatabasesToast(databaseInfo)
 	}
-	renderDatabasesPage(a, w, r, status, mysqlVersion, databaseInfo, unit, showAll, fromDisk, dbToastID, dbToastMessage)
+	renderDatabasesPage(a, w, r, status, mysqlVersion, serverVersion, databaseInfo, unit, showAll, fromDisk, dbToastID, dbToastMessage)
 }
 
 // startContainerInBackground starts a stopped container as it is, quicker than a compose up which recreates it
@@ -217,18 +223,15 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
-		databaseName := r.Form.Get("database_name")
-		if databaseName == "" {
-			web.FlashRedirect(a, w, r, "error", "Database name is required.", "/mysql/new")
-			return
+		typed := strings.TrimSpace(r.Form.Get("database_name"))
+		databaseName := mysqlmanager.WithPrefix(a.Config, userContext, typed)
+		// errors keep the typed name in the form instead of bouncing to an empty one
+		fail := func(message string) {
+			web.Flash(a, w, r, "error", message)
+			renderNewDatabasePage(a, w, r, mysqlVersion, typed, "")
 		}
-		databaseName = mysqlmanager.WithPrefix(a.Config, userContext, databaseName)
-		if !validators.IsValidIdentifier(databaseName) {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/mysql/new")
-			return
-		}
-		if len(databaseName) > 64 {
-			web.FlashRedirect(a, w, r, "error", "Database name is too long. MySQL identifiers are limited to 64 characters.", "/mysql/new")
+		if msg := checkNewDatabase(databaseName, loadNames(ctx, userContext)); msg != "" {
+			fail(web.Tr(a, r, msg))
 			return
 		}
 
@@ -243,12 +246,12 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		dbUsage := getDatabaseCount(ctx, a, currentUsername, userContext)
 
 		if dbLimit != 0 && dbUsage >= dbLimit {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error creating database: '%(database_name)s' - You have reached the maximum number of databases allowed.%(upgrade_message)s", "database_name", databaseName, "upgrade_message", plan.UpgradeMessage()), "/mysql/new")
+			fail(web.Tr(a, r, "Error creating database: '%(database_name)s' - You have reached the maximum number of databases allowed.%(upgrade_message)s", "database_name", databaseName, "upgrade_message", plan.UpgradeMessage()))
 			return
 		}
 
-		if _, execErr := mysqlmanager.Exec(ctx, userContext, "CREATE DATABASE IF NOT EXISTS `"+databaseName+"`", ""); execErr != nil {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error creating database: %(error)s", "error", execErr.Error()), "/mysql/new")
+		if _, execErr := mysqlmanager.Exec(ctx, userContext, "CREATE DATABASE `"+databaseName+"`", ""); execErr != nil {
+			fail(web.Tr(a, r, "Error creating database: %(error)s", "error", execErr.Error()))
 			return
 		}
 		invalidateDatabasesInfo(ctx, a, userContext)
@@ -257,11 +260,11 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created a MySQL database "+databaseName, ipAddress)
 		web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created a database %(database_name)s", "database_name", databaseName))
-		http.Redirect(w, r, "/mysql", http.StatusFound)
+		renderNewDatabasePage(a, w, r, mysqlVersion, "", databaseName)
 		return
 	}
 
-	renderNewDatabasePage(a, w, r, mysqlVersion)
+	renderNewDatabasePage(a, w, r, mysqlVersion, "", "")
 }
 
 // handleDeleteDatabase drops a database.
@@ -323,7 +326,7 @@ func handleDatabasesSizeInfo(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	if !showAll {
 		whereClause = "WHERE table_schema NOT IN (" + restricted.dbsSQL + ") "
 	}
-	query := fmt.Sprintf("SELECT table_schema, ROUND(SUM(data_length + index_length) / %d, 2) FROM information_schema.TABLES %sGROUP BY table_schema", divisor, whereClause)
+	query := fmt.Sprintf("SELECT table_schema, ROUND(SUM(data_length + index_length) / %d, 2), COUNT(*) FROM information_schema.TABLES %sGROUP BY table_schema", divisor, whereClause)
 
 	rows, execErr := mysqlmanager.Exec(ctx, userContext, query, "")
 	if execErr != nil {
@@ -334,7 +337,11 @@ func handleDatabasesSizeInfo(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	sizeKey := "Size (" + strings.ToUpper(unit) + ")"
 	result := make([]map[string]any, 0, len(rows))
 	for _, row := range rows {
-		result = append(result, map[string]any{"Database": toStringCell(row[0]), sizeKey: toFloatCell(row[1])})
+		entry := map[string]any{"Database": toStringCell(row[0]), sizeKey: toFloatCell(row[1])}
+		if len(row) > 2 {
+			entry["Tables"] = mysqlmanager.ToInt(row[2])
+		}
+		result = append(result, entry)
 	}
 	web.WriteJSON(w, http.StatusOK, result)
 }
