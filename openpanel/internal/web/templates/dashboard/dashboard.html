@@ -126,7 +126,7 @@
 <!-- START templates/dashboard/dashboard.html -->
 <script src="{{static "vendor/sortablejs/Sortable.min.js"}}"></script>
 {{$root := .}}
-<div class="op-content" x-data="{
+<div class="op-content op-icons-line" x-data="{
         view: ['overview', 'tools', 'classic'].find(v => v === new URLSearchParams(location.search).get('view')) || (function () { try { return localStorage.getItem('dashboard_view') } catch (e) { return null } })() || 'overview',
         find: '',
         setView(v) { this.view = v; try { localStorage.setItem('dashboard_view', v) } catch (e) {} }
@@ -240,7 +240,7 @@
         </div>
 
         <div class="op-col">
-            <div class="op-col" x-show="view !== 'tools'">{{template "twofa" .}}</div>
+            <div class="op-col" x-show="view === 'overview'">{{template "twofa" .}}</div>
             {{template "information" .}}
             {{template "usage" .}}
             <div class="op-col" x-show="view === 'overview'">{{template "dash_cli" (dict "T" .T "Cmd" (printf "opencli websites-list %s" .CurrentUsername))}}</div>

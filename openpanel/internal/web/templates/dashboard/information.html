@@ -1,5 +1,5 @@
 {{define "information"}}<!-- START templates/dashboard/information.html -->
-{{/* Overview shows the tile version, Tools and Classic the list one */}}
+{{/* Overview shows the tile version, Tools and Classic the label over value list */}}
 <section id="dashboard_info" class="op-card"
     x-data="{
         lastIp: '{{.LastIP}}',
@@ -53,31 +53,22 @@
     </div>
 
     <div x-show="typeof view !== 'undefined' && view !== 'overview'" x-cloak>
-        <div class="op-info-user">
-            {{if eq .AvatarType "gravatar"}}<img src="{{.GravatarURL}}" class="op-avatar" alt="">{{else}}<span class="op-avatar" aria-hidden="true">{{firstUpper .CurrentUsername}}</span>{{end}}
-            <div style="min-width:0">
-                <b>{{.CurrentUsername}}</b>
-                {{if .UserAllowed.info}}<a href="/server/info#plan">{{template "op_icon" "box"}} {{.HostingPlanName}}</a>{{else}}<span>{{template "op_icon" "box"}} {{.HostingPlanName}}</span>{{end}}
-            </div>
-        </div>
-        <div class="op-info-rows">
-            <div class="op-info-row">
-                <span class="op-info-ico">{{template "op_icon" "server"}}</span>
-                <div><span class="op-hint">{{.T.Get "IP Address"}}</span><span class="op-mono">{{.IPAddress}}</span></div>
-                {{if .IPAddress}}<button class="op-icon-btn" type="button" @click="copy({{toJSON .IPAddress}})" aria-label="{{.T.Get "Copy IP address"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button>{{end}}
-            </div>
-            <div class="op-info-row">
-                <span class="op-info-ico">{{template "op_icon" "login"}}</span>
-                <div><span class="op-hint">{{.T.Get "Last Login IP Address"}}</span><span class="op-info-ip"><span class="op-mono">{{if .LastIP}}{{.LastIP}}{{else}}{{.T.Get "/"}}{{end}}</span>{{if and .LastIP .LastLoginAgo}}<span class="op-muted" title="{{.LastLoginTime}}">· {{.LastLoginAgo}}</span>{{end}}<template x-if="flagSrc"><img :src="flagSrc" :alt="country" :title="country" class="op-flag"></template></span></div>
-                {{if .UserAllowed.login_history}}<a class="op-icon-btn" href="/account/login-history" aria-label="{{.T.Get "Login History"}}" title="{{.T.Get "Login History"}}">{{template "op_icon" "chevright"}}</a>{{end}}
-            </div>
-            {{if and .UserAllowed.domains .NS1 .NS2}}
-            <div class="op-info-row">
-                <span class="op-info-ico">{{template "op_icon" "globe"}}</span>
-                <div><span class="op-hint">{{.T.Get "Nameservers"}}</span><span class="op-mono">{{.NS1}}</span><span class="op-mono">{{.NS2}}</span>{{if .NS3}}<span class="op-mono">{{.NS3}}</span>{{end}}{{if .NS4}}<span class="op-mono">{{.NS4}}</span>{{end}}</div>
-                <button class="op-icon-btn" type="button" @click="copy({{toJSON (printf "%s\n%s" .NS1 .NS2)}})" aria-label="{{.T.Get "Copy nameservers"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button>
-            </div>
+        <div class="op-card-head"><h2>{{.T.Get "General information"}}</h2></div>
+        <div class="op-info-list">
+            <div><span>{{.T.Get "Current user"}}</span><b>{{.CurrentUsername}}</b>{{if .UserAllowed.account}}<a href="/account">{{.T.Get "Account"}}</a>{{end}}</div>
+            <div><span>{{.T.Get "Hosting plan"}}</span>{{if .UserAllowed.info}}<a href="/server/info#plan">{{.HostingPlanName}}</a>{{else}}<b>{{.HostingPlanName}}</b>{{end}}</div>
+            {{if .IPAddress}}
+            <div><span>{{.T.Get "IP Address"}}</span><b class="op-mono">{{.IPAddress}}</b><button class="op-icon-btn" type="button" @click="copy({{toJSON .IPAddress}})" aria-label="{{.T.Get "Copy IP address"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
             {{end}}
+            <div><span>{{.T.Get "Last Login IP Address"}}</span>{{if .LastIP}}<b class="op-mono">{{.LastIP}}</b><template x-if="flagSrc"><img :src="flagSrc" :alt="country" :title="country" class="op-flag"></template>{{if .LastLoginAgo}}<em title="{{.LastLoginTime}}">{{.LastLoginAgo}}</em>{{end}}{{if .UserAllowed.login_history}}<a href="/account/login-history">{{.T.Get "History"}}</a>{{end}}{{else}}<b>{{.T.Get "/"}}</b>{{end}}</div>
+            {{if and .UserAllowed.domains .NS1 .NS2}}
+            <div><span>{{.T.Get "Nameservers"}}</span><b class="op-mono">{{.NS1}}<br>{{.NS2}}{{if .NS3}}<br>{{.NS3}}{{end}}{{if .NS4}}<br>{{.NS4}}{{end}}</b><button class="op-icon-btn" type="button" @click="copy({{toJSON (printf "%s\n%s" .NS1 .NS2)}})" aria-label="{{.T.Get "Copy nameservers"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
+            {{end}}
+            {{if .UserAllowed.twofa}}
+            <div><span>{{.T.Get "Two-Factor Authentication"}}</span><b>{{if .TwofaEnabled}}<span class="op-status is-success">{{.T.Get "On"}}</span>{{else}}<span class="op-status is-warning">{{.T.Get "Off"}}</span>{{end}}</b>
+                {{if .TwofaEnabled}}<a href="/account/2fa">{{.T.Get "Manage"}}</a>{{else}}<form method="POST" action="/account/2fa"><input type="hidden" name="csrf_token" value="{{.CSRFToken}}"><input type="checkbox" name="twofa_active" checked hidden><button class="op-link-btn" type="submit">{{.T.Get "Enable"}}</button></form>{{end}}</div>
+            {{end}}
+            {{if .UserAllowed.info}}<a class="op-info-more" href="/server/info">{{.T.Get "Server Information"}}{{template "op_icon" "chevright"}}</a>{{end}}
         </div>
     </div>
 </section>

@@ -1,6 +1,6 @@
 {{define "usage"}}<!-- START templates/dashboard/usage.html -->
 <section id="dashboard_usage" class="op-card" x-data="usageDashboard()" x-init="init()">
-    <div class="op-card-head" id="dashboard_usage_title"><h2>{{.T.Get "Usage"}}</h2>{{if .UserAllowed.usage}}<a href="/server/usage">{{.T.Get "Details"}}</a>{{end}}</div>
+    <div class="op-card-head" id="dashboard_usage_title"><h2 x-show="typeof view === 'undefined' || view === 'overview'">{{.T.Get "Usage"}}</h2><h2 x-show="typeof view !== 'undefined' && view !== 'overview'" x-cloak>{{.T.Get "Statistics"}}</h2>{{if .UserAllowed.usage}}<a href="/server/usage">{{.T.Get "Details"}}</a>{{end}}</div>
 
     {{if .LimitReached}}
     <div id="dashboard_usage_upgrade_banner" class="op-alert is-warning" style="margin-bottom:14px">{{template "op_icon" "alert"}}
@@ -31,58 +31,27 @@
         </a>
     </div>
 
-    {{/* Tools and Classic: one row per limit with its own icon */}}
-    <div class="op-usage op-usage-list" x-show="typeof view !== 'undefined' && view !== 'overview'" x-cloak>
+    {{/* Tools and Classic: label over "used / limit", cPanel style */}}
+    <div class="op-info-list" x-show="typeof view !== 'undefined' && view !== 'overview'" x-cloak>
+        <a id="dashboard_usage_cpu" :href="userAllowed.includes('usage') ? '/server/usage' : '#'"><span>{{.T.Get "CPU Usage"}}</span><b class="op-mono" :class="usageTone(cpu.percentage)" x-text="cpu.allocated ? cpu.used + ' / ' + cpu.allocated : cpu.used"></b></a>
+        <a id="dashboard_usage_memory" :href="userAllowed.includes('usage') ? '/server/usage' : '#'"><span>{{.T.Get "Memory Usage"}}</span><b class="op-mono" :class="usageTone(mem.percentage)" x-text="mem.allocated ? mem.used + ' / ' + mem.allocated : mem.used"></b></a>
+        <a id="dashboard_usage_storage" :href="userAllowed.includes('disk_usage') ? '/disk-usage' : '#'"><span>{{.T.Get "Storage"}}</span><b class="op-mono" :class="usageTone(disk.percentage)" x-text="disk.allocated ? disk.used + ' / ' + disk.allocated : disk.used"></b></a>
+        <a id="dashboard_usage_inodes" :href="userAllowed.includes('inodes') ? '/inodes-explorer' : '#'"><span>{{.T.Get "Inodes"}}</span><b class="op-mono" :class="usageTone(inodes.percentage)" x-text="inodes.allocated ? inodes.used + ' / ' + inodes.allocated : inodes.used"></b></a>
         {{if or .UserAllowed.wordpress .UserAllowed.website_builder .UserAllowed.nodejs .UserAllowed.python}}
-        <a id="dashboard_usage_websites" class="op-usage-item" href="/sites"><span class="op-info-ico">{{template "op_icon" "browser"}}</span>
-            <div><div class="op-usage-row"><span>{{.T.Get "Websites"}}</span><b><span x-text="websites.used"></span><small>/<span x-text="websites.allocated"></span></small></b></div>
-            <div class="op-progress" :class="progressBarClass(websites.percentage)"><span :style="'width: ' + websites.percentage + '%'"></span></div></div>
-        </a>
+        <a id="dashboard_usage_websites" href="/sites"><span>{{.T.Get "Websites"}}</span><b class="op-mono" :class="usageTone(websites.percentage)" x-text="websites.used + ' / ' + websites.allocated"></b></a>
         {{end}}
         {{if .UserAllowed.domains}}
-        <a id="dashboard_usage_domains" class="op-usage-item" href="/domains"><span class="op-info-ico">{{template "op_icon" "globe"}}</span>
-            <div><div class="op-usage-row"><span>{{.T.Get "Domains"}}</span><b><span x-text="domains.used"></span><small>/<span x-text="domains.allocated"></span></small></b></div>
-            <div class="op-progress" :class="progressBarClass(domains.percentage)"><span :style="'width: ' + domains.percentage + '%'"></span></div></div>
-        </a>
+        <a id="dashboard_usage_domains" href="/domains"><span>{{.T.Get "Domains"}}</span><b class="op-mono" :class="usageTone(domains.percentage)" x-text="domains.used + ' / ' + domains.allocated"></b></a>
         {{end}}
         {{if or .UserAllowed.mysql .UserAllowed.postgresql}}
-        <a id="dashboard_usage_databases" class="op-usage-item" href="/{{if .UserAllowed.mysql}}mysql{{else}}postgresql{{end}}"><span class="op-info-ico">{{template "op_icon" "db"}}</span>
-            <div><div class="op-usage-row"><span>{{.T.Get "Databases"}}</span><b><span x-text="databases.used"></span><small>/<span x-text="databases.allocated"></span></small></b></div>
-            <div class="op-progress" :class="progressBarClass(databases.percentage)"><span :style="'width: ' + databases.percentage + '%'"></span></div></div>
-        </a>
+        <a id="dashboard_usage_databases" href="/{{if .UserAllowed.mysql}}mysql{{else}}postgresql{{end}}"><span>{{.T.Get "Databases"}}</span><b class="op-mono" :class="usageTone(databases.percentage)" x-text="databases.used + ' / ' + databases.allocated"></b></a>
         {{end}}
         {{if .UserAllowed.emails}}
-        <a id="dashboard_usage_emails" class="op-usage-item" href="/emails"><span class="op-info-ico">{{template "op_icon" "mail"}}</span>
-            <div><div class="op-usage-row"><span>{{.T.Get "Email accounts"}}</span><b><span x-text="emails.used"></span><small>/<span x-text="emails.allocated"></span></small></b></div>
-            <div class="op-progress" :class="progressBarClass(emails.percentage)"><span :style="'width: ' + emails.percentage + '%'"></span></div></div>
-        </a>
+        <a id="dashboard_usage_emails" href="/emails"><span>{{.T.Get "Email accounts"}}</span><b class="op-mono" :class="usageTone(emails.percentage)" x-text="emails.used + ' / ' + emails.allocated"></b></a>
         {{end}}
         {{if .UserAllowed.ftp}}
-        <a id="dashboard_usage_ftp" class="op-usage-item" href="/ftp"><span class="op-info-ico">{{template "op_icon" "ftp"}}</span>
-            <div><div class="op-usage-row"><span>{{.T.Get "FTP Accounts"}}</span><b><span x-text="ftp.used"></span><small>/<span x-text="ftp.allocated"></span></small></b></div>
-            <div class="op-progress" :class="progressBarClass(ftp.percentage)"><span :style="'width: ' + ftp.percentage + '%'"></span></div></div>
-        </a>
+        <a id="dashboard_usage_ftp" href="/ftp"><span>{{.T.Get "FTP Accounts"}}</span><b class="op-mono" :class="usageTone(ftp.percentage)" x-text="ftp.used + ' / ' + ftp.allocated"></b></a>
         {{end}}
-        <a id="dashboard_usage_storage" class="op-usage-item" :href="userAllowed.includes('disk_usage') ? '/disk-usage' : '#'"><span class="op-info-ico">{{template "op_icon" "folder"}}</span>
-            <div><div class="op-usage-row"><span>{{.T.Get "Storage"}}</span><b x-text="disk.percentage + '%'"></b></div>
-            <div class="op-progress" :class="progressBarClass(disk.percentage)"><span :style="'width: ' + disk.percentage + '%'"></span></div>
-            <div class="op-usage-sub"><span x-text="disk.used"></span><span x-text="disk.allocated"></span></div></div>
-        </a>
-        <a id="dashboard_usage_inodes" class="op-usage-item" :href="userAllowed.includes('inodes') ? '/inodes-explorer' : '#'"><span class="op-info-ico">{{template "op_icon" "file"}}</span>
-            <div><div class="op-usage-row"><span>{{.T.Get "Inodes"}}</span><b x-text="inodes.percentage + '%'"></b></div>
-            <div class="op-progress" :class="progressBarClass(inodes.percentage)"><span :style="'width: ' + inodes.percentage + '%'"></span></div>
-            <div class="op-usage-sub"><span x-text="inodes.used"></span><span x-text="inodes.allocated"></span></div></div>
-        </a>
-        <a id="dashboard_usage_cpu" class="op-usage-item" :href="userAllowed.includes('usage') ? '/server/usage' : '#'"><span class="op-info-ico">{{template "op_icon" "cpu"}}</span>
-            <div><div class="op-usage-row"><span>{{.T.Get "CPU Usage"}}</span><b x-text="cpu.percentage + '%'"></b></div>
-            <div class="op-progress" :class="progressBarClass(cpu.visual)"><span :style="'width: ' + cpu.visual + '%'"></span></div>
-            <div class="op-usage-sub"><span x-text="cpu.used"></span><span x-text="cpu.allocated"></span></div></div>
-        </a>
-        <a id="dashboard_usage_memory" class="op-usage-item" :href="userAllowed.includes('usage') ? '/server/usage' : '#'"><span class="op-info-ico">{{template "op_icon" "memory"}}</span>
-            <div><div class="op-usage-row"><span>{{.T.Get "Memory Usage"}}</span><b x-text="mem.percentage + '%'"></b></div>
-            <div class="op-progress" :class="progressBarClass(mem.percentage)"><span :style="'width: ' + mem.percentage + '%'"></span></div>
-            <div class="op-usage-sub"><span x-text="mem.used"></span><span x-text="mem.allocated"></span></div></div>
-        </a>
     </div>
     <script>
     function usageDashboard() {
@@ -130,6 +99,12 @@
                 if (inodes === 0) return 'Unlimited';
                 if (inodes < 1e6) return inodes.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
                 return (inodes / 1e6).toFixed(2) + 'M';
+            },
+            usageTone(percent) {
+                percent = parseFloat(percent);
+                if (percent > 90) return 'is-danger';
+                if (percent > 70) return 'is-hot';
+                return '';
             },
             progressBarClass(percent) {
                 percent = parseFloat(percent);

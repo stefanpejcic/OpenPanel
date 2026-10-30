@@ -536,6 +536,32 @@
   .op-ico-tile.is-xs { width: 26px; height: 26px; border-radius: 8px; }
   .op-ico-tile.is-xs svg { width: 15px; height: 15px; }
 
+  /* dashboard icons: plain line icons, the last stroke in the accent like cPanel's */
+  .op-icons-line .op-ico-tile { color: var(--color-heading); background: none; }
+  .op-icons-line .op-ico-tile svg { stroke-width: 1.5; }
+  .op-icons-line .op-ico-tile svg > :last-child:not(:only-child):not([stroke="none"] + *) { stroke: var(--color-accent-text); }
+  .op-icons-line :is(.op-links, .op-tool-grid) .op-ico-tile { width: 28px; height: 28px; }
+  .op-icons-line .op-links .op-ico-tile svg { width: 22px; height: 22px; }
+  .op-icons-line .op-tool-grid .op-ico-tile svg { width: 28px; height: 28px; }
+  .op-icons-line .op-cat-dot { background: var(--color-accent); }
+
+  /* label over value rows, the dashboard's General information and Statistics cards */
+  .op-info-list { display: flex; flex-direction: column; margin-bottom: -10px; }
+  .op-info-list > :is(div, a) { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; padding: 10px 0; box-shadow: inset 0 1px 0 var(--color-raised); font-size: 14px; color: var(--color-heading); text-decoration: none; }
+  .op-info-list > a:hover b { color: var(--color-accent-text); }
+  .op-info-list > :is(div, a) > span:first-child { flex: 0 0 100%; color: var(--color-muted); font-size: 12px; font-weight: 500; }
+  .op-info-list b { font-weight: 500; overflow-wrap: anywhere; }
+  .op-info-list b.is-hot { color: var(--color-warning); }
+  .op-info-list b.is-danger { color: var(--color-danger); }
+  .op-info-list em { font-style: normal; color: var(--color-muted); font-size: 13px; }
+  .op-info-list > div > :not(span:first-child) ~ :is(a, form), .op-info-list .op-icon-btn { margin-left: auto; }
+  .op-info-list > div > a, .op-info-list .op-link-btn, .op-info-more { color: var(--color-accent-text); text-decoration: none; }
+  .op-info-list .op-link-btn { border: 0; padding: 0; background: none; font: inherit; cursor: pointer; }
+  .op-info-list .op-icon-btn { width: 28px; height: 28px; margin-block: -6px; color: var(--color-muted); }
+  .op-info-list .op-icon-btn svg { width: 15px; height: 15px; }
+  .op-info-list .op-info-more { justify-content: space-between; }
+  .op-info-list .op-info-more svg { width: 16px; height: 16px; }
+
   /* table rows without a checkbox let the title take the first two columns on phones */
   @media (width < 48rem) { .op-table td.op-cell-title { grid-column: 1 / 3; } }
 }

@@ -7,7 +7,61 @@
 <script>(function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('color-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark');})();</script>
 <link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="dist/app.css">
-<style>[x-cloak]{display:none!important}</style>
+<style>[x-cloak]{display:none!important}
+/* icon style preview, picked from the bar at the bottom right */
+.ip-bar{position:fixed;right:16px;bottom:16px;z-index:60;display:flex;flex-wrap:wrap;max-width:calc(100vw - 32px);gap:8px;align-items:center;padding:8px;border-radius:var(--radius-md);background:var(--color-panel);box-shadow:0 0 0 1px var(--color-raised),var(--shadow-float)}
+.ip-bar .op-select{height:32px;width:auto;font-size:13px}
+.ip-bar b{padding:0 4px;color:var(--color-muted);font:700 10px/16px var(--font-mono);letter-spacing:.08em;text-transform:uppercase}
+[data-icons=accent] .op-ico-tile{color:var(--color-accent-text);background:color-mix(in srgb,var(--color-accent) 12%,transparent)}
+[data-icons=heads] :is(.op-links,.op-tool-grid) .op-ico-tile{color:var(--color-muted);background:none}
+[data-icons=heads] :is(.op-link,.op-tool):hover .op-ico-tile{color:var(--hue)}
+[data-icons=mono] .op-ico-tile{color:var(--color-body);background:var(--color-inset)}
+[data-icons=mono] :is(.op-link,.op-tool):hover .op-ico-tile{color:var(--color-accent-text)}
+[data-icons=outline] .op-ico-tile{color:var(--color-muted);background:none;box-shadow:inset 0 0 0 1px var(--color-raised)}
+[data-icons=outline] :is(.op-link,.op-tool):hover .op-ico-tile{color:var(--color-accent-text);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--color-accent) 45%,transparent)}
+[data-icons=line] .op-ico-tile,[data-icons=duo] .op-ico-tile{color:var(--color-heading);background:none}
+[data-icons=line] .op-ico-tile svg,[data-icons=duo] .op-ico-tile svg{stroke-width:1.5}
+[data-icons=line] .op-links .op-ico-tile svg,[data-icons=duo] .op-links .op-ico-tile svg{width:22px;height:22px}
+[data-icons=line] .op-links .op-ico-tile,[data-icons=duo] .op-links .op-ico-tile{width:28px;height:28px}
+[data-icons=line] :is(.op-link,.op-tool):hover .op-ico-tile{color:var(--color-accent-text)}
+[data-icons=line] .op-tool-grid .op-ico-tile svg,[data-icons=duo] .op-tool-grid .op-ico-tile svg{width:28px;height:28px}
+[data-icons=accent] .op-cat-dot,[data-icons=duo] .op-cat-dot{background:var(--color-accent)}
+[data-icons=mono] .op-cat-dot,[data-icons=outline] .op-cat-dot,[data-icons=line] .op-cat-dot{background:var(--color-muted)}
+/* right column preview, A is the current markup */
+html:not([data-side]) .rs-alt,[data-side=a] .rs-alt,html[data-side]:not([data-side=a]) .rs-a{display:none}
+.rs-v{display:none}
+[data-side=b] .rs-b,[data-side=c] .rs-c,[data-side=d] .rs-d,[data-side=e] .rs-e{display:block}
+.rs-v .op-card-head a{color:var(--color-accent-text);font-size:13px}
+.rs-who{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.rs-who .op-avatar{width:40px;height:40px;font-size:15px}
+.rs-who b{display:block;color:var(--color-heading);font-size:15px}
+.rs-who a{font-size:13px;color:var(--color-accent-text);text-decoration:none}
+.rs-2fa{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 12px;border-radius:var(--radius-md);background:color-mix(in srgb,var(--color-warning) 10%,transparent);color:var(--color-heading);font-size:13px;text-decoration:none}
+.rs-2fa svg{width:18px;height:18px;flex:none;color:var(--color-warning)}
+.rs-2fa span{flex:1}
+.rs-2fa b{color:var(--color-accent-text);font-weight:500}
+.rs-dl dd{white-space:normal}
+.rs-copy{text-decoration:none;text-align:inherit;border:0;padding:0;background:none;color:inherit;font-size:inherit;cursor:copy}
+.rs-copy:hover{color:var(--color-accent-text)}
+.rs-bars{display:flex;flex-direction:column;gap:6px;margin:0 -8px}
+.rs-bar{display:block;padding:6px 8px;border-radius:var(--radius-sm);text-decoration:none}
+.rs-bar:hover{background:var(--color-inset)}
+.rs-row{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:13px;color:var(--color-heading)}
+.rs-row b{font-weight:500;font-size:12px;color:var(--color-muted)}
+.rs-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rs-tiles a{display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:var(--radius-md);background:var(--color-inset);text-decoration:none;color:var(--color-muted);font-size:12px}
+.rs-tiles a:hover{box-shadow:inset 0 0 0 1px var(--color-raised)}
+.rs-tiles b{color:var(--color-heading);font-size:18px;font-weight:600;line-height:22px}
+.rs-tiles small{margin-left:4px;font-size:12px;font-weight:400;color:var(--color-muted)}
+.rs-rings{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 8px}
+.rs-rings a{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;text-decoration:none;color:var(--color-heading);font-size:12px}
+.rs-rings svg{width:64px;height:64px;transform:rotate(-90deg);margin-bottom:4px}
+.rs-rings circle{fill:none;stroke-width:3.2;stroke:var(--color-inset)}
+.rs-rings circle+circle{stroke:var(--color-accent);stroke-linecap:round}
+.rs-rings circle.is-hot{stroke:var(--color-warning)}
+.rs-rings a>b{position:absolute;top:22px;font-size:12px;font-weight:600}
+.rs-rings small{font-size:11px;color:var(--color-muted)}
+</style>
 <script src="shell.js"></script>
 <script defer src="vendor/alpine.min.js"></script>
 </head>
@@ -117,7 +171,66 @@
           <div class="op-card op-empty" x-show="find && !['file manager','upload','download from url','ftp accounts','ftp connections','disk usage','inodes','fix permissions','trash','backups','domains','dns zone editor','ssl certificates','redirects','dynamic dns','domain logs','site manager','wordpress','auto installer','git','node.js apps','mysql databases','mysql users','phpmyadmin','remote mysql','postgresql','mongodb','email accounts','aliases','filters','deliverability','webmail','email migration','php versions','php options','php extensions','php.ini editor','cron jobs','web server','redis and cache','statistics','resource usage','error logs','processes','services','malware scanner','waf','ip blocker','containers','terminal','api keys','two-factor','language','notifications'].some(n => n.includes(find.toLowerCase()))" x-cloak><b>No tool matches</b><span class="op-hint">Try another word, like mail or php.</span></div>
         </div>
         <div class="op-col">
-          <div x-data="{ sample: false, toast: '', copy(t, what) { navigator.clipboard &amp;&amp; navigator.clipboard.writeText(t); this.toast = 'Copied ' + what + '.'; setTimeout(() => this.toast = '', 2000); } }" class="op-col"><section class="op-card" aria-label="Information">
+          <div class="op-col rs-alt" x-data="rsSide()">
+            <!-- B: cPanel-style label over value, no icons or bars -->
+            <section class="op-card rs-v rs-b" aria-label="General information">
+              <div class="op-card-head"><h2>General information</h2></div>
+              <div class="op-info-list">
+                <div><span>Current user</span><b>testinguser</b><a href="account.html">Account</a></div>
+                <div><span>Hosting plan</span><a href="server-info.html#plan">Developer plus</a></div>
+                <div><span>Shared IP address</span><b class="op-mono">203.0.113.24</b><button class="op-icon-btn" type="button" aria-label="Copy IP address" @click="copy('203.0.113.24', 'IP address')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/></svg></button></div>
+                <div><span>Last login IP address</span><b class="op-mono">198.51.100.7</b><img src="img/flags/de.png" alt="Germany" title="Germany" class="op-flag" width="22" height="16"><em>2 hours ago</em><a href="security-login-history.html">History</a></div>
+                <div><span>Nameservers</span><b class="op-mono">ns1.openpanel.org<br>ns2.openpanel.org</b><button class="op-icon-btn" type="button" aria-label="Copy nameservers" @click="copy('ns1.openpanel.org
+ns2.openpanel.org', 'nameservers')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/></svg></button></div>
+                <div><span>Two-factor authentication</span><b><span class="op-status is-warning">Off</span></b><a href="security-2fa.html">Enable</a></div>
+                <a class="op-info-more" href="server-info.html">Server information<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg></a>
+              </div>
+            </section>
+            <section class="op-card rs-v rs-b" aria-label="Statistics">
+              <div class="op-card-head"><h2>Statistics</h2><a href="statistics.html">Details</a></div>
+              <div class="op-info-list">
+                <template x-for="u in usage" :key="u.n"><a :href="u.h"><span x-text="u.n"></span><b class="op-mono" :class="u.p >= 80 && 'is-hot'" x-text="u.u + ' / ' + u.l"></b></a></template>
+              </div>
+            </section>
+
+            <!-- C, D, E share the account card, only usage changes -->
+            <section class="op-card rs-v rs-c rs-d rs-e" aria-label="Account">
+              <div class="rs-who"><span class="op-avatar">T</span><div><b>testinguser</b><a href="server-info.html#plan">Developer plus</a></div></div>
+              <a class="rs-2fa" href="security-2fa.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/><path d="M12 11m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M12 12l0 2.5"/></svg><span>Two-factor authentication is off</span><b>Enable</b></a>
+              <dl class="op-dl rs-dl">
+                <dt>IP address</dt><dd><button type="button" class="rs-copy op-mono" @click="copy('203.0.113.24', 'IP address')">203.0.113.24</button></dd>
+                <dt>Last login</dt><dd><a class="rs-copy" href="security-login-history.html"><span class="op-mono">198.51.100.7</span> · 2h ago</a></dd>
+                <dt>Nameservers</dt><dd><button type="button" class="rs-copy op-mono" @click="copy('ns1.openpanel.org
+ns2.openpanel.org', 'nameservers')">ns1.openpanel.org<br>ns2.openpanel.org</button></dd>
+              </dl>
+            </section>
+
+            <!-- C: thin bars, no icons -->
+            <section class="op-card rs-v rs-c" aria-label="Usage">
+              <div class="op-card-head"><h2>Usage</h2><a href="statistics.html">Details</a></div>
+              <div class="rs-bars">
+                <template x-for="u in usage" :key="u.n"><a class="rs-bar" :href="u.h"><div class="rs-row"><span x-text="u.n"></span><b class="op-mono" x-text="u.u + ' / ' + u.l"></b></div><div class="op-progress" :class="u.p >= 80 && 'is-warning'"><span :style="'width:' + Math.max(u.p, 1) + '%'"></span></div></a></template>
+              </div>
+            </section>
+
+            <!-- D: two-column stat tiles -->
+            <section class="op-card rs-v rs-d" aria-label="Usage">
+              <div class="op-card-head"><h2>Usage</h2><a href="statistics.html">Details</a></div>
+              <div class="rs-tiles">
+                <template x-for="u in usage" :key="u.n"><a :href="u.h"><span x-text="u.n"></span><b class="op-mono"><span x-text="u.u"></span><small x-text="'/ ' + u.l"></small></b><div class="op-progress" :class="u.p >= 80 && 'is-warning'"><span :style="'width:' + Math.max(u.p, 1) + '%'"></span></div></a></template>
+              </div>
+            </section>
+
+            <!-- E: ring gauges -->
+            <section class="op-card rs-v rs-e" aria-label="Usage">
+              <div class="op-card-head"><h2>Usage</h2><a href="statistics.html">Details</a></div>
+              <div class="rs-rings">
+                <template x-for="u in usage" :key="u.n"><a :href="u.h" :title="u.u + ' / ' + u.l"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.9155" pathLength="100"/><circle cx="18" cy="18" r="15.9155" pathLength="100" :class="u.p >= 80 && 'is-hot'" :stroke-dasharray="Math.max(u.p, .5) + ' 100'"/></svg><b class="op-mono" x-text="Math.round(u.p) + '%'"></b><span x-text="u.n"></span><small class="op-mono" x-text="u.u + ' / ' + u.l"></small></a></template>
+              </div>
+            </section>
+            <div class="op-toast" x-show="toast" x-cloak x-transition role="status" x-text="toast"></div>
+          </div>
+          <div x-data="{ sample: false, toast: '', copy(t, what) { navigator.clipboard &amp;&amp; navigator.clipboard.writeText(t); this.toast = 'Copied ' + what + '.'; setTimeout(() => this.toast = '', 2000); } }" class="op-col rs-a"><section class="op-card" aria-label="Information">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px"><span class="op-avatar" style="width:44px;height:44px;font-size:16px">T</span><div style="min-width:0"><b style="display:block;color:var(--color-heading);font-size:16px">testinguser</b><a href="server-info.html#plan" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--color-accent-text)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5"/><path d="M12 12l8 -4.5"/><path d="M12 12l0 9"/><path d="M12 12l-8 -4.5"/></svg> Developer plus</a></div></div>
   <div class="op-col" style="gap:2px">
     <div style="display:flex;align-items:center;gap:12px;padding:10px 0;box-shadow:inset 0 1px 0 var(--color-raised)"><span style="width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:10px;background:color-mix(in srgb,var(--color-accent) 14%,transparent);color:color-mix(in srgb,var(--color-accent) 80%,var(--color-heading))"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"/><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"/><path d="M7 8l0 .01"/><path d="M7 16l0 .01"/></svg></span><div style="flex:1;min-width:0"><span class="op-hint" style="display:block">IP Address</span><span class="op-mono" style="color:var(--color-heading)">203.0.113.10</span></div><button class="op-icon-btn" type="button" style="width:28px;height:28px" @click="copy('203.0.113.10', 'IP address')" aria-label="Copy IP address" title="Copy"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/></svg></button></div>
@@ -144,8 +257,67 @@
           <section class="op-card" style="--hue:var(--color-hue-yellow)" x-data="{ open: true }"><div class="op-card-head"><h2 class="op-with-icon"><span class="op-ico-tile is-sm"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M2 12a10 9 0 1 0 20 0a10 9 0 1 0 -20 0"></path><path d="M5.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M15.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M12 7.5l-1 5.5"></path><path d="M11.6 10h2.4l-.5 3"></path></svg></span>PHP</h2><button class="op-chev" type="button" :aria-expanded="open.toString()" @click="open = !open" aria-label="Collapse PHP"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 15l6 -6l6 6"/></svg></button></div><div class="op-links" x-show="open"><a class="op-link" href="#"><span class="op-ico-tile is-xs"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M2 12a10 9 0 1 0 20 0a10 9 0 1 0 -20 0"></path><path d="M5.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M15.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M12 7.5l-1 5.5"></path><path d="M11.6 10h2.4l-.5 3"></path></svg></span>Version per Domain</a><a class="op-link" href="php-default.html"><span class="op-ico-tile is-xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path d="M9 9l1 0"/><path d="M9 13l6 0"/><path d="M9 17l6 0"/></svg></span>Default Version</a><a class="op-link" href="#"><span class="op-ico-tile is-xs"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 6l8 0"/><path d="M16 6l4 0"/><path d="M8 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 12l2 0"/><path d="M10 12l10 0"/><path d="M17 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 18l11 0"/><path d="M19 18l1 0"/></svg></span>Options</a><a class="op-link" href="#"><span class="op-ico-tile is-xs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M14 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M14 7l6 0"/><path d="M17 4l0 6"/></svg></span>Extensions</a></div></section>
         </div>
         <div class="op-col">
-          <section class="op-card"><div class="op-glow" style="right:-240px;top:-280px"></div><div class="op-card-head"><h2>Two-factor authentication</h2><span class="op-status is-warning">Off</span></div><p class="op-meta" style="margin:0 0 12px">Protect your account with an authenticator app or a passkey.</p><a class="op-btn op-btn-primary" href="#">Enable 2FA</a></section>
-          <div x-data="{ sample: false, toast: '', copy(t, what) { navigator.clipboard &amp;&amp; navigator.clipboard.writeText(t); this.toast = 'Copied ' + what + '.'; setTimeout(() => this.toast = '', 2000); } }" class="op-col"><section class="op-card" aria-label="Information">
+          <div class="op-col rs-alt" x-data="rsSide()">
+            <!-- B: cPanel-style label over value, no icons or bars -->
+            <section class="op-card rs-v rs-b" aria-label="General information">
+              <div class="op-card-head"><h2>General information</h2></div>
+              <div class="op-info-list">
+                <div><span>Current user</span><b>testinguser</b><a href="account.html">Account</a></div>
+                <div><span>Hosting plan</span><a href="server-info.html#plan">Developer plus</a></div>
+                <div><span>Shared IP address</span><b class="op-mono">203.0.113.24</b><button class="op-icon-btn" type="button" aria-label="Copy IP address" @click="copy('203.0.113.24', 'IP address')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/></svg></button></div>
+                <div><span>Last login IP address</span><b class="op-mono">198.51.100.7</b><img src="img/flags/de.png" alt="Germany" title="Germany" class="op-flag" width="22" height="16"><em>2 hours ago</em><a href="security-login-history.html">History</a></div>
+                <div><span>Nameservers</span><b class="op-mono">ns1.openpanel.org<br>ns2.openpanel.org</b><button class="op-icon-btn" type="button" aria-label="Copy nameservers" @click="copy('ns1.openpanel.org
+ns2.openpanel.org', 'nameservers')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/></svg></button></div>
+                <div><span>Two-factor authentication</span><b><span class="op-status is-warning">Off</span></b><a href="security-2fa.html">Enable</a></div>
+                <a class="op-info-more" href="server-info.html">Server information<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg></a>
+              </div>
+            </section>
+            <section class="op-card rs-v rs-b" aria-label="Statistics">
+              <div class="op-card-head"><h2>Statistics</h2><a href="statistics.html">Details</a></div>
+              <div class="op-info-list">
+                <template x-for="u in usage" :key="u.n"><a :href="u.h"><span x-text="u.n"></span><b class="op-mono" :class="u.p >= 80 && 'is-hot'" x-text="u.u + ' / ' + u.l"></b></a></template>
+              </div>
+            </section>
+
+            <!-- C, D, E share the account card, only usage changes -->
+            <section class="op-card rs-v rs-c rs-d rs-e" aria-label="Account">
+              <div class="rs-who"><span class="op-avatar">T</span><div><b>testinguser</b><a href="server-info.html#plan">Developer plus</a></div></div>
+              <a class="rs-2fa" href="security-2fa.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/><path d="M12 11m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M12 12l0 2.5"/></svg><span>Two-factor authentication is off</span><b>Enable</b></a>
+              <dl class="op-dl rs-dl">
+                <dt>IP address</dt><dd><button type="button" class="rs-copy op-mono" @click="copy('203.0.113.24', 'IP address')">203.0.113.24</button></dd>
+                <dt>Last login</dt><dd><a class="rs-copy" href="security-login-history.html"><span class="op-mono">198.51.100.7</span> · 2h ago</a></dd>
+                <dt>Nameservers</dt><dd><button type="button" class="rs-copy op-mono" @click="copy('ns1.openpanel.org
+ns2.openpanel.org', 'nameservers')">ns1.openpanel.org<br>ns2.openpanel.org</button></dd>
+              </dl>
+            </section>
+
+            <!-- C: thin bars, no icons -->
+            <section class="op-card rs-v rs-c" aria-label="Usage">
+              <div class="op-card-head"><h2>Usage</h2><a href="statistics.html">Details</a></div>
+              <div class="rs-bars">
+                <template x-for="u in usage" :key="u.n"><a class="rs-bar" :href="u.h"><div class="rs-row"><span x-text="u.n"></span><b class="op-mono" x-text="u.u + ' / ' + u.l"></b></div><div class="op-progress" :class="u.p >= 80 && 'is-warning'"><span :style="'width:' + Math.max(u.p, 1) + '%'"></span></div></a></template>
+              </div>
+            </section>
+
+            <!-- D: two-column stat tiles -->
+            <section class="op-card rs-v rs-d" aria-label="Usage">
+              <div class="op-card-head"><h2>Usage</h2><a href="statistics.html">Details</a></div>
+              <div class="rs-tiles">
+                <template x-for="u in usage" :key="u.n"><a :href="u.h"><span x-text="u.n"></span><b class="op-mono"><span x-text="u.u"></span><small x-text="'/ ' + u.l"></small></b><div class="op-progress" :class="u.p >= 80 && 'is-warning'"><span :style="'width:' + Math.max(u.p, 1) + '%'"></span></div></a></template>
+              </div>
+            </section>
+
+            <!-- E: ring gauges -->
+            <section class="op-card rs-v rs-e" aria-label="Usage">
+              <div class="op-card-head"><h2>Usage</h2><a href="statistics.html">Details</a></div>
+              <div class="rs-rings">
+                <template x-for="u in usage" :key="u.n"><a :href="u.h" :title="u.u + ' / ' + u.l"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.9155" pathLength="100"/><circle cx="18" cy="18" r="15.9155" pathLength="100" :class="u.p >= 80 && 'is-hot'" :stroke-dasharray="Math.max(u.p, .5) + ' 100'"/></svg><b class="op-mono" x-text="Math.round(u.p) + '%'"></b><span x-text="u.n"></span><small class="op-mono" x-text="u.u + ' / ' + u.l"></small></a></template>
+              </div>
+            </section>
+            <div class="op-toast" x-show="toast" x-cloak x-transition role="status" x-text="toast"></div>
+          </div>
+          <section class="op-card rs-a"><div class="op-glow" style="right:-240px;top:-280px"></div><div class="op-card-head"><h2>Two-factor authentication</h2><span class="op-status is-warning">Off</span></div><p class="op-meta" style="margin:0 0 12px">Protect your account with an authenticator app or a passkey.</p><a class="op-btn op-btn-primary" href="#">Enable 2FA</a></section>
+          <div x-data="{ sample: false, toast: '', copy(t, what) { navigator.clipboard &amp;&amp; navigator.clipboard.writeText(t); this.toast = 'Copied ' + what + '.'; setTimeout(() => this.toast = '', 2000); } }" class="op-col rs-a"><section class="op-card" aria-label="Information">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px"><span class="op-avatar" style="width:44px;height:44px;font-size:16px">T</span><div style="min-width:0"><b style="display:block;color:var(--color-heading);font-size:16px">testinguser</b><a href="server-info.html#plan" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--color-accent-text)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5"/><path d="M12 12l8 -4.5"/><path d="M12 12l0 9"/><path d="M12 12l-8 -4.5"/></svg> Developer plus</a></div></div>
   <div class="op-col" style="gap:2px">
     <div style="display:flex;align-items:center;gap:12px;padding:10px 0;box-shadow:inset 0 1px 0 var(--color-raised)"><span style="width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:10px;background:color-mix(in srgb,var(--color-accent) 14%,transparent);color:color-mix(in srgb,var(--color-accent) 80%,var(--color-heading))"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"/><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"/><path d="M7 8l0 .01"/><path d="M7 16l0 .01"/></svg></span><div style="flex:1;min-width:0"><span class="op-hint" style="display:block">IP Address</span><span class="op-mono" style="color:var(--color-heading)">203.0.113.10</span></div><button class="op-icon-btn" type="button" style="width:28px;height:28px" @click="copy('203.0.113.10', 'IP address')" aria-label="Copy IP address" title="Copy"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/></svg></button></div>
@@ -160,6 +332,47 @@
       </div>
     </main>
   </div>
+</div>
+<script>
+// sample usage for the right column variants
+function rsSide() {
+  const pct = (u, l) => Math.min(100, u / l * 100);
+  return {
+    toast: '',
+    copy(t, what) { navigator.clipboard && navigator.clipboard.writeText(t); this.toast = 'Copied ' + what + '.'; setTimeout(() => this.toast = '', 2000); },
+    usage: [
+      { n: 'CPU', u: '0.3', l: '4 cores', p: pct(.3, 4), h: 'statistics.html' },
+      { n: 'Memory', u: '1.3 GB', l: '6 GB', p: pct(1.3, 6), h: 'statistics.html' },
+      { n: 'Disk', u: '17.1 GB', l: '20 GB', p: 85.5, h: 'disk.html' },
+      { n: 'Inodes', u: '41.2k', l: '500k', p: pct(41.2, 500), h: 'disk.html' },
+      { n: 'Websites', u: 12, l: 40, p: pct(12, 40), h: 'websites.html' },
+      { n: 'Domains', u: 23, l: 40, p: pct(23, 40), h: 'domains.html' },
+      { n: 'Databases', u: 5, l: 40, p: pct(5, 40), h: 'mysql.html' },
+      { n: 'Email accounts', u: 0, l: 500, p: 0, h: 'email.html' },
+      { n: 'FTP accounts', u: 0, l: 100, p: 0, h: 'files.html' },
+    ],
+  };
+}
+</script>
+<div class="ip-bar" role="group" aria-label="Preview" x-data="{ icons: new URLSearchParams(location.search).get('icons') || 'duo', side: new URLSearchParams(location.search).get('side') || 'b', put(k, v, d) { document.documentElement.dataset[k] = v; document.documentElement.classList.toggle('op-icons-line', this.icons === 'duo'); const q = new URLSearchParams(location.search); v === d ? q.delete(k) : q.set(k, v); history.replaceState(null, '', '?' + q) } }" x-init="$watch('icons', v => put('icons', v, 'duo')); $watch('side', v => put('side', v, 'b')); document.documentElement.dataset.icons = icons; document.documentElement.dataset.side = side; document.documentElement.classList.toggle('op-icons-line', icons === 'duo')">
+  <b>Right column</b>
+  <select class="op-select" x-model="side" aria-label="Right column style">
+    <option value="b">B · Information list (cPanel)</option>
+    <option value="a">A · Previous cards</option>
+    <option value="c">C · Account card, thin bars</option>
+    <option value="d">D · Account card, stat tiles</option>
+    <option value="e">E · Account card, rings</option>
+  </select>
+  <b>Icons</b>
+  <select class="op-select" x-model="icons" aria-label="Icon style">
+    <option value="duo">G · Line icons, accent detail</option>
+    <option value="color">A · Colour per section</option>
+    <option value="heads">B · Colour on headers only</option>
+    <option value="accent">C · One accent colour</option>
+    <option value="mono">D · Neutral tiles</option>
+    <option value="outline">E · Outlined tiles</option>
+    <option value="line">F · Plain line icons</option>
+  </select>
 </div>
 </body>
 </html>
