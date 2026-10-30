@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -278,7 +279,7 @@ func deleteAlias(a *appctx.App, w http.ResponseWriter, r *http.Request, email st
 
 // create alias (new source address)
 
-// handleAliasNew creates a new alias from a username/domain/target form submission.
+// handleAliasNew opens the create sheet on GET and adds the alias on POST
 func handleAliasNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -287,63 +288,93 @@ func handleAliasNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	domains, _ := a.AllDomainsForUser(ctx, userID)
 
-	if r.Method == http.MethodPost {
-		_ = r.ParseForm()
-		username := strings.TrimSpace(r.Form.Get("username"))
-		domain := strings.TrimSpace(r.Form.Get("domain"))
-		target := strings.TrimSpace(r.Form.Get("target"))
-
-		var missing []string
-		if username == "" {
-			missing = append(missing, "username")
-		}
-		if domain == "" {
-			missing = append(missing, "domain")
-		}
-		if target == "" {
-			missing = append(missing, "target")
-		}
-		if len(missing) > 0 {
-			for _, field := range missing {
-				web.Flash(a, w, r, "error", web.Tr(a, r, "Error: %(field)s not provided.", "field", field))
-			}
-			http.Redirect(w, r, "/emails/aliases/new", http.StatusFound)
-			return
-		}
-
-		if !validators.IsValidEmailUsername(username) {
-			web.FlashRedirect(a, w, r, "error", "Username can only contain letters, numbers, and . _ % + - (no @).", "/emails/aliases/new")
-			return
-		}
-
-		if !isValidEmail(target) {
-			web.FlashRedirect(a, w, r, "error", "Error: target must be a valid email address.", "/emails/aliases/new")
-			return
-		}
-
-		if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
-			http.Error(w, "You do not own this domain.", http.StatusForbidden)
-			return
-		}
-
-		source := username + "@" + domain
-
-		out, cmdErr := exec.CommandContext(ctx, "opencli", "email-setup", "alias", "add", source, target).CombinedOutput()
-		if cmdErr != nil {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error creating alias: %(output)s", "output", strings.TrimSpace(string(out))), "/emails/aliases/new")
-			return
-		}
-
-		ipAddress := reqip.ClientIP(r)
-		_ = logger.RecordUserAction(a.Config, currentUsername, "created alias "+source+" -> "+target, ipAddress)
-		InvalidateAliasCache(ctx, a, userID, currentUsername)
-		web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Alias %(source)s → %(target)s created successfully.", "source", source, "target", target), "/emails/aliases")
+	if r.Method != http.MethodPost {
+		domains, _ := a.AllDomainsForUser(ctx, userID)
+		renderAliasNewPage(a, w, r, domains)
 		return
 	}
 
-	renderAliasNewPage(a, w, r, domains)
+	_ = r.ParseForm()
+	username := strings.TrimSpace(r.Form.Get("username"))
+	domain := strings.TrimSpace(r.Form.Get("domain"))
+	target := strings.TrimSpace(r.Form.Get("target"))
+	back := "/emails/aliases/new"
+
+	var missing []string
+	if username == "" {
+		missing = append(missing, "username")
+	}
+	if domain == "" {
+		missing = append(missing, "domain")
+	}
+	if target == "" {
+		missing = append(missing, "target")
+	}
+	if len(missing) > 0 {
+		for _, field := range missing {
+			web.Flash(a, w, r, "error", web.Tr(a, r, "Error: %(field)s not provided.", "field", field))
+		}
+		http.Redirect(w, r, back, http.StatusFound)
+		return
+	}
+
+	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+		http.Error(w, "You do not own this domain.", http.StatusForbidden)
+		return
+	}
+
+	domains, _ := a.AllDomainsForUser(ctx, userID)
+	existing := GetAliasList(ctx, a, userID, currentUsername, domainSet(domains))
+	if msg := aliasProblem(username, domain, target, existing); msg != "" {
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, msg, "source", username+"@"+domain), back)
+		return
+	}
+
+	source := username + "@" + domain
+
+	out, cmdErr := exec.CommandContext(ctx, "opencli", "email-setup", "alias", "add", source, target).CombinedOutput()
+	if cmdErr != nil {
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error creating alias: %(output)s", "output", strings.TrimSpace(string(out))), back)
+		return
+	}
+
+	ipAddress := reqip.ClientIP(r)
+	_ = logger.RecordUserAction(a.Config, currentUsername, "created alias "+source+" -> "+target, ipAddress)
+	InvalidateAliasCache(ctx, a, userID, currentUsername)
+	web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Alias %(source)s → %(target)s created successfully.", "source", source, "target", target), "/emails/aliases")
+}
+
+// aliasProblem is the create sheet's checks, "" when the alias can be added; msg may use %(source)s
+func aliasProblem(username, domain, target string, existing []AliasEntry) string {
+	if len(username) > 60 || !validators.IsValidEmailUsername(username) {
+		return "Username can only contain letters, numbers, and . _ % + - (no @), up to 60 characters."
+	}
+	if len(target) > 254 || !isValidEmail(target) {
+		return "Error: target must be a valid email address."
+	}
+	source := strings.ToLower(username + "@" + domain)
+	if strings.ToLower(target) == source {
+		return "An alias can't forward to itself."
+	}
+	for _, e := range existing {
+		if strings.ToLower(e.Source) == source {
+			return "Alias %(source)s already exists. Add the destination from its Manage page instead."
+		}
+	}
+	return ""
+}
+
+// aliasSheetURL is the aliases list with the create sheet open, prefilled after a rejected submit
+func aliasSheetURL(domain, username string) string {
+	q := url.Values{"new": {"1"}}
+	if domain != "" {
+		q.Set("domain", domain)
+	}
+	if username != "" {
+		q.Set("username", username)
+	}
+	return "/emails/aliases?" + q.Encode()
 }
 
 // delete alias page (confirmation view)
