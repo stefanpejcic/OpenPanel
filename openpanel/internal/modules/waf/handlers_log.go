@@ -122,5 +122,7 @@ func handleWAFLog(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderWAFLogPage(a, w, r, domainName, paginated, showAll, page, itemsPerPage, totalPages, totalLogs, totalAllowedForShowAll)
+	// the header's domain switcher, the log still shows if this lookup fails
+	domains, _ := a.AllDomainsForUser(r.Context(), userID)
+	renderWAFLogPage(a, w, r, domainName, domains, paginated, showAll, page, itemsPerPage, totalPages, totalLogs, totalAllowedForShowAll)
 }

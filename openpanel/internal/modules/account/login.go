@@ -115,6 +115,7 @@ type loginPageData struct {
 	CSRFToken         string
 	Locales           []localeOption
 	PasswordReset     string
+	LoginLayout       string // "split" puts a brand panel beside the form, anything else is the centered card
 	IsEnterprise      bool
 	TwofaEnabled      bool
 	UserID            int
@@ -122,6 +123,7 @@ type loginPageData struct {
 	ErrorMessage      string
 	UnrecognizedError bool
 	PasswordError     bool
+	ErrorTone         string // "warning" for messages that aren't a typo, the alert is red otherwise
 	FirstFlash        *flash.Message
 	T                 i18n.Translator
 
@@ -141,6 +143,7 @@ func basePageData(a *appctx.App, r *http.Request, t i18n.Translator) loginPageDa
 		BrandName:        a.Config.Get("brand_name", ""),
 		Logo:             a.Config.Get("logo", ""),
 		PasswordReset:    a.Config.Get("password_reset", "yes"),
+		LoginLayout:      a.Config.Get("login_layout", "card"),
 		IsEnterprise:     strings.HasPrefix(a.LicenseKey, "enterprise"),
 		CaptchaProvider:  widget.Provider,
 		CaptchaFieldName: widget.FieldName,
@@ -214,6 +217,9 @@ func handleLoginPassword(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		data.ErrorMessage = errMsg
 		data.UnrecognizedError = strings.Contains(errMsg, "Unrecognized")
 		data.PasswordError = strings.Contains(strings.ToLower(errMsg), "password")
+		if errMsg == t.Get("Your account is suspended. Please contact support.") {
+			data.ErrorTone = "warning"
+		}
 		renderLogin(w, http.StatusOK, data)
 		return
 	}

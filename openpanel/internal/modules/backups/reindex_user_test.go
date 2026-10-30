@@ -58,7 +58,6 @@ func TestKeepLockFresh(t *testing.T) {
 		t.Fatal(err)
 	}
 	stop := keepLockFresh(lock)
-	defer stop()
 	// waits for the touch instead of a fixed sleep, a busy test machine can be slow to run the ticker
 	deadline := time.Now().Add(5 * time.Second)
 	for !reindexRunning(lock) {
@@ -66,5 +65,14 @@ func TestKeepLockFresh(t *testing.T) {
 			t.Fatal("a running reindex let its lock go stale")
 		}
 		time.Sleep(10 * time.Millisecond)
+	}
+	// once stop returns nothing writes the lock again, the reindex removes it right after
+	stop()
+	if err := os.Remove(lock); err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(5 * reindexLockTouch)
+	if _, err := os.Stat(lock); !os.IsNotExist(err) {
+		t.Fatalf("the lock came back after stop: %v", err)
 	}
 }

@@ -422,7 +422,7 @@ func handleBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderBackupsPage(a, w, r, target, hasAnyCredentialMarker(values), serviceActive, adminManaged)
+	renderBackupsPage(a, w, r, target, hasAnyCredentialMarker(values), serviceActive, adminManaged, backupsSummary(userContext, target, values))
 }
 
 // hasAnyCredentialMarker reports whether any well-known per-destination credential key has a value, used to decide whether the settings form should show as "configured"
