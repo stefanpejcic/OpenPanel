@@ -17,10 +17,9 @@
 
 | Version| Release date | 
 |---|---|
-|__[2.0.18](/docs/changelog/2.0.18)__| October 26, 2026 |
-|__[2.0.17](/docs/changelog/2.0.17)__| October 22, 2026 |
-|__[2.0.16](/docs/changelog/2.0.16)__| October 21, 2026 |
-|__[2.0.15](/docs/changelog/2.0.15)__| October 15, 2026 |
+|__[2.0.18](/docs/changelog/2.0.18)__| October 29, 2026 |
+|__[2.0.16](/docs/changelog/2.0.16)__| October 22, 2026 |
+|__[2.0.15](/docs/changelog/2.0.15)__| October 22, 2026 |
 |__[2.0.14](/docs/changelog/2.0.14)__| October 15, 2026 |
 |__[2.0.13](/docs/changelog/2.0.13)__| October 01, 2026 |
 |__[2.0.12](/docs/changelog/2.0.12)__| September 30, 2026 |
