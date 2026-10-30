@@ -27,6 +27,32 @@ type CronjobsPageData struct {
 	ScheduleIssues []ScheduleIssue
 	Summary        CronSummary
 	Timezones      []string
+	Created        string // name of the job just added, its row is highlighted
+}
+
+// CronRow is what a jobs table row shows on top of the job itself
+type CronRow struct {
+	Text    string // the schedule in words, "" when there's no short way to say it
+	NextRun string // RFC3339, "" when paused or the schedule doesn't parse
+	Invalid bool
+}
+
+// Row describes one job for the table, run times in the cron time zone
+func (d CronjobsPageData) Row(j CronJob) CronRow {
+	row := CronRow{Text: describeSchedule(d.T, j.Schedule)}
+	loc, err := time.LoadLocation(d.Summary.TimeZone)
+	if err != nil {
+		loc = time.UTC
+	}
+	runs, err := nextCronRuns(j.Schedule, time.Now(), 1, loc)
+	if err != nil {
+		row.Invalid = true
+		return row
+	}
+	if !j.Disabled && len(runs) > 0 {
+		row.NextRun = runs[0].Format(time.RFC3339)
+	}
+	return row
 }
 
 func renderCronjobsCodePage(a *appctx.App, w http.ResponseWriter, r *http.Request, crontabContent string) {
@@ -65,6 +91,14 @@ func renderCronjobsTablePage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		LayoutData: layout, View: "table", Service: "cron", Services: services, CronJobs: cronJobs,
 		ScheduleIssues: scheduleIssues, Summary: cronSummary(cronJobs, time.Now(), loc), Timezones: php.AvailableTimezones(),
 	}
+	if c := r.URL.Query().Get("created"); c != "" {
+		for _, j := range cronJobs {
+			if j.Comment == c {
+				data.Created = c
+				break
+			}
+		}
+	}
 	if err := cronjobsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("CRONS - table view template render error: %v", err)
 	}
@@ -78,15 +112,17 @@ type CronjobsNewPageData struct {
 	// the form picks these when the command looks like PHP or a MySQL/MariaDB client, "" when the user doesn't have them
 	PHPContainer string
 	DBContainer  string
+	JobNames     []string // existing names, a typed name can't repeat one
+	TimeZone     string
 }
 
-func renderCronjobsNewPage(a *appctx.App, w http.ResponseWriter, r *http.Request, containers []string, phpContainer, dbContainer string) {
+func renderCronjobsNewPage(a *appctx.App, w http.ResponseWriter, r *http.Request, containers []string, phpContainer, dbContainer string, names []string, tz string) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "New CronJob")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := CronjobsNewPageData{LayoutData: layout, Service: "cron", Containers: containers, PHPContainer: phpContainer, DBContainer: dbContainer}
+	data := CronjobsNewPageData{LayoutData: layout, Service: "cron", Containers: containers, PHPContainer: phpContainer, DBContainer: dbContainer, JobNames: names, TimeZone: tz}
 	if err := cronjobsNewPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("CRONS - new template render error: %v", err)
 	}

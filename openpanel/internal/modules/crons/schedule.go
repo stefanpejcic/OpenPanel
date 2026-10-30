@@ -2,8 +2,10 @@ package crons
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -11,6 +13,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
@@ -75,6 +78,89 @@ func cronSummary(jobs []CronJob, now time.Time, loc *time.Location) CronSummary 
 		sum.NextRun = soonest.Format(time.RFC3339)
 	}
 	return sum
+}
+
+// cronWeekdays are the day names describeSchedule uses, index 0 is Sunday like cron's weekday field
+var cronWeekdays = []string{"Sundays", "Mondays", "Tuesdays", "Wednesdays", "Thursdays", "Fridays", "Saturdays"}
+
+// describeSchedule says a schedule in words for the jobs table, "" when there's no short way to say it
+func describeSchedule(t i18n.Translator, schedule string) string {
+	s := strings.TrimSpace(schedule)
+	switch s {
+	case "@yearly", "@annually":
+		return t.Get("Once a year")
+	case "@monthly":
+		return t.Get("Once a month")
+	case "@weekly":
+		return t.Get("Once a week")
+	case "@daily", "@midnight":
+		return t.Get("Every day at %(time)s", "time", "00:00")
+	case "@hourly":
+		return t.Get("Every hour")
+	}
+	if rest, ok := strings.CutPrefix(s, "@every "); ok {
+		return t.Get("Every %(interval)s", "interval", strings.TrimSpace(rest))
+	}
+	f := strings.Fields(s)
+	if len(f) != 6 || f[4] != "*" {
+		return ""
+	}
+	sec, minute, hour, dom, dow := f[0], f[1], f[2], f[3], f[5]
+	num := func(v string, max int) (int, bool) {
+		n, err := strconv.Atoi(v)
+		return n, err == nil && n >= 0 && n <= max
+	}
+	step := func(v string, max int) string {
+		if rest, ok := strings.CutPrefix(v, "*/"); ok {
+			if n, ok := num(rest, max); ok && n > 1 {
+				return rest
+			}
+		}
+		return ""
+	}
+	everyDay := dom == "*" && dow == "*"
+	if everyDay {
+		if n := step(sec, 59); n != "" && minute == "*" && hour == "*" {
+			return t.Get("Every %(n)s seconds", "n", n)
+		}
+		if _, ok := num(sec, 59); !ok {
+			return ""
+		}
+		if minute == "*" && hour == "*" {
+			return t.Get("Every minute")
+		}
+		if n := step(minute, 59); n != "" && hour == "*" {
+			return t.Get("Every %(n)s minutes", "n", n)
+		}
+		if m, ok := num(minute, 59); ok && hour == "*" {
+			return t.Get("Every hour at minute %(minute)s", "minute", strconv.Itoa(m))
+		}
+		if n := step(hour, 23); n != "" {
+			if _, ok := num(minute, 59); ok {
+				return t.Get("Every %(n)s hours", "n", n)
+			}
+		}
+	}
+	sn, ok1 := num(sec, 59)
+	mn, ok2 := num(minute, 59)
+	hn, ok3 := num(hour, 23)
+	if !ok1 || !ok2 || !ok3 {
+		return ""
+	}
+	at := fmt.Sprintf("%02d:%02d", hn, mn)
+	if sn != 0 {
+		at += fmt.Sprintf(":%02d", sn)
+	}
+	if everyDay {
+		return t.Get("Every day at %(time)s", "time", at)
+	}
+	if d, ok := num(dow, 7); ok && dom == "*" {
+		return t.Get("%(day)s at %(time)s", "day", t.Get(cronWeekdays[d%7]), "time", at)
+	}
+	if d, ok := num(dom, 31); ok && d > 0 && dow == "*" {
+		return t.Get("Monthly on day %(day)s at %(time)s", "day", strconv.Itoa(d), "time", at)
+	}
+	return ""
 }
 
 // handleToggleCronjob turns one job on or off by commenting its block out, then restarts cron to pick it up

@@ -392,7 +392,12 @@ func handleGitPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	parseForm(r)
 	res, err := doAction(r.Context(), a, r, userID, username, userContext, r.Form)
 	if err != nil {
-		web.FlashRedirect(a, w, r, "error", err.Error(), "/git")
+		back := "/git"
+		// a rejected add reopens the form
+		if r.Form.Get("action") == "create" {
+			back = "/git?new=1"
+		}
+		web.FlashRedirect(a, w, r, "error", err.Error(), back)
 		return
 	}
 	if res.NewPassword != "" {
