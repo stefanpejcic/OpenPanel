@@ -27,7 +27,7 @@ var unsuspendPage = loadPage("domains/unsuspend.html")
 var docrootPage = loadPage("domains/docroot.html")
 var domainLogsPage = loadPage("domains/logs.html")
 var capitalizePage = loadPage("domains/capitalize.html")
-var vhostPage = loadPage("domains/vhost.html")
+var vhostPage = loadPage("partials/_conf_editor.html", "domains/vhost.html")
 var redirectPage = loadPage("domains/redirect.html")
 var sslPage = loadPage("domains/ssl.html")
 

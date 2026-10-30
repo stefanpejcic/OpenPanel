@@ -5,12 +5,15 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/config"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mcptokens"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 // baseLayout is a minimal web.LayoutData for rendering the authenticated pages in this package, distinct from loginPageData's pre-session standalone context
@@ -105,6 +108,7 @@ func TestRenderLoginPageErrorMessage(t *testing.T) {
 }
 
 func TestRenderAccountPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("username change not permitted", func(t *testing.T) {
@@ -117,8 +121,9 @@ func TestRenderAccountPage(t *testing.T) {
 		if !strings.Contains(body, "test@example.com") {
 			t.Error("expected current email in body")
 		}
-		if strings.Contains(body, `id="username"`) {
-			t.Error("did not expect username field when PermitUsernameChangeByUser is false")
+		// the username shows read-only and isn't submitted
+		if strings.Contains(body, `name="username"`) || !strings.Contains(body, "readonly") {
+			t.Error("expected a read-only username without a form field when PermitUsernameChangeByUser is false")
 		}
 	})
 
@@ -128,13 +133,50 @@ func TestRenderAccountPage(t *testing.T) {
 		if err := accountPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), `id="username"`) {
+		if !strings.Contains(w.Body.String(), `name="username"`) {
 			t.Error("expected username field when PermitUsernameChangeByUser is true")
+		}
+	})
+
+	t.Run("member since and passkeys", func(t *testing.T) {
+		layout := baseLayout(mgr, "/account")
+		layout.HostingPlanName = "Developer plus"
+		layout.UserAllowed = map[string]bool{"dashboard": true, "account": true, "passkeys": true}
+		since := time.Date(2026, 3, 14, 9, 30, 0, 0, time.UTC)
+		for _, tc := range []struct {
+			count int
+			want  []string
+			not   string
+		}{
+			{2, []string{"Developer plus · member since 14 Mar 2026", `<dt>Passkeys</dt><dd><a href="/account/passkeys">2</a></dd>`}, ""},
+			{0, []string{`<a href="/account/passkeys">None</a>`}, ""},
+			{-1, nil, "<dt>Passkeys</dt>"},
+		} {
+			w := httptest.NewRecorder()
+			if err := accountPage.Render(w, 200, AccountPageData{LayoutData: layout, MemberSince: since, PasskeyCount: tc.count}); err != nil {
+				t.Fatalf("Render: %v", err)
+			}
+			body := w.Body.String()
+			for _, want := range tc.want {
+				if !strings.Contains(body, want) {
+					t.Errorf("count %d: missing %q", tc.count, want)
+				}
+			}
+			if tc.not != "" && strings.Contains(body, tc.not) {
+				t.Errorf("count %d: unexpected %q", tc.count, tc.not)
+			}
+		}
+	})
+
+	t.Run("no registered date", func(t *testing.T) {
+		if got := (AccountPageData{}).MemberSinceLabel(); got != "" {
+			t.Errorf("MemberSinceLabel() = %q, want empty", got)
 		}
 	})
 }
 
 func TestRenderLocalePage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := LocalePageData{LayoutData: baseLayout(mgr, "/account/language"), Locales: localeOptions([]string{"en", "de", "sr"}), Current: "de"}
 	w := httptest.NewRecorder()
@@ -154,14 +196,14 @@ func TestRenderLocalePage(t *testing.T) {
 		}
 		return body[i : i+strings.Index(body[i:], "</button>")]
 	}
-	if de := cardOf("de"); !strings.Contains(de, "border-indigo-500") || !strings.Contains(de, "bi-check-circle-fill") {
+	if de := cardOf("de"); !strings.Contains(de, `aria-pressed="true"`) || !strings.Contains(de, "op-locale-on") {
 		t.Error("expected the current locale's card to be highlighted")
 	}
-	if en := cardOf("en"); strings.Contains(en, "border-indigo-500") || strings.Contains(en, "bi-check-circle-fill") {
+	if en := cardOf("en"); strings.Contains(en, `aria-pressed="true"`) || strings.Contains(en, "op-locale-on") {
 		t.Error("only the current locale should be highlighted")
 	}
-	if !strings.Contains(body, `class="grid grid-cols-3 gap-3"`) || strings.Count(body, `name="locale"`) != 3 {
-		t.Error("expected one card per locale in a 3 column grid")
+	if !strings.Contains(body, `class="op-locales"`) || strings.Count(body, `name="locale"`) != 3 {
+		t.Error("expected one card per locale in the locale grid")
 	}
 }
 
@@ -219,6 +261,7 @@ func TestRenderTwofaPage(t *testing.T) {
 }
 
 func TestRenderPasskeysPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("empty", func(t *testing.T) {
@@ -227,8 +270,29 @@ func TestRenderPasskeysPage(t *testing.T) {
 		if err := passkeysPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "No passkeys registered yet.") {
+		body := w.Body.String()
+		if !strings.Contains(body, "No passkeys registered yet.") {
 			t.Error("expected empty state text")
+		}
+		for _, want := range []string{`x-data="opAddPasskey(`, `aria-labelledby="passkey-add-title"`, `id="passkey-name"`, `maxlength="100"`, `@click="show()"`} {
+			if !strings.Contains(body, want) {
+				t.Errorf("missing %q", want)
+			}
+		}
+		if strings.Contains(body, "prompt(") {
+			t.Error("the native prompt should be gone")
+		}
+	})
+
+	t.Run("unavailable", func(t *testing.T) {
+		data := PasskeysPageData{LayoutData: baseLayout(mgr, "/account/passkeys"), UnavailableReason: "Passkeys need HTTPS."}
+		w := httptest.NewRecorder()
+		if err := passkeysPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, "Passkeys need HTTPS.") || strings.Contains(body, `id="passkey-name"`) {
+			t.Error("expected the reason and no add sheet")
 		}
 	})
 
@@ -533,6 +597,70 @@ func TestAlertWasDisabled(t *testing.T) {
 	for _, c := range cases {
 		if got := alertWasDisabled(c.old, c.new); got != c.want {
 			t.Errorf("%s: got %v, want %v", c.name, got, c.want)
+		}
+	}
+}
+
+// field errors sit under their field, other messages in an alert coloured by kind
+func TestRenderLoginPageMessagePlacement(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	cases := []struct {
+		name string
+		data loginPageData
+		want []string
+		not  []string
+	}{
+		{"wrong password", loginPageData{Username: "bob", ErrorMessage: "Invalid password. Please try again.", PasswordError: true},
+			[]string{`id="password-error"`, `aria-describedby="password-error"`, `value="bob"`}, []string{`role="alert"`}},
+		{"unknown user", loginPageData{Username: "bo", ErrorMessage: "Unrecognized account. Please check username.", UnrecognizedError: true},
+			[]string{`id="username-error"`, `aria-invalid="true" aria-describedby="username-error"`}, []string{`role="alert"`, `id="password-error"`}},
+		{"suspended", loginPageData{ErrorMessage: "Your account is suspended. Please contact support.", ErrorTone: "warning"},
+			[]string{`class="op-alert is-warning" role="alert"`}, []string{`id="username-error"`}},
+		{"captcha", loginPageData{ErrorMessage: "Captcha verification failed. Please try again."},
+			[]string{`class="op-alert is-danger" role="alert"`}, nil},
+		{"reset done", loginPageData{FirstFlash: &flash.Message{Category: "success", Text: "Your password has been reset. Please log in."}},
+			[]string{`class="op-alert is-success" role="alert"`, "Your password has been reset."}, nil},
+		{"wrong 2fa code", loginPageData{TwofaEnabled: true, UserID: 7, ErrorMessage: "Invalid 2FA code. Please try again."},
+			[]string{`id="twofa-error"`, `autocomplete="one-time-code"`, `href="/login"`}, []string{`role="alert"`}},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.data.Title, tc.data.CSRFToken, tc.data.T = "Login", "tok", mgr.Translator("en")
+			w := httptest.NewRecorder()
+			if err := loginPage.Render(w, 200, tc.data); err != nil {
+				t.Fatalf("Render: %v", err)
+			}
+			body := w.Body.String()
+			for _, s := range tc.want {
+				if !strings.Contains(body, s) {
+					t.Errorf("expected %q", s)
+				}
+			}
+			for _, s := range tc.not {
+				if strings.Contains(body, s) {
+					t.Errorf("did not expect %q", s)
+				}
+			}
+		})
+	}
+}
+
+func TestRenderLoginPageLayouts(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	for layout, wantSplit := range map[string]bool{"": false, "card": false, "split": true} {
+		w := httptest.NewRecorder()
+		data := loginPageData{Title: "Login", CSRFToken: "tok", LoginLayout: layout, T: mgr.Translator("en")}
+		if err := loginPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render %q: %v", layout, err)
+		}
+		body := w.Body.String()
+		if got := strings.Contains(body, `class="op-auth op-scope is-split"`) && strings.Contains(body, `class="op-auth-side dark"`); got != wantSplit {
+			t.Errorf("layout %q: split markup present = %v, want %v", layout, got, wantSplit)
+		}
+		if !strings.Contains(body, `name="username"`) {
+			t.Errorf("layout %q: sign-in form missing", layout)
 		}
 	}
 }

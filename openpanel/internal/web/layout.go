@@ -89,6 +89,30 @@ type LayoutData struct {
 	T i18n.Translator
 }
 
+// ActivateTab marks the page tab linking to href as current and puts it in the header trail instead of the old one, for pages whose path doesn't say which tab they belong to
+func (l *LayoutData) ActivateTab(href string) {
+	idx := -1
+	for i, t := range l.PageTabs {
+		if t.Href == href && !t.Disabled {
+			idx = i
+		}
+	}
+	if idx < 0 {
+		return
+	}
+	for i := range l.PageTabs {
+		if l.PageTabs[i].Active && i != idx {
+			// the last crumb is the page itself, only the tab crumbs before it are swapped
+			for j := 0; j < len(l.NavTrail)-1; j++ {
+				if l.NavTrail[j].Label == l.PageTabs[i].Label {
+					l.NavTrail[j] = NavLink{Href: href, Label: l.PageTabs[idx].Label}
+				}
+			}
+		}
+		l.PageTabs[i].Active = i == idx
+	}
+}
+
 // UserAllowedList renders m's keys as a JSON array, for embedding the user's permission flags into the page as a client-side JS value.
 func UserAllowedList(allowed map[string]bool) template.JS {
 	keys := make([]string, 0, len(allowed))

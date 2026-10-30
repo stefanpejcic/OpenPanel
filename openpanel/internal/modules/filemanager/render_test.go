@@ -8,6 +8,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
@@ -22,6 +23,7 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 
 // TestRenderFilesPage exercises filemanager.html + every included partial through html/template's real executor, covering both the populated-directory and empty-directory branches
 func TestRenderFilesPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("populated, classic view", func(t *testing.T) {
@@ -46,7 +48,7 @@ func TestRenderFilesPage(t *testing.T) {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		for _, want := range []string{"reports", "notes.txt", "link", "notes.txt)", "Go Up", "README.md", "Skip the trash"} {
+		for _, want := range []string{"reports", "notes.txt", "link", "notes.txt)", "Up one level", "README.md", "Skip the trash"} {
 			if !strings.Contains(body, want) {
 				t.Errorf("rendered files page missing %q", want)
 			}

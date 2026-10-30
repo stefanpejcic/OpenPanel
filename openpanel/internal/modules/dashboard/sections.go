@@ -70,19 +70,19 @@ func buildDashboardSections(t i18n.Translator, allowed, upsellAllowed map[string
 // allSections is the modern (menu_style=modern) dashboard: sections and icons follow the sidebar's areas and tab order, single-page areas (Cron Jobs, Server Info) join a neighbouring section instead of standing alone, keys stay the old ones where a section survived so saved orders and custom_dashboard_section.json's before_<key> keep working
 func allSections() []Section {
 	return []Section{
-		{Key: "domains", Title: "Domains", Icon: "bi-globe", Items: []SectionItem{
-			{"domains", "/domains", "bi-globe", "Domains", "", false},
-			{"dns", "/domains/edit-dns-zone", "bi-file-text", "DNS Zone Editor", "", false},
-			{"dynamic_dns", "/domains/dynamic-dns", "bi-arrow-repeat", "Dynamic DNS", "", false},
-			{"ssl", "/domains/ssl", "bi-lock", "SSL Certificates", "", false},
-			{"redirects", "/domains/redirect", "bi-link-45deg", "Redirects", "", false},
-		}},
 		// mautic/flarum omitted: legacy code slated for removal entirely, not ported here (per user decision)
 		{Key: "websites", Title: "Websites", Icon: "bi-window-stack", Items: []SectionItem{
 			{"websites", "/sites", "bi-app-indicator", "Sites", "", false},
 			{"wordpress", "/wordpress", "bi-wordpress", "WordPress", "", false},
 			{"autoinstaller", "/auto-installer", "bi-download", "Install App", "", false},
 			{"git", "/git", "bi-git", "Git", "", false},
+		}},
+		{Key: "domains", Title: "Domains", Icon: "bi-globe", Items: []SectionItem{
+			{"domains", "/domains", "bi-globe", "Domains", "", false},
+			{"dns", "/domains/edit-dns-zone", "bi-file-text", "DNS Zone Editor", "", false},
+			{"dynamic_dns", "/domains/dynamic-dns", "bi-arrow-repeat", "Dynamic DNS", "", false},
+			{"ssl", "/domains/ssl", "bi-lock", "SSL Certificates", "", false},
+			{"redirects", "/domains/redirect", "bi-link-45deg", "Redirects", "", false},
 		}},
 		{Key: "emails", Title: "Email", Icon: "bi-envelope", Items: []SectionItem{
 			{"emails", "/emails", "bi-envelope", "Email Accounts", "", false},
@@ -168,15 +168,6 @@ func allSections() []Section {
 			{"crons", "/cronjobs", "bi-calendar2-week", "Cron Jobs", "", false},
 			{"timezone", "/server/timezone", "bi-clock", "Change TimeZone", "", false},
 		}},
-		{Key: "account", Title: "Account", Icon: "bi-person-circle", Items: []SectionItem{
-			{"account", "/account", "bi-person-gear", "Login Details", "", false},
-			{"locale", "/account/language", "bi-translate", "Language", "", false},
-			{"notifications", "/account/notifications", "bi-bell", "Notifications", "", false},
-			{"favorites", "/account/favorites", "bi-star", "Favorites", "", false},
-			{"api", "/account/api", "bi-braces", "API", "", false},
-			{"mcp", "/account/mcp", "bi-robot", "AI Assistant (MCP)", "", false},
-			{"logout", "/logout", "bi-door-open", "Log out", "", false},
-		}},
 		{Key: "advanced", Title: "Statistics", Icon: "bi-bar-chart", Items: []SectionItem{
 			{"usage", "/server/usage", "bi-speedometer2", "Resource Usage", "", false},
 			{"usage", "/server/usage/history", "bi-speedometer2", "Resource Usage History", "", false},
@@ -191,6 +182,15 @@ func allSections() []Section {
 		{Key: "processes", Title: "Processes & Services", Icon: "bi-cpu", Items: []SectionItem{
 			{"services", "/services", "bi-hdd-stack", "Services", "", false},
 			{"process_manager", "/process-manager", "bi-cpu", "Processes", "", false},
+		}},
+		{Key: "account", Title: "Account", Icon: "bi-person-circle", Items: []SectionItem{
+			{"account", "/account", "bi-person-gear", "Login Details", "", false},
+			{"locale", "/account/language", "bi-translate", "Language", "", false},
+			{"notifications", "/account/notifications", "bi-bell", "Notifications", "", false},
+			{"favorites", "/account/favorites", "bi-star", "Favorites", "", false},
+			{"api", "/account/api", "bi-braces", "API", "", false},
+			{"mcp", "/account/mcp", "bi-robot", "AI Assistant (MCP)", "", false},
+			{"logout", "/logout", "bi-door-open", "Log out", "", false},
 		}},
 		{Key: "security", Title: "Security", Icon: "bi-shield-lock", Items: []SectionItem{
 			{"waf", "/server/waf", "bi-shield-lock", "Web Firewall", "", false},

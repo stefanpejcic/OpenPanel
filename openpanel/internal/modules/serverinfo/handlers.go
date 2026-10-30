@@ -7,10 +7,12 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/dashboard"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -39,10 +41,30 @@ func handleContainerUsage(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 	_ = a.Sessions.Save(r, w, sess)
 
-	renderStatsPage(a, w, r, stats)
+	renderStatsPage(a, w, r, stats, usageHistory(readUsageLines(userContext)))
 }
 
-// handleUsageHistory serves the paginated resource-usage history page.
+// readUsageLines parses every JSON line of /home/<context>/resource_usage.txt, skipping bad ones
+func readUsageLines(userContext string) []ResourceUsageLine {
+	content, err := tenantfs.ReadFile("/home/" + userContext + "/resource_usage.txt")
+	if err != nil {
+		return nil
+	}
+	var lines []ResourceUsageLine
+	for _, line := range strings.Split(string(content), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		var entry ResourceUsageLine
+		if json.Unmarshal([]byte(line), &entry) == nil {
+			lines = append(lines, entry)
+		}
+	}
+	return lines
+}
+
+// handleUsageHistory serves the hourly usage history, the page picks the range and filters client-side
 func handleUsageHistory(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	data, err := injected(a, r)
 	if err != nil {
@@ -50,59 +72,20 @@ func handleUsageHistory(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	userContext, _ := data["context"].(string)
-	usageFilePath := "/home/" + userContext + "/resource_usage.txt"
-	chartsMode := a.Config.Get("resource_usage_charts_mode", "one")
+	samples, limits := historySamples(readUsageLines(userContext))
 
-	var usageData []ResourceUsageLine
-	if content, readErr := tenantfs.ReadFile(usageFilePath); readErr == nil {
-		for _, line := range strings.Split(string(content), "\n") {
-			line = strings.TrimSpace(line)
-			if line == "" {
-				continue
-			}
-			var entry ResourceUsageLine
-			if unmarshalErr := json.Unmarshal([]byte(line), &entry); unmarshalErr == nil {
-				usageData = append(usageData, entry)
-			}
-		}
+	// collect_stats keeps 100 lines when the setting is missing
+	retention, convErr := strconv.Atoi(a.Config.Get("resource_usage_retention", "100"))
+	if convErr != nil || retention < 0 {
+		retention = 100
 	}
-
-	totalLines := len(usageData)
-	showAll := r.URL.Query().Get("show_all") == "true"
-
-	itemsPerPage, _ := strconv.Atoi(a.Config.Get("resource_usage_items_per_page", "25"))
-	if itemsPerPage <= 0 {
-		itemsPerPage = 25
+	rowLimit, _ := strconv.Atoi(a.Config.Get("resource_usage_items_per_page", "25"))
+	if rowLimit <= 0 {
+		rowLimit = 25
 	}
-	totalPages := 1
-	if showAll {
-		itemsPerPage = totalLines
-		totalPages = 1
-	} else if itemsPerPage > 0 {
-		totalPages = (totalLines + itemsPerPage - 1) / itemsPerPage
-	}
-	if totalPages < 1 {
-		totalPages = 1
-	}
-
-	currentPage, _ := strconv.Atoi(r.URL.Query().Get("page"))
-	if currentPage < 1 {
-		currentPage = 1
-	}
-	startIdx := (currentPage - 1) * itemsPerPage
-	endIdx := startIdx + itemsPerPage
-	if startIdx > totalLines {
-		startIdx = totalLines
-	}
-	if endIdx > totalLines {
-		endIdx = totalLines
-	}
-	var paginated []ResourceUsageLine
-	if startIdx < endIdx {
-		paginated = usageData[startIdx:endIdx]
-	}
-
-	renderUsageHistoryPage(a, w, r, chartsMode, showAll, itemsPerPage, totalPages, totalLines, currentPage, paginated)
+	renderUsageHistoryPage(a, w, r, UsageHistoryPageData{
+		Samples: samples, Limits: limits, Retention: retention, Ranges: historyRanges(retention), RowLimit: rowLimit,
+	})
 }
 
 // buildHostingInfo gathers platform/uname info, uptime, load average, and the server's public IP - the data behind both /json/system/hosting/info and /api/hosting/info
@@ -186,7 +169,11 @@ func handleSystemHostingPlan(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	userContext, _ := data["context"].(string)
 	planID, _ := data["hosting_plan"].(int)
 
-	web.WriteJSON(w, http.StatusOK, buildHostingPlan(a, r, userContext, planID))
+	plan := buildHostingPlan(a, r, userContext, planID)
+	if userID, ok := auth.UserID(r); ok {
+		plan["usage"] = dashboard.PlanUsage(a, r.Context(), userID, data)
+	}
+	web.WriteJSON(w, http.StatusOK, plan)
 }
 
 // getEnvPort reads /home/<context>/.env and, for host:port style values, returns just the port segment
@@ -233,4 +220,32 @@ func handleSystemHostingPorts(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	username, _ := data["current_username"].(string)
 
 	web.WriteJSON(w, http.StatusOK, buildHostingPorts(username))
+}
+
+// featuresFile is the features list the admin panel ships, the Panel tab falls back to GitHub without it
+const featuresFile = "/etc/openpanel/openadmin/config/features.json"
+
+// readFeatures returns the file as-is when it holds a JSON array
+func readFeatures(path string) ([]byte, bool) {
+	raw, err := tenantfs.ReadFile(path)
+	if err != nil {
+		return nil, false
+	}
+	var list []json.RawMessage
+	if json.Unmarshal(raw, &list) != nil {
+		return nil, false
+	}
+	return raw, true
+}
+
+// handleSystemFeatures serves the local features list, 404 tells the page to use the GitHub copy
+func handleSystemFeatures(w http.ResponseWriter, _ *http.Request) {
+	raw, ok := readFeatures(featuresFile)
+	if !ok {
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "features list not found"})
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "private, max-age=3600")
+	_, _ = w.Write(raw)
 }

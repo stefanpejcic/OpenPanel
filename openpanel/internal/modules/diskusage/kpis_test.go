@@ -1,9 +1,13 @@
 package diskusage
 
 import (
+	"net/http/httptest"
+	"strings"
 	"testing"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dashboard"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 // real `find . -xdev -type f -size +1M -printf '%s\t%P\n'` lines from the test VM's home
@@ -88,6 +92,26 @@ func TestGroupThousands(t *testing.T) {
 	for n, want := range map[int64]string{0: "0", 999: "999", 1000: "1,000", 312480: "312,480", 1000000: "1,000,000", -4500: "-4,500"} {
 		if got := groupThousands(n); got != want {
 			t.Errorf("groupThousands(%d) = %q, want %q", n, got, want)
+		}
+	}
+}
+
+func TestRenderDiskUsageKPIs(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	layout := baseLayout(mgr, "/disk-usage/")
+	layout.UserAllowed["trash"] = true
+	rows := parseDuOutput("9.2G\tdocker-data\n868K\tphp.ini", "/disk-usage/")
+	data := DiskUsagePageData{LayoutData: layout, Rows: rows, KPIs: buildDiskKPIs(&dashboard.DiskInodes{DiskUsed: 5 << 20, DiskSoft: 10 << 20, InodesUsed: 312480, InodesSoft: 1000000}, rows, true, 2048, true)}
+	data.KPIs.TrashHref = "/files.trash"
+	w := httptest.NewRecorder()
+	if err := diskUsagePage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	for _, want := range []string{"of 10.0 GB", "312,480", "of 1,000,000", "Largest folder", "9.2 GB", `href="/files.trash"`, "Empty it to free space", "Largest files", "largestFiles()", "?largest=1"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("disk usage page missing %q", want)
 		}
 	}
 }

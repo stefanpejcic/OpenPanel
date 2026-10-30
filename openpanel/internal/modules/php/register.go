@@ -13,6 +13,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 		return auth.RequireLogin(a, feature)(h)
 	}
 
+	mux.Handle("GET /php/wizard", requireLogin("php", func(w http.ResponseWriter, r *http.Request) { handlePHPWizard(a, w, r) }))
 	mux.Handle("/php/default", requireLogin("php", func(w http.ResponseWriter, r *http.Request) { handleDefaultPHPVersion(a, w, r) }))
 	mux.Handle("/php/domains", requireLogin("php", func(w http.ResponseWriter, r *http.Request) { handlePHPDomains(a, w, r) }))
 	mux.Handle("POST /php/domains/bulk", requireLogin("php", func(w http.ResponseWriter, r *http.Request) { handlePHPDomainsBulk(a, mux, w, r) }))

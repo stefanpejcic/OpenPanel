@@ -19,12 +19,16 @@ import (
 // DashboardIconViewCookie is the browser cookie storing the user's chosen dashboard icon-section layout ("icon" or "list"), set client-side by the sidebar's layout toggle and read server-side by ReadDashboardIconView so the dashboard renders the saved layout on first paint with no flicker.
 const DashboardIconViewCookie = "dashboard_icon_view"
 
-// ReadDashboardIconView reads the dashboard_icon_view cookie, defaulting to "icon" for a missing or unrecognized value
+// ReadDashboardIconView reads the dashboard_icon_view cookie, a missing or unknown value falls back to the theme's default
 func ReadDashboardIconView(r *http.Request) string {
-	if c, err := r.Cookie(DashboardIconViewCookie); err == nil && c.Value == "list" {
-		return "list"
+	if c, err := r.Cookie(DashboardIconViewCookie); err == nil && (c.Value == "icon" || c.Value == "list") {
+		return c.Value
 	}
-	return "icon"
+	// the redesign opens on link rows, the classic theme keeps its icon grid
+	if Theme() == ThemeClassic {
+		return "icon"
+	}
+	return "list"
 }
 
 // FilemanagerViewCookie is the browser cookie storing the user's chosen filemanager button style ("classic" or "modern"), set client-side by the account menu's style toggle (only shown on /files) and read server-side by ReadFilemanagerView so /files renders the saved style on first paint with no flicker.

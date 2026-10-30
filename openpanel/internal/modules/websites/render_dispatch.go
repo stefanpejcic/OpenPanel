@@ -176,6 +176,8 @@ func renderWPSinglePage(a *appctx.App, w http.ResponseWriter, r *http.Request, d
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	// a WordPress site lives under /website, but it belongs to the WordPress tab
+	layout.ActivateTab("/wordpress")
 	data.LayoutData = layout
 	data.SecurityToggles = wpSecurityToggles
 	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))

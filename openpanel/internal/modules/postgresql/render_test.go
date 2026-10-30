@@ -7,6 +7,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
@@ -20,6 +21,7 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 }
 
 func TestRenderAllPages(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	layout := baseLayout(mgr, "/postgresql")
 
@@ -56,16 +58,13 @@ func TestRenderAllPages(t *testing.T) {
 		if !strings.Contains(body, "refresh-message") || !strings.Contains(body, "window.location.reload()") {
 			t.Error("expected the countdown-and-reload script when not healthy")
 		}
-		if !strings.Contains(body, "cursor-not-allowed") {
+		if !strings.Contains(body, `aria-disabled="true"`) {
 			t.Error("New Database button should render as disabled while the service isn't running")
 		}
 	})
 	t.Run("new", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		if err := newDatabasePage.Render(w, 200, struct {
-			web.LayoutData
-			Engine web.DBEngine
-		}{layout, web.PostgreSQLEngine}); err != nil {
+		if err := newDatabasePage.Render(w, 200, CreatePageData{LayoutData: layout, Engine: web.PostgreSQLEngine}); err != nil {
 			t.Fatalf("new: %v", err)
 		}
 	})
@@ -86,7 +85,7 @@ func TestRenderAllPages(t *testing.T) {
 	})
 	t.Run("create user", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		if err := createUserPage.Render(w, 200, struct{ web.LayoutData }{layout}); err != nil {
+		if err := createUserPage.Render(w, 200, CreatePageData{LayoutData: layout, Engine: web.PostgreSQLEngine}); err != nil {
 			t.Fatalf("create user: %v", err)
 		}
 	})
@@ -98,13 +97,13 @@ func TestRenderAllPages(t *testing.T) {
 	})
 	t.Run("wizard", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		if err := wizardPage.Render(w, 200, struct{ web.LayoutData }{layout}); err != nil {
+		if err := wizardPage.Render(w, 200, CreatePageData{LayoutData: layout, Engine: web.PostgreSQLEngine}); err != nil {
 			t.Fatalf("wizard: %v", err)
 		}
 	})
 	t.Run("assign", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		if err := assignPage.Render(w, 200, struct{ web.LayoutData }{layout}); err != nil {
+		if err := assignPage.Render(w, 200, CreatePageData{LayoutData: layout, Engine: web.PostgreSQLEngine}); err != nil {
 			t.Fatalf("assign: %v", err)
 		}
 	})

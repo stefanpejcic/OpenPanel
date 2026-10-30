@@ -9,7 +9,7 @@ import (
 
 // pages list _header.html by hand all over the modules, the AI drawer has to come along without each of them listing it
 func TestHeaderRendersAIAssistantOnlyWhenAllowed(t *testing.T) {
-	page := MustLoadPage("partials/_header.html", "partials/_search.html", "partials/_service.html", "partials/_service_js.html")
+	page := MustLoadPage("partials/_header.html", "partials/_op_icons.html", "partials/_search.html", "partials/_service.html", "partials/_service_js.html")
 	tr := i18n.NewManager(t.TempDir(), nil).Translator("en")
 
 	for _, allowed := range []bool{true, false} {

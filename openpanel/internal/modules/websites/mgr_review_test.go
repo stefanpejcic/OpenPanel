@@ -7,6 +7,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 // mgrPage is a manager page's data with every feature the review turned on
@@ -79,6 +80,27 @@ func runtimeData(t *testing.T, typ, domain, svc string, running bool) PythonNode
 	}
 }
 
+func TestRuntimeManagerShell(t *testing.T) {
+	webtest.ModernOnly(t)
+	body := renderPage(t, pythonNodeAppsPage, runtimeData(t, "nodejs", "nodejs.tests.openpanel.org", "nodeapp", true))
+	mustContain(t, body,
+		`class="op-content op-mgr-shell"`, `id="backups-tab"`, `id="backups" role="tabpanel"`,
+		"How requests reach the app", "SSL certificate valid until 2027-01-27", "Apache", "nodeapp:3000", "node:24.22.2",
+		"node_modules", "31 KB", "2 hidden files not shown", "Latest log lines", `id="op-rt-tail"`,
+		`name="requirements"`, "Runs on start", `name="startup_file"`, `name="workdir"`, `name="git_repo_url"`, `name="cpu"`, `name="ram"`, `name="pids"`,
+		"window.loadAppLogs", ".replace(/^backup$/, 'backups')")
+	for _, gone := range []string{"op-wp-side", "w-100", `id="backup"`} {
+		if strings.Contains(body, gone) {
+			t.Errorf("still has %q", gone)
+		}
+	}
+	// stopped app, no files, no TLS
+	d := runtimeData(t, "python", "python.tests.openpanel.org", "flaskapp", false)
+	d.Files, d.HiddenFiles, d.SSLState, d.Image = nil, 0, "", ""
+	body = renderPage(t, pythonNodeAppsPage, d)
+	mustContain(t, body, "The folder is empty.", "Served over plain HTTP", "requirements.txt", "pip install -r requirements.txt", "Start")
+}
+
 func TestListSiteDirAndHelpers(t *testing.T) {
 	if got := humanSize(480); got != "480 B" {
 		t.Errorf("humanSize(480) = %q", got)
@@ -126,5 +148,72 @@ func TestComposerLock(t *testing.T) {
 	}
 	if parseComposerLock([]byte("nope")) != nil {
 		t.Error("bad json is nil")
+	}
+}
+
+func TestPHPAppProject(t *testing.T) {
+	webtest.ModernOnly(t)
+	pd := mgrPage(t, "shared.tests.openpanel.org")
+	data := PHPAppPageData{pageData: pd, Container: ContainerInfo{SiteName: "shared.tests.openpanel.org", CreatedDate: "2026-10-29T11:12:18Z"},
+		PHPVersion: "8.5", InitialProject: "slim/slim-skeleton", AutorunComposerInstall: true,
+		ComposerRows: []ComposerRow{{"php", "^7.4 || ^8.0", "", false}, {"ext-json", "*", "", false}, {"slim/slim", "^4.10", "4.15.3", false}, {"phpunit/phpunit", "^9.6", "9.6.0", true}},
+		Packages:     []ComposerPackage{{"slim/slim", "4.15.3", false}, {"psr/log", "3.0.2", false}, {"phpunit/phpunit", "9.6.0", true}},
+		Files: []SiteEntry{{Name: "app", Dir: true, Modified: "2026-10-29"}, {Name: "public", Dir: true, Modified: "2026-10-29"}, {Name: "vendor", Dir: true, Modified: "2026-10-29"},
+			{Name: "composer.json", Size: "1.5 KB"}, {Name: "composer.lock", Size: "129 KB"}, {Name: "README.md", Size: "1.5 KB"}},
+		HiddenFiles: 4}
+	body := renderPage(t, phpAppPage, data)
+	mustContain(t, body, "php-fpm-8.5", "packagist.org/packages/slim/slim-skeleton", "op-sp-tree", "composer.lock", "4 dotfiles not shown",
+		"8.5 (container)", "built in", "Installed packages", "data-dev", "Composer runs", "loadPHPAppLogs", "setTimeout(loadPHPAppLogs, 0)",
+		`id="optimize_autoloader"`, "Open site", "File Manager")
+	if strings.Contains(body, "w-100") {
+		t.Error("w-100 is a 400px utility")
+	}
+}
+
+func TestN8nSideCards(t *testing.T) {
+	webtest.ModernOnly(t)
+	pd := mgrPage(t, "n8n.tests.openpanel.org")
+	data := N8nAppPageData{pageData: pd, Container: ContainerInfo{SiteName: "n8n.tests.openpanel.org", Version: "3.0.1", Port: "5678", CreatedDate: "2026-10-29T11:22:12Z"},
+		Service: "N8N", PM2Status: "true", CPU: "1.0", RAM: "1.0", PIDs: "500", CurrentVersion: "3.0.1",
+		Mounts: []ComposeMount{{"n8n_data", "/home/node/.n8n"}}, Networks: []string{"www", "db"},
+		Image: "n8nio/n8n:3.0.1", Restart: "always", WebhookURL: "https://n8n.tests.openpanel.org/", Timezone: "UTC", EnvVars: "N8N_HOST=n8n.tests.openpanel.org"}
+	body := renderPage(t, n8nAppPage, data)
+	mustContain(t, body, "op-dk-usage", "n8n:5678", "n8nio/n8n:3.0.1", "always", "www, db", "Editor and webhooks", "Open in", ">Environment<", "window.loadAppLogs")
+	for _, gone := range []string{"pagespeed", "Env Vars"} {
+		if strings.Contains(body, gone) {
+			t.Errorf("still has %q", gone)
+		}
+	}
+}
+
+func TestWebsiteBuilderBlankAndFiles(t *testing.T) {
+	webtest.ModernOnly(t)
+	pd := mgrPage(t, "website-builder.tests.openpanel.org")
+	data := WebsiteBuilderPageData{pageData: pd, Container: ContainerInfo{ID: 7, CreatedDate: "2026-10-29T11:22:37Z"}, HasSource: true, BlankPage: true,
+		IndexSource: "<body></body>", Files: []SiteEntry{{Name: "index.html", Size: "345 B", Modified: "2026-10-29"}, {Name: "style.css", Size: "47 B", Modified: "2026-10-29"}}}
+	body := renderPage(t, websiteBuilderPage, data)
+	mustContain(t, body, "This page is still blank", "style.css", "saved 2026-10-29")
+	if strings.Contains(body, "<iframe") {
+		t.Error("a blank page shows the empty state, not the iframe")
+	}
+	data.BlankPage = false
+	mustContain(t, renderPage(t, websiteBuilderPage, data), "<iframe")
+}
+
+func TestCMSLayoutAndDBVersion(t *testing.T) {
+	webtest.ModernOnly(t)
+	for _, slug := range []string{"joomla", "nextcloud", "matomo"} {
+		pd := mgrPage(t, slug+".tests.openpanel.org")
+		data := CMSAppPageData{pageData: pd, Container: ContainerInfo{ID: 3, SiteName: slug + ".tests.openpanel.org", CreatedDate: "2026-10-29T11:15:26Z"},
+			Version: "6.2.0", PHPVersion: "7.4", CurrentPHPVersion: "7.4", AvailablePHPVersions: []string{"8.5", "7.4"}, MainDomain: slug + ".tests.openpanel.org",
+			DBInfo: map[string]string{"name": slug + "_fec8yg", "user": "9496x8vqef", "password": "secret", "host": "localhost", "prefix": "jos_"}, MySQLType: "mariadb",
+			App: web.NewAppNames(slug, cmsPages[slug].name)}
+		body := renderPage(t, cmsPages[slug].page, data)
+		mustContain(t, body, "op-cms-layout")
+		if strings.Contains(body, "Version not found") || strings.Contains(body, "w-100") {
+			t.Errorf("%s: leftover", slug)
+		}
+		data.MySQLVersion = "MariaDB 13.0.2"
+		mustContain(t, renderPage(t, cmsPages[slug].page, data), "13.0.2")
 	}
 }

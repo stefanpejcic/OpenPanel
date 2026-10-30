@@ -7,17 +7,19 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 // exercises the full base.html + partials + dashboard.html + includes template tree through html/template's real executor - the only way to catch a broken {{template}} wiring, a mismatched field name, or a nil-map access before a real request hits it. Covers a user with a broad, representative feature set so most conditional branches actually render.
 func TestRenderDashboardPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	userAllowed := map[string]bool{
 		"dashboard": true, "websites": true, "wordpress": true, "domains": true, "mysql": true,
 		"emails": true, "ftp": true, "docker": true, "account": true,
 		"twofa": true, "favorites": true, "services": true, "info": true,
-		"filemanager": true, "phpmyadmin": true,
+		"filemanager": true, "phpmyadmin": true, "ai_assistant": true, "autoinstaller": true, "dns": true, "ssl": true,
 	}
 
 	data := DashboardPageData{
@@ -47,17 +49,30 @@ func TestRenderDashboardPage(t *testing.T) {
 		TwofaStatusMessage: twofaStatusMessage(mgr.Translator("en"), false),
 		IPAddress:          "1.2.3.4",
 		LastIP:             "5.6.7.8",
+		LastLoginAgo:       "2 hours ago",
+		LastLoginTime:      "2026-10-29 12:00:00",
 		IPCountyFlag:       "yes",
+		NS1:                "ns1.example.net",
+		NS2:                "ns2.example.net",
+		HowToGuides:        "yes",
+		HowToTopics:        []HowToTopic{{Link: "https://example.com/a", Title: "Point a domain to this server"}, {Link: "https://example.com/b", Title: "Install WordPress"}, {Link: "https://example.com/c", Title: "Restore a backup"}},
 		UserWebsitesCount:  3,
-		MainDomainsCount:   2,
-		DBUsage:            1,
-		EmailCount:         5,
-		FTPCount:           1,
-		WebsitesLimit:      10,
-		DomainsLimit:       10,
-		DBLimit:            5,
-		EmailLimit:         50,
-		FTPLimit:           5,
+		Websites: []DashboardSite{
+			{Name: "wp.example.com", Type: "WordPress", PHP: "8.3", Href: "/website?domain=wp.example.com"},
+			{Name: "shop.example.com", Type: "PHP", PHP: "8.2", Href: "/website?domain=shop.example.com"},
+			{Name: "api.example.com", Type: "Node.js", Href: "/website?domain=api.example.com", Suspended: true},
+			{Name: "node.example.com", Type: "Node.js", Href: "/website?domain=node.example.com", Service: "nodeapp", Port: "3000", State: "running"},
+			{Name: "n8n.example.com", Type: "n8n", Href: "/website?domain=n8n.example.com", Service: "n8n", Port: "5678", State: "exited"},
+		},
+		MainDomainsCount: 2,
+		DBUsage:          1,
+		EmailCount:       5,
+		FTPCount:         1,
+		WebsitesLimit:    10,
+		DomainsLimit:     10,
+		DBLimit:          5,
+		EmailLimit:       50,
+		FTPLimit:         5,
 	}
 
 	w := httptest.NewRecorder()
@@ -78,7 +93,19 @@ func TestRenderDashboardPage(t *testing.T) {
 		"websites-menu",
 		"mysql-menu",
 		"docker-menu",
-		`<span aria-current="page" class="text-gray-900 dark:text-gray-50">Dashboard</span>`,
+		`<span aria-current="page">Dashboard</span>`,
+		`id="dashboard-menu"`,
+		"PHP 8.3",
+		"--color-hue-green",
+		"opencli websites-list testuser",
+		`href="/files/wp.example.com"`,
+		`5.6.7.8</span> · <span title="2026-10-29 12:00:00">2 hours ago</span>`,
+		`<span class="op-hint" title="2026-10-29 12:00:00">2 hours ago</span>`,
+		`<span class="op-muted" title="2026-10-29 12:00:00">· 2 hours ago</span>`,
+		"nodeapp:3000",
+		"n8n:5678",
+		`<span class="op-status is-success">Running</span>`,
+		`<span class="op-status is-muted">Stopped</span>`,
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("rendered dashboard missing %q", want)
@@ -88,6 +115,7 @@ func TestRenderDashboardPage(t *testing.T) {
 
 // covers a plan with an upsell target: features the plan doesn't grant but the upsell plan does should render greyed-out (sidebar link + dashboard icon) with an upgrade prompt, instead of being omitted like a plain non-upsell-eligible feature
 func TestRenderDashboardPageUpsellEligible(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	userAllowed := map[string]bool{"dashboard": true, "websites": true}
@@ -124,7 +152,7 @@ func TestRenderDashboardPageUpsellEligible(t *testing.T) {
 		"Upgrade to",
 		"Business",
 		`href="/dashboard/upgrade"`,
-		"cursor-not-allowed",
+		"is-locked",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("rendered dashboard missing %q for an upsell-eligible feature", want)
@@ -132,7 +160,7 @@ func TestRenderDashboardPageUpsellEligible(t *testing.T) {
 	}
 
 	// the sidebar's Upgrade link is Enterprise-only
-	upgradeSection := `<ul aria-label="Upgrade" role="list">`
+	upgradeSection := `<div id="tour-upgrade">`
 	if strings.Contains(body, upgradeSection) {
 		t.Error("did not expect the sidebar Upgrade link without Enterprise")
 	}

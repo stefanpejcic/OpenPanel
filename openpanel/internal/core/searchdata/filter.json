@@ -498,6 +498,12 @@
         "name": "Show PostgreSQL Processes"
     },
     {
+        "description": "Pick a PHP version to manage its extensions, options and domains in one place.",
+        "link": "/php/wizard",
+        "module": "php",
+        "name": "PHP Wizard"
+    },
+    {
         "description": "Change PHP version for domain.", 
         "link": "/php/domains",
         "module": "php",  

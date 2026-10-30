@@ -9,6 +9,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
@@ -22,6 +23,7 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 }
 
 func TestRenderBackupsPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("no target", func(t *testing.T) {
@@ -47,6 +49,25 @@ func TestRenderBackupsPage(t *testing.T) {
 		}
 		if !strings.Contains(body, "Edit Backup Limits") {
 			t.Error("expected step 3 prompt when service inactive")
+		}
+	})
+
+	t.Run("with backups on the destination", func(t *testing.T) {
+		items := restoreItems([]BackupInfo{
+			{BackupFile: "testuser-2026-10-27T08-17-08.tar.gz", Types: []string{"crons", "html", "mail", "mysql", "vhosts", "dns"}, Databases: []string{"testuser_wp"}, HasFiles: true, Size: 6963},
+			{BackupFile: "testuser-2026-10-26T08-17-08.tar.gz", Types: []string{"html", "vhosts"}, HasFiles: true, Size: 6477},
+		}, "", nil)
+		sum := BackupsSummary{Count: len(items), Latest: &items[0], TotalSize: formatSize(13440), Recent: items, Schedule: "@daily", Retention: "-1", Destination: "bkdest@10.0.2.15:/home/bkdest/backups", CPU: "1.0", RAM: "1G"}
+		data := BackupsPageData{LayoutData: baseLayout(mgr, "/backups"), Target: "ssh", HasCredentials: true, ServiceActive: false, Summary: sum}
+		w := httptest.NewRecorder()
+		if err := backupsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		for _, want := range []string{"27 Oct 2026, 08:17", "keeps every copy", "2 of 3 done", "bkdest@10.0.2.15", "Latest"} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q in the overview", want)
+			}
 		}
 	})
 

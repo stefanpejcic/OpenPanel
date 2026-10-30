@@ -290,8 +290,12 @@ func handleAliasNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method != http.MethodPost {
-		domains, _ := a.AllDomainsForUser(ctx, userID)
-		renderAliasNewPage(a, w, r, domains)
+		if web.Theme() == web.ThemeClassic {
+			domains, _ := a.AllDomainsForUser(ctx, userID)
+			renderAliasNewPage(a, w, r, domains)
+			return
+		}
+		http.Redirect(w, r, aliasSheetURL(r.URL.Query().Get("domain"), ""), http.StatusFound)
 		return
 	}
 
@@ -299,7 +303,10 @@ func handleAliasNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	username := strings.TrimSpace(r.Form.Get("username"))
 	domain := strings.TrimSpace(r.Form.Get("domain"))
 	target := strings.TrimSpace(r.Form.Get("target"))
-	back := "/emails/aliases/new"
+	back := aliasSheetURL(domain, username)
+	if web.Theme() == web.ThemeClassic {
+		back = "/emails/aliases/new"
+	}
 
 	var missing []string
 	if username == "" {

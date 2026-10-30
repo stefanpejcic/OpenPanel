@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -13,6 +14,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func TestLsModeOctal(t *testing.T) {
@@ -101,5 +103,96 @@ func TestChangePermissionsJSONRefusal(t *testing.T) {
 	handleChangePermissions(a, w, req)
 	if w.Code != http.StatusFound || w.Header().Get("Location") != "/files/site" {
 		t.Errorf("form post: status %d location %q, want 302 to /files/site", w.Code, w.Header().Get("Location"))
+	}
+}
+
+// the Permissions column and the permissions sheet, on testinguser's real wp.tests.openpanel.org listing plus a world-writable file and a symlink
+func TestRenderFilesPermissions(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	raw := []ViewRow{
+		{Name: "wp-admin", Type: "directory", Size: "4096", Date: "Oct 29 07:53", Permissions: "drwxr-xr-x"},
+		{Name: "wp-content", Type: "directory", Size: "127", Date: "Oct 29 17:44", Permissions: "drwxr-xr-x"},
+		{Name: "wp-includes", Type: "directory", Size: "12288", Date: "Oct 29 07:53", Permissions: "drwxr-xr-x"},
+		{Name: "cache", Type: "directory", Size: "57", Date: "Oct 29 18:50", Permissions: "drwxrwxrwt"},
+		{Name: ".htaccess", Type: "file", Size: "234", Date: "Oct 29 07:53", Permissions: "-rw-r--r--"},
+		{Name: "index.php", Type: "file", Size: "405", Date: "Oct 29 07:53", Permissions: "-rw-r--r--"},
+		{Name: "license.txt", Type: "file", Size: "19903", Date: "Oct 29 07:53", Permissions: "-rw-r--r--"},
+		{Name: "upload.php", Type: "file", Size: "1210", Date: "Oct 29 18:02", Permissions: "-rw-rw-rw-"},
+		{Name: "wp-config.php", Type: "file", Size: "3115", Date: "Oct 29 17:49", Permissions: "-rw-------"},
+		{Name: "wp-cron.php", Type: "file", Size: "5617", Date: "Oct 29 07:53", Permissions: "-rw-r--r--"},
+		{Name: "wp-login.php", Type: "file", Size: "52536", Date: "Oct 29 07:53", Permissions: "-rw-r--r--"},
+		{Name: "current", Type: "symlink", Size: "7", Date: "Oct 29 07:53", Permissions: "lrwxrwxrwx", LinkTarget: "wp-content"},
+	}
+	var dirs, files, rows []ViewRow
+	for i, r := range raw {
+		r.Index, r.Owner, r.Group, r.Links = i, "1002", "1002", "1"
+		r = r.withMode()
+		if r.Type == "directory" {
+			r.Href = "/files/wp.tests.openpanel.org/" + r.Name + "?view=modern"
+			dirs = append(dirs, r)
+		} else {
+			r.DownloadURL = "/file-manager/download-file/" + r.Name + "?path_param=wp.tests.openpanel.org"
+			files = append(files, r)
+		}
+		rows = append(rows, r)
+	}
+	layout := baseLayout(mgr, "/files/wp.tests.openpanel.org")
+	layout.UserAllowed["fix_permissions"] = true
+	data := FilesPageData{
+		LayoutData: layout, PathParam: "wp.tests.openpanel.org", View: "modern",
+		Breadcrumbs: buildBreadcrumbs("wp.tests.openpanel.org"),
+		Directories: dirs, Files: files, Rows: rows,
+		ShowUpLink: true, UpLink: "/files?view=modern",
+		FilemanagerUploadSize: 500, FilemanagerEditSize: 5, FilemanagerViewSize: 5, FilemanagerDownloadSize: 500, FilemanagerUploadBatchSize: 1000,
+		Extensions: ".txt .php .htaccess", Images: ".jpg .png", Archives: ".zip .tar",
+		CurrentPage: 1, TotalPages: 1, TotalFiles: len(rows), StartLineNumber: 1, EndLineNumber: len(rows),
+		PageEntries: buildPageEntries(1, 1),
+	}
+	w := httptest.NewRecorder()
+	if err := filesPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	for _, want := range []string{
+		`data-mode="600" data-owner="1002" data-group="1002"`,
+		`<span class="op-perm">0600</span><span class="fm-perm-sym">-rw-------</span>`,
+		`aria-label="Permissions 0644, change for index.php"`,
+		`title="Change permissions of wp-config.php"`,
+		// the sheet, its presets and the server's validation rule
+		`x-data="fmPermSheet()"`, "Change permissions", "Apply to everything inside", `href="/fix-permissions"`,
+		"Group reads, others get nothing. Fits wp-config.php.",
+		"Special bits (setuid, setgid, sticky) aren't supported. Use three digits like 755.",
+		`"Permissions {mode}, change for {name}"`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("rendered files page missing %q", want)
+		}
+	}
+	// world-writable modes are red, the symlink's lrwxrwxrwx is plain text and not a button
+	risky := regexp.MustCompile(`class="fm-perm is-risky"[^>]*title="Change permissions of ([^"]+)"`).FindAllStringSubmatch(body, -1)
+	var names []string
+	for _, m := range risky {
+		names = append(names, m[1])
+	}
+	if strings.Join(names, ",") != "cache,upload.php" {
+		t.Errorf("risky cells = %v, want cache and upload.php", names)
+	}
+	if strings.Contains(body, "Change permissions of current") || !strings.Contains(body, `<span class="fm-perm is-static" title="A symlink uses the permissions of what it points to.">`) {
+		t.Error("the symlink's permissions should be plain text")
+	}
+	if strings.Contains(body, "permissionCell") {
+		t.Error("the old hover-to-see-rwx cell is still on /files")
+	}
+
+	// without the Fix Permissions feature the sheet doesn't link to it
+	delete(layout.UserAllowed, "fix_permissions")
+	data.LayoutData = layout
+	w = httptest.NewRecorder()
+	if err := filesPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	if strings.Contains(w.Body.String(), `href="/fix-permissions"`) {
+		t.Error("Fix Permissions link shown to a user without the feature")
 	}
 }

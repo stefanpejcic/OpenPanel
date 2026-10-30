@@ -1,7 +1,12 @@
 package webserverconf
 
 import (
+	"net/http/httptest"
+	"strings"
 	"testing"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func TestParseServerVersion(t *testing.T) {
@@ -38,5 +43,36 @@ func TestResolveImage(t *testing.T) {
 func TestLastLines(t *testing.T) {
 	if got := lastLines("a\nb\nc\n", 2); got != "b\nc" {
 		t.Errorf("lastLines = %q", got)
+	}
+}
+
+func TestRenderWebserverConfSummary(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	data := WebserverConfPageData{
+		LayoutData: baseLayout(mgr, "/server/webserver_conf"), Service: "apache", Path: "httpd.conf",
+		Summary: ServerSummary{
+			Version: "Apache 2.4.69", Image: "httpd:alpine", State: "running", Uptime: "1d 19h",
+			CPU: "0.5", RAM: "1G", PIDs: "2000", TestCommand: "apachectl configtest",
+		},
+	}
+	w := httptest.NewRecorder()
+	if err := webserverConfPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	for _, want := range []string{"Apache 2.4.69", "httpd:alpine", "up 1d 19h", "0.5 <small>CPU</small> · 1G", "2000 processes max", "apachectl configtest", "/server/webserver_conf/test", "Test config"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("expected %q in body", want)
+		}
+	}
+
+	data.Summary = ServerSummary{}
+	w = httptest.NewRecorder()
+	if err := webserverConfPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	if strings.Contains(w.Body.String(), "Test config") {
+		t.Error("tiles should be left out without a summary")
 	}
 }

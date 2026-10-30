@@ -2,10 +2,12 @@ package autoinstaller
 
 import (
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
@@ -22,6 +24,7 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 }
 
 func TestRenderAutoinstallerPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("all cards, zero counts", func(t *testing.T) {
@@ -30,6 +33,13 @@ func TestRenderAutoinstallerPage(t *testing.T) {
 		w := httptest.NewRecorder()
 		if err := autoinstallerPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		// the install buttons open the wizards, with Site Manager's ?domain= passed on
+		for _, want := range []string{`href="/wordpress/install"`, `href="/drupal/install"`, `a[href$="/install"]`} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %s in the page", want)
+			}
 		}
 	})
 

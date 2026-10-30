@@ -14,9 +14,6 @@ import (
 const (
 	defaultLimit = 500
 	maxLimit     = 5000
-	// the page splits rows into pages instead of rendering all of them
-	rowsPerPage    = 100
-	maxRowsPerPage = 1000
 )
 
 // parseBound takes a YYYY-MM-DD day from the picker or an RFC3339 time from the API, endOfDay picks the last moment of a day
@@ -48,6 +45,9 @@ func parseQuery(r *http.Request, now time.Time) Query {
 	if q.Level != "warning" && q.Level != "error" {
 		q.Level = ""
 	}
+	if _, ok := levelRank[v.Get("severity")]; ok {
+		q.Severity = v.Get("severity")
+	}
 	// tz is the browser's UTC offset in minutes, so a picked day starts at the viewer's midnight
 	q.TZ = web.AtoiDefault(v.Get("tz"), 0)
 	if q.TZ < -14*60 || q.TZ > 14*60 {
@@ -67,8 +67,8 @@ func parseQuery(r *http.Request, now time.Time) Query {
 	return q
 }
 
-// load resolves the user, checks the domain/service filters belong to them and runs the collection, limit replaces the default row cap when the request didn't set one
-func load(a *appctx.App, r *http.Request, limit int) (Query, Result, []Target, int, string) {
+// load resolves the user, checks the domain/service filters belong to them and runs the collection, limit replaces the default row cap when the request didn't set one; wide collects everything in the date range and leaves the other filters to the page
+func load(a *appctx.App, r *http.Request, limit int, wide bool) (Query, Result, []Target, int, string) {
 	ctx := r.Context()
 	q := parseQuery(r, time.Now())
 	if limit > 0 && r.URL.Query().Get("limit") == "" {
@@ -92,7 +92,11 @@ func load(a *appctx.App, r *http.Request, limit int) (Query, Result, []Target, i
 		}
 	}
 
-	res := Collect(ctx, a, userContext, domains, sites, q)
+	cq := q
+	if wide {
+		cq.Domain, cq.Service, cq.Level, cq.Severity, cq.Search, cq.Exact = "", "", "", "", "", false
+	}
+	res := Collect(ctx, a, userContext, domains, sites, cq)
 	if q.Service != "" {
 		known := false
 		for _, s := range res.Sources {
@@ -121,7 +125,7 @@ func handlePage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if format != "json" && format != "txt" {
 		limit = maxLimit
 	}
-	q, res, targets, status, errMsg := load(a, r, limit)
+	q, res, targets, status, errMsg := load(a, r, limit, limit > 0)
 	if status == http.StatusInternalServerError {
 		http.Error(w, errMsg, status)
 		return
@@ -153,7 +157,7 @@ func handlePage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 }
 
 func handleAPI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	q, res, _, status, errMsg := load(a, r, 0)
+	q, res, _, status, errMsg := load(a, r, 0, false)
 	writeJSONResult(w, q, res, status, errMsg)
 }
 

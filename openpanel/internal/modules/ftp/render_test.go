@@ -8,6 +8,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
@@ -84,6 +85,7 @@ func TestRenderFTPConnectionsPage(t *testing.T) {
 }
 
 func TestRenderNewFTPAccountPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("no domains", func(t *testing.T) {
@@ -98,13 +100,23 @@ func TestRenderNewFTPAccountPage(t *testing.T) {
 	})
 
 	t.Run("with domains", func(t *testing.T) {
-		data := FTPNewPageData{LayoutData: baseLayout(mgr, "/ftp/new"), Domains: []domainOption{{DomainURL: "example.com", Docroot: "/var/www/html/example.com"}}}
+		data := FTPNewPageData{
+			LayoutData: baseLayout(mgr, "/ftp/new"),
+			Domains:    []domainOption{{DomainURL: "example.com", Docroot: "/var/www/html/example.com"}, {DomainURL: "shop.test", Docroot: "/var/www/html/folder_x1"}},
+			FTPNewForm: FTPNewForm{Domain: "shop.test", Username: "deploy", Folder: "folder_x1/up", FTPHost: "203.0.113.10", FTPPort: "2121", Taken: []string{"old@example.com"}},
+		}
 		w := httptest.NewRecorder()
 		if err := ftpNewPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "example.com") {
-			t.Error("expected domain option in rendered page")
+		body := w.Body.String()
+		for _, want := range []string{
+			`action="/ftp/new"`, `name="username"`, `name="domain"`, `name="password"`, `name="path"`, `name="quota"`, `name="quota_unit"`,
+			`value="shop.test"`, `203.0.113.10`, `2121`, `old@example.com`, `folder_x1/up`, `opencli ftp-add`, `Create Account`, `op-cf-folder`,
+		} {
+			if !strings.Contains(body, want) {
+				t.Errorf("missing %q", want)
+			}
 		}
 	})
 }

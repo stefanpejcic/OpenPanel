@@ -8,7 +8,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var webserverConfPage = web.LoadPage("system/apache_nginx_conf_editor.html")
+var webserverConfPage = web.LoadPage("partials/_conf_editor.html", "system/apache_nginx_conf_editor.html")
 
 // WebserverConfPageData is system/apache_nginx_conf_editor.html's template context
 type WebserverConfPageData struct {

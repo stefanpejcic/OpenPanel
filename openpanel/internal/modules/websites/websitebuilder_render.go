@@ -18,7 +18,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var websiteBuilderInstallPage = loadPage("manager/websitebuilder_install.html", "domains/_shared.html")
+var websiteBuilderInstallPage = loadPage("manager/_install_wizard.html", "manager/websitebuilder_install.html", "domains/_shared.html")
 var grapesJSEditorFragment = web.MustLoadFragment("manager/grapejs_editor.html")
 
 // builderSubdirRE matches the install wizard's folder rule

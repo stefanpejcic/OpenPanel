@@ -5,7 +5,9 @@ import (
 	"strings"
 	"testing"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 // joinParts builds fixture values at runtime, so they never look like real secrets
@@ -77,4 +79,73 @@ func wantAll(t *testing.T, body string, wants ...string) {
 			t.Errorf("expected %q in body", want)
 		}
 	}
+}
+
+func TestRenderCreatePages(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+
+	t.Run("new database form", func(t *testing.T) {
+		body := render(t, newDatabasePage, NewDatabasePageData{
+			LayoutData: baseLayout(mgr, "/mysql/new"), Service: "mariadb", Engine: web.MySQLEngine,
+			Names: testNames, DBUsage: 2, DBLimit: 40, RemotePort: "32770", FormName: "typed_name",
+		})
+		wantAll(t, body, `name="database_name"`, `"typed_name"`, `["shop","blog"]`, "2 of 40 databases used", "32770", "MariaDB", "/mysql/wizard", "Name the database")
+		if strings.Contains(body, "Database created") {
+			t.Error("form shouldn't show the done state")
+		}
+	})
+
+	t.Run("new database done", func(t *testing.T) {
+		body := render(t, newDatabasePage, NewDatabasePageData{
+			LayoutData: baseLayout(mgr, "/mysql/new"), Service: "mysql", Engine: web.MySQLEngine, Created: "fresh_db",
+		})
+		wantAll(t, body, "Database created", "fresh_db", "/mysql/assign?database_name=fresh_db", "/mysql/import/fresh_db", "/mysql/new")
+		if strings.Contains(body, `name="database_name"`) {
+			t.Error("done state shouldn't render the form")
+		}
+	})
+
+	t.Run("new user form", func(t *testing.T) {
+		body := render(t, createUserPage, CreateUserPageData{
+			LayoutData: baseLayout(mgr, "/mysql/user"), Service: "mysql", Engine: web.MySQLEngine, Names: testNames, FormName: "typed_user",
+		})
+		wantAll(t, body, `name="db_user"`, `name="password"`, `"typed_user"`, `["app"]`, "Set a password", "Create MySQL User")
+	})
+
+	t.Run("new user done", func(t *testing.T) {
+		body := render(t, createUserPage, CreateUserPageData{
+			LayoutData: baseLayout(mgr, "/mysql/user"), Service: "mysql", Engine: web.MySQLEngine, Created: "fresh_user", CreatedPassword: shownOnce, // ggignore
+		})
+		wantAll(t, body, "User created", "fresh_user", shownOnce, "/mysql/assign?db_user=fresh_user", "localhost", "3306")
+		if strings.Contains(body, `name="password"`) {
+			t.Error("done state shouldn't render the form")
+		}
+	})
+
+	t.Run("wizard lists names", func(t *testing.T) {
+		body := render(t, wizardPage, WizardPageData{
+			LayoutData: baseLayout(mgr, "/mysql/wizard"), Service: "mysql", Engine: web.MySQLEngine, Names: testNames,
+			FormDatabaseName: "typed_db", FormDBUser: "typed_user",
+		})
+		wantAll(t, body, `action="/mysql/wizard"`, `name="privileges" value="ALL PRIVILEGES"`, `"typed_db"`, `"typed_user"`, `["shop","blog"]`, "GRANT ALL PRIVILEGES ON")
+	})
+
+	t.Run("wizard success snippets", func(t *testing.T) {
+		body := render(t, wizardPage, WizardPageData{
+			LayoutData: baseLayout(mgr, "/mysql/wizard"), Service: "mysql", Engine: web.MySQLEngine, Success: true,
+			CreatedDB: "wiz_db", CreatedUser: "wiz_user", CreatedPassword: wizValue, // ggignore
+		})
+		// values go in as JSON strings, so a quote in the password can't break the snippet code
+		wantAll(t, body, `"wiz_db"`, `"wiz_user"`, `"`+wizValue+`"`, "wp-config-snippet.php", "Download snippet")
+	})
+
+	t.Run("assign", func(t *testing.T) {
+		body := render(t, assignPage, AssignPageData{
+			LayoutData: baseLayout(mgr, "/mysql/assign"), Engine: web.MySQLEngine, Names: testNames,
+			DBUser: "app", DatabaseName: "shop", Privileges: mysqlPrivileges, PrivilegeGroups: mysqlPrivilegeGroups,
+		})
+		wantAll(t, body, `name="db_user"`, `name="database_name"`, `name="privileges"`, "Routines and events", "CREATE TEMPORARY TABLES",
+			`{"database":"shop","users":"app"}`, "/mysql/privileges/", "/mysql/remove", "Save Privileges")
+	})
 }

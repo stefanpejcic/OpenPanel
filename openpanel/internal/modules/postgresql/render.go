@@ -12,12 +12,12 @@ import (
 
 var (
 	databasesPage      = web.LoadPage("psql/databases.html")
-	newDatabasePage    = web.LoadPage("db/new.html")
+	newDatabasePage    = web.LoadPage("db/new.html", "partials/_db_create.html")
 	usersPage          = web.LoadPage("psql/users.html")
-	createUserPage     = web.LoadPage("psql/psql_user.html")
+	createUserPage     = web.LoadPage("psql/psql_user.html", "partials/_db_create.html")
 	passwordPage       = web.LoadPage("psql/password.html")
-	wizardPage         = web.LoadPage("psql/wizard.html")
-	assignPage         = web.LoadPage("psql/assign.html")
+	wizardPage         = web.LoadPage("psql/wizard.html", "partials/_db_create.html")
+	assignPage         = web.LoadPage("psql/assign.html", "partials/_db_create.html")
 	removePage         = web.LoadPage("psql/remove.html")
 	importPage         = web.LoadPage("psql/import.html")
 	processlistPage    = web.LoadPage("psql/processlist.html")

@@ -8,6 +8,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
@@ -84,4 +85,39 @@ func TestParseReport(t *testing.T) {
 	if _, err := parseReport([]byte("<html>nothing here</html>")); err == nil {
 		t.Error("expected an error for a page without json_data")
 	}
+}
+
+func TestRenderGoaccessSummary(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	sum, err := parseReport([]byte(sampleReport))
+	if err != nil {
+		t.Fatal(err)
+	}
+	domains := []appctx.Domain{{DomainURL: "example.com"}, {DomainURL: "shop.example.com"}}
+
+	t.Run("report", func(t *testing.T) {
+		data := GoaccessPageData{LayoutData: baseLayout(mgr, "/domains/stats"), Domains: domains, Selected: "shop.example.com", Summary: sum}
+		w := httptest.NewRecorder()
+		if err := goaccessPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		for _, want := range []string{`<option value="shop.example.com" selected>`, `href="/domains/stats/shop.example.com"`, "Unique visitors", ">/shop/<", "2xx", "26 Oct", `class="line is-alt"`} {
+			if !strings.Contains(body, want) {
+				t.Errorf("summary page missing %q", want)
+			}
+		}
+	})
+
+	t.Run("no report yet", func(t *testing.T) {
+		data := GoaccessPageData{LayoutData: baseLayout(mgr, "/domains/stats"), Domains: domains, Selected: "example.com", NoReport: true}
+		w := httptest.NewRecorder()
+		if err := goaccessPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "No report for") || strings.Contains(w.Body.String(), "Full Report") {
+			t.Error("expected the no-report state without the Full Report link")
+		}
+	})
 }

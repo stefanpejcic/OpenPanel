@@ -1,0 +1,3 @@
+2026-10-29T12:15:32.026516494Z [36m2026-10-29T12:15:32Z[0m [[32mSERVER[0m] [36mINFO:[0m Data Dir: ./data/
+2026-10-29T12:15:32.034173905Z [36m2026-10-29T12:15:32Z[0m [[32mSETUP-DATABASE[0m] [36mINFO:[0m db-config.json is not found or invalid: ENOENT: no such file or directory, open 'data/db-config.json'
+2026-10-29T12:15:32.105000802Z [36m2026-10-29T12:15:32Z[0m [[32mSETUP-DATABASE[0m] [36mINFO:[0m Starting Setup Database

@@ -213,6 +213,17 @@ var WebsiteAppKeys = []string{"wordpress", "drupal", "joomla", "opencart", "next
 
 // sidebarAreas is the sidebar in display order
 var sidebarAreas = []navArea{
+	// mautic/flarum are excluded, legacy code slated for removal entirely, not ported here per user decision
+	{label: "Websites", icon: websitesIcon, menuID: "websites-menu", match: isWebsitesPath,
+		keys: WebsiteAppKeys,
+		tabs: func(g navGate, path string, _ TabContext) []NavLink {
+			tabs := []NavLink{{Href: "/sites", Label: "Sites", Active: isWebsitesPath(path) && !strings.HasPrefix(path, "/wordpress") && !isAppInstallPath(path) && !isGitPath(path)}}
+			tabs = g.add(tabs, "wordpress", "/wordpress", "WordPress", strings.HasPrefix(path, "/wordpress"), "")
+			tabs = g.add(tabs, "autoinstaller", "/auto-installer", "Install App", isAppInstallPath(path), "")
+			tabs = g.add(tabs, "git", "/git", "Git", isGitPath(path), "")
+			return tabs
+		}},
+
 	{label: "Domains", icon: domainsIcon, menuID: "domains-menu", keys: []string{"domains"}, match: isDomainsPath,
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
 			if !g.allowed["domains"] {
@@ -224,17 +235,6 @@ var sidebarAreas = []navArea{
 			tabs = g.add(tabs, "dynamic_dns", "/domains/dynamic-dns", "Dynamic DNS", strings.HasPrefix(path, "/domains/dynamic-dns"), "")
 			tabs = g.add(tabs, "ssl", "/domains/ssl", "SSL Certificates", strings.HasPrefix(path, "/domains/ssl"), "")
 			tabs = g.add(tabs, "redirects", "/domains/redirect", "Redirects", strings.HasPrefix(path, "/domains/redirect"), "")
-			return tabs
-		}},
-
-	// mautic/flarum are excluded, legacy code slated for removal entirely, not ported here per user decision
-	{label: "Websites", icon: websitesIcon, menuID: "websites-menu", match: isWebsitesPath,
-		keys: WebsiteAppKeys,
-		tabs: func(g navGate, path string, _ TabContext) []NavLink {
-			tabs := []NavLink{{Href: "/sites", Label: "Sites", Active: isWebsitesPath(path) && !strings.HasPrefix(path, "/wordpress") && !isAppInstallPath(path) && !isGitPath(path)}}
-			tabs = g.add(tabs, "wordpress", "/wordpress", "WordPress", strings.HasPrefix(path, "/wordpress"), "")
-			tabs = g.add(tabs, "autoinstaller", "/auto-installer", "Install App", isAppInstallPath(path), "")
-			tabs = g.add(tabs, "git", "/git", "Git", isGitPath(path), "")
 			return tabs
 		}},
 
@@ -293,6 +293,7 @@ var sidebarAreas = []navArea{
 	{label: "PHP", icon: phpIcon, menuID: "php-menu", section: "Configure", match: func(path string) bool { return strings.HasPrefix(path, "/php") },
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
 			var tabs []NavLink
+			tabs = g.add(tabs, "php", "/php/wizard", "PHP Wizard", path == "/php/wizard", "")
 			tabs = g.add(tabs, "php", "/php/domains", "Version per Domain", path == "/php/domains", "")
 			tabs = g.add(tabs, "php", "/php/default", "Default Version", path == "/php/default", "")
 			tabs = g.add(tabs, "php_options", "/php/options", "Options", strings.Contains(path, "/options"), "")
@@ -336,19 +337,7 @@ var sidebarAreas = []navArea{
 			return tabs
 		}},
 
-	{label: "Account", icon: accountIcon, menuID: "account-menu", match: isAccountPath,
-		tabs: func(g navGate, path string, _ TabContext) []NavLink {
-			var tabs []NavLink
-			tabs = g.add(tabs, "account", "/account", "Login Details", path == "/account", "")
-			tabs = g.add(tabs, "locale", "/account/language", "Language", strings.HasPrefix(path, "/account/language"), "")
-			tabs = g.add(tabs, "notifications", "/account/notifications", "Notifications", strings.HasPrefix(path, "/account/notifications"), "")
-			tabs = g.add(tabs, "favorites", "/account/favorites", "Favorites", strings.HasPrefix(path, "/account/favorites"), "")
-			tabs = g.add(tabs, "api", "/account/api", "API", strings.HasPrefix(path, "/account/api"), "")
-			tabs = g.add(tabs, "mcp", "/account/mcp", "AI Assistant (MCP)", strings.HasPrefix(path, "/account/mcp"), "")
-			return tabs
-		}},
-
-	{label: "Statistics", icon: statsIcon, menuID: "stats-menu", section: "Monitor & Secure", match: isStatsPath,
+	{label: "Statistics", icon: statsIcon, menuID: "stats-menu", section: "Monitor", match: isStatsPath,
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
 			var tabs []NavLink
 			tabs = g.add(tabs, "usage", "/server/usage", "Resource Usage", strings.HasPrefix(path, "/server/usage"), "")
@@ -366,6 +355,18 @@ var sidebarAreas = []navArea{
 			var tabs []NavLink
 			tabs = g.add(tabs, "services", "/services", "Services", strings.HasPrefix(path, "/services"), "")
 			tabs = g.add(tabs, "process_manager", "/process-manager", "Processes", strings.HasPrefix(path, "/process-manager"), "")
+			return tabs
+		}},
+
+	{label: "Account", icon: accountIcon, menuID: "account-menu", section: "Account", match: isAccountPath,
+		tabs: func(g navGate, path string, _ TabContext) []NavLink {
+			var tabs []NavLink
+			tabs = g.add(tabs, "account", "/account", "Login Details", path == "/account", "")
+			tabs = g.add(tabs, "locale", "/account/language", "Language", strings.HasPrefix(path, "/account/language"), "")
+			tabs = g.add(tabs, "notifications", "/account/notifications", "Notifications", strings.HasPrefix(path, "/account/notifications"), "")
+			tabs = g.add(tabs, "favorites", "/account/favorites", "Favorites", strings.HasPrefix(path, "/account/favorites"), "")
+			tabs = g.add(tabs, "api", "/account/api", "API", strings.HasPrefix(path, "/account/api"), "")
+			tabs = g.add(tabs, "mcp", "/account/mcp", "AI Assistant (MCP)", strings.HasPrefix(path, "/account/mcp"), "")
 			return tabs
 		}},
 

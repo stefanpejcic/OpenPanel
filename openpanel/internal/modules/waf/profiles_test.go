@@ -13,6 +13,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 // both http and https blocks, like the real template
@@ -203,6 +204,7 @@ func TestBuildProfileViewsSuggestsOnlyInactive(t *testing.T) {
 }
 
 func TestRenderWAFDomainPageWithProfiles(t *testing.T) {
+	webtest.ModernOnly(t)
 	withTestPlugins(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	profiles, suggested := buildProfileViews(nil, map[string][]string{"wordpress": {"example.com"}})
@@ -216,7 +218,7 @@ func TestRenderWAFDomainPageWithProfiles(t *testing.T) {
 		t.Fatalf("Render: %v", err)
 	}
 	body := w.Body.String()
-	for _, want := range []string{"wafSettings(", `&#34;Key&#34;:&#34;wordpress&#34;`, `&#34;Recommended&#34;:true`, "/server/waf/profiles/", "3 blocked", "bi bi-shield-fill-check", "width:240px", "left:-70px", `name="return_to" value="domain"`, `value="strict"`, "Protection level", "Default"} {
+	for _, want := range []string{"wafSettings(", `&#34;Key&#34;:&#34;wordpress&#34;`, `&#34;Recommended&#34;:true`, "/server/waf/profiles/", "3 blocked", "op-waf-state is-on", `class="op-option"`, `name="return_to" value="domain"`, `value="strict"`, "Protection level", "Default"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("missing %q", want)
 		}
@@ -387,6 +389,7 @@ func TestRenderWAFListPageDefaultCardAndColumns(t *testing.T) {
 }
 
 func TestRenderWAFListPageFilters(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := WAFListPageData{
 		LayoutData:     baseLayout(mgr, "/server/waf"),
@@ -401,7 +404,7 @@ func TestRenderWAFListPageFilters(t *testing.T) {
 		t.Fatalf("Render: %v", err)
 	}
 	body := w.Body.String()
-	for _, want := range []string{`name="waf-status-filter"`, `name="waf-level-filter" value="strict"`, `name="waf-profile-filter" value="wordpress"`, `name="waf-profile-filter" value="none"`, "profileFilter === 'none' ? 1 === 0 : ([&#34;wordpress&#34;] || [])", `data-sort-value="3"`} {
+	for _, want := range []string{`x-model="statusFilter"`, `<option value="strict">Strict</option>`, `<option value="wordpress">WordPress</option>`, `<option value="none">`, "profileFilter === 'none' ? 1 === 0 : ([&#34;wordpress&#34;] || [])", `data-sort-value="3"`} {
 		if !strings.Contains(body, want) {
 			t.Errorf("missing %q", want)
 		}
