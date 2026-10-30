@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -178,16 +177,20 @@ func apiChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		Path        string   `json:"path"`
 		Filenames   []string `json:"filenames"`
 		Permissions string   `json:"permissions"`
-		Recursive   bool     `json:"recursive"`
+		// only used with recursive, folders get permissions when it's empty
+		FolderPermissions string `json:"folder_permissions"`
+		Recursive         bool   `json:"recursive"`
 	}
 	decodeAPIBody(r, &body, func(form url.Values) {
 		body.Path = form.Get("path_param")
 		body.Filenames = form["filename"]
 		body.Permissions = form.Get("permissions")
+		body.FolderPermissions = form.Get("folder_permissions")
 		body.Recursive = form.Get("recursive") == "on"
 	})
 
-	if msg := permissionsError(body.Permissions); msg != "" {
+	mode, dirMode, msg := recursiveModes(body.Permissions, body.FolderPermissions)
+	if msg != "" {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": msg})
 		return
 	}
@@ -198,8 +201,6 @@ func apiChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-
-	mode, _ := strconv.ParseUint(body.Permissions, 8, 32)
 
 	root, perr := paths.OpenUserRoot("HOME", user.Context)
 	if perr != nil {
@@ -223,14 +224,11 @@ func apiChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 			errored = append(errored, filename)
 			continue
 		}
-		if chmodErr := chmodPath(root, rel, os.FileMode(mode), body.Recursive && info.IsDir()); chmodErr != nil {
+		if chmodErr := chmodPath(root, rel, mode, dirMode, body.Recursive && info.IsDir()); chmodErr != nil {
 			errored = append(errored, filename)
 			continue
 		}
-		action := "changed permissions to " + body.Permissions
-		if body.Recursive && info.IsDir() {
-			action += " recursively"
-		}
+		action := chmodAction(body.Permissions, body.FolderPermissions, body.Recursive && info.IsDir())
 		_ = logger.RecordUserAction(a.Config, user.Username, action+" for "+root.Abs(rel)+" using File Manager API", reqip.ClientIP(r))
 		changed = append(changed, filename)
 	}
