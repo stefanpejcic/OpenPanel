@@ -6,6 +6,8 @@ Scripts for managing the server.
 
 Reads configuration: [`logrotate_enable`](/docs/articles/opencli/config/#logrotate_enable) [`logrotate_size_limit`](/docs/articles/opencli/config/#logrotate_size_limit) [`logrotate_retention`](/docs/articles/opencli/config/#logrotate_retention) [`logrotate_keep_days`](/docs/articles/opencli/config/#logrotate_keep_days) and configures logrotate for caddy, openpanel, syslog.
 
+When the distribution already rotates syslog (`/etc/logrotate.d/rsyslog` on Ubuntu and Debian), it adds `maxsize` with the `logrotate_size_limit` value to that file, so syslog is rotated as soon as it grows past the limit instead of once a week. It also makes `/etc/logrotate.d/lfd` (installed by CSF) not group-writable, otherwise logrotate skips it and every run fails.
+
 ```bash
 opencli server-logrotate
 ```
@@ -16,7 +18,7 @@ opencli server-logrotate
 ```bash
 # opencli server-logrotate
 Caddy log rotation configured.
-Syslog rotation configured.
+Syslog already rotated by /etc/logrotate.d/rsyslog, added maxsize 100m to it.
 OpenPanel log rotation configured.
 ```
 </details>

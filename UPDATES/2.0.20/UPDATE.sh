@@ -72,3 +72,6 @@ else
     echo "Failed to download $CONFIG_RAW/backups/scripts/files-list.sh"
 fi
 rm -f "$tmp"
+
+# logrotate failed every night (caddy-logs postrotate ran podman exec inside logrotate.service, csf's lfd file was group-writable) and syslog had no size limit, the new opencli server-logrotate fixes all three
+opencli server-logrotate
