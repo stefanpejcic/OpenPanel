@@ -22,6 +22,7 @@ type SiteRow struct {
 	Container   string
 	Ports       string
 	IsStatic    bool   // mirrors the case-sensitive `'static' in site[5]` check in sites.html's Actions column, unlike every other type check on this page that one isn't lowercased first
+	PHPVersion  string // the domain's PHP version, shown as "Runs on" for PHP-based sites
 	Docroot     string // the site's full container-path docroot (domain's docroot + subdirectory suffix parsed out of SiteName), same computation dispatch.go's /website handler does per-request, needed here so the Actions column's autologin button can pass it through without a second lookup
 }
 
@@ -59,6 +60,10 @@ func handleListSites(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
+	phpByDomain := map[int]string{}
+	for _, d := range domains {
+		phpByDomain[d.DomainID] = d.PHPVersion
+	}
 	groupIndex := map[string]int{}
 	var groups []SiteGroup
 
@@ -78,6 +83,7 @@ func handleListSites(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		s.AdminEmail, s.Version, s.CreatedDate = adminEmail.String, version.String, createdDate.String
 		s.Type, s.Container, s.Ports = typ.String, container.String, ports.String
 		s.IsStatic = strings.Contains(s.Type, "static")
+		s.PHPVersion = phpByDomain[s.DomainID]
 
 		_, folder := splitDomainAndFolder(s.SiteName)
 		s.Docroot = docroot.String

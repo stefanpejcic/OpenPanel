@@ -246,6 +246,14 @@ func apiWordPressBackupRun(a *appctx.App, w http.ResponseWriter, r *http.Request
 	writeAPIWPJSON(w, http.StatusOK, map[string]any{"message": "Backup completed successfully", "timestamp": timestamp})
 }
 
+// boolFlag turns an optional JSON bool into the clone form's "1"/"0", missing means on
+func boolFlag(b *bool) string {
+	if b != nil && !*b {
+		return "0"
+	}
+	return "1"
+}
+
 func boolStr(b bool) string {
 	if b {
 		return "true"
@@ -632,6 +640,22 @@ var apiWPCLIActions = map[string][]string{
 	"cron_run":          {"cron", "event", "run", "--due-now", "--allow-root", "--skip-themes"},
 }
 
+// apiWPCLIUpdateActions are the ones that take backup=1
+var apiWPCLIUpdateActions = map[string]bool{"core_update": true, "plugin_update_all": true, "theme_update_all": true}
+
+// truthy reads a JSON flag sent as true, 1, "1" or "true"
+func truthy(v any) bool {
+	switch t := v.(type) {
+	case bool:
+		return t
+	case float64:
+		return t == 1
+	case string:
+		return t == "1" || strings.EqualFold(t, "true")
+	}
+	return false
+}
+
 var apiWPCLISafeRE = regexp.MustCompile(`^[A-Za-z0-9_\-./]+$`)
 
 // apiWPCLI mirrors api_wp_cli().
@@ -648,6 +672,7 @@ func apiWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		Domain     string `json:"domain"`
 		PHPVersion string `json:"php_version"`
 		Docroot    string `json:"docroot"`
+		Backup     any    `json:"backup"`
 	}
 	_ = json.NewDecoder(r.Body).Decode(&body)
 	domainParam := strings.TrimSpace(body.Domain)
@@ -724,6 +749,27 @@ func apiWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// backup=1 on an update action takes a full backup first and skips the update when that fails
+	var backupName string
+	if apiWPCLIUpdateActions[action] && (truthy(body.Backup) || r.URL.Query().Get("backup") == "1") {
+		if !validSiteName(domainParam) || !appkit.SafeDocroot(domainDirectory) {
+			writeAPIWPJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid domain or docroot for a backup"})
+			return
+		}
+		backupCtx, cancelBackup := context.WithTimeout(ctx, 20*time.Minute)
+		dir, backupErr := runWPBackup(backupCtx, a, userContext, domainParam, domainDirectory, true, true)
+		cancelBackup()
+		if backupErr != nil {
+			if dir != "" {
+				_ = tenantfs.RemoveAll(dir)
+			}
+			writeAPIWPJSON(w, http.StatusInternalServerError, map[string]string{"error": (&backupGateError{backupErr}).Error()})
+			return
+		}
+		backupName = filepath.Base(dir)
+		_ = logger.RecordUserAction(a.Config, currentUsername, "generated full backup "+backupName+" before wp-cli "+action+" for "+domainParam, reqip.ClientIP(r))
+	}
+
 	wpBase := podmanmanager.BuildWPCLIBaseCommand(userContext, phpContainer)
 	cmd := append(append([]string{}, wpBase...), subcmd...)
 	cmd = append(cmd, "--path="+domainDirectory)
@@ -747,7 +793,7 @@ func apiWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "ran wp-cli "+action+" for "+domainParam, reqip.ClientIP(r))
 	writeAPIWPJSON(w, http.StatusOK, map[string]any{
-		"action": action, "domain": domainParam, "stdout": strings.TrimSpace(string(out)), "stderr": "", "returncode": returnCode,
+		"action": action, "domain": domainParam, "stdout": strings.TrimSpace(string(out)), "stderr": "", "returncode": returnCode, "backup": backupName,
 	})
 }
 
@@ -798,6 +844,8 @@ func apiWordPressClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		TargetDB             string `json:"target_db"`
 		TargetDBUser         string `json:"target_db_user"`
 		TargetDBUserPassword string `json:"target_db_user_password"`
+		IncludeUploads       *bool  `json:"include_uploads"`
+		RewriteURLs          *bool  `json:"rewrite_urls"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeAPIWPJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON body"})
@@ -808,6 +856,7 @@ func apiWordPressClone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		"source_domain": {body.SourceDomain}, "target_domain": {body.TargetDomain},
 		"source_db": {body.SourceDB}, "source_folder": {body.SourceFolder}, "subdirectory": {body.Subdirectory},
 		"target_db": {body.TargetDB}, "target_db_user": {body.TargetDBUser}, "target_db_user_password": {body.TargetDBUserPassword},
+		"include_uploads": {boolFlag(body.IncludeUploads)}, "rewrite_urls": {boolFlag(body.RewriteURLs)},
 	}
 	handleCloneWordPress(a, w, web.WithForm(r, form))
 }

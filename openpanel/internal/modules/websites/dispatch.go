@@ -1,6 +1,7 @@
 package websites
 
 import (
+	"context"
 	"database/sql"
 	"net/http"
 	"net/url"
@@ -11,7 +12,9 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/domains"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 	"golang.org/x/net/idna"
@@ -183,8 +186,13 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		if cp.dbInfo != nil {
 			data.DBInfo = cp.dbInfo(userContext, docroot)
 			data.PHPVersion = currentPHPVersion
-			data.MySQLVersion = getMySQLVersion(a, r, userContext)
+			// a failed lookup is cached as "Version not found", show nothing rather than that
+			if v := getMySQLVersion(a, r, userContext); v != "Version not found" {
+				data.MySQLVersion = v
+			}
+			data.MySQLType = webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
 		}
+		data.Switch = cmsSiteSwitch(r, a, userID)
 		if cp.version != nil {
 			data.Version = cp.version(userContext, docroot)
 		}
@@ -203,16 +211,22 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		backupFilesAvailable := checkBackupFilesExist(a, r, websiteParam)
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
-		domains, _ := a.AllDomainsForUser(ctx, userID)
+		userDomains, _ := a.AllDomainsForUser(ctx, userID)
+		suspended, https, cert := domains.SiteStatus(ctx, a, domainNameUsed)
 		renderWPSinglePage(a, w, r, WPSinglePageData{
 			pageData:             basePageData,
-			Domains:              domains,
+			Domains:              userDomains,
 			Container:            container,
 			BackupFilesAvailable: backupFilesAvailable,
 			IsSubdirectory:       folderParam != "",
 			MainDomain:           domain,
 			CurrentPHPVersion:    currentPHPVersion,
 			AvailablePHPVersions: availablePHPVersions,
+			Suspended:            suspended,
+			SSLState:             sslState(https, cert),
+			SSLExpires:           cert.Expires,
+			RedisOn:              wpRedisDropinOn(userContext, docroot),
+			TakenSites:           accountSites(r, a, userID),
 		})
 
 	case "python", "nodejs", "ruby", "java":
@@ -225,27 +239,47 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			pm2Type = "JAVA"
 		}
 		pm2Data := getPM2ForApplication(a, r, userContext, container.Container, pm2Type)
-		domains, _ := a.AllDomainsForUser(ctx, userID)
+		svc := composeServiceFor(userContext, container.Container)
+		manifestDir := strings.Trim(pm2Data[pm2Data["prefix"]+"WORKDIR"], `"`)
+		if !strings.HasPrefix(manifestDir, "/var/www/html/") {
+			manifestDir = docroot
+		}
+		_, https, cert := domains.SiteStatus(ctx, a, domainNameUsed)
+		files, hidden := listSiteDir(userContext, docroot, 8)
 		renderPythonNodeAppsPage(a, w, r, PythonNodeAppsPageData{
-			pageData:  basePageData,
-			Container: container,
-			PM2Data:   pm2Data,
-			EnvVars:   getCurrentEnvVars(userContext, container.Container),
-			Domains:   domains,
+			pageData:     basePageData,
+			Container:    container,
+			PM2Data:      pm2Data,
+			EnvVars:      envVarsOf(svc),
+			Domains:      userDomains(ctx, a, userID),
+			StartCommand: composeStartCommand(svc),
+			Manifest:     loadManifest(userContext, cmsType, manifestDir),
+			SSLState:     sslState(https, cert),
+			SSLExpires:   cert.Expires,
+			WebServer:    webserver.GetEnvFileValue(userContext, "WEB_SERVER"),
+			Image:        svcImage(userContext, svc),
+			Files:        files,
+			HiddenFiles:  hidden,
 		})
 
 	case "n8n":
 		pm2Data := getPM2ForApplication(a, r, userContext, container.Container, "N8N")
+		svc := composeServiceFor(userContext, container.Container)
 		renderN8nAppPage(a, w, r, N8nAppPageData{
 			pageData:  basePageData,
 			Container: container,
 			PM2Data:   pm2Data,
-			EnvVars:   getCurrentEnvVars(userContext, container.Container),
+			EnvVars:   envVarsOf(svc),
+			Mounts:    composeMounts(svc),
+			Networks:  composeNetworks(svc),
+			Image:     svcImage(userContext, svc),
+			Restart:   svcString(svc, "restart"),
 		})
 
 	case "php":
 		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
 		settings := getPHPAppSettings(userContext, websiteParam)
+		phpFiles, phpHidden := listSiteDir(userContext, docroot, 20)
 		renderPHPAppPage(a, w, r, PHPAppPageData{
 			pageData:                   basePageData,
 			Container:                  container,
@@ -253,12 +287,23 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			InitialProject:             settings.initialProject,
 			AutorunComposerInstall:     settings.autorunComposerInstall,
 			ComposerOptimizeAutoloader: settings.composerOptimizeAutoloader,
+			ComposerRows:               loadComposerRequirements(userContext, docroot),
+			Packages:                   loadComposerPackages(userContext, docroot),
+			Files:                      phpFiles,
+			HiddenFiles:                phpHidden,
+			WebServer:                  webserver.GetEnvFileValue(userContext, "WEB_SERVER"),
 		})
 
 	case "websitebuilder", "sitebuilder":
+		source, hasSource := loadSiteSource(userContext, docroot)
+		sbFiles, _ := listSiteDir(userContext, docroot, 12)
 		renderWebsiteBuilderPage(a, w, r, WebsiteBuilderPageData{
-			pageData:  basePageData,
-			Container: container,
+			pageData:    basePageData,
+			Container:   container,
+			IndexSource: source,
+			HasSource:   hasSource,
+			BlankPage:   hasSource && blankPage(source),
+			Files:       sbFiles,
 		})
 
 	default:
@@ -272,6 +317,26 @@ type phpAppSettings struct {
 	initialProject             string
 	autorunComposerInstall     bool
 	composerOptimizeAutoloader bool
+}
+
+// cmsSiteSwitch lists the account's sites that open in a CMS manager, for the header switcher
+func cmsSiteSwitch(r *http.Request, a *appctx.App, userID int) []SiteOption {
+	rows, err := a.DB.QueryContext(r.Context(), "SELECT site_name, type FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?) ORDER BY site_name", userID)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	var out []SiteOption
+	for rows.Next() {
+		var name, typ sql.NullString
+		if rows.Scan(&name, &typ) != nil || name.String == "" {
+			continue
+		}
+		if cp, ok := cmsPages[strings.ToLower(typ.String)]; ok {
+			out = append(out, SiteOption{Name: name.String, App: cp.name})
+		}
+	}
+	return out
 }
 
 // getPHPAppSettings reads a PHP app's settings from .env - there's no dedicated container to key them off (unlike NodeJS/Python's getPM2ForApplication keyed by container name), so php apps use a synthetic prefix derived from the site name instead (see internal/modules/phpapp/install.go's phpAppEnvPrefix, duplicated here).
@@ -320,35 +385,13 @@ func getPM2ForApplication(a *appctx.App, r *http.Request, userContext, prefix, a
 	return data
 }
 
-// getCurrentEnvVars reads a Python/NodeJS/Ruby app's current docker-compose.yml `environment:` list for the Env Vars tab's textarea, empty string if the service has none set yet - containerName mirrors getPM2ForApplication's "strip prefix at the first underscore" normalization, since the DB's sites.container value (e.g. "RUBYTEST") can carry a user-id suffix the compose file's lowercase service key never has.
+// getCurrentEnvVars reads a runtime app's compose `environment:` list for the Env Vars textarea, empty if none set yet
 func getCurrentEnvVars(userContext, containerName string) string {
-	normalized := containerName
-	if idx := strings.Index(normalized, "_"); idx != -1 {
-		normalized = normalized[:idx]
-	}
-	serviceName := strings.ToLower(normalized)
+	return envVarsOf(composeServiceFor(userContext, containerName))
+}
 
-	composeData, err := docker.LoadCompose(userContext)
-	if err != nil {
-		return ""
-	}
-	services, ok := composeData["services"].(map[string]any)
-	if !ok {
-		return ""
-	}
-	svc, ok := services[serviceName].(map[string]any)
-	if !ok {
-		return ""
-	}
-	rawEnv, ok := svc["environment"].([]any)
-	if !ok {
-		return ""
-	}
-	lines := make([]string, 0, len(rawEnv))
-	for _, v := range rawEnv {
-		if s, ok := v.(string); ok {
-			lines = append(lines, s)
-		}
-	}
-	return strings.Join(lines, "\n")
+// userDomains is every domain on the account, nil on a lookup error
+func userDomains(ctx context.Context, a *appctx.App, userID int) []appctx.Domain {
+	d, _ := a.AllDomainsForUser(ctx, userID)
+	return d
 }
