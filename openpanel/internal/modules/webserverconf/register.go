@@ -13,4 +13,5 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 		return auth.RequireLogin(a, "webserver_conf")(h)
 	}
 	mux.Handle(redirectPath, requireLogin(func(w http.ResponseWriter, r *http.Request) { handleWebserverConf(a, w, r) }))
+	mux.Handle("POST "+redirectPath+"/test", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleConfigTest(a, w, r) }))
 }

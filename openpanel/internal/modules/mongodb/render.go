@@ -34,6 +34,46 @@ type DatabasesPageData struct {
 	ServiceStatusData
 	Databases    []DatabaseRow
 	StatusDetail string // longer explanatory text for the table's empty-state row while the service isn't running/healthy, "" when running+healthy
+	UserCount    int    // database users other than admin/root
+	HasUsers     bool   // false when the users lookup failed or wasn't run
+}
+
+// TotalSize sums the size of the user's own databases
+func (d DatabasesPageData) TotalSize() string {
+	var total int64
+	for _, db := range d.Databases {
+		if !db.IsSystem {
+			total += db.SizeBytes
+		}
+	}
+	return formatSize(total)
+}
+
+// LargestDatabase is the user's biggest database, "" when there's none
+func (d DatabasesPageData) LargestDatabase() string {
+	name, size := "", int64(-1)
+	for _, db := range d.Databases {
+		if !db.IsSystem && db.SizeBytes > size {
+			name, size = db.Database, db.SizeBytes
+		}
+	}
+	return name
+}
+
+// UserDatabaseCount is the number of non-system databases, for the summary tile
+func (d DatabasesPageData) UserDatabaseCount() int {
+	n := 0
+	for _, db := range d.Databases {
+		if !db.IsSystem {
+			n++
+		}
+	}
+	return n
+}
+
+// shouldCountUsers: a running server with no databases yet still gets a real Users count (0) instead of a dash
+func shouldCountUsers(state string, databases int) bool {
+	return databases > 0 || state == "running"
 }
 
 func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, databases []DatabaseRow) {
@@ -42,9 +82,15 @@ func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if len(databases) > 0 {
+	var users []string
+	hasUsers := false
+	if shouldCountUsers(status.State, len(databases)) {
 		userContext, _ := injectedData["context"].(string)
-		_, users, _ := ComputeDatabaseAndUserNames(r.Context(), userContext)
+		var usersErr error
+		_, users, usersErr = ComputeDatabaseAndUserNames(r.Context(), userContext)
+		hasUsers = usersErr == nil
+	}
+	if len(databases) > 0 {
 		layout.BulkActions = databasesBulkActions(layout.T, users)
 	}
 	layout.Service = "mongodb"
@@ -53,20 +99,59 @@ func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		ServiceStatusData: ServiceStatusData{ContainerState: status.State, HealthStatus: status.Health},
 		Databases:         databases,
 		StatusDetail:      mongoContainerStatusDetail(status.State, status.Health),
+		UserCount:         len(users), HasUsers: hasUsers,
 	}
 	if err := databasesPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MONGODB - databases template render error: %v", err)
 	}
 }
 
-func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Create Database")
+// CreatePageData is the template context of the shared create pages (new.html, mongodb_user.html, wizard.html, assign.html)
+type CreatePageData struct {
+	web.LayoutData
+	Engine   web.DBEngine
+	Names    web.DBNames
+	DBLimit  int // plan limit, 0 is unlimited
+	DBUsage  int
+	FormName string // what was typed, kept after a failed submit
+	Created  string // the database or user just created, shows the done state
+	Roles    []string
+
+	CreatedPassword  string // a new user's password, shown once
+	Success          bool   // wizard done
+	FormDatabaseName string
+	FormDBUser       string
+	CreatedDB        string
+	CreatedUser      string
+	Role             string
+	DBUser           string // assign page preselection
+	DatabaseName     string
+}
+
+// createPage builds CreatePageData, listing the account's names unless done says they won't be shown
+func createPage(a *appctx.App, w http.ResponseWriter, r *http.Request, title string, done bool) (CreatePageData, bool) {
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, title)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
+		return CreatePageData{}, false
 	}
 	layout.Service = "mongodb"
-	if err := newDatabasePage.Render(w, http.StatusOK, struct{ web.LayoutData }{layout}); err != nil {
+	data := CreatePageData{LayoutData: layout, Engine: web.MongoDBEngine, DBLimit: planDBLimit(r.Context(), a, injectedData), Roles: mongoRoles}
+	if !done {
+		userContext, _ := injectedData["context"].(string)
+		data.Names = loadNames(r.Context(), userContext)
+		data.DBUsage = len(data.Names.Databases)
+	}
+	return data, true
+}
+
+func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request, formName, created string) {
+	data, ok := createPage(a, w, r, "Create Database", created != "")
+	if !ok {
+		return
+	}
+	data.FormName, data.Created = formName, created
+	if err := newDatabasePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MONGODB - new database template render error: %v", err)
 	}
 }
@@ -107,14 +192,13 @@ func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, stat
 	}
 }
 
-func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Create User")
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request, formName, created, password string) {
+	data, ok := createPage(a, w, r, "Create User", created != "")
+	if !ok {
 		return
 	}
-	layout.Service = "mongodb"
-	if err := createUserPage.Render(w, http.StatusOK, struct{ web.LayoutData }{layout}); err != nil {
+	data.FormName, data.Created, data.CreatedPassword = formName, created, password
+	if err := createUserPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MONGODB - create user template render error: %v", err)
 	}
 }
@@ -138,42 +222,43 @@ func renderChangePasswordPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 }
 
-// WizardPageData is mongodb/wizard.html's template context.
-type WizardPageData struct {
-	web.LayoutData
-	Roles []string
-}
-
-func renderWizardPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Database Wizard")
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+func renderWizardPage(a *appctx.App, w http.ResponseWriter, r *http.Request, formDB, formUser, role string) {
+	data, ok := createPage(a, w, r, "Database Wizard", false)
+	if !ok {
 		return
 	}
-	layout.Service = "mongodb"
-	data := WizardPageData{LayoutData: layout, Roles: mongoRoles}
+	data.FormDatabaseName, data.FormDBUser, data.Role = formDB, formUser, role
 	if err := wizardPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MONGODB - wizard template render error: %v", err)
 	}
 }
 
-// AssignPageData is mongodb/assign.html's template context.
-type AssignPageData struct {
-	web.LayoutData
-	Roles []string
-}
-
-func renderAssignPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Assign User to Database")
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
+func renderWizardSuccess(a *appctx.App, w http.ResponseWriter, r *http.Request, createdDB, createdUser, password, role string) {
+	data, ok := createPage(a, w, r, "Database Wizard", true)
+	if !ok {
 		return
 	}
-	layout.Service = "mongodb"
-	data := AssignPageData{LayoutData: layout, Roles: mongoRoles}
+	data.Success, data.CreatedDB, data.CreatedUser, data.CreatedPassword, data.Role = true, createdDB, createdUser, password, role
+	if err := wizardPage.Render(w, http.StatusOK, data); err != nil {
+		log.Printf("MONGODB - wizard success template render error: %v", err)
+	}
+}
+
+func renderAssignPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dbUser, databaseName string) {
+	data, ok := createPage(a, w, r, "Assign User to Database", false)
+	if !ok {
+		return
+	}
+	data.DBUser, data.DatabaseName = dbUser, databaseName
 	if err := assignPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MONGODB - assign template render error: %v", err)
 	}
+}
+
+// AssignPageData is mongodb/remove.html's template context.
+type AssignPageData struct {
+	web.LayoutData
+	Roles []string
 }
 
 func renderRemovePage(a *appctx.App, w http.ResponseWriter, r *http.Request) {

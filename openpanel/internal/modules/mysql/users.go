@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"net/http"
+	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -34,6 +35,7 @@ func handleDatabasesUsers(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	status.Health = resolveContainerHealth(ctx, userContext, status)
 
 	var usersOutput []string
+	var grants map[string][]UserGrant
 	if status.Health == "healthy" {
 		query := "SELECT User FROM mysql.user WHERE User NOT IN (" + restricted.usersSQL + ")"
 		if showAll {
@@ -46,6 +48,7 @@ func handleDatabasesUsers(a *appctx.App, w http.ResponseWriter, r *http.Request)
 			for _, row := range rows {
 				usersOutput = append(usersOutput, toStringCell(row[0]))
 			}
+			grants = fetchUserGrants(ctx, userContext)
 		}
 	} else {
 		web.Flash(a, w, r, "warning", web.Tr(a, r, mysqlWarningFlashMessage(mysqlVersion, status.State, status.Health), "service", mysqlVersion, "state", status.State))
@@ -59,7 +62,7 @@ func handleDatabasesUsers(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	renderUsersPage(a, w, r, status, mysqlVersion, usersOutput, showAll)
+	renderUsersPage(a, w, r, status, mysqlVersion, usersOutput, showAll, grants)
 }
 
 // handleDatabasesUser creates a new database user.
@@ -74,48 +77,37 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
-		dbUser := r.Form.Get("db_user")
+		typed := strings.TrimSpace(r.Form.Get("db_user"))
 		dbHost := r.Form.Get("db_host")
 		if dbHost == "" {
 			dbHost = "%"
 		}
 		password := r.Form.Get("password")
+		dbUser := mysqlmanager.WithPrefix(a.Config, userContext, typed)
 
-		dbUser = mysqlmanager.WithPrefix(a.Config, userContext, dbUser)
-
-		switch {
-		case dbUser == "":
-			web.FlashRedirect(a, w, r, "error", "User name is required.", "/mysql/user")
-			return
-		case len(dbUser) > maxUserLen:
-			web.FlashRedirect(a, w, r, "error", "User name is too long. MySQL user names are limited to 32 characters.", "/mysql/user")
-			return
-		case !validators.IsValidIdentifier(dbUser):
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/mysql/user")
-			return
-		case isRestrictedUser(dbUser):
-			web.FlashRedirect(a, w, r, "error", "This username is not allowed.", "/mysql/user")
-			return
-		case !validators.IsValidHost(dbHost):
-			web.FlashRedirect(a, w, r, "error", "Invalid host format.", "/mysql/user")
-			return
-		case !validators.IsPasswordStrongEnough(password, validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)):
-			web.FlashRedirect(a, w, r, "error", "Password does not meet the required strength.", "/mysql/user")
+		threshold := validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)
+		if msg := checkNewUser(dbUser, dbHost, password, threshold, loadNames(ctx, userContext)); msg != "" {
+			web.Flash(a, w, r, "error", web.Tr(a, r, msg))
+			renderCreateUserPage(a, w, r, mysqlVersion, typed, "", "")
 			return
 		}
 
 		escapedPassword := escapeMySQLString(password)
 		if _, execErr := mysqlmanager.Exec(ctx, userContext, "CREATE USER '"+dbUser+"'@'"+dbHost+"' IDENTIFIED BY '"+escapedPassword+"'", ""); execErr != nil {
 			web.Flash(a, w, r, "error", execErr.Error())
-		} else {
-			invalidateDatabasesInfo(ctx, a, userContext)
-			ipAddress := reqip.ClientIP(r)
-			_ = logger.RecordUserAction(a.Config, currentUsername, "created a MySQL database user "+dbUser, ipAddress)
-			web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created a database user %(db_user)s", "db_user", dbUser))
+			renderCreateUserPage(a, w, r, mysqlVersion, typed, "", "")
+			return
 		}
+		invalidateDatabasesInfo(ctx, a, userContext)
+		ipAddress := reqip.ClientIP(r)
+		_ = logger.RecordUserAction(a.Config, currentUsername, "created a MySQL database user "+dbUser, ipAddress)
+		web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created a database user %(db_user)s", "db_user", dbUser))
+		// the password is shown this once, like the wizard does
+		renderCreateUserPage(a, w, r, mysqlVersion, "", dbUser, password)
+		return
 	}
 
-	renderCreateUserPage(a, w, r, mysqlVersion)
+	renderCreateUserPage(a, w, r, mysqlVersion, "", "", "")
 }
 
 // handleDatabasesPassword renders the change-password form for one existing user.

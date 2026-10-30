@@ -10,10 +10,11 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mysqlmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
 
-// apiMySQLSetRootPassword changes the MySQL root user's password (both the given host, defaulting to '%', and 'localhost'), then persists it to my.cnf/.env, no restart needed - the API equivalent of POST /mysql/root-password (handleRootPasswordMySQL in rootpassword.go) - there's no GET counterpart since the root password isn't readable anywhere, so this is write-only, and deliberately has no strength check, matching handleRootPasswordMySQL's own comment that the root password is admin-only
+// apiMySQLSetRootPassword changes the MySQL root user's password (both the given host, defaulting to '%', and 'localhost'), then persists it to my.cnf/.env, no restart needed - the API equivalent of POST /mysql/root-password (handleRootPasswordMySQL in rootpassword.go) - there's no GET counterpart since the root password isn't readable anywhere, so this is write-only, and deliberately has no strength check, unlike the page, which also checks length and strength
 func apiMySQLSetRootPassword(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_, currentUsername, userContext, err := auth.Injected(a, r)
@@ -33,6 +34,14 @@ func apiMySQLSetRootPassword(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	}
 	if password == "" {
 		writeAPIMySQLJSON(w, http.StatusBadRequest, map[string]string{"error": "Password is required."})
+		return
+	}
+	if rootPwHasBadChars(password) {
+		writeAPIMySQLJSON(w, http.StatusBadRequest, map[string]string{"error": rootPwBadCharsMsg})
+		return
+	}
+	if !validators.IsValidHost(dbHost) {
+		writeAPIMySQLJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid host format."})
 		return
 	}
 	escapedPassword := escapeMySQLString(password)
