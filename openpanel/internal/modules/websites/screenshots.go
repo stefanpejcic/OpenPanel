@@ -2,12 +2,17 @@
 package websites
 
 import (
+	"bytes"
 	"context"
 	"crypto/md5"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"log"
 	"net/http"
 	"net/url"
@@ -40,6 +45,39 @@ func screenshotAPIBase(a *appctx.App) string {
 func screenshotCachePath(domain string) string {
 	sum := md5.Sum([]byte(domain)) //nolint:gosec // content-addressed cache key, not a security boundary
 	return filepath.Join(screenshotCacheDir, hex.EncodeToString(sum[:])+".png")
+}
+
+// errBlankScreenshot is a capture that came back one flat colour, the API answers like that when it couldn't load the site
+var errBlankScreenshot = errors.New("the screenshot came back blank, the site may not be reachable from the internet")
+
+// blankScreenshot reports whether an image is (almost) one colour, a real page always has some text or edges
+func blankScreenshot(data []byte) bool {
+	// a real 1280x720 page never compresses this small, so bigger files skip the decode
+	if len(data) > 64<<10 {
+		return false
+	}
+	img, _, err := image.Decode(bytes.NewReader(data))
+	if err != nil {
+		return false
+	}
+	b := img.Bounds()
+	if b.Empty() {
+		return true
+	}
+	r0, g0, b0, _ := img.At(b.Min.X, b.Min.Y).RGBA()
+	near := func(a, b uint32) bool { return a-b < 0x0a00 || b-a < 0x0a00 }
+	samples, off := 0, 0
+	for y := b.Min.Y; y < b.Max.Y; y += 4 {
+		for x := b.Min.X; x < b.Max.X; x += 4 {
+			r, g, bl, _ := img.At(x, y).RGBA()
+			samples++
+			if !near(r, r0) || !near(g, g0) || !near(bl, b0) {
+				off++
+			}
+		}
+	}
+	// a few stray pixels (a cursor, a 1px border) still count as blank
+	return off*1000 <= samples
 }
 
 // fetchAndCacheScreenshot fetches the API's {"base64": "..."} envelope, decodes it, and writes the PNG to the local cache.
@@ -81,7 +119,20 @@ func fetchAndCacheScreenshot(ctx context.Context, a *appctx.App, domain string) 
 	if err := tenantfs.MkdirAll(screenshotCacheDir, 0o755); err != nil {
 		return err
 	}
-	return tenantfs.WriteFile(screenshotCachePath(domain), imgBytes, 0o644)
+	// a blank capture is cached too, so an unreachable site doesn't call the API on every view
+	if err := tenantfs.WriteFile(screenshotCachePath(domain), imgBytes, 0o644); err != nil {
+		return err
+	}
+	if blankScreenshot(imgBytes) {
+		return errBlankScreenshot
+	}
+	return nil
+}
+
+// cachedScreenshotBlank reads the cached file back and checks it
+func cachedScreenshotBlank(path string) bool {
+	data, err := tenantfs.ReadFile(path)
+	return err != nil || blankScreenshot(data)
 }
 
 // screenshotServerIP is the IP the domain's owner is served from, "" when the owner can't be found
@@ -141,6 +192,11 @@ func handleScreenshot(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
+	}
+	// the page shows "No screenshot" instead of a white box
+	if cachedScreenshotBlank(cachePath) {
+		http.Error(w, errBlankScreenshot.Error(), http.StatusNotFound)
+		return
 	}
 
 	http.ServeFile(w, r, cachePath)

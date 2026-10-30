@@ -1234,18 +1234,26 @@ func onOff(v string) string {
 	return "false"
 }
 
+// siteInfoOptionsFrom reads the Options tab's fields from the POST body, the token-auth API and older pages still send them in the query string
+func siteInfoOptionsFrom(r *http.Request) [][2]string {
+	_ = r.ParseForm()
+	var out [][2]string
+	for _, opt := range wpGeneralOptions {
+		if _, ok := r.Form[opt]; ok {
+			out = append(out, [2]string{opt, r.Form.Get(opt)})
+		}
+	}
+	return out
+}
+
 func handleWPCLIUpdateSiteInfo(a *appctx.App, w http.ResponseWriter, r *http.Request, currentUsername, userContext, wpConfigFile, docroot string, wpBase []string, website string) {
-	q := r.URL.Query()
 	// each wp option update is a podman exec plus a WordPress boot, so only run it for what actually changed, unreadable current values update everything like before
 	var current map[string]string
 	if content, readErr := tenantfs.ReadFile(wpConfigFile); readErr == nil {
 		current, _, _ = readWPGeneralOptions(r.Context(), userContext, string(content))
 	}
-	for _, opt := range wpGeneralOptions {
-		if !q.Has(opt) {
-			continue
-		}
-		value := q.Get(opt)
+	for _, kv := range siteInfoOptionsFrom(r) {
+		opt, value := kv[0], kv[1]
 		if old, ok := current[opt]; ok && old == value {
 			continue
 		}

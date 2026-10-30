@@ -27,11 +27,23 @@ func ValidVersion(version string) bool {
 	return validVersionRE.MatchString(version)
 }
 
+// subdirRE is what the install wizard lets through: plain folder names joined by /, an optional trailing /
+var subdirRE = regexp.MustCompile(`^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*/?$`)
+
+// IsValidSubdirectory reports whether an install folder is safe to append to a docroot, empty means the docroot itself
 func IsValidSubdirectory(subdirectory string) bool {
 	if subdirectory == "" {
 		return true
 	}
-	return !strings.Contains(subdirectory, "..") && !strings.HasPrefix(subdirectory, "/")
+	if strings.Contains(subdirectory, "..") || !subdirRE.MatchString(subdirectory) {
+		return false
+	}
+	for _, part := range strings.Split(strings.TrimSuffix(subdirectory, "/"), "/") {
+		if part == "." {
+			return false
+		}
+	}
+	return true
 }
 
 // SymlinkDocroot points linkPath at target and gives the link itself to the user, Apache refuses a docroot symlink owned by root (AH00037)

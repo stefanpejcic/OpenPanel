@@ -95,6 +95,11 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		docroot = filepath.Join(docroot, dstFolder)
 		dstDomainWithSubdir = dstDomain + "/" + dstFolder
 	}
+	// copying over an installed site would wipe it
+	if siteNameTaken(ctx, a, cloneTargetName(dstDomain, dstFolder)) {
+		web.WriteJSON(w, http.StatusConflict, map[string]string{"error": "A website is already installed at " + cloneTargetName(dstDomain, dstFolder) + ". Pick another domain or a new subfolder."})
+		return
+	}
 
 	if !validateDomain(srcDomain) || !validateDomain(dstDomain) || !validateDB(srcDB) || !validateDB(dstDB) ||
 		!validateDB(dstDBUser) || !cmsclone.ValidDocroot(srcFolder) || !cmsclone.ValidDocroot(docroot) {
@@ -130,6 +135,9 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	includeUploads := r.FormValue("include_uploads") != "0"
+	rewriteURLs := r.FormValue("rewrite_urls") != "0"
+
 	for _, item := range wordpressFiles {
 		srcItem := filepath.Join(srcPath, item)
 		dstItem := filepath.Join(dstPath, item)
@@ -138,7 +146,9 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 			continue
 		}
 		var cpErr error
-		if info.IsDir() {
+		if info.IsDir() && item == "wp-content" && !includeUploads {
+			cpErr = copyDirExcept(srcItem, dstItem, "uploads")
+		} else if info.IsDir() {
 			_ = tenantfs.MkdirAll(dstItem, 0o755)
 			cpErr = tenantfs.CopyDir(srcItem, dstItem)
 		} else {
@@ -183,10 +193,12 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	wpBase := podmanmanager.BuildWPCLIBaseCommand(userContext, phpContainer)
-	searchReplaceArgv := append(append([]string{}, wpBase...), "search-replace",
-		"https://"+providedDomain, "https://"+dstDomainWithSubdir, "--all-tables", "--skip-columns=guid",
-		"--path="+docroot, "--skip-themes", "--allow-root")
-	_ = podmanmanager.Command(ctx, userContext, searchReplaceArgv).Run()
+	if rewriteURLs {
+		searchReplaceArgv := append(append([]string{}, wpBase...), "search-replace",
+			"https://"+providedDomain, "https://"+dstDomainWithSubdir, "--all-tables", "--skip-columns=guid",
+			"--path="+docroot, "--skip-themes", "--allow-root")
+		_ = podmanmanager.Command(ctx, userContext, searchReplaceArgv).Run()
+	}
 
 	rewriteFlushArgv := append(append([]string{}, wpBase...), "rewrite", "flush", "--hard", "--path="+docroot, "--skip-themes", "--allow-root")
 	_ = podmanmanager.Command(ctx, userContext, rewriteFlushArgv).Run()
@@ -217,6 +229,45 @@ func handleCloneWordPress(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		"status": "success", "source": providedDomain, "target": dstDomainWithSubdir,
 		"source_path": srcPath, "target_path": dstPath, "target_db": dstDB,
 	})
+}
+
+// copyDirExcept copies src into dst like CopyDir but leaves out one top-level entry, which is created empty
+func copyDirExcept(src, dst, skip string) error {
+	if err := tenantfs.MkdirAll(dst, 0o755); err != nil {
+		return err
+	}
+	entries, err := tenantfs.ReadDir(src)
+	if err != nil {
+		return err
+	}
+	for _, e := range entries {
+		if e.Name() == skip {
+			continue
+		}
+		from, to := filepath.Join(src, e.Name()), filepath.Join(dst, e.Name())
+		info, infoErr := tenantfs.Lstat(from)
+		if infoErr != nil {
+			return infoErr
+		}
+		switch {
+		case info.IsDir():
+			if err := tenantfs.MkdirAll(to, info.Mode().Perm()); err != nil {
+				return err
+			}
+			err = tenantfs.CopyDir(from, to)
+		case info.Mode()&os.ModeSymlink != 0:
+			var link string
+			if link, err = tenantfs.Readlink(from); err == nil {
+				err = tenantfs.Symlink(link, to)
+			}
+		case info.Mode().IsRegular():
+			err = tenantfs.CopyFile(from, to, info.Mode().Perm())
+		}
+		if err != nil {
+			return err
+		}
+	}
+	return tenantfs.MkdirAll(filepath.Join(dst, skip), 0o755)
 }
 
 var (
@@ -665,4 +716,21 @@ func handleWordPressSecure(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 
 	http.Redirect(w, r, "/website?domain="+providedDomain, http.StatusFound)
+}
+
+// cloneTargetName is the site name a clone would get, the same shape as sites.site_name
+func cloneTargetName(domain, folder string) string {
+	folder = strings.Trim(strings.TrimSpace(folder), "/")
+	if folder == "" {
+		return domain
+	}
+	return domain + "/" + folder
+}
+
+func siteNameTaken(ctx context.Context, a *appctx.App, name string) bool {
+	var n int
+	if err := a.DB.QueryRowContext(ctx, "SELECT COUNT(*) FROM sites WHERE site_name = ?", name).Scan(&n); err != nil {
+		return false
+	}
+	return n > 0
 }

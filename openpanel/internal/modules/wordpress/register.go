@@ -10,6 +10,7 @@ import (
 // Register wires the WordPress list + install routes onto mux - backups, clone/remove/detach/reload/scan and wp-cli passthrough are added to this same Register separately.
 func Register(mux *http.ServeMux, a *appctx.App) {
 	requireLogin := auth.RequireLogin(a, "wordpress")
+	startAutoUpdater(a)
 
 	mux.Handle("GET /wordpress", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleListWordPress(a, w, r)
@@ -29,6 +30,16 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	})))
 	mux.Handle("POST /wordpress/backup/run/{selected_domain...}", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleRunBackup(a, w, r)
+	})))
+
+	mux.Handle("GET /wordpress/backup/download/{selected_domain...}", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handleDownloadBackup(a, w, r)
+	})))
+	mux.Handle("POST /wordpress/backup/delete/{selected_domain...}", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handleDeleteBackup(a, w, r)
+	})))
+	mux.Handle("/wordpress/tools/{action}", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handleWPTools(a, w, r)
 	})))
 
 	mux.Handle("POST /wordpress/clone", requireLogin(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
