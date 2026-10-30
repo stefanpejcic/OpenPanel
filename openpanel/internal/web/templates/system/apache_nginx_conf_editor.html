@@ -1,71 +1,98 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/system/apache_nginx_conf_editor.html -->
+{{template "op_conf_editor_assets" .}}
+{{$kind := ""}}{{if eq .Service "apache"}}{{$kind = "apache"}}{{else if or (eq .Service "nginx") (eq .Service "openresty") (eq .Service "openlitespeed")}}{{$kind = "brace"}}{{end}}
 
-      <link rel="stylesheet" href="{{static "vendor/codemirror/codemirror.min.css"}}">
-      <script src="{{static "vendor/codemirror/codemirror.min.js"}}"></script>
-      <style>
-         .CodeMirror {min-height: 50vh;height: auto;}
-         div.CodeMirror-sizer {min-height: 500px!important;}
-         .conf-test-error {border-bottom: 1px solid #fecaca; background: #fef2f2; color: #991b1b; padding: 1rem 1.5rem; font-size: .875rem;}
-         .dark .conf-test-error {border-color: rgba(248, 113, 113, .3); background: rgba(239, 68, 68, .1); color: #fca5a5;}
-         .conf-test-error ul {margin-top: .5rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .8125rem; overflow-wrap: anywhere;}
-         .conf-test-error li + li {margin-top: .25rem;}
-         .conf-test-error p + p, .conf-test-error ul + p {margin-top: .5rem;}
-         .conf-test-error a {text-decoration: underline;}
-         .CodeMirror .conf-error-line {background: rgba(239, 68, 68, .2);}
-      </style>
-
-<form method="post">
+<form method="post" class="op-content" aria-label="{{.T.Get "WebServer Conf Editor Header"}}" x-data="opConfEditor({ kind: {{toJSON $kind}},{{with .TestFailure}} unsaved: true, errorLine: {{.Line}},{{end}} busy: { save: {{toJSON (.T.Get "Saving the configuration")}}, restore: {{toJSON (.T.Get "Restoring the default configuration")}}, steps: {{toJSON (.T.Get "Writing the file|Testing the configuration|Reloading the web server")}}, note: {{toJSON (.T.Get "Stay on this page until it finishes.")}} } })" @submit="onSubmit($event)" @keydown.window.ctrl.s.prevent="save()" @keydown.window.meta.s.prevent="save()">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
-<section aria-label="{{.T.Get "WebServer Conf Editor Header"}}" x-data="{ searchQuery: '' }">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div class="op-page-head">
         <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Edit main webserver configuration file:"}} {{.Path}}</p>
-    </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-        {{if .CanRestoreDefault}}
-        <button type="submit" name="action" value="restore_default" onclick="return confirm('{{.T.Get "This will overwrite the current file with the default configuration and restart the service. Continue?"}}')" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-700 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap sm:mt-0">{{.T.Get "Restore Default"}}</button>
+            {{if .Service}}<div class="op-eyebrow">{{.Service}}{{with .Path}} · {{.}}{{end}}</div>{{end}}
+            <h1 class="op-title">{{replace .Title " Configuration Editor" " configuration"}}</h1>
+            <p class="op-meta">{{.T.Get "The main configuration file of the web server that serves all your domains. Per-domain settings live in"}} <a href="/domains/vhosts" style="color:var(--color-accent-text)">{{.T.Get "Domain VHosts"}}</a>.</p>
+        </div>
+        {{if .Path}}
+        <div class="op-actions">
+            {{if .CanRestoreDefault}}<button type="button" class="op-btn op-btn-secondary" @click="confirmRestore = true">{{.T.Get "Restore Default"}}</button>{{end}}
+            <button type="submit" name="action" value="save" x-ref="save" class="op-btn op-btn-primary" :disabled="!dirty">{{.T.Get "Save Changes"}}</button>
+        </div>
         {{end}}
-        <button type="submit" name="action" value="save" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Save Changes"}}</button>
-
     </div>
-</div>
 
+    {{with .Summary}}{{if .State}}
+    {{$icon := $.Service}}{{if eq $.Service "litespeed"}}{{$icon = "openlitespeed"}}{{end}}
+    <section class="op-kpis" aria-label="{{$.T.Get "Web server"}}">
+        <div class="op-kpi"><div class="op-kpi-label">{{if $icon}}<img src="{{static (printf "img/servers/%s.svg" $icon)}}" alt="" width="16" height="16">{{else}}{{template "op_icon" "server"}}{{end}} {{$.T.Get "Web server"}}</div><div class="op-kpi-value" style="font-size:20px">{{if .Version}}{{.Version}}{{else}}{{title $.Service}}{{end}}</div><div class="op-kpi-note">{{if .Image}}<span class="op-mono">{{.Image}}</span>{{else}}&nbsp;{{end}}</div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "box"}} {{$.T.Get "Container"}}</div><div class="op-kpi-value" style="font-size:20px">{{if .Running}}<span class="op-status is-success">{{$.T.Get "Running"}}</span>{{else if eq .State "not_found"}}<span class="op-status is-muted">{{$.T.Get "Not created"}}</span>{{else}}<span class="op-status is-danger">{{$.T.Get "Stopped"}}</span>{{end}}</div><div class="op-kpi-note"><span class="op-mono">{{$.Service}}</span>{{if .Uptime}} · {{$.T.Get "up"}} {{.Uptime}}{{end}}</div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "cpu"}} {{$.T.Get "Limits"}}</div><div class="op-kpi-value" style="font-size:20px">{{if or .CPU .RAM}}{{with .CPU}}{{.}} <small>CPU</small>{{end}}{{if and .CPU .RAM}} · {{end}}{{.RAM}}{{else}}—{{end}}</div><div class="op-kpi-note" style="white-space:normal">{{with .PIDs}}{{.}} {{$.T.Get "processes max"}} · {{end}}<a href="/containers/edit/{{$.Service}}" style="color:var(--color-accent-text)">{{$.T.Get "Change"}}</a></div></div>
+        <div class="op-kpi" x-data="wsConfigTest()"><div class="op-kpi-label">{{template "op_icon" "file"}} {{$.T.Get "Config test"}}</div>
+            <div class="op-kpi-value" style="font-size:20px">
+                {{if .TestCommand}}
+                <span x-show="state === ''"><button type="button" class="op-btn op-btn-secondary op-btn-sm" @click="run()" {{if not .Running}}disabled title="{{$.T.Get "The container is not running."}}"{{end}}>{{template "op_icon" "play"}} {{$.T.Get "Test config"}}</button></span>
+                <span x-show="state === 'busy'" x-cloak class="op-status is-muted">{{$.T.Get "Testing..."}}</span>
+                <span x-show="state === 'ok'" x-cloak class="op-status is-success" :title="output">{{$.T.Get "Syntax OK"}}</span>
+                <span x-show="state === 'fail'" x-cloak class="op-status is-danger" :title="output">{{$.T.Get "Failed"}}</span>
+                {{else}}<span class="op-hint" style="font-size:14px">{{$.T.Get "Not available"}}</span>{{end}}
+            </div>
+            <div class="op-kpi-note">{{if .TestCommand}}<span class="op-mono">{{.TestCommand}}</span> {{$.T.Get "before every save"}}<template x-if="state === 'ok' || state === 'fail'"><span> · <a href="#" style="color:var(--color-accent-text)" @click.prevent="run()">{{$.T.Get "Run again"}}</a></span></template>{{else}}{{$.T.Get "This web server has no syntax check."}}{{end}}</div>
+            <pre x-show="state === 'fail' && output" x-cloak class="op-mono" style="margin:8px 0 0;font-size:11px;white-space:pre-wrap;max-height:160px;overflow:auto" x-text="output"></pre>
+        </div>
+    </section>
+    <script>
+    function wsConfigTest() {
+        return {
+            state: '', output: '',
+            async run() {
+                this.state = 'busy';
+                try {
+                    const res = await fetch('/server/webserver_conf/test', { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } });
+                    const data = await res.json();
+                    this.output = data.output || '';
+                    this.state = data.ok ? 'ok' : 'fail';
+                } catch (e) {
+                    this.output = String(e);
+                    this.state = 'fail';
+                }
+            },
+        };
+    }
+    </script>
+    {{end}}{{end}}
+
+    {{if .Path}}
     {{with .TestFailure}}
-    <div class="conf-test-error" role="alert">
-        <p class="font-medium">{{$.T.Get "Not saved. The config test reported:"}}</p>
-        <ul>
-            {{range .Problems}}<li>{{.}}</li>{{end}}
-        </ul>
-        {{range .Hints}}<p>{{.}}</p>{{end}}
-        {{if .Line}}<p><a href="#" onclick="editor.focus(); editor.setCursor({line: {{.Line}} - 1, ch: 0}); editor.scrollIntoView(null, 200); return false;">{{$.T.Get "Go to line"}} {{.Line}}</a></p>{{end}}
-        {{if and .VhostDomain (index $.UserAllowed "edit_vhost")}}<p><a href="/domains/vhosts?domain={{.VhostDomain}}">{{$.T.Get "Open the VirtualHost file of"}} {{.VhostDomain}}</a></p>{{end}}
+    <div class="op-alert is-danger" role="alert">{{template "op_icon" "alert"}}<span style="min-width:0">
+        <b>{{$.T.Get "Not saved. The config test reported:"}}</b>
+        {{range .Problems}}<span class="op-mono" style="display:block;margin-top:6px;font-size:12px;overflow-wrap:anywhere">{{.}}</span>{{end}}
+        {{range .Hints}}<span style="display:block;margin-top:6px">{{.}}</span>{{end}}
+        {{if or .Line (and .VhostDomain (index $.UserAllowed "edit_vhost"))}}<span class="op-actions" style="margin-top:10px">
+            {{if .Line}}<button type="button" class="op-btn op-btn-secondary op-btn-sm" @click="jump({{.Line}})">{{$.T.Get "Go to line"}} {{.Line}}</button>{{end}}
+            {{if and .VhostDomain (index $.UserAllowed "edit_vhost")}}<a class="op-btn op-btn-secondary op-btn-sm" href="/domains/vhosts?domain={{.VhostDomain}}">{{$.T.Get "Open the VirtualHost file of"}} {{.VhostDomain}}</a>{{end}}
+        </span>{{end}}
+    </span></div>
+    {{end}}
+    {{template "op_conf_editor" (dict "T" .T "Name" "editor_content" "Content" .FileContent "File" .Path "Label" (.T.Get "Configuration file"))}}
+
+    {{if .CanRestoreDefault}}
+    <div class="op-scrim op-confed-scrim" x-show="confirmRestore" x-cloak @click="confirmRestore = false"></div>
+    <div class="op-sheet" role="dialog" aria-modal="true" aria-labelledby="ws-restore-title" x-show="confirmRestore" x-cloak @keydown.escape.window="confirmRestore = false">
+        <h2 id="ws-restore-title">{{.T.Get "Restore the default configuration?"}}</h2>
+        <p class="op-meta">{{.T.Get "This will overwrite the current file with the default configuration and restart the service."}}</p>
+        <div class="op-actions" style="margin-top:20px">
+            <button class="op-btn op-btn-secondary" type="button" @click="confirmRestore = false">{{.T.Get "Cancel"}}</button>
+            <button class="op-btn op-btn-danger" type="submit" name="action" value="restore_default" style="flex:1">{{template "op_icon" "refresh"}} {{.T.Get "Restore Default"}}</button>
+        </div>
     </div>
     {{end}}
-
-    <div id="editor-container" class="overflow-auto">
-        <textarea id="editor" name="editor_content" rows="40" cols="100">{{.FileContent}}</textarea>
-    </div>
-
-
-<script>
-var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
-    mode: "javascript",
-    lineNumbers: true,
-});
-{{with .TestFailure}}{{if .Line}}
-if ({{.Line}} <= editor.lineCount()) {
-    editor.addLineClass({{.Line}} - 1, 'background', 'conf-error-line');
-}
-{{end}}{{end}}
-</script>
-
+    {{else}}
+    <section class="op-card"><div class="op-empty"><b>{{.T.Get "No configuration file to edit"}}</b><span class="op-hint">{{.T.Get "This web server has no editable main configuration file in the panel."}}</span></div></section>
+    {{end}}
 </form>
-</section>
 
 <!-- END templates/system/apache_nginx_conf_editor.html -->
 {{end}}

@@ -1,384 +1,194 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
+
+{{/* one plan limit tile, "23 / 40" with a bar and what's left once the usage has loaded */}}
+{{define "plan_usage_kpi"}}<div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" .Icon}} {{.T.Get .Label}}</div><div class="op-kpi-value op-mono" id="{{.Key}}"><span x-show="!has('{{.Use}}')" x-text="limit(plan.{{.Key}})"></span><span x-show="has('{{.Use}}')" x-cloak x-text="use('{{.Use}}')"></span> <small x-show="has('{{.Use}}')" x-cloak x-text="'/ ' + limit(plan.{{.Key}})"></small></div><div class="op-progress" x-show="has('{{.Use}}') && Number(plan.{{.Key}}) > 0" x-cloak :class="barClass(use('{{.Use}}'), Number(plan.{{.Key}}))"><span :style="'width:' + pct(use('{{.Use}}'), Number(plan.{{.Key}})) + '%'"></span></div><div class="op-kpi-note" x-text="has('{{.Use}}') ? left(use('{{.Use}}'), Number(plan.{{.Key}})) : {{toJSON (.T.Get "plan limit")}}">{{.T.Get "plan limit"}}</div></div>{{end}}
 
 {{define "content"}}
 <!-- START templates/system/server_info.html -->
 
-<div class="border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
-	<header>
-		<h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Server Information"}}</h1>
-		<p class="text-sm text-gray-500 dark:text-gray-500"> {{.T.Get "View current server specification and system usage."}}</p>
-	</header>
-</div>
-<div class="overflow-x-auto">
-	<div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
-		<table class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
-			<tbody data-tab="server" class="divide-y divide-gray-200 dark:divide-gray-800">
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-rocket"></i> {{.T.Get "Hostname"}}
-					</td>
-					<td id="node" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-bar-chart"></i> {{.T.Get "Average Load"}}
-					</td>
-					<td class="whitespace-nowrap p-4 items-center space-x-4 text-sm text-gray-600 dark:text-gray-400 flex">
-						<span id="load">{{.T.Get "Loading..."}}</span>
-						<span id="load_icon" class="flex"></span>
-					</td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-clock-history"></i> {{.T.Get "Uptime"}}
-					</td>
-					<td id="uptime" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-geo-alt-fill"></i> {{.T.Get "IP Address"}}
-					</td>
-					<td id="ip" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-ethernet"></i> {{.T.Get "Ports"}}
-					</td>
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<ul role="list" class="mt-2 space-y-2">
-							<li class="relative flex w-full items-center space-x-3 rounded bg-gray-100/60 p-1 hover:bg-gray-100 dark:bg-gray-800/60 hover:dark:bg-gray-800">
-								<span class="inline-flex w-20 justify-center rounded bg-sky-500 py-1.5 text-sm font-semibold text-white dark:bg-sky-500 dark:text-white" id="remote_mysql_port">&nbsp;</span>
-								<p class="flex w-full items-center justify-between space-x-4 truncate text-sm font-medium">
-									<span class="text-gray-500 truncate dark:text-gray-500">{{.T.Get "Remote MySQL port"}}</span>
-								</p>
-							</li>
-							<li class="relative flex w-full items-center space-x-3 rounded bg-gray-100/60 p-1 hover:bg-gray-100 dark:bg-gray-800/60 hover:dark:bg-gray-800">
-								<span class="inline-flex w-20 justify-center rounded bg-sky-500 py-1.5 text-sm font-semibold text-white dark:bg-sky-500 dark:text-white">3306</span>
-								<p class="flex w-full items-center justify-between space-x-4 truncate text-sm font-medium">
-									<span class="text-gray-500 truncate dark:text-gray-500">{{.T.Get "Local MySQL port"}}</span>
-								</p>
-							</li>
-							<li class="relative flex w-full items-center space-x-3 rounded bg-gray-100/60 p-1 hover:bg-gray-100 dark:bg-gray-800/60 hover:dark:bg-gray-800">
-								<span class="inline-flex w-20 justify-center rounded bg-sky-500 py-1.5 text-sm font-semibold text-white dark:bg-sky-500 dark:text-white" id="remote_postgres_port">&nbsp;</span>
-								<p class="flex w-full items-center justify-between space-x-4 truncate text-sm font-medium">
-									<span class="text-gray-500 truncate dark:text-gray-500">{{.T.Get "Remote PostgreSQL port"}}</span>
-								</p>
-							</li>
-							<li class="relative flex w-full items-center space-x-3 rounded bg-gray-100/60 p-1 hover:bg-gray-100 dark:bg-gray-800/60 hover:dark:bg-gray-800">
-								<span class="inline-flex w-20 justify-center rounded bg-sky-500 py-1.5 text-sm font-semibold text-white dark:bg-sky-500 dark:text-white">5432</span>
-								<p class="flex w-full items-center justify-between space-x-4 truncate text-sm font-medium">
-									<span class="text-gray-500 truncate dark:text-gray-500">{{.T.Get "Local PostgreSQL port"}}</span>
-								</p>
-							</li>
-							{{if index .UserAllowed "mongodb"}}
-							<li class="relative flex w-full items-center space-x-3 rounded bg-gray-100/60 p-1 hover:bg-gray-100 dark:bg-gray-800/60 hover:dark:bg-gray-800">
-								<span class="inline-flex w-20 justify-center rounded bg-sky-500 py-1.5 text-sm font-semibold text-white dark:bg-sky-500 dark:text-white">27017</span>
-								<p class="flex w-full items-center justify-between space-x-4 truncate text-sm font-medium">
-									<span class="text-gray-500 truncate dark:text-gray-500">{{.T.Get "Local MongoDB port"}}</span>
-								</p>
-							</li>
-							{{end}}
-						</ul>
-					</td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-ubuntu"></i> {{.T.Get "OS"}}
-					</td>
-					<td id="system" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-question"></i> {{.T.Get "Release"}}
-					</td>
-					<td id="release" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-question"></i> {{.T.Get "Version"}}
-					</td>
-					<td id="version" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-cpu-fill"></i> {{.T.Get "Processor"}}
-					</td>
-					<td id="processor" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-globe"></i> {{.T.Get "Nameservers"}}
-					</td>
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<ul role="list" id="nameservers" class="mt-2 space-y-2">{{.T.Get "Loading..."}}</ul>
-					</td>
-				</tr>
-			</tbody>
-			<tbody data-tab="plan" hidden class="divide-y divide-gray-200 dark:divide-gray-800">
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-window-fullscreen"></i> {{.T.Get "Plan Name"}}
-					</td>
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.HostingPlanName}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-file-text"></i> {{.T.Get "Description"}}
-					</td>
-					<td id="plan_description" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-hdd-network"></i> {{.T.Get "Context"}}
-					</td>
-					<td id="context" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-speedometer2"></i> {{.T.Get "Bandwidth Limit"}}
-					</td>
-					<td id="plan_bandwidth" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-cpu-fill"></i> {{.T.Get "CPU Limit"}}
-					</td>
-					<td id="plan_cpu_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-memory"></i> {{.T.Get "Memory Limit"}}
-					</td>
-					<td id="plan_ram_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-database"></i> {{.T.Get "Database Limit"}}
-					</td>
-					<td id="plan_db_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-browser-chrome"></i> {{.T.Get "Websites Limit"}}
-					</td>
-					<td id="plan_websites_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-hdd"></i> {{.T.Get "Disk Limit"}}
-					</td>
-					<td id="plan_disk_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-globe2"></i> {{.T.Get "Domains Limit"}}
-					</td>
-					<td id="plan_domains_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="{{if not (index .UserAllowed "emails")}}hidden{{end}} domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-envelope"></i> {{.T.Get "Email Limit"}}
-					</td>
-					<td id="plan_email_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="{{if not (index .UserAllowed "ftp")}}hidden{{end}} domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-folder-fill"></i> {{.T.Get "FTP Limit"}}
-					</td>
-					<td id="plan_ftp_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-file-earmark-binary"></i> {{.T.Get "Inodes Limit"}}
-					</td>
-					<td id="plan_inodes_limit" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-database-fill"></i> {{.T.Get "MySQL Server"}}
-					</td>
-					<td id="plan_mysql" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-server"></i> {{.T.Get "Web Server"}}
-					</td>
-					<td id="plan_webserver" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"> {{.T.Get "Loading..."}} </td>
-				</tr>
-			</tbody>
-			<tbody data-tab="panel" hidden class="divide-y divide-gray-200 dark:divide-gray-800">
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-window-fullscreen"></i> {{.T.Get "Panel Version"}}
-					</td>
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<a href="https://openpanel.com/docs/changelog/{{.PanelVersion}}/" target="_blank">
-							<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded px-2 py-1 text-xs font-medium ring-1 ring-inset bg-blue-50 text-blue-900 ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">{{.PanelVersion}}</span>
-						</a>
-					</td>
-				</tr>
-				<tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-					<td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-						<i class="bi bi-menu-app-fill"></i> {{.T.Get "Enabled Features"}}
-					</td>
-					<td class="text-wrap p-4 text-sm text-gray-600 dark:text-gray-400">
-					<ul x-data="modules()" class="flex flex-wrap gap-x-4">
-						<template x-for="module in filteredModules()" :key="module.name">
-							<li class="py-1">
-								<a :href="module.help_link" target="_blank" class="text-blue-600 hover:underline">
-									<span x-text="module.name"></span>
-								</a>
-							</li>
-						</template>
-					</ul>
+<div class="op-content" x-data="serverInfo()" x-init="init()">
 
-					<script>
-					function modules() {
-						return {
-							modules: [],
-							userAllowed: {{.UserAllowedJSON}},
-							init() {
-								fetch('https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json')
-									.then(res => res.json())
-									.then(data => {
-										this.modules = data;
-									})
-									.catch(err => console.error('Error loading modules:', err));
-							},
-							filteredModules() {
-								return this.modules.filter(m => this.userAllowed.includes(m.name));
-							}
-						}
-					}
-					</script>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+    <!-- Server -->
+    <div class="op-col" x-show="tab === 'server'">
+        <div class="op-page-head"><div><h1 class="op-title">{{.T.Get "Server Information"}}</h1><p class="op-meta">{{.T.Get "View current server specification and system usage."}}</p></div></div>
+
+        <section class="op-kpis" aria-label="{{.T.Get "Server"}}">
+            <div class="op-kpi"><div class="op-kpi-label op-kpi-split"><span>{{template "op_icon" "server"}} {{.T.Get "Hostname"}}</span><button class="op-icon-btn" type="button" x-show="info.node" @click="copy(info.node)" aria-label="{{.T.Get "Copy hostname"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div><div class="op-kpi-value op-mono op-kpi-text op-wrap" id="node" x-text="info.node || loading"></div><div class="op-kpi-note op-mono" x-text="[info.system, info.machine].filter(Boolean).join(' ')"></div></div>
+            <div class="op-kpi"><div class="op-kpi-label op-kpi-split"><span>{{template "op_icon" "globe"}} {{.T.Get "IP Address"}}</span><button class="op-icon-btn" type="button" x-show="info.ip" @click="copy(info.ip)" aria-label="{{.T.Get "Copy IP address"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div><div class="op-kpi-value op-mono op-kpi-text op-wrap" id="ip" x-text="info.ip || loading"></div><div class="op-kpi-note">{{.T.Get "shared by all your domains"}}</div></div>
+            <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "refresh"}} {{.T.Get "Uptime"}}</div><div class="op-kpi-value op-mono op-kpi-text" id="uptime" x-text="info.uptime || loading"></div><div class="op-kpi-note">{{.T.Get "since the last reboot"}}</div></div>
+            <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "chart"}} {{.T.Get "Average Load"}}</div><div class="op-kpi-value op-mono op-kpi-text" id="load" x-text="info.load_avg ? info.load_avg.split(',').map(v => v.trim()).join(' ') : loading"></div><div class="op-kpi-note" x-text="loadNote()"></div></div>
+        </section>
+
+        <div class="op-cols-2">
+            <section class="op-card">
+                <div class="op-card-head"><div><h2>{{.T.Get "System"}}</h2><p class="op-meta">{{.T.Get "What the server runs."}}</p></div></div>
+                <dl class="op-sys">
+                    <dt>{{.T.Get "OS"}}</dt><dd class="op-mono" id="system" x-text="info.system ? info.system + (info.machine ? ' (' + info.machine + ')' : '') : loading"></dd>
+                    <dt>{{.T.Get "Release"}}</dt><dd><span class="op-copybox"><span class="op-mono" id="release" x-text="info.release || loading"></span><button class="op-icon-btn" type="button" x-show="info.release" @click="copy(info.release)" aria-label="{{.T.Get "Copy release"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></span></dd>
+                    <dt>{{.T.Get "Version"}}</dt><dd class="op-mono" id="version" x-text="info.version || loading"></dd>
+                    <dt>{{.T.Get "Processor"}}</dt><dd id="processor" :class="!info.processor && loaded && 'op-muted'" x-text="info.processor || (loaded ? '{{.T.Get "Not reported by the server"}}' : loading)"></dd>
+                </dl>
+            </section>
+
+            <section class="op-card">
+                <div class="op-card-head"><div><h2>{{.T.Get "Nameservers"}}</h2><p class="op-meta">{{.T.Get "Point your domains at these at your registrar."}}</p></div><button class="op-btn op-btn-secondary op-btn-sm" type="button" x-show="ns().length" @click="copy(ns().join('\n'))">{{template "op_icon" "copy"}} {{.T.Get "Copy all"}}</button></div>
+                <div class="op-ns-list" id="nameservers">
+                    <template x-for="(n, i) in ns()" :key="n"><div class="op-ns-row"><span class="op-badge op-mono" x-text="'ns' + (i + 1)"></span><span class="op-copybox"><span class="op-mono" x-text="n"></span><button class="op-icon-btn" type="button" @click="copy(n)" :aria-label="'{{.T.Get "Copy"}} ' + n" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></span></div></template>
+                    <p class="op-meta" x-show="planLoaded && !ns().length" x-cloak>{{.T.Get "No nameservers are set on this server."}}</p>
+                </div>
+            </section>
+        </div>
+
+        <section class="op-card">
+            <div class="op-card-head"><div><h2>{{.T.Get "Ports"}}</h2><p class="op-meta">{{.T.Get "Inside your sites use the local port. Remote ports reach the database from another server once"}} {{if .UserAllowed.remote_mysql}}<a href="/mysql/remote-mysql">{{.T.Get "Remote Access"}}</a>{{else}}{{.T.Get "Remote Access"}}{{end}} {{.T.Get "is on."}}</p></div></div>
+            <div class="op-ports">
+                <div class="op-port-row"><b>MySQL / MariaDB</b><span class="op-port"><span class="op-badge">{{.T.Get "local"}}</span><span class="op-mono">3306</span><button class="op-icon-btn" type="button" @click="copy('3306')" aria-label="{{.T.Get "Copy"}} 3306">{{template "op_icon" "copy"}}</button></span><span class="op-port"><span class="op-badge">{{.T.Get "remote"}}</span><span class="op-mono" id="remote_mysql_port" x-text="ports.remote_mysql_port || '–'"></span><button class="op-icon-btn" type="button" x-show="ports.remote_mysql_port" @click="copy(String(ports.remote_mysql_port))" aria-label="{{.T.Get "Copy remote MySQL port"}}">{{template "op_icon" "copy"}}</button></span></div>
+                <div class="op-port-row"><b>PostgreSQL</b><span class="op-port"><span class="op-badge">{{.T.Get "local"}}</span><span class="op-mono">5432</span><button class="op-icon-btn" type="button" @click="copy('5432')" aria-label="{{.T.Get "Copy"}} 5432">{{template "op_icon" "copy"}}</button></span><span class="op-port"><span class="op-badge">{{.T.Get "remote"}}</span><span class="op-mono" id="remote_postgres_port" x-text="ports.remote_postgres_port || '–'"></span><button class="op-icon-btn" type="button" x-show="ports.remote_postgres_port" @click="copy(String(ports.remote_postgres_port))" aria-label="{{.T.Get "Copy remote PostgreSQL port"}}">{{template "op_icon" "copy"}}</button></span></div>
+                {{if index .UserAllowed "mongodb"}}
+                <div class="op-port-row"><b>MongoDB</b><span class="op-port"><span class="op-badge">{{.T.Get "local"}}</span><span class="op-mono">27017</span><button class="op-icon-btn" type="button" @click="copy('27017')" aria-label="{{.T.Get "Copy"}} 27017">{{template "op_icon" "copy"}}</button></span><span class="op-port op-muted">{{.T.Get "local only"}}</span></div>
+                {{end}}
+            </div>
+        </section>
+    </div>
+
+    <!-- Hosting Plan -->
+    <div class="op-col" x-show="tab === 'plan'" x-cloak>
+        <div class="op-page-head"><div><h1 class="op-title">{{.T.Get "Hosting Plan"}}</h1><p class="op-meta">{{.T.Get "The limits of your hosting plan."}}</p></div></div>
+
+        <section class="op-card op-plan-head">
+            <span class="op-ico-tile">{{template "op_icon" "box"}}</span>
+            <div class="op-plan-name"><div class="op-eyebrow">{{.T.Get "Hosting plan"}}</div><b>{{.HostingPlanName}}</b><span class="op-meta" id="plan_description" x-text="plan.plan_description || ''"></span></div>
+            <div class="op-plan-tags">
+                <span class="op-tag" x-show="plan.context">{{.T.Get "Context"}} <b class="op-mono" id="context" x-text="plan.context"></b></span>
+                <span class="op-tag" x-show="plan.plan_mysql">{{.T.Get "MySQL server"}} <b id="plan_mysql" x-text="plan.plan_mysql"></b></span>
+                <span class="op-tag" x-show="plan.plan_webserver">{{.T.Get "Web server"}} <b id="plan_webserver" x-text="plan.plan_webserver"></b></span>
+            </div>
+        </section>
+
+        <div class="op-eyebrow op-sec-label">{{.T.Get "Plan limits"}}</div>
+        <section class="op-kpis op-kpis-auto" aria-label="{{.T.Get "Plan limits"}}">
+            {{template "plan_usage_kpi" (dict "T" .T "Icon" "globe" "Label" "Domains" "Key" "plan_domains_limit" "Use" "domains")}}
+            {{template "plan_usage_kpi" (dict "T" .T "Icon" "browser" "Label" "Websites" "Key" "plan_websites_limit" "Use" "websites")}}
+            {{template "plan_usage_kpi" (dict "T" .T "Icon" "db" "Label" "Databases" "Key" "plan_db_limit" "Use" "databases")}}
+            {{if index .UserAllowed "emails"}}{{template "plan_usage_kpi" (dict "T" .T "Icon" "mail" "Label" "Email accounts" "Key" "plan_email_limit" "Use" "emails")}}{{end}}
+            {{if index .UserAllowed "ftp"}}{{template "plan_usage_kpi" (dict "T" .T "Icon" "folder" "Label" "FTP accounts" "Key" "plan_ftp_limit" "Use" "ftp")}}{{end}}
+        </section>
+
+        <div class="op-eyebrow op-sec-label">{{.T.Get "Resource limits"}}</div>
+        <section class="op-kpis op-kpis-auto" aria-label="{{.T.Get "Resource limits"}}">
+            <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "cpu"}} {{.T.Get "CPU"}}</div><div class="op-kpi-value op-mono" id="plan_cpu_limit"><span x-text="limit(plan.plan_cpu_limit)"></span> <small x-show="plan.plan_cpu_limit && plan.plan_cpu_limit != 0">{{.T.Get "cores"}}</small></div><div class="op-kpi-note">{{.T.Get "plan limit"}}</div></div>
+            <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "memory"}} {{.T.Get "Memory"}}</div><div class="op-kpi-value op-mono" id="plan_ram_limit" x-text="limit(plan.plan_ram_limit)"></div><div class="op-kpi-note">{{.T.Get "plan limit"}}</div></div>
+            <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "archive"}} {{.T.Get "Disk"}}</div><div class="op-kpi-value op-mono" id="plan_disk_limit"><span x-show="!has('disk_used_kb')" x-text="limit(plan.plan_disk_limit)"></span><span x-show="has('disk_used_kb')" x-cloak x-text="kb(use('disk_used_kb'))"></span> <small x-show="has('disk_used_kb')" x-cloak x-text="'/ ' + limit(plan.plan_disk_limit)"></small></div><div class="op-progress" x-show="has('disk_used_kb') && use('disk_soft_kb') > 0" x-cloak :class="barClass(use('disk_used_kb'), use('disk_soft_kb'))"><span :style="'width:' + pct(use('disk_used_kb'), use('disk_soft_kb')) + '%'"></span></div><div class="op-kpi-note" x-text="has('disk_used_kb') && use('disk_soft_kb') > 0 ? kb(Math.max(0, use('disk_soft_kb') - use('disk_used_kb'))) + ' ' + {{toJSON (.T.Get "left")}} : {{toJSON (.T.Get "plan limit")}}">{{.T.Get "plan limit"}}</div></div>
+            <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "file"}} {{.T.Get "Inodes"}}</div><div class="op-kpi-value op-mono" id="plan_inodes_limit"><span x-show="!has('inodes')" x-text="limit(plan.plan_inodes_limit, true)"></span><span x-show="has('inodes')" x-cloak x-text="use('inodes').toLocaleString()"></span> <small x-show="has('inodes')" x-cloak x-text="'/ ' + limit(plan.plan_inodes_limit, true)"></small></div><div class="op-progress" x-show="has('inodes') && use('inodes_soft') > 0" x-cloak :class="barClass(use('inodes'), use('inodes_soft'))"><span :style="'width:' + pct(use('inodes'), use('inodes_soft')) + '%'"></span></div><div class="op-kpi-note" x-text="has('inodes') && use('inodes_soft') > 0 ? left(use('inodes'), use('inodes_soft')) : {{toJSON (.T.Get "plan limit")}}">{{.T.Get "plan limit"}}</div></div>
+            <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "chart"}} {{.T.Get "Bandwidth"}}</div><div class="op-kpi-value op-mono" id="plan_bandwidth" x-text="limit(plan.plan_bandwidth)"></div><div class="op-kpi-note">{{.T.Get "plan limit"}}</div></div>
+            {{if index .UserAllowed "emails"}}<div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "mail"}} {{.T.Get "Mailbox quota"}}</div><div class="op-kpi-value op-mono" x-text="limit(plan.plan_max_email_quota)"></div><div class="op-kpi-note">{{.T.Get "plan limit"}}</div></div>{{end}}
+        </section>
+    </div>
+
+    <!-- Panel -->
+    <div class="op-col" x-show="tab === 'panel'" x-cloak>
+        <div class="op-page-head"><div><h1 class="op-title">{{.T.Get "Panel"}}</h1><p class="op-meta">{{.T.Get "Version and the features enabled for your account."}}</p></div></div>
+
+        <section class="op-kpis" aria-label="{{.T.Get "Panel"}}">
+            <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "apps"}} {{.T.Get "Panel Version"}}</div><div class="op-kpi-value op-mono op-kpi-text">{{.PanelVersion}}</div><div class="op-kpi-note"><a href="https://openpanel.com/docs/changelog/{{.PanelVersion}}/" target="_blank" rel="noopener">{{.T.Get "Changelog"}}</a></div></div>
+            <div class="op-kpi"><div class="op-kpi-label op-kpi-split"><span>{{template "op_icon" "globe"}} {{.T.Get "Panel address"}}</span><button class="op-icon-btn" type="button" @click="copy(location.host)" aria-label="{{.T.Get "Copy panel address"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div><div class="op-kpi-value op-mono op-kpi-text op-wrap" x-text="location.host"></div><div class="op-kpi-note" x-text="'{{.T.Get "port"}} ' + (location.port || (location.protocol === 'https:' ? '443' : '80')) + ', ' + location.protocol.replace(':', '').toUpperCase()"></div></div>
+            <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "check"}} {{.T.Get "Enabled Features"}}</div><div class="op-kpi-value op-mono op-kpi-text" x-text="modules.length ? feats().length : userAllowed.length"></div><div class="op-kpi-note">{{.T.Get "turned on for this account by the administrator"}}</div></div>
+        </section>
+
+        <section class="op-card" aria-label="{{.T.Get "Enabled Features"}}">
+            <div class="op-card-head"><div><h2>{{.T.Get "Enabled Features"}}</h2><p class="op-meta">{{.T.Get "Everything this account can use. Your administrator turns features on or off per plan."}}</p></div></div>
+            <div class="op-filter-row">
+                <template x-for="t in ['all', 'community', 'enterprise', 'beta']" :key="t"><button class="op-filter" type="button" :class="type === t && 'is-set'" @click="type = t" x-show="count(t)"><span x-text="typeLabel[t]"></span> <b class="op-count" x-text="count(t)"></b></button></template>
+            </div>
+            <div class="op-toolbar"><label class="op-search">{{template "op_icon" "search"}}<input class="op-input" type="search" placeholder="{{.T.Get "Search features"}}" x-model="q" aria-label="{{.T.Get "Search features"}}"></label><span class="op-hint" x-show="modules.length" x-text="shown().length + ' {{.T.Get "of"}} ' + feats().length"></span></div>
+            <div @scroll.window="tip = null">
+                <ul class="op-feats">
+                    <template x-for="f in shown()" :key="f.name"><li><button type="button" class="op-chip" @mouseenter="showTip(f, $el)" @mouseleave="hideTip()" @focus="showTip(f, $el)" @blur="hideTip()" @click="tip && tip.name === f.name ? tip = null : showTip(f, $el)" :aria-describedby="tip && tip.name === f.name ? 'feat-tip' : null"><span x-text="f.title || f.name"></span><span class="op-feat-dot" :class="f.type === 'beta' && 'is-beta'" x-show="f.type && f.type !== 'community'"></span></button></li></template>
+                </ul>
+                <p class="op-hint op-feat-legend" x-show="modules.length"><span><span class="op-feat-dot"></span>{{.T.Get "Enterprise"}}</span><span><span class="op-feat-dot is-beta"></span>{{.T.Get "Beta"}}</span><span>{{.T.Get "Hover or tap a feature to see what it does."}}</span></p>
+                <div id="feat-tip" class="op-feat-tip" role="tooltip" x-show="tip" x-cloak x-transition.opacity.duration.100ms @mouseenter="clearTimeout(tipTimer)" @mouseleave="hideTip()" :style="{ left: tipX + 'px', top: tipY + 'px', transform: tipUp ? 'translateY(-100%)' : 'none' }">
+                    <template x-if="tip"><div>
+                        <div class="op-feat-tip-head"><b x-text="tip.title || tip.name"></b><span class="op-badge is-accent" x-show="tip.type === 'enterprise'">{{.T.Get "Enterprise"}}</span><span class="op-badge is-warning" x-show="tip.type === 'beta'">{{.T.Get "Beta"}}</span></div>
+                        <p x-text="tip.description || ''"></p>
+                        <a x-show="tip.link" :href="tip.link" x-text="'{{.T.Get "Open"}} ' + (tip.title || tip.name)"></a>
+                        <a x-show="tip.help_link" :href="tip.help_link" target="_blank" rel="noopener">{{.T.Get "Documentation"}}</a>
+                    </div></template>
+                </div>
+            </div>
+            <div class="op-empty" x-show="loaded && modules.length && !shown().length" x-cloak><b>{{.T.Get "Nothing matches"}}</b><span class="op-hint">{{.T.Get "Try another search or type."}}</span></div>
+            <p class="op-meta" x-show="featsFailed" x-cloak>{{.T.Get "The feature list couldn't be loaded."}}</p>
+        </section>
+    </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const csrfHeaders = { 'X-CSRF-Token': csrf_token };
-
-    function setText(id, text) {
-        const el = document.getElementById(id);
-        if (el) el.textContent = text;
-    }
-
-    function setHTML(id, html) {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = html;
-    }
-
-    fetch('/json/system/hosting/info', { headers: csrfHeaders })
-        .then(res => res.json())
-        .then(response => {
-            setText('machine', response.machine);
-            setText('uptime', response.uptime);
-            setText('node', response.node);
-            setText('processor', response.processor);
-            setText('release', response.release);
-            setText('system', response.system);
-            setText('version', response.version);
-            setText('ip', response.ip);
-            setText('load', response.load_avg);
-
-            const load_avg = response.load_avg.split(',').map(v => parseFloat(v.trim()));
-            const load_1min = load_avg[0];
-            const load_5min = load_avg[1];
-            const percentage_difference = ((load_1min - load_5min) / load_5min) * 100;
-            const percentage = percentage_difference.toFixed(1) + '%';
-
-            let iconHtml = '';
-            if (percentage_difference > 500) {
-                iconHtml = `<span class="flex items-center space-x-2.5 py-1 pl-2.5 pr-1 ring-1"><span class="font-semibold tabular-nums">${percentage}</span><span class="bg-blue-100 px-2 py-1 font-medium"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 text-blue-600"><path d="M13.0001 7.82843V20H11.0001V7.82843L5.63614 13.1924L4.22192 11.7782L12.0001 4L19.7783 11.7782L18.3641 13.1924L13.0001 7.82843Z"></path></svg></span></span>`;
-            } else if (percentage_difference > 200) {
-                iconHtml = `<span class="flex items-center space-x-2.5 py-1 pl-2.5 pr-1 ring-1"><span class="font-semibold tabular-nums">${percentage}</span><span class="bg-blue-100 px-2 py-1 font-medium"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 text-blue-600"><path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path></svg></span></span>`;
-            } else if (percentage_difference < 200 && percentage_difference > 100) {
-                iconHtml = `<span class="flex items-center space-x-2.5 py-1 pl-2.5 pr-1 ring-1 custom-md-badge:inline-flex"><span class="font-semibold tabular-nums">${percentage}</span><span class="rbg-blue-100 px-2 py-1 font-medium"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 text-blue-600"><path d="M14.5895 16.0032L5.98291 7.39664L7.39712 5.98242L16.0037 14.589V7.00324H18.0037V18.0032H7.00373V16.0032H14.5895Z"></path></svg></span></span>`;
-            } else if (percentage_difference < 100) {
-                iconHtml = `<span class="flex items-center space-x-2.5 py-1 pl-2.5 pr-1 ring-1 custom-lg:inline-flex"><span class="font-semibold tabular-nums">${percentage}</span><span class="bg-blue-100 px-2 py-1 font-medium"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 text-blue-600"><path d="M13.0001 16.1716L18.3641 10.8076L19.7783 12.2218L12.0001 20L4.22192 12.2218L5.63614 10.8076L11.0001 16.1716V4H13.0001V16.1716Z"></path></svg></span></span>`;
-            }
-            setHTML('load_icon', iconHtml);
-        })
-        .catch(err => console.error('Error fetching hosting info:', err));
-
-    // PORTS
-    fetch('/json/system/hosting/ports', { headers: csrfHeaders })
-        .then(res => res.json())
-        .then(response => {
-            setText('remote_mysql_port', response.remote_mysql_port);
-            setText('remote_postgres_port', response.remote_postgres_port);
-        })
-        .catch(err => console.error('Error fetching ports:', err));
-
-    // HOSTING PACKAGE
-    fetch('/json/system/hosting/plan', { headers: csrfHeaders })
-        .then(res => res.json())
-        .then(response => {
-            setText('context', response.context);
-
-            const nsContainer = document.getElementById('nameservers');
-            nsContainer.innerHTML = '';
-            [response.ns1, response.ns2, response.ns3, response.ns4].forEach((ns, i) => {
-                if (ns) {
-                    const li = document.createElement('li');
-                    li.className = 'relative flex w-full items-center space-x-3 rounded bg-gray-100/60 p-1 hover:bg-gray-100 dark:bg-gray-800/60 hover:dark:bg-gray-800';
-                    li.innerHTML = `
-                        <span class="inline-flex w-20 justify-center rounded bg-sky-500 py-1.5 text-sm font-semibold text-white dark:bg-sky-500 dark:text-white">ns${i+1}</span>
-                        <p class="flex w-full items-center justify-between space-x-4 truncate text-sm font-medium">
-                            <span class="text-gray-500 truncate dark:text-gray-500">${ns}</span>
-                        </p>
-                    `;
-                    nsContainer.appendChild(li);
-                }
-            });
-
-            function formatLimit(value) {
-                return value == 0 ? '<i class="bi bi-infinity"></i>' : value;
-            }
-
-            setText('plan_bandwidth', response.plan_bandwidth);
-            setHTML('plan_cpu_limit', formatLimit(response.plan_cpu_limit));
-            setHTML('plan_ram_limit', formatLimit(response.plan_ram_limit));
-            setHTML('plan_db_limit', formatLimit(response.plan_db_limit));
-            setHTML('plan_disk_limit', formatLimit(response.plan_disk_limit));
-            setHTML('plan_domains_limit', formatLimit(response.plan_domains_limit));
-            setHTML('plan_email_limit', formatLimit(response.plan_email_limit));
-            setHTML('plan_ftp_limit', formatLimit(response.plan_ftp_limit));
-            setHTML('plan_inodes_limit', formatLimit(response.plan_inodes_limit));
-            setHTML('plan_websites_limit', formatLimit(response.plan_websites_limit));
-            setText('plan_mysql', response.plan_mysql);
-            setText('plan_webserver', response.plan_webserver);
-            setText('plan_description', response.plan_description);
-        })
-        .catch(err => console.error('Error fetching plan:', err));
-});
-</script>
-
-<script>
-// tabs are #server, #plan and #panel on this one page, the header tab bar can't know the hash so it's marked here
-(function () {
-    var tabFor = { server: 'server', plan: 'plan', panel: 'panel', openpanel: 'panel' };
-    var on = ['border-blue-600', 'text-blue-600', 'dark:border-blue-500', 'dark:text-blue-500'];
-    var off = ['border-transparent', 'text-gray-500', 'hover:border-gray-300', 'hover:text-gray-700', 'dark:text-gray-400', 'dark:hover:text-gray-300'];
-    function show() {
-        var tab = tabFor[location.hash.slice(1)] || 'server';
-        document.querySelectorAll('tbody[data-tab]').forEach(function (body) {
-            body.hidden = body.dataset.tab !== tab;
-        });
-        document.querySelectorAll('#page-tabs a[href^="/server/info#"]').forEach(function (link) {
-            var active = link.getAttribute('href') === '/server/info#' + tab;
-            link.classList.remove.apply(link.classList, active ? off : on);
-            link.classList.add.apply(link.classList, active ? on : off);
-            if (active) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
-        });
-    }
-    window.addEventListener('hashchange', show);
-    show();
-})();
+function serverInfo() {
+    return {
+        tab: 'server', info: {}, ports: {}, plan: {}, modules: [], loaded: false, planLoaded: false, featsFailed: false,
+        loading: {{toJSON (.T.Get "Loading...")}},
+        userAllowed: {{.UserAllowedJSON}},
+        q: '', type: 'all', tip: null, tipX: 0, tipY: 0, tipUp: false, tipTimer: null,
+        typeLabel: { all: {{toJSON (.T.Get "All")}}, community: {{toJSON (.T.Get "Community")}}, enterprise: {{toJSON (.T.Get "Enterprise")}}, beta: {{toJSON (.T.Get "Beta")}} },
+        init() {
+            // tabs are #server, #plan and #panel on this one page, the header tab bar can't know the hash so it's marked here
+            const show = () => {
+                const t = { server: 'server', plan: 'plan', panel: 'panel', openpanel: 'panel' }[location.hash.slice(1)] || 'server';
+                this.tab = t;
+                document.querySelectorAll('#page-tabs a[href^="/server/info#"]').forEach((a) => {
+                    if (a.getAttribute('href') === '/server/info#' + t) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+                });
+            };
+            window.addEventListener('hashchange', show);
+            show();
+            const h = { 'X-CSRF-Token': csrf_token };
+            fetch('/json/system/hosting/info', { headers: h }).then(r => r.json()).then(d => { this.info = d || {}; }).catch(() => {}).finally(() => { this.loaded = true; });
+            fetch('/json/system/hosting/ports', { headers: h }).then(r => r.json()).then(d => { this.ports = d || {}; }).catch(() => {});
+            fetch('/json/system/hosting/plan', { headers: h }).then(r => r.json()).then(d => { this.plan = d || {}; }).catch(() => {}).finally(() => { this.planLoaded = true; });
+            // the admin's local copy first, GitHub when the server doesn't have one
+            fetch('/json/system/features', { headers: h }).then(r => r.ok ? r.json() : Promise.reject())
+                .catch(() => fetch('https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json').then(r => r.json()))
+                .then(d => { this.modules = Array.isArray(d) ? d : []; })
+                .catch(() => { this.featsFailed = true; });
+        },
+        has(k) { return !!this.plan.usage && typeof this.plan.usage[k] === 'number'; },
+        use(k) { return this.has(k) ? this.plan.usage[k] : 0; },
+        pct(used, lim) { return lim > 0 ? Math.min(100, Math.round(used / lim * 1000) / 10) : 0; },
+        barClass(used, lim) { const p = this.pct(used, lim); return p >= 90 ? 'is-danger' : p >= 70 ? 'is-warning' : ''; },
+        left(used, lim) { return lim > 0 ? Math.max(0, lim - used).toLocaleString() + ' ' + {{toJSON (.T.Get "left")}} : {{toJSON (.T.Get "no limit")}}; },
+        kb(v) { const u = ['KB', 'MB', 'GB', 'TB']; let i = 0; while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; } return (Math.round(v * 10) / 10) + ' ' + u[i]; },
+        copy(t) { copyToClipboard(t).then(() => showToast({{toJSON (.T.Get "Copied to clipboard")}}, 'success')); },
+        ns() { return [this.plan.ns1, this.plan.ns2, this.plan.ns3, this.plan.ns4].filter(Boolean); },
+        limit(v, big) {
+            if (v === undefined || v === null || v === '') return this.planLoaded ? '–' : '…';
+            if (v == 0) return '∞';
+            return big && !isNaN(v) ? Number(v).toLocaleString() : String(v);
+        },
+        loadNote() {
+            if (!this.info.load_avg) return '';
+            const l = this.info.load_avg.split(',').map(v => parseFloat(v));
+            if (!(l[1] > 0)) return {{toJSON (.T.Get "1, 5 and 15 minutes")}};
+            const d = (l[0] - l[1]) / l[1] * 100;
+            return {{toJSON (.T.Get "1, 5 and 15 minutes")}} + ', ' + (d >= 0 ? {{toJSON (.T.Get "rising")}} : {{toJSON (.T.Get "falling")}}) + ' ' + Math.abs(d).toFixed(0) + '%';
+        },
+        feats() { return this.modules.filter(m => this.userAllowed.includes(m.name)); },
+        count(t) { return this.feats().filter(f => t === 'all' || (f.type || 'community') === t).length; },
+        shown() {
+            const q = this.q.trim().toLowerCase();
+            return this.feats().filter(f => (this.type === 'all' || (f.type || 'community') === this.type) && (!q || ((f.title || '') + ' ' + f.name + ' ' + (f.description || '')).toLowerCase().includes(q)));
+        },
+        showTip(f, el) {
+            clearTimeout(this.tipTimer);
+            const r = el.getBoundingClientRect();
+            this.tipUp = r.bottom + 170 > innerHeight;
+            this.tipX = Math.max(12, Math.min(r.left, innerWidth - 332));
+            this.tipY = this.tipUp ? r.top - 8 : r.bottom + 8;
+            this.tip = f;
+        },
+        hideTip() { this.tipTimer = setTimeout(() => this.tip = null, 120); },
+    };
+}
 </script>
 
 <!-- END templates/system/server_info.html -->

@@ -1,0 +1,487 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+<script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+{{template "cms_block" .}}
+        {{template "cms_block_2" .}}
+        {{template "cms_block_3" .}}
+{{template "cms_script" .}}
+{{template "cms_block_5" .}}
+    <div class="flex flex-col space-y-4 rounded xl:col-span-3">
+
+        {{template "cms_block_6" .}}
+            {{template "cms_tabbtn_dashboard" .}}
+            {{template "cms_tabbtn_logs" .}}
+            {{template "cms_tabbtn_maintenance" .}}
+            {{template "cms_tabbtn_update" .}}
+            {{template "cms_tabbtn_clone" .}}
+            {{template "cms_tabbtn_backups" .}}
+            {{template "cms_tab_security_2" .}}
+        {{template "cms_tab_dashboard" .}}
+            <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
+                <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
+                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded xl:col-span-3">
+                        {{template "cms_block_10" .}}
+                {{template "cms_block_13" .}}
+                {{template "cms_block_14" .}}
+                <div class="flex flex-col justify-top overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+                    <div class="mb-2 flex items-center justify-between gap-4 relative">
+                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>
+                        {{if .UserAllowed.mysql}}
+                        <a
+                            type="button"
+                            id="db-link"
+                            href="/mysql"
+                            target="_blank"
+                            data-tooltip-target="tooltip-db-link" data-tooltip-placement="left"
+                            class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
+                                <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <div id="tooltip-db-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                            {{.T.Get "Manage MySQL databases"}}
+                            <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+                        {{end}}
+                    </div>
+
+                    {{if .DBInfo.error}}
+                    <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                        <span class="text-sm text-gray-500 dark:text-gray-500">{{.DBInfo.error}}</span>
+                    </div>
+                    {{else}}
+                    <div class="grid grid-cols-1 gap-2">
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50" id="database-size-row">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Size:"}}</span>
+                            <span class="font-medium" id="databaseSize">{{.T.Get "Calculating.."}}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Host:"}}</span>
+                            <span class="font-medium">{{.DBInfo.database_host}}</span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Name:"}}</span>
+                            <span class="font-medium">
+                            {{if .UserAllowed.mysql}}
+                                <a href="/mysql" class="hover:underline">{{.DBInfo.database_name}}</a>
+                            {{else}}
+                                {{.DBInfo.database_name}}
+                            {{end}}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database User:"}}</span>
+                            <span class="font-medium">
+                            {{if .UserAllowed.mysql}}
+                                <a href="/mysql/users" class="hover:underline">{{.DBInfo.database_user}}</a>
+                            {{else}}
+                                {{.DBInfo.database_user}}
+                            {{end}}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Password:"}}</span>
+                            <span class="font-medium" id="database-password" style="filter: blur(5px); cursor: pointer;" onclick="revealDrupalDBPassword()">{{.DBInfo.database_password}}</span>
+                        </div>
+
+                        {{if .UserAllowed.phpmyadmin}}
+                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "phpMyAdmin:"}}</span>
+                            <span class="font-medium flex items-center gap-1.5"><a
+                                        type="button"
+                                        id="phpmyadmin-link"
+                                        href="/phpmyadmin"
+                                        target="_blank"
+                                        data-tooltip-target="tooltip-phpmyadmin-link" data-tooltip-placement="left"
+                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
+                                            <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </a>
+                                    <div id="tooltip-phpmyadmin-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Open database in phpMyAdmin"}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div>
+                                    <a
+                                        type="button"
+                                        id="phpmyadmin-link-manual"
+                                        href="/phpmyadmin/link"
+                                        target="_blank"
+                                        data-tooltip-target="tooltip-phpmyadmin-link-manual" data-tooltip-placement="left"
+                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-right-end-on-rectangle inline-block size-5">
+                                            <path fill-rule="evenodd" d="M6 3.75A2.75 2.75 0 0 1 8.75 1h4.5A2.75 2.75 0 0 1 16 3.75v12.5A2.75 2.75 0 0 1 13.25 19h-4.5A2.75 2.75 0 0 1 6 16.25v-1a.75.75 0 0 1 1.5 0v1c0 .69.56 1.25 1.25 1.25h4.5c.69 0 1.25-.56 1.25-1.25V3.75c0-.69-.56-1.25-1.25-1.25h-4.5c-.69 0-1.25.56-1.25 1.25v1a.75.75 0 0 1-1.5 0v-1Z" clip-rule="evenodd"></path>
+                                            <path fill-rule="evenodd" d="M1 10a.75.75 0 0 1 .75-.75h9.546l-1.048-.943a.75.75 0 1 1 1.004-1.114l2.5 2.25a.75.75 0 0 1 0 1.114l-2.5 2.25a.75.75 0 1 1-1.004-1.114l1.048-.943H1.75A.75.75 0 0 1 1 10Z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </a>
+                                    <div id="tooltip-phpmyadmin-link-manual" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Open phpMyAdmin login form"}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div></span>
+                        </div>
+                        {{end}}
+                    </div>
+                    {{end}}
+                </div>
+                <!-- END database info -->
+
+                <script>
+                    function revealDrupalDBPassword() {
+                        var passwordSpan = document.getElementById("database-password");
+                        passwordSpan.style.filter = passwordSpan.style.filter === "blur(5px)" ? "none" : "blur(5px)";
+                    }
+                </script>
+{{template "cms_block_20" .}}
+        <div class="hidden p-4 rounded" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+
+            {{template "cms_block_27" .}}
+                {{template "cms_block_22" .}}
+            {{template "cms_script_7" .}}
+        </div>
+
+        <div class="hidden p-4 rounded" id="maintenance" role="tabpanel" aria-labelledby="maintenance-tab">
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Maintenance Mode"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Show visitors a maintenance page while you make changes."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                        <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Status:"}}</span>
+                        <span class="font-medium" id="drupal-maintenance-status">{{.T.Get "Checking..."}}</span>
+                    </div>
+                    <div class="mt-4">
+                        <button type="button" id="drupal-maintenance-toggle" onclick="toggleDrupalMaintenance()"
+                            class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap w-100">
+                            {{.T.Get "Loading..."}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                let __drupalMaintenanceLoaded = false;
+                let __drupalMaintenanceStatus = null;
+
+                function refreshDrupalMaintenanceStatus() {
+                    const domain = {{toJSON .CurrentDomain}};
+                    const docroot = {{toJSON .Docroot}};
+                    const statusEl = document.getElementById('drupal-maintenance-status');
+                    const btn = document.getElementById('drupal-maintenance-toggle');
+                    fetch(`/drupal/maintenance?domain=${encodeURIComponent(domain)}&docroot=${encodeURIComponent(docroot)}`, {
+                        headers: { 'X-CSRF-Token': csrf_token }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            __drupalMaintenanceStatus = data.status;
+                            if (data.status === 'enabled') {
+                                statusEl.innerHTML = '<span class="text-orange-500">' + {{toJSON (.T.Get "Enabled")}} + '</span>';
+                                btn.textContent = {{toJSON (.T.Get "Disable Maintenance Mode")}};
+                            } else {
+                                statusEl.innerHTML = '<span class="text-green-600">' + {{toJSON (.T.Get "Disabled")}} + '</span>';
+                                btn.textContent = {{toJSON (.T.Get "Enable Maintenance Mode")}};
+                            }
+                        })
+                        .catch(error => {
+                            statusEl.textContent = {{toJSON (.T.Get "Unknown")}};
+                            console.error('Error fetching maintenance mode status:', error);
+                        });
+                }
+
+                function toggleDrupalMaintenance() {
+                    const domain = {{toJSON .CurrentDomain}};
+                    const docroot = {{toJSON .Docroot}};
+                    const action = __drupalMaintenanceStatus === 'enabled' ? 'disable' : 'enable';
+                    showToast({{toJSON (.T.Get "Updating maintenance mode...")}}, 'loading', true);
+                    fetch(`/drupal/maintenance?domain=${encodeURIComponent(domain)}&docroot=${encodeURIComponent(docroot)}`, {
+                        method: 'POST',
+                        headers: { 'X-CSRF-Token': csrf_token, 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: 'action=' + action
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) {
+                                showToast(data.error, 'danger');
+                            } else {
+                                showToast(data.message || {{toJSON (.T.Get "Maintenance mode updated.")}}, 'success');
+                                refreshDrupalMaintenanceStatus();
+                            }
+                        })
+                        .catch(() => showToast({{toJSON (.T.Get "Failed to update maintenance mode")}}, 'danger'));
+                }
+
+                document.querySelector('html').addEventListener('click', function(e) {
+                    if (!e.target.closest('#maintenance-tab')) return;
+                    if (__drupalMaintenanceLoaded) return;
+                    __drupalMaintenanceLoaded = true;
+                    refreshDrupalMaintenanceStatus();
+                });
+            </script>
+        </div>
+
+        <div class="hidden p-4 rounded" id="update" role="tabpanel" aria-labelledby="update-tab">
+            {{template "cms_block_28" .}}
+            <script>
+                function compareDrupalVersionsDesc(a, b) {
+                    const pa = a.split('.').map(Number);
+                    const pb = b.split('.').map(Number);
+                    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+                        const na = pa[i] || 0, nb = pb[i] || 0;
+                        if (na !== nb) return nb - na;
+                    }
+                    return 0;
+                }
+
+                // isVersionOlder does a numeric per-segment comparison (not a
+                // naive string !== ), so a same-version-different-format quirk
+                // (e.g. a missing trailing ".0", a leading "v") doesn't falsely
+                // show the Update button when nothing is actually newer.
+                function isVersionOlder(installed, latest) {
+                    const pi = installed.replace(/^v/i, '').split('.').map(n => parseInt(n, 10) || 0);
+                    const pl = latest.replace(/^v/i, '').split('.').map(n => parseInt(n, 10) || 0);
+                    for (let i = 0; i < Math.max(pi.length, pl.length); i++) {
+                        const iv = pi[i] || 0, lv = pl[i] || 0;
+                        if (iv !== lv) return iv < lv;
+                    }
+                    return false;
+                }
+
+                function checkDrupalLatestVersion() {
+                    const installed = {{toJSON .Version}};
+                    const latestEl = document.getElementById('drupal-latest-version');
+                    const statusEl = document.getElementById('drupal-update-status');
+                    fetch('https://api.github.com/repos/drupal/drupal/tags?per_page=100')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!Array.isArray(data)) throw new Error('Unexpected response');
+                            const versionRe = /^\d+\.\d+\.\d+$/;
+                            const versions = data
+                                .map(t => t.name)
+                                .filter(name => versionRe.test(name))
+                                .sort(compareDrupalVersionsDesc);
+                            const latest = versions[0];
+                            latestEl.textContent = latest || {{toJSON (.T.Get "Unknown")}};
+                            const updateBtn = document.getElementById('drupal-update-btn');
+                            if (latest && installed && isVersionOlder(installed, latest)) {
+                                statusEl.innerHTML = '<span class="text-orange-500">' + {{toJSON (.T.Get "A newer version is available.")}} + '</span>';
+                                updateBtn.classList.remove('hidden');
+                                updateBtn.classList.add('inline-flex');
+                                document.getElementById('drupal-update-hint').classList.remove('hidden');
+                            } else if (latest && installed) {
+                                statusEl.innerHTML = '<span class="text-green-600">' + {{toJSON (.T.Get "You are running the latest version.")}} + '</span>';
+                            }
+                        })
+                        .catch(error => {
+                            latestEl.textContent = {{toJSON (.T.Get "Unknown")}};
+                            console.error('Error fetching Drupal versions:', error);
+                        });
+                }
+
+                let __drupalUpdateLoaded = false;
+                document.querySelector('html').addEventListener('click', function(e) {
+                    if (!e.target.closest('#update-tab')) return;
+                    if (__drupalUpdateLoaded) return;
+                    __drupalUpdateLoaded = true;
+                    checkDrupalLatestVersion();
+                });
+
+                document.getElementById('drupal-update-btn').addEventListener('click', function() {
+                    const btn = this;
+                    const log = document.getElementById('drupal-update-log');
+                    btn.disabled = true;
+                    btn.textContent = {{toJSON (.T.Get "Updating...")}};
+                    log.classList.remove('hidden');
+                    log.textContent = '';
+                    showToast({{toJSON (.T.Get "Drupal update started. Please wait.")}}, 'loading');
+
+                    const params = new URLSearchParams({ domain: {{toJSON .CurrentDomain}}, docroot: {{toJSON .Docroot}} });
+                    fetch('/drupal/update?' + params.toString(), { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } })
+                        .then(response => {
+                            const reader = response.body.getReader();
+                            const decoder = new TextDecoder('utf-8');
+                            function read() {
+                                reader.read().then(({ done, value }) => {
+                                    if (done) return;
+                                    const lines = decoder.decode(value, { stream: true }).split('\n').filter(Boolean);
+                                    lines.forEach(line => {
+                                        try {
+                                            const data = JSON.parse(line);
+                                            if (data.status) {
+                                                log.textContent += data.status + '\n';
+                                                log.scrollTop = log.scrollHeight;
+                                                if (data.status.startsWith('Update completed')) {
+                                                    showToast(data.status, 'success');
+                                                    btn.textContent = {{toJSON (.T.Get "Update now")}};
+                                                    btn.classList.add('hidden');
+                                                    setTimeout(() => window.location.reload(), 1500);
+                                                }
+                                            } else if (data.error) {
+                                                log.textContent += 'Error: ' + data.error + '\n';
+                                                showToast(data.error, 'error');
+                                                btn.disabled = false;
+                                                btn.textContent = {{toJSON (.T.Get "Retry Update")}};
+                                            }
+                                        } catch (e) { /* non-JSON line, ignore */ }
+                                    });
+                                    read();
+                                }).catch(streamErr => {
+                                    showToast({{toJSON (.T.Get "Connection lost during update.")}}, 'error');
+                                    btn.disabled = false;
+                                    btn.textContent = {{toJSON (.T.Get "Retry Update")}};
+                                    console.error('Stream read error:', streamErr);
+                                });
+                            }
+                            read();
+                        })
+                        .catch(error => {
+                            showToast({{toJSON (.T.Get "Fetch error. Please try again.")}}, 'error');
+                            btn.disabled = false;
+                            btn.textContent = {{toJSON (.T.Get "Retry Update")}};
+                            console.error('Fetch error:', error);
+                        });
+                });
+            </script>
+        </div>
+
+        {{template "cms_tab_clone" .}}
+                {{template "cms_block_17" .}}
+                {{template "cms_block_24" .}}
+                {{template "cms_block_19" .}}
+            {{template "cms_script_4" .}}
+{{template "cms_block_21" .}}
+        <div class="hidden p-4 rounded" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+
+            {{template "cms_block_29" .}}
+            {{template "cms_block_30" .}}
+            {{template "cms_script_10" .}}
+        </div>
+
+        {{template "cms_tab_remove_2" .}}
+    <div class="flex flex-col space-y-4 rounded xl:col-span-1">
+
+        {{template "pagespeed_panel" .}}
+
+        {{template "visitors" .}}
+
+        {{template "waf_panel" .}}
+
+        {{template "drupal_cache" .}}
+
+    </div>
+
+</div>
+
+<script>
+const DRUPAL_SITE_ID = {{toJSON .Container.ID}};
+
+function confirmRemoveDrupal() {
+    showToast({{toJSON (.T.Get "Drupal removal started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/drupal/remove', true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            window.location.href = '/sites';
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(DRUPAL_SITE_ID));
+}
+
+function confirmDetachDrupal() {
+    showToast({{toJSON (.T.Get "Drupal detach process started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/sites/detach', true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                window.location.href = '/sites';
+            } else {
+                showToast({{toJSON (.T.Get "An error occurred while detaching Drupal. Please try again.")}}, 'error');
+            }
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(DRUPAL_SITE_ID));
+}
+</script>
+
+{{template "cms_script_11" .}}
+
+<!-- END templates/manager/drupal_app.html -->
+{{end}}
+
+{{define "drupal_cache"}}
+<!-- START drupal_cache widget -->
+<div x-data="drupalCacheComponent()" class="flex flex-col justify-center overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+  {{template "cms_block_32" .}}
+    <div class="grid grid-cols-1 gap-2">
+        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Rebuild Drupal cache:"}}</span>
+            <span class="font-medium">
+
+        <button
+        @click="rebuildCache"
+        data-tooltip-target="tooltip-drupal_rebuild_cache-link" data-tooltip-placement="left"
+        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50 cursor-pointer"
+        type="button"
+        aria-label="{{.T.Get "Rebuild Drupal Cache"}}"
+        >
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash size-5 shrink-0"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        {{.T.Get "Clear Cache"}}
+        </button>
+            </span>
+        </div>
+    </div>
+
+    <div id="tooltip-drupal_rebuild_cache-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+      {{.T.Get "Runs drush cache:rebuild - clears every cache bin (render, page, config, etc.)"}}
+      <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+</div>
+
+<script>
+  function drupalCacheComponent() {
+    return {
+      domain: {{toJSON .CurrentDomain}},
+      docroot: {{toJSON .Docroot}},
+
+      rebuildCache() {
+        if (!this.domain || !this.docroot) {
+          return;
+        }
+        showToast({{toJSON (.T.Get "Rebuilding cache...")}}, 'loading', true);
+        fetch(`/drupal/cache?domain=${encodeURIComponent(this.domain)}&docroot=${encodeURIComponent(this.docroot)}`, {
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': csrf_token,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({})
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            showToast(data.error, 'danger');
+          } else {
+            showToast(data.message || {{toJSON (.T.Get "Cache rebuilt successfully!")}}, 'success');
+          }
+        })
+        .catch(() => {
+          showToast({{toJSON (.T.Get "Failed to rebuild cache")}}, 'danger');
+        });
+      }
+    }
+  }
+</script>
+<!-- END drupal_cache widget -->
+{{end}}

@@ -1,177 +1,132 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
+
 {{define "content"}}
 <!-- START templates/domains/ssl.html -->
+<div class="op-content">
 
 {{if .DomainName}}
 
-<!-- page header -->
-<div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div class="op-page-head">
         <div>
-        <div class="flex items-center gap-x-3">
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Configure SSL for"}} <span class="punycode">{{.DomainName}}</span></h1>
-            </div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Configure AutoSSL or upload a custom certificate for a domain."}}</p>
+            <div class="op-eyebrow">{{.T.Get "SSL Certificates"}}</div>
+            <h1 class="op-title">{{.T.Get "Configure SSL for"}} <span class="punycode">{{.DomainName}}</span></h1>
+            <p class="op-meta">{{.T.Get "Configure AutoSSL or upload a custom certificate for a domain."}}</p>
+        </div>
+        <div class="op-actions">
+            <a href="/domains" class="op-btn op-btn-secondary">{{.T.Get "Back to Domains"}}</a>
+        </div>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-        <a href="/domains" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit">{{.T.Get "Back to Domains"}}</a>
-    </div>
-</div>
-<!-- END page header -->
 
-
-<div dir="ltr" data-orientation="horizontal" class="m-6">
-    <div class="mt-6 space-y-10">
-        <section aria-labelledby="billing-overview">
-            <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
-                <div>
-                    <h2 class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Status"}}</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Current SSL setting for domain."}}</p>
-                </div>
-                <div class="">
-                    <dd class="mt-1.5 flex items-center gap-2">
+    <section class="op-card">
+        <div class="op-section">
+            <div><h3>{{.T.Get "Status"}}</h3><p>{{.T.Get "Current SSL setting for domain."}}</p></div>
+            <div class="op-row" style="justify-content:space-between">
             {{if eq .CurrentSetting "autossl"}}
-                        <div class="flex gap-0.5">
-                            <div class="h-3.5 w-1 rounded-sm bg-emerald-500 dark:bg-emerald-500"></div>
-                            <div class="h-3.5 w-1 rounded-sm bg-emerald-500 dark:bg-emerald-500"></div>
-                            <div class="h-3.5 w-1 rounded-sm bg-emerald-500 dark:bg-emerald-500"></div>
-                        </div>
-                        <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Auto SSL"}}</p>
-                                <form method="post">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-    <input type="hidden" name="action" value="generate">
-                                    <input type="hidden" id="domain_name" name="domain_name" value="{{.DomainName}}" required>
-                                <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Generate now"}}</button>
-                                </form>
-
+                <span class="op-badge is-success">{{template "op_icon" "lock"}} {{.T.Get "Auto SSL"}}</span>
+                <form method="post">
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                    <input type="hidden" name="action" value="generate">
+                    <input type="hidden" id="domain_name" name="domain_name" value="{{.DomainName}}" required>
+                    <button type="submit" class="op-btn op-btn-secondary">{{template "op_icon" "refresh"}} {{.T.Get "Generate now"}}</button>
+                </form>
             {{else if eq .CurrentSetting "custom ssl"}}
-                <div class="flex gap-0.5">
-                    <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
-                    <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
-                    <div class="h-3.5 w-1  rounded-sm bg-orange-500 dark:bg-orange-500"></div>
-                </div>
-                        <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Custom SSL"}}</p>
-                                <form method="post">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-    <input type="hidden" name="action" value="switch_and_generate">
-                                    <input type="hidden" id="domain_name" name="domain_name" value="{{.DomainName}}" required>
-                                <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Switch to Let's Encrypt and generate"}}</button>
-                                </form>
+                <span class="op-badge is-warning">{{template "op_icon" "certificate"}} {{.T.Get "Custom SSL"}}</span>
+                <form method="post">
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                    <input type="hidden" name="action" value="switch_and_generate">
+                    <input type="hidden" id="domain_name" name="domain_name" value="{{.DomainName}}" required>
+                    <button type="submit" class="op-btn op-btn-secondary">{{template "op_icon" "refresh"}} {{.T.Get "Switch to Let's Encrypt and generate"}}</button>
+                </form>
             {{else}}
-                <div class="flex gap-0.5">
-                    <div class="h-3.5 w-1 rounded-sm bg-red-500 dark:bg-red-500"></div>
-                    <div class="h-3.5 w-1 rounded-sm bg-red-500 dark:bg-red-500"></div>
-                    <div class="h-3.5 w-1 rounded-sm bg-red-500 dark:bg-red-500"></div>
-                </div>
-                        <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Unknown"}}</p>
-                                <form method="post">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-    <input type="hidden" name="action" value="autossl">
-                                    <input type="hidden" id="domain_name" name="domain_name" value="{{.DomainName}}" required>
-                                <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Try enabling AutoSSL"}}</button>
-                                </form>
-
+                <span class="op-badge is-danger">{{template "op_icon" "alert"}} {{.T.Get "Unknown"}}</span>
+                <form method="post">
+                    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                    <input type="hidden" name="action" value="autossl">
+                    <input type="hidden" id="domain_name" name="domain_name" value="{{.DomainName}}" required>
+                    <button type="submit" class="op-btn op-btn-primary">{{template "op_icon" "lock"}} {{.T.Get "Try enabling AutoSSL"}}</button>
+                </form>
             {{end}}
-                    </dd>
-                </div>
             </div>
-        </section>
-        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
-        <section aria-labelledby="billing-overview">
-            <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
-                <div>
-                    <h2 id="billing-overview" class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Information"}}</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "View current certificate information."}}</p>
-                </div>
-                <div class="md:col-span-2">
-                    <div class="grid grid-cols-1 gap-4">
-                        <div class="relative w-full rounded-lg border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 !p-4 hover:bg-gray-50 hover:dark:bg-gray-900">
-                            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Certificate Details:"}}</p>
-                            <p class="mt-3 flex items-end">
-                                {{if .Keys}}
+        </div>
 
-                                <div id="certData"></div>
-
+        <div class="op-section">
+            <div><h3>{{.T.Get "Information"}}</h3><p>{{.T.Get "View current certificate information."}}</p></div>
+            <div>
+            {{if .Keys}}
+                <dl class="op-dl" id="certData"></dl>
 <script type="module">
-  import * as asn1js from "https://esm.sh/asn1js@3.0.4";
-  import * as pkijs from "https://esm.sh/pkijs@3.0.4";
 
   const i18n = {
-    status: "{{.T.Get "Status:"}}",
-    validFrom: "{{.T.Get "Valid From:"}}",
-    validTo: "{{.T.Get "Valid To:"}}",
-    issuer: "{{.T.Get "Issuer:"}}",
-    subject: "{{.T.Get "Subject:"}}",
-    serialNumber: "{{.T.Get "Serial Number:"}}",
-    signatureAlgorithm: "{{.T.Get "Signature Algorithm:"}}"
+    status: "{{.T.Get "Status"}}",
+    validFrom: "{{.T.Get "Valid from"}}",
+    validTo: "{{.T.Get "Valid to"}}",
+    issuer: "{{.T.Get "Issuer"}}",
+    subject: "{{.T.Get "Subject"}}",
+    serialNumber: "{{.T.Get "Serial number"}}",
+    signatureAlgorithm: "{{.T.Get "Signature algorithm"}}",
+    valid: "{{.T.Get "Valid"}}",
+    invalid: "{{.T.Get "Invalid"}}"
   };
 
   const pre = document.getElementById('certCode').textContent;
-
   const certMatch = pre.match(/-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----/);
-  if (!certMatch) {
-    throw new Error("Certificate block not found");
-  }
-  const certPem = certMatch[0];
+  // the parser only loads when there's a certificate to read
+  const [asn1js, pkijs] = certMatch ? await Promise.all([import("https://esm.sh/asn1js@3.0.4"), import("https://esm.sh/pkijs@3.0.4")]) : [];
 
   function pemToArrayBuffer(pem) {
     const b64 = pem
       .replace("-----BEGIN CERTIFICATE-----", "")
       .replace("-----END CERTIFICATE-----", "")
       .replace(/\s+/g, "");
-
     const binaryString = window.atob(b64);
-    const len = binaryString.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
       bytes[i] = binaryString.charCodeAt(i);
     }
     return bytes.buffer;
   }
 
-  const buffer = pemToArrayBuffer(certPem);
-  const asn1 = asn1js.fromBER(buffer);
-  if (asn1.offset === -1) {
+  const asn1 = certMatch ? asn1js.fromBER(pemToArrayBuffer(certMatch[0])) : { offset: -1 };
+  if (!certMatch) {
+    document.getElementById('certData').innerHTML = '<dt>{{.T.Get "Status"}}</dt><dd>{{.T.Get "The stored files have no certificate block."}}</dd>';
+  } else if (asn1.offset === -1) {
     console.error("Failed to parse certificate");
   } else {
     const cert = new pkijs.Certificate({ schema: asn1.result });
-
-    function formatRDN(rdn) {
-      return rdn.typesAndValues.map(tv => tv.value.valueBlock.value).join(', ');
-    }
-
-    function formatDate(date) {
-      return date.toLocaleString();
-    }
-
-    const serialHex = Array.from(cert.serialNumber.valueBlock.valueHex)
+    const formatRDN = (rdn) => rdn.typesAndValues.map(tv => tv.value.valueBlock.value).join(', ');
+    const serialHex = Array.from(new Uint8Array(cert.serialNumber.valueBlock.valueHex))
       .map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
 
     const now = new Date();
     const isValid = now >= cert.notBefore.value && now <= cert.notAfter.value;
+    const daysLeft = Math.ceil((cert.notAfter.value - now) / 86400000);
+    const total = Math.max(1, Math.ceil((cert.notAfter.value - cert.notBefore.value) / 86400000));
+    const tone = !isValid ? 'is-danger' : daysLeft <= 14 ? 'is-warning' : 'is-success';
 
-    const validIcon = `
-<span class="inline-flex items-center whitespace-nowrap rounded px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/20 dark:bg-emerald-400/10 dark:text-emerald-500 dark:ring-emerald-400/20 gap-2"><span class="bg-emerald-500 dark:bg-emerald-500 size-2 rounded-sm" aria-hidden="true"></span>{{.T.Get "Valid"}}</span>
-    `;
-    const invalidIcon = `
-<span class="inline-flex items-center whitespace-nowrap rounded px-2 py-1 text-xs font-medium ring-1 ring-inset bg-rose-50 text-rose-900 ring-rose-600/20 dark:bg-rose-400/10 dark:text-rose-500 dark:ring-rose-400/20 gap-2"><span class="bg-rose-500 dark:bg-rose-500 size-2 rounded-sm" aria-hidden="true"></span>{{.T.Get "Invalid"}}</span>
-    `;
-
-    const html = `
-      <p class="flex items-center"><span class="pr-2 text-sm text-gray-600 dark:text-gray-400">${i18n.status}</span> ${isValid ? validIcon : invalidIcon}</p>
-      <p><span class="pr-2 text-sm text-gray-600 dark:text-gray-400">${i18n.validFrom}</span> ${formatDate(cert.notBefore.value)}</p>
-      <p><span class="pr-2 text-sm text-gray-600 dark:text-gray-400">${i18n.validTo}</span> ${formatDate(cert.notAfter.value)}</p>
-      <p><span class="pr-2 text-sm text-gray-600 dark:text-gray-400">${i18n.issuer}</span> ${formatRDN(cert.issuer)}</p>
-      <p><span class="pr-2 text-sm text-gray-600 dark:text-gray-400">${i18n.subject}</span> ${formatRDN(cert.subject)}</p>
-      <p><span class="pr-2 text-sm text-gray-600 dark:text-gray-400">${i18n.serialNumber}</span> ${serialHex}</p>
-      <p><span class="pr-2 text-sm text-gray-600 dark:text-gray-400">${i18n.signatureAlgorithm}</span> ${cert.signatureAlgorithm.algorithmId}</p>
-    `;
-
-    document.getElementById('certData').innerHTML = html;
+    // values come from the certificate, so they go in as text
+    const dl = document.getElementById('certData');
+    const row = (label, value, mono) => {
+      const dt = document.createElement('dt'); dt.textContent = label;
+      const dd = document.createElement('dd'); dd.textContent = value;
+      if (mono) dd.className = 'op-mono';
+      dl.append(dt, dd);
+      return dd;
+    };
+    const status = row(i18n.status, '');
+    status.innerHTML = `<span class="op-status ${tone}"></span>`;
+    status.firstChild.textContent = (isValid ? i18n.valid : i18n.invalid) + (isValid ? ` · ${daysLeft} d` : '');
+    if (isValid) {
+      status.insertAdjacentHTML('beforeend', `<span class="op-progress" style="display:block;margin-top:6px;max-width:240px"><span style="width:${Math.min(100, Math.round(daysLeft / total * 100))}%"></span></span>`);
+    }
+    row(i18n.validFrom, cert.notBefore.value.toLocaleString());
+    row(i18n.validTo, cert.notAfter.value.toLocaleString());
+    row(i18n.issuer, formatRDN(cert.issuer));
+    row(i18n.subject, formatRDN(cert.subject));
+    row(i18n.serialNumber, serialHex, true);
+    row(i18n.signatureAlgorithm, cert.signatureAlgorithm.algorithmId, true);
 
     const sslIssues = [];
-    const daysLeft = Math.ceil((cert.notAfter.value - now) / 86400000);
     if (!isValid && now > cert.notAfter.value) {
         sslIssues.push({
             id: 'ssl-expired:{{.DomainName}}',
@@ -190,178 +145,204 @@
     }
   }
 </script>
-
-
-
-
-
-
-
-
-                                {{else}}
-                                <p class="mt-3 flex items-end"><span class="text-3xl font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "No Certificate!"}}</span></p>
-                                <script>
+            {{else}}
+                <div class="op-alert is-danger" role="status">{{template "op_icon" "alert"}}<span><b>{{.T.Get "No Certificate!"}}</b> {{.T.Get "Visitors see a browser warning until a certificate is issued or uploaded."}}</span></div>
+<script>
 document.addEventListener('DOMContentLoaded', function () {
     if (typeof reportHealthIssues === 'function') {
         reportHealthIssues('domains-ssl', [{"id": "ssl-missing:{{.DomainName}}", "severity": "error", "message": {{toJSON (printf "No SSL certificate is configured for %s." .DomainName)}}}], 168);
     }
 });
 </script>
-                                {{end}}
-                                </p>
-                        </div>
-                    </div>
-                </div>
+            {{end}}
             </div>
-        </section>
-
-
-        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500">
-            <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
         </div>
 
-        <section aria-labelledby="billing-overview">
-            <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
-                <div>
-                    <h2 id="billing-overview" class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Files"}}</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "View current certificate files."}}</p>
+        <div class="op-section">
+            <div><h3>{{.T.Get "Files"}}</h3><p>{{.T.Get "View current certificate files."}}</p></div>
+            <div>
+            {{if .Keys}}
+                <div x-data="{ showFiles: false }">
+                    <button type="button" class="op-btn op-btn-secondary" id="view-cert" x-show="!showFiles" @click="showFiles = true">{{template "op_icon" "code"}} {{.T.Get "View Files"}}</button>
+                    <pre class="op-pre" id="certCode" x-show="showFiles" style="display: none;">{{.Keys}}</pre>
                 </div>
-                <div class="md:col-span-2">
-                    <div class="grid grid-cols-1 gap-4">
-                        <div class="relative w-full rounded-lg border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 !p-4 hover:bg-gray-50 hover:dark:bg-gray-900">
-                            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Certificate Files:"}}</p>
-                            <p class="mt-3 flex items-end">
-                                {{if .Keys}}
-                                    <div x-data="{ showFiles: false }">
-                                    <a href="#" x-show="!showFiles" @click.prevent="showFiles = true" id="view-cert" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap sm:w-fit">
-                                        {{.T.Get "View Files"}}
-                                    </a>
-
-                                    <div x-show="showFiles"
-                                        class="p-4 mt-4 border-2 border-dashed rounded-lg border-gray-300 dark:border-gray-600 h-full max-h-64 overflow-y-auto"
-                                        style="display: none;">
-                                        <pre class="text-xs overflow-y-auto" id="certCode">{{.Keys}}</pre>
-                                    </div>
-                                 {{else}}
-                                 {{.T.Get "No Files"}}
-                                {{end}}
-                                </p>
-                        </div>
-                    </div>
-                </div>
+            {{else}}
+                <span class="op-hint">{{.T.Get "No Files"}}</span>
+            {{end}}
             </div>
-        </section>
-
-
-        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500">
-            <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
         </div>
-        <section aria-labelledby="add-ons">
-                <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
 
-                    <div>
-                        <h2 id="add-ons" class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Configure custom SSL"}}</h2>
-                        <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Insert certificate files to be used for this domain."}}</p>
-                    </div>
-
-                    <div class="space-y-6 md:col-span-2">
-                        <div class="p-4 relative w-full rounded-lg border text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 overflow-hidden">
-
-    <form class="mt-8" method="POST" action="/domains/ssl">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-
-            <div class="col-span-full">
-                    <input type="hidden" name="action" value="custom">
-                    <input
-                        type="hidden"
-                        id="domain_name"
-                        name="domain_name"
-                        value="{{.DomainName}}"
-                        required
-                    />
-
-
-                    <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="certificate">{{.T.Get "Certificate"}}<span class="text-red-500">*</span></label>
-                <div class="relative w-full mt-2">
-                    <textarea
-                        id="certificate"
-                        name="certificate"
-                        rows="12"
-                        class="relative block w-full rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 font-mono"
-                        placeholder="-----BEGIN CERTIFICATE-----
+        <div class="op-section">
+            <div id="custom"><h3>{{.T.Get "Configure custom SSL"}}</h3><p>{{.T.Get "Insert certificate files to be used for this domain."}}</p></div>
+            <form method="POST" action="/domains/ssl" class="op-stack">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input type="hidden" name="action" value="custom">
+                <input type="hidden" name="domain_name" value="{{.DomainName}}" required>
+                <label class="op-field" for="certificate"><span class="op-label">{{.T.Get "Certificate"}}</span>
+                    <textarea id="certificate" name="certificate" rows="10" class="op-input op-code-area" style="min-height:0" spellcheck="false" placeholder="-----BEGIN CERTIFICATE-----
 ...
------END CERTIFICATE-----"
-                        required></textarea>
-                </div>
-
-
-                <label class="mt-6 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="private_key">{{.T.Get "Private Key"}}<span class="text-red-500">*</span></label>
-                <div class="relative w-full mt-2">
-                    <textarea
-                        id="private_key"
-                        name="private_key"
-                        rows="12"
-                        class="relative block w-full rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 font-mono"
-                        placeholder="-----BEGIN PRIVATE KEY-----
+-----END CERTIFICATE-----" required></textarea>
+                </label>
+                <label class="op-field" for="private_key"><span class="op-label">{{.T.Get "Private Key"}}</span>
+                    <textarea id="private_key" name="private_key" rows="10" class="op-input op-code-area" style="min-height:0" spellcheck="false" placeholder="-----BEGIN PRIVATE KEY-----
 ...
------END PRIVATE KEY-----"
-                        required></textarea>
+-----END PRIVATE KEY-----" required></textarea>
+                </label>
+                <div class="op-actions" style="justify-content:flex-end">
+                    <button type="submit" class="op-btn op-btn-primary">{{template "op_icon" "upload"}} {{.T.Get "Configure Custom Certificate"}}</button>
                 </div>
-
-
-            </div>
+            </form>
         </div>
-
-        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
-
-
-
-
-<div class="md:flex items-center md:justify-end md:space-x-4">
-    <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
-        {{.T.Get "Configure Custom Certificate"}}
-        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
-        </svg>
-    </button>
-</div>
-
-    </form>
-
-                        </div>
-                    </div>
-                </div>
-        </section>
-    </div>
-</div>
-
-
-
-
-
-
-
-
-
+    </section>
 
 {{else}}
 
-    <div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
-        <header>
-            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Select Domain to edit SSL"}}</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "View and change SSL settings for a domain."}}</p>
-        </header>
+    <div class="op-page-head">
+        <div>
+            <div class="op-eyebrow">{{.T.Get "AutoSSL by Let's Encrypt"}}</div>
+            <h1 class="op-title">{{.T.Get "SSL Certificates"}}</h1>
+            <p class="op-meta">{{.T.Get "Free certificates are issued and renewed for you. You can also install your own."}}</p>
+        </div>
+        {{if .Certs}}<div class="op-actions"><button type="button" class="op-btn op-btn-secondary" onclick="window.dispatchEvent(new CustomEvent('ssl-install', { detail: '' }))">{{template "op_icon" "upload"}} {{.T.Get "Install certificate"}}</button></div>{{end}}
     </div>
+{{if .Certs}}
+{{$s := .Summary}}
+    <section class="op-kpis" aria-label="{{.T.Get "Summary"}}">
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "lock"}} {{.T.Get "Valid"}}</div>
+            <div class="op-kpi-value">{{$s.Valid}} <small>/ {{len .Certs}}</small></div>
+            <div class="op-kpi-note">{{if $s.Next}}{{.T.Get "Next expiry"}} {{$s.Next}}{{else}}{{.T.Get "None valid yet"}}{{end}}</div>
+        </div>
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "clock"}} {{.T.Get "Expiring soon"}}</div>
+            <div class="op-kpi-value">{{$s.Expiring}}</div>
+            <div class="op-kpi-note{{if $s.Expiring}} is-warning{{end}}">{{if $s.FirstExpiring}}<span class="punycode">{{$s.FirstExpiring}}</span>{{else}}{{.T.Get "Nothing in the next 14 days"}}{{end}}</div>
+        </div>
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "ban"}} {{.T.Get "Expired"}}</div>
+            <div class="op-kpi-value">{{$s.Expired}}</div>
+            <div class="op-kpi-note{{if $s.Expired}} is-danger{{end}}">{{if $s.FirstExpired}}<span class="punycode">{{$s.FirstExpired}}</span>{{else}}{{.T.Get "None"}}{{end}}</div>
+        </div>
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "refresh"}} {{.T.Get "Pending"}}</div>
+            <div class="op-kpi-value">{{$s.Pending}}</div>
+            <div class="op-kpi-note">{{if $s.FirstPending}}<span class="punycode">{{$s.FirstPending}}</span>{{else}}{{.T.Get "None"}}{{end}}</div>
+        </div>
+    </section>
 
-    {{if .Domains}}
-        {{template "domain_selector" (dict "T" .T "Domains" .Domains "RedirectBase" "/domains/ssl?domain_name=")}}
-    {{else}}
-        {{template "no_domain" .}}
-    {{end}}
+    <section class="op-card" aria-label="{{.T.Get "Certificates"}}" x-data="{ q: '', st: 'all' }">
+        <div class="op-toolbar">
+            <label class="op-search">{{template "op_icon" "search"}}<input class="op-input" type="search" placeholder="{{.T.Get "Search domains"}}" x-model="q" aria-label="{{.T.Get "Search domains"}}"></label>
+            <select class="op-select" style="width:auto" x-model="st" aria-label="{{.T.Get "Status"}}">
+                <option value="all">{{.T.Get "All statuses"}}</option>
+                <option value="valid">{{.T.Get "Valid"}}</option>
+                <option value="expiring">{{.T.Get "Expiring soon"}}</option>
+                <option value="expired">{{.T.Get "Expired"}}</option>
+                <option value="pending">{{.T.Get "Pending"}}</option>
+            </select>
+        </div>
+        <div class="op-table-wrap"><table class="op-table">
+            <thead><tr><th>{{.T.Get "Domain"}}</th><th>{{.T.Get "Status"}}</th><th>{{.T.Get "Validity"}}</th><th>{{.T.Get "Renewal"}}</th><th class="is-shrink"><span class="sr-only">{{.T.Get "Actions"}}</span></th></tr></thead>
+            <tbody>
+            {{range .Certs}}
+            {{$st := "valid"}}{{if and (ne .HTTPS "Automatic") (ne .HTTPS "Custom")}}{{$st = "pending"}}{{else if eq .SSL.Problem "missing"}}{{$st = "pending"}}{{else if or (eq .SSL.Problem "expired") (eq .SSL.Problem "unreadable")}}{{$st = "expired"}}{{else if eq .SSL.Problem "expiring"}}{{$st = "expiring"}}{{end}}
+                <tr data-href="/domains/ssl?domain_name={{.Domain}}" data-search="{{lower .Domain}}" x-show="(!q || $el.dataset.search.includes(q.toLowerCase())) && (st === 'all' || st === '{{$st}}')">
+                    <td class="op-cell-title"><div class="op-row-title"><div style="min-width:0"><b class="punycode" style="overflow-wrap:anywhere">{{.Domain}}</b><span class="op-sub">{{if .SSL.Issuer}}{{.SSL.Issuer}}{{else if eq .HTTPS "Automatic"}}{{$.T.Get "AutoSSL"}}{{else if eq .HTTPS "Custom"}}{{$.T.Get "Custom SSL"}}{{else}}{{$.T.Get "No SSL"}}{{end}}</span></div></div></td>
+                    <td data-label="{{$.T.Get "Status"}}">{{if eq $st "valid"}}<span class="op-status is-success">{{$.T.Get "Valid"}}</span>{{else if eq $st "expiring"}}<span class="op-status is-warning">{{$.T.Get "Expiring soon"}}</span>{{else if eq $st "expired"}}<span class="op-status is-danger">{{if eq .SSL.Problem "unreadable"}}{{$.T.Get "Unreadable"}}{{else}}{{$.T.Get "Expired"}}{{end}}</span>{{else}}<span class="op-status is-muted">{{if or (eq .HTTPS "Automatic") (eq .HTTPS "Custom")}}{{$.T.Get "Pending"}}{{else}}{{$.T.Get "No SSL"}}{{end}}</span>{{end}}</td>
+                    <td data-label="{{$.T.Get "Validity"}}">{{if .SSL.Expires}}<div class="op-validity"><span class="op-mono" style="font-size:12px">{{if lt .SSL.Days 0}}{{$.T.Get "Expired"}} {{.SSL.Expires}}{{else}}{{.SSL.Days}} {{$.T.Get "days left"}}{{end}}</span><div class="op-progress"><span style="width:{{.SSL.Percent}}%{{if eq $st "expiring"}};background:var(--color-warning){{else if eq $st "expired"}};background:var(--color-danger){{end}}"></span></div></div>{{else}}<span class="op-hint">{{$.T.Get "Not issued yet"}}</span>{{end}}</td>
+                    <td data-label="{{$.T.Get "Renewal"}}">{{if eq .HTTPS "Automatic"}}<span class="op-badge is-success">{{$.T.Get "Automatic"}}</span>{{else if eq .HTTPS "Custom"}}<span class="op-badge">{{$.T.Get "Manual"}}</span>{{else}}<span class="op-hint">—</span>{{end}}</td>
+                    <td class="is-shrink op-cell-menu" style="position:relative" x-data="opMenu()" @click.outside="open = false" @keydown.escape="open = false">
+                        <button class="op-icon-btn" type="button" aria-label="{{$.T.Get "Actions for"}} {{.Domain}}" :aria-expanded="open.toString()" x-ref="btn" @click="toggle()">{{template "op_icon" "dots"}}</button>
+                        <div class="op-menu" x-ref="menu" x-show="open" x-cloak>
+                            {{if eq .HTTPS "Automatic"}}<form method="post" action="/domains/ssl"><input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"><input type="hidden" name="action" value="generate"><input type="hidden" name="domain_name" value="{{.Domain}}"><button type="submit">{{template "op_icon" "refresh"}} {{$.T.Get "Renew now"}}</button></form>{{end}}
+                            <a href="/domains/ssl?domain_name={{.Domain}}">{{template "op_icon" "certificate"}} {{$.T.Get "View certificate"}}</a>
+                            <a href="/domains/ssl?install={{.Domain}}" @click.prevent="open = false; $dispatch('ssl-install', {{toJSON .Domain}})">{{template "op_icon" "upload"}} {{$.T.Get "Install custom"}}</a>
+                        </div>
+                    </td>
+                </tr>
+            {{end}}
+            </tbody>
+        </table></div>
+        <div class="op-tfoot"><span>{{len .Certs}} {{.T.Get "domains"}}</span></div>
+    </section>
 
+    <!-- install a custom certificate, checked live by /domains/ssl/check with the same parser the install uses -->
+    <div x-data="opInstallCert({
+        open: {{if .Install}}true{{else}}false{{end}}, domain: {{toJSON .Install}}, first: {{toJSON (index .Certs 0).Domain}}, csrf: {{toJSON .CSRFToken}},
+        t: { checking: {{toJSON (.T.Get "Checking the certificate...")}}, failed: {{toJSON (.T.Get "Could not check the certificate. Try again.")}}, unreadable: {{toJSON (.T.Get "Could not read that file.")}} }
+    })" @ssl-install.window="show($event.detail)" @keydown.escape.window="open = false">
+    <div class="op-scrim" x-show="open" x-cloak @click="open = false"></div>
+    <div class="op-sheet op-cert-sheet" role="dialog" aria-modal="true" aria-labelledby="cert-install-title" x-show="open" x-cloak>
+        <h2 id="cert-install-title">{{.T.Get "Install a custom certificate"}}</h2>
+        <p class="op-meta">{{.T.Get "Use a certificate you bought or made yourself instead of AutoSSL. It isn't renewed for you."}}</p>
+        <form method="POST" action="/domains/ssl" @submit="submit($event)" data-busy="{{.T.Get "Installing the certificate"}}" data-busy-leave="no">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            <input type="hidden" name="action" value="custom">
+            <input type="hidden" name="return_to" value="list">
+            <div class="op-col" style="gap:14px;margin:16px 0 20px">
+                <div class="op-field"><label class="op-label" for="cert-domain">{{.T.Get "Domain"}}</label>
+                    <select class="op-select" id="cert-domain" name="domain_name" x-model="domain" @change="check()">
+                        {{range .Certs}}<option class="punycode" value="{{.Domain}}">{{.Domain}}</option>{{end}}
+                    </select>
+                </div>
+                <div class="op-field"><div class="op-cf-label-row"><label class="op-label" for="cert-pem">{{.T.Get "Certificate"}}</label><label class="op-cert-load">{{template "op_icon" "upload"}} {{.T.Get "Load file"}}<input type="file" accept=".crt,.pem,.cer,.txt" class="sr-only" @change="load($event, 'cert')"></label></div>
+                    <textarea class="op-input op-mono op-cert-area" id="cert-pem" name="certificate" x-model="cert" @input.debounce.400ms="check()" rows="6" spellcheck="false" data-no-live-validate placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----"></textarea>
+                    <span class="op-hint">{{.T.Get "Paste the certificate, then any intermediate certificates under it."}}</span>
+                </div>
+                <div class="op-field"><div class="op-cf-label-row"><label class="op-label" for="cert-key">{{.T.Get "Private Key"}}</label><label class="op-cert-load">{{template "op_icon" "upload"}} {{.T.Get "Load file"}}<input type="file" accept=".key,.pem,.txt" class="sr-only" @change="load($event, 'key')"></label></div>
+                    <textarea class="op-input op-mono op-cert-area" id="cert-key" name="private_key" x-model="key" @input.debounce.400ms="check()" rows="4" spellcheck="false" data-no-live-validate autocomplete="off" placeholder="-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"></textarea>
+                </div>
+                <div class="op-cert-check" x-show="cert.trim() && key.trim()" x-cloak aria-live="polite">
+                    <p class="op-hint" x-show="busy" x-text="t.checking"></p>
+                    <template x-if="!busy && res">
+                        <ul>
+                            <li :class="res.covers ? 'is-ok' : 'is-bad'" x-show="res.names && res.names.length"><i class="op-cert-ico"><span class="is-ok">{{template "op_icon" "circlecheck"}}</span><span class="is-warn">{{template "op_icon" "alert"}}</span><span class="is-bad">{{template "op_icon" "xcircle"}}</span></i><div><b>{{.T.Get "Covers"}} <span x-text="res.names.join(', ')"></span></b></div></li>
+                            <li :class="res.days_left < 0 ? 'is-bad' : res.days_left < 14 ? 'is-warn' : 'is-ok'" x-show="res.expires"><i class="op-cert-ico"><span class="is-ok">{{template "op_icon" "circlecheck"}}</span><span class="is-warn">{{template "op_icon" "alert"}}</span><span class="is-bad">{{template "op_icon" "xcircle"}}</span></i><div><b>{{.T.Get "Expires"}} <span x-text="res.expires"></span></b><small x-show="res.issuer">{{.T.Get "Issued by"}} <span x-text="res.issuer"></span></small></div></li>
+                            <li :class="res.key_match ? 'is-ok' : 'is-bad'" x-show="res.expires"><i class="op-cert-ico"><span class="is-ok">{{template "op_icon" "circlecheck"}}</span><span class="is-warn">{{template "op_icon" "alert"}}</span><span class="is-bad">{{template "op_icon" "xcircle"}}</span></i><div><b x-text="res.key_match ? {{toJSON (.T.Get "The private key matches")}} : {{toJSON (.T.Get "The private key doesn't match")}}"></b><small x-show="res.key_type" x-text="res.key_type"></small></div></li>
+                            <li :class="res.chain > 1 ? 'is-ok' : 'is-warn'" x-show="res.expires"><i class="op-cert-ico"><span class="is-ok">{{template "op_icon" "circlecheck"}}</span><span class="is-warn">{{template "op_icon" "alert"}}</span><span class="is-bad">{{template "op_icon" "xcircle"}}</span></i><div><b x-text="res.chain > 1 ? {{toJSON (.T.Get "Intermediate certificates included")}} : {{toJSON (.T.Get "No intermediate certificates")}}"></b><small x-show="res.chain < 2">{{.T.Get "Some browsers won't trust it without them. Paste them under the certificate."}}</small></div></li>
+                        </ul>
+                    </template>
+                    <div class="op-alert is-danger" role="alert" x-show="!busy && res && res.problem" x-cloak>{{template "op_icon" "alert"}}<span x-text="res && res.problem"></span></div>
+                </div>
+            </div>
+            <div class="op-actions"><button class="op-btn op-btn-secondary" type="button" @click="open = false">{{.T.Get "Cancel"}}</button><button class="op-btn op-btn-primary" type="submit" style="flex:1" :disabled="!ok()">{{template "op_icon" "upload"}} {{.T.Get "Install Certificate"}}</button></div>
+        </form>
+    </div>
+    </div>
+    <script>
+    function opInstallCert(c) {
+        return {
+            open: c.open, domain: c.domain || c.first, cert: '', key: '', res: null, busy: false, t: c.t, _seq: 0,
+            show(d) { if (d) this.domain = d; this.open = true; this.check(); this.$nextTick(() => document.getElementById('cert-pem').focus()); },
+            load(e, which) {
+                const f = e.target.files && e.target.files[0];
+                if (!f) return;
+                if (f.size > 256 * 1024) { showToast(this.t.unreadable, 'error'); return; }
+                f.text().then(txt => { this[which] = txt.trim(); this.check(); }).catch(() => showToast(this.t.unreadable, 'error'));
+                e.target.value = '';
+            },
+            check() {
+                if (!this.cert.trim() || !this.key.trim()) { this.res = null; return; }
+                const seq = ++this._seq, fd = new FormData();
+                fd.append('csrf_token', c.csrf); fd.append('domain_name', this.domain); fd.append('certificate', this.cert); fd.append('private_key', this.key);
+                this.busy = true;
+                fetch('/domains/ssl/check', { method: 'POST', body: fd, headers: { 'X-CSRF-Token': c.csrf } })
+                    .then(r => r.json())
+                    .then(j => { if (seq === this._seq) { this.res = j; this.busy = false; } })
+                    .catch(() => { if (seq === this._seq) { this.res = { problem: this.t.failed }; this.busy = false; } });
+            },
+            ok() { return !this.busy && this.res && !this.res.problem; },
+            submit(e) { if (!this.ok()) e.preventDefault(); },
+        };
+    }
+    </script>
+{{else if .Domains}}
+    {{template "op_domain_picker" (dict "T" .T "Domains" .Domains "RedirectBase" "/domains/ssl?domain_name=" "Label" (.T.Get "Select Domain to edit SSL"))}}
+{{else}}
+    {{template "op_no_domain" .}}
 {{end}}
 
+{{end}}
+</div>
 <!-- END templates/domains/ssl.html -->
 {{end}}

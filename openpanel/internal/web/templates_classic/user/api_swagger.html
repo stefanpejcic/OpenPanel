@@ -1,0 +1,99 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/user/api_swagger.html -->
+
+<link rel="stylesheet" href="{{static "vendor/swagger-ui/swagger-ui.css"}}">
+<script src="{{static "vendor/swagger-ui/swagger-ui-bundle.js"}}"></script>
+<script src="{{static "vendor/swagger-ui/swagger-ui-standalone-preset.js"}}"></script>
+
+<style>
+    /* Swagger UI ships its own complete dark theme (html.dark-mode, see
+       vendor/swagger-ui/swagger-ui.css) plus a lightbulb toggle button
+       that flips it based on the OS color-scheme preference at mount
+       time. We don't want a second, independent theme control - the
+       disable-topbar-explore script below keeps html.dark-mode in sync
+       with this panel's own dark/light toggle (html.dark, see
+       partials/theme_switcher.html) instead, so hide Swagger's toggle
+       button since clicking it would fight that sync. */
+    .swagger-ui .topbar .dark-mode-toggle { display: none; }
+    .swagger-ui .topbar .download-url-input[disabled],
+    .swagger-ui .topbar .download-url-button[disabled] { opacity: .5; cursor: not-allowed; }
+    #swagger-ui-container { min-height: 60vh; }
+</style>
+
+<section aria-label="{{.T.Get "API Swagger UI"}}">
+
+    <!-- Page header -->
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="flex items-center gap-x-3">
+                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "API Reference"}}</h1>
+                <span class="flex items-center gap-x-1.5 whitespace-nowrap rounded border border-gray-300 px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50 sm:w-fit sm:text-xs dark:border-gray-700 dark:text-gray-400 hover:dark:bg-gray-900 border-dashed outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500">REST</span>
+            </div>
+            {{if .Token}}
+            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Pre-authorized with a token for your account - \"Try it out\" runs live against this server."}}</p>
+            {{else}}
+            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Authenticate with a Bearer token via"}} <code class="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">POST /api/login</code>.</p>
+            {{end}}
+        </div>
+        <div class="mt-2 flex gap-2 sm:mt-0">
+            <a id="download-spec-btn" href="/static/openapi.yaml" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 w-full sm:mt-0">
+                {{.T.Get "Download spec"}}
+            </a>
+        </div>
+    </div>
+
+    <div id="swagger-ui-container" class="p-2 sm:p-4">
+        <div id="swagger-ui"></div>
+    </div>
+</section>
+
+<script>
+    // Swagger UI's own dark theme is keyed off a `dark-mode` class on
+    // <html>, seeded once from the OS color-scheme preference by its
+    // bundled (now-hidden) toggle button - not from this panel's own
+    // dark/light setting. Mirror the panel's `dark` class onto it instead,
+    // so Swagger UI always matches what the user has chosen for the panel.
+    function syncSwaggerDarkMode() {
+        var isDark = document.documentElement.classList.contains('dark');
+        document.documentElement.classList.toggle('dark-mode', isDark);
+    }
+
+    window.addEventListener('load', function () {
+        syncSwaggerDarkMode();
+
+        window.ui = SwaggerUIBundle({
+            url: '/static/openapi.yaml',
+            dom_id: '#swagger-ui',
+            presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+            layout: 'StandaloneLayout',
+            deepLinking: true,
+            onComplete: function () {
+                {{if .Token}}
+                window.ui.preauthorizeApiKey('bearerAuth', {{.Token}});
+                {{end}}
+                // Re-sync: Swagger UI's own toggle component may have just
+                // overridden dark-mode with its OS-preference guess during
+                // mount, above.
+                syncSwaggerDarkMode();
+                // This page only ever serves this panel's own spec - the
+                // topbar's URL field and "Explore" button would otherwise
+                // let a user point Swagger UI at an arbitrary spec/URL.
+                var urlInput = document.getElementById('download-url-input');
+                if (urlInput) { urlInput.disabled = true; }
+                var exploreBtn = document.querySelector('.download-url-button');
+                if (exploreBtn) { exploreBtn.disabled = true; }
+            }
+        });
+
+        // Keep it in sync live as the user flips the panel's own toggle
+        // (partials/theme_switcher.html), which only ever touches `dark`.
+        new MutationObserver(syncSwaggerDarkMode).observe(document.documentElement, {
+            attributes: true, attributeFilter: ['class']
+        });
+    });
+</script>
+
+<!-- END templates/user/api_swagger.html -->
+{{end}}

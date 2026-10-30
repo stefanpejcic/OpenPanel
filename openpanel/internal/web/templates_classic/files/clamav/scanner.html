@@ -1,0 +1,297 @@
+{{define "alpine_plugins"}}{{end}}
+{{define "flowbite_js"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/files/clamav/scanner.html -->
+
+<!-- page header -->
+<section
+    aria-label="{{.T.Get "Files Header"}}"
+    x-data="{ searchQuery: '' }"
+>
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Malware Scanner"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Scan files for malicious programs with the Clam AntiVirus Scanner (ClamAV) antivirus software."}}</p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        <a href="/malware-scanner/logs" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap sm:mt-0">{{.T.Get "Scan Logs"}}</a>
+        <a href="/malware-scanner/quarantine" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "View Quarantine"}}</a>
+    </div>
+</div>
+<!-- END page header -->
+
+
+
+<!-- form -->
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
+    <div class="mt-8">
+        <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+
+            <div class="col-span-full mb-5">
+                <label for="db_user" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Choose a directory:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+
+                <div class="flex rounded-lg shadow-sm">
+                    <input type="text" id="directory-select" class="py-2 px-3 block w-full border-gray-200 shadow-sm rounded text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600" value="/var/www/html/" placeholder="/var/www/html/">
+                </div>
+            </div>
+      </div>
+
+      <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+
+        <div class="md:flex items-center md:justify-end md:space-x-4">
+            <button id="start-scan-btn" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Start Scan"}}<svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+                </svg>
+            </button>
+
+            <!-- Scanning Spinner Button (Initially hidden) -->
+            <button id="scanning-btn" tabindex="-1" type="button" style="display: none;" disabled class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
+
+<svg aria-hidden="true" role="status" class="inline w-4 h-4 me-3 text-white animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="#E5E7EB"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentColor"/>
+</svg> {{.T.Get "Scanning..."}}
+            </button>
+
+            <button id="stop-scan-btn" type="button" style="display: none;" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 mt-2 w-full sm:w-auto whitespace-nowrap border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 sm:mt-0">{{.T.Get "Stop"}}</button>
+
+
+
+        </div>
+
+    </div>
+</div>
+<!-- END form -->
+
+
+    <!-- Scan Progress (Initially hidden) -->
+    <div id="scan-progress" class="m-4 items-center gap-3" style="display: none;">
+        <div id="scan-radar" class="shrink-0 items-center" style="display: none;">
+            <svg aria-hidden="true" height="48" role="presentation" viewBox="0 0 48 48" width="48">
+              <defs>
+                <radialGradient id="radarGlow" cx="0.5" cy="0.5" r="0.5">
+                  <stop offset="0" stop-color="#5A8A6E" stop-opacity="0.45"></stop>
+                  <stop offset="1" stop-color="#5A8A6E" stop-opacity="0"></stop>
+                </radialGradient>
+              </defs>
+
+              <style>
+                .radarSpinner {
+                  transform-origin: 24px 24px;
+                  animation: radarSpin 2s linear infinite;
+                }
+                @keyframes radarSpin {
+                  from { transform: rotate(0deg); }
+                  to { transform: rotate(360deg); }
+                }
+              </style>
+
+              <circle cx="24" cy="24" fill="#FFFFFF" r="19" stroke="#e9f0ea" stroke-width="1.5"></circle>
+              <circle cx="24" cy="24" fill="none" r="12.54" stroke="#e9f0ea" stroke-width="1"></circle>
+              <circle cx="24" cy="24" fill="none" r="6.27" stroke="#e9f0ea" stroke-width="1"></circle>
+              <line stroke="#e9f0ea" stroke-width="1" x1="6" x2="42" y1="24" y2="24"></line>
+              <line stroke="#e9f0ea" stroke-width="1" x1="24" x2="24" y1="6" y2="42"></line>
+
+              <g class="radarSpinner">
+                <path d="M 24 24 L 24 6 A 19 19 0 0 1 40.45448267190433 14.499999999999998 Z" fill="url(#radarGlow)"></path>
+                <line stroke="#5A8A6E" stroke-linecap="round" stroke-width="2" x1="24" x2="24" y1="24" y2="6"></line>
+              </g>
+
+              <circle cx="24" cy="24" fill="#5A8A6E" r="2.6"></circle>
+            </svg>
+        </div>
+        <p style="word-break: break-all;" class="min-w-0 text-sm text-gray-600 dark:text-gray-400">
+            <span id="scan-progress-count">0</span> {{.T.Get "files scanned"}} &mdash;
+            <span id="scan-progress-current"></span>
+        </p>
+    </div>
+
+    <!-- Scan Complete Message (Initially hidden) -->
+    <div id="scan-complete-message" class="m-4 alert alert-success" style="display: none;"></div>
+
+    <!-- Scan Results Card (Initially hidden) -->
+    <div id="scan-results-card" class="card card-one m-4" style="display: none;">
+        <div class="card-header" style="display: block;">
+            <h6 class="card-title">{{.T.Get "Scan Results"}}</h6>
+        </div>
+        <div class="card-body">
+            <!-- plain text + fixed height so the browser never has to lay out/reflow an ever-growing HTML tree on scans with tens of thousands of hits -->
+            <pre id="scan-results" class="fs-xs m-0 p-2 border rounded dark:border-gray-800" style="max-height: 24rem; overflow-y: auto; white-space: pre-wrap; word-break: break-all;"></pre>
+        </div>
+    </div>
+
+<script>
+    const i18n = {
+        scanFailed: "{{.T.Get "Scan failed: "}}",
+        scanComplete: "{{.T.Get "Scan is complete!"}}",
+        filesScanned: "{{.T.Get "files scanned."}}",
+        noMalwareFound: "{{.T.Get "No malware found."}}"
+    };
+
+    let scanLineBuffer = '';
+    let scannedCount = 0;
+    let malwareCount = 0;
+    let scanError = '';
+
+    function resetScanUI() {
+        scanLineBuffer = '';
+        scannedCount = 0;
+        malwareCount = 0;
+        scanError = '';
+        document.getElementById('scan-results').textContent = '';
+        document.getElementById('scan-progress-count').textContent = '0';
+        document.getElementById('scan-progress-current').textContent = '';
+        document.getElementById('scan-radar').style.display = 'flex';
+        document.getElementById('scan-progress').style.display = 'flex';
+        document.getElementById('scan-complete-message').style.display = 'none';
+    }
+
+    // appendChild a text node instead of `innerHTML +=`, which reparsed the whole accumulated string as HTML on every call and blew up tab memory on big scans
+    function appendScanResult(line) {
+        const scanResultsPre = document.getElementById('scan-results');
+        const text = (scanResultsPre.childNodes.length ? '\n' : '') + line;
+        scanResultsPre.appendChild(document.createTextNode(text));
+        scanResultsPre.scrollTop = scanResultsPre.scrollHeight;
+    }
+
+    // one "X - result" line per file, only malware/error lines go in the list so big scans don't hang the tab
+    function handleScanLine(line) {
+        if (!line) return;
+
+        if (line.startsWith('Scanning: ')) {
+            document.getElementById('scan-progress-current').textContent = line;
+            return;
+        }
+
+        if (line.startsWith('Error: ')) {
+            scanError = line.slice(7);
+            appendScanResult(i18n.scanFailed + scanError);
+            return;
+        }
+
+        scannedCount++;
+        document.getElementById('scan-progress-count').textContent = scannedCount;
+        document.getElementById('scan-progress-current').textContent = line;
+
+        if (!line.endsWith('No malware found')) {
+            appendScanResult(line);
+            if (line.includes(' - Malware detected')) {
+                malwareCount++;
+            }
+        }
+    }
+
+    function showScanCompleteMessage() {
+        document.getElementById('scan-radar').style.display = 'none';
+        document.getElementById('scan-progress').style.display = 'none';
+        const msg = document.getElementById('scan-complete-message');
+        if (scanError) {
+            msg.style.display = 'none';
+            if (typeof showToast === 'function') showToast(i18n.scanFailed + scanError, 'error');
+            return;
+        }
+        const summary = `${i18n.scanComplete} ${scannedCount} ${i18n.filesScanned}`;
+        msg.textContent = summary;
+        msg.style.display = 'block';
+
+        if (scannedCount > 0 && document.getElementById('scan-results').textContent === '') {
+            appendScanResult(i18n.noMalwareFound);
+        }
+
+        if (typeof showToast === 'function') {
+            showToast(summary, malwareCount > 0 ? 'error' : 'success');
+        }
+    }
+
+    document.getElementById('start-scan-btn').addEventListener('click', function() {
+        document.getElementById('start-scan-btn').style.display = 'none';
+        document.getElementById('scanning-btn').style.display = 'inline-flex';
+        document.getElementById('stop-scan-btn').style.display = 'inline-flex';
+
+        const selectedDirectory = document.getElementById('directory-select').value;
+
+        fetch(`/start-scan?directory=${encodeURIComponent(selectedDirectory)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('{{.T.Get "Network response was not ok"}}');
+                }
+                return response.body.getReader();
+            })
+            .then(reader => {
+                document.getElementById('scan-results-card').style.display = 'block';
+                resetScanUI();
+                const decoder = new TextDecoder('utf-8');
+                return reader.read().then(function processText({ done, value }) {
+                    if (done) {
+                        if (scanLineBuffer.trim()) handleScanLine(scanLineBuffer.trim());
+                        showScanCompleteMessage();
+                        return;
+                    }
+                    scanLineBuffer += decoder.decode(value, { stream: true });
+                    const lines = scanLineBuffer.split('\n');
+                    scanLineBuffer = lines.pop();
+                    lines.forEach(handleScanLine);
+                    return reader.read().then(processText);
+                });
+            })
+            .catch(error => {
+                console.error('Scan failed:', error);
+                document.getElementById('scan-radar').style.display = 'none';
+                appendScanResult(i18n.scanFailed + error.message);
+                if (typeof showToast === 'function') {
+                    showToast(i18n.scanFailed + error.message, 'error');
+                }
+                document.getElementById('start-scan-btn').style.display = '';
+            })
+            .finally(() => {
+                document.getElementById('scanning-btn').style.display = 'none';
+                document.getElementById('stop-scan-btn').style.display = 'none';
+                document.getElementById('start-scan-btn').style.display = '';
+            });
+    });
+
+    // reloading drops the streaming request, which cancels the scan server-side; strip ?path so it doesn't auto-start again
+    document.getElementById('stop-scan-btn').addEventListener('click', function() {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('path');
+        window.location.replace(url.toString());
+    });
+
+
+
+
+function inputScanDomain() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const pathValue = urlParams.get('path');
+
+  const directoryInput = document.getElementById("directory-select");
+
+  if (pathValue) {
+    directoryInput.value = pathValue;
+    document.getElementById('start-scan-btn').click();
+  }
+}
+
+window.addEventListener("hashchange", inputScanDomain);
+window.addEventListener("popstate", inputScanDomain);
+window.addEventListener("load", inputScanDomain);
+
+</script>
+
+{{if .QuarantineNote}}
+<script>
+// remind about quarantined files at most once a week per browser
+document.addEventListener('DOMContentLoaded', function () {
+    var key = 'malwareQuarantineToastAt';
+    try {
+        var last = parseInt(localStorage.getItem(key) || '0', 10);
+        if (Date.now() - last < 7 * 24 * 60 * 60 * 1000) return;
+        localStorage.setItem(key, String(Date.now()));
+    } catch (e) {}
+    showToast('{{.QuarantineNote}}', 'warning', true, { label: '{{.T.Get "Review"}}', href: '/malware-scanner/quarantine' });
+});
+</script>
+{{end}}
+
+<!-- END templates/files/clamav/scanner.html -->
+{{end}}

@@ -196,3 +196,6 @@ function showToast(message, type, isPermanent = false, link = false) {
         });
     }
 }
+
+// show anything the page asked for before this file loaded
+(window._toastQueue || []).splice(0).forEach(args => showToast(...args));

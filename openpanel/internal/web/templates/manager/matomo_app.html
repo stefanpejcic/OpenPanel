@@ -1,4 +1,6 @@
 {{define "alpine_plugins"}}{{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
 {{define "flowbite_js"}}
 <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
@@ -10,7 +12,7 @@
         {{template "cms_block_3" .}}
 {{template "cms_script_2" .}}
 {{template "cms_block_5" .}}
-    <div class="flex flex-col space-y-4 rounded xl:col-span-3">
+    <div class="op-wp-main">
 
         {{template "cms_block_7" .}}
             {{template "cms_tabbtn_dashboard" .}}
@@ -20,9 +22,9 @@
             {{template "cms_tabbtn_backups" .}}
             {{template "cms_tab_security_2" .}}
         {{template "cms_tab_dashboard" .}}
-            <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
-                <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
-                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded xl:col-span-3">
+            <div class="op-wp-overview">
+                <div class="op-wp-shot">
+                    <div class="op-wp-shot-frame">
                         {{template "cms_block_10" .}}
                 {{template "cms_block_13" .}}
                 {{template "cms_block_14" .}}
@@ -34,14 +36,14 @@
                     }
                 </script>
 {{template "cms_block_20" .}}
-        <div class="hidden p-4 rounded" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+        <div class="hidden op-wp-panel" id="logs" role="tabpanel" aria-labelledby="logs-tab">
 
             {{template "cms_block_25" .}}
                 {{template "cms_block_22" .}}
             {{template "cms_script_6" .}}
         </div>
 
-        <div class="hidden p-4 rounded" id="update" role="tabpanel" aria-labelledby="update-tab">
+        <div class="hidden op-wp-panel" id="update" role="tabpanel" aria-labelledby="update-tab">
             {{template "cms_block_28" .}}
             {{template "cms_script_9" .}}
         </div>
@@ -52,7 +54,7 @@
                 {{template "cms_block_31" .}}
             {{template "cms_script_4" .}}
 {{template "cms_block_21" .}}
-        <div class="hidden p-4 rounded" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+        <div class="hidden op-wp-panel" id="backups" role="tabpanel" aria-labelledby="backups-tab">
 
             {{template "cms_block_29" .}}
             {{template "cms_block_30" .}}
@@ -60,7 +62,7 @@
         </div>
 
         {{template "cms_tab_remove_2" .}}
-    <div class="flex flex-col space-y-4 rounded xl:col-span-1">
+    <div class="op-wp-side">
 
         {{template "pagespeed_panel" .}}
 
@@ -83,17 +85,17 @@
 
 {{define "matomo_cache"}}
 <!-- START matomo_cache widget -->
-<div x-data="matomoCacheComponent()" class="flex flex-col justify-center overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+<div x-data="matomoCacheComponent()" class="op-card">
   {{template "cms_block_32" .}}
     <div class="grid grid-cols-1 gap-2">
-        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Rebuild Matomo cache:"}}</span>
+        <div class="op-setting-row">
+            <span class="op-setting-label">{{.T.Get "Rebuild Matomo cache:"}}</span>
             <span class="font-medium">
 
         <button
         @click="rebuildCache"
         data-tooltip-target="tooltip-matomo_rebuild_cache-link" data-tooltip-placement="left"
-        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50 cursor-pointer"
+        class="op-btn op-btn-sm op-btn-secondary"
         type="button"
         aria-label="{{.T.Get "Rebuild Matomo Cache"}}"
         >

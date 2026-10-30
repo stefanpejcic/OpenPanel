@@ -1,302 +1,187 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/files/ftp_new.html -->
-
-<section aria-label="{{.T.Get "New FTP Account Header"}}">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "New FTP Account"}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Create a new FTP account."}}</p>
-    </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-    </div>
-</div>
-
-
-{{if .Domains}}
-<!-- form -->
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
-    <form class="mt-8" method="POST" action="/ftp/new">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-
-
-
-
-  <div class="col-span-full mb-5">
-    <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Username"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-    <input type="text" name="username" id="new_ftp_username" pattern="[A-Za-z0-9]+" title="{{.T.Get "Only letters and numbers are allowed."}}" class="w-full py-2 px-3 pe-11 block border-gray-200 shadow-sm text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600" required>
-  </div>
-
-  <div class="col-span-full mb-5">
-    <label for="domain" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Domain"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-    <select name="domain" id="domain" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="" onchange="updateDocroot()">
-        <option value="" disabled></option>
-        {{range .Domains}}
-        <option class="punycode" docroot="{{.Docroot}}" value="{{.DomainURL}}" label="{{.DomainURL}}">{{.DomainURL}}</option>
-        {{end}}
-    </select>
-  </div>
-
-
-<div
-  class="col-span-full mb-5"
-  x-data="passwordStrength({
-    weak: '{{.T.Get "Weak password"}}',
-    medium: '{{.T.Get "Medium strength password"}}',
-    strong: '{{.T.Get "Strong password"}}',
-    tooWeak: '{{.T.Get "Password does not meet the required strength."}}'
-  }, {{.PasswordStrength}})"
-  x-init="checkStrength()"
->
-  <label
-    for="password"
-    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-  >
-    {{.T.Get "Password"}}<span class="text-red-500 dark:text-red-500">*</span>
-  </label>
-  <div class="flex">
-    <input
-      type="text"
-      name="password"
-      id="password"
-      maxlength="30"
-      minlength="8"
-      title="{{.T.Get "Password must be at least 8 characters, and include a lowercase letter, an uppercase letter, a number, and a special character."}}"
-      pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}"
-      placeholder="{{.T.Get "New Password"}}"
-      class="relative block w-full appearance-none rounded-l-md border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-      x-model="password"
-      x-ref="input"
-      @input="checkStrength()"
-    />
-
-    <div class="input-group-append">
-      <button
-        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white"
-        type="button"
-        id="generatePassword">
-        <i class="bi bi-shuffle"></i>
-      </button>
-    </div>
-    <div class="input-group-append">
-      <button class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white" type="button" id="togglePassword">
-        <i class="bi bi-eye"></i>
-      </button>
-    </div>
-    <div class="input-group-append">
-        <span class="d-none" id="copy-password-link">
-
-        <button type="button" id="copy-password" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
-            <i class="bi bi-clipboard"></i>
-        </button>
-
-        </span>
-    </div>
-  </div>
-
-  <!-- Password strength indicator -->
-  <div class="mt-2 h-2 rounded bg-gray-200 dark:bg-gray-700 overflow-hidden">
-    <div
-      class="h-full rounded transition-all duration-300"
-      :class="{
-        'bg-red-500': strength === 'Weak',
-        'bg-orange-500': strength === 'Medium',
-        'bg-green-500': strength === 'Strong',
-        'w-1/3': strength === 'Weak',
-        'w-2/3': strength === 'Medium',
-        'w-full': strength === 'Strong'
-      }"
-      style="width: 0%"
-      :style="{
-        width:
-          strength === 'Weak'
-            ? '33%'
-            : strength === 'Medium'
-            ? '66%'
-            : strength === 'Strong'
-            ? '100%'
-            : '0%'
-      }"
-    ></div>
-  </div>
-  <p
-    class="mt-1 text-sm font-semibold"
-    :class="{
-      'text-red-600 dark:text-red-400': strength === 'Weak',
-      'text-yellow-600 dark:text-yellow-400': strength === 'Medium',
-      'text-green-600 dark:text-green-400': strength === 'Strong'
-    }"
-  >
-    <span x-text="strengthMessage" class="text-xs"></span>
-  </p>
-</div>
-
 <script>
-function updateDocroot() {
-    const domainSelect = document.getElementById('domain');
-    const selectedOption = domainSelect.options[domainSelect.selectedIndex];
-    const docroot = selectedOption.getAttribute('docroot');
-    const pathField = document.getElementById('new_user_path');
-    pathField.value = docroot || '';
+// create form: the username, password, folder and quota rules handleAddFTPAccount and opencli ftp-add check on submit
+function opNewFTP(c) {
+    const root = '/var/www/html/';
+    c.domains = c.domains || []; c.taken = c.taken || [];
+    // at least one of each class, ftp-add refuses a password without them
+    const gen = (n) => {
+        const sets = ['abcdefghijkmnpqrstuvwxyz', 'ABCDEFGHJKLMNPQRSTUVWXYZ', '23456789', '!@#%^*+=?'], all = sets.join('');
+        const r = crypto.getRandomValues(new Uint32Array(n + n));
+        const out = sets.map((s, i) => s[r[i] % s.length]);
+        for (let i = out.length; i < n; i++) out.push(all[r[i] % all.length]);
+        for (let i = out.length - 1; i > 0; i--) { const j = r[n + i] % (i + 1); [out[i], out[j]] = [out[j], out[i]]; }
+        return out.join('');
+    };
+    return {
+        presets: c.presets, domain: '', user: c.user, pass: gen(16), show: true, folder: c.folder, folderEdited: !!c.folder, qsel: '', qn: '', qu: 'M', tried: false, busy: false,
+        init() { this.setDomain(c.domain || (c.domains[0] && c.domains[0].DomainURL) || ''); },
+        docroot() { const d = c.domains.find(x => x.DomainURL === this.domain); return d && d.Docroot && d.Docroot.startsWith(root) ? d.Docroot : root; },
+        rootFolder() { return this.docroot().slice(root.length); },
+        setDomain(d) { this.domain = d; if (!this.folderEdited) this.folder = this.rootFolder(); },
+        useRoot() { this.folderEdited = false; this.folder = this.rootFolder(); },
+        username() { return (this.user || c.t.username) + '@' + this.domain; },
+        path() { return root + this.folder.trim().replace(/^\/+/, ''); },
+        userErr() {
+            if (!this.user) return this.tried ? c.t.noUser : '';
+            if (!/^[a-z0-9_-]+$/.test(this.user)) return /[A-Z]/.test(this.user) ? c.t.lower : c.t.badUser;
+            if (c.taken.includes((this.user + '@' + this.domain).toLowerCase())) return c.t.taken.replace('{name}', this.user + '@' + this.domain);
+            return '';
+        },
+        level() { const s = passwordStrengthScore(this.pass); return !this.pass ? '' : s <= 33 ? 'Weak' : s <= 67 ? 'Medium' : 'Strong'; },
+        levelText() { return { Weak: c.t.weak, Medium: c.t.medium, Strong: c.t.strong }[this.level()] || ''; },
+        passErr() {
+            const p = this.pass;
+            if (!p) return this.tried ? c.t.noPass : '';
+            if (p.length < 8 || p.length > 30) return c.t.passLen;
+            if (!/[a-z]/.test(p) || !/[A-Z]/.test(p) || !/\d/.test(p) || !/[^a-zA-Z0-9]/.test(p)) return c.t.classes;
+            if (passwordStrengthScore(p) < c.threshold) return c.t.weakPass;
+            return '';
+        },
+        folderErr() {
+            const f = this.folder.trim();
+            if (f.includes('..')) return c.t.dots;
+            if (f.includes('//')) return c.t.slashes;
+            if (/[|*?\[\]\x00]/.test(f)) return c.t.chars;
+            return '';
+        },
+        quota() { return this.qsel === 'custom' ? this.qn.trim() : this.qsel.replace(/[MG]$/, ''); },
+        unit() { return this.qsel === 'custom' ? this.qu : (this.qsel.slice(-1) || 'M'); },
+        quotaErr() {
+            if (this.qsel !== 'custom') return '';
+            const v = this.qn.trim();
+            if (v === '') return this.tried ? c.t.noSize : '';
+            if (!/^\d+$/.test(v)) return c.t.whole;
+            if (+v === 0) return c.t.zero;
+            return '';
+        },
+        cmd() { const q = this.quota(); return 'opencli ftp-add ' + this.username() + ' ******** ' + this.path() + ' ' + c.owner + (q && +q > 0 ? ' --quota=' + q + this.unit() : ''); },
+        regen() { this.pass = gen(16); this.show = true; },
+        copy(text, msg) { if (text && window.copyToClipboard) copyToClipboard(text).then(() => showToast(msg, 'success')); },
+        pick(v) { this.qsel = v; if (v === 'custom') this.$nextTick(() => this.$refs.qn.focus()); },
+        submit(e) {
+            this.tried = true;
+            if (this.userErr() || this.passErr() || this.folderErr() || this.quotaErr()) {
+                e.preventDefault();
+                this.$nextTick(() => { const el = this.$root.querySelector('.op-cf-form .is-invalid, .op-cf-form [aria-invalid="true"]'); if (el) el.focus(); });
+                return;
+            }
+            this.busy = true;
+        },
+    };
 }
-
-// the first domain is preselected without a change event, so sync its docroot once on load
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('domain').value) updateDocroot();
-});
-
 </script>
-
-
-
-
-
-
-  <div class="col-span-full mb-5">
-    <label for="path" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Path (folder)"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-    <div class="flex rounded-lg shadow-sm">
-
-      <input type="text" name="path" id="new_user_path" class="w-full py-2 px-3 pe-11 block border-gray-200 shadow-sm rounded-e-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600" value="/var/www/html/" required>
-
-    </div>
-  </div>
-
-  <div class="col-span-full mb-5">
-    <label for="quota" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Disk quota"}}</label>
-    <div class="flex rounded-lg shadow-sm">
-      <input type="number" min="0" step="1" name="quota" id="quota" value="" placeholder="{{.T.Get "Unlimited"}}" class="w-full py-2 px-3 block border-gray-200 shadow-sm rounded-l-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600">
-      <select name="quota_unit" id="quota_unit" aria-label="{{.T.Get "Unit"}}" class="w-24 py-2 px-3 block border-gray-200 shadow-sm rounded-r-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400">
-        <option value="M">MB</option>
-        <option value="G">GB</option>
-      </select>
-    </div>
-    <p class="mt-1 text-xs text-gray-500">{{.T.Get "Leave empty or set 0 for no limit. Uploads are blocked once the folder grows past the quota, files can still be deleted."}}</p>
-  </div>
-
-
+<div class="op-content" x-data="opNewFTP({
+    domains: {{toJSON .Domains}}, domain: {{toJSON .Domain}}, user: {{toJSON .Username}}, folder: {{toJSON .Folder}}, taken: {{toJSON .Taken}}, threshold: {{.PasswordStrength}}, owner: {{toJSON .CurrentUsername}},
+    presets: [['', {{toJSON (.T.Get "Unlimited")}}, {{toJSON (.T.Get "no limit")}}], ['500M', '500 MB', ''], ['1G', '1 GB', ''], ['5G', '5 GB', ''], ['custom', {{toJSON (.T.Get "Custom")}}, '']],
+    t: {
+        username: {{toJSON (.T.Get "username")}},
+        noUser: {{toJSON (.T.Get "Enter a username.")}},
+        lower: {{toJSON (.T.Get "Use lower case letters, FTP usernames are lower case.")}},
+        badUser: {{toJSON (.T.Get "Only lower case letters, numbers, _ and - are allowed.")}},
+        taken: {{toJSON (.T.Get "FTP account %(ftp_username)s already exists." "ftp_username" "{name}")}},
+        noPass: {{toJSON (.T.Get "Enter a password, or press Generate.")}},
+        passLen: {{toJSON (.T.Get "Password must be between 8 and 30 characters.")}},
+        classes: {{toJSON (.T.Get "Use at least one lower case letter, upper case letter, number and symbol.")}},
+        weakPass: {{toJSON (.T.Get "Password does not meet the required strength.")}},
+        weak: {{toJSON (.T.Get "Weak password")}}, medium: {{toJSON (.T.Get "Medium strength password")}}, strong: {{toJSON (.T.Get "Strong password")}},
+        dots: {{toJSON (.T.Get "The folder can't contain \"..\".")}},
+        slashes: {{toJSON (.T.Get "The folder can't contain \"//\".")}},
+        chars: {{toJSON (.T.Get "The folder can't contain | * ? [ or ].")}},
+        noSize: {{toJSON (.T.Get "Enter a size, or pick one of the sizes above.")}},
+        whole: {{toJSON (.T.Get "Use a whole number.")}},
+        zero: {{toJSON (.T.Get "Pick Unlimited for no limit.")}}
+    }
+})">
+    <div class="op-page-head">
+        <div>
+            <div class="op-eyebrow"><a class="op-link" href="/ftp">{{.T.Get "FTP Accounts"}}</a></div>
+            <h1 class="op-title">{{.T.Get "New FTP Account"}}</h1>
+            <p class="op-meta">{{.T.Get "A login for FTP clients like FileZilla, locked to one folder of your sites."}}</p>
         </div>
+    </div>
 
-        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
-
-
-<div class="md:flex items-center md:justify-end md:space-x-4">
-    <a href="/ftp" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit">
-        {{.T.Get "Back to FTP Accounts"}}
-    </a>
-    <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Create Account"}}<svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
-        </svg>
-    </button>
+    {{if .Domains}}
+    <div class="op-cf-grid">
+        <form class="op-card op-cf-form" method="POST" action="/ftp/new" novalidate @submit="submit($event)" aria-label="{{.T.Get "New FTP Account"}}"
+            data-busy="{{.T.Get "Creating the FTP account"}}" data-busy-steps="{{.T.Get "Adding the user to the FTP server"}}|{{.T.Get "Setting its folder and quota"}}" data-busy-leave="no">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            <input type="hidden" name="path" :value="path()">
+            <input type="hidden" name="quota" :value="quota()">
+            <input type="hidden" name="quota_unit" :value="unit()">
+            <fieldset>
+                <div class="op-section"><div><h3>{{.T.Get "Username"}}</h3><p>{{.T.Get "FTP clients sign in with the full name, including the domain."}}</p></div>
+                    <div class="op-col" style="gap:10px">
+                        <div class="op-field"><label class="op-label" for="username">{{.T.Get "Username"}} <span class="is-danger">*</span></label>
+                            <div class="op-em-addr">
+                                <input class="op-input op-mono" id="username" name="username" x-model.trim="user" maxlength="32" data-no-live-validate placeholder="deploy" autocomplete="off" spellcheck="false" autocapitalize="off" :class="userErr() && 'is-invalid'" :aria-invalid="(!!userErr()).toString()">
+                                <div><span aria-hidden="true">@</span>
+                                    <select class="op-select" id="domain" name="domain" aria-label="{{.T.Get "Domain"}}" @change="setDomain($event.target.value)">
+                                        {{range .Domains}}<option class="punycode" value="{{.DomainURL}}" :selected="domain === {{toJSON .DomainURL}}">{{.DomainURL}}</option>{{end}}
+                                    </select>
+                                </div>
+                            </div>
+                            <span class="op-hint" x-show="!userErr()">{{.T.Get "Lower case letters, numbers, _ and - only."}}</span>
+                            <span class="op-hint is-invalid" x-show="userErr()" x-cloak x-text="userErr()" role="alert"></span>
+                        </div>
+                        <div class="op-em-preview" :class="user && !userErr() && 'is-ok'">
+                            <span x-show="!(user && !userErr())">{{template "op_icon" "lock"}}</span><span class="is-ok" x-show="user && !userErr()" x-cloak>{{template "op_icon" "circlecheck"}}</span>
+                            <b :class="!user && 'is-empty'" x-text="username()"></b>
+                            <button class="op-icon-btn" type="button" style="width:28px;height:28px" x-show="user && !userErr()" x-cloak @click="copy(username(), {{toJSON (.T.Get "Copied username.")}})" aria-label="{{.T.Get "Copy username"}}">{{template "op_icon" "copy"}}</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="op-section"><div><h3>{{.T.Get "Password"}}</h3><p>{{.T.Get "You can change it later from the account's menu."}}</p></div>
+                    <div class="op-field"><label class="op-label" for="password">{{.T.Get "Password"}} <span class="is-danger">*</span></label>
+                        <div class="op-em-pass">
+                            <div><input class="op-input op-mono" id="password" name="password" :type="show ? 'text' : 'password'" x-model="pass" maxlength="30" data-no-live-validate autocomplete="new-password" spellcheck="false" :class="passErr() && 'is-invalid'" :aria-invalid="(!!passErr()).toString()"><button class="op-icon-btn" type="button" @click="show = !show" :aria-label="show ? {{toJSON (.T.Get "Hide password")}} : {{toJSON (.T.Get "Show password")}}" :aria-pressed="show.toString()"><span x-show="!show" style="display:inline-flex">{{template "op_icon" "eye"}}</span><span x-show="show" style="display:inline-flex">{{template "op_icon" "eyeoff"}}</span></button></div>
+                            <div><button class="op-btn op-btn-secondary" type="button" @click="regen()">{{template "op_icon" "shuffle"}} {{.T.Get "Generate"}}</button><button class="op-btn op-btn-secondary" type="button" @click="copy(pass, {{toJSON (.T.Get "Copied password.")}})" :disabled="!pass">{{template "op_icon" "copy"}} {{.T.Get "Copy"}}</button></div>
+                        </div>
+                        <div class="op-em-strength" aria-hidden="true" :data-level="level()"><span></span><span></span><span></span></div>
+                        <span class="op-hint" x-show="!passErr()" :class="{ 'is-danger': level() === 'Weak', 'is-warning': level() === 'Medium', 'is-success': level() === 'Strong' }" x-text="pass ? levelText() : {{toJSON (.T.Get "8 to 30 characters with upper and lower case letters, a number and a symbol.")}}"></span>
+                        <span class="op-hint is-invalid" x-show="passErr()" x-cloak x-text="passErr()" role="alert"></span>
+                    </div>
+                </div>
+                <div class="op-section"><div><h3>{{.T.Get "Folder"}}</h3><p>{{.T.Get "Where the client lands. It can't go above this folder."}}</p></div>
+                    <div class="op-field"><label class="op-label" for="ftp_folder">{{.T.Get "Path"}} <span class="is-danger">*</span></label>
+                        <div class="op-cf-folder" :class="folderErr() && 'is-invalid'"><span>/var/www/html/</span><input id="ftp_folder" x-model="folder" @input="folderEdited = true" placeholder="{{.T.Get "(all of your sites)"}}" autocomplete="off" spellcheck="false" :aria-invalid="(!!folderErr()).toString()"></div>
+                        <span class="op-hint" x-show="!folderErr()">
+                            <span x-show="folder.trim() === rootFolder()">{{.T.Get "The document root of"}} <span class="op-mono punycode" x-text="domain"></span>.</span>
+                            <span x-show="folder.trim() !== rootFolder()" x-cloak><a class="op-link" href="#" @click.prevent="useRoot()">{{.T.Get "Use the document root of"}} <span x-text="domain"></span></a><span x-show="!folder.trim()">. {{.T.Get "Empty gives access to all of your sites."}}</span></span>
+                        </span>
+                        <span class="op-hint is-invalid" x-show="folderErr()" x-cloak x-text="folderErr()" role="alert"></span>
+                    </div>
+                </div>
+                <div class="op-section"><div><h3>{{.T.Get "Disk quota"}}</h3><p>{{.T.Get "Uploads stop once the folder grows past it. Files can still be deleted."}}</p></div>
+                    <div class="op-col" style="gap:10px">
+                        <div class="op-cf-presets" role="radiogroup" aria-label="{{.T.Get "Disk quota"}}"><template x-for="p in presets" :key="p[0]"><button type="button" role="radio" :aria-checked="(qsel === p[0]).toString()" @click="pick(p[0])"><span x-text="p[1]"></span><small x-show="p[2]" x-text="p[2]"></small></button></template></div>
+                        <div class="op-field" x-show="qsel === 'custom'" x-cloak><label class="op-label" for="quota_custom">{{.T.Get "Custom size"}}</label>
+                            <div class="op-em-custom"><input class="op-input op-mono" id="quota_custom" x-ref="qn" inputmode="numeric" x-model="qn" data-no-live-validate placeholder="750" :class="quotaErr() && 'is-invalid'" :aria-invalid="(!!quotaErr()).toString()"><select class="op-select" aria-label="{{.T.Get "Unit"}}" @change="qu = $event.target.value"><option value="M" selected>MB</option><option value="G">GB</option></select></div>
+                        </div>
+                        <span class="op-hint is-invalid" x-show="quotaErr()" x-cloak x-text="quotaErr()" role="alert"></span>
+                    </div>
+                </div>
+                <div class="op-savebar"><span class="op-mono op-cf-cmd" x-text="cmd()"></span><a class="op-btn op-btn-secondary" href="/ftp">{{.T.Get "Back to FTP Accounts"}}</a><button class="op-btn op-btn-primary" type="submit" :disabled="busy">{{.T.Get "Create Account"}}</button></div>
+            </fieldset>
+        </form>
+        <aside class="op-col" style="gap:16px">
+            <section class="op-card"><div class="op-card-head"><h2>{{.T.Get "FTP clients will use"}}</h2></div>
+                <dl class="op-dl"><dt>{{.T.Get "Host"}}</dt><dd class="op-mono">{{.FTPHost}}</dd><dt>{{.T.Get "Port"}}</dt><dd class="op-mono">{{.FTPPort}}</dd><dt>{{.T.Get "Username"}}</dt><dd class="op-mono" x-text="username()"></dd><dt>{{.T.Get "Folder"}}</dt><dd class="op-mono" x-text="path()"></dd></dl>
+                <p class="op-hint" style="margin:14px 0 0">{{.T.Get "Once it's created, FTP Accounts has ready-made setup files for FileZilla and Cyberduck."}}</p>
+            </section>
+            <section class="op-card"><div class="op-card-head"><h2>{{.T.Get "Accounts"}}</h2></div>
+                <dl class="op-dl"><dt>{{.T.Get "FTP accounts"}}</dt><dd>{{len .Taken}}</dd><dt>{{.T.Get "Domains"}}</dt><dd>{{len .Domains}}</dd></dl>
+            </section>
+        </aside>
+    </div>
+    {{else}}
+    <section class="op-card"><div class="op-empty"><span class="op-ico-tile">{{template "op_icon" "folder"}}</span><b>{{.T.Get "No domains yet"}}</b><span class="op-hint">{{.T.Get "FTP usernames end in one of your domains. Add your first domain to get started."}}</span><a class="op-btn op-btn-primary" href="/domains/new">{{template "op_icon" "plus"}} {{.T.Get "New domain"}}</a></div></section>
+    {{end}}
 </div>
-
-    </form>
-</div>
-<!-- END form -->
-
-
-
-
-    <script>
-// GENERATE PASS FOR NEW USER AND CHANGE PASS FORMS
-function generateRandomStrongPassword(length) {
-    const lowercase = "abcdefghijklmnopqrstuvwxyz";
-    const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const digits = "0123456789";
-    const special = "!@#$%^&*+=?";
-    const allChars = lowercase + uppercase + digits + special;
-
-    let password = "";
-
-    password += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
-    password += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
-    password += digits.charAt(Math.floor(Math.random() * digits.length));
-    password += special.charAt(Math.floor(Math.random() * special.length));
-
-    for (let i = 4; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * allChars.length);
-        password += allChars.charAt(randomIndex);
-    }
-
-    const arr = password.split("");
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr.join("");
-
-}
-
-
-
-// NEW USER FORM
-
-function generateInitiallyFTPPassword() {
-    const generatedPassword = generateRandomStrongPassword(16);
-    const passwordField = document.getElementById("password");
-    passwordField.value = generatedPassword;
-    passwordField.dispatchEvent(new Event('input', { bubbles: true }));
-    document.getElementById("copy-password-link").classList.remove("d-none");
-
-}
-
-    // When the page loads, populate random values for the inputs
-document.addEventListener("DOMContentLoaded", function () {
-    generateInitiallyFTPPassword();
-});
-
-document.getElementById("generatePassword").addEventListener("click", function() {
-    const generatedPassword = generateRandomStrongPassword(16);
-    document.getElementById("password").value = generatedPassword;
-
-    const passwordField = document.getElementById("password");
-    passwordField.dispatchEvent(new Event('input', { bubbles: true }));
-    if (passwordField.type === "password") {
-        passwordField.type = "text";
-    }
-    document.getElementById("copy-password-link").classList.remove("d-none");
-});
-
-
-    document.getElementById("togglePassword").addEventListener("click", function() {
-        const passwordField = document.getElementById("password");
-        if (passwordField.type === "password") {
-            passwordField.type = "text";
-        } else {
-            passwordField.type = "password";
-        }
-    });
-
-    function copyPasswordToClipboard() {
-            const passwordInput = document.createElement("input");
-            passwordInput.type = "text";
-            passwordInput.value = document.getElementById("password").value;
-            document.body.appendChild(passwordInput);
-            passwordInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(passwordInput);
-
-            const copyLink = document.getElementById("copy-password");
-            copyLink.innerHTML = '<i class="bi bi-check"></i>';
-
-            setTimeout(() => {
-                copyLink.innerHTML = '<i class="bi bi-clipboard"></i>';
-            }, 3000);
-    }
-    document.getElementById("copy-password").addEventListener("click", copyPasswordToClipboard);
-
-</script>
-{{else}}
-<!-- START templates/domains/partials/_no_domain.html -->
-<div class="mt-8 inset-x-0 flex h-64 flex-col items-center justify-center">
-    <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No domains yet"}}</p>
-    <p class="mt-2 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Add your first domain to get started"}}</p>
-    <a href="/domains/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>{{.T.Get "New domain"}}</a>
-</div>
-<!-- END templates/domains/partials/_no_domain.html -->
-{{end}}
-
 <!-- END templates/files/ftp_new.html -->
 {{end}}

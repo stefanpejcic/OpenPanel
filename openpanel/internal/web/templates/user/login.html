@@ -1,39 +1,48 @@
 {{define "content"}}
 <!-- START templates/user/login.html -->
 
-<div class="w-full bg-white rounded shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700 border border-gray-300">
-    <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-        <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">{{.T.Get "Sign in to your account"}}</h1>
+<div class="op-auth-card"><div class="op-auth-body">
+{{/* field errors go under their field, everything else in the alert; a flash's category sets the alert's colour */}}
+{{$message := .ErrorMessage}}{{$tone := "danger"}}{{if .ErrorTone}}{{$tone = .ErrorTone}}{{end}}
+{{$field := ""}}{{if .ErrorMessage}}{{if .TwofaEnabled}}{{$field = "code"}}{{else if .UnrecognizedError}}{{$field = "user"}}{{else if .PasswordError}}{{$field = "pass"}}{{end}}{{end}}
+{{with .FirstFlash}}{{$message = $.T.Get .Text}}{{$field = ""}}{{if eq .Category "success"}}{{$tone = "success"}}{{else if eq .Category "info"}}{{$tone = "info"}}{{else if eq .Category "warning"}}{{$tone = "warning"}}{{else}}{{$tone = "danger"}}{{end}}{{end}}
 
-<form method="POST" class="space-y-4 md:space-y-6" action="/login">
+    <div class="op-auth-head">
+        <h1 class="op-auth-title">{{if .TwofaEnabled}}{{.T.Get "Two-factor authentication"}}{{else}}{{.T.Get "Sign in to your account"}}{{end}}</h1>
+        {{if .TwofaEnabled}}<p class="op-auth-sub">{{.T.Get "Enter the 6-digit code from your authenticator app."}}</p>{{end}}
+    </div>
 
-<input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+    {{if and $message (not $field)}}
+    <div class="op-alert is-{{$tone}}" role="alert">{{if eq $tone "success"}}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></svg>{{else}}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>{{end}}<span>{{$message}}</span></div>
+    {{end}}
 
+    <form method="POST" class="op-auth-form" action="/login">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
 {{if not .TwofaEnabled}}
-<!-- Username and password fields only if 2FA is not enabled -->
-            <div>
-                <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Username"}}</label>
-                <input type="text" name="username" id="username" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 text-gray-900 placeholder-gray-400 bg-white dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder-gray-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" required="" placeholder="{{.T.Get "username"}}" {{if .UnrecognizedError}}autofocus value="{{.Username}}"{{else if .Username}}value="{{.Username}}"{{else}}autofocus{{end}}>
-            </div>
-            <div>
-                <label for="password" class="flex mb-2 text-sm font-medium text-gray-900 dark:text-white justify-between">{{.T.Get "Password"}}{{if eq .PasswordReset "yes"}} <a href="/reset_password" tabindex="-1">{{.T.Get "Forgot password?"}}</a>{{end}}</label>
-                <input type="password" name="password" id="password" placeholder="••••••••" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 text-gray-900 placeholder-gray-400 bg-white dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder-gray-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" required="" {{if .PasswordError}}autofocus{{end}}>
-            </div>
-
+        <label class="op-field"><span class="op-label">{{.T.Get "Username"}}</span>
+            <input type="text" name="username" id="username" class="op-input{{if eq $field "user"}} is-invalid{{end}}" required autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="{{.T.Get "username"}}"{{if .Username}} value="{{.Username}}"{{end}}{{if or (eq $field "user") (not .Username)}} autofocus{{end}}{{if eq $field "user"}} aria-invalid="true" aria-describedby="username-error"{{end}}>
+            {{if eq $field "user"}}<span class="op-auth-err" id="username-error"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg><span>{{$message}}</span></span>{{end}}
+        </label>
+        <div class="op-field">
+            <div class="op-label-row" style="margin:0"><label class="op-label" for="password">{{.T.Get "Password"}}</label>{{if eq .PasswordReset "yes"}}<a class="op-auth-link" href="/reset_password" tabindex="-1">{{.T.Get "Forgot password?"}}</a>{{end}}</div>
+            <span class="op-auth-pass">
+                <input type="password" name="password" id="password" placeholder="••••••••" class="op-input{{if eq $field "pass"}} is-invalid{{end}}" required autocomplete="current-password"{{if and .Username (ne $field "user")}} autofocus{{end}}{{if eq $field "pass"}} aria-invalid="true" aria-describedby="password-error"{{end}}>
+                <button type="button" id="password-toggle" aria-pressed="false" aria-label="{{.T.Get "Show password"}}" data-show="{{.T.Get "Show password"}}" data-hide="{{.T.Get "Hide password"}}"><svg class="is-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/></svg><svg class="is-hide" hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.585 10.587a2 2 0 0 0 2.829 2.828"/><path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87"/><path d="M3 3l18 18"/></svg></button>
+            </span>
+            <span class="op-auth-caps" id="password-caps" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:14px;height:14px"><path d="M9 20h6v-4h4l-7 -8l-7 8h4z"/></svg> {{.T.Get "Caps Lock is on"}}</span>
+            {{if eq $field "pass"}}<span class="op-auth-err" id="password-error"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg><span>{{$message}}</span></span>{{end}}
+        </div>
 {{else}}
-<!-- 2FA field if 2FA is enabled -->
-<input type="hidden" name="user_id" value="{{.UserID}}">
-
-            <div>
-                <label for="twofa_code" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Two-Factor Authentication Code"}}</label>
-
-                <input autofocus id="twofa_code" name="twofa_code" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 text-gray-900 placeholder-gray-400 bg-white dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:placeholder-gray-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" required="">
-            </div>
+        <input type="hidden" name="user_id" value="{{.UserID}}">
+        <label class="op-field"><span class="op-label">{{.T.Get "Two-Factor Authentication Code"}}</span>
+            <input autofocus id="twofa_code" name="twofa_code" class="op-input op-auth-code{{if eq $field "code"}} is-invalid{{end}}" required inputmode="numeric" autocomplete="one-time-code" placeholder="000000"{{if eq $field "code"}} aria-invalid="true" aria-describedby="twofa-error"{{end}}>
+            {{if eq $field "code"}}<span class="op-auth-err" id="twofa-error"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg><span>{{$message}}</span></span>{{end}}
+        </label>
 {{end}}
 
 {{if and .CaptchaProvider (not .TwofaEnabled)}}
-<div class="flex justify-center">
+<div style="display:flex;justify-content:center">
 {{if eq .CaptchaProvider "google"}}
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <div class="g-recaptcha" data-sitekey="{{.CaptchaSiteKey}}"></div>
@@ -47,11 +56,12 @@
 </div>
 {{end}}
 
-            <button type="submit" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 border-transparent text-white bg-[#090E1A] hover:bg-black disabled:text-white mt-4 w-full">{{.T.Get "Sign In"}}</button>
-        </form>
+        <button type="submit" class="op-btn op-btn-primary" style="width:100%">{{if .TwofaEnabled}}{{.T.Get "Verify"}}{{else}}{{.T.Get "Sign In"}}{{end}}</button>
+    </form>
 
 {{if not .TwofaEnabled}}
-<button type="button" id="passkey-login-btn" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 text-gray-900 bg-white hover:bg-gray-100 dark:border-gray-700 dark:text-white dark:bg-gray-800 dark:hover:bg-gray-700 mt-3 w-full">{{.T.Get "Sign in with a passkey"}}</button>
+<div class="op-auth-or">{{.T.Get "or"}}</div>
+<button type="button" id="passkey-login-btn" class="op-btn op-btn-secondary" style="width:100%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:18px;height:18px"><path d="M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.069l-2.643 2.643a2.877 2.877 0 0 1 -4.069 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.172a1 1 0 0 1 -.993 -.883l-.007 -.117v-1.172a2 2 0 0 1 .467 -1.284l.119 -.13l.414 -.414h2v-2h2v-2l2.144 -2.144l-.301 -.301a2.877 2.877 0 0 1 0 -4.069l2.643 -2.643a2.877 2.877 0 0 1 4.069 0z"/><path d="M15 9h.01"/></svg> {{.T.Get "Sign in with a passkey"}}</button>
 <script>window.PasskeyI18n = { registerStart: '{{.T.Get "Failed to start passkey registration."}}', save: '{{.T.Get "Failed to save passkey."}}', loginStart: '{{.T.Get "Failed to start passkey login."}}', login: '{{.T.Get "Passkey login failed."}}' };</script>
 <script src="{{static "js/passkeys.js"}}"></script>
 <script>
@@ -70,22 +80,27 @@
 </script>
 {{end}}
 
-        <!-- START errors -->
-        {{$message := .ErrorMessage}}
-        {{with .FirstFlash}}{{$message = $.T.Get .Text}}{{end}}
-
-        {{if $message}}
-        <div class="mt-6 flex items-center space-x-2.5 rounded bg-red-50 p-4 dark:bg-red-500/10">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-red-500 dark:text-red-500"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"></path></svg>
-        <p class="text-sm text-red-600 dark:text-red-500">
-            {{$message}}
-        </p>
-        </div>
-        {{end}}
-        <!-- END errors -->
-
-    </div>
-</div>
+{{if not .TwofaEnabled}}<script>
+// show/hide the password and warn about Caps Lock, the login layout has no Alpine
+(function () {
+  var input = document.getElementById('password'), btn = document.getElementById('password-toggle'), caps = document.getElementById('password-caps');
+  if (!input || !btn) return;
+  btn.addEventListener('click', function () {
+    var show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.setAttribute('aria-pressed', String(show));
+    btn.setAttribute('aria-label', show ? btn.dataset.hide : btn.dataset.show);
+    btn.querySelector('.is-show').hidden = show;
+    btn.querySelector('.is-hide').hidden = !show;
+    input.focus();
+  });
+  ['keydown', 'keyup'].forEach(function (ev) {
+    input.addEventListener(ev, function (e) { caps.hidden = !(e.getModifierState && e.getModifierState('CapsLock')); });
+  });
+})();
+</script>{{end}}
+{{if .TwofaEnabled}}<a class="op-auth-link" href="/login" style="align-self:center">{{.T.Get "Back to sign in"}}</a>{{end}}
+</div></div>
 
 <!-- END templates/user/login.html -->
 {{end}}

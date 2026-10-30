@@ -1,193 +1,110 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/files/backups.html -->
-
-<section aria-label="{{.T.Get "Backups Page"}}" x-data="{ searchQuery: '' }">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-        <div class="flex items-center gap-x-3">
-                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Backups"}}</h1>
-          </div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Manage backups."}}</p>
+<div class="op-content">
+<div class="op-page-head">
+    <div>
+        <h1 class="op-title">{{.T.Get "Backups"}}</h1>
+        <p class="op-meta">{{.T.Get "Manage backups."}}</p>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 flex sm:inline">
-        <a href="/backups/list" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 gap-1.5">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-0.5 size-5 shrink-0"><path d="M4 4H20C20.5523 4 21 4.44772 21 5V19C21 19.5523 20.5523 20 20 20H4C3.44772 20 3 19.5523 3 19V5C3 4.44772 3.44772 4 4 4ZM5 6V18H19V6H5ZM7 8H17V10H7V8ZM7 12H17V14H7V12ZM7 16H13V18H7V16Z"></path></svg>
-            {{.T.Get "List Backups"}}
-        </a>
-        <a href="/account/activity?search=backup&show_all=true" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 gap-1.5">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-0.5 size-5 shrink-0"><path d="M13 3C18.5228 3 23 7.47715 23 13C23 18.5228 18.5228 23 13 23C10.109 23 7.50575 21.7736 5.68758 19.8137L7.11393 18.4693C8.56779 20.0329 10.6396 21 13 21C17.4183 21 21 17.4183 21 13C21 8.58172 17.4183 5 13 5C8.66989 5 5.14735 8.42194 5.00516 12.7179L7.00697 12.0044L7.67483 13.8898L2.7 15.6543L0.935547 10.6795L2.82099 10.0117L3.51314 11.9722C3.98533 6.93269 8.23558 3 13 3ZM14 8V12.5858L17.2426 15.8284L15.8284 17.2426L12 13.4142V8H14Z"></path></svg>
-            {{.T.Get "Restore Logs"}}
-        </a>
+    <div class="op-actions">
+        <a href="/backups/list" class="op-btn op-btn-secondary">{{template "op_icon" "menu"}} {{.T.Get "List Backups"}}</a>
+        <a href="/backups/list?tab=logs" class="op-btn op-btn-secondary">{{template "op_icon" "history"}} {{.T.Get "Restore Logs"}}</a>
     </div>
-    </div>
-
-
-</section>
-
-<!-- form -->
-{{if .AdminManaged}}
-<div class="mx-4 mt-8 rounded bg-gray-50 p-4 dark:bg-gray-900">
-    <p class="font-medium leading-5 text-gray-900 dark:text-gray-50">{{.T.Get "Backups are managed by your administrator"}}</p>
-    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "The backup destination and settings for this account are configured by your administrator. You can still list and restore backups."}}</p>
 </div>
-{{else}}
-<ul id="backups-steps" role="list" class="px-4 mt-8 space-y-8">
-    {{if .Target}}
-    <li class="relative pb-8">
-        <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-800" aria-hidden="true"></span>
-        <div class="relative flex items-start space-x-3">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" aria-hidden="true" class="remixicon relative z-10 shrink-0 text-blue-500 dark:text-blue-500">
-                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path>
-            </svg>
-            <div class="min-w-0 flex-1 pt-1.5">
-                <p class="font-medium leading-5 text-gray-900 dark:text-gray-50">
-                    <a href="/backups/destination" class="focus:outline-none"><span class="absolute inset-0" aria-hidden="true"></span>{{.T.Get "Connect a Destination"}}</a>
-                </p>
-                <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Current destination"}}: {{.Target}}</p>
-            </div>
-        </div>
-    </li>
-    {{else}}
-    <li class="relative pb-8">
-        <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-800" aria-hidden="true"></span>
-        <div class="relative flex items-start space-x-3">
-            <span class="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-500 text-sm font-semibold text-white">1</span>
-            <div class="min-w-0 flex-1 pt-1.5 rounded bg-gray-50 p-4 dark:bg-gray-900">
-                <p class="font-medium leading-5 text-gray-900 dark:text-gray-50">{{.T.Get "Connect a Destination"}}</p>
-                <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "To get started, choose a destination type for backups: S3, WebDAV, Azure, Dropbox or SSH."}}</p>
-                <a
-                    class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-blue-500 dark:bg-blue-500 hover:bg-blue-600 dark:hover:bg-blue-600 disabled:bg-blue-300 disabled:text-white disabled:dark:bg-blue-800 disabled:dark:text-blue-400 mt-4 gap-1.5"
-                    href="/backups/destination"
-                >
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-0.5 size-5 shrink-0">
-                        <path
-                            d="M5 12.5C5 12.8134 5.46101 13.3584 6.53047 13.8931C7.91405 14.5849 9.87677 15 12 15C14.1232 15 16.0859 14.5849 17.4695 13.8931C18.539 13.3584 19 12.8134 19 12.5V10.3287C17.35 11.3482 14.8273 12 12 12C9.17273 12 6.64996 11.3482 5 10.3287V12.5ZM19 15.3287C17.35 16.3482 14.8273 17 12 17C9.17273 17 6.64996 16.3482 5 15.3287V17.5C5 17.8134 5.46101 18.3584 6.53047 18.8931C7.91405 19.5849 9.87677 20 12 20C14.1232 20 16.0859 19.5849 17.4695 18.8931C18.539 18.3584 19 17.8134 19 17.5V15.3287ZM3 17.5V7.5C3 5.01472 7.02944 3 12 3C16.9706 3 21 5.01472 21 7.5V17.5C21 19.9853 16.9706 22 12 22C7.02944 22 3 19.9853 3 17.5ZM12 10C14.1232 10 16.0859 9.58492 17.4695 8.89313C18.539 8.3584 19 7.81342 19 7.5C19 7.18658 18.539 6.6416 17.4695 6.10687C16.0859 5.41508 14.1232 5 12 5C9.87677 5 7.91405 5.41508 6.53047 6.10687C5.46101 6.6416 5 7.18658 5 7.5C5 7.81342 5.46101 8.3584 6.53047 8.89313C7.91405 9.58492 9.87677 10 12 10Z"
-                        ></path>
-                    </svg>
-                    {{.T.Get "Select Destination"}}
-                </a>
-            </div>
-        </div>
-    </li>
-    {{end}}
 
-    {{if .Target}}
-        {{if .HasCredentials}}
-    <li class="relative pb-8">
-        <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-800" aria-hidden="true"></span>
-        <div class="relative flex items-start space-x-3">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" aria-hidden="true" class="remixicon relative z-10 shrink-0 text-blue-500 dark:text-blue-500">
-                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path>
-            </svg>
-            <div class="min-w-0 flex-1 pt-1.5">
-                <p class="font-medium leading-5 text-gray-900 dark:text-gray-50">
-                    <a href="/backups/settings" class="focus:outline-none"><span class="absolute inset-0" aria-hidden="true"></span>{{.T.Get "Configure Settings"}}</a>
-                </p>
-                <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Credentials for the remote destination are added."}}</p>
-            </div>
-        </div>
-    </li>
-
-    {{if not .ServiceActive}}
-    <li class="relative">
-        <div class="relative flex items-start space-x-3">
-            <span class="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-500 text-sm font-semibold text-white">3</span>
-            <div class="min-w-0 flex-1 pt-1.5 rounded bg-gray-50 p-4 dark:bg-gray-900">
-                <p class="font-medium leading-5 text-gray-900 dark:text-gray-50">{{.T.Get "Set limits and enable service"}}</p>
-                <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Set CPU and Memory limits for the backup task and enable service."}}</p>
-                <a
-                    class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-blue-500 dark:bg-blue-500 hover:bg-blue-600 dark:hover:bg-blue-600 disabled:bg-blue-300 disabled:text-white disabled:dark:bg-blue-800 disabled:dark:text-blue-400 mt-4 gap-1.5"
-                    href="/containers"
-                >
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-0.5 size-5 shrink-0">
-                        <path
-                            d="M5 12.5C5 12.8134 5.46101 13.3584 6.53047 13.8931C7.91405 14.5849 9.87677 15 12 15C14.1232 15 16.0859 14.5849 17.4695 13.8931C18.539 13.3584 19 12.8134 19 12.5V10.3287C17.35 11.3482 14.8273 12 12 12C9.17273 12 6.64996 11.3482 5 10.3287V12.5ZM19 15.3287C17.35 16.3482 14.8273 17 12 17C9.17273 17 6.64996 16.3482 5 15.3287V17.5C5 17.8134 5.46101 18.3584 6.53047 18.8931C7.91405 19.5849 9.87677 20 12 20C14.1232 20 16.0859 19.5849 17.4695 18.8931C18.539 18.3584 19 17.8134 19 17.5V15.3287ZM3 17.5V7.5C3 5.01472 7.02944 3 12 3C16.9706 3 21 5.01472 21 7.5V17.5C21 19.9853 16.9706 22 12 22C7.02944 22 3 19.9853 3 17.5ZM12 10C14.1232 10 16.0859 9.58492 17.4695 8.89313C18.539 8.3584 19 7.81342 19 7.5C19 7.18658 18.539 6.6416 17.4695 6.10687C16.0859 5.41508 14.1232 5 12 5C9.87677 5 7.91405 5.41508 6.53047 6.10687C5.46101 6.6416 5 7.18658 5 7.5C5 7.81342 5.46101 8.3584 6.53047 8.89313C7.91405 9.58492 9.87677 10 12 10Z"
-                        ></path>
-                    </svg>
-                    {{.T.Get "Edit Backup Limits"}}
-                </a>
-            </div>
-        </div>
-    </li>
-    {{else}}
-    <li class="relative">
-        <div class="relative flex items-start space-x-3">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" aria-hidden="true" class="remixicon relative z-10 shrink-0 text-blue-500 dark:text-blue-500">
-                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path>
-            </svg>
-            <div class="min-w-0 flex-1 pt-1.5">
-                <p class="font-medium leading-5 text-gray-900 dark:text-gray-50">
-                    <a href="/containers" class="focus:outline-none"><span class="absolute inset-0" aria-hidden="true"></span>{{.T.Get "Backup service is active"}}</a>
-                </p>
-                <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "CPU and Memory limits for the backup task are set and backup service is active."}}</p>
-            </div>
-        </div>
-    </li>
-    {{end}}
-
-        {{else}}
-    <li class="relative pb-8">
-        <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-800" aria-hidden="true"></span>
-        <div class="relative flex items-start space-x-3">
-            <span class="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-500 text-sm font-semibold text-white">2</span>
-            <div class="min-w-0 flex-1 pt-1.5 rounded bg-gray-50 p-4 dark:bg-gray-900">
-                <p class="font-medium leading-5 text-gray-900 dark:text-gray-50">{{.T.Get "Configure Settings"}}</p>
-                <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Configure credentials to use for the remote destination and set what to backup."}}</p>
-                <a
-                    class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-blue-500 dark:bg-blue-500 hover:bg-blue-600 dark:hover:bg-blue-600 disabled:bg-blue-300 disabled:text-white disabled:dark:bg-blue-800 disabled:dark:text-blue-400 mt-4 gap-1.5"
-                    href="/backups/settings"
-                >
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-0.5 size-5 shrink-0">
-                        <path
-                            d="M5 12.5C5 12.8134 5.46101 13.3584 6.53047 13.8931C7.91405 14.5849 9.87677 15 12 15C14.1232 15 16.0859 14.5849 17.4695 13.8931C18.539 13.3584 19 12.8134 19 12.5V10.3287C17.35 11.3482 14.8273 12 12 12C9.17273 12 6.64996 11.3482 5 10.3287V12.5ZM19 15.3287C17.35 16.3482 14.8273 17 12 17C9.17273 17 6.64996 16.3482 5 15.3287V17.5C5 17.8134 5.46101 18.3584 6.53047 18.8931C7.91405 19.5849 9.87677 20 12 20C14.1232 20 16.0859 19.5849 17.4695 18.8931C18.539 18.3584 19 17.8134 19 17.5V15.3287ZM3 17.5V7.5C3 5.01472 7.02944 3 12 3C16.9706 3 21 5.01472 21 7.5V17.5C21 19.9853 16.9706 22 12 22C7.02944 22 3 19.9853 3 17.5ZM12 10C14.1232 10 16.0859 9.58492 17.4695 8.89313C18.539 8.3584 19 7.81342 19 7.5C19 7.18658 18.539 6.6416 17.4695 6.10687C16.0859 5.41508 14.1232 5 12 5C9.87677 5 7.91405 5.41508 6.53047 6.10687C5.46101 6.6416 5 7.18658 5 7.5C5 7.81342 5.46101 8.3584 6.53047 8.89313C7.91405 9.58492 9.87677 10 12 10Z"
-                        ></path>
-                    </svg>
-                    {{.T.Get "Edit Configuration"}}
-                </a>
-            </div>
-        </div>
-    </li>
-    <li class="relative">
-        <div class="relative flex items-start space-x-3">
-            <span class="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-200 text-sm font-semibold text-gray-400 dark:bg-gray-800 dark:text-gray-600">3</span>
-            <div class="min-w-0 flex-1 pt-1.5">
-                <p class="font-medium leading-5 text-gray-400 dark:text-gray-600">{{.T.Get "Set limits and enable service"}}</p>
-                <p class="mt-1 text-sm/6 text-gray-400 dark:text-gray-600">{{.T.Get "Set CPU and Memory limits for the backup task and enable service."}}</p>
-            </div>
-        </div>
-    </li>
-        {{end}}
-
-    {{else}}
-    <li class="relative pb-8">
-        <span class="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-gray-800" aria-hidden="true"></span>
-        <div class="relative flex items-start space-x-3">
-            <span class="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-200 text-sm font-semibold text-gray-400 dark:bg-gray-800 dark:text-gray-600">2</span>
-            <div class="min-w-0 flex-1 pt-1.5">
-                <p class="font-medium leading-5 text-gray-400 dark:text-gray-600">{{.T.Get "Configure Settings"}}</p>
-                <p class="mt-1 text-sm/6 text-gray-400 dark:text-gray-600">{{.T.Get "Configure credentials to use for the remote destination and set what to backup."}}</p>
-            </div>
-        </div>
-    </li>
-
-    <li class="relative">
-        <div class="relative flex items-start space-x-3">
-            <span class="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-200 text-sm font-semibold text-gray-400 dark:bg-gray-800 dark:text-gray-600">3</span>
-            <div class="min-w-0 flex-1 pt-1.5">
-                <p class="font-medium leading-5 text-gray-400 dark:text-gray-600">{{.T.Get "Set limits and enable service"}}</p>
-                <p class="mt-1 text-sm/6 text-gray-400 dark:text-gray-600">{{.T.Get "Set CPU and Memory limits for the backup task and enable service."}}</p>
-            </div>
-        </div>
-    </li>
-    {{end}}
-
-</ul>
+{{with .Summary}}
+<section class="op-kpis" aria-label="{{$.T.Get "Summary"}}">
+    <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "archive"}} {{$.T.Get "Backups"}}</div><div class="op-kpi-value">{{.Count}}</div><div class="op-kpi-note">{{$.T.Get "on the destination"}}</div></div>
+    <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "clock"}} {{$.T.Get "Latest backup"}}</div>
+        {{if .Latest}}<div class="op-kpi-value">{{.Latest.Day}}</div><div class="op-kpi-note">{{.Latest.Clock}}{{if .Latest.SizeText}}, {{.Latest.SizeText}}{{end}}</div>
+        {{else}}<div class="op-kpi-value">&ndash;</div><div class="op-kpi-note">{{$.T.Get "No backups yet."}}</div>{{end}}</div>
+    <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "server"}} {{$.T.Get "Stored"}}</div><div class="op-kpi-value">{{if .TotalSize}}{{.TotalSize}}{{else}}&ndash;{{end}}</div><div class="op-kpi-note">{{$.T.Get "all"}} {{.Count}} {{$.T.Get "archives"}}</div></div>
+    <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "refresh"}} {{$.T.Get "Schedule"}}</div>
+        <div class="op-kpi-value">{{if eq .Schedule "@daily" "@midnight"}}{{$.T.Get "Daily"}}{{else if eq .Schedule "@hourly"}}{{$.T.Get "Hourly"}}{{else if eq .Schedule "@weekly"}}{{$.T.Get "Weekly"}}{{else if eq .Schedule "@monthly"}}{{$.T.Get "Monthly"}}{{else if .Schedule}}{{$.T.Get "Custom"}}{{else}}&ndash;{{end}}</div>
+        <div class="op-kpi-note op-mono">{{if .Schedule}}{{.Schedule}}, {{end}}{{if or (eq .Retention "") (eq .Retention "-1") (eq .Retention "0")}}{{$.T.Get "keeps every copy"}}{{else}}{{$.T.Get "keeps"}} {{.Retention}} {{$.T.Get "days"}}{{end}}</div></div>
+</section>
 {{end}}
-<!-- END form -->
 
+{{if .AdminManaged}}
+<div class="op-alert" role="status">{{template "op_icon" "info"}}<span><b>{{.T.Get "Backups are managed by your administrator"}}</b><br>{{.T.Get "The backup destination and settings for this account are configured by your administrator. You can still list and restore backups."}} <a href="/backups/list">{{.T.Get "Restore a backup"}}</a></span></div>
+{{else}}
+<section class="op-card" id="backups-steps">
+    <div class="op-card-head"><h2>{{.T.Get "Backup setup"}}</h2>
+        {{if and .Target .HasCredentials .ServiceActive}}<span class="op-status is-success">{{.T.Get "3 of 3 done"}}</span>{{else if and .Target .HasCredentials}}<span class="op-status is-warning">{{.T.Get "2 of 3 done"}}</span>{{else if .Target}}<span class="op-status is-warning">{{.T.Get "1 of 3 done"}}</span>{{else}}<span class="op-status is-muted">{{.T.Get "Not set up"}}</span>{{end}}
+    </div>
+    <ol class="op-setup">
+        <li class="op-setup-step{{if .Target}} is-done{{end}}"><span class="op-setup-mark">{{if .Target}}{{template "op_icon" "check"}}{{else}}1{{end}}</span><div>
+            <b class="op-setup-title"><span class="op-ico-tile is-xs">{{template "op_icon" "server"}}</span>{{.T.Get "Connect a Destination"}}</b>
+            {{if .Target}}
+            <p>{{.T.Get "Current destination"}}: <span class="op-mono">{{.Target}}</span>{{if .Summary.Destination}}, <span class="op-mono" style="overflow-wrap:anywhere">{{.Summary.Destination}}</span>{{end}}</p>
+            <a class="op-btn op-btn-secondary op-btn-sm" href="/backups/destination">{{.T.Get "Change destination"}}</a>
+            {{else}}
+            <p>{{.T.Get "To get started, choose a destination type for backups: S3, WebDAV, Azure, Dropbox or SSH."}}</p>
+            <a class="op-btn op-btn-primary op-btn-sm" href="/backups/destination">{{.T.Get "Select Destination"}}</a>
+            {{end}}
+        </div></li>
+        <li class="op-setup-step{{if and .Target .HasCredentials}} is-done{{end}}"><span class="op-setup-mark">{{if and .Target .HasCredentials}}{{template "op_icon" "check"}}{{else}}2{{end}}</span><div>
+            <b class="op-setup-title"><span class="op-ico-tile is-xs">{{template "op_icon" "settings"}}</span>{{.T.Get "Configure Settings"}}</b>
+            {{if and .Target .HasCredentials}}
+            <p>{{.T.Get "Credentials for the remote destination are added."}}</p>
+            <a class="op-btn op-btn-secondary op-btn-sm" href="/backups/settings">{{.T.Get "Edit Configuration"}}</a>
+            {{else}}
+            <p>{{.T.Get "Configure credentials to use for the remote destination and set what to backup."}}</p>
+            {{if .Target}}<a class="op-btn op-btn-primary op-btn-sm" href="/backups/settings">{{.T.Get "Edit Configuration"}}</a>{{end}}
+            {{end}}
+        </div></li>
+        <li class="op-setup-step{{if and .Target .HasCredentials .ServiceActive}} is-done{{end}}"><span class="op-setup-mark">{{if and .Target .HasCredentials .ServiceActive}}{{template "op_icon" "check"}}{{else}}3{{end}}</span><div>
+            <b class="op-setup-title"><span class="op-ico-tile is-xs">{{template "op_icon" "cpu"}}</span>{{if and .Target .HasCredentials .ServiceActive}}{{.T.Get "Backup service is active"}}{{else}}{{.T.Get "Set limits and enable service"}}{{end}}</b>
+            {{if and .Target .HasCredentials .ServiceActive}}
+            <p>{{.T.Get "CPU and Memory limits for the backup task are set and backup service is active."}}{{if .Summary.CPU}} {{.T.Get "Limits now"}}: <span class="op-mono">{{.Summary.CPU}}</span> CPU{{if .Summary.RAM}}, <span class="op-mono">{{.Summary.RAM}}</span> {{.T.Get "memory"}}{{end}}.{{end}}</p>
+            <a class="op-btn op-btn-secondary op-btn-sm" href="/containers">{{.T.Get "Edit Backup Limits"}}</a>
+            {{else}}
+            <p>{{.T.Get "Set CPU and Memory limits for the backup task and enable service."}}{{if .Summary.CPU}} {{.T.Get "Limits now"}}: <span class="op-mono">{{.Summary.CPU}}</span> CPU{{if .Summary.RAM}}, <span class="op-mono">{{.Summary.RAM}}</span> {{.T.Get "memory"}}{{end}}.{{end}}</p>
+            {{if and .Target .HasCredentials}}<a class="op-btn op-btn-primary op-btn-sm" href="/containers">{{template "op_icon" "settings"}} {{.T.Get "Edit Backup Limits"}}</a>{{end}}
+            {{end}}
+        </div></li>
+    </ol>
+</section>
+{{end}}
 
-
+{{with .Summary}}
+<section class="op-card" aria-label="{{$.T.Get "Recent backups"}}" x-data="{ bq: '' }">
+    <div class="op-card-head"><div><h2>{{$.T.Get "Recent backups"}}</h2><p class="op-meta">{{if .Count}}{{.Count}} {{$.T.Get "copies on the destination, newest first. Restore everything from here, or open Restore for files, databases and domains."}}{{else}}{{$.T.Get "Backups show up here once the destination has been indexed."}}{{end}}</p></div>
+        {{if .Count}}<a class="op-btn op-btn-secondary op-btn-sm" href="/backups/list?tab=full">{{$.T.Get "See all"}} {{.Count}}</a>{{end}}</div>
+    {{if .IndexError}}<div class="op-alert is-danger" role="alert">{{template "op_icon" "alert"}}<span>{{.IndexError}}</span></div>{{end}}
+    {{if .Recent}}
+    <div class="op-toolbar"><label class="op-search">{{template "op_icon" "search"}}<input class="op-input" type="search" placeholder="{{$.T.Get "Search backups"}}" x-model="bq" aria-label="{{$.T.Get "Search backups"}}"></label></div>
+    <div class="op-table-wrap"><table class="op-table">
+        <thead><tr><th>{{$.T.Get "Backup"}}</th><th class="op-col-wide">{{$.T.Get "Contents"}}</th><th class="is-num">{{$.T.Get "Size"}}</th><th class="is-shrink"><span class="sr-only">{{$.T.Get "Restore"}}</span></th><th class="is-shrink"><span class="sr-only">{{$.T.Get "More"}}</span></th></tr></thead>
+        <tbody>
+        {{range $i, $b := .Recent}}
+        <tr x-show="!bq || $el.textContent.toLowerCase().includes(bq.toLowerCase())">
+            <td class="op-cell-title"><div class="op-row-title"><span class="op-file-ico" style="--hue:var(--color-hue-cyan)">{{template "op_icon" "archive"}}</span><div style="min-width:0"><b>{{if $b.When}}{{$b.When}}{{else}}{{$b.File}}{{end}}{{if eq $i 0}} <span class="op-badge is-accent">{{$.T.Get "Latest"}}</span>{{end}}</b><span class="op-sub op-mono" style="overflow-wrap:anywhere">{{$b.File}}</span></div></div></td>
+            <td data-label="{{$.T.Get "Contents"}}" class="op-col-wide"><span class="op-chips" style="gap:4px">{{if $b.Has "html"}}<span class="op-tag">{{$.T.Get "Files"}}</span>{{end}}{{with $b.Databases}}<span class="op-tag">{{len .}} DB</span>{{end}}{{if $b.Has "vhosts"}}<span class="op-tag">{{$.T.Get "Domains"}}</span>{{end}}{{if $b.Has "dns"}}<span class="op-tag">DNS</span>{{end}}{{if $b.Has "mail"}}<span class="op-tag">{{$.T.Get "Email"}}</span>{{end}}{{if $b.Has "crons"}}<span class="op-tag">{{$.T.Get "Cron"}}</span>{{end}}</span></td>
+            <td data-label="{{$.T.Get "Size"}}" class="is-num"><span class="op-mono">{{if $b.SizeText}}{{$b.SizeText}}{{else}}&ndash;{{end}}</span></td>
+            <td class="is-shrink"><a class="op-btn op-btn-secondary op-btn-sm" href="/backups/list?tab=full">{{template "op_icon" "refresh"}} {{$.T.Get "Restore"}}</a></td>
+            <td class="is-shrink op-cell-menu" style="position:relative" x-data="opMenu()" @click.outside="open = false" @keydown.escape="open = false">
+                <button class="op-icon-btn" type="button" aria-label="{{$.T.Get "More actions"}}" :aria-expanded="open.toString()" x-ref="btn" @click="toggle()">{{template "op_icon" "dots"}}</button>
+                <div class="op-menu" x-ref="menu" x-show="open" x-cloak>
+                    <a href="/backups/list?tab=html">{{template "op_icon" "folder"}} {{$.T.Get "Choose files"}}</a>
+                    {{if $b.Databases}}<a href="/backups/list?tab=databases">{{template "op_icon" "db"}} {{$.T.Get "Restore a database"}}</a>{{end}}
+                    <a href="/backups/list?tab=full">{{template "op_icon" "download"}} {{$.T.Get "Download"}}</a>
+                </div>
+            </td>
+        </tr>
+        {{end}}
+        </tbody>
+    </table></div>
+    <div class="op-tfoot"><span>{{$.T.Get "Showing"}} {{len .Recent}} {{$.T.Get "of"}} {{.Count}} {{$.T.Get "copies"}}</span><a href="/backups/list" style="color:var(--color-accent-text)">{{$.T.Get "Open Restore & Download"}}</a></div>
+    {{else if not .IndexError}}
+    <div class="op-empty">{{template "op_icon" "archive"}}<b>{{$.T.Get "No backups found"}}</b><p>{{$.T.Get "Once the first backup runs, it shows up here."}} <a href="/backups/list">{{$.T.Get "Reindex the destination"}}</a></p></div>
+    {{end}}
+</section>
+{{end}}
+</div>
 <!-- END templates/files/backups.html -->
 {{end}}

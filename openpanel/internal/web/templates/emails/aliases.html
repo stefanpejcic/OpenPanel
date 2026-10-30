@@ -1,96 +1,147 @@
 {{define "alpine_plugins"}}{{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
 {{define "content"}}
 <!-- START templates/emails/aliases.html -->
-
-<section aria-label="{{.T.Get "Aliases Header"}}" x-data="{ searchQuery: '' }">
-    <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<div class="op-content" x-data="{ searchQuery: '' }">
+    <div class="op-page-head">
         <div>
-            <div class="flex items-center gap-x-3">
-                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Aliases"}}</h1>
-            </div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">
-                {{.T.Get "Total aliases:"}}
-                <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white mb-2">{{len .AliasList}}</span>
-            </p>
+            <div class="op-eyebrow">{{len .AliasList}} {{.T.Get "total"}}</div>
+            <h1 class="op-title">{{.T.Get "Aliases"}}</h1>
+            <p class="op-meta">{{.T.Get "Addresses that forward mail to one or more mailboxes."}}</p>
         </div>
-        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-            <div class="relative w-full sm:w-64">
-                <input x-model="searchQuery" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8" placeholder="{{.T.Get "Search"}}" type="search"/>
-                <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
-                        <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
-                    </svg>
-                </div>
-            </div>
-            <a href="/emails/aliases/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>
-                {{.T.Get "New Alias"}}
-            </a>
+        <div class="op-actions">
+            <a href="/emails/aliases?new=1" class="op-btn op-btn-primary" @click.prevent="$dispatch('alias-new')">{{template "op_icon" "plus"}} {{.T.Get "New Alias"}}</a>
         </div>
     </div>
+
+    <section class="op-card" aria-label="{{.T.Get "Aliases"}}">
+        <div class="op-toolbar">
+            <label class="op-search">{{template "op_icon" "search"}}<input class="op-input" type="search" x-model="searchQuery" placeholder="{{.T.Get "Search aliases"}}" aria-label="{{.T.Get "Search aliases"}}"></label>
+        </div>
 
 {{template "bulk_open" (dict "T" .T "Table" "#aliases-table" "Endpoint" "/emails/aliases/bulk")}}
-    <div class="overflow-x-auto">
-        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
-            <table id="aliases-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
-                <thead>
-                    <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
-{{template "bulk_head_checkbox" .}}
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "From (alias)"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Delivers to"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-right text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Options"}}</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-
-                {{if not .AliasList}}
-                    <tr>
-                        <td colspan="4" class="p-6 text-center text-sm text-gray-500 dark:text-gray-400">
-                            {{.T.Get "No aliases yet."}}
-                            <a href="/emails/aliases/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit border-black bg-black text-white hover:bg-gray-800 ml-2">
-                                {{.T.Get "Add your first alias"}}
-                            </a>
-                        </td>
-                    </tr>
-                {{else}}
-                    {{range .AliasList}}
-                    {{$entry := .}}
-                    <tr x-show="searchQuery === '' || {{toJSON $entry.Source}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON (join $entry.Targets ",")}}.toLowerCase().includes(searchQuery.toLowerCase())"
-                        class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-{{template "bulk_row_checkbox" (dict "T" $.T "Key" $entry.Source "Label" $entry.Source)}}
-
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                            <span class="punycode font-medium text-gray-900 dark:text-gray-50">{{$entry.Source}}</span>
-                        </td>
-
-                        <td class="p-4 text-sm text-gray-600 dark:text-gray-400">
-                            <div class="flex flex-wrap gap-1">
-                                {{range $entry.Targets}}
-                                <span class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                                    {{.}}
-                                </span>
-                                {{end}}
-                            </div>
-                        </td>
-
-                        <td class="whitespace-nowrap p-4 text-sm text-right">
-                            <a href="/emails/aliases/{{$entry.Source}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800">
-                                <i class="bi bi-wrench-adjustable"></i> {{$.T.Get "Manage"}}
-                            </a>
-                        </td>
-
-                    </tr>
-                    {{end}}
-                {{end}}
-
-                </tbody>
-            </table>
+        <div class="op-table-wrap"{{if not .AliasList}} hidden{{end}}>
+        <table id="aliases-table" class="op-table">
+            <thead>
+                <tr>
+                    <th class="is-shrink"><input type="checkbox" class="op-check" :checked="bulkAllChecked" :indeterminate="bulkSomeChecked" @change="bulkToggleAll($event.target.checked)" aria-label="{{.T.Get "Select all"}}"></th>
+                    <th>{{.T.Get "From (alias)"}}</th>
+                    <th>{{.T.Get "Delivers to"}}</th>
+                    <th class="is-shrink"><span class="op-sr">{{.T.Get "Options"}}</span></th>
+                </tr>
+            </thead>
+            <tbody>
+            {{range .AliasList}}
+            {{$entry := .}}
+                <tr x-show="searchQuery === '' || {{toJSON $entry.Source}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON (join $entry.Targets ",")}}.toLowerCase().includes(searchQuery.toLowerCase())" :aria-selected="(!!bulkSelected[{{toJSON $entry.Source}}]).toString()">
+                    <td class="is-shrink"><input type="checkbox" class="op-check bulk-select-box" value="{{$entry.Source}}" data-bulk-skip="" :checked="!!bulkSelected[{{toJSON $entry.Source}}]" @change="bulkToggle($event.target)" aria-label="{{$.T.Get "Select"}} {{$entry.Source}}"></td>
+                    <td>
+                        <div class="op-row-title">
+                            <span class="op-ico-tile is-sm" style="--hue:var(--color-hue-cyan)">{{template "op_icon" "forward"}}</span>
+                            <div style="min-width:0"><b class="punycode" style="overflow-wrap:anywhere">{{$entry.Source}}</b></div>
+                        </div>
+                    </td>
+                    <td data-label="{{$.T.Get "Delivers to"}}">
+                        <span class="op-chips op-chips-tight">{{range $entry.Targets}}<span class="op-tag op-mono">{{.}}</span>{{end}}</span>
+                    </td>
+                    <td class="is-shrink op-cell-menu">
+                        <a href="/emails/aliases/{{$entry.Source}}" class="op-btn op-btn-sm op-btn-secondary">{{template "op_icon" "pencil"}} {{$.T.Get "Manage"}}</a>
+                    </td>
+                </tr>
+            {{end}}
+            </tbody>
+        </table>
         </div>
-    </div>
+{{if not .AliasList}}
+        <div class="op-empty">
+            <span class="op-ico-tile">{{template "op_icon" "forward"}}</span>
+            <b>{{.T.Get "No aliases yet."}}</b>
+            <span class="op-hint">{{.T.Get "An alias forwards mail sent to one address into existing mailboxes."}}</span>
+            <a href="/emails/aliases?new=1" class="op-btn op-btn-primary" @click.prevent="$dispatch('alias-new')">{{template "op_icon" "plus"}} {{.T.Get "Add your first alias"}}</a>
+        </div>
+{{end}}
 {{template "bulk_bar" .}}
 </div>
-</section>
-
+    </section>
+</div>
+{{if .Domains}}
+<!-- create sheet, posts to /emails/aliases/new; same checks as aliasProblem -->
+<div x-data="opNewAlias({
+    open: {{.NewOpen}}, domain: {{toJSON .NewDomain}}, user: {{toJSON .NewUser}}, first: {{toJSON (index .Domains 0).DomainURL}},
+    taken: [{{range $i, $e := .AliasList}}{{if $i}}, {{end}}{{toJSON $e.Source}}{{end}}],
+    t: {
+        noUser: {{toJSON (.T.Get "Enter the alias name.")}},
+        badUser: {{toJSON (.T.Get "Only letters, numbers, and the characters . _ % + - are allowed.")}},
+        taken: {{toJSON (.T.Get "Alias %(source)s already exists. Add the destination from its Manage page instead." "source" "{source}")}},
+        noTarget: {{toJSON (.T.Get "Enter the address to forward to.")}},
+        badTarget: {{toJSON (.T.Get "Enter a valid email address, like name@example.com.")}},
+        self: {{toJSON (.T.Get "An alias can't forward to itself.")}},
+        alias: {{toJSON (.T.Get "alias")}}
+    }
+})" @alias-new.window="show()" @keydown.escape.window="open = false">
+    <div class="op-scrim" x-show="open" x-cloak @click="open = false"></div>
+    <div class="op-sheet" role="dialog" aria-modal="true" aria-labelledby="alias-new-title" x-show="open" x-cloak>
+        <h2 id="alias-new-title">{{.T.Get "Create an Alias"}}</h2>
+        <p class="op-meta">{{.T.Get "Forward mail from an alias address to any destination."}}</p>
+        <form method="POST" action="/emails/aliases/new" novalidate @submit="submit($event)" data-busy="{{.T.Get "Creating the alias"}}" data-busy-leave="no">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            <div class="op-col" style="gap:14px;margin:16px 0 20px">
+                <div class="op-field"><label class="op-label" for="alias_username">{{.T.Get "Alias address"}} <span class="is-danger">*</span></label>
+                    <div class="op-em-addr">
+                        <input class="op-input op-mono" id="alias_username" name="username" x-ref="user" x-model.trim="user" maxlength="60" data-no-live-validate placeholder="{{.T.Get "sales"}}" autocomplete="off" spellcheck="false" autocapitalize="off" :class="userErr() && 'is-invalid'" :aria-invalid="(!!userErr()).toString()">
+                        <div><span aria-hidden="true">@</span>
+                            <select class="op-select" name="domain" aria-label="{{.T.Get "Domain"}}" x-model="domain">
+                                {{range .Domains}}<option class="punycode" value="{{.DomainURL}}">{{.DomainURL}}</option>{{end}}
+                            </select>
+                        </div>
+                    </div>
+                    <span class="op-hint" x-show="!userErr()">{{.T.Get "Mail sent to this address goes to the destination below. No mailbox is created."}}</span>
+                    <span class="op-hint is-invalid" x-show="userErr()" x-cloak x-text="userErr()" role="alert"></span>
+                </div>
+                <div class="op-field"><label class="op-label" for="alias_target">{{.T.Get "Destination address"}} <span class="is-danger">*</span></label>
+                    <input class="op-input op-mono" type="email" id="alias_target" name="target" x-model.trim="target" maxlength="254" data-no-live-validate placeholder="{{.T.Get "destination@example.com"}}" autocomplete="off" spellcheck="false" :class="targetErr() && 'is-invalid'" :aria-invalid="(!!targetErr()).toString()">
+                    <span class="op-hint" x-show="!targetErr()">{{.T.Get "Can be any email address (on this server or external). Add more destinations later from Manage."}}</span>
+                    <span class="op-hint is-invalid" x-show="targetErr()" x-cloak x-text="targetErr()" role="alert"></span>
+                </div>
+                <div class="op-em-preview" :class="user && target && !userErr() && !targetErr() && 'is-ok'">
+                    <span>{{template "op_icon" "forward"}}</span>
+                    <b :class="!user && 'is-empty'"><span x-text="source()"></span> → <span x-text="target || '…'"></span></b>
+                </div>
+            </div>
+            <div class="op-actions"><button class="op-btn op-btn-secondary" type="button" @click="open = false">{{.T.Get "Cancel"}}</button><button class="op-btn op-btn-primary" type="submit" style="flex:1" :disabled="busy">{{.T.Get "Create Alias"}}</button></div>
+        </form>
+    </div>
+</div>
+<script>
+function opNewAlias(c) {
+    const taken = (c.taken || []).map(s => s.toLowerCase());
+    return {
+        open: c.open, domain: c.domain || c.first, user: c.user, target: '', tried: false, busy: false,
+        init() { if (this.open) this.$nextTick(() => this.$refs.user.focus()); },
+        show() { this.open = true; this.tried = false; this.$nextTick(() => this.$refs.user.focus()); },
+        source() { return (this.user || c.t.alias) + '@' + this.domain; },
+        userErr() {
+            if (!this.user) return this.tried ? c.t.noUser : '';
+            if (!/^[a-zA-Z0-9._%+\-]+$/.test(this.user)) return c.t.badUser;
+            if (taken.includes((this.user + '@' + this.domain).toLowerCase())) return c.t.taken.replace('{source}', this.user + '@' + this.domain);
+            return '';
+        },
+        targetErr() {
+            if (!this.target) return this.tried ? c.t.noTarget : '';
+            if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(this.target)) return c.t.badTarget;
+            if (this.user && this.target.toLowerCase() === (this.user + '@' + this.domain).toLowerCase()) return c.t.self;
+            return '';
+        },
+        submit(e) {
+            this.tried = true;
+            if (this.userErr() || this.targetErr()) { e.preventDefault(); this.$nextTick(() => { const el = this.$root.querySelector('.op-sheet .is-invalid'); if (el) el.focus(); }); return; }
+            this.busy = true;
+        },
+    };
+}
+</script>
+{{end}}
 <!-- END templates/emails/aliases.html -->
 {{end}}

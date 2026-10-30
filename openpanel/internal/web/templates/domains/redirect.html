@@ -1,99 +1,160 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "content"}}
 <!-- START templates/domains/redirect.html -->
-{{/* classic compat: the handler now sends Rows/Free/Open instead of DomainName/RedirectURL/Domains */}}
-{{$redirectURL := ""}}{{range .Rows}}{{if eq .Domain $.Open}}{{$redirectURL = .To}}{{end}}{{end}}
+<script>
+// redirects list with its new/edit/delete sheets; the sheets post real forms and the server repeats these checks
+function opRedirects(rows, free, open, t) {
+  const URLRE = /^https?:\/\/\S+$/;
+  const bare = h => h.toLowerCase().replace(/\.$/, '').replace(/^www\./, '');
+  const parse = u => { try { return new URL(u); } catch (e) { return null; } };
+  const here = u => !u.port || u.port === '80' || u.port === '443';
+  return {
+    rows: rows || [], free: free || [], q: '', sheet: '', mode: 'new', cur: null, f: { domain: '', to: '', permanent: false, keep: false, www: true }, tried: false,
+    init() {
+      if (!open) return;
+      const r = this.rows.find(x => x.domain === open);
+      if (r) this.openEdit(r); else if (this.free.includes(open)) this.openNew(open);
+    },
+    match(text) { return !this.q || text.includes(this.q.toLowerCase()); },
+    shownCount() { return this.rows.filter(r => this.match((r.domain + ' ' + r.to).toLowerCase())).length; },
+    toErr() {
+      const to = this.f.to.trim(), d = this.f.domain;
+      if (!to) return t.empty;
+      if (!URLRE.test(to)) return t.scheme;
+      const u = parse(to);
+      if (!u || !u.hostname) return t.full;
+      const self = bare(d), host = bare(u.hostname);
+      if (host === self && here(u)) return t.self.replace('%(domain)s', d);
+      const back = this.rows.find(r => bare(r.domain) === host && host !== self && (x => x && bare(x.hostname) === self && here(x) && here(u))(parse(r.to)));
+      if (back) return t.circle.replace('%(other)s', back.domain).replace('%(domain)s', d);
+      return '';
+    },
+    openNew(domain) {
+      if (!this.free.length) { showToast(t.allTaken, 'error'); return; }
+      this.mode = 'new'; this.cur = null; this.f = { domain: domain || this.free[0], to: '', permanent: false, keep: false, www: true }; this.tried = false; this.sheet = 'form';
+      this.$nextTick(() => this.$refs.to && this.$refs.to.focus());
+    },
+    openEdit(r) { this.mode = 'edit'; this.cur = r; this.f = { domain: r.domain, to: r.to, permanent: !!r.permanent, keep: !!r.keep_path, www: !r.bare_only }; this.tried = false; this.sheet = 'form'; this.$nextTick(() => this.$refs.to && this.$refs.to.select()); },
+    submit(e) { this.tried = true; if (this.toErr()) e.preventDefault(); },
+    // the target a visitor of /any/page lands on
+    landing() { const to = this.f.to.trim(); if (!to) return 'https://…'; return this.f.keep ? to.replace(/\/+$/, '') + '/any/page' : to; },
+    openDelete(r) { this.cur = r; this.sheet = 'delete'; },
+    copy(text) { copyToClipboard(text).then(() => showToast(t.copied, 'success')).catch(() => showToast(t.copyFailed, 'error')); },
+  };
+}
+</script>
+<div class="op-content" x-data="opRedirects({{toJSON .Rows}}, {{toJSON .Free}}, {{toJSON .Open}}, {
+    empty: {{toJSON (.T.Get "Enter the URL visitors should go to.")}},
+    scheme: {{toJSON (.T.Get "Start with http:// or https:// and leave out spaces.")}},
+    full: {{toJSON (.T.Get "That doesn't look like a full URL.")}},
+    self: {{toJSON (.T.Get "This points back at %(domain)s, so visitors would loop forever.")}},
+    circle: {{toJSON (.T.Get "%(other)s already redirects to %(domain)s. Saving this would send visitors in a circle.")}},
+    allTaken: {{toJSON (.T.Get "Every domain already has a redirect.")}},
+    copied: {{toJSON (.T.Get "Copied target URL.")}},
+    copyFailed: {{toJSON (.T.Get "Couldn't copy, select the text and copy it by hand.")}},
+  })">
 
-{{if .Open}}
-
-<!-- page header -->
-<section aria-label="{{.T.Get "Edit Redirect Header"}}">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{if $redirectURL}}{{.T.Get "Edit Redirect for"}}{{else}}{{.T.Get "Create Redirect for"}}{{end}} {{.Open}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{if $redirectURL}}{{.T.Get "Edit or delete URL redirect for domain"}} <span class="punycode">{{.Open}}</span>{{else}}{{.T.Get "Redirect domain to URL."}}{{end}}</p>
+  <div class="op-page-head">
+    <div>
+      <div class="op-eyebrow">{{len .Rows}} {{.T.Get "of"}} {{.DomainCount}} {{.T.Get "domains redirected"}}</div>
+      <h1 class="op-title">{{.T.Get "Redirects"}}</h1>
+      <p class="op-meta">{{.T.Get "Send every visitor of a domain to another URL. Email and the domain's other services keep working."}}</p>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-    </div>
-</div>
-<!-- END page header -->
+    {{if .DomainCount}}<div class="op-actions"><button class="op-btn op-btn-primary" type="button" @click="openNew()">{{template "op_icon" "plus"}} {{.T.Get "New Redirect"}}</button></div>{{end}}
+  </div>
 
-
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
-    <form class="mt-8" method="POST">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-        <div class="col-span-full">
-            <input type="hidden" name="domain_name" value="{{.Open}}">
-            <input type="url" name="redirect_url" value="{{$redirectURL}}" pattern="https?://.*" title="{{.T.Get "Must be a valid URL starting with http:// or https://."}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="{{.T.Get "https://"}}">
-        </div>
-    </div>
-
-    <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
-
-    <div class="md:flex items-center md:justify-end md:space-x-4">
-
-        <button id="save-redirect" type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full md:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 md:mt-0">{{.T.Get "Save Redirect"}}<svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"> <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/> </svg>
-        </button>
-
-        </form>
-        {{if $redirectURL}}
-        <form action="/domains/redirect/delete" method="post">
-            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-            <input class="d-none" type="hidden" name="domain_name" value="{{.Open}}">
-            <input class="d-none" type="hidden" name="redirect_url" value="{{$redirectURL}}">
-            <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full md:w-auto gap-x-1.5 whitespace-nowrap bg-red-700 hover:bg-red-800 text-white hover:bg-gray-800 md:mt-0">{{.T.Get "Delete Redirect"}}</button>
-        </form>
+{{if not .DomainCount}}
+  {{template "op_no_domain" .}}
+{{else}}
+  <div class="rd-grid">
+    <section class="op-card" aria-label="{{.T.Get "Redirects"}}">
+    {{if .Rows}}
+      <div class="op-toolbar"><label class="op-search">{{template "op_icon" "search"}}<input class="op-input" type="search" placeholder="{{.T.Get "Search redirects"}}" x-model="q" aria-label="{{.T.Get "Search redirects"}}"></label></div>
+      <div class="op-table-wrap"><table class="op-table">
+        <thead><tr><th>{{.T.Get "Domain"}}</th><th>{{.T.Get "Redirects to"}}</th><th>{{.T.Get "Code"}}</th><th class="is-shrink"><span class="sr-only">{{.T.Get "Actions"}}</span></th></tr></thead>
+        <tbody>
+        {{range $i, $r := .Rows}}
+          <tr data-search="{{lower $r.Domain}} {{lower $r.To}}" x-show="match($el.dataset.search)">
+            <td class="op-cell-title"><div class="op-row-title rd-src"><span class="op-file-ico" style="--hue:var(--color-hue-purple)">{{template "op_icon" "link"}}</span><div><b class="punycode">{{$r.Domain}}</b><span class="op-sub" style="overflow-wrap:anywhere">{{if $r.BareOnly}}{{$.T.Get "www keeps the site"}}{{else}}{{$.T.Get "and"}} www.{{$r.Domain}}{{end}}</span></div></div></td>
+            <td data-label="{{$.T.Get "Redirects to"}}"><a class="rd-to" href="{{$r.To}}" target="_blank" rel="noopener"><span>{{$r.To}}</span>{{template "op_icon" "out"}}</a>{{if $r.KeepPath}}<span class="op-hint rd-keep">{{$.T.Get "keeps the path"}}</span>{{end}}</td>
+            <td data-label="{{$.T.Get "Code"}}">{{if $r.Permanent}}<span class="op-tag" title="{{$.T.Get "Permanent redirect"}}">301 {{$.T.Get "Permanent"}}</span>{{else}}<span class="op-tag" title="{{$.T.Get "Temporary redirect"}}">302 {{$.T.Get "Temporary"}}</span>{{end}}</td>
+            <td class="is-shrink op-cell-menu"><span class="rd-acts">
+              <button class="op-icon-btn" type="button" aria-label="{{$.T.Get "Copy target of"}} {{$r.Domain}}" title="{{$.T.Get "Copy target URL"}}" @click="copy(rows[{{$i}}].to)">{{template "op_icon" "copy"}}</button>
+              <button class="op-icon-btn" type="button" aria-label="{{$.T.Get "Edit redirect for"}} {{$r.Domain}}" title="{{$.T.Get "Edit"}}" @click="openEdit(rows[{{$i}}])">{{template "op_icon" "pencil"}}</button>
+              <button class="op-icon-btn is-danger" type="button" aria-label="{{$.T.Get "Delete redirect for"}} {{$r.Domain}}" title="{{$.T.Get "Delete"}}" @click="openDelete(rows[{{$i}}])">{{template "op_icon" "trash"}}</button>
+            </span></td>
+          </tr>
         {{end}}
+        </tbody>
+      </table></div>
+      <div class="op-empty" x-show="q && !shownCount()" x-cloak><b>{{.T.Get "Nothing matches"}}</b><span class="op-hint">{{.T.Get "Try another search."}}</span></div>
+      <div class="op-tfoot"><span>{{len .Rows}} {{if eq (len .Rows) 1}}{{.T.Get "redirect"}}{{else}}{{.T.Get "redirects"}}{{end}}</span><span class="op-hint">{{len .Free}} {{if eq (len .Free) 1}}{{.T.Get "domain has no redirect"}}{{else}}{{.T.Get "domains have no redirect"}}{{end}}</span></div>
+    {{else}}
+      <div class="op-empty">
+        <span class="op-ico-tile" style="--hue:var(--color-hue-purple)">{{template "op_icon" "link"}}</span>
+        <b>{{.T.Get "No redirects"}}</b>
+        <span class="op-hint" style="max-width:420px">{{.T.Get "All your domains serve their own websites. Add a redirect to send a domain's visitors somewhere else, like an old domain to your new one."}}</span>
+        <button class="op-btn op-btn-primary op-btn-sm" type="button" style="margin-top:8px" @click="openNew()">{{template "op_icon" "plus"}} {{.T.Get "Add a redirect"}}</button>
+      </div>
+    {{end}}
+    </section>
 
-    <a href="/domains" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 mt-2 w-full md:w-auto gap-x-1.5 disabled:text-gray-400 disabled:dark:text-gray-600 md:mt-0">{{.T.Get "Back to Domains"}}</a>
-</div>
+    <section class="op-card" aria-label="{{.T.Get "How redirects work"}}">
+      <div class="op-card-head"><h2>{{.T.Get "How redirects work"}}</h2></div>
+      <dl class="rd-dl">
+        <dt>{{.T.Get "Status code"}}</dt><dd>{{.T.Get "302 temporary, or 301 permanent for a move that's for good"}}</dd>
+        <dt>{{.T.Get "Covers"}}</dt><dd>{{.T.Get "The domain and, unless you turn it off, www, on HTTP and HTTPS"}}</dd>
+        <dt>{{.T.Get "Path"}}</dt><dd>{{.T.Get "Every page goes to the exact URL, or keeps its path if you choose"}}</dd>
+        <dt>{{.T.Get "Per domain"}}</dt><dd>{{.T.Get "One redirect"}}</dd>
+        <dt>{{.T.Get "Email, DNS, FTP"}}</dt><dd>{{.T.Get "Keep working"}}</dd>
+        <dt>{{.T.Get "Takes effect"}}</dt><dd>{{.T.Get "Right away"}}</dd>
+      </dl>
+    </section>
+  </div>
 
-</div>
+  <div class="op-scrim" x-show="sheet" x-cloak @click="sheet = ''"></div>
 
-</section>
+  <div class="op-sheet" role="dialog" aria-modal="true" aria-labelledby="rd-form-title" x-show="sheet === 'form'" x-cloak @keydown.escape.window="sheet = ''">
+    <form method="post" action="/domains/redirect" novalidate @submit="submit($event)" data-busy="{{.T.Get "Saving redirect"}}" data-busy-steps="{{.T.Get "Writing the domain's config"}}|{{.T.Get "Reloading the web server"}}" data-busy-leave="no">
+      <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+      <input type="hidden" name="return_to" value="redirects">
+      <h2 id="rd-form-title" x-text="mode === 'edit' ? {{toJSON (.T.Get "Edit redirect")}} : {{toJSON (.T.Get "New redirect")}}">{{.T.Get "New redirect"}}</h2>
+      <p class="op-meta">{{.T.Get "The website on this domain stops being reachable while the redirect is on."}}</p>
+      <div class="op-col" style="gap:14px;margin:16px 0 20px">
+        <label class="op-field"><span class="op-label">{{.T.Get "Domain"}}</span>
+          <template x-if="mode === 'new'"><select class="op-select" name="domain_name" x-model="f.domain">{{range .Free}}<option value="{{.}}">{{.}}</option>{{end}}</select></template>
+          <template x-if="mode === 'edit'"><input class="op-input op-mono" name="domain_name" :value="f.domain" readonly></template>
+          <span class="op-hint" x-show="mode === 'new'">{{.T.Get "Only domains without a redirect are listed."}}</span></label>
+        <label class="op-field"><span class="op-label">{{.T.Get "Redirect to"}}</span>
+          <input class="op-input op-mono" type="url" name="redirect_url" x-ref="to" x-model="f.to" placeholder="https://" autocomplete="off" spellcheck="false" :class="tried && toErr() ? 'is-invalid' : ''">
+          <span class="op-hint" :class="tried && toErr() ? 'is-invalid' : ''" x-text="tried && toErr() ? toErr() : {{toJSON (.T.Get "A full URL starting with http:// or https://.")}}">{{.T.Get "A full URL starting with http:// or https://."}}</span></label>
+        <div class="op-field"><span class="op-label">{{.T.Get "Type"}}</span>
+          <span class="op-subtabs rd-type" role="radiogroup" aria-label="{{.T.Get "Type"}}"><button type="button" role="radio" :aria-checked="(!f.permanent).toString()" :aria-pressed="(!f.permanent).toString()" @click="f.permanent = false">302 {{.T.Get "Temporary"}}</button><button type="button" role="radio" :aria-checked="f.permanent.toString()" :aria-pressed="f.permanent.toString()" @click="f.permanent = true">301 {{.T.Get "Permanent"}}</button></span>
+          <input type="hidden" name="redirect_type" :value="f.permanent ? '301' : '302'">
+          <span class="op-hint" x-text="f.permanent ? {{toJSON (.T.Get "Browsers and search engines remember it, so use it when the move is for good.")}} : {{toJSON (.T.Get "Nothing is remembered, so you can change or remove it any time.")}}"></span></div>
+        <label class="op-option"><input class="op-check" type="checkbox" name="keep_path" x-model="f.keep"><span><b>{{.T.Get "Keep the path"}}</b><span class="op-hint">{{.T.Get "A page like /shop/item goes to the same path on the new address, instead of every page landing on the exact URL."}}</span></span></label>
+        <label class="op-option"><input class="op-check" type="checkbox" x-model="f.www"><span><b>{{.T.Get "Also redirect www"}}</b><span class="op-hint" x-text="f.www ? {{toJSON (.T.Get "www and the bare domain both redirect.")}} : {{toJSON (.T.Get "Only the bare domain redirects, www keeps serving the website.")}}"></span></span></label>
+        <input type="hidden" name="www" :value="f.www ? 'yes' : 'no'">
+        <div><span class="op-label" style="display:block;margin-bottom:6px">{{.T.Get "What visitors get"}}</span>
+          <div class="rd-flow"><span><i>http(s)://</i><span x-text="f.domain"></span><i>/any/page</i></span><span x-show="f.www"><i>http(s)://www.</i><span x-text="f.domain"></span><i>/any/page</i></span><span class="rd-arrow">{{template "op_icon" "arrowdown"}} <span x-text="f.permanent ? {{toJSON (print "301 " (.T.Get "Permanent"))}} : {{toJSON (print "302 " (.T.Get "Temporary"))}}"></span></span><span x-text="landing()" :class="f.to.trim() ? 'rd-flow-to' : 'rd-flow-empty'"></span></div></div>
+      </div>
+      <div class="op-actions"><button class="op-btn op-btn-secondary" type="button" @click="sheet = ''">{{.T.Get "Cancel"}}</button><button class="op-btn op-btn-primary" type="submit" style="flex:1">{{.T.Get "Save Redirect"}}</button></div>
+    </form>
+  </div>
 
-
-{{else}}
-
-<!-- Content to display when domain is not provided -->
-
-<!-- page header -->
-<section
-    aria-label="{{.T.Get "Redirect Header"}}"
->
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Redirect Domain to URL"}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Redirecting a domain will immediately redirect all traffic to the new URL, while Email and other services remain operational."}}</p>
-    </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-    </div>
-</div>
-<!-- END page header -->
-
-
-{{if .DomainCount}}
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6">
-    <div class="mt-8 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-        <div class="col-span-full">
-            <select id="domains" name="version" onchange="if (this.value) window.location.href = '/domains/redirect?domain=' + encodeURIComponent(this.value)" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <option value="" disabled selected>{{.T.Get "Select domain"}}</option>
-                {{range .Rows}}<option class="punycode" value="{{.Domain}}">{{.Domain}}</option>{{end}}
-                {{range .Free}}<option class="punycode" value="{{.}}">{{.}}</option>{{end}}
-            </select>
-        </div>
-    </div>
-</div>
-{{else}}
-    {{template "no_domain" .}}
+  <div class="op-sheet" role="dialog" aria-modal="true" aria-labelledby="rd-delete-title" x-show="sheet === 'delete'" x-cloak @keydown.escape.window="sheet = ''">
+    <template x-if="cur"><form method="post" action="/domains/redirect/delete" data-busy="{{.T.Get "Deleting redirect"}}" data-busy-steps="{{.T.Get "Writing the domain's config"}}|{{.T.Get "Reloading the web server"}}" data-busy-leave="no">
+      <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+      <input type="hidden" name="return_to" value="redirects">
+      <input type="hidden" name="domain_name" :value="cur.domain">
+      <input type="hidden" name="redirect_url" :value="cur.to">
+      <h2 id="rd-delete-title">{{.T.Get "Delete this redirect?"}}</h2>
+      <p class="op-meta" style="overflow-wrap:anywhere"><b style="color:var(--color-heading)" x-text="cur.domain"></b> {{.T.Get "stops sending visitors to"}} <span class="op-mono" x-text="cur.to"></span> {{.T.Get "and serves its own website again."}}</p>
+      <div class="op-actions" style="margin-top:20px"><button class="op-btn op-btn-secondary" type="button" @click="sheet = ''">{{.T.Get "Cancel"}}</button><button class="op-btn op-btn-danger" type="submit" style="flex:1">{{.T.Get "Delete Redirect"}}</button></div>
+    </form></template>
+  </div>
 {{end}}
-
-</section>
-
-
-
-{{end}}
-
+</div>
 <!-- END templates/domains/redirect.html -->
 {{end}}

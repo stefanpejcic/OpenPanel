@@ -1,8 +1,6 @@
 {{define "custommessage"}}<!-- START templates/dashboard/custom_message.html -->
 {{if .CustomMessage}}
-    <div class="flex flex-col space-y-2 justify-center overflow-hidden rounded bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-800 xl:col-span-3">
-      {{.CustomMessage}}
-    </div>
+    <div class="op-alert" role="note">{{template "op_icon" "info"}}<span>{{.CustomMessage}}</span></div>
 {{end}}
 <!-- END templates/dashboard/custom_message.html -->
 {{end}}

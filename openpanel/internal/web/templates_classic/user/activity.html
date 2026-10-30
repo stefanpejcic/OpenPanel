@@ -1,0 +1,300 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "activity_kind_icon"}}
+{{- if eq .Kind "danger"}}
+<span class="activity-kind activity-kind--danger" title="{{.T.Get "Destructive"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l16 0"/><path d="M10 11l0 6"/><path d="M14 11l0 6"/><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"/><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/></svg></span>
+{{- else if eq .Kind "create"}}
+<span class="activity-kind activity-kind--create" title="{{.T.Get "Created"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5l0 14"/><path d="M5 12l14 0"/></svg></span>
+{{- else if eq .Kind "edit"}}
+<span class="activity-kind activity-kind--edit" title="{{.T.Get "Changed"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"/><path d="M13.5 6.5l4 4"/></svg></span>
+{{- else if eq .Kind "security"}}
+<span class="activity-kind activity-kind--security" title="{{.T.Get "Security"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/><path d="M12 11m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M12 12l0 2.5"/></svg></span>
+{{- else if eq .Kind "command"}}
+<span class="activity-kind activity-kind--command" title="{{.T.Get "Command"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7l5 5l-5 5"/><path d="M12 19l7 0"/></svg></span>
+{{- else}}
+<span class="activity-kind activity-kind--info" title="{{.T.Get "Info"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></svg></span>
+{{- end}}
+{{end}}
+
+{{define "content"}}
+<!-- START templates/user/activity.html -->
+
+<section aria-label="{{.T.Get "Domains Header"}}" x-data="{ searchActivityQuery: {{toJSON .SearchTerm}} }">
+
+    <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="flex items-center gap-x-3">
+                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Activity Log"}}</h1>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-500">
+                {{if .SearchTerm}}
+                {{.T.Get "Search results for:"}} {{.SearchTerm}}
+                {{else}}
+                {{.T.Get "View recent user activity and system events."}}
+                {{end}}</p>
+        </div>
+        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+            <div class="relative w-full sm:w-64">
+                 <form id="activitySearchForm" action="/account/activity" method="get">
+                    {{if .Filter.Kind}}<input type="hidden" name="type" value="{{.Filter.Kind}}">{{end}}
+                    {{if .Filter.From}}<input type="hidden" name="from" value="{{.Filter.From}}">{{end}}
+                    {{if .Filter.To}}<input type="hidden" name="to" value="{{.Filter.To}}">{{end}}
+                    <input
+                        x-model="searchActivityQuery"
+                        @keydown.enter.prevent="document.getElementById('activitySearchForm').submit()"
+                        name="search"
+                        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 pl-8"
+                        placeholder="{{.T.Get "Search"}}"
+                        type="search"
+                    />
+                <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                        <path
+                            d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"
+                        ></path>
+                    </svg>
+                </div>
+            </div>
+            </div>
+        </div>
+
+<div class="activity-toolbar flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+    <nav class="flex flex-wrap items-center gap-2" aria-label="{{.T.Get "Filter by type"}}">
+        <a href="{{.AllURL}}" class="activity-chip{{if not .Filter.Kind}} is-active{{end}}"{{if not .Filter.Kind}} aria-current="true"{{end}}>
+            {{.T.Get "All"}} <span class="activity-chip-count">{{.AllCount}}</span>
+        </a>
+        {{range .KindTabs}}
+        <a href="{{.URL}}" class="activity-chip activity-chip--{{.Kind}}{{if .Active}} is-active{{end}}"{{if .Active}} aria-current="true"{{end}}>
+            <span class="activity-chip-dot" aria-hidden="true"></span>{{$.T.Get .Label}} <span class="activity-chip-count">{{.Count}}</span>
+        </a>
+        {{end}}
+    </nav>
+    <div class="flex flex-wrap items-center gap-2">
+        {{template "date_range" (dict "T" .T "From" .Filter.From "To" .Filter.To)}}
+        {{if or .Filter.Kind .Filter.From .Filter.To .Filter.Search}}
+        <a href="/account/activity" class="activity-clear">{{.T.Get "Clear filters"}}</a>
+        {{end}}
+    </div>
+</div>
+
+<div class="">
+    <div class="activity-table-wrap w-full whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+        <table id="activity-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+            <thead>
+                <tr class="bg-gray-50 dark:bg-gray-900 sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_th:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 sm:[&amp;_th:first-child]:pl-6">
+                    <th scope="col" class="hidden whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                        <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+                            <span>{{.T.Get "User"}}</span>
+                            <div class="-space-y-2">
+                                <a href="#" data-sort-key="user" data-sort-type="string" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+                                <a href="#" data-sort-key="user" data-sort-type="string" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+                            </div>
+                        </div>
+                    </th>
+                    <th scope="col" class="whitespace-nowrap border-b px-4 sm:pl-6 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                        <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+                            <span>{{.T.Get "Action"}}</span>
+                            <div class="-space-y-2">
+                                <a href="#" data-sort-key="action" data-sort-type="string" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+                                <a href="#" data-sort-key="action" data-sort-type="string" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+                            </div>
+                        </div>
+                    </th>
+                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                        <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+                            <span>{{.T.Get "IP Address"}}</span>
+                            <div class="-space-y-2">
+                                <a href="#" data-sort-key="ip" data-sort-type="string" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+                                <a href="#" data-sort-key="ip" data-sort-type="string" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+                            </div>
+                        </div>
+                    </th>
+                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                        <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+                            <span>{{.T.Get "Timestamp"}}</span>
+                            <div class="-space-y-2">
+                                <a href="#" data-sort-key="timestamp" data-sort-type="string" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+                                <a href="#" data-sort-key="timestamp" data-sort-type="string" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+                            </div>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+
+            {{if not .Rows}}
+                    <tr>
+                        <td colspan="3" class="p-6 text-center">{{if or .Filter.Kind .Filter.From .Filter.To .Filter.Search}}{{.T.Get "No actions match these filters."}}{{else}}{{.T.Get "No logs yet."}}{{end}}</td>
+                    </tr>
+
+            {{else}}
+                {{range .Rows}}
+                 <tr
+    data-ip="{{.IP}}"
+    data-timestamp="{{.Timestamp}}"
+    x-data='{
+        action: {{toJSON .Action}},
+        ip: {{toJSON .IP}},
+        timestamp: {{toJSON .Timestamp}}
+    }'
+    x-show='searchActivityQuery === ""
+        || action.toLowerCase().includes(searchActivityQuery.toLowerCase())
+        || ip.toLowerCase().includes(searchActivityQuery.toLowerCase())
+        || timestamp.toLowerCase().includes(searchActivityQuery.toLowerCase())'
+    class="hover:bg-gray-100 dark:hover:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6"
+>
+              <td class="hidden px-4 py-3 items-center space-x-3" data-sort-col="user" data-sort-value="{{.User}}">
+                    {{if $.GravatarURL}}
+                    <img class="rounded-full shadow-lg w-8 h-8" src="{{$.GravatarURL}}" alt="{{$.T.Get "Gravatar profile image"}}"/>
+                    {{end}}
+                <span>{{.User}}</span>
+              </td>
+              <td class="activity-action-cell px-4 sm:pl-6 py-3" title="{{.Action}}" data-sort-col="action" data-sort-value="{{.Action}}">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  {{template "activity_kind_icon" (dict "Kind" .Kind "T" $.T)}}
+                  <span class="truncate">{{.Action}}</span>
+                </div>
+              </td>
+              <td class="px-4 py-3" data-sort-col="ip">{{.IP}}</td>
+              <td class="px-4 py-3" data-sort-col="timestamp">{{.Timestamp}}</td>
+            </tr>
+                {{end}}
+            {{end}}
+            </tbody>
+        </table>
+
+        <div class="mt-6 flex justify-between items-center mb-4">
+            <h5 class="section-title mb-0 text-sm pl-4">
+                {{if .ShowAll}}
+                    {{.T.Get "Showing"}} 1 - {{.TotalLines}} {{.T.Get "of"}} {{.TotalLines}} {{.T.Get "items"}}
+                {{else}}
+                    {{.T.Get "Showing"}} {{add (mul .ItemsPerPage (sub .Page 1)) 1}} -
+                    {{if gt (mul .ItemsPerPage .Page) .TotalLines}}
+                        {{.TotalLines}}
+                    {{else}}
+                        {{mul .ItemsPerPage .Page}}
+                    {{end}}
+                    {{.T.Get "out of"}} {{.TotalLines}} {{.T.Get "items"}}
+                {{end}}
+            </h5>
+        </div>
+
+        <div class="mt-6 flex justify-center">
+            <nav aria-label="{{.T.Get "Pagination"}}">
+                <ul class="inline-flex -space-x-px text-sm">
+
+                    {{if gt .Page 1}}
+                        <li>
+                            <a href="{{.PageURL (sub .Page 1)}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Previous"}}</a>
+                        </li>
+                    {{end}}
+                {{range .PageEntries}}
+                {{if .IsEllipsis}}
+                    <li class="page-item disabled">
+                        <span class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">...</span>
+                    </li>
+                {{else}}
+                    <li class="page-item {{if eq .Number $.Page}}active{{end}}">
+                        {{if eq .Number $.Page}}
+                        <span class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 bg-gray-200 dark:bg-gray-700">{{.Number}}</span>
+                        {{else}}
+                        <a class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700" href="{{$.PageURL .Number}}">{{.Number}}</a>
+                        {{end}}
+                    </li>
+                {{end}}
+                {{end}}
+                    {{if lt .Page .TotalPages}}
+                        <li>
+                            <a href="{{.PageURL (add .Page 1)}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Next"}}</a>
+                        </li>
+                    {{end}}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof reportHealthIssues !== 'function') return;
+
+    const buckets = {}; // "ip|YYYY-MM-DDTHH:MM" -> count
+    document.querySelectorAll('table tbody tr[data-ip]').forEach(function (row) {
+        const ip = row.getAttribute('data-ip');
+        const ts = row.getAttribute('data-timestamp');
+        if (!ip || !ts) return;
+        const minuteBucket = ts.trim().slice(0, 16); // "YYYY-MM-DD HH:MM"
+        const key = ip + '|' + minuteBucket;
+        buckets[key] = (buckets[key] || 0) + 1;
+    });
+
+    const botIps = [];
+    Object.keys(buckets).forEach(function (key) {
+        if (buckets[key] >= 100) {
+            const ip = key.split('|')[0];
+            if (!botIps.includes(ip)) botIps.push(ip);
+        }
+    });
+
+    if (botIps.length) {
+        let issue;
+        if (botIps.length === 1) {
+            issue = { id: 'bot-activity:' + botIps[0], severity: 'error', message: "{{.T.Get "Suspicious activity detected from IP"}} " + botIps[0] + " {{.T.Get "(100+ actions in one minute)."}}" };
+        } else {
+            issue = { id: 'bot-activity:multiple', severity: 'error', message: botIps.length + " {{.T.Get "IPs show bot-like activity (100+ actions in one minute)."}}" };
+        }
+        reportHealthIssues('account-activity', [issue], 24);
+    }
+});
+</script>
+<style>
+.activity-table-wrap { overflow-x: auto; }
+#activity-table { min-width: 40rem; }
+/* action column soaks up the spare width and truncates instead of pushing the table wider */
+.activity-action-cell { width: 100%; max-width: 0; }
+.activity-kind { display: inline-flex; width: 1.75rem; height: 1.75rem; flex-shrink: 0; align-items: center; justify-content: center; border-radius: 9999px; }
+.activity-kind--danger { background: #fef2f2; color: #dc2626; }
+.activity-kind--create { background: #ecfdf5; color: #059669; }
+.activity-kind--edit { background: #fffbeb; color: #d97706; }
+.activity-kind--security { background: #f5f3ff; color: #7c3aed; }
+.activity-kind--command { background: #f0f9ff; color: #0284c7; }
+.activity-kind--info { background: #f3f4f6; color: #6b7280; }
+.dark .activity-kind--danger { background: rgb(239 68 68 / 0.12); color: #f87171; }
+.dark .activity-kind--create { background: rgb(16 185 129 / 0.12); color: #34d399; }
+.dark .activity-kind--edit { background: rgb(245 158 11 / 0.12); color: #fbbf24; }
+.dark .activity-kind--security { background: rgb(139 92 246 / 0.14); color: #a78bfa; }
+.dark .activity-kind--command { background: rgb(14 165 233 / 0.12); color: #38bdf8; }
+.dark .activity-kind--info { background: rgb(107 114 128 / 0.18); color: #9ca3af; }
+.activity-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.7rem; border-radius: 9999px; border: 1px solid #e5e7eb; font-size: 0.8125rem; color: #374151; background: #fff; text-decoration: none; transition: background-color .15s, border-color .15s; }
+.activity-chip:hover { background: #f9fafb; border-color: #d1d5db; }
+.activity-chip.is-active { background: #111827; border-color: #111827; color: #fff; }
+.activity-chip-count { font-variant-numeric: tabular-nums; color: #6b7280; font-size: 0.75rem; }
+.activity-chip.is-active .activity-chip-count { color: #d1d5db; }
+.activity-chip-dot { width: 0.5rem; height: 0.5rem; border-radius: 9999px; background: currentColor; }
+.activity-chip--danger .activity-chip-dot { color: #dc2626; }
+.activity-chip--create .activity-chip-dot { color: #059669; }
+.activity-chip--edit .activity-chip-dot { color: #d97706; }
+.activity-chip--security .activity-chip-dot { color: #7c3aed; }
+.activity-chip--command .activity-chip-dot { color: #0284c7; }
+.activity-chip--info .activity-chip-dot { color: #9ca3af; }
+.activity-clear { color: #6b7280; text-decoration: underline; text-underline-offset: 2px; }
+.activity-clear:hover { color: #111827; }
+.dark .activity-chip { border-color: #1f2937; color: #d1d5db; background: #030712; }
+.dark .activity-chip:hover { background: #111827; border-color: #374151; }
+.dark .activity-chip.is-active { background: #f9fafb; border-color: #f9fafb; color: #111827; }
+.dark .activity-chip-count { color: #9ca3af; }
+.dark .activity-chip.is-active .activity-chip-count { color: #4b5563; }
+.dark .activity-chip--danger .activity-chip-dot { color: #f87171; }
+.dark .activity-chip--create .activity-chip-dot { color: #34d399; }
+.dark .activity-chip--edit .activity-chip-dot { color: #fbbf24; }
+.dark .activity-chip--security .activity-chip-dot { color: #a78bfa; }
+.dark .activity-chip--command .activity-chip-dot { color: #38bdf8; }
+.dark .activity-clear { color: #9ca3af; }
+.dark .activity-clear:hover { color: #f9fafb; }
+
+</style>
+<script src="{{static "js/table-sort.js"}}"></script>
+
+</section>
+
+<!-- END templates/user/activity.html -->
+{{end}}

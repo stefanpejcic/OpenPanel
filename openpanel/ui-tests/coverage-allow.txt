@@ -1,0 +1,1 @@
+# page templates without a render test yet; remove a line once its test exists

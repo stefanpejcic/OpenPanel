@@ -1,0 +1,551 @@
+{{/* shared bodies of the database create pages (db/new.html, mongodb/new.html and the three create-user pages) */}}
+
+{{define "db_engine_name"}}{{if eq .Engine.Slug "mysql"}}{{if eq .Service "mariadb"}}MariaDB{{else}}MySQL{{end}}{{else}}{{.Engine.Name}}{{end}}{{end}}
+
+{{define "db_connect_card"}}
+<section class="op-card"><div class="op-card-head"><h2>{{.T.Get "You'll connect with"}}</h2></div>
+  <dl class="op-dl"><dt>{{.T.Get "Server"}}</dt><dd class="op-mono">{{.Engine.Host}}</dd><dt>{{.T.Get "Port"}}</dt><dd class="op-mono">{{.Engine.Port}}</dd><template x-for="row in connectRows()" :key="row[0]"><div style="display:contents"><dt x-text="row[0]"></dt><dd class="op-mono" x-text="row[1]"></dd></div></template><dt>{{.T.Get "Engine"}}</dt><dd>{{template "db_engine_name" .}}</dd></dl>
+  {{if eq .Engine.Slug "mysql"}}<p class="op-hint" style="margin:14px 0 0">{{.T.Get "From another server, turn on"}} <a href="/mysql/remote-mysql" style="color:var(--color-accent-text)">{{.T.Get "Remote Access"}}</a>{{with .RemotePort}} {{$.T.Get "and use port"}} <span class="op-mono">{{.}}</span>{{end}}.</p>
+  {{else}}<p class="op-hint" style="margin:14px 0 0">{{.T.Get "Inside your account, connect to"}} <span class="op-mono">{{.Engine.Host}}</span>, {{.T.Get "not localhost."}}</p>{{end}}
+</section>
+{{end}}
+
+{{define "db_password_field"}}
+<div class="op-field" x-data="Object.assign(passwordStrength({
+    weak: {{toJSON (.T.Get "Weak password")}},
+    medium: {{toJSON (.T.Get "Medium strength password")}},
+    strong: {{toJSON (.T.Get "Strong password")}},
+    tooWeak: {{toJSON (.T.Get "Password does not meet the required strength.")}}
+  }, {{.PasswordStrength}}), { show: false, gen() { this.password = generateString(16); this.show = true; this.$nextTick(() => this.$refs.input.dispatchEvent(new Event('input', { bubbles: true }))) } })" x-init="checkStrength()" x-effect="pwOK = password.length >= 8 &amp;&amp; passwordStrengthScore(password) >= threshold">
+  <label class="op-label" for="password">{{.T.Get "Password"}} <span class="is-danger">*</span></label>
+  <div class="op-wiz-row">
+    <div class="op-inico op-inico-eye">{{template "op_icon" "key"}}<input type="password" :type="show ? 'text' : 'password'" name="password" id="password" maxlength="30" minlength="8" placeholder="{{.T.Get "8 to 30 characters"}}" class="op-input op-mono" autocomplete="new-password" spellcheck="false" x-model="password" x-ref="input" @input="checkStrength()" required><button class="op-icon-btn" type="button" @click="show = !show" :aria-label="show ? {{toJSON (.T.Get "Hide password")}} : {{toJSON (.T.Get "Show password")}}" :aria-pressed="show.toString()">{{template "op_icon" "eye"}}</button></div>
+    <button type="button" id="generatePassword" class="op-btn op-btn-secondary" @click="gen()">{{template "op_icon" "swap"}} {{.T.Get "Generate"}}</button>
+    <button type="button" class="op-icon-btn op-wiz-copy" x-show="password" x-cloak :data-op-copy="password" data-op-copied="{{.T.Get "Copied password."}}" aria-label="{{.T.Get "Copy password"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button>
+  </div>
+  <div class="op-strength-seg" aria-hidden="true"><template x-for="i in 3" :key="i"><span :class="strength &amp;&amp; i <= ({ Weak: 1, Medium: 2, Strong: 3 })[strength] ? ({ Weak: 'is-danger', Medium: 'is-warning', Strong: 'is-success' })[strength] : ''"></span></template></div>
+  <span class="op-hint" x-show="!password">{{.T.Get "Use Generate for a strong 16-character password."}}</span>
+  <span class="op-hint" x-show="password" x-cloak :class="{ 'is-danger': strength === 'Weak', 'is-warning': strength === 'Medium', 'is-success': strength === 'Strong' }" x-text="password.length &lt; 8 ? {{toJSON (.T.Get "At least 8 characters.")}} : (passwordStrengthScore(password) &lt; threshold ? {{toJSON (.T.Get "Password does not meet the required strength.")}} : strengthMessage)"></span>
+</div>
+{{end}}
+
+{{define "db_new_form"}}
+{{$prefix := ""}}{{if eq .Engine.Slug "mysql"}}{{$prefix = .MySQLPrefix}}{{end}}
+<div class="op-content">
+<div class="op-page-head">
+  <div>
+    <div class="op-eyebrow"><a href="/{{.Engine.Slug}}" style="color:var(--color-accent-text)">{{.T.Get "Databases"}}</a></div>
+    <h1 class="op-title">{{.T.Get "Create a Database"}}</h1>
+    <p class="op-meta">{{.T.Get .Engine.NewIntro}}</p>
+  </div>
+  {{if not .Created}}<div class="op-actions"><a class="op-btn op-btn-secondary" href="/{{.Engine.Slug}}/wizard">{{template "op_icon" "wand"}} {{.T.Get "Database Wizard"}}</a></div>{{end}}
+</div>
+
+{{if .Created}}
+<div class="op-col" style="gap:16px">
+  <div class="op-alert is-success" role="status">{{template "op_icon" "check"}}<span><b>{{.T.Get "Database created"}}</b><br>{{.T.Get "Nobody can use it until you assign a user to it."}}</span></div>
+  <section class="op-card">
+    <div class="op-card-head"><h2>{{.T.Get "Your new database"}}</h2></div>
+    <div class="op-copybox"><span class="op-mono" id="db-created-name">{{.Created}}</span><button class="op-icon-btn" type="button" data-op-copy-from="db-created-name" data-op-copied="{{.T.Get "Copied database name."}}" aria-label="{{.T.Get "Copy database name"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
+    <div class="op-wiz-next">
+      <a href="/{{.Engine.Slug}}/assign?database_name={{.Created}}"><b>{{template "op_icon" "link"}} {{.T.Get "Assign a user"}}</b>{{.T.Get "Give an existing user access to this database."}}</a>
+      <a href="/{{.Engine.Slug}}/user"><b>{{template "op_icon" "user"}} {{.T.Get "Create a user"}}</b>{{.T.Get "Make a new user with its own password first."}}</a>
+      <a href="/{{.Engine.Slug}}/import/{{.Created}}"><b>{{template "op_icon" "upload"}} {{.T.Get "Import a dump"}}</b>{{.T.Get "Load an existing backup into it."}}</a>
+    </div>
+    <div class="op-form-foot">
+      <a href="/{{.Engine.Slug}}" class="op-btn op-btn-secondary">{{.T.Get "View Databases"}}</a>
+      <a href="/{{.Engine.Slug}}/new" class="op-btn op-btn-primary">{{template "op_icon" "plus"}} {{.T.Get "Create Another"}}</a>
+    </div>
+  </section>
+</div>
+{{else}}
+<script src="{{static "js/generator.js"}}"></script>
+<div class="op-wiz-grid" x-data="dbNewForm()">
+<section class="op-card" id="toAddActive" aria-label="{{.T.Get "Create a Database"}}">
+  <form method="POST" @submit="if (!ok()) { $event.preventDefault(); return } busy = true">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+    <ol class="op-wiz-steps">
+      <li class="op-section">
+        <span class="op-step-mark" :class="ok() &amp;&amp; 'is-ok'"><span x-show="!ok()" style="display:inline-flex">{{template "op_icon" "db"}}</span><span x-show="ok()" x-cloak style="display:inline-flex">{{template "op_icon" "check"}}</span></span>
+        <div class="op-col" style="gap:12px;min-width:0">
+          <div><h3>{{.T.Get "Name the database"}}</h3><p class="op-meta">{{.T.Get "Pick something that tells you which app it belongs to."}}</p></div>
+          <div class="op-field">
+            <label class="op-label" for="database_name">{{.T.Get "Database Name"}} <span class="is-danger">*</span></label>
+            <div class="op-wiz-row">
+              <div class="op-affix" style="flex:1;min-width:0">
+                <span class="op-affix-addon op-mono op-addon-ico">{{template "op_icon" "db"}}{{$prefix}}</span>
+                <input type="text" x-ref="name" x-model.trim="name" name="database_name" id="database_name" minlength="1" maxlength="{{sub 63 (len $prefix)}}" pattern="[a-zA-Z0-9_]+" title="{{.T.Get "Only letters, numbers, and underscores are allowed (1-63 characters)."}}" class="op-input op-mono" placeholder="{{.T.Get "e.g. shop"}}" autocomplete="off" spellcheck="false" value="{{.FormName}}" required :class="err() &amp;&amp; 'is-invalid'" :aria-invalid="(!!err()).toString()">
+              </div>
+              <button type="button" class="op-btn op-btn-secondary" @click="name = generateString(12)" title="{{.T.Get "Generate a random name"}}">{{template "op_icon" "swap"}} {{.T.Get "Generate"}}</button>
+            </div>
+            <span class="op-hint" x-show="!err()">{{.T.Get "Letters, numbers and underscores, up to 63 characters."}}</span>
+            <span class="op-hint is-danger" x-show="err()" x-cloak x-text="err()" role="alert"></span>
+          </div>
+          <div class="op-field"><span class="op-label">{{.T.Get "Runs as"}}</span><div class="op-copybox"><span class="op-mono" x-text="preview()"></span><button class="op-icon-btn" type="button" :data-op-copy="preview()" aria-label="{{.T.Get "Copy statement"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div></div>
+          {{if eq .Engine.Slug "mongodb"}}<p class="op-hint" style="margin:0">{{.T.Get "MongoDB only keeps databases that hold a collection, so an empty _init collection is added."}}</p>{{end}}
+        </div>
+      </li>
+    </ol>
+    <div class="op-alert is-warning" x-show="quotaFull()" x-cloak style="margin-top:12px">{{template "op_icon" "warn"}}<span>{{.T.Get "You have reached the maximum number of databases allowed on your plan."}}</span></div>
+    <div class="op-form-foot">
+      <a href="/{{.Engine.Slug}}" class="op-btn op-btn-secondary">{{template "op_icon" "arrowleft"}} {{.T.Get "Back to Databases"}}</a>
+      <button type="submit" class="op-btn op-btn-primary" :disabled="!ok() || busy" x-text="busy ? {{toJSON (.T.Get "Creating...")}} : {{toJSON (.T.Get "Create Database")}}">{{.T.Get "Create Database"}}</button>
+    </div>
+  </form>
+</section>
+<aside class="op-col" style="gap:16px">
+  {{template "db_connect_card" .}}
+  <section class="op-card"><div class="op-card-head"><h2>{{.T.Get "Already on this account"}}</h2></div>
+    <div class="op-wiz-list" x-show="dbs.length"><template x-for="d in dbs" :key="d"><div class="op-wiz-have"><span class="op-mono" x-text="d"></span><span class="op-tag">{{.T.Get "database"}}</span></div></template></div>
+    <p class="op-wiz-none" x-show="!dbs.length" x-cloak>{{.T.Get "No databases yet."}}</p>
+    {{if .DBLimit}}<div class="op-wiz-quota"><div class="op-progress" :class="quotaFull() &amp;&amp; 'is-warning'"><span :style="{ width: Math.min(100, used / limit * 100) + '%' }"></span></div><span class="op-hint">{{.T.Get "%(used)s of %(limit)s databases used" "used" (print .DBUsage) "limit" (print .DBLimit)}}{{with .HostingPlanName}} {{$.T.Get "on the %(plan)s plan" "plan" .}}{{end}}.</span></div>{{end}}
+  </section>
+  <section class="op-card"><div class="op-card-head"><h2>{{.T.Get "Need a user too?"}}</h2></div>
+    <p class="op-hint" style="margin:0">{{.T.Get "A new database has no users. The"}} <a href="/{{.Engine.Slug}}/wizard" style="color:var(--color-accent-text)">{{.T.Get "Database Wizard"}}</a> {{.T.Get "creates the database, a user and the grant in one go."}}</p>
+  </section>
+</aside>
+</div>
+<script>
+  function dbNewForm() {
+    return {
+      name: {{toJSON .FormName}},
+      busy: false,
+      prefix: {{toJSON $prefix}},
+      slug: {{toJSON .Engine.Slug}},
+      dbs: {{toJSON .Names.Databases}} || [],
+      rdbs: {{toJSON .Names.ReservedDatabases}} || [],
+      limit: {{.DBLimit}},
+      used: {{.DBUsage}},
+      full(n) { return !n || n.startsWith(this.prefix) ? n : this.prefix + n; },
+      quotaFull() { return this.limit > 0 && this.used >= this.limit; },
+      err() {
+        if (!this.name) return '';
+        if (!/^[a-zA-Z0-9_]+$/.test(this.name) || this.full(this.name).length > 63) return {{toJSON (.T.Get "Only letters, numbers, and underscores are allowed (1-63 characters).")}};
+        if ((this.rdbs || []).includes(this.full(this.name))) return {{toJSON (.T.Get "This is a system database that can not be used.")}};
+        if (this.dbs.includes(this.full(this.name))) return {{toJSON (.T.Get "A database with this name already exists.")}};
+        return '';
+      },
+      ok() { return !!this.name && !this.err() && !this.quotaFull(); },
+      connectRows() { return [[{{toJSON (.T.Get "Database")}}, this.full(this.name) || '–']]; },
+      preview() {
+        const d = this.full(this.name) || '[database]';
+        if (this.slug === 'mysql') return 'CREATE DATABASE `' + d + '`;';
+        if (this.slug === 'postgresql') return 'CREATE DATABASE "' + d + '";';
+        return 'db.getSiblingDB("' + d + '").createCollection("_init")';
+      }
+    };
+  }
+</script>
+{{end}}
+</div>
+{{end}}
+
+{{define "db_user_form"}}
+{{$prefix := ""}}{{if eq .Engine.Slug "mysql"}}{{$prefix = .MySQLPrefix}}{{end}}
+<div class="op-content">
+<div class="op-page-head">
+  <div>
+    <div class="op-eyebrow"><a href="/{{.Engine.Slug}}/users" style="color:var(--color-accent-text)">{{.T.Get "Users"}}</a></div>
+    <h1 class="op-title">{{.T.Get "Create"}} {{template "db_engine_name" .}} {{.T.Get "User"}}</h1>
+    <p class="op-meta">{{.T.Get "A user signs in with its own password. It can't see any database until you assign it to one."}}</p>
+  </div>
+</div>
+
+{{if .Created}}
+<div class="op-col" style="gap:16px">
+  <div class="op-alert is-success" role="status">{{template "op_icon" "check"}}<span><b>{{.T.Get "User created"}}</b><br>{{.T.Get "Save the password now, it can't be shown again."}}</span></div>
+  <section class="op-card">
+    <div class="op-card-head"><h2>{{.T.Get "Credentials"}}</h2></div>
+    <div class="op-wiz-creds" style="margin-top:0">
+      <span class="op-label">{{.T.Get "Username"}}</span><div class="op-copybox"><span class="op-mono" id="db-created-user">{{.Created}}</span><button class="op-icon-btn" type="button" data-op-copy-from="db-created-user" data-op-copied="{{.T.Get "Copied username."}}" aria-label="{{.T.Get "Copy username"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
+      <span class="op-label">{{.T.Get "Password"}}</span><div class="op-copybox"><span class="op-mono" id="db-created-pass">{{.CreatedPassword}}</span><button class="op-icon-btn" type="button" data-op-copy-from="db-created-pass" data-op-copied="{{.T.Get "Copied password."}}" aria-label="{{.T.Get "Copy password"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
+      <span class="op-label">{{.T.Get "Server"}}</span><div class="op-copybox"><span class="op-mono" id="db-created-host">{{.Engine.Host}}</span><button class="op-icon-btn" type="button" data-op-copy-from="db-created-host" data-op-copied="{{.T.Get "Copied server."}}" aria-label="{{.T.Get "Copy server"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
+      <span class="op-label">{{.T.Get "Port"}}</span><span class="op-mono op-wiz-plain">{{.Engine.Port}}</span>
+    </div>
+    <div class="op-form-foot">
+      <a href="/{{.Engine.Slug}}/users" class="op-btn op-btn-secondary">{{.T.Get "View Users"}}</a>
+      <a href="/{{.Engine.Slug}}/user" class="op-btn op-btn-secondary">{{template "op_icon" "plus"}} {{.T.Get "Create Another"}}</a>
+      <a href="/{{.Engine.Slug}}/assign?db_user={{.Created}}" class="op-btn op-btn-primary">{{template "op_icon" "link"}} {{.T.Get "Assign to a Database"}}</a>
+    </div>
+  </section>
+</div>
+{{else}}
+<script src="{{static "js/generator.js"}}"></script>
+<div class="op-wiz-grid" x-data="dbUserForm()">
+<section class="op-card" id="toAddActive" aria-label="{{.T.Get "Create User"}}">
+  <form method="POST" @submit="if (!ready()) { $event.preventDefault(); return } busy = true">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+    <ol class="op-wiz-steps">
+      <li class="op-section">
+        <span class="op-step-mark" :class="userOK() &amp;&amp; 'is-ok'"><span x-show="!userOK()">1</span><span x-show="userOK()" x-cloak style="display:inline-flex">{{template "op_icon" "check"}}</span></span>
+        <div class="op-col" style="gap:12px;min-width:0">
+          <div><h3>{{.T.Get "Pick a username"}}</h3><p class="op-meta">{{.T.Get "Your app signs in with this name."}}</p></div>
+          <div class="op-field">
+            <label class="op-label" for="username">{{.T.Get "Username"}} <span class="is-danger">*</span></label>
+            <div class="op-wiz-row">
+              <div class="op-affix" style="flex:1;min-width:0">
+                <span class="op-affix-addon op-mono op-addon-ico">{{template "op_icon" "user"}}{{$prefix}}</span>
+                <input type="text" x-model.trim="user" name="db_user" id="username" minlength="1" maxlength="{{sub 31 (len $prefix)}}" pattern="[a-zA-Z0-9_]+" title="{{.T.Get "Only letters, numbers, and underscores are allowed (1-31 characters)."}}" class="op-input op-mono" placeholder="{{.T.Get "e.g. shop_user"}}" autocomplete="off" spellcheck="false" value="{{.FormName}}" required :class="userErr() &amp;&amp; 'is-invalid'" :aria-invalid="(!!userErr()).toString()">
+              </div>
+              <button type="button" class="op-btn op-btn-secondary" @click="user = generateString(12)" title="{{.T.Get "Generate a random name"}}">{{template "op_icon" "swap"}} {{.T.Get "Generate"}}</button>
+            </div>
+            <span class="op-hint" x-show="!userErr()">{{.T.Get "Letters, numbers and underscores, up to 31 characters."}}</span>
+            <span class="op-hint is-danger" x-show="userErr()" x-cloak x-text="userErr()" role="alert"></span>
+          </div>
+        </div>
+      </li>
+      <li class="op-section">
+        <span class="op-step-mark" :class="pwOK &amp;&amp; 'is-ok'"><span x-show="!pwOK">2</span><span x-show="pwOK" x-cloak style="display:inline-flex">{{template "op_icon" "check"}}</span></span>
+        <div class="op-col" style="gap:12px;min-width:0">
+          <div><h3>{{.T.Get "Set a password"}}</h3><p class="op-meta">{{.T.Get "You'll see it once more after the user is created, then never again."}}</p></div>
+          {{template "db_password_field" .}}
+          <div class="op-field"><span class="op-label">{{.T.Get "Runs as"}}</span><div class="op-copybox"><span class="op-mono" x-text="preview()"></span><button class="op-icon-btn" type="button" :data-op-copy="preview()" aria-label="{{.T.Get "Copy statement"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div></div>
+        </div>
+      </li>
+    </ol>
+    <div class="op-form-foot">
+      <a href="/{{.Engine.Slug}}/users" class="op-btn op-btn-secondary">{{template "op_icon" "arrowleft"}} {{.T.Get "Back to Users"}}</a>
+      <button type="submit" class="op-btn op-btn-primary" :disabled="!ready() || busy" x-text="busy ? {{toJSON (.T.Get "Creating...")}} : {{toJSON (.T.Get "Create User")}}">{{.T.Get "Create User"}}</button>
+    </div>
+  </form>
+</section>
+<aside class="op-col" style="gap:16px">
+  {{template "db_connect_card" .}}
+  <section class="op-card"><div class="op-card-head"><h2>{{.T.Get "Already on this account"}}</h2></div>
+    <div class="op-wiz-list" x-show="users.length"><template x-for="u in users" :key="u"><div class="op-wiz-have"><span class="op-mono" x-text="u"></span><span class="op-tag">{{.T.Get "user"}}</span></div></template></div>
+    <p class="op-wiz-none" x-show="!users.length" x-cloak>{{.T.Get "No users yet."}}</p>
+    <p class="op-hint" style="margin:12px 0 0">{{.T.Get "Names must be new."}}</p>
+  </section>
+</aside>
+</div>
+<script>
+  function dbUserForm() {
+    return {
+      user: {{toJSON .FormName}},
+      pwOK: false,
+      busy: false,
+      prefix: {{toJSON $prefix}},
+      slug: {{toJSON .Engine.Slug}},
+      users: {{toJSON .Names.Users}} || [],
+      rusers: {{toJSON .Names.ReservedUsers}} || [],
+      full(n) { return !n || n.startsWith(this.prefix) ? n : this.prefix + n; },
+      userErr() {
+        if (!this.user) return '';
+        if (!/^[a-zA-Z0-9_]+$/.test(this.user) || this.full(this.user).length > 31) return {{toJSON (.T.Get "Only letters, numbers, and underscores are allowed (1-31 characters).")}};
+        if ((this.rusers || []).includes(this.full(this.user).toLowerCase())) return {{toJSON (.T.Get "This username is not allowed.")}};
+        if (this.users.includes(this.full(this.user))) return {{toJSON (.T.Get "A user with this name already exists.")}};
+        return '';
+      },
+      userOK() { return !!this.user && !this.userErr(); },
+      ready() { return this.userOK() && this.pwOK; },
+      connectRows() { return [[{{toJSON (.T.Get "User")}}, this.full(this.user) || '–']]; },
+      preview() {
+        const u = this.full(this.user) || '[user]';
+        if (this.slug === 'mysql') return "CREATE USER '" + u + "'@'%' IDENTIFIED BY '********';";
+        if (this.slug === 'postgresql') return 'CREATE USER "' + u + "\" WITH PASSWORD '********';";
+        return 'db.getSiblingDB("admin").createUser({ user: "' + u + '", pwd: "********", roles: [] })';
+      }
+    };
+  }
+</script>
+{{end}}
+</div>
+{{end}}
+
+{{define "db_wizard_form"}}
+{{$prefix := ""}}{{if eq .Engine.Slug "mysql"}}{{$prefix = .MySQLPrefix}}{{end}}
+<div class="op-content">
+<div class="op-page-head">
+  <div>
+    <div class="op-eyebrow"><a href="/{{.Engine.Slug}}" style="color:var(--color-accent-text)">{{.T.Get "Databases"}}</a></div>
+    <h1 class="op-title">{{.T.Get "Database Wizard"}}</h1>
+    <p class="op-meta">{{if eq .Engine.Slug "mysql"}}{{.T.Get "Create a new MySQL database, set up a user with a secure password, and assign it to the database with all necessary privileges."}}{{else if eq .Engine.Slug "postgresql"}}{{.T.Get "Create a new PostgreSQL database, set up a user with a secure password, and assign it to the database with all necessary privileges."}}{{else}}{{.T.Get "Create a new MongoDB database, set up a user with a secure password, and grant it a role on the database."}}{{end}}</p>
+  </div>
+</div>
+<script src="{{static "js/generator.js"}}"></script>
+
+{{if .Success}}
+<div class="op-col" style="gap:16px" x-data="dbWizardDone()">
+  <div class="op-alert is-success" role="status">{{template "op_icon" "check"}}<span><b>{{.T.Get "Setup complete"}}</b><br>{{.T.Get "Save these credentials, the password cannot be retrieved later."}}</span></div>
+  <section class="op-card">
+    <div class="op-subtabs" role="tablist" aria-label="{{.T.Get "Connection details"}}">
+      <button type="button" role="tab" @click="tab = 'credentials'" :aria-selected="(tab === 'credentials').toString()" :aria-pressed="(tab === 'credentials').toString()">{{.T.Get "Credentials"}}</button>
+      <template x-for="s in snippets" :key="s.id"><button type="button" role="tab" @click="tab = s.id" :aria-selected="(tab === s.id).toString()" :aria-pressed="(tab === s.id).toString()" x-text="s.label"></button></template>
+    </div>
+    <div x-show="tab === 'credentials'" class="op-wiz-creds">
+      <template x-for="row in rows" :key="row.key">
+        <div style="display:contents">
+          <span class="op-label" x-text="row.label"></span>
+          <div class="op-copybox" x-show="!row.plain"><span class="op-mono" x-text="row.val"></span><button class="op-icon-btn" type="button" :data-op-copy="row.val" data-op-copied="{{.T.Get "Copied to clipboard"}}" :aria-label="{{toJSON (.T.Get "Copy")}} + ' ' + row.label" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
+          <span class="op-mono op-wiz-plain" x-show="row.plain" x-text="row.val"></span>
+        </div>
+      </template>
+    </div>
+    <template x-for="s in snippets" :key="s.id">
+      <div x-show="tab === s.id" style="margin-top:18px">
+        <div class="op-wiz-snip-head">
+          <span class="op-mono op-hint" x-text="s.file"></span>
+          <span class="op-actions">
+            <button type="button" class="op-btn op-btn-secondary op-btn-sm" :data-op-copy="s.code" data-op-copied="{{.T.Get "Copied to clipboard"}}">{{template "op_icon" "copy"}} {{.T.Get "Copy"}}</button>
+            <button type="button" class="op-btn op-btn-primary op-btn-sm" @click="download(s)">{{template "op_icon" "download"}} {{.T.Get "Download snippet"}}</button>
+          </span>
+        </div>
+        <pre class="op-mono op-wiz-code" x-text="s.code"></pre>
+      </div>
+    </template>
+    <div class="op-form-foot">
+      <a href="/{{.Engine.Slug}}" class="op-btn op-btn-secondary">{{.T.Get "View Databases"}}</a>
+      <a href="/{{.Engine.Slug}}/wizard" class="op-btn op-btn-primary">{{template "op_icon" "plus"}} {{.T.Get "Create Another"}}</a>
+    </div>
+  </section>
+</div>
+<script>
+  function dbWizardDone() {
+    const db = {{toJSON .CreatedDB}}, user = {{toJSON .CreatedUser}}, pass = {{toJSON .CreatedPassword}}, slug = {{toJSON .Engine.Slug}}, role = {{toJSON .Role}};
+    // passwords may hold any character: escape them for quoted strings, .env values and URIs
+    const sq = v => v.replace(/[\\']/g, '\\$&');
+    const env = v => /^[\w.@%+:\/-]*$/.test(v) ? v : '"' + v.replace(/[\\"$]/g, '\\$&') + '"';
+    const uri = v => encodeURIComponent(v).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase());
+    const eu = uri(user), ep = uri(pass);
+    const pg = 'postgresql://' + eu + ':' + ep + '@postgres:5432/' + db;
+    const mongo = 'mongodb://' + eu + ':' + ep + '@mongodb:27017/' + db + '?authSource=admin';
+    const snippets = {
+      mysql: [
+        { id: 'wordpress', label: 'WordPress', file: 'wp-config-snippet.php', code: "define( 'DB_NAME',     '" + db + "' );\ndefine( 'DB_USER',     '" + user + "' );\ndefine( 'DB_PASSWORD', '" + sq(pass) + "' );\ndefine( 'DB_HOST',     'localhost' );\ndefine( 'DB_CHARSET',  'utf8mb4' );\ndefine( 'DB_COLLATE',  '' );" },
+        { id: 'laravel', label: 'Laravel', file: '.env', code: 'DB_CONNECTION=mysql\nDB_HOST=localhost\nDB_PORT=3306\nDB_DATABASE=' + db + '\nDB_USERNAME=' + user + '\nDB_PASSWORD=' + env(pass) },
+        { id: 'django', label: 'Django', file: 'settings.py', code: "DATABASES = {\n    'default': {\n        'ENGINE':   'django.db.backends.mysql',\n        'NAME':     '" + db + "',\n        'USER':     '" + user + "',\n        'PASSWORD': '" + sq(pass) + "',\n        'HOST':     'localhost',\n        'PORT':     '3306',\n    }\n}" },
+        { id: 'nodejs', label: 'Node.js', file: 'db.js', code: "import mysql from 'mysql2/promise';\n\nconst pool = mysql.createPool({\n  host:     'localhost',\n  user:     '" + user + "',\n  password: '" + sq(pass) + "',\n  database: '" + db + "',\n  waitForConnections: true,\n  connectionLimit:    10,\n});" },
+        { id: 'phppdo', label: 'PHP PDO', file: 'db-connect.php', code: "<?php\n\n$dsn  = 'mysql:host=localhost;dbname=" + db + ";charset=utf8mb4';\n$user = '" + user + "';\n$pass = '" + sq(pass) + "';\n$opts = [\n    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,\n    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,\n    PDO::ATTR_EMULATE_PREPARES   => false,\n];\n\ntry {\n    $pdo = new PDO($dsn, $user, $pass, $opts);\n} catch (\\PDOException $e) {\n    throw new \\PDOException($e->getMessage(), (int)$e->getCode());\n}" }
+      ],
+      postgresql: [
+        { id: 'uri', label: {{toJSON (.T.Get "Connection URI")}}, file: '.env', code: 'DATABASE_URL=' + pg },
+        { id: 'laravel', label: 'Laravel', file: '.env', code: 'DB_CONNECTION=pgsql\nDB_HOST=postgres\nDB_PORT=5432\nDB_DATABASE=' + db + '\nDB_USERNAME=' + user + '\nDB_PASSWORD=' + env(pass) },
+        { id: 'django', label: 'Django', file: 'settings.py', code: "DATABASES = {\n    'default': {\n        'ENGINE':   'django.db.backends.postgresql',\n        'NAME':     '" + db + "',\n        'USER':     '" + user + "',\n        'PASSWORD': '" + sq(pass) + "',\n        'HOST':     'postgres',\n        'PORT':     '5432',\n    }\n}" },
+        { id: 'nodejs', label: 'Node.js', file: 'db.js', code: "import pg from 'pg';\n\nconst pool = new pg.Pool({\n  host:     'postgres',\n  port:     5432,\n  user:     '" + user + "',\n  password: '" + sq(pass) + "',\n  database: '" + db + "',\n});" },
+        { id: 'phppdo', label: 'PHP PDO', file: 'db-connect.php', code: "<?php\n\n$dsn = 'pgsql:host=postgres;port=5432;dbname=" + db + "';\n$pdo = new PDO($dsn, '" + user + "', '" + sq(pass) + "', [\n    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,\n]);" }
+      ],
+      mongodb: [
+        { id: 'uri', label: {{toJSON (.T.Get "Connection URI")}}, file: '.env', code: 'MONGODB_URI=' + mongo },
+        { id: 'nodejs', label: 'Node.js', file: 'db.js', code: "import { MongoClient } from 'mongodb';\n\nconst client = new MongoClient('" + mongo + "');\nawait client.connect();\nconst db = client.db('" + db + "');" },
+        { id: 'python', label: 'Python', file: 'db.py', code: "from pymongo import MongoClient\n\nclient = MongoClient('" + mongo + "')\ndb = client['" + db + "']" },
+        { id: 'php', label: 'PHP', file: 'db-connect.php', code: "<?php\n\nrequire 'vendor/autoload.php';\n\n$client = new MongoDB\\Client('" + mongo + "');\n$db = $client->selectDatabase('" + db + "');" },
+        { id: 'laravel', label: 'Laravel', file: '.env', code: 'DB_CONNECTION=mongodb\nDB_URI=' + mongo + '\nDB_DATABASE=' + db }
+      ]
+    }[slug];
+    const rows = [
+      { key: 'db', label: {{toJSON (.T.Get "Database")}}, val: db },
+      { key: 'user', label: {{toJSON (.T.Get "Username")}}, val: user },
+      { key: 'pass', label: {{toJSON (.T.Get "Password")}}, val: pass },
+      { key: 'host', label: {{toJSON (.T.Get "Server")}}, val: {{toJSON .Engine.Host}} },
+      { key: 'port', label: {{toJSON (.T.Get "Port")}}, val: {{toJSON .Engine.Port}}, plain: true }
+    ];
+    if (role) rows.push({ key: 'role', label: {{toJSON (.T.Get "Role")}}, val: role + ' · ' + db, plain: true });
+    return {
+      tab: 'credentials', rows, snippets,
+      download(s) {
+        const a = document.createElement('a');
+        a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(s.code);
+        a.download = s.file;
+        a.click();
+      }
+    };
+  }
+</script>
+
+{{else}}
+<div class="op-wiz-grid" x-data="dbWizard()">
+<section class="op-card" id="toAddActive" aria-label="{{.T.Get "Database Wizard"}}">
+  <form id="databaseWizardForm" method="POST" action="/{{.Engine.Slug}}/wizard" @submit="if (!ready()) { $event.preventDefault(); return } busy = true">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+    {{if eq .Engine.Slug "mysql"}}<input type="hidden" name="privileges" value="ALL PRIVILEGES"/>{{end}}
+    <ol class="op-wiz-steps">
+      <li class="op-section">
+        <span class="op-step-mark" :class="dbOK() &amp;&amp; 'is-ok'"><span x-show="!dbOK()">1</span><span x-show="dbOK()" x-cloak style="display:inline-flex">{{template "op_icon" "check"}}</span></span>
+        <div class="op-col" style="gap:12px;min-width:0">
+          <div><h3>{{.T.Get "Create a database"}}</h3><p class="op-meta">{{.T.Get "The database your app stores its data in."}}</p></div>
+          <div class="op-field">
+            <label class="op-label" for="dbname">{{.T.Get "Database Name"}} <span class="is-danger">*</span></label>
+            <div class="op-wiz-row">
+              <div class="op-affix" style="flex:1;min-width:0">
+                <span class="op-affix-addon op-mono op-addon-ico">{{template "op_icon" "db"}}{{$prefix}}</span>
+                <input type="text" x-model.trim="dbname" name="database_name" id="dbname" minlength="1" maxlength="{{sub 63 (len $prefix)}}" pattern="[a-zA-Z0-9_]+" title="{{.T.Get "Only letters, numbers, and underscores are allowed (1-63 characters)."}}" value="{{.FormDatabaseName}}" class="op-input op-mono" placeholder="{{.T.Get "e.g. shop"}}" autocomplete="off" spellcheck="false" required :class="dbErr() &amp;&amp; 'is-invalid'" :aria-invalid="(!!dbErr()).toString()">
+              </div>
+              <button type="button" class="op-btn op-btn-secondary" @click="dbname = generateString(12)" title="{{.T.Get "Generate a random name"}}">{{template "op_icon" "swap"}} {{.T.Get "Generate"}}</button>
+            </div>
+            <span class="op-hint" x-show="!dbErr()">{{.T.Get "Letters, numbers and underscores, up to 63 characters."}}</span>
+            <span class="op-hint is-danger" x-show="dbErr()" x-cloak x-text="dbErr()" role="alert"></span>
+          </div>
+        </div>
+      </li>
+      <li class="op-section">
+        <span class="op-step-mark" :class="userOK() &amp;&amp; pwOK &amp;&amp; 'is-ok'"><span x-show="!(userOK() &amp;&amp; pwOK)">2</span><span x-show="userOK() &amp;&amp; pwOK" x-cloak style="display:inline-flex">{{template "op_icon" "check"}}</span></span>
+        <div class="op-col" style="gap:12px;min-width:0">
+          <div><h3>{{.T.Get "Create a user"}}</h3><p class="op-meta">{{if eq .Engine.Slug "mysql"}}{{if eq .Service "mariadb"}}{{.T.Get "Your app signs in to MariaDB with this user and password."}}{{else}}{{.T.Get "Your app signs in to MySQL with this user and password."}}{{end}}{{else if eq .Engine.Slug "postgresql"}}{{.T.Get "Your app signs in to PostgreSQL with this user and password."}}{{else}}{{.T.Get "Your app signs in to MongoDB with this user and password."}}{{end}}</p></div>
+          <div class="op-field">
+            <label class="op-label" for="username">{{.T.Get "Database User"}} <span class="is-danger">*</span></label>
+            <div class="op-wiz-row">
+              <div class="op-affix" style="flex:1;min-width:0">
+                <span class="op-affix-addon op-mono op-addon-ico">{{template "op_icon" "user"}}{{$prefix}}</span>
+                <input type="text" x-model.trim="username" name="db_user" id="username" pattern="[a-zA-Z0-9_]+" minlength="1" maxlength="{{sub 31 (len $prefix)}}" title="{{.T.Get "Only letters, numbers, and underscores are allowed (1-31 characters)."}}" value="{{.FormDBUser}}" class="op-input op-mono" placeholder="{{.T.Get "e.g. shop_user"}}" autocomplete="off" spellcheck="false" required :class="userErr() &amp;&amp; 'is-invalid'" :aria-invalid="(!!userErr()).toString()">
+              </div>
+              <button type="button" class="op-btn op-btn-secondary" @click="username = generateString(12)" title="{{.T.Get "Generate a random name"}}">{{template "op_icon" "swap"}} {{.T.Get "Generate"}}</button>
+            </div>
+            <span class="op-hint" x-show="!userErr()">{{.T.Get "Letters, numbers and underscores, up to 31 characters."}}</span>
+            <span class="op-hint is-danger" x-show="userErr()" x-cloak x-text="userErr()" role="alert"></span>
+          </div>
+          {{template "db_password_field" .}}
+        </div>
+      </li>
+      <li class="op-section">
+        <span class="op-step-mark" :class="ready() &amp;&amp; 'is-ok'"><span x-show="!ready()">3</span><span x-show="ready()" x-cloak style="display:inline-flex">{{template "op_icon" "check"}}</span></span>
+        <div class="op-col" style="gap:12px;min-width:0">
+          {{if eq .Engine.Slug "mongodb"}}
+          <div><h3>{{.T.Get "Grant a role on the database"}}</h3><p class="op-meta">{{.T.Get "The user gets this role on the new database only."}}</p></div>
+          {{template "db_mongo_roles" .}}
+          {{else}}
+          <div><h3>{{.T.Get "Assign user to database"}}</h3><p class="op-meta">{{.T.Get "The user gets all privileges on this database only."}}</p></div>
+          {{end}}
+          <div class="op-copybox"><span class="op-mono" x-text="grant()"></span><button class="op-icon-btn" type="button" :data-op-copy="grant()" aria-label="{{.T.Get "Copy statement"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
+        </div>
+      </li>
+    </ol>
+    <div class="op-alert is-warning" x-show="quotaFull()" x-cloak style="margin-top:12px">{{template "op_icon" "warn"}}<span>{{.T.Get "You have reached the maximum number of databases allowed on your plan."}}</span></div>
+    <div class="op-form-foot">
+      <a href="/{{.Engine.Slug}}" class="op-btn op-btn-secondary">{{template "op_icon" "arrowleft"}} {{.T.Get "Back to Databases"}}</a>
+      <button type="submit" id="createAndAssign" class="op-btn op-btn-primary" :disabled="!ready() || busy" x-text="busy ? {{toJSON (.T.Get "Creating...")}} : {{toJSON (.T.Get "Create")}}">{{.T.Get "Create"}}</button>
+    </div>
+  </form>
+</section>
+<aside class="op-col" style="gap:16px">
+  {{template "db_connect_card" .}}
+  <section class="op-card"><div class="op-card-head"><h2>{{.T.Get "Already on this account"}}</h2></div>
+    <div class="op-wiz-list" x-show="dbs.length || users.length"><template x-for="d in dbs" :key="'d' + d"><div class="op-wiz-have"><span class="op-mono" x-text="d"></span><span class="op-tag">{{.T.Get "database"}}</span></div></template><template x-for="u in users" :key="'u' + u"><div class="op-wiz-have"><span class="op-mono" x-text="u"></span><span class="op-tag">{{.T.Get "user"}}</span></div></template></div>
+    <p class="op-wiz-none" x-show="!dbs.length &amp;&amp; !users.length" x-cloak>{{.T.Get "No databases or users yet."}}</p>
+    <p class="op-hint" style="margin:12px 0 0">{{.T.Get "Names must be new."}}{{if .DBLimit}} {{.T.Get "%(used)s of %(limit)s databases used" "used" (print .DBUsage) "limit" (print .DBLimit)}}{{with .HostingPlanName}} {{$.T.Get "on the %(plan)s plan" "plan" .}}{{end}}.{{end}}</p>
+  </section>
+</aside>
+</div>
+<script>
+  function dbWizard() {
+    return {
+      dbname: {{toJSON .FormDatabaseName}},
+      username: {{toJSON .FormDBUser}},
+      role: {{if .Role}}{{toJSON .Role}}{{else}}'readWrite'{{end}},
+      pwOK: false,
+      busy: false,
+      prefix: {{toJSON $prefix}},
+      slug: {{toJSON .Engine.Slug}},
+      dbs: {{toJSON .Names.Databases}} || [],
+      rdbs: {{toJSON .Names.ReservedDatabases}} || [],
+      users: {{toJSON .Names.Users}} || [],
+      rusers: {{toJSON .Names.ReservedUsers}} || [],
+      limit: {{.DBLimit}},
+      used: {{.DBUsage}},
+      full(n) { return !n || n.startsWith(this.prefix) ? n : this.prefix + n; },
+      dbErr() {
+        if (!this.dbname) return '';
+        if (!/^[a-zA-Z0-9_]+$/.test(this.dbname) || this.full(this.dbname).length > 63) return {{toJSON (.T.Get "Only letters, numbers, and underscores are allowed (1-63 characters).")}};
+        if ((this.rdbs || []).includes(this.full(this.dbname))) return {{toJSON (.T.Get "This is a system database that can not be used.")}};
+        if (this.dbs.includes(this.full(this.dbname))) return {{toJSON (.T.Get "A database with this name already exists.")}};
+        return '';
+      },
+      userErr() {
+        if (!this.username) return '';
+        if (!/^[a-zA-Z0-9_]+$/.test(this.username) || this.full(this.username).length > 31) return {{toJSON (.T.Get "Only letters, numbers, and underscores are allowed (1-31 characters).")}};
+        if ((this.rusers || []).includes(this.full(this.username).toLowerCase())) return {{toJSON (.T.Get "This username is not allowed.")}};
+        if (this.users.includes(this.full(this.username))) return {{toJSON (.T.Get "A user with this name already exists.")}};
+        return '';
+      },
+      dbOK() { return !!this.dbname && !this.dbErr(); },
+      userOK() { return !!this.username && !this.userErr(); },
+      quotaFull() { return this.limit > 0 && this.used >= this.limit; },
+      ready() { return this.dbOK() && this.userOK() && this.pwOK && !this.quotaFull(); },
+      connectRows() { return [[{{toJSON (.T.Get "Database")}}, this.full(this.dbname) || '–'], [{{toJSON (.T.Get "User")}}, this.full(this.username) || '–']]; },
+      grant() {
+        const db = this.full(this.dbname) || '[database]', user = this.full(this.username) || '[user]';
+        if (this.slug === 'mysql') return 'GRANT ALL PRIVILEGES ON `' + db + "`.* TO '" + user + "'@'%';";
+        if (this.slug === 'postgresql') return 'GRANT ALL PRIVILEGES ON DATABASE "' + db + '" TO "' + user + '";\nGRANT USAGE, CREATE ON SCHEMA public TO "' + user + '";';
+        return 'db.getSiblingDB("admin").grantRolesToUser("' + user + '", [{ role: "' + this.role + '", db: "' + db + '" }])';
+      }
+    };
+  }
+</script>
+{{end}}
+</div>
+{{end}}
+
+{{define "db_mongo_roles"}}
+<div class="op-role-opts" role="radiogroup" aria-label="{{.T.Get "Role"}}">
+  {{range .Roles}}<label class="op-option"><input type="radio" name="role" value="{{.}}" x-model="role"><div><b class="op-mono">{{.}}</b><span>{{if eq . "read"}}{{$.T.Get "Read data only."}}{{else if eq . "readWrite"}}{{$.T.Get "Read and write data. What most apps need."}}{{else if eq . "dbAdmin"}}{{$.T.Get "Indexes, stats and schema work, no data access."}}{{else if eq . "dbOwner"}}{{$.T.Get "Full control of this database."}}{{end}}</span></div></label>{{end}}
+</div>
+{{end}}
+
+{{define "db_assign_head"}}
+<div class="op-page-head">
+  <div>
+    <div class="op-eyebrow"><a href="/{{.Engine.Slug}}/users" style="color:var(--color-accent-text)">{{.T.Get "Users"}}</a></div>
+    <h1 class="op-title">{{.T.Get "Assign User to Database"}}</h1>
+    <p class="op-meta">{{.T.Get "Give a user access to one database. It can't touch any other database."}}</p>
+  </div>
+  <div class="op-actions"><a class="op-btn op-btn-secondary" href="/{{.Engine.Slug}}/remove">{{template "op_icon" "unlink"}} {{.T.Get "Remove User from Database"}}</a></div>
+</div>
+<script>
+  // user + database pickers shared by the three assign pages, links preselect with ?db_user= / ?database_user= and ?database_name=
+  function dbAssignBase() {
+    const q = new URLSearchParams(location.search);
+    const users = {{toJSON .Names.Users}} || [], dbs = {{toJSON .Names.Databases}} || [];
+    const pre = (v, list) => list.includes(v) ? v : '';
+    return {
+      users, dbs,
+      assigned: {{toJSON .Names.Assigned}} || [],
+      user: pre({{toJSON .DBUser}} || q.get('db_user') || q.get('database_user') || '', users),
+      db: pre({{toJSON .DatabaseName}} || q.get('database_name') || '', dbs),
+      busy: false,
+      pick(u, d) { this.user = u; this.db = d; window.scrollTo({ top: 0, behavior: 'smooth' }); },
+      currentText() { return ''; }
+    };
+  }
+</script>
+{{end}}
+
+{{define "db_assign_pick"}}
+<li class="op-section">
+  <span class="op-step-mark" :class="user &amp;&amp; 'is-ok'"><span x-show="!user">1</span><span x-show="user" x-cloak style="display:inline-flex">{{template "op_icon" "check"}}</span></span>
+  <div class="op-col" style="gap:12px;min-width:0">
+    <div><h3>{{.T.Get "Pick a user"}}</h3><p class="op-meta">{{.T.Get "The user that gets access."}}</p></div>
+    <div class="op-field" x-show="users.length">
+      <label class="op-label" for="db_user">{{.T.Get "User"}} <span class="is-danger">*</span></label>
+      <div class="op-inico">{{template "op_icon" "user"}}<select name="db_user" id="db_user" class="op-select op-mono" required @change="user = $event.target.value"><option value="" :selected="!user">{{.T.Get "Select a user"}}</option><template x-for="u in users" :key="u"><option :value="u" :selected="u === user" x-text="u"></option></template></select></div>
+    </div>
+    <p class="op-wiz-none" x-show="!users.length" x-cloak>{{.T.Get "No users yet."}} <a href="/{{.Engine.Slug}}/user" style="color:var(--color-accent-text)">{{.T.Get "Create a user"}}</a> {{.T.Get "first."}}</p>
+  </div>
+</li>
+<li class="op-section">
+  <span class="op-step-mark" :class="db &amp;&amp; 'is-ok'"><span x-show="!db">2</span><span x-show="db" x-cloak style="display:inline-flex">{{template "op_icon" "check"}}</span></span>
+  <div class="op-col" style="gap:12px;min-width:0">
+    <div><h3>{{.T.Get "Pick a database"}}</h3><p class="op-meta">{{.T.Get "Access is limited to this one database."}}</p></div>
+    <div class="op-field" x-show="dbs.length">
+      <label class="op-label" for="database_name">{{.T.Get "Database"}} <span class="is-danger">*</span></label>
+      <div class="op-inico">{{template "op_icon" "db"}}<select name="database_name" id="database_name" class="op-select op-mono" required @change="db = $event.target.value"><option value="" :selected="!db">{{.T.Get "Select a database"}}</option><template x-for="d in dbs" :key="d"><option :value="d" :selected="d === db" x-text="d"></option></template></select></div>
+      <span class="op-hint" x-show="currentText()" x-cloak x-text="currentText()"></span>
+    </div>
+    <p class="op-wiz-none" x-show="!dbs.length" x-cloak>{{.T.Get "No databases yet."}} <a href="/{{.Engine.Slug}}/new" style="color:var(--color-accent-text)">{{.T.Get "Create a database"}}</a> {{.T.Get "first."}}</p>
+  </div>
+</li>
+{{end}}
+
+{{define "db_assign_aside"}}
+<aside class="op-col" style="gap:16px">
+  <section class="op-card"><div class="op-card-head"><h2>{{.T.Get "Who has access now"}}</h2></div>
+    {{if eq .Engine.Slug "mongodb"}}
+    <p class="op-wiz-none">{{.T.Get "Each user's roles are listed on the"}} <a href="/mongodb/users" style="color:var(--color-accent-text)">{{.T.Get "Users"}}</a> {{.T.Get "page."}}</p>
+    {{else}}
+    <div class="op-wiz-list" x-show="assigned.length"><template x-for="a in assigned" :key="a.database"><div class="op-col op-wiz-access"><span class="op-mono" x-text="a.database"></span><span class="op-wiz-tags"><template x-for="u in a.users.split(',').map((s) => s.trim()).filter(Boolean)" :key="u"><button type="button" class="op-tag op-mono" @click="pick(u, a.database)" :title="{{toJSON (.T.Get "Edit")}} + ' ' + u + ' · ' + a.database" x-text="u"></button></template></span></div></template></div>
+    <p class="op-wiz-none" x-show="!assigned.length" x-cloak>{{.T.Get "No user has access to a database yet."}}</p>
+    {{end}}
+  </section>
+  <section class="op-card"><div class="op-card-head"><h2>{{.T.Get "Starting from scratch?"}}</h2></div>
+    <p class="op-hint" style="margin:0">{{.T.Get "The"}} <a href="/{{.Engine.Slug}}/wizard" style="color:var(--color-accent-text)">{{.T.Get "Database Wizard"}}</a> {{.T.Get "creates a database, a user and this grant in one go."}}</p>
+  </section>
+</aside>
+{{end}}

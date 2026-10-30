@@ -6,11 +6,11 @@
 {{end}}
 
 {{define "bulk_head_checkbox"}}
-<th scope="col" class="w-10 whitespace-nowrap border-b pl-4 sm:pl-6 pr-2 py-3.5 text-left border-gray-200 dark:border-gray-800">{{template "bulk_head_input" .}}</th>
+<th scope="col" class="w-10 op-th">{{template "bulk_head_input" .}}</th>
 {{end}}
 
 {{define "bulk_head_input"}}
-    <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800"
+    <input type="checkbox" class="op-native-check"
         :checked="bulkAllChecked" :indeterminate="bulkSomeChecked"
         @change="bulkToggleAll($event.target.checked)" aria-label="{{.T.Get "Select all"}}">
 {{end}}
@@ -18,7 +18,7 @@
 {{/* dict "Key" row key, "Label" for screen readers, "Skip" comma-separated action keys this row can't run, "*" for all */}}
 {{define "bulk_row_checkbox"}}
 <td class="w-10 py-4 pl-4 sm:pl-6 pr-2 align-middle">
-    <input type="checkbox" class="bulk-select-box h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800"
+    <input type="checkbox" class="bulk-select-box op-native-check"
         value="{{.Key}}" data-bulk-skip="{{.Skip}}"
         :checked="!!bulkSelected[{{toJSON .Key}}]" @change="bulkToggle($event.target)" aria-label="{{.T.Get "Select"}} {{.Label}}">
 </td>
@@ -33,7 +33,7 @@
         .bulk-btn > .bi { font-size: 1rem; line-height: 1.25rem; }
         .bulk-btn-label {
             position: absolute; bottom: calc(100% + .375rem); left: 50%; transform: translateX(-50%); z-index: 50;
-            padding: .25rem .5rem; border-radius: .25rem; background: #111827; color: #fff; font-size: .75rem; line-height: 1rem; font-weight: 500;
+            padding: .25rem .5rem; border-radius: .25rem; background: var(--color-heading, #111827); color: var(--color-page, #fff); font-size: .75rem; line-height: 1rem; font-weight: 500;
             opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .1s ease-in-out;
         }
         .dark .bulk-btn-label { background: #374151; }
@@ -51,30 +51,30 @@
 <div x-show="bulkCount > 0" class="h-24" aria-hidden="true"></div>
 <div x-show="bulkCount > 0" x-cloak x-transition id="bulk-actions-bar" :style="bulkBarStyle"
     x-init="bulkPlaceBar()"
-    class="fixed bottom-0 z-40 flex flex-col gap-3 border-t border-gray-200 bg-white px-4 py-3 shadow-lg dark:border-gray-800 dark:bg-gray-950 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+    class="fixed bottom-0 z-40 flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 op-surface">
 
-    <div x-show="!bulkConfirming" class="text-sm font-medium text-gray-900 dark:text-gray-50">
+    <div x-show="!bulkConfirming" class="op-strong">
         <span x-text="bulkCount"></span> {{.T.Get "selected"}}
-        <button type="button" class="ms-2 text-xs text-blue-600 hover:underline dark:text-blue-400" @click="bulkClear()">{{.T.Get "Clear"}}</button>
+        <button type="button" class="ms-2 text-xs op-accent-text" @click="bulkClear()">{{.T.Get "Clear"}}</button>
     </div>
     <div x-show="!bulkConfirming" class="flex flex-wrap items-center gap-2">
         {{range .BulkActions}}{{if .Usable}}
         <button type="button" data-bulk-action="{{.Key}}" :disabled="bulkRunning" :class="bulkRunning && 'opacity-50 pointer-events-none'" @click="{{if .Client}}bulkClient({{toJSON .Key}}){{else}}bulkStart({{toJSON .Key}}, {{if .Input}}{{toJSON .Input.Initial}}{{else}}''{{end}}){{end}}" aria-label="{{.Label}}"
-            class="bulk-btn relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out {{if .Danger}}border-transparent bg-red-600 text-white hover:bg-red-700{{else}}border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60{{end}}">
+            class="bulk-btn op-btn op-btn-sm {{if .Danger}}op-btn-danger{{else}}op-btn-secondary{{end}}">
             <i class="bi {{.IconClass}}" aria-hidden="true"></i><span class="bulk-btn-label">{{.Label}}</span>
         </button>
         {{end}}{{end}}
     </div>
 
     <form x-show="bulkConfirming" @submit.prevent="bulkConfirm()" class="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div class="text-sm font-medium text-gray-900 dark:text-gray-50">
+        <div class="op-strong">
             {{range .BulkActions}}
             <div x-show="bulkConfirming === {{toJSON .Key}}" class="flex flex-wrap items-center gap-2">
-                <span {{if .Danger}}class="text-red-600 dark:text-red-400"{{end}}>{{.Confirm}}</span>
-                <span class="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300"><span x-text="bulkPending.length"></span> {{$.T.Get "selected"}}</span>
+                <span {{if .Danger}}class="is-danger"{{end}}>{{.Confirm}}</span>
+                <span class="op-badge"><span x-text="bulkPending.length"></span> {{$.T.Get "selected"}}</span>
             </div>
             {{end}}
-            <span x-show="bulkSkipped > 0" class="block text-xs text-gray-500 dark:text-gray-400">
+            <span x-show="bulkSkipped > 0" class="block text-xs op-muted">
                 <span x-text="bulkSkipped"></span> {{.T.Get "selected item(s) don't support this action and will be skipped."}}
             </span>
         </div>
@@ -83,23 +83,23 @@
             <template x-if="bulkConfirming === {{toJSON $key}}">
                 <div class="flex items-center gap-2">
                     {{if eq .Type "select"}}
-                    <select x-model="bulkValue" data-bulk-input="{{$key}}" required class="rounded border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-900 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50">
+                    <select x-model="bulkValue" data-bulk-input="{{$key}}" required class="op-select">
                         {{range .Options}}<option value="{{.Value}}">{{.Label}}</option>{{end}}
                     </select>
                     {{else}}
                     <input x-model="bulkValue" data-bulk-input="{{$key}}" required type="{{or .Type "text"}}"{{if .Min}} min="{{.Min}}"{{end}}{{if .Max}} max="{{.Max}}"{{end}}{{if .Step}} step="{{.Step}}"{{end}} placeholder="{{.Placeholder}}"{{if .Hint}} title="{{.Hint}}"{{end}}
-                        class="w-24 rounded border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-900 shadow-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50">
+                        class="w-24 op-input op-input-sm">
                     {{end}}
-                    {{if .Hint}}<span class="hidden text-xs text-gray-500 dark:text-gray-400 md:inline">{{.Hint}}</span>{{end}}
+                    {{if .Hint}}<span class="hidden text-xs md:inline op-muted">{{.Hint}}</span>{{end}}
                 </div>
             </template>
             {{end}}{{end}}{{end}}
-            <button type="button" @click="bulkCancel()" :disabled="bulkRunning" :class="bulkRunning && 'opacity-50 pointer-events-none'" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
+            <button type="button" @click="bulkCancel()" :disabled="bulkRunning" :class="bulkRunning && 'opacity-50 pointer-events-none'" class="relative op-btn op-btn-sm op-btn-secondary">
                 {{.T.Get "Cancel"}}
             </button>
             <button type="submit" :disabled="bulkRunning"
-                :class="[{{range .BulkActions}}{{if .Danger}}{{toJSON .Key}},{{end}}{{end}}].includes(bulkConfirming) ? 'bg-red-600 hover:bg-red-700' : 'bg-black hover:bg-gray-800'"
-                class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded border border-transparent px-3 py-1.5 text-center text-sm font-medium text-white shadow-sm transition-all duration-100 ease-in-out ">
+                :class="[{{range .BulkActions}}{{if .Danger}}{{toJSON .Key}},{{end}}{{end}}].includes(bulkConfirming) ? 'op-btn-danger' : 'op-btn-primary'"
+                class="relative gap-1.5 op-btn op-btn-sm">
                 <svg x-show="bulkRunning" class="size-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" class="opacity-50"></circle><path d="M22 12a10 10 0 0 0-10-10" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path></svg>
                 <span x-show="!bulkRunning">{{.T.Get "Confirm"}}</span>
                 <span x-show="bulkRunning">{{.T.Get "Running..."}}</span>

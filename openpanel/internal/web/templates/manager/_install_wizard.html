@@ -1,0 +1,323 @@
+{{/* shared install wizard, the page sets window.opIWConfig first and loads js/install-wizard.js: {{template "op_install_wizard" .}} */}}
+{{define "op_install_wizard"}}
+<div class="op-iw-page" x-data="opInstallWizard(window.opIWConfig)">
+  <div class="op-page-head op-iw-head">
+    <div class="op-iw-title">
+      <span class="op-app-logo op-iw-logo"><img :src="cfg.logo" alt="" width="32" height="32"></span>
+      <div style="min-width:0">
+        <div class="op-eyebrow"><a href="/auto-installer">{{.T.Get "Install App"}}</a></div>
+        <h1 class="op-title" x-text="phase === 'form' ? cfg.title : phase === 'done' ? fmt(t.installed, cfg.name) : phase === 'failed' ? t.failed : fmt(t.installing, cfg.name)"></h1>
+        <p class="op-meta" x-text="cfg.desc"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="op-iw" x-show="phase === 'form'">
+    <form class="op-card op-iw-card" x-ref="form" @submit.prevent="submit()" novalidate autocomplete="off">
+      <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+      <ol class="op-stepper op-iw-stepper">
+        <template x-for="(s, i) in steps" :key="s.id"><li :class="i < step && 'is-done'" :aria-current="step === i ? 'step' : null" @click="go(i)"><b x-text="fmt(t.stepN, i + 1)"></b><span x-text="s.label"></span></li></template>
+      </ol>
+
+      <template x-for="(s, si) in steps" :key="s.id">
+        <section class="op-iw-panel" x-show="step === si">
+          <div class="op-iw-panel-head"><h2 x-text="s.title || s.label"></h2><p class="op-meta" x-show="s.desc" x-text="s.desc"></p></div>
+
+          <div class="op-iw-where" x-show="s.id === 'where'">
+            <div class="op-field">
+              <label class="op-label" for="iw_domain_id">{{.T.Get "Domain"}}</label>
+              <select class="op-select" id="iw_domain_id" name="domain_id" @change="pickDomain($event.target.value)" :aria-invalid="!!errs.domain_id">
+                <option value="" :selected="!domainId" disabled x-text="t.selectDomain"></option>
+                <template x-for="d in domains" :key="d.DomainID"><option :value="d.DomainID" :selected="String(d.DomainID) === String(domainId)" x-text="d.DomainURL"></option></template>
+              </select>
+              <span class="op-hint op-iw-err" x-show="errs.domain_id" x-text="errs.domain_id"></span>
+            </div>
+            <div class="op-field">
+              <label class="op-label" for="iw_subdirectory">{{.T.Get "Folder"}} <span class="op-iw-opt" x-text="t.optional"></span></label>
+              <div class="op-affix"><span class="op-affix-addon">/</span><input class="op-input op-mono" id="iw_subdirectory" name="subdirectory" x-model="subdir" @input="errs.subdirectory = ''" @blur="cleanSubdir()" placeholder="{{.T.Get "blog"}}" spellcheck="false" autocapitalize="off"></div>
+              <span class="op-hint op-iw-err" x-show="errs.subdirectory" x-text="errs.subdirectory"></span>
+              <span class="op-hint" x-show="!errs.subdirectory">{{.T.Get "Leave it empty to install at the domain root."}}</span>
+            </div>
+            <div class="op-iw-path op-iw-span" x-show="dom()">
+              <div><span class="op-hint">{{.T.Get "Site address"}}</span><b class="op-mono" x-text="siteUrl()"></b></div>
+              <div><span class="op-hint">{{.T.Get "Installs into"}}</span><span class="op-mono" x-text="installPath()"></span></div>
+              <div x-show="cfg.php"><span class="op-hint" x-text="t.phpVersion"></span><span class="op-mono" x-text="dom() && dom().PHPVersion && dom().PHPVersion !== '/' ? dom().PHPVersion : t.notSet"></span></div>
+            </div>
+            <div class="op-alert op-iw-span" :style="{ '--tone': cfg.php && cfg.php.block ? 'var(--color-danger)' : 'var(--color-warning)' }" x-show="phpIssue()" x-cloak>{{template "op_icon" "warn"}}<span x-text="phpIssue()"></span></div>
+          </div>
+
+          <div class="op-iw-grid" x-show="fieldsFor(s.id).length">
+            <template x-for="f in fieldsFor(s.id)" :key="f.name">
+              <div class="op-iw-cell" :class="{ 'op-iw-span': !f.half }" x-show="shown(f) && (!f.more || more[s.id])">
+                <template x-if="f.type === 'note'"><div class="op-alert" :style="{ '--tone': f.tone || 'var(--color-accent)' }">{{template "op_icon" "info"}}<span x-text="f.label"></span></div></template>
+
+                <template x-if="f.type === 'check'">
+                  <label class="op-check-row op-iw-check" :class="{ 'is-off': off(f) }"><input class="op-check" type="checkbox" :id="'iw_' + f.name" :name="f.name" value="1" :checked="!!v[f.name]" :disabled="off(f)" @change="v[f.name] = $event.target.checked"><span><b x-text="f.label"></b><p x-show="f.hint" x-text="f.hint"></p></span></label>
+                </template>
+
+                <template x-if="f.type === 'presets'">
+                  <div class="op-iw-presets"><span class="op-label" x-text="f.label"></span><div class="op-segmented" role="group"><template x-for="p in f.presets" :key="p.label"><button type="button" :aria-pressed="presetOn(p).toString()" :class="presetOn(p) && 'is-on'" @click="applyPreset(p)" x-text="p.label"></button></template></div></div>
+                </template>
+
+                <template x-if="!['note', 'check', 'presets'].includes(f.type)">
+                  <div class="op-field">
+                    <label class="op-label" :for="'iw_' + f.name"><span x-text="f.label"></span> <span class="op-iw-opt" x-show="!f.required && f.type !== 'select'" x-text="t.optional"></span></label>
+                    <template x-if="f.type === 'select'">
+                      <select class="op-select" :id="'iw_' + f.name" :name="f.name" :disabled="off(f)" @change="v[f.name] = $event.target.value; edit(f)">
+                        <template x-for="o in (opts[f.name] || [])" :key="o.value"><option :value="o.value" :selected="String(o.value) === String(v[f.name])" x-text="o.label"></option></template>
+                      </select>
+                    </template>
+                    <template x-if="f.type === 'password'">
+                      <div class="op-iw-pass">
+                        <input class="op-input op-mono" :id="'iw_' + f.name" :name="f.name" :type="reveal[f.name] ? 'text' : 'password'" x-model="v[f.name]" @input="edit(f)" :placeholder="f.placeholder || ''" :aria-invalid="!!errs[f.name]" autocomplete="new-password" spellcheck="false" autocapitalize="off">
+                        <button class="op-btn op-btn-secondary" type="button" x-show="f.gen" @click="regen(f)">{{template "op_icon" "refresh"}}<span x-text="t.generate"></span></button>
+                        <button class="op-btn op-btn-secondary op-iw-icon" type="button" @click="reveal[f.name] = !reveal[f.name]" :aria-label="reveal[f.name] ? t.hide : t.show" :title="reveal[f.name] ? t.hide : t.show"><span x-show="!reveal[f.name]">{{template "op_icon" "eye"}}</span><span x-show="reveal[f.name]">{{template "op_icon" "eyeoff"}}</span></button>
+                      </div>
+                    </template>
+                    <template x-if="!['select', 'password'].includes(f.type) && f.prefix && cfg.mysqlPrefix">
+                      <div class="op-affix"><span class="op-affix-addon" x-text="cfg.mysqlPrefix"></span><input class="op-input op-mono" :id="'iw_' + f.name" :name="f.name" type="text" x-model="v[f.name]" @input="edit(f)" :aria-invalid="!!errs[f.name]" spellcheck="false" autocapitalize="off"></div>
+                    </template>
+                    <template x-if="!['select', 'password'].includes(f.type) && !(f.prefix && cfg.mysqlPrefix)">
+                      <div :class="f.unit && 'op-affix'"><input class="op-input" :class="f.mono && 'op-mono'" :id="'iw_' + f.name" :name="f.name" :type="f.type === 'email' ? 'email' : f.type === 'number' ? 'number' : 'text'" :inputmode="f.type === 'number' ? 'decimal' : null" :min="f.min" :max="f.max" :step="f.inc" :readonly="!!f.readonly" :disabled="off(f)" x-model="v[f.name]" @input="edit(f)" @blur="blur(f)" :placeholder="f.placeholder || ''" :aria-invalid="!!errs[f.name]" spellcheck="false" autocapitalize="off"><span class="op-affix-addon" x-show="f.unit" x-text="f.unit"></span></div>
+                    </template>
+                    <template x-if="f.strength">
+                      <div class="op-iw-meter" x-show="v[f.name]"><span :style="{ width: strength(f).pct + '%', background: strength(f).tone }"></span></div>
+                    </template>
+                    <span class="op-hint op-iw-err" x-show="errs[f.name]" x-text="errs[f.name]"></span>
+                    <span class="op-hint" x-show="!errs[f.name] && f.strength && v[f.name]" x-text="strength(f).label"></span>
+                    <span class="op-hint" x-show="!errs[f.name] && f.type === 'select' && optsState[f.name] === 'loading'" x-text="t.loadingVersions"></span>
+                    <span class="op-hint" x-show="!errs[f.name] && f.type === 'select' && optsState[f.name] === 'failed'" x-text="t.versionsFailed"></span>
+                    <span class="op-hint" x-show="!errs[f.name] && hints[f.name]" :class="hints[f.name] && 'is-' + hints[f.name].tone" x-text="hints[f.name] && hints[f.name].text"></span>
+                    <span class="op-hint" x-show="!errs[f.name] && f.hint" x-text="f.hint"></span>
+                  </div>
+                </template>
+              </div>
+            </template>
+          </div>
+          <button type="button" class="op-btn op-btn-ghost op-btn-sm op-iw-more" x-show="fieldsFor(s.id).some((f) => f.more)" @click="more[s.id] = !more[s.id]" :aria-expanded="(!!more[s.id]).toString()"><span x-text="more[s.id] ? t.fewer : t.more"></span>{{template "op_icon" "chev"}}</button>
+
+          <div class="op-iw-review" x-show="s.id === 'review'">
+            <dl class="op-iw-kvs">
+              <template x-for="(r, ri) in reviewRows()" :key="ri">
+                <div class="op-iw-kv"><dt x-text="r.label"></dt><dd :class="r.mono && 'op-mono'"><span x-text="r.secret && !reveal['rv_' + r.name] ? '••••••••••••' : r.value"></span><button type="button" class="op-iw-link" x-show="r.secret" @click="reveal['rv_' + r.name] = !reveal['rv_' + r.name]" x-text="reveal['rv_' + r.name] ? t.hide : t.show"></button></dd></div>
+              </template>
+            </dl>
+            <div class="op-iw-what">
+              <span class="op-label" x-text="t.what"></span>
+              <ol><template x-for="(r, ri) in run" :key="ri"><li x-text="r.label"></li></template></ol>
+            </div>
+          </div>
+        </section>
+      </template>
+
+      <div class="op-form-foot op-iw-foot">
+        <a class="op-btn op-btn-secondary op-iw-left" href="/auto-installer" x-show="step === 0" x-text="t.cancel"></a>
+        <button class="op-btn op-btn-secondary op-iw-left" type="button" x-show="step > 0" @click="back()">{{template "op_icon" "arrowleft"}}<span x-text="t.back"></span></button>
+        <button class="op-btn op-btn-primary" type="button" x-show="step < steps.length - 1" @click="next()"><span x-text="t.next"></span>{{template "op_icon" "arrowright"}}</button>
+        <button class="op-btn op-btn-primary" type="submit" x-show="step === steps.length - 1">{{template "op_icon" "download"}}<span x-text="cfg.cta || fmt(t.install + ' %s', cfg.name)"></span></button>
+      </div>
+    </form>
+
+    <aside class="op-card op-iw-aside">
+      <div class="op-iw-aside-head"><span class="op-app-logo op-iw-logo is-sm"><img :src="cfg.logo" alt="" width="24" height="24"></span><b x-text="cfg.name"></b></div>
+      <dl class="op-iw-sum">
+        <template x-for="(r, ri) in summary()" :key="ri"><div><dt x-text="r.label"></dt><dd x-text="r.value"></dd></div></template>
+      </dl>
+      <p class="op-hint" x-show="cfg.note" x-text="cfg.note"></p>
+    </aside>
+  </div>
+
+  <section class="op-card op-iw-run" x-show="phase !== 'form'" x-cloak>
+    <div class="op-iw-run-head">
+      <div style="min-width:0">
+        <h2 class="op-mono" x-text="host()"></h2>
+        <p class="op-meta"><span class="op-mono" x-text="installPath()"></span></p>
+      </div>
+      <div class="op-iw-run-meta">
+        <span class="op-status" :class="phase === 'done' ? 'is-success' : phase === 'failed' ? 'is-danger' : 'is-warning'" x-text="phase === 'done' ? t.done : phase === 'failed' ? t.failedBadge : t.running"></span>
+        <span class="op-hint op-mono" x-text="clock()"></span>
+      </div>
+    </div>
+    <div class="op-iw-bar" :class="phase === 'failed' && 'is-failed'"><span :style="{ width: pct() + '%' }"></span></div>
+    <div class="op-alert op-iw-note" style="--tone:var(--color-warning)" x-show="phase === 'running'">{{template "op_icon" "info"}}<span x-text="slow ? t.slow : t.keepOpen"></span></div>
+
+    <div class="op-iw-done" x-show="phase === 'done'">
+      <div class="op-iw-hero"><span class="op-iw-hero-ico">{{template "op_icon" "check"}}</span><div style="min-width:0"><b x-text="result.status"></b><p class="op-hint" x-show="creds().some((c) => c.secret)" x-text="t.shownOnce"></p></div></div>
+      <dl class="op-iw-kvs">
+        <div class="op-iw-kv"><dt x-text="t.siteUrl"></dt><dd><a class="op-mono" :href="siteUrl()" target="_blank" rel="noopener" x-text="siteUrl()"></a><button type="button" class="op-iw-link" @click="copy(siteUrl())" x-text="t.copy"></button></dd></div>
+        <div class="op-iw-kv" x-show="adminUrl()"><dt x-text="t.adminUrl"></dt><dd><a class="op-mono" :href="adminUrl()" target="_blank" rel="noopener" x-text="adminUrl()"></a><button type="button" class="op-iw-link" @click="copy(adminUrl())" x-text="t.copy"></button></dd></div>
+        <template x-for="c in creds()" :key="c.key"><div class="op-iw-kv"><dt x-text="c.label"></dt><dd><span class="op-mono" x-text="c.secret && !reveal['done_' + c.key] ? '••••••••••••' : c.value"></span><button type="button" class="op-iw-link" x-show="c.secret" @click="reveal['done_' + c.key] = !reveal['done_' + c.key]" x-text="reveal['done_' + c.key] ? t.hide : t.show"></button><button type="button" class="op-iw-link" @click="copy(c.value)" x-text="t.copy"></button></dd></div></template>
+      </dl>
+      <p class="op-hint" x-show="cfg.doneNote" x-text="cfg.doneNote"></p>
+    </div>
+
+    <div class="op-alert op-iw-note" style="--tone:var(--color-danger)" x-show="phase === 'failed'">{{template "op_icon" "alert"}}<span x-text="error"></span></div>
+
+    <ol class="op-iw-steps" x-show="phase !== 'done'">
+      <template x-for="(r, i) in run" :key="i">
+        <li :class="'is-' + stepState(i)">
+          <span class="op-iw-ico" x-show="stepState(i) === 'done'">{{template "op_icon" "circlecheck"}}</span>
+          <span class="op-iw-ico op-iw-spin" x-show="stepState(i) === 'active'">{{template "op_icon" "loader"}}</span>
+          <span class="op-iw-ico" x-show="stepState(i) === 'error'">{{template "op_icon" "xcircle"}}</span>
+          <span class="op-iw-ico op-iw-dot" x-show="stepState(i) === 'pending'"></span>
+          <span x-text="r.label"></span>
+        </li>
+      </template>
+    </ol>
+
+    <div class="op-iw-logwrap">
+      <div class="op-iw-loghead"><button type="button" class="op-iw-link op-iw-logtoggle" x-show="phase === 'done'" @click="showLog = !showLog" :aria-expanded="showLog.toString()"><span x-text="showLog ? t.hideLog : t.showLog"></span>{{template "op_icon" "chev"}}</button><span class="op-label" x-show="phase !== 'done'" x-text="t.log"></span><button class="op-btn op-btn-ghost op-btn-sm" type="button" x-show="phase !== 'done' || showLog" @click="copy(log.join('\n'))" :disabled="!log.length">{{template "op_icon" "copy"}}<span x-text="t.copyLog"></span></button></div>
+      <pre class="op-iw-log op-mono" x-ref="log" x-show="phase !== 'done' || showLog" x-text="log.join('\n')"></pre>
+    </div>
+
+    <div class="op-form-foot op-iw-foot" x-show="phase !== 'running'">
+      <template x-if="phase === 'failed'"><div class="op-iw-foot-row"><button class="op-btn op-btn-secondary" type="button" @click="edit2()">{{template "op_icon" "pencil"}}<span x-text="t.edit"></span></button><button class="op-btn op-btn-primary" type="button" @click="start()">{{template "op_icon" "refresh"}}<span x-text="t.retry"></span></button></div></template>
+      <template x-if="phase === 'done'"><div class="op-iw-foot-row"><a class="op-btn op-btn-secondary" href="/auto-installer" x-text="t.another"></a><a class="op-btn op-btn-primary" :href="managerUrl()"><span x-text="cfg.managerLabel || t.manager"></span>{{template "op_icon" "arrowright"}}</a></div></template>
+    </div>
+  </section>
+  <div class="op-toast" x-show="toast" x-cloak x-transition role="status" x-text="toast"></div>
+</div>
+{{end}}
+
+{{/* the engine plus translated building blocks the per-app configs share: {{template "op_iw_kit" .}} before the config script */}}
+{{define "op_iw_kit"}}
+<script src="{{static "js/install-wizard.js"}}"></script>
+<script>
+(function () {
+  var t = {{template "op_iw_t" .}};
+  function fmt(s, v) { return String(s).replace('%s', v); }
+  function gh(url, re, pick) {
+    return fetch(url).then(function (r) { return r.json(); }).then(function (data) {
+      if (!Array.isArray(data)) throw new Error('unexpected response');
+      var seen = {};
+      return data.map(pick).filter(function (v) { if (!v || !re.test(v) || seen[v]) return false; seen[v] = 1; return true; })
+        .sort(function (a, b) { var x = a.split(/[.-]/).map(Number), y = b.split(/[.-]/).map(Number); for (var i = 0; i < Math.max(x.length, y.length); i++) { if ((x[i] || 0) !== (y[i] || 0)) return (y[i] || 0) - (x[i] || 0); } return 0; })
+        .slice(0, 12);
+    });
+  }
+  window.opIWKit = {
+    t: t,
+    steps: {
+      where: { id: 'where', label: {{toJSON (.T.Get "Location")}}, title: {{toJSON (.T.Get "Where to install")}}, desc: {{toJSON (.T.Get "Pick one of your domains and, if you like, a folder under it.")}} },
+      site: { id: 'site', label: {{toJSON (.T.Get "Site & admin")}}, title: {{toJSON (.T.Get "Site and admin account")}}, desc: {{toJSON (.T.Get "The admin account is what you log in to the new site with.")}} },
+      db: { id: 'db', label: {{toJSON (.T.Get "Database")}}, title: {{toJSON (.T.Get "Database")}}, desc: {{toJSON (.T.Get "Names and a password are generated for you. Change them only if you need specific ones.")}} },
+      res: { id: 'res', label: {{toJSON (.T.Get "Resources")}}, title: {{toJSON (.T.Get "Resources")}}, desc: {{toJSON (.T.Get "Limits for the app's container. You can change them later on the app's page.")}} },
+      review: { id: 'review', label: {{toJSON (.T.Get "Review")}}, title: {{toJSON (.T.Get "Review and install")}}, desc: {{toJSON (.T.Get "Check the details, then start the install. It takes a minute or two.")}} }
+    },
+    step: function (base, o) { return Object.assign({}, this.steps[base], o || {}); },
+    version: function (name, versions, latestOption) { return { name: name, label: {{toJSON (.T.Get "Version")}}, type: 'select', versions: versions, latestOption: latestOption !== false, half: true }; },
+    email: function (o) { return Object.assign({ name: 'admin_email', label: {{toJSON (.T.Get "Admin email")}}, type: 'email', required: true, validate: 'email', auto: function (d) { return 'admin@' + d; }, half: true, placeholder: 'admin@example.com' }, o || {}); },
+    user: function (o) { return Object.assign({ name: 'admin_username', label: {{toJSON (.T.Get "Admin username")}}, value: 'admin', required: true, validate: 'username', half: true }, o || {}); },
+    pass: function (o) { return Object.assign({ name: 'admin_password', label: {{toJSON (.T.Get "Admin password")}}, type: 'password', gen: 'password', required: true, validate: 'adminpass', strength: true }, o || {}); },
+    text: function (name, label, o) { return Object.assign({ name: name, label: label, half: true }, o || {}); },
+    db: function (slug) {
+      return [
+        { name: 'db_name', step: 'db', label: {{toJSON (.T.Get "Database name")}}, prefix: true, gen: function () { return (slug ? slug + '_' : '') + Math.random().toString(36).slice(2, 8); }, required: true, validate: 'dbname', mono: true, half: true },
+        { name: 'db_user', step: 'db', label: {{toJSON (.T.Get "Database user")}}, prefix: true, gen: 'lower10', required: true, validate: 'dbname', mono: true, half: true },
+        { name: 'db_password', step: 'db', label: {{toJSON (.T.Get "Database password")}}, type: 'password', gen: 'alnum16', required: true, validate: 'dbpass' }
+      ];
+    },
+    creds: function (userField, extra) {
+      return [
+        { label: {{toJSON (.T.Get "Username")}}, field: userField || 'admin_username', from: 'user' },
+        { label: {{toJSON (.T.Get "Password")}}, field: 'admin_password', from: 'pass', secret: true },
+        { label: {{toJSON (.T.Get "Email")}}, field: 'admin_email' },
+        { label: {{toJSON (.T.Get "Database")}}, field: 'db_name', prefix: true },
+        { label: {{toJSON (.T.Get "Database user")}}, field: 'db_user', prefix: true }
+      ].concat(extra || []);
+    },
+    run: {
+      pre: { label: {{toJSON (.T.Get "Running pre-flight checks")}}, triggers: ['Checking if existing installation', 'Validating provided data'] },
+      php: { label: {{toJSON (.T.Get "Starting PHP container")}}, triggers: ['Starting PHP container'] },
+      dl: function (name) { return { label: fmt({{toJSON (.T.Get "Downloading %s archive")}}, name), triggers: ['Downloading', 'Using existing archive'] }; },
+      ex: function (more) { return { label: {{toJSON (.T.Get "Extracting files to document root")}}, triggers: ['Extracting files', 'Setting files permissions'].concat(more || []) }; },
+      db: { label: {{toJSON (.T.Get "Creating database")}}, triggers: ['Testing database connection', 'Checking', 'Creating database'] },
+      step: function (label, triggers) { return { label: label, triggers: triggers }; },
+      save: function (more) { return { label: {{toJSON (.T.Get "Saving to Site Manager")}}, triggers: (more || []).concat(['Saving website information', 'installation completed']) }; }
+    },
+    // version lists, same sources and filters the install pages used before
+    gh: gh,
+    panelVersions: function (slug) { return function () { return fetch('/' + slug + '/versions').then(function (r) { return r.json(); }).then(function (d) { if (!d.versions || !Array.isArray(d.versions)) throw new Error('unexpected response'); return d.versions.slice(0, 12); }); }; }
+  };
+})();
+</script>
+{{end}}
+
+{{/* the wizard's own strings, translated: t: {{template "op_iw_t" .}} inside the page's config script */}}
+{{define "op_iw_t"}}{
+  next: {{toJSON (.T.Get "Continue")}},
+  back: {{toJSON (.T.Get "Back")}},
+  cancel: {{toJSON (.T.Get "Cancel")}},
+  install: {{toJSON (.T.Get "Install")}},
+  optional: {{toJSON (.T.Get "optional")}},
+  required: {{toJSON (.T.Get "This field is required.")}},
+  selectDomain: {{toJSON (.T.Get "Select a domain")}},
+  pickDomain: {{toJSON (.T.Get "Pick a domain to install on.")}},
+  latest: {{toJSON (.T.Get "Latest")}},
+  loadingVersions: {{toJSON (.T.Get "Loading versions...")}},
+  versionsFailed: {{toJSON (.T.Get "Could not load the version list, the latest version is installed.")}},
+  generate: {{toJSON (.T.Get "Generate")}},
+  show: {{toJSON (.T.Get "Show")}},
+  hide: {{toJSON (.T.Get "Hide")}},
+  copy: {{toJSON (.T.Get "Copy")}},
+  copied: {{toJSON (.T.Get "Copied to clipboard")}},
+  weak: {{toJSON (.T.Get "Weak password")}},
+  medium: {{toJSON (.T.Get "Medium strength password")}},
+  strong: {{toJSON (.T.Get "Strong password")}},
+  tooWeak: {{toJSON (.T.Get "Password does not meet the required strength.")}},
+  badDB: {{toJSON (.T.Get "Use letters, numbers and underscores only (up to 32).")}},
+  badPrefix: {{toJSON (.T.Get "Use letters, numbers and underscores only.")}},
+  badDBPass: {{toJSON (.T.Get "Use up to 64 characters without spaces, quotes, backslashes or backticks.")}},
+  badEmail: {{toJSON (.T.Get "Enter a valid email address.")}},
+  badUser: {{toJSON (.T.Get "Use letters, numbers and . _ @ - only, not starting with -.")}},
+  badPass: {{toJSON (.T.Get "No spaces, and it can not start with -.")}},
+  badSubdir: {{toJSON (.T.Get "Use lowercase letters, numbers, dots, dashes and underscores, separate folders with /.")}},
+  badService: {{toJSON (.T.Get "Start with a lowercase letter, then lowercase letters or numbers.")}},
+  badPort: {{toJSON (.T.Get "Use a port from 1000 to 65535.")}},
+  badStartup: {{toJSON (.T.Get "The file has to be under /var/www/html/ and end in %s.")}},
+  badGit: {{toJSON (.T.Get "Only https:// URLs are supported.")}},
+  badProject: {{toJSON (.T.Get "Use a Composer package (vendor/package) or an https:// archive URL ending in .zip, .tar.gz, .tgz or .tar.")}},
+  badLen: {{toJSON (.T.Get "Use %s to %s characters.")}},
+  badNumber: {{toJSON (.T.Get "Enter a number from %s to %s.")}},
+  phpTooOld: {{toJSON (.T.Get "%s needs PHP %s or newer, this domain uses PHP %s. Change it under PHP first.")}},
+  phpTooNew: {{toJSON (.T.Get "%s needs PHP %s or older, this domain uses PHP %s. Change it under PHP first.")}},
+  phpNone: {{toJSON (.T.Get "This domain has no PHP version set. Pick one under PHP first.")}},
+  installing: {{toJSON (.T.Get "Installing %s")}},
+  installed: {{toJSON (.T.Get "%s is installed")}},
+  failed: {{toJSON (.T.Get "Install failed")}},
+  running: {{toJSON (.T.Get "Running")}},
+  done: {{toJSON (.T.Get "Done")}},
+  failedBadge: {{toJSON (.T.Get "Failed")}},
+  keepOpen: {{toJSON (.T.Get "Keep this page open until it finishes, closing it stops the install.")}},
+  stopped: {{toJSON (.T.Get "The install stopped without finishing. Check the log below, then try again.")}},
+  connection: {{toJSON (.T.Get "Lost the connection to the server during the install.")}},
+  slow: {{toJSON (.T.Get "This is taking longer than usual. It can still finish, keep the page open.")}},
+  leave: {{toJSON (.T.Get "The install is still running, leaving stops it.")}},
+  log: {{toJSON (.T.Get "Log")}},
+  showLog: {{toJSON (.T.Get "Show the install log")}},
+  hideLog: {{toJSON (.T.Get "Hide the install log")}},
+  copyLog: {{toJSON (.T.Get "Copy log")}},
+  retry: {{toJSON (.T.Get "Try again")}},
+  edit: {{toJSON (.T.Get "Change settings")}},
+  siteUrl: {{toJSON (.T.Get "Site")}},
+  adminUrl: {{toJSON (.T.Get "Admin login")}},
+  shownOnce: {{toJSON (.T.Get "Save these now, the password is only shown here.")}},
+  manager: {{toJSON (.T.Get "Open Site Manager")}},
+  another: {{toJSON (.T.Get "Install another app")}},
+  open: {{toJSON (.T.Get "Open")}},
+  secs: {{toJSON (.T.Get "%s s")}},
+  mins: {{toJSON (.T.Get "%s min %s s")}},
+  location: {{toJSON (.T.Get "Location")}},
+  domain: {{toJSON (.T.Get "Domain")}},
+  folder: {{toJSON (.T.Get "Folder")}},
+  path: {{toJSON (.T.Get "Path")}},
+  url: {{toJSON (.T.Get "URL")}},
+  root: {{toJSON (.T.Get "domain root")}},
+  what: {{toJSON (.T.Get "What happens next")}},
+  review: {{toJSON (.T.Get "Review")}},
+  phpVersion: {{toJSON (.T.Get "PHP version")}},
+  notSet: {{toJSON (.T.Get "not set")}},
+  more: {{toJSON (.T.Get "More options")}},
+  fewer: {{toJSON (.T.Get "Fewer options")}},
+  stepN: {{toJSON (.T.Get "Step %s")}}
+}{{end}}

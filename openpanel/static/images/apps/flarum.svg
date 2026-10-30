@@ -1,0 +1,16 @@
+<svg width="40" height="40" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" id="flarum">
+                                <defs>
+                                    <linearGradient x1="39.25486" y1="79.948608" x2="39.25486" y2="1.4437387" id="flarumIconGrad1" gradientTransform="matrix(0.13724088,0,0,0.27795633,15.103245,19.574026)" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#D22929" offset="0%"/>
+                                        <stop stop-color="#B71717" offset="100%"/>
+                                    </linearGradient>
+                                    <linearGradient x1="45.281994" y1="0" x2="45.281994" y2="90.563988" id="flarumIconGrad2" gradientTransform="matrix(0.20819775,0,0,0.18322471,15.103245,19.574026)" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#E7762E" offset="0%"/>
+                                        <stop stop-color="#E7562E" offset="100%"/>
+                                    </linearGradient>
+                                </defs>
+                                <g transform="matrix(2.8799999,0,0,2.8799999,-38.648859,-56.373193)">
+                                    <path d="M 15.10814,34.404271 15.10354,20.58171 c -1.84e-4,-0.556529 0.383134,-0.768017 0.854123,-0.473649 l 9.919955,6.199972 v 15.488216 l -9.293169,-5.640035 c -1.287893,-0.701196 -1.47454,-1.1364 -1.476347,-1.751943 z" fill="url(#flarumIconGrad1)"/>
+                                    <path d="m 16.114255,19.574026 c -0.558366,0 -1.01101,0.451467 -1.01101,1.012451 v 13.802364 c 0.02805,0.474415 0.0039,0.969043 1.510295,1.778745 0,0 -1.476019,-1.434143 0.846607,-1.442045 H 33.958464 V 19.574026 Z" fill="url(#flarumIconGrad2)"/>
+                                </g>
+                            </svg>

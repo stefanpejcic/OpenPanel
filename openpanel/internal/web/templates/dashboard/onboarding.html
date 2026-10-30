@@ -33,16 +33,16 @@
          style="background: rgba(0,0,0,0.5);"
          @keydown.escape.window="open = false">
 
-        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl w-full max-w-xl mx-4 flex flex-col"
+        <div class="op-modal op-scope"
              style="height: min(640px, 85vh);">
 
             <!-- Header -->
-            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700 shrink-0">
+            <div class="op-modal-head">
                 <div>
-                    <h2 class="text-base font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Let's set up your account"}}</h2>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5" x-text="stepLabel()"></p>
+                    <h2 class="op-h">{{.T.Get "Let's set up your account"}}</h2>
+                    <p class="op-hint" x-text="stepLabel()"></p>
                 </div>
-                <button @click="finish()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded">
+                <button @click="finish()" class="op-icon-btn">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
                         <path d="M12 10.586l4.95-4.95 1.414 1.414L13.414 12l4.95 4.95-1.414 1.414L12 13.414l-4.95 4.95-1.414-1.414L10.586 12 5.636 7.05l1.414-1.414L12 10.586z"/>
                     </svg>
@@ -50,40 +50,40 @@
             </div>
 
             <!-- Tabs -->
-            <div class="flex px-5 py-2 gap-1 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40 shrink-0">
+            <div class="op-modal-steps">
                 <template x-for="(step, idx) in stepList" :key="step">
                     <button type="button" @click="stepIndex = idx; error = ''; if (step === 'security') securityChoice = null"
-                            class="flex-1 rounded px-2 py-1 text-xs font-medium transition"
-                            :class="idx === stepIndex ? 'bg-black text-white dark:bg-gray-100 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800'"
+                            class="op-modal-step"
+                            :class="idx === stepIndex && 'is-active'"
                             x-text="stepTitle(step)">
                     </button>
                 </template>
             </div>
 
             <!-- Body -->
-            <div class="overflow-y-auto flex-1 px-5 py-4">
+            <div class="op-modal-body">
 
                 <template x-if="error">
-                    <div class="mb-4 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950 px-3 py-2 text-sm text-red-700 dark:text-red-300" x-text="error"></div>
+                    <div class="op-alert is-danger op-mb" x-text="error"></div>
                 </template>
 
                 <!-- Step: webserver -->
                 <template x-if="currentStep() === 'webserver'">
                     <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Choose the webserver that will power your websites."}}</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "You can change this later from Containers."}}</p>
-                        <div class="space-y-2">
+                        <p class="op-meta">{{.T.Get "Choose the webserver that will power your websites."}}</p>
+                        <p class="op-meta op-mb">{{.T.Get "You can change this later from Containers."}}</p>
+                        <div class="op-options">
                             <template x-for="opt in webserverOptions" :key="opt.value">
-                                <label class="flex items-center gap-3 rounded border p-3 cursor-pointer"
-                                       :class="webserverChoice === opt.value ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-gray-200 dark:border-gray-700'">
+                                <label class="op-option"
+                                       :class="webserverChoice === opt.value && 'is-selected'">
                                     <input type="radio" name="onb_webserver" :value="opt.value" x-model="webserverChoice">
                                     <span class="shrink-0" x-html="opt.icon"></span>
                                     <span>
                                         <span class="flex items-center gap-1.5">
-                                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50" x-text="opt.label"></span>
-                                            <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400" x-show="opt.value === currentWebserver">{{.T.Get "Default"}}</span>
+                                            <span class="op-strong" x-text="opt.label"></span>
+                                            <span class="op-tag" x-show="opt.value === currentWebserver">{{.T.Get "Default"}}</span>
                                         </span>
-                                        <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="opt.description"></span>
+                                        <span class="op-hint op-block" x-text="opt.description"></span>
                                     </span>
                                 </label>
                             </template>
@@ -95,23 +95,23 @@
                 <template x-if="currentStep() === 'php'">
                     <div>
                         <template x-if="phpIsLitespeed">
-                            <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "OpenLiteSpeed uses the latest PHP version"}} (<span class="font-medium text-gray-700 dark:text-gray-300" x-text="currentPhp"></span>) {{.T.Get "for all domains."}}</p>
+                            <p class="op-meta">{{.T.Get "OpenLiteSpeed uses the latest PHP version"}} (<span class="op-strong" x-text="currentPhp"></span>) {{.T.Get "for all domains."}}</p>
                         </template>
                         <template x-if="!phpIsLitespeed">
                             <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Choose the default PHP version used for all new domains."}}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "You can set a different version per domain later from PHP settings."}}</p>
-                                <div class="space-y-2">
+                                <p class="op-meta">{{.T.Get "Choose the default PHP version used for all new domains."}}</p>
+                                <p class="op-meta op-mb">{{.T.Get "You can set a different version per domain later from PHP settings."}}</p>
+                                <div class="op-options">
                                     <template x-for="v in phpVersions" :key="v">
-                                        <label class="flex items-center gap-3 rounded border p-3 cursor-pointer"
-                                               :class="phpChoice === v ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-gray-200 dark:border-gray-700'">
+                                        <label class="op-option"
+                                               :class="phpChoice === v && 'is-selected'">
                                             <input type="radio" name="onb_php" :value="v" x-model="phpChoice">
                                             <span>
                                                 <span class="flex items-center gap-1.5">
-                                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50" x-text="'PHP ' + v"></span>
-                                                    <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400" x-show="v === currentPhp">{{.T.Get "Default"}}</span>
+                                                    <span class="op-strong" x-text="'PHP ' + v"></span>
+                                                    <span class="op-tag" x-show="v === currentPhp">{{.T.Get "Default"}}</span>
                                                 </span>
-                                                <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="phpDescription(v)"></span>
+                                                <span class="op-hint op-block" x-text="phpDescription(v)"></span>
                                             </span>
                                         </label>
                                     </template>
@@ -124,20 +124,20 @@
                 <!-- Step: database -->
                 <template x-if="currentStep() === 'database'">
                     <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Choose the database server for your account."}}</p>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "You can change this later from Containers."}}</p>
-                        <div class="space-y-2">
+                        <p class="op-meta">{{.T.Get "Choose the database server for your account."}}</p>
+                        <p class="op-meta op-mb">{{.T.Get "You can change this later from Containers."}}</p>
+                        <div class="op-options">
                             <template x-for="opt in databaseOptions" :key="opt.value">
-                                <label class="flex items-center gap-3 rounded border p-3 cursor-pointer"
-                                       :class="databaseChoice === opt.value ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-gray-200 dark:border-gray-700'">
+                                <label class="op-option"
+                                       :class="databaseChoice === opt.value && 'is-selected'">
                                     <input type="radio" name="onb_database" :value="opt.value" x-model="databaseChoice">
                                     <span class="shrink-0" x-html="opt.icon"></span>
                                     <span>
                                         <span class="flex items-center gap-1.5">
-                                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50" x-text="opt.label"></span>
-                                            <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400" x-show="opt.value === currentDatabase">{{.T.Get "Default"}}</span>
+                                            <span class="op-strong" x-text="opt.label"></span>
+                                            <span class="op-tag" x-show="opt.value === currentDatabase">{{.T.Get "Default"}}</span>
                                         </span>
-                                        <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="opt.description"></span>
+                                        <span class="op-hint op-block" x-text="opt.description"></span>
                                     </span>
                                 </label>
                             </template>
@@ -148,18 +148,18 @@
                 <!-- Step: varnish -->
                 <template x-if="currentStep() === 'varnish'">
                     <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "Varnish caches your websites at the edge, taking load off your webserver."}}</p>
-                        <div class="space-y-2">
+                        <p class="op-meta op-mb">{{.T.Get "Varnish caches your websites at the edge, taking load off your webserver."}}</p>
+                        <div class="op-options">
                             <template x-for="opt in varnishOptions" :key="opt.value">
-                                <label class="flex items-center gap-3 rounded border p-3 cursor-pointer"
-                                       :class="varnishChoice === opt.value ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-gray-200 dark:border-gray-700'">
+                                <label class="op-option"
+                                       :class="varnishChoice === opt.value && 'is-selected'">
                                     <input type="radio" name="onb_varnish" :value="opt.value" x-model="varnishChoice">
                                     <span>
                                         <span class="flex items-center gap-1.5">
-                                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50" x-text="opt.label"></span>
-                                            <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400" x-show="opt.value === currentVarnish">{{.T.Get "Default"}}</span>
+                                            <span class="op-strong" x-text="opt.label"></span>
+                                            <span class="op-tag" x-show="opt.value === currentVarnish">{{.T.Get "Default"}}</span>
                                         </span>
-                                        <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="opt.description"></span>
+                                        <span class="op-hint op-block" x-text="opt.description"></span>
                                     </span>
                                 </label>
                             </template>
@@ -172,18 +172,18 @@
                     <div>
                         <template x-if="!backupTarget">
                             <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "Pick where your backups should be stored."}}</p>
-                                <div class="space-y-2">
+                                <p class="op-meta op-mb">{{.T.Get "Pick where your backups should be stored."}}</p>
+                                <div class="op-options">
                                     <template x-for="opt in backupDestinations" :key="opt.value">
-                                        <label class="flex items-start gap-3 rounded border p-3 cursor-pointer"
-                                               :class="pendingBackupTarget === opt.value ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-gray-200 dark:border-gray-700'">
+                                        <label class="op-option"
+                                               :class="pendingBackupTarget === opt.value && 'is-selected'">
                                             <input type="radio" class="mt-1" name="onb_backup_target" :value="opt.value" x-model="pendingBackupTarget">
                                             <span>
                                                 <span class="flex items-center gap-1.5">
-                                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50" x-text="opt.label"></span>
-                                                    <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400" x-show="opt.value === currentBackupTarget">{{.T.Get "Default"}}</span>
+                                                    <span class="op-strong" x-text="opt.label"></span>
+                                                    <span class="op-tag" x-show="opt.value === currentBackupTarget">{{.T.Get "Default"}}</span>
                                                 </span>
-                                                <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="opt.description"></span>
+                                                <span class="op-hint op-block" x-text="opt.description"></span>
                                             </span>
                                         </label>
                                     </template>
@@ -193,11 +193,11 @@
 
                         <template x-if="backupTarget">
                             <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">{{.T.Get "Destination:"}} <span class="font-medium text-gray-700 dark:text-gray-300" x-text="backupTarget"></span></p>
+                                <p class="op-meta">{{.T.Get "Destination:"}} <span class="op-strong" x-text="backupTarget"></span></p>
 
                                 <div class="mt-3">
-                                    <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium">{{.T.Get "What to back up"}}</label>
-                                    <select x-model="backupSources" class="relative block w-full mt-2 appearance-none truncate rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950">
+                                    <label class="op-label">{{.T.Get "What to back up"}}</label>
+                                    <select x-model="backupSources" class="op-input">
                                         <option value="/backup">{{.T.Get "Everything"}}</option>
                                         <option value="/backup/html">{{.T.Get "Website Files"}}</option>
                                         <option value="/backup/01-mail">{{.T.Get "Emails"}}</option>
@@ -208,25 +208,25 @@
                                     </select>
                                 </div>
 
-                                <div class="mt-4 space-y-3">
+                                <div class="op-stack-sm op-mt">
                                     <template x-for="field in backupFields" :key="field">
                                         <div>
-                                            <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" x-text="field"></label>
+                                            <label class="op-label" x-text="field"></label>
                                             <input :type="/PASSWORD|SECRET|KEY/.test(field) ? 'password' : 'text'"
                                                    x-model="backupValues[field]"
-                                                   class="relative block w-full mt-2 appearance-none truncate rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950">
+                                                   class="op-input">
                                         </div>
                                     </template>
                                 </div>
 
                                 <template x-if="backupTestResult === 'ok'">
-                                    <div class="mt-4 rounded border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950 px-3 py-2 text-sm text-green-700 dark:text-green-300">{{.T.Get "Connection successful."}}</div>
+                                    <div class="op-alert is-success op-mt">{{.T.Get "Connection successful."}}</div>
                                 </template>
                                 <template x-if="backupTestResult === 'error'">
-                                    <div class="mt-4 rounded border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950 px-3 py-2 text-sm text-red-700 dark:text-red-300" x-text="backupTestError"></div>
+                                    <div class="op-alert is-danger op-mt" x-text="backupTestError"></div>
                                 </template>
 
-                                <button type="button" @click="changeBackupTarget()" class="mt-3 text-xs text-indigo-600 dark:text-indigo-400 hover:underline">{{.T.Get "Choose a different destination"}}</button>
+                                <button type="button" @click="changeBackupTarget()" class="op-link op-small">{{.T.Get "Choose a different destination"}}</button>
                             </div>
                         </template>
                     </div>
@@ -237,46 +237,46 @@
                     <div>
                         <template x-if="!securityChoice && !soloSecurityOption()">
                             <div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "Add an extra layer of security to your account and websites."}}</p>
-                                <div class="space-y-2">
-                                    <label x-show="opts.waf" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="securityChoice = 'waf'">
+                                <p class="op-meta op-mb">{{.T.Get "Add an extra layer of security to your account and websites."}}</p>
+                                <div class="op-options">
+                                    <label x-show="opts.waf" class="op-option" @click="securityChoice = 'waf'">
                                         <span class="shrink-0" x-html="wafIcon"></span>
                                         <span>
                                             <span class="flex items-center gap-1.5">
-                                                <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Web Application Firewall"}}</span>
-                                                <span class="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900 px-1.5 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-300" x-show="securityCompleted.waf">{{.T.Get "Configured"}}</span>
+                                                <span class="op-strong">{{.T.Get "Web Application Firewall"}}</span>
+                                                <span class="op-badge is-success" x-show="securityCompleted.waf">{{.T.Get "Configured"}}</span>
                                             </span>
-                                            <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Filters malicious requests to your websites before they reach your applications."}}</span>
+                                            <span class="op-hint op-block">{{.T.Get "Filters malicious requests to your websites before they reach your applications."}}</span>
                                         </span>
                                     </label>
-                                    <label x-show="opts.ipBlocker" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="securityChoice = 'ipBlocker'">
+                                    <label x-show="opts.ipBlocker" class="op-option" @click="securityChoice = 'ipBlocker'">
                                         <span class="shrink-0" x-html="ipBlockerIcon"></span>
                                         <span>
                                             <span class="flex items-center gap-1.5">
-                                                <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "IP Blocker"}}</span>
-                                                <span class="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900 px-1.5 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-300" x-show="securityCompleted.ipBlocker">{{.T.Get "Configured"}}</span>
+                                                <span class="op-strong">{{.T.Get "IP Blocker"}}</span>
+                                                <span class="op-badge is-success" x-show="securityCompleted.ipBlocker">{{.T.Get "Configured"}}</span>
                                             </span>
-                                            <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Deny specific IPs or CIDR ranges access to your websites."}}</span>
+                                            <span class="op-hint op-block">{{.T.Get "Deny specific IPs or CIDR ranges access to your websites."}}</span>
                                         </span>
                                     </label>
-                                    <label x-show="opts.twofa" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="securityChoice = 'twofa'">
+                                    <label x-show="opts.twofa" class="op-option" @click="securityChoice = 'twofa'">
                                         <span class="shrink-0" x-html="twofaIcon"></span>
                                         <span>
                                             <span class="flex items-center gap-1.5">
-                                                <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Two-Factor Authentication"}}</span>
-                                                <span class="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900 px-1.5 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-300" x-show="securityCompleted.twofa">{{.T.Get "Configured"}}</span>
+                                                <span class="op-strong">{{.T.Get "Two-Factor Authentication"}}</span>
+                                                <span class="op-badge is-success" x-show="securityCompleted.twofa">{{.T.Get "Configured"}}</span>
                                             </span>
-                                            <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Use an authenticator app (Google Authenticator, Authy, etc.) to generate one-time codes."}}</span>
+                                            <span class="op-hint op-block">{{.T.Get "Use an authenticator app (Google Authenticator, Authy, etc.) to generate one-time codes."}}</span>
                                         </span>
                                     </label>
-                                    <label x-show="opts.passkeys" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="securityChoice = 'passkeys'">
+                                    <label x-show="opts.passkeys" class="op-option" @click="securityChoice = 'passkeys'">
                                         <span class="shrink-0" x-html="passkeyIcon"></span>
                                         <span>
                                             <span class="flex items-center gap-1.5">
-                                                <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Passkey"}}</span>
-                                                <span class="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900 px-1.5 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-300" x-show="securityCompleted.passkeys">{{.T.Get "Configured"}}</span>
+                                                <span class="op-strong">{{.T.Get "Passkey"}}</span>
+                                                <span class="op-badge is-success" x-show="securityCompleted.passkeys">{{.T.Get "Configured"}}</span>
                                             </span>
-                                            <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Sign in with your device's fingerprint, face recognition, or a security key - no password needed."}}</span>
+                                            <span class="op-hint op-block">{{.T.Get "Sign in with your device's fingerprint, face recognition, or a security key - no password needed."}}</span>
                                         </span>
                                     </label>
                                 </div>
@@ -285,21 +285,21 @@
 
                         <template x-if="securityChoice === 'waf' || soloSecurityOption() === 'waf'">
                             <div>
-                                <div class="flex items-center gap-3 mb-3">
+                                <div class="op-row op-mb">
                                     <span class="shrink-0" x-html="wafIcon"></span>
-                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Web Application Firewall"}}</span>
+                                    <span class="op-strong">{{.T.Get "Web Application Firewall"}}</span>
                                 </div>
-                                <div class="space-y-2">
+                                <div class="op-options">
                                     <template x-for="opt in wafOptions" :key="opt.value">
-                                        <label class="flex items-center gap-3 rounded border p-3 cursor-pointer"
-                                               :class="wafChoice === opt.value ? 'border-indigo-500 ring-1 ring-indigo-500' : 'border-gray-200 dark:border-gray-700'">
+                                        <label class="op-option"
+                                               :class="wafChoice === opt.value && 'is-selected'">
                                             <input type="radio" name="onb_waf" :value="opt.value" x-model="wafChoice">
                                             <span>
                                                 <span class="flex items-center gap-1.5">
-                                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50" x-text="opt.label"></span>
-                                                    <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400" x-show="opt.value === currentWAF">{{.T.Get "Default"}}</span>
+                                                    <span class="op-strong" x-text="opt.label"></span>
+                                                    <span class="op-tag" x-show="opt.value === currentWAF">{{.T.Get "Default"}}</span>
                                                 </span>
-                                                <span class="block text-xs text-gray-500 dark:text-gray-400" x-text="opt.description"></span>
+                                                <span class="op-hint op-block" x-text="opt.description"></span>
                                             </span>
                                         </label>
                                     </template>
@@ -309,50 +309,50 @@
 
                         <template x-if="securityChoice === 'ipBlocker' || soloSecurityOption() === 'ipBlocker'">
                             <div>
-                                <div class="flex items-center gap-3 mb-3">
+                                <div class="op-row op-mb">
                                     <span class="shrink-0" x-html="ipBlockerIcon"></span>
-                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "IP Blocker"}}</span>
+                                    <span class="op-strong">{{.T.Get "IP Blocker"}}</span>
                                 </div>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "Enter one IP address or CIDR range per line. Leave empty to allow all IPs."}}</p>
+                                <p class="op-meta op-mb">{{.T.Get "Enter one IP address or CIDR range per line. Leave empty to allow all IPs."}}</p>
                                 <textarea x-model="ipBlockerText" rows="6" placeholder="203.0.113.5&#10;198.51.100.0/24"
-                                          class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm font-mono border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950"></textarea>
+                                          class="op-input op-mono"></textarea>
                             </div>
                         </template>
 
                         <template x-if="securityChoice === 'twofa' || soloSecurityOption() === 'twofa'">
                             <div x-init="if (!twofaSecret && !twofaEnabled) { loading = true; submitTwofaChoice().finally(() => loading = false); }">
-                                <div class="flex items-center gap-3 mb-3">
+                                <div class="op-row op-mb">
                                     <span class="shrink-0" x-html="twofaIcon"></span>
-                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Two-Factor Authentication"}}</span>
+                                    <span class="op-strong">{{.T.Get "Two-Factor Authentication"}}</span>
                                 </div>
                                 <template x-if="!twofaSecret && !twofaEnabled">
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Setting up…"}}</p>
+                                    <p class="op-meta">{{.T.Get "Setting up…"}}</p>
                                 </template>
                                 <template x-if="twofaSecret && !twofaEnabled">
                                     <div>
-                                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">{{.T.Get "Scan the QR code with your 2FA app, then enter the 6-digit code below."}}</p>
+                                        <p class="op-meta op-mb">{{.T.Get "Scan the QR code with your 2FA app, then enter the 6-digit code below."}}</p>
                                         <div class="flex justify-center my-3" id="onb_qrcode"></div>
                                         <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" x-model="twofaCode" placeholder="{{.T.Get "6-digit code"}}"
-                                               class="relative block w-full max-w-xs mx-auto appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 text-center">
+                                               class="op-input op-narrow">
                                     </div>
                                 </template>
                                 <template x-if="twofaEnabled">
-                                    <div class="rounded border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950 px-3 py-2 text-sm text-green-700 dark:text-green-300">{{.T.Get "Two-Factor Authentication is now enabled."}}</div>
+                                    <div class="op-alert is-success">{{.T.Get "Two-Factor Authentication is now enabled."}}</div>
                                 </template>
                             </div>
                         </template>
 
                         <template x-if="securityChoice === 'passkeys' || soloSecurityOption() === 'passkeys'">
                             <div x-init="if (!passkeyDone) { loading = true; submitPasskeysChoice().finally(() => loading = false); }">
-                                <div class="flex items-center gap-3 mb-3">
+                                <div class="op-row op-mb">
                                     <span class="shrink-0" x-html="passkeyIcon"></span>
-                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Passkey"}}</span>
+                                    <span class="op-strong">{{.T.Get "Passkey"}}</span>
                                 </div>
                                 <template x-if="!passkeyDone">
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Follow your browser/device prompt to register a passkey…"}}</p>
+                                    <p class="op-meta">{{.T.Get "Follow your browser/device prompt to register a passkey…"}}</p>
                                 </template>
                                 <template x-if="passkeyDone">
-                                    <div class="rounded border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950 px-3 py-2 text-sm text-green-700 dark:text-green-300">{{.T.Get "Passkey saved."}}</div>
+                                    <div class="op-alert is-success">{{.T.Get "Passkey saved."}}</div>
                                 </template>
                             </div>
                         </template>
@@ -369,41 +369,41 @@
                 <!-- Step: tour (Finish) -->
                 <template x-if="currentStep() === 'tour'">
                     <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{.T.Get "You're all set! What would you like to do next?"}}</p>
-                        <div class="space-y-2">
-                            <label class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="startTour()">
+                        <p class="op-meta op-mb">{{.T.Get "You're all set! What would you like to do next?"}}</p>
+                        <div class="op-options">
+                            <label class="op-option" @click="startTour()">
                                 <span class="shrink-0" x-html="tourIcon"></span>
                                 <span>
-                                    <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Take the tour"}}</span>
-                                    <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "A guided walkthrough of the OpenPanel UI and pages. You can also start it anytime from the menu."}}</span>
+                                    <span class="op-strong op-block">{{.T.Get "Take the tour"}}</span>
+                                    <span class="op-hint op-block">{{.T.Get "A guided walkthrough of the OpenPanel UI and pages. You can also start it anytime from the menu."}}</span>
                                 </span>
                             </label>
-                            <label x-show="opts.domains" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="goToNextStep('/domains/new')">
+                            <label x-show="opts.domains" class="op-option" @click="goToNextStep('/domains/new')">
                                 <span class="shrink-0" x-html="domainIcon"></span>
                                 <span>
-                                    <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Add a domain"}}</span>
-                                    <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Point a domain to your account and start hosting it."}}</span>
+                                    <span class="op-strong op-block">{{.T.Get "Add a domain"}}</span>
+                                    <span class="op-hint op-block">{{.T.Get "Point a domain to your account and start hosting it."}}</span>
                                 </span>
                             </label>
-                            <label x-show="opts.filemanager" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="goToNextStep('/file-manager/upload?method=upload')">
+                            <label x-show="opts.filemanager" class="op-option" @click="goToNextStep('/file-manager/upload?method=upload')">
                                 <span class="shrink-0" x-html="uploadIcon"></span>
                                 <span>
-                                    <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Upload files"}}</span>
-                                    <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Upload your website files using the file manager."}}</span>
+                                    <span class="op-strong op-block">{{.T.Get "Upload files"}}</span>
+                                    <span class="op-hint op-block">{{.T.Get "Upload your website files using the file manager."}}</span>
                                 </span>
                             </label>
-                            <label x-show="opts.mysql" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="goToNextStep('/mysql/wizard')">
+                            <label x-show="opts.mysql" class="op-option" @click="goToNextStep('/mysql/wizard')">
                                 <span class="shrink-0" x-html="databaseIcon"></span>
                                 <span>
-                                    <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Create a database"}}</span>
-                                    <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Set up a new database and user with the database wizard."}}</span>
+                                    <span class="op-strong op-block">{{.T.Get "Create a database"}}</span>
+                                    <span class="op-hint op-block">{{.T.Get "Set up a new database and user with the database wizard."}}</span>
                                 </span>
                             </label>
-                            <label x-show="opts.autoinstaller" class="flex items-center gap-3 rounded border p-3 cursor-pointer border-gray-200 dark:border-gray-700" @click="goToNextStep('/auto-installer')">
+                            <label x-show="opts.autoinstaller" class="op-option" @click="goToNextStep('/auto-installer')">
                                 <span class="shrink-0" x-html="websiteIcon"></span>
                                 <span>
-                                    <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Add a website"}}</span>
-                                    <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Install WordPress or another app with the auto-installer."}}</span>
+                                    <span class="op-strong op-block">{{.T.Get "Add a website"}}</span>
+                                    <span class="op-hint op-block">{{.T.Get "Install WordPress or another app with the auto-installer."}}</span>
                                 </span>
                             </label>
                         </div>
@@ -413,10 +413,10 @@
             </div>
 
             <!-- Footer -->
-            <div class="flex items-center justify-between px-5 py-4 border-t border-gray-200 dark:border-gray-700 shrink-0">
-                <button type="button" @click="skip()" class="text-sm text-gray-500 dark:text-gray-400 hover:underline" :disabled="loading">{{.T.Get "Skip"}}</button>
+            <div class="op-modal-foot">
+                <button type="button" @click="skip()" class="op-link op-link-muted" :disabled="loading">{{.T.Get "Skip"}}</button>
                 <button type="button" @click="advance()" :disabled="loading"
-                        class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-center text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800 disabled:opacity-50">
+                        class="op-btn op-btn-primary">
                     <span x-show="!loading" x-text="isLastStep() ? '{{.T.Get "Finish"}}' : '{{.T.Get "Continue"}}'"></span>
                     <span x-show="loading">{{.T.Get "Please wait…"}}</span>
                 </button>
@@ -442,17 +442,17 @@ function onboardingWizard(opts) {
             {
                 value: 'apache', label: '{{.T.Get "Apache"}}',
                 description: '{{.T.Get "Recommended for websites that use .htaccess for rewrite rules."}}',
-                icon: `<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" aria-label="Apache"><title>Apache</title><path fill="#D22128" d="M17.805 2.197v.066h.156v.44h.072v-.44h.156v-.066zm.9 0l-.175.353-.172-.353h-.087v.506h.067V2.3l.172.35h.045l.172-.35v.404h.066v-.506zm-4.257 1c-.204.31-.424.66-.66 1.06l-.04.062a44.457 44.457 0 00-1.265 2.29c-.187.36-.38.742-.577 1.146l2.267-.25c.66-.302.955-.578 1.242-.976a15.5 15.5 0 00.23-.342c.23-.363.46-.763.663-1.16.197-.386.37-.767.505-1.11.083-.22.15-.422.198-.6.042-.158.074-.307.1-.45-.884.15-1.965.295-2.668.33zM11.894 7.78l-.077.16c-.078.16-.157.32-.236.488-.086.18-.172.364-.26.552l-.132.287a75.265 75.265 0 00-1.427 3.3c-.163.397-.327.807-.493 1.23-.15.38-.297.765-.45 1.164l-.02.06c-.15.396-.3.802-.453 1.22l-.01.027.72-.08a.213.213 0 01-.042-.006c.863-.106 2.01-.75 2.75-1.547.342-.367.652-.8.94-1.306.213-.377.413-.795.604-1.258.168-.405.328-.843.48-1.318-.196.105-.423.18-.673.235a2.184 2.184 0 01-.273.046c.806-.31 1.314-.905 1.683-1.64a2.816 2.816 0 01-.968.428c-.06.012-.116.022-.174.03l-.043.006h.002c.278-.118.514-.248.718-.403a2.571 2.571 0 00.637-.698l.063-.104.077-.154a8.107 8.107 0 00.367-.85l.03-.088a3.04 3.04 0 00.123-.463.733.733 0 01-.094.065c-.243.145-.66.277-.996.34l.663-.074-.664.073h-.017l-.1.017c.006-.003.01-.006.017-.008l-2.265.25-.013.022zM8.27 16.45c-.117.323-.236.654-.355.992l-.005.015c-.016.046-.032.094-.05.142-.08.227-.15.432-.31.9.264.12.475.435.675.793a1.44 1.44 0 00-.466-.99c1.293.06 2.41-.27 2.99-1.217.05-.084.096-.173.14-.268-.26.333-.59.474-1.2.44 0 0-.004 0-.005.002l.004-.002c.9-.404 1.354-.79 1.754-1.433.094-.153.186-.32.28-.503-.788.81-1.702 1.04-2.664.865l-.72.078a6.43 6.43 0 00-.067.183zM15.42.112c-.376.222-1 .85-1.748 1.763l.686 1.294c.48-.687.97-1.307 1.462-1.836l.058-.062c-.02.02-.04.04-.057.062-.16.176-.644.74-1.375 1.863.703-.035 1.784-.18 2.666-.33.262-1.47-.258-2.142-.258-2.142s-.66-1.07-1.436-.61zm-3.084 6.402a40.253 40.253 0 011.306-2.26l.04-.064c.224-.352.45-.693.677-1.02l-.685-1.293-.157.192c-.197.245-.403.51-.613.79a39.853 39.853 0 00-2.016 2.97l-.022.038.893 1.763c.19-.378.38-.752.575-1.118zm-3.73 8.32c.158-.406.319-.81.483-1.225.156-.394.32-.79.484-1.19a91.133 91.133 0 011.6-3.604l.205-.424c.12-.243.237-.485.36-.724a.125.125 0 01.02-.04l-.895-1.763-.044.07c-.207.34-.414.687-.617 1.042a38.056 38.056 0 00-1.092 2.04l-.094.193a24.573 24.573 0 00-1.258 3.087 18.492 18.492 0 00-.52 1.997l.896 1.77c.117-.317.24-.638.364-.963zm-1.376-.476a13.38 13.38 0 00-.234 1.692c0 .02-.004.04-.005.06-.28-.45-1.03-.888-1.026-.884.537.778.944 1.55 1.005 2.31-.29.058-.684-.027-1.14-.195.475.436.83.556.97.588-.434.03-.89.328-1.346.67.668-.27 1.21-.38 1.596-.29-.61 1.74-1.23 3.655-1.843 5.69a.538.538 0 00.364-.354c.11-.368.84-2.786 1.978-5.965l.097-.27.028-.078c.12-.332.246-.672.374-1.02l.09-.237v-.004L7.24 14.3c-.003.02-.01.04-.012.06z"></path></svg>`
+                icon: `<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="op-onb-ico" aria-label="Apache"><title>Apache</title><path fill="#D22128" d="M17.805 2.197v.066h.156v.44h.072v-.44h.156v-.066zm.9 0l-.175.353-.172-.353h-.087v.506h.067V2.3l.172.35h.045l.172-.35v.404h.066v-.506zm-4.257 1c-.204.31-.424.66-.66 1.06l-.04.062a44.457 44.457 0 00-1.265 2.29c-.187.36-.38.742-.577 1.146l2.267-.25c.66-.302.955-.578 1.242-.976a15.5 15.5 0 00.23-.342c.23-.363.46-.763.663-1.16.197-.386.37-.767.505-1.11.083-.22.15-.422.198-.6.042-.158.074-.307.1-.45-.884.15-1.965.295-2.668.33zM11.894 7.78l-.077.16c-.078.16-.157.32-.236.488-.086.18-.172.364-.26.552l-.132.287a75.265 75.265 0 00-1.427 3.3c-.163.397-.327.807-.493 1.23-.15.38-.297.765-.45 1.164l-.02.06c-.15.396-.3.802-.453 1.22l-.01.027.72-.08a.213.213 0 01-.042-.006c.863-.106 2.01-.75 2.75-1.547.342-.367.652-.8.94-1.306.213-.377.413-.795.604-1.258.168-.405.328-.843.48-1.318-.196.105-.423.18-.673.235a2.184 2.184 0 01-.273.046c.806-.31 1.314-.905 1.683-1.64a2.816 2.816 0 01-.968.428c-.06.012-.116.022-.174.03l-.043.006h.002c.278-.118.514-.248.718-.403a2.571 2.571 0 00.637-.698l.063-.104.077-.154a8.107 8.107 0 00.367-.85l.03-.088a3.04 3.04 0 00.123-.463.733.733 0 01-.094.065c-.243.145-.66.277-.996.34l.663-.074-.664.073h-.017l-.1.017c.006-.003.01-.006.017-.008l-2.265.25-.013.022zM8.27 16.45c-.117.323-.236.654-.355.992l-.005.015c-.016.046-.032.094-.05.142-.08.227-.15.432-.31.9.264.12.475.435.675.793a1.44 1.44 0 00-.466-.99c1.293.06 2.41-.27 2.99-1.217.05-.084.096-.173.14-.268-.26.333-.59.474-1.2.44 0 0-.004 0-.005.002l.004-.002c.9-.404 1.354-.79 1.754-1.433.094-.153.186-.32.28-.503-.788.81-1.702 1.04-2.664.865l-.72.078a6.43 6.43 0 00-.067.183zM15.42.112c-.376.222-1 .85-1.748 1.763l.686 1.294c.48-.687.97-1.307 1.462-1.836l.058-.062c-.02.02-.04.04-.057.062-.16.176-.644.74-1.375 1.863.703-.035 1.784-.18 2.666-.33.262-1.47-.258-2.142-.258-2.142s-.66-1.07-1.436-.61zm-3.084 6.402a40.253 40.253 0 011.306-2.26l.04-.064c.224-.352.45-.693.677-1.02l-.685-1.293-.157.192c-.197.245-.403.51-.613.79a39.853 39.853 0 00-2.016 2.97l-.022.038.893 1.763c.19-.378.38-.752.575-1.118zm-3.73 8.32c.158-.406.319-.81.483-1.225.156-.394.32-.79.484-1.19a91.133 91.133 0 011.6-3.604l.205-.424c.12-.243.237-.485.36-.724a.125.125 0 01.02-.04l-.895-1.763-.044.07c-.207.34-.414.687-.617 1.042a38.056 38.056 0 00-1.092 2.04l-.094.193a24.573 24.573 0 00-1.258 3.087 18.492 18.492 0 00-.52 1.997l.896 1.77c.117-.317.24-.638.364-.963zm-1.376-.476a13.38 13.38 0 00-.234 1.692c0 .02-.004.04-.005.06-.28-.45-1.03-.888-1.026-.884.537.778.944 1.55 1.005 2.31-.29.058-.684-.027-1.14-.195.475.436.83.556.97.588-.434.03-.89.328-1.346.67.668-.27 1.21-.38 1.596-.29-.61 1.74-1.23 3.655-1.843 5.69a.538.538 0 00.364-.354c.11-.368.84-2.786 1.978-5.965l.097-.27.028-.078c.12-.332.246-.672.374-1.02l.09-.237v-.004L7.24 14.3c-.003.02-.01.04-.012.06z"></path></svg>`
             },
             {
                 value: 'nginx', label: '{{.T.Get "Nginx"}}',
                 description: '{{.T.Get "Recommended for NodeJS and Python applications, and high-traffic sites."}}',
-                icon: `<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" aria-label="NGINX"><title>NGINX</title><path fill="#009639" d="M12 0L1.605 6v12L12 24l10.395-6V6L12 0zm6 16.59c0 .705-.646 1.29-1.529 1.29-.631 0-1.351-.255-1.801-.81l-6-7.141v6.66c0 .721-.57 1.29-1.274 1.29H7.32c-.721 0-1.29-.6-1.29-1.29V7.41c0-.705.63-1.29 1.5-1.29.646 0 1.38.255 1.83.81l5.97 7.141V7.41c0-.721.6-1.29 1.29-1.29h.075c.72 0 1.29.6 1.29 1.29v9.18H18z"></path></svg>`
+                icon: `<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="op-onb-ico" aria-label="NGINX"><title>NGINX</title><path fill="#009639" d="M12 0L1.605 6v12L12 24l10.395-6V6L12 0zm6 16.59c0 .705-.646 1.29-1.529 1.29-.631 0-1.351-.255-1.801-.81l-6-7.141v6.66c0 .721-.57 1.29-1.274 1.29H7.32c-.721 0-1.29-.6-1.29-1.29V7.41c0-.705.63-1.29 1.5-1.29.646 0 1.38.255 1.83.81l5.97 7.141V7.41c0-.721.6-1.29 1.29-1.29h.075c.72 0 1.29.6 1.29 1.29v9.18H18z"></path></svg>`
             },
             {
                 value: 'openlitespeed', label: '{{.T.Get "OpenLiteSpeed"}}',
                 description: '{{.T.Get "Recommended for WordPress websites, but only one PHP version."}}',
-                icon: `<svg role="img" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" enable-background="new 50 50 200 200" xml:space="preserve" class="w-10 h-10" id="Layer_1" viewBox="50 50 200 200" width="50" height="50">
+                icon: `<svg role="img" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" enable-background="new 50 50 200 200" xml:space="preserve" class="op-onb-ico" id="Layer_1" viewBox="50 50 200 200" width="50" height="50">
 <g>
     <path fill="#75D1DF" d="M216.455,101.332c-0.242-0.327-0.615-0.529-1.014-0.561c-0.401-0.033-0.795,0.116-1.086,0.399l-6.555,6.532
         c-0.479,0.479-0.537,1.236-0.152,1.787c8.453,11.95,12.933,25.954,12.933,40.514c0,38.906-31.709,70.57-70.685,70.57
@@ -487,7 +487,7 @@ function onboardingWizard(opts) {
             {
                 value: 'openresty', label: '{{.T.Get "OpenResty"}}',
                 description: '{{.T.Get "Nginx core bundled with Lua scripting for custom logic."}}',
-                icon: `<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" aria-label="OpenResty"><title>OpenResty</title><path fill="#7DC242" d="M12 0L1.75 6v12L12 24l10.25-6V6zm-1.775 18l1.08-4.657-2.428-2.397L13.79 6l-1.082 4.665 2.414 2.384z"></path></svg>`
+                icon: `<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="op-onb-ico" aria-label="OpenResty"><title>OpenResty</title><path fill="#7DC242" d="M12 0L1.75 6v12L12 24l10.25-6V6zm-1.775 18l1.08-4.657-2.428-2.397L13.79 6l-1.082 4.665 2.414 2.384z"></path></svg>`
             }
         ],
 
@@ -497,17 +497,17 @@ function onboardingWizard(opts) {
             {
                 value: 'mysql', label: '{{.T.Get "MySQL"}}',
                 description: '{{.T.Get "Can be better fine-tuned for any type of application."}}',
-                icon: `<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" aria-label="MySQL"><title>MySQL</title><path fill="#003545" d="M16.405 5.501c-.115 0-.193.014-.274.033v.013h.014c.054.104.146.18.214.273.054.107.1.214.154.32l.014-.015c.094-.066.14-.172.14-.333-.04-.047-.046-.094-.08-.14-.04-.067-.126-.1-.18-.153zM5.77 18.695h-.927a50.854 50.854 0 00-.27-4.41h-.008l-1.41 4.41H2.45l-1.4-4.41h-.01a72.892 72.892 0 00-.195 4.41H0c.055-1.966.192-3.81.41-5.53h1.15l1.335 4.064h.008l1.347-4.064h1.095c.242 2.015.384 3.86.428 5.53zm4.017-4.08c-.378 2.045-.876 3.533-1.492 4.46-.482.716-1.01 1.073-1.583 1.073-.153 0-.34-.046-.566-.138v-.494c.11.017.24.026.386.026.268 0 .483-.075.647-.222.197-.18.295-.382.295-.605 0-.155-.077-.47-.23-.944L6.23 14.615h.91l.727 2.36c.164.536.233.91.205 1.123.4-1.064.678-2.227.835-3.483zm12.325 4.08h-2.63v-5.53h.885v4.85h1.745zm-3.32.135l-1.016-.5c.09-.076.177-.158.255-.25.433-.506.648-1.258.648-2.253 0-1.83-.718-2.746-2.155-2.746-.704 0-1.254.232-1.65.697-.43.508-.646 1.256-.646 2.245 0 .972.19 1.686.574 2.14.35.41.877.615 1.583.615.264 0 .506-.033.725-.098l1.325.772.36-.622zM15.5 17.588c-.225-.36-.337-.94-.337-1.736 0-1.393.424-2.09 1.27-2.09.443 0 .77.167.977.5.224.362.336.936.336 1.723 0 1.404-.424 2.108-1.27 2.108-.445 0-.77-.167-.978-.5zm-1.658-.425c0 .47-.172.856-.516 1.156-.344.3-.803.45-1.384.45-.543 0-1.064-.172-1.573-.515l.237-.476c.438.22.833.328 1.19.328.332 0 .593-.073.783-.22a.754.754 0 00.3-.615c0-.33-.23-.61-.648-.845-.388-.213-1.163-.657-1.163-.657-.422-.307-.632-.636-.632-1.177 0-.45.157-.81.47-1.085.315-.278.72-.415 1.22-.415.512 0 .98.136 1.4.41l-.213.476a2.726 2.726 0 00-1.064-.23c-.283 0-.502.068-.654.206a.685.685 0 00-.248.524c0 .328.234.61.666.85.393.215 1.187.67 1.187.67.433.305.648.63.648 1.168zm9.382-5.852c-.535-.014-.95.04-1.297.188-.1.04-.26.04-.274.167.055.053.063.14.11.214.08.134.218.313.346.407.14.11.28.216.427.31.26.16.555.255.81.416.145.094.293.213.44.313.073.05.12.14.214.172v-.02c-.046-.06-.06-.147-.105-.214-.067-.067-.134-.127-.2-.193a3.223 3.223 0 00-.695-.675c-.214-.146-.682-.35-.77-.595l-.013-.014c.146-.013.32-.066.46-.106.227-.06.435-.047.67-.106.106-.027.213-.06.32-.094v-.06c-.12-.12-.21-.283-.334-.395a8.867 8.867 0 00-1.104-.823c-.21-.134-.476-.22-.697-.334-.08-.04-.214-.06-.26-.127-.12-.146-.19-.34-.275-.514a17.69 17.69 0 01-.547-1.163c-.12-.262-.193-.523-.34-.763-.69-1.137-1.437-1.826-2.586-2.5-.247-.14-.543-.2-.856-.274-.167-.008-.334-.02-.5-.027-.11-.047-.216-.174-.31-.235-.38-.24-1.364-.76-1.644-.072-.18.434.267.862.422 1.082.115.153.26.328.34.5.047.116.06.235.107.356.106.294.207.622.347.897.073.14.153.287.247.413.054.073.146.107.167.227-.094.136-.1.334-.154.5-.24.757-.146 1.693.194 2.25.107.166.362.534.703.393.3-.12.234-.5.32-.835.02-.08.007-.133.048-.187v.015c.094.188.188.367.274.555.206.328.566.668.867.895.16.12.287.328.487.402v-.02h-.015c-.043-.058-.1-.086-.154-.133a3.445 3.445 0 01-.35-.4 8.76 8.76 0 01-.747-1.218c-.11-.21-.202-.436-.29-.643-.04-.08-.04-.2-.107-.24-.1.146-.247.273-.32.453-.127.288-.14.642-.188 1.01-.027.007-.014 0-.027.014-.214-.052-.287-.274-.367-.46-.2-.475-.233-1.238-.06-1.785.047-.14.247-.582.167-.716-.042-.127-.174-.2-.247-.303a2.478 2.478 0 01-.24-.427c-.16-.374-.24-.788-.414-1.162-.08-.173-.22-.354-.334-.513-.127-.18-.267-.307-.368-.52-.033-.073-.08-.194-.027-.274.014-.054.042-.075.094-.09.088-.072.335.022.422.062.247.1.455.194.662.334.094.066.195.193.315.226h.14c.214.047.455.014.655.073.355.114.675.28.962.46a5.953 5.953 0 012.085 2.286c.08.154.115.295.188.455.14.33.313.663.455.982.14.315.275.636.476.897.1.14.502.213.682.286.133.06.34.115.46.188.23.14.454.3.67.454.11.076.443.243.463.378z"></path></svg>`
+                icon: `<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="op-onb-ico" aria-label="MySQL"><title>MySQL</title><path fill="#003545" d="M16.405 5.501c-.115 0-.193.014-.274.033v.013h.014c.054.104.146.18.214.273.054.107.1.214.154.32l.014-.015c.094-.066.14-.172.14-.333-.04-.047-.046-.094-.08-.14-.04-.067-.126-.1-.18-.153zM5.77 18.695h-.927a50.854 50.854 0 00-.27-4.41h-.008l-1.41 4.41H2.45l-1.4-4.41h-.01a72.892 72.892 0 00-.195 4.41H0c.055-1.966.192-3.81.41-5.53h1.15l1.335 4.064h.008l1.347-4.064h1.095c.242 2.015.384 3.86.428 5.53zm4.017-4.08c-.378 2.045-.876 3.533-1.492 4.46-.482.716-1.01 1.073-1.583 1.073-.153 0-.34-.046-.566-.138v-.494c.11.017.24.026.386.026.268 0 .483-.075.647-.222.197-.18.295-.382.295-.605 0-.155-.077-.47-.23-.944L6.23 14.615h.91l.727 2.36c.164.536.233.91.205 1.123.4-1.064.678-2.227.835-3.483zm12.325 4.08h-2.63v-5.53h.885v4.85h1.745zm-3.32.135l-1.016-.5c.09-.076.177-.158.255-.25.433-.506.648-1.258.648-2.253 0-1.83-.718-2.746-2.155-2.746-.704 0-1.254.232-1.65.697-.43.508-.646 1.256-.646 2.245 0 .972.19 1.686.574 2.14.35.41.877.615 1.583.615.264 0 .506-.033.725-.098l1.325.772.36-.622zM15.5 17.588c-.225-.36-.337-.94-.337-1.736 0-1.393.424-2.09 1.27-2.09.443 0 .77.167.977.5.224.362.336.936.336 1.723 0 1.404-.424 2.108-1.27 2.108-.445 0-.77-.167-.978-.5zm-1.658-.425c0 .47-.172.856-.516 1.156-.344.3-.803.45-1.384.45-.543 0-1.064-.172-1.573-.515l.237-.476c.438.22.833.328 1.19.328.332 0 .593-.073.783-.22a.754.754 0 00.3-.615c0-.33-.23-.61-.648-.845-.388-.213-1.163-.657-1.163-.657-.422-.307-.632-.636-.632-1.177 0-.45.157-.81.47-1.085.315-.278.72-.415 1.22-.415.512 0 .98.136 1.4.41l-.213.476a2.726 2.726 0 00-1.064-.23c-.283 0-.502.068-.654.206a.685.685 0 00-.248.524c0 .328.234.61.666.85.393.215 1.187.67 1.187.67.433.305.648.63.648 1.168zm9.382-5.852c-.535-.014-.95.04-1.297.188-.1.04-.26.04-.274.167.055.053.063.14.11.214.08.134.218.313.346.407.14.11.28.216.427.31.26.16.555.255.81.416.145.094.293.213.44.313.073.05.12.14.214.172v-.02c-.046-.06-.06-.147-.105-.214-.067-.067-.134-.127-.2-.193a3.223 3.223 0 00-.695-.675c-.214-.146-.682-.35-.77-.595l-.013-.014c.146-.013.32-.066.46-.106.227-.06.435-.047.67-.106.106-.027.213-.06.32-.094v-.06c-.12-.12-.21-.283-.334-.395a8.867 8.867 0 00-1.104-.823c-.21-.134-.476-.22-.697-.334-.08-.04-.214-.06-.26-.127-.12-.146-.19-.34-.275-.514a17.69 17.69 0 01-.547-1.163c-.12-.262-.193-.523-.34-.763-.69-1.137-1.437-1.826-2.586-2.5-.247-.14-.543-.2-.856-.274-.167-.008-.334-.02-.5-.027-.11-.047-.216-.174-.31-.235-.38-.24-1.364-.76-1.644-.072-.18.434.267.862.422 1.082.115.153.26.328.34.5.047.116.06.235.107.356.106.294.207.622.347.897.073.14.153.287.247.413.054.073.146.107.167.227-.094.136-.1.334-.154.5-.24.757-.146 1.693.194 2.25.107.166.362.534.703.393.3-.12.234-.5.32-.835.02-.08.007-.133.048-.187v.015c.094.188.188.367.274.555.206.328.566.668.867.895.16.12.287.328.487.402v-.02h-.015c-.043-.058-.1-.086-.154-.133a3.445 3.445 0 01-.35-.4 8.76 8.76 0 01-.747-1.218c-.11-.21-.202-.436-.29-.643-.04-.08-.04-.2-.107-.24-.1.146-.247.273-.32.453-.127.288-.14.642-.188 1.01-.027.007-.014 0-.027.014-.214-.052-.287-.274-.367-.46-.2-.475-.233-1.238-.06-1.785.047-.14.247-.582.167-.716-.042-.127-.174-.2-.247-.303a2.478 2.478 0 01-.24-.427c-.16-.374-.24-.788-.414-1.162-.08-.173-.22-.354-.334-.513-.127-.18-.267-.307-.368-.52-.033-.073-.08-.194-.027-.274.014-.054.042-.075.094-.09.088-.072.335.022.422.062.247.1.455.194.662.334.094.066.195.193.315.226h.14c.214.047.455.014.655.073.355.114.675.28.962.46a5.953 5.953 0 012.085 2.286c.08.154.115.295.188.455.14.33.313.663.455.982.14.315.275.636.476.897.1.14.502.213.682.286.133.06.34.115.46.188.23.14.454.3.67.454.11.076.443.243.463.378z"></path></svg>`
             },
             {
                 value: 'mariadb', label: '{{.T.Get "MariaDB"}}',
                 description: '{{.T.Get "Recommended for WordPress sites - smaller image, lower resource usage, and faster default query execution."}}',
-                icon: `<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" aria-label="MariaDB"><title>MariaDB</title><path fill="#003545" d="M23.157 4.412c-.676.284-.79.31-1.673.372-.65.045-.757.057-1.212.209-.75.246-1.395.75-2.02 1.59-.296.398-1.249 1.913-1.249 1.988 0 .057-.65.998-.915 1.32-.574.713-1.08 1.079-2.14 1.59-.77.36-1.224.524-4.102 1.477-1.073.353-2.133.738-2.367.864-.852.449-1.515 1.036-2.203 1.938-1.003 1.32-.972 1.313-3.042.947a12.264 12.264 0 00-.675-.063c-.644-.05-1.023.044-1.332.334L0 17.193l.177.088c.094.05.353.234.561.398.215.17.461.347.55.391.088.044.17.088.183.101.012.013-.089.17-.228.353-.435.581-.593.871-.574 1.048.019.164.032.17.43.17.517-.006.826-.056 1.261-.208.65-.233 2.058-.94 2.784-1.4.776-.5 1.717-.998 1.956-1.042.082-.02.354-.07.594-.114.58-.107 1.464-.095 2.587.05.108.013.373.045.6.064.227.025.43.057.454.076.026.012.474.037.998.056.934.026 1.104.007 1.3-.189.126-.133.385-.631.498-.985.209-.643.417-.921.366-.492-.113.966-.322 1.692-.713 2.411-.259.499-.663 1.092-.934 1.395-.322.347-.315.36.088.315.619-.063 1.471-.397 2.096-.82.827-.562 1.647-1.691 2.19-3.03.107-.27.22-.22.183.083-.013.094-.038.315-.057.498l-.031.328.353-.202c.833-.48 1.414-1.262 2.127-2.884.227-.518.877-2.922 1.073-3.976a9.64 9.64 0 01.271-1.042c.127-.429.196-.555.48-.858.183-.19.625-.555.978-.808.72-.505.953-.75 1.187-1.205.208-.417.284-1.13.132-1.357-.132-.202-.284-.196-.763.006Z"></path></svg>`
+                icon: `<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="op-onb-ico" aria-label="MariaDB"><title>MariaDB</title><path fill="#003545" d="M23.157 4.412c-.676.284-.79.31-1.673.372-.65.045-.757.057-1.212.209-.75.246-1.395.75-2.02 1.59-.296.398-1.249 1.913-1.249 1.988 0 .057-.65.998-.915 1.32-.574.713-1.08 1.079-2.14 1.59-.77.36-1.224.524-4.102 1.477-1.073.353-2.133.738-2.367.864-.852.449-1.515 1.036-2.203 1.938-1.003 1.32-.972 1.313-3.042.947a12.264 12.264 0 00-.675-.063c-.644-.05-1.023.044-1.332.334L0 17.193l.177.088c.094.05.353.234.561.398.215.17.461.347.55.391.088.044.17.088.183.101.012.013-.089.17-.228.353-.435.581-.593.871-.574 1.048.019.164.032.17.43.17.517-.006.826-.056 1.261-.208.65-.233 2.058-.94 2.784-1.4.776-.5 1.717-.998 1.956-1.042.082-.02.354-.07.594-.114.58-.107 1.464-.095 2.587.05.108.013.373.045.6.064.227.025.43.057.454.076.026.012.474.037.998.056.934.026 1.104.007 1.3-.189.126-.133.385-.631.498-.985.209-.643.417-.921.366-.492-.113.966-.322 1.692-.713 2.411-.259.499-.663 1.092-.934 1.395-.322.347-.315.36.088.315.619-.063 1.471-.397 2.096-.82.827-.562 1.647-1.691 2.19-3.03.107-.27.22-.22.183.083-.013.094-.038.315-.057.498l-.031.328.353-.202c.833-.48 1.414-1.262 2.127-2.884.227-.518.877-2.922 1.073-3.976a9.64 9.64 0 01.271-1.042c.127-.429.196-.555.48-.858.183-.19.625-.555.978-.808.72-.505.953-.75 1.187-1.205.208-.417.284-1.13.132-1.357-.132-.202-.284-.196-.763.006Z"></path></svg>`
             },
             {
                 value: 'percona', label: '{{.T.Get "Percona"}}',
                 description: '{{.T.Get "MySQL drop-in with extra performance and monitoring features, geared toward high-traffic sites."}}',
-                icon: `<svg role="img" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" aria-label="Percona"><title>Percona</title><path fill="#003545" d="M108.9,139.5l63.5,110.1h-127L108.9,139.5z M178.8,82.2c10.3-4.9,21.8-6,33-3c12.3,3.3,22.6,11.2,29,22.3
+                icon: `<svg role="img" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" class="op-onb-ico" aria-label="Percona"><title>Percona</title><path fill="#003545" d="M108.9,139.5l63.5,110.1h-127L108.9,139.5z M178.8,82.2c10.3-4.9,21.8-6,33-3c12.3,3.3,22.6,11.2,29,22.3
         c12.6,21.8,6,49.4-14.4,63.3L178.8,82.2z M119.3,121.4l30.6-53l0,0l104.5,181.2h-61.2L119.3,121.4z M108.9,103.4L14.2,267.6h271.5
         l-50.3-87.2c29-18.9,38.4-57.6,20.9-88c-8.8-15.2-23-26.1-40-30.7c-15.7-4.2-32.2-2.5-46.6,4.8l-19.8-34.2L108.9,103.4z"></path></svg>`
             }
@@ -567,15 +567,15 @@ function onboardingWizard(opts) {
         twofaCode: '',
         twofaEnabled: false,
         passkeyDone: false,
-        twofaIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>`,
-        passkeyIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>`,
-        wafIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>`,
-        ipBlockerIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>`,
-        tourIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.752a1.125 1.125 0 00-1.006 0L3.622 6.189C3.24 6.38 3 6.77 3 7.195v10.966c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/></svg>`,
-        domainIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"/></svg>`,
-        uploadIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 7.5L12 3m0 0L7.5 7.5M12 3v13.5"/></svg>`,
-        databaseIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/></svg>`,
-        websiteIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-10 h-10 text-indigo-500"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/></svg>`,
+        twofaIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="op-onb-ico"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>`,
+        passkeyIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="op-onb-ico"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>`,
+        wafIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="op-onb-ico"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>`,
+        ipBlockerIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="op-onb-ico"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>`,
+        tourIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="op-onb-ico"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.752a1.125 1.125 0 00-1.006 0L3.622 6.189C3.24 6.38 3 6.77 3 7.195v10.966c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z"/></svg>`,
+        domainIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="op-onb-ico"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"/></svg>`,
+        uploadIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="op-onb-ico"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 7.5L12 3m0 0L7.5 7.5M12 3v13.5"/></svg>`,
+        databaseIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="op-onb-ico"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/></svg>`,
+        websiteIcon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="op-onb-ico"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/></svg>`,
 
         currentWebserver: null,
 

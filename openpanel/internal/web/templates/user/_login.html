@@ -9,37 +9,15 @@
     <meta name="robots" content="noindex">
     <link rel="shortcut icon" type="image/x-icon" href="{{if .Favicon}}{{.Favicon}}{{else}}{{static "images/favicon.svg"}}{{end}}">
     <title>{{.T.Get .Title}} - {{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}</title>
-    <script src="{{static "vendor/tailwindcss/tailwindcss-cdn-3.4.10.js"}}"></script>
+    <style>@font-face{font-family:'Inter';font-style:normal;font-weight:700;font-display:swap;src:url('{{static "vendor/fonts/inter/inter-700-latin.woff2"}}') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}</style>
+    <link rel="stylesheet" href="{{static "dist/output.css"}}">
+    <link rel="stylesheet" href="{{static "css/op.css"}}">
 
     <!-- CSRF protection -->
     <script type="text/javascript">
         var csrf_token = "{{.CSRFToken}}";
     </script>
 
-
-    <style>
-    body {
-      background-image: url("/static/images/bg-body.png") !important;
-      background-repeat: no-repeat;
-      background-position: left; }
-    </style>
-      <!-- Tailwind CSS v3 Configuration -->
-      <script>
-         const defaultTheme = tailwind.defaultTheme;
-         const colors = tailwind.colors;
-         const plugin = tailwind.plugin;
-
-         tailwind.config = {
-           darkMode: "class",
-           theme: {
-             extend: {
-               fontFamily: {
-                 sans: ["Inter", ...defaultTheme.fontFamily.sans],
-               },
-             },
-           },
-         };
-      </script>
 
     <!-- dark mode follows the saved theme, or the device setting if none is saved, same as base.html -->
     <script>if(localStorage.getItem('color-theme')==='dark'||(!('color-theme' in localStorage)&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}</script>
@@ -51,21 +29,36 @@
     <link rel="stylesheet" href="{{static "css/custom.css"}}">
   </head>
 
-  <body class="mx-auto bg-slate-200 dark:bg-gray-950 mwp-480 d-xl-flex align-items-center justify-content-center">
-<section>
-  <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+  <body class="op-body">
+<section class="op-auth op-scope{{if eq .LoginLayout "split"}} is-split{{end}}">
+{{if eq .LoginLayout "split"}}
+  <aside class="op-auth-side dark">
+    {{if .Logo}}<a href="." class="op-auth-brand"><img src="{{.Logo}}" class="h-16" alt="{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}"></a>{{else if .BrandName}}<a href="." class="op-auth-brand">{{.BrandName}}</a>{{else}}<a href="https://openpanel.com?utm=2083_login_page" target="_blank" class="op-auth-brand"><span class="op-auth-mark"><svg viewBox="0 0 213 215" aria-hidden="true"><g transform="translate(0,215) scale(0.1,-0.1)" fill="currentColor"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"></path></g></svg></span>OpenPanel</a>{{end}}
+    <div>
+      <h2>{{.T.Get "Every site, inbox and database in one place."}}</h2>
+      <p>{{.T.Get "Each service runs in its own container, with its own CPU, memory and versions you pick."}}</p>
+    </div>
+    <ul>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M3.6 9h16.8"/><path d="M3.6 15h16.8"/><path d="M11.5 3a17 17 0 0 0 0 18"/><path d="M12.5 3a17 17 0 0 1 0 18"/></svg> {{.T.Get "Websites, WordPress and Node.js, Python or PHP apps"}}</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"/><path d="M3 7l9 6l9 -6"/></svg> {{.T.Get "Email accounts, DNS zones and SSL"}}</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/><path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10"/><path d="M10 12l4 0"/></svg> {{.T.Get "Backups you can restore file by file"}}</li>
+    </ul>
+  </aside>
+  <div class="op-auth-main">
+{{end}}
+  <div class="op-auth-col">
 
 {{if .Logo}}
 
-<a href="." class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white" style="text-decoration: none;"><img src="{{.Logo}}" class="h-16"></img></a>
+<a href="." class="op-auth-brand"><img src="{{.Logo}}" class="h-16" alt="{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}"></a>
 
 {{else if .BrandName}}
 
-<a href="." class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white" style="text-decoration: none;">{{.BrandName}}</a>
+<a href="." class="op-auth-brand">{{.BrandName}}</a>
 
 {{else}}
 
-<a href="https://openpanel.com?utm=2083_login_page" target="_blank" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white" style="text-decoration: none;">OpenPanel</a>
+<a href="https://openpanel.com?utm=2083_login_page" target="_blank" class="op-auth-brand"><span class="op-auth-mark"><svg viewBox="0 0 213 215" aria-hidden="true"><g transform="translate(0,215) scale(0.1,-0.1)" fill="currentColor"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"></path></g></svg></span>OpenPanel</a>
 
 {{end}}
 
@@ -74,7 +67,7 @@
 <!-- END individual login template file -->
 
 {{if not .IsEnterprise}}
-<p class="text-sm my-4 text-black-500 dark:text-black-400 font-bold">
+<p class="op-auth-foot">
 <a href="https://openpanel.com?utm=2083_login_page" target="_blank" class="flex items-center">
 <svg version="1.0" style="vertical-align:middle;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 213.000000 215.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,215.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"></path></g></svg><span>OpenPanel</span>
 </a>
@@ -82,42 +75,42 @@
 {{end}}
 
 
-<div class="mt-6">
+<div class="op-auth-locale">
   <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
-  <div class="col-span-full">
+  <div class="op-field-wrap">
 
     <!-- language dropdown with flags and search -->
     {{$current := .T.Locale}}
     {{$found := false}}{{range .Locales}}{{if eq .Code $current}}{{$found = true}}{{end}}{{end}}
     <div class="relative" id="locale-dropdown">
       <button type="button" id="locale-btn" aria-haspopup="listbox" aria-expanded="false"
-        class="flex items-center gap-3 w-full rounded border border-gray-300 bg-white px-3 py-2 text-left text-sm shadow-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
+        class="flex gap-3 w-full text-left op-btn op-btn-secondary">
         {{range .Locales}}{{if eq .Code $current}}
-        <img src="/static/flags/{{.FlagCode}}.png" alt="" class="w-6 h-4 rounded-sm" onerror="this.style.display='none'" />
+        <img src="/static/flags/{{.FlagCode}}.png" alt="" class="w-6 h-4" onerror="this.style.display='none'" />
         <span class="font-medium">{{.Native}}</span>
-        {{if ne .English .Native}}<span class="text-gray-500 dark:text-gray-400">{{.English}}</span>{{end}}
+        {{if ne .English .Native}}<span class="op-muted">{{.English}}</span>{{end}}
         {{end}}{{end}}
-        {{if not $found}}<span class="text-gray-400">{{.T.Get "Change Language"}}</span>{{end}}
-        <svg id="locale-chevron" class="ml-auto w-4 h-4 text-gray-400 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        {{if not $found}}<span class="op-muted">{{.T.Get "Change Language"}}</span>{{end}}
+        <svg id="locale-chevron" class="ml-auto w-4 h-4 transition-transform duration-200 op-muted" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
         </svg>
       </button>
 
-      <div id="locale-list" class="hidden absolute z-50 mt-1 w-full rounded border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700">
-        <div class="border-b border-gray-200 p-2 dark:border-gray-600">
+      <div id="locale-list" class="hidden absolute z-50 mt-1 w-full op-surface">
+        <div class="p-2">
           <input id="locale-search" type="search" placeholder="{{.T.Get "Search"}}" autocomplete="off"
-            class="block w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
+            class="block w-full op-input op-input-sm" />
         </div>
         <ul role="listbox" class="max-h-64 overflow-y-auto py-1">
           {{range .Locales}}
           <li role="option" data-value="{{.Code}}" data-search="{{.Native}} {{.English}} {{.Code}}" aria-selected="{{if eq .Code $current}}true{{else}}false{{end}}"
-            class="flex items-center gap-3 px-3 py-2 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 {{if eq .Code $current}}bg-gray-50 dark:bg-gray-600{{end}}">
-            <img src="/static/flags/{{.FlagCode}}.png" alt="" class="w-6 h-4 rounded-sm" onerror="this.style.display='none'" />
-            <span class="font-medium text-gray-900 dark:text-white">{{.Native}}</span>
-            {{if ne .English .Native}}<span class="text-gray-500 dark:text-gray-400">{{.English}}</span>{{end}}
+            class="flex items-center gap-3 px-3 py-2 text-sm cursor-pointer op-hover {{if eq .Code $current}}op-selected{{end}}">
+            <img src="/static/flags/{{.FlagCode}}.png" alt="" class="w-6 h-4" onerror="this.style.display='none'" />
+            <span class="font-medium op-strong">{{.Native}}</span>
+            {{if ne .English .Native}}<span class="op-muted">{{.English}}</span>{{end}}
             {{if eq .Code $current}}
-            <svg class="ml-auto w-4 h-4 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <svg class="ml-auto w-4 h-4 op-accent-text" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             {{end}}
           </li>
           {{end}}
@@ -193,6 +186,7 @@
 
 
   </div>
+{{if eq .LoginLayout "split"}}  </div>{{end}}
 </section>
 
   </body>

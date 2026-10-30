@@ -1,6 +1,6 @@
 {{define "ai_assistant"}}<!-- START templates/partials/_ai_assistant.html -->
 <button type="button" id="ai-assistant-btn" title="{{.T.Get "AI Assistant"}}" aria-label="{{.T.Get "AI Assistant"}}" aria-controls="ai-assistant-drawer" aria-expanded="false"
-  class="flex items-center justify-center h-8 px-2 rounded text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+  class="op-ai">
   <span class="ai-btn-label">AI</span>
 </button>
 
@@ -36,11 +36,15 @@
     "allowedTitle" (.T.Get "Always allowed actions")
     "allowedNone" (.T.Get "None yet. Click Always allow on an action to skip the approval next time. Actions that delete or overwrite data always ask.")
     "forget" (.T.Get "Remove")
+    "short_off" (.T.Get "Answers from the documentation")
+    "short_read" (.T.Get "Can look up your account, no changes")
+    "short_all" (.T.Get "Changes need your approval")
+    "short_none" (.T.Get "Not configured")
   )}}">
   <div class="ai-drawer-head">
     <div class="ai-drawer-title">
       <span class="ai-badge">AI</span>
-      <span id="ai-assistant-title">{{.T.Get "AI Assistant"}}</span>
+      <span class="ai-drawer-name"><span id="ai-assistant-title">{{.T.Get "AI Assistant"}}</span><span id="ai-assistant-sub" class="ai-sub"></span></span>
     </div>
     <div class="ai-drawer-actions">
       <button type="button" id="ai-assistant-info" title="{{.T.Get "About"}}" aria-label="{{.T.Get "About"}}">
@@ -73,83 +77,6 @@
   <p class="ai-foot">{{.T.Get "AI can make mistakes."}}</p>
 </div>
 
-<style>
-#ai-assistant-btn[aria-expanded="true"]{color:#4f46e5;background:rgba(99,102,241,.1)}
-.ai-btn-label{letter-spacing:.04em}
-.ai-drawer{position:fixed;top:0;right:0;bottom:0;z-index:60;width:min(420px,100vw);display:flex;flex-direction:column;background:#fff;color:#111827;border-left:1px solid #e5e7eb;box-shadow:-8px 0 24px rgba(0,0,0,.08);transform:translateX(100%);transition:transform .2s ease}
-.ai-drawer.ai-open{transform:translateX(0)}
-.dark .ai-drawer{background:#030712;color:#f9fafb;border-left-color:#1f2937}
-.ai-drawer-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;border-bottom:1px solid #e5e7eb}
-.dark .ai-drawer-head,.dark .ai-form,.dark .ai-about{border-color:#1f2937}
-.ai-drawer-title{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px}
-.ai-badge{display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;padding:2px 6px;border-radius:4px;background:#4f46e5;color:#fff}
-.ai-drawer-actions{display:flex;gap:2px}
-.ai-drawer-actions button{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:4px;color:#6b7280}
-.ai-drawer-actions button:hover{background:#f3f4f6;color:#111827}
-.dark .ai-drawer-actions button:hover{background:#1f2937;color:#f9fafb}
-.ai-about{padding:12px 14px;border-bottom:1px solid #e5e7eb;font-size:13px;line-height:1.5;color:#4b5563;background:#f9fafb}
-.ai-about p+p{margin-top:6px}
-.dark .ai-about{background:#111827;color:#9ca3af}
-.ai-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px;font-size:14px;line-height:1.55}
-.ai-msg{max-width:92%;padding:8px 12px;border-radius:8px;overflow-wrap:anywhere}
-.ai-msg-user{align-self:flex-end;background:#4f46e5;color:#fff;white-space:pre-wrap}
-.ai-msg-assistant{align-self:flex-start;background:#f3f4f6}
-.dark .ai-msg-assistant{background:#111827}
-.ai-msg-error{align-self:flex-start;background:#fef2f2;color:#b91c1c}
-.dark .ai-msg-error{background:rgba(127,29,29,.3);color:#fca5a5}
-.ai-msg-assistant p,.ai-msg-assistant ul,.ai-msg-assistant ol,.ai-msg-assistant pre,.ai-msg-assistant h4{margin:0 0 8px}
-.ai-msg-assistant>:last-child{margin-bottom:0}
-.ai-msg-assistant ul{list-style:disc;padding-left:20px}
-.ai-msg-assistant ol{list-style:decimal;padding-left:20px}
-.ai-msg-assistant h4{font-weight:600}
-.ai-msg-assistant a{color:#4f46e5;text-decoration:underline}
-.ai-msg-assistant code{font-size:12.5px;padding:1px 4px;border-radius:3px;background:rgba(0,0,0,.06)}
-.dark .ai-msg-assistant code{background:rgba(255,255,255,.08)}
-.ai-msg-assistant pre{padding:8px 10px;border-radius:6px;background:#111827;color:#f9fafb;overflow-x:auto}
-.ai-msg-assistant pre code{background:none;padding:0;color:inherit}
-.ai-thinking{color:#6b7280;font-style:italic}
-.ai-suggestions{display:flex;flex-wrap:wrap;gap:6px}
-.ai-suggestions button{font-size:12.5px;padding:5px 10px;border-radius:999px;border:1px solid #e5e7eb;color:#374151;background:#fff;text-align:left}
-.ai-suggestions button:hover{border-color:#4f46e5;color:#4f46e5}
-.dark .ai-suggestions button{background:#030712;border-color:#374151;color:#d1d5db}
-.ai-form{display:flex;align-items:flex-end;gap:8px;padding:10px 14px 4px;border-top:1px solid #e5e7eb}
-.ai-form textarea{flex:1;resize:none;max-height:160px;font-size:14px;padding:8px 10px;border-radius:6px;border:1px solid #d1d5db;background:#fff;color:inherit;outline:none}
-.ai-form textarea:focus{border-color:#4f46e5;box-shadow:0 0 0 2px rgba(99,102,241,.2)}
-.dark .ai-form textarea{background:#030712;border-color:#374151}
-.ai-form button{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;background:#4f46e5;color:#fff}
-.ai-form button:disabled{opacity:.5;cursor:not-allowed}
-.ai-allowed-title{font-weight:600;color:#111827;margin-top:8px}
-.dark .ai-allowed-title{color:#f9fafb}
-.ai-allowed-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px}
-.ai-allowed-row button{font-size:12px;color:#b91c1c;text-decoration:underline;flex-shrink:0}
-.ai-action{align-self:flex-start;font-size:12.5px;color:#047857;padding:0 4px}
-.ai-action-failed,.ai-action-declined{color:#b91c1c}
-.dark .ai-action{color:#34d399}
-.dark .ai-action-failed,.dark .ai-action-declined{color:#fca5a5}
-.ai-card{align-self:stretch;border:1px solid #c7d2fe;border-radius:8px;padding:10px 12px;background:#eef2ff;font-size:13px}
-.ai-card-destructive{border-color:#fecaca;background:#fef2f2}
-.dark .ai-card{background:rgba(79,70,229,.12);border-color:#3730a3}
-.dark .ai-card-destructive{background:rgba(127,29,29,.25);border-color:#7f1d1d}
-.ai-card-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.ai-card-kind{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:1px 6px;border-radius:4px;background:#4f46e5;color:#fff}
-.ai-card-destructive .ai-card-kind{background:#dc2626}
-.ai-card-req{display:block;margin-top:6px;font-size:12px;overflow-wrap:anywhere;color:#4b5563}
-.dark .ai-card-req{color:#9ca3af}
-.ai-card-fields{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:8px 0 0;font-size:12.5px}
-.ai-card-fields dt{color:#6b7280}
-.ai-card-fields dd{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}
-.ai-card-note{margin-top:8px;font-size:12px;color:#b91c1c}
-.dark .ai-card-note{color:#fca5a5}
-.ai-card-state{margin-top:8px;font-size:12px;color:#6b7280}
-.ai-card-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.ai-card-actions button{font-size:12.5px;padding:5px 12px;border-radius:6px;border:1px solid #d1d5db;background:#fff;color:#374151}
-.dark .ai-card-actions button{background:#030712;border-color:#374151;color:#d1d5db}
-.ai-card-actions .ai-btn-primary{background:#4f46e5;border-color:#4f46e5;color:#fff}
-.dark .ai-card-actions .ai-btn-primary{background:#4f46e5;border-color:#4f46e5;color:#fff}
-.ai-card-destructive .ai-card-actions .ai-btn-primary{background:#dc2626;border-color:#dc2626}
-.dark .ai-card-destructive .ai-card-actions .ai-btn-primary{background:#dc2626;border-color:#dc2626}
-.ai-foot{font-size:11px;color:#9ca3af;text-align:center;padding:2px 14px 8px}
-</style>
 <script defer src="{{static "js/ai-assistant.js"}}"></script>
 <!-- END templates/partials/_ai_assistant.html -->
 {{end}}

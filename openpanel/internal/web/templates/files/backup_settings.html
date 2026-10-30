@@ -1,140 +1,100 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
+
+{{/* friendly name for a backup.env key, the raw key is shown next to it */}}
+{{define "bk_label"}}{{- if eq . "SSH_HOST_NAME"}}Host{{else if eq . "SSH_PORT"}}Port{{else if eq . "SSH_REMOTE_PATH" "DROPBOX_REMOTE_PATH"}}Remote path{{else if eq . "SSH_USER"}}User{{else if eq . "SSH_PASSWORD" "WEBDAV_PASSWORD"}}Password{{else if eq . "SSH_IDENTITY_FILE"}}Identity file{{else if eq . "SSH_IDENTITY_PASSPHRASE"}}Key passphrase{{else if eq . "SSH_HOST_PUBLIC_KEY"}}Host public key{{else if eq . "AWS_S3_BUCKET_NAME"}}Bucket{{else if eq . "AWS_ACCESS_KEY_ID"}}Access key ID{{else if eq . "AWS_SECRET_ACCESS_KEY"}}Secret access key{{else if eq . "AWS_ENDPOINT" "AZURE_STORAGE_ENDPOINT"}}Endpoint{{else if eq . "AWS_ENDPOINT_PROTO"}}Endpoint protocol{{else if eq . "AWS_S3_PATH" "WEBDAV_PATH" "AZURE_STORAGE_PATH"}}Path{{else if eq . "WEBDAV_URL"}}URL{{else if eq . "WEBDAV_USERNAME"}}Username{{else if eq . "WEBDAV_URL_INSECURE"}}Skip TLS check{{else if eq . "AZURE_STORAGE_ACCOUNT_NAME"}}Account name{{else if eq . "AZURE_STORAGE_PRIMARY_ACCOUNT_KEY"}}Account key{{else if eq . "AZURE_STORAGE_CONTAINER_NAME"}}Container{{else if eq . "AZURE_STORAGE_CONNECTION_STRING"}}Connection string{{else if eq . "DROPBOX_REFRESH_TOKEN"}}Refresh token{{else if eq . "DROPBOX_APP_KEY"}}App key{{else if eq . "DROPBOX_APP_SECRET"}}App secret{{else if eq . "BACKUP_CRON_EXPRESSION"}}Schedule{{else if eq . "BACKUP_SOURCES"}}What to back up{{else if eq . "BACKUP_FILENAME"}}File name{{else if eq . "BACKUP_FILENAME_EXPAND"}}Expand file name{{else if eq . "BACKUP_PRUNING_PREFIX"}}Pruning prefix{{else if eq . "BACKUP_EXCLUDE_REGEXP"}}Exclude{{else if eq . "BACKUP_RETENTION_DAYS"}}Retention days{{else if eq . "NOTIFICATION_URLS"}}Notification URLs{{else if eq . "NOTIFICATION_LEVEL"}}Notification level{{else if eq . "GZIP_PARALLELISM"}}Gzip parallelism{{else if eq . "BACKUP_COMPRESSION"}}Compression{{else}}{{.}}{{end -}}{{end}}
+
+{{/* secrets get a password box so they don't sit on screen in plain text */}}
+{{define "bk_type"}}{{if or (contains . "PASSWORD") (contains . "SECRET") (contains . "TOKEN") (contains . "ACCOUNT_KEY") (contains . "CONNECTION_STRING") (contains . "PASSPHRASE")}}password{{else}}text{{end}}{{end}}
 
 {{define "content"}}
 <!-- START templates/files/backup_settings.html -->
-
-<form method="post" action="">
-
+<form method="post" action="" class="op-content">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
-<div x-data="{ searchQuery: '' }">
-    <div x-data="{ showSection: false }" class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
-        <header>
-            <div class="flex flex-col gap-2 text-center sm:flex-row sm:items-center sm:justify-between sm:text-start">
-                <div>
-                    <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Backup Settings"}}</h1>
-                    <h2 class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Configure backup options and schedule."}}</h2>
-                </div>
-                <div class="flex flex-none items-center justify-center gap-2 rounded-sm px-2 sm:justify-end sm:bg-transparent sm:px-0">
-
-            <button class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 border-transparent text-white dark:text-gray-900 bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-500 dark:hover:bg-indigo-600 disabled:bg-indigo-100 disabled:text-gray-400 disabled:dark:bg-indigo-800 disabled:dark:text-indigo-400"
-                    type="submit">{{.T.Get "Save settings"}}</button>
-
-                </div>
-            </div>
-        </header>
+    <div class="op-page-head">
+        <div>
+            <h1 class="op-title">{{.T.Get "Backup Settings"}}</h1>
+            <p class="op-meta">{{.T.Get "Configure backup options and schedule."}}</p>
+        </div>
+        {{if not .Error}}<div class="op-actions"><button class="op-btn op-btn-primary" type="submit">{{.T.Get "Save settings"}}</button></div>{{end}}
     </div>
 
     {{if .Error}}
-        <div style="font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'; height: 100vh; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center">
+    <div class="op-card op-empty">
+        <span class="op-ico-tile" style="--hue: var(--color-danger)">{{template "op_icon" "alert"}}</span>
+        <b>{{.T.Get "error"}}</b>
+        <p class="op-muted">{{.Error}}</p>
+        <a class="op-btn op-btn-secondary op-btn-sm" href="/backups/destination">{{.T.Get "Select Destination"}}</a>
+    </div>
+    {{else}}
+    <section class="op-card op-bk-settings">
+        {{if .Target}}
+        <div class="op-section">
             <div>
-                <h1 class="next-error-h1" style="display: inline-block; margin: 0 20px 0 0; padding: 0 23px 0 0; font-size: 24px; font-weight: 500; vertical-align: top; line-height: 49px">{{.T.Get "error"}}</h1>
-                <div style="display: inline-block">
-                    <h2 style="font-size:14px;font-weight:400;line-height:49px;margin:0">{{.Error}}</h2>
-                </div>
+                <h3>{{.Target}} {{.T.Get "settings"}}</h3>
+                <p>{{.T.Get "Where the archives go. Saved to"}} <span class="op-mono">backup.env</span> {{.T.Get "for the"}} <span class="op-mono">{{.Target}}</span> {{.T.Get "destination."}}</p>
+                <a class="op-btn op-btn-secondary op-btn-sm" href="/backups/destination" style="margin-top:10px">{{.T.Get "Change destination"}}</a>
+            </div>
+            <div class="op-form-grid">
+                {{range .Values}}
+                <label class="op-field{{if eq .Key "SSH_HOST_PUBLIC_KEY" "WEBDAV_URL" "AZURE_STORAGE_CONNECTION_STRING"}} is-wide{{end}}" for="values-{{.Key}}">
+                    <span class="op-label">{{template "bk_label" .Key}} <span class="op-count">{{.Key}}</span></span>
+                    <input class="op-input op-mono" type="{{template "bk_type" .Key}}" name="values[{{.Key}}]" id="values-{{.Key}}" value="{{.Value}}" autocomplete="off" spellcheck="false">
+                    {{if eq .Key "SSH_HOST_PUBLIC_KEY"}}<span class="op-hint">{{$.T.Get "Pinned on the first save so backups refuse a server whose key changed."}}</span>{{end}}
+                </label>
+                {{end}}
             </div>
         </div>
-
-    {{else}}
-        <div class="m-8">
-
-                    {{if .Target}}
-
-            <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
-                <div>
-                    <h2 class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.Target}} {{.T.Get "settings"}}</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Configure custom domain for accessing panels."}}</p>
-                </div>
-                <div class="md:col-span-2">
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-
-                        {{range .Values}}
-            <div class="col-span-full">
-            <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="values[{{.Key}}]">{{.Key}}</label>
-            <div class="relative w-full mt-2">
-                        <input class="relative block w-full appearance-none truncate rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-indigo-200 focus:dark:ring-indigo-700/30 focus:border-indigo-500 focus:dark:border-indigo-700 [&::--webkit-search-cancel-button]:hidden [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" type="text" name="values[{{.Key}}]" id="{{.Key}}" value="{{.Value}}">
-                </div>
-                </div>
-                        {{end}}
-
-                    </div>
-                </div>
-            </div>
-
-            <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
         {{end}}
 
-                    {{if .Settings}}
-            <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
-                <div>
-                    <h2 class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Backup settings"}}</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Configure schedule, retention, etc."}}</p>
-                </div>
-                <div class="md:col-span-2">
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                        {{range .Settings}}
-
-                            <div class="col-span-full">
-                            <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="settings[{{.Key}}]">{{.Key}}</label>
-            {{if eq .Key "BACKUP_SOURCES"}}
-            <div class="relative w-full mt-2">
-                <select class="relative block w-full appearance-none truncate rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-indigo-200 focus:dark:ring-indigo-700/30 focus:border-indigo-500 focus:dark:border-indigo-700" name="values[{{.Key}}]" id="{{.Key}}">
-                    {{if not (eq .Value "/backup" "/backup/html" "/backup/01-mail" "/backup/01-vhosts" "/backup/01-mysql" "/backup/01-postgres" "/backup/crons.ini")}}<option value="{{.Value}}" selected>{{if .Value}}{{.Value}}{{else}}{{$.T.Get "(not set)"}}{{end}}</option>{{end}}
-                    <option value="/backup" {{if eq .Value "/backup"}}selected{{end}}>{{$.T.Get "Everything"}}</option>
-                    <option value="/backup/html" {{if eq .Value "/backup/html"}}selected{{end}}>{{$.T.Get "Website Files"}} (/var/www/html/)</option>
-                    <option value="/backup/01-mail" {{if eq .Value "/backup/01-mail"}}selected{{end}}>{{$.T.Get "Emails"}}</option>
-                    <option value="/backup/01-vhosts" {{if eq .Value "/backup/01-vhosts"}}selected{{end}}>{{$.T.Get "VirtualHosts"}}</option>
-                    <option value="/backup/01-mysql" {{if eq .Value "/backup/01-mysql"}}selected{{end}}>{{$.T.Get "MySQL Databases"}}</option>
-                    <option value="/backup/01-postgres" {{if eq .Value "/backup/01-postgres"}}selected{{end}}>{{$.T.Get "PostgreSQL Databases"}}</option>
-
-                    <option value="/backup/crons.ini" {{if eq .Value "/backup/crons.ini"}}selected{{end}}>{{$.T.Get "Cron Jobs"}}</option>
-
-                </select>
-                </div>
-            {{else if eq .Key "NOTIFICATION_LEVEL"}}
-            <div class="relative w-full mt-2">
-                <select class="relative block w-full appearance-none truncate rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-indigo-200 focus:dark:ring-indigo-700/30 focus:border-indigo-500 focus:dark:border-indigo-700" name="values[{{.Key}}]" id="{{.Key}}">
-                    {{if not (eq .Value "info" "error")}}<option value="{{.Value}}" selected>{{if .Value}}{{.Value}}{{else}}{{$.T.Get "(not set)"}}{{end}}</option>{{end}}
-                    <option value="info" {{if eq .Value "info"}}selected{{end}}>{{$.T.Get "INFO"}}</option>
-                    <option value="error" {{if eq .Value "error"}}selected{{end}}>{{$.T.Get "ERROR"}}</option>
-                </select>
-<div class="mt-4"><p class="text-xs text-gray-500">{{$.T.Get "By default, notifications would only be sent out when a backup run fails. To receive notifications for every run, set NOTIFICATION_LEVEL to"}} <code>{{$.T.Get "info"}}</code> {{$.T.Get "instead of the default"}} <code>{{$.T.Get "error"}}</code>.</p></div>
-                </div>
-                {{else}}
-                <div class="relative w-full mt-2">
-                                        <input class="relative block w-full appearance-none truncate rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-indigo-200 focus:dark:ring-indigo-700/30 focus:border-indigo-500 focus:dark:border-indigo-700 [&::--webkit-search-cancel-button]:hidden [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" type="text" name="settings[{{.Key}}]" id="settings-{{.Key}}}" value="{{.Value}}">
-
-{{if eq .Key "NOTIFICATION_URLS"}}
-<div class="mt-4"><p class="text-xs text-gray-500">{{$.T.Get "Notifications (email, Slack, etc.) can be sent out when a backup run finishes. Configuration is provided as a comma-separated list of URLs."}} <a href="https://containrrr.dev/shoutrrr/v0.8/services/overview/" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">{{$.T.Get "Learn more"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a>
-</p></div>
-{{else if eq .Key "GZIP_PARALLELISM"}}
-<div class="mt-4"><p class="text-xs text-gray-500">{{$.T.Get "Parallelism level for \"gz\" (Gzip) compression defines how many blocks of data are concurrently processed. Higher values result in faster compression. Default = 1. Setting this to 0 will use all available threads."}}
-</p></div>
-{{else if eq .Key "BACKUP_EXCLUDE_REGEXP"}}
-<div class="mt-4"><p class="text-xs text-gray-500">{{$.T.Get "Full path to exclude, or regular expressions."}}</p></div>
-{{else if eq .Key "BACKUP_RETENTION_DAYS"}}
-<div class="mt-4"><p class="text-xs text-gray-500">{{$.T.Get "IThe number of days for which a backup is kept. Pass zero or a positive integer value to enable automatic rotation of old backups."}}</p></div>
-
-
-
-{{end}}
-                                </div>
-            {{end}}
-
-                        {{end}}
-                    </div>
-                </div>
+        {{if .Settings}}
+        <div class="op-section">
+            <div>
+                <h3>{{.T.Get "Backup settings"}}</h3>
+                <p>{{.T.Get "Configure schedule, retention, etc."}}</p>
             </div>
-
-                        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
-
+            <div class="op-form-grid">
+                {{range .Settings}}
+                <label class="op-field{{if eq .Key "BACKUP_FILENAME" "NOTIFICATION_URLS"}} is-wide{{end}}" for="settings-{{.Key}}">
+                    <span class="op-label">{{template "bk_label" .Key}} <span class="op-count">{{.Key}}</span></span>
+                    {{if eq .Key "BACKUP_SOURCES"}}
+                    <select class="op-select" name="values[{{.Key}}]" id="settings-{{.Key}}">
+                        {{if not (eq .Value "/backup" "/backup/html" "/backup/01-mail" "/backup/01-vhosts" "/backup/01-mysql" "/backup/01-postgres" "/backup/crons.ini")}}<option value="{{.Value}}" selected>{{if .Value}}{{.Value}}{{else}}{{$.T.Get "(not set)"}}{{end}}</option>{{end}}
+                        <option value="/backup" {{if eq .Value "/backup"}}selected{{end}}>{{$.T.Get "Everything"}}</option>
+                        <option value="/backup/html" {{if eq .Value "/backup/html"}}selected{{end}}>{{$.T.Get "Website Files"}} (/var/www/html/)</option>
+                        <option value="/backup/01-mail" {{if eq .Value "/backup/01-mail"}}selected{{end}}>{{$.T.Get "Emails"}}</option>
+                        <option value="/backup/01-vhosts" {{if eq .Value "/backup/01-vhosts"}}selected{{end}}>{{$.T.Get "VirtualHosts"}}</option>
+                        <option value="/backup/01-mysql" {{if eq .Value "/backup/01-mysql"}}selected{{end}}>{{$.T.Get "MySQL Databases"}}</option>
+                        <option value="/backup/01-postgres" {{if eq .Value "/backup/01-postgres"}}selected{{end}}>{{$.T.Get "PostgreSQL Databases"}}</option>
+                        <option value="/backup/crons.ini" {{if eq .Value "/backup/crons.ini"}}selected{{end}}>{{$.T.Get "Cron Jobs"}}</option>
+                    </select>
+                    {{else if eq .Key "NOTIFICATION_LEVEL"}}
+                    <select class="op-select" name="values[{{.Key}}]" id="settings-{{.Key}}">
+                        {{if not (eq .Value "info" "error")}}<option value="{{.Value}}" selected>{{if .Value}}{{.Value}}{{else}}{{$.T.Get "(not set)"}}{{end}}</option>{{end}}
+                        <option value="info" {{if eq .Value "info"}}selected{{end}}>{{$.T.Get "INFO"}}</option>
+                        <option value="error" {{if eq .Value "error"}}selected{{end}}>{{$.T.Get "ERROR"}}</option>
+                    </select>
+                    <span class="op-hint">{{$.T.Get "By default, notifications would only be sent out when a backup run fails. To receive notifications for every run, set NOTIFICATION_LEVEL to"}} <code>{{$.T.Get "info"}}</code> {{$.T.Get "instead of the default"}} <code>{{$.T.Get "error"}}</code>.</span>
+                    {{else}}
+                    <input class="op-input op-mono" type="{{template "bk_type" .Key}}" name="settings[{{.Key}}]" id="settings-{{.Key}}" value="{{.Value}}" autocomplete="off" spellcheck="false">
+                    {{if eq .Key "BACKUP_CRON_EXPRESSION"}}<span class="op-hint">{{$.T.Get "Cron expression or a shortcut like @daily."}}</span>
+                    {{else if eq .Key "NOTIFICATION_URLS"}}<span class="op-hint">{{$.T.Get "Notifications (email, Slack, etc.) can be sent out when a backup run finishes. Configuration is provided as a comma-separated list of URLs."}} <a href="https://containrrr.dev/shoutrrr/v0.8/services/overview/" target="_blank" rel="noopener" style="color:var(--color-accent-text)">{{$.T.Get "Learn more"}}</a></span>
+                    {{else if eq .Key "GZIP_PARALLELISM"}}<span class="op-hint">{{$.T.Get "Parallelism level for \"gz\" (Gzip) compression defines how many blocks of data are concurrently processed. Higher values result in faster compression. Default = 1. Setting this to 0 will use all available threads."}}</span>
+                    {{else if eq .Key "BACKUP_EXCLUDE_REGEXP"}}<span class="op-hint">{{$.T.Get "Full path to exclude, or regular expressions."}}</span>
+                    {{else if eq .Key "BACKUP_RETENTION_DAYS"}}<span class="op-hint">{{$.T.Get "The number of days for which a backup is kept. Pass zero or a positive integer value to enable automatic rotation of old backups."}}</span>
                     {{end}}
-
+                    {{end}}
+                </label>
+                {{end}}
+            </div>
         </div>
+        {{end}}
+
+        <div class="op-savebar"><span class="op-mono">backup.env</span><a class="op-btn op-btn-secondary" href="/backups">{{.T.Get "Cancel"}}</a><button class="op-btn op-btn-primary" type="submit">{{.T.Get "Save settings"}}</button></div>
+    </section>
     {{end}}
-
 </form>
-</div>
-
 <!-- END templates/files/backup_settings.html -->
 {{end}}

@@ -1,0 +1,46 @@
+{{/* editor card shared by the web server conf and vhost editors, the page's form carries x-data="opConfEditor(...)"; args: T, Name, Content, File, Label */}}
+{{define "op_conf_editor_assets"}}
+<link rel="stylesheet" href="{{static "vendor/codemirror/codemirror.min.css"}}">
+<script src="{{static "vendor/codemirror/codemirror.min.js"}}"></script>
+<script src="{{static "js/conf-editor.js"}}"></script>
+<script>
+var opConfMsg = {
+    status: {{toJSON (.T.Get "Line {line}, column {col} · {lines} lines")}},
+    countOf: {{toJSON (.T.Get "{n} of {total}")}},
+    noMatches: {{toJSON (.T.Get "No matches")}},
+    unexpectedClose: {{toJSON (.T.Get "Line %(line)s: Unexpected closing tag </%(tag)s> with no matching opening tag." "line" "{line}" "tag" "{tag}")}},
+    mismatch: {{toJSON (.T.Get "Line %(line)s: Closing tag </%(tag)s> does not match <%(open)s> opened on line %(open_line)s." "line" "{line}" "tag" "{tag}" "open" "{open}" "open_line" "{openLine}")}},
+    neverClosed: {{toJSON (.T.Get "Line %(line)s: Tag <%(tag)s> is never closed." "line" "{line}" "tag" "{tag}")}},
+    unexpectedBrace: {{toJSON (.T.Get "Line %(line)s: Unexpected closing brace with no matching opening brace." "line" "{line}")}},
+    unterminatedQuote: {{toJSON (.T.Get "Line %(line)s: Unterminated quote (missing closing %(quote)s)." "line" "{line}" "quote" "{quote}")}},
+    unclosedBrace: {{toJSON (.T.Get "Line %(line)s: Unclosed opening brace, missing matching closing brace." "line" "{line}")}},
+};
+</script>
+{{end}}
+
+{{define "op_conf_editor"}}
+<section class="op-card op-confed" aria-label="{{.Label}}">
+    <div class="op-alert is-warning op-confed-issues" role="alert" x-show="issues.length" x-cloak>{{template "op_icon" "alert"}}<span><b>{{.T.Get "Potential syntax issues were found"}}</b><template x-for="m in issues" :key="m.line + m.text"><span class="op-confed-issue" x-text="m.text"></span></template><span class="op-confed-issue-actions"><button type="button" class="op-btn op-btn-secondary op-btn-sm" @click="firstIssue()">{{.T.Get "Show first issue"}}</button><button type="button" class="op-btn op-btn-secondary op-btn-sm" @click="saveAnyway()">{{.T.Get "Save anyway"}}</button></span></span></div>
+    <div class="op-toolbar op-confed-bar">
+        <span class="op-actions op-confed-left">{{with .File}}<span class="op-tag op-mono">{{.}}</span>{{end}}<span class="op-status is-warning" x-show="dirty" x-cloak>{{.T.Get "Unsaved changes"}}</span></span>
+        <span class="op-actions op-confed-tools">
+            <span class="op-confed-find" x-show="mode === 'find'" x-cloak>
+                <input type="search" x-ref="find" x-model="query" @input="onQuery()" class="op-input op-input-sm" placeholder="{{.T.Get "Find"}}" aria-label="{{.T.Get "Find in file"}}" autocomplete="off" spellcheck="false" data-no-live-validate @keydown.enter.prevent="findNext($event.shiftKey ? -1 : 1)" @keydown.escape.prevent="close()" @keydown.ctrl.f.prevent="$el.select()">
+                <span class="op-confed-count" aria-live="polite" x-text="countLabel()" :class="query && !hits && 'is-none'"></span>
+                <button type="button" class="op-icon-btn" @click="findNext(-1)" :disabled="!hits" aria-label="{{.T.Get "Previous match"}}" title="{{.T.Get "Previous match"}} (Shift+Enter)">{{template "op_icon" "up"}}</button>
+                <button type="button" class="op-icon-btn" @click="findNext(1)" :disabled="!hits" aria-label="{{.T.Get "Next match"}}" title="{{.T.Get "Next match"}} (Enter)">{{template "op_icon" "chev"}}</button>
+            </span>
+            <span x-show="mode === 'line'" x-cloak>
+                <input type="number" min="1" :max="lines" inputmode="numeric" x-ref="line" x-model="lineNo" class="op-input op-input-sm op-confed-line" :placeholder="'1 – ' + lines" aria-label="{{.T.Get "Go to line"}}" data-no-live-validate @keydown.enter.prevent="goToLine()" @keydown.escape.prevent="close()">
+            </span>
+            <button class="op-filter" type="button" @click="open('find')" :aria-pressed="(mode === 'find').toString()" title="Ctrl+F">{{template "op_icon" "search"}} {{.T.Get "Find"}}</button>
+            <button class="op-filter" type="button" @click="open('line')" :aria-pressed="(mode === 'line').toString()" title="Ctrl+G">{{.T.Get "Go to line"}}</button>
+        </span>
+    </div>
+    <div class="op-confed-cm" id="editor-container">
+        <textarea x-ref="ta" name="{{.Name}}" rows="30" spellcheck="false" aria-label="{{.T.Get "File contents"}}">
+{{.Content}}</textarea>
+    </div>
+    <div class="op-editor-bar"><span x-text="statusLabel()"></span><span class="op-confed-keys">{{.T.Get "Ctrl+S saves · Ctrl+F finds · Ctrl+G goes to a line"}}</span></div>
+</section>
+{{end}}

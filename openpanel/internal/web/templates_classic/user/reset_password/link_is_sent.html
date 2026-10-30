@@ -1,0 +1,17 @@
+{{define "content"}}
+<!-- START templates/user/reset_password/link_is_sent.html -->
+<div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700 border border-gray-300">
+
+    <div class="text-center justify-center p-6 space-y-4 md:space-y-6 sm:p-8">
+        <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">{{.T.Get "Password Reset Link Sent"}}</h1>
+        <div class="flex text-center justify-center">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" class="remixicon size-20 shrink-0 text-emerald-500 dark:text-emerald-500">
+                <path d="M12 22C6.477 22 2 17.523 2 12C2 6.477 6.477 2 12 2C17.523 2 22 6.477 22 12C22 17.523 17.523 22 12 22ZM10 16.586L16.293 10.293L14.879 8.879L10 13.757L9.121 12.879L7.707 14.293L10 16.586Z"></path>
+            </svg>
+        </div>
+        <p class="text-gray-900 dark:text-white">{{.T.Get "Please check your email and click the link within the next 15 minutes to reset your password."}}</p>
+        <a href="/login" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 border-gray-300 text-gray-900 bg-white hover:bg-gray-50 disabled:text-gray-400 w-full inline-flex items-center gap-2">{{.T.Get "Back to Login"}}</a>
+    </div>
+</div>
+<!-- END templates/user/reset_password/link_is_sent.html -->
+{{end}}

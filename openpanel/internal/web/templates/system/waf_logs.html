@@ -1,3 +1,5 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "flowbite_js"}}
@@ -9,61 +11,40 @@
 
 {{if .JSONLogs}}
 
-<section aria-label="{{.T.Get "Select Domain Log Header"}}" x-data="logsTable()" x-init="init()">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<div class="op-content" x-data="logsTable()" x-init="init()">
+    <div class="op-page-head">
         <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "WAF Logs for"}} <span class="punycode">{{.DomainName}}</span></h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Showing"}} {{add (mul .ItemsPerPage (sub .CurrentPage 1)) 1}} - {{if gt (mul .ItemsPerPage .CurrentPage) .TotalLines}}{{.TotalLines}}{{else}}{{mul .ItemsPerPage .CurrentPage}}{{end}} {{.T.Get "out of"}} {{.TotalLines}} {{.T.Get "rows"}}</p>
+            <div class="op-eyebrow">{{.T.Get "Web Firewall"}}</div>
+            <h1 class="op-title">{{.T.Get "WAF Logs"}}</h1>
+            <p class="op-meta">{{.T.Get "View Coraza WAF logs for domains."}}</p>
         </div>
-        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-
-        <p class="text-sm text-gray-500 dark:text-gray-500">
-            {{if lt .TotalLines .TotalAllowedLinesForShowAll}}
-            <input class="form-check-input" type="checkbox" role="switch" id="showAllCheckbox" {{if .ShowAll}}checked{{end}}>
-            <label class="form-check-label text-secondary fs-sm" for="showAllCheckbox">{{.T.Get "Show all"}} {{.TotalLines}} {{.T.Get "rows"}}</label>
-            {{end}}
-        </p>
-        </div>
+        <div class="op-actions">{{if gt (len .Domains) 1}}<select class="op-select" aria-label="{{.T.Get "Select domain"}}" style="height:40px;width:auto;max-width:260px" onchange="if (this.value) location.href = '/server/waf/log/' + encodeURIComponent(this.value)">{{range .Domains}}<option value="{{.DomainURL}}"{{if eq .DomainURL $.DomainName}} selected{{end}}>{{.DomainURL}}</option>{{end}}</select>{{end}}<a class="op-btn op-btn-secondary" href="/server/waf/{{.DomainName}}">{{template "op_icon" "settings"}} {{.T.Get "Manage Rules"}}</a></div>
     </div>
 
-
-    <div class="flex flex-col justify-between gap-2 p-4 px-6 sm:flex-row sm:items-center">
-        <div class="relative w-full sm:w-64 [&>input]:py-1.5">
-            <input
-                x-model="searchQuery"
-                class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 file:-my-2 file:-ml-2.5 file:cursor-pointer file:rounded-l-[5px] file:rounded-r-none file:border-0 file:px-3 file:py-2 file:outline-none focus:outline-none disabled:pointer-events-none file:disabled:pointer-events-none file:border-solid file:border-gray-300 file:bg-gray-50 file:text-gray-500 file:hover:bg-gray-100 file:dark:border-gray-800 file:dark:bg-gray-950 file:hover:dark:bg-gray-900/20 file:disabled:dark:border-gray-700 file:disabled:bg-gray-100 file:disabled:text-gray-500 file:disabled:dark:bg-gray-800 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
-                placeholder="{{.T.Get "Search"}}"
-                type="search"
-            />
-            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
-                    <path
-                        d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"
-                    ></path>
-                </svg>
-            </div>
+<section class="op-card" aria-label="{{.T.Get "Select Domain Log Header"}}">
+    <div class="op-card-head">
+        <div>
+            <h2>{{.T.Get "WAF Logs for"}} <span class="punycode op-mono" style="font-size:13px">{{.DomainName}}</span></h2>
+            <p class="op-meta">{{.T.Get "Showing"}} {{add (mul .ItemsPerPage (sub .CurrentPage 1)) 1}} - {{if gt (mul .ItemsPerPage .CurrentPage) .TotalLines}}{{.TotalLines}}{{else}}{{mul .ItemsPerPage .CurrentPage}}{{end}} {{.T.Get "out of"}} {{.TotalLines}} {{.T.Get "rows"}}</p>
         </div>
-
-        <div class="mb-4 flex flex-wrap gap-2">
-        <!-- Dropdown for Column Visibility -->
-        <div class="relative">
-            <button id="dropdownToggleButton" data-dropdown-toggle="dropdownToggle" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
-                {{.T.Get "Show Columns"}}
-                <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-                </svg>
-            </button>
-
-            <!-- Dropdown menu -->
-            <div id="dropdownToggle" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-72 dark:bg-gray-700 dark:divide-gray-600">
-                <ul class="p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownToggleButton">
-		            <template x-for="col in columnList" :key="col">
+        <span class="op-meta">{{if lt .TotalLines .TotalAllowedLinesForShowAll}}
+            <input class="form-check-input" type="checkbox" role="switch" id="showAllCheckbox" {{if .ShowAll}}checked{{end}}>
+            <label class="form-check-label" for="showAllCheckbox">{{.T.Get "Show all"}} {{.TotalLines}} {{.T.Get "rows"}}</label>
+            {{end}}</span>
+    </div>
+    <div class="op-toolbar">
+        <label class="op-search">{{template "op_icon" "search"}}<input class="op-input" type="search" placeholder="{{.T.Get "Search"}}" x-model="searchQuery" aria-label="{{.T.Get "Search"}}"></label>
+        <div style="position:relative" x-data="opMenu()" @click.outside="open = false" @keydown.escape="open = false">
+            <button type="button" class="op-btn op-btn-secondary op-btn-sm" x-ref="btn" @click="toggle()" :aria-expanded="open.toString()">{{template "op_icon" "cols"}} {{.T.Get "Show Columns"}}</button>
+            <div class="op-menu op-waf-colmenu" x-ref="menu" x-show="open" x-cloak>
+                <ul>
+                <template x-for="col in columnList" :key="col">
 		                    <li>
-		                        <div class="flex pb-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
+		                        <div class="op-waf-colrow">
 		                            <label class="inline-flex items-center w-full cursor-pointer">
 		                                <input type="checkbox" x-model="columns[col]" class="sr-only peer">
-		                                <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
-		                                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300" x-text="col"></span>
+		                                <div class="op-peer-switch"></div>
+		                                <span class="ms-3 text-sm font-medium op-strong" x-text="col"></span>
 		                            </label>
 		                        </div>
 		                    </li>
@@ -71,79 +52,66 @@
                 </ul>
             </div>
         </div>
-        </div>
-
     </div>
-
-
-    <div class="overflow-x-auto">
-        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
-            <table id="waf-logs-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
-                <thead class="">
-                    <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+<div class="op-table-wrap">
+            <table id="waf-logs-table" class="op-table op-waf-log">
+                <thead>
+                    <tr>
                         <template x-for="col in columnList" :key="col">
-                            <th x-show="columns[col]" x-text="col" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800"></th>
+                            <th x-show="columns[col]" x-text="colLabel(col)" scope="col"></th>
                         </template>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Disable rule"}}</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                <tbody>
                     <template x-for="log in filteredLogs()" :key="log.id">
-                    <tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                    <tr class="domain_row">
                                 <template x-for="col in columnList" :key="col">
-                                    <td x-show="columns[col]" x-text="getValue(log, col)" class="px-2 py-1"></td>
+                                    <td x-show="columns[col]" :class="'is-' + colKind(col)" :data-label="colLabel(col)">
+                                        <template x-if="colKind(col) === 'method'"><span class="op-tag" x-text="getValue(log, col)"></span></template>
+                                        <template x-if="colKind(col) === 'blocked'"><span class="op-status" :class="getValue(log, col) ? 'is-danger' : 'is-success'" x-text="getValue(log, col) ? labels.blocked : labels.allowed"></span></template>
+                                        <template x-if="colKind(col) === 'tags'"><span class="op-chips" style="gap:4px" :title="getValue(log, col)"><template x-for="t in shortTags(getValue(log, col))" :key="t"><span class="op-tag" x-text="t"></span></template></span></template>
+                                        <template x-if="colKind(col) === 'rules'"><span class="op-waf-rulechips"><template x-for="id in String(getValue(log, col)).split(', ').filter(Boolean)" :key="id"><span style="display:contents"><template x-if="ruleFor(log, id)"><button type="button" class="op-waf-rulechip" @click="disableRule(ruleFor(log, id))" :disabled="disabled.includes(id) || busy === id" :title="(disabled.includes(id) ? {{toJSON (.T.Get "disabled")}} : {{toJSON (.T.Get "Disable rule")}}) + ' ' + id + (ruleFor(log, id).msg ? ': ' + ruleFor(log, id).msg : '')"><i class="bi" :class="disabled.includes(id) ? 'bi-check2' : 'bi-slash-circle'"></i><span x-text="id"></span></button></template><template x-if="!ruleFor(log, id)"><span class="op-tag op-mono" x-text="id"></span></template></span></template></span></template>
+                                        <template x-if="colKind(col) === 'uri'"><span x-text="decodeUri(getValue(log, col))"></span></template>
+                                        <template x-if="['method', 'blocked', 'tags', 'rules', 'uri'].indexOf(colKind(col)) === -1"><span x-text="getValue(log, col)"></span></template>
+                                    </td>
                                 </template>
-                                <td class="px-2 py-1">
-                                    <div class="flex flex-wrap gap-1">
-                                        <template x-for="rule in log._rules" :key="rule.id">
-                                            <button type="button" @click="disableRule(rule)" :disabled="disabled.includes(rule.id) || busy === rule.id" :title="rule.msg"
-                                                class="inline-flex items-center gap-1 rounded border px-2 py-0.5 text-xs font-medium border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-50 hover:border-red-300 hover:text-red-700 dark:hover:bg-red-500/10 disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:border-gray-300 disabled:hover:text-gray-700">
-                                                <i class="bi" :class="disabled.includes(rule.id) ? 'bi-check2' : 'bi-slash-circle'"></i>
-                                                <span x-text="rule.id"></span>
-                                                <span x-show="disabled.includes(rule.id)">{{.T.Get "disabled"}}</span>
-                                            </button>
-                                        </template>
-                                    </div>
-                                </td>
                     </tr>
                     </template>
                 </tbody>
             </table>
         </div>
-    </div>
-
-
 </section>
 
 <!-- pagination -->
-<div class="m-6 flex justify-center">
+<div class="op-actions" style="justify-content:center">
     <nav aria-label="{{.T.Get "Pagination"}}">
         <ul class="inline-flex -space-x-px text-sm">
             {{if gt .CurrentPage 1}}
                 <li>
-                    <a href="/server/waf/log/{{.DomainName}}?page={{sub .CurrentPage 1}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Previous"}}</a>
+                    <a href="/server/waf/log/{{.DomainName}}?page={{sub .CurrentPage 1}}" class="leading-tight op-btn op-btn-secondary">{{.T.Get "Previous"}}</a>
                 </li>
             {{end}}
 
             {{range .PageEntries}}
                 {{if .IsEllipsis}}
-                    <li><span class="px-3 py-2 text-gray-500 dark:text-gray-400">&hellip;</span></li>
+                    <li><span class="px-3 py-2 op-muted">&hellip;</span></li>
                 {{else}}
                     <li>
-                        <a href="/server/waf/log/{{$.DomainName}}?page={{.Number}}" class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 {{if eq .Number $.CurrentPage}}bg-gray-200 dark:bg-gray-700{{end}}">{{.Number}}</a>
+                        <a href="/server/waf/log/{{$.DomainName}}?page={{.Number}}" class="op-page-link {{if eq .Number $.CurrentPage}}is-on{{end}}">{{.Number}}</a>
                     </li>
                 {{end}}
             {{end}}
 
             {{if lt .CurrentPage .TotalPages}}
                 <li>
-                    <a href="/server/waf/log/{{.DomainName}}?page={{add .CurrentPage 1}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Next"}}</a>
+                    <a href="/server/waf/log/{{.DomainName}}?page={{add .CurrentPage 1}}" class="leading-tight op-btn op-btn-secondary">{{.T.Get "Next"}}</a>
                 </li>
             {{end}}
         </ul>
     </nav>
 </div>
 <!-- END pagination -->
+</div>
 
 
 <script type="text/javascript">
@@ -163,8 +131,7 @@ function logsTable() {
             'timestamp',
             'messages.rule_ids',
             'messages.msg',
-			'messages.tags',
-            'messages.severity'
+			'messages.tags'
         ],
         logs: [],
         disabled: window.wafDisabledRules,
@@ -226,7 +193,7 @@ function logsTable() {
                     if (!id || this.isScoringRule(id) || rules.some(r => r.id === id)) return;
                     rules.push({ id, msg: (em.match(/\[msg "([^"]+)"\]/) || [])[1] || '' });
                 });
-                Object.defineProperty(flattened, '_rules', { value: rules, enumerable: false });
+                Object.defineProperty(flattened, '_rules', { value: rules, enumerable: false, writable: true, configurable: true });
 
                 // parse rule IDs/msg/severity out of error_message strings
                 if (l.messages && l.messages.length > 0) {
@@ -288,6 +255,14 @@ function logsTable() {
                 localStorage.setItem('wafColumns', JSON.stringify(val));
             });
         },
+        labels: { blocked: {{toJSON (.T.Get "Blocked")}}, allowed: {{toJSON (.T.Get "Allowed")}} },
+        colNames: { 'client_ip': {{toJSON (.T.Get "Client IP")}}, 'request.method': {{toJSON (.T.Get "Method")}}, 'request.uri': {{toJSON (.T.Get "URI")}}, 'is_interrupted': {{toJSON (.T.Get "Blocked")}}, 'timestamp': {{toJSON (.T.Get "Time")}}, 'messages.rule_ids': {{toJSON (.T.Get "Rule IDs")}}, 'messages.msg': {{toJSON (.T.Get "Messages")}}, 'messages.tags': {{toJSON (.T.Get "Tags")}}, 'messages.severity': {{toJSON (.T.Get "Severity")}} },
+        colLabel(col) { return this.colNames[col] || col; },
+        colKind(col) { return { 'request.method': 'method', 'is_interrupted': 'blocked', 'messages.tags': 'tags', 'timestamp': 'mono', 'client_ip': 'mono', 'request.uri': 'uri', 'messages.rule_ids': 'rules' }[col] || 'text'; },
+        // attack-* tags say what the request was, the rest is CRS bookkeeping
+        shortTags(v) { const all = String(v).split(', ').filter(Boolean); const attack = all.filter(t => t.startsWith('attack-')).map(t => t.slice(7)); return attack.length ? attack : all; },
+        ruleFor(log, id) { return (log._rules || []).find(r => r.id === id); },
+        decodeUri(u) { try { return decodeURIComponent(u); } catch (e) { return u; } },
         getValue(log, key) {
             return log[key] ?? '';
         },
@@ -312,13 +287,13 @@ function logsTable() {
 {{else}}
 
 <!-- page header -->
-<section aria-label="{{.T.Get "WAF logs for domain"}}">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<section class="op-content" aria-label="{{.T.Get "WAF logs for domain"}}">
+    <div class="op-page-head">
         <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "WAF Logs"}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "View Coraza WAF logs for domains."}}</p>
+        <div class="op-wp-title"><h1 class="op-title">{{.T.Get "WAF Logs"}}</h1></div>
+        <p class="op-meta">{{.T.Get "View Coraza WAF logs for domains."}}</p>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+    <div class="op-actions">
     </div>
 </div>
 <!-- END page header -->
@@ -326,22 +301,22 @@ function logsTable() {
 
 
 <!-- form -->
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
-    <form class="mt-8" method="GET">
+<div class="op-card" id="toAddActive">
+    <form method="GET">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
-    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+    <div class="op-form-grid">
 
 
-            <div class="col-span-full">
+            <div class="op-field-wrap">
 
 
-  <select id="domains" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="version" onchange="redirectToSelectedVersion(this)">
+  <label class="op-field" for="domains" style="max-width:420px"><span class="op-label">{{.T.Get "Domain"}}</span><select id="domains" class="op-select" name="version" onchange="redirectToSelectedVersion(this)">
                           <option value="" disabled selected>{{.T.Get "Select domain"}}</option>
                       {{range .Domains}}
                           <option value="{{.DomainURL}}">{{.DomainURL}}</option>
                       {{end}}
-                      </select>
+                      </select></label>
               <script>
                   // JavaScript function to redirect to the same page with domain parameter
                   function redirectToSelectedVersion(selectElement) {

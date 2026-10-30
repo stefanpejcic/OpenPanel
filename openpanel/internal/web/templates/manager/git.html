@@ -1,167 +1,145 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 {{define "flowbite_js"}}{{end}}
 
 {{define "content"}}
-{{$in := "relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"}}
-{{$lbl := "block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2"}}
-{{$btn := "inline-flex items-center justify-center gap-1.5 rounded border px-3 py-1.5 text-sm font-medium shadow-sm transition-colors border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"}}
-{{$primary := "inline-flex items-center justify-center rounded border px-4 py-2 text-sm font-medium shadow-sm transition-all border-black bg-black text-white hover:bg-gray-800 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60"}}
+{{$in := "op-input"}}
+{{$lbl := "block mb-2 op-label"}}
+{{$btn := "op-btn op-btn-sm op-btn-secondary"}}
+{{$primary := "op-btn op-btn-primary"}}
 
 <script src="{{static "js/data-table.js"}}"></script>
-<div x-data="gitRepos()" x-init="init()">
+<div class="op-content" x-data="gitRepos()" x-init="init()">
 
   {{if .LogView}}
   {{template "git_log" .}}
   {{else}}
   <section aria-label="{{.T.Get "Git"}}">
-    <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div class="op-page-head">
       <div>
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Git"}}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Total repositories:"}} <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white">{{len .Repos}}</span></p>
+        <div class="op-eyebrow">{{.T.Get "Total repositories:"}} {{len .Repos}}</div>
+        <h1 class="op-title">{{.T.Get "Git"}}</h1>
+        <p class="op-meta">{{.T.Get "Deploy websites from Git repositories, cloned from a Git host or pushed straight to this server."}}</p>
       </div>
-      <div class="mt-2 sm:mt-0">
-        <button id="add-repository" type="button" @click="panel = panel === 'create' ? null : 'create'" :class="panel === 'create' ? 'bg-gray-800 text-gray-300 border-gray-800' : 'border-black bg-black text-white hover:bg-gray-800'" class="w-full sm:w-auto inline-flex items-center justify-center gap-x-1.5 rounded border px-3 py-2 text-sm font-medium shadow-sm transition-all dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60">
-          <span x-text="panel === 'create' ? {{toJSON (.T.Get "Cancel")}} : {{toJSON (.T.Get "Add Repository")}}"></span>
+      <div class="op-actions">
+        <button id="add-repository" type="button" @click="toggleCreate()" :aria-expanded="(panel === 'create').toString()" :class="panel === 'create' ? 'op-btn-secondary' : 'op-btn-primary'" class="op-btn">
+          <span class="op-btn-ico" x-show="panel !== 'create'">{{template "op_icon" "plus"}}</span><span x-text="panel === 'create' ? {{toJSON (.T.Get "Cancel")}} : {{toJSON (.T.Get "Add Repository")}}"></span>
         </button>
       </div>
     </div>
   </section>
 
   {{if .NewPassword}}
-  <div id="push-credentials" x-data="{ show: true }" x-show="show" class="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 py-6">
-    <div class="px-4 sm:px-6 lg:px-8">
-      <div class="flex items-start justify-between gap-4 mb-4">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">{{.T.Get "Push credentials"}} &middot; {{.NewPasswordRepo}}</p>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{.T.Get "Copy the password now, it is not shown again. You can generate a new one from the repository settings."}}</p>
-        </div>
-        <button type="button" @click="show = false" class="shrink-0 text-gray-400 hover:text-gray-900 dark:hover:text-gray-50" title="{{.T.Get "Close"}}"><i class="bi bi-x-lg"></i></button>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">{{.T.Get "Username"}}</label>
-          {{template "git_copy_field" (dict "Value" .Username "T" .T)}}
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">{{.T.Get "Password"}}</label>
-          {{template "git_copy_field" (dict "Value" .NewPassword "T" .T)}}
-        </div>
-        {{range .Repos}}{{if eq .Name $.NewPasswordRepo}}
-        <div>
-          <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">{{$.T.Get "Clone URL"}}</label>
-          {{template "git_copy_field" (dict "Value" .CloneURL "T" $.T)}}
-        </div>
-        {{end}}{{end}}
-      </div>
-    </div>
-  </div>
+  <section id="push-credentials" class="op-card" x-data="{ show: true }" x-show="show">
+    <div class="op-card-head"><h2>{{.T.Get "Push credentials"}} &middot; <span class="op-mono">{{.NewPasswordRepo}}</span></h2><button type="button" class="op-icon-btn" @click="show = false" aria-label="{{.T.Get "Close"}}">{{template "op_icon" "x"}}</button></div>
+    <div class="op-alert is-warning" role="note">{{template "op_icon" "alert"}}<span>{{.T.Get "Copy the password now, it is not shown again. You can generate a new one from the repository settings."}}</span></div>
+    <dl class="op-git-creds-list">
+      <dt>{{.T.Get "Username"}}</dt><dd>{{template "git_copy_field" (dict "Value" .Username "T" .T)}}</dd>
+      <dt>{{.T.Get "Password"}}</dt><dd>{{template "git_copy_field" (dict "Value" .NewPassword "T" .T)}}</dd>
+      {{range .Repos}}{{if eq .Name $.NewPasswordRepo}}<dt>{{$.T.Get "Clone URL"}}</dt><dd>{{template "git_copy_field" (dict "Value" .CloneURL "T" $.T)}}</dd>
+      <dt>{{$.T.Get "First push"}}</dt><dd>{{template "git_copy_field" (dict "Value" (printf "git remote add origin %s && git push -u origin %s" .CloneURL .Branch) "T" $.T)}}</dd>{{end}}{{end}}
+    </dl>
+  </section>
   {{end}}
 
-  <!-- add repository -->
-  <div x-show="panel === 'create'" x-cloak x-transition class="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
-    <form method="POST" action="/git" class="px-4 sm:px-6 lg:px-8 py-6 space-y-4">
+  <!-- add repository, same checks as createRepo -->
+  <section class="op-card" x-show="panel === 'create'" x-cloak x-transition aria-labelledby="git-create-title">
+    <div class="op-card-head"><h2 id="git-create-title">{{.T.Get "Add Repository"}}</h2></div>
+    <form method="POST" action="/git" class="op-col op-git-create" style="gap:16px" novalidate @submit="submitCreate($event)"
+      data-busy="{{.T.Get "Adding the repository"}}" data-busy-steps="{{.T.Get "Cloning or creating the repository"}}|{{.T.Get "Deploying it to the website, if automatic"}}" data-busy-leave="no">
       <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
       <input type="hidden" name="action" value="create">
-      <input type="hidden" name="source" :value="source">
 
-      <div>
-        <p class="{{$lbl}}">{{.T.Get "Source"}}</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <button type="button" @click="source = 'remote'" :class="source === 'remote' ? 'border-blue-600 bg-blue-100 dark:bg-blue-500/10' : 'border-gray-300 dark:border-gray-800'" class="flex items-start gap-3 text-left rounded border bg-white dark:bg-gray-950 p-3">
-            <span class="relative shrink-0 inline-flex items-center justify-center rounded bg-gray-100 dark:bg-gray-800" style="width:2.5rem;height:2.5rem;"><i class="bi bi-git text-xl" style="color:#f05032;"></i><i class="bi bi-cloud-fill absolute text-xs text-blue-500" style="right:-4px;bottom:-4px;"></i></span>
-            <span><span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Remote Git hosting"}}</span><span class="block text-xs text-gray-500">{{.T.Get "Clone from GitHub, GitLab, Bitbucket or any Git server."}}</span></span>
-          </button>
-          <button type="button" @click="source = 'local'" :class="source === 'local' ? 'border-blue-600 bg-blue-100 dark:bg-blue-500/10' : 'border-gray-300 dark:border-gray-800'" class="flex items-start gap-3 text-left rounded border bg-white dark:bg-gray-950 p-3">
-            <span class="relative shrink-0 inline-flex items-center justify-center rounded bg-gray-100 dark:bg-gray-800" style="width:2.5rem;height:2.5rem;"><i class="bi bi-git text-xl" style="color:#f05032;"></i><i class="bi bi-hdd-stack-fill absolute text-xs text-gray-500" style="right:-4px;bottom:-4px;"></i></span>
-            <span><span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Local repository"}}</span><span class="block text-xs text-gray-500">{{.T.Get "Create an empty repository here and push to it from your computer."}}</span></span>
-          </button>
+      <div class="op-field"><span class="op-label">{{.T.Get "Source"}}</span>
+        <div class="op-options" style="--cols:2">
+          <label class="op-option"><input type="radio" name="source" value="remote" x-model="source"><div><b>{{.T.Get "Remote Git hosting"}}</b><span>{{.T.Get "Clone from GitHub, GitLab, Bitbucket or any Git server."}}</span></div></label>
+          <label class="op-option"><input type="radio" name="source" value="local" x-model="source"><div><b>{{.T.Get "Local repository"}}</b><span>{{.T.Get "Create an empty repository here and push to it from your computer."}}</span></div></label>
         </div>
       </div>
 
-      <div x-show="source === 'remote'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="lg:col-span-2">
-          <label class="{{$lbl}}" for="remote_url">{{.T.Get "Repository URL"}}</label>
-          <input id="remote_url" type="text" name="remote_url" x-model="url" :required="source === 'remote'" placeholder="https://github.com/user/repo.git  {{.T.Get "or"}}  git@github.com:user/repo.git" class="{{$in}}">
+      <div x-show="source === 'remote'" class="op-col" style="gap:14px">
+        <div class="op-field"><label class="op-label" for="remote_url">{{.T.Get "Repository URL"}} <span class="is-danger">*</span></label>
+          <input id="remote_url" type="text" name="remote_url" x-model.trim="url" @blur="guessName()" :disabled="source !== 'remote'" data-no-live-validate placeholder="https://github.com/user/repo.git" autocomplete="off" spellcheck="false" class="op-input op-mono" :class="urlErr() && 'is-invalid'" :aria-invalid="(!!urlErr()).toString()">
+          <span class="op-hint" x-show="!urlErr()">{{.T.Get "An https:// URL, or an SSH one like git@github.com:user/repo.git."}}</span>
+          <span class="op-hint is-invalid" x-show="urlErr()" x-cloak x-text="urlErr()" role="alert"></span>
         </div>
-        <template x-if="isSSH(url)">
-          <div class="lg:col-span-2">
-            <p class="{{$lbl}}">{{.T.Get "SSH public key"}}</p>
-            <p class="text-xs text-gray-500 mb-2">{{.T.Get "Add this key to the repository as a deploy key (read-only is enough) before clicking Create."}}</p>
-            <div class="flex items-start gap-2">
-              <textarea readonly rows="2" class="{{$in}} font-mono text-xs">{{.PublicKey}}</textarea>
-              <button type="button" class="{{$btn}}" @click="copyToClipboard({{toJSON .PublicKey}})">{{.T.Get "Copy"}}</button>
-            </div>
-          </div>
-        </template>
-        <template x-if="url !== '' && !isSSH(url)">
-          <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="{{$lbl}}" for="remote_user">{{.T.Get "Username (private repositories only)"}}</label>
-              <input id="remote_user" type="text" name="remote_user" autocomplete="off" class="{{$in}}">
-            </div>
-            <div>
-              <label class="{{$lbl}}" for="remote_pass">{{.T.Get "Password or access token"}}</label>
-              <input id="remote_pass" type="password" name="remote_pass" autocomplete="new-password" class="{{$in}}">
-            </div>
-          </div>
-        </template>
+        <div class="op-check-row op-git-key" x-show="isSSH(url)" x-cloak>
+          <span class="op-git-key-ico">{{template "op_icon" "key"}}</span>
+          <div><b>{{.T.Get "SSH public key"}}</b><p>{{.T.Get "Add this key to the repository as a deploy key (read-only is enough) before clicking Create."}}</p><code class="op-mono">{{.PublicKey}}</code></div>
+          <button type="button" class="op-btn op-btn-secondary op-btn-sm" @click="copyToClipboard({{toJSON .PublicKey}}).then(() => showToast({{toJSON (.T.Get "Copied!")}}, 'success'))">{{template "op_icon" "copy"}} {{.T.Get "Copy"}}</button>
+        </div>
+        <div class="grid gap-4 md:grid-cols-2" x-show="url !== '' && !isSSH(url)" x-cloak>
+          <div class="op-field"><label class="op-label" for="remote_user">{{.T.Get "Username (private repositories only)"}}</label><input id="remote_user" type="text" name="remote_user" :disabled="source !== 'remote' || isSSH(url)" autocomplete="off" class="op-input"></div>
+          <div class="op-field"><label class="op-label" for="remote_pass">{{.T.Get "Password or access token"}}</label><input id="remote_pass" type="password" name="remote_pass" :disabled="source !== 'remote' || isSSH(url)" autocomplete="new-password" class="op-input"></div>
+        </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div>
-          <label class="{{$lbl}}" for="name">{{.T.Get "Repository name"}}</label>
-          <input id="name" type="text" name="name" pattern="[A-Za-z0-9][A-Za-z0-9._\-]*" :placeholder="source === 'remote' ? {{toJSON (.T.Get "taken from the URL")}} : domain" class="{{$in}}">
+      <div class="grid gap-4 md:grid-cols-2">
+        <div class="op-field"><label class="op-label" for="name">{{.T.Get "Repository name"}}</label>
+          <input id="name" type="text" name="name" x-model.trim="name" maxlength="64" data-no-live-validate :placeholder="source === 'remote' ? (repoNameFromURL(url) || {{toJSON (.T.Get "taken from the URL")}}) : domain" autocomplete="off" spellcheck="false" class="op-input op-mono" :class="nameErr() && 'is-invalid'" :aria-invalid="(!!nameErr()).toString()">
+          <span class="op-hint" x-show="!nameErr()">{{.T.Get "Letters, numbers, dots, dashes and underscores. Leave empty to use the default."}}</span>
+          <span class="op-hint is-invalid" x-show="nameErr()" x-cloak x-text="nameErr()" role="alert"></span>
         </div>
-        <div>
-          <label class="{{$lbl}}" for="branch">{{.T.Get "Branch"}}</label>
-          <input id="branch" type="text" name="branch" :placeholder="source === 'remote' ? {{toJSON (.T.Get "default branch")}} : 'main'" class="{{$in}}">
+        <div class="op-field"><label class="op-label" for="branch">{{.T.Get "Branch"}}</label>
+          <input id="branch" type="text" name="branch" x-model.trim="branch" maxlength="200" data-no-live-validate :placeholder="source === 'remote' ? {{toJSON (.T.Get "default branch")}} : 'main'" autocomplete="off" spellcheck="false" class="op-input op-mono" :class="branchErr() && 'is-invalid'" :aria-invalid="(!!branchErr()).toString()">
+          <span class="op-hint is-invalid" x-show="branchErr()" x-cloak x-text="branchErr()" role="alert"></span>
         </div>
-        <div>
-          <label class="{{$lbl}}" for="domain">{{.T.Get "Website"}}</label>
-          <select id="domain" name="domain" x-model="domain" @change="target = docroots[domain] || ''" required class="{{$in}}">
-            {{range .Domains}}<option value="{{.DomainURL}}">{{.DomainURL}}</option>{{end}}
+        <div class="op-field"><label class="op-label" for="domain">{{.T.Get "Website"}}</label>
+          <select id="domain" name="domain" @change="domain = $event.target.value; target = docroots[domain] || ''" class="op-select">
+            {{range .Domains}}<option class="punycode" value="{{.DomainURL}}">{{.DomainURL}}</option>{{end}}
           </select>
         </div>
-        <div>
-          <label class="{{$lbl}}" for="target_dir">{{.T.Get "Deploy to directory"}}</label>
-          <input id="target_dir" type="text" name="target_dir" x-model="target" class="{{$in}}">
+        <div class="op-field"><label class="op-label" for="target_dir">{{.T.Get "Deploy to directory"}}</label>
+          <input id="target_dir" type="text" name="target_dir" x-model.trim="target" data-no-live-validate autocomplete="off" spellcheck="false" class="op-input op-mono" :class="targetErr() && 'is-invalid'" :aria-invalid="(!!targetErr()).toString()">
+          <span class="op-hint" x-show="!targetErr()">{{.T.Get "Inside /var/www/html/. Files already there are overwritten on deploy."}}</span>
+          <span class="op-hint is-invalid" x-show="targetErr()" x-cloak x-text="targetErr()" role="alert"></span>
         </div>
       </div>
 
-      <div class="">
-        <p class="{{$lbl}}">{{.T.Get "Deployment mode"}}</p>
-        {{template "git_deploy_modes" (dict "T" .T "Selected" "automatic")}}
+      <div class="op-field"><span class="op-label">{{.T.Get "Deployment mode"}}</span>
+        <div class="op-options" style="--cols:3">
+          <label class="op-option"><input type="radio" name="deploy_mode" value="automatic" x-model="mode"><div><b>{{.T.Get "Automatic"}}</b><span>{{.T.Get "Deploy on every push or pull."}}</span></div></label>
+          <label class="op-option"><input type="radio" name="deploy_mode" value="manual" x-model="mode"><div><b>{{.T.Get "Manual"}}</b><span>{{.T.Get "Deploy only when you click Deploy."}}</span></div></label>
+          <label class="op-option"><input type="radio" name="deploy_mode" value="none" x-model="mode"><div><b>{{.T.Get "No deployment"}}</b><span>{{.T.Get "Only host the repository."}}</span></div></label>
+        </div>
       </div>
 
-      {{template "git_actions_fields" (dict "T" .T "Containers" .Containers "Enabled" false "Actions" "" "Container" "" "In" $in "Lbl" $lbl)}}
-
-      <div class="flex gap-2">
-        <button type="button" @click="panel = null" class="px-4 py-2 rounded border border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-50">{{.T.Get "Cancel"}}</button>
-        <button type="submit" class="{{$primary}}">{{.T.Get "Create"}}</button>
+      <input type="hidden" name="actions_present" value="1">
+      <label class="op-check-row" style="grid-template-columns:auto minmax(0,1fr);padding:10px 12px;align-items:center"><input class="op-check" type="checkbox" name="actions_enabled" value="1" x-model="actionsOn"><span>{{.T.Get "Enable additional deploy actions"}}</span></label>
+      <div class="grid gap-4 md:grid-cols-3" x-show="actionsOn" x-cloak>
+        <div class="op-field"><label class="op-label" for="actions_container">{{.T.Get "Run in container"}}</label>
+          <select id="actions_container" name="actions_container" class="op-select">{{range .Containers}}<option value="{{.}}">{{.}}</option>{{end}}</select>
+        </div>
+        <div class="op-field md:col-span-2"><label class="op-label" for="actions">{{.T.Get "Commands (run after each deployment, from the deploy directory)"}}</label>
+          <textarea id="actions" name="actions" rows="3" maxlength="4000" placeholder="composer install --no-dev&#10;php artisan migrate --force" class="op-input op-mono op-git-cmds"></textarea>
+        </div>
       </div>
+
+      <div class="op-form-foot"><button type="button" @click="panel = null" class="op-btn op-btn-secondary">{{.T.Get "Cancel"}}</button><button type="submit" class="op-btn op-btn-primary" :disabled="busy">{{.T.Get "Create"}}</button></div>
     </form>
-  </div>
-
+  </section>
 
   {{if not .Repos}}
-  <div class="flex flex-col items-center justify-center py-6 text-center">
-    <svg class="my-6 w-10 text-gray-400 dark:text-gray-600" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="2.25"/><circle cx="6" cy="18" r="2.25"/><circle cx="18" cy="9" r="2.25"/><path stroke-linecap="round" d="M6 8.25v7.5M18 11.25c0 3-3 3.75-9.75 4.5"/></svg>
-    <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No repositories yet"}}</p>
-    <p class="mt-1 text-sm text-gray-500">{{.T.Get "Add a repository to deploy a website from Git."}}</p>
-  </div>
+  <section class="op-card" x-show="panel !== 'create'"><div class="op-empty">
+    <span class="op-ico-tile">{{template "op_icon" "code"}}</span>
+    <b>{{.T.Get "No repositories yet"}}</b>
+    <span class="op-hint">{{.T.Get "Add a repository to deploy a website from Git."}}</span>
+    <button type="button" class="op-btn op-btn-primary" @click="toggleCreate()">{{template "op_icon" "plus"}} {{.T.Get "Add Repository"}}</button>
+  </div></section>
   {{end}}
 
   {{if .Repos}}
-  <section aria-label="{{.T.Get "Repositories"}}">
-    <div class="border-b border-gray-200 dark:border-gray-800 flex flex-col justify-between gap-2 p-4 px-6 sm:flex-row sm:items-center">
+  <section class="op-card op-git-card" aria-label="{{.T.Get "Repositories"}}">
+    <div class="flex flex-col justify-between gap-2 sm:flex-row sm:items-center op-git-toolbar">
       <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
       <div class="relative w-full sm:w-64">
         <input x-model="searchQuery" type="search" placeholder="{{.T.Get "Search"}}" class="{{$in}} pl-8">
-        <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center text-gray-400 dark:text-gray-600"><i class="bi bi-search"></i></div>
+        <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center op-muted"><i class="bi bi-search"></i></div>
       </div>
       <div class="relative" x-data="{ colsOpen: false }" @click.outside="colsOpen = false">
-        <button type="button" @click="colsOpen = !colsOpen" class="flex w-full items-center gap-x-1.5 whitespace-nowrap rounded border border-gray-300 px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50 sm:w-fit sm:text-xs dark:border-gray-700 dark:text-gray-400 hover:dark:bg-gray-900 border-dashed cursor-pointer"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4"><path d="M5 7C5 6.17157 5.67157 5.5 6.5 5.5C7.32843 5.5 8 6.17157 8 7C8 7.82843 7.32843 8.5 6.5 8.5C5.67157 8.5 5 7.82843 5 7ZM6.5 3.5C4.567 3.5 3 5.067 3 7C3 8.933 4.567 10.5 6.5 10.5C8.433 10.5 10 8.933 10 7C10 5.067 8.433 3.5 6.5 3.5ZM12 8H20V6H12V8ZM16 17C16 16.1716 16.6716 15.5 17.5 15.5C18.3284 15.5 19 16.1716 19 17C19 17.8284 18.3284 18.5 17.5 18.5C16.6716 18.5 16 17.8284 16 17ZM17.5 13.5C15.567 13.5 14 15.067 14 17C14 18.933 15.567 20.5 17.5 20.5C19.433 20.5 21 18.933 21 17C21 15.067 19.433 13.5 17.5 13.5ZM4 16V18H12V16H4Z"></path></svg> {{.T.Get "Show Columns"}}</button>
-        <div x-show="colsOpen" x-cloak x-transition class="absolute z-10 mt-1 text-sm shadow-md border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-gray-50 dark:bg-gray-950 rounded-lg" style="width: 15rem;">
+        <button type="button" @click="colsOpen = !colsOpen" class="flex w-full sm:w-fit op-btn op-btn-sm op-btn-secondary"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4"><path d="M5 7C5 6.17157 5.67157 5.5 6.5 5.5C7.32843 5.5 8 6.17157 8 7C8 7.82843 7.32843 8.5 6.5 8.5C5.67157 8.5 5 7.82843 5 7ZM6.5 3.5C4.567 3.5 3 5.067 3 7C3 8.933 4.567 10.5 6.5 10.5C8.433 10.5 10 8.933 10 7C10 5.067 8.433 3.5 6.5 3.5ZM12 8H20V6H12V8ZM16 17C16 16.1716 16.6716 15.5 17.5 15.5C18.3284 15.5 19 16.1716 19 17C19 17.8284 18.3284 18.5 17.5 18.5C16.6716 18.5 16 17.8284 16 17ZM17.5 13.5C15.567 13.5 14 15.067 14 17C14 18.933 15.567 20.5 17.5 20.5C19.433 20.5 21 18.933 21 17C21 15.067 19.433 13.5 17.5 13.5ZM4 16V18H12V16H4Z"></path></svg> {{.T.Get "Show Columns"}}</button>
+        <div x-show="colsOpen" x-cloak x-transition class="absolute z-10 mt-1 text-sm op-surface" style="width: 15rem;">
           <ul class="p-2 space-y-1">
             {{template "git_column_toggle" (dict "Key" "repository" "Label" (.T.Get "Repository"))}}
             {{template "git_column_toggle" (dict "Key" "website" "Label" (.T.Get "Website"))}}
@@ -177,20 +155,20 @@
     </div>
 {{template "bulk_open" (dict "T" .T "Table" "#git-table" "Endpoint" "/git/bulk")}}
     <div class="overflow-x-auto">
-      <table id="git-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+      <table id="git-table" class="op-table op-git-table">
         <thead>
-          <tr class="bg-gray-50 dark:bg-gray-900">
+          <tr class="op-thead">
 {{template "bulk_head_checkbox" .}}
-            <th x-show="columns.repository" scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "git_sort_header" (dict "Label" (.T.Get "Repository") "Key" "repository" "Type" "string")}}</th>
-            <th x-show="columns.website" scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "git_sort_header" (dict "Label" (.T.Get "Website") "Key" "website" "Type" "string")}}</th>
-            <th x-show="columns.branch" scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "git_sort_header" (dict "Label" (.T.Get "Branch") "Key" "branch" "Type" "string")}}</th>
-            <th x-show="columns.mode" scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "git_sort_header" (dict "Label" (.T.Get "Deployment mode") "Key" "mode" "Type" "string")}}</th>
-            <th x-show="columns.commit" scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "git_sort_header" (dict "Label" (.T.Get "Latest commit") "Key" "commit" "Type" "string")}}</th>
-            <th x-show="columns.deployed" scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "git_sort_header" (dict "Label" (.T.Get "Last deployed") "Key" "deployed" "Type" "string")}}</th>
-            <th x-show="columns.actions" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800" style="text-align: right;">{{.T.Get "Actions"}}</th>
+            <th x-show="columns.repository" scope="col" class="op-th">{{template "git_sort_header" (dict "Label" (.T.Get "Repository") "Key" "repository" "Type" "string")}}</th>
+            <th x-show="columns.website" scope="col" class="op-th">{{template "git_sort_header" (dict "Label" (.T.Get "Website") "Key" "website" "Type" "string")}}</th>
+            <th x-show="columns.branch" scope="col" class="op-th">{{template "git_sort_header" (dict "Label" (.T.Get "Branch") "Key" "branch" "Type" "string")}}</th>
+            <th x-show="columns.mode" scope="col" class="op-th">{{template "git_sort_header" (dict "Label" (.T.Get "Deployment mode") "Key" "mode" "Type" "string")}}</th>
+            <th x-show="columns.commit" scope="col" class="op-th">{{template "git_sort_header" (dict "Label" (.T.Get "Latest commit") "Key" "commit" "Type" "string")}}</th>
+            <th x-show="columns.deployed" scope="col" class="op-th">{{template "git_sort_header" (dict "Label" (.T.Get "Last deployed") "Key" "deployed" "Type" "string")}}</th>
+            <th x-show="columns.actions" scope="col" class="op-th" style="text-align: right;">{{.T.Get "Actions"}}</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+        <tbody class="op-tbody">
           {{range .Repos}}
           {{template "git_repo_row" (dict "R" . "T" $.T "CSRF" $.CSRFToken "Containers" $.Containers "Username" $.Username "In" $in "Lbl" $lbl "Btn" $btn "Primary" $primary)}}
           {{end}}
@@ -216,8 +194,43 @@ function gitRepos() {
   domains.forEach(d => docroots[d.DomainURL] = d.Docroot);
   const first = domains.length ? domains[0].DomainURL : '';
   return Object.assign(table, {
-    panel: null,
+    panel: new URLSearchParams(location.search).has('new') ? 'create' : null,
     removing: null,
+    names: {{toJSON .RepoNames}} || [],
+    name: '', branch: '', mode: 'automatic', actionsOn: false, tried: false, busy: false,
+    t: {
+      noURL: {{toJSON (.T.Get "Enter the repository URL.")}},
+      badURL: {{toJSON (.T.Get "Invalid repository URL. Use an https:// or SSH (git@host:user/repo.git) URL.")}},
+      badName: {{toJSON (.T.Get "Invalid repository name. Use letters, numbers, dots, dashes and underscores.")}},
+      dupName: {{toJSON (.T.Get "A repository with this name already exists.")}},
+      badBranch: {{toJSON (.T.Get "Invalid branch name.")}},
+      badTarget: {{toJSON (.T.Get "Target directory must be inside /var/www/html/.")}},
+    },
+    toggleCreate() { this.panel = this.panel === 'create' ? null : 'create'; this.tried = false; },
+    // the same rules as isValidRemoteURL, isValidRepoName, isValidBranch and cleanTargetDir
+    validURL(u) { return !!u && !u.startsWith('-') && !u.includes('..') && (/^https?:\/\/[A-Za-z0-9.-]+(:[0-9]{1,5})?\/[A-Za-z0-9._~\/%+-]+$/.test(u) || /^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+:[A-Za-z0-9._~\/+-]+$/.test(u) || /^ssh:\/\/[A-Za-z0-9._-]+@[A-Za-z0-9.-]+(:[0-9]{1,5})?\/[A-Za-z0-9._~\/+-]+$/.test(u)); },
+    repoNameFromURL(u) { if (!u) return ''; if (u.includes(':') && !u.includes('://')) u = u.slice(u.lastIndexOf(':') + 1); return u.replace(/\/+$/, '').split('/').pop().replace(/\.git$/, ''); },
+    guessName() { if (this.source === 'remote' && !this.name && this.validURL(this.url)) { const n = this.repoNameFromURL(this.url); if (/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(n)) this.name = n; } },
+    finalName() { return this.name || (this.source === 'remote' ? this.repoNameFromURL(this.url) : this.domain); },
+    urlErr() { if (this.source !== 'remote') return ''; if (!this.url) return this.tried ? this.t.noURL : ''; return this.validURL(this.url) ? '' : this.t.badURL; },
+    nameErr() {
+      const n = this.finalName();
+      if (!n || (!this.name && !this.tried)) return '';
+      if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(n) || n.endsWith('.git') || n.includes('..') || n.endsWith('.lock')) return this.t.badName;
+      if (this.names.includes(n)) return this.t.dupName;
+      return '';
+    },
+    branchErr() { const b = this.branch; if (!b) return ''; return /^[A-Za-z0-9][A-Za-z0-9._\/-]{0,199}$/.test(b) && !b.includes('..') && !b.endsWith('/') && !b.endsWith('.lock') && !b.includes('//') && !b.includes('/.') ? '' : this.t.badBranch; },
+    targetErr() { const d = this.target; if (!d) return ''; return d.includes('..') || (d.startsWith('/') && d !== '/var/www/html' && !d.startsWith('/var/www/html/')) ? this.t.badTarget : ''; },
+    submitCreate(e) {
+      this.tried = true;
+      if (this.urlErr() || this.nameErr() || this.branchErr() || this.targetErr()) {
+        e.preventDefault();
+        this.$nextTick(() => { const el = this.$root.querySelector('.op-git-create .is-invalid'); if (el) el.focus(); });
+        return;
+      }
+      this.busy = true;
+    },
     matches(...fields) { const q = this.searchQuery.trim().toLowerCase(); return q === '' || fields.some(f => (f || '').toLowerCase().includes(q)); },
     open: location.hash.startsWith('#repo-') ? decodeURIComponent(location.hash.slice(6)) : null,
     source: 'remote',
@@ -233,20 +246,20 @@ function gitRepos() {
 
 {{define "git_deploy_modes"}}
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-  <label class="flex items-start gap-2 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-3 text-sm cursor-pointer">
+  <label class="flex items-start gap-2 p-3 text-sm cursor-pointer op-surface">
     <input type="radio" name="deploy_mode" value="automatic" class="mt-0.5" {{if eq .Selected "automatic"}}checked{{end}}>
-    <i class="bi bi-lightning-charge text-gray-400 dark:text-gray-500" style="font-size:1.125rem;" aria-hidden="true"></i>
-    <span><span class="block font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Automatic"}}</span><span class="block text-xs text-gray-500">{{.T.Get "Deploy on every push or pull."}}</span></span>
+    <i class="bi bi-lightning-charge op-muted" style="font-size:1.125rem;" aria-hidden="true"></i>
+    <span><span class="block font-medium op-strong">{{.T.Get "Automatic"}}</span><span class="block text-xs op-muted">{{.T.Get "Deploy on every push or pull."}}</span></span>
   </label>
-  <label class="flex items-start gap-2 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-3 text-sm cursor-pointer">
+  <label class="flex items-start gap-2 p-3 text-sm cursor-pointer op-surface">
     <input type="radio" name="deploy_mode" value="manual" class="mt-0.5" {{if eq .Selected "manual"}}checked{{end}}>
-    <i class="bi bi-hand-index text-gray-400 dark:text-gray-500" style="font-size:1.125rem;" aria-hidden="true"></i>
-    <span><span class="block font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Manual"}}</span><span class="block text-xs text-gray-500">{{.T.Get "Deploy only when you click Deploy."}}</span></span>
+    <i class="bi bi-hand-index op-muted" style="font-size:1.125rem;" aria-hidden="true"></i>
+    <span><span class="block font-medium op-strong">{{.T.Get "Manual"}}</span><span class="block text-xs op-muted">{{.T.Get "Deploy only when you click Deploy."}}</span></span>
   </label>
-  <label class="flex items-start gap-2 rounded border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-3 text-sm cursor-pointer">
+  <label class="flex items-start gap-2 p-3 text-sm cursor-pointer op-surface">
     <input type="radio" name="deploy_mode" value="none" class="mt-0.5" {{if eq .Selected "none"}}checked{{end}}>
-    <i class="bi bi-slash-circle text-gray-400 dark:text-gray-500" style="font-size:1.125rem;" aria-hidden="true"></i>
-    <span><span class="block font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No deployment"}}</span><span class="block text-xs text-gray-500">{{.T.Get "Only host the repository."}}</span></span>
+    <i class="bi bi-slash-circle op-muted" style="font-size:1.125rem;" aria-hidden="true"></i>
+    <span><span class="block font-medium op-strong">{{.T.Get "No deployment"}}</span><span class="block text-xs op-muted">{{.T.Get "Only host the repository."}}</span></span>
   </label>
 </div>
 {{end}}
@@ -254,7 +267,7 @@ function gitRepos() {
 {{define "git_actions_fields"}}
 <div x-data="{ on: {{if .Enabled}}true{{else}}false{{end}} }" class="">
   <input type="hidden" name="actions_present" value="1">
-  <label class="inline-flex items-center gap-2 text-sm text-gray-900 dark:text-gray-50 cursor-pointer">
+  <label class="inline-flex items-center gap-2 text-sm cursor-pointer op-strong">
     <input type="checkbox" name="actions_enabled" value="1" x-model="on">
     {{.T.Get "Enable additional deploy actions"}}
   </label>
@@ -276,48 +289,51 @@ function gitRepos() {
 
 {{define "git_repo_row"}}
 {{$r := .R}}{{$T := .T}}
-<tr id="repo-{{$r.Name}}" x-show="matches({{toJSON $r.Name}}, {{toJSON $r.Domain}}, {{toJSON $r.RemoteURL}})" class="sm:[&_td:last-child]:pr-6 hover:bg-white dark:hover:bg-gray-900">
+<tr id="repo-{{$r.Name}}" x-show="matches({{toJSON $r.Name}}, {{toJSON $r.Domain}}, {{toJSON $r.RemoteURL}})" class="op-tr op-hover">
 {{template "bulk_row_checkbox" (dict "T" $T "Key" $r.Name "Label" $r.Name "Skip" $r.BulkSkip)}}
-  <td x-show="columns.repository" data-sort-col="repository" data-sort-value="{{$r.Name}}" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+  <td x-show="columns.repository" data-sort-col="repository" data-sort-value="{{$r.Name}}" class="op-td">
+    <div class="op-row-title"><span class="op-ico-tile is-sm op-git-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M12 8m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M12 16m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M12 15v-6"/><path d="M15 11l-2 -2"/><path d="M11 7l-1.9 -1.9"/><path d="M13.446 2.6l7.955 7.954a2.045 2.045 0 0 1 0 2.892l-7.955 7.955a2.045 2.045 0 0 1 -2.892 0l-7.955 -7.955a2.045 2.045 0 0 1 0 -2.892l7.955 -7.955a2.045 2.045 0 0 1 2.892 0z"/></svg></span>
+    <div style="min-width:0">
     <div class="flex items-center gap-2">
-      <span class="font-medium text-gray-900 dark:text-gray-50">{{$r.Name}}</span>
-      <span class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-300">{{if eq $r.Source "local"}}{{$T.Get "Local"}}{{else}}{{$T.Get "Remote"}}{{end}}</span>
-      {{if $r.LastError}}<span class="rounded bg-red-100 px-2 py-0.5 text-xs text-red-800 dark:bg-red-900/40 dark:text-red-300" title="{{$r.LastError}}">{{$T.Get "Error"}}</span>{{end}}
+      <span class="op-strong">{{$r.Name}}</span>
+      <span class="op-badge">{{if eq $r.Source "local"}}{{$T.Get "Local"}}{{else}}{{$T.Get "Remote"}}{{end}}</span>
+      {{if $r.LastError}}<span class="op-badge is-danger" title="{{$r.LastError}}">{{$T.Get "Error"}}</span>{{end}}
     </div>
-    {{if $r.RemoteURL}}<div class="mt-0.5 text-xs text-gray-500 truncate" style="max-width: 18rem;" title="{{$r.RemoteURL}}">{{$r.RemoteURL}}</div>{{end}}
+    {{if $r.RemoteURL}}<div class="mt-0.5 text-xs truncate op-muted" style="max-width: 10rem;" title="{{$r.RemoteURL}}">{{$r.RemoteURL}}</div>{{end}}
+    </div></div>
   </td>
-  <td x-show="columns.website" data-sort-col="website" data-sort-value="{{$r.Domain}}{{$r.TargetDir}}" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-    <div class="text-gray-900 dark:text-gray-50">{{$r.Domain}}</div>
-    <div class="text-xs text-gray-500 font-mono truncate" style="max-width: 16rem; direction: rtl; text-align: left;" title="{{$r.TargetDir}}"><span dir="ltr">{{$r.TargetDir}}</span></div>
+  <td x-show="columns.website" data-sort-col="website" data-sort-value="{{$r.Domain}}{{$r.TargetDir}}" class="op-td">
+    <div class="op-strong">{{$r.Domain}}</div>
+    <div class="text-xs font-mono truncate op-muted" style="max-width: 10rem; direction: rtl; text-align: left;" title="{{$r.TargetDir}}"><span dir="ltr">{{$r.TargetDir}}</span></div>
   </td>
-  <td x-show="columns.branch" data-sort-col="branch" data-sort-value="{{$r.Branch}}" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"><span class="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-800 dark:bg-blue-500/10 dark:text-blue-300">{{$r.Branch}}</span></td>
-  <td x-show="columns.mode" data-sort-col="mode" data-sort-value="{{$r.DeployMode}}" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"><span class="inline-flex items-center gap-1.5">{{if eq $r.DeployMode "automatic"}}<i class="bi bi-lightning-charge text-gray-400 dark:text-gray-500"></i>{{$T.Get "Automatic"}}{{else if eq $r.DeployMode "manual"}}<i class="bi bi-hand-index text-gray-400 dark:text-gray-500"></i>{{$T.Get "Manual"}}{{else}}<i class="bi bi-slash-circle text-gray-400 dark:text-gray-500"></i>{{$T.Get "No deployment"}}{{end}}</span></td>
-  <td x-show="columns.commit" data-sort-col="commit" data-sort-value="{{if $r.Latest}}{{$r.Latest.ISO}}{{end}}" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+  <td x-show="columns.branch" data-sort-col="branch" data-sort-value="{{$r.Branch}}" class="op-td"><span class="op-badge is-accent">{{$r.Branch}}</span></td>
+  <td x-show="columns.mode" data-sort-col="mode" data-sort-value="{{$r.DeployMode}}" class="op-td"><span class="inline-flex items-center gap-1.5">{{if eq $r.DeployMode "automatic"}}<i class="bi bi-lightning-charge op-muted"></i>{{$T.Get "Automatic"}}{{else if eq $r.DeployMode "manual"}}<i class="bi bi-hand-index op-muted"></i>{{$T.Get "Manual"}}{{else}}<i class="bi bi-slash-circle op-muted"></i>{{$T.Get "No deployment"}}{{end}}</span></td>
+  <td x-show="columns.commit" data-sort-col="commit" data-sort-value="{{if $r.Latest}}{{$r.Latest.ISO}}{{end}}" class="op-td">
     {{if $r.Latest}}
     <div class="flex items-center gap-2">
       <code title="{{$r.Latest.Hash}}">{{$r.Latest.Short}}</code>
-      {{if ne $r.DeployMode "none"}}{{if $r.UpToDate}}<span class="rounded bg-green-100 px-1.5 py-0.5 text-xs text-green-800 dark:bg-gray-800 dark:text-green-300">{{$T.Get "deployed"}}</span>{{else}}<span class="rounded bg-yellow-100 px-1.5 py-0.5 text-xs text-yellow-800 dark:bg-yellow-400/10 dark:text-yellow-300">{{$T.Get "not deployed"}}</span>{{end}}{{end}}
+      {{if ne $r.DeployMode "none"}}{{if $r.UpToDate}}<span class="op-badge is-success">{{$T.Get "deployed"}}</span>{{else}}<span class="op-badge is-warning">{{$T.Get "not deployed"}}</span>{{end}}{{end}}
     </div>
-    <div class="mt-0.5 text-xs text-gray-500 truncate" style="max-width: 18rem;" title="{{$r.Latest.Subject}}">{{$r.Latest.Subject}} &middot; {{$r.Latest.Author}}</div>
-    {{else}}<span class="text-gray-400">{{$T.Get "No commits yet."}}</span>{{end}}
+    <div class="mt-0.5 text-xs truncate op-muted" style="max-width: 10rem;" title="{{$r.Latest.Subject}}">{{$r.Latest.Subject}} &middot; {{$r.Latest.Author}}</div>
+    {{else}}<span class="op-muted">{{$T.Get "No commits yet."}}</span>{{end}}
   </td>
-  <td x-show="columns.deployed" data-sort-col="deployed" data-sort-value="{{$r.LastDeployISO}}" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{if $r.LastDeployISO}}<span data-relative-date="{{$r.LastDeployISO}}" title="{{$r.LastDeploy}}">{{$r.LastDeploy}}</span>{{else}}<span class="text-gray-400">&mdash;</span>{{end}}</td>
-  <td x-show="columns.actions" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" style="text-align: right;">
+  <td x-show="columns.deployed" data-sort-col="deployed" data-sort-value="{{$r.LastDeployISO}}" class="op-td">{{if $r.LastDeployISO}}<span data-relative-date="{{$r.LastDeployISO}}" title="{{$r.LastDeploy}}">{{$r.LastDeploy}}</span>{{else}}<span class="op-muted">&mdash;</span>{{end}}</td>
+  <td x-show="columns.actions" class="op-td" style="text-align: right;">
     <div class="flex items-center justify-end gap-1.5">
       {{if eq $r.Source "remote"}}
-      <form method="POST" action="/git"><input type="hidden" name="csrf_token" value="{{.CSRF}}"><input type="hidden" name="action" value="pull"><input type="hidden" name="repo" value="{{$r.Name}}"><button type="submit" class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white" title="{{$T.Get "Pull Updates"}}"><i class="bi bi-cloud-download" style="font-size:1rem;line-height:1;"></i></button></form>
+      <form method="POST" action="/git"><input type="hidden" name="csrf_token" value="{{.CSRF}}"><input type="hidden" name="action" value="pull"><input type="hidden" name="repo" value="{{$r.Name}}"><button type="submit" class="inline-flex items-center justify-center p-2 op-inset-box op-hover" title="{{$T.Get "Pull Updates"}}"><i class="bi bi-cloud-download" style="font-size:1rem;line-height:1;"></i></button></form>
       {{else}}<span class="inline-flex items-center justify-center p-2" aria-hidden="true"><span class="block size-4"></span></span>{{end}}
       {{if ne $r.DeployMode "none"}}
-      <form method="POST" action="/git"><input type="hidden" name="csrf_token" value="{{.CSRF}}"><input type="hidden" name="action" value="deploy"><input type="hidden" name="repo" value="{{$r.Name}}"><button type="submit" class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white" title="{{$T.Get "Deploy"}}"><i class="bi bi-rocket-takeoff" style="font-size:1rem;line-height:1;"></i></button></form>
+      <form method="POST" action="/git"><input type="hidden" name="csrf_token" value="{{.CSRF}}"><input type="hidden" name="action" value="deploy"><input type="hidden" name="repo" value="{{$r.Name}}"><button type="submit" class="inline-flex items-center justify-center p-2 op-inset-box op-hover" title="{{$T.Get "Deploy"}}"><i class="bi bi-rocket-takeoff" style="font-size:1rem;line-height:1;"></i></button></form>
       {{else}}<span class="inline-flex items-center justify-center p-2" aria-hidden="true"><span class="block size-4"></span></span>{{end}}
-      <a href="/git?log={{$r.Name}}" class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white" title="{{$T.Get "Commit log"}}"><i class="bi bi-clock-history" style="font-size:1rem;line-height:1;"></i></a>
-      <button type="button" class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white" title="{{$T.Get "Settings"}}" :class="open === {{toJSON $r.Name}} && 'bg-slate-100 text-slate-950 dark:bg-slate-700/50 dark:text-white'" @click="open = open === {{toJSON $r.Name}} ? null : {{toJSON $r.Name}}; removing = null"><i class="bi bi-gear" style="font-size:1rem;line-height:1;"></i></button>
-      <button type="button" class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600 active:bg-red-50 dark:text-slate-400 dark:hover:bg-red-950/40 dark:hover:text-red-400" title="{{$T.Get "Remove"}}" :class="removing === {{toJSON $r.Name}} && 'bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400'" @click="removing = removing === {{toJSON $r.Name}} ? null : {{toJSON $r.Name}}; open = null"><i class="bi bi-trash3" style="font-size:1rem;line-height:1;"></i></button>
+      <a href="/git?log={{$r.Name}}" class="inline-flex items-center justify-center p-2 op-inset-box op-hover" title="{{$T.Get "Commit log"}}"><i class="bi bi-clock-history" style="font-size:1rem;line-height:1;"></i></a>
+      <button type="button" class="inline-flex items-center justify-center p-2 op-inset-box op-hover" title="{{$T.Get "Settings"}}" :class="open === {{toJSON $r.Name}} && 'is-on'" @click="open = open === {{toJSON $r.Name}} ? null : {{toJSON $r.Name}}; removing = null"><i class="bi bi-gear" style="font-size:1rem;line-height:1;"></i></button>
+      <button type="button" class="inline-flex items-center justify-center p-2 op-muted op-hover" title="{{$T.Get "Remove"}}" :class="removing === {{toJSON $r.Name}} && 'op-badge is-danger'" @click="removing = removing === {{toJSON $r.Name}} ? null : {{toJSON $r.Name}}; open = null"><i class="bi bi-trash3" style="font-size:1rem;line-height:1;"></i></button>
     </div>
   </td>
 </tr>
 <tr x-show="open === {{toJSON $r.Name}}" x-cloak>
-  <td colspan="9" class="border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-4" style="white-space: normal;">
+  <td colspan="9" class="op-td" style="white-space: normal;">
   <span hidden data-sort-col="repository" data-sort-value="{{$r.Name}}"></span><span hidden data-sort-col="website" data-sort-value="{{$r.Domain}}{{$r.TargetDir}}"></span><span hidden data-sort-col="branch" data-sort-value="{{$r.Branch}}"></span><span hidden data-sort-col="mode" data-sort-value="{{$r.DeployMode}}"></span><span hidden data-sort-col="commit" data-sort-value="{{if $r.Latest}}{{$r.Latest.ISO}}{{end}}"></span><span hidden data-sort-col="deployed" data-sort-value="{{$r.LastDeployISO}}"></span>
   <div class="space-y-4">
     {{if eq $r.Source "local"}}
@@ -327,7 +343,7 @@ function gitRepos() {
         {{template "git_copy_field" (dict "Value" $r.CloneURL "T" $T)}}
         <form method="POST" action="/git"><input type="hidden" name="csrf_token" value="{{.CSRF}}"><input type="hidden" name="action" value="reset_password"><input type="hidden" name="repo" value="{{$r.Name}}">{{template "git_confirm_button" (dict "T" $T "Label" ($T.Get "New push password") "Icon" "bi-key" "Class" .Btn)}}</form>
       </div>
-      <p class="mt-1.5 text-xs text-gray-500">{{$T.Get "Log in with your panel username"}} (<code>{{.Username}}</code>) {{$T.Get "and the repository's push password."}} <code>git remote add origin {{$r.CloneURL}} &amp;&amp; git push -u origin {{$r.Branch}}</code></p>
+      <p class="mt-1.5 text-xs op-muted">{{$T.Get "Log in with your panel username"}} (<code>{{.Username}}</code>) {{$T.Get "and the repository's push password."}} <code>git remote add origin {{$r.CloneURL}} &amp;&amp; git push -u origin {{$r.Branch}}</code></p>
     </div>
     {{else}}
     <div>
@@ -335,7 +351,7 @@ function gitRepos() {
       <div class="flex flex-wrap items-center gap-2">
         {{template "git_copy_field" (dict "Value" $r.WebhookURL "T" $T)}}
       </div>
-      <p class="mt-1.5 text-xs text-gray-500">{{$T.Get "Add this URL as a push webhook in GitHub, GitLab or Bitbucket so changes are pulled automatically."}}</p>
+      <p class="mt-1.5 text-xs op-muted">{{$T.Get "Add this URL as a push webhook in GitHub, GitLab or Bitbucket so changes are pulled automatically."}}</p>
     </div>
     {{end}}
 
@@ -378,29 +394,29 @@ function gitRepos() {
     {{if or $r.LastError $r.LastOutput}}
     <div>
       <p class="{{.Lbl}}">{{$T.Get "Last result"}}{{if $r.LastDeploy}} &middot; {{$T.Get "deployed"}} {{$r.LastDeploy}}{{end}}{{if $r.LastPull}} &middot; {{$T.Get "updated"}} {{$r.LastPull}}{{end}}</p>
-      {{if $r.LastError}}<p class="text-sm text-red-600 dark:text-red-400 mb-1">{{$r.LastError}}</p>{{end}}
-      {{if $r.LastOutput}}<pre class="text-xs font-mono text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded p-3 overflow-x-auto max-h-64 whitespace-pre-wrap">{{$r.LastOutput}}</pre>{{end}}
+      {{if $r.LastError}}<p class="text-sm mb-1 is-danger">{{$r.LastError}}</p>{{end}}
+      {{if $r.LastOutput}}<pre class="text-xs font-mono p-3 overflow-x-auto max-h-64 whitespace-pre-wrap op-surface">{{$r.LastOutput}}</pre>{{end}}
     </div>
     {{end}}
 
-    <div class="pt-2 border-t border-gray-200 dark:border-gray-800">
-      <button type="button" @click="removing = {{toJSON $r.Name}}; open = null" class="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-sm text-white font-medium inline-flex items-center gap-1.5"><i class="bi bi-trash3"></i> {{$T.Get "Remove Repository"}}</button>
+    <div class="pt-2">
+      <button type="button" @click="removing = {{toJSON $r.Name}}; open = null" class="gap-1.5 op-btn op-btn-danger"><i class="bi bi-trash3"></i> {{$T.Get "Remove Repository"}}</button>
     </div>
   </div>
   </td>
 </tr>
 <tr x-show="removing === {{toJSON $r.Name}}" x-cloak>
-  <td colspan="9" class="border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 px-4 sm:px-6 py-4" style="white-space: normal;">
+  <td colspan="9" class="sm:px-6 op-td" style="white-space: normal;">
   <span hidden data-sort-col="repository" data-sort-value="{{$r.Name}}"></span><span hidden data-sort-col="website" data-sort-value="{{$r.Domain}}{{$r.TargetDir}}"></span><span hidden data-sort-col="branch" data-sort-value="{{$r.Branch}}"></span><span hidden data-sort-col="mode" data-sort-value="{{$r.DeployMode}}"></span><span hidden data-sort-col="commit" data-sort-value="{{if $r.Latest}}{{$r.Latest.ISO}}{{end}}"></span><span hidden data-sort-col="deployed" data-sort-value="{{$r.LastDeployISO}}"></span>
   <form method="POST" action="/git" class="flex flex-col gap-3 sm:flex-row sm:items-center">
     <input type="hidden" name="csrf_token" value="{{.CSRF}}"><input type="hidden" name="action" value="delete"><input type="hidden" name="repo" value="{{$r.Name}}">
     <div class="flex-1">
-      <p class="text-sm font-medium text-gray-900 dark:text-white">{{$T.Get "Remove"}} {{$r.Name}}?</p>
-      <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{{$T.Get "The repository and its history are deleted from the server. Files already deployed to"}} <code class="text-xs">{{$r.TargetDir}}</code> {{$T.Get "stay in place."}}</p>
+      <p class="text-sm font-medium op-strong">{{$T.Get "Remove"}} {{$r.Name}}?</p>
+      <p class="text-sm mt-0.5 op-muted">{{$T.Get "The repository and its history are deleted from the server. Files already deployed to"}} <code class="text-xs">{{$r.TargetDir}}</code> {{$T.Get "stay in place."}}</p>
     </div>
     <div class="flex items-center gap-2 shrink-0">
-      <button type="button" @click="removing = null" class="px-4 py-2 rounded border border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-50 hover:border-gray-400 transition-colors whitespace-nowrap">{{$T.Get "Cancel"}}</button>
-      <button type="submit" class="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-sm text-white font-medium transition-colors whitespace-nowrap">{{$T.Get "Remove"}}</button>
+      <button type="button" @click="removing = null" class="op-btn op-btn-secondary">{{$T.Get "Cancel"}}</button>
+      <button type="submit" class="op-btn op-btn-danger">{{$T.Get "Remove"}}</button>
     </div>
   </form>
   </td>
@@ -410,49 +426,49 @@ function gitRepos() {
 {{define "git_log"}}
 {{$v := .LogView}}
 <section x-data="{ q: '' }">
-  <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+  <div class="op-page-head op-cms-head">
     <div>
-      <div class="flex items-center gap-x-3">
-        <a href="/git" class="text-gray-400 hover:text-gray-900 dark:hover:text-gray-50" title="{{.T.Get "Back"}}"><i class="bi bi-arrow-left"></i></a>
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Commit log"}}: {{$v.Name}}</h1>
-        <span class="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-800 dark:bg-blue-500/10 dark:text-blue-300"><i class="bi bi-git"></i> {{$v.Branch}}</span>
+      <div class="op-wp-title">
+        <a href="/git" class="op-muted" title="{{.T.Get "Back"}}"><i class="bi bi-arrow-left"></i></a>
+        <h1 class="op-title">{{.T.Get "Commit log"}}: {{$v.Name}}</h1>
+        <span class="op-badge is-accent"><i class="bi bi-git"></i> {{$v.Branch}}</span>
       </div>
-      <p class="text-sm text-gray-500 dark:text-gray-500">{{len .Log}} {{.T.Get "commits"}} &middot; {{.T.Get "deploys to"}} <code class="text-xs">{{$v.TargetDir}}</code>{{if $v.LastDeployISO}} &middot; {{.T.Get "last deployed"}} <span data-relative-date="{{$v.LastDeployISO}}" title="{{$v.LastDeploy}}">{{$v.LastDeploy}}</span>{{end}}</p>
+      <p class="op-meta">{{len .Log}} {{.T.Get "commits"}} &middot; {{.T.Get "deploys to"}} <code class="text-xs">{{$v.TargetDir}}</code>{{if $v.LastDeployISO}} &middot; {{.T.Get "last deployed"}} <span data-relative-date="{{$v.LastDeployISO}}" title="{{$v.LastDeploy}}">{{$v.LastDeploy}}</span>{{end}}</p>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+    <div class="op-actions">
       <div class="relative w-full sm:w-64">
-        <input x-model="q" type="search" placeholder="{{.T.Get "Search"}}" class="relative block w-full appearance-none rounded border px-2.5 py-2 pl-8 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:border-blue-500">
-        <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center text-gray-400 dark:text-gray-600"><i class="bi bi-search"></i></div>
+        <input x-model="q" type="search" placeholder="{{.T.Get "Search"}}" class="op-input">
+        <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center op-muted"><i class="bi bi-search"></i></div>
       </div>
     </div>
   </div>
 
   <div class="w-full overflow-x-auto whitespace-nowrap">
-    <table class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+    <table class="op-table is-plain">
       <thead>
-        <tr class="bg-gray-50 dark:bg-gray-900">
-          <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 sm:pl-6">{{.T.Get "Commit"}}</th>
-          <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Message"}}</th>
-          <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Author"}}</th>
-          <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Date"}}</th>
+        <tr class="op-thead">
+          <th scope="col" class="op-th">{{.T.Get "Commit"}}</th>
+          <th scope="col" class="op-th">{{.T.Get "Message"}}</th>
+          <th scope="col" class="op-th">{{.T.Get "Author"}}</th>
+          <th scope="col" class="op-th">{{.T.Get "Date"}}</th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-gray-200 dark:divide-gray-800 text-sm text-gray-600 dark:text-gray-400">
+      <tbody class="text-sm op-muted">
         {{if not .Log}}
         <tr><td colspan="4" class="p-6 text-center">{{.T.Get "No commits on this branch yet."}}</td></tr>
         {{end}}
         {{range .Log}}
-        <tr x-show="q === '' || {{toJSON (print .Hash " " .Subject " " .Author " " .Email " " .Date)}}.toLowerCase().includes(q.toLowerCase())" class="hover:bg-gray-100 dark:hover:bg-gray-900">
+        <tr x-show="q === '' || {{toJSON (print .Hash " " .Subject " " .Author " " .Email " " .Date)}}.toLowerCase().includes(q.toLowerCase())" class="op-tr op-hover">
           <td class="px-4 sm:pl-6 py-3">
             <div class="flex items-center gap-2">
-              <code class="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50" title="{{.Hash}}">{{.Short}}</code>
-              {{if eq .Hash $v.LastDeployed}}<span class="rounded bg-green-100 px-1.5 py-0.5 text-xs text-green-800 dark:bg-gray-800 dark:text-green-300"><i class="bi bi-check2"></i> {{$.T.Get "deployed"}}</span>{{end}}
+              <code class="op-badge" title="{{.Hash}}">{{.Short}}</code>
+              {{if eq .Hash $v.LastDeployed}}<span class="op-badge is-success"><i class="bi bi-check2"></i> {{$.T.Get "deployed"}}</span>{{end}}
             </div>
           </td>
-          <td class="px-4 py-3 text-gray-900 dark:text-gray-50" title="{{.Subject}}"><span class="block truncate" style="max-width: 32rem;">{{.Subject}}</span></td>
+          <td class="op-td" title="{{.Subject}}"><span class="block truncate" style="max-width: 32rem;">{{.Subject}}</span></td>
           <td class="px-4 py-3" title="{{.Email}}">
             <div class="flex items-center gap-2">
-              <span class="inline-flex items-center justify-center rounded-full bg-gray-200 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-50" style="width:1.5rem;height:1.5rem;">{{firstUpper .Author}}</span>
+              <span class="inline-flex items-center justify-center text-xs font-medium op-inset-box" style="width:1.5rem;height:1.5rem;">{{firstUpper .Author}}</span>
               {{.Author}}
             </div>
           </td>
@@ -467,11 +483,11 @@ function gitRepos() {
 
 {{/* the same copy box Dynamic DNS uses for its update URL, dict "Value" "T" */}}
 {{define "git_copy_field"}}
-<div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded px-3 py-2 max-w-xl">
-  <code class="text-xs text-gray-500 dark:text-gray-400 truncate flex-1 select-text" title="{{.Value}}">{{.Value}}</code>
-  <button type="button" x-data="{ copied: false }" @click="copyToClipboard({{toJSON .Value}}); copied = true; setTimeout(() => copied = false, 1500)" class="shrink-0 text-gray-400 hover:text-blue-600 transition-colors" :title="copied ? {{toJSON (.T.Get "Copied!")}} : {{toJSON (.T.Get "Copy URL")}}">
+<div class="flex items-center gap-2 px-3 py-2 max-w-xl op-inset-box">
+  <code class="text-xs truncate flex-1 select-text op-muted" title="{{.Value}}">{{.Value}}</code>
+  <button type="button" x-data="{ copied: false }" @click="copyToClipboard({{toJSON .Value}}); copied = true; setTimeout(() => copied = false, 1500)" class="shrink-0 transition-colors op-muted" :title="copied ? {{toJSON (.T.Get "Copied!")}} : {{toJSON (.T.Get "Copy URL")}}">
     <svg x-show="!copied" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-    <svg x-show="copied" x-cloak class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+    <svg x-show="copied" x-cloak class="w-4 h-4 is-success" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
   </button>
 </div>
 {{end}}
@@ -479,11 +495,11 @@ function gitRepos() {
 {{/* same switch as the domains page column picker */}}
 {{define "git_column_toggle"}}
 <li>
-  <div class="flex py-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
+  <div class="flex py-1 op-inset-box op-hover">
     <label class="inline-flex items-center w-full cursor-pointer">
       <input type="checkbox" x-model="columns.{{.Key}}" x-on:change="saveColumns" class="sr-only peer">
-      <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
-      <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{.Label}}</span>
+      <div class="op-peer-switch"></div>
+      <span class="ms-3 text-sm font-medium op-strong">{{.Label}}</span>
     </label>
   </div>
 </li>
@@ -491,22 +507,16 @@ function gitRepos() {
 
 {{/* same sort arrows as the domains table */}}
 {{define "git_sort_header"}}
-<div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
-    <span>{{.Label}}</span>
-    <div class="-space-y-2">
-        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
-        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
-    </div>
-</div>
+<button type="button" class="op-th-sort" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" onclick="opSortToggle(event, this, sortTableColumn)">{{.Label}}<i aria-hidden="true"></i></button>
 {{end}}
 
 {{/* click once to arm, again within 5s to submit, like the delete buttons on /mysql; dict "T" "Label" "Icon" "Class" "IconOnly" */}}
 {{define "git_confirm_button"}}
 <button type="button" x-data="{ armed: false, left: 5, timer: null }"
   @click="if (armed) { clearInterval(timer); $el.closest('form').submit(); return } armed = true; left = 5; timer = setInterval(() => { if (--left <= 0) { clearInterval(timer); armed = false } }, 1000)"
-  :class="armed ? 'inline-flex items-center justify-center gap-1.5 rounded border border-transparent px-3 py-1.5 text-sm font-medium shadow-sm bg-red-600 text-white hover:bg-red-700' : {{toJSON .Class}}"
+  :class="armed ? 'op-btn op-btn-sm op-btn-danger' : {{toJSON .Class}}"
   title="{{.Label}}">
   <span x-show="!armed" class="inline-flex items-center gap-1.5"><i class="bi {{.Icon}}" style="font-size:1rem;line-height:1;"></i>{{if not .IconOnly}} {{.Label}}{{end}}</span>
-  <span x-show="armed" x-cloak class="inline-flex items-center gap-1.5 whitespace-nowrap text-xs"><i class="bi {{.Icon}}-fill"></i> {{.T.Get "Confirm"}} <span class="rounded-full bg-white px-1.5 text-red-600" x-text="left"></span></span>
+  <span x-show="armed" x-cloak class="inline-flex items-center gap-1.5 whitespace-nowrap text-xs"><i class="bi {{.Icon}}-fill"></i> {{.T.Get "Confirm"}} <span class="px-1.5 is-danger" x-text="left"></span></span>
 </button>
 {{end}}

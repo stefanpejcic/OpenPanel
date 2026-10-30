@@ -1,11 +1,11 @@
 {{define "temp_link"}}
 {{if .UserAllowed.temporary_links}}
 <!-- START templates/partials/temp_link.html -->
-<a href="#" type="button" data-selected-domain="{{.CurrentDomain}}" onclick="sendDataToPreview(event)" data-tooltip-target="tooltip-temporary-link" data-tooltip-placement="left" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit">{{.T.Get "Live Preview"}} <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 shrink-0">
+<a href="#" type="button" data-selected-domain="{{.CurrentDomain}}" onclick="sendDataToPreview(event)" data-tooltip-target="tooltip-temporary-link" data-tooltip-placement="bottom" class="op-btn op-btn-secondary">{{.T.Get "Live Preview"}} <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 shrink-0">
             <path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path>
         </svg></a>
 
-<div id="tooltip-temporary-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+<div id="tooltip-temporary-link" role="tooltip" class="absolute z-10 invisible inline-block opacity-0 tooltip op-tooltip op-tooltip-sm">
     {{.T.Get "Preview website on temporary .openpanel.org subdomain"}}
     <div class="tooltip-arrow" data-popper-arrow></div>
 </div>
@@ -15,7 +15,7 @@ function sendDataToPreview(event) {
     const button = event.currentTarget;
     const originalHTML = button.innerHTML;
 
-    button.innerHTML = `<svg class="animate-spin h-4 w-4 text-gray-600 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg> Generating..`;
+    button.innerHTML = `<svg class="animate-spin h-4 w-4 op-muted" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg> Generating..`;
     button.disabled = true;
 
     const domain = button.getAttribute('data-selected-domain');
@@ -53,33 +53,33 @@ function sendDataToPreview(event) {
 
 {{define "screenshot"}}
 <!-- START templates/partials/screenshot.html -->
-<div x-data="screenshotComponent({{toJSON .CurrentDomain}})" x-init="loadScreenshot()" class="flex rounded border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800 screenshot relative" :data-link="'http://' + domain">
+<div x-data="screenshotComponent({{toJSON .CurrentDomain}})" x-init="loadScreenshot()" class="flex screenshot relative op-surface" :data-link="'http://' + domain">
 
   <template x-if="loading">
-<div class="h-72 w-full flex flex-col items-center justify-center text-center text-gray-500 dark:text-gray-400">
-  <svg class="animate-spin h-8 w-8 text-gray-400 dark:text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
-  <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Loading screenshot..."}}</p>
+<div class="h-72 w-full flex flex-col items-center justify-center text-center op-muted">
+  <svg class="animate-spin h-8 w-8 op-muted" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+  <p class="mt-3 font-medium op-strong">{{.T.Get "Loading screenshot..."}}</p>
 </div>
   </template>
 
   <template x-if="!loading && screenshotAvailable">
     <div class="relative group">
       <a :href="'http://' + domain" target="_blank" class="block w-full h-full relative">
-        <img :src="screenshotUrl" :alt="{{toJSON (.T.Get "Screenshot of")}} + ' ' + domain" class="w-full h-full object-cover rounded"/>
+        <img :src="screenshotUrl" :alt="{{toJSON (.T.Get "Screenshot of")}} + ' ' + domain" class="w-full h-full object-cover"/>
       </a>
 
-      <div class="absolute inset-0 rounded bg-black/0 group-hover:bg-black/40 transition-all duration-200 pointer-events-none flex items-end p-3">
+      <div class="absolute inset-0 transition-all duration-200 pointer-events-none flex items-end p-3">
         <a :href="'http://' + domain" target="_blank" rel="noopener noreferrer"
-           class="pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center gap-1.5 px-3 py-1.5 rounded bg-white text-gray-900 text-xs font-medium hover:bg-gray-100">
-          <i class="bi bi-box-arrow-up-right text-xs"></i>
+           class="pointer-events-auto op-shot-open op-btn op-btn-sm op-btn-secondary">
+          {{template "op_icon" "out"}}
           {{.T.Get "Open site"}}
         </a>
       </div>
 
-      <button type="button" data-tooltip-target="tooltip-refresh-link" data-tooltip-placement="left" @click.prevent="regenerateScreenshot()" class="absolute top-0 right-0 mt-2 mr-2 flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50" aria-label="{{.T.Get "Refresh screenshot"}}">
-        <i class="bi bi-arrow-counterclockwise"></i>
+      <button type="button" data-tooltip-target="tooltip-refresh-link" data-tooltip-placement="left" @click.prevent="regenerateScreenshot()" class="op-btn op-btn-sm op-btn-secondary op-shot-refresh" aria-label="{{.T.Get "Refresh screenshot"}}">
+        {{template "op_icon" "refresh"}}
       </button>
-      <div id="tooltip-refresh-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+      <div id="tooltip-refresh-link" role="tooltip" class="absolute z-10 invisible inline-block opacity-0 tooltip op-tooltip op-tooltip-sm">
           {{.T.Get "Click to refresh screenshot"}}
           <div class="tooltip-arrow" data-popper-arrow></div>
       </div>
@@ -87,10 +87,11 @@ function sendDataToPreview(event) {
   </template>
 
   <template x-if="!loading && !screenshotAvailable">
-    <div id="placeholder_no_image" class="h-72 w-full flex flex-col items-center justify-center text-center text-gray-500 dark:text-gray-400">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" aria-hidden="true" class="text-gray-400 dark:text-gray-600"><rect x="2" y="3" width="20" height="18" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><path d="M4 17l5-5 4 4 5-6 3 3" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-      <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No Screenshot"}}</p>
-      <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Failed to generate website screenshot."}}</p>
+    <div id="placeholder_no_image" class="h-72 w-full flex flex-col items-center justify-center text-center op-muted">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" aria-hidden="true" class="op-muted"><rect x="2" y="3" width="20" height="18" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><path d="M4 17l5-5 4 4 5-6 3 3" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      <p class="mt-3 font-medium op-strong">{{.T.Get "No Screenshot"}}</p>
+      <p class="mt-1 text-sm op-muted">{{.T.Get "Failed to generate website screenshot."}}</p>
+      <button type="button" @click.prevent="regenerateScreenshot()" class="op-btn op-btn-sm op-btn-secondary op-shot-retry">{{template "op_icon" "refresh"}} {{.T.Get "Try again"}}</button>
     </div>
   </template>
 </div>
@@ -178,15 +179,15 @@ function sendDataToPreview(event) {
 
 {{define "visitors"}}
 <!-- START templates/partials/visitors.html -->
-<div id="partials_visitors" class="flex flex-col justify-center overflow-hidden rounded border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1 p-4">
-    <div class="mb-2 flex items-center justify-between gap-4 relative" id="partials_waf_title">
-        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-        <h2 id="visitors_header" class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Live Visitors"}}</h2>
+<div id="partials_visitors" class="op-card">
+    <div class="op-card-head" id="partials_waf_title">
+        <div class="op-hide"></div>
+        <h2 id="visitors_header" class="op-strong">{{.T.Get "Live Visitors"}}</h2>
 
-        <span class="flex items-center gap-x-2 text-sm font-medium text-gray-900 dark:bg-gray-950 dark:text-gray-950">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-px size-5 shrink-0 text-gray-500 dark:text-gray-500"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM13 12H17V14H11V7H13V12Z"></path></svg>
-            {{.T.Get "Last"}}
-            <select id="visitor_seconds" class="cursor-pointer rounded bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-500 dark:bg-blue-400/10 dark:text-blue-500">
+        <span class="flex items-center gap-x-2 text-sm font-medium op-strong">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-px size-5 shrink-0 op-muted"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM13 12H17V14H11V7H13V12Z"></path></svg>
+            <span class="op-vis-last">{{.T.Get "Last"}}</span>
+            <select id="visitor_seconds" class="op-select" aria-label="{{.T.Get "Time range"}}">
                 <option value="60" selected>{{.T.Get "1 minute"}}</option>
                 <option value="300">{{.T.Get "5 minutes"}}</option>
                 <option value="1800">{{.T.Get "30 minutes"}}</option>
@@ -200,13 +201,13 @@ function sendDataToPreview(event) {
 
     <div class="flex items-center min-h-[3rem]">
         <div id="visitors_loader" class="hidden">
-            <svg class="animate-spin h-6 w-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg class="animate-spin h-6 w-6 op-accent-text" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
             </svg>
         </div>
         {{if .UserAllowed.domain_logs}}<a href="/domains/log/{{index (split .CurrentDomain "/") 0}}" target="_blank" title="{{.T.Get "Open domain access logs in new tab"}}">{{end}}
-        <dd id="visitors_data" class="text-3xl font-semibold text-gray-900 dark:text-gray-50">0</dd>
+        <dd id="visitors_data" class="text-3xl font-semibold op-strong">0</dd>
         {{if .UserAllowed.domain_logs}}</a>{{end}}
     </div>
 </div>
@@ -261,76 +262,18 @@ document.addEventListener("DOMContentLoaded", () => {
 {{define "waf_panel"}}
 {{if .UserAllowed.waf}}
 <!-- START templates/partials/waf.html -->
-<style>
-.circle { border-radius: 50%; border: 2px solid gray; opacity: 0.5; background: none; transition: all 0.3s ease;}
-.circle-1 { width: 170px; height: 170px; }
-.circle-2 { width: 110px; height: 110px; }
-.circle-3 { width: 70px; height: 70px; }
-.dark\:outline-indigo-500 { outline-color: #6366F1; }
-.circle.active { background: radial-gradient(circle, rgba(99,102,241,0.3), transparent); border-color: rgba(99,102,241,0.5); opacity: 1;}
-</style>
-
-<div id="partials_waf" class="flex flex-col justify-center overflow-hidden rounded border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1 p-4">
-    <div class="mb-2 flex items-center justify-between gap-4 relative" id="partials_waf_title">
-        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Firewall"}}</h2>
-
-        <button
-            id="waf_toggle_btn"
-            type="button"
-            data-tooltip-target="tooltip-waf"
-            data-tooltip-placement="left"
-            class="group relative isolate inline-flex shrink-0 items-center rounded-full p-0.5 shadow-inner ring-1 ring-inset transition-all ring-black/5 dark:ring-gray-800 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 h-5 w-9 bg-gray-200 dark:bg-gray-950"
-            aria-checked="false">
-            <span class="pointer-events-none relative inline-block transform appearance-none rounded-full border-none shadow-lg outline-none transition-all duration-150 ease-in-out bg-white dark:bg-gray-50 h-4 w-4 translate-x-0"></span>
-        </button>
+<div id="partials_waf" class="op-card">
+    <div class="op-card-head" id="partials_waf_title">
+        <h2 class="op-with-icon">{{template "op_icon" "shield"}} {{.T.Get "Firewall"}}</h2>
+        <button id="waf_toggle_btn" type="button" title="{{.T.Get "Control Coraza WAF for the domain"}}" aria-label="{{.T.Get "Firewall"}}" class="op-switch" role="switch" aria-checked="false"></button>
     </div>
-
-    <div id="tooltip-waf" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
-        {{.T.Get "Control Coraza WAF for the domain"}}
-        <div class="tooltip-arrow" data-popper-arrow></div>
-    </div>
-
     <div id="partials_waf_data">
-        <div class="relative">
-            <div class="mt-8">
-                <div class="relative flex items-center justify-center isolate">
-                    <div class="absolute circle circle-1"></div>
-                    <div class="absolute circle circle-2"></div>
-                    <div class="absolute circle circle-3"></div>
-                    <i id="waf_icon" class="bi bi-shield text-3xl"></i>
-                </div>
-
-                <div class="flex flex-col gap-2 items-center justify-center relative">
-                    <p id="firewall_status_text" class="relative font-medium text-slate-900 dark:text-slate-100">{{.T.Get "Checking Firewall status.."}}</p>
-                </div>
-            </div>
-
-            <table class="mt-8 w-full text-sm">
-                <tbody>
-                    <tr>
-                        <td class="relative p-2"><span class="flex gap-1 relative font-medium text-gray-600 dark:text-gray-400">
-                            <i class="bi bi-shield-exclamation"></i> {{.T.Get "Requests denied"}}:
-                        </span></td>
-                        <td class="text-end">
-                            <a href="/server/waf/log/{{index (split .CurrentDomain "/") 0}}" target="_blank" title="{{.T.Get "Open domain WAF logs in new tab"}}">
-                            <b id="blocks"></b>
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="relative p-2"><span class="flex gap-1 relative font-medium text-gray-600 dark:text-gray-400">
-                            <i class="bi bi-shield-check"></i> {{.T.Get "Requests challenged"}}:
-                        </span></td>
-                        <td class="text-end">
-                            <a href="/server/waf/log/{{index (split .CurrentDomain "/") 0}}" target="_blank" title="{{.T.Get "Open domain WAF logs in new tab"}}">
-                            <b id="checks"></b>
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <span class="op-status op-waf-status"><i id="waf_icon" style="display:none"></i><span id="firewall_status_text">{{.T.Get "Checking Firewall status.."}}</span></span>
+        <div class="op-waf-nums">
+            <div><b id="blocks">0</b><span>{{.T.Get "Requests denied"}}</span></div>
+            <div><b id="checks">0</b><span>{{.T.Get "Requests challenged"}}</span></div>
         </div>
+        <a class="op-waf-link" href="/server/waf/log/{{index (split .CurrentDomain "/") 0}}">{{.T.Get "WAF logs for this domain"}}</a>
     </div>
 </div>
 
@@ -357,12 +300,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function setButtonState(active) {
-        const thumb = wafButton.querySelector("span");
         wafButton.setAttribute("aria-checked", active);
-        wafButton.classList.toggle("bg-indigo-600", active);
-        wafButton.classList.toggle("bg-gray-200", !active);
-        thumb.classList.toggle("translate-x-4", active);
-        thumb.classList.toggle("translate-x-0", !active);
     }
 
     async function fetchFirewallState() {
@@ -438,27 +376,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 {{define "pagespeed_panel"}}
 <!-- START templates/partials/pagespeed.html -->
-<div id="partials_pagespeed" class="flex flex-col justify-center overflow-hidden rounded border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1 p-4">
-            <div class="mb-2 flex items-center justify-between gap-4 relative" id="partials_pagespeed_title">
-                <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-                <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Speed"}}</h2>
-                <span class="mt-6 inline-flex w-full justify-center space-x-4 whitespace-nowrap rounded border border-gray-200 px-2 py-1 text-xs text-gray-900 dark:border-gray-900 dark:text-gray-50 sm:mt-0 sm:w-fit sm:items-center">
-                    <span tabindex="1" class="flex items-center gap-1.5"><span aria-hidden="true" class="size-3 rounded-sm bg-red-600 dark:bg-red-500"></span>0-49</span>
-                    <span tabindex="1" class="flex items-center gap-1.5"><span aria-hidden="true" class="size-3 rounded-sm bg-orange-500 dark:bg-orange-500"></span>50-89</span>
-                    <span tabindex="1" class="flex items-center gap-1.5"><span aria-hidden="true" class="size-3 rounded-sm bg-emerald-600 dark:bg-emerald-500"></span>90-100</span>
+<div id="partials_pagespeed" class="op-card">
+            <div class="op-card-head" id="partials_pagespeed_title">
+                <div class="op-hide"></div>
+                <h2 class="op-strong">{{.T.Get "Speed"}}</h2>
+                <span class="mt-6 inline-flex w-full justify-center space-x-4 whitespace-nowrap px-2 py-1 text-xs sm:mt-0 sm:w-fit sm:items-center op-strong">
+                    <span tabindex="1" class="flex items-center gap-1.5"><span aria-hidden="true" class="size-3"></span>0-49</span>
+                    <span tabindex="1" class="flex items-center gap-1.5"><span aria-hidden="true" class="size-3"></span>50-89</span>
+                    <span tabindex="1" class="flex items-center gap-1.5"><span aria-hidden="true" class="size-3"></span>90-100</span>
                 </span>
             </div>
 
-    <div class="card-body text-center hidden" id="partials_pagespeed_loading">
-        <div class="flex h-72 items-center justify-center rounded border border-dashed border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-            <div class="text-center">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon mx-auto size-7 text-gray-400 dark:text-gray-600">
-                    <path d="M3 12H7V21H3V12ZM17 8H21V21H17V8ZM10 2H14V21H10V2Z"></path>
-                </svg>
-                <p class="mt-2 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Loading Google PageSpeed data"}}</p>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Data refreshes every 24 hours."}}</p>
-            </div>
-        </div>
+    <div class="hidden" id="partials_pagespeed_loading">
+        <p class="op-ps-line"><svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg><span>{{.T.Get "Loading Google PageSpeed data"}}</span></p>
     </div>
 
     <div class="card-body text-center hidden" id="partials_pagespeed_data">
@@ -468,12 +398,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class="flex justify-center">
             <div class="relative" role="progressbar" aria-label="{{.T.Get "progress bar"}}" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" data-max="100" data-value="65">
                 <svg width="120" height="120" viewBox="0 0 90 90" class="-rotate-90 transform">
-                    <circle r="42" cx="45" cy="45" stroke-width="6" fill="transparent" stroke="" stroke-linecap="round" class="transition-colors ease-linear stroke-gray-100"></circle>
-                    <circle r="42" cx="45" cy="45" stroke-width="6" stroke-dasharray="263.89378290154264 263.89378290154264" stroke-dashoffset="66.28214111016942" fill="transparent" stroke="" stroke-linecap="round" class="desktop-mainColor stroke-blue-500 transform-gpu transition-all duration-300 ease-in-out"></circle>
+                    <circle r="42" cx="45" cy="45" stroke-width="6" fill="transparent" stroke="" stroke-linecap="round" class="transition-colors ease-linear"></circle>
+                    <circle r="42" cx="45" cy="45" stroke-width="6" stroke-dasharray="263.89378290154264 263.89378290154264" stroke-dashoffset="66.28214111016942" fill="transparent" stroke="" stroke-linecap="round" class="desktop-mainColor transform-gpu transition-all duration-300 ease-in-out"></circle>
                 </svg>
                 <div class="absolute inset-0 flex items-center justify-center">
                     <div class="flex flex-col items-center">
-                        <span class="mt-1 font-medium tabular-nums text-gray-900 dark:text-gray-50" id="desktop-performance_score">??</span><span class="text-xs font-medium tabular-nums text-gray-500 dark:text-gray-500">{{.T.Get "Desktop"}}</span>
+                        <span class="mt-1 font-medium tabular-nums op-strong" id="desktop-performance_score">??</span><span class="text-xs font-medium tabular-nums op-muted">{{.T.Get "Desktop"}}</span>
                     </div>
                 </div>
             </div>
@@ -484,12 +414,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div class="flex justify-center">
             <div class="relative" role="progressbar" aria-label="{{.T.Get "progress bar"}}" aria-valuenow="74.88302286571907" aria-valuemin="0" aria-valuemax="100" data-max="100" data-value="74.88302286571907">
                 <svg width="120" height="120" viewBox="0 0 90 90" class="-rotate-90 transform">
-                    <circle r="42" cx="45" cy="45" stroke-width="6" fill="transparent" stroke="" stroke-linecap="round" class="transition-colors ease-linear stroke-gray-100"></circle>
-                    <circle r="42" cx="45" cy="45" stroke-width="6" stroke-dasharray="263.89378290154264 263.89378290154264" stroke-dashoffset="66.28214111016942" fill="transparent" stroke="" stroke-linecap="round" class="mobile-mainColor stroke-blue-500 transform-gpu transition-all duration-300 ease-in-out"></circle>
+                    <circle r="42" cx="45" cy="45" stroke-width="6" fill="transparent" stroke="" stroke-linecap="round" class="transition-colors ease-linear"></circle>
+                    <circle r="42" cx="45" cy="45" stroke-width="6" stroke-dasharray="263.89378290154264 263.89378290154264" stroke-dashoffset="66.28214111016942" fill="transparent" stroke="" stroke-linecap="round" class="mobile-mainColor transform-gpu transition-all duration-300 ease-in-out"></circle>
                 </svg>
                 <div class="absolute inset-0 flex items-center justify-center">
                     <div class="flex flex-col items-center">
-                        <span class="mt-1 font-medium tabular-nums text-gray-900 dark:text-gray-50" id="mobile-performance_score">??</span><span class="text-xs font-medium tabular-nums text-gray-500 dark:text-gray-500">{{.T.Get "Mobile"}}</span>
+                        <span class="mt-1 font-medium tabular-nums op-strong" id="mobile-performance_score">??</span><span class="text-xs font-medium tabular-nums op-muted">{{.T.Get "Mobile"}}</span>
                     </div>
                 </div>
             </div>
@@ -502,33 +432,33 @@ document.addEventListener("DOMContentLoaded", async () => {
             <thead>
                 <tr>
                     <td class="relative p-2"></td>
-                    <td class="text-end"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Desktop"}}</span></td>
-                    <td class="text-end"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Mobile"}}</span></td>
+                    <td class="text-end"><span class="relative font-medium op-muted">{{.T.Get "Desktop"}}</span></td>
+                    <td class="text-end"><span class="relative font-medium op-muted">{{.T.Get "Mobile"}}</span></td>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td class="relative text-left p-1"><span class="relative text-start font-medium text-slate-500 dark:text-slate-400">{{.T.Get "First Contentful Paint:"}}</span></td>
+                    <td class="relative text-left p-1"><span class="relative text-start font-medium op-muted">{{.T.Get "First Contentful Paint:"}}</span></td>
                     <td class="text-end"><b id="desktop-first_contentful_paint">??</b></td>
                     <td class="text-end"><b id="mobile-first_contentful_paint">??</b></td>
                 </tr>
                 <tr>
-                    <td class="relative text-left p-1"><span class="relative text-start font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Speed Index:"}}</span></td>
+                    <td class="relative text-left p-1"><span class="relative text-start font-medium op-muted">{{.T.Get "Speed Index:"}}</span></td>
                     <td class="text-end"><b id="desktop-speed_index">??</b></td>
                     <td class="text-end"><b id="mobile-speed_index">??</b></td>
                 </tr>
                 <tr>
-                    <td class="relative text-left p-1"><span class="relative text-start font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Time to Interactive:"}}</span></td>
+                    <td class="relative text-left p-1"><span class="relative text-start font-medium op-muted">{{.T.Get "Time to Interactive:"}}</span></td>
                     <td class="text-end"><b id="desktop-interactive">??</b></td>
                     <td class="text-end"><b id="mobile-interactive">??</b></td>
                 </tr>
                 <tr>
-                    <td colspan="3" class="relative p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Measured at"}} <span class="text-xs tabular-nums text-gray-500 dark:text-gray-500" id="timestamp"></span></span></td>
+                    <td colspan="3" class="relative p-2"><span class="relative font-medium op-muted">{{.T.Get "Measured at"}} <span class="text-xs tabular-nums op-muted" id="timestamp"></span></span></td>
                 </tr>
                 <tr>
-                    <td colspan="3" class="relative p-2"><span class="text-xs text-gray-500 dark:text-gray-500 domain_link hover:underline">
+                    <td colspan="3" class="relative p-2"><span class="text-xs domain_link op-muted">
                         {{if .PagespeedAPIKey}}
-                        {{.T.Get "PageSpeed Insights API key:"}} <span class="text-xs tabular-nums text-gray-500 dark:text-gray-500" id="click_to_show_api_key" style="filter: blur(5px); cursor: pointer;" onclick="revealAPIkey()">{{.PagespeedAPIKey}}</span>
+                        {{.T.Get "PageSpeed Insights API key:"}} <span class="text-xs tabular-nums op-muted" id="click_to_show_api_key" style="filter: blur(5px); cursor: pointer;" onclick="revealAPIkey()">{{.PagespeedAPIKey}}</span>
                         {{else if .UserAllowed.filemanager}}
                         <a href="/file-manager/edit-file/pagespeed_api_key.txt?new=true" target="_blank">{{.T.Get "Click to add PageSpeed Insights API key"}}</a>
                         {{else}}
@@ -540,33 +470,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         </table>
     </div>
 
-    <div class="card-body text-center" id="partials_pagespeed_no_data">
-        <div class="flex h-72 items-center justify-center rounded border border-dashed border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800">
-            <div class="text-center">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon mx-auto size-7 text-gray-400 dark:text-gray-600">
-                    <path d="M3 12H7V21H3V12ZM17 8H21V21H17V8ZM10 2H14V21H10V2Z"></path>
-                </svg>
-                <p class="mt-2 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No data to show"}}</p>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "May take 24h for data to be shown."}}</p>
-            </div>
-        </div>
-
-        <table class="w-full text-sm">
-            <thead><tr></tr></thead>
-            <tbody>
-                <tr>
-                    <td colspan="3" class="relative pt-2"><span class="text-sm text-gray-500 dark:text-gray-500 domain_link hover:underline">
-                        {{if .PagespeedAPIKey}}
-                        {{.T.Get "PageSpeed Insights API key:"}} <span class="text-xs tabular-nums text-gray-500 dark:text-gray-500" id="click_to_show_api_key" style="filter: blur(5px); cursor: pointer;" onclick="revealAPIkey()">{{.PagespeedAPIKey}}</span>
-                        {{else if .UserAllowed.filemanager}}
-                        <a href="/file-manager/edit-file/pagespeed_api_key.txt?new=true" class="text-xs" target="_blank">{{.T.Get "Click to add PageSpeed Insights API key"}}</a>
-                        {{else}}
-                        {{.T.Get "Ask Administrator to set a PageSpeed Insights API key"}}
-                        {{end}}
-                        </span></td>
-                </tr>
-            </tbody>
-        </table>
+    <div id="partials_pagespeed_no_data">
+        <p class="op-ps-line">{{template "op_icon" "chart"}}<span id="partials_pagespeed_msg">{{.T.Get "No data to show"}}. {{.T.Get "May take 24h for data to be shown."}}</span></p>
+        <p class="op-ps-key domain_link">
+            {{if .PagespeedAPIKey}}
+            {{.T.Get "PageSpeed Insights API key:"}} <span class="tabular-nums" id="click_to_show_api_key" style="filter: blur(5px); cursor: pointer;" onclick="revealAPIkey()">{{.PagespeedAPIKey}}</span>
+            {{else if .UserAllowed.filemanager}}
+            <a href="/file-manager/edit-file/pagespeed_api_key.txt?new=true" target="_blank">{{.T.Get "Click to add PageSpeed Insights API key"}}</a>
+            {{else}}
+            {{.T.Get "Ask Administrator to set a PageSpeed Insights API key"}}
+            {{end}}
+        </p>
     </div>
 
     <script>
@@ -585,10 +499,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         const circumference = 2 * Math.PI * 42;
 
         function getClassForScore(score) {
-            if (score <= 45) return 'stroke-red-500';
-            if (score <= 89) return 'stroke-orange-500';
-            if (score <= 100) return 'stroke-emerald-500';
-            return 'stroke-grey-500';
+            if (score <= 45) return 'op-score-danger';
+            if (score <= 89) return 'op-score-warning';
+            if (score <= 100) return 'op-score-success';
+            return 'op-score-none';
         }
 
         function updateCircleCompletion(selector, score) {
@@ -607,7 +521,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 document.querySelector(`#${type}-performance_score`).textContent = score;
                 document.querySelectorAll(`.${type}-mainColor`).forEach(el => {
-                    el.classList.remove('stroke-blue-500');
+                    el.classList.remove('stroke-blue-500', 'op-score-danger', 'op-score-warning', 'op-score-success', 'op-score-none');
                     el.classList.add(colorClass);
                 });
                 updateCircleCompletion(`.${type}-mainColor`, score);
@@ -621,6 +535,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         let toastDisplayed = false;
+        const psQuotaMsg = {{toJSON (.T.Get "Quota limit exceeded for Google PageSpeed API. Please add an API Key.")}};
+        const psErrorMsg = {{toJSON (.T.Get "Error fetching Google PageSpeed data for the domain. Please refresh the page. If the issue continues, contact support for assistance.")}};
+
+        function showNoData(msg) {
+            document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
+            document.querySelector('#partials_pagespeed_no_data').classList.remove('hidden');
+            const el = document.querySelector('#partials_pagespeed_msg');
+            if (msg && el) { el.textContent = msg; el.classList.add('is-error'); }
+        }
 
         function fetchDataAndUpdateUI() {
             const currentDomain = {{toJSON .CurrentDomain}};
@@ -635,75 +558,18 @@ document.addEventListener("DOMContentLoaded", async () => {
             })
                 .then(response => response.json().then(data => ({ ok: response.ok, data })))
                 .then(({ ok, data }) => {
+                    const apiMessage = data && data.message ? String(data.message) : '';
                     if (!ok) {
-                        let toastMessage = {{toJSON (.T.Get "Error fetching Google PageSpeed data for the domain. Please refresh the page. If the issue continues, contact support for assistance.")}};
-
-                        if (data && data.message) {
-                            const apiMessage = String(data.message);
-
-                            const quotaErrorKey = "google_ps_quota_error";
-                            const quotaErrorCacheDuration = 24 * 60 * 60 * 1000;
-                            const cachedError = JSON.parse(localStorage.getItem(quotaErrorKey));
-                            const now = Date.now();
-
-                            if (apiMessage.toLowerCase().includes('exceeded for quota metric')) {
-                                if (!cachedError || (now - cachedError.timestamp) > quotaErrorCacheDuration) {
-                                    toastMessage = "{{.T.Get "Quota limit exceeded for Google PageSpeed API. Please add an API Key."}}";
-
-                                    localStorage.setItem(quotaErrorKey, JSON.stringify({
-                                        shown: true,
-                                        timestamp: now
-                                    }));
-
-                                    showToast(toastMessage, 'error');
-                                    toastDisplayed = true;
-                                }
-
-                                document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
-                                document.querySelector('#partials_pagespeed_no_data').classList.remove('hidden');
-                                return;
-                            }
-                            else if (apiMessage.includes('Aborting')) {
-                                toastMessage = apiMessage;
-                                return;
-                            }
-                        }
-
-                        showToast(toastMessage, 'error');
-                        toastDisplayed = true;
-                        document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
-                        document.querySelector('#partials_pagespeed_no_data').classList.remove('hidden');
-                        return;
+                        if (apiMessage.toLowerCase().includes('exceeded for quota metric')) return showNoData(psQuotaMsg);
+                        if (apiMessage.includes('Aborting')) return showNoData(apiMessage);
+                        return showNoData(psErrorMsg);
                     }
 
-                    if (data.message) {
-                        let toastMessage = data.message;
+                    if (apiMessage) {
+                        if (apiMessage.toLowerCase().includes('exceeded for quota metric')) return showNoData(psQuotaMsg);
+                        if (apiMessage.includes('Aborting')) return showNoData(apiMessage);
 
-                        if (toastMessage.toLowerCase().includes('exceeded for quota metric')) {
-                            const quotaErrorKey = "google_ps_quota_error";
-                            const quotaErrorCacheDuration = 24 * 60 * 60 * 1000;
-                            const cachedError = JSON.parse(localStorage.getItem(quotaErrorKey));
-                            const now = Date.now();
-
-                            if (!cachedError || (now - cachedError.timestamp) > quotaErrorCacheDuration) {
-                                showToast({{toJSON (.T.Get "Quota limit exceeded for Google PageSpeed API. Please add an API Key.")}}, 'error');
-                                localStorage.setItem(quotaErrorKey, JSON.stringify({ shown: true, timestamp: now }));
-                                toastDisplayed = true;
-                            }
-
-                            document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
-                            document.querySelector('#partials_pagespeed_no_data').classList.remove('hidden');
-                            return;
-                        }
-
-                        if (toastMessage.includes('Aborting')) {
-                            showToast(toastMessage, 'error');
-                            document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
-                            document.querySelector('#partials_pagespeed_no_data').classList.remove('hidden');
-                            return;
-                        }
-
-                        showToast(toastMessage, 'loading');
+                        showToast(apiMessage, 'loading');
                         toastDisplayed = true;
                         setTimeout(fetchDataAndUpdateUI, 15000);
                     } else {
@@ -715,12 +581,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                         }
                     }
                 })
-                .catch(function () {
-                    showToast({{toJSON (.T.Get "Error fetching Google PageSpeed data for the domain. Please refresh the page. If the issue continues, contact support for assistance.")}}, 'error');
-                    toastDisplayed = true;
-                    document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
-                    document.querySelector('#partials_pagespeed_no_data').classList.remove('hidden');
-                });
+                .catch(function () { showNoData(psErrorMsg); });
         }
 
         fetchDataAndUpdateUI();
@@ -738,16 +599,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 {{define "malware_scan_panel"}}
 {{if .UserAllowed.malware_scan}}
 <!-- START templates/partials/malware_scan_panel.html -->
-<div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+<div class="op-section">
     <div>
-        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Scan for Malware"}}</h2>
+        <h2 class="op-h">{{.T.Get "Scan for Malware"}}</h2>
     </div>
-    <div class="sm:max-w-3xl md:col-span-2">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+    <div class="op-section-body">
+        <div class="op-form-grid">
 
-            <p class="col-span-full my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Scan this site's files for malware using the ClamAV antivirus scanner."}}</p>
+            <p class="col-span-full my-2 text-sm/6 op-muted">{{.T.Get "Scan this site's files for malware using the ClamAV antivirus scanner."}}</p>
 
-            <div id="malwareQuarantineNotice" class="col-span-full rounded-lg bg-red-50 p-4 text-sm text-red-800 dark:bg-red-500/10 dark:text-red-300" style="display: none;" role="alert">
+            <div id="malwareQuarantineNotice" class="col-span-full p-4 text-sm is-danger" style="display: none;" role="alert">
                 <p class="font-medium"><span id="malwareQuarantineCount"></span> {{.T.Get "infected files from this site are in quarantine."}}</p>
                 <p class="mt-1">{{.T.Get "The site may have been compromised. Review the files, find how they got there and update or remove the vulnerable code."}}</p>
                 <ul id="malwareQuarantineFiles" class="mt-2 list-disc pl-5 font-mono text-xs break-all"></ul>
@@ -755,12 +616,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             </div>
 
             <div class="col-span-full mt-2 gap-2 sm:mt-0 sm:flex">
-                <button type="button" id="malwareScanBtn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 w-100">{{.T.Get "Scan for Malware"}}</button>
-                <button type="button" id="malwareStopBtn" style="display: none;" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 mt-2 gap-x-1.5 whitespace-nowrap border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Stop"}}</button>
+                <button type="button" id="malwareScanBtn" class="op-btn op-btn-primary">{{.T.Get "Scan for Malware"}}</button>
+                <button type="button" id="malwareStopBtn" style="display: none;" class="op-btn op-btn-secondary">{{.T.Get "Stop"}}</button>
             </div>
 
             <div id="malwareScanProgress" class="col-span-full mt-4" style="display: none;">
-                <p class="text-sm text-gray-600 dark:text-gray-400">
+                <p class="text-sm op-muted">
                     <span id="malwareScanCount">0</span> {{.T.Get "files scanned"}} &mdash;
                     <span id="malwareScanCurrent"></span>
                 </p>
@@ -854,7 +715,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     btn.addEventListener('click', function() {
         btn.disabled = true;
-        btn.innerHTML = '<svg class="animate-spin h-4 w-4 text-gray-600 dark:text-gray-300 inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg>' + i18n.scanning;
+        btn.innerHTML = '<svg class="animate-spin h-4 w-4 inline mr-1 op-muted" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg>' + i18n.scanning;
 
         scanLineBuffer = '';
         scannedCount = 0;
@@ -919,56 +780,56 @@ document.addEventListener("DOMContentLoaded", async () => {
 {{define "site_git_tabbtn"}}{{if .UserAllowed.git}}<li role="presentation">
                 <a href="#" id="git-tab" data-tabs-target="#git" role="tab" aria-controls="git" aria-selected="false"
                    @click="activeTab = 'git'"
-                   :class="activeTab === 'git' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
-                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
+                   :class="activeTab === 'git' && 'is-active'"
+                   class="op-wp-tab">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" class="mr-1" viewBox="0 0 16 16"><circle cx="4" cy="3.5" r="1.75"/><circle cx="4" cy="12.5" r="1.75"/><circle cx="12" cy="6" r="1.75"/><path stroke-linecap="round" d="M4 5.25v5.5M12 7.75c0 2.5-2.5 3-6.25 3.5"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Git"}}</span>
+                    <span class="op-wp-tab-label">{{.T.Get "Git"}}</span>
                 </a>
             </li>{{end}}{{end}}
 
 
 {{define "site_git_panel"}}{{if .UserAllowed.git}}
-{{$in := "relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:border-blue-500"}}
-{{$lbl := "block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"}}
-{{$btn := "inline-flex items-center justify-center gap-1.5 rounded border px-3 py-1.5 text-sm font-medium shadow-sm transition-colors border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-50 dark:hover:bg-gray-800"}}
+{{$in := "op-input"}}
+{{$lbl := "block mb-1 op-label"}}
+{{$btn := "op-btn op-btn-sm op-btn-secondary"}}
 <!-- START site_git_panel -->
-<div class="hidden p-4 rounded" id="git" role="tabpanel" aria-labelledby="git-tab"
+<div class="hidden p-4" id="git" role="tabpanel" aria-labelledby="git-tab"
      x-data="siteGit({{toJSON .CurrentDomain}}, {{toJSON .Docroot}})" x-init="load()">
 
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">
         <div>
-            <h3 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Git"}}</h3>
-            <p class="text-sm text-gray-500">{{.T.Get "Deploy this website from a Git repository."}}</p>
+            <h3 class="op-strong">{{.T.Get "Git"}}</h3>
+            <p class="text-sm op-muted">{{.T.Get "Deploy this website from a Git repository."}}</p>
         </div>
         <div class="flex gap-2">
             <button type="button" class="{{$btn}}" @click="adding = !adding" x-text="adding ? {{toJSON (.T.Get "Cancel")}} : {{toJSON (.T.Get "Add Repository")}}"></button>
         </div>
     </div>
 
-    <template x-if="message"><div class="mb-4 rounded border border-green-500 bg-green-100 px-3 py-2 text-sm text-green-800 dark:bg-gray-800 dark:text-green-300" x-text="message"></div></template>
-    <template x-if="error"><div class="mb-4 rounded border border-red-500 bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/40 dark:text-red-300" x-text="error"></div></template>
+    <template x-if="message"><div class="op-alert is-success" x-text="message"></div></template>
+    <template x-if="error"><div class="op-alert is-danger" x-text="error"></div></template>
 
     <template x-if="password">
-        <div class="mb-4 rounded border border-blue-600 bg-blue-100 p-3 text-sm dark:bg-blue-500/10">
-            <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Push credentials, copy the password now, it is not shown again."}}</p>
-            <p class="mt-1 text-gray-700 dark:text-gray-300">{{.T.Get "Username"}}: <code class="select-text">{{.CurrentUsername}}</code></p>
-            <p class="text-gray-700 dark:text-gray-300">{{.T.Get "Password"}}: <code class="select-text" x-text="password"></code></p>
+        <div class="mb-4 p-3 text-sm">
+            <p class="op-strong">{{.T.Get "Push credentials, copy the password now, it is not shown again."}}</p>
+            <p class="mt-1 op-muted">{{.T.Get "Username"}}: <code class="select-text">{{.CurrentUsername}}</code></p>
+            <p class="op-muted">{{.T.Get "Password"}}: <code class="select-text" x-text="password"></code></p>
         </div>
     </template>
 
     <!-- add -->
-    <form x-show="adding" x-cloak @submit.prevent="create($event.target)" class="mb-4 space-y-4 rounded border border-gray-200 dark:border-gray-800 p-4">
+    <form x-show="adding" x-cloak @submit.prevent="create($event.target)" class="mb-4 space-y-4 p-4">
         <input type="hidden" name="action" value="create">
         <input type="hidden" name="domain" :value="domain">
         <input type="hidden" name="source" :value="source">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <button type="button" @click="source = 'remote'" :class="source === 'remote' ? 'border-blue-600 bg-blue-100 dark:bg-blue-500/10' : 'border-gray-300 dark:border-gray-800'" class="flex items-start gap-3 text-left rounded border p-3">
-            <span class="relative shrink-0 inline-flex items-center justify-center rounded bg-gray-100 dark:bg-gray-800" style="width:2.5rem;height:2.5rem;"><i class="bi bi-git text-xl" style="color:#f05032;"></i><i class="bi bi-cloud-fill absolute text-xs text-blue-500" style="right:-4px;bottom:-4px;"></i></span>
-            <span><span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Remote Git hosting"}}</span><span class="block text-xs text-gray-500">{{.T.Get "Clone from GitHub, GitLab, Bitbucket or any Git server."}}</span></span>
+            <button type="button" @click="source = 'remote'" :class="source === 'remote' ? 'is-on' : ''" class="flex items-start gap-3 text-left p-3 op-choice">
+            <span class="relative shrink-0 inline-flex items-center justify-center op-inset-box" style="width:2.5rem;height:2.5rem;"><i class="bi bi-git text-xl" style="color:#f05032;"></i><i class="bi bi-cloud-fill absolute text-xs op-accent-text" style="right:-4px;bottom:-4px;"></i></span>
+            <span><span class="block text-sm font-medium op-strong">{{.T.Get "Remote Git hosting"}}</span><span class="block text-xs op-muted">{{.T.Get "Clone from GitHub, GitLab, Bitbucket or any Git server."}}</span></span>
             </button>
-            <button type="button" @click="source = 'local'" :class="source === 'local' ? 'border-blue-600 bg-blue-100 dark:bg-blue-500/10' : 'border-gray-300 dark:border-gray-800'" class="flex items-start gap-3 text-left rounded border p-3">
-            <span class="relative shrink-0 inline-flex items-center justify-center rounded bg-gray-100 dark:bg-gray-800" style="width:2.5rem;height:2.5rem;"><i class="bi bi-git text-xl" style="color:#f05032;"></i><i class="bi bi-hdd-stack-fill absolute text-xs text-gray-500" style="right:-4px;bottom:-4px;"></i></span>
-            <span><span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Local repository"}}</span><span class="block text-xs text-gray-500">{{.T.Get "Create an empty repository here and push to it from your computer."}}</span></span>
+            <button type="button" @click="source = 'local'" :class="source === 'local' ? 'is-on' : ''" class="flex items-start gap-3 text-left p-3 op-choice">
+            <span class="relative shrink-0 inline-flex items-center justify-center op-inset-box" style="width:2.5rem;height:2.5rem;"><i class="bi bi-git text-xl" style="color:#f05032;"></i><i class="bi bi-hdd-stack-fill absolute text-xs op-muted" style="right:-4px;bottom:-4px;"></i></span>
+            <span><span class="block text-sm font-medium op-strong">{{.T.Get "Local repository"}}</span><span class="block text-xs op-muted">{{.T.Get "Create an empty repository here and push to it from your computer."}}</span></span>
             </button>
         </div>
         <div x-show="source === 'remote'" class="space-y-4">
@@ -1005,7 +866,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             </div>
         </div>
         <div x-data="{ on: false }">
-            <label class="inline-flex items-center gap-2 text-sm text-gray-900 dark:text-gray-50 cursor-pointer"><input type="checkbox" name="actions_enabled" value="1" x-model="on"> {{.T.Get "Enable additional deploy actions"}}</label>
+            <label class="inline-flex items-center gap-2 text-sm cursor-pointer op-strong"><input type="checkbox" name="actions_enabled" value="1" x-model="on"> {{.T.Get "Enable additional deploy actions"}}</label>
             <div x-show="on" x-cloak class="mt-3 grid grid-cols-1 lg:grid-cols-4 gap-4">
                 <div><label class="{{$lbl}}">{{.T.Get "Run in container"}}</label>
                     <select name="actions_container" class="{{$in}}"><template x-for="c in containers" :key="c"><option :value="c" x-text="c"></option></template></select>
@@ -1015,33 +876,33 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </div>
             </div>
         </div>
-        <button type="submit" :disabled="busy" class="inline-flex items-center justify-center rounded border px-4 py-2 text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60">
+        <button type="submit" :disabled="busy" class="op-btn op-btn-primary">
             <span x-text="busy ? {{toJSON (.T.Get "Working...")}} : {{toJSON (.T.Get "Create")}}"></span>
         </button>
     </form>
 
     <!-- list -->
     <template x-if="loaded && repos.length === 0 && !adding">
-        <p class="text-sm text-gray-500">{{.T.Get "No repositories deploy to this website yet."}}</p>
+        <p class="text-sm op-muted">{{.T.Get "No repositories deploy to this website yet."}}</p>
     </template>
     <div class="space-y-3">
         <template x-for="r in repos" :key="r.name">
-            <div class="rounded border border-gray-200 dark:border-gray-800 p-4">
+            <div class="p-4">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div class="min-w-0">
                         <div class="flex flex-wrap items-center gap-2">
-                            <span class="font-medium text-gray-900 dark:text-gray-50" x-text="r.name"></span>
-                            <span class="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-300" x-text="r.source === 'local' ? {{toJSON (.T.Get "Local")}} : {{toJSON (.T.Get "Remote")}}"></span>
-                            <span class="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-800 dark:bg-blue-500/10 dark:text-blue-300" x-text="r.branch"></span>
-                            <span class="inline-flex items-center gap-1 rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-300"><i class="bi text-gray-400 dark:text-gray-500" :class="modeIcon(r.deploy_mode)"></i><span x-text="modeLabel(r.deploy_mode)"></span></span>
+                            <span class="op-strong" x-text="r.name"></span>
+                            <span class="op-badge" x-text="r.source === 'local' ? {{toJSON (.T.Get "Local")}} : {{toJSON (.T.Get "Remote")}}"></span>
+                            <span class="op-badge is-accent" x-text="r.branch"></span>
+                            <span class="gap-1 op-badge"><i class="bi op-muted" :class="modeIcon(r.deploy_mode)"></i><span x-text="modeLabel(r.deploy_mode)"></span></span>
                         </div>
-                        <p class="mt-1 text-sm text-gray-500 break-words"><code class="text-xs" x-text="r.target_dir"></code></p>
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        <p class="mt-1 text-sm break-words op-muted"><code class="text-xs" x-text="r.target_dir"></code></p>
+                        <p class="mt-1 text-sm op-muted">
                             <template x-if="r.latest"><span><code x-text="r.latest.Short"></code> <span x-text="r.latest.Subject"></span>
-                                <span x-show="r.deploy_mode !== 'none'" class="ml-1 rounded px-1.5 py-0.5 text-xs" :class="r.up_to_date ? 'bg-green-100 text-green-800 dark:bg-gray-800 dark:text-green-300' : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-400/10 dark:text-yellow-300'" x-text="r.up_to_date ? {{toJSON (.T.Get "deployed")}} : {{toJSON (.T.Get "not deployed")}}"></span></span></template>
-                            <template x-if="!r.latest"><span class="text-gray-400">{{.T.Get "No commits yet."}}</span></template>
+                                <span x-show="r.deploy_mode !== 'none'" class="ml-1 op-badge" :class="r.up_to_date ? 'is-success' : 'is-warning'" x-text="r.up_to_date ? {{toJSON (.T.Get "deployed")}} : {{toJSON (.T.Get "not deployed")}}"></span></span></template>
+                            <template x-if="!r.latest"><span class="op-muted">{{.T.Get "No commits yet."}}</span></template>
                         </p>
-                        <p x-show="r.last_error" class="mt-1 text-sm text-red-600 dark:text-red-400" x-text="r.last_error"></p>
+                        <p x-show="r.last_error" class="mt-1 text-sm is-danger" x-text="r.last_error"></p>
                     </div>
                     <div class="flex flex-wrap gap-2 shrink-0">
                         <button x-show="r.source === 'remote'" type="button" :disabled="busy" class="{{$btn}}" @click="act('pull', r.name)">{{.T.Get "Pull Updates"}}</button>
@@ -1051,12 +912,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                     </div>
                 </div>
                 <div class="mt-3 flex flex-wrap items-center gap-2" x-show="r.clone_url || r.webhook_url">
-                    <span class="text-xs text-gray-500" x-text="r.clone_url ? {{toJSON (.T.Get "Clone URL")}} : {{toJSON (.T.Get "Webhook URL")}}"></span>
-                    <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded px-3 py-2 max-w-xl flex-1">
-                        <code class="text-xs text-gray-500 dark:text-gray-400 truncate flex-1 select-text" :title="r.clone_url || r.webhook_url" x-text="r.clone_url || r.webhook_url"></code>
-                        <button type="button" x-data="{ copied: false }" @click="copyToClipboard(r.clone_url || r.webhook_url); copied = true; setTimeout(() => copied = false, 1500)" class="shrink-0 text-gray-400 hover:text-blue-600 transition-colors" :title="copied ? {{toJSON (.T.Get "Copied!")}} : {{toJSON (.T.Get "Copy URL")}}">
+                    <span class="text-xs op-muted" x-text="r.clone_url ? {{toJSON (.T.Get "Clone URL")}} : {{toJSON (.T.Get "Webhook URL")}}"></span>
+                    <div class="flex items-center gap-2 px-3 py-2 max-w-xl flex-1 op-inset-box op-git-url-row">
+                        <code class="text-xs truncate flex-1 select-text op-muted" :title="r.clone_url || r.webhook_url" x-text="r.clone_url || r.webhook_url"></code>
+                        <button type="button" x-data="{ copied: false }" @click="copyToClipboard(r.clone_url || r.webhook_url); copied = true; setTimeout(() => copied = false, 1500)" class="shrink-0 transition-colors op-muted" :title="copied ? {{toJSON (.T.Get "Copied!")}} : {{toJSON (.T.Get "Copy URL")}}">
                             <svg x-show="!copied" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-    <svg x-show="copied" x-cloak class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+    <svg x-show="copied" x-cloak class="w-4 h-4 is-success" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                         </button>
                     </div>
                 </div>
@@ -1107,4 +968,72 @@ function siteGit(domain, docroot) {
 }
 </script>
 <!-- END site_git_panel -->
+{{end}}{{end}}
+
+{{/* small trash icon with a confirm popover, dict keys: T, Label, Detach/DetachText/DetachJS, Delete/DeleteText/DeleteJS, Typed (domain to type before deleting) */}}
+{{define "op_site_del"}}{{$first := ""}}{{if not .DetachJS}}{{$first = "delete"}}{{else if not .DeleteJS}}{{$first = "detach"}}{{end}}
+<div class="op-del" x-data="Object.assign(opMenu(), { ask: '{{$first}}', typed: '' })" x-init="new URLSearchParams(location.search).get('tab') === 'remove' && setTimeout(() => toggle(), 300)" @click.outside="open = false; ask = '{{$first}}'" @keydown.escape="open = false; ask = '{{$first}}'">
+    <button class="op-icon-btn is-danger" type="button" aria-label="{{.Label}}" title="{{.Label}}" :aria-expanded="open.toString()" x-ref="btn" @click="ask = '{{$first}}'; typed = ''; toggle()">{{template "op_icon" "trash"}}</button>
+    <div class="op-menu op-del-menu" x-ref="menu" x-show="open" x-cloak>
+        {{if and .DetachJS .DeleteJS}}<div x-show="!ask">
+            <button type="button" class="op-del-opt" @click="ask = 'detach'; $nextTick(() => place())">{{template "op_icon" "unlink"}}<span><b>{{.Detach}}</b><small>{{.T.Get "Files and database stay"}}</small></span></button>
+            <button type="button" class="op-del-opt is-danger" @click="ask = 'delete'; $nextTick(() => place())">{{template "op_icon" "trash"}}<span><b>{{.Delete}}</b><small>{{.T.Get "Files and database, no undo"}}</small></span></button>
+        </div>{{end}}
+        {{if .DetachJS}}<div class="op-del-ask" x-show="ask === 'detach'" x-cloak><b>{{.Detach}}</b><p>{{.DetachText}}</p>
+            <div class="op-del-acts"><button type="button" class="op-del-cancel" @click="{{if .DeleteJS}}ask = ''; $nextTick(() => place()){{else}}open = false{{end}}">{{if .DeleteJS}}{{.T.Get "Back"}}{{else}}{{.T.Get "Cancel"}}{{end}}</button><button type="button" class="op-del-go" @click="open = false; {{.DetachJS}}">{{.T.Get "Confirm detach"}}</button></div></div>{{end}}
+        {{if .DeleteJS}}<div class="op-del-ask" x-show="ask === 'delete'" x-cloak><b>{{.Delete}}</b><p>{{.DeleteText}}</p>
+            {{if .Typed}}<label class="op-del-type"><span>{{.T.Get "Type"}} <b class="op-mono">{{.Typed}}</b> {{.T.Get "to confirm"}}</span><input class="op-input op-mono" type="text" x-model="typed" autocomplete="off" spellcheck="false" aria-label="{{.T.Get "Type the domain to confirm"}}"></label>{{end}}
+            <div class="op-del-acts"><button type="button" class="op-del-cancel" @click="{{if .DetachJS}}ask = ''; $nextTick(() => place()){{else}}open = false{{end}}">{{if .DetachJS}}{{.T.Get "Back"}}{{else}}{{.T.Get "Cancel"}}{{end}}</button><button type="button" class="op-del-go is-danger"{{if .Typed}} :disabled="typed !== {{toJSON .Typed}}"{{end}} @click="open = false; {{.DeleteJS}}">{{.T.Get "Delete"}}</button></div></div>{{end}}
+    </div>
+</div>
+{{end}}
+
+{{/* colour app logo for a site type, a generic icon when there's none */}}
+{{define "op_app_logo"}}{{$t := lower .}}{{$f := ""}}
+{{- range $k := split "wordpress joomla drupal websitebuilder prestashop opencart phpbb flarum mediawiki dokuwiki sofawiki matomo nextcloud tinyphotogallery tinyfilemanager moodle ojs nodejs python ruby java n8n php docker" " "}}{{if or (eq $t $k) (and (ne $k "php") (ne $k "java") (contains $t $k))}}{{if not $f}}{{$f = $k}}{{end}}{{end}}{{end}}
+{{- if $f}}<img src="{{static (print "images/apps/" $f ".svg")}}" alt="" loading="lazy">{{else}}{{template "op_icon" "browser"}}{{end}}{{end}}
+
+{{/* live CPU/memory/process tiles for a runtime or n8n container from /json/services (podman names are lowercase), limit-only tiles when that route isn't allowed */}}
+{{define "op_rt_usage"}}{{if or .UserAllowed.docker .UserAllowed.services}}
+<div class="op-kpi op-rt-meter"><span class="op-kpi-label">{{template "op_icon" "cpu"}} {{.T.Get "CPU"}}</span><span class="op-kpi-value"><span data-u="cpu">–</span> <small>{{.T.Get "of %(n)s cores" "n" .CPU}}</small></span><div class="op-progress"><span data-u="cpu-bar" style="width:0"></span></div></div>
+<div class="op-kpi op-rt-meter"><span class="op-kpi-label">{{template "op_icon" "memory"}} {{.T.Get "Memory"}}</span><span class="op-kpi-value"><span data-u="mem">–</span> <small data-u="mem-limit">{{.T.Get "of %(n)s GB" "n" .RAM}}</small></span><div class="op-progress"><span data-u="mem-bar" style="width:0"></span></div></div>
+<div class="op-kpi op-rt-meter"><span class="op-kpi-label">{{template "op_icon" "terminal"}} {{.T.Get "Processes"}}</span><span class="op-kpi-value"><span data-u="pids">–</span> <small>{{.T.Get "of %(n)s PIDs" "n" .PIDs}}</small></span><div class="op-progress"><span data-u="pids-bar" style="width:0"></span></div></div>
+<script>
+(function () {
+    var root = document.currentScript.parentElement;
+    var name = {{toJSON (lower .Service)}}, cpuLimit = parseFloat({{toJSON .CPU}}) || 0, pidLimit = parseInt({{toJSON .PIDs}}, 10) || 0;
+    var of = {{toJSON (.T.Get "of")}};
+    function set(k, text, pct) {
+        var el = root.querySelector('[data-u="' + k + '"]');
+        if (el && text != null) el.textContent = text;
+        var bar = root.querySelector('[data-u="' + k + '-bar"]');
+        if (!bar || pct == null) return;
+        pct = Math.max(0, Math.min(100, pct));
+        bar.style.width = pct + '%';
+        bar.parentElement.classList.toggle('is-warning', pct >= 80 && pct < 95);
+        bar.parentElement.classList.toggle('is-danger', pct >= 95);
+    }
+    function tick() {
+        fetch('/json/services?name=' + encodeURIComponent(name))
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) {
+                if (!d) return;
+                var s = d.container_stat;
+                if (!s) { set('cpu', '0%', 0); set('mem', '0 MB', 0); set('pids', '0', 0); return; }
+                var cpu = parseFloat(s.CPUPerc) || 0;
+                set('cpu', cpu.toFixed(1) + '%', cpuLimit ? cpu / cpuLimit : cpu);
+                var mem = String(s.MemUsage || '').split(' / ');
+                set('mem', mem[0] || '–', parseFloat(s.MemPerc) || 0);
+                if (mem[1]) set('mem-limit', of + ' ' + mem[1]);
+                var p = parseInt(s.PIDs, 10) || 0;
+                set('pids', String(p), pidLimit ? p / pidLimit * 100 : 0);
+            })
+            .catch(function () {});
+    }
+    if (name) { tick(); window.opPoll(tick, 10000); }
+})();
+</script>
+{{else}}
+<div class="op-kpi"><span class="op-kpi-label">{{template "op_icon" "cpu"}} {{.T.Get "CPU limit"}}</span><span class="op-kpi-value">{{.CPU}} <small>{{.T.Get "cores"}}</small></span></div>
+<div class="op-kpi"><span class="op-kpi-label">{{template "op_icon" "memory"}} {{.T.Get "Memory limit"}}</span><span class="op-kpi-value">{{.RAM}} <small>GB</small></span></div>
 {{end}}{{end}}

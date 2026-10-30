@@ -1,125 +1,110 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "content"}}
 <!-- START templates/php/options.html -->
 
 {{if .Version}}
 
 <script src="{{static "js/db-tuning.js"}}"></script>
+{{$groups := dict "memory_limit" "limits" "post_max_size" "limits" "upload_max_filesize" "limits" "max_execution_time" "limits" "max_input_time" "limits" "max_input_vars" "limits" "output_buffering" "limits" "error_reporting" "errors" "display_errors" "errors" "log_errors" "errors" "date.timezone" "behaviour" "allow_url_fopen" "behaviour" "file_uploads" "behaviour" "short_open_tag" "behaviour" "zlib.output_compression" "behaviour" "disable_functions" "security" "open_basedir" "security"}}
+{{$hints := dict "memory_limit" "Most memory one request may use." "post_max_size" "Largest form or upload body." "upload_max_filesize" "Keep it at or below post_max_size." "max_execution_time" "Longest a script may run." "max_input_time" "Time allowed to read the request." "max_input_vars" "Raise it for big menus or forms." "output_buffering" "Buffer size in bytes, 0 turns it off." "error_reporting" "Which errors PHP reports." "display_errors" "Print errors in the page. Leave it off on live sites." "log_errors" "Write errors to the PHP error log." "date.timezone" "Used by date functions when a script doesn't set one." "allow_url_fopen" "Lets scripts open remote URLs like files." "file_uploads" "Allow uploads through forms." "short_open_tag" "Accept the short open tag in PHP files." "zlib.output_compression" "Compress pages with gzip before sending them." "disable_functions" "Functions scripts may not call, comma separated." "open_basedir" "Folders scripts may open files in."}}
 
-<section aria-label="{{.T.Get "PHP Settings Header"}}" x-data="dbTuning('/php/php{{.Version}}/options/recommendations')" x-init="load()">
-    <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<div class="op-content" aria-label="{{.T.Get "PHP Settings Header"}}" x-data="dbTuning('/php/php{{.Version}}/options/recommendations')" x-init="load()">
+<form method="post" x-ref="form" class="op-col">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+    <div class="op-page-head">
         <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Edit options for this PHP version. Any changes will restart the service."}}</p>
+            <div class="op-eyebrow">php-fpm-{{.Version}}{{with .WebServer}} · {{.}}{{end}}</div>
+            <h1 class="op-title">{{.T.Get "PHP Options"}}</h1>
+            <p class="op-meta">{{.T.Get "Edit options for this PHP version. Any change restarts the PHP service."}}</p>
+        </div>
+        <div class="op-actions">
+            {{if gt (len .InstalledVersions) 1}}<select class="op-select" style="width:auto;min-width:110px" aria-label="{{.T.Get "PHP version"}}" onchange="location.href = '/php/php' + this.value + '/options'">{{range .InstalledVersions}}<option value="{{.}}" {{if eq . $.Version}}selected{{end}}>PHP {{.}}</option>{{end}}</select>{{end}}
+            <a class="op-btn op-btn-secondary" href="/php/php{{.Version}}.ini/editor">{{template "op_icon" "file"}} {{.T.Get "php.ini Editor"}}</a>
+        </div>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-        <div class="relative w-full sm:max-w-[250px] sm:[&>input]:h-[30px]">
-            <input x-model="searchQuery" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8" placeholder="{{.T.Get "Search"}}" type="search"/>
-            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
-                    <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
-                </svg>
+
+    {{template "db_tuning_banner" (dict "T" .T "Title" "Optimize PHP" "Intro" "Want to improve how your sites run on this PHP version? Click the optimize icon next to an option to see a custom recommendation." "Checking" "Checking this PHP version for possible optimizations...")}}
+
+    <section class="op-card op-php-opts" aria-label="{{.T.Get "Settings"}}">
+        <div class="op-card-head"><h2>{{.T.Get "Settings for"}} PHP {{.Version}}</h2><label class="op-search" style="max-width:260px">{{template "op_icon" "search"}}<input class="op-input" type="search" x-model="searchQuery" placeholder="{{.T.Get "Search options"}}" aria-label="{{.T.Get "Search options"}}"></label></div>
+        {{if .Fields}}
+        {{range $g := split "limits,errors,behaviour,security,other" ","}}
+        {{$any := false}}{{range $.Fields}}{{if eq (or (index $groups .Key) "other") $g}}{{$any = true}}{{end}}{{end}}
+        {{if $any}}
+        <div class="op-section">
+            <div>{{if eq $g "limits"}}<h3>{{$.T.Get "Limits"}}</h3><p>{{$.T.Get "How much memory and time a single request may use."}}</p>{{else if eq $g "errors"}}<h3>{{$.T.Get "Errors"}}</h3><p>{{$.T.Get "Log errors on live sites, don't print them."}}</p>{{else if eq $g "behaviour"}}<h3>{{$.T.Get "Behaviour"}}</h3><p>{{$.T.Get "Uploads, remote files and output."}}</p>{{else if eq $g "security"}}<h3>{{$.T.Get "Security"}}</h3><p>{{$.T.Get "Lock down what scripts may call or open."}}</p>{{else}}<h3>{{$.T.Get "Other"}}</h3><p>{{$.T.Get "Options your administrator added."}}</p>{{end}}</div>
+            <div class="op-col" style="gap:12px;min-width:0">
+                <div class="op-php-grid">
+                {{range $.Fields}}{{if and (eq (or (index $groups .Key) "other") $g) (ne .Kind "checkbox_binary") (ne .Kind "checkbox_onoff")}}
+                <div class="op-field" x-show="searchQuery === '' || {{toJSON .Key}}.toLowerCase().includes(searchQuery.toLowerCase())">
+                    <span class="op-label" style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span class="op-mono">{{.Key}}</span>{{template "db_tuning_button" (dict "Key" .Key "T" $.T)}}</span>
+                    {{if eq .Kind "timezone"}}
+                        <select id="{{.Key}}" name="{{.Key}}" class="op-select" aria-label="{{.Key}}">
+                            <option value="" {{if not .Value}}selected{{end}}>{{$.T.Get "Not set (PHP default)"}}</option>
+                            {{range .Timezones}}<option value="{{.Name}}" {{if .Selected}}selected{{end}}>{{.Name}}</option>{{end}}
+                        </select>
+                    {{else if eq .Kind "unit"}}
+                        <span class="combined-input op-php-unit" data-key="{{.Key}}">
+                            <input type="number" value="{{.NumberPart}}" min="0" step="any" class="numeric-part op-input op-mono" aria-label="{{.Key}}">
+                            <select class="unit-part op-select" aria-label="{{.Key}} {{$.T.Get "unit"}}">
+                                <option value="K" {{if eq .UnitPart "K"}}selected{{end}}>K</option>
+                                <option value="M" {{if eq .UnitPart "M"}}selected{{end}}>M</option>
+                                <option value="G" {{if eq .UnitPart "G"}}selected{{end}}>G</option>
+                            </select>
+                            <input type="hidden" name="{{.Key}}" value="{{.NumberPart}}{{.UnitPart}}" class="combined-value">
+                        </span>
+                    {{else if eq .Kind "number"}}
+                        {{if or (eq .Key "max_execution_time") (eq .Key "max_input_time")}}<span class="op-unit"><input type="number" min="0" id="{{.Key}}" name="{{.Key}}" value="{{.Value}}" step="any" class="op-input op-mono" aria-label="{{.Key}}"><em>s</em></span>
+                        {{else}}<input type="number" min="0" id="{{.Key}}" name="{{.Key}}" value="{{.Value}}" step="any" class="op-input op-mono" aria-label="{{.Key}}">{{end}}
+                    {{else if and (eq .Key "disable_functions") $.StartupFunctions}}
+                        <span style="display:block" x-data="{ v: {{toJSON .Value}}, need: {{toJSON $.StartupFunctions}}, get blocked() { const l = this.v.toLowerCase().replace(/[&quot;']/g, '').split(/[\s,]+/); return this.need.filter(f => l.includes(f)); } }">
+                            <input type="text" id="{{.Key}}" name="{{.Key}}" x-model="v" class="op-input op-mono" aria-label="{{.Key}}">
+                            <span x-show="blocked.length" x-cloak class="op-hint is-invalid" style="display:block;margin-top:4px"><span x-text="blocked.join(', ')"></span> {{$.T.Get "is needed by PHP-FPM to start. Saving with it disabled will stop PHP-FPM and all sites using this PHP version."}}</span>
+                        </span>
+                    {{else}}
+                        <input type="text" id="{{.Key}}" name="{{.Key}}" value="{{.Value}}" class="op-input op-mono" aria-label="{{.Key}}">
+                    {{end}}
+                    {{with index $hints .Key}}<span class="op-hint">{{$.T.Get .}}</span>{{end}}
+                </div>
+                {{end}}{{end}}
+                </div>
+                {{$checks := false}}{{range $.Fields}}{{if and (eq (or (index $groups .Key) "other") $g) (or (eq .Kind "checkbox_binary") (eq .Kind "checkbox_onoff"))}}{{$checks = true}}{{end}}{{end}}
+                {{if $checks}}
+                <div class="op-checks">
+                {{range $.Fields}}{{if and (eq (or (index $groups .Key) "other") $g) (or (eq .Kind "checkbox_binary") (eq .Kind "checkbox_onoff"))}}
+                    <label class="op-check-row" style="grid-template-columns:minmax(0,1fr) auto;align-items:center;cursor:pointer" x-show="searchQuery === '' || {{toJSON .Key}}.toLowerCase().includes(searchQuery.toLowerCase())">
+                        <div><b><span class="op-mono">{{.Key}}</span></b>{{with index $hints .Key}}<p>{{$.T.Get .}}</p>{{end}}</div>
+                        <span style="display:flex;align-items:center;gap:6px">{{template "db_tuning_button" (dict "Key" .Key "T" $.T)}}
+                        {{if eq .Kind "checkbox_binary"}}<input type="checkbox" class="form-check-input" role="switch" id="{{.Key}}" name="{{.Key}}" value="1" {{if .Checked}}checked{{end}} aria-label="{{.Key}}"><input type="hidden" name="{{.Key}}" value="0">
+                        {{else}}<input type="checkbox" class="form-check-input" role="switch" id="{{.Key}}" name="{{.Key}}" value="On" {{if .Checked}}checked{{end}} aria-label="{{.Key}}"><input type="hidden" name="{{.Key}}" value="Off">{{end}}
+                        </span>
+                    </label>
+                {{end}}{{end}}
+                </div>
+                {{end}}
             </div>
         </div>
-
-  <form method="post" x-ref="form">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-      <button type="submit" id="save-changes-button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Save Changes"}}</button>
-    </div>
-</div>
-<!-- END page header -->
-
-{{template "db_tuning_banner" (dict "T" .T "Title" "Optimize PHP" "Intro" "Want to improve how your sites run on this PHP version? Click the optimize icon next to an option to see a custom recommendation." "Checking" "Checking this PHP version for possible optimizations...")}}
-
-<!-- table -->
-    <div class="overflow-x-auto">
-        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
-            <table class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
-                <thead class="">
-                    <tr class="bg-gray-50 dark:bg-gray-900 sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_th:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 sm:[&amp;_th:first-child]:pl-6">
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Option"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Value"}}</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-
-{{if .Fields}}
-                  {{range .Fields}}
-                  <tr x-show="searchQuery === '' || '{{.Key}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Value}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-                    <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                      {{.Key}}
-                    </td>
-                    <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                    <div class="flex items-center gap-2">
-                      <div class="w-full">
-                        {{if eq .Kind "checkbox_binary"}}
-                            <input type="checkbox" id="{{.Key}}" name="{{.Key}}" value="1" {{if .Checked}}checked{{end}} class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                            <input type="hidden" name="{{.Key}}" value="0" />
-                        {{else if eq .Kind "timezone"}}
-                            <select id="{{.Key}}" name="{{.Key}}" class="bgroup/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2">
-                                <option value="" {{if not .Value}}selected{{end}}>{{$.T.Get "Not set (PHP default)"}}</option>
-                                {{range .Timezones}}
-                                    <option value="{{.Name}}" {{if .Selected}}selected{{end}}>{{.Name}}</option>
-                                {{end}}
-                            </select>
-                        {{else if eq .Kind "checkbox_onoff"}}
-                            <input type="checkbox" id="{{.Key}}" name="{{.Key}}" value="On" {{if .Checked}}checked{{end}} class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                            <input type="hidden" name="{{.Key}}" value="Off" />
-                        {{else if eq .Kind "unit"}}
-                            <div class="flex items-center combined-input" data-key="{{.Key}}">
-                                <input type="number" value="{{.NumberPart}}" min="0" step="any" class="numeric-part bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                                <select class="unit-part inline-flex bg-gray-100 border border-l-0 border-gray-300 text-gray-600 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                    <option value="K" {{if eq .UnitPart "K"}}selected{{end}}>K</option>
-                                    <option value="M" {{if eq .UnitPart "M"}}selected{{end}}>M</option>
-                                    <option value="G" {{if eq .UnitPart "G"}}selected{{end}}>G</option>
-                                </select>
-                                <input type="hidden" name="{{.Key}}" value="{{.NumberPart}}{{.UnitPart}}" class="combined-value" />
-                            </div>
-                        {{else if eq .Kind "number"}}
-                            <input type="number" min="0" name="{{.Key}}" value="{{.Value}}" step="any" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                        {{else if and (eq .Key "disable_functions") $.StartupFunctions}}
-                            <div class="w-full" x-data="{ v: {{toJSON .Value}}, need: {{toJSON $.StartupFunctions}}, get blocked() { const l = this.v.toLowerCase().replace(/[&quot;']/g, '').split(/[\s,]+/); return this.need.filter(f => l.includes(f)); } }">
-                                <input type="text" name="{{.Key}}" x-model="v" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                                <p x-show="blocked.length" x-cloak class="mt-1 text-xs text-wrap text-red-600 dark:text-red-400"><i class="bi bi-exclamation-triangle-fill"></i> <span x-text="blocked.join(', ')"></span> {{$.T.Get "is needed by PHP-FPM to start. Saving with it disabled will stop PHP-FPM and all sites using this PHP version."}}</p>
-                            </div>
-                        {{else}}
-                            <input type="text" name="{{.Key}}" value="{{.Value}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
-                        {{end}}
-                      </div>
-                      {{template "db_tuning_button" (dict "Key" .Key "T" $.T)}}
-                    </div>
-                    </td>
-                  </tr>
-                  {{end}}
+        {{end}}
+        {{end}}
+        {{else}}
+        <div class="op-empty"><b>{{.T.Get "Default keys are not available. Contact Administrator."}}</b></div>
+        {{end}}
+        <div class="op-form-foot op-sticky-foot"><span class="op-hint" style="margin-right:auto">PHP-FPM {{.Version}} {{.T.Get "restarts when you save"}}</span><button type="submit" id="save-changes-button" class="op-btn op-btn-primary">{{.T.Get "Save Changes"}}</button></div>
+    </section>
+</form>
 
 <script>
   document.querySelectorAll('.combined-input').forEach(container => {
     const numberInput = container.querySelector('.numeric-part');
     const unitSelect = container.querySelector('.unit-part');
     const hiddenInput = container.querySelector('.combined-value');
-
-    function updateCombinedValue() {
-      hiddenInput.value = numberInput.value + unitSelect.value;
-    }
-
+    function updateCombinedValue() { hiddenInput.value = numberInput.value + unitSelect.value; }
     numberInput.addEventListener('input', updateCombinedValue);
     unitSelect.addEventListener('change', updateCombinedValue);
     updateCombinedValue();
   });
 </script>
-
-{{else}}
-<tr class="sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-                    <td colspan="2" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                      {{.T.Get "Default keys are not available. Contact Administrator."}}
-                    </td>
-                  </tr>
-{{end}}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</form>
-<!-- END table -->
 
 {{template "db_tuning_dialog" .}}
 
@@ -132,63 +117,23 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 {{end}}
-
-</section>
+</div>
 
 {{else}}
 
-<!-- page header -->
-<section aria-label="{{.T.Get "PHP Select Header"}}" x-data="{ searchQuery: '' }">
-    <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<div class="op-content" aria-label="{{.T.Get "PHP Select Header"}}">
+    <div class="op-page-head">
         <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit PHP options"}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Modify PHP options such as memory limits, error reporting, and extension settings."}}</p>
+            <h1 class="op-title">{{.T.Get "Edit PHP options"}}</h1>
+            <p class="op-meta">{{.T.Get "Modify PHP options such as memory limits, error reporting, and extension settings."}}</p>
+        </div>
     </div>
+    <section class="op-card">
+        <div class="op-card-head"><h2>{{.T.Get "Pick a PHP version"}}</h2><span class="op-hint">{{len .InstalledVersions}} {{.T.Get "installed"}}</span></div>
+        <div class="op-chips">{{range .InstalledVersions}}<a class="op-chip" href="/php/php{{.}}/options"><span class="op-mono">PHP {{.}}</span></a>{{else}}<span class="op-hint">{{.T.Get "No PHP versions are installed."}}</span>{{end}}</div>
+        <div class="op-form-foot"><a href="/php/domains" class="op-btn op-btn-secondary">{{.T.Get "Back to PHP versions"}}</a></div>
+    </section>
 </div>
-<!-- END page header -->
-
-<!-- form -->
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
-    <form class="mt-8" method="GET" id="php_version_form">
-        <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-            <div class="col-span-full mb-5">
-                <label for="php_version" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Select PHP version:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-                <div class="flex rounded-lg shadow-sm">
-                    <select id="php_version" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 mt-2" onchange="updateFormAction()" required>
-                        <option value="" disabled selected>{{.T.Get "Select PHP Version"}}</option>
-                        {{range .InstalledVersions}}
-                        <option value="{{.}}">PHP {{.}}</option>
-                        {{end}}
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
-
-        <div class="md:flex items-center md:justify-end md:space-x-4">
-            <a href="/php/domains" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 w-full sm:w-fit">{{.T.Get "Back to PHP versions"}}</a>
-            <button class="relative hidden inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800 mt-2 w-full sm:w-auto sm:mt-0" type="submit" id="submit_version">{{.T.Get "Edit Options"}}</button>
-        </div>
-    </form>
-</div>
-<!-- END form -->
-
-<script>
-    function updateFormAction() {
-        var version = document.getElementById('php_version').value;
-        var form = document.getElementById('php_version_form');
-        var submitButton = document.getElementById('submit_version');
-        if (version) {
-            form.action = '/php/php' + version + '/options';
-            submitButton.classList.remove('hidden');
-        } else {
-            submitButton.classList.add('hidden');
-        }
-    }
-</script>
-
-</section>
 
 {{end}}
 

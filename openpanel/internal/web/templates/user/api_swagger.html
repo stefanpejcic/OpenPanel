@@ -1,3 +1,5 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "content"}}
@@ -22,32 +24,34 @@
     #swagger-ui-container { min-height: 60vh; }
 </style>
 
-<section aria-label="{{.T.Get "API Swagger UI"}}">
-
-    <!-- Page header -->
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<div class="op-content" aria-label="{{.T.Get "API Swagger UI"}}" x-data="{ ops: null, tags: null, origin: location.origin }" @api-spec.window="ops = $event.detail.ops; tags = $event.detail.tags">
+    <div class="op-page-head">
         <div>
-            <div class="flex items-center gap-x-3">
-                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "API Reference"}}</h1>
-                <span class="flex items-center gap-x-1.5 whitespace-nowrap rounded border border-gray-300 px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50 sm:w-fit sm:text-xs dark:border-gray-700 dark:text-gray-400 hover:dark:bg-gray-900 border-dashed outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500">REST</span>
-            </div>
+            <div class="op-eyebrow">REST · OpenAPI</div>
+            <h1 class="op-title">{{.T.Get "API Reference"}}</h1>
             {{if .Token}}
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Pre-authorized with a token for your account - \"Try it out\" runs live against this server."}}</p>
+            <p class="op-meta">{{.T.Get "Pre-authorized with a token for your account - \"Try it out\" runs live against this server."}}</p>
             {{else}}
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Authenticate with a Bearer token via"}} <code class="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">POST /api/login</code>.</p>
+            <p class="op-meta">{{.T.Get "Authenticate with a Bearer token via"}} <span class="op-code">POST /api/login</span>.</p>
             {{end}}
         </div>
-        <div class="mt-2 flex gap-2 sm:mt-0">
-            <a id="download-spec-btn" href="/static/openapi.yaml" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 w-full sm:mt-0">
-                {{.T.Get "Download spec"}}
-            </a>
+        <div class="op-actions">
+            <a id="download-spec-btn" href="/static/openapi.yaml" class="op-btn op-btn-primary" download>{{template "op_icon" "download"}} {{.T.Get "Download spec"}}</a>
         </div>
     </div>
 
-    <div id="swagger-ui-container" class="p-2 sm:p-4">
-        <div id="swagger-ui"></div>
-    </div>
-</section>
+    <section class="op-kpis" aria-label="{{.T.Get "Summary"}}">
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "code"}} {{.T.Get "Endpoints"}}</div><div class="op-kpi-value" x-text="ops === null ? '…' : ops"></div><div class="op-kpi-note" x-text="tags === null ? '' : tags + ' {{.T.Get "groups"}}'"></div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "key"}} {{.T.Get "Auth"}}</div><div class="op-kpi-value op-kpi-text">{{.T.Get "Bearer token"}}</div><div class="op-kpi-note op-mono">POST /api/login</div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "server"}} {{.T.Get "Server"}}</div><div class="op-kpi-value op-kpi-text">{{.T.Get "This install"}}</div><div class="op-kpi-note op-mono op-wrap" x-text="origin + '/'"></div></div>
+    </section>
+
+    <section class="op-card op-swagger-card">
+        <div id="swagger-ui-container">
+            <div id="swagger-ui"></div>
+        </div>
+    </section>
+</div>
 
 <script>
     // Swagger UI's own dark theme is keyed off a `dark-mode` class on
@@ -77,6 +81,12 @@
                 // overridden dark-mode with its OS-preference guess during
                 // mount, above.
                 syncSwaggerDarkMode();
+                try {
+                    const spec = window.ui.specSelectors.specJson().toJS();
+                    let ops = 0;
+                    Object.values(spec.paths || {}).forEach(p => Object.keys(p).forEach(m => { if (['get', 'post', 'put', 'patch', 'delete'].includes(m)) ops++; }));
+                    window.dispatchEvent(new CustomEvent('api-spec', { detail: { ops: ops, tags: (spec.tags || []).length } }));
+                } catch (e) {}
                 // This page only ever serves this panel's own spec - the
                 // topbar's URL field and "Explore" button would otherwise
                 // let a user point Swagger UI at an arbitrary spec/URL.

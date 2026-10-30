@@ -132,7 +132,9 @@ function enableDisableButtons() {
 
 // DISPLAY SELECTED
 
+// a fade-out still pending when the element fades back in would hide it again
 function fadeIn(el, duration) {
+    clearTimeout(el._fadeTimer);
     el.classList.remove('hidden');
     el.style.transition = `opacity ${duration}ms`;
     el.style.opacity = 0;
@@ -142,7 +144,8 @@ function fadeIn(el, duration) {
 function fadeOut(el, duration, callback) {
     el.style.transition = `opacity ${duration}ms`;
     el.style.opacity = 0;
-    setTimeout(() => { if (callback) callback(); }, duration);
+    clearTimeout(el._fadeTimer);
+    el._fadeTimer = setTimeout(() => { if (callback) callback(); }, duration);
 }
 
 function updateSelectedOptionsDisplay() {
@@ -213,7 +216,7 @@ function sortTable(tableId, columnIndex) {
 
     allThs.forEach(h => h.querySelector('.sort-icon')?.remove());
     const icon = document.createElement('span');
-    icon.className = 'sort-icon ml-1 text-xs text-gray-400';
+    icon.className = 'sort-icon ml-1 text-xs op-muted';
     icon.textContent = newDir === 'asc' ? '▲' : '▼';
     (th.querySelector('span') || th).appendChild(icon);
 
@@ -274,12 +277,12 @@ function initTableSelection() {
                 const from = rows.indexOf(anchorRow), to = rows.indexOf(this);
                 if (!event.ctrlKey && !event.metaKey) {
                     table.querySelectorAll('tbody tr.selected-row').forEach(r =>
-                        r.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900')
+                        r.classList.remove('selected-row')
                     );
                     selectedRows = [];
                 }
                 rows.slice(Math.min(from, to), Math.max(from, to) + 1).forEach(r => {
-                    r.classList.add('selected-row', 'bg-gray-200', 'dark:bg-gray-900');
+                    r.classList.add('selected-row');
                     if (!selectedRows.includes(r.dataset.rowIndex)) selectedRows.push(r.dataset.rowIndex);
                 });
                 sveselect = 0;
@@ -291,7 +294,7 @@ function initTableSelection() {
 
             anchorRow = this;
             if (event.ctrlKey || event.metaKey) {
-                toggleClasses(this, 'selected-row bg-gray-200 dark:bg-gray-900');
+                toggleClasses(this, 'selected-row');
                 const idx = selectedRows.indexOf(rowIndex);
                 if (idx === -1) selectedRows.push(rowIndex);
                 else selectedRows.splice(idx, 1);
@@ -299,9 +302,9 @@ function initTableSelection() {
                 setSelectAllLabel(false);
             } else {
                 table.querySelectorAll('tbody tr.selected-row').forEach(r =>
-                    r.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900')
+                    r.classList.remove('selected-row')
                 );
-                toggleClasses(this, 'selected-row bg-gray-200 dark:bg-gray-900');
+                toggleClasses(this, 'selected-row');
                 selectedRows = [rowIndex];
             }
             enableDisableButtons();
@@ -354,10 +357,10 @@ function initTableSelection() {
                 );
                 const rowIndex = row.dataset.rowIndex;
                 if (intersects) {
-                    row.classList.add('selected-row', 'bg-gray-200', 'dark:bg-gray-900');
+                    row.classList.add('selected-row');
                     if (!selectedRows.includes(rowIndex)) selectedRows.push(rowIndex);
                 } else {
-                    row.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900');
+                    row.classList.remove('selected-row');
                     const i = selectedRows.indexOf(rowIndex);
                     if (i !== -1) selectedRows.splice(i, 1);
                 }
@@ -380,10 +383,11 @@ function initTableSelection() {
         document.addEventListener('mouseup', onMouseUp);
     });
 
-    // click outside to deselect
+    // click outside to deselect, a target its own handler already removed (the permissions sheet's Cancel) doesn't count
     document.addEventListener('click', event => {
         const t = event.target;
         if (
+            t.isConnected &&
             !t.closest('#filemanager_table') &&
             !t.closest('#mainButtons') &&
             !t.closest('#selectedOptions') &&
@@ -395,7 +399,7 @@ function initTableSelection() {
             !wasSelecting
         ) {
             table.querySelectorAll('tbody tr.selected-row').forEach(r =>
-                r.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900')
+                r.classList.remove('selected-row')
             );
             selectedRows = [];
             anchorRow = null;
@@ -422,8 +426,8 @@ function initContextMenu() {
         if (!btn) return '';
         const icon = btn.querySelector('i')?.className || '';
         const label = btn.querySelector('span')?.textContent.trim() || '';
-        const danger = id === 'deleteButton' ? ' text-red-600 dark:text-red-500' : '';
-        return `<li data-target="${id}" class="flex items-center gap-x-2 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800${danger}"><i class="${icon}"></i>${label}</li>`;
+        const danger = id === 'deleteButton' ? ' is-danger' : '';
+        return `<li data-target="${id}" class="flex items-center gap-x-2 px-3 py-1.5 text-sm cursor-pointer op-hover${danger}"><i class="${icon}"></i>${label}</li>`;
     }).join('');
 
     const table = document.getElementById('filemanager_table');
@@ -435,9 +439,9 @@ function initContextMenu() {
 
         if (!row.classList.contains('selected-row')) {
             table.querySelectorAll('tbody tr.selected-row').forEach(r =>
-                r.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900')
+                r.classList.remove('selected-row')
             );
-            row.classList.add('selected-row', 'bg-gray-200', 'dark:bg-gray-900');
+            row.classList.add('selected-row');
             selectedRows = [row.dataset.rowIndex];
             sveselect = 0;
             setSelectAllLabel(false);
@@ -490,12 +494,12 @@ function initSelectAll() {
         const rows  = table.querySelectorAll('tbody tr.clickable-row');
 
         if (!sveselect) {
-            rows.forEach(r => r.classList.add('selected-row', 'bg-gray-200', 'dark:bg-gray-900'));
+            rows.forEach(r => r.classList.add('selected-row'));
             selectedRows = Array.from(rows).map((_, i) => String(i));
             sveselect = 1;
             setSelectAllLabel(true);
         } else {
-            rows.forEach(r => r.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900'));
+            rows.forEach(r => r.classList.remove('selected-row'));
             selectedRows = [];
             sveselect = 0;
             setSelectAllLabel(false);
@@ -555,7 +559,7 @@ function initActionButtons() {
         const rows = Array.from(document.querySelectorAll('#filemanager_table tbody tr.selected-row'));
         if (!rows.length) return;
 
-        const crossed = rows.slice(1).flatMap(r => Array.from(r.querySelectorAll('td:first-child h6, td:first-child h6 a')));
+        const crossed = rows.slice(1).flatMap(r => Array.from(r.querySelectorAll('td:first-child .op-row-title b')));
         const crossOut = on => crossed.forEach(el => {
             el.style.textDecoration = on ? 'line-through' : '';
             el.style.color = on ? '#dc2626' : '';
@@ -568,7 +572,7 @@ function initActionButtons() {
 
         inlineEdit(firstCell, `
             <div class="w-4 text-center">${icon}</div>
-            <span class="text-sm text-red-600 dark:text-red-400" style="text-decoration: line-through;">${nameEl.innerHTML}</span>
+            <span class="text-sm is-danger" style="text-decoration: line-through;">${nameEl.innerHTML}</span>
         `, (input, editor) => {
             const permanent = !FM.canTrash || editor.querySelector('.fm-inline-skip-trash').checked;
             const total = items.length;
@@ -598,8 +602,8 @@ function initActionButtons() {
         }, {
             saveLabel: items.length > 1 ? `${FM.i18n.delete} (${items.length})` : FM.i18n.delete,
             saveIcon: 'bi-trash',
-            saveClass: 'border-transparent bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600',
-            extra: FM.canTrash ? `<label class="inline-flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"><input type="checkbox" class="fm-inline-skip-trash w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600"> ${FM.i18n.skipTrash}</label>` : '',
+            saveClass: 'op-btn-danger',
+            extra: FM.canTrash ? `<label class="inline-flex items-center gap-1.5 text-sm cursor-pointer op-muted"><input type="checkbox" class="fm-inline-skip-trash op-native-check"> ${FM.i18n.skipTrash}</label>` : '',
             onClose: () => crossOut(false),
         });
         crossOut(true);
@@ -641,7 +645,7 @@ function initActionButtons() {
 
         const input = inlineEdit(nameCell, `
             <div class="w-4 text-center">${icon}</div>
-            <input type="text" class="fm-inline-input select-text block w-64 appearance-none rounded-md border px-2.5 py-1 shadow-sm outline-none transition text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:border-blue-500">
+            <input type="text" class="fm-inline-input select-text block w-64 appearance-none op-input op-input-sm">
         `, input => {
             const newName = input.value.trim();
             if (!newName) return false;
@@ -654,55 +658,213 @@ function initActionButtons() {
         input.setSelectionRange(0, dot > 0 ? dot : name.length);
     });
 
-    // PERMISSIONS (inline, first selected row gets the input, the rest mirror what's typed)
+    // PERMISSIONS: the toolbar/selection bar button and the row menu edit the selection, a mode in the Permissions column edits its own row
     document.getElementById('permButton').addEventListener('click', () => {
-        const items = getSelectedItems();
-        const rows = Array.from(document.querySelectorAll('#filemanager_table tbody tr.selected-row'));
-        if (!rows.length) return;
-
-        const current = rows.map(r => symbolicToOctal(r.dataset.permissions));
-        const shared = current.every(v => v === current[0]) ? current[0] : '';
-        const hasDirectory = items.some(({ itemType }) => itemType === 'directory');
-
-        // the other rows get a preview cell in place of their permissions cell
-        const previews = rows.slice(1).map((r, i) => {
-            const cell = r.querySelector('td.permissions-cell');
-            if (!cell) return null;
-            const td = document.createElement('td');
-            td.className = cell.className + ' font-medium text-blue-500';
-            td.textContent = shared || current[i + 1];
-            cell.style.display = 'none';
-            cell.insertAdjacentElement('afterend', td);
-            return { cell, td, original: current[i + 1] };
-        }).filter(Boolean);
-
-        const input = inlineEdit(rows[0].querySelector('td.permissions-cell'), `
-            <input type="text" inputmode="numeric" maxlength="3" pattern="[0-7]{3}" required data-no-live-hint class="fm-inline-input select-text block w-16 appearance-none rounded-md border px-2 py-1 shadow-sm outline-none transition text-sm text-center border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:border-blue-500">
-        `, (input, editor) => {
-            const value = input.value.trim();
-            if (!/^[0-7]{3}$/.test(value)) return false;
-            if (current.every(v => v === value) && !editor.querySelector('.fm-inline-recursive')?.checked) return true;
-
-            const fields = [['path_param', FM.pathParam], ['permissions', value]];
-            items.forEach(({ fileName }) => fields.push(['filename', fileName]));
-            if (editor.querySelector('.fm-inline-recursive')?.checked) fields.push(['recursive', 'on']);
-            postForm('/file-manager/permissions', fields);
-        }, {
-            buttonsBefore: true,
-            extra: hasDirectory ? `<label class="inline-flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 cursor-pointer"><input type="checkbox" class="fm-inline-recursive rounded border-gray-300 dark:border-gray-800"> ${FM.i18n.recursive}</label>` : '',
-            onClose: () => previews.forEach(({ cell, td }) => { td.remove(); cell.style.display = ''; }),
-        });
-
-        input.value = shared;
-        input.addEventListener('input', () => {
-            // octal only, so drop letters and 8/9 as they're typed
-            const clean = input.value.replace(/[^0-7]/g, '').slice(0, 3);
-            if (clean !== input.value) input.value = clean;
-            const value = clean;
-            previews.forEach(p => { p.td.textContent = value || p.original; });
-        });
-        input.select();
+        openPermSheet(Array.from(document.querySelectorAll('#filemanager_table tbody tr.selected-row')));
     });
+    // runs after the row's own click handler has selected it
+    document.getElementById('filemanager_table').addEventListener('click', e => {
+        const btn = e.target.closest('button[data-fm-perm]');
+        if (btn) openPermSheet([btn.closest('tr')]);
+    });
+}
+
+// PERMISSIONS EDITOR (fm_perm_sheet in filemanager_partials.html)
+
+const rwx = m => m.split('').map(c => { const n = +c; return (n & 4 ? 'r' : '-') + (n & 2 ? 'w' : '-') + (n & 1 ? 'x' : '-'); }).join('');
+const fillIn = (s, v) => String(s || '').replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+
+// symlinks are left out, chmod on one changes whatever it points to
+function openPermSheet(rows) {
+    const items = rows.filter(r => r && r.dataset.mode && r.dataset.type !== 'symlink').map(r => ({
+        name: r.dataset.file,
+        isDir: r.dataset.type === 'directory',
+        mode: r.dataset.mode,
+        sym: (r.dataset.permissions || '').slice(0, 10),
+        owner: r.dataset.owner || '',
+        group: r.dataset.group || '',
+    }));
+    if (!items.length) {
+        if (rows.length) showToast(escHTML(window.FM_PERM?.i18n.symlinksOnly || ''), 'error');
+        return;
+    }
+    window.dispatchEvent(new CustomEvent('fm-perm-open', { detail: items }));
+}
+
+// the changed rows get the new mode in place, same markup as files_table renders
+function updatePermRow(name, m) {
+    const t = window.FM_PERM?.i18n || {};
+    document.querySelectorAll('#filemanager_table tbody tr[data-file]').forEach(row => {
+        if (row.dataset.file !== name) return;
+        const old = row.dataset.permissions || '';
+        const sym = (old[0] || '-') + rwx(m);
+        row.dataset.permissions = sym + old.slice(10);
+        row.dataset.mode = m;
+        const btn = row.querySelector('button[data-fm-perm]');
+        if (!btn) return;
+        btn.querySelector('.op-perm').textContent = '0' + m;
+        btn.querySelector('.fm-perm-sym').textContent = sym;
+        btn.setAttribute('aria-label', fillIn(t.cellLabel, { mode: '0' + m, name }));
+        btn.classList.toggle('is-risky', (+m[2] & 2) > 0);
+        btn.classList.add('is-new');
+        setTimeout(() => btn.classList.remove('is-new'), 2400);
+    });
+}
+
+// one mode for every picked item, posted to /file-manager/permissions like the old inline editor but read back as JSON
+function fmPermSheet() {
+    const t = window.FM_PERM?.i18n || { presets: [] };
+    return {
+        t,
+        pm: null,
+        busy: false,
+        failed: '',
+        opener: null,
+        // the x-if body can still re-evaluate once while the sheet closes, so nothing below assumes pm is set
+        items() { return this.pm ? this.pm.items : []; },
+        value() { return this.pm ? this.pm.value.trim() : ''; },
+        open(items) {
+            if (!items || !items.length) return;
+            const modes = [...new Set(items.map(i => i.mode))];
+            this.opener = document.activeElement;
+            this.busy = false;
+            this.failed = '';
+            this.pm = { items, value: modes.length === 1 ? modes[0] : '', recursive: false, dirValue: '', dirTouched: false };
+            this.$nextTick(() => { const el = document.getElementById('fm-pm-octal'); if (el) { el.focus(); el.select(); } });
+        },
+        close() {
+            if (this.busy) return;
+            this.pm = null;
+            if (this.opener && this.opener.isConnected) this.opener.focus();
+            this.opener = null;
+        },
+        // the server's rule (crud.go permissionsRE): three digits, a leading 0 is fine, setuid/setgid/sticky refused
+        valid() { return /^0?[0-7]{3}$/.test(this.value()); },
+        mode() { return this.value().slice(-3); },
+        error() {
+            const v = this.value();
+            if (!v || this.valid()) return '';
+            return /^[1-7][0-7]{3}$/.test(v) ? t.errSpecial : t.errFormat;
+        },
+        hint() { return this.error() || (this.value() ? t.hint : t.hintMixed); },
+        bit(k, b) { return this.valid() && (+this.mode()[k] & b) > 0; },
+        setBit(k, b, on) {
+            const d = (this.valid() ? this.mode() : '000').split('').map(Number);
+            d[k] = on ? d[k] | b : d[k] & ~b;
+            this.pm.value = d.join('');
+        },
+        bitLabel(w, b) { return w.n + ' ' + (b === 4 ? t.read : b === 2 ? t.write : t.execute); },
+        sym(m, dir) { return (dir ? 'd' : '-') + rwx(m); },
+        dirs() { return this.items().filter(i => i.isDir); },
+        files() { return this.items().filter(i => !i.isDir); },
+        allDirs() { return this.files().length === 0; },
+        who() {
+            const first = this.items()[0] || {};
+            return [{ k: 0, n: t.owner, s: first.owner }, { k: 1, n: t.group, s: first.group }, { k: 2, n: t.others, s: t.everyoneElse }];
+        },
+        names() {
+            const n = this.items().map(i => i.name);
+            if (n.length < 2) return '';
+            return n.length > 4 ? fillIn(t.more, { names: n.slice(0, 4).join(', '), n: n.length - 4 }) : n.join(', ');
+        },
+        target() {
+            const path = '/var/www/html' + (FM.pathParam ? '/' + FM.pathParam.replace(/^\/+|\/+$/g, '') : '');
+            const all = this.items();
+            if (all.length < 2) return all.length ? fillIn(t.inPath, { what: all[0].name, path }) : '';
+            const d = this.dirs().length, f = all.length - d;
+            const parts = [d && (d === 1 ? t.oneFolder : fillIn(t.folders, { n: d })), f && (f === 1 ? t.oneFile : fillIn(t.files, { n: f }))].filter(Boolean);
+            return fillIn(t.inPath, { what: parts.length === 2 ? fillIn(t.and, { a: parts[0], b: parts[1] }) : parts[0], path });
+        },
+        current() {
+            const all = this.items(), modes = [...new Set(all.map(i => i.mode))];
+            if (!modes.length) return { oct: '', sym: '' };
+            if (modes.length > 1) return { oct: t.mixed, sym: modes.map(m => '0' + m).join(', ') };
+            const one = all.length === 1 ? all[0] : null;
+            return { oct: '0' + modes[0], sym: one && one.sym ? one.sym : this.sym(modes[0], this.allDirs()) };
+        },
+        suggested(p) { return !!p.for && (p.for === 'dir' ? this.files().length === 0 : this.dirs().length === 0); },
+        recursive() { return !!this.pm && this.pm.recursive && this.dirs().length > 0; },
+        // folders inside need execute to be opened: every digit with read gets execute too (644 -> 755, 640 -> 750)
+        folderFrom(m) { return m.split('').map(d => (+d & 4) ? String(+d | 1) : d).join(''); },
+        dirValue() { return this.pm.dirTouched ? this.pm.dirValue.trim() : (this.valid() ? this.folderFrom(this.mode()) : ''); },
+        dirValid() { return /^0?[0-7]{3}$/.test(this.dirValue()); },
+        dirMode() { return this.dirValue().slice(-3); },
+        dirError() {
+            const v = this.dirValue();
+            if (!v || this.dirValid()) return '';
+            return /^[1-7][0-7]{3}$/.test(v) ? t.errSpecial : t.errFormat;
+        },
+        setDir(v) { this.pm.dirValue = v; this.pm.dirTouched = true; },
+        sameForFolders() { this.setDir(this.mode()); },
+        ready() { return this.valid() && (!this.recursive() || this.dirValid()); },
+        // what the selection itself gets: a folder applied recursively takes the folder mode
+        newMode() { return this.recursive() && this.allDirs() && this.dirValid() ? this.dirMode() : this.mode(); },
+        unchanged() { return this.valid() && !this.recursive() && this.items().every(i => i.mode === this.mode()); },
+        warnings() {
+            if (!this.valid()) return [];
+            const m = this.mode(), o = +m[0], g = +m[1], w = [];
+            const rec = this.recursive(), many = rec || this.files().length > 1;
+            const files = this.files().length > 0 || rec, dirs = this.dirs().length > 0;
+            if (+m[2] & 2) w.push({ tone: 'danger', text: fillIn(t.warnWorld, { mode: '0' + m }) });
+            if (files && (o | g | +m[2]) & 1) w.push({ tone: 'warning', text: (rec ? t.warnExecInside : many ? t.warnExecMany : t.warnExecOne) + ' ' + t.warnExecWhy });
+            const dm = rec && this.dirValid() ? this.dirMode() : m;
+            if (dirs && (+dm[0] & 5) !== 5) w.push({ tone: 'danger', text: rec ? t.warnDirInside : t.warnDir });
+            if (files && !(o & 4)) w.push({ tone: 'danger', text: many ? t.warnReadMany : t.warnReadOne });
+            return w;
+        },
+        applyLabel() {
+            if (this.busy) return t.applying;
+            if (!this.valid()) return t.apply;
+            if (this.recursive() && this.dirValid() && this.dirMode() !== this.mode()) return fillIn(t.applyBoth, { files: '0' + this.mode(), folders: '0' + this.dirMode() });
+            return fillIn(t.applyMode, { mode: '0' + this.mode() });
+        },
+        async apply() {
+            if (!this.pm || !this.ready() || this.busy) return;
+            const p = this.pm, m = this.mode(), rec = this.recursive(), dm = rec ? this.dirMode() : m;
+            if (this.unchanged()) {
+                this.close();
+                showToast(escHTML(fillIn(t.noChange, { mode: '0' + m })), 'success');
+                return;
+            }
+            const body = new URLSearchParams({ csrf_token, path_param: FM.pathParam, permissions: m });
+            p.items.forEach(i => body.append('filename', i.name));
+            if (rec) {
+                body.append('recursive', 'on');
+                body.append('folder_permissions', dm);
+            }
+            this.busy = true;
+            this.failed = '';
+            let res = null;
+            try {
+                const r = await fetch('/file-manager/permissions', { method: 'POST', headers: { 'Accept': 'application/json', 'X-CSRF-Token': csrf_token }, body });
+                res = await r.json().catch(() => null);
+                if (!res) throw new Error('HTTP ' + r.status);
+                if (!r.ok) throw new Error(res.error || 'HTTP ' + r.status);
+            } catch (e) {
+                // shown in the sheet, a toast would sit under its scrim
+                this.busy = false;
+                this.failed = e.message || FM.i18n.unknownError;
+                return;
+            }
+            this.busy = false;
+            const changed = res.changed || [];
+            const isDir = new Set(p.items.filter(i => i.isDir).map(i => i.name));
+            changed.forEach(name => updatePermRow(name, isDir.has(name) ? dm : m));
+            // when nothing went through the sheet stays open with the reason
+            if (!changed.length) {
+                this.failed = res.error || FM.i18n.unknownError;
+                return;
+            }
+            this.close();
+            const inside = rec && p.items.some(i => i.isDir && changed.includes(i.name));
+            const msg = changed.length === 1
+                ? fillIn(inside ? t.doneOneInside : t.doneOne, { mode: '0' + m })
+                : fillIn(inside ? t.doneManyInside : t.doneMany, { n: changed.length, mode: '0' + m });
+            showToast(escHTML(msg), 'success');
+            // some went through and some didn't
+            if (res.error) showToast(escHTML(res.error), 'error');
+        },
+    };
 }
 
 // FOLDER PICKER MODAL (copy, move, compress, extract)
@@ -765,15 +927,15 @@ function openPicker(action, items) {
 
     function renderCrumbs() {
         const parts = cur ? cur.split('/') : [];
-        const crumbs = [`<button type="button" data-path="" class="text-gray-700 dark:text-gray-300 hover:underline cursor-pointer"><i class="bi bi-house"></i></button>`];
+        const crumbs = [`<button type="button" data-path="" class="cursor-pointer op-muted"><i class="bi bi-house"></i></button>`];
         parts.forEach((part, i) => {
-            crumbs.push(`<span class="text-gray-400">/</span><button type="button" data-path="${escHTML(parts.slice(0, i + 1).join('/'))}" class="text-gray-700 dark:text-gray-300 hover:underline cursor-pointer truncate">${escHTML(part)}</button>`);
+            crumbs.push(`<span class="op-muted">/</span><button type="button" data-path="${escHTML(parts.slice(0, i + 1).join('/'))}" class="cursor-pointer truncate op-muted">${escHTML(part)}</button>`);
         });
         $('fmPickerCrumbs').innerHTML = crumbs.join('');
     }
 
     async function load(path) {
-        list.innerHTML = `<li class="px-3 py-2 text-gray-500 dark:text-gray-400">${FM.i18n.working}</li>`;
+        list.innerHTML = `<li class="px-3 py-2 op-muted">${FM.i18n.working}</li>`;
         let folders;
         try {
             const res = await fetch('/json/folders/' + path.split('/').map(encodeURIComponent).join('/'));
@@ -792,19 +954,19 @@ function openPicker(action, items) {
         renderCrumbs();
         const rows = [];
         if (cur) {
-            rows.push(`<li><button type="button" data-path="${escHTML(cur.split('/').slice(0, -1).join('/'))}" class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer"><i class="bi bi-arrow-up"></i> ..</button></li>`);
+            rows.push(`<li><button type="button" data-path="${escHTML(cur.split('/').slice(0, -1).join('/'))}" class="flex w-full items-center gap-2 px-3 py-2 text-left cursor-pointer op-hover"><i class="bi bi-arrow-up"></i> ..</button></li>`);
         }
         folders.sort((x, y) => x.name.localeCompare(y.name)).forEach(f => {
             const p = joinPath(cur, f.name);
             const off = isBlocked(p);
-            rows.push(`<li><button type="button" data-path="${escHTML(p)}" ${off ? 'disabled' : ''} class="flex w-full items-center gap-2 px-3 py-2 text-left ${off ? 'cursor-not-allowed text-gray-400' : 'hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer'}"><i class="bi bi-folder-fill text-orange-500"></i><span class="truncate min-w-0">${escHTML(f.name)}</span>${f.has_subfolders && !off ? '<i class="bi bi-chevron-right ml-auto text-gray-400"></i>' : ''}</button></li>`);
+            rows.push(`<li><button type="button" data-path="${escHTML(p)}" ${off ? 'disabled' : ''} class="flex w-full items-center gap-2 px-3 py-2 text-left ${off ? 'cursor-not-allowed op-muted' : 'op-hover cursor-pointer'}"><i class="bi bi-folder-fill is-warning"></i><span class="truncate min-w-0">${escHTML(f.name)}</span>${f.has_subfolders && !off ? '<i class="bi bi-chevron-right ml-auto op-muted"></i>' : ''}</button></li>`);
         });
-        if (!folders.length) rows.push(`<li class="px-3 py-2 text-gray-500 dark:text-gray-400">${FM.i18n.noSubfolders}</li>`);
+        if (!folders.length) rows.push(`<li class="px-3 py-2 op-muted">${FM.i18n.noSubfolders}</li>`);
         list.innerHTML = rows.join('');
     }
 
     function showStatus(kind, html) {
-        status.className = 'rounded-md border border-gray-200 dark:border-gray-800 p-3 text-sm ' + (kind === 'error' ? 'bg-red-50 dark:bg-red-400/10 text-red-600 dark:text-red-400' : 'bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300');
+        status.className = 'op-alert' + (kind === 'error' ? ' is-danger' : '');
         status.innerHTML = html;
     }
 
@@ -824,7 +986,7 @@ function openPicker(action, items) {
         if (list.querySelector('.fm-picker-new')) return;
         const li = document.createElement('li');
         li.className = 'fm-picker-new flex items-center gap-2 px-3 py-1.5';
-        li.innerHTML = `<i class="bi bi-folder-fill text-orange-500"></i><input type="text" data-no-live-validate class="select-text block w-full appearance-none rounded-md border px-2 py-1 text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:border-blue-500 outline-none">`;
+        li.innerHTML = `<i class="bi bi-folder-fill is-warning"></i><input type="text" data-no-live-validate class="select-text block w-full appearance-none op-input op-input-sm">`;
         list.prepend(li);
         const input = li.querySelector('input');
         input.focus();
@@ -968,15 +1130,15 @@ function inlineEdit(cell, innerHTML, onSave, opts = {}) {
 
     const buttons = `
             ${opts.extra || ''}
-            <button type="button" data-act="save" class="inline-flex items-center gap-1 rounded-md border px-3 py-1 text-sm font-medium text-white shadow-sm cursor-pointer ${opts.saveClass || 'border-black bg-black hover:bg-gray-800 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60'}"><i class="bi ${opts.saveIcon || 'bi-check-lg'}"></i> ${opts.saveLabel || FM.i18n.save}</button>
-            <button type="button" data-act="cancel" class="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-900 shadow-sm hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 cursor-pointer"><i class="bi bi-x-lg"></i> ${FM.i18n.cancel}</button>`;
+            <button type="button" data-act="save" class="op-btn op-btn-sm ${opts.saveClass || 'op-btn-primary'}"><i class="bi ${opts.saveIcon || 'bi-check-lg'}"></i> ${opts.saveLabel || FM.i18n.save}</button>
+            <button type="button" data-act="cancel" class="gap-1 op-btn op-btn-sm op-btn-secondary"><i class="bi bi-x-lg"></i> ${FM.i18n.cancel}</button>`;
 
     const editor = document.createElement('td');
     editor.className = cell.className.replace('text-center', '') + ' fm-inline-editor';
     // last column has no room to the right, so float the buttons left over the neighbouring cells
     editor.innerHTML = opts.buttonsBefore ? `
         <div class="flex items-center justify-center py-0.5" style="position: relative;">
-            <div class="flex items-center gap-2 bg-gray-200 dark:bg-gray-900 pl-2" style="position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: .5rem; white-space: nowrap; z-index: 10;">${buttons}</div>
+            <div class="flex items-center gap-2 pl-2" style="position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: .5rem; white-space: nowrap; z-index: 10;">${buttons}</div>
             ${innerHTML}
         </div>` : `
         <div class="flex flex-wrap items-center gap-2 py-0.5">
@@ -1032,15 +1194,7 @@ function inlineEdit(cell, innerHTML, onSave, opts = {}) {
     return input;
 }
 
-function symbolicToOctal(symbolic) {
-    if (!symbolic || symbolic.length < 9) return '';
-    const map = { r: 4, w: 2, x: 1, '-': 0 };
-    return symbolic.slice(-9).match(/.{3}/g)
-        .map(p => p.split('').reduce((s, c) => s + (map[c] || 0), 0))
-        .join('');
-}
-
-// legacy for table
+// the trash page's permissions cell, /files has its own in files_table
 document.addEventListener('alpine:init', () => {
     Alpine.data('permissionCell', () => ({
         symbolic: '',

@@ -1,267 +1,118 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/mysql/remote_mysql.html -->
-
-<!-- page header -->
-<section aria-label="{{.T.Get "Remote MySQL Header"}}" x-data="{ searchQuery: '' }">
-    <div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:flex sm:items-center sm:justify-between sm:p-6 lg:p-8">
-        <div>
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Remote Access"}}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Enable remote access to connect to a database on this server from a another (remote) device or location over the internet."}}</p>
+<div class="op-content">
+{{$on := eq .RemoteMySQLDisplay "ON"}}
+<div class="op-page-head">
+    <div>
+        <h1 class="op-title">{{.T.Get "Remote Access"}}</h1>
+        <p class="op-meta">{{.T.Get "Enable remote access to connect to a database on this server from a another (remote) device or location over the internet."}}</p>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-
+    <div class="op-actions">
         <form method="post">
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-            <input type="hidden" name="action" value="{{if eq .RemoteMySQLDisplay "ON"}}disable{{else}}enable{{end}}">
-
-            <button class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" type="submit">{{if eq .RemoteMySQLDisplay "ON"}}{{.T.Get "Disable Remote Database Access"}}{{else}}{{.T.Get "Enable Remote Database Access"}}{{end}}</button>
+            <input type="hidden" name="action" value="{{if $on}}disable{{else}}enable{{end}}">
+            <button class="op-btn {{if $on}}op-btn-secondary{{else}}op-btn-primary{{end}}" type="submit">{{if $on}}{{.T.Get "Disable Remote Database Access"}}{{else}}{{.T.Get "Enable Remote Database Access"}}{{end}}</button>
         </form>
     </div>
 </div>
-<!-- END page header -->
 
-<!-- info -->
-
-<div dir="ltr" data-orientation="horizontal" class="m-6">
-    <div class="mt-6 space-y-10">
-        <section aria-labelledby="billing-overview">
-            <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
-                <div>
-                    <h2 class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Status"}}</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Remote access to databases is currently:"}}</p>
-                </div>
-                <div class="">
-                    <dd class="mt-1.5 flex items-center gap-2">
-            {{if eq .RemoteMySQLDisplay "ON"}}
-                        <div class="flex gap-0.5">
-                            <div class="h-3.5 w-1 rounded-sm bg-emerald-500 dark:bg-emerald-500"></div>
-                            <div class="h-3.5 w-1 rounded-sm bg-emerald-500 dark:bg-emerald-500"></div>
-                            <div class="h-3.5 w-1 rounded-sm bg-emerald-500 dark:bg-emerald-500"></div>
-                        </div>
-                        <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Enabled"}}</p>
-                                <form method="post">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-    <input type="hidden" name="action" value="disable">
-                                    <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Click to Disable"}}</button>
-                                </form>
-
-
+<section class="op-card" x-data="{ addOpen: false }">
+    <div class="op-section">
+        <div><h3>{{.T.Get "Status"}}</h3><p>{{.T.Get "Remote access to databases is currently:"}}</p></div>
+        <form method="post" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+            {{if $on}}
+            <span class="op-status is-success">{{.T.Get "Enabled"}}</span>
+            <input type="hidden" name="action" value="disable">
+            <button type="submit" class="op-btn op-btn-secondary op-btn-sm">{{.T.Get "Click to Disable"}}</button>
             {{else if eq .RemoteMySQLDisplay "OFF"}}
-                <div class="flex gap-0.5">
-                    <div class="h-3.5 w-1 rounded-sm bg-red-500 dark:bg-red-500"></div>
-                    <div class="h-3.5 w-1 rounded-sm bg-red-500 dark:bg-red-500"></div>
-                    <div class="h-3.5 w-1 rounded-sm bg-red-500 dark:bg-red-500"></div>
-                </div>
-                        <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Disabled"}}</p>
-                                <form method="post">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-<input type="hidden" name="action" value="enable">
-                                <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Click to Enable"}}</button>
-                                </form>
+            <span class="op-status">{{.T.Get "Disabled"}}</span>
+            <input type="hidden" name="action" value="enable">
+            <button type="submit" class="op-btn op-btn-secondary op-btn-sm">{{.T.Get "Click to Enable"}}</button>
             {{else}}
-                <div class="flex gap-0.5">
-                    <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
-                    <div class="h-3.5 w-1 rounded-sm bg-orange-500 dark:bg-orange-500"></div>
-                    <div class="h-3.5 w-1  rounded-sm bg-orange-500 dark:bg-orange-500"></div>
-                </div>
-                        <p class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Unknown"}}</p>
-                                <form method="post">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-        <input type="hidden" name="action" value="enable">
-        <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Click to Restart"}}</button>
-                                </form>
-
+            <span class="op-status is-warning">{{.T.Get "Unknown"}}</span>
+            <input type="hidden" name="action" value="enable">
+            <button type="submit" class="op-btn op-btn-secondary op-btn-sm">{{.T.Get "Click to Restart"}}</button>
             {{end}}
-                    </dd>
-                </div>
-            </div>
-        </section>
-        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
-        <section aria-labelledby="billing-overview">
-            <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
-                <div>
-                    <h2 id="remote" class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Remote"}}</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Connection info when connecting to database"}} <b>{{.T.Get "from a remote server"}}</b>.</p>
-                </div>
-                <div class="md:col-span-2">
-                    <div class="grid grid-cols-1 gap-4 sm:max-w-3xl sm:grid-cols-2">
-                        <div class="relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 !p-4 hover:bg-gray-50 hover:dark:bg-gray-900">
-                            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Server:"}}</p>
-                            <p class="mt-3 flex items-end"><span  id="remote_server" class="text-3xl font-semibold text-gray-900 dark:text-gray-50">{{.ServerIP}}</span></p>
+        </form>
+    </div>
+    <div class="op-section">
+        <div><h3 id="remote">{{.T.Get "Remote"}}</h3><p>{{.T.Get "Connection info when connecting to database"}} <b>{{.T.Get "from a remote server"}}</b>.</p></div>
+        <dl class="op-dl" style="max-width:420px"><dt>{{.T.Get "Server:"}}</dt><dd class="op-mono" id="remote_server">{{.ServerIP}}</dd><dt>{{.T.Get "Port:"}}</dt><dd class="op-mono" id="remote_port">{{.ContainerPort}}</dd></dl>
+    </div>
+    <div class="op-section">
+        <div><h3 id="local">{{.T.Get "Local"}}</h3><p>{{.T.Get "Connection info when connecting to database"}} <b>{{.T.Get "from a local server"}}</b>.</p></div>
+        <dl class="op-dl" style="max-width:420px"><dt>{{.T.Get "Server:"}}</dt><dd class="op-mono" id="local_server">{{.Service}}</dd><dt>{{.T.Get "Port:"}}</dt><dd class="op-mono" id="local_port">{{.MySQLPort}}</dd></dl>
+    </div>
+    {{if $on}}
+    <div class="op-section">
+        <div><h3 id="user-access">{{.T.Get "Per-User Access"}}</h3><p>{{.T.Get "Control which hosts each MySQL user is allowed to connect from."}}</p>
+            <button class="op-btn op-btn-secondary op-btn-sm" type="button" style="margin-top:10px" @click="addOpen = true">{{template "op_icon" "plus"}} {{.T.Get "Add Access"}}</button></div>
+        <div style="min-width:0">
+        {{template "bulk_open" (dict "T" .T "Table" "#remote-access-table" "Endpoint" "/mysql/remote-mysql/access/bulk")}}
+        <div class="op-table-wrap"><table id="remote-access-table" class="op-table">
+            <thead><tr><th class="is-shrink">{{template "bulk_head_input" .}}</th><th>{{.T.Get "Username"}}</th><th>{{.T.Get "Allowed From"}}</th><th class="is-shrink"><span class="sr-only">{{.T.Get "Actions"}}</span></th></tr></thead>
+            <tbody>
+            {{range .UserAccess}}{{$entry := .}}{{range $entry.Hosts}}{{$host := .}}
+            <tr x-data="{ editing: false }">
+                <td class="is-shrink"><input type="checkbox" class="bulk-select-box op-native-check" value="{{$entry.Username}}@{{$host}}" data-bulk-skip="" :checked="!!bulkSelected[{{toJSON (printf "%s@%s" $entry.Username $host)}}]" @change="bulkToggle($event.target)" aria-label="{{$.T.Get "Select"}} {{$entry.Username}}@{{$host}}"></td>
+                <td class="op-cell-title"><div class="op-row-title"><span class="op-file-ico" style="--hue:var(--color-hue-cyan)">{{template "op_icon" "user"}}</span><div><b class="op-mono" style="font-size:13px">{{$entry.Username}}</b></div></div></td>
+                <td data-label="{{$.T.Get "Allowed From"}}">
+                    <span x-show="!editing"><span class="op-tag op-mono">{{$host}}</span>{{if eq $host "%"}} <span class="op-hint">{{$.T.Get "any host"}}</span>{{end}}</span>
+                    <form method="POST" action="/mysql/remote-mysql/access/edit" x-show="editing" x-cloak style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+                        <input type="hidden" name="db_user" value="{{$entry.Username}}">
+                        <input type="hidden" name="old_host" value="{{$host}}">
+                        <input type="text" name="new_host" value="{{$host}}" class="op-input op-mono" style="width:180px;height:32px" aria-label="{{$.T.Get "Allowed Host"}}">
+                        <button type="submit" class="op-btn op-btn-primary op-btn-sm">{{$.T.Get "Save"}}</button>
+                        <button type="button" @click="editing = false" class="op-btn op-btn-ghost op-btn-sm">{{$.T.Get "Cancel"}}</button>
+                    </form>
+                </td>
+                <td class="is-shrink op-cell-menu" style="position:relative">
+                    <form method="POST" action="/mysql/remote-mysql/access/delete" hidden>
+                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+                        <input type="hidden" name="db_user" value="{{$entry.Username}}">
+                        <input type="hidden" name="db_host" value="{{$host}}">
+                    </form>
+                    <div x-data="opMenu()" @click.outside="open = false" @keydown.escape="open = false">
+                        <button class="op-icon-btn" type="button" aria-label="{{$.T.Get "Actions"}} {{$entry.Username}}@{{$host}}" :aria-expanded="open.toString()" x-ref="btn" @click="toggle()">{{template "op_icon" "dots"}}</button>
+                        <div class="op-menu" x-ref="menu" x-show="open" x-cloak>
+                            <button type="button" @click="open = false; editing = true">{{template "op_icon" "pencil"}} {{$.T.Get "Edit"}}</button>
+                            <hr>
+                            <button type="button" class="is-danger" @click="open = false; if (confirm({{toJSON ($.T.Get "Remove access for")}} + ' ' + {{toJSON (printf "%s@%s" $entry.Username $host)}} + '?')) $root.closest('td').querySelector('form').submit()">{{template "op_icon" "trash"}} {{$.T.Get "Delete"}}</button>
                         </div>
-                        <div class="relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 !p-4 hover:bg-gray-50 hover:dark:bg-gray-900">
-                            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Port:"}}</p>
-                            <p class="mt-3 flex items-end"><span id="remote_port" class="text-3xl font-semibold text-gray-900 dark:text-gray-50">{{.ContainerPort}}</span></p>
-                        </div>
                     </div>
-                </div>
-            </div>
-        </section>
-
-
-        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
-        <section aria-labelledby="billing-overview">
-            <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
-                <div>
-                    <h2 id="local" class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Local"}}</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Connection info when connecting to database"}} <b>{{.T.Get "from a local server"}}</b>.</p>
-                </div>
-                <div class="md:col-span-2">
-                    <div class="grid grid-cols-1 gap-4 sm:max-w-3xl sm:grid-cols-2">
-                        <div class="relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 !p-4 hover:bg-gray-50 hover:dark:bg-gray-900">
-                            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Server:"}}</p>
-                            <p class="mt-3 flex items-end"><span id="local_server" class="text-3xl font-semibold text-gray-900 dark:text-gray-50">{{.Service}}</span></p>
-                        </div>
-                        <div class="relative w-full rounded border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 !p-4 hover:bg-gray-50 hover:dark:bg-gray-900">
-                            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Port:"}}</p>
-                            <p class="mt-3 flex items-end"><span id="local_port" class="text-3xl font-semibold text-gray-900 dark:text-gray-50">{{.MySQLPort}}</span></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-
-
-    {{if eq .RemoteMySQLDisplay "ON"}}
-        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
-        <section aria-labelledby="user-access" x-data="{ addOpen: false }">
-            <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
-                <div>
-                    <h2 id="user-access" class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Per-User Access"}}</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Control which hosts each MySQL user is allowed to connect from."}}</p>
-                </div>
-                <div class="md:col-span-2">
-
-                    <div class="flex justify-end mb-4">
-                        <button type="button" @click="addOpen = !addOpen" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-black bg-black text-white hover:bg-gray-800">
-                            <span x-show="!addOpen">{{.T.Get "Add Access"}}</span>
-                            <span x-show="addOpen">{{.T.Get "Cancel"}}</span>
-                        </button>
-                    </div>
-
-                    <div x-show="addOpen" class="mb-4 rounded border p-4 border-gray-200 dark:border-gray-900 bg-white dark:bg-[#090E1A]">
-                        <form method="POST" action="/mysql/remote-mysql/access/add" class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-                            <div>
-                                <label class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Username"}}</label>
-                                <input type="text" name="db_user" pattern="[a-zA-Z0-9_]+" title="{{.T.Get "Only letters, numbers, and underscores are allowed."}}" required placeholder="{{.T.Get "Existing or new username"}}" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950">
-                                {{if .MySQLPrefix}}<p class="mt-1 text-xs text-gray-500">{{.T.Get "New users get the prefix"}} <code>{{.MySQLPrefix}}</code></p>{{end}}
-                            </div>
-                            <div>
-                                <label class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Allowed Host"}}</label>
-                                <input type="text" name="db_host" required placeholder="%, localhost, 192.168.1.10..." class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950">
-                            </div>
-                            <div>
-                                <label class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Password"}}</label>
-                                <input type="text" name="password" required minlength="8" title="{{.T.Get "At least 8 characters."}}" placeholder="{{.T.Get "Password"}}" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950">
-                            </div>
-                            <div class="sm:col-span-3 flex items-center justify-between gap-3">
-                                <p class="text-xs text-gray-500">{{.T.Get "If the username already exists, the new host inherits its existing database privileges."}}</p>
-                                <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-black bg-black text-white hover:bg-gray-800 whitespace-nowrap">{{.T.Get "Grant Access"}}</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    {{template "bulk_open" (dict "T" .T "Table" "#remote-access-table" "Endpoint" "/mysql/remote-mysql/access/bulk")}}
-                    <div class="overflow-x-auto rounded border border-gray-200 dark:border-gray-900">
-                        <table id="remote-access-table" class="w-full caption-bottom">
-                            <thead>
-                                <tr class="whitespace-nowrap border-b text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
-                                    <th class="px-4 py-3">{{.T.Get "Username"}}</th>
-                                    <th class="px-4 py-3"><span class="inline-flex items-center gap-2">{{template "bulk_head_input" .}} {{.T.Get "Allowed From"}}</span></th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-                                {{if .UserAccess}}
-                                    {{range .UserAccess}}
-                                    {{$entry := .}}
-                                    <tr>
-                                        <td class="px-4 py-3 align-top text-sm font-medium text-gray-900 dark:text-gray-50 whitespace-nowrap">{{$entry.Username}}</td>
-                                        <td class="px-4 py-3">
-                                            <div class="flex flex-col gap-2">
-                                                {{range $entry.Hosts}}
-                                                {{$host := .}}
-                                                <div class="flex items-center gap-2" x-data="{ editing: false }">
-                                                    <input type="checkbox" class="bulk-select-box h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800"
-                                                        value="{{$entry.Username}}@{{$host}}" data-bulk-skip=""
-                                                        :checked="!!bulkSelected[{{toJSON (printf "%s@%s" $entry.Username $host)}}]" @change="bulkToggle($event.target)" aria-label="{{$.T.Get "Select"}} {{$entry.Username}}@{{$host}}">
-                                                    <span class="bg-gray-100 text-gray-800 text-sm font-medium px-2.5 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-300" x-show="!editing">{{$host}}</span>
-
-                                                    <form method="POST" action="/mysql/remote-mysql/access/edit" class="flex items-center gap-2" x-show="editing">
-                                                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
-                                                        <input type="hidden" name="db_user" value="{{$entry.Username}}">
-                                                        <input type="hidden" name="old_host" value="{{$host}}">
-                                                        <input type="text" name="new_host" value="{{$host}}" class="rounded border px-2 py-1 text-sm border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-50">
-                                                        <button type="submit" class="text-sm text-blue-600 hover:underline">{{$.T.Get "Save"}}</button>
-                                                        <button type="button" @click="editing = false" class="text-sm text-gray-500 hover:underline">{{$.T.Get "Cancel"}}</button>
-                                                    </form>
-
-                                                    <button type="button" @click="editing = true" x-show="!editing" class="text-sm text-gray-500 hover:text-gray-900 dark:hover:text-gray-50">{{$.T.Get "Edit"}}</button>
-
-                                                    <form method="POST" action="/mysql/remote-mysql/access/delete" x-show="!editing">
-                                                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
-                                                        <input type="hidden" name="db_user" value="{{$entry.Username}}">
-                                                        <input type="hidden" name="db_host" value="{{$host}}">
-                                                        <button type="button" onclick="confirmDeleteAccess(this);" class="text-sm text-red-600 hover:underline">{{$.T.Get "Delete"}}</button>
-                                                    </form>
-                                                </div>
-                                                {{end}}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    {{end}}
-                                {{else}}
-                                    <tr>
-                                        <td colspan="2" class="p-6 text-center text-sm text-gray-500">{{.T.Get "No MySQL users found."}}</td>
-                                    </tr>
-                                {{end}}
-                            </tbody>
-                        </table>
-                    </div>
-                    {{template "bulk_bar" .}}
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <script>
-        function confirmDeleteAccess(button) {
-            var countdown = 3;
-            var countdownActive = true;
-            var originalText = button.innerHTML;
-
-            button.innerHTML = {{toJSON (.T.Get "Confirm?")}} + ' (' + countdown + ')';
-
-            var intervalId = setInterval(function () {
-                countdown--;
-                if (countdown > 0) {
-                    button.innerHTML = {{toJSON (.T.Get "Confirm?")}} + ' (' + countdown + ')';
-                } else {
-                    clearInterval(intervalId);
-                    button.innerHTML = originalText;
-                    countdownActive = false;
-                }
-            }, 1000);
-
-            button.addEventListener('click', function handler() {
-                if (countdownActive) {
-                    clearInterval(intervalId);
-                    button.closest('form').submit();
-                }
-                button.removeEventListener('click', handler);
-            });
-        }
-        </script>
+                </td>
+            </tr>
+            {{end}}{{else}}
+            <tr><td colspan="4"><div class="op-empty"><b>{{.T.Get "No MySQL users found."}}</b></div></td></tr>
+            {{end}}
+            </tbody>
+        </table></div>
+        {{template "bulk_bar" .}}
+        </div>
+        </div>
+    </div>
     {{end}}
 
+    <div class="op-scrim" x-show="addOpen" x-cloak @click="addOpen = false"></div>
+    <div class="op-sheet" role="dialog" aria-label="{{.T.Get "Add Access"}}" x-show="addOpen" x-cloak @keydown.escape.window="addOpen = false">
+        <h2>{{.T.Get "Add Access"}}</h2>
+        <form method="POST" action="/mysql/remote-mysql/access/add">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+            <div class="op-col" style="gap:14px;margin:16px 0 20px">
+                <label class="op-field"><span class="op-label">{{.T.Get "Username"}}</span><input type="text" name="db_user" class="op-input op-mono" pattern="[a-zA-Z0-9_]+" title="{{.T.Get "Only letters, numbers, and underscores are allowed."}}" required placeholder="{{.T.Get "Existing or new username"}}"><span class="op-hint">{{.T.Get "Only letters, numbers, and underscores are allowed."}}{{if .MySQLPrefix}} {{.T.Get "New users get the prefix"}} <code>{{.MySQLPrefix}}</code>{{end}}</span></label>
+                <label class="op-field"><span class="op-label">{{.T.Get "Allowed Host"}}</span><input type="text" name="db_host" class="op-input op-mono" required placeholder="%, localhost, 192.168.1.10..."></label>
+                <label class="op-field"><span class="op-label">{{.T.Get "Password"}}</span><input type="text" name="password" class="op-input op-mono" required minlength="8" title="{{.T.Get "At least 8 characters."}}"><span class="op-hint">{{.T.Get "If the username already exists, the new host inherits its existing database privileges."}}</span></label>
+            </div>
+            <div class="op-actions" style="justify-content:flex-end"><button type="button" class="op-btn op-btn-secondary" @click="addOpen = false">{{.T.Get "Cancel"}}</button><button type="submit" class="op-btn op-btn-primary">{{.T.Get "Grant Access"}}</button></div>
+        </form>
     </div>
+</section>
 </div>
 
 <!-- END templates/mysql/remote_mysql.html -->

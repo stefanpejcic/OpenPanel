@@ -1,163 +1,316 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/system/error_logs.html -->
-
-{{$field := "relative block w-full appearance-none rounded border px-2.5 py-1.5 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"}}
-
-<section aria-label="{{.T.Get "Error Logs"}}">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<div class="op-content" x-data="opErrorLogs()">
+    <div class="op-page-head">
         <div>
-            <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Error Logs"}}</h1></div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "PHP, web server, database and HTTP 5xx errors for all your websites in one place."}}</p>
+            <div class="op-eyebrow">PHP · {{.T.Get "web server"}} · {{.T.Get "database"}} · {{.T.Get "apps"}}</div>
+            <h1 class="op-title">{{.T.Get "Error Logs"}}</h1>
+            <p class="op-meta">{{.T.Get "PHP, web server, database and HTTP 5xx errors for all your websites in one place."}}</p>
         </div>
+        <div class="op-actions"><button class="op-btn op-btn-secondary" type="button" @click="exportAll()" :disabled="!list.length">{{template "op_icon" "download"}} {{.T.Get "Download .txt"}}</button></div>
     </div>
-
-    <form method="GET" action="/error-logs" id="errorLogsFilters" class="grid grid-cols-1 gap-3 border-b border-gray-200 p-4 px-6 dark:border-gray-800 sm:grid-cols-2 lg:grid-cols-6">
-        <label class="text-sm text-gray-700 dark:text-gray-300">{{.T.Get "Website"}}
-            <select name="domain" class="{{$field}} mt-1">
-                <option value="">{{.T.Get "All websites"}}</option>
-                {{range .Targets}}<option value="{{.Value}}" class="punycode" {{if eq .Value $.Query.Domain}}selected{{end}}>{{if .Sub}}&nbsp;&nbsp;↳ {{end}}{{.Value}}</option>{{end}}
-            </select>
-        </label>
-        <label class="text-sm text-gray-700 dark:text-gray-300">{{.T.Get "Service"}}
-            <select name="service" class="{{$field}} mt-1">
-                <option value="">{{.T.Get "All services"}}</option>
-                {{range .Sources}}<option value="{{.Name}}" {{if eq .Name $.Query.Service}}selected{{end}}>{{$.T.Get .Label}}</option>{{end}}
-            </select>
-        </label>
-        <label class="text-sm text-gray-700 dark:text-gray-300">{{.T.Get "Severity"}}
-            <select name="level" class="{{$field}} mt-1">
-                <option value="" {{if eq .Query.Level ""}}selected{{end}}>{{.T.Get "All"}}</option>
-                <option value="warning" {{if eq .Query.Level "warning"}}selected{{end}}>{{.T.Get "Warnings and errors"}}</option>
-                <option value="error" {{if eq .Query.Level "error"}}selected{{end}}>{{.T.Get "Errors only"}}</option>
-            </select>
-        </label>
-        <label class="text-sm text-gray-700 dark:text-gray-300 lg:col-span-3">{{.T.Get "Search"}}
-            <input type="search" name="q" value="{{.Query.Search}}" placeholder="{{.T.Get "e.g. Fatal error, wp-content, 502"}}" class="{{$field}} mt-1">
-        </label>
-        {{if .Query.Exact}}<input type="hidden" name="exact" value="1">{{end}}
-        {{if or .Query.FromDay .Query.ToDay}}
-        <input type="hidden" name="from" value="{{.Query.FromDay}}">
-        <input type="hidden" name="to" value="{{.Query.ToDay}}">
-        <input type="hidden" name="tz" value="{{.Query.TZ}}">
-        {{end}}
-        <div class="flex flex-wrap items-center justify-between gap-2 sm:col-span-2 lg:col-span-6">
-            {{template "date_range" (dict "T" .T "From" .Query.FromDay "To" .Query.ToDay "Tz" true)}}
-            <div class="flex items-center gap-2">
-            <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800">{{.T.Get "Apply"}}</button>
-            <a href="/error-logs" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Reset"}}</a>
-            </div>
-        </div>
-    </form>
 
     {{if .Error}}
-    <div class="m-6 rounded border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300">{{.T.Get .Error}}</div>
+    <div class="op-alert is-danger" role="alert">{{template "op_icon" "alert"}}<span>{{.T.Get .Error}}</span></div>
     {{end}}
 
-    <div class="flex flex-col gap-1 px-6 py-3 text-sm text-gray-500 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between">
-        <span>{{if .Truncated}}{{.T.Get "Showing"}} {{.Matched}} {{.T.Get "out of"}} {{.Total}} {{.T.Get "rows"}}{{else}}{{.Total}} {{.T.Get "rows"}}{{end}}</span>
-    </div>
-
-    {{if .Rows}}
-    {{template "bulk_open" (dict "T" .T "Table" "#errorLogsTable" "Endpoint" "")}}
-    <div class="overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-        <table id="errorLogsTable" class="w-full border-b border-gray-200 text-left dark:border-gray-800">
-            <thead>
-                <tr class="bg-gray-50 dark:bg-gray-900">
-                    {{template "bulk_head_checkbox" .}}
-                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Time") "Key" "time" "Type" "number")}}</th>
-                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Severity") "Key" "severity" "Type" "number")}}</th>
-                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Service") "Key" "service" "Type" "string")}}</th>
-                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Website") "Key" "website" "Type" "string")}}</th>
-                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 w-full">{{template "sort_header" (dict "Label" (.T.Get "Message") "Key" "message" "Type" "string")}}</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-                {{range $i, $row := .Rows}}
-                <tr x-data="{ open: false }" @click="if ($event.target.type !== 'checkbox') open = !open" data-row="{{$i}}" data-line="{{.Line}}" class="cursor-pointer align-top text-sm text-gray-600 hover:bg-white dark:text-gray-400 dark:hover:bg-gray-900">
-                    {{template "bulk_row_checkbox" (dict "T" $.T "Key" (toString $i) "Label" (.Time.UTC.Format "2006-01-02 15:04:05"))}}
-                    <td class="whitespace-nowrap px-4 py-3 log-time" data-ts="{{.Unix}}" data-sort-col="time" data-sort-value="{{.Unix}}">{{.Time.UTC.Format "2006-01-02 15:04:05"}} UTC</td>
-                    <td class="whitespace-nowrap px-4 py-3" data-sort-col="severity" data-sort-value="{{.Rank}}">{{template "level_badge" (dict "T" $.T "Level" .Level)}}</td>
-                    <td class="whitespace-nowrap px-4 py-3" data-sort-col="service">{{.Service}}</td>
-                    <td class="whitespace-nowrap px-4 py-3" data-sort-col="website" data-sort-value="{{.Domain}}">{{if .Domain}}<span class="punycode">{{.Domain}}</span>{{else}}-{{end}}</td>
-                    <td class="px-4 py-3 text-gray-900 dark:text-gray-100" data-sort-col="message" data-sort-value="{{.Message}}">
-                        <div x-show="!open" class="max-w-3xl truncate font-mono text-xs">{{.Message}}</div>
-                        <pre x-show="open" x-cloak class="max-w-3xl whitespace-pre-wrap break-all font-mono text-xs">{{.Message}}</pre>
-                    </td>
-                </tr>
-                {{end}}
-            </tbody>
-        </table>
-    </div>
-    {{template "bulk_bar" .}}
-    {{if gt .TotalPages 1}}
-    <div class="flex items-center justify-between px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-        <span>{{.T.Get "Page"}} {{.Page}} {{.T.Get "of"}} {{.TotalPages}}</span>
-        <div class="flex gap-2">
-            {{if .PrevURL}}<a href="{{.PrevURL}}" class="rounded border px-3 py-1.5 border-gray-300 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Previous"}}</a>{{end}}
-            {{if .NextURL}}<a href="{{.NextURL}}" class="rounded border px-3 py-1.5 border-gray-300 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Next"}}</a>{{end}}
+    <section class="op-card" aria-label="{{.T.Get "Error Logs"}}">
+        <div class="el-filters">
+            <label class="op-field"><span class="op-label">{{.T.Get "Website"}}</span><select class="op-select" @change="domain = $event.target.value; exact = false; reset()">
+                <option value="" :selected="!domain">{{.T.Get "All websites"}}</option>
+                {{range .Targets}}<option value="{{.Value}}" class="punycode" :selected="domain === {{toJSON .Value}}">{{if .Sub}}&nbsp;&nbsp;↳ {{end}}{{.Value}}</option>{{end}}
+            </select></label>
+            <label class="op-field"><span class="op-label">{{.T.Get "Service"}}</span><select class="op-select" @change="service = $event.target.value; reset()">
+                <option value="" :selected="!service">{{.T.Get "All services"}}</option>
+                {{range .Sources}}<option value="{{.Name}}" :selected="service === {{toJSON .Name}}">{{$.T.Get .Label}}</option>{{end}}
+            </select></label>
+            <div class="op-field"><span class="op-label">{{.T.Get "Date"}}</span><span class="el-date" x-data="opMenu()" @click.outside="open = false" @keydown.escape="open = false">
+                <button class="op-select el-date-btn" type="button" x-ref="btn" @click="toggle()" :class="from || to ? 'is-set' : ''" :aria-expanded="open.toString()" aria-haspopup="dialog">{{template "op_icon" "calendar"}}<span x-text="rangeLabel()">{{.T.Get "Any time"}}</span></button>
+                <div class="op-menu" x-ref="menu" x-show="open" x-cloak style="min-width:240px" data-align="start">
+                    <div class="op-menu-note">{{.T.Get "Quick date range"}}</div>
+                    <button type="button" @click="setRange('', '')">{{.T.Get "Any time"}}</button>
+                    <template x-for="r in quickRanges()" :key="r.label"><button type="button" @click="setRange(r.from, r.to)" x-text="r.label"></button></template>
+                    <div class="op-menu-note">{{.T.Get "Select date range"}}</div>
+                    <form class="el-drange" @submit.prevent="setRange($refs.from.value, $refs.to.value)">
+                        <label class="el-dlab"><span>{{.T.Get "From"}}</span><input class="op-input op-mono" type="date" x-ref="from" :value="from"></label>
+                        <label class="el-dlab"><span>{{.T.Get "To"}}</span><input class="op-input op-mono" type="date" x-ref="to" :value="to"></label>
+                        <button class="op-btn op-btn-primary op-btn-sm" type="submit">{{.T.Get "Apply"}}</button>
+                    </form>
+                </div>
+            </span></div>
+            <label class="op-field el-q"><span class="op-label">{{.T.Get "Search"}}</span><span class="op-search">{{template "op_icon" "search"}}<input class="op-input" type="search" x-model.debounce.200ms="q" @input="reset()" placeholder="{{.T.Get "e.g. Fatal error, wp-content, 502"}}" aria-label="{{.T.Get "Search messages"}}"></span></label>
         </div>
-    </div>
-    {{end}}
-    </div>
-    {{else if not .Error}}
-    <div class="m-6 rounded border border-dashed border-gray-300 p-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-        {{.T.Get "No errors found for these filters."}}
-    </div>
-    {{end}}
-</section>
+
+        <div class="el-levelbar">
+            <div class="op-filter-row" role="group" aria-label="{{.T.Get "Filter by severity"}}">
+                <button class="op-filter" type="button" :aria-pressed="(level === '').toString()" @click="level = ''; reset()">{{.T.Get "All"}} <span class="op-count" x-text="counts.all">0</span></button>
+                <template x-for="l in levels" :key="l[0]"><button class="op-filter" type="button" x-show="counts[l[0]] || level === l[0]" :aria-pressed="(level === l[0]).toString()" @click="level = level === l[0] ? '' : l[0]; reset()"><span class="el-dot" :class="'is-' + l[0]" aria-hidden="true"></span><span x-text="l[1]"></span> <span class="op-count" x-text="counts[l[0]] || 0"></span></button></template>
+            </div>
+            <select class="op-select el-sortsel" aria-label="{{.T.Get "Sort"}}" x-show="view === 'list'" @change="setSort($event.target.value)"><template x-for="o in sortOpts" :key="o[0]"><option :value="o[0]" :selected="sort + ':' + dir === o[0]" x-text="o[1]"></option></template></select>
+            <div class="op-segmented" role="group" aria-label="{{.T.Get "View"}}"><button type="button" :aria-pressed="(view === 'list').toString()" @click="setView('list')">{{template "op_icon" "list"}} {{.T.Get "List"}}</button><button type="button" :aria-pressed="(view === 'grouped').toString()" @click="group = ''; setView('grouped')">{{template "op_icon" "stack"}} {{.T.Get "Grouped"}}</button></div>
+        </div>
+
+        <div class="el-active" x-show="group || exact || anyFilter()" x-cloak>
+            <span class="op-tag el-gtag" x-show="group"><span>{{.T.Get "Same message as:"}} <span class="op-mono" x-text="groupText"></span></span><button type="button" aria-label="{{.T.Get "Show all messages"}}" @click="group = ''; reset()">{{template "op_icon" "x"}}</button></span>
+            <span class="op-tag el-gtag" x-show="exact && domain"><span>{{.T.Get "Only"}} <span class="op-mono" x-text="domain"></span>, {{.T.Get "not its subfolder sites"}}</span><button type="button" aria-label="{{.T.Get "Include subfolder sites"}}" @click="exact = false; reset()">{{template "op_icon" "x"}}</button></span>
+            <button type="button" class="el-clear" x-show="anyFilter()" @click="clearAll()">{{.T.Get "Clear filters"}}</button>
+        </div>
+
+        <div x-show="view === 'list' && list.length" x-cloak>
+            <div class="op-table-wrap"><table class="op-table el-table">
+                <thead><tr>
+                    <th class="is-shrink"><input class="op-check" type="checkbox" aria-label="{{.T.Get "Select all on this page"}}" :checked="allOnPage()" x-effect="$el.indeterminate = !allOnPage() && pageIds().some(i => sel.includes(i))" @change="toggleAll()"></th>
+                    <th aria-sort="none" :aria-sort="ariaSort('ts')"><button class="op-th-sort" type="button" @click="sortBy('ts')">{{.T.Get "Time (UTC)"}}<i aria-hidden="true"></i></button></th>
+                    <th aria-sort="none" :aria-sort="ariaSort('rank')"><button class="op-th-sort" type="button" @click="sortBy('rank')">{{.T.Get "Severity"}}<i aria-hidden="true"></i></button></th>
+                    <th class="el-sm-hide" aria-sort="none" :aria-sort="ariaSort('service')"><button class="op-th-sort" type="button" @click="sortBy('service')">{{.T.Get "Service"}}<i aria-hidden="true"></i></button></th>
+                    <th class="el-md-hide" aria-sort="none" :aria-sort="ariaSort('website')"><button class="op-th-sort" type="button" @click="sortBy('website')">{{.T.Get "Website"}}<i aria-hidden="true"></i></button></th>
+                    <th class="el-msg-col" aria-sort="none" :aria-sort="ariaSort('message')"><button class="op-th-sort" type="button" @click="sortBy('message')">{{.T.Get "Message"}}<i aria-hidden="true"></i></button></th>
+                    <th class="is-shrink"><span class="sr-only">{{.T.Get "Details"}}</span></th>
+                </tr></thead>
+                <template x-for="r in shown()" :key="r.i"><tbody :class="openRow === r.i ? 'is-open' : ''">
+                    <tr class="el-row" :aria-selected="sel.includes(r.i).toString()" @click="if (!$event.target.closest('a, button, input, label') && !String(getSelection())) openRow = openRow === r.i ? null : r.i">
+                        <td class="is-shrink"><input class="op-check" type="checkbox" :aria-label="T.select + ' ' + stamp(r.ts)" :checked="sel.includes(r.i)" @change="toggle(r.i)"></td>
+                        <td class="el-time"><span class="el-day" x-text="day(r.ts)"></span><span class="op-mono" x-text="clock(r.ts)"></span></td>
+                        <td><span class="op-badge" :class="badge(r.level)" x-text="name(r.level)"></span></td>
+                        <td class="el-sm-hide"><span class="op-mono el-svc" x-text="r.service"></span></td>
+                        <td class="el-md-hide"><span class="op-mono el-site punycode" x-text="r.domain || '–'" :class="r.domain ? '' : 'el-dim'"></span></td>
+                        <td class="el-msg"><span class="op-mono" x-text="r.first"></span><span class="op-tag el-more" x-show="r.lines > 1" x-text="'+' + (r.lines - 1) + ' ' + T.lines"></span></td>
+                        <td class="is-shrink"><button class="op-icon-btn el-ib el-chev" type="button" :aria-expanded="(openRow === r.i).toString()" :aria-label="openRow === r.i ? T.hide : T.show" @click="openRow = openRow === r.i ? null : r.i">{{template "op_icon" "chev"}}</button></td>
+                    </tr>
+                    <tr class="el-detail" x-show="openRow === r.i" x-cloak><td colspan="7">
+                        <pre class="el-pre" :class="'is-' + r.level" x-text="r.msg"></pre>
+                        <dl class="el-dl">
+                            <div><dt>{{.T.Get "Time"}}</dt><dd class="op-mono" x-text="stamp(r.ts)"></dd></div>
+                            <div><dt>{{.T.Get "Source"}}</dt><dd x-text="KIND[r.source] || r.source"></dd></div>
+                            <div><dt>{{.T.Get "Service"}}</dt><dd><span x-text="label[r.service] || r.service"></span> <span class="op-mono el-dim" x-text="'(' + r.service + ')'"></span></dd></div>
+                            <div><dt>{{.T.Get "Website"}}</dt><dd :class="r.domain ? 'op-mono' : 'el-dim'" x-text="r.domain || T.noSite"></dd></div>
+                        </dl>
+                        <div class="el-detail-acts"><button class="op-btn op-btn-secondary op-btn-sm" type="button" @click="copy(line(r), T.lineCopied)">{{template "op_icon" "copy"}} {{.T.Get "Copy line"}}</button><button class="op-btn op-btn-ghost op-btn-sm" type="button" x-show="r.domain && domain !== r.domain" @click="domain = r.domain; exact = false; reset()">{{.T.Get "Only this website"}}</button><button class="op-btn op-btn-ghost op-btn-sm" type="button" x-show="service !== r.service" @click="service = r.service; reset()">{{.T.Get "Only this service"}}</button></div>
+                    </td></tr>
+                </tbody></template>
+            </table></div>
+        </div>
+
+        <div class="el-groups" x-show="view === 'grouped' && list.length" x-cloak>
+            <template x-for="s in groups()" :key="s.level"><section class="el-gsec" :aria-label="s.name">
+                <h3 class="el-ghead"><span class="op-badge" :class="badge(s.level)" x-text="s.name"></span><span x-text="s.total + ' ' + T.entries"></span><span class="el-dim" x-text="'· ' + s.items.length + ' ' + (s.items.length === 1 ? T.message : T.messages)"></span></h3>
+                <ul class="el-glist"><template x-for="g in s.items" :key="g.key"><li class="el-gitem" :class="gopen === g.key ? 'is-open' : ''">
+                    <button type="button" class="el-gbtn" :aria-expanded="(gopen === g.key).toString()" @click="gopen = gopen === g.key ? null : g.key">
+                        <span class="el-gcount op-mono" x-text="'×' + g.n"></span>
+                        <span class="el-gtext"><span class="op-mono el-gmsg" x-text="g.latest.first"></span><span class="el-gmeta"><span x-text="label[g.service] || g.service"></span><span x-show="g.sites.size === 1" class="op-mono" x-text="[...g.sites][0]"></span><span x-show="g.sites.size > 1" x-text="g.sites.size + ' ' + T.websites"></span><span x-text="T.last + ' ' + day(g.latest.ts) + ', ' + clock(g.latest.ts) + ' UTC'"></span></span></span>
+                        <span class="el-chev el-gchev">{{template "op_icon" "chev"}}</span>
+                    </button>
+                    <div class="el-gbody" x-show="gopen === g.key" x-cloak>
+                        <pre class="el-pre" :class="'is-' + g.level" x-text="g.latest.msg"></pre>
+                        <p class="el-gspan" x-text="g.n === 1 ? T.once + ' ' + stamp(g.latest.ts) + '.' : T.first + ' ' + stamp(g.oldest.ts) + ', ' + T.last + ' ' + stamp(g.latest.ts) + '.'"></p>
+                        <div class="el-gsites" x-show="g.sites.size > 1"><template x-for="d in [...g.sites].sort()" :key="d"><span class="op-tag op-mono" x-text="d"></span></template></div>
+                        <div class="el-detail-acts"><button class="op-btn op-btn-secondary op-btn-sm" type="button" @click="showGroup(g)" x-text="g.n === 1 ? T.showOne : T.showAll + ' ' + g.n + ' ' + T.inList"></button><button class="op-btn op-btn-ghost op-btn-sm" type="button" @click="copy(line(g.latest), T.lineCopied)">{{template "op_icon" "copy"}} {{.T.Get "Copy latest"}}</button></div>
+                    </div>
+                </li></template></ul>
+            </section></template>
+        </div>
+
+        <div class="op-empty" x-show="!list.length" {{if .Rows}}x-cloak{{end}}>
+            <span class="op-ico-tile" :style="anyFilter() ? {} : { '--hue': 'var(--color-success)' }"><span x-show="anyFilter()" x-cloak>{{template "op_icon" "search"}}</span><span x-show="!anyFilter()">{{template "op_icon" "circlecheck"}}</span></span>
+            <b x-text="anyFilter() ? T.noneFound : T.noneLogged">{{.T.Get "No errors logged"}}</b>
+            <span class="op-hint" x-text="anyFilter() ? T.tryOther : T.allQuiet"></span>
+            <button class="op-btn op-btn-secondary op-btn-sm" type="button" x-show="anyFilter()" x-cloak @click="clearAll()">{{.T.Get "Clear filters"}}</button>
+        </div>
+
+        <div class="op-tfoot" x-show="list.length" x-cloak>
+            <span><span x-text="view === 'list' ? T.showing + ' ' + ((page - 1) * per + 1) + ' - ' + Math.min(page * per, list.length) + ' ' + T.outOf + ' ' + list.length + ' ' + T.rows : list.length + ' ' + T.rowsIn + ' ' + groups().reduce((n, s) => n + s.items.length, 0) + ' ' + T.messages"></span>{{if .Truncated}} · {{.T.Get "newest"}} {{len .Rows}} {{.T.Get "of"}} {{.Total}} {{.T.Get "entries loaded, pick a shorter date range for older ones."}}{{end}}</span>
+            <div class="el-pager" x-show="view === 'list' && pages() > 1"><span x-text="T.page + ' ' + page + ' ' + T.of + ' ' + pages()"></span><button class="op-btn op-btn-secondary op-btn-sm" type="button" :disabled="page === 1" @click="page--; openRow = null">{{.T.Get "Previous"}}</button><button class="op-btn op-btn-secondary op-btn-sm" type="button" :disabled="page === pages()" @click="page++; openRow = null">{{.T.Get "Next"}}</button></div>
+        </div>
+    </section>
+
+    <div class="op-bulkbar" x-show="sel.length" x-cloak><b x-text="sel.length + ' ' + T.selected"></b><button class="op-btn op-btn-sm" type="button" @click="copy(picked().map(r => line(r)).join('\n') + '\n', sel.length === 1 ? T.lineCopied : sel.length + ' ' + T.linesCopied)">{{template "op_icon" "copy"}} {{.T.Get "Copy"}}</button><button class="op-btn op-btn-sm" type="button" @click="save(picked(), stampName()); say(T.saved + ' ' + sel.length + ' ' + (sel.length === 1 ? T.line : T.linesWord) + '.')">{{template "op_icon" "download"}} {{.T.Get "Download"}}</button><button class="op-btn op-btn-sm op-clear" type="button" @click="sel = []">{{.T.Get "Clear"}}</button></div>
+</div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const pad = n => String(n).padStart(2, '0');
-
-    document.querySelectorAll('.log-time').forEach(function (el) {
-        const d = new Date(parseInt(el.dataset.ts, 10) * 1000);
-        if (!isNaN(d.getTime())) {
-            el.textContent = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
-            el.title = d.toISOString();
-        }
-    });
-
-    document.getElementById('errorLogsFilters').addEventListener('submit', function () {
-        Array.from(this.elements).forEach(function (el) { if (el.name && !el.value) el.disabled = true; });
-    });
-
-    // the selected rows' export lines, in table order
-    const pickedLines = items => items.map(Number).sort((a, b) => a - b)
-        .map(i => document.querySelector('#errorLogsTable tr[data-row="' + i + '"]').dataset.line).join('\n') + '\n';
-
-    window.addEventListener('bulk-copy', function (e) {
-        navigator.clipboard.writeText(pickedLines(e.detail.items))
-            .then(() => showToast('{{.T.Get "Copied to clipboard."}}', 'success'))
-            .catch(() => showToast('{{.T.Get "Could not copy, your browser blocked clipboard access."}}', 'error'));
-    });
-
-    window.addEventListener('bulk-download', function (e) {
-        const stamp = new Date().toISOString().slice(0, 19).replace(/[-:]/g, '').replace('T', '-');
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([pickedLines(e.detail.items)], { type: 'text/plain' }));
-        a.download = 'error-logs-' + stamp + '.txt';
-        a.click();
-        URL.revokeObjectURL(a.href);
-    });
-});
+window.EL_ROWS = {{toJSON .Rows}} || [];
+window.EL_SOURCES = {{toJSON .Sources}} || [];
+window.EL_TARGETS = {{toJSON .Targets}} || [];
+function opErrorLogs() {
+    const T = {
+        select: {{toJSON (.T.Get "Select entry from")}}, lines: {{toJSON (.T.Get "lines")}}, show: {{toJSON (.T.Get "Show details")}}, hide: {{toJSON (.T.Get "Hide details")}},
+        noSite: {{toJSON (.T.Get "Not tied to a website")}}, entries: {{toJSON (.T.Get "entries")}}, message: {{toJSON (.T.Get "message")}}, messages: {{toJSON (.T.Get "messages")}},
+        websites: {{toJSON (.T.Get "websites")}}, last: {{toJSON (.T.Get "last")}}, first: {{toJSON (.T.Get "First")}}, once: {{toJSON (.T.Get "Logged once,")}},
+        showOne: {{toJSON (.T.Get "Show in the list")}}, showAll: {{toJSON (.T.Get "Show all")}}, inList: {{toJSON (.T.Get "in the list")}},
+        noneFound: {{toJSON (.T.Get "No errors found for these filters.")}}, noneLogged: {{toJSON (.T.Get "No errors logged")}},
+        tryOther: {{toJSON (.T.Get "Try another website, service or date range.")}}, allQuiet: {{toJSON (.T.Get "PHP, the web server, your databases and apps have nothing to report.")}},
+        showing: {{toJSON (.T.Get "Showing")}}, outOf: {{toJSON (.T.Get "out of")}}, rows: {{toJSON (.T.Get "rows")}}, rowsIn: {{toJSON (.T.Get "rows in")}},
+        page: {{toJSON (.T.Get "Page")}}, of: {{toJSON (.T.Get "of")}}, selected: {{toJSON (.T.Get "selected")}},
+        lineCopied: {{toJSON (.T.Get "Line copied.")}}, linesCopied: {{toJSON (.T.Get "lines copied.")}}, copied: {{toJSON (.T.Get "Copied to clipboard.")}},
+        blocked: {{toJSON (.T.Get "Could not copy, your browser blocked clipboard access.")}}, saved: {{toJSON (.T.Get "Saved")}}, line: {{toJSON (.T.Get "line")}}, linesWord: {{toJSON (.T.Get "lines")}},
+        anyTime: {{toJSON (.T.Get "Any time")}}, today: {{toJSON (.T.Get "Today")}}, d7: {{toJSON (.T.Get "Last 7 days")}}, d30: {{toJSON (.T.Get "Last 30 days")}},
+        m3: {{toJSON (.T.Get "Last 3 months")}}, m6: {{toJSON (.T.Get "Last 6 months")}}, ytd: {{toJSON (.T.Get "Year to date")}},
+        busyTitle: {{toJSON (.T.Get "Preparing error-logs.txt")}}, busyText: {{toJSON (.T.Get "entries with the current filters")}},
+        busySteps: [{{toJSON (.T.Get "Read PHP, web server and database container logs")}}, {{toJSON (.T.Get "Read each domain's access log for 5xx responses")}}, {{toJSON (.T.Get "Merge, filter and sort newest first")}}],
+        busyNote: {{toJSON (.T.Get "Keep this page open, the download starts by itself.")}}, busyFail: {{toJSON (.T.Get "Could not collect the error logs:")}},
+        crit: {{toJSON (.T.Get "Critical")}}, err: {{toJSON (.T.Get "Error")}}, warn: {{toJSON (.T.Get "Warning")}}, notice: {{toJSON (.T.Get "Notice")}}, info: {{toJSON (.T.Get "Info")}},
+        newest: {{toJSON (.T.Get "Newest first")}}, oldest: {{toJSON (.T.Get "Oldest first")}}, severe: {{toJSON (.T.Get "Most severe first")}}, svcAZ: {{toJSON (.T.Get "Service A to Z")}}, siteAZ: {{toJSON (.T.Get "Website A to Z")}},
+    };
+    const KIND = { php: 'PHP', webserver: {{toJSON (.T.Get "Web server")}}, database: {{toJSON (.T.Get "Database")}}, http: 'HTTP 5xx', app: {{toJSON (.T.Get "App")}} };
+    const RANK = { info: 0, notice: 1, warning: 2, error: 3, critical: 4 };
+    const label = Object.fromEntries(EL_SOURCES.map(s => [s.name, s.label]));
+    // repeats of one message share a key: same level and service, digits and the website's own name blanked out
+    const keyOf = (level, service, domain, first) => level + '|' + service + '|' + (domain ? first.split(domain).join('{site}') : first).replace(/\d+/g, '#');
+    const toRow = (e, i) => {
+        const [ts, level, service, source, domain, msg] = e;
+        const first = msg.split('\n')[0];
+        return { i, ts, level, rank: RANK[level] || 0, service, source, domain: domain || '', msg, first, lines: msg.split('\n').length, key: keyOf(level, service, domain, first) };
+    };
+    const rows = EL_ROWS.map(toRow);
+    const qs = new URLSearchParams(location.search);
+    const today = () => new Date().toISOString().slice(0, 10);
+    return {
+        T, KIND, label, rows,
+        domain: {{toJSON .Query.Domain}}, exact: {{toJSON .Query.Exact}}, service: {{toJSON .Query.Service}},
+        level: RANK[qs.get('level')] !== undefined ? qs.get('level') : '',
+        q: {{toJSON .Query.Search}}, from: {{toJSON .Query.FromDay}}, to: {{toJSON .Query.ToDay}},
+        view: qs.get('view') === 'grouped' ? 'grouped' : 'list',
+        group: '', groupText: '', openRow: null, gopen: null, sel: [], page: 1, per: 100,
+        sort: 'ts', dir: 'descending',
+        list: [], counts: { all: 0 }, _groups: null,
+        levels: [['critical', T.crit], ['error', T.err], ['warning', T.warn], ['notice', T.notice], ['info', T.info]],
+        sortOpts: [['ts:descending', T.newest], ['ts:ascending', T.oldest], ['rank:descending', T.severe], ['service:ascending', T.svcAZ], ['website:ascending', T.siteAZ]],
+        init() {
+            this.recompute();
+            this.$watch(() => [this.domain, this.exact, this.service, this.level, this.q, this.group, this.sort, this.dir].join('\u0000'), () => { this.recompute(); this.syncURL(); });
+        },
+        // everything but the level chips, so the chip counts stay meaningful
+        inBase(r, q) {
+            return (!this.domain || r.domain === this.domain || (!this.exact && r.domain.startsWith(this.domain + '/')))
+                && (!this.service || r.service === this.service)
+                && (!q || r.msg.toLowerCase().includes(q))
+                && (!this.group || r.key === this.group);
+        },
+        recompute() {
+            const q = this.q.trim().toLowerCase();
+            const counts = { all: 0 }, out = [];
+            for (const r of this.rows) {
+                if (!this.inBase(r, q)) continue;
+                counts.all++;
+                counts[r.level] = (counts[r.level] || 0) + 1;
+                if (!this.level || r.level === this.level) out.push(r);
+            }
+            const k = this.sort, m = this.dir === 'ascending' ? 1 : -1;
+            const val = (r) => k === 'website' ? r.domain : k === 'message' ? r.first : k === 'service' ? r.service : r[k];
+            out.sort((a, b) => { const x = val(a), y = val(b); const c = typeof x === 'number' ? x - y : String(x).localeCompare(String(y)); return (c || b.ts - a.ts) * m; });
+            this.counts = counts;
+            this.list = out;
+            this._groups = null;
+            if (this.page > this.pages()) this.page = 1;
+        },
+        syncURL() {
+            const u = new URL(location.href);
+            const set = (k, v) => v ? u.searchParams.set(k, v) : u.searchParams.delete(k);
+            set('domain', this.domain); set('exact', this.exact && this.domain ? '1' : ''); set('service', this.service);
+            set('level', this.level); set('q', this.q.trim()); set('view', this.view === 'grouped' ? 'grouped' : '');
+            history.replaceState(null, '', u);
+        },
+        setView(v) { this.view = v; this.openRow = null; this.syncURL(); },
+        pages() { return Math.max(1, Math.ceil(this.list.length / this.per)); },
+        shown() { return this.list.slice((this.page - 1) * this.per, this.page * this.per); },
+        groups() {
+            if (this._groups) return this._groups;
+            const by = new Map();
+            for (const r of this.list) {
+                let g = by.get(r.key);
+                if (!g) by.set(r.key, g = { key: r.key, level: r.level, rank: r.rank, service: r.service, latest: r, oldest: r, n: 0, sites: new Set() });
+                g.n++;
+                if (r.ts > g.latest.ts) g.latest = r;
+                if (r.ts < g.oldest.ts) g.oldest = r;
+                if (r.domain) g.sites.add(r.domain);
+            }
+            const all = [...by.values()].sort((a, b) => b.rank - a.rank || b.n - a.n || b.latest.ts - a.latest.ts);
+            this._groups = this.levels.map(([l, name]) => { const items = all.filter(g => g.level === l); return { level: l, name, items, total: items.reduce((n, g) => n + g.n, 0) }; }).filter(s => s.items.length);
+            return this._groups;
+        },
+        ariaSort(k) { return this.sort === k ? this.dir : 'none'; },
+        sortBy(k) {
+            if (this.sort === k) this.dir = this.dir === 'descending' ? 'ascending' : 'descending';
+            else { this.sort = k; this.dir = k === 'ts' || k === 'rank' ? 'descending' : 'ascending'; }
+            this.page = 1;
+        },
+        setSort(v) { const [k, d] = v.split(':'); this.sort = k; this.dir = d; this.page = 1; },
+        anyFilter() { return !!(this.domain || this.service || this.level || this.q.trim() || this.from || this.to || this.group); },
+        clearAll() {
+            this.domain = ''; this.exact = false; this.service = ''; this.level = ''; this.q = ''; this.group = ''; this.reset();
+            if (this.from || this.to) this.setRange('', '');
+        },
+        reset() { this.page = 1; this.sel = []; this.openRow = null; },
+        // quick ranges end today, in UTC like the time column
+        quickRanges() {
+            const end = new Date(today() + 'T00:00:00Z');
+            const back = (days) => { const d = new Date(end); d.setUTCDate(d.getUTCDate() - days); return d.toISOString().slice(0, 10); };
+            const months = (n) => { const d = new Date(end); d.setUTCMonth(d.getUTCMonth() - n); return d.toISOString().slice(0, 10); };
+            const t = today();
+            return [{ label: T.today, from: t, to: t }, { label: T.d7, from: back(7), to: t }, { label: T.d30, from: back(30), to: t },
+                { label: T.m3, from: months(3), to: t }, { label: T.m6, from: months(6), to: t }, { label: T.ytd, from: t.slice(0, 4) + '-01-01', to: t }];
+        },
+        rangeLabel() {
+            if (!this.from && !this.to) return T.anyTime;
+            const hit = this.quickRanges().find(r => r.from === this.from && r.to === this.to);
+            return hit ? hit.label : (this.from || '…') + ' – ' + (this.to || '…');
+        },
+        // the date range decides which log lines the server reads, so it reloads with the other filters kept
+        setRange(from, to) {
+            const u = new URL(location.href);
+            const set = (k, v) => v ? u.searchParams.set(k, v) : u.searchParams.delete(k);
+            set('from', from); set('to', to); set('tz', from || to ? '0' : '');
+            u.searchParams.delete('page');
+            location.href = u.pathname + u.search;
+        },
+        showGroup(g) { this.group = g.key; this.groupText = g.latest.first; this.level = ''; this.reset(); this.setView('list'); },
+        badge(l) { return { critical: 'el-crit', error: 'is-danger', warning: 'is-warning', notice: 'is-accent', info: '' }[l]; },
+        name(l) { return { critical: T.crit, error: T.err, warning: T.warn, notice: T.notice, info: T.info }[l] || l; },
+        day(ts) { return new Date(ts).toLocaleDateString(document.documentElement.lang || 'en', { month: 'short', day: 'numeric', timeZone: 'UTC' }); },
+        clock(ts) { return new Date(ts).toISOString().slice(11, 19); },
+        stamp(ts) { return new Date(ts).toISOString().replace('T', ' ').slice(0, 19) + ' UTC'; },
+        line(r) { return this.stamp(r.ts) + ' [' + r.level + '] [' + r.service + '] [' + (r.domain || '-') + '] ' + r.msg; },
+        say(msg, ok = true) { if (window.showToast) showToast(msg, ok ? 'success' : 'error'); },
+        copy(text, what) { window.copyToClipboard(text).then(() => this.say(what || T.copied), () => this.say(T.blocked, false)); },
+        save(list, name) {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([list.map(r => this.line(r)).join('\n') + '\n'], { type: 'text/plain' }));
+            a.download = name;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        },
+        stampName() { return 'error-logs-' + new Date().toISOString().slice(0, 19).replace(/[-:]/g, '').replace('T', '-') + '.txt'; },
+        // re-runs the collection on the server with the current filters, so the file has the newest lines too
+        async exportAll() {
+            const name = this.stampName();
+            opBusy.show({ title: T.busyTitle, text: this.list.length + ' ' + T.busyText, steps: T.busySteps, note: T.busyNote, leave: false });
+            const p = new URLSearchParams({ format: 'json', limit: '5000' });
+            const add = (k, v) => { if (v) p.set(k, v); };
+            add('domain', this.domain); add('exact', this.exact && this.domain ? '1' : ''); add('service', this.service);
+            add('severity', this.level); add('q', this.q.trim()); add('from', this.from); add('to', this.to);
+            if (this.from || this.to) p.set('tz', '0');
+            try {
+                const res = await fetch('/error-logs?' + p, { headers: { Accept: 'application/json' } });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || res.status);
+                let got = (data.entries || []).map((e, i) => toRow([Date.parse(e.time), e.level, e.service, e.source, e.domain || '', e.message], i));
+                if (this.group) got = got.filter(r => r.key === this.group);
+                this.save(got, name);
+                opBusy.done(T.saved + ' ' + name + '.', true);
+            } catch (err) {
+                opBusy.done(T.busyFail + ' ' + (err.message || err), false);
+            }
+        },
+        picked() { return this.list.filter(r => this.sel.includes(r.i)); },
+        pageIds() { return this.shown().map(r => r.i); },
+        allOnPage() { const ids = this.pageIds(); return ids.length > 0 && ids.every(i => this.sel.includes(i)); },
+        toggleAll() { const ids = this.pageIds(); this.sel = this.allOnPage() ? this.sel.filter(i => !ids.includes(i)) : [...new Set([...this.sel, ...ids])]; },
+        toggle(i) { this.sel = this.sel.includes(i) ? this.sel.filter(x => x !== i) : [...this.sel, i]; },
+    };
+}
 </script>
-
-<script src="{{static "js/table-sort.js"}}"></script>
-
 <!-- END templates/system/error_logs.html -->
-{{end}}
-
-{{define "level_badge"}}{{if eq .Level "critical"}}<span class="inline-block rounded-sm bg-red-600 px-2 py-0.5 text-xs font-medium text-white">{{.T.Get "Critical"}}</span>{{else if eq .Level "error"}}<span class="inline-block rounded-sm bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-300">{{.T.Get "Error"}}</span>{{else if eq .Level "warning"}}<span class="inline-block rounded-sm bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">{{.T.Get "Warning"}}</span>{{else if eq .Level "notice"}}<span class="inline-block rounded-sm bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300">{{.T.Get "Notice"}}</span>{{else}}<span class="inline-block rounded-sm bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">{{.T.Get "Info"}}</span>{{end}}{{end}}
-
-{{define "sort_header"}}
-<div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
-    <span>{{.Label}}</span>
-    <div class="-space-y-2">
-        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
-        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
-    </div>
-</div>
 {{end}}

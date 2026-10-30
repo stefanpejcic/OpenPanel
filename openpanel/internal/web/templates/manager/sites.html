@@ -1,18 +1,33 @@
 {{define "alpine_plugins"}}{{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
 {{define "content"}}
 <!-- START templates/manager/sites.html -->
-
-<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
-    <header>
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Site Manager"}}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{$apps := ""}}{{if .UserAllowed.wordpress}}{{$apps = print $apps " WordPress,"}}{{end}}{{if .UserAllowed.drupal}}{{$apps = print $apps " Drupal,"}}{{end}}{{if .UserAllowed.python}}{{$apps = print $apps " Python,"}}{{end}}{{if .UserAllowed.nodejs}}{{$apps = print $apps " Node.js,"}}{{end}}{{if $apps}}{{.T.Get "Manage %(apps)s and other websites." "apps" (trimSpace $apps)}}{{else}}{{.T.Get "Manage your websites."}}{{end}}</p>
-    </header>
-</div>
-
+<div class="op-content">
+    <div class="op-page-head">
+        <div>
+            {{if .WebsitesLimit}}<div class="op-eyebrow">{{.SiteCount}} {{.T.Get "of"}} {{.WebsitesLimit}} {{.T.Get "on your plan"}}</div>{{end}}
+            <h1 class="op-title">{{.T.Get "Site Manager"}}</h1>
+            <p class="op-meta">{{.T.Get "Every app installed on your domains. Each type opens its own manager."}}</p>
+        </div>
 {{if .Groups}}
-<section aria-label="{{.T.Get "Websites Table"}}" x-data="{
+        <div class="op-actions">
+            <button type="button" id="scanForSitesButton" class="op-btn op-btn-ghost">{{template "op_icon" "search"}} {{.T.Get "Scan"}}</button>
+            <a id="sites-new-button" class="op-btn op-btn-primary" href="/auto-installer">{{template "op_icon" "plus"}} {{.T.Get "New Website"}}</a>
+        </div>
+{{end}}
+    </div>
+{{if .Groups}}
+<section class="op-kpis op-sites-kpis" aria-label="{{.T.Get "Summary"}}">
+    <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "browser"}} {{.T.Get "Websites"}}</div><div class="op-kpi-value">{{.SiteCount}}{{if .WebsitesLimit}} <small>/ {{.WebsitesLimit}}</small>{{end}}</div>{{if .WebsitesLimit}}<div class="op-progress"><span style="width:{{.WebsitesPct}}%"></span></div>{{else}}<div class="op-kpi-note">{{.T.Get "No limit on your plan"}}</div>{{end}}</div>
+    <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "apps"}} {{.T.Get "App types"}}</div><div class="op-kpi-value">{{len .Groups}}</div><div class="op-kpi-note">{{.T.Get "Own manager each"}}</div></div>
+    <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "box"}} {{.T.Get "App containers"}}</div><div class="op-kpi-value">{{.ContainerCount}}</div><div class="op-kpi-note">{{.T.Get "Apps and Docker sites"}}</div></div>
+    <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "globe"}} {{.T.Get "Domains without a site"}}</div><div class="op-kpi-value">{{len .FreeDomains}}</div><div class="op-kpi-note">{{.T.Get "Ready for an app"}}</div></div>
+</section>
+<section class="op-card" aria-label="{{.T.Get "Websites Table"}}" x-data="{
     searchQuery: '',
+    typeFilter: 'all',
     selected: {},
     get selectedCount() { return Object.keys(this.selected).length; },
     get allVisibleChecked() {
@@ -115,46 +130,13 @@
             });
     }
 }">
-    <div class="flex flex-col justify-between gap-2 p-4 px-6 sm:flex-row sm:items-center">
-        <div class="relative w-full sm:w-64 [&>input]:py-1.5">
-            <input
-                id="sites-search-input"
-                x-model="searchQuery"
-                class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
-                placeholder="{{.T.Get "Search"}}"
-                type="search"
-            />
-            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
-                    <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
-                </svg>
-            </div>
-        </div>
-
-        <div class="flex flex-col items-center gap-2 sm:flex-row">
-            <button type="button" id="scanForSitesButton" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 text-center font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-2 py-1.5 text-base sm:w-fit sm:text-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" class="shrink-0"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg>
-                {{.T.Get "Scan"}}
-            </button>
-            <a id="sites-new-button" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 text-center font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-2 py-1.5 text-base sm:w-fit sm:text-sm" href="/auto-installer">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>
-                {{.T.Get "New"}}
-            </a>
-        </div>
+    <div id="scanForSitesExplain" class="op-alert hidden" style="margin-bottom:12px">{{template "op_icon" "info"}}
+        <span>{{.T.Get "This will scan for installations that exist on disk but aren't in Site Manager yet - files will be scanned, detected, and (if reachable) imported automatically."}}</span>
+        <span class="op-row">
+            <button type="button" id="scanForSitesConfirm" class="op-btn op-btn-sm op-btn-primary">{{.T.Get "Start Scan"}}</button>
+            <button type="button" id="scanForSitesCancel" class="op-btn op-btn-sm op-btn-secondary">{{.T.Get "Cancel"}}</button>
+        </span>
     </div>
-
-    <div id="scanForSitesExplain" class="hidden mx-4 mb-6 sm:mx-6 rounded border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900">
-        <p class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "This will scan for installations that exist on disk but aren't in Site Manager yet - files will be scanned, detected, and (if reachable) imported automatically."}}</p>
-        <div class="mt-3 flex gap-2">
-            <button type="button" id="scanForSitesConfirm" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent bg-black text-white hover:bg-gray-800 w-100">
-                {{.T.Get "Start Scan"}}
-            </button>
-            <button type="button" id="scanForSitesCancel" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100">
-                {{.T.Get "Cancel"}}
-            </button>
-        </div>
-    </div>
-
     <script>
         (function() {
             const scanButton = document.getElementById("scanForSitesButton");
@@ -193,224 +175,54 @@
             });
         })();
     </script>
-
-    <div class="overflow-x-auto relative overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 min-h-screen">
-        <div class="whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
-            <table id="sites-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
-                <thead class="">
-                    <tr class="sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
-                        <th scope="col" class="whitespace-nowrap border-b pl-4 sm:pl-6 pr-4 py-3.5 text-left border-gray-200 dark:border-gray-800">
-                            <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800"
-                                :checked="allVisibleChecked" :indeterminate="someVisibleChecked"
-                                @change="toggleAllVisible($event.target.checked)" aria-label="{{.T.Get "Select all"}}">
-                        </th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Type") "Key" "type" "Type" "string")}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Site Name") "Key" "name" "Type" "string")}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Created") "Key" "created" "Type" "string")}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Version") "Key" "version" "Type" "string")}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Speed"}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-right text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Actions"}}</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-
-                {{range $group := .Groups}}
-                    <tr data-group-header data-group-type="{{lower $group.Type}}" x-show="searchQuery === '' || {{toJSON $group.Type}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
-                        <td class="whitespace-nowrap border-b px-4 align-middle border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
-                            <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800"
-                                :checked="groupAllChecked({{toJSON (lower $group.Type)}})" :indeterminate="groupSomeChecked({{toJSON (lower $group.Type)}})"
-                                @change="toggleGroup({{toJSON (lower $group.Type)}}, $event.target.checked)" aria-label="{{$.T.Get "Select all"}} {{title $group.Type}}">
-                        </td>
-                        <th class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900" scope="colgroup" colspan="6">
-                            {{if eq $group.Type "wordpress"}}WordPress
-                            {{else if eq $group.Type "drupal"}}Drupal
-                            {{else if eq $group.Type "joomla"}}Joomla
-                            {{else if eq $group.Type "opencart"}}OpenCart
-                            {{else if eq $group.Type "nextcloud"}}Nextcloud
-                            {{else if eq $group.Type "prestashop"}}PrestaShop
-                            {{else if eq $group.Type "matomo"}}Matomo
-                            {{else if eq $group.Type "moodle"}}Moodle
-                            {{else if eq $group.Type "mediawiki"}}MediaWiki
-                            {{else if contains $group.Type "nodejs"}}{{$.T.Get "NodeJS Containers"}}
-                            {{else if contains $group.Type "bun"}}{{$.T.Get "Bun Applications"}}
-                            {{else if contains $group.Type "python"}}{{$.T.Get "Python Containers"}}
-                            {{else if contains $group.Type "ruby"}}{{$.T.Get "Ruby Applications"}}
-                            {{else if contains $group.Type "java"}}{{$.T.Get "Java Applications"}}
-                            {{else if contains $group.Type "n8n"}}n8n
-                            {{else if eq $group.Type "docker"}}{{$.T.Get "Docker Containers"}}
-                            {{else if contains $group.Type "mautic"}}Mautic
-                            {{else if contains $group.Type "fossbilling"}}FOSSBilling
-                            {{else if eq $group.Type "php"}}{{$.T.Get "PHP Applications"}}
-                            {{else if eq $group.Type "websitebuilder"}}{{$.T.Get "Website Builder"}}
-                            {{else if eq $group.Type "flarum"}}Flarum
-                            {{else if eq $group.Type "sofawiki"}}SofaWiki
-                            {{else if eq $group.Type "dokuwiki"}}DokuWiki
-                            {{else if eq $group.Type "phpbb"}}phpBB
-                            {{else if eq $group.Type "ojs"}}Open Journal Systems (OJS)
-                            {{else}}{{title $group.Type}}
-                            {{end}}
-                            <span class="ml-2 font-medium text-gray-600 dark:text-gray-400">{{len $group.Sites}}</span>
-                        </th>
-                    </tr>
-
-                    {{range $site := $group.Sites}}
-                    <tr id="site-row-{{$site.SiteName}}" data-row-type="{{lower $site.Type}}" x-show="searchQuery === '' || {{toJSON $site.SiteName}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $site.AdminEmail}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $group.Type}}.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-gray-50 hover:dark:bg-gray-900">
-
-                        <td class="py-4 pl-4 sm:pl-6 pr-4 align-middle">
-                            <input type="checkbox" class="site-select-box h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800"
-                                value="{{$site.SiteName}}" data-id="{{$site.ID}}" data-type="{{lower $site.Type}}" data-docroot="{{$site.Docroot}}"
-                                :checked="!!selected[{{toJSON $site.SiteName}}]" @change="toggleOne($event.target)" aria-label="{{$.T.Get "Select"}} {{$site.SiteName}}">
-                        </td>
-                        <td class="p-4 text-sm text-gray-600 dark:text-gray-400 text-center align-middle" data-sort-col="type" data-sort-value="{{lower $site.Type}}">
+    <div class="op-filter-row op-sites-chips">
+        <button type="button" class="op-filter" :class="typeFilter === 'all' && 'is-set'" @click="typeFilter = 'all'">{{.T.Get "All"}} <b class="op-count">{{.SiteCount}}</b></button>
+        {{- range $group := .Groups}}
+        <button type="button" class="op-filter" :class="typeFilter === {{toJSON (lower $group.Type)}} && 'is-set'" @click="typeFilter = {{toJSON (lower $group.Type)}}">{{template "op_site_type_label" (dict "Type" $group.Type "T" $.T)}} <b class="op-count">{{len $group.Sites}}</b></button>
+        {{- end}}
+    </div>
+    <div class="op-toolbar">
+        <label class="op-search">{{template "op_icon" "search"}}<input id="sites-search-input" class="op-input" type="search" x-model="searchQuery" placeholder="{{.T.Get "Search sites"}}" aria-label="{{.T.Get "Search sites"}}"></label>
+    </div>
+    <div class="op-table-wrap">
+        <table id="sites-table" class="op-table op-sites-table">
+            <thead>
+                <tr>
+                    <th class="is-shrink"><input type="checkbox" class="op-check" :checked="allVisibleChecked" :indeterminate="someVisibleChecked" @change="toggleAllVisible($event.target.checked)" aria-label="{{.T.Get "Select all"}}"></th>
+                    <th>{{template "op_sites_sort" (dict "Label" (.T.Get "Site") "Key" "name" "Type" "string")}}</th>
+                    <th>{{template "op_sites_sort" (dict "Label" (.T.Get "Type") "Key" "type" "Type" "string")}}</th>
+                    <th>{{.T.Get "Runs on"}}</th>
+                    <th>{{template "op_sites_sort" (dict "Label" (.T.Get "Version") "Key" "version" "Type" "string")}}</th>
+                    <th>{{template "op_sites_sort" (dict "Label" (.T.Get "Created") "Key" "created" "Type" "string")}}</th>
+                    <th>{{.T.Get "Speed"}}</th>
+                    <th class="is-shrink"><span class="op-sr">{{.T.Get "Actions"}}</span></th>
+                </tr>
+            </thead>
+            <tbody>
+            {{range $group := .Groups}}
+                {{range $site := $group.Sites}}
+                <tr id="site-row-{{$site.SiteName}}" data-href="/website?domain={{$site.SiteName}}" data-row-type="{{lower $site.Type}}" x-show="(typeFilter === 'all' || typeFilter === {{toJSON (lower $group.Type)}}) && (searchQuery === '' || {{toJSON $site.SiteName}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $site.AdminEmail}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $group.Type}}.toLowerCase().includes(searchQuery.toLowerCase()))" :aria-selected="(!!selected[{{toJSON $site.SiteName}}]).toString()">
+                    <td class="is-shrink"><input type="checkbox" class="op-check site-select-box" value="{{$site.SiteName}}" data-id="{{$site.ID}}" data-type="{{lower $site.Type}}" data-docroot="{{$site.Docroot}}" :checked="!!selected[{{toJSON $site.SiteName}}]" @change="toggleOne($event.target)" aria-label="{{$.T.Get "Select"}} {{$site.SiteName}}"></td>
+                    <td data-sort-col="name" data-sort-value="{{$site.SiteName}}">
+                        <div class="op-row-title">
+                            <span class="op-sites-logo" aria-hidden="true">{{template "op_app_logo" $site.Type}}</span>
+                            <div style="min-width:0"><b class="op-sites-name"><a href="{{if eq (lower $site.Type) "websitebuilder"}}/website-builder/edit?domain={{$site.SiteName}}{{else}}/website?domain={{$site.SiteName}}{{end}}" class="punycode">{{$site.SiteName}}</a></b></div>
+                        </div>
+                    </td>
+                    <td data-label="{{$.T.Get "Type"}}" data-sort-col="type" data-sort-value="{{lower $site.Type}}"><span class="op-badge">{{template "op_site_type_label" (dict "Type" $group.Type "T" $.T "Short" true)}}</span></td>
+                    <td data-label="{{$.T.Get "Runs on"}}"><span class="op-sites-runs">{{if $site.Container}}{{$site.Container}}{{if $site.Ports}}:{{$site.Ports}}{{end}}{{else if $site.PHPVersion}}PHP {{$site.PHPVersion}}{{else}}-{{end}}</span></td>
+                    <td data-label="{{$.T.Get "Version"}}" data-sort-col="version" data-sort-value="{{$site.Version}}" data-site-type="{{lower $site.Type}}" data-site-version="{{$site.Version}}">
+                        <span class="op-row">{{if $site.Version}}<span class="op-version">{{$site.Version}}</span>{{end}}<span id="update-badge-{{replace $site.SiteName "." "_"}}"></span></span>
+                    </td>
+                    <td data-label="{{$.T.Get "Created"}}" data-sort-col="created" data-sort-value="{{$site.CreatedDate}}" x-data="{ rawDate: {{toJSON $site.CreatedDate}}, date: new Date({{toJSON $site.CreatedDate}}), relative: '' }" x-init="relative = formatRelativeDay(date)">
+                        <span x-text="relative" :title="rawDate"></span>
+                    </td>
+                    <td data-label="{{$.T.Get "Speed"}}">
+                        {{if $.HasPagespeedKey}}<div class="speed_data" data-site-name="{{$site.SiteName}}" id="speed_data_{{replace $site.SiteName "." "_"}}"></div>
+                        {{else}}<a class="op-icon-btn op-speed-setup" href="/file-manager/edit-file/pagespeed_api_key.txt?new=true" title="{{$.T.Get "Add a Google PageSpeed API key to see speed scores"}}" aria-label="{{$.T.Get "Add a Google PageSpeed API key to see speed scores"}}">{{template "op_icon" "gauge"}}</a>{{end}}
+                    </td>
+                    <td class="is-shrink op-cell-menu">
                             {{$typeLower := lower $site.Type}}
-                            {{if eq $typeLower "wordpress"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-wordpress" viewBox="0 0 16 16">
-  <path d="M12.633 7.653c0-.848-.305-1.435-.566-1.892l-.08-.13c-.317-.51-.594-.958-.594-1.48 0-.63.478-1.218 1.152-1.218q.03 0 .058.003l.031.003A6.84 6.84 0 0 0 8 1.137 6.86 6.86 0 0 0 2.266 4.23c.16.005.313.009.442.009.717 0 1.828-.087 1.828-.087.37-.022.414.521.044.565 0 0-.371.044-.785.065l2.5 7.434 1.5-4.506-1.07-2.929c-.369-.022-.719-.065-.719-.065-.37-.022-.326-.588.043-.566 0 0 1.134.087 1.808.087.718 0 1.83-.087 1.83-.087.37-.022.413.522.043.566 0 0-.372.043-.785.065l2.48 7.377.684-2.287.054-.173c.27-.86.469-1.495.469-2.046zM1.137 8a6.86 6.86 0 0 0 3.868 6.176L1.73 5.206A6.8 6.8 0 0 0 1.137 8"/>
-  <path d="M6.061 14.583 8.121 8.6l2.109 5.78q.02.05.049.094a6.85 6.85 0 0 1-4.218.109m7.96-9.876q.046.328.047.706c0 .696-.13 1.479-.522 2.458l-2.096 6.06a6.86 6.86 0 0 0 2.572-9.224z"/>
-  <path fill-rule="evenodd" d="M0 8c0-4.411 3.589-8 8-8s8 3.589 8 8-3.59 8-8 8-8-3.589-8-8m.367 0c0 4.209 3.424 7.633 7.633 7.633S15.632 12.209 15.632 8C15.632 3.79 12.208.367 8 .367 3.79.367.367 3.79.367 8"/>
-</svg>
-</a>
-                            {{else if eq $typeLower "drupal"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 1011.55 1333.33" fill="currentColor" class="mx-auto"><path d="M716.04 281.05C622.35 189.77 533.47 100.89 507.04 0c-26.43 100.89-115.31 189.79-209 281.07C158.71 420.4.17 578.94.17 816.76c-7.21 278.66 216.2 511.68 494.86 516.49 278.66 4.81 511.68-216.2 516.49-494.86v-21.62c2.39-237.83-156.15-396.37-295.48-535.71zM259.61 862.39c-14.41 19.22-28.82 40.84-38.44 62.46-2.41 2.41-4.81 7.21-9.6 7.21l-2.4-.02c-12.01 0-24.03-21.62-24.03-21.62-2.41-4.81-7.21-12-9.6-16.81l-2.41-4.79c-31.24-67.28-4.81-160.95-4.81-160.95 12-45.63 33.63-91.29 60.06-129.72 16.81-24.03 36.04-48.04 55.25-72.07l24.03 24.03 112.91 115.31c4.81 4.81 4.81 12 0 16.81L302.85 814.36l-43.25 48.02zm252.24 331.51c-96.09 0-175.36-79.28-172.97-175.36 0-43.25 16.81-84.07 43.25-115.31 36.04-43.25 81.68-86.48 132.13-144.13 57.65 62.46 96.09 103.29 132.13 151.35 2.41 2.41 4.81 7.21 7.21 12.01 19.22 28.82 31.22 62.46 31.22 98.5 2.39 96.08-76.87 172.96-172.97 172.96zm329.11-278.67c-2.41 7.22-9.6 12.01-16.81 14.41l-2.41.02c-7.21-2.41-12-7.21-16.81-12.01-31.22-45.63-64.85-88.88-103.29-127.32l-45.63-48.04-153.75-158.54c-31.22-28.82-62.46-62.46-91.29-93.69 0-2.4-2.4-2.4-2.4-2.4-4.81-7.21-9.6-14.41-12.01-24.03v-4.81c-4.81-26.43 4.81-52.85 24.03-72.07 28.82-28.82 60.06-60.06 88.88-91.28 31.22 33.63 64.85 67.26 98.5 100.89 67.26 62.46 127.32 132.13 182.57 206.6 45.63 64.85 69.66 139.33 69.66 218.61-4.82 28.82-9.63 62.45-19.23 93.67z"/></svg>
-</a>
-                            {{else if eq $typeLower "joomla"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="mx-auto"><path d="M16.719 14.759L14.22 17.26l-2.37 2.37-.462.466c-1.368 1.365-3.297 1.83-5.047 1.397-.327 1.424-1.604 2.49-3.13 2.49C1.438 23.983 0 22.547 0 20.772c0-1.518 1.055-2.789 2.469-3.123-.446-1.76.016-3.705 1.396-5.08l.179-.18 2.37 2.37-.184.181c-.769.779-.769 2.024 0 2.789.771.78 2.022.78 2.787 0l.465-.465 2.367-2.371 2.502-2.506 2.368 2.372zm.924 6.652c-1.822.563-3.885.12-5.328-1.318l-.18-.185 2.365-2.369.18.184c.771.768 2.018.768 2.787 0 .765-.765.769-2.01-.004-2.781l-.466-.465-2.365-2.37-2.502-2.503 2.37-2.369 2.499 2.505 2.367 2.37.464.464c1.365 1.36 1.846 3.278 1.411 5.021 1.56.224 2.759 1.56 2.759 3.18 0 1.784-1.439 3.21-3.209 3.21-1.545 0-2.851-1.096-3.135-2.565l-.013-.009zM6.975 9.461l2.508-2.505 2.37-2.369.462-.461C13.74 2.7 15.772 2.251 17.58 2.79c.212-1.561 1.555-2.775 3.179-2.775 1.772 0 3.211 1.437 3.211 3.209 0 1.631-1.216 2.978-2.79 3.186.519 1.799.068 3.816-1.35 5.234l-.182.184-2.369-2.369.184-.184c.769-.77.769-2.016 0-2.783-.766-.766-2.011-.768-2.781.003l-.462.461-2.37 2.369-2.505 2.502-2.37-2.366zm-2.653 2.647l-.461-.462C2.43 10.215 1.986 8.17 2.529 6.358 1.1 6.029.03 4.754.03 3.224.03 1.454 1.47.015 3.24.015c1.596 0 2.92 1.166 3.17 2.691 1.73-.405 3.626.065 4.979 1.415l.184.185-2.37 2.37-.183-.181c-.77-.765-2.016-.765-2.785 0-.771.781-.77 2.025-.005 2.79l.465.466 2.37 2.369 2.505 2.505-2.367 2.37-2.51-2.505-2.371-2.37v-.012z"/></svg>
-</a>
-                            {{else if eq $typeLower "opencart"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 640 512" fill="currentColor" class="mx-auto"><path d="M423.3 440.7c0 25.3-20.3 45.6-45.6 45.6s-45.8-20.3-45.8-45.6 20.6-45.8 45.8-45.8c25.4 0 45.6 20.5 45.6 45.8zm-253.9-45.8c-25.3 0-45.6 20.6-45.6 45.8s20.3 45.6 45.6 45.6 45.8-20.3 45.8-45.6-20.5-45.8-45.8-45.8zm291.7-270C158.9 124.9 81.9 112.1 0 25.7c34.4 51.7 53.3 148.9 373.1 144.2 333.3-5 130 86.1 70.8 188.9 186.7-166.7 319.4-233.9 17.2-233.9z"/></svg>
-</a>
-                            {{else if eq $typeLower "nextcloud"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="mx-auto"><path d="M12.018 6.537c-2.5 0-4.6 1.712-5.241 4.015-.56-1.232-1.793-2.105-3.225-2.105A3.569 3.569 0 0 0 0 12a3.569 3.569 0 0 0 3.552 3.553c1.432 0 2.664-.874 3.224-2.106.641 2.304 2.742 4.016 5.242 4.016 2.487 0 4.576-1.693 5.231-3.977.569 1.21 1.783 2.067 3.198 2.067A3.568 3.568 0 0 0 24 12a3.569 3.569 0 0 0-3.553-3.553c-1.416 0-2.63.858-3.199 2.067-.654-2.284-2.743-3.978-5.23-3.977zm0 2.085c1.878 0 3.378 1.5 3.378 3.378 0 1.878-1.5 3.378-3.378 3.378A3.362 3.362 0 0 1 8.641 12c0-1.878 1.5-3.378 3.377-3.378zm-8.466 1.91c.822 0 1.467.645 1.467 1.468s-.644 1.467-1.467 1.468A1.452 1.452 0 0 1 2.085 12c0-.823.644-1.467 1.467-1.467zm16.895 0c.823 0 1.468.645 1.468 1.468s-.645 1.468-1.468 1.468A1.452 1.452 0 0 1 18.98 12c0-.823.644-1.467 1.467-1.467z"/></svg>
-</a>
-                            {{else if eq $typeLower "prestashop"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto" viewBox="0 0 24 24"><path d="M11.558 1.034C5.174 1.034 0 6.21 0 12.592c0 1.258.201 2.47.574 3.597l.002-.007a12.415 12.415 0 0 1 .53-1.787l.011-.03c.085-.222.179-.442.277-.66l.084-.181c.08-.171.165-.34.253-.507c.036-.068.07-.136.108-.203c.02-.038.044-.073.064-.11c.094-.166.19-.332.29-.493l.075-.114c.125-.195.256-.386.393-.573l.035-.05c.144-.193.295-.38.451-.563l.1-.118c.155-.177.315-.35.481-.517l.099-.097a10.321 10.321 0 0 1 .546-.503c.74-2.48 3.005-4.285 5.686-4.285c1.079 0 2.152.31 3.071.873a6.017 6.017 0 0 1 2.211 2.407l.007.015l.04.074v.003l.004.002a9.925 9.925 0 0 1 1.567 1.198c.04.037.081.071.12.109c.002 0 .006.005.007.006l-.002-.006l-.001-.004v-.003l.042-.084c.377-2.384 1.43-4.102 2.67-4.102c.934 0 1.762.975 2.276 2.476l.005.016l.001.002c.145.158.287.331.424.521l.007.01l.021.067l-.02-.078c-1.542-4.569-5.863-7.857-10.952-7.857zM9.927 5.477C7.586 5.52 5.34 7.132 4.574 9.365l-.012.034a10.14 10.14 0 0 1 1.315-.895c2.806-1.656 6.479-1.646 9.278.016c-.895-1.653-2.631-2.819-4.5-3.004a5.14 5.14 0 0 0-.728-.039zm9.834.5a1.36 1.36 0 0 0-.39.067c-1.265.562-1.719 2.073-2.031 3.303l-.016.072c.365-.62.808-1.215 1.396-1.642c.835-.687 2.105-.655 2.916.053c.308.326.141.008.031-.22c-.342-.75-1.025-1.653-1.906-1.634zM21.67 7.98zm-9.32.335l-1.07 3.27l-.002.005l-.006.002l-4.498 1.112h-.009l4.456 1.087c.105.11.227.205.36.28h.002c.042.024.085.045.129.065l.01.005c.041.018.083.033.126.047l.021.008c.04.013.08.023.12.032l.033.008a1.677 1.677 0 0 0 .318.033a1.546 1.546 0 0 0 1.43-.948c.08-.186.123-.39.123-.604v-.011l-.001-.012a1.696 1.696 0 0 0-.01-.16l-.001-.002a1.506 1.506 0 0 0-.026-.153l-.001-.004a1.511 1.511 0 0 0-.096-.288v-.003a1.521 1.521 0 0 0-.348-.49v-.003zm3.148.626c.048 1.008.036 2.046-.1 3.057c-.17 2.018-1.19 3.798-1.972 5.616l-.03.08l-.035.086c1.51-1.522 3.17-3.04 3.969-5.082c.383-.636.118-1.342-.115-1.976c-.17-.877-1.069-1.278-1.717-1.781zm6.172.572l-.588 2.688a1.764 1.764 0 0 0-.047.2c-.002.02-.007.04-.01.06a1.76 1.76 0 0 0-.016.222l-.002.031h.003c0 .628.297 1.136.663 1.137a.41.41 0 0 0 .182-.045l.027-.015a.537.537 0 0 0 .07-.047c.013-.01.024-.022.036-.033a.752.752 0 0 0 .137-.168l.03-.054a1.23 1.23 0 0 0 .052-.108l.017-.04c.02-.053.038-.108.053-.166l.002-.002l.001-.003l.404-.451l-.407-.456v.001l-.02-.063zm-4.381.856c.69 1.716.85 3.707.091 5.43c-.49 1.368-1.587 2.463-1.874 3.905c.73.115 1.468.176 2.21.186c2.166.029 4.332-.42 6.284-1.365c-2.04-2.869-4.121-5.755-6.711-8.156zm-4.948.977a.583.583 0 1 1 0 1.166a.583.583 0 0 1 0-1.166zm9.352.37c.138 0 .249.19.249.426s-.111.426-.249.426c-.137 0-.248-.19-.248-.426c0-.235.11-.426.248-.426zm-4.044.184a4.59 4.59 0 0 1-.05.29l-.006.023c-.01.05-.022.094-.033.128c-.48 1.417-1.275 2.52-2.36 3.697c-.147.16-.301.32-.459.484a58.883 58.883 0 0 1-1.196 1.205c-.112.11-.259.261-.425.436c-.103.287-.22.61-.318.95c-.044-.016-.086-.031-.131-.049c-2.108-.815-3.519-1.904-3.519-1.904s1.086 1.414 2.915 2.74c.177.129.351.24.522.339c-.075 1.194.452 2.34 2.83 2.682a4.81 4.81 0 0 0 1.228.008l-.01-.029a.062.062 0 0 0-.004-.01s-.167-.133-.379-.377a3.842 3.842 0 0 1-.584-.897a3.382 3.382 0 0 1-.266-.862a3.176 3.176 0 0 1-.006-.972c.017-.12.04-.241.072-.366c.093-.374.255-.772.507-1.192l.002-.003l.241-.404c1.103-1.86 1.797-3.275 1.506-5.441a8.943 8.943 0 0 0-.078-.476zm4.668.576zm.013.203l.003.036v.01c0 .013-.003.025-.003.038c0-.014.003-.028.003-.043c0-.014-.002-.026-.003-.04zm-.012.275v.001l-.002.01l-.002.014l.004-.025zm1.353 5.928c-2.553 1.138-5.44 1.44-8.192 1.007c-.14 1.108.384 2.218 1.214 2.93l.012.01c2.703-.433 4.975-2.168 6.966-3.946z"/></svg>
-</a>
-                            {{else if eq $typeLower "matomo"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="mx-auto"><path d="M6.664 15.37a3.336 3.336 0 0 1-3.332 3.332C1.495 18.702 0 17.208 0 15.37s1.495-3.333 3.332-3.333a3.338 3.338 0 0 1 3.332 3.333zm11.565-3.644a3.658 3.658 0 0 1-1.987.591 3.642 3.642 0 0 1-1.872-.529l.008.012a3.728 3.728 0 0 1-1.235-1.19l-2.612-3.693a.17.17 0 0 1-.027-.033A3.312 3.312 0 0 0 7.67 5.298a3.318 3.318 0 0 0-2.848 1.586.146.146 0 0 1-.021.028l-3.428 5.343a3.663 3.663 0 0 1 5.094 1.18.13.13 0 0 1 .015.018l2.756 3.869a3.305 3.305 0 0 0 2.699 1.38 3.31 3.31 0 0 0 2.711-1.379l.009-.013c.073-.103.137-.202.195-.305l1.442-2.255 1.935-3.024zm5.275 1.902l-.014-.028-.044-.066a1.109 1.109 0 0 0-.029-.044l-3.525-5.37c.024.168.052.335.052.51 0 .741-.219 1.457-.634 2.068l-2.803 4.38 1.416 2.179-.002.002a.131.131 0 0 1 .024.028 3.338 3.338 0 0 0 2.723 1.415A3.335 3.335 0 0 0 24 15.37c0-.613-.171-1.216-.496-1.742zm-7.262-1.666a3.336 3.336 0 0 0 3.332-3.333 3.336 3.336 0 0 0-3.332-3.332 3.336 3.336 0 0 0-3.332 3.332 3.338 3.338 0 0 0 3.332 3.333z"/></svg>
-</a>
-                            {{else if eq $typeLower "moodle"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="mx-auto"><path d="M12 0C5.3726 0 0 5.3726 0 12s5.3726 12 12 12 12-5.3726 12-12S18.6274 0 12 0Zm1.1348 5.7402.0351.123-2.7363 1.9903c.3694.2606.7968.609 1.0078.8438l.0762.1035c-1.2878 2.2571-3.737 3.0557-6.3164 2.1816l.0195-.1601h-.002c-.0784-.5679-.0962-1.0524-.0585-1.463-.7507-.003-1.5298-.0402-2.2832-.0663l-.5157.0175c-.0994.8449-.0351 2.135-.0254 2.3223.3492 1.2819.2977 2.2907.295 3.5293-.4134-1.0028-.8995-2.097-.416-3.4668l-.0098-.3183c-.0007-.0143-.0683-1.1532.037-2.0625l-.4081.0136-.0371-.1191C5.7922 6.8402 8.5032 6.218 13.1348 5.7402Zm1.623 2.5137c1.2202 0 2.1885.2691 2.9043.8066.8138.601 1.2207 1.4866 1.2207 2.6582v5.6856h-2.7344v-5.3691c0-1.1225-.4634-1.6836-1.3906-1.6836-.9278 0-1.3906.561-1.3906 1.6836v5.3691h-2.7344v-5.3691c0-.5183-.0986-.9144-.293-1.1934.6172-.435 1.1534-1.0124 1.5723-1.7246.0297.029.0597.0574.0879.0879.5044-.6349 1.4233-.9512 2.7578-.9512zm-9.6094 3.2344c.932.3 1.8614.393 2.7364.287a3.5455 3.5455 0 0 0-.0098.2599v5.3691H5.1426v-5.6855c0-.0787.0022-.1544.0058-.2305z"/></svg>
-</a>
-                            {{else if eq $typeLower "mediawiki"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 100 100" fill="currentColor" class="mx-auto"><path d="M33.6,14.8a16.938,16.938,0,0,0,3.116,11.142,11.457,11.457,0,0,0,6.858,4.3,3.033,3.033,0,0,0,2.385-.713,11.924,11.924,0,0,0,3.634-10.837c-1.257-7.54-6.19-12.43-12.4-17A32.468,32.468,0,0,0,33.6,14.8Z"/><path d="M25.117,20.232a16.938,16.938,0,0,0,5.893,9.956,11.457,11.457,0,0,0,7.738,2.381,3.033,3.033,0,0,0,2.119-1.306,11.924,11.924,0,0,0,.705-11.409C38.406,12.9,32.376,9.449,25.2,6.642A32.468,32.468,0,0,0,25.117,20.232Z"/><path d="M18.329,27.677A16.937,16.937,0,0,0,26.6,35.769a11.457,11.457,0,0,0,8.09.3,3.033,3.033,0,0,0,1.709-1.81,11.924,11.924,0,0,0-2.271-11.2c-4.859-5.9-11.576-7.67-19.237-8.523A32.466,32.466,0,0,0,18.329,27.677Z"/><path d="M13.7,36.626A16.938,16.938,0,0,0,23.781,42.3a11.457,11.457,0,0,0,7.891-1.807A3.033,3.033,0,0,0,32.854,38.3a11.924,11.924,0,0,0-5.093-10.233c-6.221-4.443-13.167-4.412-20.787-3.254A32.468,32.468,0,0,0,13.7,36.626Z"/><path d="M11.543,46.468a16.938,16.938,0,0,0,11.208,2.873,11.457,11.457,0,0,0,7.155-3.788,3.034,3.034,0,0,0,.575-2.422,11.924,11.924,0,0,0-7.568-8.566C15.753,31.884,9.052,33.711,1.99,36.8A32.468,32.468,0,0,0,11.543,46.468Z"/><path d="M12.008,56.532a16.938,16.938,0,0,0,11.569-.126,11.457,11.457,0,0,0,5.931-5.51,3.033,3.033,0,0,0-.072-2.488,11.924,11.924,0,0,0-9.527-6.315C12.3,41.356,6.3,44.855.279,49.669A32.467,32.467,0,0,0,12.008,56.532Z"/><path d="M15.062,66.134A16.938,16.938,0,0,0,26.2,63.018a11.457,11.457,0,0,0,4.3-6.858,3.033,3.033,0,0,0-.713-2.385,11.924,11.924,0,0,0-10.837-3.634c-7.54,1.257-12.43,6.19-17,12.4A32.468,32.468,0,0,0,15.062,66.134Z"/><path d="M20.5,74.618a16.938,16.938,0,0,0,9.956-5.893,11.457,11.457,0,0,0,2.381-7.738,3.033,3.033,0,0,0-1.306-2.119,11.925,11.925,0,0,0-11.409-.705c-6.958,3.166-10.4,9.2-13.212,16.376A32.466,32.466,0,0,0,20.5,74.618Z"/><path d="M27.943,81.406a16.938,16.938,0,0,0,8.092-8.269,11.457,11.457,0,0,0,.3-8.09,3.033,3.033,0,0,0-1.81-1.709,11.924,11.924,0,0,0-11.2,2.271c-5.9,4.859-7.67,11.576-8.523,19.237A32.467,32.467,0,0,0,27.943,81.406Z"/><path d="M36.891,86.035a16.938,16.938,0,0,0,5.676-10.082,11.457,11.457,0,0,0-1.807-7.891,3.033,3.033,0,0,0-2.191-1.182,11.924,11.924,0,0,0-10.233,5.094c-4.443,6.221-4.412,13.167-3.254,20.787A32.467,32.467,0,0,0,36.891,86.035Z"/><path d="M46.733,88.191a16.937,16.937,0,0,0,2.873-11.207,11.457,11.457,0,0,0-3.788-7.155,3.033,3.033,0,0,0-2.422-.575,11.924,11.924,0,0,0-8.566,7.568c-2.681,7.159-.854,13.86,2.237,20.921A32.465,32.465,0,0,0,46.733,88.191Z"/><path d="M56.8,87.726a16.937,16.937,0,0,0-.125-11.569,11.457,11.457,0,0,0-5.511-5.931,3.033,3.033,0,0,0-2.488.072,11.924,11.924,0,0,0-6.315,9.528c-0.737,7.609,2.762,13.609,7.576,19.629A32.466,32.466,0,0,0,56.8,87.726Z"/><path d="M66.4,84.672A16.938,16.938,0,0,0,63.284,73.53a11.457,11.457,0,0,0-6.858-4.3,3.033,3.033,0,0,0-2.385.713,11.924,11.924,0,0,0-3.634,10.837c1.257,7.54,6.19,12.43,12.4,17A32.468,32.468,0,0,0,66.4,84.672Z"/><path d="M74.883,79.237a16.937,16.937,0,0,0-5.893-9.956A11.456,11.456,0,0,0,61.252,66.9a3.033,3.033,0,0,0-2.119,1.306,11.924,11.924,0,0,0-.705,11.409c3.166,6.958,9.2,10.4,16.375,13.212A32.468,32.468,0,0,0,74.883,79.237Z"/><path d="M81.671,71.792A16.938,16.938,0,0,0,73.4,63.7a11.457,11.457,0,0,0-8.09-.3,3.033,3.033,0,0,0-1.708,1.81,11.924,11.924,0,0,0,2.271,11.2c4.859,5.9,11.576,7.67,19.237,8.523A32.466,32.466,0,0,0,81.671,71.792Z"/><path d="M86.3,62.843a16.938,16.938,0,0,0-10.082-5.676,11.457,11.457,0,0,0-7.891,1.807,3.033,3.033,0,0,0-1.182,2.191A11.924,11.924,0,0,0,72.239,71.4c6.221,4.443,13.167,4.412,20.787,3.254A32.467,32.467,0,0,0,86.3,62.843Z"/><path d="M88.457,53a16.938,16.938,0,0,0-11.207-2.873,11.457,11.457,0,0,0-7.155,3.788,3.033,3.033,0,0,0-.574,2.422A11.925,11.925,0,0,0,77.088,64.9c7.158,2.681,13.86.854,20.921-2.237A32.467,32.467,0,0,0,88.457,53Z"/><path d="M87.992,42.936a16.938,16.938,0,0,0-11.569.126,11.457,11.457,0,0,0-5.931,5.511,3.033,3.033,0,0,0,.072,2.488,11.924,11.924,0,0,0,9.527,6.315C87.7,58.113,93.7,54.614,99.721,49.8A32.468,32.468,0,0,0,87.992,42.936Z"/><path d="M84.938,33.335A16.938,16.938,0,0,0,73.8,36.451a11.457,11.457,0,0,0-4.3,6.858,3.033,3.033,0,0,0,.714,2.385,11.924,11.924,0,0,0,10.837,3.634c7.54-1.257,12.43-6.19,17-12.4A32.466,32.466,0,0,0,84.938,33.335Z"/><path d="M79.5,24.851a16.938,16.938,0,0,0-9.956,5.893,11.457,11.457,0,0,0-2.381,7.738A3.033,3.033,0,0,0,68.472,40.6a11.924,11.924,0,0,0,11.409.705c6.958-3.166,10.4-9.2,13.212-16.375A32.468,32.468,0,0,0,79.5,24.851Z"/><path d="M72.057,18.063a16.938,16.938,0,0,0-8.092,8.269,11.457,11.457,0,0,0-.3,8.09,3.033,3.033,0,0,0,1.81,1.709,11.924,11.924,0,0,0,11.2-2.271c5.9-4.859,7.67-11.576,8.523-19.237A32.467,32.467,0,0,0,72.057,18.063Z"/><path d="M63.109,13.434a16.937,16.937,0,0,0-5.676,10.082,11.457,11.457,0,0,0,1.807,7.891,3.033,3.033,0,0,0,2.191,1.182A11.924,11.924,0,0,0,71.664,27.5c4.443-6.221,4.412-13.167,3.254-20.787A32.466,32.466,0,0,0,63.109,13.434Z"/><path d="M53.267,11.278a16.937,16.937,0,0,0-2.873,11.207,11.456,11.456,0,0,0,3.788,7.155,3.033,3.033,0,0,0,2.422.575,11.924,11.924,0,0,0,8.566-7.568c2.681-7.159.854-13.86-2.237-20.921A32.466,32.466,0,0,0,53.267,11.278Z"/><path d="M43.2,11.743a16.938,16.938,0,0,0,.126,11.569,11.457,11.457,0,0,0,5.511,5.931,3.033,3.033,0,0,0,2.488-.072,11.924,11.924,0,0,0,6.315-9.528C58.379,12.034,54.88,6.034,50.066.014A32.468,32.468,0,0,0,43.2,11.743Z"/></svg>
-</a>
-                            {{else if eq $typeLower "flarum"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 64 64" fill="currentColor" class="mx-auto"><g transform="matrix(2.8799999,0,0,2.8799999,-38.648859,-56.373193)"><path d="M 15.10814,34.404271 15.10354,20.58171 c -1.84e-4,-0.556529 0.383134,-0.768017 0.854123,-0.473649 l 9.919955,6.199972 v 15.488216 l -9.293169,-5.640035 c -1.287893,-0.701196 -1.47454,-1.1364 -1.476347,-1.751943 z"/><path d="m 16.114255,19.574026 c -0.558366,0 -1.01101,0.451467 -1.01101,1.012451 v 13.802364 c 0.02805,0.474415 0.0039,0.969043 1.510295,1.778745 0,0 -1.476019,-1.434143 0.846607,-1.442045 H 33.958464 V 19.574026 Z"/></g></svg>
-</a>
-                            {{else if eq $typeLower "sofawiki"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-book" viewBox="0 0 16 16"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783"/></svg>
-</a>
-                            {{else if eq $typeLower "phpbb"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-chat-square-text" viewBox="0 0 16 16"><path d="M14 1a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4.414A2 2 0 0 0 3 11.586l-2 2V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12.793a.5.5 0 0 0 .854.353l2.853-2.853A1 1 0 0 1 4.414 12H14a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/><path d="M3 3.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5M3 6a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9A.5.5 0 0 1 3 6m0 2.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5"/></svg>
-</a>
-                            {{else if eq $typeLower "ojs"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto" viewBox="-5 -5 310 200"><path d="M77.6 156.8C22.8 156.8 0 114.2 0 78.2 0 45.8 23.6 0 78.8 0c45 0 78.6 28.4 78.6 75 0 44.8-31.6 81.8-79.8 81.8zm5.4-7.6c18 0 55.2-10.4 55.2-68.6 0-48-29.2-73.8-60.8-73.8C44 6.8 19 28.8 19 72.6c0 46.6 28 76.6 64 76.6zm119-91.6V103c0 30.6 0 42.3-6 55.8-4.1 9.4-13 18.3-29.1 28.9a82.2 82.2 0 01-7.8 4.7c-.4.2-.8.4-1.4.4-.6 0-1.4-.4-1.4-1.1 0-1.2 1-1.7 2.8-2.9 2.4-1.3 5.2-3.6 7-5.3 13-12.4 19.2-22.5 19.2-71.2V57.6c0-29.5 0-34.8-.4-40.8-.4-6.4-2-9.5-8.6-10.8-1.6-.4-4.4-.6-6.2-.6-1.4 0-2.2-.5-2.2-1.3 0-.7.8-1.3 3-1.3 9 0 21.8.6 22.8.6s13.6-.6 19.6-.6c2.2 0 3.2.4 3.2 1.5 0 .8-1 1.1-2.2 1.1-1.4 0-3 .2-4.8.4-5.4.6-6.6 4.4-7 11-.4 6-.4 11.3-.4 40.8zm50.8 99.2c-9.4 0-18.6-1.4-26.8-5.4-2.8-1.4-3-2.2-3-7.6 0-10 .8-18 1-21.2.2-2.2.6-3.2 1.6-3.2 1.2 0 1.4.6 1.4 2.2 0 1.8 0 4.6.6 7.4 3 14.8 16.2 20.4 29.6 20.4 19.2 0 28.6-13.8 28.6-26.6 0-13.8-5.8-21.8-23-36l-9-7.4c-21.2-17.4-26-29.8-26-43.4 0-21.4 16-36 41.4-36 7.8 0 13.6.8 18.6 2 3.8.8 5.4 1 7 1 1.6 0 2 .4 2 1.4 0 1-.8 7.6-.8 21.2 0 3.2-.4 4.6-1.4 4.6-1.2 0-1.4-1-1.6-2.6-.2-2.4-1.4-7.8-2.6-10-1.2-2.2-6.6-10.6-25-10.6-13.8 0-24.6 8.6-24.6 23.2 0 11.4 5.2 18.6 24.4 33.6l5.6 4.4c23.6 18.6 29.2 31 29.2 47 0 8.2-3.2 23.4-17 33.2-8.6 6-19.4 8.4-30.2 8.4z"/></svg>
-</a>
-                            {{else if eq $typeLower "dokuwiki"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-journal-text" viewBox="0 0 16 16"><path d="M5 10.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5m0-2a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5"/><path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1H0V2a2 2 0 0 1 2-2h1zm2 14v1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H5zM1 3v10h2V3zm2-1a1 1 0 0 0-1-1h-.5a1 1 0 0 0-1 1z"/></svg>
-</a>
-                            {{else if eq $typeLower "tinyphotogallery"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-image" viewBox="0 0 16 16"><path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/><path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1z"/></svg>
-</a>
-                            {{else if eq $typeLower "tinyfilemanager"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-folder2-open" viewBox="0 0 16 16"><path d="M1 3.5A1.5 1.5 0 0 1 2.5 2h2.764c.958 0 1.76.56 2.311 1.184C7.985 3.648 8.48 4 9 4h4.5A1.5 1.5 0 0 1 15 5.5v.64c.57.265.94.876.856 1.546l-.64 5.124A2.5 2.5 0 0 1 12.733 15H3.266a2.5 2.5 0 0 1-2.481-2.19l-.64-5.124A1.5 1.5 0 0 1 1 6.14zM2 6h12v-.5a.5.5 0 0 0-.5-.5H9c-.964 0-1.71-.629-2.174-1.154C6.374 3.334 5.775 3 5.264 3H2.5a.5.5 0 0 0-.5.5zm-.367 1a.5.5 0 0 0-.496.562l.64 5.124A1.5 1.5 0 0 0 3.266 14h9.468a1.5 1.5 0 0 0 1.489-1.314l.64-5.124A.5.5 0 0 0 14.367 7z"/></svg>
-</a>
-                            {{else if eq $typeLower "mautic"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-app-indicator" viewBox="303.933 0.589 349.779 349.779">
-<g id="brandmark"><g><path d="M478.822,350.368c-96.277,0-174.89-78.318-174.89-174.89c0-96.572,78.612-174.89,174.89-174.89
-c23.26,0,45.931,4.417,67.129,13.543c5.889,2.65,8.833,9.422,6.478,15.605c-2.649,5.888-9.421,8.833-15.604,6.477
-c-18.549-7.655-37.98-11.482-58.002-11.482c-83.323,0-151.041,67.718-151.041,151.041S395.5,326.813,478.822,326.813
-c83.323,0,151.041-67.718,151.041-151.041c0-17.96-2.944-35.332-9.127-51.819c-2.355-6.183,0.883-12.955,7.066-15.31
-c6.183-2.355,12.954,0.883,15.31,7.066c7.066,19.138,10.6,39.453,10.6,60.063C653.712,271.756,575.395,350.368,478.822,350.368z"/></g>
-<g><polygon points="555.373,157.519 528.286,185.783 543.302,249.085 577.455,249.085        "/></g>
-<polygon points="544.186,73.901 553.606,83.323 478.822,162.523 414.932,96.866 378.128,249.085 412.282,249.085 432.598,164.584
-478.822,214.932 577.75,107.171 587.172,116.888 596.593,63.596   "/></g>
-</svg>
-</a>
-                            {{else if contains $typeLower "nodejs"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-javascript" viewBox="0 0 16 16">
-  <path fill-rule="evenodd" d="M14 0a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2zM9.053 7.596v3.127l-.007 1.752q0 .498-.186.752t-.556.263q-.342 0-.528-.234-.185-.234-.185-.684v-.175H6.37v.185q0 .665.253 1.113.255.45.703.674.44.225 1.016.225.88 0 1.406-.498.527-.498.527-1.485l.007-1.752V7.596zm3.808-.108q-.585 0-1.006.244a1.67 1.67 0 0 0-.634.674 2.1 2.1 0 0 0-.225.996q0 .753.293 1.182.303.42.967.732l.469.215q.438.186.625.43.185.244.185.635 0 .478-.166.703-.156.224-.527.224-.361.001-.547-.244-.186-.243-.205-.752h-1.162q.02.996.498 1.524.479.527 1.386.527.909 0 1.417-.518.507-.517.507-1.484 0-.81-.332-1.289t-1.045-.79l-.449-.196q-.39-.166-.556-.381-.166-.214-.166-.576 0-.4.165-.596.177-.195.508-.195.361 0 .508.234.156.234.176.703h1.123q-.03-.976-.498-1.484-.47-.518-1.309-.518"/>
-</svg>
-</a>
-                            {{else if contains $typeLower "python"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-app-indicator" viewBox="0 0 16 16">
-  <path d="M5.5 2A3.5 3.5 0 0 0 2 5.5v5A3.5 3.5 0 0 0 5.5 14h5a3.5 3.5 0 0 0 3.5-3.5V8a.5.5 0 0 1 1 0v2.5a4.5 4.5 0 0 1-4.5 4.5h-5A4.5 4.5 0 0 1 1 10.5v-5A4.5 4.5 0 0 1 5.5 1H8a.5.5 0 0 1 0 1z"/>
-  <path d="M16 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-</svg>
-</a>
-                            {{else if contains $typeLower "ruby"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-gem" viewBox="0 0 16 16">
-  <path d="M3.1.7a.5.5 0 0 1 .4-.2h9a.5.5 0 0 1 .4.2l2.976 3.974c.149.185.156.45.01.644L8.4 15.3a.5.5 0 0 1-.8 0L.1 5.3a.5.5 0 0 1 0-.6zm11.386 3.785-1.806-2.41-.776 2.413zm-3.633.004.961-2.989H4.186l.963 2.995zM5.47 5.495 8 13.366l2.532-7.876zm-1.371-.999-.78-2.422-1.818 2.425zM1.499 5.5l5.113 6.817-2.192-6.82zm7.889 6.817 5.123-6.83-2.928.002z"/>
-</svg>
-</a>
-                            {{else if contains $typeLower "java"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 14c.83 .642 2.077 1.017 3.5 1c1.423 .017 2.67 -.358 3.5 -1c.83 -.642 2.077 -1.017 3.5 -1c1.423 -.017 2.67 .358 3.5 1" /><path d="M8 3a2.4 2.4 0 0 0 -1 2a2.4 2.4 0 0 0 1 2" /><path d="M12 3a2.4 2.4 0 0 0 -1 2a2.4 2.4 0 0 0 1 2" /><path d="M3 10h14v5a6 6 0 0 1 -6 6h-2a6 6 0 0 1 -6 -6v-5z" /><path d="M16.746 16.726a3 3 0 1 0 -.732 -5.696" /></svg>
-</a>
-                            {{else if contains $typeLower "n8n"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Open Site Manager"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="5" r="2" /><circle cx="5" cy="19" r="2" /><circle cx="19" cy="19" r="2" /><path d="M12 7v3.5a3.5 3.5 0 0 1 -3.5 3.5h-1.5M12 10.5a3.5 3.5 0 0 0 3.5 3.5h1.5" /><path d="M5 17v-1.5M19 17v-1.5" /></svg>
-</a>
-                            {{else if eq $typeLower "docker"}}
-<a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Edit container"}}">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="mx-auto"><path d="M22.033 9.98c-.607-.428-2.006-.588-3.094-.385a4.336 4.336 0 0 0-.617-1.71l-.293-.44-.44.294a2.836 2.836 0 0 0-1.187 1.885c-.106.578-.02 1.203.24 1.71-.294.16-.755.294-1.43.294H1.24l-.053.32c-.16 1.05-.16 4.316 1.897 6.815 1.55 1.884 3.874 2.844 6.92 2.844 6.573 0 11.437-3.026 13.735-8.526 1.056.026 3.286 0 4.395-2.15l.16-.32-.293-.16c-1.216-.658-2.79-.712-3.694-.63l-.213.02M4.128 9.928h2.24v2.24h-2.24zm2.844 0h2.24v2.24h-2.24zm2.844 0h2.24v2.24H9.816zm2.845 0h2.24v2.24h-2.24zM6.972 7.084h2.24v2.24h-2.24zm2.844 0h2.24v2.24H9.816zm2.845 0h2.24v2.24h-2.24zm0-2.844h2.24v2.24h-2.24zM6.972 12.772h2.24v2.24h-2.24z"/></svg>
-</a>
-                            {{else if eq $typeLower "websitebuilder"}}
-<a href="/website-builder/edit?domain={{$site.SiteName}}" title="{{$.T.Get "Open Website Builder"}}" target="_blank">
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-brush-fill" viewBox="0 0 16 16">
-  <path d="M15.825.12a.5.5 0 0 1 .132.584c-1.53 3.43-4.743 8.17-7.095 10.64a6.1 6.1 0 0 1-2.373 1.534c-.018.227-.06.538-.16.868-.201.659-.667 1.479-1.708 1.74a8.1 8.1 0 0 1-3.078.132 4 4 0 0 1-.562-.135 1.4 1.4 0 0 1-.466-.247.7.7 0 0 1-.204-.288.62.62 0 0 1 .004-.443c.095-.245.316-.38.461-.452.394-.197.625-.453.867-.826.095-.144.184-.297.287-.472l.117-.198c.151-.255.326-.54.546-.848.528-.739 1.201-.925 1.746-.896q.19.012.348.048c.062-.172.142-.38.238-.608.261-.619.658-1.419 1.187-2.069 2.176-2.67 6.18-6.206 9.117-8.104a.5.5 0 0 1 .596.04"/>
-</svg>
-</a>
-                            {{else}}
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="mx-auto bi bi-app-indicator" viewBox="0 0 16 16">
-  <path d="M5.5 2A3.5 3.5 0 0 0 2 5.5v5A3.5 3.5 0 0 0 5.5 14h5a3.5 3.5 0 0 0 3.5-3.5V8a.5.5 0 0 1 1 0v2.5a4.5 4.5 0 0 1-4.5 4.5h-5A4.5 4.5 0 0 1 1 10.5v-5A4.5 4.5 0 0 1 5.5 1H8a.5.5 0 0 1 0 1z"/>
-  <path d="M16 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
-</svg>
-                            {{end}}
-                        </td>
-
-                        <th scope="row" class="flex items-center text-start px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" data-sort-col="name" data-sort-value="{{$site.SiteName}}">
-                            <img class="w-5 h-5 rounded-full" src="/json/favicon/{{$site.SiteName}}" alt="{{$site.SiteName}} Favicon" title="{{$site.SiteName}} Favicon">
-                            <div class="pl-3">
-                                <div class="text-left text-base font-semibold">{{$site.SiteName}}</div>
-                                <div class="font-normal text-gray-500">
-<a class="domain_link text-sm inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400" href="https://{{$site.SiteName}}" target="_blank">
-https://<span class="punycode">{{$site.SiteName}}</span> <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg>
-</a>
-                                </div>
-                            </div>
-                        </th>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="created" data-sort-value="{{$site.CreatedDate}}" x-data="{ rawDate: {{toJSON $site.CreatedDate}}, date: new Date({{toJSON $site.CreatedDate}}), relative: '' }" x-init="relative = formatRelativeDay(date)">
-                            <span x-text="relative" :title="rawDate"></span>
-                        </td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="version" data-sort-value="{{$site.Version}}" data-site-type="{{lower $site.Type}}" data-site-version="{{$site.Version}}">
-                            {{if $site.Version}}<span class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">{{$site.Version}}</span>{{end}}
-                            <span id="update-badge-{{replace $site.SiteName "." "_"}}"></span>
-                        </td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                            <div class="speed_data" data-site-name="{{$site.SiteName}}" id="speed_data_{{replace $site.SiteName "." "_"}}"></div>
-                        </td>
-                        <td class="whitespace-nowrap p-4 text-sm text-right text-gray-600 dark:text-gray-400">
                             {{$isCMS := or (eq $typeLower "wordpress") (eq $typeLower "joomla") (eq $typeLower "opencart") (eq $typeLower "nextcloud") (eq $typeLower "prestashop") (eq $typeLower "drupal") (eq $typeLower "matomo") (eq $typeLower "moodle") (eq $typeLower "mediawiki") (eq $typeLower "flarum") (eq $typeLower "sofawiki") (eq $typeLower "dokuwiki") (eq $typeLower "phpbb") (eq $typeLower "ojs")}}
                             {{$isPM2 := or (contains $typeLower "nodejs") (contains $typeLower "python") (contains $typeLower "ruby") (contains $typeLower "java")}}
                             {{/* tinyphotogallery/tinyfilemanager support Backup/Delete but not Clone (no source_domain/source_folder concept to clone from) - kept separate from $isCMS so $hasClone below doesn't pick them up too. */}}
@@ -421,110 +233,54 @@ https://<span class="punycode">{{$site.SiteName}}</span> <svg viewBox="0 0 24 24
                             {{$hasClone := or $isCMS $isPM2}}
                             {{$hasBackup := or $isCMS $isPM2 $hasBackupOnly}}
                             {{$hasDelete := or $isCMS $isPM2 $hasBackupOnly $isN8N $isDocker}}
-                            <div class="flex items-center justify-end gap-1.5">
-                                {{if $hasAutologin}}
-                                <button type="button" class="autologin-btn inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white"
-                                    data-site-name="{{$site.SiteName}}" data-site-type="{{$typeLower}}" data-docroot="{{$site.Docroot}}"
-                                    title="{{$.T.Get "Login as Admin"}}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0z"/><path d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/></svg>
-                                </button>
-                                {{else}}
-                                <span class="inline-flex items-center justify-center p-2" aria-hidden="true"><span class="block size-4"></span></span>
-                                {{end}}
-
-                                {{if $site.IsStatic}}
-                                <a {{if $.UserAllowed.filemanager}}href="/files/{{$site.SiteName}}"{{end}} title="{{$.T.Get "Manage"}}" class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/></svg>
-                                </a>
-                                {{else}}
-                                <a href="/website?domain={{$site.SiteName}}" title="{{$.T.Get "Manage"}}" class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/></svg>
-                                </a>
-                                {{end}}
-
-                                {{if $hasClone}}
-                                <a href="/website?domain={{$site.SiteName}}&tab=clone" title="{{$.T.Get "Clone"}}" class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/></svg>
-                                </a>
-                                {{else}}
-                                <span class="inline-flex items-center justify-center p-2" aria-hidden="true"><span class="block size-4"></span></span>
-                                {{end}}
-
-                                {{if $hasBackup}}
-                                <a href="/website?domain={{$site.SiteName}}&tab=backups" title="{{$.T.Get "Backups"}}" class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-950 active:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50 dark:hover:text-white">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/></svg>
-                                </a>
-                                {{else}}
-                                <span class="inline-flex items-center justify-center p-2" aria-hidden="true"><span class="block size-4"></span></span>
-                                {{end}}
-
-                                {{if $hasDelete}}
-                                <a href="/website?domain={{$site.SiteName}}&tab=remove" title="{{$.T.Get "Delete"}}" class="inline-flex items-center justify-center rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600 active:bg-red-50 dark:text-slate-400 dark:hover:bg-red-950/40 dark:hover:text-red-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5z"/></svg>
-                                </a>
-                                {{else}}
-                                <span class="inline-flex items-center justify-center p-2" aria-hidden="true"><span class="block size-4"></span></span>
-                                {{end}}
+                            <div x-data="opMenu()" @click.outside="open = false" @keydown.escape="open = false" style="position:relative">
+                                <button class="op-icon-btn" type="button" aria-label="{{$.T.Get "Actions for"}} {{$site.SiteName}}" :aria-expanded="open.toString()" x-ref="btn" @click="toggle()">{{template "op_icon" "dots"}}</button>
+                                <div class="op-menu" x-ref="menu" x-show="open" x-cloak>
+                                    {{if $site.IsStatic}}{{if $.UserAllowed.filemanager}}<a href="/files/{{$site.SiteName}}">{{template "op_icon" "folder"}} {{$.T.Get "Manage files"}}</a>{{end}}
+                                    {{else if eq $typeLower "websitebuilder"}}<a href="/website-builder/edit?domain={{$site.SiteName}}" target="_blank">{{template "op_icon" "pencil"}} {{$.T.Get "Open Website Builder"}}</a>
+                                    {{else}}<a href="/website?domain={{$site.SiteName}}">{{template "op_icon" "settings"}} {{$.T.Get "Open Site Manager"}}</a>{{end}}
+                                    {{if $hasAutologin}}<button type="button" class="autologin-btn" data-site-name="{{$site.SiteName}}" data-site-type="{{$typeLower}}" data-docroot="{{$site.Docroot}}" @click="open = false">{{template "op_icon" "login"}} {{$.T.Get "Login as Admin"}}</button>{{end}}
+                                    <a href="https://{{$site.SiteName}}" target="_blank" rel="noopener">{{template "op_icon" "out"}} {{$.T.Get "Open site"}}</a>
+                                    {{if and $.UserAllowed.filemanager (not $site.IsStatic)}}<a href="/files/{{$site.SiteName}}">{{template "op_icon" "folder"}} {{$.T.Get "File Manager"}}</a>{{end}}
+                                    {{if $hasClone}}<a href="/website?domain={{$site.SiteName}}&tab=clone">{{template "op_icon" "copy"}} {{$.T.Get "Clone"}}</a>{{end}}
+                                    {{if $hasBackup}}<a href="/website?domain={{$site.SiteName}}&tab=backups">{{template "op_icon" "archive"}} {{$.T.Get "Backups"}}</a>{{end}}
+                                    {{if $hasDelete}}<hr><a href="/website?domain={{$site.SiteName}}&tab=remove" class="is-danger">{{template "op_icon" "trash"}} {{$.T.Get "Delete"}}</a>{{end}}
+                                </div>
                             </div>
-                        </td>
-                    </tr>
-                    {{end}}
+                    </td>
+                </tr>
                 {{end}}
-                </tbody>
-            </table>
-        </div>
+            {{end}}
+            </tbody>
+        </table>
     </div>
+    <div class="op-tfoot"><span x-effect="typeFilter; searchQuery; $nextTick(() => { $el.querySelector('.op-sites-shown').textContent = [...document.querySelectorAll('#sites-table tbody tr[id^=site-row-]')].filter(r => r.style.display !== 'none').length })">{{.T.Get "Showing"}} <span class="op-sites-shown">{{.SiteCount}}</span> {{.T.Get "of"}} {{.SiteCount}}</span><span class="op-mono" style="color:var(--color-accent-text)">opencli websites-list {{.CurrentUsername}}</span></div>
 
-    {{template "bulk_btn_style"}}
-    <div x-show="selectedCount > 0" x-cloak x-transition
-        class="sticky bottom-0 inset-x-0 z-20 flex flex-col gap-3 border-t border-gray-200 bg-white px-4 py-3 shadow-[0_-1px_6px_rgba(0,0,0,0.08)] dark:border-gray-800 dark:bg-gray-950 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-
+    <div class="op-floatbar" x-show="selectedCount > 0" x-cloak x-transition>
         <template x-if="!confirmingAction">
-            <div class="text-sm font-medium text-gray-900 dark:text-gray-50">
-                <span x-text="selectedCount"></span> {{.T.Get "selected"}}
-                <button type="button" class="ml-2 text-xs font-normal text-blue-600 hover:underline dark:text-blue-400" @click="clearSelection()">{{.T.Get "Clear"}}</button>
+            <div class="op-floatbar-row">
+                <b><span x-text="selectedCount"></span> {{.T.Get "selected"}}</b>
+                <button type="button" class="op-btn op-btn-sm op-btn-secondary" :disabled="bulkRunning" @click="bulkAction('update')"><i class="bi bi-arrow-up-circle" aria-hidden="true"></i> {{.T.Get "Update"}}</button>
+                <button type="button" class="op-btn op-btn-sm op-btn-secondary" :disabled="bulkRunning" @click="bulkAction('backup')"><i class="bi bi-archive" aria-hidden="true"></i> {{.T.Get "Backup"}}</button>
+                <button type="button" class="op-btn op-btn-sm op-btn-secondary" :disabled="bulkRunning" @click="bulkAction('detach')"><i class="bi bi-plug" aria-hidden="true"></i> {{.T.Get "Detach"}}</button>
+                <button type="button" class="op-btn op-btn-sm op-btn-danger" :disabled="bulkRunning" @click="bulkAction('delete')"><i class="bi bi-trash3" aria-hidden="true"></i> {{.T.Get "Delete"}}</button>
+                <button type="button" class="op-btn op-btn-sm op-clear" @click="clearSelection()">{{.T.Get "Clear"}}</button>
             </div>
         </template>
-        <template x-if="!confirmingAction">
-            <div class="flex flex-wrap items-center gap-2">
-                <button type="button" :disabled="bulkRunning" @click="bulkAction('update')" aria-label="{{.T.Get "Update"}}" class="bulk-btn relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
-                    <i class="bi bi-arrow-up-circle" aria-hidden="true"></i><span class="bulk-btn-label">{{.T.Get "Update"}}</span>
-                </button>
-                <button type="button" :disabled="bulkRunning" @click="bulkAction('backup')" aria-label="{{.T.Get "Backup"}}" class="bulk-btn relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
-                    <i class="bi bi-archive" aria-hidden="true"></i><span class="bulk-btn-label">{{.T.Get "Backup"}}</span>
-                </button>
-                <button type="button" :disabled="bulkRunning" @click="bulkAction('detach')" aria-label="{{.T.Get "Detach"}}" class="bulk-btn relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
-                    <i class="bi bi-plug" aria-hidden="true"></i><span class="bulk-btn-label">{{.T.Get "Detach"}}</span>
-                </button>
-                <button type="button" :disabled="bulkRunning" @click="bulkAction('delete')" aria-label="{{.T.Get "Delete"}}" class="bulk-btn relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 border-transparent bg-red-600 text-white hover:bg-red-700">
-                    <i class="bi bi-trash3" aria-hidden="true"></i><span class="bulk-btn-label">{{.T.Get "Delete"}}</span>
-                </button>
-            </div>
-        </template>
-
         <template x-if="confirmingAction">
-            <div class="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div class="text-sm font-medium text-gray-900 dark:text-gray-50">
+            <div class="op-floatbar-row">
+                <span class="op-floatbar-text">
                     <span x-show="confirmingAction === 'update'">{{.T.Get "Update"}} <span x-text="pendingSites.length"></span> {{.T.Get "selected site(s)?"}}</span>
                     <span x-show="confirmingAction === 'backup'">{{.T.Get "Back up"}} <span x-text="pendingSites.length"></span> {{.T.Get "selected site(s)?"}}</span>
                     <span x-show="confirmingAction === 'detach'">{{.T.Get "Detach"}} <span x-text="pendingSites.length"></span> {{.T.Get "selected site(s) from Site Manager? Files are kept, only the Site Manager entry is removed."}}</span>
-                    <span x-show="confirmingAction === 'delete'" class="text-red-600 dark:text-red-400">{{.T.Get "Permanently delete"}} <span x-text="pendingSites.length"></span> {{.T.Get "selected site(s), including their files and databases? This cannot be undone."}}</span>
-                    <span x-show="excludedCount > 0" class="block text-xs font-normal text-gray-500 dark:text-gray-400">
-                        <span x-text="excludedCount"></span> {{.T.Get "selected site(s) don't support this action and will be skipped."}}
-                    </span>
-                </div>
-                <div class="flex flex-wrap items-center gap-2">
-                    <button type="button" @click="cancelBulkAction()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
-                        {{.T.Get "Cancel"}}
-                    </button>
-                    <button type="button" @click="confirmBulkAction()" :class="confirmingAction === 'delete' ? 'bg-red-600 hover:bg-red-700 text-white border-transparent' : 'bg-black hover:bg-gray-800 text-white border-transparent'" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out">
-                        {{.T.Get "Confirm"}}
-                    </button>
-                </div>
+                    <span x-show="confirmingAction === 'delete'" class="is-danger">{{.T.Get "Permanently delete"}} <span x-text="pendingSites.length"></span> {{.T.Get "selected site(s), including their files and databases? This cannot be undone."}}</span>
+                    <span x-show="excludedCount > 0" class="op-hint" style="display:block"><span x-text="excludedCount"></span> {{.T.Get "selected site(s) don't support this action and will be skipped."}}</span>
+                </span>
+                <button type="button" class="op-btn op-btn-sm op-btn-secondary" @click="cancelBulkAction()">{{.T.Get "Cancel"}}</button>
+                <button type="button" class="op-btn op-btn-sm" :class="confirmingAction === 'delete' ? 'op-btn-danger' : 'op-btn-primary'" @click="confirmBulkAction()">{{.T.Get "Confirm"}}</button>
             </div>
         </template>
     </div>
-
 <script>
 const i18n = {
     mobile: {{toJSON (.T.Get "Mobile")}},
@@ -540,7 +296,7 @@ const i18n = {
 };
 function noSpeedDataLink(siteName) {
     const pageSpeedURL = "https://pagespeed.web.dev/report?url=" + encodeURIComponent("https://" + siteName);
-    return `<a href="${pageSpeedURL}" target="_blank" rel="noopener" title="${i18n.checkOnPageSpeed}" class="inline-flex items-center text-gray-400 hover:text-gray-600 dark:text-gray-600 dark:hover:text-gray-400">
+    return `<a href="${pageSpeedURL}" target="_blank" rel="noopener" title="${i18n.checkOnPageSpeed}" class="op-icon-btn">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-speedometer2" viewBox="0 0 16 16">
             <path d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4M3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707M2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10m9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5m.754-4.246a.39.39 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.39.39 0 0 0-.029-.518z"/>
             <path fill-rule="evenodd" d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A8 8 0 0 1 0 10m8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3"/>
@@ -660,7 +416,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <td class="relative p-2">
                 <form method="POST" action="${url}">
                     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-                    <button class="relative inline-flex items-center text-xs justify-center rounded border px-2 py-1 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" type="submit"><i class="bi bi-arrow-counterclockwise"></i>${i18n.update}</button>
+                    <button class="relative inline-flex items-center text-xs justify-center rounded border px-2 py-1 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" type="submit">{{template "op_icon" "refresh"}}${i18n.update}</button>
                 </form>
             </td>
         </tr>
@@ -699,28 +455,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 const badge = td.querySelector('span[id^="update-badge-"]');
                 if (!badge) return;
-                badge.innerHTML = `<span class="bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-yellow-900 dark:text-yellow-300" title="${i18n.updateAvailableTitle.replace('%s', latest)}">${i18n.updateAvailable}</span>`;
+                badge.innerHTML = `<span class="op-badge is-warning" title="${i18n.updateAvailableTitle.replace('%s', latest)}">${i18n.updateAvailable}</span>`;
             });
         })
         .catch(error => console.error("Error fetching latest CMS versions:", error));
 });
 </script>
-
 </section>
 {{else}}
-
-<div class="mt-8 inset-x-0 flex h-64 flex-col items-center justify-center">
-    <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No websites yet"}}</p>
-    <p class="mt-2 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Create your first website to get started"}}</p>
-    {{if .UserAllowed.autoinstaller}}
-    <a href="/auto-installer" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>
-        {{.T.Get "New website"}}
-    </a>
-    {{end}}
-</div>
+    <section class="op-card op-empty">
+        <span class="op-ico-tile">{{template "op_icon" "browser"}}</span>
+        <b>{{.T.Get "No websites yet"}}</b>
+        <span class="op-hint">{{.T.Get "Create your first website to get started"}}</span>
+        {{if .UserAllowed.autoinstaller}}<a href="/auto-installer" class="op-btn op-btn-primary">{{template "op_icon" "plus"}} {{.T.Get "New website"}}</a>{{end}}
+    </section>
 {{end}}
-
+{{if and .Groups .FreeDomains}}
+<section class="op-card" aria-label="{{.T.Get "Domains without a site"}}">
+    <div class="op-card-head"><h2>{{.T.Get "Domains without a site"}}</h2><span class="op-hint">{{.T.Get "Pick one to install an app on it"}}</span></div>
+    <div class="op-sites-free">{{range .FreeDomains}}<a class="op-sites-free-item" href="/auto-installer?domain={{.}}" title="{{$.T.Get "Install an app on"}} {{.}}"><span class="op-mono punycode">{{.}}</span>{{template "op_icon" "plus"}}</a>{{end}}</div>
+</section>
+{{end}}
+</div>
 <script>
     (function() {
         function compareSitesValues(valueA, valueB, type, direction) {
@@ -787,23 +543,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 tbody.appendChild(row);
             });
 
-            table.querySelectorAll('a[data-sort-key]').forEach(function (l) {
-                const isActive = l.dataset.sortKey === key && l.dataset.direction === direction;
-                l.querySelector('svg').classList.toggle('opacity-30', !isActive);
-            });
         };
     })();
 </script>
-
 <!-- END templates/manager/sites.html -->
 {{end}}
 
-{{define "sort_header"}}
-<div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
-    <span>{{.Label}}</span>
-    <div class="-space-y-2">
-        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="desc" onclick="sortSitesTable(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
-        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="asc" onclick="sortSitesTable(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
-    </div>
-</div>
+{{define "op_sites_sort"}}
+<button type="button" class="op-th-sort" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" onclick="opSortToggle(event, this, sortSitesTable)">{{.Label}}<i aria-hidden="true"></i></button>
 {{end}}
+
+{{define "op_site_type_label"}}{{$t := lower .Type}}
+{{- if eq $t "wordpress"}}WordPress{{else if eq $t "drupal"}}Drupal{{else if eq $t "joomla"}}Joomla{{else if eq $t "opencart"}}OpenCart{{else if eq $t "nextcloud"}}Nextcloud{{else if eq $t "prestashop"}}PrestaShop{{else if eq $t "matomo"}}Matomo{{else if eq $t "moodle"}}Moodle{{else if eq $t "mediawiki"}}MediaWiki
+{{- else if contains $t "nodejs"}}Node.js{{else if contains $t "bun"}}Bun{{else if contains $t "python"}}Python{{else if contains $t "ruby"}}Ruby{{else if contains $t "java"}}Java{{else if contains $t "n8n"}}n8n{{else if eq $t "docker"}}Docker
+{{- else if contains $t "mautic"}}Mautic{{else if contains $t "fossbilling"}}FOSSBilling{{else if eq $t "php"}}PHP{{else if eq $t "websitebuilder"}}{{.T.Get "Website Builder"}}{{else if eq $t "flarum"}}Flarum{{else if eq $t "sofawiki"}}SofaWiki{{else if eq $t "dokuwiki"}}DokuWiki{{else if eq $t "phpbb"}}phpBB{{else if eq $t "ojs"}}{{if .Short}}OJS{{else}}Open Journal Systems (OJS){{end}}{{else if eq $t "static"}}{{.T.Get "Static"}}
+{{- else}}{{title .Type}}{{end}}{{end}}

@@ -1,0 +1,16 @@
+{
+  "name": "openpanel-ui-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "gallery": "node scripts/gallery.mjs",
+    "coverage": "node scripts/coverage.mjs",
+    "test": "playwright test",
+    "test:theme": "playwright test theme",
+    "test:gallery": "playwright test gallery",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.48.2"
+  }
+}

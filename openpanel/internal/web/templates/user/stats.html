@@ -1,91 +1,214 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/user/stats.html -->
-
-<!-- js -->
-      <script src="{{static "vendor/raphael/raphael.min.js"}}"></script>
-      <script src="{{static "vendor/justgage/justgage.min.js"}}"></script>
-<!-- END js  -->
-
-
-<section aria-label="{{.T.Get "Domains Header"}}" x-data="{ searchQuery: '' }">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+{{$containers := or .UserAllowed.docker .UserAllowed.services}}
+<div class="op-content">
+    <div class="op-page-head">
         <div>
-            <div class="flex items-center gap-x-3">
-                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Resource Usage"}}</h1>
-            </div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "View current resource usage for all websites and services."}}</p>
+            <div class="op-eyebrow">{{if $containers}}{{.T.Get "Live"}} · {{.T.Get "containers refresh every 10 seconds"}}{{else if .HasStats}}{{.T.Get "Updated"}} {{.Stats.Timestamp}}{{else}}{{.T.Get "Statistics"}}{{end}}</div>
+            <h1 class="op-title">{{.T.Get "Resource Usage"}}</h1>
+            <p class="op-meta">{{.T.Get "CPU, memory, disk and inodes for your whole account, and what each container uses."}}</p>
         </div>
-        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-            <a href="/server/usage/history" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "View Usage History"}}</a>
+        <div class="op-actions">
+            {{if .UserAllowed.summary}}<a class="op-btn op-btn-secondary" href="/summary">{{template "op_icon" "logs"}} {{.T.Get "Daily Summary"}}</a>{{end}}
+            <a class="op-btn op-btn-secondary" href="/server/usage/history">{{template "op_icon" "chart"}} {{.T.Get "View Usage History"}}</a>
         </div>
     </div>
-</section>
 
-<section>
-    <div class="p-6 mx-auto text-center">
-        {{if .HasStats}}
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-2">
+    {{if and .HasStats .Stats.Warning}}
+    <div class="op-alert" style="--tone: var(--color-hue-amber)" role="status">{{template "op_icon" "alert"}}<span>{{.Stats.Warning}}</span></div>
+    {{end}}
 
-                <!-- CPU Card -->
-                <div class="w-full rounded-lg border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 relative !p-2">
-                    <div class="mb-6 flex items-center justify-between gap-4">
-                        <h2 class="text-l font-extrabold"><i class="bi bi-cpu"></i> {{.T.Get "CPU"}}</h2>
-                    </div>
-                    <div class="grid mx-auto max-w-screen-xl justify-center text-center lg:w-full md:w-5/6 xl:shadow-small-blue">
-                        <div id="cpuGauge"></div>
-                        <p>{{.T.Get "Current CPU usage:"}} {{.Stats.CPU.Usage.Human}} ({{.Stats.CPU.Usage.Pct}}%)</p>
-                        <p>{{.T.Get "Total CPU allocation:"}} {{.Stats.CPU.Total.Human}} ({{.Stats.CPU.Total.Pct}}%)</p>
-                    </div>
-                </div>
+    <section class="op-kpis" aria-label="{{.T.Get "Summary"}}" x-data="diskTiles()">
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "dash"}} {{.T.Get "CPU"}}</div>
+            {{if .HasStats}}
+            <div class="op-kpi-value">{{.Pct .Stats.CPU.Usage.Pct}}<small>%</small></div>
+            <div class="op-kpi-note">{{.Stats.CPU.Usage.Human}} {{.T.Get "of"}} {{.Stats.CPU.Total.Human}}</div>
+            <div class="op-progress"><span style="width:{{.Bar .Stats.CPU.Usage.Pct}}%"></span></div>
+            {{else}}
+            <div class="op-kpi-value">—</div><div class="op-kpi-note">{{.T.Get "No data yet"}}</div>
+            {{end}}
+        </div>
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "layout"}} {{.T.Get "Memory"}}</div>
+            {{if .HasStats}}
+            <div class="op-kpi-value">{{.Num .Stats.Memory.Used.Human}} <small>{{.Unit .Stats.Memory.Used.Human}}</small></div>
+            <div class="op-kpi-note">{{.T.Get "of"}} {{.Human .Stats.Memory.Total.Human}} · {{.Human .Stats.Memory.Available.Human}} {{.T.Get "free"}}</div>
+            <div class="op-progress"><span style="width:{{.Bar .Stats.Memory.UsagePct}}%"></span></div>
+            {{else}}
+            <div class="op-kpi-value">—</div><div class="op-kpi-note">{{.T.Get "No data yet"}}</div>
+            {{end}}
+        </div>
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "db"}} {{.T.Get "Disk"}}</div>
+            <div class="op-kpi-value" x-html="disk.value">…</div>
+            <div class="op-kpi-note" x-text="disk.note">&nbsp;</div>
+            <div class="op-progress"><span :style="'width:' + disk.pct + '%'" style="width:0%"></span></div>
+        </div>
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "folder"}} {{.T.Get "Inodes"}}</div>
+            <div class="op-kpi-value" x-html="inodes.value">…</div>
+            <div class="op-kpi-note" x-text="inodes.note">&nbsp;</div>
+            <div class="op-progress"><span :style="'width:' + inodes.pct + '%'" style="width:0%"></span></div>
+        </div>
+    </section>
 
-                <!-- RAM Card -->
-                <div class="w-full rounded-lg border p-6 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900 relative !p-2">
-                    <div class="mb-6 flex items-center justify-between gap-4">
-                        <h2 class="text-l font-extrabold"><i class="bi bi-memory"></i> {{.T.Get "RAM"}}</h2>
-                    </div>
-                    <div class="grid mx-auto max-w-screen-xl justify-center text-center lg:w-full md:w-5/6 xl:shadow-small-blue">
-                        <div id="ramGauge"></div>
-                        <p>{{.T.Get "Used Memory:"}} {{.Stats.Memory.Used.Human}} ({{.Stats.Memory.UsagePct}}%)</p>
-                        <p>{{.T.Get "Total Memory:"}} {{.Stats.Memory.Total.Human}}</p>
-                        <p>{{.T.Get "Available Memory:"}} {{.Stats.Memory.Available.Human}}</p>
-                    </div>
-                </div>
-
+    <section class="op-card" x-data="usageChart({{toJSON .History}})">
+        <div class="op-card-head">
+            <h2>{{.T.Get "CPU and memory"}}</h2>
+            <div class="op-segmented" role="group" aria-label="{{.T.Get "Time range"}}">
+                <template x-for="r in ranges" :key="r">
+                    <button type="button" :aria-pressed="(range === r).toString()" @click="range = r" x-text="r"></button>
+                </template>
             </div>
-
-            <div class="flex flex-col space-y-4 sm:flex-row sm:justify-center sm:space-y-0">
-                <p class="mt-4">{{.T.Get "Last refreshed at"}} {{.Stats.Timestamp}}</p>
+        </div>
+        <div class="op-legend"><span><i></i>{{.T.Get "CPU %"}}</span><span><i class="is-alt"></i>{{.T.Get "Memory %"}}</span></div>
+        <div style="margin-top:12px">
+            <div class="op-chart" x-show="series.ok">
+                <svg viewBox="0 0 600 200" preserveAspectRatio="none" role="img" :aria-label="'{{.T.Get "CPU and memory over the last"}} ' + range">
+                    <line class="gl" x1="0" x2="600" y1="50" y2="50"/><line class="gl" x1="0" x2="600" y1="100" y2="100"/><line class="gl" x1="0" x2="600" y1="150" y2="150"/>
+                    <path class="area" :d="series.area"/>
+                    <path class="line" :d="series.cpu"/>
+                    <path class="line is-alt" :d="series.mem"/>
+                </svg>
+                <div class="op-chart-axis"><template x-for="(l, i) in series.axis" :key="i"><span x-text="l"></span></template></div>
             </div>
+            <div class="op-empty" x-show="!series.ok" x-cloak>
+                <b>{{if .HasStats}}{{.T.Get "Not enough samples for this range yet."}}{{else}}{{.T.Get "No resource usage data available yet."}}{{end}}</b>
+                <span class="op-hint">{{.T.Get "Usage is recorded a few times an hour."}}</span>
+            </div>
+        </div>
+    </section>
 
-            <script>
-                function createGauge(elementId, value, title) {
-                    return new JustGage({
-                        id: elementId,
-                        value: parseFloat(value),
-                        min: 0,
-                        max: 100,
-                        title: title
-                    });
+    {{if $containers}}
+    <section class="op-card" aria-label="{{.T.Get "Usage per container"}}" x-data="containerStats()">
+        <div class="op-toolbar"><label class="op-search">{{template "op_icon" "search"}}<input class="op-input" type="search" placeholder="{{.T.Get "Search containers"}}" x-model="q" aria-label="{{.T.Get "Search containers"}}"></label></div>
+        <div class="op-table-wrap"><table class="op-table">
+            <thead><tr><th>{{.T.Get "Container"}}</th><th class="is-num">{{.T.Get "CPU"}}</th><th class="is-num">{{.T.Get "Memory"}}</th><th>{{.T.Get "Network in / out"}}</th><th>{{.T.Get "Disk read / write"}}</th></tr></thead>
+            <tbody>
+                <template x-for="c in shown" :key="c.ID || c.Name">
+                    <tr>
+                        <td class="op-cell-title"><div class="op-row-title"><span class="op-ico-tile is-sm" style="--hue:var(--color-hue-cyan)">{{template "op_icon" "apps"}}</span><div><b x-text="c.Name"></b></div></div></td>
+                        <td data-label="{{.T.Get "CPU"}}" class="is-num"><span class="op-mono" x-text="c.CPUPerc || '—'"></span></td>
+                        <td data-label="{{.T.Get "Memory"}}" class="is-num"><span class="op-mono" x-text="used(c.MemUsage)"></span></td>
+                        <td data-label="{{.T.Get "Network in / out"}}"><span class="op-mono" x-text="c.NetIO || '—'"></span></td>
+                        <td data-label="{{.T.Get "Disk read / write"}}"><span class="op-mono" x-text="c.BlockIO || '—'"></span></td>
+                    </tr>
+                </template>
+            </tbody>
+        </table></div>
+        <div class="op-empty" x-show="state === 'loading'"><b>{{.T.Get "Loading container stats…"}}</b></div>
+        <div class="op-empty" x-show="state === 'error'" x-cloak><b>{{.T.Get "Could not load container stats."}}</b><span class="op-hint">{{.T.Get "Trying again in 10 seconds."}}</span></div>
+        <div class="op-empty" x-show="state === 'ok' && !rows.length" x-cloak><b>{{.T.Get "No running containers"}}</b></div>
+        <div class="op-empty" x-show="state === 'ok' && rows.length && q && !shown.length" x-cloak><b>{{.T.Get "Nothing matches"}}</b><span class="op-hint">{{.T.Get "Try another search."}}</span></div>
+        <div class="op-tfoot"><span x-text="rows.length + ' ' + (rows.length === 1 ? '{{.T.Get "running container"}}' : '{{.T.Get "running containers"}}')"></span>{{if .UserAllowed.docker}}<a class="op-page-link" href="/containers">{{.T.Get "Manage containers"}}</a>{{end}}</div>
+    </section>
+    {{end}}
+</div>
+
+<script>
+function diskTiles() {
+    const fmtKB = (kb) => {
+        const sizes = ['KB', 'MB', 'GB', 'TB', 'PB'];
+        if (!kb) return ['0', 'KB'];
+        const i = Math.min(Math.floor(Math.log(kb) / Math.log(1000)), sizes.length - 1);
+        return [String(Math.round((kb / Math.pow(1000, i)) * 100) / 100), sizes[i]];
+    };
+    const fmtCount = (n) => n >= 1e6 ? (Math.round(n / 1e5) / 10) + 'M' : n >= 1e3 ? Math.round(n / 1e3) + 'k' : String(n);
+    const pct = (used, limit) => limit ? Math.min(100, Math.round(used / limit * 1000) / 10) : 0;
+    return {
+        disk: { value: '…', note: '', pct: 0 },
+        inodes: { value: '…', note: '', pct: 0 },
+        init() {
+            fetch('/json/disk_inodes')
+                .then((r) => r.ok ? r.json() : Promise.reject(r.status))
+                .then((d) => {
+                    const [n, u] = fmtKB(d.disk_used);
+                    const limit = d.disk_soft ? fmtKB(d.disk_soft).join(' ') : '{{.T.Get "Unlimited"}}';
+                    this.disk = { value: n + ' <small>' + u + '</small>', note: '{{.T.Get "of"}} ' + limit, pct: pct(d.disk_used, d.disk_soft) };
+                    this.inodes = { value: fmtCount(d.inodes_used), note: '{{.T.Get "of"}} ' + (d.inodes_soft ? d.inodes_soft.toLocaleString() : '{{.T.Get "Unlimited"}}'), pct: pct(d.inodes_used, d.inodes_soft) };
+                })
+                .catch(() => {
+                    this.disk = { value: '—', note: '{{.T.Get "Not available"}}', pct: 0 };
+                    this.inodes = { value: '—', note: '{{.T.Get "Not available"}}', pct: 0 };
+                });
+        },
+    };
+}
+
+function usageChart(points) {
+    const spans = { '1h': 3600, '24h': 86400, '7d': 7 * 86400, '30d': 30 * 86400 };
+    return {
+        points: points || [],
+        ranges: Object.keys(spans),
+        range: '24h',
+        get series() {
+            const span = spans[this.range];
+            const end = this.points.length ? this.points[this.points.length - 1].t : 0;
+            const start = end - span;
+            let pts = this.points.filter((p) => p.t >= start);
+            if (pts.length < 2) return { ok: false, area: '', cpu: '', mem: '', axis: [] };
+            // average into at most 120 buckets so long ranges stay light
+            const buckets = Math.min(120, pts.length);
+            if (pts.length > buckets) {
+                const out = [];
+                for (let b = 0; b < buckets; b++) {
+                    const lo = start + span * b / buckets, hi = start + span * (b + 1) / buckets;
+                    const inB = pts.filter((p) => p.t >= lo && (p.t < hi || (b === buckets - 1 && p.t <= hi)));
+                    if (!inB.length) continue;
+                    const avg = (k) => inB.reduce((s, p) => s + p[k], 0) / inB.length;
+                    out.push({ t: inB[inB.length - 1].t, c: avg('c'), m: avg('m') });
                 }
+                pts = out;
+            }
+            const x = (t) => ((t - start) / span * 600).toFixed(1);
+            const y = (v) => (200 - Math.max(0, Math.min(100, v)) * 2).toFixed(1);
+            const path = (k) => pts.map((p, i) => (i ? 'L' : 'M') + x(p.t) + ',' + y(p[k])).join(' ');
+            const cpu = path('c');
+            const short = span <= 86400;
+            const label = (t) => {
+                const d = new Date(t * 1000);
+                return short ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+            };
+            const axis = [0, 1, 2, 3, 4].map((i) => label(start + span * i / 4));
+            return { ok: true, area: cpu + ' L' + x(pts[pts.length - 1].t) + ',200 L' + x(pts[0].t) + ',200 Z', cpu: cpu, mem: path('m'), axis: axis };
+        },
+    };
+}
 
-                function updateGauges() {
-                    const cpuPercentage = "{{.Stats.CPU.Usage.Pct}}";
-                    const ramPercentage = "{{.Stats.Memory.UsagePct}}";
-                    createGauge('cpuGauge', cpuPercentage, '{{.T.Get "CPU Usage %"}}');
-                    createGauge('ramGauge', ramPercentage, '{{.T.Get "RAM Usage %"}}');
-                }
-
-                updateGauges();
-            </script>
-
-        {{else}}
-            <p class="text-gray-500 dark:text-gray-400">{{.T.Get "No resource usage data available yet."}}</p>
-        {{end}}
-    </div>
-</section>
-
-
+function containerStats() {
+    return {
+        rows: [],
+        q: '',
+        state: 'loading',
+        get shown() {
+            const q = this.q.trim().toLowerCase();
+            return q ? this.rows.filter((c) => (c.Name || '').toLowerCase().includes(q)) : this.rows;
+        },
+        // podman prints 9.773MB, show it as 9.773 MB
+        used(mem) {
+            return mem ? String(mem).split(' / ')[0].trim().replace(/^([0-9.]+)\s*([kKMGT]?i?B)$/, '$1 $2') : '—';
+        },
+        load() {
+            if (document.hidden && this.state !== 'loading') return;
+            fetch('/json/services')
+                .then((r) => r.ok ? r.json() : Promise.reject(r.status))
+                .then((d) => {
+                    this.rows = (d.container_stats || []).slice().sort((a, b) => (a.Name || '').localeCompare(b.Name || ''));
+                    this.state = 'ok';
+                })
+                .catch(() => { this.state = 'error'; });
+        },
+        init() {
+            this.load();
+            setInterval(() => this.load(), 10000);
+        },
+    };
+}
+</script>
 <!-- END templates/user/stats.html -->
 {{end}}
