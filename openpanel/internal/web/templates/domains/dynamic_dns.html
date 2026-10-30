@@ -39,8 +39,8 @@
           <div>
             <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">{{.T.Get "Domain"}}</label>
             <select name="domain" required class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
-              {{range .Domains}}
-              <option value="{{.DomainURL}}">{{.DomainURL}}</option>
+              {{range .DomainNames}}
+              <option value="{{.}}">{{.}}</option>
               {{end}}
             </select>
           </div>
@@ -141,7 +141,8 @@
 
   </div>
 
-  {{if not .DomainEntries}}
+  {{/* classic compat: the handler now sends a flat Hosts list, grouped by domain here */}}
+  {{if not .Hosts}}
   <div class="flex flex-col items-center justify-center py-12 text-center">
       <svg class="my-6 h-10 w-10 text-gray-400 dark:text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
@@ -151,11 +152,13 @@
   </div>
   {{end}}
 
-  {{range .DomainEntries}}
+  {{range $domainName := .DomainNames}}
+  {{$count := 0}}{{range $.Hosts}}{{if eq .Domain $domainName}}{{$count = add $count 1}}{{end}}{{end}}
+  {{if $count}}
   <div class="mb-8 px-4 mb-4">
     <div class="flex items-center gap-2 my-3">
-      <span class="py-1 font-medium text-gray-900 dark:text-gray-50 select-text">{{.DomainName}}</span>
-      <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white">{{len .Entries}} {{$.T.Get "record"}}{{if ne (len .Entries) 1}}s{{end}}</span>
+      <span class="py-1 font-medium text-gray-900 dark:text-gray-50 select-text">{{$domainName}}</span>
+      <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white">{{$count}} {{$.T.Get "record"}}{{if ne $count 1}}s{{end}}</span>
     </div>
 
     <div class="rounded border-gray-200 dark:border-gray-800 overflow-hidden">
@@ -172,18 +175,17 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-          {{$domainName := .DomainName}}
-          {{range .Entries}}
-          <tr :class="(panel === 'edit' && editEntry.line_number === {{.LineNumber}}) || (panel === 'delete' && deleteEntry.line_number === {{.LineNumber}}) ? 'bg-indigo-50/40 dark:bg-indigo-900/10' : 'hover:bg-white dark:hover:bg-gray-900'" class="transition-colors">
-            <td class="p-4 text-sm relative whitespace-nowrap font-medium text-gray-900 dark:text-gray-50 text-left select-text">{{.Subdomain}}</td>
+          {{range $index, $host := $.Hosts}}{{if eq $host.Domain $domainName}}
+          <tr :class="(panel === 'edit' && editEntry.line_number === {{.Line}}) || (panel === 'delete' && deleteEntry.line_number === {{.Line}}) ? 'bg-indigo-50/40 dark:bg-indigo-900/10' : 'hover:bg-white dark:hover:bg-gray-900'" class="transition-colors">
+            <td class="p-4 text-sm relative whitespace-nowrap font-medium text-gray-900 dark:text-gray-50 text-left select-text">{{.Sub}}</td>
             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-              <span class="text-xs px-2 py-0.5 rounded bg-blue-900/40 text-blue-300 border border-blue-800/50">{{.Type}}</span>
+              <span class="text-xs px-2 py-0.5 rounded bg-blue-900/40 text-blue-300 border border-blue-800/50">{{if contains .IP ":"}}AAAA{{else}}A{{end}}</span>
             </td>
-            <td class="p-4 text-sm relative whitespace-nowrap font-medium text-gray-900 dark:text-gray-50 text-left select-text">{{.Record}}</td>
-            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.TTL}}s</td>
+            <td class="p-4 text-sm relative whitespace-nowrap font-medium text-gray-900 dark:text-gray-50 text-left select-text">{{.IP}}</td>
+            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">-</td>
             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-              {{if .LastUpdated}}
-                <span class="text-gray-900 dark:text-gray-50 font-medium" title="{{.LastUpdated}}">{{replace (replace .LastUpdated "T" " ") "Z" " UTC"}}</span>
+              {{if .Updated}}
+                <span class="text-gray-900 dark:text-gray-50 font-medium" title="{{.Updated}}">{{replace (replace .Updated "T" " ") "Z" " UTC"}}</span>
               {{else}}
                 <span class="text-gray-400 dark:text-gray-600 italic text-xs">{{$.T.Get "never"}}</span>
               {{end}}
@@ -199,27 +201,28 @@
             </td>
             <td class="p-4 text-sm relative whitespace-nowrap py-1 font-medium text-gray-900 dark:text-gray-50 text-right">
               <div class="flex items-center justify-end gap-2">
-                <button @click="openEdit({{.Index}}, {{toJSON $domainName}})" :class="panel === 'edit' && editEntry.line_number === {{.LineNumber}} ? 'text-indigo-400' : 'text-gray-400 hover:text-indigo-400'" class="transition-colors" title="{{$.T.Get "Edit"}}">
+                <button @click="openEdit({{$index}}, {{toJSON $domainName}})" :class="panel === 'edit' && editEntry.line_number === {{.Line}} ? 'text-indigo-400' : 'text-gray-400 hover:text-indigo-400'" class="transition-colors" title="{{$.T.Get "Edit"}}">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                 </button>
-                <button @click="openDelete({{.Index}}, {{toJSON $domainName}})" :class="panel === 'delete' && deleteEntry.line_number === {{.LineNumber}} ? 'text-red-400' : 'text-gray-400 hover:text-red-400'" class="transition-colors" title="{{$.T.Get "Delete"}}">
+                <button @click="openDelete({{$index}}, {{toJSON $domainName}})" :class="panel === 'delete' && deleteEntry.line_number === {{.Line}} ? 'text-red-400' : 'text-gray-400 hover:text-red-400'" class="transition-colors" title="{{$.T.Get "Delete"}}">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 </button>
               </div>
             </td>
           </tr>
-          {{end}}
+          {{end}}{{end}}
         </tbody>
       </table>
     </div>
   </div>
+  {{end}}
   {{end}}
 
 </div>
 
 <script>
 function dynamicDns() {
-  const allEntries = {{toJSON .AllEntries}};
+  const allEntries = ({{toJSON .Hosts}} || []).map(h => ({ line_number: h.line, subdomain: h.sub, record: h.ip, token: h.token, last_updated: h.updated }));
 
   return {
     panel: null,

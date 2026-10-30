@@ -2,6 +2,7 @@ package dynamicdns
 
 import (
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -18,7 +19,31 @@ import (
 
 var dynDNSTokenRE = regexp.MustCompile(`^[a-zA-Z0-9]+$`)
 
-// handleDynamicDNS serves the create/edit/delete panel and its POST action dispatch
+// hostProblem returns why a host can't be saved as an untranslated message with a %(host)s slot, or "" when it's fine
+func hostProblem(zone, domain, sub, ip string, skipLine int) string {
+	switch {
+	case sub == "":
+		return "Enter a subdomain, like home."
+	case !validateSubdomain(sub):
+		return "Use letters, numbers and hyphens (up to 63), not starting or ending with a hyphen."
+	case !validateIPv4(ip):
+		return "Enter an IPv4 address like 198.51.100.23. Dynamic DNS hosts are A records."
+	}
+	switch hostConflict(zone, domain, sub, skipLine) {
+	case conflictDDNS:
+		return "%(host)s is already a Dynamic DNS host."
+	case conflictRecord:
+		return "%(host)s already has a DNS record. Pick another subdomain or remove that record first."
+	}
+	return ""
+}
+
+func readZone(domain string) string {
+	content, _ := tenantfs.ReadFile(zoneFilePath(domain))
+	return string(content)
+}
+
+// handleDynamicDNS serves the hosts page and its create/edit/delete form posts
 func handleDynamicDNS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -27,106 +52,105 @@ func handleDynamicDNS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	const back = "/domains/dynamic-dns"
 
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
 		action := r.Form.Get("action")
-		domain := r.Form.Get("domain")
+		domain := strings.TrimSpace(r.Form.Get("domain"))
 
-		if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
-			web.FlashRedirect(a, w, r, "error", "You do not own this domain.", "/domains/dynamic-dns")
+		// the ownership check stops at the first slash, the zone path doesn't
+		if strings.ContainsAny(domain, "/\\") || !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+			web.FlashRedirect(a, w, r, "error", "You do not own this domain.", back)
 			return
 		}
 
 		ipAddress := reqip.ClientIP(r)
+		subdomain := strings.TrimSpace(r.Form.Get("subdomain"))
+		ip := strings.TrimSpace(r.Form.Get("ip"))
+		host := subdomain + "." + domain
 
 		switch action {
 		case "create":
-			subdomain := r.Form.Get("subdomain")
-			ip := r.Form.Get("ip")
 			if ip == "" {
 				ip = "0.0.0.0"
 			}
-			if !validateSubdomain(subdomain) {
-				web.FlashRedirect(a, w, r, "error", "Invalid subdomain.", "/domains/dynamic-dns")
+			if msg := hostProblem(readZone(domain), domain, subdomain, ip, 0); msg != "" {
+				web.FlashRedirect(a, w, r, "error", web.Tr(a, r, msg, "host", host), back)
 				return
 			}
-			if !validateIP(ip) {
-				web.FlashRedirect(a, w, r, "error", "Invalid IP address.", "/domains/dynamic-dns")
+			if _, ok := addDynamicDNSEntry(domain, subdomain, "A", ip); !ok {
+				web.FlashRedirect(a, w, r, "error", "Failed to create Dynamic DNS entry.", back)
 				return
 			}
-			if _, ok := addDynamicDNSEntry(domain, subdomain, "A", ip); ok {
-				_ = logger.RecordUserAction(a.Config, currentUsername, "created dynamic DNS entry "+subdomain+"."+domain, ipAddress)
-			}
-			web.FlashRedirect(a, w, r, "success", "Dynamic DNS entry created.", "/domains/dynamic-dns")
+			_ = logger.RecordUserAction(a.Config, currentUsername, "created dynamic DNS entry "+host, ipAddress)
+			web.FlashRedirect(a, w, r, "success", "Dynamic DNS entry created.", back+"?host="+url.QueryEscape(host))
 			return
 
 		case "edit":
 			lineNumber, convErr := strconv.Atoi(r.Form.Get("line_number"))
-			if convErr != nil {
-				web.FlashRedirect(a, w, r, "error", "Invalid line number.", "/domains/dynamic-dns")
+			entry, found := entryAt(domain, lineNumber)
+			if convErr != nil || !found || (r.Form.Get("token") != "" && r.Form.Get("token") != entry.Token) {
+				web.FlashRedirect(a, w, r, "error", "That Dynamic DNS entry changed or no longer exists. Reload the page and try again.", back)
 				return
 			}
-			subdomain := r.Form.Get("subdomain")
-			ip := r.Form.Get("ip")
-			token := r.Form.Get("token")
+			if msg := hostProblem(readZone(domain), domain, subdomain, ip, lineNumber); msg != "" {
+				web.FlashRedirect(a, w, r, "error", web.Tr(a, r, msg, "host", host), back)
+				return
+			}
+			if !updateZoneLine(domain, lineNumber, buildZoneLine(subdomain, "A", ip, entry.Token, "")) {
+				web.FlashRedirect(a, w, r, "error", "Failed to update Dynamic DNS entry.", back)
+				return
+			}
+			_ = logger.RecordUserAction(a.Config, currentUsername, "updated dynamic DNS entry "+host, ipAddress)
+			web.FlashRedirect(a, w, r, "success", "Dynamic DNS entry updated.", back+"?host="+url.QueryEscape(host))
+			return
 
-			if !validateSubdomain(subdomain) {
-				web.FlashRedirect(a, w, r, "error", "Invalid subdomain.", "/domains/dynamic-dns")
+		case "regenerate":
+			lineNumber, convErr := strconv.Atoi(r.Form.Get("line_number"))
+			entry, found := entryAt(domain, lineNumber)
+			if convErr != nil || !found || (r.Form.Get("token") != "" && r.Form.Get("token") != entry.Token) {
+				web.FlashRedirect(a, w, r, "error", "That Dynamic DNS entry changed or no longer exists. Reload the page and try again.", back)
 				return
 			}
-			if !validateIP(ip) {
-				web.FlashRedirect(a, w, r, "error", "Invalid IP address.", "/domains/dynamic-dns")
+			if !regenerateToken(domain, entry) {
+				web.FlashRedirect(a, w, r, "error", "Failed to create a new token.", back)
 				return
 			}
-			if !dynDNSTokenRE.MatchString(token) {
-				web.FlashRedirect(a, w, r, "error", "Invalid token.", "/domains/dynamic-dns")
-				return
-			}
-
-			newLine := buildZoneLine(subdomain, "A", ip, token, "")
-			if updateZoneLine(domain, lineNumber, newLine) {
-				_ = logger.RecordUserAction(a.Config, currentUsername, "updated dynamic DNS entry "+subdomain+"."+domain, ipAddress)
-				web.FlashRedirect(a, w, r, "success", "Dynamic DNS entry updated.", "/domains/dynamic-dns")
-			} else {
-				web.FlashRedirect(a, w, r, "error", "Failed to update Dynamic DNS entry.", "/domains/dynamic-dns")
-			}
+			host = entry.Subdomain + "." + domain
+			_ = logger.RecordUserAction(a.Config, currentUsername, "created a new update token for dynamic DNS entry "+host, ipAddress)
+			web.FlashRedirect(a, w, r, "success", "New token created. The old update URL stopped working, put the new one on your device.", back+"?host="+url.QueryEscape(host))
 			return
 
 		case "delete":
 			lineNumber, convErr := strconv.Atoi(r.Form.Get("line_number"))
-			if convErr != nil {
-				web.FlashRedirect(a, w, r, "error", "Invalid line number.", "/domains/dynamic-dns")
+			entry, found := entryAt(domain, lineNumber)
+			if convErr != nil || !found || (r.Form.Get("token") != "" && r.Form.Get("token") != entry.Token) {
+				web.FlashRedirect(a, w, r, "error", "That Dynamic DNS entry changed or no longer exists. Reload the page and try again.", back)
 				return
 			}
 			if deleted, ok := deleteZoneLine(domain, lineNumber); ok {
 				_ = logger.RecordUserAction(a.Config, currentUsername, "deleted dynamic DNS entry on "+domain+": "+deleted, ipAddress)
-				web.FlashRedirect(a, w, r, "success", "Dynamic DNS entry deleted.", "/domains/dynamic-dns")
+				web.FlashRedirect(a, w, r, "success", "Dynamic DNS entry deleted.", back)
 			} else {
-				web.FlashRedirect(a, w, r, "error", "Failed to delete Dynamic DNS entry.", "/domains/dynamic-dns")
+				web.FlashRedirect(a, w, r, "error", "Failed to delete Dynamic DNS entry.", back)
 			}
 			return
 		}
 
-		http.Redirect(w, r, "/domains/dynamic-dns", http.StatusFound)
+		http.Redirect(w, r, back, http.StatusFound)
 		return
 	}
 
 	userDomains, _ := a.AllDomainsForUser(ctx, userID)
-	var domainEntries []DomainEntries
-	globalIndex := 0
+	var hosts []DynHost
 	for _, d := range userDomains {
-		entries := parseDynamicDNSFromZone(d.DomainURL)
-		if len(entries) > 0 {
-			for i := range entries {
-				entries[i].Index = globalIndex
-				globalIndex++
-			}
-			domainEntries = append(domainEntries, DomainEntries{DomainName: d.DomainURL, Entries: entries})
+		for _, e := range parseDynamicDNSFromZone(d.DomainURL) {
+			hosts = append(hosts, newDynHost(d.DomainURL, e))
 		}
 	}
 
-	renderDynamicDNSPage(a, w, r, domainEntries, userDomains)
+	renderDynamicDNSPage(a, w, r, hosts, userDomains)
 }
 
 // handleDynamicDNSUpdate is the public, unauthenticated webcall a router/IoT device hits with just its token to push its current IP - not wrapped in auth.RequireLogin, and needs no CSRF exemption since it's GET-only and gorilla/csrf only enforces the token on unsafe methods
@@ -170,7 +194,14 @@ func handleDynamicDNSUpdate(w http.ResponseWriter, r *http.Request) {
 			subdomain := fields[0]
 			recordType := fields[3]
 			ip := reqip.ClientIP(r)
-			lines[i] = buildZoneLine(subdomain, recordType, ip, token, "")
+			// an A record can't take the IPv6 address a dual-stack device calls from by default
+			if !ipFitsRecordType(ip, recordType) {
+				http.Error(w, wrongFamilyMessage(recordType), http.StatusBadRequest)
+				return
+			}
+			// one stamp for the zone and the reply, the DNS reload in between takes a few seconds
+			updated := nowUTCStr()
+			lines[i] = buildZoneLine(subdomain, recordType, ip, token, updated)
 
 			if writeErr := writeZoneLines(domain, lines); writeErr != nil {
 				http.Error(w, "Invalid token", http.StatusNotFound)
@@ -179,11 +210,19 @@ func handleDynamicDNSUpdate(w http.ResponseWriter, r *http.Request) {
 			dns.RestartDNSService(domain)
 
 			web.WriteJSON(w, http.StatusOK, map[string]string{
-				"status": "updated", "host": subdomain + "." + domain, "ip": ip, "updated": nowUTCStr(),
+				"status": "updated", "host": subdomain + "." + domain, "ip": ip, "updated": updated,
 			})
 			return
 		}
 	}
 
 	http.Error(w, "Invalid token", http.StatusNotFound)
+}
+
+// wrongFamilyMessage is the update URL's reply when the caller's IP family doesn't fit the record
+func wrongFamilyMessage(recordType string) string {
+	if strings.EqualFold(recordType, "AAAA") {
+		return "IPv6 address required"
+	}
+	return "IPv4 address required"
 }

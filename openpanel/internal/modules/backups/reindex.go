@@ -395,11 +395,13 @@ func reindexRunning(lockFile string) bool {
 	return err == nil && time.Since(info.ModTime()) < reindexLockStale
 }
 
-// keepLockFresh touches lockFile until the returned stop is called
+// keepLockFresh touches lockFile until the returned stop is called; stop waits for the last touch, so removing the lock right after can't race a write that brings it back
 func keepLockFresh(lockFile string) (stop func()) {
 	done := make(chan struct{})
+	exited := make(chan struct{})
 	ticker := time.NewTicker(reindexLockTouch)
 	go func() {
+		defer close(exited)
 		defer ticker.Stop()
 		for {
 			select {
@@ -410,7 +412,10 @@ func keepLockFresh(lockFile string) (stop func()) {
 			}
 		}
 	}()
-	return func() { close(done) }
+	return func() {
+		close(done)
+		<-exited
+	}
 }
 
 func doReindex(userHome string, config map[string]string, prefix, jsonFile, lockFile string) {

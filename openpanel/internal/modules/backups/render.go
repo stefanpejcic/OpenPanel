@@ -7,11 +7,14 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"slices"
 	"sort"
+	"strings"
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -27,15 +30,73 @@ type BackupsPageData struct {
 	HasCredentials bool
 	ServiceActive  bool
 	AdminManaged   bool
+	Summary        BackupsSummary
 }
 
-func renderBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, target string, hasCredentials, serviceActive, adminManaged bool) {
+// BackupsSummary is what the overview shows about the destination's archives, read from the reindex cache
+type BackupsSummary struct {
+	Count       int
+	Latest      *restoreItem
+	TotalSize   string
+	Recent      []restoreItem
+	Schedule    string
+	Retention   string
+	Destination string
+	CPU, RAM    string
+	IndexError  string
+}
+
+// backupsSummary reads the index the restore page uses, without touching the destination
+func backupsSummary(userContext, target string, values []KV) BackupsSummary {
+	config, _ := readBackupEnv(userContext)
+	backups, indexErr := loadOwnBackups(userContext, config)
+	items := restoreItems(backups, "", nil)
+	sum := BackupsSummary{Count: len(items), Schedule: config["BACKUP_CRON_EXPRESSION"], Retention: config["BACKUP_RETENTION_DAYS"], IndexError: indexErr,
+		CPU: strings.Trim(webserver.GetEnvFileValue(userContext, "BACKUP_CPU"), `"'`), RAM: strings.Trim(webserver.GetEnvFileValue(userContext, "BACKUP_RAM"), `"'`)}
+	var total int64
+	for _, it := range items {
+		total += it.Size
+	}
+	if total > 0 {
+		sum.TotalSize = formatSize(total)
+	}
+	if len(items) > 0 {
+		sum.Latest = &items[0]
+	}
+	if len(items) > 5 {
+		items = items[:5]
+	}
+	sum.Recent = items
+	vals := map[string]string{}
+	for _, kv := range values {
+		vals[kv.Key] = kv.Value
+	}
+	// one line naming where the archives go, never any credential
+	switch target {
+	case "ssh":
+		if vals["SSH_HOST_NAME"] != "" {
+			sum.Destination = vals["SSH_USER"] + "@" + vals["SSH_HOST_NAME"] + ":" + vals["SSH_REMOTE_PATH"]
+		}
+	case "s3":
+		sum.Destination = vals["AWS_S3_BUCKET_NAME"]
+	case "webdav":
+		sum.Destination = vals["WEBDAV_URL"]
+	case "azure":
+		sum.Destination = vals["AZURE_STORAGE_CONTAINER_NAME"]
+	case "dropbox":
+		sum.Destination = vals["DROPBOX_REMOTE_PATH"]
+	}
+	sum.Destination = strings.TrimPrefix(sum.Destination, "@")
+	return sum
+}
+
+func renderBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, target string, hasCredentials, serviceActive, adminManaged bool, summary BackupsSummary) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Backups")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := BackupsPageData{LayoutData: layout, Target: target, HasCredentials: hasCredentials, ServiceActive: serviceActive, AdminManaged: adminManaged}
+	data := BackupsPageData{LayoutData: layout, Target: target, HasCredentials: hasCredentials, ServiceActive: serviceActive, AdminManaged: adminManaged, Summary: summary}
 	if err := backupsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("BACKUPS - backups template render error: %v", err)
 	}
@@ -223,6 +284,22 @@ func restoreItems(backups []BackupInfo, userHome string, domains map[string]bool
 		return items[i].File > items[j].File
 	})
 	return items
+}
+
+// Has reports whether the archive holds a section, for the overview's content tags
+func (it restoreItem) Has(kind string) bool { return slices.Contains(it.Types, kind) }
+
+// When, Day and Clock format Created for the overview, archive names are in UTC
+func (it restoreItem) When() string  { return it.createdFormat("2 Jan 2006, 15:04") }
+func (it restoreItem) Day() string   { return it.createdFormat("2 Jan 2006") }
+func (it restoreItem) Clock() string { return it.createdFormat("15:04 UTC") }
+
+func (it restoreItem) createdFormat(layout string) string {
+	t, err := time.Parse(time.RFC3339, it.Created)
+	if err != nil {
+		return ""
+	}
+	return t.Format(layout)
 }
 
 func formatSize(numBytes int64) string {

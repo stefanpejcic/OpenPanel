@@ -1,14 +1,16 @@
 {{define "content"}}
 <!-- START templates/domains/redirect.html -->
+{{/* classic compat: the handler now sends Rows/Free/Open instead of DomainName/RedirectURL/Domains */}}
+{{$redirectURL := ""}}{{range .Rows}}{{if eq .Domain $.Open}}{{$redirectURL = .To}}{{end}}{{end}}
 
-{{if .DomainName}}
+{{if .Open}}
 
 <!-- page header -->
 <section aria-label="{{.T.Get "Edit Redirect Header"}}">
     <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{if .RedirectURL}}{{.T.Get "Edit Redirect for"}}{{else}}{{.T.Get "Create Redirect for"}}{{end}} {{.DomainName}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{if .RedirectURL}}{{.T.Get "Edit or delete URL redirect for domain"}} <span class="punycode">{{.DomainName}}</span>{{else}}{{.T.Get "Redirect domain to URL."}}{{end}}</p>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{if $redirectURL}}{{.T.Get "Edit Redirect for"}}{{else}}{{.T.Get "Create Redirect for"}}{{end}} {{.Open}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{if $redirectURL}}{{.T.Get "Edit or delete URL redirect for domain"}} <span class="punycode">{{.Open}}</span>{{else}}{{.T.Get "Redirect domain to URL."}}{{end}}</p>
     </div>
     <div class="mt-2 gap-2 sm:mt-0 sm:flex">
     </div>
@@ -22,8 +24,8 @@
 
     <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
         <div class="col-span-full">
-            <input type="hidden" name="domain_name" value="{{.DomainName}}">
-            <input type="url" name="redirect_url" value="{{if .RedirectURL}}{{.RedirectURL}}{{end}}" pattern="https?://.*" title="{{.T.Get "Must be a valid URL starting with http:// or https://."}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="{{.T.Get "https://"}}">
+            <input type="hidden" name="domain_name" value="{{.Open}}">
+            <input type="url" name="redirect_url" value="{{$redirectURL}}" pattern="https?://.*" title="{{.T.Get "Must be a valid URL starting with http:// or https://."}}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="{{.T.Get "https://"}}">
         </div>
     </div>
 
@@ -35,11 +37,11 @@
         </button>
 
         </form>
-        {{if .RedirectURL}}
+        {{if $redirectURL}}
         <form action="/domains/redirect/delete" method="post">
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-            <input class="d-none" type="hidden" name="domain_name" value="{{.DomainName}}">
-            <input class="d-none" type="hidden" name="redirect_url" value="{{.RedirectURL}}">
+            <input class="d-none" type="hidden" name="domain_name" value="{{.Open}}">
+            <input class="d-none" type="hidden" name="redirect_url" value="{{$redirectURL}}">
             <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full md:w-auto gap-x-1.5 whitespace-nowrap bg-red-700 hover:bg-red-800 text-white hover:bg-gray-800 md:mt-0">{{.T.Get "Delete Redirect"}}</button>
         </form>
         {{end}}
@@ -71,8 +73,18 @@
 <!-- END page header -->
 
 
-{{if .Domains}}
-    {{template "domain_selector" (dict "T" .T "Domains" .Domains "RedirectBase" "/domains/redirect?domain=")}}
+{{if .DomainCount}}
+<div class="sm:mx-auto sm:max-w-2xl p-6 m-6">
+    <div class="mt-8 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+        <div class="col-span-full">
+            <select id="domains" name="version" onchange="if (this.value) window.location.href = '/domains/redirect?domain=' + encodeURIComponent(this.value)" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                <option value="" disabled selected>{{.T.Get "Select domain"}}</option>
+                {{range .Rows}}<option class="punycode" value="{{.Domain}}">{{.Domain}}</option>{{end}}
+                {{range .Free}}<option class="punycode" value="{{.}}">{{.}}</option>{{end}}
+            </select>
+        </div>
+    </div>
+</div>
 {{else}}
     {{template "no_domain" .}}
 {{end}}

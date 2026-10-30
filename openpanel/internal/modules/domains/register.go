@@ -30,6 +30,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /domains/log", requireLogin("domain_logs", func(w http.ResponseWriter, r *http.Request) { handleViewDomainAccessLog(a, w, r) }))
 	// this route already covers the bare "/domains/log/" case (domain_name resolves to ""), matching the wildcard-route pattern used throughout this port
 	mux.Handle("GET /domains/log/{domain_name...}", requireLogin("domain_logs", func(w http.ResponseWriter, r *http.Request) { handleViewDomainAccessLog(a, w, r) }))
+	mux.Handle("GET /domains/log/{domain_name}/raw", requireLogin("domain_logs", func(w http.ResponseWriter, r *http.Request) { handleDownloadDomainAccessLog(a, w, r) }))
 
 	mux.Handle("GET /domains/capitalize", requireLogin("capitalize_domains", func(w http.ResponseWriter, r *http.Request) {
 		handleDisplayCapitalizedDomains(a, w, r)
@@ -44,5 +45,6 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("/domains/redirect", requireLogin("redirects", func(w http.ResponseWriter, r *http.Request) { handleSetRedirect(a, w, r) }))
 
 	mux.Handle("/domains/ssl", requireLogin("ssl", func(w http.ResponseWriter, r *http.Request) { handleDomainCustomSSL(a, w, r) }))
+	mux.Handle("POST /domains/ssl/check", requireLogin("ssl", func(w http.ResponseWriter, r *http.Request) { handleCustomSSLCheck(a, w, r) }))
 	mux.Handle("GET /domains/dns/tlsa-hash/{domain}", requireLogin("ssl", func(w http.ResponseWriter, r *http.Request) { handleGetTLSAHash(a, w, r) }))
 }
