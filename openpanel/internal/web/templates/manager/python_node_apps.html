@@ -1,4 +1,6 @@
 {{define "alpine_plugins"}}{{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
 {{define "flowbite_js"}}
 <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
@@ -14,270 +16,19 @@
     let toastDisplayed = false;
 </script>
 
-<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8 sm:flex sm:items-center sm:justify-between">
-    <div class="group">
-        <div class="flex items-center gap-x-3">
-            <img alt="{{.CurrentDomain}} Favicon" loading="lazy" width="5" height="5" decoding="async" class="h-4 w-4 rounded-full object-cover shadow-lg shadow-indigo-500/50 ring-2 ring-white dark:ring-gray-700" style="color:transparent" src="/json/favicon/{{.CurrentDomain}}">
-            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.CurrentDomain}}</h1>
+<div class="op-page-head op-cms-head op-rt-head">
+    <div class="op-rt-id">
+        <span class="op-mgr-logo" aria-hidden="true">{{template "op_app_logo" .Type}}</span>
+        <div style="min-width:0">
+            <div class="op-eyebrow">{{if eq .Type "nodejs"}}Node.js{{else if eq .Type "python"}}Python{{else if eq .Type "ruby"}}Ruby{{else if eq .Type "java"}}Java{{else}}{{title .Type}}{{end}} {{.T.Get "app"}}{{if .Service}} · {{.Service}}{{end}}</div>
+            <h1 class="op-title">{{.CurrentDomain}}</h1>
+            <p class="op-meta"><a class="op-link" href="https://{{.CurrentDomain}}" target="_blank" rel="noopener">https://{{.CurrentDomain}}</a></p>
         </div>
-        <p class="text-sm text-gray-500 dark:text-gray-500 hover:underline"><a href="http://{{.CurrentDomain}}" class="hover:underline" target="_blank">https://{{.CurrentDomain}}</a></p>
     </div>
 
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-        {{template "temp_link" .}}
-    </div>
-</div>
-
-<div class="m-6 grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4">
-
-    <div class="flex flex-col space-y-4 rounded xl:col-span-3">
-
-        <div class="flex flex-col justify-center overflow-hidden rounded border border-gray-200 dark:border-gray-700 xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
-
-    <div class="border-b border-gray-200 dark:border-gray-700">
-        <ul id="wp-tab" data-tabs-toggle="#wp-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="grid {{if .UserAllowed.malware_scan}}grid-cols-8{{else}}grid-cols-7{{end}} w-full items-center justify-between bg-gray-100 p-1 dark:bg-gray-800">
-            <li role="presentation">
-                <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
-                   @click="activeTab = 'dashboard'"
-                   :class="activeTab === 'dashboard' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
-                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M2 10h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1m9-9h3a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1m0 9a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1zm0-10a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM2 9a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h3a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2zm7 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2zM0 2a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5.354.854a.5.5 0 1 0-.708-.708L3 3.793l-.646-.647a.5.5 0 1 0-.708.708l1 1a.5.5 0 0 0 .708 0z"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Overview"}}</span>
-                </a>
-            </li>
-            <li role="presentation">
-                <a href="#pip" id="pip-tab" data-tabs-target="#pip" role="tab" aria-controls="pip" aria-selected="false"
-                   @click="activeTab = 'pip'"
-                   :class="activeTab === 'pip' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
-                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Install Packages"}}</span>
-                </a>
-            </li>
-            <li role="presentation">
-                <a href="#envvars" id="envvars-tab" data-tabs-target="#envvars" role="tab" aria-controls="envvars" aria-selected="false"
-                   @click="activeTab = 'envvars'"
-                   :class="activeTab === 'envvars' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
-                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.935-.53-2.12-.603-3.213-.493-1.18.12-2.37.461-3.287.811zm7.5-.141c.654-.689 1.782-.886 3.112-.752 1.234.124 2.503.523 3.388.893v9.923c-.918-.35-2.107-.692-3.287-.81-1.094-.111-2.278-.039-3.213.492zM8 1.783C7.015.936 5.587.81 4.287.94c-1.514.153-3.042.672-3.994 1.105A.5.5 0 0 0 0 2.5v11a.5.5 0 0 0 .707.455c.882-.4 2.303-.881 3.68-1.02 1.409-.142 2.59.087 3.223.877a.5.5 0 0 0 .78 0c.633-.79 1.814-1.019 3.222-.877 1.378.139 2.8.62 3.681 1.02A.5.5 0 0 0 16 13.5v-11a.5.5 0 0 0-.293-.455c-.952-.433-2.48-.952-3.994-1.105C10.413.809 8.985.936 8 1.783"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Env Vars"}}</span>
-                </a>
-            </li>
-            <li role="presentation">
-                <a href="#clone" id="clone-tab" data-tabs-target="#clone" role="tab" aria-controls="clone" aria-selected="false"
-                   @click="activeTab = 'clone'"
-                   :class="activeTab === 'clone' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
-                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Clone"}}</span>
-                </a>
-            </li>
-            <li role="presentation">
-                <a href="#backup" id="backup-tab" data-tabs-target="#backup" role="tab" aria-controls="backup" aria-selected="false"
-                   @click="activeTab = 'backup'"
-                   :class="activeTab === 'backup' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
-                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M8 2a5.53 5.53 0 0 0-3.594 1.342c-.766.66-1.321 1.52-1.464 2.383C1.266 6.095 0 7.555 0 9.318 0 11.366 1.708 13 3.781 13h8.906C14.502 13 16 11.57 16 9.773c0-1.636-1.242-2.969-2.834-3.194C12.923 3.999 10.69 2 8 2m2.354 5.146a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0z"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Backup"}}</span>
-                </a>
-            </li>
-            <li role="presentation">
-                <a href="#logs" id="logs-tab" data-tabs-target="#logs" role="tab" aria-controls="logs" aria-selected="false"
-                   @click="activeTab = 'logs'"
-                   :class="activeTab === 'logs' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
-                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0m6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Logs"}}</span>
-                </a>
-            </li>
-            {{if .UserAllowed.malware_scan}}
-            <li role="presentation">
-                <a href="#" id="security-tab" data-tabs-target="#security" role="tab" aria-controls="security" aria-selected="false"
-                   @click="activeTab = 'security'"
-                   :class="activeTab === 'security' ? 'bg-white text-blue-500 shadow-sm dark:bg-gray-900 dark:text-blue-500' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'"
-                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 14.933a1 1 0 0 0 .1-.025q.114-.034.294-.118c.24-.113.547-.29.893-.533a10.7 10.7 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.8 11.8 0 0 1-2.517 2.453 7 7 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7 7 0 0 1-1.048-.625 11.8 11.8 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 63 63 0 0 1 5.072.56"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Security"}}</span>
-                </a>
-            </li>
-            {{end}}
-            <li role="presentation">
-                <a href="#" id="remove-tab" data-tabs-target="#remove" role="tab" aria-controls="remove" aria-selected="false"
-                   @click="activeTab = 'remove'"
-                   :class="activeTab === 'remove' ? 'bg-white text-red-600 shadow-sm dark:bg-gray-900 dark:text-red-400' : 'text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400'"
-                   class="inline-flex w-full items-center justify-center rounded-sm px-3 py-2 text-sm font-medium whitespace-nowrap ring-1 ring-inset ring-transparent transition-all outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="mr-1" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/></svg>
-                    <span class="hidden md:inline">{{.T.Get "Remove"}}</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-
-            <div id="wp-tab-content">
-
-                {{if .UserAllowed.malware_scan}}
-                <div class="hidden p-4 rounded" id="security" role="tabpanel" aria-labelledby="security-tab">
-                    {{template "malware_scan_panel" .}}
-                </div>
-                {{end}}
-
-                <div class="hidden p-4 rounded" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
-
-        <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
-            <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
-                <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden xl:col-span-3">
-            {{template "screenshot" .}}
-                </div>
-            </div>
-            <div class="flex flex-col h-full space-y-4 xl:col-span-1 pb-2">
-
-                <div class="flex flex-col flex-grow justify-center rounded p-4 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
-                    <div class="mb-2 flex items-center justify-between gap-4 relative">
-                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-                        <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "Status:"}}</h2>
-                    </div>
-                    <h3 class="flex items-center gap-2 text-xl font-bold lg:text-2xl">
-                    <div class="flex gap-0.5">
-                    {{if eq .PM2Status "true"}}
-                        <div class="h-3.5 w-1 rounded-sm bg-green-500 dark:bg-green-500"></div>
-                        <div class="h-3.5 w-1 rounded-sm bg-green-500 dark:bg-green-500"></div>
-                        <div class="h-3.5 w-1 rounded-sm bg-green-500 dark:bg-green-500"></div>
-                    {{else if eq .PM2Status "false"}}
-                        <div class="h-3.5 w-1 rounded-sm bg-red-500 dark:bg-red-500"></div>
-                        <div class="h-3.5 w-1 rounded-sm bg-red-500 dark:bg-red-500"></div>
-                        <div class="h-3.5 w-1 rounded-sm bg-red-500 dark:bg-red-500"></div>
-                    {{else}}
-                        <div class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-800"></div>
-                        <div class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-800"></div>
-                        <div class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-800"></div>
-                    {{end}}
-                    </div><span class="inline-block font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400">
-                        {{if eq .PM2Status "true"}}{{.T.Get "Active"}}
-                        {{else if eq .PM2Status "false"}}{{.T.Get "Inactive"}}
-                        {{else}}{{.T.Get "Unknown"}}
-                        {{end}}</span></h3>
-                </div>
-
-                <div class="flex flex-col flex-grow justify-center rounded p-4 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
-                    <div class="mb-2 flex items-center justify-between gap-4 relative">
-                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-                        <h2 class="text-gray-600 dark:text-gray-400">
-                            {{if eq .Type "nodejs"}}{{.T.Get "NodeJS"}}
-                            {{else if eq .Type "python"}}{{.T.Get "Python"}}
-                            {{else if eq .Type "ruby"}}{{.T.Get "Ruby"}}
-                            {{else if eq .Type "java"}}{{.T.Get "Java"}}
-                            {{end}} {{.T.Get "Version:"}}</h2>
-                    </div>
-                    <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl">{{.Container.Version}}</h3>
-                </div>
-
-                <div class="flex flex-col flex-grow justify-center rounded p-4 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
-                    <div class="mb-2 flex items-center justify-between gap-4 relative">
-                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-                        <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "CPU limit:"}}</h2>
-                    </div>
-                    <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl"><i class="dashboard_icon bi bi-cpu"></i> {{.CPU}}</h3>
-                </div>
-
-                <div class="flex flex-col flex-grow justify-center rounded p-4 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
-                    <div class="mb-2 flex items-center justify-between gap-4 relative">
-                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-                        <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "Memory limit:"}}</h2>
-                    </div>
-                    <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl"><i class="dashboard_icon bi bi-memory"></i> {{.RAM}}</h3>
-                </div>
-
-            </div>
-        </div>
-
-        <div class="grid gap-4 grid-cols-2 md:gap-4 m-0 pb-4">
-
-        <div class="flex flex-col justify-top overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
-            <div class="mb-2 flex items-center justify-between gap-4 relative">
-                <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-                <h2 class="pl-4 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Actions"}}</h2>
-                {{if .UserAllowed.docker}}
-                <a type="button" href="/containers" target="_blank" data-tooltip-target="tooltip-pm2-link" data-tooltip-placement="left" class="flex items-center justify-between gap-1.5 rounded bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-package-search size-[18px] shrink-0" aria-hidden="true"><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"></path><path d="m7.5 4.27 9 5.15"></path><polyline points="3.29 7 12 12 20.71 7"></polyline><line x1="12" x2="12" y1="22" y2="12"></line><circle cx="18.5" cy="15.5" r="2.5"></circle><path d="M20.27 17.27 22 19"></path></svg>
-                </a>
-<div id="tooltip-pm2-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded shadow-xs opacity-0 tooltip dark:bg-gray-700">
-    {{.T.Get "Manage Containers"}}
-    <div class="tooltip-arrow" data-popper-arrow></div>
-</div>
-                {{end}}
-            </div>
-
-  <div class="col">
-  <div role="group" class="w-full flex space-x-2">
-
-{{if eq .PM2Status "false"}}
-<button type="button" onclick="startApp(this);" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap"><i class="bi bi-play-fill"></i> {{.T.Get "Start"}}</button>
-
-<script>
-    function startApp(button) {
-        const pm2Id = {{toJSON .Service}};
-        showToast({{toJSON (.T.Get "Starting application. Please wait.")}}, 'loading');
-
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', `/pm2/start/${pm2Id}`, true);
-        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-        xhr.onload = function() {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                showToast({{toJSON (.T.Get "Application started successfully.")}}, 'success');
-                setTimeout(() => { location.reload(); }, 1000);
-            } else {
-                let msg = {{toJSON (.T.Get "Error starting application.")}};
-                try { msg = JSON.parse(xhr.responseText).error || msg; } catch (e) {}
-                showToast(msg, 'error');
-                console.error('Start failed:', xhr.statusText);
-            }
-        };
-        xhr.onerror = function() {
-            showToast({{toJSON (.T.Get "Error starting application.")}}, 'error');
-            console.error('Network error occurred');
-        };
-        xhr.send();
-    }
-</script>
-
-{{else if eq .PM2Status "true"}}
-<button type="button" onclick="stopApp(this);" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap"><i class="bi bi-stop-fill"></i> {{.T.Get "Stop"}}</button>
-
-<script>
-    function stopApp(button) {
-        const pm2Id = {{toJSON .Service}};
-        showToast({{toJSON (.T.Get "Stopping application. Please wait.")}}, 'loading');
-
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', `/pm2/stop/${pm2Id}`, true);
-        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-        xhr.onload = function() {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                showToast({{toJSON (.T.Get "Application stopped successfully.")}}, 'success');
-                setTimeout(() => { location.reload(); }, 1000);
-            } else {
-                let msg = {{toJSON (.T.Get "Error stopping application.")}};
-                try { msg = JSON.parse(xhr.responseText).error || msg; } catch (e) {}
-                showToast(msg, 'error');
-                console.error('Stop failed:', xhr.statusText);
-            }
-        };
-        xhr.onerror = function() {
-            showToast({{toJSON (.T.Get "Error stopping application.")}}, 'error');
-            console.error('Network error occurred');
-        };
-        xhr.send();
-    }
-</script>
-{{end}}
-
-<button type="button" id="restartButton" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap"><i class="bi bi-arrow-clockwise"></i> {{.T.Get "Restart"}}</button>
+    <div class="op-actions">
+        <span class="op-status {{if eq .PM2Status "true"}}is-success{{else}}is-muted{{end}}">{{if eq .PM2Status "true"}}{{.T.Get "Active"}}{{else if eq .PM2Status "false"}}{{.T.Get "Inactive"}}{{else}}{{.T.Get "Unknown"}}{{end}}</span>
+<button type="button" id="restartButton" class="op-btn op-btn-secondary">{{template "op_icon" "refresh"}} {{.T.Get "Restart"}}</button>
 
 <script>
     document.getElementById('restartButton').addEventListener('click', function(event) {
@@ -310,512 +61,362 @@
     });
 </script>
 
-  </div>
-</div>
-        </div>
+{{if eq .PM2Status "false"}}
+<button type="button" onclick="startApp(this);" class="op-btn op-btn-primary">{{template "op_icon" "play"}} {{.T.Get "Start"}}</button>
 
-        <div class="flex flex-col justify-center overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
-            <div class="mb-2 flex items-center justify-between gap-4 relative">
-                <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-                <h2 class="pl-4 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Files"}}</h2>
-                <a type="button" {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}} target="_blank" data-tooltip-target="tooltip-filemanager-link" data-tooltip-placement="left" class="flex items-center justify-between gap-1.5 rounded bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50">
-                    <svg class="hi-mini hi-archive-box inline-block size-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path d="M2 3a1 1 0 00-1 1v1a1 1 0 001 1h16a1 1 0 001-1V4a1 1 0 00-1-1H2z"></path>
-                <path fill-rule="evenodd" d="M2 7.5h16l-.811 7.71a2 2 0 01-1.99 1.79H4.802a2 2 0 01-1.99-1.79L2 7.5zM7 11a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z" clip-rule="evenodd"></path>
-              </svg>
-                </a>
-<div id="tooltip-filemanager-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded shadow-xs opacity-0 tooltip dark:bg-gray-700">
-    {{.T.Get "Open folder in File Manager"}}
-    <div class="tooltip-arrow" data-popper-arrow></div>
-</div>
-            </div>
+<script>
+    function startApp(button) {
+        const pm2Id = {{toJSON .Service}};
+        showToast({{toJSON (.T.Get "Starting application. Please wait.")}}, 'loading');
 
-  <div class="col">
-<table class="w-full text-sm">
-    <tbody>
-        <tr>
-            <td class="relative p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Folder:"}}</span></td>
-            <td class="text-end truncate"><a class="domain_link relative font-medium hover:underline" {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}}>{{.Docroot}}</a></td>
-        </tr>
-    </tbody>
-</table>
-<table class="w-full text-sm">
-    <tbody>
-        <tr>
-            <td class="relative p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Folder Size:"}}</span></td>
-            <td class="text-end"><b id="filesSize">{{.T.Get "Calculating.."}}</b></td>
-        </tr>
-    </tbody>
-</table>
-<table class="w-full text-sm">
-    <tbody>
-        {{if .UserAllowed.disk_usage}}
-        <tr>
-            <td class="relative p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Disk Usage"}}:</span></td>
-            <td class="text-end"><a href="{{.DiskUsageHref}}" target="_blank" class="inline-flex items-center gap-1 hover:underline" title="{{.T.Get "Open folder in Disk Usage Explorer"}}">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-4">
-                    <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
-                </svg>
-            </a></td>
-        </tr>
-        {{end}}
-        {{if .UserAllowed.inodes}}
-        <tr>
-            <td class="relative p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "Inodes Explorer"}}:</span></td>
-            <td class="text-end"><a href="{{.InodesExplorerHref}}" target="_blank" class="inline-flex items-center gap-1 hover:underline" title="{{.T.Get "Open folder in Inodes Explorer"}}">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-4">
-                    <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
-                </svg>
-            </a></td>
-        </tr>
-        {{end}}
-        {{if .UserAllowed.ftp}}
-        <tr>
-            <td class="relative p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400">{{.T.Get "FTP Accounts"}}:</span></td>
-            <td class="text-end"><a href="/ftp" target="_blank" class="inline-flex items-center gap-1 hover:underline" title="{{.T.Get "Open FTP Accounts"}}">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-4">
-                    <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
-                </svg>
-            </a></td>
-        </tr>
-        {{end}}
-    </tbody>
-</table>
-</div>
-        </div>
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `/pm2/start/${pm2Id}`, true);
+        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-</div>
-
-    <div class="mt-4 grid grid-cols-1">
-
-    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
-    <div>
-        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container"}}</h2>
-        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Name"}} {{if .Container.Port}}{{.T.Get " and custom port "}}{{end}}{{.T.Get "on which the application is accessible from other services."}}</p>
-    </div>
-    <div class="sm:max-w-3xl md:col-span-2">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-            <label class="flex gap-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium"><i class="bi bi-box"></i>{{.Service}}{{if .Container.Port}}:{{.Container.Port}}{{end}}</label>
-        </div>
-    </div>
-    </div>
-
-    <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
-
-            <form action="/pm2/update/{{.Service}}" method="POST">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
-    <div>
-        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Startup"}}</h2>
-        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Configure startup file and if install should be run before starting the application."}}</p>
-    </div>
-    <div class="sm:max-w-3xl md:col-span-2">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-            <div class="col-span-full">
-
-    <label class="flex justify-between pb-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex items-center gap-1" for="startup_file" x-data="{tooltip: false }">
-        <span>{{.T.Get "Startup file:"}}<span class="text-red-500 dark:text-red-500">*</span></span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
-  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
-</svg>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; right: 0;">
-                 {{.T.Get "If no custom startup command is provided, this file is executed with command:"}}
-                 <br>
-                 {{if eq .Type "nodejs"}}node{{else if eq .Type "python"}}python{{else if eq .Type "ruby"}}ruby{{else if eq .Type "java"}}java{{end}} {{.StartupFile}}
-            </div>
-        </span>
-    </label>
-
-    <div class="relative w-full mt-2" x-data="{ value: {{toJSON .StartupFile}}, error: false, errorMessage: '', appType: {{toJSON .Type}}, ext: {{if eq .Type "nodejs"}}'js'{{else if eq .Type "python"}}'py'{{else if eq .Type "ruby"}}'rb'{{else if eq .Type "java"}}'java'{{else}}''{{end}} }">
-    <input
-        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-        required id="startup_file" name="startup_file" type="text" x-model="value"
-        :class="error ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''"
-        @input="
-            if (!value.startsWith('/var/www/html/')) {
-                error = true;
-                errorMessage = 'Path must start with /var/www/html/';
-            } else if (value.includes('../')) {
-                error = true;
-                errorMessage = 'Path traversal (../) is not allowed';
-            } else if (!value.endsWith('.' + ext)) {
-                error = true;
-                errorMessage = 'Startup file needs to be a .' + ext + ' file';
+        xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                showToast({{toJSON (.T.Get "Application started successfully.")}}, 'success');
+                setTimeout(() => { location.reload(); }, 1000);
             } else {
-                error = false;
-                errorMessage = '';
+                let msg = {{toJSON (.T.Get "Error starting application.")}};
+                try { msg = JSON.parse(xhr.responseText).error || msg; } catch (e) {}
+                showToast(msg, 'error');
+                console.error('Start failed:', xhr.statusText);
             }
-        ">
-    <template x-if="error"><p class="mt-1 text-sm text-red-600 dark:text-red-400" x-text="errorMessage"></p></template>
+        };
+        xhr.onerror = function() {
+            showToast({{toJSON (.T.Get "Error starting application.")}}, 'error');
+            console.error('Network error occurred');
+        };
+        xhr.send();
+    }
+</script>
+
+{{else if eq .PM2Status "true"}}
+<button type="button" onclick="stopApp(this);" class="op-btn op-btn-secondary">{{template "op_icon" "stop"}} {{.T.Get "Stop"}}</button>
+
+<script>
+    function stopApp(button) {
+        const pm2Id = {{toJSON .Service}};
+        showToast({{toJSON (.T.Get "Stopping application. Please wait.")}}, 'loading');
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `/pm2/stop/${pm2Id}`, true);
+        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                showToast({{toJSON (.T.Get "Application stopped successfully.")}}, 'success');
+                setTimeout(() => { location.reload(); }, 1000);
+            } else {
+                let msg = {{toJSON (.T.Get "Error stopping application.")}};
+                try { msg = JSON.parse(xhr.responseText).error || msg; } catch (e) {}
+                showToast(msg, 'error');
+                console.error('Stop failed:', xhr.statusText);
+            }
+        };
+        xhr.onerror = function() {
+            showToast({{toJSON (.T.Get "Error stopping application.")}}, 'error');
+            console.error('Network error occurred');
+        };
+        xhr.send();
+    }
+</script>
+{{end}}
+
+
+        {{template "temp_link" .}}
+        {{template "op_site_del" (dict "T" .T "Label" (.T.Get "Delete application")
+            "Delete" (.T.Get "Delete application") "DeleteText" (.T.Get "Stops the application, deletes its container and removes it from Site Manager. Files and databases stay.") "DeleteJS" (print "confirmRemoveforWP(" (toJSON .CurrentDomain) ")"))}}
     </div>
-            </div>
+</div>
 
-            <div class="col-span-full">
-        <label class="flex justify-between pb-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex items-center gap-1" for="custom_cmd" x-data="{tooltip: false }">
-        <span>{{.T.Get "Custom startup command:"}}</span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
-  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
-</svg>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; right: 0;">
-                 {{.T.Get "You can provide a custom startup command with flags to be used instead of the default:"}}
-                 <br>
-                 {{if eq .Type "nodejs"}}node{{else if eq .Type "python"}}python{{else if eq .Type "ruby"}}ruby{{else if eq .Type "java"}}java{{end}} {{.StartupFile}}
-            </div>
-        </span>
-    </label>
-
-    <div class="relative w-full mt-2" x-data="{ value: {{toJSON .CustomCmd}}, error: false }">
-    <input
-    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-    id="custom_cmd" name="custom_cmd" type="text" x-model="value"
-    :class="error ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''"
-    @input="
-         if (value.includes('..')) {
-        error = true;
-        startuperrorMessage = 'Path traversal (..) is not allowed';
-        } else {
-        error = false;
-        startuperrorMessage = '';
-        }
-    ">
-    <template x-if="error"><p class="mt-1 text-sm text-red-600 dark:text-red-400" x-text="startuperrorMessage"></p></template>
+<section class="op-rt-run" aria-label="{{.T.Get "Start command"}}" x-data>
+    <div class="op-rt-run-line"><span class="op-rt-prompt">$</span><code id="op-rt-cmd">{{if .StartCommand}}{{.StartCommand}}{{else if .CustomCmd}}{{.CustomCmd}}{{else if .StartupFile}}{{.StartupFile}}{{else}}{{.T.Get "No start command set"}}{{end}}</code>
+        <button type="button" class="op-icon-btn" aria-label="{{.T.Get "Copy start command"}}" @click="navigator.clipboard && navigator.clipboard.writeText(document.getElementById('op-rt-cmd').textContent.trim()); showToast({{toJSON (.T.Get "Copied start command.")}}, 'success')">{{template "op_icon" "copy"}}</button></div>
+    <div class="op-rt-run-meta">
+        <span><i class="op-rt-dot{{if ne .PM2Status "true"}} is-off{{end}}"></i>{{if eq .PM2Status "true"}}{{.T.Get "Running"}}{{else}}{{.T.Get "Stopped"}}{{end}}</span>
+        {{if .Service}}<span>{{.T.Get "service"}} <b>{{.Service}}{{if .Container.Port}}:{{.Container.Port}}{{end}}</b></span>{{end}}
+        {{if .Container.Version}}<span>{{if eq .Type "nodejs"}}Node.js{{else if eq .Type "python"}}Python{{else if eq .Type "ruby"}}Ruby{{else if eq .Type "java"}}Java{{else}}{{title .Type}}{{end}} <b>{{.Container.Version}}</b></span>{{end}}
+        {{if .Workdir}}<span>{{.T.Get "workdir"}} <b>{{.Workdir}}</b></span>{{end}}
     </div>
-            </div>
+</section>
 
-            {{if .UserAllowed.git}}
-            <div class="col-span-full">
-        <label class="flex justify-between pb-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex items-center gap-1" for="git_repo_url" x-data="{tooltip: false }">
-        <span>{{.T.Get "Git repository URL:"}}</span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
-  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
-</svg>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; right: 0;">
-                 {{.T.Get "If set, the app's code is re-fetched from this repository and reset to its latest commit on every restart, before install/startup runs - any local changes to files in the docroot are overwritten. Clear the field and save to disconnect the repository."}}
-            </div>
-        </span>
-    </label>
+{{- $rt := "" -}}{{- $run := "" -}}{{- $inst := "" -}}
+{{- if eq .Type "nodejs"}}{{$rt = "Node.js"}}{{$run = "node"}}{{$inst = "npm install"}}
+{{- else if eq .Type "python"}}{{$rt = "Python"}}{{$run = "python"}}{{$inst = "pip install -r requirements.txt"}}
+{{- else if eq .Type "ruby"}}{{$rt = "Ruby"}}{{$run = "ruby"}}{{$inst = "bundle install"}}
+{{- else if eq .Type "java"}}{{$rt = "Java"}}{{$run = "java"}}{{$inst = "mvn install"}}{{end}}
+<div class="op-content op-mgr-shell"
+     x-data="{ activeTab: (new URLSearchParams(window.location.search).get('tab') || 'dashboard').replace(/^remove$/, 'dashboard').replace(/^backup$/, 'backups') }"
+     x-init="$watch('activeTab', t => t === 'logs' && window.loadAppLogs && loadAppLogs()); activeTab === 'logs' && setTimeout(() => window.loadAppLogs && loadAppLogs(), 0)">
 
-    <div class="relative w-full mt-2" x-data="{ value: {{toJSON .GitRepoURL}}, error: false }">
-    <input
-    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-    id="git_repo_url" name="git_repo_url" type="text" placeholder="https://github.com/user/repo.git" x-model="value"
-    :class="error ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''"
-    @input="
-        if (value !== '' && !value.startsWith('https://')) {
-        error = true;
-        errorMessage = 'Only https:// URLs are supported';
-        } else {
-        error = false;
-        errorMessage = '';
-        }
-    ">
-    <template x-if="error"><p class="mt-1 text-sm text-red-600 dark:text-red-400" x-text="errorMessage"></p></template>
-    </div>
-    <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "Only public repositories are supported - for a private repo, generate a personal access token and embed it in the URL, e.g."}} <code>https://&lt;token&gt;@github.com/user/repo.git</code></p>
-            </div>
+    <div class="op-wp-tabs-bar op-mgr-nav" x-effect="activeTab; $nextTick(() => { const a = $el.querySelector('.is-active'); if (a && $el.scrollWidth > $el.clientWidth) $el.scrollLeft = a.offsetLeft - 8; })">
+        <ul id="wp-tab" data-tabs-toggle="#wp-tab-content" role="tablist" class="op-wp-tabs">
+            <li role="presentation"><a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true" @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' && 'is-active'" class="op-wp-tab">{{template "op_icon" "layout"}}<span class="op-wp-tab-label">{{.T.Get "Overview"}}</span></a></li>
+            <li role="presentation"><a href="#" id="settings-tab" data-tabs-target="#settings" role="tab" aria-controls="settings" aria-selected="false" @click="activeTab = 'settings'" :class="activeTab === 'settings' && 'is-active'" class="op-wp-tab">{{template "op_icon" "adjustments"}}<span class="op-wp-tab-label">{{.T.Get "Settings"}}</span></a></li>
+            <li role="presentation"><a href="#pip" id="pip-tab" data-tabs-target="#pip" role="tab" aria-controls="pip" aria-selected="false" @click="activeTab = 'pip'" :class="activeTab === 'pip' && 'is-active'" class="op-wp-tab">{{template "op_icon" "box"}}<span class="op-wp-tab-label">{{.Manifest.File}}</span></a></li>
+            <li role="presentation"><a href="#envvars" id="envvars-tab" data-tabs-target="#envvars" role="tab" aria-controls="envvars" aria-selected="false" @click="activeTab = 'envvars'" :class="activeTab === 'envvars' && 'is-active'" class="op-wp-tab">{{template "op_icon" "listdetails"}}<span class="op-wp-tab-label">{{.T.Get "Environment"}}</span></a></li>
+            <li role="presentation"><a href="#logs" id="logs-tab" data-tabs-target="#logs" role="tab" aria-controls="logs" aria-selected="false" @click="activeTab = 'logs'" :class="activeTab === 'logs' && 'is-active'" class="op-wp-tab">{{template "op_icon" "terminal"}}<span class="op-wp-tab-label">{{.T.Get "Logs"}}</span></a></li>
+            <li role="presentation"><a href="#clone" id="clone-tab" data-tabs-target="#clone" role="tab" aria-controls="clone" aria-selected="false" @click="activeTab = 'clone'" :class="activeTab === 'clone' && 'is-active'" class="op-wp-tab">{{template "op_icon" "copy"}}<span class="op-wp-tab-label">{{.T.Get "Clone"}}</span></a></li>
+            <li role="presentation"><a href="#backups" id="backups-tab" data-tabs-target="#backups" role="tab" aria-controls="backups" aria-selected="false" @click="activeTab = 'backups'" :class="activeTab === 'backups' && 'is-active'" class="op-wp-tab">{{template "op_icon" "archive"}}<span class="op-wp-tab-label">{{.T.Get "Backups"}}</span></a></li>
+            {{if .UserAllowed.malware_scan}}
+            <li role="presentation"><a href="#" id="security-tab" data-tabs-target="#security" role="tab" aria-controls="security" aria-selected="false" @click="activeTab = 'security'" :class="activeTab === 'security' && 'is-active'" class="op-wp-tab">{{template "op_icon" "shield"}}<span class="op-wp-tab-label">{{.T.Get "Security"}}</span></a></li>
             {{end}}
-
-            <div class="col-span-full">
-        <label class="flex justify-between pb-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex items-center gap-1" for="workdir" x-data="{tooltip: false }">
-        <span>{{.T.Get "Work dir:"}}<span class="text-red-500 dark:text-red-500">*</span></span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
-  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
-</svg>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; right: 0;">
-                 {{.T.Get "Set the working directory inside which packages are installed with command:"}}
-                 <br>
-                 {{if eq .Type "nodejs"}}npm{{else if eq .Type "python"}}pip{{else if eq .Type "ruby"}}bundle{{else if eq .Type "java"}}mvn{{end}} {{.T.Get "install"}}
-            </div>
-        </span>
-    </label>
-
-    <div class="relative w-full mt-2" x-data="{ value: {{toJSON .Workdir}}, error: false }">
-    <input
-    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-    required id="workdir" name="workdir" type="text" x-model="value"
-    :class="error ? 'border-red-500 focus:border-red-500 focus:ring-red-200' : ''"
-    @input="
-        if (!value.startsWith('/var/www/html/')) {
-        error = true;
-        errorMessage = 'Path must start with /var/www/html/';
-        } else if (value.includes('../')) {
-        error = true;
-        errorMessage = 'Path traversal (../) is not allowed';
-        } else {
-        error = false;
-        errorMessage = '';
-        }
-    ">
-    <template x-if="error"><p class="mt-1 text-sm text-red-600 dark:text-red-400" x-text="errorMessage"></p></template>
+        </ul>
     </div>
-            </div>
 
-<div class="col-span-full">
-        <label class="flex justify-between pb-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex items-center gap-1" for="requirements" x-data="{tooltip: false }">
-        <span>{{.T.Get "Install packages before startup:"}}</span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
-  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
-</svg>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; right: 0;">
-                 {{.T.Get "If enabled, this command is executed before the custom startup command or startup file:"}}
-                 <br>
-                 {{if eq .Type "nodejs"}}npm{{else if eq .Type "python"}}pip{{else if eq .Type "ruby"}}bundle{{else if eq .Type "java"}}mvn{{end}} {{.T.Get "install"}} {{if eq .Type "python"}}-r requirements.txt{{end}}
-            </div>
-        </span>
-    </label>
+    <div id="wp-tab-content" class="op-mgr-body">
 
-    <div class="relative w-full mt-2">
-    <select id="requirements" name="requirements" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 data-[placeholder]:text-gray-500 data-[placeholder]:dark:text-gray-500 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 data-[disabled]:bg-gray-100 data-[disabled]:text-gray-400 data-[disabled]:dark:border-gray-700 data-[disabled]:dark:bg-gray-800 data-[disabled]:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2">
-    <option value="1" {{if .RequirementsSelected}}selected{{end}}>{{$.T.Get "Yes"}}</option>
-    <option value="" {{if not .RequirementsSelected}}selected{{end}}>{{$.T.Get "No"}}</option>
-    </select>
-                        </div>
-</div>
-
+        {{if .UserAllowed.malware_scan}}
+        <div class="hidden op-wp-panel" id="security" role="tabpanel" aria-labelledby="security-tab">
+            {{template "malware_scan_panel" .}}
         </div>
-    </div>
-    </div>
+        {{end}}
 
-    <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+        <div class="hidden op-wp-panel" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
 
-    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
-    <div>
-        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Version:"}}</h2>
-        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Change version, make sure to restart the application afterward by stopping and starting it."}}</p>
-    </div>
-    <div class="sm:max-w-3xl md:col-span-2">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-            <div class="col-span-full">
-        <label class="flex justify-between pb-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex items-center gap-1" for="version" x-data="{tooltip: false }">
-        <span>{{.T.Get "Version:"}}<span class="text-red-500 dark:text-red-500">*</span></span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
-  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
-</svg>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; right: 0;">
-                 {{.T.Get "Select"}} {{if eq .Type "nodejs"}}NodeJS{{else if eq .Type "python"}}Python{{else if eq .Type "ruby"}}Ruby{{else if eq .Type "java"}}Java{{end}} {{.T.Get "version to use for the application."}}
-            </div>
-        </span>
-    </label>
-
-                <div class="relative w-full mt-2">
-    <select name="version" id="version" required class="peer w-full cursor-pointer appearance-none truncate rounded border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
-    </select>
-
-    <script>
-    function updateVersionOptions() {
-    const versionSelect = document.getElementById('version');
-    const currentVersion = {{toJSON .CurrentVersion}};
-    const type = {{toJSON .Type}};
-    const versionI18n = { error: {{toJSON (.T.Get "Error")}} };
-
-    versionSelect.innerHTML = '<option>{{.T.Get "Loading versions..."}}</option>';
-
-    fetch(`/docker/tags/${type}`)
-        .then(response => response.json())
-        .then(data => {
-            versionSelect.innerHTML = '';
-
-            if (data.error) {
-                const option = document.createElement('option');
-                option.value = "";
-                option.textContent = data.error;
-                versionSelect.appendChild(option);
-                return;
-            }
-
-            const versions = data.map(item => item.latest).filter(v => v);
-
-            versions.forEach(version => {
-                const option = document.createElement('option');
-                option.value = version;
-
-                if (version === currentVersion) {
-                    option.textContent = `${version} (Current)`;
-                    option.selected = true;
-                } else {
-                    option.textContent = version;
-                }
-
-                versionSelect.appendChild(option);
-            });
-        })
-        .catch(error => {
-            versionSelect.innerHTML = '';
-            const option = document.createElement('option');
-            option.value = "";
-            option.textContent = `${versionI18n.error}: ${error.message}`;
-            versionSelect.appendChild(option);
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', updateVersionOptions);
-    </script>
-                        </div>
-            </div>
-        </div>
-    </div>
-    </div>
-
-    <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
-
-    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
-    <div>
-        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Resource limits"}}</h2>
-        <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Limit CPU and Memory available to the container."}}</p>
-    </div>
-    <div class="sm:max-w-3xl md:col-span-2">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-            <div class="col-span-full">
-        <label class="flex justify-between pb-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex items-center gap-1" for="cpu" x-data="{tooltip: false }">
-        <span>{{.T.Get "CPU (cores):"}}<span class="text-red-500 dark:text-red-500">*</span></span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
-  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
-</svg>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; right: 0;">
-                 {{.T.Get "Set max number of CPU cores to allocate for this service."}}
-            </div>
-        </span>
-    </label>
-
-                <div class="relative w-full mt-2"><input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-                        required id="cpu" name="cpu" type="number" min="0.10" step=".01" value="{{.CPU}}"></div>
-            </div>
-            <div class="col-span-full">
-        <label class="flex justify-between pb-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex items-center gap-1" for="ram" x-data="{tooltip: false }">
-        <span>{{.T.Get "Memory (GB):"}}<span class="text-red-500 dark:text-red-500">*</span></span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
-  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
-</svg>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; right: 0;">
-                 {{.T.Get "Set max size in GB for Memory to allocate for this service."}}
-            </div>
-        </span>
-    </label>
-
-                <div class="relative w-full mt-2"><input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-                        required id="ram" name="ram" type="number" min="0.10" step=".01" value="{{.RAM}}"></div>
+            <div class="op-mgr-meters" aria-label="{{.T.Get "Resource use"}}">
+                {{template "op_rt_usage" .}}
+                <div class="op-kpi"><span class="op-kpi-label">{{template "op_icon" "folder"}} {{.T.Get "Folder size"}}</span><span class="op-kpi-value" id="filesSize">–</span><span class="op-kpi-note">{{.Docroot}}</span></div>
             </div>
 
-            <div class="col-span-full">
-        <label class="flex justify-between pb-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex items-center gap-1" for="pids" x-data="{tooltip: false }">
-        <span>{{.T.Get "PIDs:"}}<span class="text-red-500 dark:text-red-500">*</span></span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
-  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-  <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
-</svg>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; right: 0;">
-                 {{.T.Get "Set total of PIDs allowed for the application."}}
-            </div>
-        </span>
-    </label>
+            <section class="op-card">
+                <div class="op-card-head"><h2>{{.T.Get "How requests reach the app"}}</h2></div>
+                <div class="op-mgr-flow">
+                    <div class="op-mgr-hop">
+                        <span class="op-label">{{template "op_icon" "globe"}} {{.T.Get "Domain"}}</span>
+                        <b>{{.CurrentDomain}}</b>
+                        <p class="op-hint">{{if eq .SSLState "valid"}}{{.T.Get "SSL certificate valid until %(date)s" "date" .SSLExpires}}{{else if eq .SSLState "expiring"}}{{.T.Get "SSL certificate expires %(date)s" "date" .SSLExpires}}{{else if eq .SSLState "expired"}}{{.T.Get "SSL certificate expired"}}{{else if eq .SSLState "missing"}}{{.T.Get "SSL is on, the certificate isn't issued yet"}}{{else}}{{.T.Get "Served over plain HTTP"}}{{end}}</p>
+                    </div>
+                    <span class="op-mgr-arrow" aria-hidden="true">{{template "op_icon" "arrowright"}}</span>
+                    <div class="op-mgr-hop">
+                        <span class="op-label">{{template "op_icon" "server"}} {{.T.Get "Web server"}}</span>
+                        <b>{{if .WebServer}}{{title .WebServer}}{{else}}{{.T.Get "Web server"}}{{end}}</b>
+                        <p class="op-hint">{{.T.Get "Proxies every path to the container"}}</p>
+                    </div>
+                    <span class="op-mgr-arrow" aria-hidden="true">{{template "op_icon" "arrowright"}}</span>
+                    <div class="op-mgr-hop">
+                        <span class="op-label">{{template "op_icon" "box"}} {{.T.Get "Container"}}</span>
+                        <b>{{lower .Service}}{{if .Container.Port}}:{{.Container.Port}}{{end}}</b>
+                        <p class="op-hint">{{if .Image}}{{.Image}}{{else}}{{$rt}} {{.Container.Version}}{{end}}</p>
+                    </div>
+                </div>
+                {{if .Container.Port}}<p class="op-hint op-mgr-flow-note">{{.T.Get "Other services in your account reach the app at"}} <span class="op-mono">{{lower .Service}}:{{.Container.Port}}</span>.</p>{{end}}
+            </section>
 
-                <div class="relative w-full mt-2">
-                    <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-                        required id="pids" name="pids" type="number" min="10" max="1000" step="1" value="{{.PIDs}}">
-                        </div>
-            </div>
-
-        </div>
-    </div>
-    </div>
-
-    <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
-
-    <div class="flex justify-end">
-    <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800">{{.T.Get "Save changes"}}</button>
-    </div>
-
-    </form>
-
-    </div>
-
-            </div>
-
-
-                <div class="hidden p-4 rounded" id="pip" role="tabpanel" aria-labelledby="pip-tab">
-
-                <h3 class="font-semibold text-gray-900 dark:text-gray-50 mb-4">
-                    {{if eq .Type "nodejs"}}{{.T.Get "package.json"}}
-                    {{else if eq .Type "python"}}{{.T.Get "requirements.txt"}}
-                    {{else if eq .Type "ruby"}}{{.T.Get "Gemfile"}}
-                    {{else if eq .Type "java"}}{{.T.Get "pom.xml"}}
+            <div class="op-mgr-grid2">
+                <section class="op-card">
+                    <div class="op-card-head">
+                        <h2>{{.T.Get "Files"}}</h2>
+                        {{if .UserAllowed.filemanager}}<a href="/files/{{replace .Docroot "/var/www/html/" ""}}">{{.T.Get "Open in File Manager"}}</a>{{end}}
+                    </div>
+                    <dl class="op-mgr-kv" x-data>
+                        <dt>{{.T.Get "Folder"}}</dt><dd class="op-mono">{{.Docroot}}</dd>
+                        <dd><button type="button" class="op-icon-btn" aria-label="{{.T.Get "Copy folder path"}}" @click="navigator.clipboard && navigator.clipboard.writeText({{toJSON .Docroot}}); showToast({{toJSON (.T.Get "Copied folder path.")}}, 'success')">{{template "op_icon" "copy"}}</button></dd>
+                        <dt>{{.T.Get "Startup file"}}</dt><dd class="op-mono">{{replace .StartupFile (print .Docroot "/") ""}}</dd>
+                        <dd><button type="button" class="op-icon-btn" aria-label="{{.T.Get "Copy startup file path"}}" @click="navigator.clipboard && navigator.clipboard.writeText({{toJSON .StartupFile}}); showToast({{toJSON (.T.Get "Copied startup file path.")}}, 'success')">{{template "op_icon" "copy"}}</button></dd>
+                    </dl>
+                    {{if .Files}}
+                    <ul class="op-mgr-files">
+                        {{range .Files}}<li class="{{if .Dir}}is-dir{{end}}">{{if .Dir}}{{template "op_icon" "folder"}}{{else}}{{template "op_icon" "file"}}{{end}}<span>{{.Name}}</span><span class="op-mono">{{if .Dir}}{{.Modified}}{{else}}{{.Size}}{{end}}</span></li>{{end}}
+                    </ul>
+                    {{if .HiddenFiles}}<p class="op-hint">{{.T.Get "%(n)s hidden files not shown" "n" (toString .HiddenFiles)}}</p>{{end}}
+                    {{else}}
+                    <p class="op-hint">{{.T.Get "The folder is empty."}}</p>
                     {{end}}
-                        {{.T.Get "file content:"}}</h3>
+                    {{if or .UserAllowed.disk_usage .UserAllowed.inodes .UserAllowed.ftp}}
+                    <div class="op-mgr-links">
+                        {{if .UserAllowed.disk_usage}}<a class="op-btn op-btn-secondary op-btn-sm" href="{{.DiskUsageHref}}">{{template "op_icon" "chartpie"}} {{.T.Get "Disk Usage"}}</a>{{end}}
+                        {{if .UserAllowed.inodes}}<a class="op-btn op-btn-secondary op-btn-sm" href="{{.InodesExplorerHref}}">{{template "op_icon" "file"}} {{.T.Get "Inodes Explorer"}}</a>{{end}}
+                        {{if .UserAllowed.ftp}}<a class="op-btn op-btn-secondary op-btn-sm" href="/ftp">{{template "op_icon" "ftp"}} {{.T.Get "FTP Accounts"}}</a>{{end}}
+                    </div>
+                    {{end}}
+                </section>
 
-    <script>
-    document.querySelector('html').addEventListener('click', function(e) {
-    if (!e.target.closest('#pip-tab')) return;
+                <section class="op-card">
+                    <div class="op-card-head">
+                        <h2>{{.T.Get "Latest log lines"}}</h2>
+                        <a href="?domain={{.CurrentDomain}}&tab=logs" @click.prevent="document.getElementById('logs-tab').click()">{{.T.Get "All logs"}}</a>
+                    </div>
+                    <pre class="op-mgr-mini" id="op-rt-tail">{{.T.Get "Loading..."}}</pre>
+                </section>
+            </div>
 
-    const workdir = {{toJSON .Workdir}};
-    const docroot = encodeURIComponent(
-        workdir || {{toJSON (replace .Docroot "/var/www/html/" "")}}
-    );
+            <div class="op-mgr-side3">
+                {{template "waf_panel" .}}
+                {{template "visitors" .}}
+                <section class="op-card">
+                    <div class="op-card-head"><h2>{{.T.Get "Created"}}</h2></div>
+                    <b class="op-kpi-value" id="created_date" data-relative-date="{{.Container.CreatedDate}}">{{.Container.CreatedDate}}</b>
+                    <p class="op-mono op-hint">{{replace (replace .Container.CreatedDate "T" " ") "Z" " UTC"}}</p>
+                </section>
+            </div>
+        </div>
 
-    const type = {{toJSON .Type}};
+        <div class="hidden op-wp-panel" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+            <form action="/pm2/update/{{.Service}}" method="POST" class="op-mgr-form"
+                  x-data="{ startup: {{toJSON .StartupFile}}, custom: {{toJSON .CustomCmd}}, workdir: {{toJSON .Workdir}}, git: {{toJSON .GitRepoURL}}, req: {{if .RequirementsSelected}}true{{else}}false{{end}},
+                            ext: {{if eq .Type "nodejs"}}'js'{{else if eq .Type "python"}}'py'{{else if eq .Type "ruby"}}'rb'{{else if eq .Type "java"}}'java'{{else}}''{{end}},
+                            get startupErr() { const v = this.startup; if (!v.startsWith('/var/www/html/')) return {{toJSON (.T.Get "Path must start with /var/www/html/")}}; if (v.includes('../')) return {{toJSON (.T.Get "Path traversal (../) is not allowed")}}; if (this.ext && !v.endsWith('.' + this.ext)) return {{toJSON (.T.Get "Startup file needs to be a .%(ext)s file")}}.replace('%(ext)s', this.ext); return ''; },
+                            get customErr() { return this.custom.includes('..') ? {{toJSON (.T.Get "Path traversal (..) is not allowed")}} : ''; },
+                            get workdirErr() { const v = this.workdir; if (!v.startsWith('/var/www/html/')) return {{toJSON (.T.Get "Path must start with /var/www/html/")}}; if (v.includes('../')) return {{toJSON (.T.Get "Path traversal (../) is not allowed")}}; return ''; },
+                            get gitErr() { return this.git !== '' && !this.git.startsWith('https://') ? {{toJSON (.T.Get "Only https:// URLs are supported")}} : ''; },
+                            get runs() { return (this.req ? {{toJSON $inst}} + ' && ' : '') + (this.custom.trim() || {{toJSON $run}} + ' ' + this.startup); } }"
+                  @submit="if (startupErr || customErr || workdirErr || gitErr) { $event.preventDefault(); showToast({{toJSON (.T.Get "Fix the highlighted fields first.")}}, 'error'); }">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input type="hidden" name="requirements" :value="req ? '1' : ''" value="{{if .RequirementsSelected}}1{{end}}">
 
-    let filename = "requirements.txt";
-    if (type === "nodejs") {
-        filename = "package.json";
-    } else if (type === "ruby") {
-        filename = "Gemfile";
-    } else if (type === "java") {
-        filename = "pom.xml";
-    }
+                <div class="op-card-head"><h2>{{.T.Get "Settings"}}</h2><span class="op-hint">{{.T.Get "Saved to the app's service in docker-compose.yml and .env"}}</span></div>
 
-    const url = `/file-manager/view-file/${docroot}/${filename}`;
+                <div class="op-mgr-sec">
+                    <div><h3>{{.T.Get "Startup"}}</h3><p class="op-hint">{{.T.Get "Which file starts the app, and whether packages are installed first."}}</p></div>
+                    <div class="op-mgr-fields">
+                        <div class="op-field">
+                            <label class="op-label" for="startup_file">{{.T.Get "Startup file"}}</label>
+                            <input class="op-input op-mono" required id="startup_file" name="startup_file" type="text" x-model="startup" :class="startupErr && 'is-invalid'">
+                            <p class="op-hint" x-show="!startupErr">{{.T.Get "Run with %(cmd)s when no custom command is set." "cmd" $run}}</p>
+                            <p class="op-hint is-danger" x-show="startupErr" x-text="startupErr" x-cloak></p>
+                        </div>
+                        <div class="op-field">
+                            <label class="op-label" for="custom_cmd">{{.T.Get "Custom startup command"}} <span class="op-muted">{{.T.Get "optional"}}</span></label>
+                            <input class="op-input op-mono" id="custom_cmd" name="custom_cmd" type="text" x-model="custom" placeholder="{{$run}} {{replace .StartupFile (print .Docroot "/") ""}}" :class="customErr && 'is-invalid'">
+                            <p class="op-hint" x-show="!customErr">{{.T.Get "Used instead of the default, with any flags you need."}}</p>
+                            <p class="op-hint is-danger" x-show="customErr" x-text="customErr" x-cloak></p>
+                        </div>
+                        <div class="op-field">
+                            <label class="op-label" for="workdir">{{.T.Get "Work dir"}}</label>
+                            <input class="op-input op-mono" required id="workdir" name="workdir" type="text" x-model="workdir" :class="workdirErr && 'is-invalid'">
+                            <p class="op-hint" x-show="!workdirErr">{{.T.Get "Packages are installed here with %(cmd)s." "cmd" $inst}}</p>
+                            <p class="op-hint is-danger" x-show="workdirErr" x-text="workdirErr" x-cloak></p>
+                        </div>
+                        <label class="op-check-row op-switch-row">
+                            <span><b>{{.T.Get "Install packages before startup"}}</b><p>{{.T.Get "Runs %(cmd)s before the startup command." "cmd" $inst}}</p></span>
+                            <input type="checkbox" role="switch" x-model="req" aria-label="{{.T.Get "Install packages before startup"}}">
+                        </label>
+                        <div class="op-field">
+                            <span class="op-label">{{.T.Get "Runs on start"}}</span>
+                            <code class="op-mgr-preview" x-text="runs"></code>
+                        </div>
+                    </div>
+                </div>
 
-    fetch(url)
-        .then(res => res.text())
-        .then(data => {
-            const isHTML = /<[^>]+>/.test(data);
-            if (isHTML) {
-                document.getElementById('requirements_file').textContent = `/var/www/html/${decodeURIComponent(docroot)}/${filename} does not exist.`;
-            } else {
-                document.getElementById('requirements_file').textContent = data;
-            }
-        })
-        .catch(function() {
-            document.getElementById('requirements_file').textContent = `/var/www/html/${decodeURIComponent(docroot)}/${filename} does not exist.`;
-            console.error(`Failed to fetch ${filename}`);
-        });
-    });
-    </script>
+                {{if .UserAllowed.git}}
+                <div class="op-mgr-sec">
+                    <div><h3>{{.T.Get "Git deploy"}}</h3><p class="op-hint">{{.T.Get "Re-fetch the code from a repository on every restart."}}</p></div>
+                    <div class="op-mgr-fields">
+                        <div class="op-field">
+                            <label class="op-label" for="git_repo_url">{{.T.Get "Git repository URL"}} <span class="op-muted">{{.T.Get "optional"}}</span></label>
+                            <input class="op-input op-mono" id="git_repo_url" name="git_repo_url" type="text" placeholder="https://github.com/user/repo.git" x-model="git" :class="gitErr && 'is-invalid'">
+                            <p class="op-hint is-danger" x-show="gitErr" x-text="gitErr" x-cloak></p>
+                            <p class="op-hint">{{.T.Get "On every restart the code is reset to the latest commit, before install and startup run. Local changes in the folder are overwritten. Only public repositories work; for a private one, put a personal access token in the URL. Clear the field to disconnect."}}</p>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
 
-    <pre id="requirements_file">
-    </pre>
+                <div class="op-mgr-sec">
+                    <div><h3>{{.T.Get "Version"}}</h3><p class="op-hint">{{.T.Get "Restart the app after changing the %(rt)s version." "rt" $rt}}</p></div>
+                    <div class="op-mgr-fields">
+                        <div class="op-field">
+                            <label class="op-label" for="version">{{.T.Get "%(rt)s version" "rt" $rt}}</label>
+                            <select name="version" id="version" required class="op-select op-mono"></select>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="w-full flex space-x-2">
-    {{if eq .Type "nodejs"}}
-    <button type="button" data-pm="npm" class="install-btn relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "NPM install"}}</button>
-    <button type="button" data-pm="pnpm" class="install-btn relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "PNPM install"}}</button>
-    {{else if eq .Type "python"}}
-    <button type="button" data-pm="pip" class="install-btn relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "PIP install"}}</button>
-    {{else if eq .Type "ruby"}}
-    <button type="button" data-pm="bundle" class="install-btn relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Bundle install"}}</button>
-    {{else if eq .Type "java"}}
-    <button type="button" data-pm="mvn" class="install-btn relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Maven install"}}</button>
-    {{end}}
+                <div class="op-mgr-sec">
+                    <div><h3>{{.T.Get "Resource limits"}}</h3><p class="op-hint">{{.T.Get "CPU, memory and processes this container can use."}}</p></div>
+                    <div class="op-mgr-fields is-3">
+                        <div class="op-field"><label class="op-label" for="cpu">{{.T.Get "CPU (cores)"}}</label><input class="op-input op-mono" required id="cpu" name="cpu" type="number" min="0.10" step=".01" value="{{.CPU}}"></div>
+                        <div class="op-field"><label class="op-label" for="ram">{{.T.Get "Memory (GB)"}}</label><input class="op-input op-mono" required id="ram" name="ram" type="number" min="0.10" step=".01" value="{{.RAM}}"></div>
+                        <div class="op-field"><label class="op-label" for="pids">{{.T.Get "PIDs"}}</label><input class="op-input op-mono" required id="pids" name="pids" type="number" min="10" max="1000" step="1" value="{{.PIDs}}"><p class="op-hint">{{.T.Get "10 to 1000"}}</p></div>
+                    </div>
+                </div>
 
-    <a href="/file-manager/edit-file/{{replace .Workdir "/var/www/html/" ""}}/{{if eq .Type "nodejs"}}{{.T.Get "package.json"}}{{else if eq .Type "python"}}{{.T.Get "requirements.txt"}}{{else if eq .Type "ruby"}}{{.T.Get "Gemfile"}}{{else if eq .Type "java"}}{{.T.Get "pom.xml"}}{{end}}?new=true" target="_blank" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-0.5 whitespace-nowrap sm:mt-0" id="npm-edit-link">{{.T.Get "Edit file"}}</a>
-    </div>
+                <div class="op-mgr-foot">
+                    <span class="op-hint">{{.T.Get "Restart the application to apply the changes."}}</span>
+                    <button type="submit" class="op-btn op-btn-primary">{{.T.Get "Save changes"}}</button>
+                </div>
+            </form>
+
+            <script>
+            (function () {
+                const versionSelect = document.getElementById('version');
+                const currentVersion = {{toJSON .CurrentVersion}};
+                const loading = document.createElement('option');
+                loading.textContent = {{toJSON (.T.Get "Loading versions...")}};
+                versionSelect.appendChild(loading);
+                fetch('/docker/tags/' + encodeURIComponent({{toJSON .Type}}))
+                    .then(r => r.json())
+                    .then(data => {
+                        versionSelect.innerHTML = '';
+                        if (data.error) {
+                            const o = document.createElement('option'); o.value = ''; o.textContent = data.error; versionSelect.appendChild(o);
+                            return;
+                        }
+                        const versions = data.map(item => item.latest).filter(v => v);
+                        if (currentVersion && !versions.includes(currentVersion)) versions.unshift(currentVersion);
+                        versions.forEach(v => {
+                            const o = document.createElement('option');
+                            o.value = v;
+                            o.textContent = v === currentVersion ? v + ' ' + {{toJSON (.T.Get "(current)")}} : v;
+                            o.selected = v === currentVersion;
+                            versionSelect.appendChild(o);
+                        });
+                    })
+                    .catch(err => {
+                        versionSelect.innerHTML = '';
+                        const o = document.createElement('option'); o.value = currentVersion || ''; o.textContent = currentVersion || ({{toJSON (.T.Get "Error")}} + ': ' + err.message); versionSelect.appendChild(o);
+                    });
+            })();
+            </script>
+        </div>
+
+                <div class="hidden op-wp-panel" id="pip" role="tabpanel" aria-labelledby="pip-tab">
+
+                <div class="op-card-head op-rt-pkg-head">
+                    <div><h2 class="op-mono">{{.Manifest.File}}</h2><span class="op-hint op-mono">{{.Manifest.Path}}</span></div>
+                    <div class="op-actions">
+                        {{if eq .Type "nodejs"}}
+                        <button type="button" data-pm="npm" class="op-btn op-btn-primary op-btn-sm install-btn">{{.T.Get "NPM install"}}</button>
+                        <button type="button" data-pm="pnpm" class="op-btn op-btn-secondary op-btn-sm install-btn">{{.T.Get "PNPM install"}}</button>
+                        {{else if eq .Type "python"}}
+                        <button type="button" data-pm="pip" class="op-btn op-btn-primary op-btn-sm install-btn">{{.T.Get "PIP install"}}</button>
+                        {{else if eq .Type "ruby"}}
+                        <button type="button" data-pm="bundle" class="op-btn op-btn-primary op-btn-sm install-btn">{{.T.Get "Bundle install"}}</button>
+                        {{else if eq .Type "java"}}
+                        <button type="button" data-pm="mvn" class="op-btn op-btn-primary op-btn-sm install-btn">{{.T.Get "Maven install"}}</button>
+                        {{end}}
+                        {{if .UserAllowed.filemanager}}<a href="/file-manager/edit-file/{{replace .Manifest.Path "/var/www/html/" ""}}?new=true" target="_blank" class="op-btn op-btn-ghost op-btn-sm" id="npm-edit-link">{{template "op_icon" "pencil"}} {{.T.Get "Edit file"}}</a>{{end}}
+                    </div>
+                </div>
+                {{if not .Manifest.Found}}
+                <p class="op-meta">{{.T.Get "%(file)s was not found in the app folder." "file" .Manifest.Path}}</p>
+                {{else}}
+                <div class="op-rt-pkg">
+                    <div class="op-col">
+                        {{range .Manifest.Groups}}
+                        <div class="op-table-wrap">
+                            <table class="op-table is-plain op-rt-deps">
+                                <thead><tr><th>{{$.T.Get .Title}}</th><th>{{$.T.Get .ValueLabel}}</th>{{if .HasInstalled}}<th>{{$.T.Get "Installed"}}</th>{{end}}</tr></thead>
+                                <tbody>
+                                    {{$inst := .HasInstalled}}
+                                    {{range .Rows}}<tr><td class="op-mono">{{.Name}}</td><td class="op-mono">{{.Value}}</td>{{if $inst}}<td class="op-mono">{{if .Installed}}{{.Installed}}{{else}}<span class="op-muted">{{$.T.Get "not installed"}}</span>{{end}}</td>{{end}}</tr>{{end}}
+                                </tbody>
+                            </table>
+                        </div>
+                        {{else}}
+                        <p class="op-meta">{{.T.Get "No packages listed in this file."}}</p>
+                        {{end}}
+                    </div>
+                    <pre class="op-pre op-rt-manifest" id="requirements_file">{{.Manifest.Text}}</pre>
+                </div>
+                {{end}}
 
     <div id="installPIPModal">
     <div class="modal-body"></div>
@@ -823,90 +424,90 @@
 
                 </div>
 
-                <div class="hidden p-4 rounded" id="envvars" role="tabpanel" aria-labelledby="envvars-tab">
-                    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div class="hidden op-wp-panel" id="envvars" role="tabpanel" aria-labelledby="envvars-tab">
+                    <div class="op-section">
                         <div>
-                            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Environment Variables"}}</h2>
-                            <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Custom environment variables passed to the application's container, one KEY=VALUE per line."}}</p>
+                            <h2 class="op-h">{{.T.Get "Environment Variables"}}</h2>
+                            <p class="op-meta">{{.T.Get "Custom environment variables passed to the application's container, one KEY=VALUE per line."}}</p>
                         </div>
-                        <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="op-section-body">
                             <form action="/pm2/envvars/{{.Service}}" method="POST">
                                 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-                                <textarea name="env_vars" rows="10" placeholder="API_KEY=changeme&#10;DATABASE_URL=postgres://user:pass@host/db" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 font-mono">{{.EnvVars}}</textarea>
-                                <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "Restart the application from the Overview tab after saving for changes to take effect."}}</p>
-                                <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 w-100">{{.T.Get "Save Environment Variables"}}</button>
+                                <textarea name="env_vars" rows="10" placeholder="API_KEY=changeme&#10;DATABASE_URL=postgres://user:pass@host/db" class="op-input">{{.EnvVars}}</textarea>
+                                <p class="op-hint">{{.T.Get "Restart the application from the Overview tab after saving for changes to take effect."}}</p>
+                                <button type="submit" class="op-btn op-btn-primary">{{.T.Get "Save Environment Variables"}}</button>
                             </form>
                         </div>
                     </div>
                 </div>
 
-                <div class="hidden p-4 rounded" id="clone" role="tabpanel" aria-labelledby="clone-tab">
+                <div class="hidden op-wp-panel" id="clone" role="tabpanel" aria-labelledby="clone-tab">
 
-                    <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Clone this application's files and settings onto a new domain - useful for quick staging copies."}}</p>
+                    <p class="op-meta">{{.T.Get "Clone this application's files and settings onto a new domain - useful for quick staging copies."}}</p>
 
                     <form id="pm2-CloneForm">
                         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
-                        <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+                        <div class="op-sep"><div class="op-divider"></div></div>
 
-                        <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                        <div class="op-section">
                             <div>
-                                <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Location"}}</h2>
-                                <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Please choose the URL to install the clone on"}}</p>
+                                <h2 class="op-h">{{.T.Get "Location"}}</h2>
+                                <p class="op-meta">{{.T.Get "Please choose the URL to install the clone on"}}</p>
                             </div>
-                            <div class="sm:max-w-3xl md:col-span-2">
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                                    <div class="col-span-full">
-                                        <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="pm2-target_domain_id">{{.T.Get "Target"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-                                        <div class="relative w-full mt-2">
+                            <div class="op-section-body">
+                                <div class="op-form-grid">
+                                    <div class="op-field-wrap">
+                                        <label class="op-label" for="pm2-target_domain_id">{{.T.Get "Target"}}<span class="is-danger">*</span></label>
+                                        <div class="op-field-ctl">
                                             <div class="flex">
-                                                <select class="peer w-full cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" name="target_domain_id" id="pm2-target_domain_id">
+                                                <select class="op-input" name="target_domain_id" id="pm2-target_domain_id">
                                                     <option selected disabled value="">{{.T.Get "Select a domain"}}</option>
                                                     {{range .Domains}}
                                                         <option class="punycode" value="{{.DomainID}}">{{.DomainURL}}</option>
                                                     {{end}}
                                                 </select>
                                                 <div class="input-group-append flex">
-                                                    <input type="text" name="target_subdirectory" id="pm2-target_subdirectory" placeholder="{{.T.Get "subfolder"}}" class="relative block w-full appearance-none rounded-r-md border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                                                    <input type="text" name="target_subdirectory" id="pm2-target_subdirectory" placeholder="{{.T.Get "subfolder"}}" class="op-input op-join-r">
                                                 </div>
                                             </div>
-                                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "Make sure the target domain/subfolder isn't already used by another site - existing files there may be overwritten."}}</p>
+                                            <p class="op-hint">{{.T.Get "Make sure the target domain/subfolder isn't already used by another site - existing files there may be overwritten."}}</p>
                                         </div>
                                     </div>
-                                    <div class="col-span-full">
-                                        <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="pm2-target_service_name">{{.T.Get "Service Name"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-                                        <div class="relative w-full mt-2">
-                                            <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="pm2-target_service_name" name="target_service_name" type="text" placeholder="{{.Service}}-clone" />
+                                    <div class="op-field-wrap">
+                                        <label class="op-label" for="pm2-target_service_name">{{.T.Get "Service Name"}}<span class="is-danger">*</span></label>
+                                        <div class="op-field-ctl">
+                                            <input class="op-input" id="pm2-target_service_name" name="target_service_name" type="text" placeholder="{{.Service}}-clone" />
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+                        <div class="op-sep"><div class="op-divider"></div></div>
 
-                        <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                        <div class="op-section">
                             <div>
-                                <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Startup"}}</h2>
-                                <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Version, requirements, and resource limits are carried over from this application automatically."}}</p>
+                                <h2 class="op-h">{{.T.Get "Startup"}}</h2>
+                                <p class="op-meta">{{.T.Get "Version, requirements, and resource limits are carried over from this application automatically."}}</p>
                             </div>
-                            <div class="sm:max-w-3xl md:col-span-2">
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                                    <div class="col-span-full">
-                                        <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="pm2-clone_startup_file">{{.T.Get "Startup File"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-                                        <div class="relative w-full mt-2">
-                                            <input class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="pm2-clone_startup_file" name="startup_file" type="text" value="{{.StartupFile}}" />
-                                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "Prefilled from this application - update the domain portion of the path to match the target above."}}</p>
+                            <div class="op-section-body">
+                                <div class="op-form-grid">
+                                    <div class="op-field-wrap">
+                                        <label class="op-label" for="pm2-clone_startup_file">{{.T.Get "Startup File"}}<span class="is-danger">*</span></label>
+                                        <div class="op-field-ctl">
+                                            <input class="op-input" id="pm2-clone_startup_file" name="startup_file" type="text" value="{{.StartupFile}}" />
+                                            <p class="op-hint">{{.T.Get "Prefilled from this application - update the domain portion of the path to match the target above."}}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+                        <div class="op-sep"><div class="op-divider"></div></div>
 
-                        <div class="flex items-center justify-end space-x-4">
-                            <button type="button" id="pm2-startCloneBtn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">{{.T.Get "Clone Application"}}</button>
+                        <div class="op-actions op-actions-end">
+                            <button type="button" id="pm2-startCloneBtn" class="op-btn op-btn-primary">{{.T.Get "Clone Application"}}</button>
                         </div>
                     </form>
 
@@ -973,42 +574,42 @@
 
                 </div>
 
-                <div class="hidden p-4 rounded" id="backup" role="tabpanel" aria-labelledby="backup-tab">
+                <div class="hidden op-wp-panel" id="backups" role="tabpanel" aria-labelledby="backups-tab">
 
-                    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div class="op-section">
                         <div>
-                            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Create a Backup"}}</h2>
-                            <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Archives the app's files, and records its current version/requirements/startup command/resource limits and environment variables."}}</p>
+                            <h2 class="op-h">{{.T.Get "Create a Backup"}}</h2>
+                            <p class="op-meta">{{.T.Get "Archives the app's files, and records its current version/requirements/startup command/resource limits and environment variables."}}</p>
                         </div>
-                        <div class="sm:max-w-3xl md:col-span-2">
-                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                                <div class="col-span-full">
-                                    <button id="pm2-runBackup" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">{{.T.Get "Generate Backup"}}</button>
+                        <div class="op-section-body">
+                            <div class="op-form-grid">
+                                <div class="op-field-wrap">
+                                    <button id="pm2-runBackup" type="button" class="op-btn op-btn-primary">{{.T.Get "Generate Backup"}}</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div class="whitespace-nowrap text-inherit">{{.T.Get "or"}}</div><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div></div></div>
+                    <div class="op-sep"><div class="op-divider"></div><div class="whitespace-nowrap">{{.T.Get "or"}}</div><div class="op-divider"></div><div></div></div>
 
-                    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div class="op-section">
                         <div>
-                            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Restore from Backups"}}</h2>
-                            <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Restore files and settings from a backup. Every setting is validated before anything is changed."}}</p>
+                            <h2 class="op-h">{{.T.Get "Restore from Backups"}}</h2>
+                            <p class="op-meta">{{.T.Get "Restore files and settings from a backup. Every setting is validated before anything is changed."}}</p>
                         </div>
-                        <div class="sm:max-w-3xl md:col-span-2">
-                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                                <div class="col-span-full">
-                                    <div class="relative w-full mt-2 space-y-2">
-                                        <button id="pm2-restore-btn-or" class="relative items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100" type="button">
+                        <div class="op-section-body">
+                            <div class="op-form-grid">
+                                <div class="op-field-wrap">
+                                    <div class="op-field-ctl op-stack-sm">
+                                        <button id="pm2-restore-btn-or" class="op-btn op-btn-primary" type="button">
                                             {{.T.Get "Display Backups"}}
                                         </button>
 
                                         <div id="pm2-restore-section" class="hidden">
                                             <p>{{.T.Get "Select a backup date:"}}</p>
-                                            <select class="peer w-full cursor-pointer appearance-none truncate rounded border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 hover:bg-gray-50 hover:dark:bg-gray-950/50 disabled:pointer-events-none disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700" id="pm2-restoreBackupDate"></select>
+                                            <select class="op-input" id="pm2-restoreBackupDate"></select>
 
-                                            <button type="button" id="pm2-confirmRestore" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                                            <button type="button" id="pm2-confirmRestore" class="op-btn op-btn-primary">
                                                 {{.T.Get "Start Restore"}}
                                             </button>
                                         </div>
@@ -1080,8 +681,8 @@
                                 confirmRestoreButton.addEventListener("click", function () {
                                     if (!restoreConfirmed) {
                                         confirmRestoreButton.textContent = {{toJSON (.T.Get "Click again to confirm")}};
-                                        confirmRestoreButton.classList.remove("bg-black", "hover:bg-gray-800");
-                                        confirmRestoreButton.classList.add("bg-red-600", "hover:bg-red-700");
+                                        confirmRestoreButton.classList.remove("op-btn-primary");
+                                        confirmRestoreButton.classList.add("op-btn-danger");
                                         restoreConfirmed = true;
                                         return;
                                     }
@@ -1097,8 +698,8 @@
                                             setTimeout(() => {
                                                 restoreConfirmed = false;
                                                 confirmRestoreButton.textContent = {{toJSON (.T.Get "Start Restore")}};
-                                                confirmRestoreButton.classList.remove("bg-red-600", "hover:bg-red-700");
-                                                confirmRestoreButton.classList.add("bg-black", "hover:bg-gray-800");
+                                                confirmRestoreButton.classList.remove("op-btn-danger");
+                                                confirmRestoreButton.classList.add("op-btn-primary");
                                             }, 5000);
                                         })
                                         .catch(error => {
@@ -1112,117 +713,93 @@
 
                 </div>
 
-                <div class="hidden p-4 rounded" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+                <div class="hidden op-wp-panel" id="logs" role="tabpanel" aria-labelledby="logs-tab">
 
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 id="app-log-title" class="font-semibold text-gray-900 dark:text-gray-50">
-                            {{.T.Get "Loading application logs.."}}
-                        </h3>
-                        <div class="flex space-x-2">
-                            <button title="{{.T.Get "Change view"}}"
-                                class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
-                                @click="
-                                    $store.logs.rawMode = !$store.logs.rawMode;
-                                    renderLogs(window.__loadedLogs, $store.logs.rawMode);
-                                "
-                                x-text="$store.logs.rawMode ? {{toJSON (.T.Get "Formatted view")}} : {{toJSON (.T.Get "Raw view")}}">
-                            </button>
-
-                            <button title="{{.T.Get "Copy to clipboard"}}"
-                                class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
-                                @click="copyLogs()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">  <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1z"/><path d="M2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/></svg>
-                            </button>
-
-                            <button title="{{.T.Get "Open log in new tab"}}"
-                                class="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
-                                @click="openLogsInNewTab()">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-up-right" viewBox="0 0 16 16">
-  <path fill-rule="evenodd" d="M14 2.5a.5.5 0 0 0-.5-.5h-6a.5.5 0 0 0 0 1h4.793L2.146 13.146a.5.5 0 0 0 .708.708L13 3.707V8.5a.5.5 0 0 0 1 0z"/>
-</svg>
-                            </button>
+                    <div class="op-card-head op-mgr-loghead">
+                        <h2 id="app-log-title">{{.T.Get "Container log"}} <span class="op-hint op-mono">{{lower .Service}}</span></h2>
+                        <div class="op-actions">
+                            <button type="button" class="op-btn op-btn-sm op-btn-secondary"
+                                @click="$store.logs.rawMode = !$store.logs.rawMode; renderLogs(window.__loadedLogs || '', $store.logs.rawMode);"
+                                x-text="$store.logs.rawMode ? {{toJSON (.T.Get "Formatted view")}} : {{toJSON (.T.Get "Raw view")}}">{{.T.Get "Raw view"}}</button>
+                            <button type="button" class="op-btn op-btn-sm op-btn-secondary" @click="loadAppLogs()">{{template "op_icon" "refresh"}} {{.T.Get "Refresh"}}</button>
+                            <button type="button" class="op-icon-btn" title="{{.T.Get "Copy to clipboard"}}" aria-label="{{.T.Get "Copy to clipboard"}}" @click="copyLogs()">{{template "op_icon" "copy"}}</button>
+                            <button type="button" class="op-icon-btn" title="{{.T.Get "Open log in new tab"}}" aria-label="{{.T.Get "Open log in new tab"}}" @click="openLogsInNewTab()">{{template "op_icon" "external"}}</button>
                         </div>
                     </div>
 
-<style>
-.text-red-900 {color: hsl(358, 66%, 48%)}
-.bg-red-200 { background-color: hsl(0, 100%, 96%)}
-.text-amber-900 { color: hsl(30, 100%, 32%)}
-.bg-amber-200 { background-color: hsl(44, 100%, 92%)}
-</style>
-
-<div id="app-log" class="overflow-y-auto h-72 p-2 rounded border border-dashed border-gray-300 dark:border-gray-800"></div>
+                    <div id="app-log" class="op-mgr-log" tabindex="0"><pre>{{.T.Get "Loading application logs.."}}</pre></div>
 
                     <script>
-                    document.querySelector('html').addEventListener('click', function(e) {
-                        if (!e.target.closest('#logs-tab')) return;
-                        const domain = {{toJSON .Service}};
-
-                        fetch(`/pm2/logs/${encodeURIComponent(domain)}`)
+                    // one request feeds both the Logs tab and the overview's last lines
+                    window.loadAppLogs = function () {
+                        const svc = {{toJSON .Service}};
+                        return fetch(`/pm2/logs/${encodeURIComponent(svc)}`)
                             .then(response => response.text())
                             .then(data => {
-                                const modalTitle = document.getElementById('app-log-title');
-                                const modalBody = document.getElementById('app-log');
                                 window.__loadedLogs = data;
-
-                                modalTitle.textContent = "{{.T.Get "Container log for application:"}} " + domain;
-                                modalBody.innerHTML = '';
-
-                                const rawMode = Alpine.store('logs').rawMode;
-                                renderLogs(data, rawMode);
+                                renderLogs(data, Alpine.store('logs').rawMode);
+                                renderLogTail(data);
                             })
                             .catch(error => {
+                                document.getElementById('app-log').innerHTML = '';
                                 showToast({{toJSON (.T.Get "Error fetching container logs for application.")}}, 'warning');
-                                console.error({{toJSON (.T.Get "Error fetching container logs for application:")}}, error);
+                                console.error(error);
                             });
-                    });
+                    };
+
+                    function parseLogLine(line) {
+                        try {
+                            const j = JSON.parse(line);
+                            if (j && j.log !== undefined) return { time: j.time || '', msg: String(j.log).replace(/\n$/, ''), err: (j.stream || '').toLowerCase() === 'stderr' };
+                        } catch (e) {}
+                        const m = line.match(/^(\d{4}-\d\d-\d\dT[\d:.]+Z?)\s?(.*)$/);
+                        return m ? { time: m[1], msg: m[2], err: false } : { time: '', msg: line, err: false };
+                    }
 
                     function renderLogs(data, rawMode) {
-                        const modalBody = document.getElementById('app-log');
-                        modalBody.innerHTML = '';
-
+                        const box = document.getElementById('app-log');
+                        box.innerHTML = '';
                         const pre = document.createElement('pre');
-
-                        if (rawMode) {
-                            pre.textContent = data;
-                            modalBody.appendChild(pre);
-                            return;
-                        }
-
-                        const lines = data.split('\n');
-
+                        box.appendChild(pre);
+                        if (rawMode) { pre.textContent = data; box.classList.add('is-raw'); return; }
+                        box.classList.remove('is-raw');
+                        const lines = data.split('\n').map(l => l.trim()).filter(Boolean);
+                        if (!lines.length) { pre.textContent = {{toJSON (.T.Get "Nothing logged yet.")}}; return; }
                         lines.forEach(line => {
-                            line = line.trim();
-                            if (!line) return;
-
-                            let isJson = false;
-
-                            try {
-                                const json = JSON.parse(line);
-
-                                if (json.time && json.log) {
-                                    const lineSpan = document.createElement('span');
-                                    lineSpan.textContent = `[${json.time}] `;
-
-                                    const logSpan = document.createElement('span');
-                                    logSpan.textContent = json.log;
-
-                                    if (json.stream?.toLowerCase() === 'stderr') {
-                                        logSpan.classList.add('text-red-900', 'bg-red-200');
-                                    }
-
-                                    lineSpan.appendChild(logSpan);
-                                    pre.appendChild(lineSpan);
-                                    isJson = true;
-                                }
-                            } catch (e) {}
-
-                            if (!isJson) {
-                                pre.appendChild(document.createTextNode(line + '\n'));
+                            const l = parseLogLine(line);
+                            if (l.time) {
+                                const t = document.createElement('span');
+                                t.className = 'op-mgr-log-t';
+                                t.textContent = l.time.replace('T', ' ').replace(/\.\d+Z?$/, '') + ' ';
+                                pre.appendChild(t);
                             }
+                            const msg = document.createElement('span');
+                            if (l.err) msg.className = 'op-log-hl is-danger';
+                            msg.textContent = l.msg + '\n';
+                            pre.appendChild(msg);
                         });
-
-                        modalBody.appendChild(pre);
                     }
+
+                    function renderLogTail(data) {
+                        const tail = document.getElementById('op-rt-tail');
+                        if (!tail) return;
+                        const lines = data.split('\n').map(l => l.trim()).filter(Boolean).slice(-8);
+                        tail.innerHTML = '';
+                        if (!lines.length) { tail.textContent = {{toJSON (.T.Get "Nothing logged yet.")}}; return; }
+                        lines.forEach(line => {
+                            const l = parseLogLine(line);
+                            const t = document.createElement('span');
+                            t.className = 'op-mgr-log-t';
+                            const hm = l.time.match(/T(\d\d:\d\d:\d\d)/);
+                            t.textContent = (hm ? hm[1] : '') + ' ';
+                            const msg = document.createElement('span');
+                            if (l.err) msg.className = 'op-log-hl is-danger';
+                            msg.textContent = l.msg + '\n';
+                            tail.append(t, msg);
+                        });
+                    }
+
+                    document.addEventListener('DOMContentLoaded', () => window.loadAppLogs());
 
 function copyLogs() {
     if (!window.__loadedLogs) return;
@@ -1245,38 +822,7 @@ function openLogsInNewTab() {
                     </script>
                 </div>
 
-                <div class="hidden p-4 rounded" id="remove" role="tabpanel" aria-labelledby="remove-tab">
-
-                    <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
-                        <div>
-                            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Delete"}}</h2>
-                            <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Stops the application, deletes docker container and removes it from Site Manager interface."}}</p>
-                        </div>
-                        <div class="sm:max-w-3xl md:col-span-2">
-                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                                <div class="col-span-full">
-                                    <div class="relative w-full mt-2 space-y-2">
-                                        <button x-show="!open" @click="open = true" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
-                                            <i class="bi bi-trash3 mr-2"></i> {{.T.Get "Delete Application"}}
-                                        </button>
-                                        <div x-show="open">
-                                            <p class="text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Stops the application, deletes docker container and removes it from Site Manager interface."}}</p>
-                                            <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "All website data such as files and database remains."}}</p>
-                                            <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:space-x-2 my-6">
-                                                <button onclick="confirmRemoveforWP({{toJSON .CurrentDomain}})" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 disabled:bg-red-300 disabled:text-white disabled:dark:bg-red-950 disabled:dark:text-red-400 w-100" type="button">
-                                                {{.T.Get "Confirm delete"}}
-                                                </button>
-                                                <button @click="open = false" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100" type="button">
-                                                {{.T.Get "Cancel"}}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                <div class="hidden op-wp-panel" id="remove" role="tabpanel">
             <script>
                 function confirmRemoveforWP(Id) {
                     showToast({{toJSON (.T.Get "Application removal started. Please wait.")}}, 'loading');
@@ -1295,34 +841,8 @@ function openLogsInNewTab() {
                 }
             </script>
 
-                    <p class="text-sm text-gray-500 dark:text-gray-400"></p>
+                    <p class="op-meta"></p>
                 </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="flex flex-col space-y-4 rounded xl:col-span-1">
-
-        {{template "pagespeed_panel" .}}
-
-        {{template "visitors" .}}
-
-        {{template "waf_panel" .}}
-
-        <div class="flex flex-col justify-center overflow-hidden rounded p-0 xl:col-span-1">
-
-        <table class="w-full text-sm">
-            <tbody>
-                <tr>
-                    <td class="relative p-2"><span class="relative font-medium text-slate-500 dark:text-slate-400"><a data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{{.Container.CreatedDate}}"><i class="bi bi-info-circle"></i></a> {{.T.Get "Created"}}</span></td>
-                    <td class="text-end"><b id="created_date" data-relative-date="{{.Container.CreatedDate}}">{{.Container.CreatedDate}}</b></td>
-                </tr>
-            </tbody>
-        </table>
-        </div>
 
     </div>
 </div>
@@ -1378,7 +898,7 @@ document.querySelector('html').addEventListener('click', function(e) {
         modalBody.innerHTML = '';
 
         const pre = document.createElement('pre');
-        pre.classList.add('overflow-auto', 'max-h-64', 'p-4', 'my-4', 'bg-gray-800', 'text-white', 'rounded');
+        pre.classList.add('overflow-auto', 'max-h-64', 'my-4', 'op-pre');
         pre.textContent = data.output || data.error_output || data.message || "";
         modalBody.appendChild(pre);
 

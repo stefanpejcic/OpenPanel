@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -17,8 +18,11 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var websiteBuilderInstallPage = loadPage("manager/websitebuilder_install.html", "domains/_shared.html")
+var websiteBuilderInstallPage = loadPage("manager/_install_wizard.html", "manager/websitebuilder_install.html", "domains/_shared.html")
 var grapesJSEditorFragment = web.MustLoadFragment("manager/grapejs_editor.html")
+
+// builderSubdirRE matches the install wizard's folder rule
+var builderSubdirRE = regexp.MustCompile(`^[a-z0-9._-]+(/[a-z0-9._-]+)*/?$`)
 
 func atoiDefaultWB(s string, def int) int {
 	if v, err := strconv.Atoi(s); err == nil {
@@ -78,6 +82,13 @@ func handleWebsiteBuilderInstall(a *appctx.App, w http.ResponseWriter, r *http.R
 	userWebsites, _ := dashboard.GetUserWebsites(a, ctx, userID)
 
 	if websitesLimit != 0 && len(userWebsites) >= websitesLimit {
+		// the wizard reads the POST as NDJSON, a rendered page would look like a stalled install
+		if r.Method == http.MethodPost {
+			w.Header().Set("Content-Type", "application/x-ndjson")
+			flusher, canFlush := w.(http.Flusher)
+			web.WriteNDJSON(w, flusher, canFlush, map[string]any{"error": "You have reached the maximum number of sites allowed." + plan.UpgradeMessage()})
+			return
+		}
 		web.Flash(a, w, r, "warning", "You have reached the maximum number of sites allowed.")
 	} else if r.Method == http.MethodPost {
 		createHTMLSiteStream(a, w, r)
@@ -125,7 +136,7 @@ func createHTMLSiteStream(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, selectedDomain) {
-		http.Error(w, "You do not own this domain.", http.StatusForbidden)
+		emit(map[string]any{"error": "You do not own this domain."})
 		return
 	}
 
@@ -133,7 +144,7 @@ func createHTMLSiteStream(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	installPath := docroot
 	if subdirectory != "" {
 		subdirectory = strings.ReplaceAll(subdirectory, " ", "")
-		if strings.Contains(subdirectory, "..") || strings.HasPrefix(subdirectory, "/") {
+		if strings.Contains(subdirectory, "..") || strings.HasPrefix(subdirectory, "/") || !builderSubdirRE.MatchString(subdirectory) {
 			emit(map[string]any{"error": "Invalid subdirectory."})
 			return
 		}

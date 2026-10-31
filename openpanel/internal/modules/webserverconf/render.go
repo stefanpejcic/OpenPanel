@@ -8,7 +8,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var webserverConfPage = web.LoadPage("system/apache_nginx_conf_editor.html")
+var webserverConfPage = web.LoadPage("partials/_conf_editor.html", "system/apache_nginx_conf_editor.html")
 
 // WebserverConfPageData is system/apache_nginx_conf_editor.html's template context
 type WebserverConfPageData struct {
@@ -17,11 +17,12 @@ type WebserverConfPageData struct {
 	Path              string
 	CanRestoreDefault bool
 	FileContent       string
+	Summary           ServerSummary
 	// set when a save was rejected, FileContent is then the rejected text
 	TestFailure *testFailure
 }
 
-func renderWebserverConfPage(a *appctx.App, w http.ResponseWriter, r *http.Request, pageTitle, service, path string, canRestoreDefault bool, fileContent string, failure *testFailure) {
+func renderWebserverConfPage(a *appctx.App, w http.ResponseWriter, r *http.Request, pageTitle, service, path string, canRestoreDefault bool, fileContent string, summary ServerSummary, failure *testFailure) {
 	layout, _, err := web.BuildLayoutData(a, w, r, pageTitle)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -29,7 +30,7 @@ func renderWebserverConfPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	}
 	data := WebserverConfPageData{
 		LayoutData: layout, Service: service, Path: path,
-		CanRestoreDefault: canRestoreDefault, FileContent: fileContent, TestFailure: failure,
+		CanRestoreDefault: canRestoreDefault, FileContent: fileContent, Summary: summary, TestFailure: failure,
 	}
 	if err := webserverConfPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WEBSERVERCONF - template render error: %v", err)

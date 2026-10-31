@@ -1,151 +1,81 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
+
 {{define "content"}}
 <!-- START templates/domains/new.html -->
+<div class="op-content" x-data="{ addDomainDebug: localStorage.getItem('addDomainDebug') === 'true', target: 'new', name: '' }" x-ref="statusWrapper" x-init="$watch('addDomainDebug', value => localStorage.setItem('addDomainDebug', value))">
 
-<!-- page header -->
-<section x-data="{ addDomainDebug: localStorage.getItem('addDomainDebug') === 'true' }" x-ref="statusWrapper" x-init="$watch('addDomainDebug', value => localStorage.setItem('addDomainDebug', value))">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div class="op-page-head">
         <div>
-            <div class="flex items-center gap-x-3">
-                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "New Domain"}}</h1>
-            </div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Add a new domain name to be used for websites, emails, etc."}}</p>
+            <div class="op-eyebrow"><a class="op-link" href="/domains">{{.T.Get "Domains"}}</a></div>
+            <h1 class="op-title">{{.T.Get "Add a Domain"}}</h1>
+            <p class="op-meta">{{.T.Get "Point a domain at a new folder or at an existing website."}}</p>
         </div>
-        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-            <button
-                type="button"
-                @click="addDomainDebug = !addDomainDebug"
-                class="mb-3 inline-flex items-center rounded border px-3 py-2 text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60"
-            >
-                <span x-text="addDomainDebug ? '{{.T.Get "Hide Details"}}' : '{{.T.Get "Show Details"}}'"></span>
-                <svg class="w-4 h-4 ml-2 transition-transform" :class="{ 'rotate-180': addDomainDebug }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
+        <div class="op-actions">
+            <button type="button" class="op-btn op-btn-secondary" @click="addDomainDebug = !addDomainDebug" :aria-expanded="addDomainDebug.toString()">
+                {{template "op_icon" "logs"}} <span x-text="addDomainDebug ? '{{.T.Get "Hide Details"}}' : '{{.T.Get "Show Details"}}'"></span>
             </button>
         </div>
     </div>
-<!-- END page header -->
 
+    <section class="op-card CrawlerStatusCard" id="toAddActive">
+        <form id="addDomainForm" method="POST" action="#">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+            <input type="text" name="domain_name" id="domain_name" hidden>
+            {{if not .UserAllowed.php}}<input type="hidden" name="skip_containers" value="--skip_containers"/>{{end}}
 
-
-<!-- form -->
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
-    <form class="mt-8" id="addDomainForm" method="POST"  action="#">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-
-            <div class="col-span-full">
-                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="domain_url"> {{.T.Get "Domain"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-                <div class="relative w-full mt-2">
-                    <input
-                        type="text"
-                        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-                        id="domain_url"
-                        placeholder="example.net"
-                        name="domain_url"
-                        pattern="(?:(?!-)[\p{L}\p{N}\p{M}-]{1,63}(?&lt;!-)\.)+(?:[a-zA-Z\p{L}]{2,63}|xn--[a-zA-Z0-9-]{1,59}|\bonion\b)"
-                        title="{{.T.Get "Invalid domain name. Please enter a valid domain name like %(example)s or %(subdomain)s." "example" "'example.com'" "subdomain" "'sub.example.com'"}}"
-                        required
-                    />
-                          <input type="text" class="form-control d-none" name="domain_name" id="domain_name" placeholder="example.net" hidden >
-
-                </div>
-                <p id="punycode-info" style="display: none;" class="mt-2 text-xs text-gray-500 dark:text-gray-500"></p>
-            </div>
-
-
-            <div class="col-span-full">
-                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="docroot"> {{.T.Get "Document Root (folder):"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-                <div class="relative w-full mt-2"  x-data="{tooltip: false }">
-                    <input
-                        type="text"
-                        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-                        id="docroot"
-                        name="docroot"
-                        value="/var/www/html/"
-                        pattern="^/var/www/html/.*"
-                        title="{{.T.Get "Invalid document root. Please enter a valid path that start with /var/www/html/"}}"
-                        required
-                        {{if not .UserAllowed.docroot}}
-                        @mouseenter="tooltip = true" @mouseleave="tooltip = false"
-                        readonly
-                        {{end}}
-                    />
-                    {{if not .UserAllowed.docroot}}<div x-show="tooltip" x-transition class="absolute z-10 mt-2 w-64 rounded-lg bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; left: 0;">{{.T.Get "docroot module or feature are not enabled. Contact Administrator to change docroot."}}</div>{{end}}
-            </div>
-
-            <div class="col-span-full" id="keys-fields" style="display: none;">
-                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="hs_ed25519_public_key">{{.T.Get "Public Key"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-                <div class="relative w-full mt-2">
-                    <input
-                        type="text"
-                        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950"
-                        id="hs_ed25519_public_key"
-                        name="hs_ed25519_public_key"
-                        pattern="^/var/www/html/.*"
-                        placeholder="/var/www/html/path/to/hs_ed25519_public_key"
-                    />
+            <div class="op-section"><div><h3>{{.T.Get "Domain"}}</h3><p>{{.T.Get "Without http:// or www. Subdomains work too."}}</p></div>
+                <div class="op-col" style="gap:12px">
+                    <label class="op-field" for="domain_url"><span class="op-label">{{.T.Get "Domain name"}}</span>
+                        <input type="text" class="op-input op-mono" id="domain_url" name="domain_url" placeholder="example.org" autocomplete="off" autocapitalize="off" spellcheck="false" x-model="name"
+                            pattern="(?:(?!-)[\p{L}\p{N}\p{M}-]{1,63}(?&lt;!-)\.)+(?:[a-zA-Z\p{L}]{2,63}|xn--[a-zA-Z0-9-]{1,59}|\bonion\b)"
+                            title="{{.T.Get "Invalid domain name. Please enter a valid domain name like %(example)s or %(subdomain)s." "example" "'example.com'" "subdomain" "'sub.example.com'"}}"
+                            aria-describedby="domain-hint" required>
+                        <span class="op-hint" id="domain-hint" aria-live="polite" data-idle="{{.T.Get "A domain like example.com or a subdomain like shop.example.com."}}" data-ok="{{.T.Get "Looks good."}}" data-bad="{{.T.Get "That isn't a valid domain name yet."}}">{{.T.Get "A domain like example.com or a subdomain like shop.example.com."}}</span>
+                        <span class="op-hint" id="punycode-info" style="display: none;"></span>
+                    </label>
+                    <label class="op-field" id="keys-fields" style="display: none;" for="hs_ed25519_public_key"><span class="op-label">{{.T.Get "Public Key"}}</span>
+                        <input type="text" class="op-input op-mono" id="hs_ed25519_public_key" name="hs_ed25519_public_key" pattern="^/var/www/html/.*" placeholder="/var/www/html/path/to/hs_ed25519_public_key">
+                    </label>
+                    <label class="op-field" id="key2-fields" style="display: none;" for="hs_ed25519_secret_key"><span class="op-label">{{.T.Get "Secret Key"}}</span>
+                        <input type="text" class="op-input op-mono" id="hs_ed25519_secret_key" name="hs_ed25519_secret_key" pattern="^/var/www/html/.*" placeholder="/var/www/html/path/to/hs_ed25519_secret_key">
+                    </label>
                 </div>
             </div>
 
-            <div class="col-span-full" id="key2-fields" style="display: none;">
-                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="hs_ed25519_secret_key">{{.T.Get "Secret Key"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-                <div class="relative w-full mt-2">
-                    <input
-                        type="text"
-                        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950"
-                        id="hs_ed25519_secret_key"
-                        name="hs_ed25519_secret_key"
-                        pattern="^/var/www/html/.*"
-                        placeholder="/var/www/html/path/to/hs_ed25519_secret_key"
-                    />
-                </div>
-            </div>
-
-
-        </div>
-
-
-
-</div>
-
-
-        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500">
-            <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
-        </div>
-
-                    {{if not .UserAllowed.php}}
-                    <input type="hidden" name="skip_containers" value="--skip_containers"/>
+            <div class="op-section"><div><h3>{{.T.Get "Where it points"}}</h3><p>{{.T.Get "You can change the folder later from Domains."}}</p></div>
+                <div class="op-col" style="gap:12px">
+                    {{if and .UserAllowed.docroot .Sites}}
+                    <div class="op-options" style="--cols:2">
+                        <label class="op-option"><input type="radio" name="op_target" value="new" x-model="target" @change="document.getElementById('docroot').value = '/var/www/html/' + name.trim()"><div><b>{{.T.Get "New folder"}}</b><span>{{.T.Get "An empty site you upload to"}}</span></div></label>
+                        <label class="op-option"><input type="radio" name="op_target" value="site" x-model="target" @change="document.getElementById('docroot').value = $refs.site.value"><div><b>{{.T.Get "Existing website"}}</b><span>{{.T.Get "Share its folder, like an alias"}}</span></div></label>
+                    </div>
+                    <label class="op-field" x-show="target === 'site'" x-cloak><span class="op-label">{{.T.Get "Website"}}</span>
+                        <select class="op-select" x-ref="site" @change="document.getElementById('docroot').value = $event.target.value">
+                            {{range .Sites}}<option class="punycode" value="{{.Docroot}}">{{.DomainURL}}</option>{{end}}
+                        </select>
+                    </label>
                     {{end}}
+                    <div class="op-field">
+                        <label class="op-label" for="docroot">{{.T.Get "Document root"}}</label>
+                        <input type="text" class="op-input op-mono" id="docroot" name="docroot" value="/var/www/html/" pattern="^/var/www/html/.*"
+                            title="{{.T.Get "Invalid document root. Please enter a valid path that start with /var/www/html/"}}" required
+                            {{if not .UserAllowed.docroot}}readonly aria-describedby="docroot-locked"{{else}}:readonly="target === 'site'"{{end}}>
+                        {{if .UserAllowed.docroot}}<span class="op-hint">{{.T.Get "Filled in from the domain name. Created if it does not exist."}}</span>
+                        {{else}}<span class="op-hint" id="docroot-locked">{{.T.Get "docroot module or feature are not enabled. Contact Administrator to change docroot."}}</span>{{end}}
+                    </div>
+                </div>
+            </div>
 
-<div class="md:flex items-center md:justify-end md:space-x-4">
+            <div class="op-savebar">
+                <a href="/domains" class="op-btn op-btn-secondary">{{.T.Get "Cancel"}}</a>
+                <button class="op-btn op-btn-primary" type="submit" id="installButton">{{template "op_icon" "plus"}} {{.T.Get "Add Domain"}}</button>
+            </div>
+        </form>
+    </section>
 
-    <button
-        class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"
-        type="submit"
-        id="installButton"
-    >
-        {{.T.Get "Add Domain"}}
-        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
-        </svg>
-    </button>
+    <pre id="statusMessage" class="op-pre" x-show="addDomainDebug" x-transition x-cloak aria-live="polite"></pre>
 </div>
-
-    </form>
-</div>
-<!-- END form -->
-
-
-<!-- .CrawlerStatusCard.active spin animation now lives globally in base.html -->
-
-<!-- progress text -->
-<div class="sm:mx-auto p-6 m-6">
-<pre id="statusMessage" x-show="addDomainDebug" x-transition x-cloak class="overflow-auto max-h-64 p-4 rounded" :class="{'bg-gray-800 text-white': addDomainDebug}"></pre>
-
-<div>
-<!-- END progress text -->
-
 
 <!-- js for submit and validation -->
 <script type="module">
@@ -239,8 +169,9 @@ addDomainForm.addEventListener("submit", function(event) {
 
     // Disable the button and show loading message
     const button = document.getElementById("installButton");
+    const buttonLabel = button.innerHTML;
     button.disabled = true;
-    button.innerText = "Adding...";
+    button.textContent = "{{.T.Get "Adding..."}}";
 
     // Clear any previous status messages
     const statusMessageDiv = document.getElementById("statusMessage");
@@ -301,31 +232,25 @@ fetch("/domains/new", {
                         document.getElementById("toAddActive").classList.remove("active");
 
                         button.disabled = false;
-                        button.innerHTML = `{{.T.Get "Add Domain"}} <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg>`;
+                        button.innerHTML = buttonLabel;
                         domainUrlInput.value = "";
                         domainNameInput.value = "";
                         domainDocrootInput.value = "/var/www/html/";
                         punycodeInfo.style.display = "none";
 
                     } else if (text.toLowerCase().includes("warning") && !toastDisplayed) {
-                        const wrapper = document.querySelector('[x-ref="statusWrapper"]');
-                        if (wrapper && wrapper.__x) {
-                            wrapper.__x.$data.addDomainDebug = true;
-                        }
+                        showAddDomainLog();
                     } else if (text.toLowerCase().includes("error") && !toastDisplayed) {
                         const toastMessage = `{{.T.Get "Error adding domain name"}} ${domainUrlInput.value} {{.T.Get "Click on Show Details above to view the log."}}`;
                         showToast(toastMessage, 'warning');
 
-                        const wrapper = document.querySelector('[x-ref="statusWrapper"]');
-                        if (wrapper && wrapper.__x) {
-                            wrapper.__x.$data.addDomainDebug = true;
-                        }
+                        showAddDomainLog();
 
                         toastDisplayed = true; // Mark toast as displayed
                         document.getElementById("toAddActive").classList.remove("active");
 
                         button.disabled = false;
-                        button.innerHTML = `{{.T.Get "Retry"}} <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg>`;
+                        button.textContent = "{{.T.Get "Retry"}}";
 
                     }
 
@@ -346,6 +271,11 @@ fetch("/domains/new", {
 
 
 });
+
+function showAddDomainLog() {
+    const wrapper = document.querySelector('[x-ref="statusWrapper"]');
+    if (wrapper && window.Alpine) Alpine.$data(wrapper).addDomainDebug = true;
+}
 
 // Function to extract domain name from a URL
 function extractDomainName(url) {
@@ -371,7 +301,14 @@ function syncDomainCustomValidity() {
         ? punycodeValueForSubmission
         : domainUrlInput.value;
 
-    if (valueToTest === '' || isValidDomainName(valueToTest)) {
+    const hint = document.getElementById('domain-hint');
+    const ok = valueToTest === '' || isValidDomainName(valueToTest);
+    domainUrlInput.classList.toggle('is-invalid', !ok);
+    hint.classList.toggle('is-invalid', !ok);
+    hint.classList.toggle('is-valid', ok && valueToTest !== '');
+    hint.textContent = ok ? (valueToTest === '' ? hint.dataset.idle : hint.dataset.ok) : hint.dataset.bad;
+
+    if (ok) {
         domainUrlInput.setCustomValidity('');
     } else {
         domainUrlInput.setCustomValidity(
@@ -396,8 +333,8 @@ domainUrlInput.addEventListener('input', function () {
 
     // '.onion'
     if (domainUrlValue.includes('.onion')) {
-        keysFields.style.display = 'block';
-        key2Fields.style.display = 'block';
+        keysFields.style.display = 'flex';
+        key2Fields.style.display = 'flex';
     } else {
         keysFields.style.display = 'none';
         key2Fields.style.display = 'none';
@@ -415,14 +352,14 @@ domainUrlInput.addEventListener('input', function () {
         punycodeInfo.style.display = 'block';
 
         var updatedDocRootValue = "/var/www/html/" + punycodeValueForSubmission;
-        if (docRootInput) {
+        if (docRootInput && !(document.querySelector('input[name=op_target][value=site]') || {}).checked) {
             docRootInput.value = updatedDocRootValue;
         }
     } else {
         punycodeInfo.style.display = 'none';
 
         var updatedDocRootValue = "/var/www/html/" + domainUrlValue;
-        if (docRootInput) {
+        if (docRootInput && !(document.querySelector('input[name=op_target][value=site]') || {}).checked) {
             docRootInput.value = updatedDocRootValue;
         }
 

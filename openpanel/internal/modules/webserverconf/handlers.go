@@ -52,13 +52,13 @@ func handleWebserverConf(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	if configFilePath != "" {
 		content, readErr := tenantfs.ReadFile(configFilePath)
 		if readErr != nil {
-			renderWebserverConfPage(a, w, r, entry.PageTitle, webServer, entry.ConfFile, false, "", nil)
+			renderWebserverConfPage(a, w, r, entry.PageTitle, webServer, entry.ConfFile, false, "", buildServerSummary(r.Context(), a, userContext, entry.ServiceName), nil)
 			return
 		}
 		existingContent = string(content)
 	}
 
-	renderWebserverConfPage(a, w, r, entry.PageTitle, webServer, entry.ConfFile, canRestoreDefault(entry), existingContent, nil)
+	renderWebserverConfPage(a, w, r, entry.PageTitle, webServer, entry.ConfFile, canRestoreDefault(entry), existingContent, buildServerSummary(r.Context(), a, userContext, entry.ServiceName), nil)
 }
 
 func canRestoreDefault(entry webserverConfEntry) bool {
@@ -116,7 +116,7 @@ func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 			sess, _ := a.Sessions.Get(r, session.CookieName)
 			flash.Add(sess, "error", web.Tr(a, r, "Configuration was not saved, the %(service_name)s config test found a problem. Your changes are still in the editor.", "service_name", entry.ServiceName))
 			_ = a.Sessions.Save(r, w, sess)
-			renderWebserverConfPage(a, w, r, entry.PageTitle, webServer, entry.ConfFile, canRestoreDefault(entry), newContent, &failure)
+			renderWebserverConfPage(a, w, r, entry.PageTitle, webServer, entry.ConfFile, canRestoreDefault(entry), newContent, buildServerSummary(r.Context(), a, userContext, entry.ServiceName), &failure)
 			return false
 		}
 		actionDescription = "edited " + entry.ConfFile

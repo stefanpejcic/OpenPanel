@@ -18,6 +18,7 @@ var installPage = web.MustLoadPage(
 	"partials/_service_js.html",
 	"partials/punnycode.html",
 	"partials/theme_switcher.html",
+	"manager/_install_wizard.html",
 	"manager/php_install.html",
 )
 

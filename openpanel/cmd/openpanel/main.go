@@ -80,6 +80,9 @@ func main() {
 		os.Exit(summary.RunCLI(context.Background(), a, os.Args[2:], os.Stdout))
 	}
 
+	// ui_theme=classic brings back the pre-redesign templates, OpenAdmin restarts the panel after changing it (logged before configureLogging so it shows outside dev_mode)
+	web.SetTheme(a.Config.Get("ui_theme", web.ThemeModern))
+	log.Printf("BOOTSTRAP - panel theme: %s", web.Theme())
 	configureLogging(a)
 	setGOMAXPROCSFromCgroup()
 	runStartupTasks()

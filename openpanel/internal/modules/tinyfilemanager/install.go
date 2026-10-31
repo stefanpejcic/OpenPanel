@@ -58,6 +58,10 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		emit(map[string]any{"error": "Admin username and password are required."})
 		return
 	}
+	if msg := cmsapp.ValidateInstallForm(r.FormValue, cmsapp.PasswordStrength(a)); msg != "" {
+		emit(map[string]any{"error": msg})
+		return
+	}
 
 	emit(map[string]any{"status": "Checking if existing installation processes are running.."})
 	if err := appkit.CreateLockFile(currentUsername); err != nil {

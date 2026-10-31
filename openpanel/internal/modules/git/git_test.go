@@ -16,6 +16,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func TestValidators(t *testing.T) {
@@ -261,7 +262,31 @@ func TestRemoteRepoCloneAndPull(t *testing.T) {
 	}
 }
 
+func TestRenderGitPageEmpty(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	allowed := map[string]bool{"dashboard": true, "git": true}
+	layout := web.LayoutData{
+		Title: "Git", BrandName: "Test Panel", CSRFToken: "tok", PanelDir: "ltr",
+		NavGroups: web.BuildClassicSidebarNav(allowed, nil, "/git"), UserAllowed: allowed,
+		UserAllowedJSON: web.UserAllowedList(allowed), CurrentUsername: "bob",
+		RequestPath: "/git", AdminPort: "2087", T: mgr.Translator("en"),
+	}
+	data := GitPageData{LayoutData: layout, Username: "bob", Domains: []appctx.Domain{{DomainURL: "example.com", Docroot: "/var/www/html/example.com"}}, PublicKey: "ssh-ed25519 AAAA"}
+	w := httptest.NewRecorder()
+	if err := gitPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	for _, want := range []string{"No repositories yet", `@click="toggleCreate()"`, `names: [] || []`, `value="example.com"`, "ssh-ed25519 AAAA"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("rendered page missing %q", want)
+		}
+	}
+}
+
 func TestRenderGitPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	allowed := map[string]bool{"dashboard": true, "git": true}
 	layout := web.LayoutData{
@@ -285,7 +310,7 @@ func TestRenderGitPage(t *testing.T) {
 		t.Fatalf("Render: %v", err)
 	}
 	body := w.Body.String()
-	for _, want := range []string{`id="add-repository"`, "pw123", "https://x/git-http/bob/site.git", "https://x/git-webhook/bob/t", `id="repo-blog"`, `id="git-table"`, `id="bulk-actions-bar"`, `data-bulk-action="mode"`, `data-bulk-skip="pull"`, "bi-git"} {
+	for _, want := range []string{`id="add-repository"`, "pw123", "https://x/git-http/bob/site.git", "https://x/git-webhook/bob/t", `id="repo-blog"`, `id="git-table"`, `id="bulk-actions-bar"`, `data-bulk-action="mode"`, `data-bulk-skip="pull"`, `class="op-col op-git-create"`, `name="remote_url"`, `name="deploy_mode" value="manual"`, `name="actions_enabled"`, `names: ["site","blog"]`, `git remote add origin https://x/git-http/bob/site.git &amp;&amp; git push -u origin main`} {
 		if !strings.Contains(body, want) {
 			t.Errorf("rendered page missing %q", want)
 		}

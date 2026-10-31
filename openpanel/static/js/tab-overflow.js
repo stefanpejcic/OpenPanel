@@ -1,31 +1,31 @@
 // Fits a tab bar on one row and moves the tabs that don't fit into a "More" dropdown that opens on hover.
 // Usage: add data-tab-overflow (and data-more-label for the translated "More") to the tablist <ul>.
 (function () {
+    // colours come from the kit tokens when the page has them, the hex values are for pages that don't
     const STYLE = `
 .tab-overflow{display:flex!important;flex-wrap:nowrap;grid-template-columns:none!important}
 .tab-overflow>li{min-width:0}
 .tab-overflow-more{position:relative}
-.tab-overflow-btn{display:inline-flex;align-items:center;justify-content:center;gap:.25rem;width:100%;max-width:14rem;padding:.5rem .75rem;border-radius:.125rem;font-size:.875rem;line-height:1.25rem;font-weight:500;white-space:nowrap;color:#6b7280;background:transparent;cursor:pointer}
-.tab-overflow-btn:hover{color:#374151}
-.tab-overflow-btn.is-active{background:#fff;color:#3b82f6;box-shadow:0 1px 2px 0 rgb(0 0 0/.05)}
+.tab-overflow-btn{display:inline-flex;align-items:center;justify-content:center;gap:.25rem;width:100%;max-width:14rem;padding:.5rem .75rem;border-radius:.125rem;font-size:.875rem;line-height:1.25rem;font-weight:500;white-space:nowrap;color:var(--color-muted,#6b7280);background:transparent;cursor:pointer}
+.tab-overflow-btn:hover{color:var(--color-heading,#374151)}
+.tab-overflow-btn.is-active{background:var(--color-accent-soft,#fff);color:var(--color-accent-text,#3b82f6);box-shadow:0 1px 2px 0 rgb(0 0 0/.05)}
 .tab-overflow-label{overflow:hidden;text-overflow:ellipsis}
 .tab-overflow-btn svg{flex-shrink:0}
-.dark .tab-overflow-btn{color:#9ca3af}
-.dark .tab-overflow-btn:hover{color:#e5e7eb}
-.dark .tab-overflow-btn.is-active{background:#111827;color:#3b82f6}
-.tab-overflow-menu{display:none;position:absolute;right:0;top:100%;z-index:30;min-width:12rem;padding:.25rem;margin-top:.25rem;background:#fff;border:1px solid #e5e7eb;border-radius:.375rem;box-shadow:0 10px 15px -3px rgb(0 0 0/.1),0 4px 6px -4px rgb(0 0 0/.1)}
+.dark .tab-overflow-btn{color:var(--color-muted,#9ca3af)}
+.dark .tab-overflow-btn:hover{color:var(--color-heading,#e5e7eb)}
+.dark .tab-overflow-btn.is-active{background:var(--color-accent-soft,#111827);color:var(--color-accent-text,#3b82f6)}
+.tab-overflow-menu{display:none;position:absolute;right:0;top:100%;z-index:30;min-width:12rem;padding:.25rem;margin-top:.25rem;background:var(--color-panel,#fff);border:1px solid var(--color-raised,#e5e7eb);border-radius:.375rem;box-shadow:0 10px 15px -3px rgb(0 0 0/.1),0 4px 6px -4px rgb(0 0 0/.1)}
 .tab-overflow-menu:before{content:"";position:absolute;left:0;right:0;top:-.5rem;height:.5rem}
 .tab-overflow-more.is-open .tab-overflow-menu{display:block}
-.dark .tab-overflow-menu{background:#030712;border-color:#1f2937}
-.tab-overflow-item{display:flex;align-items:center;gap:.5rem;width:100%;padding:.5rem .75rem;border-radius:.25rem;font-size:.875rem;line-height:1.25rem;color:#374151;text-align:left;white-space:nowrap;cursor:pointer;background:transparent}
-.tab-overflow-item:hover{background:#f3f4f6}
-.tab-overflow-item.is-active{color:#3b82f6;font-weight:500}
-.dark .tab-overflow-item{color:#d1d5db}
-.dark .tab-overflow-item:hover{background:#111827}
-.dark .tab-overflow-item.is-active{color:#3b82f6}
+.dark .tab-overflow-menu{background:var(--color-panel,#030712);border-color:var(--color-raised,#1f2937)}
+.tab-overflow-item{display:flex;align-items:center;gap:.5rem;width:100%;padding:.5rem .75rem;border-radius:.25rem;font-size:.875rem;line-height:1.25rem;color:var(--color-body,#374151);text-align:left;white-space:nowrap;cursor:pointer;background:transparent}
+.tab-overflow-item:hover{background:var(--color-inset,#f3f4f6)}
+.tab-overflow-item.is-active{color:var(--color-accent-text,#3b82f6);font-weight:500}
+.dark .tab-overflow-item{color:var(--color-body,#d1d5db)}
+.dark .tab-overflow-item:hover{background:var(--color-inset,#111827)}
+.dark .tab-overflow-item.is-active{color:var(--color-accent-text,#3b82f6)}
 .tab-overflow-item svg{flex-shrink:0;margin:0}
-`;
-    const CHEVRON = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/></svg>';
+`;    const CHEVRON = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/></svg>';
 
     function ensureStyle() {
         if (document.getElementById('tab-overflow-style')) return;
@@ -46,10 +46,12 @@
         return (titled && titled.getAttribute('title')) || link.textContent.trim();
     }
 
-    // the tabs' own Alpine :class puts bg-white on the active one
+    // kit tabs mark the active one with is-active or aria-selected/aria-current, older ones with bg-white
     function isActive(li) {
         const link = tabLink(li);
-        return !!link && link.classList.contains('bg-white');
+        if (!link) return false;
+        return link.classList.contains('is-active') || link.classList.contains('bg-white') ||
+            link.getAttribute('aria-current') === 'page' || (link.getAttribute('aria-selected') === 'true' && !link.closest('[data-tabs-toggle]'));
     }
 
     function init(ul) {
@@ -160,7 +162,7 @@
         // Alpine flips the active classes when a tab is picked, keep the More button in sync
         new MutationObserver(records => {
             if (records.some(r => !more.contains(r.target))) schedule(refresh);
-        }).observe(ul, { subtree: true, attributes: true, attributeFilter: ['class', 'aria-selected'] });
+        }).observe(ul, { subtree: true, attributes: true, attributeFilter: ['class', 'aria-selected', 'aria-current'] });
         ul.addEventListener('tab-overflow:relayout', () => schedule(layout));
         layout();
     }

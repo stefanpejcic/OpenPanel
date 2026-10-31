@@ -247,6 +247,10 @@ func StartInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) (*Insta
 		emit(map[string]any{"error": "Invalid subdirectory."})
 		return nil, false
 	}
+	if msg := ValidateInstallForm(r.FormValue, PasswordStrength(a)); msg != "" {
+		emit(map[string]any{"error": msg})
+		return nil, false
+	}
 	ok = true
 	return in, true
 }

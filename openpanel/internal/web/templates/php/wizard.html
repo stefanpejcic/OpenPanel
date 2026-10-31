@@ -1,0 +1,418 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
+{{define "content"}}
+<!-- START templates/php/wizard.html -->
+{{$canExt := index .UserAllowed "php_extensions"}}{{$canOpts := index .UserAllowed "php_options"}}{{$canIni := index .UserAllowed "php_ini"}}
+<div class="op-content" x-data="phpWizard({{toJSON (dict "versions" .Versions "domains" .Domains "def" .Default "open" .Open "tab" .Tab "litespeed" .IsLitespeed "ext" $canExt "opts" $canOpts)}})">
+    <div class="op-page-head">
+        <div>
+            <div class="op-eyebrow">{{if .WebServer}}{{.WebServer}} · {{end}}{{if .IsLitespeed}}{{.T.Get "one PHP for every domain"}}{{else}}{{.T.Get "php-fpm per version"}}{{end}}</div>
+            <h1 class="op-title">{{.T.Get "PHP Wizard"}}</h1>
+            <p class="op-meta">{{.T.Get "Every PHP setting in one place: pick a version to see its extensions, options and domains, make it the default or move sites onto it."}}</p>
+        </div>
+    </div>
+
+    <section class="op-kpis" aria-label="{{.T.Get "PHP summary"}}">
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "star"}} {{.T.Get "Default"}}</div><div class="op-kpi-value" x-text="'PHP ' + def">PHP {{.Default}}</div><div class="op-kpi-note">{{.T.Get "for new domains"}}</div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "check"}} {{.T.Get "Installed"}}</div><div class="op-kpi-value">{{len .Installed}}</div><div class="op-kpi-note" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{join .Installed ", "}}</div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "ban"}} {{.T.Get "Not installed"}}</div><div class="op-kpi-value">{{len .NotInstalled}}</div><div class="op-kpi-note">{{if .NotInstalled}}{{.T.Get "Ask your provider"}}{{else}}{{.T.Get "Every version is set up"}}{{end}}</div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "globe"}} {{.T.Get "Domains"}}</div><div class="op-kpi-value">{{.DomainCount}}</div><div class="op-kpi-note"{{if not .IsLitespeed}} x-text="domainSummary()"{{end}}>{{if .IsLitespeed}}{{.T.Get "All on the default version"}}{{end}}</div></div>
+    </section>
+
+    {{if not .IsLitespeed}}
+    <template x-for="d in domains.filter(d => d.level === 'unsupported')" :key="d.d">
+        <div class="op-alert is-warning" role="status">{{template "op_icon" "alert"}}
+            <span><b x-text="d.d"></b> {{.T.Get "runs PHP"}} <span x-text="d.v"></span>{{.T.Get ", which no longer gets security patches."}}</span>
+            <form method="POST" action="/php/domains" x-show="installed(def) && def !== d.v" @submit="phpBusyForm($el, i18n.busy, d.d, d.v, def)">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                <input type="hidden" name="domain_url" :value="d.d">
+                <input type="hidden" name="old_php_version" :value="d.v">
+                <input type="hidden" name="new_php_version" :value="def">
+                <input type="hidden" name="redirect_to" :value="'/php/wizard?v=' + def + '&tab=domains'">
+                <button class="op-btn op-btn-secondary op-btn-sm" type="submit">{{template "op_icon" "swap"}} <span x-text="{{toJSON (.T.Get "Move to PHP")}} + ' ' + def"></span></button>
+            </form>
+        </div>
+    </template>
+    {{end}}
+
+    <section class="op-card" aria-label="{{.T.Get "PHP version"}}">
+        {{if not .Installed}}
+        <div class="op-empty"><b>{{.T.Get "No PHP versions are installed."}}</b><span class="op-hint">{{.T.Get "Ask your provider to add one to your account."}}</span></div>
+        {{else}}
+        <div class="op-phpw-head">
+            <div class="op-phpw-pick">
+                <label class="op-label" for="phpw-ver" style="margin:0">{{.T.Get "PHP version"}}</label>
+                <select id="phpw-ver" class="op-select" style="width:auto;min-width:220px" x-model="open">
+                    <optgroup label="{{.T.Get "Installed"}}">
+                        {{range .Versions}}{{if .Installed}}<option value="{{.Version}}">PHP {{.Version}}{{if eq .Version $.Default}} ({{$.T.Get "default"}}){{end}}</option>{{end}}{{end}}
+                    </optgroup>
+                    {{if .NotInstalled}}
+                    <optgroup label="{{.T.Get "Not installed"}}">
+                        {{range .Versions}}{{if not .Installed}}<option value="{{.Version}}" disabled>PHP {{.Version}} · {{$.T.Get "ask your provider"}}</option>{{end}}{{end}}
+                    </optgroup>
+                    {{end}}
+                </select>
+                <span class="op-badge is-accent" x-show="def === open">{{$.T.Get "Default"}}</span>
+                <span class="op-badge" :class="tone(ver(open).level)" x-show="ver(open).label" x-text="ver(open).label"></span>
+                <span class="op-tag" x-show="!litespeed" x-text="on(open).length + ' ' + (on(open).length === 1 ? i18n.domain : i18n.domains)"></span>
+            </div>
+            <div class="op-actions" style="gap:8px;flex-wrap:wrap">
+                <button class="op-btn op-btn-primary op-btn-sm" type="button" x-show="def !== open" @click="setDefault(open)" :disabled="busy">{{template "op_icon" "star"}} {{.T.Get "Set as default"}}</button>
+                {{if $canIni}}<a class="op-btn op-btn-ghost op-btn-sm" :href="'/php/php' + open + '.ini/editor'">{{template "op_icon" "file"}} php.ini</a>{{end}}
+                <a class="op-btn op-btn-ghost op-btn-sm" :href="'/php/php' + open + '/info'" target="_blank" rel="noopener">{{template "op_icon" "info"}} phpinfo()</a>
+            </div>
+        </div>
+
+        <div class="op-col" style="gap:14px;margin-top:16px">
+            <div class="op-subtabs" role="tablist" :aria-label="'PHP ' + open" style="align-self:flex-start">
+                {{if $canExt}}<button type="button" role="tab" :aria-selected="(tab === 'extensions').toString()" :aria-pressed="(tab === 'extensions').toString()" @click="tab = 'extensions'">{{.T.Get "Extensions"}}</button>{{end}}
+                {{if $canOpts}}<button type="button" role="tab" :aria-selected="(tab === 'options').toString()" :aria-pressed="(tab === 'options').toString()" @click="tab = 'options'">{{.T.Get "Options"}}</button>{{end}}
+                {{if not .IsLitespeed}}<button type="button" role="tab" :aria-selected="(tab === 'domains').toString()" :aria-pressed="(tab === 'domains').toString()" @click="tab = 'domains'">{{.T.Get "Domains"}}</button>{{end}}
+            </div>
+
+            {{if $canExt}}
+            <div x-show="tab === 'extensions'" class="op-col" style="gap:14px">
+                <template x-if="!ext[open] && !ver(open).in_use">
+                    <div class="op-empty op-phpw-box"><b x-text="'PHP ' + open + ' ' + i18n.notRunning"></b><span class="op-hint" x-text="i18n.startHint.replace('%s', 'php-fpm-' + open)"></span><button class="op-btn op-btn-secondary op-btn-sm" type="button" style="margin-top:8px" @click="loadExt(open)">{{template "op_icon" "play"}} {{.T.Get "Load extensions"}}</button></div>
+                </template>
+                <p class="op-hint" x-show="ext[open] && ext[open].loading" style="margin:0">{{.T.Get "Loading..."}}</p>
+                <p class="op-hint" x-show="ext[open] && ext[open].error" x-cloak style="margin:0" x-text="ext[open] && ext[open].error"></p>
+                <template x-if="ext[open] && ext[open].list">
+                    <div class="op-col" style="gap:14px">
+                        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px">
+                            <label class="op-search" style="flex:1 1 240px;max-width:320px">{{template "op_icon" "search"}}<input class="op-input" type="search" placeholder="{{.T.Get "Search extensions"}}" x-model="q" :aria-label="'PHP ' + open + ' ' + i18n.searchExt"></label>
+                            <div class="op-segmented" role="group" aria-label="{{.T.Get "Show"}}">
+                                <button type="button" :aria-pressed="(ef === 'all').toString()" @click="ef = 'all'">{{.T.Get "All"}} <span class="op-count" x-text="ext[open].list.length"></span></button>
+                                <button type="button" :aria-pressed="(ef === 'on').toString()" @click="ef = 'on'">{{.T.Get "Enabled"}} <span class="op-count" x-text="ext[open].list.filter(e => e.state === 'active').length"></span></button>
+                                <button type="button" :aria-pressed="(ef === 'off').toString()" @click="ef = 'off'">{{.T.Get "Not enabled"}} <span class="op-count" x-text="ext[open].list.filter(e => e.state !== 'active').length"></span></button>
+                            </div>
+                            <a class="op-btn op-btn-ghost op-btn-sm" :href="'/php/php' + open + '/extensions'">{{.T.Get "Extensions page"}}</a>
+                        </div>
+                        <div class="op-phpw-az" role="group" :aria-label="'PHP ' + open + ' ' + i18n.extensions" x-show="byLetter().length">
+                            <template x-for="g in byLetter()" :key="g[0]"><section class="op-phpw-letter">
+                                <span class="op-phpw-badge" x-text="g[0]"></span>
+                                <div><template x-for="e in g[1]" :key="e.name"><label class="op-phpw-ext" :class="{ 'is-on': isOn(e), 'is-changed': changed(e) }" :title="e.managed ? i18n.managed : (e.state === 'not_installed' ? e.name + ' · ' + i18n.notInstalledExt : e.name)">
+                                    <input class="op-check" type="checkbox" :checked="isOn(e)" :disabled="e.managed || saving" @change="setExt(e, $event.target.checked)" :aria-label="e.name"><span x-text="e.name"></span>
+                                </label></template></div>
+                            </section></template>
+                        </div>
+                        <p x-show="!byLetter().length" class="op-hint" style="margin:0">{{.T.Get "No extension matches."}}</p>
+                        <div class="op-phpw-savebar" x-show="dirty()" x-cloak>
+                            <span style="font-size:13px;color:var(--color-heading)"><b x-show="adds().length" x-text="i18n.enable + ' ' + adds().length"></b><span x-show="adds().length && drops().length"> · </span><b x-show="drops().length" x-text="i18n.disable + ' ' + drops().length"></b></span>
+                            <span class="op-mono" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--color-muted)" x-text="progress || [...adds().map(e => '+' + e), ...drops().map(e => '−' + e)].join('  ')"></span>
+                            <button class="op-btn op-btn-ghost op-btn-sm" type="button" @click="discard()" :disabled="saving">{{.T.Get "Discard"}}</button>
+                            <button class="op-btn op-btn-primary op-btn-sm" type="button" @click="applyExt()" :disabled="saving"><span x-text="(saving ? i18n.applying : i18n.apply) + ' ' + open"></span></button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            {{end}}
+
+            {{if $canOpts}}
+            <div x-show="tab === 'options'" x-cloak class="op-col" style="gap:14px">
+                <p class="op-hint" x-show="!opts[open] || opts[open].loading" style="margin:0">{{.T.Get "Loading..."}}</p>
+                <p class="op-hint" x-show="opts[open] && opts[open].error" style="margin:0"><span x-text="opts[open] && opts[open].error"></span> <a :href="'/php/php' + open + '/options'" style="color:var(--color-accent-text)">{{.T.Get "Open the Options page"}}</a></p>
+                <template x-if="opts[open] && opts[open].keys">
+                    <div class="op-col" style="gap:14px">
+                        <div class="op-phpw-opts" x-show="presetKeys().length">
+                            <template x-for="p in presetKeys()" :key="p.key"><div class="op-phpw-opt">
+                                <div style="min-width:0"><span class="op-mono" style="color:var(--color-heading);font-size:13px" x-text="p.key"></span><span class="op-hint" style="display:block" x-text="p.hint"></span></div>
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                                    <div style="display:flex;align-items:center;gap:8px">
+                                        <input class="op-input op-mono" x-show="isCustom(p)" :id="'opt-' + open + '-' + p.key" style="width:120px;height:32px;font-size:13px" x-model="opts[open].edit[p.key]" :class="optOk(p, opts[open].edit[p.key]) ? '' : 'is-invalid'" :style="optOk(p, opts[open].edit[p.key]) ? {} : { boxShadow: 'inset 0 0 0 1px var(--color-danger)' }" :placeholder="p.example" :aria-label="p.key">
+                                        <select class="op-select op-mono" style="width:150px;height:32px;font-size:13px" :aria-label="p.key" @change="pickPreset(p, $event.target.value)">
+                                            <template x-for="v in p.presets" :key="v"><option :value="v" :selected="!isCustom(p) && opts[open].edit[p.key] === v" x-text="v"></option></template>
+                                            <option value="__custom" :selected="isCustom(p)">{{.T.Get "Custom…"}}</option>
+                                        </select>
+                                    </div>
+                                    <span class="op-hint" style="color:var(--color-danger)" x-show="!optOk(p, opts[open].edit[p.key])" x-text="p.unit ? i18n.unitHint : i18n.numberHint"></span>
+                                </div>
+                            </div></template>
+                        </div>
+                        <div class="op-checks" x-show="switchKeys().length">
+                            <template x-for="s in switchKeys()" :key="s.key"><div class="op-check-row" style="grid-template-columns:minmax(0,1fr) auto;align-items:center">
+                                <div><b><span class="op-mono" x-text="s.key"></span></b><p x-text="s.hint"></p></div>
+                                <button class="op-switch" type="button" role="switch" :aria-checked="switchOn(s.key).toString()" @click="flipSwitch(s.key)" :aria-label="s.key"></button>
+                            </div></template>
+                        </div>
+                        <div class="op-actions" style="justify-content:space-between;flex-wrap:wrap;gap:10px">
+                            <a class="op-btn op-btn-ghost op-btn-sm" :href="'/php/php' + open + '/options'" x-text="i18n.allOptions.replace('%s', opts[open].keys.length)"></a>
+                            <button class="op-btn op-btn-primary op-btn-sm" type="button" @click="saveOpts()" :disabled="saving || !optsValid()"><span x-text="saving ? i18n.saving : i18n.saveOptions"></span></button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            {{end}}
+
+            {{if not .IsLitespeed}}
+            <div x-show="tab === 'domains'" x-cloak class="op-col" style="gap:12px">
+                <p class="op-hint" style="margin:0" x-show="!on(open).length" x-text="i18n.noDomains.replace('%s', open)"></p>
+                <div class="op-phpw-doms" x-show="on(open).length">
+                    <template x-for="d in on(open)" :key="d.d"><form class="op-phpw-dom" method="POST" action="/php/domains">
+                        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                        <input type="hidden" name="domain_url" :value="d.d">
+                        <input type="hidden" name="old_php_version" :value="d.v">
+                        <input type="hidden" name="redirect_to" :value="'/php/wizard?v=' + open + '&tab=domains'">
+                        <span class="punycode" style="flex:1;min-width:0;overflow-wrap:anywhere;color:var(--color-heading)" x-text="d.d"></span>
+                        <select class="op-select" name="new_php_version" style="width:auto;min-width:120px" :aria-label="i18n.versionFor + ' ' + d.d" @change="phpBusyForm($el.form, i18n.busy, d.d, d.v, $el.value); $el.form.requestSubmit()">
+                            <template x-for="v in versions.filter(v => v.installed)" :key="v.v"><option :value="v.v" :selected="v.v === d.v" x-text="'PHP ' + v.v"></option></template>
+                        </select>
+                    </form></template>
+                </div>
+                <div class="op-actions" x-show="on(open).length > 1" style="align-items:center;gap:8px">
+                    <span class="op-hint" x-text="i18n.moveAll.replace('%s', on(open).length)"></span>
+                    <select class="op-select" style="width:auto" x-ref="moveTo" :aria-label="i18n.moveAllTo">
+                        <template x-for="v in versions.filter(v => v.installed && v.v !== open)" :key="v.v"><option :value="v.v" x-text="'PHP ' + v.v"></option></template>
+                    </select>
+                    <button class="op-btn op-btn-secondary op-btn-sm" type="button" @click="moveAll($refs.moveTo.value)" :disabled="saving">{{.T.Get "Move"}}</button>
+                </div>
+            </div>
+            {{end}}
+        </div>
+        {{end}}
+    </section>
+</div>
+
+<script>
+const phpWizardI18n = {
+    busy: { title: {{toJSON (.T.Get "Switching %d to PHP %v")}}, text: {{toJSON (.T.Get "Usually a few seconds. Starting a PHP version that isn't running yet can take up to a minute.")}},
+        steps: [{{toJSON (.T.Get "Start PHP %v if it isn't running yet")}}, {{toJSON (.T.Get "Point the site's web server config at PHP %v")}}, {{toJSON (.T.Get "Reload %w so visitors get PHP %v")}}, {{toJSON (.T.Get "Stop PHP %o if no other domain uses it")}}],
+        note: {{toJSON (.T.Get "You can leave this page. The switch finishes on the server, and the site keeps running on PHP %o until it's done.")}}, webServer: {{toJSON .WebServer}} },
+    busyDefault: {{toJSON (.T.Get "Making PHP %v the default")}}, busyDefaultText: {{toJSON (.T.Get "New domains will use PHP %v. Existing domains keep their version.")}},
+    stepDefault: {{toJSON (.T.Get "Save PHP %v as the default for new domains")}}, stepDefaultStop: {{toJSON (.T.Get "Stop PHP %o if no domain uses it")}},
+    busyLeaveShort: {{toJSON (.T.Get "You can leave this page, it finishes on the server.")}},
+    busyMove: {{toJSON (.T.Get "Moving %n domains to PHP %v")}}, busyStay: {{toJSON (.T.Get "Keep this page open until every domain is moved.")}}, moved: {{toJSON (.T.Get "Moved to PHP %v. Reloading the page...")}}, close: {{toJSON (.T.Get "Close")}},
+    domain: {{toJSON (.T.Get "domain")}}, domains: {{toJSON (.T.Get "domains")}}, on: {{toJSON (.T.Get "on")}},
+    notRunning: {{toJSON (.T.Get "isn't used by any domain")}}, startHint: {{toJSON (.T.Get "Loading its extensions starts %s if it isn't running.")}},
+    searchExt: {{toJSON (.T.Get "Search extensions")}}, extensions: {{toJSON (.T.Get "Extensions")}},
+    managed: {{toJSON (.T.Get "Provided by OpenPanel, can't be changed here")}}, notInstalledExt: {{toJSON (.T.Get "not installed, saving installs it")}},
+    enable: {{toJSON (.T.Get "Enable")}}, disable: {{toJSON (.T.Get "Disable")}},
+    apply: {{toJSON (.T.Get "Apply and reload PHP")}}, applying: {{toJSON (.T.Get "Applying to PHP")}},
+    installing: {{toJSON (.T.Get "Installing")}}, unitHint: {{toJSON (.T.Get "Use a number with K, M or G, like 768M")}}, numberHint: {{toJSON (.T.Get "Use a whole number")}},
+    allOptions: {{toJSON (.T.Get "All %s options")}}, saveOptions: {{toJSON (.T.Get "Save options")}}, saving: {{toJSON (.T.Get "Saving...")}},
+    noDomains: {{toJSON (.T.Get "No domain uses PHP %s.")}}, versionFor: {{toJSON (.T.Get "PHP version for")}},
+    moveAll: {{toJSON (.T.Get "Move all %s to")}}, moveAllTo: {{toJSON (.T.Get "Move all domains to")}},
+    loadFailed: {{toJSON (.T.Get "Could not load this from the server.")}}, failed: {{toJSON (.T.Get "Something went wrong, nothing more was changed.")}},
+    hints: {
+        memory_limit: {{toJSON (.T.Get "Most memory one request may use")}}, upload_max_filesize: {{toJSON (.T.Get "Largest single upload")}},
+        post_max_size: {{toJSON (.T.Get "Largest form or upload body")}}, max_execution_time: {{toJSON (.T.Get "Seconds a script may run")}},
+        max_input_time: {{toJSON (.T.Get "Seconds to read the request")}}, max_input_vars: {{toJSON (.T.Get "Form fields PHP accepts")}},
+        display_errors: {{toJSON (.T.Get "Print errors in the page. Leave it off on live sites.")}}, log_errors: {{toJSON (.T.Get "Write errors to the PHP error log.")}},
+    },
+};
+
+const phpBusyFill = (s, m) => s.replace(/%([dvow])/g, (x, k) => (m[k] !== undefined && m[k] !== '' ? m[k] : x));
+// fills the form's data-busy-* so the busy dialog shows what this switch does
+function phpBusyForm(form, b, domain, from, to) {
+    const m = { d: domain, v: to, o: from, w: b.webServer || 'the web server' };
+    form.dataset.busy = phpBusyFill(b.title, m);
+    form.dataset.busyText = phpBusyFill(b.text, m);
+    form.dataset.busySteps = b.steps.map((s) => phpBusyFill(s, m)).join('|');
+    form.dataset.busyNote = phpBusyFill(b.note, m);
+}
+// one screen over the PHP routes: extensions and options load from their own JSON, saves post to the same handlers their pages use
+function phpWizard(cfg) {
+    const t = phpWizardI18n;
+    const presets = [
+        { key: 'memory_limit', presets: ['128M', '256M', '512M', '1G', '2G'], unit: true, example: '768M' },
+        { key: 'upload_max_filesize', presets: ['32M', '64M', '128M', '256M', '512M', '1G'], unit: true, example: '768M' },
+        { key: 'post_max_size', presets: ['32M', '64M', '128M', '256M', '512M', '1G'], unit: true, example: '768M' },
+        { key: 'max_execution_time', presets: ['30', '60', '120', '300', '600'], example: '900' },
+        { key: 'max_input_time', presets: ['60', '120', '300', '600'], example: '900' },
+        { key: 'max_input_vars', presets: ['1000', '3000', '5000', '10000', '20000'], example: '15000' },
+    ];
+    const post = (url, body, extra) => fetch(url, Object.assign({ method: 'POST', body: body, headers: { 'X-CSRF-Token': csrf_token } }, extra || {}));
+    // handlers answer a form post with a redirect, the flash it leaves shows on the reload
+    const sent = (r) => r.type === 'opaqueredirect' || r.ok;
+    return {
+        i18n: t, versions: cfg.versions || [], domains: cfg.domains || [], def: cfg.def, open: cfg.open, tab: cfg.tab,
+        litespeed: cfg.litespeed, ext: {}, opts: {}, draft: {}, custom: {}, q: '', ef: 'all', busy: false, saving: false, progress: '',
+
+        init() {
+            if (this.tab === 'extensions' && !cfg.ext) this.tab = this.firstTab();
+            if (this.tab === 'options' && !cfg.opts) this.tab = this.firstTab();
+            this.$watch('open', () => { this.q = ''; this.ef = 'all'; this.load(); });
+            this.$watch('tab', () => this.load());
+            this.load();
+        },
+        firstTab() { return cfg.ext ? 'extensions' : cfg.opts ? 'options' : 'domains'; },
+        ver(v) { return this.versions.find(x => x.v === v) || {}; },
+        installed(v) { return !!this.ver(v).installed; },
+        on(v) { return this.domains.filter(d => d.v === v); },
+        tone(level) { return { good: 'is-success', secure: 'is-warning' }[level] || 'is-danger'; },
+        domainSummary() {
+            const counts = {};
+            this.domains.forEach(d => { counts[d.v] = (counts[d.v] || 0) + 1; });
+            return Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([v, n]) => n + ' ' + t.on + ' ' + v).join(', ');
+        },
+        go(tab) { window.location.href = '/php/wizard?v=' + encodeURIComponent(this.open) + '&tab=' + tab; },
+        load() {
+            if (this.tab === 'extensions' && cfg.ext && !this.ext[this.open] && this.ver(this.open).in_use) this.loadExt(this.open);
+            if (this.tab === 'options' && cfg.opts && !this.opts[this.open]) this.loadOpts(this.open);
+        },
+
+        async setDefault(v) {
+            this.busy = true;
+            const m = { v: v, o: this.def };
+            opBusy.show({ title: phpBusyFill(t.busyDefault, m), text: phpBusyFill(t.busyDefaultText, m), steps: [phpBusyFill(t.stepDefault, m), phpBusyFill(t.stepDefaultStop, m)], note: t.busyLeaveShort, leave: true, close: t.close });
+            try {
+                const r = await post('/php/default?output=json', new URLSearchParams({ csrf_token: csrf_token, new_php_version: v, previous_version: this.def }));
+                const d = await r.json().catch(() => ({}));
+                if (!r.ok) throw new Error(d.error || '');
+                this.def = v;
+                opBusy.done(d.message, true);
+            } catch (e) {
+                opBusy.done(e.message || t.failed, false);
+            } finally {
+                this.busy = false;
+            }
+        },
+
+        // extensions: checked means active, the draft only holds what changed
+        async loadExt(v) {
+            this.ext[v] = { loading: true };
+            try {
+                const r = await fetch('/php/php' + v + '/extensions?output=json');
+                if (!r.ok || !(r.headers.get('content-type') || '').includes('json')) throw new Error();
+                const d = await r.json();
+                this.ext[v] = { list: (d.extensions || []).slice().sort((a, b) => a.name.localeCompare(b.name)) };
+            } catch (e) {
+                this.ext[v] = { error: t.loadFailed };
+            }
+        },
+        cur() { return this.ext[this.open] && this.ext[this.open].list || []; },
+        drafted() { return this.draft[this.open] || {}; },
+        isOn(e) { const d = this.drafted(); return e.name in d ? d[e.name] : e.state === 'active'; },
+        changed(e) { return e.name in this.drafted(); },
+        setExt(e, on) {
+            const d = Object.assign({}, this.drafted());
+            if (on === (e.state === 'active')) delete d[e.name]; else d[e.name] = on;
+            this.draft = Object.assign({}, this.draft, { [this.open]: d });
+        },
+        adds() { const d = this.drafted(); return Object.keys(d).filter(n => d[n]); },
+        drops() { const d = this.drafted(); return Object.keys(d).filter(n => !d[n]); },
+        dirty() { return Object.keys(this.drafted()).length > 0; },
+        discard() { this.draft = Object.assign({}, this.draft, { [this.open]: {} }); },
+        byLetter() {
+            const s = this.q.trim().toLowerCase(), g = {};
+            this.cur().filter(e => (!s || e.name.toLowerCase().includes(s)) && (this.ef === 'all' || (this.ef === 'on') === (e.state === 'active')))
+                .forEach(e => { const k = e.name[0].toUpperCase(); (g[k] = g[k] || []).push(e); });
+            return Object.entries(g).sort((a, b) => a[0].localeCompare(b[0]));
+        },
+        async applyExt() {
+            const v = this.open, d = this.drafted(), byName = {};
+            this.cur().forEach(e => { byName[e.name] = e; });
+            const installs = Object.keys(d).filter(n => d[n] && byName[n] && byName[n].state === 'not_installed');
+            const toggles = Object.keys(d).filter(n => !installs.includes(n));
+            this.saving = true;
+            try {
+                for (const name of toggles) {
+                    this.progress = (d[name] ? '+' : '−') + name;
+                    const r = await post('/php/php' + v + '/extensions', new URLSearchParams({ csrf_token: csrf_token, extension: name, enable: d[name] ? '1' : '0' }), { redirect: 'manual' });
+                    if (!sent(r)) throw new Error();
+                }
+                if (installs.length) {
+                    this.progress = t.installing + ' ' + installs.join(', ') + '…';
+                    const fd = new FormData();
+                    fd.append('csrf_token', csrf_token);
+                    installs.forEach(n => fd.append('extensions[]', n));
+                    const r = await post('/php/php' + v + '/install-extensions', fd);
+                    const j = await r.json().catch(() => ({}));
+                    if (!r.ok || !j.install_id) throw new Error(j.error || '');
+                    // installs build in the container, so this can take minutes
+                    for (let i = 0; i < 300; i++) {
+                        await new Promise(res => setTimeout(res, 2000));
+                        const s = await fetch('/php/php' + v + '/install-extensions/status?install_id=' + encodeURIComponent(j.install_id)).then(x => x.json()).catch(() => ({}));
+                        if (s.message) this.progress = s.message;
+                        if (s.status === 'error') throw new Error(s.message || '');
+                        if (s.status === 'done') { showToast(s.message || '', 'success'); break; }
+                    }
+                }
+                this.go('extensions');
+            } catch (e) {
+                showToast(e.message || t.failed, 'error');
+                this.saving = false;
+                this.progress = '';
+            }
+        },
+
+        // options: the handler rewrites every listed key, so unchanged ones are sent back as they are
+        async loadOpts(v) {
+            this.opts[v] = { loading: true };
+            try {
+                const r = await fetch('/php/php' + v + '/options?output=json');
+                const d = await r.json();
+                if (!r.ok || !d.available_keys) throw new Error(d.error || '');
+                const cur = d.current_config || {};
+                this.opts[v] = { keys: d.available_keys, cur: cur, edit: Object.assign({}, cur) };
+            } catch (e) {
+                this.opts[v] = { error: t.loadFailed };
+            }
+        },
+        presetKeys() {
+            const o = this.opts[this.open];
+            return o && o.keys ? presets.filter(p => o.keys.includes(p.key)).map(p => Object.assign({ hint: t.hints[p.key] }, p)) : [];
+        },
+        switchKeys() {
+            const o = this.opts[this.open];
+            return o && o.keys ? ['display_errors', 'log_errors'].filter(k => o.keys.includes(k)).map(k => ({ key: k, hint: t.hints[k] })) : [];
+        },
+        isCustom(p) { const val = this.opts[this.open].edit[p.key]; return !!this.custom[this.open + p.key] || (val !== undefined && val !== '' && !p.presets.includes(val)); },
+        pickPreset(p, value) {
+            if (value === '__custom') {
+                this.custom[this.open + p.key] = true;
+                this.$nextTick(() => { const el = document.getElementById('opt-' + this.open + '-' + p.key); if (el) el.focus(); });
+                return;
+            }
+            this.custom[this.open + p.key] = false;
+            this.opts[this.open].edit[p.key] = value;
+        },
+        optOk(p, val) {
+            val = String(val == null ? '' : val).trim();
+            if (val === '') return true;
+            return p.unit ? /^\d+[KMG]?$/i.test(val) || (p.key === 'memory_limit' && val === '-1') : /^\d+$/.test(val);
+        },
+        optsValid() { return this.presetKeys().every(p => this.optOk(p, this.opts[this.open].edit[p.key])); },
+        switchOn(k) { const v = String(this.opts[this.open].edit[k] || '').toLowerCase(); return v === 'on' || v === '1'; },
+        flipSwitch(k) {
+            const o = this.opts[this.open], numeric = /^[01]$/.test(String(o.edit[k] || ''));
+            o.edit[k] = this.switchOn(k) ? (numeric ? '0' : 'Off') : (numeric ? '1' : 'On');
+        },
+        async saveOpts() {
+            const v = this.open, o = this.opts[v];
+            const body = new URLSearchParams({ csrf_token: csrf_token });
+            o.keys.forEach(k => body.append(k, String(o.edit[k] == null ? '' : o.edit[k]).trim()));
+            this.saving = true;
+            try {
+                const r = await post('/php/php' + v + '/options', body, { redirect: 'manual' });
+                if (!sent(r)) throw new Error();
+                this.go('options');
+            } catch (e) {
+                showToast(t.failed, 'error');
+                this.saving = false;
+            }
+        },
+
+        async moveAll(to) {
+            const items = this.on(this.open).map(d => d.d);
+            if (!to || !items.length) return;
+            this.saving = true;
+            const m = { v: to, n: String(items.length), w: t.busy.webServer || 'the web server' };
+            const fill = (x) => phpBusyFill(x, m).replace(/%n/g, m.n);
+            opBusy.show({ title: fill(t.busyMove), text: fill(t.busy.text), steps: t.busy.steps.slice(0, 3).map(fill), note: t.busyStay, leave: false, close: t.close });
+            try {
+                const r = await post('/php/domains/bulk', JSON.stringify({ action: 'version', value: to, items: items }), { headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf_token } });
+                const d = await r.json().catch(() => ({}));
+                if (!r.ok) throw new Error(d.error || '');
+                opBusy.done(fill(t.moved), true);
+                window.location.href = '/php/wizard?v=' + encodeURIComponent(to) + '&tab=domains';
+            } catch (e) {
+                opBusy.done(e.message || t.failed, false);
+                this.saving = false;
+            }
+        },
+    };
+}
+</script>
+<!-- END templates/php/wizard.html -->
+{{end}}

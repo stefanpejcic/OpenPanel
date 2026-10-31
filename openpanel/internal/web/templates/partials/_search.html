@@ -1,10 +1,10 @@
 {{define "search"}}<!-- START templates/partials/_search.html -->
-<div data-sidebar="group-content" class="w-full text-sm" x-data="searchComponent()" id="searchGroup" @click.outside="closeSearch">
+<div data-sidebar="group-content" class="w-full text-sm" x-data="searchComponent()" id="searchGroup" @click.outside="closeSearch" @keydown.window.ctrl.k.prevent="openSearch()" @keydown.window.meta.k.prevent="openSearch()">
     <form action="./" method="get" autocomplete="off" novalidate="">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
         <div class="relative flex items-center justify-end">
 
-            <button type="button" id="openSearchBtn" @click="openSearch" x-show="!isOpen" class="flex items-center justify-center w-8 h-8 rounded text-gray-400 dark:text-gray-600 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="{{.T.Get "Open search"}}"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"/></svg></button>
+            <button type="button" id="openSearchBtn" @click="openSearch" x-show="!isOpen" class="op-icon-btn" aria-label="{{.T.Get "Open search"}}" title="{{.T.Get "Search"}} (Ctrl K)"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"/></svg></button>
 
             <!-- search field -->
             <div x-cloak
@@ -15,20 +15,20 @@
                 x-transition:leave="transition ease-in duration-150"
                 x-transition:leave-start="opacity-100 scale-x-100 translate-x-0"
                 x-transition:leave-end="opacity-0 scale-x-75 translate-x-4"
-                class="relative w-full origin-right [&>input]:sm:py-1.5">
-                <input type="search" x-model="searchText" x-ref="searchInput" @input="fetchResults" @keydown.escape="closeSearch" @keydown.arrow-down.prevent="moveActive(1)" @keydown.arrow-up.prevent="moveActive(-1)" @keydown.enter.prevent="selectActive" placeholder="{{.T.Get "Search"}}" id="searchInput" class="relative block w-full appearance-none rounded border px-2.5 py-1 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8 pr-8">
+                class="relative w-full origin-right">
+                <input type="search" x-model="searchText" x-ref="searchInput" @input="fetchResults" @keydown.escape="closeSearch" @keydown.arrow-down.prevent="moveActive(1)" @keydown.arrow-up.prevent="moveActive(-1)" @keydown.enter.prevent="selectActive" placeholder="{{.T.Get "Search"}}" id="searchInput" class="op-input">
 
-                <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"/></svg>
+                <div class="op-search-ico"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"/></svg>
                 </div>
 
 
-                <button type="button" @click="closeSearch" class="absolute bottom-0 right-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600 hover:text-gray-700 dark:hover:text-gray-300 transition-colors" aria-label="{{.T.Get "Close search"}}"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z"/></svg>
+                <button type="button" @click="closeSearch" class="absolute bottom-0 right-2 flex h-full items-center justify-center transition-colors op-muted" aria-label="{{.T.Get "Close search"}}"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z"/></svg>
                 </button>
 
                 <!-- Search results -->
-                <ul class="absolute p-1 z-50 overflow-hidden rounded shadow-xl shadow-black/[2.5%] min-w-48 bg-white dark:bg-[#090E1A] text-gray-900 dark:text-gray-50 border border-gray-200 dark:border-gray-800 [&::-webkit-scrollbar]:w-2  [&::-webkit-scrollbar-track]:bg-gray-100  [&::-webkit-scrollbar-thumb]:bg-gray-300  dark:[&::-webkit-scrollbar-track]:bg-neutral-700  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500" style="top: 100%; width: 100%; right: 0px; overflow-x: hidden; overflow-y: overlay; max-height: 90vh;" aria-labelledby="searchInput" id="filteredDropdown" x-show="dropdownItems.length">
+                <ul class="absolute p-1 z-50 overflow-hidden min-w-48 op-surface" style="top: 100%; width: 100%; right: 0px; overflow-x: hidden; overflow-y: overlay; max-height: 90vh;" aria-labelledby="searchInput" id="filteredDropdown" x-show="dropdownItems.length">
                     <template x-for="(item, index) in dropdownItems" :key="item.id">
-                        <li class="p-1 border-b border-gray-200 dark:border-gray-800 rounded" :class="{'bg-gray-100 dark:bg-gray-800': activeIndex === index}" x-html="item.html"></li>
+                        <li class="p-1" :class="{'op-selected': activeIndex === index}" x-html="item.html"></li>
                     </template>
                 </ul>
             </div>
@@ -148,7 +148,7 @@ function searchComponent() {
                                     <a class="dropdown-item flex w-full" href="${item.link}">
                                         ${item.name}<br>
                                         <p class="dropdown-item-description" style="display:contents; font-size: 0.7em; margin-bottom: 0px;">
-                                            ${item.description}
+                                            ${item.description || ''}
                                         </p>
                                     </a>
                                 </h3>`

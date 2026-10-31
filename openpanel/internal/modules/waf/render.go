@@ -227,7 +227,7 @@ func renderWAFLogSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func renderWAFLogPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainName string, jsonLogs []json.RawMessage, showAll bool, currentPage, itemsPerPage, totalPages, totalLines, totalAllowedForShowAll int) {
+func renderWAFLogPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainName string, domains []appctx.Domain, jsonLogs []json.RawMessage, showAll bool, currentPage, itemsPerPage, totalPages, totalLines, totalAllowedForShowAll int) {
 	layout, _, err := web.BuildLayoutData(a, w, r, domainName+" WAF Log")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -237,7 +237,7 @@ func renderWAFLogPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dom
 		LayoutData: layout, DomainName: domainName, JSONLogs: jsonLogs, ShowAll: showAll,
 		CurrentPage: currentPage, ItemsPerPage: itemsPerPage, TotalPages: totalPages,
 		TotalLines: totalLines, TotalAllowedLinesForShowAll: totalAllowedForShowAll,
-		PageEntries: buildLogPageEntries(currentPage, totalPages),
+		PageEntries: buildLogPageEntries(currentPage, totalPages), Domains: domains,
 	}
 	if content, err := tenantfs.ReadFile(domainConfigPath(domainName)); err == nil {
 		data.DisabledRules, _ = parseWAFRemovals(string(content))

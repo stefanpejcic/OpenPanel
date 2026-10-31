@@ -1,321 +1,225 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/user/history_usage.html -->
-
-<script src="{{static "vendor/chartjs/chart.umd.js"}}"></script>
-<script src="{{static "vendor/chartjs/chartjs-adapter-date-fns.bundle.min.js"}}"></script>
-
-<!-- page header -->
-<section aria-label="{{.T.Get "Usage Header"}}" x-data="{ searchQuery: '' }">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+{{$th := .Thresholds}}
+<div class="op-content" x-data="usageHistory({{toJSON (dict "samples" .Samples "limits" .Limits "ranges" .Ranges "rowLimit" .RowLimit)}})">
+    <div class="op-page-head">
         <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Historical CPU and Memory Usage"}}</h1>
-</div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "View past CPU and Memory usage."}}</p>
-    </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-        <div class="relative w-full sm:w-64">
-            <input
-                x-model="searchQuery"
-                class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
-                placeholder="{{.T.Get "Search"}}"
-                type="search"
-            />
-            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
-                    <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
-                </svg>
+            <div class="op-eyebrow">{{.T.Get "Sampled every hour"}}{{if .Samples}} · {{.T.Get "last sample"}} <span x-text="fmtFull(to)"></span>{{end}}</div>
+            <h1 class="op-title">{{.T.Get "Usage History"}}</h1>
+            <p class="op-meta">{{.T.Get "CPU, memory and processes for your whole account, hour by hour, so you can see when it gets busy."}}</p>
+        </div>
+        {{if .Samples}}
+        <div class="op-actions">
+            <div class="op-segmented" role="group" aria-label="{{.T.Get "Time range"}}">
+                {{range .Ranges}}<button type="button" :aria-pressed="(range === '{{.}}').toString()" @click="setRange('{{.}}')">{{if eq . "24h"}}{{$.T.Get "24 hours"}}{{else if eq . "3d"}}{{$.T.Get "3 days"}}{{else}}{{$.T.Get "7 days"}}{{end}}</button>{{end}}
             </div>
         </div>
-    </div>
-</div>
-<!-- END page header -->
-
-    <div class="p-6 mx-auto text-center">
-        <div class="">
-
-        {{if eq .ChartsMode "one"}}
-
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-1 md:gap-6 xl:grid-cols-1">
-
-        <div class="flex flex-col space-y-2  overflow-hidden rounded-lg bg-white p-6 border border-gray-200 dark:border-gray-800 dark:bg-slate-900  xl:col-span-2 w-full">
-
-            <div class="mb-6 flex items-center justify-between gap-4">
-                <h2 class="text-l font-extrabold">{{.T.Get "Historical CPU and Memory Usage"}}</h2>
-            </div>
-            <div class="grid mx-auto max-w-screen-xl justify-center text-center lg:w-full md:w-5/6 xl:shadow-small-blue w-full">
-
-                <canvas id="combinedChart"></canvas>
-
-            </div>
-        </div>
-
-        </div>
-
-        {{else if eq .ChartsMode "two"}}
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
-
-        <div class="flex flex-col space-y-2  overflow-hidden rounded-lg bg-white p-6 border border-gray-200 dark:border-gray-800 dark:bg-slate-900 xl:col-span-2 w-full">
-
-            <div class="mb-6 flex items-center justify-between gap-4">
-                <h2 class="text-l font-extrabold"><i class="bi bi-cpu"></i> {{.T.Get "History CPU Usage"}}</h2>
-            </div>
-            <div class="grid mx-auto max-w-screen-xl justify-center text-center lg:w-full md:w-5/6 xl:shadow-small-blue w-full">
-
-                <canvas id="cpuChart"></canvas>
-
-            </div>
-        </div>
-
-
-        <div class="flex flex-col space-y-2  overflow-hidden rounded-lg bg-white p-6 border border-gray-200 dark:border-gray-800 dark:bg-slate-900 xl:col-span-2 w-full">
-
-            <div class="mb-6 flex items-center justify-between gap-4">
-                <h2 class="text-l font-extrabold"><i class="bi bi-memory"></i> {{.T.Get "History Memory Usage"}}</h2>
-            </div>
-            <div class="grid mx-auto max-w-screen-xl justify-center text-center lg:w-full md:w-5/6 xl:shadow-small-blue w-full">
-
-                <canvas id="ramChart"></canvas>
-
-            </div>
-        </div>
-
-        </div>
-        {{else}}
-
-        {{.T.Get "charts_mode must be set to either two or one!"}}
-
         {{end}}
-
-        </div>
-
-        <div class="mt-6 flex justify-between items-center mb-4">
-            <h5 class="section-title mb-0 text-sm">
-                {{if .ShowAll}}
-                    {{.T.Get "Showing"}} 1 - {{.TotalLines}} {{.T.Get "of"}} {{.TotalLines}} {{.T.Get "items"}}
-                {{else}}
-                    {{.T.Get "Showing"}} {{add (mul .ItemsPerPage (sub .CurrentPage 1)) 1}} -
-                    {{if gt (mul .ItemsPerPage .CurrentPage) .TotalLines}}
-                        {{.TotalLines}}
-                    {{else}}
-                        {{mul .ItemsPerPage .CurrentPage}}
-                    {{end}}
-                    {{.T.Get "out of"}} {{.TotalLines}} {{.T.Get "items"}}
-                {{end}}
-            </h5>
-            <div class="flex items-center space-x-2">
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="showAllCheckboxOnHistoryPage" {{if .ShowAll}}checked{{end}}>
-                    <label class="form-check-label text-gray-600 text-sm" for="showAllCheckboxOnHistoryPage">
-                        {{.T.Get "Show all data"}}
-                    </label>
-                </div>
-            </div>
-        </div>
-
-
     </div>
 
-<!-- usage table -->
-    <div class="overflow-x-auto">
-        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
-            <table id="usage" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
-                <thead class="">
-                    <tr class="bg-gray-50 dark:bg-gray-900 sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_th:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 sm:[&amp;_th:first-child]:pl-6">
+    {{if not .Samples}}
+    <section class="op-card">
+        <div class="op-empty"><b>{{.T.Get "No usage samples yet"}}</b><span class="op-hint">{{.T.Get "Your account's CPU, memory and processes are recorded once an hour. Check back after the next sample."}}</span></div>
+    </section>
+    {{else}}
 
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800"><i class="bi bi-calendar-month"></i> {{.T.Get "Date"}}</th>
+    <div class="op-alert is-warning" role="status" x-show="warnCount" x-cloak>{{template "op_icon" "warn"}}<span x-text="warnCount + ' ' + (warnCount === 1 ? L.sampleOver : L.samplesOver)"></span></div>
 
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800"><i class="bi bi-cpu"> </i>{{.T.Get "CPU %"}}</th>
+    <section class="op-kpis uh-kpis" aria-label="{{.T.Get "Peaks in this range"}}">
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "chartpie"}} {{.T.Get "Peak memory"}}</div>
+            <div class="op-kpi-value"><span x-text="fmtGB(peak('mem').mem)"></span> <small>GB</small></div>
+            <div class="op-kpi-note" x-text="(D.limits.mem ? pct(peak('mem').memPct) + '% ' + L.of + ' ' + (+fmtGB(D.limits.mem)) + ' GB · ' : '') + fmtShort(peak('mem').t)"></div>
+            <div class="op-progress" :class="peak('mem').memPct >= {{index $th "mem"}} ? 'is-warning' : ''"><span :style="{ width: bar(peak('mem').memPct) + '%' }"></span></div>
+        </div>
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "pulse"}} {{.T.Get "Peak CPU"}}</div>
+            <div class="op-kpi-value"><span x-text="fmtCores(peak('cpu').cpu)"></span> <small>{{.T.Get "cores"}}</small></div>
+            <div class="op-kpi-note" x-text="(D.limits.cores ? peak('cpu').cpuPct + '% ' + L.of + ' ' + fmtCores(D.limits.cores) + ' ' + L.cores + ' · ' : '') + fmtShort(peak('cpu').t)"></div>
+            <div class="op-progress" :class="peak('cpu').cpuPct >= {{index $th "cpu"}} ? 'is-warning' : ''"><span :style="{ width: bar(peak('cpu').cpuPct) + '%' }"></span></div>
+        </div>
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "listdetails"}} {{.T.Get "Peak processes"}}</div>
+            <div class="op-kpi-value" x-text="num(peak('tasks').tasks)"></div>
+            <div class="op-kpi-note" x-text="(D.limits.tasks ? L.of + ' ' + num(D.limits.tasks) + ' ' + L.allowed + ' · ' : '') + fmtShort(peak('tasks').t)"></div>
+            <div class="op-progress"><span :style="{ width: bar(D.limits.tasks ? peak('tasks').tasks / D.limits.tasks * 100 : 0) + '%' }"></span></div>
+        </div>
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "warn"}} {{.T.Get "Over a threshold"}}</div>
+            <div class="op-kpi-value"><span x-text="warnCount"></span> <small x-text="L.of + ' ' + shown.length + ' ' + L.samples"></small></div>
+            <div class="op-kpi-note" :class="warnCount ? 'is-warning' : ''" x-text="warnCount ? L.seeMarked : L.stayedUnder"></div>
+        </div>
+    </section>
 
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800"><i class="bi bi-cpu"></i> {{.T.Get "CPU Total"}}</th>
+    <section class="op-card" style="--hue: var(--color-hue-purple)" aria-labelledby="uh-mem">
+        <div class="uh-head"><h2 id="uh-mem">{{.T.Get "Memory"}}</h2><p><span class="uh-key"><i></i>{{.T.Get "Used"}}</span>{{if .Limits.MemBytes}} · {{.T.Get "limit"}} <span x-text="+fmtGB(D.limits.mem)"></span> GB{{end}}</p></div>
+        {{template "uh_chart" (dict "K" "mem" "Label" (.T.Get "Memory used"))}}
+    </section>
 
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800"><i class="bi bi-memory"></i> {{.T.Get "Memory %"}}</th>
+    <div class="op-cols-2">
+        <section class="op-card" style="--hue: var(--color-hue-cyan)" aria-labelledby="uh-cpu">
+            <div class="uh-head"><h2 id="uh-cpu">{{.T.Get "CPU"}}</h2><p><span class="uh-key"><i></i>{{.T.Get "Cores in use"}}</span>{{if .Limits.Cores}} · {{.T.Get "limit"}} {{.LimitCores}} {{.T.Get "cores"}}{{end}}</p></div>
+            {{template "uh_chart" (dict "K" "cpu" "Label" (.T.Get "CPU cores in use"))}}
+        </section>
+        <section class="op-card" style="--hue: var(--color-hue-orange)" aria-labelledby="uh-tasks">
+            <div class="uh-head"><h2 id="uh-tasks">{{.T.Get "Processes"}}</h2><p><span class="uh-key"><i></i>{{.T.Get "Running"}}</span>{{if .Limits.Tasks}} · {{.T.Get "limit"}} <span x-text="num(D.limits.tasks)"></span>{{end}}</p></div>
+            {{template "uh_chart" (dict "K" "tasks" "Label" (.T.Get "Running processes"))}}
+        </section>
+    </div>
 
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800"><i class="bi bi-memory"></i> {{.T.Get "Memory Used/Total"}}</th>
-
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800"><i class="bi bi-wifi"></i> {{.T.Get "Bandwidth Usage"}}</th>
-
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800"><i class="bi bi-exclamation-triangle"></i> {{.T.Get "Warning"}}</th>
-
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-                    {{range .UsageData}}
-                    <tr x-show="searchQuery === '' || '{{.Timestamp}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.CPU.Usage.Pct}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Memory.UsagePct}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Memory.Used.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Memory.Total.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Bandwidth.UsagePct}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Bandwidth.Limit.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.CPU.Total.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Warning}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 time_readable">{{.Timestamp}}</td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.CPU.Usage.Pct}}</td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.CPU.Total.Human}}</td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Memory.UsagePct}}</td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Memory.Used.Human}} / {{.Memory.Total.Human}}</td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Bandwidth.TotalSent.Human}} / {{.Bandwidth.Limit.Human}} ({{.Bandwidth.UsagePct}}%)</td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{if .Warning}}{{.Warning}}{{else}}-{{end}}</td>
-                    </tr>
-                    {{end}}
-</tbody>
-                </table>
-</div></div>
-<!-- END usage table -->
-
-<!-- Pagination -->
-<div class="mt-6 flex justify-center">
-    <nav aria-label="{{.T.Get "Usage History Navigation"}}">
-        <ul class="inline-flex -space-x-px text-sm">
-            {{if not .ShowAll}}
-                {{if gt .CurrentPage 1}}
-                    <li>
-                        <a
-                            href="/server/usage/history?page={{sub .CurrentPage 1}}"
-                            class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700"
-                        >{{.T.Get "Previous"}}</a>
-                    </li>
+    <section class="op-card" aria-labelledby="uh-samples">
+        <div class="uh-tools">
+            <h2 id="uh-samples">{{.T.Get "Samples"}} <span class="op-hint" x-text="'· ' + visibleCount + ' ' + L.of + ' ' + shown.length"></span></h2>
+            <label class="uh-toggle"><button class="op-switch" type="button" role="switch" :aria-checked="onlyWarn.toString()" @click="onlyWarn = !onlyWarn; all = false" aria-label="{{.T.Get "Only samples over a threshold"}}"></button>{{.T.Get "Only samples over a threshold"}}</label>
+        </div>
+        <div class="op-table-wrap" x-show="visibleCount"><table class="op-table">
+            <thead @click="$nextTick(() => sortTick++)"><tr>
+                <th aria-sort="descending"><button class="op-th-sort" type="button" data-sort-key="t" data-sort-type="number" onclick="opSortToggle(event, this, sortTableColumn)">{{.T.Get "Time"}}<i aria-hidden="true"></i></button></th>
+                <th aria-sort="none" class="is-num"><button class="op-th-sort" type="button" data-sort-key="cpu" data-sort-type="number" onclick="opSortToggle(event, this, sortTableColumn)">{{.T.Get "CPU"}}<i aria-hidden="true"></i></button></th>
+                <th aria-sort="none" class="is-num"><button class="op-th-sort" type="button" data-sort-key="mem" data-sort-type="number" onclick="opSortToggle(event, this, sortTableColumn)">{{.T.Get "Memory"}}<i aria-hidden="true"></i></button></th>
+                <th aria-sort="none"><button class="op-th-sort" type="button" data-sort-key="pct" data-sort-type="number" onclick="opSortToggle(event, this, sortTableColumn)">{{.T.Get "Of limit"}}<i aria-hidden="true"></i></button></th>
+                <th aria-sort="none" class="is-num"><button class="op-th-sort" type="button" data-sort-key="tasks" data-sort-type="number" onclick="opSortToggle(event, this, sortTableColumn)">{{.T.Get "Processes"}}<i aria-hidden="true"></i></button></th>
+                <th aria-sort="none" class="is-num"><button class="op-th-sort" type="button" data-sort-key="bw" data-sort-type="number" onclick="opSortToggle(event, this, sortTableColumn)">{{.T.Get "Bandwidth"}}<i aria-hidden="true"></i></button></th>
+                <th aria-sort="none"><button class="op-th-sort" type="button" data-sort-key="warn" data-sort-type="string" onclick="opSortToggle(event, this, sortTableColumn)">{{.T.Get "Warning"}}<i aria-hidden="true"></i></button></th>
+            </tr></thead>
+            <tbody x-effect="sortTick; filterRows($el)">
+                {{range .Rows}}
+                <tr data-t="{{.T}}"{{if .Warn}} data-warn{{end}}>
+                    <td class="op-cell-title" data-sort-col="t" data-sort-value="{{.T}}"><div class="op-row-title"><div><b>{{.Time.Format "15:04"}}</b><span class="op-sub"><time data-day datetime="{{.Time.Format "2006-01-02T15:04:05Z07:00"}}">{{.Time.Format "Mon 2 Jan"}}</time></span></div></div></td>
+                    <td data-label="{{$.T.Get "CPU"}}" class="is-num" data-sort-col="cpu" data-sort-value="{{.CPU}}"><span class="op-mono">{{.Cores}} {{$.T.Get "cores"}}</span></td>
+                    <td data-label="{{$.T.Get "Memory"}}" class="is-num" data-sort-col="mem" data-sort-value="{{.Mem}}"><span class="op-mono">{{.GB}} GB</span></td>
+                    <td data-label="{{$.T.Get "Of limit"}}" data-sort-col="pct" data-sort-value="{{.MemPct}}"><span class="uh-pct"><span class="op-progress{{if .MemHot}} is-warning{{end}}"><span style="width:{{.MemBar}}%"></span></span><span class="op-mono">{{.MemPct}}%</span></span></td>
+                    <td data-label="{{$.T.Get "Processes"}}" class="is-num" data-sort-col="tasks" data-sort-value="{{.Tasks}}"><span class="op-mono">{{.Tasks}}</span></td>
+                    <td data-label="{{$.T.Get "Bandwidth"}}" class="is-num" data-sort-col="bw" data-sort-value="{{.BW}}"><span class="op-mono">{{.Bandwidth}}</span></td>
+                    <td data-label="{{$.T.Get "Warning"}}" data-sort-col="warn" data-sort-value="{{.Warn}}">{{if .Warn}}<span class="op-status is-warning">{{.Warn}}</span>{{else}}<span class="op-hint">{{$.T.Get "None"}}</span>{{end}}</td>
+                </tr>
                 {{end}}
-
-                {{range .PageEntries}}
-                    {{if .IsEllipsis}}
-                        <li class="page-item disabled">
-                            <span class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">...</span>
-                        </li>
-                    {{else}}
-                        <li class="page-item {{if eq .Number $.CurrentPage}}active{{end}}">
-                            {{if eq .Number $.CurrentPage}}
-                                <span class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 bg-gray-200 dark:bg-gray-700">{{.Number}}</span>
-                            {{else}}
-                                <a
-                                    class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700"
-                                    href="/server/usage/history?page={{.Number}}"
-                                >{{.Number}}</a>
-                            {{end}}
-                        </li>
-                    {{end}}
-                {{end}}
-
-                {{if lt .CurrentPage .TotalPages}}
-                    <li>
-                        <a
-                            href="/server/usage/history?page={{add .CurrentPage 1}}"
-                            class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700"
-                        >{{.T.Get "Next"}}</a>
-                    </li>
-                {{end}}
-            {{end}}
-        </ul>
-    </nav>
+            </tbody>
+        </table></div>
+        <button class="op-btn op-btn-ghost op-btn-sm uh-more" type="button" x-show="!all && visibleCount > D.rowLimit" x-cloak @click="all = true" x-text="L.showAll.replace('%d', visibleCount)"></button>
+        <div class="op-empty" x-show="!visibleCount" x-cloak><b>{{.T.Get "No samples went over a threshold"}}</b><span class="op-hint">{{.T.Get "A sample is marked when memory or CPU reaches"}} {{index $th "mem"}}% {{.T.Get "of your limit, or bandwidth"}} {{index $th "bw"}}%.</span></div>
+        <div class="op-tfoot"><span>{{.T.Get "Times are UTC."}} {{if .Retention}}{{.T.Get "The newest"}} {{.Retention}} {{.T.Get "samples are kept."}}{{else}}{{.T.Get "Every sample is kept."}}{{end}}{{if not .Limits.BWBits}} {{.T.Get "No bandwidth limit is set on this account."}}{{end}}</span>{{if .UserAllowed.summary}}<a class="op-page-link" href="/summary">{{.T.Get "Daily Summary"}}</a>{{end}}</div>
+    </section>
+    {{end}}
 </div>
-<!-- END Pagination -->
 
+<script src="{{static "js/table-sort.js"}}"></script>
 <script>
-    // Script to handle toggling the "Show all activity" checkbox
-    const showAllCheckboxOnHistoryPage = document.getElementById('showAllCheckboxOnHistoryPage');
-
-        showAllCheckboxOnHistoryPage.addEventListener('change', () => {
-        const urlSearchParams = new URLSearchParams(window.location.search);
-        if (showAllCheckboxOnHistoryPage.checked) {
-            urlSearchParams.set('show_all', 'true');
-            urlSearchParams.delete('page');// Remove the show_all parameter
-
-        }
-        else {
-            urlSearchParams.delete('show_all');// Remove the show_all parameter
-        }
-        // Update the URL with the new query parameters
-        window.location.search = urlSearchParams.toString();
-    });
-
-    // Get the table rows and initialize arrays for data
-    const usageTable = document.getElementById('usage');
-    const tableRows = usageTable.querySelectorAll('tbody tr');
-    const timestamps = [];
-    const cpuData = [];
-    const ramData = [];
-
-    // Extract data from table rows
-    tableRows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        timestamps.push(cells[0].textContent);      // Timestamp
-        cpuData.push(parseFloat(cells[1].textContent)); // CPU %
-        ramData.push(parseFloat(cells[3].textContent)); // Memory %
-    });
-
-    // Reverse the arrays
-    timestamps.reverse();
-    cpuData.reverse();
-    ramData.reverse();
-
-</script>
-
-{{if eq .ChartsMode "one"}}
-<script>
-// Create combined chart
-const combinedChartCtx = document.getElementById('combinedChart').getContext('2d');
-new Chart(combinedChartCtx, {
-    type: 'line',
-    data: {
-        labels: timestamps,
-        datasets: [
-            {
-                label: 'CPU %',
-                data: cpuData,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                fill: false,
-            },
-            {
-                label: 'Memory %',
-                data: ramData,
-                borderColor: 'rgba(255, 99, 132, 1)',
-                fill: false,
-            },
-        ],
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-    },
-});
-</script>
-{{else if eq .ChartsMode "two"}}
-<script>
-    // Create CPU chart
-    const cpuChartCtx = document.getElementById('cpuChart').getContext('2d');
-    new Chart(cpuChartCtx, {
-        type: 'line',
-        data: {
-            labels: timestamps,
-            datasets: [{
-                label: 'CPU %',
-                data: cpuData,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                fill: false
-            }]
+function usageHistory(D) {
+    const H = 3600e3;
+    const L = {
+        locale: {{toJSON .T.Locale}},
+        of: {{toJSON (.T.Get "of")}}, cores: {{toJSON (.T.Get "cores")}}, allowed: {{toJSON (.T.Get "allowed")}}, samples: {{toJSON (.T.Get "samples")}},
+        processes: {{toJSON (.T.Get "processes")}}, to: {{toJSON (.T.Get "to")}},
+        sampleOver: {{toJSON (.T.Get "sample in this range went over a limit threshold. It is marked in the table below.")}},
+        samplesOver: {{toJSON (.T.Get "samples in this range went over a limit threshold. They are marked in the table below.")}},
+        seeMarked: {{toJSON (.T.Get "See the marked rows below")}},
+        stayedUnder: {{toJSON (.T.Get "Memory and CPU stayed under")}} + ' {{index $th "mem"}}%',
+        showAll: {{toJSON (.T.Get "Show all %d samples")}},
+    };
+    // plain English reads day-month like the rest of the panel
+    const loc = /^en$/i.test(String(L.locale || 'en')) ? 'en-GB' : String(L.locale).replace('_', '-');
+    const fmt = (opts) => { try { return new Intl.DateTimeFormat(loc, Object.assign({ timeZone: 'UTC' }, opts)); } catch (e) { return new Intl.DateTimeFormat('en', Object.assign({ timeZone: 'UTC' }, opts)); } };
+    const fHM = fmt({ hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }), fDM = fmt({ day: 'numeric', month: 'short' }), fDay = fmt({ weekday: 'short', day: 'numeric', month: 'short' });
+    const hm = (t) => fHM.format(t), dm = (t) => fDM.format(t);
+    const num = (n) => { try { return n.toLocaleString(loc); } catch (e) { return String(n); } };
+    const fmtGB = (b) => { const g = b / 2 ** 30; return g >= 10 ? g.toFixed(1) : g.toFixed(2); };
+    const fmtCores = (c) => (c >= 1 ? c.toFixed(1) : c.toFixed(2));
+    const pts = D.samples || [];
+    const SERIES = {
+        mem: { v: (p) => p.mem / 2 ** 30, min: 0.5, fmt: (v) => (v ? +v.toFixed(2) + ' GB' : '0') },
+        cpu: { v: (p) => p.cpu, min: 0.1, fmt: (v) => (v ? String(+v.toFixed(2)) : '0') },
+        tasks: { v: (p) => p.tasks, min: 10, fmt: (v) => num(v) },
+    };
+    const nice = (v, min) => { v = Math.max(v * 1.1, min); const e = 10 ** Math.floor(Math.log10(v)); return [1, 2, 2.5, 5, 10].map((m) => m * e).find((m) => m >= v - 1e-9); };
+    const ranges = { '24h': 24, '3d': 72, '7d': 168 };
+    return {
+        D, L, pts, num, fmtGB, fmtCores,
+        range: D.ranges.includes('3d') ? '3d' : D.ranges[0], onlyWarn: false, hov: null, all: false, sortTick: 0,
+        init() {
+            this.$root.querySelectorAll('time[data-day]').forEach((el) => { el.textContent = fDay.format(Date.parse(el.getAttribute('datetime'))); });
+            // table-sort.js may apply a ?sort= from the URL after the first filter
+            window.addEventListener('load', () => this.sortTick++);
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-        }
-    });
-
-    // Create RAM chart
-    const ramChartCtx = document.getElementById('ramChart').getContext('2d');
-    new Chart(ramChartCtx, {
-        type: 'line',
-        data: {
-            labels: timestamps,
-            datasets: [{
-                label: 'Memory %',
-                data: ramData,
-                borderColor: 'rgba(255, 99, 132, 1)',
-                fill: false
-            }]
+        setRange(r) { this.range = r; this.hov = null; this.all = false; },
+        pct: (v) => Math.round(v),
+        bar: (v) => Math.min(Math.max(v, 1), 100),
+        fmtShort: (t) => dm(t) + ', ' + hm(t),
+        fmtFull(t) { return fDay.format(t) + ', ' + hm(t) + ' UTC'; },
+        get hours() { return ranges[this.range]; },
+        get to() { return pts.length ? pts[pts.length - 1].t : 0; },
+        get from() { return pts.length ? Math.max(pts[0].t, this.to - this.hours * H) : 0; },
+        get rangeLabel() { return dm(this.from) + ' ' + hm(this.from) + ' ' + L.to + ' ' + dm(this.to) + ' ' + hm(this.to); },
+        get shown() { return pts.filter((p) => p.t >= this.from); },
+        get warnCount() { return this.shown.filter((p) => p.warn).length; },
+        get visibleCount() { return this.onlyWarn ? this.warnCount : this.shown.length; },
+        // shows the first rowLimit matching rows in whatever order the sort left them
+        filterRows(tbody) {
+            let n = 0;
+            for (const tr of tbody.rows) {
+                const ok = +tr.dataset.t >= this.from && (!this.onlyWarn || 'warn' in tr.dataset);
+                tr.hidden = !ok || (!this.all && n >= D.rowLimit);
+                if (ok) n++;
+            }
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-        }
-    });
+        peak(k) { const s = this.shown; return s.reduce((a, p) => (p[k] > a[k] ? p : a), s[0] || { mem: 0, memPct: 0, cpu: 0, cpuPct: 0, tasks: 0, t: 0 }); },
+        yMax(k) { const s = SERIES[k]; return nice(Math.max(0, ...this.shown.map(s.v)), s.min); },
+        yTicks(k) { const m = this.yMax(k); return [m, m / 2, 0].map(SERIES[k].fmt); },
+        x(t) { return this.to === this.from ? 300 : (t - this.from) / (this.to - this.from) * 600; },
+        // a gap of more than an hour and a half between samples breaks the line
+        segs(k) {
+            const s = SERIES[k], m = this.yMax(k), out = [];
+            let cur = [], prev = null;
+            for (const p of this.shown) {
+                if (prev && p.t - prev.t > 1.5 * H) { out.push(cur); cur = []; }
+                cur.push([this.x(p.t), 180 - s.v(p) / m * 178]);
+                prev = p;
+            }
+            if (cur.length) out.push(cur);
+            return out;
+        },
+        line(k) { return this.segs(k).map((g) => 'M' + g.map((q) => q[0].toFixed(1) + ',' + q[1].toFixed(1)).join(' L') + (g.length === 1 ? ' l2,0' : '')).join(' '); },
+        area(k) { return this.segs(k).filter((g) => g.length > 1).map((g) => 'M' + g[0][0].toFixed(1) + ',180 L' + g.map((q) => q[0].toFixed(1) + ',' + q[1].toFixed(1)).join(' L') + ' L' + g[g.length - 1][0].toFixed(1) + ',180 Z').join(' '); },
+        xTicks() {
+            if (this.to === this.from) return [];
+            const step = this.hours <= 24 ? 6 * H : 24 * H, out = [];
+            for (let t = Math.ceil(this.from / step) * step; t <= this.to; t += step) {
+                const x = (t - this.from) / (this.to - this.from) * 100;
+                out.push({ x, label: step < 24 * H ? hm(t) : dm(t), cls: x < 6 ? 'is-start' : x > 94 ? 'is-end' : '' });
+            }
+            return out;
+        },
+        hover(e, k) {
+            if (!this.shown.length) return;
+            const r = e.currentTarget.getBoundingClientRect(), t = this.from + (e.clientX - r.left) / r.width * (this.to - this.from);
+            const p = this.shown.reduce((a, q) => (Math.abs(q.t - t) < Math.abs(a.t - t) ? q : a));
+            this.hov = { k, p, x: this.x(p.t) / 6, y: (180 - SERIES[k].v(p) / this.yMax(k) * 178) / 1.8 };
+        },
+        tip(k) {
+            const p = this.hov.p;
+            if (k === 'mem') return fmtGB(p.mem) + ' GB · ' + Math.round(p.memPct) + '%';
+            if (k === 'cpu') return fmtCores(p.cpu) + ' ' + L.cores + (D.limits.cores ? ' · ' + p.cpuPct + '%' : '');
+            return num(p.tasks) + ' ' + L.processes;
+        },
+        peakLabel(k) { const p = this.peak(k); return k === 'mem' ? fmtGB(p.mem) + ' GB' : k === 'cpu' ? fmtCores(p.cpu) + ' ' + L.cores : num(p.tasks); },
+        tipStyle() { return this.hov.x > 55 ? { left: this.hov.x + '%', transform: 'translateX(calc(-100% - 12px))' } : { left: this.hov.x + '%', transform: 'translateX(12px)' }; },
+    };
+}
 </script>
+<!-- END templates/user/history_usage.html -->
 {{end}}
 
-</section>
-
-<!-- END templates/user/history_usage.html -->
+{{define "uh_chart"}}
+<div class="uh-chart">
+    <div class="uh-y" aria-hidden="true"><template x-for="v in yTicks('{{.K}}')"><span x-text="v"></span></template></div>
+    <div class="uh-plot" @pointermove="hover($event, '{{.K}}')" @pointerleave="hov = null">
+        <svg viewBox="0 0 600 180" preserveAspectRatio="none" role="img" :aria-label="{{toJSON .Label}} + ', ' + rangeLabel + ', ' + peakLabel('{{.K}}')"><line class="gl" x1="0" x2="600" y1="0.5" y2="0.5"/><line class="gl" x1="0" x2="600" y1="90" y2="90"/><line class="base" x1="0" x2="600" y1="179.5" y2="179.5"/><path class="area" :d="area('{{.K}}')"/><path class="line" :d="line('{{.K}}')"/><line class="cross" x-show="hov && hov.k === '{{.K}}'" :x1="hov ? hov.x * 6 : 0" :x2="hov ? hov.x * 6 : 0" y1="0" y2="180"/></svg>
+        <template x-if="hov && hov.k === '{{.K}}'"><div><span class="uh-dot" :style="{ left: hov.x + '%', top: hov.y + '%' }"></span><div class="uh-tip" :style="tipStyle()"><b x-text="tip('{{.K}}')"></b><span x-text="fmtFull(hov.p.t)"></span></div></div></template>
+    </div>
+    <div class="uh-x" aria-hidden="true"><template x-for="tk in xTicks()"><span :class="tk.cls" :style="{ left: tk.x + '%' }" x-text="tk.label"></span></template></div>
+</div>
 {{end}}

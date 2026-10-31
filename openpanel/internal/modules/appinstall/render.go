@@ -35,7 +35,7 @@ func displayFor(kind Kind) kindDisplay {
 	}
 }
 
-var installPage = web.LoadPage("manager/app_install.html")
+var installPage = web.LoadPage("manager/_install_wizard.html", "manager/app_install.html")
 
 // InstallPageData is manager/app_install.html's template context.
 type InstallPageData struct {

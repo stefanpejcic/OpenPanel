@@ -1,55 +1,41 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 {{define "flowbite_js"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/docker/change_webserver.html -->
-
-<section aria-label="{{.T.Get "Change Webserver"}}" x-data="{ choice: '', label: '' }">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<div class="op-content" aria-label="{{.T.Get "Change Webserver"}}" x-data="{ choice: '', label: '' }">
+    <div class="op-page-head">
         <div>
-            <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Webserver"}}</h1></div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Choose the webserver that will power your websites."}}</p>
+            <h1 class="op-title">{{.T.Get "Web Server Type"}}</h1>
+            <p class="op-meta">{{.T.Get "Choose the webserver that will power your websites."}}</p>
         </div>
     </div>
 
-    <form method="POST" class="sm:mx-auto sm:max-w-2xl p-6">
+    {{if .DomainCount}}
+    <div class="op-alert is-warning" role="status">{{template "op_icon" "alert"}}<span><b>{{.T.Get "Switching is locked while the account has domains."}}</b> {{.T.Get "To switch the webserver, first remove all domains from your account."}} {{.T.Get "Domains:"}} <strong>{{.DomainCount}}</strong>. <a href="/domains" style="color:var(--color-accent-text)">{{.T.Get "Go to Domains"}}</a></span></div>
+    {{end}}
+
+    <form method="POST" class="op-card">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-        {{if .DomainCount}}
-        <div class="mb-4 flex items-start gap-3 rounded border border-yellow-500 bg-yellow-50 p-4 text-sm text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">
-            <i class="bi bi-exclamation-triangle-fill mt-0.5"></i>
-            <p>{{.T.Get "To switch the webserver, first remove all domains from your account."}} {{.T.Get "Domains:"}} <strong>{{.DomainCount}}</strong>. <a href="/domains" class="font-medium underline">{{.T.Get "Go to Domains"}}</a></p>
-        </div>
-        {{end}}
-
-        <div class="grid grid-cols-1 gap-3 {{if .DomainCount}}opacity-50 pointer-events-none{{end}}">
+        <div class="op-options" style="--cols:2">
             {{range .Choices}}
-            <label class="flex items-center gap-3 rounded border p-4 {{if .Current}}border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900{{else}}cursor-pointer{{end}}"
-                   {{if not .Current}}:class="choice === {{toJSON .Value}} ? 'border-indigo-500 shadow-md' : 'border-gray-200 dark:border-gray-700'"{{end}}>
+            <label class="op-option op-server-opt{{if .Current}} is-current{{end}}"{{if or .Current $.DomainCount}} aria-disabled="true"{{end}}>
                 <input type="radio" name="new_ws" value="{{.Value}}" {{if .Current}}checked disabled{{else}}x-model="choice" @change="label = {{toJSON .Label}}"{{end}} {{if $.DomainCount}}disabled{{end}}>
-                <span class="shrink-0 rounded-md bg-white p-1 shadow-sm">{{if .Icon}}<img src="{{static (printf "img/servers/%s.svg" .Icon)}}" alt="" class="w-8 h-8">{{else}}<i class="bi bi-hdd-stack flex items-center justify-center w-8 h-8 text-xl text-gray-500"></i>{{end}}</span>
-                <span>
-                    <span class="flex items-center gap-1.5">
-                        <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.Label}}</span>
-                        {{if .Current}}<span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400">{{$.T.Get "Current"}}</span>{{end}}
-                    </span>
-                    {{if .Description}}<span class="block text-xs text-gray-500 dark:text-gray-400">{{$.T.Get .Description}}</span>{{end}}
-                </span>
+                <span class="op-server-logo">{{if .Icon}}<img src="{{static (printf "img/servers/%s.svg" .Icon)}}" alt="" width="32" height="32">{{else}}{{template "op_icon" "server"}}{{end}}</span>
+                <div style="flex:1;min-width:0"><b>{{.Label}}{{if .Current}} <span class="op-badge is-accent">{{$.T.Get "Current"}}</span>{{end}}</b>{{if .Description}}<span>{{$.T.Get .Description}}</span>{{end}}</div>
             </label>
             {{end}}
         </div>
-
-        {{if not .DomainCount}}
-        <p class="mt-6 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Switching stops the current webserver, removes its configuration and starts the new one."}}</p>
-        <div class="mt-3 flex justify-end">
-            <button type="submit" :disabled="!choice" :class="!choice && 'opacity-50'" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800">
+        <div class="op-form-foot" style="align-items:center;flex-wrap:wrap">
+            <span class="op-hint" style="flex:1 1 260px">{{.T.Get "Switching stops the current webserver, removes its configuration and starts the new one."}}</span>
+            <button type="submit" {{if .DomainCount}}disabled{{else}}:disabled="!choice"{{end}} class="op-btn op-btn-primary">
                 <span x-show="!choice">{{.T.Get "Choose a webserver"}}</span>
                 <span x-show="choice" x-cloak>{{.T.Get "Switch to"}} <span x-text="label"></span></span>
             </button>
         </div>
-        {{end}}
     </form>
-</section>
-
+</div>
 <!-- END templates/docker/change_webserver.html -->
 {{end}}

@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Create Cron Job - OpenPanel Modern</title>
+<script>(function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('color-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark');})();</script>
+<link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="dist/app.css">
+<style>[x-cloak]{display:none!important}
+.op-table tr.cf-new-row td { background: color-mix(in srgb, var(--color-success) 7%, transparent); }
+.op-table tr.cf-new-row td:first-child { box-shadow: inset 2px 0 0 var(--color-success); }
+.cf-tag-new { margin-left: 8px; background: color-mix(in srgb, var(--color-success) 18%, transparent) !important; color: var(--color-success) !important; }</style>
+<script src="shell.js"></script>
+<script>
+// the test account's real cron containers, default PHP version and database type (GET /cronjobs/new?output=json), and its existing job names
+window.CRON = {"containers":["apache","backup","elasticsearch","flaskapp","javaapp","mariadb","memcached","mongodb","n8n","nodeapp","opensearch","php-fpm-5.6","php-fpm-7.0","php-fpm-7.1","php-fpm-7.2","php-fpm-7.3","php-fpm-7.4","php-fpm-8.0","php-fpm-8.1","php-fpm-8.2","php-fpm-8.3","php-fpm-8.4","php-fpm-8.5","postgres","redis","sinatra","testapp","tor","uptimekuma","valkey","varnish"],"php":"php-fpm-8.5","db":"mariadb","tz":"UTC","names":["PHP version check","Apache config test","Clear old PHP sessions"]};
+// robfig/cron v3 the way ofelia reads it: seconds first, or an @descriptor; the panel runs the same parser on the server
+window.opCronSched = (function () {
+  const MON = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
+  const DOW = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+  const F = [[0, 59], [0, 59], [0, 23], [1, 31], [1, 12, MON], [0, 6, DOW]];
+  function field(s, [lo, hi, names]) {
+    const set = new Set();
+    for (const part of s.split(',')) {
+      const m = /^(\*|\?|[a-z0-9]+(?:-[a-z0-9]+)?)(?:\/(\d+))?$/i.exec(part);
+      if (!m) throw 'bad';
+      const num = (v) => { const n = names && names[v.toLowerCase()] !== undefined ? names[v.toLowerCase()] : (/^\d+$/.test(v) ? +v : NaN); if (isNaN(n) || n < lo || n > hi + (names === DOW ? 1 : 0)) throw 'bad'; return names === DOW && n === 7 ? 0 : n; };
+      let a = lo, b = hi;
+      if (m[1] !== '*' && m[1] !== '?') { const r = m[1].split('-'); a = num(r[0]); b = r.length > 1 ? num(r[1]) : (m[2] ? hi : a); }
+      const step = m[2] ? +m[2] : 1;
+      if (step < 1 || a > b) throw 'bad';
+      for (let v = a; v <= b; v += step) set.add(v);
+    }
+    return set;
+  }
+  function dur(s) {
+    const m = /^(?:\d+(?:\.\d+)?(?:h|m|s|ms))+$/.exec(s);
+    if (!m) return 0;
+    let t = 0; s.replace(/(\d+(?:\.\d+)?)(ms|h|m|s)/g, (_, n, u) => { t += n * { h: 3600, m: 60, s: 1, ms: .001 }[u]; });
+    return t;
+  }
+  const DESC = { '@yearly': '0 0 0 1 1 *', '@annually': '0 0 0 1 1 *', '@monthly': '0 0 0 1 * *', '@weekly': '0 0 0 * * 0', '@daily': '0 0 0 * * *', '@midnight': '0 0 0 * * *', '@hourly': '0 0 * * * *' };
+  // { error } or { next(from, n) }
+  function parse(expr) {
+    const s = (expr || '').trim();
+    if (!s) return { error: 'Schedule is empty.' };
+    if (s.startsWith('@every ')) {
+      const d = dur(s.slice(7).trim());
+      if (!d) return { error: 'Invalid schedule: failed to parse duration ' + s + '.' };
+      // ofelia rounds @every down to whole seconds, at least one
+      const step = Math.max(1, Math.floor(d));
+      return { next(from, n) { const out = []; let t = Math.floor(from.getTime() / 1000) * 1000; for (let i = 0; i < n; i++) { t += step * 1000; out.push(new Date(t)); } return out; } };
+    }
+    let f = s;
+    if (s.startsWith('@')) { if (!DESC[s]) return { error: 'Invalid schedule: unrecognized descriptor: ' + s }; f = DESC[s]; }
+    const parts = f.split(/\s+/);
+    if (parts.length === 5) return { error: 'Schedule "' + s + '" has only 5 fields, but this cron implementation requires 6 (seconds minutes hours day month weekday). Add one more field for seconds at the start.' };
+    if (parts.length !== 6) return { error: 'Schedule "' + s + '" is invalid - expected 6 fields (seconds minutes hours day month weekday) or an @every/@daily-style descriptor.' };
+    let sets;
+    try { sets = parts.map((p, i) => field(p, F[i])); } catch (e) { return { error: 'Invalid schedule: a field of "' + s + '" is out of range or not a number.' }; }
+    const domStar = /^[*?]/.test(parts[3]), dowStar = /^[*?]/.test(parts[5]);
+    const dayOk = (d) => domStar || dowStar ? sets[3].has(d.getUTCDate()) && sets[5].has(d.getUTCDay()) : sets[3].has(d.getUTCDate()) || sets[5].has(d.getUTCDay());
+    return { next(from, n) {
+      const out = []; let t = new Date(Math.floor(from.getTime() / 1000) * 1000 + 1000);
+      for (let guard = 0; out.length < n && guard < 200000; guard++) {
+        if (!sets[4].has(t.getUTCMonth() + 1)) { t = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 1)); continue; }
+        if (!dayOk(t)) { t = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate() + 1)); continue; }
+        if (!sets[2].has(t.getUTCHours())) { t = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate(), t.getUTCHours() + 1)); continue; }
+        if (!sets[1].has(t.getUTCMinutes())) { t = new Date(t.getTime() - t.getUTCSeconds() * 1000 + 60000); continue; }
+        if (!sets[0].has(t.getUTCSeconds())) { t = new Date(t.getTime() + 1000); continue; }
+        out.push(t); t = new Date(t.getTime() + 1000);
+      }
+      return out;
+    } };
+  }
+  return { parse };
+})();
+function opNewCron() {
+  const C = window.CRON;
+  const fmtDay = new Intl.DateTimeFormat('en', { weekday: 'short', day: 'numeric', month: 'short', timeZone: C.tz });
+  const fmtClock = new Intl.DateTimeFormat('en', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: C.tz });
+  const fmtSec = new Intl.DateTimeFormat('en', { hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23', timeZone: C.tz });
+  return {
+    command: '', container: C.php, picked: false, auto: '', sel: '@daily', expr: '0 30 2 * * *', name: '', noOverlap: false, tried: false, busy: false, toast: '',
+    presets: [['@every 1m', 'Every minute', ''], ['@every 5m', 'Every 5 minutes', ''], ['@every 30m', 'Every 30 minutes', ''], ['@hourly', 'Hourly', 'at minute 0'], ['@daily', 'Daily', 'at 00:00'], ['@weekly', 'Weekly', 'Sundays 00:00'], ['@monthly', 'Monthly', 'on the 1st, 00:00'], ['custom', 'Custom', 'cron expression']],
+    words: { '@every 1m': 'Every minute', '@every 5m': 'Every 5 minutes', '@every 30m': 'Every 30 minutes', '@hourly': 'Every hour', '@daily': 'Every day at 00:00', '@weekly': 'Once a week, Sundays at 00:00', '@monthly': 'Once a month, on the 1st at 00:00' },
+    init() { this.$watch('command', () => this.guess()); },
+    schedule() { return this.sel === 'custom' ? this.expr.trim() : this.sel; },
+    guess() {
+      if (this.picked) return;
+      const cmd = this.command.trim();
+      let target = '', kind = '';
+      if (C.php && /^(\S*\/)?(php[\d.]*|wp|composer|artisan)(\s|$)/i.test(cmd)) { target = C.php; kind = 'php'; }
+      else if (C.db && /^(\S*\/)?(mysql|mysqldump|mysqlcheck|mariadb|mariadb-dump|mariadb-check)(\s|$)/i.test(cmd)) { target = C.db; kind = 'db'; }
+      if (target) this.container = target;
+      this.auto = kind;
+    },
+    pickContainer(v) { this.container = v; this.picked = true; this.auto = ''; },
+    cmdErr() {
+      const c = this.command.trim();
+      if (!c) return this.tried ? 'Enter the command to run.' : '';
+      if (/\b(image|network)\s*=/i.test(c)) return 'image= or network= are not allowed in the command.';
+      if (/\bjob-(run|local|service-run)/i.test(c)) return 'job-run, job-local, and job-service-run are not allowed in the command.';
+      return '';
+    },
+    containerErr() { return !this.container && this.tried ? 'Pick the container to run the command in.' : ''; },
+    parsed() { return opCronSched.parse(this.schedule()); },
+    schedErr() { if (this.sel !== 'custom') return ''; if (!this.expr.trim()) return this.tried ? 'Enter a schedule, or pick one of the presets.' : ''; return this.parsed().error || ''; },
+    finalName() { return (this.name.trim() || this.container || 'job'); },
+    nameErr() {
+      const n = this.name.trim();
+      if (n.length > 30) return 'Keep the name to 30 characters or fewer.';
+      if (n && C.names.includes(n)) return 'A cron job named "' + n + '" already exists. Pick another name.';
+      return '';
+    },
+    autoName() { if (this.name.trim()) return this.name.trim(); const base = (this.container || 'job').slice(0, 30); if (!C.names.includes(base)) return base; for (let i = 1; ; i++) { const c = base + '-' + i; if (!C.names.includes(c)) return c; } },
+    nextRuns() { const p = this.parsed(); if (p.error) return []; const runs = p.next(new Date(), 3); const sec = runs.some(d => d.getUTCSeconds()); return runs.map(d => fmtDay.format(d) + ', ' + (sec ? fmtSec : fmtClock).format(d)); },
+    describe() { return this.sel === 'custom' ? this.customWords() : this.words[this.sel]; },
+    customWords() {
+      const f = this.expr.trim().split(/\s+/);
+      if (this.parsed().error) return '';
+      if (this.expr.trim().startsWith('@every ')) return 'Every ' + this.expr.trim().slice(7);
+      if (f.length === 6 && /^\d+$/.test(f[0]) && /^\d+$/.test(f[1]) && /^\d+$/.test(f[2]) && f[3] === '*' && f[4] === '*' && f[5] === '*') return 'Every day at ' + f[2].padStart(2, '0') + ':' + f[1].padStart(2, '0') + (+f[0] ? ':' + f[0].padStart(2, '0') : '');
+      return 'Custom schedule';
+    },
+    block() {
+      const name = this.autoName().replace(/"/g, '\\"');
+      return '[job-exec "' + name + '"]\nschedule = ' + (this.schedule() || '…') + '\ncontainer = ' + (this.container || '…') + '\ncommand = ' + (this.command.trim() || '…') + (this.noOverlap ? '\nno-overlap' : '');
+    },
+    pick(v) { this.sel = v; if (v === 'custom') this.$nextTick(() => this.$refs.expr.focus()); },
+    submit() {
+      this.tried = true;
+      if (this.cmdErr() || this.containerErr() || this.schedErr() || this.nameErr()) { this.$nextTick(() => { const el = this.$root.querySelector('.cf-form .is-invalid'); if (el) el.focus(); }); return; }
+      this.busy = true;
+      const job = { name: this.autoName(), schedule: this.schedule(), container: this.container, command: this.command.trim(), no_overlap: this.noOverlap, human: this.describe() || this.schedule(), last: null, next: this.nextRuns()[0] || '' };
+      setTimeout(() => {
+        try { const list = JSON.parse(sessionStorage.getItem('op-cron-created') || '[]').filter(j => j.name !== job.name); list.push(job); sessionStorage.setItem('op-cron-created', JSON.stringify(list)); } catch (e) {}
+        location.href = 'cron.html?created=' + encodeURIComponent(job.name);
+      }, 600);
+    },
+  };
+}
+</script>
+<style>
+.cf-grid { display: grid; gap: 20px; align-items: start; }
+@media (width >= 80rem) { .cf-grid { grid-template-columns: minmax(0, 1fr) 340px; } }
+.cf-form fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.cf-presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.cf-presets button { display: inline-flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 96px; min-height: 44px; padding: 6px 12px; border: 0; border-radius: var(--radius-md); background: var(--color-inset); color: var(--color-heading); font: 600 13px/18px var(--font-sans); cursor: pointer; box-shadow: inset 0 0 0 1px transparent; text-align: left; }
+.cf-presets button small { font-weight: 400; font-size: 11px; line-height: 14px; color: var(--color-muted); }
+.cf-presets button[aria-checked="true"] { box-shadow: inset 0 0 0 2px var(--color-accent); background: color-mix(in srgb, var(--color-accent) 6%, var(--color-inset)); }
+:where(html:not(.dark)) .cf-presets button { background: transparent; box-shadow: inset 0 0 0 1px var(--color-raised); }
+:where(html:not(.dark)) .cf-presets button[aria-checked="true"] { box-shadow: inset 0 0 0 2px var(--color-accent); background: color-mix(in srgb, var(--color-accent) 5%, transparent); }
+.cf-when { display: grid; gap: 8px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--color-inset); font-size: 13px; line-height: 18px; }
+.cf-when > div { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--color-heading); }
+.cf-when > div svg { width: 16px; height: 16px; flex: none; color: var(--color-muted); }
+.cf-next { display: grid !important; gap: 6px !important; }
+.cf-next > span { font-size: 12px; color: var(--color-muted); }
+.cf-when ol { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.cf-when li { padding: 2px 8px; border-radius: 9999px; background: var(--color-raised); font: 500 12px/18px var(--font-mono); color: var(--color-heading); }
+.cf-when.is-bad { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-danger) 45%, transparent); }
+.cf-pre { margin: 0; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--color-inset); font: 400 12px/20px var(--font-mono); color: var(--color-heading); white-space: pre-wrap; overflow-wrap: anywhere; }
+.cf-label-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.cf-label-row a { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--color-accent-text); text-decoration: none; }
+.cf-label-row a svg { width: 13px; height: 13px; }
+@media (width < 48rem) { .cf-form .op-savebar > .op-mono { display: none; } }
+</style>
+<script defer src="vendor/alpine.min.js"></script>
+</head>
+<body>
+<div class="op-app" x-data="{ nav: false }" :data-nav-open="nav || null" @keydown.escape.window="nav = false">
+  <aside class="op-sidebar" aria-label="Sidebar" x-data="{ navq: '', userMenu: false, menuStyle: 'classic' }" x-effect="opFilterNav($el, navq)" @keydown.window="if ($event.key === '/' && !$event.ctrlKey && !$event.target.closest('input, textarea, select')) { $event.preventDefault(); nav = true; $refs.navq.focus() }" @focus-nav-search.window="nav = true; $nextTick(() => $refs.navq.focus())">
+    <a class="op-brand" href="index.html"><svg viewBox="0 0 213 215" aria-hidden="true"><g transform="translate(0,215) scale(0.1,-0.1)" fill="currentColor"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"/></g></svg> OpenPanel</a>
+    <label class="op-sidesearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg><input type="search" x-ref="navq" x-model="navq" placeholder="Search menu" aria-label="Search the menu" autocomplete="off" @keydown.escape="navq = ''; $el.blur()" @keydown.enter.prevent="opFirstNavHit($el.closest('aside'))"><kbd x-show="!navq">/</kbd></label>
+    <div class="op-sidebar-scroll">
+    <nav class="op-nav" aria-label="Main"><a class="op-nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1"/><path d="M5 16h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1"/><path d="M15 12h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1"/><path d="M15 4h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1"/></svg> Dashboard</a><a class="op-nav-item" href="websites.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 6h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"></path><path d="M17 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path></svg> Websites</a><a class="op-nav-item" href="domains.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19.5 7a9 9 0 0 0 -7.5 -4a8.991 8.991 0 0 0 -7.484 4"></path><path d="M11.5 3a16.989 16.989 0 0 0 -1.826 4"></path><path d="M12.5 3a16.989 16.989 0 0 1 1.828 4"></path><path d="M19.5 17a9 9 0 0 1 -7.5 4a8.991 8.991 0 0 1 -7.484 -4"></path><path d="M11.5 21a16.989 16.989 0 0 1 -1.826 -4"></path><path d="M12.5 21a16.989 16.989 0 0 0 1.828 -4"></path><path d="M2 10l1 4l1.5 -4l1.5 4l1 -4"></path><path d="M17 10l1 4l1.5 -4l1.5 4l1 -4"></path><path d="M9.5 10l1 4l1.5 -4l1.5 4l1 -4"></path></svg> Domains</a><a class="op-nav-item" href="email.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"></path><path d="M3 7l9 6l9 -6"></path></svg> Email</a><a class="op-nav-item" href="files.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"/></svg> Files</a><a class="op-nav-item" href="backups.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/><path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10"/><path d="M10 12l4 0"/></svg> Backups</a></nav>
+    <nav class="op-nav" aria-label="Databases"><div class="op-nav-label">Databases</div><a class="op-nav-item" href="mysql.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"/><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"/><path d="M7 8l0 .01"/><path d="M7 16l0 .01"/><path d="M11 8h6"/><path d="M11 16h6"/></svg> MySQL</a><a class="op-nav-item" href="postgresql.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6a8 3 0 1 0 16 0a8 3 0 1 0 -16 0"/><path d="M4 6v6a8 3 0 0 0 16 0v-6"/><path d="M4 12v6a8 3 0 0 0 16 0v-6"/></svg> PostgreSQL</a></nav>
+    <nav class="op-nav" aria-label="Configure"><div class="op-nav-label">Configure</div><a class="op-nav-item" href="php.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M2 12a10 9 0 1 0 20 0a10 9 0 1 0 -20 0"></path><path d="M5.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M15.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M12 7.5l-1 5.5"></path><path d="M11.6 10h2.4l-.5 3"></path></svg> PHP</a><a class="op-nav-item" href="cron.html" aria-current="page"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 7v5l3 3"/></svg> Cron Jobs</a><a class="op-nav-item" href="cache.html"><svg aria-hidden="true" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="currentColor" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5.636 19.364a9 9 0 1 1 12.728 0" /><path d="M16 9l-4 4" /></svg> Cache & Search</a><a class="op-nav-item" href="webserver.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 6l8 0"/><path d="M16 6l4 0"/><path d="M8 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 12l2 0"/><path d="M10 12l10 0"/><path d="M17 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 18l11 0"/><path d="M19 18l1 0"/></svg> Web Server Config</a><a class="op-nav-item" href="containers.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5"/><path d="M12 12l8 -4.5"/><path d="M12 12l0 9"/><path d="M12 12l-8 -4.5"/></svg> Containers</a></nav>
+    <nav class="op-nav" aria-label="Monitor"><div class="op-nav-label">Monitor</div><a class="op-nav-item" href="statistics.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 20h14"/></svg> Statistics</a><a class="op-nav-item" href="services.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l3 3l-3 3"/><path d="M13 15l3 0"/><path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/></svg> Processes & Services</a></nav>
+    <nav class="op-nav" aria-label="Account"><div class="op-nav-label">Account</div><a class="op-nav-item" href="account.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 10a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855"/></svg> Account</a><a class="op-nav-item" href="security.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/></svg> Security</a><a class="op-nav-item" href="server-info.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></svg> Server Info</a><a class="op-nav-item" href="components.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M14 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M14 7l6 0"/><path d="M17 4l0 6"/></svg> Components</a></nav>
+    <p class="op-nav-empty" hidden>No matching pages</p>
+    </div>
+    <div class="op-user-wrap" @click.outside="userMenu = false" @keydown.escape="userMenu = false">
+      <div class="op-menu op-user-menu" role="menu" x-show="userMenu" x-cloak x-transition.opacity>
+        <div class="op-menu-note">OpenPanel 1.6.4</div>
+        <hr>
+        <div class="op-menu-row" role="group"><span>Theme</span><button type="button" class="op-icon-btn" aria-label="Switch theme" @click="let d=document.documentElement.classList.toggle('dark');localStorage.setItem('color-theme', d ? 'dark' : 'light')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg></button></div>
+        <div class="op-menu-row" role="group"><span>Menu style</span><span class="op-seg"><button type="button" title="Classic" @click="menuStyle = 'classic'" :aria-pressed="(menuStyle === 'classic').toString()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 5h8"/><path d="M13 9h5"/><path d="M13 15h8"/><path d="M13 19h5"/><path d="M3 4h6v6h-6z"/><path d="M3 14h6v6h-6z"/></svg></button><button type="button" title="Modern" @click="menuStyle = 'modern'" :aria-pressed="(menuStyle === 'modern').toString()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"/><path d="M9 4v16"/></svg></button></span></div>
+        <hr>
+        <a role="menuitem" href="https://openpanel.com/docs/changelog/" target="_blank" rel="noopener">Changelog<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <a role="menuitem" href="https://openpanel.com/docs/panel/intro/" target="_blank" rel="noopener">Documentation<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <a role="menuitem" href="https://community.openpanel.org/" target="_blank" rel="noopener">Community Forums<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <hr>
+        <button type="button" role="menuitem" @click="userMenu = false">Take the tour</button>
+        <a role="menuitem" href="index.html">Sign out</a>
+      </div>
+      <button type="button" class="op-user" @click="userMenu = !userMenu" aria-haspopup="menu" :aria-expanded="userMenu.toString()"><span class="op-avatar">T</span><span class="op-user-text"><b>testinguser</b><span>Developer plus</span></span><svg class="op-user-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></button>
+    </div>
+  </aside>
+  <div class="op-scrim" x-show="nav" x-cloak @click="nav = false"></div>
+  <div class="op-main">
+    <header class="op-topbar">
+      <button class="op-icon-btn op-menu-btn" type="button" aria-label="Open menu" @click="nav = true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6l16 0"/><path d="M4 12l16 0"/><path d="M4 18l16 0"/></svg></button>
+      <div class="op-crumb"><span>Cron Jobs</span> <span style="color:var(--color-faint)">/</span> <b>New</b></div>
+      <span class="op-stat"><i>LOAD</i>1.14</span><span class="op-stat"><i>RAM</i>68.8%</span><span class="op-stat"><i>CPU</i>6.9%</span><span class="op-stat"><i>DISK</i>54.7%</span>
+      <button class="op-ai" type="button" aria-label="AI assistant">AI</button>
+      <div class="op-toolsearch" x-data="opToolSearch()" @keydown.window.ctrl.k.prevent="show()" @keydown.window.meta.k.prevent="show()" @click.outside="hide()" @keydown.escape="hide()"><button class="op-icon-btn" type="button" aria-label="Search tools" title="Search tools (Ctrl K)" x-show="!open" @click="show()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg></button><div class="op-toolsearch-box" x-show="open" x-cloak><label class="op-sidesearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg><input type="search" x-ref="q" x-model="q" placeholder="Search tools" aria-label="Search tools" autocomplete="off" @input="active = 0" @keydown.down.prevent="move(1)" @keydown.up.prevent="move(-1)" @keydown.enter.prevent="go()"><kbd>Esc</kbd></label><div class="op-menu op-toolsearch-list" x-show="q" role="listbox"><template x-for="(t, i) in results" :key="t[0]"><a :href="t[1]" role="option" :aria-selected="(i === active).toString()" @mouseenter="active = i"><span x-text="t[0]"></span><small x-text="t[2]"></small></a></template><p class="op-nav-empty" x-show="!results.length">No tools match</p></div></div></div>
+      <button class="op-icon-btn" type="button" aria-label="Switch theme" x-data @click="let d=document.documentElement.classList.toggle('dark');localStorage.setItem('color-theme', d ? 'dark' : 'light')"><span class="dark:hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg></span><span class="hidden dark:inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg></span></button>
+    </header>
+    <nav class="op-tabs" aria-label="Cron Jobs"><a href="cron.html" aria-current="page">Cron Jobs</a><a href="cron-editor.html">File Editor</a><a href="cron-logs.html">Logs</a></nav>
+        <main class="op-content">
+      <div x-data="opNewCron()" class="op-col">
+      <div class="op-page-head"><div><div class="op-eyebrow"><a href="cron.html" style="color:var(--color-accent-text)">Cron Jobs</a></div><h1 class="op-title">Create Cron Job</h1><p class="op-meta">Run a command inside one of your containers on a schedule. To add several jobs at once, use the <a href="cron-editor.html" style="color:var(--color-accent-text)">File Editor</a>.</p></div></div>
+      <div class="cf-grid">
+        <form class="op-card cf-form" novalidate @submit.prevent="submit()" aria-label="Create Cron Job"><fieldset :disabled="busy">
+          <div class="op-section"><div><h3>Command</h3><p>What to run. Paths are inside the container, your sites are under <span class="op-mono">/var/www/html/</span>.</p></div>
+            <div class="op-field"><label class="op-label" for="cf-cmd">Command <span style="color:var(--color-danger)">*</span></label>
+              <input class="op-input op-mono" id="cf-cmd" x-model="command" placeholder="php /var/www/html/example.com/cron.php" autocomplete="off" spellcheck="false" autocapitalize="off" :class="cmdErr() &amp;&amp; 'is-invalid'" :aria-invalid="(!!cmdErr()).toString()">
+              <span class="op-hint" x-show="!cmdErr()">Runs with the container's shell. Output goes to the Logs tab.</span><span class="op-hint is-invalid" x-show="cmdErr()" x-cloak x-text="cmdErr()" role="alert"></span></div></div>
+          <div class="op-section"><div><h3>Container</h3><p>Where the command runs. PHP and WP-CLI need a PHP container, mysqldump needs your database container.</p></div>
+            <div class="op-field"><label class="op-label" for="cf-container">Container <span style="color:var(--color-danger)">*</span></label>
+              <select class="op-select" id="cf-container" @change="pickContainer($event.target.value)" :class="containerErr() &amp;&amp; 'is-invalid'"><option value="" disabled :selected="!container">Choose a container</option><template x-for="c in CRON.containers" :key="c"><option :value="c" :selected="c === container" x-text="c"></option></template></select>
+              <span class="op-hint" x-show="auto === 'php'" x-cloak>Picked <span class="op-mono" x-text="CRON.php"></span>, your default PHP version, for this PHP command.</span>
+              <span class="op-hint" x-show="auto === 'db'" x-cloak>Picked <span class="op-mono" x-text="CRON.db"></span>, your database container, for this MySQL command.</span>
+              <span class="op-hint" x-show="!auto &amp;&amp; !containerErr()">One of the <span x-text="CRON.containers.length"></span> containers on your account.</span>
+              <span class="op-hint is-invalid" x-show="containerErr()" x-cloak x-text="containerErr()" role="alert"></span></div></div>
+          <div class="op-section"><div><h3>Schedule</h3><p>When it runs, in the cron time zone (<span x-text="CRON.tz"></span>).</p></div>
+            <div class="op-col" style="gap:12px"><div class="cf-presets" role="radiogroup" aria-label="Schedule"><template x-for="p in presets" :key="p[0]"><button type="button" role="radio" :aria-checked="(sel === p[0]).toString()" @click="pick(p[0])"><span x-text="p[1]"></span><small x-show="p[2]" x-text="p[2]"></small></button></template></div>
+              <div class="op-field" x-show="sel === 'custom'" x-cloak><div class="cf-label-row"><label class="op-label" for="cf-expr">Cron expression</label><a href="https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format" target="_blank" rel="noopener">Expression Format <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></a></div>
+                <input class="op-input op-mono" id="cf-expr" x-ref="expr" x-model="expr" placeholder="0 30 2 * * *" autocomplete="off" spellcheck="false" :class="schedErr() &amp;&amp; 'is-invalid'" :aria-invalid="(!!schedErr()).toString()">
+                <span class="op-hint" x-show="!schedErr()">6 fields, seconds first: second minute hour day month weekday, or a descriptor like <span class="op-mono">@every 2h</span>.</span><span class="op-hint is-invalid" x-show="schedErr()" x-cloak x-text="schedErr()" role="alert"></span></div>
+              <div class="cf-when" :class="sel === 'custom' &amp;&amp; schedErr() &amp;&amp; 'is-bad'" aria-live="polite">
+                <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 7v5l3 3"/></svg><b x-text="schedErr() ? 'This schedule never runs until it is fixed' : (describe() + ' (' + CRON.tz + ')')"></b></div>
+                <div class="cf-next" x-show="!schedErr() &amp;&amp; nextRuns().length"><span>Next runs</span><ol><template x-for="r in nextRuns()" :key="r"><li x-text="r"></li></template></ol></div></div></div></div>
+          <div class="op-section"><div><h3>Name</h3><p>How the job shows up in the list and in the logs.</p></div>
+            <div class="op-field"><label class="op-label" for="cf-name">Name <span style="font-weight:400;color:var(--color-muted)">(optional)</span></label>
+              <input class="op-input" id="cf-name" x-model="name" maxlength="30" placeholder="Nightly cleanup" autocomplete="off" :class="nameErr() &amp;&amp; 'is-invalid'" :aria-invalid="(!!nameErr()).toString()">
+              <span class="op-hint" x-show="!nameErr()" x-text="name.trim() ? (30 - name.trim().length) + ' characters left.' : 'Leave it empty to use ' + autoName() + '.'"></span><span class="op-hint is-invalid" x-show="nameErr()" x-cloak x-text="nameErr()" role="alert"></span></div></div>
+          <div class="op-section"><div><h3>Overlap</h3><p>For jobs that can take longer than the time between runs.</p></div>
+            <div class="op-check-row" style="grid-template-columns:minmax(0,1fr) auto;align-items:center"><div><b>No overlap</b><p>Skip this run if the previous run of this job is still in progress.</p></div><button class="op-switch" type="button" role="switch" :aria-checked="noOverlap.toString()" @click="noOverlap = !noOverlap" aria-label="No overlap"></button></div></div>
+          <div class="op-savebar"><span class="op-mono" style="color:var(--color-accent-text);overflow-wrap:anywhere" x-text="'[job-exec &quot;' + autoName() + '&quot;] ' + (schedule() || '…')"></span><a class="op-btn op-btn-secondary" href="cron.html">Cancel</a><button class="op-btn op-btn-primary" type="submit" :disabled="busy" x-text="busy ? 'Scheduling...' : 'Schedule CronJob'">Schedule CronJob</button></div>
+        </fieldset></form>
+        <aside class="op-col" style="gap:16px">
+          <section class="op-card"><div class="op-card-head"><h2>Added to crons.ini</h2></div>
+            <pre class="cf-pre" x-text="block()"></pre>
+            <p class="op-hint" style="margin:12px 0 0">The cron container reloads after saving, so the job is live right away.</p></section>
+          <section class="op-card"><div class="op-card-head"><h2>Good to know</h2></div>
+            <dl class="op-dl"><dt>Time zone</dt><dd x-text="CRON.tz"></dd><dt>Jobs now</dt><dd x-text="CRON.names.length"></dd><dt>Output</dt><dd><a href="cron-logs.html" style="color:var(--color-accent-text)">Logs tab</a></dd></dl>
+            <p class="op-hint" style="margin:14px 0 0">Change the time zone from the Cron Jobs page. A job you add here can be paused, run once or edited from its row menu.</p></section>
+        </aside>
+      </div>
+      <p style="margin:0;font-size:13px;color:var(--color-muted)">Preview: the 31 containers, PHP 8.5, MariaDB, the UTC time zone and the three existing job names are the test account's. Nothing is scheduled: Schedule CronJob keeps the job for this browser tab and opens Cron Jobs with it highlighted. Try <span class="op-mono">php -v</span> to see the PHP container picked for you, Custom with <span class="op-mono">30 2 * * *</span> for the 5-field error, or the name <span class="op-mono">Apache config test</span> for a duplicate.</p>
+      <div class="op-toast" x-show="toast" x-cloak x-transition role="status" x-text="toast"></div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

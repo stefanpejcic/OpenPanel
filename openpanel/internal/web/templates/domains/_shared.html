@@ -2,20 +2,20 @@
 
 {{define "no_domain"}}
 <!-- START templates/domains/partials/_no_domain.html -->
-<div class="mt-8 inset-x-0 flex h-64 flex-col items-center justify-center">
-    <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No domains yet"}}</p>
-    <p class="mt-2 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Add your first domain to get started"}}</p>
-    <a href="/domains/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>{{.T.Get "New domain"}}</a>
+<div class="op-card op-empty op-block-card">
+    <p class="op-strong">{{.T.Get "No domains yet"}}</p>
+    <p class="op-hint">{{.T.Get "Add your first domain to get started"}}</p>
+    <a href="/domains/new" class="op-btn op-btn-primary"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>{{.T.Get "New domain"}}</a>
 </div>
 <!-- END templates/domains/partials/_no_domain.html -->
 {{end}}
 
 {{define "domain_selector"}}
 <!-- domain_selector(domains, redirect_base) -->
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6">
-    <div class="mt-8 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-        <div class="col-span-full">
-            <select id="domains" name="version" onchange="redirectToSelectedVersion(this, '{{.RedirectBase}}')" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+<div class="op-card op-block-card">
+    <div class="op-form-grid">
+        <div class="op-field-wrap">
+            <select id="domains" name="version" onchange="redirectToSelectedVersion(this, '{{.RedirectBase}}')" class="op-input">
                 <option value="" disabled selected>{{.T.Get "Select domain"}}</option>
                 {{range .Domains}}
                     <option class="punycode" value="{{.DomainURL}}" {{if hasSuffix .DomainURL ".onion"}}disabled{{end}}>{{.DomainURL}}</option>
@@ -33,4 +33,25 @@ function redirectToSelectedVersion(selectElement, baseUrl) {
     }
 }
 </script>
+{{end}}
+
+{{/* op- versions of the two above for migrated pages: dict "T", "Domains", "RedirectBase", "Label" */}}
+{{define "op_domain_picker"}}
+<section class="op-card" style="max-width:560px">
+    <label class="op-field"><span class="op-label">{{.Label}}</span>
+        <select class="op-select" onchange="if (this.value) window.location.href = {{.RedirectBase}} + this.value">
+            <option value="" disabled selected>{{.T.Get "Select domain"}}</option>
+            {{range .Domains}}<option class="punycode" value="{{.DomainURL}}" {{if hasSuffix .DomainURL ".onion"}}disabled{{end}}>{{.DomainURL}}</option>{{end}}
+        </select>
+    </label>
+</section>
+{{end}}
+
+{{define "op_no_domain"}}
+<section class="op-card op-empty">
+    <span class="op-ico-tile">{{template "op_icon" "globe"}}</span>
+    <b>{{.T.Get "No domains yet"}}</b>
+    <span class="op-hint">{{.T.Get "Add your first domain to get started"}}</span>
+    <a href="/domains/new" class="op-btn op-btn-primary">{{template "op_icon" "plus"}} {{.T.Get "New domain"}}</a>
+</section>
 {{end}}

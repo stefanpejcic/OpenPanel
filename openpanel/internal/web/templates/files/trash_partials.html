@@ -15,10 +15,10 @@
 #filemanager_table.fm-single-select tbody tr.selected-row td:first-child,
 #filemanager_table.fm-single-select tbody tr.selected-row td[x-show="columns.original_path"] { user-select: text; -webkit-user-select: text; }
 </style>
-<div class="table-responsive" style="margin-top:0px;">
-   <table class="table-auto w-full mt-0 text-left select-none" id="filemanager_table">
+<div class="op-table-wrap">
+   <table class="op-table is-plain select-none" id="filemanager_table">
       <thead class="text-sm">
-         <tr class="border-b border-gray-200 dark:border-gray-800">
+         <tr class="op-tr">
             <th class="sortable px-4 py-1.5 cursor-pointer">{{.T.Get "Name"}}</th>
             <th x-show="columns.size" class="sortable px-4 py-1.5 cursor-pointer">{{.T.Get "Size"}}</th>
             <th x-show="columns.date" class="sortable px-4 py-1.5 cursor-pointer">
@@ -68,7 +68,7 @@
             {{if eq $info.Type "directory"}}
             <td class="px-4 py-1.5">
                <div class="flex items-center">
-                  <div class="text-orange-500 mr-2"><i class="bi bi-folder-fill"></i></div>
+                  <div class="mr-2 is-warning"><i class="bi bi-folder-fill"></i></div>
                   <h6 class="text-dark dark_on_light_theme text-sm mb-0">
                      {{$info.Name}}
                   </h6>
@@ -154,15 +154,13 @@
     var filemanagerTable = document.getElementById('filemanager_table');
 
     function addSelectedClass(el) {
-        el.classList.add('selected-row', 'bg-gray-200', 'dark:bg-gray-900');
+        el.classList.add('selected-row');
     }
     function removeSelectedClass(el) {
-        el.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900');
+        el.classList.remove('selected-row');
     }
     function toggleSelectedClass(el) {
         el.classList.toggle('selected-row');
-        el.classList.toggle('bg-gray-200');
-        el.classList.toggle('dark:bg-gray-900');
     }
 
     // INLINE CONFIRM: delete crosses the names out, restore greys the row and points the name at its original path
@@ -218,7 +216,7 @@
             var arrow = document.createElement('td');
             arrow.colSpan = between.length;
             arrow.className = 'px-4 py-1.5';
-            arrow.innerHTML = '<div class="flex items-center text-blue-500"><div class="flex-1" style="border-top: 2px dashed currentColor;"></div><i class="bi bi-arrow-right"></i></div>';
+            arrow.innerHTML = '<div class="flex items-center op-accent-text"><div class="flex-1" style="border-top: 2px dashed currentColor;"></div><i class="bi bi-arrow-right"></i></div>';
             between.forEach(function (td) { td.style.display = 'none'; });
             between[0].insertAdjacentElement('beforebegin', arrow);
             undo.push(function () { arrow.remove(); between.forEach(function (td) { td.style.display = ''; }); });
@@ -231,7 +229,7 @@
             '<button type="button" data-act="ok" class="inline-flex items-center gap-1 rounded-md border px-3 py-1 text-sm font-medium text-white shadow-sm cursor-pointer ' +
             (isDelete ? 'border-transparent bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600"><i class="bi bi-trash"></i> ' : 'border-black bg-black hover:bg-gray-800 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60"><i class="bi bi-arrow-counterclockwise"></i> ') +
             label + '</button>' +
-            '<button type="button" data-act="cancel" class="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-900 shadow-sm hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 cursor-pointer"><i class="bi bi-x-lg"></i> ' + i18n.cancel + '</button>';
+            '<button type="button" data-act="cancel" class="gap-1 op-btn op-btn-sm op-btn-secondary"><i class="bi bi-x-lg"></i> ' + i18n.cancel + '</button>';
         // delete confirms right next to the name, restore at the end of the name column
         if (!isDelete) bar.classList.add('ml-auto');
         rows[0].cells[0].querySelector('.flex').appendChild(bar);
@@ -410,7 +408,7 @@
         }
     }
 
-    var selectAllActiveClass = 'relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0';
+    var selectAllActiveClass = 'op-btn op-btn-sm op-btn-secondary';
 
     function updateSelectAllButton() {
         var spanAll = document.getElementById('spanAll');
@@ -616,8 +614,8 @@
     });
 
     function toggleButtonState() {
-        var baseClass = 'relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0';
-        var redButtonClass = 'relative inline-flex items-center justify-center whitespace-nowrap border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 disabled:bg-red-300 disabled:text-white disabled:dark:bg-red-950 disabled:dark:text-red-400';
+        var baseClass = 'op-btn op-btn-sm op-btn-secondary';
+        var redButtonClass = 'op-btn op-btn-sm op-btn-danger';
 
         function setButtonsState(selector, enabled, customClass) {
             document.querySelectorAll(selector).forEach(function (btn) {

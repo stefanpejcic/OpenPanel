@@ -1,136 +1,200 @@
 {{define "alpine_plugins"}}{{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
 {{define "content"}}
 <!-- START templates/emails/accounts.html -->
-
-<section aria-label="{{.T.Get "Emails Header"}}" x-data="{ searchQuery: '', statusFilter: 'all', statusOpen: false }">
-    <div class="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8">
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Emails"}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Total emails:"}} <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white">{{.TotalCount}}</span></p>
-    </div>
-
-    <div class="flex flex-col justify-between gap-2 p-4 px-6 sm:flex-row sm:items-center">
-        <div class="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center">
-            <div class="relative w-full sm:w-64 [&>input]:py-1.5">
-                <input
-                    id="emails-search-input"
-                    x-model="searchQuery"
-                    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
-                    placeholder="{{.T.Get "Search"}}"
-                    type="search"
-                />
-                <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0"><path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path></svg>
-                </div>
-            </div>
-
-            <div class="relative" @click.outside="statusOpen = false">
-                <button type="button" @click="statusOpen = !statusOpen" :style="statusFilter !== 'all' && 'border-style: solid'" class="flex w-full items-center gap-x-1.5 whitespace-nowrap rounded border border-gray-300 px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50 sm:w-fit sm:text-xs dark:border-gray-700 dark:text-gray-400 hover:dark:bg-gray-900 border-dashed outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 cursor-pointer">
-                    <span class="w-full text-left sm:w-fit" x-text="{all: {{toJSON (.T.Get "Status")}}, suspended: {{toJSON (.T.Get "Suspended")}}, filter: {{toJSON (.T.Get "Has filter")}}, quota: {{toJSON (.T.Get "Near quota")}}}[statusFilter]">{{.T.Get "Status"}}</span>
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 shrink-0 text-gray-500 sm:size-4"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg>
-                </button>
-                <div x-show="statusOpen" x-cloak class="absolute left-0 mt-1 z-20 text-sm shadow-md border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-gray-50 dark:bg-gray-950 rounded-lg w-48">
-                    <ul class="p-2 space-y-1">
-                        <li>
-                            <label class="flex items-center py-1 px-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
-                                <input type="radio" name="email-status-filter" value="all" x-model="statusFilter" @change="statusOpen = false" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
-                                <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "All"}}</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="flex items-center py-1 px-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
-                                <input type="radio" name="email-status-filter" value="suspended" x-model="statusFilter" @change="statusOpen = false" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
-                                <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Suspended"}}</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="flex items-center py-1 px-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
-                                <input type="radio" name="email-status-filter" value="filter" x-model="statusFilter" @change="statusOpen = false" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
-                                <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Has filter"}}</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="flex items-center py-1 px-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">
-                                <input type="radio" name="email-status-filter" value="quota" x-model="statusFilter" @change="statusOpen = false" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:bg-gray-600 dark:border-gray-500">
-                                <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Near quota"}}</span>
-                            </label>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+<script>
+// the "Connect a mail app" card: opens for the mailbox the create form just made, or from a row's Connect Devices
+function opEmailAccounts(c) {
+    return {
+        searchQuery: '', statusFilter: 'all', sheet: false, connect: c.created, fresh: c.created, welcome: c.welcome, tls: c.secure ? 'ssl' : 'starttls',
+        init() { if (this.fresh) this.$nextTick(() => { const tr = document.querySelector('tr.op-em-new'); if (tr && tr.getBoundingClientRect().bottom > innerHeight) tr.scrollIntoView({ block: 'center' }); }); },
+        openConnect(a) { this.connect = a; this.welcome = false; this.$nextTick(() => document.getElementById('connect').scrollIntoView({ block: 'start', behavior: 'smooth' })); },
+        port(kind) { return { imap: this.tls === 'ssl' ? 993 : 143, smtp: this.tls === 'ssl' ? 465 : 587 }[kind]; },
+        sec() { return this.tls === 'ssl' ? 'SSL/TLS' : 'STARTTLS'; },
+        cfg(type) { return '/emails/configuration/' + type + '/' + this.connect + '?ssl=' + (this.tls === 'ssl'); },
+    };
+}
+</script>
+<div class="op-content" x-data="opEmailAccounts({ created: {{toJSON .Connect.Created}}, welcome: {{.Connect.Welcome}}, secure: {{.Connect.Secure}} })">
+    <div class="op-page-head">
+        <div>
+            <div class="op-eyebrow">{{if .EmailLimit}}{{.TotalCount}} {{.T.Get "of"}} {{.EmailLimit}} {{.T.Get "accounts"}}{{else}}{{.TotalCount}} {{.T.Get "total"}}{{end}}</div>
+            <h1 class="op-title">{{.T.Get "Emails"}}</h1>
+            <p class="op-meta">{{.T.Get "Mailboxes for your domains, with quotas, filters and webmail."}}</p>
         </div>
-
-        <div class="flex flex-col items-center gap-2 sm:flex-row">
-            <a href="/emails/new" id="showAddEmailFormBtn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg> {{.T.Get "New Email"}}</a>
-            <a href="/emails/export" id="export_emails_csv" class="hidden items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap sm:w-fit"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon -ml-1 size-5 shrink-0" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M14 4.5V14a2 2 0 0 1-2 2h-1v-1h1a1 1 0 0 0 1-1V4.5h-2A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v9H2V2a2 2 0 0 1 2-2h5.5zM3.517 14.841a1.13 1.13 0 0 0 .401.823q.195.162.478.252.284.091.665.091.507 0 .859-.158.354-.158.539-.44.187-.284.187-.656 0-.336-.134-.56a1 1 0 0 0-.375-.357 2 2 0 0 0-.566-.21l-.621-.144a1 1 0 0 1-.404-.176.37.37 0 0 1-.144-.299q0-.234.185-.384.188-.152.512-.152.214 0 .37.068a.6.6 0 0 1 .246.181.56.56 0 0 1 .12.258h.75a1.1 1.1 0 0 0-.2-.566 1.2 1.2 0 0 0-.5-.41 1.8 1.8 0 0 0-.78-.152q-.439 0-.776.15-.337.149-.527.421-.19.273-.19.639 0 .302.122.524.124.223.352.367.228.143.539.213l.618.144q.31.073.463.193a.39.39 0 0 1 .152.326.5.5 0 0 1-.085.29.56.56 0 0 1-.255.193q-.167.07-.413.07-.175 0-.32-.04a.8.8 0 0 1-.248-.115.58.58 0 0 1-.255-.384zM.806 13.693q0-.373.102-.633a.87.87 0 0 1 .302-.399.8.8 0 0 1 .475-.137q.225 0 .398.097a.7.7 0 0 1 .272.26.85.85 0 0 1 .12.381h.765v-.072a1.33 1.33 0 0 0-.466-.964 1.4 1.4 0 0 0-.489-.272 1.8 1.8 0 0 0-.606-.097q-.534 0-.911.223-.375.222-.572.632-.195.41-.196.979v.498q0 .568.193.976.197.407.572.626.375.217.914.217.439 0 .785-.164t.55-.454a1.27 1.27 0 0 0 .226-.674v-.076h-.764a.8.8 0 0 1-.118.363.7.7 0 0 1-.272.25.9.9 0 0 1-.401.087.85.85 0 0 1-.478-.132.83.83 0 0 1-.299-.392 1.7 1.7 0 0 1-.102-.627zm8.239 2.238h-.953l-1.338-3.999h.917l.896 3.138h.038l.888-3.138h.879z"></path></svg> {{.T.Get "Export"}}</a>
+        <div class="op-actions">
+            <a href="/emails/export" id="export_emails_csv" class="op-btn op-btn-secondary">{{template "op_icon" "download"}} {{.T.Get "Export"}}</a>
+            {{if .Full}}
+            <span class="op-em-newbtn"><a id="showAddEmailFormBtn" class="op-btn op-btn-primary" role="link" aria-disabled="true" aria-describedby="em-limit" tabindex="0">{{template "op_icon" "plus"}} {{.T.Get "New Email"}}</a><span class="op-em-tip" role="tooltip">{{.T.Get "Plan limit reached: %(used)s of %(limit)s email accounts used." "used" (print .TotalCount) "limit" (print .EmailLimit)}}</span></span>
+            {{else}}
+            <a href="/emails/new" id="showAddEmailFormBtn" class="op-btn op-btn-primary">{{template "op_icon" "plus"}} {{.T.Get "New Email"}}</a>
+            {{end}}
         </div>
     </div>
+
+    {{if .Full}}
+    <div class="op-alert is-warning" id="em-limit">{{template "op_icon" "alert"}}<span><b>{{.T.Get "You've used all %(n)s email accounts on your plan" "n" (print .EmailLimit)}}</b><br>{{if .HostingPlanName}}{{.T.Get "New Email stays off until you delete an account you no longer need, or your hosting provider moves you to a bigger plan than %(plan)s." "plan" .HostingPlanName}}{{else}}{{.T.Get "New Email stays off until you delete an account you no longer need, or your hosting provider moves you to a bigger plan."}}{{end}}</span></div>
+    {{end}}
+
+    <section class="op-card" id="connect" x-show="connect" {{if not .Connect.Created}}x-cloak {{end}}aria-labelledby="connect-title" style="scroll-margin-top:80px">
+        <div class="op-em-chead">
+            <span class="op-ico-tile" :style="{ '--hue': fresh === connect ? 'var(--color-success)' : 'var(--color-accent)' }"><span x-show="fresh === connect" style="display:inline-flex">{{template "op_icon" "circlecheck"}}</span><span x-show="fresh !== connect" style="display:inline-flex">{{template "op_icon" "devices"}}</span></span>
+            <div style="flex:1 1 300px;min-width:0">
+                <h2 id="connect-title" x-text="fresh === connect ? {{toJSON (.T.Get "Your mailbox is ready. Connect a mail app")}} : {{toJSON (.T.Get "Connect a mail app")}}">{{.T.Get "Your mailbox is ready. Connect a mail app"}}</h2>
+                <p class="op-meta"><span class="op-mono" style="color:var(--color-heading)" x-text="connect">{{.Connect.Created}}</span><span x-text="welcome && fresh === connect ? {{toJSON (.T.Get ". A welcome email with these settings went to the new mailbox.")}} : {{toJSON (.T.Get ". Use these in Outlook, Apple Mail, Thunderbird or your phone.")}}"></span></p>
+            </div>
+            <div class="op-em-chead-r">
+                <div class="op-segmented" role="group" aria-label="{{.T.Get "Connection security"}}"><button type="button" :aria-pressed="(tls === 'ssl').toString()" @click="tls = 'ssl'" title="{{.T.Get "Recommended. Encrypted from the first byte."}}">SSL/TLS</button><button type="button" :aria-pressed="(tls === 'starttls').toString()" @click="tls = 'starttls'" title="{{.T.Get "For apps that can't use the SSL/TLS ports. Switches to encryption after connecting."}}">STARTTLS</button></div>
+                <button class="op-icon-btn" type="button" @click="connect = ''" aria-label="{{.T.Get "Close mail app settings"}}">{{template "op_icon" "x"}}</button>
+            </div>
+        </div>
+        <template x-if="connect"><div class="op-col" style="gap:14px">
+            <div class="op-em-set">
+                <div class="op-em-box"><h3>{{template "op_icon" "user"}} {{.T.Get "Sign in"}}</h3>
+                    <div class="op-em-kv"><span>{{.T.Get "Username"}}</span><span class="op-em-val"><b x-text="connect"></b><button class="op-icon-btn" type="button" :data-op-copy="connect" data-op-copied="{{.T.Get "Copied username."}}" aria-label="{{.T.Get "Copy username"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></span>
+                        <span>{{.T.Get "Password"}}</span><span class="op-em-note">{{.T.Get "Use the email account's password."}}</span></div></div>
+                <div class="op-em-box"><h3>{{template "op_icon" "inbox"}} {{.T.Get "Incoming (IMAP)"}} <span class="op-tag" x-text="sec()"></span></h3>
+                    <div class="op-em-kv"><span>{{.T.Get "Server"}}</span><span class="op-em-val"><b>{{.Connect.Host}}</b><button class="op-icon-btn" type="button" data-op-copy="{{.Connect.Host}}" data-op-copied="{{.T.Get "Copied incoming server."}}" aria-label="{{.T.Get "Copy incoming server"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></span>
+                        <span>{{.T.Get "Port"}}</span><span class="op-em-val"><b x-text="port('imap')"></b><button class="op-icon-btn" type="button" :data-op-copy="port('imap')" data-op-copied="{{.T.Get "Copied IMAP port."}}" aria-label="{{.T.Get "Copy IMAP port"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></span></div></div>
+                <div class="op-em-box"><h3>{{template "op_icon" "send"}} {{.T.Get "Outgoing (SMTP)"}} <span class="op-tag" x-text="sec()"></span></h3>
+                    <div class="op-em-kv"><span>{{.T.Get "Server"}}</span><span class="op-em-val"><b>{{.Connect.Host}}</b><button class="op-icon-btn" type="button" data-op-copy="{{.Connect.Host}}" data-op-copied="{{.T.Get "Copied outgoing server."}}" aria-label="{{.T.Get "Copy outgoing server"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></span>
+                        <span>{{.T.Get "Port"}}</span><span class="op-em-val"><b x-text="port('smtp')"></b><button class="op-icon-btn" type="button" :data-op-copy="port('smtp')" data-op-copied="{{.T.Get "Copied SMTP port."}}" aria-label="{{.T.Get "Copy SMTP port"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></span></div></div>
+            </div>
+            <p class="op-hint" style="margin:0">{{.T.Get "IMAP and SMTP require authentication. Outgoing mail signs in with the same username and password."}}</p>
+            <div class="op-em-dl"><span>{{.T.Get "Set up automatically"}}</span>
+                <a class="op-btn op-btn-secondary op-btn-sm" :href="cfg('apple')" download>{{template "op_icon" "download"}} {{.T.Get "Apple Mail & iPhone"}}</a>
+                <a class="op-btn op-btn-secondary op-btn-sm" :href="cfg('outlook')" download>{{template "op_icon" "download"}} Outlook</a>
+                <a class="op-btn op-btn-secondary op-btn-sm" :href="cfg('thunderbird')" download>{{template "op_icon" "download"}} Thunderbird</a>
+                <span class="op-em-dl-end">{{if .UserAllowed.webmail}}<a class="op-btn op-btn-primary op-btn-sm" :href="'/webmail/' + connect" target="_blank" rel="noopener">{{.T.Get "Open Webmail"}} {{template "op_icon" "out"}}</a>{{end}}<a class="op-link" href="https://openpanel.com/docs/articles/email/how-to-setup-your-email-client" target="_blank" rel="noopener">{{.T.Get "Setup guide"}} {{template "op_icon" "out"}}</a></span>
+            </div>
+        </div></template>
+    </section>
+
+    <section class="op-kpis" aria-label="{{.T.Get "Summary"}}">
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "mail"}} {{.T.Get "Accounts"}}</div>
+            <div class="op-kpi-value">{{.TotalCount}}{{if .EmailLimit}} <small>/ {{.EmailLimit}}</small>{{end}}</div>
+            {{if .EmailLimit}}<div class="op-progress{{if ge .LimitPercent 90}} is-warning{{end}}" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{.LimitPercent}}" aria-label="{{.T.Get "Accounts"}}"><span style="width: {{.LimitPercent}}%"></span></div>{{else}}<div class="op-kpi-note">{{.T.Get "No limit on your plan"}}</div>{{end}}
+        </div>
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "db"}} {{.T.Get "Storage used"}}</div>
+            <div class="op-kpi-value">{{.StorageValue}} <small>{{.StorageUnit}}</small></div>
+            {{if .NearQuotaCount}}<div class="op-kpi-note is-warning">{{.NearQuotaCount}} {{if eq .NearQuotaCount 1}}{{.T.Get "mailbox near quota"}}{{else}}{{.T.Get "mailboxes near quota"}}{{end}}</div>{{else}}<div class="op-kpi-note">{{.T.Get "Across all mailboxes"}}</div>{{end}}
+        </div>
+        {{if .UserAllowed.email_deliverability}}
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "shield"}} {{.T.Get "Deliverability"}}</div>
+            <div class="op-kpi-value">{{.MailDomains}} <small>{{if eq .MailDomains 1}}{{.T.Get "domain"}}{{else}}{{.T.Get "domains"}}{{end}}</small></div>
+            <div class="op-kpi-note"><a href="/emails/deliverability">{{.T.Get "Check SPF, DKIM and DMARC"}}</a></div>
+        </div>
+        {{end}}
+        {{if .UserAllowed.email_aliases}}
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "link"}} {{.T.Get "Aliases"}}</div>
+            <div class="op-kpi-value">{{.AliasCount}}</div>
+            <div class="op-kpi-note">{{if .AliasCount}}{{.T.Get "Forwarding to"}} {{.AliasInboxes}} {{if eq .AliasInboxes 1}}{{.T.Get "inbox"}}{{else}}{{.T.Get "inboxes"}}{{end}}{{else}}<a href="/emails/aliases/new">{{.T.Get "Add an alias"}}</a>{{end}}</div>
+        </div>
+        {{end}}
+    </section>
+
+    <section class="op-card" aria-label="{{.T.Get "Email accounts"}}">
+        <div class="op-toolbar">
+            <label class="op-search">{{template "op_icon" "search"}}<input id="emails-search-input" class="op-input" type="search" x-model="searchQuery" placeholder="{{.T.Get "Search emails"}}" aria-label="{{.T.Get "Search emails"}}"></label>
+            <div class="op-md-only">
+                <button type="button" class="op-filter" :class="statusFilter === 'all' && 'is-set'" @click="statusFilter = 'all'">{{.T.Get "All"}}</button>
+                <button type="button" class="op-filter" :class="statusFilter === 'suspended' && 'is-set'" @click="statusFilter = 'suspended'">{{.T.Get "Suspended"}}</button>
+                <button type="button" class="op-filter" :class="statusFilter === 'filter' && 'is-set'" @click="statusFilter = 'filter'">{{.T.Get "Has filter"}}</button>
+                <button type="button" class="op-filter" :class="statusFilter === 'quota' && 'is-set'" @click="statusFilter = 'quota'">{{.T.Get "Near quota"}}</button>
+            </div>
+            <button type="button" class="op-filter op-md-hide" :class="statusFilter !== 'all' && 'is-set'" @click="sheet = true">{{template "op_icon" "filter"}} {{.T.Get "Filters"}}</button>
+        </div>
 
 {{template "bulk_open" (dict "T" .T "Table" "#email-accounts" "Endpoint" "/emails/bulk")}}
-    <div class="overflow-x-auto">
-        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
-            <table id="email-accounts" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
-                <thead class="">
-                    <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
-{{template "bulk_head_checkbox" .}}
-                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Account @ Domain") "Key" "address" "Type" "string")}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Storage Used") "Key" "quota" "Type" "number")}}</th>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm text-right font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Options"}}</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-
-                {{if not .Rows}}
-                    <tr>
-                        <td colspan="4" class="p-6 text-center">{{.T.Get "No emails yet."}} <a href="/emails/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out cursor-pointer outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Add your first email"}}</a></td>
-                    </tr>
-
-                {{else}}
-                {{range .Rows}}
-                {{$row := .}}
-                    <tr x-show="(searchQuery === '' || {{toJSON $row.Address}}.toLowerCase().includes(searchQuery.toLowerCase())) && (statusFilter === 'all' || (statusFilter === 'suspended' && {{$row.Suspended}}) || (statusFilter === 'filter' && {{$row.HasFilter}}) || (statusFilter === 'quota' && {{$row.NearQuota}}))" class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-{{template "bulk_row_checkbox" (dict "T" $.T "Key" $row.Address "Label" $row.Address)}}
-
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="address" data-sort-value="{{$row.Address}}"><span class="punycode">{{$row.Address}}</span></td>
-
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="quota" data-sort-value="{{$row.PercentVal}}">
-                            {{$row.QuotaDisplay}}
-                            <div class="h-2 bg-gray-200 rounded">
-                                <div id="disk-progress-bar"
-                                    class="h-2 {{$row.BarColor}} rounded"
-                                    role="progressbar"
-                                    aria-valuemin="0"
-                                    aria-valuemax="100"
-                                    aria-valuenow="{{$row.PercentVal}}"
-                                    style="width: {{$row.CappedVal}}%;">
-                                </div>
-                            </div>
-                        </td>
-
-
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                            <div class="text-end space-x-2">
-                                {{if $.UserAllowed.webmail}}
-                                <a href="/webmail/{{$row.Address}}" target="_blank" data-email="{{$row.Address}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><i class="bi bi-box-arrow-up-right"></i> {{$.T.Get "Webmail"}}</a>
-                                {{end}}
-                                <a href="/emails/edit/{{$row.Address}}" role="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><i class="bi bi-wrench-adjustable"></i> {{$.T.Get "Manage"}}</a>
-                                <a href="/emails/info/{{$row.Address}}" role="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap sm:w-fit"><i class="bi bi-phone"></i> {{$.T.Get "Connect Devices"}}</a>
-                            </div>
-                        </td>
-
-
-                    </tr>
-
-                {{end}}
-                {{end}}
-                </tbody>
-            </table>
+        <div class="op-table-wrap"{{if not .Rows}} hidden{{end}}>
+        <table id="email-accounts" class="op-table">
+            <thead>
+                <tr>
+                    <th class="is-shrink"><input type="checkbox" class="op-check" :checked="bulkAllChecked" :indeterminate="bulkSomeChecked" @change="bulkToggleAll($event.target.checked)" aria-label="{{.T.Get "Select all"}}"></th>
+                    <th>{{template "op_sort_header" (dict "Label" (.T.Get "Account @ Domain") "Key" "address" "Type" "string")}}</th>
+                    <th>{{template "op_sort_header" (dict "Label" (.T.Get "Storage used") "Key" "quota" "Type" "number")}}</th>
+                    <th>{{.T.Get "Status"}}</th>
+                    {{if .UserAllowed.webmail}}<th class="is-shrink">{{.T.Get "Webmail"}}</th>{{end}}
+                    <th class="is-shrink"><span class="op-sr">{{.T.Get "Actions"}}</span></th>
+                </tr>
+            </thead>
+            <tbody>
+            {{range .Rows}}
+            {{$row := .}}
+                <tr{{if $row.IsNew}} class="op-em-new"{{end}} data-href="/emails/edit/{{$row.Address}}" x-show="(searchQuery === '' || {{toJSON $row.Address}}.toLowerCase().includes(searchQuery.toLowerCase())) && (statusFilter === 'all' || (statusFilter === 'suspended' && {{$row.Suspended}}) || (statusFilter === 'filter' && {{$row.HasFilter}}) || (statusFilter === 'quota' && {{$row.NearQuota}}))" :aria-selected="(!!bulkSelected[{{toJSON $row.Address}}]).toString()">
+                    <td class="is-shrink"><input type="checkbox" class="op-check bulk-select-box" value="{{$row.Address}}" data-bulk-skip="" :checked="!!bulkSelected[{{toJSON $row.Address}}]" @change="bulkToggle($event.target)" aria-label="{{$.T.Get "Select"}} {{$row.Address}}"></td>
+                    <td data-sort-col="address" data-sort-value="{{$row.Address}}">
+                        <div class="op-row-title">
+                            <div><b class="punycode">{{$row.Address}}</b>{{if or $row.IsNew $row.NearQuota $row.HasFilter}}<span class="op-em-tags">{{if $row.IsNew}}<span class="op-tag op-em-tag-new">{{$.T.Get "New"}}</span>{{end}}{{if $row.NearQuota}}<span class="op-tag">{{$.T.Get "Near quota"}}</span>{{end}}{{if $row.HasFilter}}<span class="op-tag">{{$.T.Get "Has filter"}}</span>{{end}}</span>{{end}}</div>
+                        </div>
+                    </td>
+                    <td data-label="{{$.T.Get "Storage used"}}" data-sort-col="quota" data-sort-value="{{$row.PercentVal}}">
+                        <div class="op-meter">
+                            <span class="op-meter-text" title="{{$row.QuotaDisplay}}">{{if $row.Limit}}{{$row.Used}} / {{$row.Limit}}{{else}}{{$row.QuotaDisplay}}{{end}}</span>
+                            <div class="op-progress{{if gt $row.PercentVal 90}} is-danger{{else if gt $row.PercentVal 80}} is-warning{{end}}" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{$row.PercentVal}}" aria-label="{{$.T.Get "Storage used"}}"><span style="width: {{$row.CappedVal}}%"></span></div>
+                        </div>
+                    </td>
+                    <td data-label="{{$.T.Get "Status"}}">{{if $row.Suspended}}<span class="op-status is-danger">{{$.T.Get "Suspended"}}</span>{{else}}<span class="op-status is-success">{{$.T.Get "Active"}}</span>{{end}}</td>
+                    {{if $.UserAllowed.webmail}}<td data-label="{{$.T.Get "Webmail"}}" class="is-shrink"><a href="/webmail/{{$row.Address}}" target="_blank" rel="noopener" data-email="{{$row.Address}}" class="op-btn op-btn-ghost op-btn-sm webmail-link">{{$.T.Get "Webmail"}} {{template "op_icon" "out"}}</a></td>{{end}}
+                    <td class="is-shrink op-cell-menu" style="position:relative" x-data="opMenu()" @click.outside="open = false" @keydown.escape="open = false">
+                        <button class="op-icon-btn" type="button" aria-label="{{$.T.Get "Actions"}} {{$row.Address}}" :aria-expanded="open.toString()" x-ref="btn" @click="toggle()">{{template "op_icon" "dots"}}</button>
+                        <div class="op-menu" x-ref="menu" x-show="open" x-cloak>
+                            <a href="/emails/edit/{{$row.Address}}">{{template "op_icon" "pencil"}} {{$.T.Get "Manage"}}</a>
+                            <a href="/emails/edit/{{$row.Address}}">{{template "op_icon" "key"}} {{$.T.Get "Change password"}}</a>
+                            <a href="/emails/info/{{$row.Address}}" @click.prevent="open = false; openConnect({{toJSON $row.Address}})">{{template "op_icon" "devices"}} {{$.T.Get "Connect Devices"}}</a>
+                            <a href="/emails/filter/{{$row.Address}}">{{template "op_icon" "filter"}} {{$.T.Get "Filters"}}</a>
+                            <hr>
+                            <a href="/emails/edit/{{$row.Address}}">{{template "op_icon" "ban"}} {{if $row.Suspended}}{{$.T.Get "Unsuspend"}}{{else}}{{$.T.Get "Suspend"}}{{end}}</a>
+                            <a href="/emails/delete/{{$row.Address}}" class="is-danger">{{template "op_icon" "trash"}} {{$.T.Get "Delete"}}</a>
+                        </div>
+                    </td>
+                </tr>
+            {{end}}
+            </tbody>
+        </table>
         </div>
-    </div>
+{{if .Rows}}
+        <div class="op-empty" x-show="![{{range .Rows}}[{{toJSON .Address}}, {{.Suspended}}, {{.HasFilter}}, {{.NearQuota}}], {{end}}].some(r => (searchQuery === '' || r[0].toLowerCase().includes(searchQuery.toLowerCase())) && (statusFilter === 'all' || (statusFilter === 'suspended' && r[1]) || (statusFilter === 'filter' && r[2]) || (statusFilter === 'quota' && r[3])))" x-cloak>
+            <b>{{.T.Get "Nothing matches"}}</b>
+            <span class="op-hint">{{.T.Get "Try another search or filter."}}</span>
+        </div>
+        <div class="op-tfoot"><span>{{.T.Get "Showing"}} 1 {{.T.Get "to"}} {{.TotalCount}} {{.T.Get "of"}} {{.TotalCount}}</span></div>
+{{else}}
+        <div class="op-empty">
+            <span class="op-ico-tile">{{template "op_icon" "mail"}}</span>
+            <b>{{.T.Get "No emails yet."}}</b>
+            <span class="op-hint">{{.T.Get "Create a mailbox on one of your domains to start sending and receiving mail."}}</span>
+            <a href="/emails/new" class="op-btn op-btn-primary">{{template "op_icon" "plus"}} {{.T.Get "Add your first email"}}</a>
+        </div>
+{{end}}
 {{template "bulk_bar" .}}
 </div>
-</section>
-<!-- END emails table -->
+        <div class="op-scrim" x-show="sheet" x-cloak @click="sheet = false"></div>
+        <div class="op-sheet" role="dialog" aria-label="{{.T.Get "Filters"}}" x-show="sheet" x-cloak @keydown.escape="sheet = false">
+            <h2>{{.T.Get "Filters"}}</h2>
+            <div style="display:flex;flex-direction:column;gap:14px;margin:16px 0 20px">
+                <label class="op-field"><span class="op-label">{{.T.Get "Status"}}</span>
+                    <select class="op-select" x-model="statusFilter">
+                        <option value="all">{{.T.Get "All"}}</option>
+                        <option value="suspended">{{.T.Get "Suspended"}}</option>
+                        <option value="filter">{{.T.Get "Has filter"}}</option>
+                        <option value="quota">{{.T.Get "Near quota"}}</option>
+                    </select>
+                </label>
+            </div>
+            <div class="op-actions">
+                <button class="op-btn op-btn-secondary" type="button" @click="statusFilter = 'all'; sheet = false">{{.T.Get "Reset"}}</button>
+                <button class="op-btn op-btn-primary" type="button" style="flex:1" @click="sheet = false">{{.T.Get "Show results"}}</button>
+            </div>
+        </div>
+    </section>
+</div>
 
 {{if .QuotaToastMsg}}
 <script>
@@ -145,11 +209,9 @@ document.addEventListener('DOMContentLoaded', function () {
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         document.querySelectorAll('.webmail-link').forEach(function(link) {
-            link.addEventListener('click', function(e) {
+            link.addEventListener('click', function() {
                 const email = this.dataset.email;
-                const url = `/webmail/${email}`;
-                const toastMessage = {{toJSON (.T.Get "Webmail for ")}} + email + {{toJSON (.T.Get " opened in new window.")}};
-                showToast(toastMessage, 'success');
+                showToast({{toJSON (.T.Get "Webmail for ")}} + email + {{toJSON (.T.Get " opened in new window.")}}, 'success');
             });
         });
     });
@@ -159,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('keydown', (e) => {
     if (e.key !== 'n' || e.ctrlKey || e.metaKey || e.altKey) return;
     const tag = document.activeElement.tagName.toLowerCase();
-    const isInputFocused = ['input', 'textarea'].includes(tag) || document.activeElement.isContentEditable;
+    const isInputFocused = ['input', 'textarea', 'select'].includes(tag) || document.activeElement.isContentEditable;
     if (isInputFocused) return;
     e.preventDefault();
     document.getElementById('showAddEmailFormBtn')?.click();
@@ -167,16 +229,9 @@ document.addEventListener('keydown', (e) => {
 if (window.registerShortcut) registerShortcut(['N'], {{toJSON (.T.Get "Add new email account")}});
 </script>
 <script src="{{static "js/table-sort.js"}}"></script>
-
 <!-- END templates/emails/accounts.html -->
 {{end}}
 
-{{define "sort_header"}}
-<div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
-    <span>{{.Label}}</span>
-    <div class="-space-y-2">
-        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
-        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
-    </div>
-</div>
+{{define "op_sort_header"}}
+<button type="button" class="op-th-sort" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" onclick="opSortToggle(event, this, sortTableColumn)">{{.Label}}<i aria-hidden="true"></i></button>
 {{end}}

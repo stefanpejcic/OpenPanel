@@ -1,0 +1,200 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/system/summary.html -->
+
+{{$btn := "relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60"}}
+{{$card := "overflow-hidden rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950"}}
+{{$label := "flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"}}
+{{$value := "mt-1 truncate text-xl font-semibold tabular-nums text-gray-900 dark:text-gray-50"}}
+
+<section aria-label="{{.T.Get "Daily Summary"}}">
+    <div class="border-b flex flex-col gap-3 border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div class="min-w-0">
+            <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{if .Found}}{{.Summary.From.Format "Monday, 2 January 2006"}}{{else}}{{.T.Get "Daily Summary"}}{{end}}</h1></div>
+            {{/* the day's verdict replaces the page description once there is a summary */}}
+            <p class="text-sm text-gray-500 dark:text-gray-500">{{if and .Found .Summary.Headline}}{{.Summary.Headline}}{{else}}{{.T.Get "What happened on your account and websites each day, with what needs fixing first."}}{{end}}</p>
+        </div>
+        {{if .Dates}}
+        <div class="flex shrink-0 items-center gap-2">
+            {{if .Prev}}<a href="/summary/{{.Prev}}" class="{{$btn}}" aria-label="{{.T.Get "Previous day"}}" title="{{.T.Get "Previous day"}}">&larr;</a>{{end}}
+            <select aria-label="{{.T.Get "Date"}}" onchange="window.location.href = '/summary/' + this.value" class="rounded border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-sm dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50">
+                {{range .Dates}}<option value="{{.}}" {{if eq . $.Summary.Date}}selected{{end}}>{{.}}</option>{{end}}
+            </select>
+            {{if .Next}}<a href="/summary/{{.Next}}" class="{{$btn}}" aria-label="{{.T.Get "Next day"}}" title="{{.T.Get "Next day"}}">&rarr;</a>{{end}}
+        </div>
+        {{end}}
+    </div>
+
+    <div class="space-y-8 px-6 pt-4 pb-6">
+    {{if not .Found}}
+        <div class="rounded border border-dashed border-gray-300 p-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+            {{if .Dates}}{{.T.Get "There is no summary for this day."}}{{else}}{{.T.Get "Your first summary will be ready tomorrow morning."}}{{end}}
+        </div>
+    {{else}}
+        {{with .Summary}}
+
+        <!-- KPI strip, same as the Backups and Cron Jobs pages -->
+        <div class="flex flex-col divide-y divide-gray-200 {{$card}} sm:flex-row md:divide-x md:divide-y-0 dark:divide-gray-800">
+            <div class="min-w-0 flex-1 p-4">
+                <p class="{{$label}}">{{template "summary_icon" "requests"}}{{$.T.Get "Requests"}}</p>
+                <p class="{{$value}} flex items-center gap-2">{{.Num .TotalRequests}}
+                    {{with .Delta}}<span class="rounded px-1.5 py-0.5 text-xs font-medium {{if $.Summary.DeltaUp}}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300{{else}}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300{{end}}" title="{{$.T.Get "Compared with the day before"}}">{{.}}</span>{{end}}
+                </p>
+            </div>
+            <div class="min-w-0 flex-1 p-4">
+                <p class="{{$label}}">{{template "summary_icon" "visitors"}}{{$.T.Get "Unique IPs"}}</p>
+                <p class="{{$value}}">{{.Num .TotalVisitors}}</p>
+            </div>
+            <div class="min-w-0 flex-1 p-4">
+                <p class="{{$label}}">{{template "summary_icon" "sent"}}{{$.T.Get "Bandwidth"}}</p>
+                <p class="{{$value}}">{{.TotalSent}}</p>
+            </div>
+            <div class="min-w-0 flex-1 p-4">
+                <p class="{{$label}}">{{template "summary_icon" "errors"}}{{$.T.Get "Error pages"}}</p>
+                <p class="{{$value}}{{if .TotalErrors}} text-red-600 dark:text-red-400{{end}}">{{.Num .TotalErrors}}</p>
+            </div>
+            <div class="min-w-0 flex-1 p-4">
+                <p class="{{$label}}">{{template "summary_icon" "shield"}}{{$.T.Get "Firewall blocks"}}</p>
+                <p class="{{$value}}">{{.Num .TotalBlocked}}</p>
+            </div>
+        </div>
+
+        {{if or .Attention .Look}}
+        <div class="{{$card}}">
+            <ul class="divide-y divide-gray-200 dark:divide-gray-800">
+                {{range .Attention}}{{template "summary_item" (dict "T" $.T "Item" . "Urgent" true)}}{{end}}
+                {{range .Look}}{{template "summary_item" (dict "T" $.T "Item" . "Urgent" false)}}{{end}}
+            </ul>
+        </div>
+        {{end}}
+
+        {{if .Good}}
+        <div class="{{$card}} p-4">
+            <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{if or .Attention .Look}}{{$.T.Get "All good"}}{{else}}{{$.T.Get "Nothing needs your attention on this day."}}{{end}}</h2>
+            <ul class="mt-3 grid grid-cols-1 gap-2 text-sm text-gray-700 dark:text-gray-300 md:grid-cols-2">
+                {{range .Good}}
+                <li class="flex items-start gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="mt-0.5 shrink-0 text-green-700 dark:text-green-400"><path d="M5 12l5 5l10 -10"/></svg>
+                    <span>{{.}}</span>
+                </li>
+                {{end}}
+            </ul>
+        </div>
+        {{end}}
+
+        <!-- websites as a bar list, sized by requests -->
+        <div class="{{$card}} p-4" x-data="{ all: false }">
+            <div class="flex items-center justify-between">
+                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Websites"}} <span class="font-normal text-gray-500 dark:text-gray-400">({{len .Websites}})</span></h2>
+                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{$.T.Get "Requests"}}</span>
+            </div>
+            {{if .Websites}}
+            <ul class="mt-3 space-y-2">
+                {{range $i, $w := .Websites}}{{with $w}}
+                <li{{if ge $i 8}} x-show="all" x-cloak{{end}}>
+                    <div class="flex items-center justify-between gap-4">
+                        <div class="relative min-w-0 flex-1">
+                            <div class="absolute inset-y-0 left-0 rounded bg-blue-100 dark:bg-blue-500/30" style="width: {{.Share}}%"></div>
+                            <div class="relative flex min-w-0 items-center gap-2 px-2 py-1 text-sm">
+                                <span class="punycode truncate font-medium text-gray-900 dark:text-gray-50">{{.Name}}</span>
+                                {{if .ServerErrors}}<span class="shrink-0 rounded px-1.5 py-0.5 text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">{{$.Summary.Num .ServerErrors}} {{$.T.Get "5xx"}}</span>{{end}}
+                            </div>
+                        </div>
+                        <span class="shrink-0 text-sm font-medium tabular-nums text-gray-900 dark:text-gray-50">{{$.Summary.Num .Requests}}</span>
+                    </div>
+                    <p class="mt-0.5 truncate px-2 text-xs text-gray-500 dark:text-gray-400">{{$.Summary.Num .UniqueIPs}} {{$.T.Get "Unique IPs"}} · {{.Sent}} {{$.T.Get "Bandwidth"}}{{if .NotFound}} · {{$.Summary.Num .NotFound}} {{$.T.Get "404s"}}{{end}}{{if .RateLimited}} · {{$.Summary.Num .RateLimited}} {{$.T.Get "Rate limited"}}{{end}}{{if .WAFBlocked}} · {{$.Summary.Num .WAFBlocked}} {{$.T.Get "Firewall blocks"}}{{end}}</p>
+                </li>
+                {{end}}{{end}}
+            </ul>
+            {{if gt (len .Websites) 8}}<button type="button" x-show="!all" @click="all = true" class="mt-3 text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">{{$.T.Get "Show all"}}</button>{{end}}
+            {{else}}
+            <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">{{$.T.Get "No website traffic on this day."}}</p>
+            {{end}}
+        </div>
+
+        {{if or .Usage .Logins .Changes .Facts}}
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {{if or .Usage .Facts}}
+            <div class="{{$card}} p-4">
+                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Resource Usage"}}</h2>
+                <ul class="mt-3 space-y-4">
+                    {{range .Usage}}
+                    <li>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="font-medium text-gray-900 dark:text-gray-50">{{$.T.Get .Title}}</span>
+                            <span class="tabular-nums text-gray-700 dark:text-gray-300">{{.Used}} / {{.Total}}</span>
+                        </div>
+                        <div class="mt-2 flex items-center gap-3">
+                            <div class="relative flex h-2 w-full items-center rounded-full bg-blue-100 dark:bg-blue-500/30">
+                                <div class="h-full rounded-full{{if eq .Level "full"}} bg-red-500{{else if eq .Level "ok"}} bg-blue-600{{end}}" style="width: {{.Width}}%{{if eq .Level "warning"}}; background-color: #eab308{{end}}"></div>
+                            </div>
+                            <span class="w-10 shrink-0 text-right text-sm tabular-nums text-gray-500 dark:text-gray-400">{{.Percent}}%</span>
+                        </div>
+                    </li>
+                    {{end}}
+                    {{range .Facts}}<li class="text-sm text-gray-700 dark:text-gray-300">{{.}}</li>{{end}}
+                </ul>
+            </div>
+            {{end}}
+
+            {{if .Logins}}
+            <div class="{{$card}} p-4">
+                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Panel logins"}}</h2>
+                <ul class="mt-3 divide-y divide-gray-200 dark:divide-gray-800">
+                    {{range .Logins}}
+                    <li class="flex items-center gap-3 py-2 text-sm">
+                        {{if .Flag}}<img src="/static/flags/{{.Flag}}.png" alt="{{.Country}}" title="{{.Country}}" class="w-8 h-6 rounded-sm shadow-sm" onerror="this.style.visibility='hidden'">{{else}}<span class="w-8 h-6 rounded-sm bg-gray-100 dark:bg-gray-800" aria-hidden="true"></span>{{end}}
+                        <div class="min-w-0 flex-1">
+                            <p class="font-mono text-gray-900 dark:text-gray-50">{{.IP}}</p>
+                            {{if .Country}}<p class="text-xs text-gray-500 dark:text-gray-400">{{.Country}}</p>{{end}}
+                        </div>
+                        {{if .New}}<span class="rounded px-1.5 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">{{$.T.Get "New IP"}}</span>{{end}}
+                        <span class="tabular-nums text-gray-500 dark:text-gray-400">{{.Time.Format "15:04"}}</span>
+                    </li>
+                    {{end}}
+                </ul>
+            </div>
+            {{end}}
+
+            {{if .Changes}}
+            <div class="{{$card}} p-4 md:col-span-2" x-data="{ all: false }">
+                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Changes to your account"}} <span class="font-normal text-gray-500 dark:text-gray-400">({{len .Changes}})</span></h2>
+                <ul class="mt-3 divide-y divide-gray-200 dark:divide-gray-800">
+                    {{range $i, $c := .Changes}}
+                    <li class="flex gap-3 py-1.5 text-sm"{{if ge $i 10}} x-show="all" x-cloak{{end}}>
+                        <span class="w-12 shrink-0 tabular-nums text-gray-500 dark:text-gray-400">{{slice $c 0 5}}</span>
+                        <span class="min-w-0 break-words text-gray-700 dark:text-gray-300">{{slice $c 6}}</span>
+                    </li>
+                    {{end}}
+                </ul>
+                {{if gt (len .Changes) 10}}<button type="button" x-show="!all" @click="all = true" class="mt-2 text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">{{$.T.Get "Show all"}}</button>{{end}}
+            </div>
+            {{end}}
+        </div>
+        {{end}}
+        {{end}}
+    {{end}}
+    </div>
+</section>
+
+<!-- END templates/system/summary.html -->
+{{end}}
+
+{{define "summary_item"}}
+<li class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex min-w-0 gap-3">
+        <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full {{if .Urgent}}bg-red-500{{end}}" {{if not .Urgent}}style="background-color: #eab308"{{end}} title="{{if .Urgent}}{{.T.Get "Needs your attention"}}{{else}}{{.T.Get "Worth a look"}}{{end}}"></span>
+        <div class="min-w-0">
+            <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.Item.Title}}</p>
+            {{if .Item.Detail}}<p class="mt-0.5 break-words text-sm text-gray-500 dark:text-gray-400">{{.Item.Detail}}</p>{{end}}
+            {{if and .Item.Action (not .Item.Link)}}<p class="mt-0.5 text-sm text-gray-700 dark:text-gray-300">{{.Item.Action}}</p>{{end}}
+        </div>
+    </div>
+    {{if and .Item.Action .Item.Link}}
+    <a href="{{.Item.Link}}" class="relative inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">{{.Item.Action}}</a>
+    {{end}}
+</li>
+{{end}}
+
+{{define "summary_icon"}}{{if eq . "requests"}}<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0"><path d="M3 12h4l3 8l4 -16l3 8h4"/></svg>{{else if eq . "visitors"}}<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0"><path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/></svg>{{else if eq . "sent"}}<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 9l5 -5l5 5"/><path d="M12 4l0 12"/></svg>{{else if eq . "errors"}}<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/><path d="M12 16h.01"/></svg>{{else}}<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0"><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/></svg>{{end}}{{end}}

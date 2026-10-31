@@ -1,40 +1,36 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/user/locale.html -->
 
 {{$current := .Current}}
-<section aria-label="{{.T.Get "Locale / Language"}}" x-data="{ query: '' }">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<div class="op-content" aria-label="{{.T.Get "Locale / Language"}}" x-data="{ query: '' }">
+    <div class="op-page-head">
         <div>
-            <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Change Language"}}</h1></div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Choose the language OpenPanel is shown in for your account."}}</p>
+            <h1 class="op-title">{{.T.Get "Change Language"}}</h1>
+            <p class="op-meta">{{.T.Get "Choose the language OpenPanel is shown in for your account."}}</p>
         </div>
     </div>
 
-    <div class="p-6">
-        <div class="relative mb-4 w-full sm:max-w-[250px]">
-            <input x-model="query" type="search" placeholder="{{.T.Get "Search"}}" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8"/>
-            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center text-gray-400 dark:text-gray-600"><i class="bi bi-search"></i></div>
-        </div>
-        <form method="POST" action="/account/language" class="grid grid-cols-3 gap-3">
+    <section class="op-card">
+        <div class="op-toolbar"><label class="op-search">{{template "op_icon" "search"}}<input x-model="query" type="search" placeholder="{{.T.Get "Search"}}" class="op-input" aria-label="{{.T.Get "Search languages"}}"></label></div>
+        <form method="POST" action="/account/language" class="op-locales" x-ref="list">
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
             {{range .Locales}}
-            <button type="submit" name="locale" value="{{.Code}}"
-                    x-show="query === '' || {{toJSON (printf "%s %s %s" .Native .English .Code)}}.toLowerCase().includes(query.toLowerCase())"
-                    class="flex items-center gap-3 rounded-lg border p-4 text-left transition {{if eq .Code $current}}border-indigo-500 shadow-md bg-gray-50 dark:bg-gray-900{{else}}border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900{{end}}">
-                <img src="/static/flags/{{.FlagCode}}.png" alt="" class="w-8 h-6 rounded-sm shadow-sm">
-                <span class="flex flex-col">
-                    <span class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.Native}}</span>
-                    {{if ne .English .Native}}<span class="text-xs text-gray-500 dark:text-gray-400">{{.English}}</span>{{end}}
-                </span>
-                {{if eq .Code $current}}<i class="bi bi-check-circle-fill ml-auto text-blue-600 dark:text-blue-300"></i>{{end}}
+            <button type="submit" name="locale" value="{{.Code}}" class="op-locale" aria-pressed="{{if eq .Code $current}}true{{else}}false{{end}}"
+                    data-q="{{lower (printf "%s %s %s" .Native .English .Code)}}"
+                    x-show="query === '' || $el.dataset.q.includes(query.toLowerCase())">
+                <img src="/static/flags/{{.FlagCode}}.png" alt="" width="32" height="24">
+                <span><b>{{.Native}}</b><span class="op-mono">{{if ne .English .Native}}{{.English}} · {{end}}{{.Code}}</span></span>
+                {{if eq .Code $current}}<span class="op-locale-on">{{template "op_icon" "check"}}</span>{{end}}
             </button>
             {{end}}
         </form>
-    </div>
-
-</section>
+        <div class="op-empty" x-show="query && ![...$refs.list.querySelectorAll('[data-q]')].some(b => b.dataset.q.includes(query.toLowerCase()))" x-cloak><b>{{.T.Get "Nothing matches"}}</b><span class="op-hint">{{.T.Get "Try another search."}}</span></div>
+    </section>
+</div>
 
 <!-- END templates/user/locale.html -->
 {{end}}

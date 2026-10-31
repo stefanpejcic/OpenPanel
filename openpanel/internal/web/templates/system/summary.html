@@ -1,200 +1,185 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/system/summary.html -->
-
-{{$btn := "relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60"}}
-{{$card := "overflow-hidden rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950"}}
-{{$label := "flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"}}
-{{$value := "mt-1 truncate text-xl font-semibold tabular-nums text-gray-900 dark:text-gray-50"}}
-
-<section aria-label="{{.T.Get "Daily Summary"}}">
-    <div class="border-b flex flex-col gap-3 border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-        <div class="min-w-0">
-            <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{if .Found}}{{.Summary.From.Format "Monday, 2 January 2006"}}{{else}}{{.T.Get "Daily Summary"}}{{end}}</h1></div>
-            {{/* the day's verdict replaces the page description once there is a summary */}}
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{if and .Found .Summary.Headline}}{{.Summary.Headline}}{{else}}{{.T.Get "What happened on your account and websites each day, with what needs fixing first."}}{{end}}</p>
+<div class="op-content">
+    <div class="op-page-head">
+        <div>
+            <div class="op-eyebrow">{{.T.Get "Daily Summary"}}{{if .Found}} · {{.T.Get "made"}} {{.Summary.GeneratedAt.Format "2 Jan 15:04 MST"}}{{end}}</div>
+            <h1 class="op-title">{{if .Found}}{{.Summary.From.Format "Monday, 2 January 2006"}}{{else}}{{.T.Get "Daily Summary"}}{{end}}</h1>
+            <p class="op-meta">{{if and .Found .Summary.Headline}}{{.Summary.Headline}}{{else}}{{.T.Get "What happened on your account and websites each day, with what needs fixing first."}}{{end}}</p>
         </div>
         {{if .Dates}}
-        <div class="flex shrink-0 items-center gap-2">
-            {{if .Prev}}<a href="/summary/{{.Prev}}" class="{{$btn}}" aria-label="{{.T.Get "Previous day"}}" title="{{.T.Get "Previous day"}}">&larr;</a>{{end}}
-            <select aria-label="{{.T.Get "Date"}}" onchange="window.location.href = '/summary/' + this.value" class="rounded border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-sm dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50">
-                {{range .Dates}}<option value="{{.}}" {{if eq . $.Summary.Date}}selected{{end}}>{{.}}</option>{{end}}
+        <div class="op-actions"><div class="ds-day" role="group" aria-label="{{.T.Get "Day"}}">
+            {{if .Prev}}<a class="op-btn op-btn-secondary" href="/summary?date={{.Prev}}" aria-label="{{.T.Get "Previous day"}}" title="{{.T.Get "Previous day"}}">{{template "op_icon" "chevleft"}}</a>{{else}}<button class="op-btn op-btn-secondary" type="button" disabled aria-label="{{.T.Get "Previous day"}}">{{template "op_icon" "chevleft"}}</button>{{end}}
+            <select class="op-select" aria-label="{{.T.Get "Date"}}" onchange="window.location.href = '/summary?date=' + encodeURIComponent(this.value)">
+                {{if not .Found}}<option value="" selected disabled>{{.T.Get "Pick a day"}}</option>{{end}}
+                {{range .Dates}}<option value="{{.}}"{{if eq . $.Date}} selected{{end}}>{{$.DayLabel .}}</option>{{end}}
             </select>
-            {{if .Next}}<a href="/summary/{{.Next}}" class="{{$btn}}" aria-label="{{.T.Get "Next day"}}" title="{{.T.Get "Next day"}}">&rarr;</a>{{end}}
-        </div>
+            {{if .Next}}<a class="op-btn op-btn-secondary" href="/summary?date={{.Next}}" aria-label="{{.T.Get "Next day"}}" title="{{.T.Get "Next day"}}">{{template "op_icon" "chevright"}}</a>{{else}}<button class="op-btn op-btn-secondary" type="button" disabled aria-label="{{.T.Get "Next day"}}">{{template "op_icon" "chevright"}}</button>{{end}}
+        </div></div>
         {{end}}
     </div>
 
-    <div class="space-y-8 px-6 pt-4 pb-6">
     {{if not .Found}}
-        <div class="rounded border border-dashed border-gray-300 p-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
-            {{if .Dates}}{{.T.Get "There is no summary for this day."}}{{else}}{{.T.Get "Your first summary will be ready tomorrow morning."}}{{end}}
-        </div>
+    <section class="op-card">
+        <div class="op-empty"><b>{{if .Dates}}{{.T.Get "There is no summary for this day."}}{{else}}{{.T.Get "Your first summary will be ready tomorrow morning."}}{{end}}</b><span class="op-hint">{{.T.Get "A summary is made each morning for the day before and kept for 90 days."}}</span></div>
+    </section>
     {{else}}
-        {{with .Summary}}
-
-        <!-- KPI strip, same as the Backups and Cron Jobs pages -->
-        <div class="flex flex-col divide-y divide-gray-200 {{$card}} sm:flex-row md:divide-x md:divide-y-0 dark:divide-gray-800">
-            <div class="min-w-0 flex-1 p-4">
-                <p class="{{$label}}">{{template "summary_icon" "requests"}}{{$.T.Get "Requests"}}</p>
-                <p class="{{$value}} flex items-center gap-2">{{.Num .TotalRequests}}
-                    {{with .Delta}}<span class="rounded px-1.5 py-0.5 text-xs font-medium {{if $.Summary.DeltaUp}}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300{{else}}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300{{end}}" title="{{$.T.Get "Compared with the day before"}}">{{.}}</span>{{end}}
-                </p>
-            </div>
-            <div class="min-w-0 flex-1 p-4">
-                <p class="{{$label}}">{{template "summary_icon" "visitors"}}{{$.T.Get "Unique IPs"}}</p>
-                <p class="{{$value}}">{{.Num .TotalVisitors}}</p>
-            </div>
-            <div class="min-w-0 flex-1 p-4">
-                <p class="{{$label}}">{{template "summary_icon" "sent"}}{{$.T.Get "Bandwidth"}}</p>
-                <p class="{{$value}}">{{.TotalSent}}</p>
-            </div>
-            <div class="min-w-0 flex-1 p-4">
-                <p class="{{$label}}">{{template "summary_icon" "errors"}}{{$.T.Get "Error pages"}}</p>
-                <p class="{{$value}}{{if .TotalErrors}} text-red-600 dark:text-red-400{{end}}">{{.Num .TotalErrors}}</p>
-            </div>
-            <div class="min-w-0 flex-1 p-4">
-                <p class="{{$label}}">{{template "summary_icon" "shield"}}{{$.T.Get "Firewall blocks"}}</p>
-                <p class="{{$value}}">{{.Num .TotalBlocked}}</p>
-            </div>
+    {{$s := .Summary}}
+    {{with .Tiles}}
+    <section class="op-kpis ds-kpis" aria-label="{{$.T.Get "The day in numbers"}}">
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "pulse"}} {{$.T.Get "Requests"}}</div>
+            <div class="op-kpi-value"><span>{{$s.Num $s.TotalRequests}}</span>{{template "ds_delta" (dict "T" $.T "Tile" .Requests)}}</div>
+            <div class="op-kpi-note">{{if .Requests.HasPrev}}{{.Requests.PrevNum}} {{$.T.Get "the day before"}}{{else}}{{$.T.Get "No summary for the day before"}}{{end}}</div>
         </div>
-
-        {{if or .Attention .Look}}
-        <div class="{{$card}}">
-            <ul class="divide-y divide-gray-200 dark:divide-gray-800">
-                {{range .Attention}}{{template "summary_item" (dict "T" $.T "Item" . "Urgent" true)}}{{end}}
-                {{range .Look}}{{template "summary_item" (dict "T" $.T "Item" . "Urgent" false)}}{{end}}
-            </ul>
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "users"}} {{$.T.Get "Unique IPs"}}</div>
+            <div class="op-kpi-value"><span>{{$s.Num $s.TotalVisitors}}</span>{{template "ds_delta" (dict "T" $.T "Tile" .Visitors)}}</div>
+            <div class="op-kpi-note">{{$.T.Get "across"}} {{len $s.Websites}} {{if eq (len $s.Websites) 1}}{{$.T.Get "website"}}{{else}}{{$.T.Get "websites"}}{{end}}</div>
         </div>
-        {{end}}
-
-        {{if .Good}}
-        <div class="{{$card}} p-4">
-            <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{if or .Attention .Look}}{{$.T.Get "All good"}}{{else}}{{$.T.Get "Nothing needs your attention on this day."}}{{end}}</h2>
-            <ul class="mt-3 grid grid-cols-1 gap-2 text-sm text-gray-700 dark:text-gray-300 md:grid-cols-2">
-                {{range .Good}}
-                <li class="flex items-start gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="mt-0.5 shrink-0 text-green-700 dark:text-green-400"><path d="M5 12l5 5l10 -10"/></svg>
-                    <span>{{.}}</span>
-                </li>
-                {{end}}
-            </ul>
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "upload"}} {{$.T.Get "Bandwidth"}}</div>
+            <div class="op-kpi-value"><span>{{$s.SentNum}} <small>{{$s.SentUnit}}</small></span>{{template "ds_delta" (dict "T" $.T "Tile" .Bandwidth)}}</div>
+            <div class="op-kpi-note">{{$.T.Get "sent to visitors"}}</div>
         </div>
-        {{end}}
-
-        <!-- websites as a bar list, sized by requests -->
-        <div class="{{$card}} p-4" x-data="{ all: false }">
-            <div class="flex items-center justify-between">
-                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Websites"}} <span class="font-normal text-gray-500 dark:text-gray-400">({{len .Websites}})</span></h2>
-                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">{{$.T.Get "Requests"}}</span>
-            </div>
-            {{if .Websites}}
-            <ul class="mt-3 space-y-2">
-                {{range $i, $w := .Websites}}{{with $w}}
-                <li{{if ge $i 8}} x-show="all" x-cloak{{end}}>
-                    <div class="flex items-center justify-between gap-4">
-                        <div class="relative min-w-0 flex-1">
-                            <div class="absolute inset-y-0 left-0 rounded bg-blue-100 dark:bg-blue-500/30" style="width: {{.Share}}%"></div>
-                            <div class="relative flex min-w-0 items-center gap-2 px-2 py-1 text-sm">
-                                <span class="punycode truncate font-medium text-gray-900 dark:text-gray-50">{{.Name}}</span>
-                                {{if .ServerErrors}}<span class="shrink-0 rounded px-1.5 py-0.5 text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">{{$.Summary.Num .ServerErrors}} {{$.T.Get "5xx"}}</span>{{end}}
-                            </div>
-                        </div>
-                        <span class="shrink-0 text-sm font-medium tabular-nums text-gray-900 dark:text-gray-50">{{$.Summary.Num .Requests}}</span>
-                    </div>
-                    <p class="mt-0.5 truncate px-2 text-xs text-gray-500 dark:text-gray-400">{{$.Summary.Num .UniqueIPs}} {{$.T.Get "Unique IPs"}} · {{.Sent}} {{$.T.Get "Bandwidth"}}{{if .NotFound}} · {{$.Summary.Num .NotFound}} {{$.T.Get "404s"}}{{end}}{{if .RateLimited}} · {{$.Summary.Num .RateLimited}} {{$.T.Get "Rate limited"}}{{end}}{{if .WAFBlocked}} · {{$.Summary.Num .WAFBlocked}} {{$.T.Get "Firewall blocks"}}{{end}}</p>
-                </li>
-                {{end}}{{end}}
-            </ul>
-            {{if gt (len .Websites) 8}}<button type="button" x-show="!all" @click="all = true" class="mt-3 text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">{{$.T.Get "Show all"}}</button>{{end}}
-            {{else}}
-            <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">{{$.T.Get "No website traffic on this day."}}</p>
-            {{end}}
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "warn"}} {{$.T.Get "Error pages"}}</div>
+            <div class="op-kpi-value{{if $s.TotalErrors}} is-danger{{end}}"><span>{{$s.Num $s.TotalErrors}}</span>{{template "ds_delta" (dict "T" $.T "Tile" .Errors)}}</div>
+            <div class="op-kpi-note">{{$s.Num $s.TotalNotFound}} {{$.T.Get "not found (404)"}}</div>
         </div>
-
-        {{if or .Usage .Logins .Changes .Facts}}
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {{if or .Usage .Facts}}
-            <div class="{{$card}} p-4">
-                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Resource Usage"}}</h2>
-                <ul class="mt-3 space-y-4">
-                    {{range .Usage}}
-                    <li>
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="font-medium text-gray-900 dark:text-gray-50">{{$.T.Get .Title}}</span>
-                            <span class="tabular-nums text-gray-700 dark:text-gray-300">{{.Used}} / {{.Total}}</span>
-                        </div>
-                        <div class="mt-2 flex items-center gap-3">
-                            <div class="relative flex h-2 w-full items-center rounded-full bg-blue-100 dark:bg-blue-500/30">
-                                <div class="h-full rounded-full{{if eq .Level "full"}} bg-red-500{{else if eq .Level "ok"}} bg-blue-600{{end}}" style="width: {{.Width}}%{{if eq .Level "warning"}}; background-color: #eab308{{end}}"></div>
-                            </div>
-                            <span class="w-10 shrink-0 text-right text-sm tabular-nums text-gray-500 dark:text-gray-400">{{.Percent}}%</span>
-                        </div>
-                    </li>
-                    {{end}}
-                    {{range .Facts}}<li class="text-sm text-gray-700 dark:text-gray-300">{{.}}</li>{{end}}
-                </ul>
-            </div>
-            {{end}}
-
-            {{if .Logins}}
-            <div class="{{$card}} p-4">
-                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Panel logins"}}</h2>
-                <ul class="mt-3 divide-y divide-gray-200 dark:divide-gray-800">
-                    {{range .Logins}}
-                    <li class="flex items-center gap-3 py-2 text-sm">
-                        {{if .Flag}}<img src="/static/flags/{{.Flag}}.png" alt="{{.Country}}" title="{{.Country}}" class="w-8 h-6 rounded-sm shadow-sm" onerror="this.style.visibility='hidden'">{{else}}<span class="w-8 h-6 rounded-sm bg-gray-100 dark:bg-gray-800" aria-hidden="true"></span>{{end}}
-                        <div class="min-w-0 flex-1">
-                            <p class="font-mono text-gray-900 dark:text-gray-50">{{.IP}}</p>
-                            {{if .Country}}<p class="text-xs text-gray-500 dark:text-gray-400">{{.Country}}</p>{{end}}
-                        </div>
-                        {{if .New}}<span class="rounded px-1.5 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">{{$.T.Get "New IP"}}</span>{{end}}
-                        <span class="tabular-nums text-gray-500 dark:text-gray-400">{{.Time.Format "15:04"}}</span>
-                    </li>
-                    {{end}}
-                </ul>
-            </div>
-            {{end}}
-
-            {{if .Changes}}
-            <div class="{{$card}} p-4 md:col-span-2" x-data="{ all: false }">
-                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Changes to your account"}} <span class="font-normal text-gray-500 dark:text-gray-400">({{len .Changes}})</span></h2>
-                <ul class="mt-3 divide-y divide-gray-200 dark:divide-gray-800">
-                    {{range $i, $c := .Changes}}
-                    <li class="flex gap-3 py-1.5 text-sm"{{if ge $i 10}} x-show="all" x-cloak{{end}}>
-                        <span class="w-12 shrink-0 tabular-nums text-gray-500 dark:text-gray-400">{{slice $c 0 5}}</span>
-                        <span class="min-w-0 break-words text-gray-700 dark:text-gray-300">{{slice $c 6}}</span>
-                    </li>
-                    {{end}}
-                </ul>
-                {{if gt (len .Changes) 10}}<button type="button" x-show="!all" @click="all = true" class="mt-2 text-sm font-medium text-blue-600 hover:underline dark:text-blue-500">{{$.T.Get "Show all"}}</button>{{end}}
-            </div>
-            {{end}}
+        <div class="op-kpi">
+            <div class="op-kpi-label">{{template "op_icon" "shield"}} {{$.T.Get "Firewall blocks"}}</div>
+            <div class="op-kpi-value"><span>{{$s.Num $s.TotalBlocked}}</span>{{template "ds_delta" (dict "T" $.T "Tile" .Blocked)}}</div>
+            <div class="op-kpi-note">{{$s.Num $s.TotalRateLimited}} {{$.T.Get "rate limited"}}</div>
         </div>
-        {{end}}
-        {{end}}
+    </section>
     {{end}}
-    </div>
-</section>
 
+    {{if or $s.Attention $s.Look}}
+    <section class="op-card" aria-label="{{.T.Get "What to look at"}}">
+        {{if $s.Attention}}<div>
+            <p class="ds-tag"><span class="ds-dot is-danger"></span>{{.T.Get "Needs your attention"}} · {{len $s.Attention}}</p>
+            <ul class="ds-find">{{range $s.Attention}}{{template "ds_item" (dict "Item" . "Tone" "is-danger")}}{{end}}</ul>
+        </div>{{end}}
+        {{if $s.Look}}<div{{if $s.Attention}} class="ds-look"{{end}}>
+            <p class="ds-tag"><span class="ds-dot is-warning"></span>{{.T.Get "Worth a look"}} · {{len $s.Look}}</p>
+            <ul class="ds-find">{{range $s.Look}}{{template "ds_item" (dict "Item" . "Tone" "is-warning")}}{{end}}</ul>
+        </div>{{end}}
+    </section>
+    {{end}}
+
+    <div class="op-cols-2">
+        <section class="op-card" aria-labelledby="ds-good">
+            <div class="op-card-head"><h2 id="ds-good">{{if or $s.Attention $s.Look}}{{.T.Get "What went well"}}{{else}}{{.T.Get "Nothing needs your attention on this day"}}{{end}}</h2></div>
+            {{if $s.Good}}<ul class="ds-good">{{range $s.Good}}<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5l10 -10"/></svg><span>{{.}}</span></li>{{end}}</ul>
+            {{else}}<p class="op-hint">{{.T.Get "No good news recorded for this day."}}</p>{{end}}
+        </section>
+        <section class="op-card" aria-labelledby="ds-usage">
+            <div class="op-card-head"><h2 id="ds-usage">{{.T.Get "Resource usage"}}</h2>{{if .UserAllowed.usage}}<a href="/server/usage/history">{{.T.Get "Usage history"}}</a>{{end}}</div>
+            <div class="ds-usage">
+                {{range $s.Usage}}<div class="ds-usage-row"><span>{{$.T.Get .Title}}</span><span class="op-mono op-hint">{{.Used}} {{$.T.Get "of"}} {{.Total}} · {{.Percent}}%</span><div class="op-progress{{if eq .Level "full"}} is-danger{{else if eq .Level "warning"}} is-warning{{end}}"><span style="width:{{if lt .Width 1}}1{{else}}{{.Width}}{{end}}%"></span></div></div>{{end}}
+                {{range $s.Facts}}<p class="op-hint">{{.}}</p>{{end}}
+                {{if not (or $s.Usage $s.Facts)}}<p class="op-hint">{{.T.Get "No usage was recorded for this day."}}</p>{{end}}
+            </div>
+        </section>
+    </div>
+
+    <section class="op-card" aria-labelledby="ds-sites">
+        <div class="op-card-head"><h2 id="ds-sites">{{.T.Get "Websites"}} <span class="op-hint">· {{len $s.Websites}}</span></h2>{{if .UserAllowed.goaccess}}<a href="/domains/stats">{{.T.Get "Visitor statistics"}}</a>{{end}}</div>
+        {{if $s.Websites}}
+        <div class="op-table-wrap"><table class="op-table">
+            <thead><tr>
+                <th aria-sort="none"><button class="op-th-sort" type="button" data-sort-key="name" data-sort-type="string" onclick="opSortToggle(event, this, sortTableColumn)">{{.T.Get "Website"}}<i aria-hidden="true"></i></button></th>
+                <th aria-sort="descending" class="is-num"><button class="op-th-sort" type="button" data-sort-key="requests" data-sort-type="number" onclick="opSortToggle(event, this, sortTableColumn)">{{.T.Get "Requests"}}<i aria-hidden="true"></i></button></th>
+                <th aria-sort="none" class="is-num"><button class="op-th-sort" type="button" data-sort-key="ips" data-sort-type="number" onclick="opSortToggle(event, this, sortTableColumn)">{{.T.Get "Unique IPs"}}<i aria-hidden="true"></i></button></th>
+                <th aria-sort="none" class="is-num"><button class="op-th-sort" type="button" data-sort-key="bytes" data-sort-type="number" onclick="opSortToggle(event, this, sortTableColumn)">{{.T.Get "Bandwidth"}}<i aria-hidden="true"></i></button></th>
+                <th aria-sort="none" class="is-num"><button class="op-th-sort" type="button" data-sort-key="notfound" data-sort-type="number" onclick="opSortToggle(event, this, sortTableColumn)">{{.T.Get "404s"}}<i aria-hidden="true"></i></button></th>
+                <th aria-sort="none" class="is-num"><button class="op-th-sort" type="button" data-sort-key="errors" data-sort-type="number" onclick="opSortToggle(event, this, sortTableColumn)">{{.T.Get "Errors"}}<i aria-hidden="true"></i></button></th>
+                <th aria-sort="none" class="is-num"><button class="op-th-sort" type="button" data-sort-key="blocked" data-sort-type="number" onclick="opSortToggle(event, this, sortTableColumn)">{{.T.Get "Blocked"}}<i aria-hidden="true"></i></button></th>
+            </tr></thead>
+            <tbody>
+                {{range $s.Websites}}{{$w := .}}
+                <tr>
+                    <td class="op-cell-title" data-sort-col="name" data-sort-value="{{.Name}}"><div class="op-row-title"><div><b class="punycode">{{.Name}}</b>{{if or .TopPage .Change}}<span class="op-sub">{{with .TopPage}}{{$.T.Get "Top page"}} {{.}}{{end}}{{if .TopPage}} · {{$s.Num .TopPageViews}} {{if eq .TopPageViews 1}}{{$.T.Get "view"}}{{else}}{{$.T.Get "views"}}{{end}}{{end}}{{with .Change}}{{if $w.TopPage}} · {{end}}{{.}} {{$.T.Get "vs the day before"}}{{end}}</span>{{end}}</div></div></td>
+                    <td data-label="{{$.T.Get "Requests"}}" class="is-num" data-sort-col="requests" data-sort-value="{{.Requests}}"><span class="ds-req"><span class="op-progress"><span style="width:{{.Bar}}%"></span></span><span class="op-mono">{{$s.Num .Requests}}</span></span></td>
+                    <td data-label="{{$.T.Get "Unique IPs"}}" class="is-num" data-sort-col="ips" data-sort-value="{{.UniqueIPs}}"><span class="op-mono{{if not .UniqueIPs}} op-hint{{end}}">{{$s.Num .UniqueIPs}}</span></td>
+                    <td data-label="{{$.T.Get "Bandwidth"}}" class="is-num" data-sort-col="bytes" data-sort-value="{{.Bytes}}"><span class="op-mono">{{.Size}}</span></td>
+                    <td data-label="{{$.T.Get "404s"}}" class="is-num" data-sort-col="notfound" data-sort-value="{{.NotFound}}"><span class="op-mono{{if not .NotFound}} op-hint{{end}}">{{$s.Num .NotFound}}</span></td>
+                    <td data-label="{{$.T.Get "Errors"}}" class="is-num" data-sort-col="errors" data-sort-value="{{.ServerErrors}}">{{if .ServerErrors}}<span class="op-badge is-danger">{{$s.Num .ServerErrors}} 5xx</span>{{else}}<span class="op-mono op-hint">0</span>{{end}}</td>
+                    <td data-label="{{$.T.Get "Blocked"}}" class="is-num" data-sort-col="blocked" data-sort-value="{{add .WAFBlocked .RateLimited}}">{{if or .WAFBlocked .RateLimited}}<span class="op-mono" title="{{.WAFBlocked}} {{$.T.Get "by the firewall"}}, {{.RateLimited}} {{$.T.Get "rate limited"}}">{{$s.Num (add .WAFBlocked .RateLimited)}}</span>{{else}}<span class="op-mono op-hint">0</span>{{end}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table></div>
+        {{else}}
+        <div class="op-empty"><b>{{.T.Get "No website traffic on this day"}}</b><span class="op-hint">{{.T.Get "Requests, visitors and errors show up here once your websites get visits."}}</span></div>
+        {{end}}
+    </section>
+
+    <div class="op-cols-2">
+        <section class="op-card" aria-labelledby="ds-logins">
+            <div class="op-card-head"><h2 id="ds-logins">{{.T.Get "Panel logins"}} <span class="op-hint">· {{len $s.Logins}}</span></h2>{{if .UserAllowed.login_history}}<a href="/account/login-history">{{.T.Get "Login history"}}</a>{{end}}</div>
+            {{if $s.Logins}}<ul class="ds-logins">{{range $s.Logins}}<li>
+                {{if .Flag}}<img class="ds-flag" src="/static/flags/{{.Flag}}.png" alt="{{.Country}}" title="{{.Country}}" onerror="this.style.visibility='hidden'">{{else}}<span class="ds-flag" title="{{$.T.Get "Country unknown"}}" aria-hidden="true"></span>{{end}}
+                <span class="ds-ip"><span class="op-mono">{{.IP}}</span></span>
+                {{if .New}}<span class="op-badge is-warning">{{$.T.Get "New IP"}}</span>{{end}}
+                <span class="op-mono op-hint">{{.Time.Format "15:04"}}</span>
+            </li>{{end}}</ul>
+            {{else}}<div class="op-empty"><b>{{.T.Get "No logins on this day"}}</b></div>{{end}}
+        </section>
+        <section class="op-card" aria-labelledby="ds-changes" x-data="dsChanges({{toJSON $s.Changes}})">
+            <div class="op-card-head"><h2 id="ds-changes">{{.T.Get "Changes to your account"}} <span class="op-hint">· {{len $s.Changes}}</span></h2>{{if .UserAllowed.activity}}<a href="/account/activity">{{.T.Get "Activity log"}}</a>{{end}}</div>
+            {{if gt (len $s.Changes) 10}}<label class="op-search ds-search">{{template "op_icon" "search"}}<input class="op-input" type="search" placeholder="{{.T.Get "Filter changes"}}" aria-label="{{.T.Get "Filter changes"}}" x-model="q"></label>{{end}}
+            <ul class="ds-changes" x-show="matches.length"><template x-for="(c, i) in shown" :key="i"><li><time x-text="c.slice(0, 5)"></time><span x-text="c.slice(6)"></span></li></template></ul>
+            <button class="op-btn op-btn-ghost op-btn-sm ds-more" type="button" x-show="matches.length > shown.length" x-cloak @click="all = true" x-text="{{toJSON (.T.Get "Show all")}} + ' ' + matches.length"></button>
+            <div class="op-empty" x-show="!matches.length"{{if $s.Changes}} x-cloak{{end}}><b>{{if $s.Changes}}{{.T.Get "No change matches"}}{{else}}{{.T.Get "No changes on this day"}}{{end}}</b></div>
+        </section>
+    </div>
+    {{end}}
+
+    {{if .UserAllowed.notifications}}
+    <section class="op-card ds-mail" aria-label="{{.T.Get "Email"}}" x-data="dsEmail({{.EmailOn}})">
+        <div><b>{{.T.Get "Email me this summary"}}</b><p>{{.T.Get "Each morning you get the day before"}}{{with .Email}}, {{$.T.Get "sent to"}} <span class="op-mono">{{.}}</span>{{end}}. {{.T.Get "Summaries stay on this page for 90 days either way."}}</p></div>
+        <div class="ds-toggle"><button class="op-switch" type="button" role="switch" :aria-checked="on.toString()" aria-checked="{{.EmailOn}}" :disabled="busy" @click="toggle()" aria-label="{{.T.Get "Email me this summary"}}"></button><a href="/account/notifications#daily-summary" class="op-hint">{{.T.Get "All notifications"}}</a></div>
+    </section>
+    {{end}}
+</div>
+
+<script src="{{static "js/table-sort.js"}}"></script>
+<script>
+function dsChanges(list) {
+    return {
+        list: list || [], q: '', all: false,
+        get matches() { const q = this.q.trim().toLowerCase(); return q ? this.list.filter((c) => c.toLowerCase().includes(q)) : this.list; },
+        get shown() { return this.all || this.q.trim() ? this.matches : this.matches.slice(0, 10); },
+    };
+}
+function dsEmail(on) {
+    const L = { on: {{toJSON (.T.Get "Daily summary emails turned on")}}, off: {{toJSON (.T.Get "Daily summary emails turned off")}}, failed: {{toJSON (.T.Get "Could not save the setting.")}} };
+    return {
+        on, busy: false,
+        toggle() {
+            const want = !this.on;
+            this.on = want;
+            this.busy = true;
+            const body = new FormData();
+            body.append('on', want ? '1' : '0');
+            fetch('/summary/email', { method: 'POST', body, headers: { 'X-CSRF-Token': csrf_token } })
+                .then((r) => r.json().then((d) => (r.ok ? d : Promise.reject(d.error || L.failed))))
+                .then((d) => { this.on = !!d.on; showToast(this.on ? L.on : L.off, 'success'); })
+                .catch((e) => { this.on = !want; showToast(typeof e === 'string' ? e : L.failed, 'error'); })
+                .finally(() => { this.busy = false; });
+        },
+    };
+}
+</script>
 <!-- END templates/system/summary.html -->
 {{end}}
 
-{{define "summary_item"}}
-<li class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-    <div class="flex min-w-0 gap-3">
-        <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full {{if .Urgent}}bg-red-500{{end}}" {{if not .Urgent}}style="background-color: #eab308"{{end}} title="{{if .Urgent}}{{.T.Get "Needs your attention"}}{{else}}{{.T.Get "Worth a look"}}{{end}}"></span>
-        <div class="min-w-0">
-            <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.Item.Title}}</p>
-            {{if .Item.Detail}}<p class="mt-0.5 break-words text-sm text-gray-500 dark:text-gray-400">{{.Item.Detail}}</p>{{end}}
-            {{if and .Item.Action (not .Item.Link)}}<p class="mt-0.5 text-sm text-gray-700 dark:text-gray-300">{{.Item.Action}}</p>{{end}}
-        </div>
-    </div>
-    {{if and .Item.Action .Item.Link}}
-    <a href="{{.Item.Link}}" class="relative inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">{{.Item.Action}}</a>
-    {{end}}
-</li>
-{{end}}
+{{define "ds_delta"}}{{with .Tile.Delta}}<span class="op-badge {{$.Tile.Tone}}" title="{{$.T.Get "Compared with the day before"}}">{{.}}</span>{{end}}{{end}}
 
-{{define "summary_icon"}}{{if eq . "requests"}}<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0"><path d="M3 12h4l3 8l4 -16l3 8h4"/></svg>{{else if eq . "visitors"}}<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0"><path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0 -3 -3.85"/></svg>{{else if eq . "sent"}}<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 9l5 -5l5 5"/><path d="M12 4l0 12"/></svg>{{else if eq . "errors"}}<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/><path d="M12 16h.01"/></svg>{{else}}<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0"><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/></svg>{{end}}{{end}}
+{{define "ds_item"}}<li><div class="ds-txt"><span class="ds-dot {{.Tone}}" aria-hidden="true"></span><div><b>{{.Item.Title}}</b>{{with .Item.Detail}}<p>{{.}}</p>{{end}}{{if and .Item.Action (not .Item.Link)}}<p>{{.Item.Action}}</p>{{end}}</div></div>{{if and .Item.Action .Item.Link}}<a class="op-btn op-btn-secondary op-btn-sm" href="{{.Item.Link}}">{{.Item.Action}}</a>{{end}}</li>{{end}}

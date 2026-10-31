@@ -1,282 +1,206 @@
 {{define "alpine_plugins"}}{{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
 {{define "content"}}
 <!-- START templates/emails/new.html -->
+<script>
+// create form: same username rule, strength score (password-strength.js) and quota cap as handleEmailsNew checks on submit
+function opNewEmail(c) {
+    const gen = (n) => { const cs = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_'; let s = ''; for (const x of crypto.getRandomValues(new Uint32Array(n))) s += cs[x % cs.length]; return s; };
+    const mult = { B: 1, k: 1024, M: 1048576, G: 1073741824, T: 1099511627776 };
+    const rank = { B: 0, k: 1, M: 2, G: 3, T: 4 };
+    const fmt = (b) => { const one = (v) => String(+v.toFixed(1)); if (b >= mult.T) return one(b / mult.T) + ' TB'; if (b >= mult.G) return one(b / mult.G) + ' GB'; if (b >= mult.M) return Math.round(b / mult.M) + ' MB'; if (b >= mult.k) return Math.round(b / mult.k) + ' KB'; return '0 MB'; };
+    return {
+        domain: c.domain, user: c.user, pass: gen(16), show: true, qsel: c.presets.length - 1, qn: '', qu: 'M', welcome: true, busy: false, tried: false,
+        address() { return (this.user || c.t.username) + '@' + this.domain; },
+        userErr() {
+            if (!this.user) return this.tried ? c.t.noUser : '';
+            if (!/^[a-zA-Z0-9._%+\-]+$/.test(this.user)) return c.t.badUser;
+            if (c.taken.includes((this.user + '@' + this.domain).toLowerCase())) return c.t.taken.replace('{email}', this.user + '@' + this.domain);
+            return '';
+        },
+        score() { return passwordStrengthScore(this.pass); },
+        level() { const s = this.score(); return !this.pass ? '' : s <= 33 ? 'Weak' : s <= 67 ? 'Medium' : 'Strong'; },
+        levelText() { return { Weak: c.t.weak, Medium: c.t.medium, Strong: c.t.strong }[this.level()] || ''; },
+        passErr() {
+            if (!this.pass) return this.tried ? c.t.noPass : '';
+            if (this.pass.length < 8 || this.pass.length > 30) return c.t.passLen;
+            if (this.score() < c.threshold) return c.t.weakPass;
+            return '';
+        },
+        unitOff(u) { return c.maxBytes > 0 && rank[c.maxUnit] !== undefined && rank[u] > rank[c.maxUnit]; },
+        gb() { return this.qsel === 'custom' ? this.qn.trim() : c.presets[this.qsel].value; },
+        unit() { return this.qsel === 'custom' ? this.qu : c.presets[this.qsel].unit; },
+        quotaErr() {
+            if (this.qsel !== 'custom') return '';
+            const v = this.qn.trim();
+            if (v === '') return this.tried ? c.t.noSize : '';
+            if (!/^\d+(\.\d+)?$/.test(v)) return c.t.notNumber;
+            const n = parseFloat(v);
+            if (n === 0) return c.maxBytes > 0 ? c.t.zero : '';
+            if (c.maxBytes > 0 && n * mult[this.qu] > c.maxBytes) return c.t.over;
+            return '';
+        },
+        regen() { this.pass = gen(16); this.show = true; },
+        copyPass() { if (this.pass && window.copyToClipboard) copyToClipboard(this.pass).then(() => showToast(c.t.copied, 'success')); },
+        pick(i) { this.qsel = i; if (i === 'custom') this.$nextTick(() => this.$refs.qn.focus()); },
+        submit(e) {
+            this.tried = true;
+            if (c.full || this.userErr() || this.passErr() || this.quotaErr()) {
+                e.preventDefault();
+                this.$nextTick(() => { const el = this.$root.querySelector('.op-em-form .is-invalid'); if (el) el.focus(); });
+                return;
+            }
+            this.busy = true;
+        },
+    };
+}
+</script>
+<div class="op-content" x-data="opNewEmail({
+    domain: {{if .Domain}}{{toJSON .Domain}}{{else}}{{with .Domains}}{{toJSON (index . 0).DomainURL}}{{else}}''{{end}}{{end}}, user: {{toJSON .Username}}, taken: {{toJSON .Taken}}, full: {{.Full}}, threshold: {{.PasswordStrength}}, wait: {{.Wait}},
+    maxBytes: {{.MaxQuotaBytes}}, maxUnit: {{toJSON .AllocatedUnit}},
+    presets: [{{range $i, $p := .Presets}}{{if $i}}, {{end}}{ value: {{toJSON $p.Value}}, unit: {{toJSON $p.Unit}} }{{end}}],
+    t: {
+        username: {{toJSON (.T.Get "username")}},
+        noUser: {{toJSON (.T.Get "Enter a username.")}},
+        badUser: {{toJSON (.T.Get "Only letters, numbers, and the characters . _ % + - are allowed.")}},
+        taken: {{toJSON (.T.Get "%(email)s already exists. Pick another username or domain." "email" "{email}")}},
+        noPass: {{toJSON (.T.Get "Enter a password, or press Generate.")}},
+        passLen: {{toJSON (.T.Get "Password must be between 8 and 30 characters.")}},
+        weakPass: {{toJSON (.T.Get "Password does not meet the required strength. Add upper case letters, numbers or symbols.")}},
+        weak: {{toJSON (.T.Get "Weak password")}}, medium: {{toJSON (.T.Get "Medium strength password")}}, strong: {{toJSON (.T.Get "Strong password")}},
+        noSize: {{toJSON (.T.Get "Enter a size, or pick one of the sizes above.")}},
+        notNumber: {{toJSON (.T.Get "Enter a number.")}},
+        zero: {{toJSON (.T.Get "0 means unlimited, which your plan doesn't allow. Pick a size up to %(max)s." "max" .MaxQuotaLabel)}},
+        over: {{toJSON (.T.Get "Your plan allows up to %(max)s per mailbox." "max" .MaxQuotaLabel)}},
+        copied: {{toJSON (.T.Get "Copied password.")}}
+    }
+})">
+    <div class="op-page-head">
+        <div>
+            <div class="op-eyebrow"><a class="op-link" href="/emails">{{.T.Get "Emails"}}</a></div>
+            <h1 class="op-title">{{.T.Get "Create an Email"}}</h1>
+            <p class="op-meta">{{.T.Get "A new mailbox on one of your domains, with its own password and storage quota."}}</p>
+        </div>
+    </div>
 
-<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
-    <header>
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Create an Email"}}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-500"> {{.T.Get "Create a new Email account."}}</p>
-    </header>
-</div>
+    {{if .Full}}
+    <div class="op-alert is-danger" role="alert">{{template "op_icon" "alert"}}<span><b>{{.T.Get "Error: reached max number of email accounts on the hosting plan."}}</b><br>{{.T.Get "All %(n)s accounts on your plan are in use. Delete one you no longer need, or ask your hosting provider for a bigger plan." "n" (print .EmailLimit)}}</span><a class="op-link" href="/emails">{{.T.Get "Back to Emails"}}</a></div>
+    {{end}}
 
-<!-- form -->
-{{if .Domains}}
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
-    <form class="mt-8" method="POST">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-        <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-
-             <div class="col-span-full mb-3">
-
-                     <label for="domain" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Domain"}}</label>
-                <div class="flex rounded-lg shadow-sm">
-                    <select name="domain" id="domain" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
-                        <option value="" disabled></option>
-                            {{range .Domains}}
-                        <option class="punycode" value="{{.DomainURL}}">{{.DomainURL}}</option>
-                            {{end}}
-                </select>
+    {{if .Domains}}
+    <div class="op-em-grid">
+        <form class="op-card op-em-form" method="POST" novalidate @submit="submit($event)" aria-label="{{.T.Get "Create an Email"}}"
+            data-busy="{{.T.Get "Creating the mailbox"}}" data-busy-steps="{{.T.Get "Adding the mailbox to the mail server"}}|{{.T.Get "Setting its storage quota"}}|{{.T.Get "Sending the welcome email, if picked"}}" data-busy-note="{{.T.Get "Keep this page open. Emails opens when the mailbox is ready."}}" data-busy-leave="no" data-busy-more="{{.T.Get "What happens"}}" data-busy-less="{{.T.Get "Hide steps"}}">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            <input type="hidden" name="gb" :value="gb()">
+            <input type="hidden" name="format" :value="unit()">
+            <input type="hidden" name="send_welcome" :value="welcome ? '1' : ''">
+            <fieldset{{if .Full}} disabled{{end}}>
+                <div class="op-section"><div><h3>{{.T.Get "Address"}}</h3><p>{{.T.Get "What people type to reach this mailbox."}}</p></div>
+                    <div class="op-col" style="gap:10px">
+                        <div class="op-field"><label class="op-label" for="username">{{.T.Get "Username"}} <span class="is-danger">*</span></label>
+                            <div class="op-em-addr">
+                                <input class="op-input op-mono" id="username" name="username" x-model="user" maxlength="60" data-no-live-validate placeholder="{{.T.Get "info"}}" autocomplete="off" spellcheck="false" autocapitalize="off" :class="userErr() && 'is-invalid'" :aria-invalid="(!!userErr()).toString()" aria-describedby="username-hint">
+                                <div><span aria-hidden="true">@</span>
+                                    <select class="op-select" id="domain" name="domain" aria-label="{{.T.Get "Domain"}}" x-model="domain">
+                                        <option value="" disabled hidden></option>{{range .Domains}}<option class="punycode" value="{{.DomainURL}}"{{if eq .DomainURL $.Domain}} selected{{end}}>{{.DomainURL}}</option>{{end}}
+                                    </select>
+                                </div>
+                            </div>
+                            <span class="op-hint" id="username-hint" x-show="!userErr()">{{.T.Get "Letters, numbers and . _ % + - only, up to 60 characters."}}</span>
+                            <span class="op-hint is-invalid" x-show="userErr()" x-cloak x-text="userErr()" role="alert"></span>
+                        </div>
+                        <div class="op-em-preview" :class="user && !userErr() && 'is-ok'">
+                            <span x-show="!(user && !userErr())">{{template "op_icon" "at"}}</span>
+                            <span class="is-ok" x-show="user && !userErr()" x-cloak>{{template "op_icon" "circlecheck"}}</span>
+                            <b :class="!user && 'is-empty'" x-text="address()">{{.T.Get "username"}}@{{.Domain}}</b>
+                            <span class="op-hint" x-show="user && !userErr()" x-cloak>{{.T.Get "Available"}}</span>
+                        </div>
+                    </div>
                 </div>
 
-            </div>
-
-  <div class="col-span-full mb-3  w-full">
-    <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white w-full">{{.T.Get "Username"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-    <div class="flex rounded-lg shadow-sm">
-      <input type="text" name="username" id="username" maxlength="60" class="w-full py-2 px-3 block border-gray-200 shadow-sm rounded-l-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600 w-3/5"  placeholder=" {{.T.Get "info"}}" pattern="[a-zA-Z0-9._%+\-]+" title="{{.T.Get "Only letters, numbers, and the characters . _ % + - are allowed."}}" required>
-
-                        <div class="input-group-append w-2/5">
-                            <input type="text" class="py-2 px-3 block border-gray-200 shadow-sm rounded-e-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600" name="at_address" id="at_address" disabled>
+                <div class="op-section"><div><h3>{{.T.Get "Password"}}</h3><p>{{.T.Get "Mail apps and webmail sign in with this. You can change it later."}}</p></div>
+                    <div class="op-field"><label class="op-label" for="password">{{.T.Get "Password"}} <span class="is-danger">*</span></label>
+                        <div class="op-em-pass">
+                            <div>
+                                <input class="op-input op-mono" id="password" name="password" :type="show ? 'text' : 'password'" x-model="pass" maxlength="30" autocomplete="new-password" spellcheck="false" placeholder="{{.T.Get "New Password"}}" :class="passErr() && 'is-invalid'" :aria-invalid="(!!passErr()).toString()">
+                                <button class="op-icon-btn" id="togglePassword" type="button" @click="show = !show" :aria-label="show ? {{toJSON (.T.Get "Hide password")}} : {{toJSON (.T.Get "Show password")}}" :aria-pressed="show.toString()"><span x-show="!show" x-cloak>{{template "op_icon" "eye"}}</span><span x-show="show">{{template "op_icon" "eyeoff"}}</span></button>
+                            </div>
+                            <div>
+                                <button class="op-btn op-btn-secondary" id="generatePassword" type="button" @click="regen()">{{template "op_icon" "shuffle"}} {{.T.Get "Generate"}}</button>
+                                <button class="op-icon-btn" type="button" :disabled="!pass" @click="copyPass()" aria-label="{{.T.Get "Copy password"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button>
+                            </div>
                         </div>
+                        <div class="op-em-strength" aria-hidden="true" :data-level="level()"><span></span><span></span><span></span></div>
+                        <span class="op-hint" x-show="!pass && !passErr()">{{.T.Get "8 to 30 characters. Generate makes a strong 16-character one."}}</span>
+                        <span class="op-hint" x-show="pass && !passErr()" :class="'is-' + level().toLowerCase()" x-text="levelText()"></span>
+                        <span class="op-hint is-invalid" x-show="passErr()" x-cloak x-text="passErr()" role="alert"></span>
+                    </div>
+                </div>
 
+                <div class="op-section"><div><h3>{{.T.Get "Storage quota"}}</h3><p>{{.T.Get "How much mail this mailbox can keep. When it's full, new mail bounces."}}</p></div>
+                    <div class="op-col" style="gap:10px">
+                        <div class="op-em-presets" role="radiogroup" aria-label="{{.T.Get "Storage quota"}}">
+                            {{range $i, $p := .Presets}}<button type="button" role="radio" :aria-checked="(qsel === {{$i}}).toString()" @click="pick({{$i}})"><span>{{$.T.Get $p.Label}}</span>{{if $p.Note}}<small>{{$.T.Get $p.Note}}</small>{{end}}</button>{{end}}
+                            <button type="button" role="radio" :aria-checked="(qsel === 'custom').toString()" @click="pick('custom')"><span>{{.T.Get "Custom"}}</span></button>
+                        </div>
+                        <div class="op-field" x-show="qsel === 'custom'" x-cloak><label class="op-label" for="quota-size">{{.T.Get "Custom size"}}</label>
+                            <div class="op-em-custom">
+                                <input class="op-input op-mono" id="quota-size" x-ref="qn" type="text" inputmode="decimal" x-model="qn" placeholder="750" :class="quotaErr() && 'is-invalid'" :aria-invalid="(!!quotaErr()).toString()">
+                                <select class="op-select" aria-label="{{.T.Get "Unit"}}" x-model="qu">
+                                    <option value="k" :disabled="unitOff('k')">KB</option>
+                                    <option value="M" :disabled="unitOff('M')">MB</option>
+                                    <option value="G" :disabled="unitOff('G')">GB</option>
+                                    <option value="T" :disabled="unitOff('T')">TB</option>
+                                </select>
+                            </div>
+                        </div>
+                        <span class="op-hint" x-show="!quotaErr()">{{if .MaxQuotaLabel}}{{if .HostingPlanName}}{{.T.Get "Up to %(max)s per mailbox on your %(plan)s plan. Unlimited isn't available on this plan." "max" .MaxQuotaLabel "plan" .HostingPlanName}}{{else}}{{.T.Get "Up to %(max)s per mailbox on your plan. Unlimited isn't available on this plan." "max" .MaxQuotaLabel}}{{end}}{{else}}{{.T.Get "Your plan has no size limit per mailbox. A custom size of 0 also means unlimited."}}{{end}}</span>
+                        <span class="op-hint is-invalid" x-show="quotaErr()" x-cloak x-text="quotaErr()" role="alert"></span>
+                    </div>
+                </div>
+
+                <div class="op-section"><div><h3>{{.T.Get "Welcome email"}}</h3><p>{{.T.Get "Sent to the new mailbox."}}</p></div>
+                    <div class="op-check-row"><div><b>{{.T.Get "Send a welcome email"}}</b><p>{{.T.Get "With instructions to set up a mail client: server names, ports and security."}}</p></div><button class="op-switch" type="button" role="switch" :aria-checked="welcome.toString()" @click="welcome = !welcome" aria-label="{{.T.Get "Send a welcome email with instructions to set up a mail client"}}"></button></div>
+                </div>
+
+                <div class="op-savebar">
+                    <a class="op-btn op-btn-secondary" href="/emails">{{.T.Get "Back to Emails"}}</a>
+                    <button class="op-btn op-btn-primary" type="submit"{{if .Full}} disabled{{end}} :disabled="{{.Full}} || busy" x-text="busy ? {{toJSON (.T.Get "Creating...")}} : {{toJSON (.T.Get "Create Email")}}">{{.T.Get "Create Email"}}</button>
+                </div>
+            </fieldset>
+        </form>
+
+        <aside class="op-col op-em-side" style="gap:16px">
+            <section class="op-card"><div class="op-card-head"><h2>{{.T.Get "Your plan"}}</h2>{{if .HostingPlanName}}<span class="op-tag">{{.HostingPlanName}}</span>{{end}}</div>
+                <div class="op-col" style="gap:8px">
+                    <div class="op-em-usage"><span>{{.T.Get "Email accounts"}}</span><b>{{if .EmailLimit}}{{.EmailCount}} {{.T.Get "of"}} {{.EmailLimit}}{{else}}{{.EmailCount}} ({{.T.Get "no limit"}}){{end}}</b></div>
+                    {{if .EmailLimit}}<div class="op-progress{{if .Full}} is-danger{{end}}" role="progressbar" aria-label="{{.T.Get "Email accounts used"}}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{.UsagePercent}}"><span style="width: {{.UsagePercent}}%"></span></div>{{end}}
+                    <dl class="op-dl" style="margin-top:8px"><dt>{{.T.Get "Largest mailbox"}}</dt><dd>{{if .MaxQuotaLabel}}{{.MaxQuotaLabel}}{{else}}{{.T.Get "Unlimited"}}{{end}}</dd><dt>{{.T.Get "Domains"}}</dt><dd>{{len .Domains}}</dd></dl>
+                </div>
+            </section>
+            <section class="op-card"><div class="op-card-head"><h2>{{.T.Get "Mail apps will use"}}</h2></div>
+                <dl class="op-dl">
+                    <dt>{{.T.Get "Username"}}</dt><dd class="op-mono" x-text="address()"></dd>
+                    <dt>{{.T.Get "Incoming"}}</dt><dd class="op-mono">{{.MailHost}}:{{if .MailSecure}}993{{else}}143{{end}}</dd>
+                    <dt>{{.T.Get "Outgoing"}}</dt><dd class="op-mono">{{.MailHost}}:{{if .MailSecure}}465{{else}}587{{end}}</dd>
+                    <dt>{{.T.Get "Security"}}</dt><dd>{{if .MailSecure}}SSL/TLS{{else}}STARTTLS{{end}}</dd>
+                    {{if .UserAllowed.webmail}}<dt>{{.T.Get "Webmail"}}</dt><dd>Roundcube</dd>{{end}}
+                </dl>
+                <p class="op-hint" style="margin:14px 0 0">{{.T.Get "Once it's created you get copyable settings and one-click setup files for Apple Mail, Outlook and Thunderbird."}}</p>
+            </section>
+        </aside>
     </div>
-  </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const domainSelect = document.querySelector("#domain");
-    const adminEmailInput = document.querySelector("#at_address");
-
-    function updateAtAddress() {
-        var selectedDomain = domainSelect.value;
-        adminEmailInput.value = selectedDomain ? '@' + selectedDomain : '';
-    }
-
-    domainSelect.addEventListener('change', updateAtAddress);
-    updateAtAddress();
-});
-</script>
-
-<div
-  class="col-span-full mb-5"
-  x-data="passwordStrength({
-    weak: {{toJSON (.T.Get "Weak password")}},
-    medium: {{toJSON (.T.Get "Medium strength password")}},
-    strong: {{toJSON (.T.Get "Strong password")}},
-    tooWeak: {{toJSON (.T.Get "Password does not meet the required strength.")}}
-  }, {{.PasswordStrength}})"
-  x-init="checkStrength()"
->
-  <label
-    for="password"
-    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-  >
-    {{.T.Get "Password"}}<span class="text-red-500 dark:text-red-500">*</span>
-  </label>
-  <div class="flex">
-    <input
-      type="text"
-      name="password"
-      id="password"
-      maxlength="30"
-      minlength="8"
-      title="{{.T.Get "Password must be between 8 and 30 characters."}}"
-      placeholder=" {{.T.Get "New Password"}}"
-      class="relative block w-full appearance-none rounded-l-md border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-      x-model="password"
-      x-ref="input"
-      @input="checkStrength()"
-    />
-
-    <div class="input-group-append">
-      <button
-        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white"
-        type="button"
-        id="generatePassword">
-        <i class="bi bi-shuffle"></i>
-      </button>
-    </div>
-    <div class="input-group-append">
-      <button class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white" type="button" id="togglePassword">
-        <i class="bi bi-eye"></i>
-      </button>
-    </div>
-  </div>
-
-  <!-- Password strength indicator -->
-  <div class="mt-2 h-2 rounded bg-gray-200 dark:bg-gray-700 overflow-hidden">
-    <div
-      class="h-full rounded transition-all duration-300"
-      :class="{
-        'bg-red-500': strength === 'Weak',
-        'bg-orange-500': strength === 'Medium',
-        'bg-green-500': strength === 'Strong',
-        'w-1/3': strength === 'Weak',
-        'w-2/3': strength === 'Medium',
-        'w-full': strength === 'Strong'
-      }"
-      style="width: 0%"
-      :style="{
-        width:
-          strength === 'Weak'
-            ? '33%'
-            : strength === 'Medium'
-            ? '66%'
-            : strength === 'Strong'
-            ? '100%'
-            : '0%'
-      }"
-    ></div>
-  </div>
-  <p
-    class="mt-1 text-sm font-semibold"
-    :class="{
-      'text-red-600 dark:text-red-400': strength === 'Weak',
-      'text-yellow-600 dark:text-yellow-400': strength === 'Medium',
-      'text-green-600 dark:text-green-400': strength === 'Strong'
-    }"
-  >
-    <span x-text="strengthMessage" class="text-xs"></span>
-  </p>
-</div>
-
-<div class="col-span-full mb-3">
-  <label for="gb" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-    {{.T.Get "Storage quota"}}
-  </label>
-
-  <div class="flex rounded-lg shadow-sm">
-    <input
-      type="number" min="0" name="gb" id="gb" value="0" step="any"
-      class="relative block w-full appearance-none rounded-l-md border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"
-    >
-    <div class="input-group-append">
-      <select name="format" id="format"
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-r-md focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-        <option value="k">KiB</option>
-        <option value="M">MiB</option>
-        <option value="G" selected>GiB</option>
-        <option value="T">TiB</option>
-      </select>
-    </div>
-  </div>
-
-  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-    {{.T.Get "Set to 0 for unlimited."}}
-    {{if ne .MaxEmailQuotaNumeric 0.0}}
-      {{.T.Get "Maximum allowed: "}}{{.MaxEmailQuotaNumeric}}{{.AllocatedUnit}}
+    {{else}}
+    <section class="op-card"><div class="op-empty">
+        <span class="op-ico-tile">{{template "op_icon" "globe"}}</span>
+        <b>{{.T.Get "No domains yet"}}</b>
+        <span class="op-hint">{{.T.Get "Add your first domain to get started"}}</span>
+        <a class="op-btn op-btn-primary op-btn-sm" href="/domains/new" style="margin-top:8px">{{template "op_icon" "plus"}} {{.T.Get "New domain"}}</a>
+    </div></section>
     {{end}}
-  </p>
 </div>
-
-<div class="col-span-full mb-3">
-  <label for="send_welcome" class="flex items-center gap-2 text-sm text-gray-900 dark:text-white cursor-pointer">
-    <input type="checkbox" name="send_welcome" id="send_welcome" value="1" checked class="rounded border-gray-300 dark:border-gray-700 text-blue-600 focus:ring-blue-500">
-    {{.T.Get "Send a welcome email with instructions to set up a mail client"}}
-  </label>
-</div>
-
-<script>
-(function () {
-  const quotaInput = document.getElementById('gb');
-  const unitSelect = document.getElementById('format');
-  const unitsHierarchy = { 'B': 0, 'k': 1, 'M': 2, 'G': 3, 'T': 4 };
-  const unitsMultiplier = { 'B': 1, 'k': 1024, 'M': 1024**2, 'G': 1024**3, 'T': 1024**4 };
-  const maxQuotaNumeric = {{.MaxEmailQuotaNumeric}};
-  const maxUnit = {{toJSON .AllocatedUnit}};
-
-  function getMaxInUnit(unit) {
-    if (maxQuotaNumeric === 0) return Infinity;
-    return maxQuotaNumeric * (unitsMultiplier[maxUnit] / unitsMultiplier[unit]);
-  }
-  function limitQuotaInput() {
-    const max = getMaxInUnit(unitSelect.value);
-    if (parseFloat(quotaInput.value) > max) quotaInput.value = max;
-  }
-  function limitUnits() {
-    unitSelect.querySelectorAll('option').forEach(opt => {
-      opt.disabled = maxQuotaNumeric !== 0 && unitsHierarchy[opt.value] > unitsHierarchy[maxUnit];
-    });
-    if (unitSelect.options[unitSelect.selectedIndex].disabled) unitSelect.value = maxUnit.toLowerCase();
-  }
-  quotaInput.addEventListener('input', limitQuotaInput);
-  unitSelect.addEventListener('change', limitQuotaInput);
-  limitUnits();
-  limitQuotaInput();
-})();
-</script>
-
-        </div>
-
-        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
-
-<script>
-
-    function generateRandomStrongPassword(length) {
-        const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
-        let result = "";
-        for (let i = 0; i < length; i++) {
-            const randomIndex = Math.floor(Math.random() * charset.length);
-            result += charset.charAt(randomIndex);
-        }
-        return result;
-    }
-
-    function generateInitiallyUsernameAndPassword() {
-        const generatedPassword = generateRandomStrongPassword(16);
-
-        document.getElementById("password").value = generatedPassword;
-        const passwordField = document.getElementById("password");
-        passwordField.dispatchEvent(new Event('input', { bubbles: true }));
-
-    };
-    document.addEventListener("DOMContentLoaded", function () {
-        generateInitiallyUsernameAndPassword();
-    });
-
-
-    document.getElementById("generatePassword").addEventListener("click", function() {
-        const generatedPassword = generateRandomStrongPassword(16);
-        document.getElementById("password").value = generatedPassword;
-
-        const passwordField = document.getElementById("password");
-        passwordField.dispatchEvent(new Event('input', { bubbles: true }));
-
-        if (passwordField.type === "password") {
-            passwordField.type = "text";
-        }
-
-    });
-
-    document.getElementById("togglePassword").addEventListener("click", function() {
-        const passwordField = document.getElementById("password");
-        if (passwordField.type === "password") {
-            passwordField.type = "text";
-        } else {
-            passwordField.type = "password";
-        }
-    });
-</script>
-
-<div class="md:flex items-center md:justify-end md:space-x-4">
-    <a href="/emails" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit">{{.T.Get "Back to Emails"}}</a>
-    <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Create Email"}}<svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg></button>
-</div>
-
-    </form>
-</div>
-
-{{else}}
-<div class="mt-8 inset-x-0 flex h-64 flex-col items-center justify-center">
-    <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No domains yet"}}</p>
-    <p class="mt-2 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Add your first domain to get started"}}</p>
-    <a href="/domains/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>{{.T.Get "New domain"}}</a>
-</div>
-{{end}}
-
-<!-- END form -->
-
 <!-- END templates/emails/new.html -->
 {{end}}

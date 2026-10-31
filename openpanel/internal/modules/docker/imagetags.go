@@ -35,6 +35,11 @@ func parseServiceImage(userContext, service string) (ServiceImage, bool) {
 		return ServiceImage{}, false
 	}
 	image, _ := servicesOf(composeData)[service]["image"].(string)
+	return parseImage(image)
+}
+
+// parseImage splits a compose image string, ok is false when its tag isn't set through a variable
+func parseImage(image string) (ServiceImage, bool) {
 	m := imageVarRE.FindStringSubmatch(strings.TrimSpace(image))
 	if m == nil {
 		return ServiceImage{}, false
@@ -56,7 +61,12 @@ func dockerHubPage(userContext, service string) string {
 	if !ok {
 		return ""
 	}
-	hubRepo, ok := dockerHubRepo(img.Repo)
+	return hubTagsPage(img.Repo)
+}
+
+// hubTagsPage is the Docker Hub tags page of an image repo, "" for other registries
+func hubTagsPage(repo string) string {
+	hubRepo, ok := dockerHubRepo(repo)
 	if !ok {
 		return ""
 	}
@@ -82,6 +92,11 @@ func fixedTagVar(userContext, service string) (string, bool) {
 // imageTagVar is the .env variable that sets the service's tag, reading and saving always use the same one
 func imageTagVar(userContext, service string) (envVar, defaultTag string) {
 	img, parsed := parseServiceImage(userContext, service)
+	return tagVarFor(userContext, service, img, parsed)
+}
+
+// tagVarFor is imageTagVar for an image that's already parsed
+func tagVarFor(userContext, service string, img ServiceImage, parsed bool) (envVar, defaultTag string) {
 	if v, ok := fixedTagVar(userContext, service); ok {
 		return v, img.DefaultTag
 	}

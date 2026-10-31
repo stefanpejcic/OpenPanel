@@ -1,49 +1,40 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "content"}}
 <!-- START templates/php/default.html -->
-
-<section aria-label="{{.T.Get "Default PHP version"}}" x-data="{ choice: '' }">
-    <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<div class="op-content" aria-label="{{.T.Get "Default PHP version"}}" x-data="{ choice: '' }">
+    <div class="op-page-head">
         <div>
-            <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Default PHP version"}}</h1></div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Choose the default PHP version used for all new domains."}}</p>
+            <div class="op-eyebrow">{{.T.Get "Currently"}} PHP {{replace .PHPDefaultVersion "php" ""}}</div>
+            <h1 class="op-title">{{.T.Get "Default PHP version"}}</h1>
+            <p class="op-meta">{{.T.Get "Choose the default PHP version used for all new domains."}}</p>
         </div>
     </div>
 
-    <form method="POST" action="/php/default" class="sm:mx-auto sm:max-w-2xl p-6">
+    <form method="POST" action="/php/default" class="op-card">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
         <input type="hidden" name="previous_version" value="{{replace .PHPDefaultVersion "php" ""}}"/>
-
-        {{if .IsLitespeed}}
-        <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">{{.T.Get "OpenLiteSpeed uses one PHP version for all domains. Changing it restarts the web server."}}</p>
-        {{end}}
-
-        <div class="grid grid-cols-1 gap-3">
+        <div class="op-card-head"><h2>{{.T.Get "Installed versions"}}</h2><span class="op-hint">{{len .Choices}} {{.T.Get "versions"}}</span></div>
+        {{if .IsLitespeed}}<p class="op-hint" style="margin:0 0 12px">{{.T.Get "OpenLiteSpeed uses one PHP version for all domains. Changing it restarts the web server."}}</p>{{end}}
+        <div class="op-options" style="--cols:2">
             {{range .Choices}}
-            <label class="flex items-center gap-3 rounded border p-4 {{if .Current}}border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900{{else}}cursor-pointer{{end}}"
-                   {{if not .Current}}:class="choice === {{toJSON .Version}} ? 'border-indigo-500 shadow-md' : 'border-gray-200 dark:border-gray-700'"{{end}}>
+            <label class="op-option{{if .Current}} is-current{{end}}"{{if .Current}} aria-disabled="true"{{end}}>
                 <input type="radio" name="new_php_version" value="{{.Version}}" {{if .Current}}checked disabled{{else}}x-model="choice"{{end}}>
-                <span>
-                    <span class="flex items-center gap-1.5">
-                        <span class="text-sm font-medium text-gray-900 dark:text-gray-50">PHP {{.Version}}</span>
-                        {{if .Current}}<span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400">{{$.T.Get "Default"}}</span>{{end}}
-                    </span>
-                    {{if .Description}}<span class="block text-xs text-gray-500 dark:text-gray-400">{{$.T.Get .Description}}</span>{{end}}
-                </span>
+                <div style="min-width:0"><b>PHP {{.Version}}{{if .Current}} <span class="op-badge is-accent">{{$.T.Get "Default"}}</span>{{else if .Label}} <span class="op-badge {{if eq .Level "good"}}is-success{{else if eq .Level "secure"}}is-warning{{else}}is-danger{{end}}">{{$.T.Get .Label}}</span>{{end}}</b>{{if .Description}}<span>{{$.T.Get .Description}}</span>{{end}}</div>
             </label>
             {{else}}
-            <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No PHP versions are installed."}}</p>
+            <p class="op-meta">{{.T.Get "No PHP versions are installed."}}</p>
             {{end}}
         </div>
-
-        <div class="mt-6 flex items-center justify-end gap-2">
-            <a href="/php/domains" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Back to PHP versions"}}</a>
-            <button type="submit" :disabled="!choice" :class="!choice && 'opacity-50'" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800">
+        <p class="op-hint" style="margin:14px 0 0">{{.T.Get "Existing domains keep their version. Change those on"}} <a href="/php/domains" style="color:var(--color-accent-text)">{{.T.Get "Version per Domain"}}</a>.</p>
+        <div class="op-form-foot">
+            <a href="/php/domains" class="op-btn op-btn-secondary">{{.T.Get "Back to PHP versions"}}</a>
+            <button type="submit" :disabled="!choice" class="op-btn op-btn-primary">
                 <span x-show="!choice">{{.T.Get "Choose a PHP version"}}</span>
                 <span x-show="choice" x-cloak>{{.T.Get "Set"}} PHP <span x-text="choice"></span> {{.T.Get "as default"}}</span>
             </button>
         </div>
     </form>
-</section>
-
+</div>
 <!-- END templates/php/default.html -->
 {{end}}

@@ -1,0 +1,288 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+    <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/files/ftp.html -->
+
+<section aria-label="{{.T.Get "FTP Accounts Header"}}" x-data="{ searchQuery: '' }">
+    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "FTP Accounts"}}</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Total accounts:"}} <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white mb-2">{{len .Accounts}}</span></p>
+    </div>
+    <div class="mt-2 gap-2 sm:mt-0 group">
+        <span>{{.T.Get "FTP Server:"}} <b id="ftp_server_address">{{.FTPHost}}</b> | {{.T.Get "FTP Port:"}} <b id="ftp_server_port">{{.FTPPort}}</b></span>
+    <p class="whitespace-nowrap text-sm text-end text-gray-600 dark:text-gray-400"><a href="/ftp/connections">{{.T.Get "View Connections"}}</a></p>
+    </div>
+</div>
+
+<script src="{{static "js/data-table.js"}}"></script>
+<section aria-label="{{.T.Get "Records Table"}}" x-data="createTableController({
+        storageKey: 'ftpColumnsVisibility',
+        columns: {
+            username: true,
+            path: true,
+            quota: true,
+            uid: false,
+            gid: false,
+            configuration: true,
+            actions: true
+        }
+    })" x-init="init()">
+    <div class="flex flex-col justify-between gap-2 p-4 px-6 sm:flex-row sm:items-center">
+        <div class="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center">
+        <div class="relative w-full sm:max-w-[250px] sm:[&>input]:h-[30px]">
+            <input
+                x-model="searchQuery"
+                class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
+                placeholder="{{.T.Get "Search"}}"
+                type="search"
+            />
+            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+                    <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <div class="relative">
+            <button id="dropdownToggleButton" data-dropdown-toggle="dropdownToggle" class="flex w-full items-center gap-x-1.5 whitespace-nowrap rounded border border-gray-300 px-2 py-1.5 font-medium text-gray-600 hover:bg-gray-50 sm:w-fit sm:text-xs dark:border-gray-700 dark:text-gray-400 hover:dark:bg-gray-900 border-dashed outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 cursor-pointer" type="button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4"><path d="M5 7C5 6.17157 5.67157 5.5 6.5 5.5C7.32843 5.5 8 6.17157 8 7C8 7.82843 7.32843 8.5 6.5 8.5C5.67157 8.5 5 7.82843 5 7ZM6.5 3.5C4.567 3.5 3 5.067 3 7C3 8.933 4.567 10.5 6.5 10.5C8.433 10.5 10 8.933 10 7C10 5.067 8.433 3.5 6.5 3.5ZM12 8H20V6H12V8ZM16 17C16 16.1716 16.6716 15.5 17.5 15.5C18.3284 15.5 19 16.1716 19 17C19 17.8284 18.3284 18.5 17.5 18.5C16.6716 18.5 16 17.8284 16 17ZM17.5 13.5C15.567 13.5 14 15.067 14 17C14 18.933 15.567 20.5 17.5 20.5C19.433 20.5 21 18.933 21 17C21 15.067 19.433 13.5 17.5 13.5ZM4 16V18H12V16H4Z"></path></svg> {{.T.Get "Show Columns"}}</button>
+
+            <div id="dropdownToggle" class="z-10 text-sm shadow-md border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-gray-50 dark:bg-gray-950 divide-y divide-gray-100 rounded-lg shadow-sm w-64 dark:divide-gray-600 hidden">
+                <ul class="p-2 space-y-1" aria-labelledby="dropdownToggleButton">
+                    {{template "column_toggle" (dict "Key" "username" "Label" (.T.Get "Username"))}}
+                    {{template "column_toggle" (dict "Key" "path" "Label" (.T.Get "Path"))}}
+                    {{template "column_toggle" (dict "Key" "quota" "Label" (.T.Get "Quota"))}}
+                    {{template "column_toggle" (dict "Key" "uid" "Label" (.T.Get "UID"))}}
+                    {{template "column_toggle" (dict "Key" "gid" "Label" (.T.Get "GID"))}}
+                    {{template "column_toggle" (dict "Key" "configuration" "Label" (.T.Get "Configuration"))}}
+                    {{template "column_toggle" (dict "Key" "actions" "Label" (.T.Get "Actions"))}}
+                </ul>
+            </div>
+        </div>
+        </div>
+
+        <div class="flex flex-col items-center gap-2 sm:flex-row">
+
+        <a href="/ftp/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>{{.T.Get "New Account"}}</a>
+
+        </div>
+
+    </div>
+
+{{template "bulk_open" (dict "T" .T "Table" "#ftp-table" "Endpoint" "/ftp/bulk")}}
+    <div class="overflow-x-auto">
+        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
+            <table id="ftp-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+                <thead class="">
+                    <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+{{template "bulk_head_checkbox" .}}
+                        <th x-show="columns.username" scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{template "sort_header" (dict "Label" (.T.Get "Username") "Key" "username" "Type" "string")}}
+                        </th>
+                        <th x-show="columns.path" scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{template "sort_header" (dict "Label" (.T.Get "Path") "Key" "path" "Type" "string")}}
+                        </th>
+
+                        <th x-show="columns.quota" scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{template "sort_header" (dict "Label" (.T.Get "Quota") "Key" "quota" "Type" "number")}}
+                        </th>
+
+                        <th x-show="columns.uid" scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{template "sort_header" (dict "Label" (.T.Get "UID") "Key" "uid" "Type" "number")}}
+                        </th>
+
+                        <th x-show="columns.gid" scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{template "sort_header" (dict "Label" (.T.Get "GID") "Key" "gid" "Type" "number")}}
+                        </th>
+
+                        <th x-show="columns.configuration" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{.T.Get "Configuration"}}
+                        </th>
+
+                        <th x-show="columns.actions" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-right text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                            {{.T.Get "Actions"}}
+                        </th>
+                    </tr>
+                </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+{{if not .Accounts}}
+            <tr>
+                <td colspan="8" class="p-6 text-center">{{.T.Get "No accounts yet."}} <a href="/ftp/new" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out cursor-pointer outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Add your first account"}}</a></td>
+            </tr>
+
+{{else}}
+        {{range .Accounts}}
+            <tr x-show="searchQuery === '' || '{{.Username}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Path}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+{{template "bulk_row_checkbox" (dict "T" $.T "Key" .Username "Label" .Username)}}
+                            <td x-show="columns.username" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="username" data-sort-value="{{.Username}}"><i class="bi bi-person-fill"></i> {{.Username}}</td>
+                            <td x-show="columns.path" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="path" data-sort-value="{{.Path}}">{{if $.UserAllowed.filemanager}}<a href="/files{{replace .Path "/var/www/html" ""}}">{{end}}<i style="color: orange;" class="bi bi-folder-fill"></i> {{.Path}}{{if $.UserAllowed.filemanager}}</a>{{end}}</td>
+                            <td x-show="columns.quota" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="quota" data-sort-value="{{.QuotaMB}}">
+                                {{if .HasQuota}}
+                                <div class="w-48">
+                                    <div class="flex justify-between gap-1 text-xs mb-1">
+                                        <span>{{if .HasUsage}}{{.UsedLabel}}{{else}}-{{end}} / {{.QuotaLabel}}</span>
+                                        {{if .OverQuota}}<span class="font-medium text-red-600 dark:text-red-400">{{$.T.Get "Over quota"}}</span>{{end}}
+                                    </div>
+                                    <div class="h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+                                        <div class="h-1.5 rounded-full {{if .OverQuota}}bg-red-500{{else if ge .UsedPercent 90}}bg-orange-500{{else}}bg-blue-600{{end}}" style="width: {{.UsedPercent}}%"></div>
+                                    </div>
+                                </div>
+                                {{else}}
+                                {{$.T.Get "Unlimited"}}
+                                {{end}}
+                            </td>
+                            <td x-show="columns.uid" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="uid">{{.UID}}</td>
+                            <td x-show="columns.gid" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" data-sort-col="gid">{{.GID}}</td>
+
+
+                            <td x-show="columns.configuration" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+        <span class="inline-flex items-center gap-x-2.5 rounded-full bg-white px-2.5 py-1.5 text-xs ring-1 ring-inset ring-gray-200 dark:bg-gray-950 dark:ring-gray-800">
+                                    <a href="/ftp/configuration/filezilla/{{.Username}}">
+                                        <span class="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-500">Filezilla</span>
+                                    </a>
+                                    <span class="h-4 w-px bg-gray-200 dark:bg-gray-800"></span>
+                                    <a href="/ftp/configuration/cyberduck/{{.Username}}">
+                                        <span class="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-500">Cyberduck</span>
+                                    </a>
+                                </span>
+
+                            </td>
+
+
+
+                            <td x-show="columns.actions" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
+
+
+        <div class="flex gap-1 items-center justify-end" role="group" aria-label="{{$.T.Get "Actions"}}">
+            <div x-data="{ tooltip: false }" class="relative">
+                <a href="/ftp/password/{{.Username}}" @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="btn btn-primary p-1.5" aria-label="{{$.T.Get "Change Password"}}"><i class="bi bi-key-fill"></i></a>
+                <div x-show="tooltip" x-cloak x-transition class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap pointer-events-none z-10">
+                    {{$.T.Get "Change Password"}}
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                </div>
+            </div>
+            <div x-data="{ tooltip: false }" class="relative">
+                <a href="/ftp/path/{{.Username}}" @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="btn btn-primary p-1.5" aria-label="{{$.T.Get "Change Path"}}"><i class="bi bi-pencil-fill"></i></a>
+                <div x-show="tooltip" x-cloak x-transition class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap pointer-events-none z-10">
+                    {{$.T.Get "Change Path"}}
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                </div>
+            </div>
+            <div x-data="{ tooltip: false }" class="relative">
+                <a href="/ftp/quota/{{.Username}}" @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="btn btn-primary p-1.5" aria-label="{{$.T.Get "Change Quota"}}"><i class="bi bi-hdd-fill"></i></a>
+                <div x-show="tooltip" x-cloak x-transition class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap pointer-events-none z-10">
+                    {{$.T.Get "Change Quota"}}
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                </div>
+            </div>
+            <form method="POST" action="/ftp/delete">
+                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+                <input type="hidden" name="username" value="{{.Username}}">
+                <div x-data="{ tooltip: false }" class="relative">
+                    <button type="button" onclick="confirmDelete(this);" @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="btn btn-danger p-1.5" aria-label="{{$.T.Get "Delete"}}"><i class="bi bi-trash3"></i></button>
+                    <div x-show="tooltip" x-cloak x-transition class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 px-2 py-1 text-xs text-white bg-gray-800 rounded whitespace-nowrap pointer-events-none z-10">
+                        {{$.T.Get "Delete"}}
+                        <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+                            </td>
+            </tr>
+        {{end}}
+{{end}}
+        </tbody>
+            </table>
+        </div>
+    </div>
+{{template "bulk_bar" .}}
+</div>
+</section>
+
+<script>
+const i18n = {
+    confirm: "{{.T.Get "Confirm"}}"
+};
+
+// DELETE USER
+function confirmDelete(button) {
+    var countdown = 5;
+    var countdownActive = true;
+
+    button.classList.remove('btn-danger');
+    button.classList.add('btn-dark');
+    // the label is what screen readers announce, so it has to say Confirm too
+    button.dataset.label = button.getAttribute('aria-label');
+    button.setAttribute('aria-label', i18n.confirm);
+    button.innerHTML = '<i class="bi bi-trash3-fill"></i> ' + i18n.confirm + ' <span class="btn-indicator btn-indicator-mini bg-danger">' + countdown + '</span>';
+
+    var intervalId = setInterval(function () {
+        countdown--;
+        var indicator = button.querySelector('.btn-indicator-mini');
+        if (indicator) indicator.textContent = countdown;
+        button.removeAttribute('onclick');
+        if (countdown === 0) {
+            clearInterval(intervalId);
+            revertButton(button);
+            countdownActive = false;
+        }
+    }, 1000);
+
+    button.addEventListener('click', function () {
+        if (countdownActive) {
+            button.closest('form').submit();
+        }
+    });
+}
+
+function revertButton(button) {
+    button.classList.remove('btn-dark');
+    button.classList.add('btn-danger');
+    button.innerHTML = '<i class="bi bi-trash3"></i>';
+    if (button.dataset.label) button.setAttribute('aria-label', button.dataset.label);
+    button.setAttribute('onclick', 'confirmDelete(this);');
+}
+</script>
+
+<script>
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'n' || e.ctrlKey || e.metaKey || e.altKey) return;
+    const tag = document.activeElement.tagName.toLowerCase();
+    const isInputFocused = ['input', 'textarea'].includes(tag) || document.activeElement.isContentEditable;
+    if (isInputFocused) return;
+    e.preventDefault();
+    document.querySelector('a[href="/ftp/new"]')?.click();
+});
+if (window.registerShortcut) registerShortcut(['N'], '{{.T.Get "Add new FTP account"}}');
+</script>
+<script src="{{static "js/table-sort.js"}}"></script>
+
+<!-- END templates/files/ftp.html -->
+{{end}}
+
+{{define "sort_header"}}
+<div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
+    <span>{{.Label}}</span>
+    <div class="-space-y-2">
+        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
+        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
+    </div>
+</div>
+{{end}}
+
+{{define "column_toggle"}}
+<li>
+    <div class="flex py-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
+        <label class="inline-flex items-center w-full cursor-pointer">
+            <input type="checkbox" x-model="columns.{{.Key}}" x-on:change="saveColumns" class="sr-only peer">
+            <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{.Label}}</span>
+        </label>
+    </div>
+</li>
+{{end}}

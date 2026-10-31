@@ -1,0 +1,21 @@
+{{define "howto"}}{{if .HowToGuides}}
+<!-- START templates/dashboard/howto.html -->
+<div id="dashboard_howto" class="flex flex-col justify-center overflow-hidden rounded bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-800 xl:col-span-1">
+    <div id="dashboard_howto_title" class="flex items-center justify-between gap-4 relative m-0 p-2 border-b border-gray-200  dark:border-gray-800">
+        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+        <h2 class="pl-4 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "General How-to"}}</h2>
+    </div>
+    <table id="dashboard_howto_data" class="w-full text-sm">
+        <tbody>
+            {{range .HowToTopics}}
+                <tr>
+                    <td class="relative p-2">
+                        <a class="font-medium hover:underline" href="{{.Link}}" target="_blank">{{$.T.Get .Title}}</a>
+                    </td>
+                </tr>
+            {{end}}
+        </tbody>
+    </table>
+</div>
+<!-- END templates/dashboard/howto.html -->
+{{end}}{{end}}

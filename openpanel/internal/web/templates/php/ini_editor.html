@@ -1,41 +1,44 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "content"}}
 <!-- START templates/php/ini_editor.html -->
 
 {{if .Version}}
-    <!-- Include CodeMirror -->
     <link rel="stylesheet" href="{{static "vendor/codemirror/codemirror.min.css"}}">
     <script src="{{static "vendor/codemirror/codemirror.min.js"}}"></script>
-    <link rel="stylesheet" href="{{static "vendor/codemirror/theme/dracula.min.css"}}">
-    <style>
-        .CodeMirror {min-height: 50vh;height: auto;}
-        div.CodeMirror-sizer {min-height: 500px!important;}
-    </style>
 
-<form method="post">
+<form method="post" class="op-content">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-<section>
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div class="op-page-head">
         <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.FilePath}}</p>
-    </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-        <button id="save-changes-button" type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Save Changes"}}</button>
-    </div>
-</div>
-
-    <div id="editor-container" class="overflow-auto">
-        <textarea id="editor" name="editor_content" rows="40" cols="100">{{.FileContent}}</textarea>
+            <div class="op-eyebrow">php-fpm-{{.Version}}{{with .WebServer}} · {{.}}{{end}}</div>
+            <h1 class="op-title">PHP {{.Version}} {{.T.Get "INI Editor"}}</h1>
+            <p class="op-meta">{{.T.Get "Mounted as"}} <span class="op-mono" style="font-size:12px;overflow-wrap:anywhere">{{.FilePath}}</span>{{with .SavedPath}}, {{$.T.Get "saved in"}} <span class="op-mono" style="font-size:12px;overflow-wrap:anywhere">{{.}}</span>{{end}}</p>
+        </div>
+        <div class="op-actions">
+            {{if gt (len .InstalledVersions) 1}}<select class="op-select" style="width:auto;min-width:110px" aria-label="{{.T.Get "PHP version"}}" onchange="location.href = '/php/php' + this.value + '.ini/editor'">{{range .InstalledVersions}}<option value="{{.}}" {{if eq . $.Version}}selected{{end}}>PHP {{.}}</option>{{end}}</select>{{end}}
+            <button id="save-changes-button" type="submit" class="op-btn op-btn-primary">{{.T.Get "Save Changes"}}</button>
+        </div>
     </div>
 
-</section>
+    <div class="op-alert" role="status">{{template "op_icon" "info"}}<span>{{.T.Get "For the common settings,"}} <a href="/php/php{{.Version}}/options" style="color:var(--color-accent-text)">{{.T.Get "Options"}}</a> {{.T.Get "is safer: it checks values before saving. A syntax error here stops PHP-FPM from starting."}}</span></div>
+
+    <section class="op-card">
+        <div id="editor-container" class="op-cm">
+            <textarea id="editor" name="editor_content" rows="40" cols="100" aria-label="php.ini">{{.FileContent}}</textarea>
+        </div>
+        <div class="op-tfoot"><span class="op-hint">INI · UTF-8 · <span id="ini-line-count">{{.LineCount}}</span> {{.T.Get "lines"}}</span><span class="op-hint">PHP-FPM {{.Version}} {{.T.Get "restarts when you save"}}</span></div>
+    </section>
 </form>
 
 <script>
-CodeMirror.fromTextArea(document.getElementById('editor'), {
-    lineNumbers: true,
-});
+(function () {
+    const cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
+        lineNumbers: true,
+    });
+    const count = document.getElementById('ini-line-count');
+    if (count) cm.on('change', () => { count.textContent = cm.lineCount(); });
+})();
 </script>
 
 {{if .Issues}}
@@ -50,58 +53,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
 {{else}}
 
-<!-- page header -->
-<section aria-label="{{.T.Get "PHP.INI Select Header"}}">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<div class="op-content" aria-label="{{.T.Get "PHP.INI Select Header"}}">
+    <div class="op-page-head">
         <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "PHP.INI Editor"}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Select a PHP version to edit its php.ini file directly."}}</p>
+            <h1 class="op-title">{{.T.Get "PHP.INI Editor"}}</h1>
+            <p class="op-meta">{{.T.Get "Select a PHP version to edit its php.ini file directly."}}</p>
+        </div>
     </div>
+    <section class="op-card">
+        <div class="op-card-head"><h2>{{.T.Get "Pick a PHP version"}}</h2><span class="op-hint">{{len .InstalledVersions}} {{.T.Get "installed"}}</span></div>
+        <div class="op-chips">{{range .InstalledVersions}}<a class="op-chip" href="/php/php{{.}}.ini/editor"><span class="op-mono">PHP {{.}}</span></a>{{else}}<span class="op-hint">{{.T.Get "No PHP versions are installed."}}</span>{{end}}</div>
+        <div class="op-form-foot"><a href="/php/domains" class="op-btn op-btn-secondary">{{.T.Get "Back to PHP versions"}}</a></div>
+    </section>
 </div>
-<!-- END page header -->
-
-<!-- form -->
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
-    <form class="mt-8" method="GET" id="php_version_form">
-        <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-            <div class="col-span-full mb-5">
-                <label for="php_version" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Select PHP version:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-                <div class="flex rounded-lg shadow-sm">
-                    <select id="php_version" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 mt-2" onchange="updateFormAction()" required>
-                        <option value="" disabled selected>{{.T.Get "Select PHP Version"}}</option>
-                        {{range .InstalledVersions}}
-                        <option value="{{.}}">PHP {{.}}</option>
-                        {{end}}
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
-
-        <div class="md:flex items-center md:justify-end md:space-x-4">
-            <a href="/php/domains" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 w-full sm:w-fit">{{.T.Get "Back to PHP versions"}}</a>
-            <button class="relative hidden inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800 mt-2 w-full sm:w-auto sm:mt-0" type="submit" id="submit_version">{{.T.Get "Edit php.ini"}}</button>
-        </div>
-    </form>
-</div>
-<!-- END form -->
-
-<script>
-    function updateFormAction() {
-        var version = document.getElementById('php_version').value;
-        var form = document.getElementById('php_version_form');
-        var submitButton = document.getElementById('submit_version');
-        if (version) {
-            form.action = '/php/php' + version + '.ini/editor';
-            submitButton.classList.remove('hidden');
-        } else {
-            submitButton.classList.add('hidden');
-        }
-    }
-</script>
-
-</section>
 
 {{end}}
 

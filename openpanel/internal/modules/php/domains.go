@@ -1,10 +1,12 @@
 package php
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -109,6 +111,10 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Domain %(domain_url)s already uses PHP %(new_phpversion)s, nothing to change", "domain_url", domainURL, "new_phpversion", newPHPVersion), target)
 			return
 		}
+
+		// from here the switch has to finish even if the browser leaves, or the vhost could end up pointing at a php the web server never reloaded
+		ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Minute)
+		defer cancel()
 
 		newPHPContainer := "php-fpm-" + newPHPVersion
 		if !docker.IsServiceRunning(ctx, userContext, newPHPContainer) {

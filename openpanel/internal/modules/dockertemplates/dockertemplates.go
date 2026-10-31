@@ -66,6 +66,8 @@ func (t Template) InstallURL() string {
 	q := url.Values{}
 	q.Set("image", t.Image)
 	q.Set("name", t.Service)
+	// the form hides its popular images for a template, picking one would replace the template's image
+	q.Set("template", t.Service)
 	if t.CPU != "" {
 		q.Set("cpu", t.CPU)
 	}

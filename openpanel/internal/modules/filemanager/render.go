@@ -105,6 +105,21 @@ type ViewRow struct {
 	Index                                                                int
 	Name, Type, Size, Date, Owner, Group, Links, LinkTarget, Permissions string
 	Href, DownloadURL                                                    string
+	// Mode is the three octal digits of Permissions, Sym its first ten characters without ls's ACL/SELinux marker
+	Mode, Sym string
+	// WorldWritable marks the mode red in the Permissions column, symlinks are always 777 so they never count
+	WorldWritable bool
+}
+
+// withMode fills Mode, Sym and WorldWritable from Permissions
+func (v ViewRow) withMode() ViewRow {
+	v.Mode = lsModeOctal(v.Permissions)
+	v.Sym = v.Permissions
+	if len(v.Sym) > 10 {
+		v.Sym = v.Sym[:10]
+	}
+	v.WorldWritable = v.Mode != "" && v.Type != "symlink" && (v.Mode[2]-'0')&2 != 0
+	return v
 }
 
 func urlEncodedJoin(parts ...string) string {
@@ -205,7 +220,7 @@ func renderFilesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, p fi
 			Index: idx, Name: info.Name, Type: info.Type, Size: info.Size, Date: info.Date,
 			Owner: info.Owner, Group: info.Group, Links: info.Links, LinkTarget: info.LinkTarget,
 			Permissions: info.Permissions,
-		}
+		}.withMode()
 		idx++
 		switch info.Type {
 		case "directory":

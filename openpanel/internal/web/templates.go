@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"io"
 	"net/http"
 	"strings"
 	"sync"
@@ -17,7 +18,9 @@ import (
 
 // all: is required, not just stylistic - Go's embed skips files/dirs whose name starts with "_" or "." by default, and partials in this tree follow exactly that convention (e.g. user/_login.html).
 //
-//go:embed all:templates
+// templates_classic is the pre-redesign copy picked when ui_theme=classic, see theme.go
+//
+//go:embed all:templates all:templates_classic
 var templateFS embed.FS
 
 // funcMap holds only stateless helpers - anything request-scoped (the translator, CSRF token, flashes) is passed as template data instead, see internal/core/i18n's Translator doc comment for why.
@@ -94,7 +97,7 @@ var funcMap = template.FuncMap{
 		if err != nil {
 			return "null"
 		}
-		return template.JS(b) //nolint:gosec // values passed through this are our own server-computed data (feature flags, section keys), not raw user input
+		return template.JS(b) //nolint:gosec // json.Marshal escapes <, > and &, so visitor data like access-log lines is safe in a script block too
 	},
 }
 
@@ -104,12 +107,18 @@ const dateRangePartial = "partials/_date_range.html"
 
 const aiPartial = "partials/_ai_assistant.html"
 
+const opIconsPartial = "partials/_op_icons.html"
+
 // Page is the template set for one route, parsed on first use since parsing all of them up front cost ~115MB
 type Page struct {
 	paths []string
-	mu    sync.Mutex
-	tmpl  *template.Template
-	used  atomic.Int64
+	// classic file set, nil when the page has no classic version
+	classic []string
+	mu      sync.Mutex
+	tmpl    *template.Template
+	// which theme tmpl was parsed for, so a theme switch parses again
+	tmplClassic bool
+	used        atomic.Int64
 }
 
 // pageCacheSize is how many parsed pages stay in memory, the least recently used one gets parsed again on its next visit
@@ -125,7 +134,7 @@ var (
 // MustLoadPage registers files (relative to web/templates/) as one template set - by convention the layout file among them defines a top-level {{define "layout"}} that Render executes. Parsing waits for the first Render, ParseAllPages covers broken templates in tests.
 func MustLoadPage(files ...string) *Page {
 	paths := make([]string, 0, len(files)+1)
-	hasBase, hasBulk, hasDateRange, hasHeader, hasAI := false, false, false, false, false
+	hasBase, hasBulk, hasDateRange, hasHeader, hasAI, hasIcons := false, false, false, false, false, false
 	for _, f := range files {
 		paths = append(paths, "templates/"+f)
 		hasBase = hasBase || f == "base.html"
@@ -133,6 +142,7 @@ func MustLoadPage(files ...string) *Page {
 		hasDateRange = hasDateRange || f == dateRangePartial
 		hasHeader = hasHeader || f == "partials/_header.html"
 		hasAI = hasAI || f == aiPartial
+		hasIcons = hasIcons || f == opIconsPartial
 	}
 	// every panel page can use the bulk selection partial without listing it
 	if hasBase && !hasBulk {
@@ -141,30 +151,43 @@ func MustLoadPage(files ...string) *Page {
 	if hasBase && !hasDateRange {
 		paths = append(paths, "templates/"+dateRangePartial)
 	}
+	// icons for pages on the op- kit
+	if hasBase && !hasIcons {
+		paths = append(paths, "templates/"+opIconsPartial)
+	}
 	// the header calls the AI drawer, so it comes along with it
 	if hasHeader && !hasAI {
 		paths = append(paths, "templates/"+aiPartial)
 	}
-	p := &Page{paths: paths}
+	p := &Page{paths: paths, classic: classicPaths(paths)}
 	pagesMu.Lock()
 	allPages = append(allPages, p)
 	pagesMu.Unlock()
 	return p
 }
 
-func (p *Page) parse() (*template.Template, error) {
+// usesClassic reports whether the page renders its classic copy right now
+func (p *Page) usesClassic() bool {
+	return p.classic != nil && classicTheme.Load()
+}
+
+func (p *Page) parse(classic bool) (*template.Template, error) {
+	if classic {
+		return template.New("layout").Funcs(funcMap).Funcs(template.FuncMap{"static": classicStaticURL}).ParseFS(templateFS, p.classic...)
+	}
 	return template.New("layout").Funcs(funcMap).ParseFS(templateFS, p.paths...)
 }
 
 // template returns the parsed set, parsing it now if it isn't cached
 func (p *Page) template() *template.Template {
 	p.used.Store(pageClock.Add(1))
+	classic := p.usesClassic()
 	p.mu.Lock()
 	t := p.tmpl
-	fresh := t == nil
+	fresh := t == nil || p.tmplClassic != classic
 	if fresh {
-		t = template.Must(p.parse())
-		p.tmpl = t
+		t = template.Must(p.parse(classic))
+		p.tmpl, p.tmplClassic = t, classic
 	}
 	p.mu.Unlock()
 	if fresh {
@@ -199,14 +222,14 @@ func trackLoadedPage(p *Page) {
 	victim.mu.Unlock()
 }
 
-// ParseAllPages parses every page without caching it, so tests still catch a broken template
+// ParseAllPages parses every page for the current theme without caching it, so tests still catch a broken template
 func ParseAllPages() error {
 	pagesMu.Lock()
 	pages := append([]*Page{}, allPages...)
 	pagesMu.Unlock()
 	var errs []error
 	for _, p := range pages {
-		if _, err := p.parse(); err != nil {
+		if _, err := p.parse(p.usesClassic()); err != nil {
 			errs = append(errs, err)
 		}
 	}
@@ -234,7 +257,15 @@ func LoadPage(files ...string) *Page {
 func (p *Page) Render(w http.ResponseWriter, status int, data any) error {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(status)
-	return p.template().ExecuteTemplate(w, "layout", data)
+	if !galleryEnabled {
+		return p.template().ExecuteTemplate(w, "layout", data)
+	}
+	var buf strings.Builder
+	err := p.template().ExecuteTemplate(io.MultiWriter(w, &buf), "layout", data)
+	if err == nil {
+		captureGallery(p.paths, data, buf.String())
+	}
+	return err
 }
 
 // MustLoadFragment parses files the same way MustLoadPage does (same FuncMap, same embedded FS), but without a "layout" wrapper to execute - for standalone fragments like an email body that get rendered to a buffer via ExecuteTemplate(name, ...) rather than served as a page.

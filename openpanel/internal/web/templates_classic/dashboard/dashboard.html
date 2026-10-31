@@ -1,0 +1,237 @@
+{{define "alpine_plugins"}}
+    <script defer src="{{static "vendor/alpinejs/alpinejs3xx-collapse.min.js"}}"></script>
+{{end}}
+
+{{define "icon_section"}}
+{{if .Section.Items}}
+        <div
+          data-section-id="{{.Section.Key}}"
+          x-data='{
+            open: (function() {
+              const s = localStorage.getItem("section_state_" + {{toJSON .Section.Key}});
+              return s === null ? true : s === "true";
+            })(),
+            toggleOpen() {
+              this.open = !this.open;
+              localStorage.setItem("section_state_" + {{toJSON .Section.Key}}, this.open);
+            }
+          }'
+          class="flex flex-col space-y-2 justify-center overflow-hidden rounded bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-800 xl:col-span-3"
+        >
+          <div class="flex items-center justify-between gap-4 relative m-0 p-2 border-b border-gray-200 dark:border-gray-800 cursor-move active:cursor-grabbing" id="section-title-{{.Section.Key}}">
+            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+
+            <div class="flex items-center gap-2 pl-4">
+              <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.Section.Title}}</h2>
+            </div>
+
+            <button type="button" @click="toggleOpen" class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-gray-100 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-gray-800 dark:hover:text-black dark:active:bg-slate-700/50" :aria-expanded="open" :aria-controls="'section-icons-{{.Section.Key}}'">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="open" x-cloak><path fill-rule="evenodd" d="M5.23 12.21a.75.75 0 0 0 1.06.02L10 8.94l3.71 3.29a.75.75 0 1 0 1-1.12l-4.25-3.75a.75.75 0 0 0-1 0L5.21 11.1a.75.75 0 0 0 .02 1.06z" clip-rule="evenodd"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="!open" x-cloak><path fill-rule="evenodd" d="M14.77 7.79a.75.75 0 0 0-1.06-.02L10 11.06 6.29 7.77a.75.75 0 1 0-1 1.12l4.25 3.75a.75.75 0 0 0 1 0l4.25-3.75a.75.75 0 0 0-.02-1.06z" clip-rule="evenodd"/></svg>
+              <span x-text="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" class="sr-only"></span>
+            </button>
+          </div>
+
+          <div
+            id="section-icons-{{.Section.Key}}"
+            class="flex flex-wrap lg:w-full md:w-5/6 xl:shadow-small-blue transition-all duration-300"
+            x-show="open"
+            x-collapse
+          >
+            {{$iconView := .IconView}}
+            {{$upsellPlanName := .UpsellPlanName}}
+            {{$upsellURL := .UpsellURL}}
+            {{range .Section.Items}}
+              {{if .Disabled}}
+                <a title="{{if $upsellPlanName}}{{$.T.Get "Upgrade to"}} {{$upsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
+                   {{if $upsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}
+                   class="block w-1/2 py-1 text-center lg:w-1/4 opacity-50 grayscale cursor-not-allowed">
+                  <div :class="$store.dashboardIconView.value === 'icon' ? 'py-2 text-center' : 'p-2 px-4 flex gap-2'" class="{{if eq $iconView "icon"}}py-2 text-center{{else}}p-2 px-4 flex gap-2{{end}}">
+                    <button type="button" tabindex="-1" class="size-9 items-center justify-center rounded-xl bg-slate-700 text-white ring-4 ring-slate-400/50 dark:ring-slate-600/50 cursor-not-allowed">
+                      <i class="bi {{.Icon}}"></i>
+                    </button>
+                    <p class="pt-2 text-sm font-medium font-body md:text-base md:pt-2 text-slate-500 dark:text-slate-400">{{.Label}}</p>
+                  </div>
+                </a>
+              {{else}}
+                <a href="{{.Href}}" target="{{if .Target}}{{.Target}}{{else}}_self{{end}}" class="block w-1/2 py-1 text-center lg:w-1/4 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+                  <div :class="$store.dashboardIconView.value === 'icon' ? 'py-2 text-center' : 'p-2 px-4 flex gap-2'" class="{{if eq $iconView "icon"}}py-2 text-center{{else}}p-2 px-4 flex gap-2{{end}}">
+                    <button type="button" class="size-9 items-center justify-center rounded-xl bg-slate-700 text-white hover:bg-slate-600 active:bg-slate-700 ring-4 ring-slate-400/50 dark:ring-slate-600/50 cursor-pointer">
+                      <i class="bi {{.Icon}}"></i>
+                    </button>
+                    <p class="pt-2 text-sm font-medium font-body md:text-base md:pt-2 text-slate-500 dark:text-slate-400">{{.Label}}</p>
+                  </div>
+                </a>
+              {{end}}
+            {{end}}
+          </div>
+        </div>
+{{end}}
+{{end}}
+
+{{define "modern_section"}}
+{{if .Section.Items}}
+        <div
+          data-section-id="{{.Section.Key}}"
+          x-data='{
+            open: (function() {
+              const s = localStorage.getItem("section_state_" + {{toJSON .Section.Key}});
+              return s === null ? true : s === "true";
+            })(),
+            toggleOpen() {
+              this.open = !this.open;
+              localStorage.setItem("section_state_" + {{toJSON .Section.Key}}, this.open);
+            }
+          }'
+          class="overflow-hidden rounded bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-800"
+        >
+          <div class="flex items-center justify-between gap-4 px-4 py-3 border-b border-gray-200 dark:border-gray-800 cursor-move active:cursor-grabbing" id="section-title-{{.Section.Key}}">
+            <h2 class="flex items-center gap-3 text-base font-semibold text-gray-900 dark:text-gray-50">
+              {{if .Section.Icon}}<span class="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300" aria-hidden="true"><i class="bi {{.Section.Icon}}"></i></span>{{end}}
+              {{.Section.Title}}
+            </h2>
+
+            <button type="button" @click="toggleOpen" class="flex items-center rounded-lg px-1.5 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50" :aria-expanded="open" :aria-controls="'section-icons-{{.Section.Key}}'">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="open" x-cloak><path fill-rule="evenodd" d="M5.23 12.21a.75.75 0 0 0 1.06.02L10 8.94l3.71 3.29a.75.75 0 1 0 1-1.12l-4.25-3.75a.75.75 0 0 0-1 0L5.21 11.1a.75.75 0 0 0 .02 1.06z" clip-rule="evenodd"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="!open" x-cloak><path fill-rule="evenodd" d="M14.77 7.79a.75.75 0 0 0-1.06-.02L10 11.06 6.29 7.77a.75.75 0 1 0-1 1.12l4.25 3.75a.75.75 0 0 0 1 0l4.25-3.75a.75.75 0 0 0-.02-1.06z" clip-rule="evenodd"/></svg>
+              <span x-text="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" class="sr-only"></span>
+            </button>
+          </div>
+
+          <div id="section-icons-{{.Section.Key}}" class="grid grid-cols-2 gap-1 p-2" x-show="open" x-collapse>
+            {{$upsellPlanName := .UpsellPlanName}}
+            {{$upsellURL := .UpsellURL}}
+            {{range .Section.Items}}
+              {{if .Disabled}}
+                <a title="{{if $upsellPlanName}}{{$.T.Get "Upgrade to"}} {{$upsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
+                   {{if $upsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}
+                   class="flex min-w-0 items-center gap-3 rounded-md px-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 opacity-50 grayscale cursor-not-allowed">
+                  <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200" aria-hidden="true"><i class="bi {{.Icon}}"></i></span>
+                  <span class="leading-tight">{{.Label}}</span>
+                </a>
+              {{else}}
+                <a href="{{.Href}}" target="{{if .Target}}{{.Target}}{{else}}_self{{end}}" class="flex min-w-0 items-center gap-3 rounded-md px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-50">
+                  <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200" aria-hidden="true"><i class="bi {{.Icon}}"></i></span>
+                  <span class="leading-tight">{{.Label}}</span>
+                </a>
+              {{end}}
+            {{end}}
+          </div>
+        </div>
+{{end}}
+{{end}}
+
+{{define "content"}}
+<!-- START templates/dashboard/dashboard.html -->
+
+<script src="{{static "vendor/sortablejs/Sortable.min.js"}}"></script>
+<style>.cursor-move { cursor: move; } .cursor-grabbing:active { cursor: grab; } .\-left-4 { left:0!important;} .dashboard-locked .cursor-move { cursor: default; }</style>
+{{if eq .MenuStyle "modern"}}
+<!-- utilities missing from dist/output.css -->
+<style>
+.px-1\.5 { padding-left: .375rem; padding-right: .375rem; } .py-1\.5 { padding-top: .375rem; padding-bottom: .375rem; }
+@media (min-width: 80rem) { .xl\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>
+{{end}}
+
+<div class="p-6 grid sm:flex grid-cols-1 gap-4 sm:grid-cols-2 md:gap-4 xl:grid-cols-4 bg-gray-50 dark:bg-gray-950">
+  <div class="flex flex-col space-y-4 xl:col-span-3 w-full">
+
+    {{template "custommessage" .}}
+
+    {{$root := .}}
+    {{$modern := eq .MenuStyle "modern"}}
+    <div id="dashboard-sortable-area" class="{{if $modern}}grid grid-cols-1 xl:grid-cols-2 gap-4 items-start{{else}}flex flex-col space-y-4{{end}}">
+      {{range .Sections}}
+        <div id="wrapper-{{.Key}}" data-id="{{.Key}}">
+          {{if eq $root.CustomSectionPosition (printf "before_%s" .Key)}}
+            {{template "customsection" $root}}
+          {{end}}
+          {{if $modern}}
+          {{template "modern_section" (dict "Section" . "T" $root.T "UpsellPlanName" $root.UpsellPlanName "UpsellURL" $root.UpsellURL)}}
+          {{else}}
+          {{template "icon_section" (dict "Section" . "UserAllowedJSON" $root.UserAllowedJSON "IconView" $root.DashboardIconView "T" $root.T "UpsellPlanName" $root.UpsellPlanName "UpsellURL" $root.UpsellURL)}}
+          {{end}}
+        </div>
+      {{end}}
+    </div>
+
+  </div>
+
+  <div class="flex flex-col space-y-4 xl:col-span-1" style="min-width:360px;">
+    {{template "twofa" .}}
+    {{template "information" .}}
+    {{template "usage" .}}
+    {{template "howto" .}}
+  </div>
+</div>
+
+{{template "onboarding" .}}
+
+{{if and .UserAllowed.summary (not .OnboardingShow)}}
+<script>
+// once a day, tell the user when yesterday's summary found something
+document.addEventListener('DOMContentLoaded', function() {
+    let shown = null;
+    try { shown = localStorage.getItem('summary_toast_date'); } catch (e) {}
+    fetch('/summary/latest.json', { credentials: 'same-origin' })
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => {
+            if (!d || !d.found || d.date === shown || (d.attention + d.look) === 0) return;
+            try { localStorage.setItem('summary_toast_date', d.date); } catch (e) {}
+            const parts = [];
+            if (d.attention) parts.push({{.T.Get "Needs your attention"}} + ': ' + d.attention);
+            if (d.look) parts.push({{.T.Get "Worth a look"}} + ': ' + d.look);
+            const msg = {{.T.Get "Yesterday's summary found something to check."}} + '<br>' + parts.join(' · ');
+            setTimeout(() => showToast(msg, d.attention ? 'warning' : 'info', true, { label: {{.T.Get "View summary"}}, href: d.url }), 800);
+        })
+        .catch(() => {});
+});
+</script>
+{{end}}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sortableContainer = document.getElementById('dashboard-sortable-area');
+
+    let locked = false;
+    try { locked = localStorage.getItem('dashboard_locked') === 'true'; } catch (e) {}
+    sortableContainer.classList.toggle('dashboard-locked', locked);
+
+    const sortable = Sortable.create(sortableContainer, {
+        disabled: locked,
+        animation: 150,
+        handle: '[id^="section-title-"]',
+        ghostClass: 'opacity-50',
+        filter: 'button',
+        preventOnFilter: false,
+        {{if ne .MenuStyle "modern"}}direction: 'vertical',{{end}}
+        fallbackOnBody: true,
+        swapThreshold: 0.65,
+
+        onEnd: function() {
+            const order = sortable.toArray();
+            localStorage.setItem('dashboard_section_order', JSON.stringify(order));
+        }
+    });
+
+    window.addEventListener('dashboard-lock', function(e) {
+        sortable.option('disabled', e.detail);
+        sortableContainer.classList.toggle('dashboard-locked', e.detail);
+    });
+
+    const savedOrder = JSON.parse(localStorage.getItem('dashboard_section_order'));
+    if (savedOrder) {
+        savedOrder.forEach(key => {
+            const element = sortableContainer.querySelector(`[data-id="${key}"]`);
+            if (element) {
+                sortableContainer.appendChild(element);
+            }
+        });
+    }
+});
+</script>
+
+
+<!-- END templates/dashboard/dashboard.html -->
+{{end}}

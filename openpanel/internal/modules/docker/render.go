@@ -58,6 +58,12 @@ type ContainerRow struct {
 	PIDsUnlimited bool
 	PIDsValue     string
 	ShowManage    bool
+	// Ports lists the container-side ports, PortsTitle the full host:container mappings
+	Ports           string
+	PortsTitle      string
+	Icon            string
+	Hue             string
+	ImageChangeable bool
 }
 
 // ContainersPageData is containers.html's full template context.
@@ -66,6 +72,50 @@ type ContainersPageData struct {
 	TotalCPU int
 	TotalRAM int
 	Rows     []ContainerRow
+}
+
+// serviceIcon picks the row's kit icon and tile hue from the service name
+func serviceIcon(name string) (icon, hue string) {
+	switch {
+	case strings.HasPrefix(name, "php-fpm"):
+		return "code", "indigo"
+	case name == "mysql" || name == "mariadb" || name == "postgres" || name == "mongodb" || name == "phpmyadmin":
+		return "db", "purple"
+	case name == "redis" || name == "valkey" || name == "memcached":
+		return "layout", "red"
+	case name == "elasticsearch" || name == "opensearch":
+		return "search", "orange"
+	case name == "nginx" || name == "apache" || name == "openresty" || name == "openlitespeed" || name == "litespeed" || name == "varnish":
+		return "browser", "cyan"
+	case name == "cron" || name == "backup" || name == "tor" || name == "docker-proxy":
+		return "shield", "green"
+	}
+	return "apps", "blue"
+}
+
+// servicePorts reads compose ports in short ("8080:80/tcp") or long ({published, target}) syntax
+func servicePorts(details map[string]any) (targets, mappings []string) {
+	ports, _ := details["ports"].([]any)
+	for _, p := range ports {
+		switch v := p.(type) {
+		case string:
+			mappings = append(mappings, v)
+			parts := strings.Split(v, ":")
+			targets = append(targets, strings.SplitN(parts[len(parts)-1], "/", 2)[0])
+		case map[string]any:
+			target := toStr(v["target"])
+			if target == "" {
+				continue
+			}
+			targets = append(targets, target)
+			if pub := toStr(v["published"]); pub != "" {
+				mappings = append(mappings, pub+":"+target)
+			} else {
+				mappings = append(mappings, target)
+			}
+		}
+	}
+	return targets, mappings
 }
 
 func serviceLimit(details map[string]any, key string) string {
@@ -171,6 +221,13 @@ func buildContainerRows(services map[string]any) []ContainerRow {
 		}
 
 		row.ShowManage = !coreServices[name] && !strings.HasPrefix(name, "php-fpm-")
+		row.ImageChangeable = imageChangeable(name)
+		row.Icon, row.Hue = serviceIcon(name)
+		if details != nil {
+			targets, mappings := servicePorts(details)
+			row.Ports = strings.Join(targets, ", ")
+			row.PortsTitle = strings.Join(mappings, ", ")
+		}
 		rows = append(rows, row)
 	}
 	sort.Slice(rows, func(i, j int) bool { return rows[i].Service < rows[j].Service })
@@ -517,54 +574,106 @@ var changeImagePage = web.MustLoadPage(
 	"docker/change_images.html",
 )
 
-// ChangeImagePageData is change_images.html's template context - either the single-service tag-change form (Service set) or the service picker (Service empty, SelectableServices populated)
+// ChangeImagePageData is change_images.html's template context: every service whose tag can change, Open is the one whose sheet opens on load
 type ChangeImagePageData struct {
 	web.LayoutData
+	Rows  []ImageRow
+	Open  string
+	Error string
+
+	// the classic theme's picker and single-service form read these
 	Service            string
 	CurrentVersion     string
 	HubURL             string
 	SelectableServices []string
 }
 
-// renderChangeImagePage renders the single-service image tag-change form.
-func renderChangeImagePage(a *appctx.App, w http.ResponseWriter, r *http.Request, service, currentVersion, hubURL string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Change image tag for "+service)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data := ChangeImagePageData{LayoutData: layout, Service: service, CurrentVersion: currentVersion, HubURL: hubURL}
-	if err := changeImagePage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("DOCKER - change_images template render error: %v", err)
-	}
+// ImageRow is one service on the Software Versions page
+type ImageRow struct {
+	Service  string `json:"service"`
+	Repo     string `json:"repo"`
+	Tag      string `json:"tag"`
+	HubURL   string `json:"hub"`
+	Floating bool   `json:"floating"` // a tag like latest that moves to a new version on the next pull
+	Data     bool   `json:"data"`     // keeps data files a newer major version upgrades
+	Pinned   bool   `json:"pinned"`   // the tag is written in docker-compose.yml, not read from .env
+	Icon     string `json:"-"`
+	Hue      string `json:"-"`
 }
 
-// renderChangeImageSelectPage renders the service picker for changing an image tag when no specific service was requested
-func renderChangeImageSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, composeData map[string]any) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Change docker image tag")
+// dataServices keep data files that a major version upgrade rewrites
+var dataServices = map[string]bool{"mysql": true, "mariadb": true, "postgres": true, "mongodb": true, "redis": true, "valkey": true, "elasticsearch": true, "opensearch": true}
+
+// imageRows lists the changeable services of a compose file with the tag each one runs
+func imageRows(userContext string, composeData map[string]any, env map[string]string) []ImageRow {
+	var rows []ImageRow
+	for name, details := range servicesOf(composeData) {
+		if !imageChangeable(name) {
+			continue
+		}
+		image, _ := details["image"].(string)
+		img, parsed := parseImage(image)
+		_, fixed := fixedTagVar(userContext, name)
+		envVar, tag := tagVarFor(userContext, name, img, parsed)
+		if v := strings.Trim(env[envVar], `'"`); v != "" {
+			tag = v
+		}
+		repo := img.Repo
+		if !parsed {
+			repo, tag = splitImage(image, tag)
+		}
+		row := ImageRow{Service: name, Repo: repo, Tag: tag, HubURL: hubTagsPage(repo), Data: dataServices[name], Pinned: !parsed && !fixed}
+		row.Floating = tag != "" && !strings.ContainsAny(tag, "0123456789")
+		row.Icon, row.Hue = serviceIcon(name)
+		rows = append(rows, row)
+	}
+	sort.Slice(rows, func(i, j int) bool { return rows[i].Service < rows[j].Service })
+	return rows
+}
+
+// currentImage is the tag and Docker Hub page of one service, read directly when it isn't in rows
+func currentImage(userContext, service string, rows []ImageRow) (tag, hub string) {
+	for _, row := range rows {
+		if row.Service == service {
+			return row.Tag, row.HubURL
+		}
+	}
+	envVar, tag := imageTagVar(userContext, service)
+	if v, _ := GetEnvValue(userContext, envVar); v != "" {
+		tag = v
+	}
+	return tag, dockerHubPage(userContext, service)
+}
+
+// splitImage cuts "repo:tag" for images whose tag isn't a variable, fallback when there's no tag
+func splitImage(image, fallback string) (repo, tag string) {
+	image = strings.TrimSpace(image)
+	if i := strings.LastIndex(image, ":"); i > strings.LastIndex(image, "/") {
+		return image[:i], image[i+1:]
+	}
+	return image, fallback
+}
+
+// renderChangeImagePage renders the Software Versions table, open names the service whose change sheet opens on load
+func renderChangeImagePage(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext, open string) {
+	layout, _, err := web.BuildLayoutData(a, w, r, "Software Versions")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-
-	var selectable []string
-	if services, ok := composeData["services"].(map[string]any); ok {
-		for name, raw := range services {
-			if !imageChangeable(name) {
-				continue
-			}
-			display := name
-			if details, ok := raw.(map[string]any); ok {
-				if cn, ok := details["container_name"].(string); ok && cn != "" {
-					display = cn
-				}
-			}
-			selectable = append(selectable, display)
-		}
-		sort.Strings(selectable)
+	data := ChangeImagePageData{LayoutData: layout, Open: open}
+	if composeData, err := LoadCompose(userContext); err != nil {
+		data.Error = web.Tr(a, r, "Could not read your services.")
+	} else {
+		data.Rows = imageRows(userContext, composeData, LoadEnvFile(userContext))
 	}
-
-	data := ChangeImagePageData{LayoutData: layout, SelectableServices: selectable}
+	for _, row := range data.Rows {
+		data.SelectableServices = append(data.SelectableServices, row.Service)
+	}
+	if open != "" {
+		data.Service = open
+		data.CurrentVersion, data.HubURL = currentImage(userContext, open, data.Rows)
+	}
 	if err := changeImagePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOCKER - change_images template render error: %v", err)
 	}

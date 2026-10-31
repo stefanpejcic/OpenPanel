@@ -18,8 +18,8 @@ var (
 	deletePage               = web.LoadPage("emails/delete.html")
 	infoPage                 = web.LoadPage("emails/info.html")
 	aliasesPage              = web.LoadPage("emails/aliases.html")
-	aliasDetailPage          = web.LoadPage("emails/alias_detail.html")
 	aliasNewPage             = web.LoadPage("emails/alias_new.html")
+	aliasDetailPage          = web.LoadPage("emails/alias_detail.html")
 	aliasDeletePage          = web.LoadPage("emails/alias_delete.html")
 	defaultAddressPage       = web.LoadPage("emails/default_address.html")
 	deliverabilityPage       = web.LoadPage("emails/deliverability.html")
@@ -46,10 +46,92 @@ func addressesOf(lines []string) []string {
 // AccountsPageData is emails/accounts.html's template context.
 type AccountsPageData struct {
 	web.LayoutData
-	Rows          []EmailListRow
-	TotalCount    int
-	QuotaToastID  string
-	QuotaToastMsg string
+	Rows           []EmailListRow
+	TotalCount     int
+	QuotaToastID   string
+	QuotaToastMsg  string
+	EmailLimit     int
+	LimitPercent   int
+	StorageValue   string
+	StorageUnit    string
+	NearQuotaCount int
+	MailDomains    int
+	AliasCount     int
+	AliasInboxes   int
+	Full           bool
+	Connect        AccountsConnect
+}
+
+// AccountsConnect drives the "Connect a mail app" card, Created is the mailbox the create form just made
+type AccountsConnect struct {
+	Created string
+	Welcome bool
+	Host    string
+	Secure  bool
+}
+
+// fillAccountsSummary works out the numbers for the stat tiles above the table
+func (d *AccountsPageData) fillAccountsSummary(emailLimit int, aliases []AliasEntry) {
+	d.EmailLimit = emailLimit
+	if emailLimit > 0 {
+		d.LimitPercent = min(100, d.TotalCount*100/emailLimit)
+		d.Full = d.TotalCount >= emailLimit
+	}
+	var used float64
+	mailDomains := map[string]bool{}
+	for _, row := range d.Rows {
+		used += row.UsedBytes
+		if _, domain, ok := strings.Cut(row.Address, "@"); ok {
+			mailDomains[strings.ToLower(domain)] = true
+		}
+		if row.NearQuota {
+			d.NearQuotaCount++
+		}
+	}
+	d.MailDomains = len(mailDomains)
+	d.StorageValue, d.StorageUnit, _ = strings.Cut(formatBytes(used), " ")
+	d.AliasCount = len(aliases)
+	inboxes := map[string]bool{}
+	for _, alias := range aliases {
+		for _, target := range alias.Targets {
+			inboxes[strings.ToLower(target)] = true
+		}
+	}
+	d.AliasInboxes = len(inboxes)
+}
+
+// humanQuota turns a doveadm size like "1.7G" or "12M" into "1.7 GB" plus bytes, leaving anything else as is
+func humanQuota(s string) (string, float64) {
+	units := map[byte]float64{'B': 1, 'K': 1 << 10, 'M': 1 << 20, 'G': 1 << 30, 'T': 1 << 40}
+	num, mult := strings.TrimSuffix(strings.ToUpper(s), "B"), 1.0
+	if num != "" {
+		if m, ok := units[num[len(num)-1]]; ok {
+			num, mult = num[:len(num)-1], m
+		}
+	}
+	v, err := strconv.ParseFloat(num, 64)
+	if err != nil || v < 0 {
+		return s, 0
+	}
+	return formatBytes(v * mult), v * mult
+}
+
+func formatBytes(b float64) string {
+	switch {
+	case b >= 1<<40:
+		return oneDecimal(b/(1<<40)) + " TB"
+	case b >= 1<<30:
+		return oneDecimal(b/(1<<30)) + " GB"
+	case b >= 1<<20:
+		return strconv.Itoa(int(b/(1<<20)+0.5)) + " MB"
+	case b >= 1<<10:
+		return strconv.Itoa(int(b/(1<<10)+0.5)) + " KB"
+	}
+	return "0 MB"
+}
+
+func oneDecimal(v float64) string {
+	return strings.TrimSuffix(strconv.FormatFloat(v, 'f', 1, 64), ".0")
 }
 
 // emailQuotaToast mirrors accounts.html's ns.quota_issues + quota_toast_issues 1/2/multiple pluralization branch (percent_val > 80)
@@ -86,7 +168,7 @@ func emailQuotaToast(rows []EmailListRow) (id, message string) {
 	}
 }
 
-func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, currentEmailsList []string, domains []appctx.Domain) {
+func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, currentEmailsList []string, domains []appctx.Domain, emailLimit int, aliases func() []AliasEntry, connect AccountsConnect) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Emails")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -97,9 +179,19 @@ func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, c
 		rows[i] = parseEmailListRow(line)
 	}
 	annotateEmailRows(rows)
+	for i := range rows {
+		if connect.Created != "" && strings.EqualFold(rows[i].Address, connect.Created) {
+			rows[i].IsNew, connect.Created = true, rows[i].Address
+		}
+	}
 	toastID, toastMsg := emailQuotaToast(rows)
 	layout.BulkActions = accountsBulkActions(layout.T)
-	data := AccountsPageData{LayoutData: layout, Rows: rows, TotalCount: len(currentEmailsList), QuotaToastID: toastID, QuotaToastMsg: toastMsg}
+	data := AccountsPageData{LayoutData: layout, Rows: rows, TotalCount: len(currentEmailsList), QuotaToastID: toastID, QuotaToastMsg: toastMsg, Connect: connect}
+	var aliasList []AliasEntry
+	if layout.UserAllowed["email_aliases"] {
+		aliasList = aliases()
+	}
+	data.fillAccountsSummary(emailLimit, aliasList)
 	if err := accountsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("EMAILS - accounts template render error: %v", err)
 	}
@@ -113,15 +205,91 @@ type NewEmailPageData struct {
 	Domains              []appctx.Domain
 	MaxEmailQuotaNumeric float64
 	AllocatedUnit        string
+	MaxQuotaBytes        float64 // 0 means the plan has no per-mailbox cap
+	EmailLimit           int
+	EmailCount           int
+	Taken                []string
+	Domain               string // preselected domain, from ?domain=
+	Username             string
+	MailHost             string
+	MailSecure           bool
+	Wait                 bool // opencli gets --wait on plans with a quota cap
+	Presets              []QuotaPreset
+	MaxQuotaLabel        string
+	Full                 bool
+	UsagePercent         int
 }
 
-func renderNewEmailPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domains []appctx.Domain, maxEmailQuotaNumeric float64, allocatedUnit string) {
+// QuotaPreset is one of the size buttons on the create form, Value and Unit go out as the gb and format fields
+type QuotaPreset struct {
+	Value, Unit, Label, Note string
+}
+
+// quotaPresets picks up to four common sizes under the plan's cap, then the cap itself, or Unlimited when there's none
+func quotaPresets(maxNumeric float64, maxUnit string, maxBytes float64) []QuotaPreset {
+	sizes := []QuotaPreset{{Value: "256", Unit: "M"}, {Value: "512", Unit: "M"}, {Value: "1", Unit: "G"}, {Value: "2", Unit: "G"}, {Value: "5", Unit: "G"}, {Value: "10", Unit: "G"}}
+	var out []QuotaPreset
+	for _, p := range sizes {
+		n, _ := strconv.ParseFloat(p.Value, 64)
+		b := n * quotaUnitMultipliers[p.Unit[0]]
+		if maxBytes > 0 && b >= maxBytes {
+			break
+		}
+		p.Label = formatBytes(b)
+		out = append(out, p)
+	}
+	if maxBytes == 0 {
+		return append(out[:4], QuotaPreset{Value: "0", Unit: "G", Label: "Unlimited"})
+	}
+	if len(out) > 4 {
+		out = out[len(out)-4:]
+	}
+	value, unit := trimFloat(maxNumeric), maxUnit
+	switch unit {
+	case "K":
+		unit = "k"
+	case "P":
+		value, unit = trimFloat(maxNumeric*1024), "T"
+	}
+	return append(out, QuotaPreset{Value: value, Unit: unit, Label: formatBytes(maxBytes), Note: "Plan maximum"})
+}
+
+// fill works out the presets, plan-limit state and preselected domain from the raw plan values
+func (d *NewEmailPageData) fill() {
+	d.Presets = quotaPresets(d.MaxEmailQuotaNumeric, d.AllocatedUnit, d.MaxQuotaBytes)
+	if d.MaxQuotaBytes > 0 {
+		d.MaxQuotaLabel = formatBytes(d.MaxQuotaBytes)
+	}
+	if d.EmailLimit > 0 {
+		d.Full = d.EmailCount >= d.EmailLimit
+		d.UsagePercent = min(100, d.EmailCount*100/d.EmailLimit)
+		if d.UsagePercent == 0 && d.EmailCount > 0 {
+			d.UsagePercent = 1
+		}
+	}
+	found := false
+	for _, dom := range d.Domains {
+		found = found || dom.DomainURL == d.Domain
+	}
+	if !found && len(d.Domains) > 0 {
+		d.Domain = d.Domains[0].DomainURL
+	}
+	if len(d.Username) > 60 {
+		d.Username = ""
+	}
+	for i, addr := range d.Taken {
+		d.Taken[i] = strings.ToLower(addr)
+	}
+}
+
+func renderNewEmailPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data NewEmailPageData) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Create Account")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := NewEmailPageData{LayoutData: layout, Domains: domains, MaxEmailQuotaNumeric: maxEmailQuotaNumeric, AllocatedUnit: allocatedUnit}
+	data.LayoutData = layout
+	data.fill()
 	if err := newEmailPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("EMAILS - new template render error: %v", err)
 	}
@@ -207,6 +375,9 @@ type AliasesPageData struct {
 	web.LayoutData
 	AliasList []AliasEntry
 	Domains   []appctx.Domain
+	// ?new=1 opens the create sheet, a rejected submit comes back with its domain and username
+	NewOpen            bool
+	NewDomain, NewUser string
 }
 
 func renderAliasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, aliasList []AliasEntry, domains []appctx.Domain) {
@@ -216,7 +387,12 @@ func renderAliasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, al
 		return
 	}
 	layout.BulkActions = aliasesBulkActions(layout.T)
-	data := AliasesPageData{LayoutData: layout, AliasList: aliasList, Domains: domains}
+	data := AliasesPageData{LayoutData: layout, AliasList: aliasList, Domains: domains, NewOpen: r.URL.Query().Get("new") == "1", NewUser: r.URL.Query().Get("username")}
+	for _, d := range domains {
+		if d.DomainURL == r.URL.Query().Get("domain") {
+			data.NewDomain = d.DomainURL
+		}
+	}
 	if err := aliasesPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("EMAILS - aliases template render error: %v", err)
 	}
@@ -243,7 +419,7 @@ func renderAliasDetailPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 }
 
-// alias_new.html
+// alias_new.html, only the classic theme still has a separate create page
 
 // AliasNewPageData is emails/alias_new.html's template context.
 type AliasNewPageData struct {

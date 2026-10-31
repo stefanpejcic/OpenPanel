@@ -1,0 +1,263 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+<script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+{{template "cms_block" .}}
+        {{template "cms_block_2" .}}
+        {{template "cms_block_3" .}}
+{{template "cms_script_2" .}}
+{{template "cms_block_5" .}}
+    <div class="flex flex-col space-y-4 rounded xl:col-span-3">
+
+        {{template "cms_block_6" .}}
+            {{template "cms_tabbtn_dashboard" .}}
+            {{template "cms_tabbtn_logs" .}}
+            {{template "cms_tabbtn_maintenance" .}}
+            {{template "cms_tabbtn_update" .}}
+            {{template "cms_tabbtn_clone" .}}
+            {{template "cms_tabbtn_backups" .}}
+            {{template "cms_tab_security_2" .}}
+        {{template "cms_tab_dashboard" .}}
+            <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
+                <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
+                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded xl:col-span-3">
+                        {{template "cms_block_10" .}}
+                {{template "cms_block_13" .}}
+                {{template "cms_block_14" .}}
+                {{template "cms_block_18" .}}
+                <script>
+                    function revealNextcloudDBPassword() {
+                        var passwordSpan = document.getElementById("database-password");
+                        passwordSpan.style.filter = passwordSpan.style.filter === "blur(5px)" ? "none" : "blur(5px)";
+                    }
+                </script>
+{{template "cms_block_20" .}}
+        <div class="hidden p-4 rounded" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+
+            {{template "cms_block_25" .}}
+                {{template "cms_block_22" .}}
+            {{template "cms_script_6" .}}
+        </div>
+
+        <div class="hidden p-4 rounded" id="maintenance" role="tabpanel" aria-labelledby="maintenance-tab">
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Maintenance Mode"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Show visitors a maintenance page while you make changes."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                        <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Status:"}}</span>
+                        <span class="font-medium" id="nextcloud-maintenance-status">{{.T.Get "Checking..."}}</span>
+                    </div>
+                    <div class="mt-4">
+                        <button type="button" id="nextcloud-maintenance-toggle" onclick="toggleNextcloudMaintenance()"
+                            class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap w-100">
+                            {{.T.Get "Loading..."}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                let __nextcloudMaintenanceLoaded = false;
+                let __nextcloudMaintenanceStatus = null;
+
+                function refreshNextcloudMaintenanceStatus() {
+                    const domain = {{toJSON .CurrentDomain}};
+                    const docroot = {{toJSON .Docroot}};
+                    const statusEl = document.getElementById('nextcloud-maintenance-status');
+                    const btn = document.getElementById('nextcloud-maintenance-toggle');
+                    fetch(`/nextcloud/maintenance?domain=${encodeURIComponent(domain)}&docroot=${encodeURIComponent(docroot)}`, {
+                        headers: { 'X-CSRF-Token': csrf_token }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            __nextcloudMaintenanceStatus = data.status;
+                            if (data.status === 'enabled') {
+                                statusEl.innerHTML = '<span class="text-orange-500">' + {{toJSON (.T.Get "Enabled")}} + '</span>';
+                                btn.textContent = {{toJSON (.T.Get "Disable Maintenance Mode")}};
+                            } else {
+                                statusEl.innerHTML = '<span class="text-green-600">' + {{toJSON (.T.Get "Disabled")}} + '</span>';
+                                btn.textContent = {{toJSON (.T.Get "Enable Maintenance Mode")}};
+                            }
+                        })
+                        .catch(error => {
+                            statusEl.textContent = {{toJSON (.T.Get "Unknown")}};
+                            console.error('Error fetching maintenance mode status:', error);
+                        });
+                }
+
+                function toggleNextcloudMaintenance() {
+                    const domain = {{toJSON .CurrentDomain}};
+                    const docroot = {{toJSON .Docroot}};
+                    const action = __nextcloudMaintenanceStatus === 'enabled' ? 'disable' : 'enable';
+                    showToast({{toJSON (.T.Get "Updating maintenance mode...")}}, 'loading', true);
+                    fetch(`/nextcloud/maintenance?domain=${encodeURIComponent(domain)}&docroot=${encodeURIComponent(docroot)}`, {
+                        method: 'POST',
+                        headers: { 'X-CSRF-Token': csrf_token, 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: 'action=' + action
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) {
+                                showToast(data.error, 'danger');
+                            } else {
+                                showToast(data.message || {{toJSON (.T.Get "Maintenance mode updated.")}}, 'success');
+                                refreshNextcloudMaintenanceStatus();
+                            }
+                        })
+                        .catch(() => showToast({{toJSON (.T.Get "Failed to update maintenance mode")}}, 'danger'));
+                }
+
+                document.querySelector('html').addEventListener('click', function(e) {
+                    if (!e.target.closest('#maintenance-tab')) return;
+                    if (__nextcloudMaintenanceLoaded) return;
+                    __nextcloudMaintenanceLoaded = true;
+                    refreshNextcloudMaintenanceStatus();
+                });
+            </script>
+        </div>
+
+        <div class="hidden p-4 rounded" id="update" role="tabpanel" aria-labelledby="update-tab">
+            {{template "cms_block_28" .}}
+            {{template "cms_script_9" .}}
+        </div>
+
+        {{template "cms_tab_clone" .}}
+                {{template "cms_block_17" .}}
+                {{template "cms_block_24" .}}
+                {{template "cms_block_19" .}}
+            {{template "cms_script_4" .}}
+{{template "cms_block_21" .}}
+        <div class="hidden p-4 rounded" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+
+            {{template "cms_block_29" .}}
+            {{template "cms_block_30" .}}
+            {{template "cms_script_10" .}}
+        </div>
+
+        {{template "cms_tab_remove_2" .}}
+    <div class="flex flex-col space-y-4 rounded xl:col-span-1">
+
+        {{template "pagespeed_panel" .}}
+
+        {{template "visitors" .}}
+
+        {{template "waf_panel" .}}
+
+        {{template "nextcloud_cache" .}}
+
+    </div>
+
+</div>
+
+<script>
+const NEXTCLOUD_SITE_ID = {{toJSON .Container.ID}};
+
+function confirmRemoveNextcloud() {
+    showToast({{toJSON (.T.Get "Nextcloud removal started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/nextcloud/remove', true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            window.location.href = '/sites';
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(NEXTCLOUD_SITE_ID));
+}
+
+function confirmDetachNextcloud() {
+    showToast({{toJSON (.T.Get "Nextcloud detach process started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/sites/detach', true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                window.location.href = '/sites';
+            } else {
+                showToast({{toJSON (.T.Get "An error occurred while detaching Nextcloud. Please try again.")}}, 'error');
+            }
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(NEXTCLOUD_SITE_ID));
+}
+</script>
+
+{{template "cms_script_11" .}}
+
+<!-- END templates/manager/nextcloud_app.html -->
+{{end}}
+
+{{define "nextcloud_cache"}}
+<!-- START nextcloud_cache widget -->
+<div x-data="nextcloudCacheComponent()" class="flex flex-col justify-center overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+  {{template "cms_block_32" .}}
+    <div class="grid grid-cols-1 gap-2">
+        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Rebuild Nextcloud cache:"}}</span>
+            <span class="font-medium">
+
+        <button
+        @click="rebuildCache"
+        data-tooltip-target="tooltip-nextcloud_rebuild_cache-link" data-tooltip-placement="left"
+        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50 cursor-pointer"
+        type="button"
+        aria-label="{{.T.Get "Rebuild Nextcloud Cache"}}"
+        >
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash size-5 shrink-0"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        {{.T.Get "Clear Cache"}}
+        </button>
+            </span>
+        </div>
+    </div>
+
+    <div id="tooltip-nextcloud_rebuild_cache-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+      {{.T.Get "Clears the generated preview/thumbnail cache and any configured distributed memcache."}}
+      <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+</div>
+
+<script>
+  function nextcloudCacheComponent() {
+    return {
+      domain: {{toJSON .CurrentDomain}},
+      docroot: {{toJSON .Docroot}},
+
+      rebuildCache() {
+        if (!this.domain || !this.docroot) {
+          return;
+        }
+        showToast({{toJSON (.T.Get "Rebuilding cache...")}}, 'loading', true);
+        fetch(`/nextcloud/cache?domain=${encodeURIComponent(this.domain)}&docroot=${encodeURIComponent(this.docroot)}`, {
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': csrf_token,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({})
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            showToast(data.error, 'danger');
+          } else {
+            showToast(data.message || {{toJSON (.T.Get "Cache rebuilt successfully!")}}, 'success');
+          }
+        })
+        .catch(() => {
+          showToast({{toJSON (.T.Get "Failed to rebuild cache")}}, 'danger');
+        });
+      }
+    }
+  }
+</script>
+<!-- END nextcloud_cache widget -->
+{{end}}

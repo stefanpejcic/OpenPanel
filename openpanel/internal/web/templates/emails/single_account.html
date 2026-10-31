@@ -1,65 +1,67 @@
 {{define "alpine_plugins"}}{{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
 {{define "content"}}
 <!-- START templates/emails/single_account.html -->
 
 <!-- page header -->
-<div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<div class="op-page-head op-cms-head">
         <div class="gap-x-3">
-            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit Email account"}}</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-500 punycode">{{.Quota.Address}}</p>
+            <h1 class="op-title">{{.T.Get "Edit Email account"}}</h1>
+            <p class="op-meta punycode">{{.Quota.Address}}</p>
         </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-            <a href="/emails/delete/{{.Quota.Address}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><i class="bi bi-trash3"></i> {{.T.Get "Delete"}}</a>
+    <div class="op-actions">
+            <a href="/emails/delete/{{.Quota.Address}}" class="op-btn op-btn-danger"><i class="bi bi-trash3"></i> {{.T.Get "Delete"}}</a>
     </div>
 </div>
 <!-- END page header -->
 
 
 <!-- form -->
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
+<div class="op-card op-block-card CrawlerStatusCard" id="toAddActive">
     <form class="mt-8" id="email-settings-form" action="/emails/edit/{{.Quota.Address}}" method="post">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
-        <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+        <div class="op-form-grid">
 
-  <div class="col-span-full mb-2">
-    <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Email address"}}</label>
+  <div class="op-field-wrap">
+    <label for="email" class="op-label op-label-row">{{.T.Get "Email address"}}</label>
       <input type="hidden" name="email_address" value="{{.Quota.Address}}" readonly required>
 
-      <input type="email" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500  focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden punycode" name="email_address" value="{{.Quota.Address}}" readonly disabled>
+      <input type="email" class="op-input" name="email_address" value="{{.Quota.Address}}" readonly disabled>
   </div>
 
-  <div class="col-span-full mb-2">
+  <div class="op-field-wrap">
     <div class="flex justify-between mb-1">
-     <label for="usage" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Current Usage"}}</label>
+     <label for="usage" class="op-label op-label-row">{{.T.Get "Current Usage"}}</label>
 
-    <span class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.Quota.QuotaDisplay}}</span>
+    <span class="op-label op-label-row">{{.Quota.QuotaDisplay}}</span>
     </div>
-    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-    <div class="bg-blue-600 h-2.5 rounded-full" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{.Quota.PercentVal}}" style="width: {{.Quota.CappedVal}}%;"></div>
+    <div class="op-progress op-progress-lg">
+    <div class="op-progress-fill" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{.Quota.PercentVal}}" style="width: {{.Quota.CappedVal}}%;"></div>
     </div>
   </div>
 
 
-<div class="col-span-full mb-2">
-  <label for="gb" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-    {{.T.Get "Change allocated storage space"}}<span class="text-red-500 dark:text-red-500">*</span>
+<div class="op-field-wrap">
+  <label for="gb" class="op-label op-label-row">
+    {{.T.Get "Change allocated storage space"}}<span class="is-danger">*</span>
   </label>
 
-  <div class="flex rounded-lg shadow-sm">
+  <div class="op-join">
     <input
       type="number"
       min="0"
       name="gb"
       value="{{.Quota.AllocatedQuota}}"
       step="any"
-      class="relative block w-full appearance-none rounded-l-md border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+      class="op-input op-join-l"
     >
 
     <div class="input-group-append">
       <select
-        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-r-md focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        class="op-input"
         name="format"
         id="format"
       >
@@ -71,7 +73,7 @@
     </div>
   </div>
 
-  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+  <p class="op-hint">
     {{if ne .MaxEmailQuotaNumeric 0.0}}
       {{.T.Get "Maximum allowed: "}} {{.MaxEmailQuotaNumeric}}{{.AllocatedUnit}}
     {{end}}
@@ -126,7 +128,7 @@ limitQuotaInput();
 
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6 mb-2 col-span-full">
   <div class="col-span">
-    <label for="incoming" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Receiving Incoming Mail"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+    <label for="incoming" class="op-label op-label-row">{{.T.Get "Receiving Incoming Mail"}}<span class="is-danger">*</span></label>
     <div class="flex">
     <div class="form-field" id="incoming">
         <div class="form-check">
@@ -148,7 +150,7 @@ limitQuotaInput();
   </div>
 
   <div class="col-span">
-    <label for="incoming" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Sending Outgoing Mail"}}<span class="text-red-500 dark:text-red-500">*</span></label>
+    <label for="incoming" class="op-label op-label-row">{{.T.Get "Sending Outgoing Mail"}}<span class="is-danger">*</span></label>
     <div class="flex">
     <div class="form-field" id="outgoing">
         <div class="form-check">
@@ -172,7 +174,7 @@ limitQuotaInput();
 
 
 <div
-  class="col-span-full mb-5"
+  class="op-field-wrap"
   x-data="passwordStrength({
     weak: {{toJSON (.T.Get "Weak password")}},
     medium: {{toJSON (.T.Get "Medium strength password")}},
@@ -183,9 +185,9 @@ limitQuotaInput();
 >
   <label
     for="email_password"
-    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+    class="op-label op-label-row"
   >
-    {{.T.Get "Password"}}<span class="text-red-500 dark:text-red-500">*</span>
+    {{.T.Get "Password"}}<span class="is-danger">*</span>
   </label>
   <div class="flex">
     <input
@@ -196,7 +198,7 @@ limitQuotaInput();
       minlength="8"
       title="{{.T.Get "Password must be between 8 and 30 characters."}}"
       placeholder=" {{.T.Get "New Password"}}"
-      class="relative block w-full appearance-none rounded-l-md border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+      class="op-input op-join-l"
       x-model="password"
       x-ref="input"
       @input="checkStrength()"
@@ -206,7 +208,7 @@ limitQuotaInput();
       <button
         type="button"
         id="generatePassword"
-        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white"
+        class="op-btn op-btn-secondary op-join-btn"
       >
         <i class="bi bi-shuffle"></i>
       </button>
@@ -214,7 +216,7 @@ limitQuotaInput();
 
     <div class="input-group-append">
       <button
-        class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white"
+        class="op-btn op-btn-secondary op-join-btn is-last"
         type="button"
         id="togglePassword"
       >
@@ -224,17 +226,10 @@ limitQuotaInput();
   </div>
 
   <!-- Password strength indicator -->
-  <div class="mt-2 h-2 rounded bg-gray-200 dark:bg-gray-700 overflow-hidden">
+  <div class="op-progress op-strength">
     <div
-      class="h-full rounded transition-all duration-300"
-      :class="{
-        'bg-red-500': strength === 'Weak',
-        'bg-orange-500': strength === 'Medium',
-        'bg-green-500': strength === 'Strong',
-        'w-1/3': strength === 'Weak',
-        'w-2/3': strength === 'Medium',
-        'w-full': strength === 'Strong'
-      }"
+      class="op-strength-bar"
+      :class="{ 'is-danger': strength === 'Weak', 'is-warning': strength === 'Medium', 'is-success': strength === 'Strong' }"
       style="width: 0%"
       :style="{
         width:
@@ -249,12 +244,7 @@ limitQuotaInput();
     ></div>
   </div>
   <p
-    class="mt-1 text-sm font-semibold"
-    :class="{
-      'text-red-600 dark:text-red-400': strength === 'Weak',
-      'text-yellow-600 dark:text-yellow-400': strength === 'Medium',
-      'text-green-600 dark:text-green-400': strength === 'Strong'
-    }"
+    class="op-hint op-strength-text" :class="{ 'is-danger': strength === 'Weak', 'is-warning': strength === 'Medium', 'is-success': strength === 'Strong' }"
   >
     <span x-text="strengthMessage" class="text-xs"></span>
   </p>
@@ -262,13 +252,13 @@ limitQuotaInput();
 
         </div>
 
-        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+        <div class="op-sep"><div class="op-divider"></div></div>
 
-<div class="md:flex items-center md:justify-end md:space-x-4">
-    <a href="/emails" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit">
+<div class="op-actions op-actions-end">
+    <a href="/emails" class="op-btn op-btn-secondary">
         {{.T.Get "Back to Emails"}}
     </a>
-    <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Update Email Settings"}}<svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+    <button type="submit" class="op-btn op-btn-primary">{{.T.Get "Update Email Settings"}}<svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
         </svg>
     </button>

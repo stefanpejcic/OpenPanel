@@ -1,158 +1,75 @@
 {{define "alpine_plugins"}}{{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
 {{define "content"}}
 <!-- START templates/emails/default_address.html -->
 
-{{if not .Domain}}
+<div class="op-content" x-data="{ confirmRm: false }">
 
-<!-- page header -->
-<div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-    <div class="gap-x-3">
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Default Email Address"}}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-500 punycode">{{.T.Get "Catch any email that is sent to an invalid email address for your domain."}}</p>
+<div class="op-page-head">
+    <div>
+        <h1 class="op-title">{{.T.Get "Default Email Address"}}</h1>
+        <p class="op-meta punycode">{{if .Domain}}*@{{.Domain}}{{else}}{{.T.Get "Catch any email that is sent to an invalid email address for your domain."}}{{end}}</p>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-        <a href="/emails" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit gap-x-0.5 whitespace-nowrap">
-            {{.T.Get "Back to Emails"}}
-        </a>
+    <div class="op-actions">
+        <a href="/emails" class="op-btn op-btn-secondary">{{.T.Get "Back to Emails"}}</a>
     </div>
 </div>
-<!-- END page header -->
 
+<section class="op-card">
+    {{if .Domains}}<label class="op-field" style="max-width:520px"><span class="op-label">{{.T.Get "Domain"}}</span>
+        <select id="domains" class="op-select" name="domain_name" onchange="if (this.value) window.location.href = '/emails/default/' + this.value">
+            <option value="" disabled {{if not .Domain}}selected{{end}}>{{.T.Get "Select domain"}}</option>
+            {{range .Domains}}<option class="punycode" value="{{.DomainURL}}" {{if eq .DomainURL $.Domain}}selected{{end}}>{{.DomainURL}}</option>{{end}}
+        </select>
+    </label>{{end}}
 
-
-<!-- form -->
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
-    <form class="mt-8" method="GET">
-	    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-       <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-
-
-            <div class="col-span-full">
-
-  <select id="domains" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="domain_name" onchange="redirectToSelectedVersion(this)">
-                          <option value="" disabled selected>{{.T.Get "Select domain"}}</option>
-                {{range .Domains}}
-                          <option class="punycode" value="{{.DomainURL}}">{{.DomainURL}}</option>
-                {{end}}
-                      </select>
-              <script>
-                  function redirectToSelectedVersion(selectElement) {
-                      var selectedVersion = selectElement.value;
-                      if (selectedVersion) {
-                          window.location.href = `/emails/default/${selectedVersion}`;
-                      }
-                  }
-              </script>
-
-    </form>
-
-
+{{if not .Domain}}
+    <div class="op-empty"><span class="op-ico-tile">{{template "op_icon" "mail"}}</span><b>{{.T.Get "Pick a domain"}}</b><span class="op-hint">{{.T.Get "Each domain has its own catch-all rule."}}</span></div>
+</section>
+</div>
 {{else}}
 
-
-<!-- page header -->
-<div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-    <div class="gap-x-3">
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Default Email Address"}}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-500 punycode">*@{{.Domain}}</p>
-    </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-        <a href="/emails" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit gap-x-0.5 whitespace-nowrap">
-            {{.T.Get "Back to Emails"}}
-        </a>
-    </div>
-</div>
-<!-- END page header -->
-
-
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard">
-
-    <!-- Current status -->
-    <div class="mb-8">
-        <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-3">{{.T.Get "Current configuration"}}</h2>
-
+    <div class="op-section"{{if .Domains}} style="margin-top:18px"{{end}}><div><h3>{{.T.Get "Current configuration"}}</h3><p>{{.T.Get "What happens to mail for an address that doesn't exist at this domain."}}</p></div>
+        <div>
         {{if .Current}}
-            <div class="overflow-hidden rounded border border-gray-200 dark:border-gray-800">
-                <table class="w-full caption-bottom text-sm">
-                    <thead>
-                        <tr class="bg-gray-50 dark:bg-gray-900">
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-b border-gray-200 dark:border-gray-800">{{.T.Get "Catch-all rule"}}</th>
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-b border-gray-200 dark:border-gray-800">{{.T.Get "Delivers to"}}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400 font-mono">*@{{.Domain}}</td>
-                            <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400" id="current-destination">{{.Current}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <div class="op-table-wrap"><table class="op-table">
+                <thead><tr><th>{{.T.Get "Catch-all rule"}}</th><th>{{.T.Get "Delivers to"}}</th></tr></thead>
+                <tbody><tr><td class="op-cell-title"><b class="op-mono punycode">*@{{.Domain}}</b></td><td data-label="{{.T.Get "Delivers to"}}"><span class="op-mono" id="current-destination" style="overflow-wrap:anywhere">{{.Current}}</span></td></tr></tbody>
+            </table></div>
         {{else}}
-            <div class="rounded border border-dashed border-gray-300 dark:border-gray-700 p-6 text-center text-sm text-gray-400 dark:text-gray-500">
-                {{.T.Get "No catch-all configured — unmatched emails for this domain are rejected."}}
-            </div>
+            <div class="op-alert" role="status" style="--tone:var(--color-muted)">{{template "op_icon" "info"}}<span>{{.T.Get "No catch-all configured — unmatched emails for this domain are rejected."}}</span></div>
         {{end}}
-    </div>
-
-    <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500">
-        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
-        <span class="shrink-0">{{.T.Get "Set catch-all destination"}}</span>
-        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
+        </div>
     </div>
 
     <input type="hidden" id="csrf_token" value="{{.CSRFToken}}"/>
-
-    <div class="col-span-full mb-4">
-        <label for="destination" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            {{.T.Get "Destination address"}}
-        </label>
-        <input
-            type="email"
-            id="destination"
-            maxlength="254"
-            value="{{.Current}}"
-            placeholder="{{.T.Get "catchall@example.com"}}"
-			pattern="^\S*$" title="{{.T.Get "No spaces allowed, use commas to separate addresses."}}"
-            class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"
-        >
-        <p class="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
-            {{.T.Get "All emails sent to any address at this domain will be forwarded here. Leave empty to reject unmatched emails."}}
-        </p>
-    </div>
-
-    <div class="md:flex items-center md:justify-end md:space-x-4 mt-6">
-        <button type="button" id="save-btn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
-            {{.T.Get "Save"}}
-            <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
-            </svg>
-        </button>
-    </div>
-
-    <!-- Danger zone -->
-    {{if .Current}}
-    <div class="mx-auto py-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500">
-		<div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
-        <span class="shrink-0 text-red-400">{{.T.Get "Danger zone"}}</span>
-        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
-    </div>
-
-    <div class="rounded border border-red-200 dark:border-red-900 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-4">
-        <div>
-            <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Remove catch-all"}}</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{.T.Get "Deletes the catch-all rule. Emails to unknown addresses at this domain will be rejected."}}</p>
+    <div class="op-section"><div><h3>{{.T.Get "Set catch-all destination"}}</h3><p>{{.T.Get "All emails sent to any address at this domain will be forwarded here. Leave empty to reject unmatched emails."}}</p></div>
+        <div class="op-col" style="gap:10px">
+            <label class="op-field" for="destination"><span class="op-label">{{.T.Get "Destination address"}}</span>
+                <input type="email" id="destination" maxlength="254" value="{{.Current}}" placeholder="{{.T.Get "catchall@example.com"}}" pattern="^\S*$" title="{{.T.Get "No spaces allowed, use commas to separate addresses."}}" class="op-input op-mono">
+                <span class="op-hint">{{.T.Get "No spaces allowed, use commas to separate addresses."}}</span>
+            </label>
+            <div class="op-actions"><button type="button" id="save-btn" class="op-btn op-btn-primary">{{.T.Get "Save"}}</button></div>
         </div>
-        <button
-            type="button"
-            id="delete-btn"
-            class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-red-500 border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 bg-white dark:bg-gray-950 hover:bg-red-50 dark:hover:bg-red-950/30 gap-x-1.5 whitespace-nowrap shrink-0"
-        ><i class="bi bi-trash3"></i> {{.T.Get "Remove Catch-all"}}</button>
+    </div>
+
+    {{if .Current}}
+    <div class="op-section"><div><h3>{{.T.Get "Danger zone"}}</h3><p>{{.T.Get "Deletes the catch-all rule. Emails to unknown addresses at this domain will be rejected."}}</p></div>
+        <div><button type="button" class="op-btn op-btn-danger" @click="confirmRm = true">{{template "op_icon" "trash"}} {{.T.Get "Remove Catch-all"}}</button></div>
     </div>
     {{end}}
+</section>
 
+{{if .Current}}
+<div class="op-scrim" x-show="confirmRm" x-cloak @click="confirmRm = false"></div>
+<div class="op-sheet" role="dialog" aria-label="{{.T.Get "Remove Catch-all"}}" x-show="confirmRm" x-cloak @keydown.escape.window="confirmRm = false">
+    <h2>{{.T.Get "Remove catch-all"}}</h2>
+    <p class="op-meta">{{.T.Get "Deletes the catch-all rule. Emails to unknown addresses at this domain will be rejected."}}</p>
+    <div class="op-actions" style="margin-top:20px"><button class="op-btn op-btn-secondary" type="button" @click="confirmRm = false">{{.T.Get "Cancel"}}</button><button id="delete-btn" class="op-btn op-btn-danger" type="button" style="flex:1">{{.T.Get "Remove Catch-all"}}</button></div>
+</div>
+{{end}}
 </div>
 
 <script>
@@ -203,7 +120,6 @@
     if (deleteBtn) {
         deleteBtn.addEventListener('click', async function () {
             if (deleteBtn.disabled) return;
-            if (!confirm({{toJSON (.T.Get "Remove the catch-all for this domain? Emails to unknown addresses will be rejected.")}})) return;
 
             deleteBtn.disabled = true;
             const originalHTML = deleteBtn.innerHTML;

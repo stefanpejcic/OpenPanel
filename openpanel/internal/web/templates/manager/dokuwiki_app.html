@@ -1,4 +1,6 @@
 {{define "alpine_plugins"}}{{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
 {{define "flowbite_js"}}
 <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
@@ -8,7 +10,7 @@
 {{template "cms_block" .}}
         {{template "cms_block_2" .}}
         {{template "cms_block_4" .}}
-    <div class="flex flex-col space-y-4 rounded xl:col-span-3">
+    <div class="op-wp-main">
 
         {{template "cms_block_8" .}}
             {{template "cms_tabbtn_dashboard" .}}
@@ -17,25 +19,25 @@
             {{template "cms_tabbtn_backups" .}}
             {{template "cms_tab_security" .}}
         {{template "cms_tab_dashboard" .}}
-            <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
-                <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
-                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded xl:col-span-3">
+            <div class="op-wp-overview">
+                <div class="op-wp-shot">
+                    <div class="op-wp-shot-frame">
                         {{template "cms_block_10" .}}
-                <div class="grid h-full space-y-2 pb-2 gap-2 grid-cols-2 sm:grid-cols-1">
-                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
-                        <div class="mb-2 flex items-center justify-between gap-4 relative">
-                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "DokuWiki:"}}</h2>
+                <div class="op-wp-stats">
+                    <div class="op-wp-stat">
+                        <div class="op-card-head">
+                            <div class="op-hide"></div>
+                            <h2 class="op-muted">{{.T.Get "DokuWiki:"}}</h2>
                         </div>
                         <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl">{{if .Version}}{{.Version}}{{else}}{{.T.Get "Unknown"}}{{end}}</h3>
                     </div>
 
-                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800" x-data="{ phpEditOpen: false }">
-                        <div class="mb-2 flex items-center justify-between gap-4 relative">
-                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "PHP:"}}</h2>
+                    <div class="op-wp-stat" x-data="{ phpEditOpen: false }">
+                        <div class="op-card-head">
+                            <div class="op-hide"></div>
+                            <h2 class="op-muted">{{.T.Get "PHP:"}}</h2>
                             {{if and .UserAllowed.php (not .IsSubdirectory)}}
-                            <button type="button" @click="phpEditOpen = !phpEditOpen" data-tooltip-target="tooltip-dokuwiki-php-link" data-tooltip-placement="left" class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50">
+                            <button type="button" @click="phpEditOpen = !phpEditOpen" data-tooltip-target="tooltip-dokuwiki-php-link" data-tooltip-placement="left" class="op-btn op-btn-sm op-btn-secondary">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5"><path fill-rule="evenodd" d="M0 10.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1H3V1.5a.5.5 0 0 0-1 0V10H.5a.5.5 0 0 0-.5.5M2.5 12a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0-.5-.5m3-6.5A.5.5 0 0 0 6 6h1.5v8.5a.5.5 0 0 0 1 0V6H10a.5.5 0 0 0 0-1H6a.5.5 0 0 0-.5.5M8 1a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2A.5.5 0 0 0 8 1m3 9.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 0-1H14V1.5a.5.5 0 0 0-1 0V10h-1.5a.5.5 0 0 0-.5.5m2.5 1.5a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2a.5.5 0 0 0-.5-.5"></path></svg>
                             </button>
                             <div id="tooltip-dokuwiki-php-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
@@ -57,7 +59,7 @@
                             <input type="hidden" name="old_php_version" value="{{.CurrentPHPVersion}}">
                             <input type="hidden" name="redirect_to" value="/website?domain={{.CurrentDomain}}">
                             <div x-data="{ current: {{toJSON .CurrentPHPVersion}}, selected: {{toJSON .CurrentPHPVersion}} }" class="flex rounded-lg">
-                                <select x-model="selected" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" name="new_php_version">
+                                <select x-model="selected" class="op-input" name="new_php_version">
                                     {{range .AvailablePHPVersions}}
                                         <option value="{{.}}" {{if eq . $.CurrentPHPVersion}}selected disabled{{end}}>{{.}}</option>
                                     {{end}}
@@ -72,18 +74,18 @@
                         {{end}}
                     </div>
 
-                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
-                        <div class="mb-2 flex items-center justify-between gap-4 relative">
-                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "Database:"}}</h2>
+                    <div class="op-wp-stat">
+                        <div class="op-card-head">
+                            <div class="op-hide"></div>
+                            <h2 class="op-muted">{{.T.Get "Database:"}}</h2>
                         </div>
                         <h3 class="inline-block text-sm font-medium text-gray-500 dark:text-gray-500">{{.T.Get "None needed"}}</h3>
                     </div>
 
-                    <div class="flex flex-col flex-grow justify-center rounded px-4 py-2 bg-gray-50/40 ring-1 ring-inset ring-gray-200 dark:bg-gray-900/50 dark:ring-gray-800">
-                        <div class="mb-2 flex items-center justify-between gap-4 relative">
-                            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-                            <h2 class="text-gray-600 dark:text-gray-400">{{.T.Get "Created:"}}</h2>
+                    <div class="op-wp-stat">
+                        <div class="op-card-head">
+                            <div class="op-hide"></div>
+                            <h2 class="op-muted">{{.T.Get "Created:"}}</h2>
                         </div>
                         <h3 class="inline-block text-xl font-bold tracking-tight text-transparent dark:from-blue-700 dark:to-blue-400 lg:text-2xl" data-relative-date="{{.Container.CreatedDate}}">{{.Container.CreatedDate}}</h3>
                     </div>
@@ -95,14 +97,14 @@
 
                 <!-- files info -->
                 {{template "cms_block_12" .}}
-                <div class="flex flex-col justify-top overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
-                    <div class="mb-2 flex items-center justify-between gap-4 relative">
-                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-                        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Login"}}</h2>
+                <div class="op-card">
+                    <div class="op-card-head">
+                        <div class="op-hide"></div>
+                        <h2 class="op-strong">{{.T.Get "Login"}}</h2>
                     </div>
                     <div class="grid grid-cols-1 gap-2">
                         <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "The admin account was created during install (see the install confirmation for the generated password). Log in from the wiki's own doku.php?do=login page."}}</p>
-                        <a href="http://{{.CurrentDomain}}" target="_blank" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 w-fit">
+                        <a href="http://{{.CurrentDomain}}" target="_blank" class="op-btn op-btn-primary">
                             {{.T.Get "Open site"}}
                         </a>
                     </div>
@@ -112,21 +114,21 @@
             </dl>
         </div>
 
-        <div class="hidden p-4 rounded" id="update" role="tabpanel" aria-labelledby="update-tab">
-            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+        <div class="hidden op-wp-panel" id="update" role="tabpanel" aria-labelledby="update-tab">
+            <div class="op-section">
                 <div>
-                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Version"}}</h2>
-                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Check whether a newer DokuWiki release is available and update in place."}}</p>
+                    <h2 class="op-h">{{.T.Get "Version"}}</h2>
+                    <p class="op-meta">{{.T.Get "Check whether a newer DokuWiki release is available and update in place."}}</p>
                 </div>
-                <div class="sm:max-w-3xl md:col-span-2">
+                <div class="op-section-body">
                     <div class="grid grid-cols-1 gap-2">
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Installed version:"}}</span>
+                        <div class="op-setting-row">
+                            <span class="op-setting-label">{{.T.Get "Installed version:"}}</span>
                             <span class="font-medium" id="dokuwiki-installed-version">{{if .Version}}{{.Version}}{{else}}{{.T.Get "Unknown"}}{{end}}</span>
                         </div>
                     </div>
                     <p class="mt-3 text-sm/6" id="dokuwiki-update-status"></p>
-                    <button type="button" id="dokuwiki-update-btn" class="relative items-center justify-center inline-flex rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 w-100">{{.T.Get "Check for updates & update"}}</button>
+                    <button type="button" id="dokuwiki-update-btn" class="op-btn op-btn-primary">{{.T.Get "Check for updates & update"}}</button>
                     <p id="dokuwiki-update-hint" class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "A backup is recommended before updating - see the Backups tab. conf/, data/ and lib/plugins/ are always preserved."}}</p>
                     <pre id="dokuwiki-update-log" class="hidden mt-3 max-h-64 overflow-y-auto rounded-lg bg-gray-50 p-3 text-xs text-gray-600 dark:bg-gray-800/50 dark:text-gray-400 whitespace-pre-wrap"></pre>
                 </div>
@@ -199,9 +201,9 @@
             </script>
         </div>
 
-        <div class="hidden p-4 rounded" id="clone" role="tabpanel" aria-labelledby="clone-tab">
+        <div class="hidden op-wp-panel" id="clone" role="tabpanel" aria-labelledby="clone-tab">
 
-            <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Clone a DokuWiki instance's files to another domain or subdirectory."}}</p>
+            <p class="op-meta">{{.T.Get "Clone a DokuWiki instance's files to another domain or subdirectory."}}</p>
 
             <form id="dokuwiki-CloneForm">
                 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
@@ -209,40 +211,40 @@
                 <input type="hidden" name="source_folder" value="{{.Docroot}}">
                 <input type="hidden" name="version" value="{{.Version}}">
 
-                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+                <div class="op-sep"><div class="op-divider"></div></div>
 
                 {{template "cms_block_17" .}}
                 {{template "cms_block_19" .}}
             {{template "cms_script_4" .}}
 {{template "cms_block_21" .}}
-        <div class="hidden p-4 rounded" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+        <div class="hidden op-wp-panel" id="backups" role="tabpanel" aria-labelledby="backups-tab">
 
             {{template "cms_block_15" .}}
             {{template "cms_block_16" .}}
             {{template "cms_script_3" .}}
         </div>
 
-        <div class="hidden p-4 rounded" id="remove" role="tabpanel" aria-labelledby="remove-tab">
-            <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
+        <div class="hidden op-wp-panel" id="remove" role="tabpanel" aria-labelledby="remove-tab">
+            <div x-data="{ open: false }" class="op-section">
                 <div>
-                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Detach"}}</h2>
-                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Remove the DokuWiki wiki from Site Manager."}}</p>
+                    <h2 class="op-h">{{.T.Get "Detach"}}</h2>
+                    <p class="op-meta">{{.T.Get "Remove the DokuWiki wiki from Site Manager."}}</p>
                 </div>
-                <div class="sm:max-w-3xl md:col-span-2">
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                <div class="op-section-body">
+                    <div class="op-form-grid">
                         <div class="col-span-full">
-                            <div class="relative w-full mt-2 space-y-2">
-                                <button x-show="!open" @click="open = true" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                            <div class="op-field-ctl op-stack-sm">
+                                <button x-show="!open" @click="open = true" type="button" class="op-btn op-btn-primary">
                                     <i class="bi bi-x mr-2"></i> {{.T.Get "Detach DokuWiki"}}
                                 </button>
                                 <div x-show="open">
                                     <p class="text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Remove the DokuWiki wiki from this manager without actually deleting any files."}}</p>
-                                    <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "All website data such as files remains. Use Scan on Site Manager to re-add it later."}}</p>
+                                    <p class="op-meta">{{.T.Get "All website data such as files remains. Use Scan on Site Manager to re-add it later."}}</p>
                                     <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:space-x-2 my-6">
-                                        <button onclick="confirmDetachDokuwiki()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 w-100" type="button">
+                                        <button onclick="confirmDetachDokuwiki()" class="op-btn op-btn-danger" type="button">
                                         {{.T.Get "Confirm Detach"}}
                                         </button>
-                                        <button @click="open = false" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100" type="button">
+                                        <button @click="open = false" class="op-btn op-btn-secondary" type="button">
                                         {{.T.Get "Cancel"}}
                                         </button>
                                     </div>
@@ -253,28 +255,28 @@
                 </div>
             </div>
 
-            <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div class="whitespace-nowrap text-inherit">{{.T.Get "or"}}</div><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div></div></div>
+            <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="op-divider"></div><div class="whitespace-nowrap text-inherit">{{.T.Get "or"}}</div><div class="op-divider"></div><div></div></div>
 
-            <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
+            <div x-data="{ open: false }" class="op-section">
                 <div>
-                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Delete"}}</h2>
-                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Permanently removes this DokuWiki wiki."}}</p>
+                    <h2 class="op-h">{{.T.Get "Delete"}}</h2>
+                    <p class="op-meta">{{.T.Get "Permanently removes this DokuWiki wiki."}}</p>
                 </div>
-                <div class="sm:max-w-3xl md:col-span-2">
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                <div class="op-section-body">
+                    <div class="op-form-grid">
                         <div class="col-span-full">
-                            <div class="relative w-full mt-2 space-y-2">
-                                <button x-show="!open" @click="open = true" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                            <div class="op-field-ctl op-stack-sm">
+                                <button x-show="!open" @click="open = true" type="button" class="op-btn op-btn-primary">
                                     <i class="bi bi-trash3 mr-2"></i> {{.T.Get "Delete Application"}}
                                 </button>
                                 <div x-show="open">
                                     <p class="text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "This will delete every file in the docroot and remove it from Site Manager."}}</p>
                                     <p class="my-2 text-sm/6 text-red-500 dark:text-red-400">{{.T.Get "This cannot be undone."}}</p>
                                     <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:space-x-2 my-6">
-                                        <button onclick="confirmRemoveDokuwiki()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 w-100" type="button">
+                                        <button onclick="confirmRemoveDokuwiki()" class="op-btn op-btn-danger" type="button">
                                         {{.T.Get "Confirm delete"}}
                                         </button>
-                                        <button @click="open = false" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100" type="button">
+                                        <button @click="open = false" class="op-btn op-btn-secondary" type="button">
                                         {{.T.Get "Cancel"}}
                                         </button>
                                     </div>
@@ -292,7 +294,7 @@
 
     </div>
 
-    <div class="flex flex-col space-y-4 rounded xl:col-span-1">
+    <div class="op-wp-side">
 
         {{template "pagespeed_panel" .}}
 

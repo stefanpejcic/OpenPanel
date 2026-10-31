@@ -1,17 +1,12 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 {{define "flowbite_js"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/docker/container_form.html -->
 
-{{$in := "relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"}}
-{{$sel := "w-full cursor-pointer truncate rounded border py-2 pl-3 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"}}
-{{$label := "flex justify-between mb-2 text-sm font-medium text-gray-900 dark:text-gray-50"}}
-{{$step := "inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50"}}
-{{$card := "rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4"}}
-{{$ghost := "relative inline-flex items-center justify-center gap-x-1.5 whitespace-nowrap rounded border px-3 py-1.5 text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900"}}
-
-<div x-data="containerForm({
+<div class="op-content" x-data="containerForm({
         editing: {{.Editing}},
         name: {{toJSON .ServiceName}},
         image: {{toJSON .Image}},
@@ -24,300 +19,239 @@
         healthcheck: {{toJSON .Healthcheck}},
         domain: {{toJSON .Domain}},
         port: {{toJSON .Port}},
+        socket: {{.AddSocket}},
         existing: {{if .ExistingServicesJSON}}{{.ExistingServicesJSON}}{{else}}[]{{end}},
         availableVolumes: {{toJSON .AvailableVolumes}}
     })">
-<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
-    <header class="flex items-center justify-between gap-4">
-        <div>
-            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{if .Editing}}{{.Title}}{{else}}{{.T.Get "Add a container"}}{{end}}</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-500" x-show="phase === 'form'">{{if .Editing}}{{.T.Get "Change the image, limits, networks and storage of this service. Saving restarts it with the new settings."}}{{else}}{{.T.Get "Run any Docker image next to your websites, for example a Redis cache, a queue worker or your own app."}}{{end}}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-500" x-show="phase !== 'form'" x-cloak>
-                <span x-show="phase === 'running'">{{.T.Get "Creating container"}}</span>
-                <span x-show="phase === 'done'">{{.T.Get "Container created"}}</span>
-                <span x-show="phase === 'error'">{{.T.Get "Could not create container"}}</span>
-                <span class="font-mono text-blue-500" x-text="name"></span>
-            </p>
-        </div>
-        <div x-show="phase !== 'form'" x-cloak class="relative shrink-0" style="width:3rem;height:3rem">
-            <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#e5e7eb" stroke-width="10" class="dark:stroke-gray-700"/><circle cx="50" cy="50" r="42" fill="none" stroke="url(#ctRingGrad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="263.9" :stroke-dashoffset="263.9 - 263.9 * progress() / 100" style="transition: stroke-dashoffset 0.6s ease"/><defs><linearGradient id="ctRingGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#10b981"/></linearGradient></defs></svg>
-            <div class="absolute inset-0 flex items-center justify-center"><span class="text-xs font-bold text-gray-900 dark:text-gray-50" x-text="progress() + '%'"></span></div>
-        </div>
-    </header>
+<div class="op-page-head">
+    <div>
+        <div class="op-eyebrow"><a href="/containers" style="color:var(--color-accent-text)">{{.T.Get "Containers"}}</a></div>
+        <h1 class="op-title">{{if .Editing}}{{.Title}}{{else}}{{.T.Get "Add a container"}}{{end}}</h1>
+        <p class="op-meta" x-show="phase === 'form'">{{if .Editing}}{{.T.Get "Change the image, limits, networks and storage of this service. Saving restarts it with the new settings."}}{{else}}{{.T.Get "Run any Docker image next to your websites, for example a Redis cache, a queue worker or your own app."}}{{end}}</p>
+        <p class="op-meta" x-show="phase !== 'form'" x-cloak>
+            <span x-show="phase === 'running'">{{.T.Get "Creating container"}}</span>
+            <span x-show="phase === 'done'">{{.T.Get "Container created"}}</span>
+            <span x-show="phase === 'error'">{{.T.Get "Could not create container"}}</span>
+            <b class="op-mono" style="color:var(--color-accent-text)" x-text="name"></b>
+        </p>
+    </div>
+    <div class="op-actions" x-show="phase === 'form'">
+        <a href="/containers" class="op-btn op-btn-secondary">{{.T.Get "Cancel"}}</a>
+        <button type="submit" form="container-form" :disabled="!canSubmit()" class="op-btn op-btn-primary">{{template "op_icon" "box"}} {{if .Editing}}{{.T.Get "Save changes"}}{{else}}{{.T.Get "Create container"}}{{end}}</button>
+    </div>
 </div>
 
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6" x-show="phase === 'form'">
-    <form class="space-y-3" method="POST" @submit="onSubmit($event)">
+<section class="op-card" x-show="phase !== 'form'" x-cloak aria-label="{{.T.Get "Progress"}}">
+    <div class="op-card-head">
+        <div><h2 x-text="phase === 'done' ? {{toJSON (.T.Get "Container created")}} : (phase === 'error' ? {{toJSON (.T.Get "Could not create container")}} : {{toJSON (.T.Get "Creating container")}})"></h2><p class="op-meta op-mono" x-text="image"></p></div>
+        <span class="op-count" style="font-size:14px" x-text="progress() + '%'"></span>
+    </div>
+    <div class="op-progress" style="margin-bottom:16px"><span :style="{ width: progress() + '%' }"></span></div>
+    <ol class="op-col" style="gap:8px;margin:0;padding:0;list-style:none">
+        <template x-for="(st, i) in steps" :key="st.id">
+            <li class="op-step" :class="{ 'is-done': st.state === 'done', 'is-error': st.state === 'error' }">
+                <span class="op-step-mark"><template x-if="st.state === 'done'"><span style="display:contents">{{template "op_icon" "check"}}</span></template><template x-if="st.state === 'error'"><span style="display:contents">{{template "op_icon" "x"}}</span></template><template x-if="st.state !== 'done' &amp;&amp; st.state !== 'error'"><span x-text="i + 1"></span></template></span>
+                <div><b x-text="st.label"></b><p x-show="st.state === 'active'" style="margin:0">{{.T.Get "Working on it…"}}</p></div>
+            </li>
+        </template>
+    </ol>
+    <div x-show="errorText" x-cloak class="op-alert is-danger" style="margin-top:16px">{{template "op_icon" "alert"}}<span class="op-mono" style="white-space:pre-line;overflow-wrap:anywhere" x-text="errorText"></span></div>
+    <div class="op-form-foot" x-show="phase === 'error'" x-cloak>
+        <a x-show="saved" href="/containers" class="op-btn op-btn-secondary">{{.T.Get "Go to containers"}}</a>
+        <button x-show="!saved" type="button" @click="phase = 'form'" class="op-btn op-btn-primary">{{.T.Get "Back to the form"}}</button>
+    </div>
+    <div class="op-form-foot" x-show="phase === 'done'" x-cloak>
+        <a class="op-btn op-btn-secondary" href="/containers/new">{{.T.Get "Add another"}}</a>
+        <a class="op-btn op-btn-primary" href="/containers">{{.T.Get "Go to containers"}}</a>
+    </div>
+</section>
+
+<div class="op-ct-form-grid" x-show="phase === 'form'">
+<section class="op-card" aria-label="{{.T.Get "Container settings"}}">
+    <form id="container-form" method="POST" @submit="onSubmit($event)">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
         {{if .Error}}
-        <div class="flex items-start gap-3 rounded border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-900 dark:text-red-300">
-            <i class="bi bi-exclamation-circle-fill mt-0.5"></i>
-            <p>{{.T.Get .Error}}</p>
-        </div>
+        <div class="op-alert is-danger" style="margin-bottom:18px">{{template "op_icon" "alert"}}<span>{{.T.Get .Error}}</span></div>
         {{end}}
 
         <!-- 1: image and name -->
-        <div class="{{$card}}">
-            <div class="flex items-center gap-2.5 mb-3">
-                <div class="{{$step}}">1</div>
-                <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Image and name"}}</span>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="{{$label}}" for="image">
-                        <span>{{.T.Get "Docker image"}}<span class="text-red-500">*</span></span>
+        <div class="op-section">
+            <div><h3 class="op-ct-step"><span class="op-ct-num">1</span>{{.T.Get "Image and name"}}</h3><p>{{.T.Get "Image from Docker Hub, or a full address like ghcr.io/owner/app:1.0. Add a tag to pin the version."}}</p></div>
+            <div class="op-col" style="gap:14px;min-width:0">
+                <div class="op-ct-2col">
+                    <label class="op-field" for="image"><span class="op-label">{{.T.Get "Docker image"}} <span style="color:var(--color-danger)">*</span></span>
+                        <input type="text" id="image" name="image" x-model.trim="image" @input="suggestName()" required autocomplete="off" spellcheck="false" list="popular-images" placeholder="redis:7-alpine" class="op-input op-mono">
                     </label>
-                    <input type="text" id="image" name="image" x-model.trim="image" @input="suggestName()" required autocomplete="off" spellcheck="false"
-                           list="popular-images" placeholder="redis:7-alpine" class="{{$in}} font-mono">
-                    <datalist id="popular-images">
-                        <option value="redis:alpine"></option>
-                        <option value="valkey/valkey:alpine"></option>
-                        <option value="memcached:alpine"></option>
-                        <option value="rabbitmq:3-management-alpine"></option>
-                        <option value="minio/minio:latest"></option>
-                        <option value="adminer:latest"></option>
-                        <option value="mailpit/mailpit:latest"></option>
-                        <option value="node:lts-alpine"></option>
-                        <option value="python:3-alpine"></option>
-                        <option value="nginx:alpine"></option>
-                    </datalist>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Image from Docker Hub, or a full address like ghcr.io/owner/app:1.0. Add a tag to pin the version."}}</p>
-                </div>
-                <div>
-                    <label class="{{$label}}" for="service_name">
-                        <span>{{.T.Get "Name"}}<span class="text-red-500">*</span></span>
+                    <label class="op-field" for="service_name"><span class="op-label">{{.T.Get "Name"}} <span style="color:var(--color-danger)">*</span></span>
+                        <input type="text" id="service_name" name="service_name" x-model="name" @input="name = name.toLowerCase().replace(/[^a-z0-9]/g, ''); nameTouched = true"
+                               {{if .Editing}}readonly{{end}} required pattern="[a-z][a-z0-9]{2,}" autocomplete="off" spellcheck="false" placeholder="redis" class="op-input op-mono">
+                        <span class="op-hint" :style="nameError ? { color: 'var(--color-danger)' } : {}" x-text="nameError || {{toJSON (.T.Get "Other services reach this container by its name, for example")}} + ' ' + (name || 'redis') + ':6379.'"></span>
                     </label>
-                    <input type="text" id="service_name" name="service_name" x-model="name" @input="name = name.toLowerCase().replace(/[^a-z0-9]/g, ''); nameTouched = true"
-                           {{if .Editing}}readonly{{end}} required pattern="[a-z][a-z0-9]{2,}" autocomplete="off" spellcheck="false"
-                           class="{{$in}} font-mono {{if .Editing}}opacity-50{{end}}">
-                    <p class="mt-1 text-xs" :class="nameError ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'"
-                       x-text="nameError || {{toJSON (.T.Get "Other services reach this container by its name, for example redis:6379.")}}"></p>
                 </div>
+                <datalist id="popular-images">
+                    <template x-for="img in popular" :key="img"><option :value="img"></option></template>
+                </datalist>
+                {{if not .Editing}}
+                <div x-show="!new URLSearchParams(location.search).has('template')"><span class="op-label" style="display:block;margin-bottom:8px">{{.T.Get "Popular images"}}</span>
+                    <div class="op-chips" style="gap:6px"><template x-for="img in popular" :key="img"><button class="op-chip op-mono" type="button" style="font-size:12px" @click="image = img; suggestName()" :aria-pressed="(image === img).toString()" x-text="img"></button></template></div>
+                </div>
+                {{end}}
             </div>
         </div>
 
         <!-- 2: resources -->
-        <div class="{{$card}}">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-                <div class="flex items-center gap-2.5">
-                    <div class="{{$step}}">2</div>
-                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Resources"}}</span>
+        <div class="op-section">
+            <div><h3 class="op-ct-step"><span class="op-ct-num">2</span>{{.T.Get "Resources"}}</h3><p>{{.T.Get "Limits for this container only, it can't use more than your plan allows."}}</p></div>
+            <div class="op-col" style="gap:14px;min-width:0">
+                <div class="op-segmented" role="group" aria-label="{{.T.Get "Size presets"}}" style="align-self:flex-start">
+                    <template x-for="p in presets" :key="p.name"><button type="button" :aria-pressed="isPreset(p).toString()" @click="applyPreset(p)" x-text="p.label"></button></template>
+                    <button type="button" :aria-pressed="(!presets.some(p => isPreset(p))).toString()" disabled style="cursor:default">{{.T.Get "Custom"}}</button>
                 </div>
-                <div class="inline-flex items-center rounded-md text-xs font-medium shadow-sm">
-                    <template x-for="(p, i) in presets" :key="p.name">
-                        <button type="button" @click="applyPreset(p)" x-text="p.label"
-                                :class="(i > 0 ? '-ml-px ' : '') + (isPreset(p) ? 'border-black bg-black text-white dark:bg-gray-50 dark:text-gray-900' : 'border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 hover:dark:bg-gray-950/50')"
-                                :style="(i === 0 ? 'border-radius:6px 0 0 6px;' : i === presets.length - 1 ? 'border-radius:0 6px 6px 0;' : '') + (isPreset(p) ? 'z-index:1;' : '')"
-                                class="relative border px-2.5 py-1 focus:outline-none"></button>
-                    </template>
+                <div class="op-ct-3col">
+                    <label class="op-field" for="cpu"><span class="op-label">{{.T.Get "CPU cores"}} <span style="color:var(--color-danger)">*</span></span><span class="op-unit"><input type="number" id="cpu" name="cpu" x-model="cpu" min="0.05" step="0.05" required class="op-input op-mono"><em>{{.T.Get "cores"}}</em></span></label>
+                    <label class="op-field" for="ram_amount"><span class="op-label">{{.T.Get "Memory"}} <span style="color:var(--color-danger)">*</span></span><span class="op-unit"><input type="number" id="ram_amount" x-model="ramAmount" min="0.05" step="0.05" required class="op-input op-mono"><em>GB</em></span></label>
+                    <label class="op-field" for="pids"><span class="op-label">{{.T.Get "Max processes"}} <span style="color:var(--color-danger)">*</span></span><input type="number" id="pids" name="pids" x-model="pids" min="1" step="1" required class="op-input op-mono"></label>
                 </div>
+                <input type="hidden" name="ram" :value="ramAmount + 'G'">
             </div>
-            <div class="grid sm:grid-cols-3 gap-4">
-                <div>
-                    <label class="{{$label}}" for="cpu"><span>{{.T.Get "CPU cores"}}<span class="text-red-500">*</span></span></label>
-                    <input type="number" id="cpu" name="cpu" x-model="cpu" min="0.05" step="0.05" required class="{{$in}}">
-                </div>
-                <div>
-                    <label class="{{$label}}" for="ram_amount"><span>{{.T.Get "Memory"}}<span class="text-red-500">*</span></span></label>
-                    <div class="flex">
-                        <input type="number" id="ram_amount" x-model="ramAmount" min="0.05" step="0.05" required class="{{$in}}" style="border-top-right-radius:0;border-bottom-right-radius:0;">
-                        <span class="inline-flex items-center rounded-r border py-2 px-3 text-sm bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-800 text-gray-500 dark:text-gray-400" style="border-left-width:0">GB</span>
-                    </div>
-                    <input type="hidden" name="ram" :value="ramAmount + 'G'">
-                </div>
-                <div>
-                    <label class="{{$label}}" for="pids"><span>{{.T.Get "Max processes"}}<span class="text-red-500">*</span></span></label>
-                    <input type="number" id="pids" name="pids" x-model="pids" min="1" step="1" required class="{{$in}}">
-                </div>
-            </div>
-            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Limits for this container only, it can't use more than your plan allows."}}</p>
         </div>
 
         <!-- 3: networks -->
-        <div class="{{$card}}">
-            <div class="flex items-center gap-2.5 mb-3">
-                <div class="{{$step}}">3</div>
-                <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Networks"}}</span>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {{range .AvailableNetworks}}
-                <label class="flex cursor-pointer items-center gap-3 rounded border p-3 text-sm"
-                       :class="networks.includes({{toJSON .}}) ? 'border-indigo-500 shadow-md' : 'border-gray-200 dark:border-gray-700'">
-                    <input type="checkbox" name="network" value="{{.}}" x-model="networks">
-                    <span class="font-mono text-gray-900 dark:text-gray-50">{{.}}</span>
-                </label>
+        <div class="op-section">
+            <div><h3 class="op-ct-step"><span class="op-ct-num">3</span>{{.T.Get "Networks"}}</h3><p>{{.T.Get "The container can talk to every service on the networks you choose."}}</p></div>
+            <div class="op-col" style="gap:14px;min-width:0">
+                {{if .AvailableNetworks}}
+                <div class="op-options" style="--cols:2">
+                    {{range .AvailableNetworks}}
+                    <label class="op-option" style="align-items:center"><input type="checkbox" name="network" value="{{.}}" x-model="networks"><div><b class="op-mono">{{.}}</b></div></label>
+                    {{end}}
+                </div>
                 {{else}}
-                <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No networks are defined for your account."}}</p>
+                <div class="op-empty" style="padding:18px"><b style="font-size:14px">{{.T.Get "No networks are defined for your account."}}</b></div>
                 {{end}}
+                <span class="op-hint" :style="!networks.length ? { color: 'var(--color-danger)' } : {}" x-text="networks.length ? (domain &amp;&amp; !networks.includes('www') ? {{toJSON (.T.Get "www is added too, the web server reaches the container over it.")}} : {{toJSON (.T.Get "Pick every network whose services this container needs.")}}) : {{toJSON (.T.Get "Choose at least one network.")}}"></span>
             </div>
-            <p class="mt-2 text-xs" :class="networks.length ? 'text-gray-500 dark:text-gray-400' : 'text-red-600 dark:text-red-400'"
-               x-text="networks.length ? {{toJSON (.T.Get "The container can talk to every service on the networks you choose.")}} : {{toJSON (.T.Get "Choose at least one network.")}}"></p>
         </div>
 
         <!-- 4: storage -->
-        <div class="{{$card}}">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-                <div class="flex items-center gap-2.5">
-                    <div class="{{$step}}">4</div>
-                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Storage"}}</span>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "optional"}}</span>
-                </div>
-                <button type="button" @click="addVolume()" class="{{$ghost}}"><i class="bi bi-plus-lg"></i> {{.T.Get "Add volume"}}</button>
-            </div>
-
-            <template x-for="(v, i) in volumes" :key="v.id">
-                <div class="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <select x-show="!v.isNew" :name="v.isNew ? '' : 'volume_name'" x-model="v.Name" @change="if (v.Name === '__new__') { v.isNew = true; v.Name = ''; $nextTick(() => $el.nextElementSibling.querySelector('input').focus()); }" class="{{$sel}} sm:w-64">
-                        <template x-for="name in availableVolumes" :key="name">
-                            <option :value="name" :selected="name === v.Name" x-text="name"></option>
-                        </template>
-                        <option value="__new__">{{.T.Get "+ New volume"}}</option>
-                    </select>
-                    <div x-show="v.isNew" x-cloak class="flex shrink-0 items-center gap-1 sm:w-64">
-                        <input type="text" :name="v.isNew ? 'volume_name' : ''" x-model.trim="v.Name" :required="v.isNew" :pattern="v.isNew ? '[a-z][a-z0-9_]{2,63}' : null" placeholder="app_data" spellcheck="false" autocomplete="off"
-                               title="{{.T.Get "3 to 64 lowercase letters, digits or _, starting with a letter"}}" class="{{$in}} font-mono">
-                        <button type="button" x-show="availableVolumes.length" @click="v.isNew = false; v.Name = availableVolumes[0]" class="shrink-0 rounded p-1.5 text-gray-400 hover:text-gray-700" title="{{.T.Get "Use an existing volume"}}"><i class="bi bi-list-ul"></i></button>
+        <div class="op-section">
+            <div><h3 class="op-ct-step"><span class="op-ct-num">4</span>{{.T.Get "Storage"}} <span class="op-hint" style="font-weight:400;white-space:nowrap">{{.T.Get "optional"}}</span></h3><p>{{.T.Get "New volumes are created when you save, and keep their data if the container is deleted."}}</p></div>
+            <div class="op-col" style="gap:14px;min-width:0">
+                <template x-for="(v, i) in volumes" :key="v.id">
+                    <div class="op-ct-vol">
+                        <div class="op-col" style="flex:1 1 150px;min-width:0;gap:4px">
+                            <select x-show="!v.isNew" :name="v.isNew ? '' : 'volume_name'" @change="if ($event.target.value === '__new__') { v.isNew = true; v.Name = ''; $nextTick(() => $el.parentElement.querySelector('input').focus()); } else { v.Name = $event.target.value }" class="op-select" aria-label="{{.T.Get "Volume"}}">
+                                <optgroup label="{{.T.Get "Your volumes"}}">
+                                    <template x-for="vn in availableVolumes" :key="vn"><option :value="vn" :selected="vn === v.Name" x-text="vn"></option></template>
+                                </optgroup>
+                                <option value="__new__">{{.T.Get "+ New volume"}}</option>
+                            </select>
+                            <div x-show="v.isNew" x-cloak style="display:flex;gap:6px">
+                                <input type="text" :name="v.isNew ? 'volume_name' : ''" x-model.trim="v.Name" :required="v.isNew" :pattern="v.isNew ? '[a-z][a-z0-9_]{2,63}' : null" placeholder="app_data" spellcheck="false" autocomplete="off"
+                                       title="{{.T.Get "3 to 64 lowercase letters, digits or _, starting with a letter"}}" aria-label="{{.T.Get "New volume name"}}" class="op-input op-mono">
+                                <button type="button" x-show="availableVolumes.length" @click="v.isNew = false; v.Name = availableVolumes[0]" class="op-icon-btn" title="{{.T.Get "Use an existing volume"}}" aria-label="{{.T.Get "Use an existing volume"}}">{{template "op_icon" "menu"}}</button>
+                            </div>
+                        </div>
+                        <input type="text" name="volume_mount" x-model.trim="v.Mount" required placeholder="/data" spellcheck="false" aria-label="{{.T.Get "Mount path"}}" class="op-input op-mono" style="flex:1 1 120px;min-width:0">
+                        <input type="hidden" name="volume_readonly" :value="v.ReadOnly ? 'on' : 'off'">
+                        <label class="op-ct-ro"><button class="op-switch" type="button" role="switch" :aria-checked="(!!v.ReadOnly).toString()" @click="v.ReadOnly = !v.ReadOnly" aria-label="{{.T.Get "Read-only"}}"></button>{{.T.Get "Read-only"}}</label>
+                        <button type="button" @click="volumes.splice(i, 1)" class="op-icon-btn" style="height:36px" title="{{.T.Get "Remove"}}" aria-label="{{.T.Get "Remove volume"}}">{{template "op_icon" "trash"}}</button>
                     </div>
-                    <input type="text" name="volume_mount" x-model.trim="v.Mount" required placeholder="/data" spellcheck="false" class="{{$in}} font-mono">
-                    <input type="hidden" name="volume_readonly" :value="v.ReadOnly ? 'on' : 'off'">
-                    <label class="flex shrink-0 cursor-pointer items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300">
-                        <input type="checkbox" x-model="v.ReadOnly"> {{.T.Get "Read-only"}}
-                    </label>
-                    <button type="button" @click="volumes.splice(i, 1)" class="shrink-0 rounded p-1.5 text-gray-400 hover:text-gray-700" title="{{.T.Get "Remove"}}"><i class="bi bi-trash3"></i></button>
-                </div>
-            </template>
-            <p x-show="!volumes.length" class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No volumes, data written by the container is lost when it's recreated."}}</p>
-            <p x-show="volumes.some(v => v.isNew)" x-cloak class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "New volumes are created when you save, and keep their data if the container is deleted."}}</p>
-
-            <label class="mt-3 flex cursor-pointer items-start gap-3 rounded border border-gray-200 dark:border-gray-700 p-3 text-sm">
-                <input type="checkbox" name="add_socket" class="mt-0.5" {{if .AddSocket}}checked{{end}}>
-                <span>
-                    <span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Give access to the Docker socket"}}</span>
-                    <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Only for tools that manage containers, like Portainer or Watchtower. The container can then control all your other containers."}}</span>
-                </span>
-            </label>
+                </template>
+                <div class="op-empty" x-show="!volumes.length" style="padding:18px"><b style="font-size:14px">{{.T.Get "No volumes"}}</b><span class="op-hint">{{.T.Get "Data written by the container is lost when it's recreated."}}</span></div>
+                <div><button type="button" @click="addVolume()" class="op-btn op-btn-secondary op-btn-sm">{{template "op_icon" "plus"}} {{.T.Get "Add volume"}}</button></div>
+                <input type="checkbox" name="add_socket" x-model="socket" hidden>
+                <div class="op-check-row" style="align-items:center"><span style="color:var(--color-warning);display:flex">{{template "op_icon" "alert"}}</span><span><b>{{.T.Get "Give access to the Docker socket"}}</b><p>{{.T.Get "Only for tools that manage containers, like Portainer or Watchtower. The container can then control all your other containers."}}</p></span><button class="op-switch" type="button" role="switch" :aria-checked="socket.toString()" @click="socket = !socket" aria-label="{{.T.Get "Docker socket"}}"></button></div>
+            </div>
         </div>
 
         <!-- 5: environment -->
-        <div class="{{$card}}">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-                <div class="flex items-center gap-2.5">
-                    <div class="{{$step}}">5</div>
-                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Environment variables"}}</span>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "optional"}}</span>
+        <div class="op-section">
+            <div><h3 class="op-ct-step"><span class="op-ct-num">5</span>{{.T.Get "Environment variables"}} <span class="op-hint" style="font-weight:400;white-space:nowrap">{{.T.Get "optional"}}</span></h3><p>{{.T.Get "Stored in your .env file, the compose file only points to them."}}</p></div>
+            <div class="op-col" style="gap:14px;min-width:0">
+                <div x-show="!bulk" class="op-col" style="gap:8px">
+                    <template x-for="(e, i) in envRows" :key="e.id">
+                        <div style="display:flex;flex-wrap:wrap;gap:8px">
+                            <input type="text" x-model.trim="e.key" placeholder="KEY" spellcheck="false" aria-label="{{.T.Get "Variable name"}}" class="op-input op-mono" style="flex:1 1 140px;min-width:0">
+                            <input type="text" x-model="e.value" placeholder="{{.T.Get "value"}}" spellcheck="false" aria-label="{{.T.Get "Value"}}" class="op-input op-mono" style="flex:2 1 200px;min-width:0">
+                            <button type="button" @click="envRows.splice(i, 1)" class="op-icon-btn" style="height:36px" title="{{.T.Get "Remove"}}" aria-label="{{.T.Get "Remove variable"}}">{{template "op_icon" "trash"}}</button>
+                        </div>
+                    </template>
+                    <div class="op-empty" x-show="!envRows.length" style="padding:18px"><b style="font-size:14px">{{.T.Get "No environment variables"}}</b></div>
                 </div>
-                <div class="flex gap-2">
-                    <button type="button" @click="toggleBulk()" class="{{$ghost}}" x-text="bulk ? {{toJSON (.T.Get "Use rows")}} : {{toJSON (.T.Get "Paste as text")}}"></button>
-                    <button type="button" x-show="!bulk" @click="envRows.push({ id: nextId++, key: '', value: '' })" class="{{$ghost}}"><i class="bi bi-plus-lg"></i> {{.T.Get "Add"}}</button>
+                <div x-show="bulk" x-cloak>
+                    <textarea x-model="bulkText" rows="6" spellcheck="false" placeholder="REDIS_PASSWORD: secret&#10;TZ: Europe/Belgrade" aria-label="{{.T.Get "Variables as text"}}" class="op-input op-mono" style="height:auto;padding-top:10px;resize:vertical"></textarea>
+                    <span class="op-hint" style="display:block;margin-top:6px">{{.T.Get "One variable per line, as KEY: value or KEY=value."}}</span>
                 </div>
+                <span class="op-hint" x-show="!editing &amp;&amp; envText().includes('{domain}')" x-cloak>{{.T.Get "{domain} is replaced with the domain chosen below, or localhost if none."}}</span>
+                <div class="op-actions">
+                    <button type="button" x-show="!bulk" @click="envRows.push({ id: nextId++, key: '', value: '' })" class="op-btn op-btn-secondary op-btn-sm">{{template "op_icon" "plus"}} {{.T.Get "Add"}}</button>
+                    <button type="button" @click="toggleBulk()" class="op-btn op-btn-ghost op-btn-sm" x-text="bulk ? {{toJSON (.T.Get "Use rows")}} : {{toJSON (.T.Get "Paste as text")}}"></button>
+                </div>
+                <textarea name="environment" hidden :value="envText()"></textarea>
             </div>
-
-            <div x-show="!bulk">
-                <template x-for="(e, i) in envRows" :key="e.id">
-                    <div class="mb-2 flex items-center gap-2">
-                        <input type="text" x-model.trim="e.key" placeholder="KEY" spellcheck="false" class="{{$in}} font-mono" style="max-width: 40%;">
-                        <input type="text" x-model="e.value" placeholder="{{.T.Get "value"}}" spellcheck="false" class="{{$in}} font-mono">
-                        <button type="button" @click="envRows.splice(i, 1)" class="shrink-0 rounded p-1.5 text-gray-400 hover:text-gray-700" title="{{.T.Get "Remove"}}"><i class="bi bi-trash3"></i></button>
-                    </div>
-                </template>
-                <p x-show="!envRows.length" class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No environment variables."}}</p>
-            </div>
-            <div x-show="bulk" x-cloak>
-                <textarea x-model="bulkText" rows="6" spellcheck="false" placeholder="REDIS_PASSWORD: secret&#10;TZ: Europe/Belgrade" class="{{$in}} font-mono"></textarea>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "One variable per line, as KEY: value or KEY=value."}}</p>
-            </div>
-            <div x-show="!editing && envText().includes('{domain}')" x-cloak>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "{domain} is replaced with the domain chosen below, or localhost if none."}}</p>
-            </div>
-            <textarea name="environment" class="hidden" :value="envText()"></textarea>
         </div>
 
         <!-- 6: domain -->
-        <div class="{{$card}}">
-            <div class="flex items-center gap-2.5 mb-3">
-                <div class="{{$step}}">6</div>
-                <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Domain"}}</span>
-                <span class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "optional"}}</span>
-            </div>
-            {{if .Editing}}
-            {{if .Domain}}
-            <p class="text-sm text-gray-900 dark:text-gray-50">
-                <a href="https://{{.Domain}}" target="_blank" rel="noopener" class="font-mono text-blue-600 hover:underline dark:text-blue-500">{{.Domain}}</a>
-                <span class="text-gray-500 dark:text-gray-400">&rarr; {{.ServiceName}}:{{.Port}}</span>
-            </p>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Deleting the container removes the proxy from the domain."}}</p>
-            {{else}}
-            <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "This container is not reachable from a domain. A domain can only be set when the container is created."}}</p>
-            {{end}}
-            {{else}}
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="sm:col-span-2">
-                    <label class="{{$label}}" for="domain"><span>{{.T.Get "Domain"}}</span></label>
-                    <select id="domain" name="domain" x-model="domain" class="{{$sel}}">
-                        <option value="">{{.T.Get "None, only reachable by other containers"}}</option>
-                        {{range .Domains}}<option value="{{.}}">{{.}}</option>{{end}}
-                    </select>
+        <div class="op-section">
+            <div><h3 class="op-ct-step"><span class="op-ct-num">6</span>{{.T.Get "Domain"}} <span class="op-hint" style="font-weight:400;white-space:nowrap">{{.T.Get "optional"}}</span></h3><p>{{.T.Get "Pick a domain to make the app reachable from outside, the web server will proxy it to this container."}}</p></div>
+            <div class="op-col" style="gap:14px;min-width:0">
+                {{if .Editing}}
+                {{if .Domain}}
+                <p style="margin:0;font-size:14px"><a href="https://{{.Domain}}" target="_blank" rel="noopener" class="op-mono" style="color:var(--color-accent-text)">{{.Domain}}</a> <span class="op-hint">&rarr; {{.ServiceName}}:{{.Port}}</span></p>
+                <span class="op-hint">{{.T.Get "Deleting the container removes the proxy from the domain."}}</span>
+                {{else}}
+                <div class="op-empty" style="padding:18px"><b style="font-size:14px">{{.T.Get "No domain"}}</b><span class="op-hint">{{.T.Get "This container is not reachable from a domain. A domain can only be set when the container is created."}}</span></div>
+                {{end}}
+                {{else}}
+                <div class="op-ct-domain">
+                    <label class="op-field" for="domain"><span class="op-label">{{.T.Get "Domain"}}</span>
+                        <select id="domain" name="domain" class="op-select" @change="domain = $event.target.value">
+                            <option value="" :selected="!domain">{{.T.Get "None, only reachable by other containers"}}</option>
+                            {{if .Domains}}<optgroup label="{{.T.Get "Your domains"}}">{{range .Domains}}<option value="{{.}}" :selected="domain === {{toJSON .}}">{{.}}</option>{{end}}</optgroup>{{end}}
+                        </select>
+                    </label>
+                    <label class="op-field" for="port" x-show="domain" x-cloak><span class="op-label">{{.T.Get "Container port"}} <span style="color:var(--color-danger)">*</span></span>
+                        <input type="number" id="port" name="port" x-model="port" min="1" max="65535" step="1" placeholder="80" :required="!!domain" class="op-input op-mono">
+                    </label>
                 </div>
-                <div x-show="domain" x-cloak>
-                    <label class="{{$label}}" for="port"><span>{{.T.Get "Container port"}}<span class="text-red-500">*</span></span></label>
-                    <input type="number" id="port" name="port" x-model="port" min="1" max="65535" step="1" placeholder="80" :required="!!domain" class="{{$in}}">
-                </div>
+                <div class="op-alert is-warning" x-show="domain" x-cloak>{{template "op_icon" "alert"}}<span>{{.T.Get "All requests to this domain go to the container on the port the app listens on, any website files on the domain stop being served. The container joins the www network."}}</span></div>
+                {{end}}
             </div>
-            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400" x-show="!domain">{{.T.Get "Pick a domain to make the app reachable from outside, the web server will proxy it to this container."}}</p>
-            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400" x-show="domain" x-cloak>{{.T.Get "All requests to this domain go to the container on the port the app listens on, any website files on the domain stop being served. The container joins the www network."}}</p>
-            {{end}}
         </div>
 
         <!-- 7: health check -->
-        <div class="{{$card}}" x-data="{ openHc: {{if .Healthcheck}}true{{else}}false{{end}} }">
-            <button type="button" @click="openHc = !openHc" class="flex w-full items-center justify-between gap-2">
-                <span class="flex items-center gap-2.5">
-                    <span class="{{$step}}">7</span>
-                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Health check"}}</span>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "optional"}}</span>
-                </span>
-                <i class="bi text-gray-400" :class="openHc ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-            </button>
-            <div x-show="openHc" x-cloak class="mt-3">
-                <textarea name="healthcheck" x-model="healthcheck" rows="6" spellcheck="false" class="{{$in}} font-mono"
-                          placeholder="test: [&#34;CMD&#34;, &#34;redis-cli&#34;, &#34;ping&#34;]&#10;interval: 30s&#10;timeout: 5s&#10;retries: 3"></textarea>
-                <div class="mt-1 flex items-center justify-between gap-2">
-                    <p class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "In docker compose healthcheck format. The Containers page shows the container as healthy or unhealthy."}}</p>
-                    <button type="button" x-show="!healthcheck" @click="healthcheck = exampleHealthcheck()" class="shrink-0 text-xs font-medium text-blue-600 hover:underline dark:text-blue-500">{{.T.Get "Insert example"}}</button>
+        <div class="op-section" x-data="{ openHc: {{if .Healthcheck}}true{{else}}false{{end}} }">
+            <div><h3 class="op-ct-step"><span class="op-ct-num">7</span>{{.T.Get "Health check"}} <span class="op-hint" style="font-weight:400;white-space:nowrap">{{.T.Get "optional"}}</span></h3><p>{{.T.Get "In docker compose healthcheck format. The Containers page shows the container as healthy or unhealthy."}}</p></div>
+            <div class="op-col" style="gap:14px;min-width:0">
+                <button type="button" class="op-btn op-btn-ghost op-btn-sm" style="align-self:flex-start" @click="openHc = !openHc" :aria-expanded="openHc.toString()"><span class="op-ct-chev" :class="openHc &amp;&amp; 'is-open'">{{template "op_icon" "chev"}}</span> <span x-text="openHc ? {{toJSON (.T.Get "Hide health check")}} : {{toJSON (.T.Get "Add a health check")}}"></span></button>
+                <div x-show="openHc" x-cloak class="op-col" style="gap:8px">
+                    <textarea name="healthcheck" x-model="healthcheck" rows="5" spellcheck="false" aria-label="{{.T.Get "Health check"}}" class="op-input op-mono" style="height:auto;padding-top:10px;resize:vertical"
+                              placeholder="test: [&#34;CMD&#34;, &#34;redis-cli&#34;, &#34;ping&#34;]&#10;interval: 30s&#10;timeout: 5s&#10;retries: 3"></textarea>
+                    <div><button type="button" x-show="!healthcheck" @click="healthcheck = exampleHealthcheck()" class="op-btn op-btn-secondary op-btn-sm">{{.T.Get "Insert example"}}</button></div>
                 </div>
             </div>
         </div>
 
-        <div class="flex items-center justify-end gap-2 pt-3">
-            <a href="/containers" class="{{$ghost}} py-2">{{.T.Get "Cancel"}}</a>
-            <button type="submit" :disabled="!canSubmit()" :class="!canSubmit() && 'opacity-50'" class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-center text-sm font-medium shadow-sm transition-all border-black bg-black text-white hover:bg-gray-800 gap-x-1.5 whitespace-nowrap">
-                {{if .Editing}}{{.T.Get "Save changes"}}{{else}}{{.T.Get "Create container"}}{{end}}
-            </button>
+        <div class="op-form-foot">
+            <a href="/containers" class="op-btn op-btn-secondary">{{.T.Get "Cancel"}}</a>
+            <button type="submit" :disabled="!canSubmit()" class="op-btn op-btn-primary">{{if .Editing}}{{.T.Get "Save changes"}}{{else}}{{.T.Get "Create container"}}{{end}}</button>
         </div>
     </form>
-</div>
+</section>
 
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6" x-show="phase !== 'form'" x-cloak>
-    <div class="grid grid-cols-1 gap-2">
-        <template x-for="st in steps" :key="st.id">
-            <div class="flex items-center gap-3 rounded p-3 text-sm font-medium transition-colors"
-                 :class="{ 'bg-gray-50 dark:bg-gray-800/50 text-gray-400 dark:text-gray-500': st.state === 'pending', 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-50': st.state === 'active', 'bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400': st.state === 'done', 'bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-300': st.state === 'error' }">
-                <svg x-show="st.state === 'pending'" class="size-5 shrink-0 text-gray-300 dark:text-gray-600" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" opacity=".25"/><circle cx="12" cy="12" r="3"/></svg>
-                <svg x-show="st.state === 'active'" class="size-5 shrink-0 text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity=".3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
-                <svg x-show="st.state === 'done'" class="size-5 shrink-0 text-emerald-500 dark:text-emerald-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"/></svg>
-                <svg x-show="st.state === 'error'" class="size-5 shrink-0 text-red-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"/></svg>
-                <span x-text="st.label"></span>
-            </div>
-        </template>
-    </div>
-
-    <div x-show="errorText" x-cloak class="mt-4 rounded border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-900 dark:text-red-300 font-mono" style="white-space:pre-line;overflow-wrap:anywhere" x-text="errorText"></div>
-
-    <div x-show="phase === 'error'" x-cloak class="mt-4 flex items-center justify-end gap-2">
-        <a x-show="saved" href="/containers" class="{{$ghost}} py-2">{{.T.Get "Go to containers"}}</a>
-        <button x-show="!saved" type="button" @click="phase = 'form'" class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800">{{.T.Get "Back to the form"}}</button>
-    </div>
+<aside class="op-col op-ct-aside">
+    <section class="op-card"><div class="op-card-head"><div><h2>docker-compose.yml</h2><p class="op-meta">{{if .Editing}}{{.T.Get "How this service is saved in your compose file."}}{{else}}{{.T.Get "What gets added to your compose file."}}{{end}}</p></div></div>
+        <div class="op-ct-code"><pre x-text="compose()"></pre><button class="op-icon-btn" type="button" @click="copyText(compose())" aria-label="{{.T.Get "Copy compose snippet"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
+    </section>
+    <section class="op-card"><div class="op-card-head"><div><h2>.env</h2><p class="op-meta">{{.T.Get "Limits and variables, saved next to it."}}</p></div></div>
+        <div class="op-ct-code"><pre x-text="dotenv()"></pre><button class="op-icon-btn" type="button" @click="copyText(dotenv())" aria-label="{{.T.Get "Copy .env lines"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
+    </section>
+    <section class="op-card" x-show="existing.length"><div class="op-card-head"><div><h2>{{.T.Get "Already on this account"}}</h2><p class="op-meta"><span x-text="existing.length"></span> {{if .Editing}}{{.T.Get "services in your compose file."}}{{else}}{{.T.Get "services, pick a name that isn't taken."}}{{end}}</p></div></div>
+        <div class="op-chips" style="gap:6px"><template x-for="n in existing" :key="n"><span class="op-tag op-mono" :class="n === name &amp;&amp; 'is-accent'" x-text="n"></span></template></div>
+    </section>
+</aside>
 </div>
 </div>
 
@@ -349,6 +283,38 @@ function containerForm(init) {
         healthcheck: init.healthcheck || '',
         domain: init.domain || '',
         port: init.port || '',
+        socket: !!init.socket,
+        popular: ['redis:alpine', 'valkey/valkey:alpine', 'memcached:alpine', 'rabbitmq:3-management-alpine', 'minio/minio:latest', 'adminer:latest', 'mailpit/mailpit:latest', 'node:lts-alpine', 'python:3-alpine', 'nginx:alpine'],
+
+        // mirrors what the handler writes, so the preview shows the real keys
+        prefix() { return (this.name || 'app').toUpperCase().replace(/[-.]/g, '_'); },
+        compose() {
+            const n = this.name || 'app', p = this.prefix(), ram = (this.ramAmount || '1') + 'G';
+            const lim = this.editing ? ['${' + p + '_CPU}', '${' + p + '_RAM}', '${' + p + '_PIDS}'] : ['${' + p + '_CPU:-' + this.cpu + '}', '${' + p + '_RAM:-' + ram + '}', '${' + p + '_PIDS:-' + this.pids + '}'];
+            const out = ['services:', '  ' + n + ':', '    image: ' + (this.image || 'redis:7-alpine'), '    container_name: ' + n, '    restart: always'];
+            const vols = this.volumes.filter(v => v.Name && v.Mount).map(v => v.Name + ':' + v.Mount + (v.ReadOnly ? ':ro' : ''));
+            if (this.socket) vols.push('/run/user/${USER_ID}/podman/podman.sock:/var/run/docker.sock:ro');
+            if (vols.length) { out.push('    volumes:'); vols.forEach(v => out.push('      - ' + v)); }
+            out.push('    deploy:', '      resources:', '        limits:', '          cpus: ' + lim[0], '          memory: ' + lim[1], '          pids: ' + lim[2]);
+            const nets = this.networks.slice();
+            if (this.domain && !nets.includes('www')) nets.push('www');
+            if (nets.length) { out.push('    networks:'); nets.forEach(v => out.push('      - ' + v)); }
+            const env = (this.bulk ? parseEnv(this.bulkText) : this.envRows).filter(e => e.key);
+            if (env.length) { out.push('    environment:'); env.forEach(e => out.push('      ' + e.key + ': ${' + p + '_' + e.key.toUpperCase() + '}')); }
+            if (this.healthcheck.trim()) { out.push('    healthcheck:'); this.healthcheck.trim().split('\n').forEach(l => out.push('      ' + l)); }
+            if (this.domain && !this.editing) out.push('    labels:', '      openpanel.domain: ' + this.domain, '      openpanel.port: "' + (this.port || '80') + '"');
+            return out.join('\n');
+        },
+        dotenv() {
+            const p = this.prefix();
+            const out = [p + '_CPU=' + this.cpu, p + '_RAM=' + (this.ramAmount || '1') + 'G', p + '_PIDS=' + this.pids];
+            (this.bulk ? parseEnv(this.bulkText) : this.envRows).filter(e => e.key).forEach(e => out.push(p + '_' + e.key.toUpperCase() + '=' + e.value));
+            return out.join('\n');
+        },
+        copyText(t) {
+            if (navigator.clipboard) navigator.clipboard.writeText(t);
+            if (window.showToast) showToast({{toJSON (.T.Get "Copied")}}, 'success');
+        },
         get nextId() { return nextId; },
         set nextId(v) { nextId = v; },
         presets: [

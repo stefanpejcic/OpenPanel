@@ -9,6 +9,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 // baseLayout builds a representative web.LayoutData shared by every render test below - the same app-shell fields BuildLayoutData would produce, without needing a live *appctx.App/http.Request
@@ -32,14 +33,15 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 
 // exercises containers.html with a representative mix of rows: unlimited/limited CPU+RAM, a trusted and an untrusted image, and a core service (no Edit/Delete) alongside a user-added one
 func TestRenderContainersPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := ContainersPageData{
 		LayoutData: baseLayout(mgr, "/containers"),
 		TotalCPU:   4,
 		TotalRAM:   8,
 		Rows: []ContainerRow{
-			{Service: "nginx", DisplayName: "nginx", Image: "nginx:latest", ImageTrusted: true, CPUUnlimited: true, RAMUnlimited: true, ShowManage: false},
-			{Service: "myapp", DisplayName: "myapp", Image: "custom/myapp:v1", ImageTrusted: false, CPUValue: "1.5", RAMGB: "2", ShowManage: true},
+			{Service: "nginx", DisplayName: "nginx", Image: "nginx:latest", ImageTrusted: true, CPUUnlimited: true, RAMUnlimited: true, ShowManage: false, Ports: "80, 443", PortsTitle: "8080:80, 8443:443", Icon: "browser", Hue: "cyan", ImageChangeable: true},
+			{Service: "myapp", DisplayName: "myapp", Image: "custom/myapp:v1", ImageTrusted: false, CPUValue: "1.5", RAMGB: "2", ShowManage: true, Icon: "apps", Hue: "blue", ImageChangeable: true},
 		},
 	}
 	data.BulkActions = containerBulkActions(data.T, data.TotalCPU, data.TotalRAM)
@@ -56,7 +58,7 @@ func TestRenderContainersPage(t *testing.T) {
 	if strings.Contains(body, "/containers/edit/nginx") {
 		t.Error("core service nginx should not show an Edit link")
 	}
-	for _, want := range []string{`value="nginx" data-bulk-skip="delete"`, `value="myapp" data-bulk-skip=""`, `data-bulk-action="pids"`, `data-bulk-input="cpu"`, `max="4"`, "js/bulk-actions.js"} {
+	for _, want := range []string{`value="nginx" data-bulk-skip="delete"`, `value="myapp" data-bulk-skip=""`, `data-bulk-action="pids"`, `data-bulk-input="cpu"`, `max="4"`, "js/bulk-actions.js", "/json/containers/images", "containerImages()", "restartAll()", "Restart All"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("rendered containers page missing bulk markup %q", want)
 		}
@@ -96,13 +98,15 @@ func TestRenderContainerFormPage(t *testing.T) {
 		w := httptest.NewRecorder()
 		data := ContainerFormPageData{
 			LayoutData: baseLayout(mgr, "/containers/new"), Title: "Add service",
-			AvailableNetworks: []string{"db", "web"}, Networks: []string{"db"}, CPU: "0.5", RAM: "1G",
+			AvailableNetworks: []string{"db", "web"}, Networks: []string{"db"}, CPU: "0.5", RAM: "1G", PIDs: "500",
+			AvailableVolumes: []string{"html_data", "mysql_data"}, Domains: []string{"example.com", "shop.example.com"},
+			ExistingServicesJSON: toJSONStrings([]string{"mysql", "nginx", "redis"}),
 		}
 		if err := containerFormPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		for _, want := range []string{`cpu: &#34;0.5&#34;`, `networks: [&#34;db&#34;]`, `existing: []`, `name="network" value="db"`, `name="network" value="web"`, "Create container"} {
+		for _, want := range []string{`cpu: &#34;0.5&#34;`, `networks: [&#34;db&#34;]`, `existing: [&#34;mysql&#34;,&#34;nginx&#34;,&#34;redis&#34;]`, `name="network" value="db"`, `name="network" value="web"`, "Create container"} {
 			if !strings.Contains(body, want) {
 				t.Errorf("expected %q in rendered form", want)
 			}
@@ -129,7 +133,9 @@ func TestRenderContainerFormPage(t *testing.T) {
 			LayoutData: baseLayout(mgr, "/containers/edit/myapp"), Title: "Edit service myapp",
 			Editing: true, ServiceName: "myapp", ServiceNameReadonly: true, Image: "custom/myapp:v1",
 			CPU: "1.5", RAM: "2G", Environment: "TZ: Europe/Belgrade", Networks: []string{"www", "db"},
-			VolumeEntries: []VolumeEntry{{Name: "data", Mount: "/data", ReadOnly: true}},
+			VolumeEntries:     []VolumeEntry{{Name: "data", Mount: "/data", ReadOnly: true}},
+			AvailableNetworks: []string{"db", "default", "www"}, AvailableVolumes: []string{"data", "html_data"}, PIDs: "500",
+			ExistingServicesJSON: toJSONStrings([]string{"myapp", "mysql", "nginx"}),
 		}
 		if err := containerFormPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
@@ -242,6 +248,7 @@ func TestDatabaseFlavorAndChoices(t *testing.T) {
 }
 
 func TestRenderChangeWebserverPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	choices := []ServerChoice{
 		{Value: "nginx", Label: "Nginx", Description: "d", Icon: "nginx", Current: true},
@@ -273,8 +280,8 @@ func TestRenderChangeWebserverPage(t *testing.T) {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		if strings.Contains(body, "Choose a webserver") {
-			t.Error("switch button should be hidden while domains still exist")
+		if !strings.Contains(body, `disabled class="op-btn op-btn-primary"`) {
+			t.Error("switch button should be disabled while domains still exist")
 		}
 		if !strings.Contains(body, "Go to Domains") || !strings.Contains(body, "<strong>2</strong>") {
 			t.Error("expected the remove domains notice with the count")
@@ -291,40 +298,85 @@ func TestServerChoicesFor(t *testing.T) {
 }
 
 func TestRenderChangeImagePage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
-	t.Run("single service", func(t *testing.T) {
+	rows := []ImageRow{
+		{Service: "mariadb", Repo: "mariadb", Tag: "latest", HubURL: "https://hub.docker.com/_/mariadb/tags", Floating: true, Data: true, Icon: "db", Hue: "purple"},
+		{Service: "testapp", Repo: "nginx", Tag: "latest", Floating: true, Pinned: true, Icon: "box", Hue: "cyan"},
+	}
+
+	t.Run("table", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		data := ChangeImagePageData{
-			LayoutData: baseLayout(mgr, "/containers/image/change/nginx"),
-			Service:    "nginx", CurrentVersion: "1.26", HubURL: "https://hub.docker.com/_/nginx/tags",
-		}
+		data := ChangeImagePageData{LayoutData: baseLayout(mgr, "/containers/image/change"), Rows: rows}
 		if err := changeImagePage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		if !strings.Contains(body, `value="1.26"`) {
-			t.Error("expected current version prefilled in rendered form")
+		for _, want := range []string{`<tr data-service="mariadb"`, `href="https://hub.docker.com/_/mariadb/tags"`, "2 services · 2 on a floating tag", "Set in compose file", `name="new_tag"`} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q in the rendered page", want)
+			}
 		}
-		if !strings.Contains(body, `href="https://hub.docker.com/_/nginx/tags"`) {
-			t.Error("expected the Docker Hub link for the image")
+		if strings.Count(body, `@click="open(`) != 1 {
+			t.Error("expected a Change version button only on the service whose tag lives in .env")
 		}
 	})
 
-	t.Run("picker", func(t *testing.T) {
+	t.Run("sheet opens for the service in the URL", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		data := ChangeImagePageData{
-			LayoutData:         baseLayout(mgr, "/containers/image/change"),
-			SelectableServices: []string{"nginx", "myapp"},
-		}
+		data := ChangeImagePageData{LayoutData: baseLayout(mgr, "/containers/image/change/mariadb"), Rows: rows, Open: "mariadb"}
 		if err := changeImagePage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		body := w.Body.String()
-		if !strings.Contains(body, "nginx") || !strings.Contains(body, "myapp") {
-			t.Error("expected selectable services in rendered picker")
+		if !strings.Contains(w.Body.String(), `, &#34;mariadb&#34;)">`) {
+			t.Error("expected the open service passed to the page component")
 		}
 	})
+
+	t.Run("stopped container", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		data := TerminalPageData{
+			LayoutData:    baseLayout(mgr, "/containers/terminal/myapp"),
+			ContainerName: "myapp", TerminalTimeoutSeconds: 10, ActiveServices: []string{"nginx"},
+		}
+		if err := terminalPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), `<option value="myapp" selected>myapp</option>`) {
+			t.Error("expected the current container in the picker even when it isn't listed as running")
+		}
+	})
+
+	t.Run("no services", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		data := ChangeImagePageData{LayoutData: baseLayout(mgr, "/containers/image/change")}
+		if err := changeImagePage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "No services to change") {
+			t.Error("expected the empty state")
+		}
+	})
+}
+
+// both themes render from the same data, classic reads Service, CurrentVersion and SelectableServices
+func TestRenderChangeImagePageAnyTheme(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	rows := []ImageRow{{Service: "mariadb", Repo: "mariadb", Tag: "11.8", Data: true, Icon: "db", Hue: "purple"}}
+	for _, open := range []string{"", "mariadb"} {
+		w := httptest.NewRecorder()
+		data := ChangeImagePageData{LayoutData: baseLayout(mgr, "/containers/image/change"), Rows: rows, Open: open, SelectableServices: []string{"mariadb"}}
+		if open != "" {
+			data.Service, data.CurrentVersion = open, "11.8"
+		}
+		if err := changeImagePage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render (open %q): %v", open, err)
+		}
+		if !strings.Contains(w.Body.String(), "mariadb") {
+			t.Errorf("expected the service in the page (open %q)", open)
+		}
+	}
 }
 
 func TestRenderLogsPage(t *testing.T) {
@@ -341,19 +393,24 @@ func TestRenderLogsPage(t *testing.T) {
 }
 
 func TestRenderTerminalPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("connected", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		data := TerminalPageData{
 			LayoutData:    baseLayout(mgr, "/containers/terminal/myapp"),
-			ContainerName: "myapp", TerminalTimeoutSeconds: 10,
+			ContainerName: "myapp", TerminalTimeoutSeconds: 10, ActiveServices: []string{"myapp", "nginx"},
 		}
 		if err := terminalPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "/ws/containers/terminal/myapp") {
+		body := w.Body.String()
+		if !strings.Contains(body, "/ws/containers/terminal/myapp") {
 			t.Error("expected websocket path in rendered terminal page")
+		}
+		if !strings.Contains(body, `<option value="nginx">nginx</option>`) || !strings.Contains(body, `<option value="myapp" selected>`) {
+			t.Error("expected the container picker to list running services with the current one selected")
 		}
 	})
 
@@ -371,6 +428,19 @@ func TestRenderTerminalPage(t *testing.T) {
 			t.Error("expected active services in rendered picker")
 		}
 	})
+}
+
+func TestBuildContainerRowsPorts(t *testing.T) {
+	rows := buildContainerRows(map[string]any{
+		"nginx": map[string]any{"ports": []any{"8080:80/tcp", map[string]any{"target": float64(443), "published": "8443"}}},
+		"cron":  map[string]any{},
+	})
+	if rows[1].Ports != "80, 443" || rows[1].PortsTitle != "8080:80/tcp, 8443:443" || rows[1].Icon != "browser" {
+		t.Errorf("nginx row = %+v", rows[1])
+	}
+	if rows[0].Ports != "" || rows[0].ImageChangeable {
+		t.Errorf("cron row = %+v", rows[0])
+	}
 }
 
 // guards against nondeterministic row order (Go map iteration) leaking into the rendered table

@@ -52,7 +52,7 @@ func handleEditVhosts(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domainName := r.URL.Query().Get("domain")
 	if domainName == "" {
 		domainsList, _ := a.AllDomainsForUser(ctx, userID)
-		renderVhostSelectPage(a, w, r, webServerPreference, domainsList)
+		renderVhostSelectPage(a, w, r, webServerPreference, domainsList, readVhostFiles(userContext, domainsList))
 		return
 	}
 	if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
@@ -61,7 +61,18 @@ func handleEditVhosts(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	vhostContent := readVhostContent(userContext, domainName)
-	renderVhostEditPage(a, w, r, domainName, webServerPreference, vhostContent)
+	renderVhostEditPage(a, w, r, domainName, webServerPreference, vhostContent, findDomain(ctx, a, userID, domainName))
+}
+
+// findDomain looks up the domain's row for the edit page tiles, zero value when it can't be read
+func findDomain(ctx context.Context, a *appctx.App, userID int, domainName string) appctx.Domain {
+	list, _ := a.AllDomainsForUser(ctx, userID)
+	for _, d := range list {
+		if strings.EqualFold(d.DomainURL, domainName) {
+			return d
+		}
+	}
+	return appctx.Domain{DomainURL: domainName}
 }
 
 func vhostFilePath(userContext, domainName string) string {

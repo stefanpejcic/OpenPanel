@@ -1,16 +1,18 @@
 {{define "alpine_plugins"}}{{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
 {{define "content"}}
 <!-- START templates/emails/alias_detail.html -->
 
 <!-- page header -->
-<div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<div class="op-page-head op-cms-head">
     <div class="gap-x-3">
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Manage Alias"}}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-500 punycode">{{.Email}}</p>
+        <h1 class="op-title">{{.T.Get "Manage Alias"}}</h1>
+        <p class="op-meta punycode">{{.Email}}</p>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-        <a href="/emails/aliases" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit gap-x-0.5 whitespace-nowrap">
+    <div class="op-actions">
+        <a href="/emails/aliases" class="op-btn op-btn-secondary">
             {{.T.Get "Back to Aliases"}}
         </a>
     </div>
@@ -18,28 +20,28 @@
 <!-- END page header -->
 
 
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard">
+<div class="op-card op-block-card CrawlerStatusCard">
 
     <!-- Current targets table -->
     <div class="mb-8">
-        <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-3">{{.T.Get "Current destinations"}}</h2>
+        <h2 class="op-h op-mb">{{.T.Get "Current destinations"}}</h2>
 
         <div id="targets-table-wrap">
         {{if and .Entry .Entry.Targets}}
-            <div class="overflow-hidden rounded border border-gray-200 dark:border-gray-800">
-                <table class="w-full caption-bottom text-sm">
+            <div class="op-table-wrap">
+                <table class="op-table is-plain">
                     <thead>
-                        <tr class="bg-gray-50 dark:bg-gray-900">
-                            <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-b border-gray-200 dark:border-gray-800">{{.T.Get "Delivers to"}}</th>
-                            <th class="px-4 py-3 text-right text-sm font-semibold text-gray-900 dark:text-gray-50 border-b border-gray-200 dark:border-gray-800">{{.T.Get "Action"}}</th>
+                        <tr class="op-thead">
+                            <th class="op-th">{{.T.Get "Delivers to"}}</th>
+                            <th class="op-th is-num">{{.T.Get "Action"}}</th>
                         </tr>
                     </thead>
-                    <tbody id="targets-tbody" class="divide-y divide-gray-200 dark:divide-gray-800">
+                    <tbody id="targets-tbody" class="op-tbody">
                         {{range .Entry.Targets}}
                         <tr data-target="{{.}}">
-                            <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{{.}}</td>
+                            <td class="op-td">{{.}}</td>
                             <td class="px-4 py-3 text-right">
-                                <button type="button" data-action="remove-target" class="remove-btn relative inline-flex items-center justify-center rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-red-500 border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 bg-white dark:bg-gray-950 hover:bg-red-50 dark:hover:bg-red-950/30 gap-x-1.5 whitespace-nowrap">
+                                <button type="button" data-action="remove-target" class="remove-btn op-btn op-btn-sm op-btn-danger">
                                     <i class="bi bi-trash3"></i> {{$.T.Get "Remove"}}
                                 </button>
                             </td>
@@ -49,40 +51,40 @@
                 </table>
             </div>
         {{else}}
-            <div id="empty-state" class="rounded border border-dashed border-gray-300 dark:border-gray-700 p-6 text-center text-sm text-gray-400 dark:text-gray-500">
+            <div id="empty-state" class="op-dashed">
                 {{.T.Get "No destinations configured for this alias yet."}}
             </div>
         {{end}}
         </div>
     </div>
 
-    <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500">
-        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
+    <div class="op-sep">
+        <div class="op-divider"></div>
         <span class="shrink-0">{{.T.Get "Add destination"}}</span>
-        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
+        <div class="op-divider"></div>
     </div>
 
     <!-- Add new target — no form -->
     <input type="hidden" id="csrf_token" value="{{.CSRFToken}}"/>
 
     <div class="col-span-full mb-4">
-        <label for="new-target" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            {{.T.Get "New destination address"}}<span class="text-red-500 dark:text-red-500">*</span>
+        <label for="new-target" class="op-label op-label-row">
+            {{.T.Get "New destination address"}}<span class="is-danger">*</span>
         </label>
         <input
             type="email"
             id="new-target"
             maxlength="254"
             placeholder="{{.T.Get "destination@example.com"}}"
-            class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"
+            class="op-input"
         >
-        <p class="mt-1.5 text-xs text-gray-400 dark:text-gray-500">
+        <p class="op-hint">
             {{.T.Get "Add another address that this alias should forward to."}}
         </p>
     </div>
 
     <div class="md:flex items-center md:justify-end md:space-x-4 mt-6">
-        <button type="button" id="add-destination-btn" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
+        <button type="button" id="add-destination-btn" class="op-btn op-btn-primary">
             {{.T.Get "Add Destination"}}
             <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
@@ -91,18 +93,18 @@
     </div>
 
     <!-- Danger zone -->
-    <div class="mx-auto py-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500">
-        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
+    <div class="op-sep">
+        <div class="op-divider"></div>
         <span class="shrink-0 text-red-400">{{.T.Get "Danger zone"}}</span>
-        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
+        <div class="op-divider"></div>
     </div>
 
-    <div class="rounded border border-red-200 dark:border-red-900 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="op-danger-zone">
         <div>
-            <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Delete this alias"}}</p>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{.T.Get "Removes the alias address and all its destinations permanently."}}</p>
+            <p class="op-strong">{{.T.Get "Delete this alias"}}</p>
+            <p class="op-hint">{{.T.Get "Removes the alias address and all its destinations permanently."}}</p>
         </div>
-        <a href="/emails/aliases/delete/{{.Email}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-red-500 border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 bg-white dark:bg-gray-950 hover:bg-red-50 dark:hover:bg-red-950/30 gap-x-1.5 whitespace-nowrap shrink-0"><i class="bi bi-trash3"></i> {{.T.Get "Delete Alias"}}</a>
+        <a href="/emails/aliases/delete/{{.Email}}" class="op-btn op-btn-secondary"><i class="bi bi-trash3"></i> {{.T.Get "Delete Alias"}}</a>
     </div>
 
 </div>
@@ -117,10 +119,10 @@
         const tr = document.createElement('tr');
         tr.dataset.target = target;
         tr.innerHTML = `
-            <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">${target}</td>
+            <td class="op-td">${target}</td>
             <td class="px-4 py-3 text-right">
                 <button type="button" data-action="remove-target"
-                    class="relative inline-flex items-center justify-center rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 bg-white dark:bg-gray-950 hover:bg-red-50 dark:hover:bg-red-950/30 gap-x-1.5 whitespace-nowrap">
+                    class="op-btn op-btn-sm op-btn-secondary">
                     <i class="bi bi-trash3"></i> {{.T.Get "Remove"}}
                 </button>
             </td>`;
@@ -158,7 +160,7 @@
                 row.remove();
                 const tbody = document.getElementById('targets-tbody');
                 if (!tbody || tbody.querySelectorAll('tr').length === 0) {
-                    container.innerHTML = `<p class="text-sm text-gray-400 dark:text-gray-500 border border-dashed border-gray-300 dark:border-gray-700 rounded p-6 text-center">{{.T.Get "No destinations configured for this alias yet."}}</p>`;
+                    container.innerHTML = `<p class="op-dashed">{{.T.Get "No destinations configured for this alias yet."}}</p>`;
                 }
             } else {
                 const data = await res.json().catch(() => ({}));
@@ -200,13 +202,13 @@
                 let tbody = document.getElementById('targets-tbody');
                 if (!tbody) {
                     container.innerHTML = `
-                        <div class="overflow-hidden rounded border border-gray-200 dark:border-gray-800">
+                        <div class="op-table-wrap">
                             <table class="w-full text-sm">
-                                <thead><tr class="bg-gray-50 dark:bg-gray-900">
-                                    <th class="px-4 py-3 text-left border-b border-gray-200 dark:border-gray-800">{{.T.Get "Delivers to"}}</th>
-                                    <th class="px-4 py-3 text-right border-b border-gray-200 dark:border-gray-800">{{.T.Get "Action"}}</th>
+                                <thead><tr class="op-thead">
+                                    <th class="op-th">{{.T.Get "Delivers to"}}</th>
+                                    <th class="op-th is-num">{{.T.Get "Action"}}</th>
                                 </tr></thead>
-                                <tbody id="targets-tbody" class="divide-y divide-gray-200 dark:divide-gray-800"></tbody>
+                                <tbody id="targets-tbody" class="op-tbody"></tbody>
                             </table>
                         </div>`;
                     tbody = document.getElementById('targets-tbody');

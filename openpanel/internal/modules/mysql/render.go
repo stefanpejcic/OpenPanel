@@ -13,12 +13,12 @@ import (
 
 var (
 	databasesPage     = web.LoadPage("mysql/databases.html")
-	newDatabasePage   = web.LoadPage("db/new.html")
+	newDatabasePage   = web.LoadPage("db/new.html", "partials/_db_create.html")
 	usersPage         = web.LoadPage("mysql/users.html")
-	createUserPage    = web.LoadPage("mysql/mysql_user.html")
+	createUserPage    = web.LoadPage("mysql/mysql_user.html", "partials/_db_create.html")
 	passwordPage      = web.LoadPage("mysql/password.html")
-	wizardPage        = web.LoadPage("mysql/wizard.html")
-	assignPage        = web.LoadPage("mysql/assign.html")
+	wizardPage        = web.LoadPage("mysql/wizard.html", "partials/_db_create.html")
+	assignPage        = web.LoadPage("mysql/assign.html", "partials/_db_create.html")
 	removePage        = web.LoadPage("mysql/remove.html")
 	importPage        = web.LoadPage("mysql/import.html")
 	processlistPage   = web.LoadPage("mysql/processlist.html")
@@ -53,9 +53,48 @@ type DatabasesPageData struct {
 	FromDisk       bool
 	DBToastID      string
 	DBToastMessage string
+	ServerVersion  string // number from VERSION(), "" while listed from disk
+	Uptime         string
+	DBLimit        int // plan limit, 0 is unlimited
 }
 
-func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, mysqlVersion string, databases []DatabaseRow, unit string, showAll, fromDisk bool, dbToastID, dbToastMessage string) {
+// DBQuotaPct is how full the plan's database quota is, capped at 100
+func (d DatabasesPageData) DBQuotaPct() int {
+	return quotaPct(d.UserDatabaseCount(), d.DBLimit)
+}
+
+func quotaPct(used, limit int) int {
+	if limit <= 0 {
+		return 0
+	}
+	return min(used*100/limit, 100)
+}
+
+// UserDatabaseCount is the number of non-system databases, for the summary tile
+func (d DatabasesPageData) UserDatabaseCount() int {
+	n := 0
+	for _, db := range d.Databases {
+		if !db.IsSystem {
+			n++
+		}
+	}
+	return n
+}
+
+// UserCount is the number of distinct users assigned to any database
+func (d DatabasesPageData) UserCount() int {
+	seen := map[string]bool{}
+	for _, db := range d.Databases {
+		for _, u := range strings.Split(db.AssignedUsers, ",") {
+			if u = strings.TrimSpace(u); u != "" {
+				seen[u] = true
+			}
+		}
+	}
+	return len(seen)
+}
+
+func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, mysqlVersion, serverVersion string, databases []DatabaseRow, unit string, showAll, fromDisk bool, dbToastID, dbToastMessage string) {
 	layout, injectedData, err := web.BuildLayoutData(a, w, r, "Databases")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -70,26 +109,42 @@ func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		LayoutData: layout, ServiceStatusData: serviceStatusData(status),
 		Service: mysqlVersion, Databases: databases, Unit: unit, ShowAll: showAll, FromDisk: fromDisk,
 		DBToastID: dbToastID, DBToastMessage: dbToastMessage,
+		ServerVersion: serverVersion, Uptime: uptimeSince(status.Started),
+		DBLimit: planDBLimit(r.Context(), a, injectedData),
 	}
 	if err := databasesPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MYSQL - databases template render error: %v", err)
 	}
 }
 
-// NewDatabasePageData is mysql/new.html's template context.
+// NewDatabasePageData is db/new.html's template context for MySQL.
 type NewDatabasePageData struct {
 	web.LayoutData
-	Service string
-	Engine  web.DBEngine
+	Service    string
+	Engine     web.DBEngine
+	Names      web.DBNames
+	DBUsage    int
+	DBLimit    int    // plan limit, 0 is unlimited
+	RemotePort string // published host port, "" when unknown
+	FormName   string // what was typed, kept after a failed submit
+	Created    string // the database just created, shows the done state
 }
 
-func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request, mysqlVersion string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Create Database")
+func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request, mysqlVersion, formName, created string) {
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, "Create Database")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := NewDatabasePageData{LayoutData: layout, Service: mysqlVersion, Engine: web.MySQLEngine}
+	userContext, _ := injectedData["context"].(string)
+	data := NewDatabasePageData{
+		LayoutData: layout, Service: mysqlVersion, Engine: web.MySQLEngine, FormName: formName, Created: created,
+		DBLimit: planDBLimit(r.Context(), a, injectedData), RemotePort: remoteMySQLPort(userContext),
+	}
+	if created == "" {
+		data.Names = loadNames(r.Context(), userContext)
+		data.DBUsage = getDatabaseCount(r.Context(), a, layout.CurrentUsername, userContext)
+	}
 	if err := newDatabasePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MYSQL - new database template render error: %v", err)
 	}
@@ -102,9 +157,10 @@ type UsersPageData struct {
 	Service string
 	Users   []string
 	ShowAll bool
+	Grants  map[string][]UserGrant // nil when the privileges lookup failed
 }
 
-func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, mysqlVersion string, users []string, showAll bool) {
+func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, mysqlVersion string, users []string, showAll bool, grants map[string][]UserGrant) {
 	layout, injectedData, err := web.BuildLayoutData(a, w, r, "Database Users")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -116,7 +172,7 @@ func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, stat
 	}
 	data := UsersPageData{
 		LayoutData: layout, ServiceStatusData: serviceStatusData(status),
-		Service: mysqlVersion, Users: users, ShowAll: showAll,
+		Service: mysqlVersion, Users: users, ShowAll: showAll, Grants: grants,
 	}
 	if err := usersPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MYSQL - users template render error: %v", err)
@@ -126,16 +182,29 @@ func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, stat
 // CreateUserPageData is mysql/mysql_user.html's template context.
 type CreateUserPageData struct {
 	web.LayoutData
-	Service string
+	Service         string
+	Engine          web.DBEngine
+	Names           web.DBNames
+	RemotePort      string
+	FormName        string
+	Created         string // the user just created, shows the done state with CreatedPassword once
+	CreatedPassword string
 }
 
-func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request, mysqlVersion string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Create User")
+func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request, mysqlVersion, formName, created, password string) {
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, "Create User")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := CreateUserPageData{LayoutData: layout, Service: mysqlVersion}
+	userContext, _ := injectedData["context"].(string)
+	data := CreateUserPageData{
+		LayoutData: layout, Service: mysqlVersion, Engine: web.MySQLEngine, RemotePort: remoteMySQLPort(userContext),
+		FormName: formName, Created: created, CreatedPassword: password,
+	}
+	if created == "" {
+		data.Names = loadNames(r.Context(), userContext)
+	}
 	if err := createUserPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MYSQL - create user template render error: %v", err)
 	}
@@ -163,6 +232,9 @@ func renderChangePasswordPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 type WizardPageData struct {
 	web.LayoutData
 	Service          string
+	Engine           web.DBEngine
+	Names            web.DBNames
+	Role             string // only MongoDB has roles, the shared wizard template reads it
 	Success          bool
 	FormDatabaseName string
 	FormDBUser       string
@@ -172,15 +244,25 @@ type WizardPageData struct {
 	CreatedPassword   string
 	CreatedHost       string
 	CreatedPrivileges string
+
+	DBUsage    int
+	DBLimit    int    // plan limit, 0 is unlimited
+	RemotePort string // published host port, "" when unknown
 }
 
 func renderWizardForm(a *appctx.App, w http.ResponseWriter, r *http.Request, mysqlVersion, formDatabaseName, formDBUser string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Wizard")
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, "Wizard")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := WizardPageData{LayoutData: layout, Service: mysqlVersion, FormDatabaseName: formDatabaseName, FormDBUser: formDBUser}
+	userContext, _ := injectedData["context"].(string)
+	data := WizardPageData{
+		LayoutData: layout, Service: mysqlVersion, Engine: web.MySQLEngine, Names: loadNames(r.Context(), userContext),
+		FormDatabaseName: formDatabaseName, FormDBUser: formDBUser,
+		DBUsage: getDatabaseCount(r.Context(), a, layout.CurrentUsername, userContext),
+		DBLimit: planDBLimit(r.Context(), a, injectedData), RemotePort: remoteMySQLPort(userContext),
+	}
 	if err := wizardPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MYSQL - wizard template render error: %v", err)
 	}
@@ -193,7 +275,7 @@ func renderWizardSuccess(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		return
 	}
 	data := WizardPageData{
-		LayoutData: layout, Service: mysqlVersion, Success: true,
+		LayoutData: layout, Service: mysqlVersion, Engine: web.MySQLEngine, Success: true,
 		CreatedDB: createdDB, CreatedUser: createdUser, CreatedPassword: createdPassword,
 		CreatedHost: createdHost, CreatedPrivileges: createdPrivileges,
 	}
@@ -230,21 +312,41 @@ func buildPrivilegesSQL(selected []string) (string, bool) {
 	return strings.Join(out, ", "), true
 }
 
+// PrivilegeGroup is one box of privilege checkboxes on assign.html
+type PrivilegeGroup struct {
+	Label string
+	Privs []string
+}
+
+// mysqlPrivilegeGroups is mysqlPrivileges minus ALL PRIVILEGES, grouped by what they touch
+var mysqlPrivilegeGroups = []PrivilegeGroup{
+	{"Data", []string{"SELECT", "INSERT", "UPDATE", "DELETE"}},
+	{"Structure", []string{"CREATE", "ALTER", "DROP", "INDEX", "REFERENCES", "CREATE VIEW", "SHOW VIEW", "CREATE TEMPORARY TABLES", "LOCK TABLES"}},
+	{"Routines and events", []string{"CREATE ROUTINE", "ALTER ROUTINE", "EXECUTE", "EVENT", "TRIGGER"}},
+}
+
 // AssignPageData is mysql/assign.html's template context.
 type AssignPageData struct {
 	web.LayoutData
-	DBUser       string
-	DatabaseName string
-	Privileges   []string
+	Engine          web.DBEngine
+	Names           web.DBNames
+	DBUser          string
+	DatabaseName    string
+	Privileges      []string
+	PrivilegeGroups []PrivilegeGroup
 }
 
 func renderAssignPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dbUser, databaseName string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Assign User to Database")
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, "Assign User to Database")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := AssignPageData{LayoutData: layout, DBUser: dbUser, DatabaseName: databaseName, Privileges: mysqlPrivileges}
+	userContext, _ := injectedData["context"].(string)
+	data := AssignPageData{
+		LayoutData: layout, Engine: web.MySQLEngine, Names: loadNames(r.Context(), userContext),
+		DBUser: dbUser, DatabaseName: databaseName, Privileges: mysqlPrivileges, PrivilegeGroups: mysqlPrivilegeGroups,
+	}
 	if err := assignPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MYSQL - assign template render error: %v", err)
 	}
@@ -297,24 +399,6 @@ func renderProcessListPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 	data := ProcessListPageData{LayoutData: layout, ProcessList: processList}
 	if err := processlistPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MYSQL - processlist template render error: %v", err)
-	}
-}
-
-// RootPasswordPageData is mysql/root_password.html's template context.
-type RootPasswordPageData struct {
-	web.LayoutData
-	Service string
-}
-
-func renderRootPasswordPage(a *appctx.App, w http.ResponseWriter, r *http.Request, mysqlVersion string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Change Root Password")
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data := RootPasswordPageData{LayoutData: layout, Service: mysqlVersion}
-	if err := rootPasswordPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("MYSQL - root password template render error: %v", err)
 	}
 }
 

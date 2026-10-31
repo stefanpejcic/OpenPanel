@@ -1,71 +1,82 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 {{define "flowbite_js"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/files/clamav/scanner.html -->
-
-<!-- page header -->
-<section
-    aria-label="{{.T.Get "Files Header"}}"
-    x-data="{ searchQuery: '' }"
->
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Malware Scanner"}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Scan files for malicious programs with the Clam AntiVirus Scanner (ClamAV) antivirus software."}}</p>
+<div class="op-content">
+<div class="op-page-head">
+    <div>
+        <h1 class="op-title">{{.T.Get "Malware Scanner"}}</h1>
+        <p class="op-meta">{{.T.Get "Scan files for malicious programs with the Clam AntiVirus Scanner (ClamAV) antivirus software."}}</p>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-        <a href="/malware-scanner/logs" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap sm:mt-0">{{.T.Get "Scan Logs"}}</a>
-        <a href="/malware-scanner/quarantine" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "View Quarantine"}}</a>
+    <div class="op-actions">
+        <a href="/malware-scanner/logs" class="op-btn op-btn-secondary">{{template "op_icon" "history"}} {{.T.Get "Scan Logs"}}</a>
+        <a href="/malware-scanner/quarantine" class="op-btn op-btn-secondary">{{template "op_icon" "lock"}} {{.T.Get "View Quarantine"}}{{if .QuarantineCount}} <span class="op-count">{{.QuarantineCount}}</span>{{end}}</a>
     </div>
 </div>
-<!-- END page header -->
 
+<!-- the folder you are in is what gets scanned, the circle picks one without opening it -->
+<section class="op-card" id="toAddActive" x-data="{
+    browse: {{if .UserAllowed.filemanager}}true{{else}}false{{end}},
+    typing: {{if .UserAllowed.filemanager}}false{{else}}true{{end}},
+    base: '/var/www/html/', cur: '', sel: null, folders: [], loading: false, failed: false,
+    full(p) { return this.base + (p ? p + '/' : ''); },
+    target() { return this.sel !== null ? this.sel : this.cur; },
+    sync() { document.getElementById('directory-select').value = this.full(this.target()); },
+    up() { return this.cur.split('/').slice(0, -1).join('/'); },
+    async load(p) {
+        this.loading = true;
+        try {
+            const res = await fetch('/json/folders/' + p.split('/').filter(Boolean).map(encodeURIComponent).join('/'));
+            if (!res.ok) throw new Error();
+            this.folders = ((await res.json()).folders || []).filter(f => !f.name.startsWith('.')).sort((x, y) => x.name.localeCompare(y.name));
+            this.cur = p; this.sel = null; this.failed = false;
+        } catch (e) { this.failed = true; }
+        this.loading = false;
+        this.sync();
+    },
+    init() { if (this.browse && !new URLSearchParams(location.search).get('path')) this.load(''); }
+}">
+    <div class="op-card-head"><div><h2>{{.T.Get "What should we scan?"}}</h2><p class="op-meta">{{if .UserAllowed.filemanager}}{{.T.Get "Click a folder to open it, the folder you are in is what gets scanned. Use the circle to pick a folder without opening it. Detected files go to quarantine right away."}}{{else}}{{.T.Get "Type the folder to scan. Detected files go to quarantine right away."}}{{end}}</p></div></div>
 
+    <div class="op-scan-target">
+        <span class="op-hint">{{.T.Get "Scanning"}}</span>
+        <input type="text" id="directory-select" class="op-input op-mono" value="/var/www/html/" placeholder="/var/www/html/" x-show="typing" spellcheck="false" aria-label="{{.T.Get "Choose a directory:"}}">
+        <b class="op-mono" x-show="!typing" x-text="full(target())">/var/www/html/</b>
+        {{if .UserAllowed.filemanager}}<button type="button" class="op-btn op-btn-ghost op-btn-sm" @click="typing = !typing; if (!typing) sync()" x-text="typing ? {{toJSON (.T.Get "Browse folders")}} : {{toJSON (.T.Get "Type a path")}}">{{.T.Get "Type a path"}}</button>{{end}}
+    </div>
 
-<!-- form -->
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
-    <div class="mt-8">
-        <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-
-            <div class="col-span-full mb-5">
-                <label for="db_user" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Choose a directory:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-
-                <div class="flex rounded-lg shadow-sm">
-                    <input type="text" id="directory-select" class="py-2 px-3 block w-full border-gray-200 shadow-sm rounded text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600" value="/var/www/html/" placeholder="/var/www/html/">
-                </div>
-            </div>
-      </div>
-
-      <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
-
-
-        <div class="md:flex items-center md:justify-end md:space-x-4">
-            <button id="start-scan-btn" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Start Scan"}}<svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
-                </svg>
-            </button>
-
-            <!-- Scanning Spinner Button (Initially hidden) -->
-            <button id="scanning-btn" tabindex="-1" type="button" style="display: none;" disabled class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
-
-<svg aria-hidden="true" role="status" class="inline w-4 h-4 me-3 text-white animate-spin" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="#E5E7EB"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentColor"/>
-</svg> {{.T.Get "Scanning..."}}
-            </button>
-
-            <button id="stop-scan-btn" type="button" style="display: none;" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 mt-2 w-full sm:w-auto whitespace-nowrap border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 sm:mt-0">{{.T.Get "Stop"}}</button>
-
-
-
+    {{if .UserAllowed.filemanager}}
+    <div class="op-scan-browser" x-show="!typing">
+        <div class="op-scan-crumbs">
+            <button type="button" class="op-icon-btn" :disabled="!cur" @click="load(up())" aria-label="{{.T.Get "Up one level"}}">{{template "op_icon" "cornerup"}}</button>
+            <button type="button" class="op-tag op-mono" @click="load('')">/var/www/html</button>
+            <template x-for="(part, i) in (cur ? cur.split('/') : [])" :key="i"><span class="op-scan-crumb"><span class="op-hint">/</span><button type="button" class="op-tag op-mono" @click="load(cur.split('/').slice(0, i + 1).join('/'))" x-text="part"></button></span></template>
         </div>
-
+        <ul class="op-scan-list" :aria-busy="loading.toString()">
+            <template x-for="f in folders" :key="f.name">
+                <li :class="sel === (cur ? cur + '/' : '') + f.name && 'is-picked'">
+                    <input type="radio" name="scan-folder" class="op-scan-radio" :checked="sel === (cur ? cur + '/' : '') + f.name" @change="sel = (cur ? cur + '/' : '') + f.name; sync()" :aria-label="{{toJSON (.T.Get "Pick")}} + ' ' + f.name">
+                    <button type="button" class="op-scan-folder" @click="load((cur ? cur + '/' : '') + f.name)"><span class="fm-folder op-scan-ico">{{template "op_icon" "folder"}}</span><span x-text="f.name"></span></button>
+                </li>
+            </template>
+            <li class="op-scan-empty" x-show="!loading &amp;&amp; !failed &amp;&amp; !folders.length" x-cloak>{{.T.Get "No folders here, this folder's files get scanned."}}</li>
+            <li class="op-scan-empty" x-show="failed" x-cloak>{{.T.Get "This folder could not be opened."}}</li>
+        </ul>
     </div>
-</div>
-<!-- END form -->
+    {{end}}
 
+    <div class="op-actions" style="margin-top:16px">
+        <button id="start-scan-btn" type="button" class="op-btn op-btn-primary">{{template "op_icon" "bug"}} {{.T.Get "Start Scan"}}</button>
+        <button id="scanning-btn" tabindex="-1" type="button" style="display: none;" disabled class="op-btn op-btn-primary"><span class="op-spin">{{template "op_icon" "refresh"}}</span> {{.T.Get "Scanning..."}}</button>
+        <button id="stop-scan-btn" type="button" style="display: none;" class="op-btn op-btn-secondary">{{.T.Get "Stop"}}</button>
+    </div>
+</section>
 
     <!-- Scan Progress (Initially hidden) -->
-    <div id="scan-progress" class="m-4 items-center gap-3" style="display: none;">
+    <div id="scan-progress" class="op-card op-scan-progress" style="display: none;">
         <div id="scan-radar" class="shrink-0 items-center" style="display: none;">
             <svg aria-hidden="true" height="48" role="presentation" viewBox="0 0 48 48" width="48">
               <defs>
@@ -100,25 +111,25 @@
               <circle cx="24" cy="24" fill="#5A8A6E" r="2.6"></circle>
             </svg>
         </div>
-        <p style="word-break: break-all;" class="min-w-0 text-sm text-gray-600 dark:text-gray-400">
+        <p style="word-break: break-all;margin:0" class="min-w-0 op-meta">
             <span id="scan-progress-count">0</span> {{.T.Get "files scanned"}} &mdash;
             <span id="scan-progress-current"></span>
         </p>
     </div>
 
     <!-- Scan Complete Message (Initially hidden) -->
-    <div id="scan-complete-message" class="m-4 alert alert-success" style="display: none;"></div>
+    <div id="scan-complete-message" class="op-alert is-success" style="display: none;"></div>
 
     <!-- Scan Results Card (Initially hidden) -->
-    <div id="scan-results-card" class="card card-one m-4" style="display: none;">
-        <div class="card-header" style="display: block;">
-            <h6 class="card-title">{{.T.Get "Scan Results"}}</h6>
-        </div>
-        <div class="card-body">
+    <div id="scan-results-card" class="op-card" style="display: none;">
+        <div class="op-card-head"><h2>{{.T.Get "Scan Results"}}</h2></div>
+        <div>
             <!-- plain text + fixed height so the browser never has to lay out/reflow an ever-growing HTML tree on scans with tens of thousands of hits -->
-            <pre id="scan-results" class="fs-xs m-0 p-2 border rounded dark:border-gray-800" style="max-height: 24rem; overflow-y: auto; white-space: pre-wrap; word-break: break-all;"></pre>
+            <pre id="scan-results" class="op-scan-results" style="max-height: 24rem; overflow-y: auto; white-space: pre-wrap; word-break: break-all;"></pre>
         </div>
     </div>
+
+</div>
 
 <script>
     const i18n = {

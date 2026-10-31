@@ -3,9 +3,12 @@ package docker
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
+	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -33,14 +36,13 @@ func handleDockerTerminal(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	containerName := r.PathValue("container_name")
 	terminalTimeout := terminalCommandTimeout(a)
 
-	if containerName != "" {
-		renderTerminalPage(a, w, r, terminalTimeout, "Container Terminal", containerName, nil)
-		return
-	}
-
 	userID, _ := auth.UserID(r)
 	injected, err := a.InjectData(ctx, userID)
 	if err != nil {
+		if containerName != "" {
+			renderTerminalPage(a, w, r, terminalTimeout, "Container Terminal", containerName, nil)
+			return
+		}
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
@@ -57,6 +59,28 @@ func handleDockerTerminal(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		}
 	}
 
+	// the terminal page lists the running services too, so its container picker can switch
+	if containerName != "" {
+		renderTerminalPage(a, w, r, terminalTimeout, "Container Terminal", containerName, activeServiceNames)
+		return
+	}
+	// open on a running container instead of an empty picker, PHP first since that's where most commands go
+	if len(activeServiceNames) > 0 {
+		sort.Strings(activeServiceNames)
+		pick := activeServiceNames[0]
+		for _, n := range activeServiceNames {
+			if strings.HasPrefix(n, "php-fpm") {
+				pick = n
+				break
+			}
+		}
+		target := "/containers/terminal/" + url.PathEscape(pick)
+		if r.URL.RawQuery != "" {
+			target += "?" + r.URL.RawQuery
+		}
+		http.Redirect(w, r, target, http.StatusFound)
+		return
+	}
 	renderTerminalPage(a, w, r, terminalTimeout, "Select Container", "", activeServiceNames)
 }
 

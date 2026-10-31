@@ -4,9 +4,11 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
@@ -84,15 +86,59 @@ command = touch /tmp/x`,
 }
 
 func TestRenderCronjobsNewPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
-	data := CronjobsNewPageData{LayoutData: baseLayout(mgr, "/cronjobs/new"), Service: "cron", Containers: []string{"mysql", "nginx-proxy"}}
+
+	t.Run("with containers", func(t *testing.T) {
+		data := CronjobsNewPageData{
+			LayoutData: baseLayout(mgr, "/cronjobs/new"), Service: "cron", Containers: []string{"mariadb", "php-fpm-8.5"},
+			PHPContainer: "php-fpm-8.5", DBContainer: "mariadb", JobNames: []string{"Nightly"}, TimeZone: "Europe/Belgrade",
+		}
+		w := httptest.NewRecorder()
+		if err := cronjobsNewPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		for _, want := range []string{
+			`action="/cronjobs/save"`, `name="command"`, `name="comment"`, `name="schedule"`, `name="container"`, `name="no_overlap"`,
+			`<option value="php-fpm-8.5"`, `op-cf-presets`, `Europe/Belgrade`, `/cronjobs/new?`, `Schedule CronJob`, `Added to crons.ini`, `Nightly`,
+		} {
+			if !strings.Contains(body, want) {
+				t.Errorf("missing %q", want)
+			}
+		}
+		if !strings.Contains(body, `<option value="php-fpm-8.5" :selected="container === &#34;php-fpm-8.5&#34;" selected>`) {
+			t.Error("the default PHP container should be preselected")
+		}
+	})
+
+	t.Run("no containers", func(t *testing.T) {
+		data := CronjobsNewPageData{LayoutData: baseLayout(mgr, "/cronjobs/new"), Service: "cron", TimeZone: "UTC"}
+		w := httptest.NewRecorder()
+		if err := cronjobsNewPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, "No containers to run jobs in") || strings.Contains(body, `action="/cronjobs/save"`) {
+			t.Error("expected the empty state without a form")
+		}
+	})
+}
+
+func TestRenderCronjobsTableCreated(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	data := CronjobsPageData{
+		LayoutData: baseLayout(mgr, "/cronjobs"), View: "table", Service: "cron", Created: "fresh",
+		CronJobs: []CronJob{{Comment: "old", Schedule: "@daily", Container: "php", Command: "a"}, {Comment: "fresh", Schedule: "@hourly", Container: "php", Command: "b"}},
+	}
 	w := httptest.NewRecorder()
-	if err := cronjobsNewPage.Render(w, 200, data); err != nil {
+	if err := cronjobsPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)
 	}
 	body := w.Body.String()
-	if !strings.Contains(body, "mysql") || !strings.Contains(body, "nginx-proxy") {
-		t.Error("expected container options in body")
+	if strings.Count(body, "op-cf-new-row") != 1 || strings.Count(body, "op-cf-tag-new") != 1 {
+		t.Error("expected exactly the created row highlighted")
 	}
 }
 
@@ -133,5 +179,31 @@ func TestRenderCronjobsTableHasLogLinks(t *testing.T) {
 	}
 	if !strings.Contains(body, `href="/cronjobs/logs?job=db%20dump"`) {
 		t.Error("each job should link to its logs tab")
+	}
+}
+
+func TestRenderCronjobsTableRows(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	jobs := []CronJob{
+		{Comment: "Nightly database dump", Schedule: "0 0 3 * * *", Container: "mysql", Command: "mysqldump --all-databases > /backups/db.sql"},
+		{Comment: "WordPress cron", Schedule: "0 */5 * * * *", Container: "php-fpm-8.3", Command: "php /var/www/html/example.com/wp-cron.php", NoOverlap: true},
+		{Comment: "Shop cleanup", Schedule: "0 30 2 * * 0", Container: "node-shop", Command: "node /app/scripts/cleanup.js"},
+		{Comment: "Rebuild sitemap", Schedule: "0 0 */6 * * *", Container: "nginx", Command: "curl -fsS https://example.com/sitemap/rebuild", Disabled: true},
+	}
+	data := CronjobsPageData{
+		LayoutData: baseLayout(mgr, "/cronjobs"), View: "table", Service: "cron", CronJobs: jobs,
+		Services: []string{"mysql", "php-fpm-8.3", "node-shop", "nginx"}, Summary: cronSummary(jobs, time.Now(), time.UTC),
+		Timezones: []string{"UTC", "Europe/Belgrade"},
+	}
+	w := httptest.NewRecorder()
+	if err := cronjobsPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	for _, want := range []string{"Every day at 03:00", "Sundays at 02:30", "Paused", `action="/cronjobs/edit"`, `action="/cronjobs/toggle"`, `action="/cronjobs/delete"`, `action="/cronjobs/timezone"`, `id="editForm"`, `form="cron-edit-1"`, "4 jobs, 3 active"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("expected %q in body", want)
+		}
 	}
 }
