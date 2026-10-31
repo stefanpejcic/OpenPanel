@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import clsx from "clsx";
+import { FeatureTooltip } from "./enterprise-table";
+import { comparisonTip } from "./comparison-tooltips";
 
 import { CheckCircle } from "@site/src/refine-theme/icons/check-circle";
 import { CrossCircle } from "@site/src/refine-theme/icons/cross-circle";
@@ -250,7 +252,13 @@ const TableItem = ({
                 )}
             >
                 <TableItemDescription isLast={isLast}>
-                    {description}
+                    {comparisonTip(description) ? (
+                        <FeatureTooltip features={[comparisonTip(description)]}>
+                            {description}
+                        </FeatureTooltip>
+                    ) : (
+                        description
+                    )}
                 </TableItemDescription>
                 <TableItemContentGroup
                     {...{ cloudpanel, openpanel, activeTab, isLast, valueType }}
@@ -730,6 +738,15 @@ const tableData = [
         title: "Advanced",
         items: [
             {
+                description: "Multi-Server management",
+                cloudpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cloudpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
                 description: "Process Manager",
                 cloudpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
@@ -1170,6 +1187,24 @@ const tableData = [
                 openpanel: <TableText>Containerized</TableText>,
                 valueType: {
                     cloudpanel: "text",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Ruby Applications",
+                cloudpanel: <CrossIcon />,
+                openpanel: <TableText>Containerized</TableText>,
+                valueType: {
+                    cloudpanel: "icon",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Java Applications",
+                cloudpanel: <CrossIcon />,
+                openpanel: <TableText>Containerized</TableText>,
+                valueType: {
+                    cloudpanel: "icon",
                     openpanel: "text",
                 },
             },

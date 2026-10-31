@@ -6,7 +6,9 @@ sidebar_label: "Transfer account"
 
 This feature allows administrators to transfer (copy) individual accounts from one OpenPanel server to another.
 
-To migrate all users and files at once, please refer to the, please refer to the [Server Migration Documentation](/docs/articles/transfers/migrate-openadmin-to-new-server/).
+To migrate all users and files at once, please refer to the [Server Migration Documentation](/docs/articles/transfers/migrate-openadmin-to-new-server/).
+
+If both servers are in the same [multi-server cluster](/docs/admin/system/multi-server/), use [Move account](/docs/admin/system/multi-server/move-accounts) instead, it needs no SSH details and lets you cancel the move.
 
 ## How to Transfer an Account
 

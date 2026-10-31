@@ -75,3 +75,31 @@ rm -f "$tmp"
 
 # logrotate failed every night (caddy-logs postrotate ran podman exec inside logrotate.service, csf's lfd file was group-writable) and syslog had no size limit, the new opencli server-logrotate fixes all three
 opencli server-logrotate
+
+# caddy logged every coraza "key not found in collection" warning to syslog, gigabytes a day: default logger at ERROR and coraza debug log at errors only
+CADDYFILE=/etc/openpanel/caddy/Caddyfile
+CORAZA_RULES=/etc/openpanel/caddy/coraza_rules.conf
+caddy_restart=no
+if [ -f "$CADDYFILE" ] && ! awk '/^{$/{g=1} g && /^}$/{exit} g && /^    log \{/{f=1} END{exit !f}' "$CADDYFILE"; then
+    cp -a "$CADDYFILE" "$CADDYFILE.bak-2.0.20"
+    tmp=$(mktemp)
+    awk '!done && /^{$/ {print; print "    # default logger only, site access logs have their own; the WAF warns \"key not found in collection\" on most requests and filled syslog"; print "    log {"; print "        level ERROR"; print "    }"; print ""; done=1; next} {print}' "$CADDYFILE" > "$tmp"
+    # written in place, the caddy container bind-mounts this file
+    cat "$tmp" > "$CADDYFILE"
+    rm -f "$tmp"
+    caddy_restart=yes
+fi
+if [ -f "$CORAZA_RULES" ] && ! grep -q "^SecDebugLogLevel" "$CORAZA_RULES"; then
+    sed -i 's|^# LOGS$|# LOGS\n# errors only, at the default level coraza warns "key not found in collection" on most requests and that filled syslog\nSecDebugLogLevel 1|' "$CORAZA_RULES"
+    caddy_restart=yes
+fi
+if [ "$caddy_restart" = yes ]; then
+    # a reload keeps the waf logging at the old level, only a restart picks it up
+    if podman exec caddy caddy validate --config /etc/caddy/Caddyfile >/dev/null 2>&1 </dev/null; then
+        echo "Restarting caddy with ERROR log level..."
+        podman restart caddy >/dev/null 2>&1 </dev/null
+    else
+        echo "Caddyfile fails caddy validate, restoring $CADDYFILE.bak-2.0.20"
+        [ -f "$CADDYFILE.bak-2.0.20" ] && cat "$CADDYFILE.bak-2.0.20" > "$CADDYFILE"
+    fi
+fi

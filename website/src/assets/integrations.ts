@@ -130,7 +130,7 @@ export const integrations: IntegrationsType = {
             icon: Backup,
             description:
                 "Users configure their own backup schedules, choose exactly what to back up, and restore from a wide range of supported destinations.",
-            url: "/docs/panel/files/backups/",
+            url: "/docs/panel/backups/",
             status: "enterprise",
         },
         {
@@ -177,7 +177,7 @@ export const integrations: IntegrationsType = {
             icon: Usage,
             description:
                 "Browse current disk and inodes usage per directory to quickly identify what is taking up space on the account.",
-            url: "/docs/panel/files/disk_usage/",
+            url: "/docs/panel/statistics/disk_usage/",
             status: "enterprise",
         },
         {
@@ -233,7 +233,7 @@ export const integrations: IntegrationsType = {
             icon: Configuration,
             description:
                 "Each user has complete control over their server configuration, enabling them to install or restart services, edit system configurations, and perform various other administrative tasks.",
-            url: "/docs/panel/advanced/webserver_settings/",
+            url: "/docs/panel/webserver/webserver_settings/",
             status: "stable",
         },
         {
@@ -241,7 +241,7 @@ export const integrations: IntegrationsType = {
             icon: CronJobs,
             description:
                 "Schedule and edit cronjobs directly from the OpenPanel interface to efficiently plan and manage scheduled actions.",
-            url: "/docs/panel/advanced/cronjobs/",
+            url: "/docs/panel/cronjobs/",
             status: "stable",
         },
         {
@@ -265,7 +265,7 @@ export const integrations: IntegrationsType = {
             icon: Usage,
             description:
                 "Monitor real-time CPU and memory usage, check historical trends, and adjust server configuration as needed to optimize performance.",
-            url: "/docs/panel/advanced/resource_usage/",
+            url: "/docs/panel/statistics/resource_usage/",
             status: "stable",
         },
         {
@@ -273,7 +273,7 @@ export const integrations: IntegrationsType = {
             icon: Visitors,
             description:
                 "Access automatically generated, visually appealing visitor reports from your website's access logs. Explore visitor locations, accessed pages, IPs, error pages, and more with ease.",
-            url: "/docs/panel/domains/goaccess/",
+            url: "/docs/panel/statistics/goaccess/",
             status: "stable",
         },
         {
@@ -281,7 +281,7 @@ export const integrations: IntegrationsType = {
             icon: Activity,
             description:
                 "Every action in the OpenPanel interface is recorded, allowing users to easily track who did what and when, eliminating the need to sift through server logs.",
-            url: "/docs/panel/account/account_activity/",
+            url: "/docs/panel/security/account_activity/",
             status: "stable",
         },
         {
@@ -297,7 +297,7 @@ export const integrations: IntegrationsType = {
             icon: Factor,
             description:
                 "Users can register passkeys for their account and sign in without a password, using their device's biometrics or security key.",
-            url: "/docs/panel/account/passkeys/",
+            url: "/docs/panel/security/passkeys/",
             status: "enterprise",
         },
         {
@@ -305,16 +305,24 @@ export const integrations: IntegrationsType = {
             icon: UserLogin,
             description:
                 "Users can view the last 20 IP addresses that logged into their account to spot any suspicious activity.",
-            url: "/docs/panel/account/login_history/",
+            url: "/docs/panel/security/login_history/",
             status: "stable",
         },
     ],
     "community-data-provider-packages": [
         {
+            name: "Multi-Server",
+            icon: ServerCog,
+            description:
+                "Manage several OpenPanel servers from one OpenAdmin: see users, domains and services of all servers, apply settings everywhere and move accounts between servers.",
+            url: "/docs/admin/system/multi-server/",
+            status: "enterprise",
+        },
+        {
             name: "Simple server deployment",
             icon: Download,
             description:
-                "Install OpenPanel in minutes. Provision new servers to your cluster with a single command.",
+                "Install OpenPanel in minutes. Add new servers to your multi-server cluster right from the install command.",
             url: "/docs/admin/intro/#installation",
             status: "stable",
         },
@@ -323,7 +331,7 @@ export const integrations: IntegrationsType = {
             icon: Migration,
             description:
                 "Create an OpenPanel account directly from a full cPanel account backup, making it easy to move existing customers over.",
-            url: "/docs/admin/advanced/cpanel/",
+            url: "/docs/admin/backups/cpanel/",
             status: "enterprise",
         },
         {
@@ -354,7 +362,7 @@ export const integrations: IntegrationsType = {
             icon: Bolt,
             description:
                 "With the Docker module, users have an option to switch to their preferred webserver: Nginx, Apache, OpenLitespeed, OpenResty.",
-            url: "/docs/panel/containers/webserver/",
+            url: "/docs/panel/webserver/webserver_type/",
             status: "enterprise",
         },
         {
@@ -370,7 +378,7 @@ export const integrations: IntegrationsType = {
             icon: Usage,
             description:
                 "Monitor CPU, Memory usage, Network, Disk and load with real time monitoring.",
-            url: "/docs/admin/dashboard/#sse-usage",
+            url: "/docs/admin/dashboard/#usage",
             status: "stable",
         },
         {
@@ -435,7 +443,7 @@ export const integrations: IntegrationsType = {
             icon: ServerInfo,
             description:
                 "View real-time usage data, IP address, nameservers, and other important server information directly within the OpenPanel interface.",
-            url: "/docs/panel/advanced/server_info/",
+            url: "/docs/panel/server_info/",
             status: "stable",
         },
         {
@@ -574,7 +582,7 @@ export const integrations: IntegrationsType = {
             icon: Factor,
             description:
                 "Users can enhance security by enabling Two-Factor Authentication for their OpenPanel account. Administrators have the flexibility to enforce or disable 2FA for any user.",
-            url: "/docs/panel/account/2fa/",
+            url: "/docs/panel/security/2fa/",
             status: "stable",
         },
         {
@@ -582,7 +590,7 @@ export const integrations: IntegrationsType = {
             icon: Services,
             description:
                 "Scan account files for malware using ClamAV directly from the user panel.",
-            url: "/docs/panel/files/malware-scanner/",
+            url: "/docs/panel/security/malware-scanner/",
             status: "enterprise",
         },
         {
@@ -590,7 +598,7 @@ export const integrations: IntegrationsType = {
             icon: IPblock,
             description:
                 "Each user has the capability to block IP addresses from accessing their websites directly from the panel.",
-            url: "/docs/panel/advanced/ip-blocker/",
+            url: "/docs/panel/security/ip-blocker/",
             status: "enterprise",
         },
         {

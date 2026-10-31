@@ -1,0 +1,1573 @@
+import React, { useState } from "react";
+import clsx from "clsx";
+import { FeatureTooltip } from "./enterprise-table";
+import { comparisonTip } from "./comparison-tooltips";
+
+import { CheckCircle } from "@site/src/refine-theme/icons/check-circle";
+import { CrossCircle } from "@site/src/refine-theme/icons/cross-circle";
+import { EnterpriseGetInTouchButton } from "./enterprise-get-in-touch-button";
+import { ArrowLeftLongIcon } from "./icons/arrow-left-long";
+import { AnimatePresence, motion } from "framer-motion";
+
+export const EnterpriseTable = ({ className }: { className?: string }) => {
+    const [activeTab, setActiveTab] = useState<"enhance" | "openpanel">(
+        "openpanel",
+    );
+
+    return (
+        <div
+            className={clsx(
+                "flex flex-col",
+                "not-prose",
+                "min-h-[1556px] landing-sm:min-h-[1444px] landing-md:min-h-min",
+                "w-full",
+                className,
+            )}
+        >
+            <div
+                className={clsx(
+                    "pl-4 landing-sm:pl-6 landing-md:pl-10",
+                    "text-2xl landing-sm:text-[32px] landing-sm:leading-[40px]",
+                )}
+            >
+                <h2
+                    id="compare"
+                    className={clsx(
+                        "font-semibold",
+                        "dark:text-gray-400 text-gray-600",
+                    )}
+                >
+                    Compare Enhance VS OpenPanel
+                </h2>
+            </div>
+
+            <div className={clsx("w-full", "pb-8", "relative")}>
+                <AnimatePresence exitBeforeEnter>
+                    <motion.div
+                        key={activeTab}
+                        initial={{
+                            opacity: 0,
+                            x: activeTab === "enhance" ? "-100%" : "100%",
+                        }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{
+                            opacity: 0,
+                            x: activeTab === "enhance" ? "-100%" : "100%",
+                        }}
+                        transition={{
+                            duration: 0.3,
+                            bounce: 0,
+                            ease: "easeInOut",
+                        }}
+                        className={clsx("relative", "w-full", "pt-8")}
+                    >
+                        <TableStickyHeader
+                            activeTab={activeTab}
+                            setActiveTab={(tab: "enhance" | "openpanel") => {
+                                setActiveTab(tab);
+                            }}
+                        />
+                        <TableSectionWrapper>
+                            {tableData.map((section) => {
+                                const isLast =
+                                    section.title === tableData.at(-1).title;
+
+                                return (
+                                    <TableSection
+                                        key={section.title}
+                                        title={section.title}
+                                        activeTab={activeTab}
+                                        items={section.items}
+                                        isLast={isLast}
+                                    />
+                                );
+                            })}
+                        </TableSectionWrapper>
+                    </motion.div>
+                </AnimatePresence>
+            </div>
+            <EnterpriseGetInTouchButton
+                className={clsx("block landing-sm:hidden", "mx-auto")}
+                linkClassName={clsx("w-[344px]", "mx-auto")}
+            />
+        </div>
+    );
+};
+
+const TableItemHeading = ({ children }) => {
+    return (
+        <div
+            className={clsx(
+                "pl-4 landing-sm:pl-10 pb-4 pt-4 pr-4",
+                "bg-refine-openpanel-table-alt",
+                "dark:bg-refine-openpanel-table-alt-dark",
+                "border-b",
+                "border-gray-200",
+                "dark:border-gray-700",
+                "text-gray-900",
+                "dark:text-gray-0",
+                "text-base",
+                "font-semibold",
+            )}
+        >
+            {children}
+        </div>
+    );
+};
+
+const TableItemContent = ({ children, valueType, activeTab, className }) => {
+    const isIcon = valueType[activeTab] === "icon";
+
+    return (
+        <div
+            className={clsx(
+                isIcon && "w-auto",
+                !isIcon && "w-[560px]",
+                "landing-sm:w-[360px]",
+                "landing-md:w-[296px]",
+                "landing-lg:w-[396px]",
+                "landing-sm:py-4",
+                "landing-sm:px-6",
+                "flex",
+                "items-start",
+                "justify-start",
+                "gap-2",
+                className,
+            )}
+        >
+            {children}
+        </div>
+    );
+};
+
+const TableItemDescription = ({ children, isLast }) => {
+    return (
+        <div
+            className={clsx(
+                "min-w-[296px] landing-md:min-w-auto",
+                "landing-md:flex-1",
+                "text-base",
+                "flex",
+                "text-gray-700",
+                "dark:text-gray-400",
+                "landing-sm:pl-10 landing-sm:pb-4 landing-sm:pt-4 landing-sm:pr-4",
+                !isLast && "landing-sm:border-r",
+                !isLast && "landing-sm:border-gray-200",
+                !isLast && "landing-sm:dark:border-gray-700",
+            )}
+        >
+            {children}
+        </div>
+    );
+};
+
+const TableItemContentGroup = ({
+    enhance,
+    openpanel,
+    activeTab,
+    isLast,
+    valueType,
+}) => {
+    const isIcon = valueType[activeTab] === "icon";
+
+    return (
+        <div
+            className={clsx(
+                "flex-shrink-0",
+                "flex",
+                "w-auto",
+                isIcon && "ml-auto",
+                isLast && "landing-sm:border-b",
+                isLast && "landing-sm:border-l",
+                isLast && "landing-sm:border-gray-200",
+                isLast && "landing-sm:dark:border-gray-700",
+                isLast && "landing-sm:rounded-bl-3xl",
+                isLast && "landing-sm:rounded-br-3xl",
+                "overflow-hidden",
+            )}
+        >
+            <div className={clsx("flex", "flex-shrink-0")}>
+                <TableItemContent
+                    activeTab={activeTab}
+                    valueType={valueType}
+                    className={clsx(
+                        activeTab !== "enhance" && "hidden landing-md:flex",
+                        activeTab === "enhance" && "flex",
+                    )}
+                >
+                    {enhance}
+                </TableItemContent>
+                <div
+                    className={clsx(
+                        "w-px h-full",
+                        "bg-gray-200",
+                        "dark:bg-gray-700",
+                        "flex-shrink-0",
+                        "hidden",
+                        "landing-md:block",
+                    )}
+                />
+                <TableItemContent
+                    activeTab={activeTab}
+                    valueType={valueType}
+                    className={clsx(
+                        activeTab !== "openpanel" && "hidden landing-md:flex",
+                        activeTab === "openpanel" && "flex",
+                    )}
+                >
+                    {openpanel}
+                </TableItemContent>
+            </div>
+        </div>
+    );
+};
+
+const TableItem = ({
+    description,
+    enhance,
+    openpanel,
+    activeTab,
+    isLast,
+    valueType,
+}) => {
+    return (
+        <div
+            className={clsx(
+                !isLast && "border-b",
+                !isLast && "border-b-gray-200",
+                !isLast && "dark:border-b-gray-700",
+                "w-full",
+                "p-4 landing-sm:p-0",
+                "overflow-hidden",
+            )}
+        >
+            <div
+                key={activeTab}
+                className={clsx(
+                    "flex",
+                    valueType[activeTab] === "icon" && "flex-row",
+                    valueType[activeTab] !== "icon" &&
+                        "flex-col landing-sm:flex-row",
+                    "gap-2 landing-sm:gap-0",
+                )}
+            >
+                <TableItemDescription isLast={isLast}>
+                    {comparisonTip(description) ? (
+                        <FeatureTooltip features={[comparisonTip(description)]}>
+                            {description}
+                        </FeatureTooltip>
+                    ) : (
+                        description
+                    )}
+                </TableItemDescription>
+                <TableItemContentGroup
+                    {...{ enhance, openpanel, activeTab, isLast, valueType }}
+                />
+            </div>
+        </div>
+    );
+};
+
+const TableSection = ({ title, items, activeTab, isLast = false }) => {
+    return (
+        <>
+            <TableItemHeading>{title}</TableItemHeading>
+            {items.map((item, index) => (
+                <TableItem
+                    key={index}
+                    activeTab={activeTab}
+                    {...item}
+                    isLast={isLast && index === items.length - 1}
+                />
+            ))}
+        </>
+    );
+};
+
+const TableTabs = ({ activeTab, setActiveTab }) => {
+    return (
+        <div
+            className={clsx(
+                "flex",
+                "flex-shrink-0",
+                "rounded-tl-2xl landing-md:rounded-tl-3xl",
+                "rounded-tr-2xl landing-md:rounded-tr-3xl",
+                "border",
+                "border-gray-200",
+                "dark:border-gray-700",
+                "border-b-0",
+                "bg-gray-0",
+                "dark:bg-gray-900",
+                "w-full landing-sm:w-[360px]",
+                "overflow-hidden",
+                "landing-md:w-auto",
+                "relative",
+            )}
+        >
+            <button
+                type="button"
+                onClick={() => {
+                    setActiveTab((prev) => {
+                        if (prev === "enhance") return "openpanel";
+                        return "enhance";
+                    });
+                }}
+                className={clsx(
+                    "transition-opacity duration-200 ease-in-out",
+                    "z-[1]",
+                    "flex",
+                    "landing-md:hidden",
+                    "absolute",
+                    "right-6",
+                    "top-4",
+                    "rounded-full",
+                    "w-12 h-6",
+                    "items-center justify-center",
+                    activeTab === "openpanel" &&
+                        "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500",
+                    activeTab === "enhance" &&
+                        "bg-refine-blue dark:bg-refine-cyan-alt text-gray-0 dark:text-gray-900",
+                )}
+            >
+                <ArrowLeftLongIcon
+                    className={clsx(
+                        "transition-transform duration-200 ease-in-out",
+                        activeTab === "enhance" && "rotate-360",
+                        activeTab === "openpanel" && "rotate-180",
+                    )}
+                />
+            </button>
+            <div
+                className={clsx("relative", "w-full", "flex", "flex-shrink-0")}
+            >
+                <div
+                    className={clsx(
+                        "w-full",
+                        "landing-md:w-[296px]",
+                        "landing-lg:w-[396px]",
+                        "p-4 landing-md:p-6",
+                        activeTab !== "enhance" && "hidden landing-md:flex",
+                        activeTab === "enhance" && "flex",
+                        "items-center",
+                        "justify-start",
+                        "text-center",
+                        "text-base",
+                        "landing-sm:text-2xl",
+                    )}
+                >
+                    <div
+                        className={clsx(
+                            "font-normal",
+                            "whitespace-nowrap",
+                            activeTab === "enhance" && "opacity-100",
+                            activeTab !== "enhance" &&
+                                "opacity-0 landing-md:opacity-100",
+                            "transition-opacity",
+                            "ease-in-out",
+                            "duration-100",
+                            "dark:text-gray-400 text-gray-700",
+                        )}
+                    >
+                        Enhance
+                        <span className={clsx("block", "text-left", "text-xs landing-sm:text-sm", "font-normal", "dark:text-gray-400 text-gray-500")}>$0.15 / website</span>
+                    </div>
+                </div>
+                <div
+                    className={clsx(
+                        "w-px",
+                        "h-full",
+                        "bg-gray-200",
+                        "dark:bg-gray-700",
+                        "hidden",
+                        "landing-md:block",
+                        "flex-shrink-0",
+                    )}
+                />
+                <div
+                    className={clsx(
+                        "w-full",
+                        "landing-md:w-[296px]",
+                        "landing-lg:w-[396px]",
+                        "p-4 landing-md:p-6",
+                        activeTab !== "openpanel" && "hidden landing-md:flex",
+                        activeTab === "openpanel" && "flex",
+                        "items-center",
+                        "justify-start",
+                        "text-center",
+                        "text-base",
+                        "landing-sm:text-2xl",
+                    )}
+                >
+                    <div
+                        className={clsx(
+                            "font-semibold",
+                            "whitespace-nowrap",
+                            activeTab === "openpanel" && "opacity-100",
+                            activeTab !== "openpanel" &&
+                                "opacity-0 landing-md:opacity-100",
+                            "transition-opacity",
+                            "ease-in-out",
+                            "duration-100",
+                            "dark:text-refine-cyan-alt dark:drop-shadow-[0_0_30px_rgba(71,235,235,0.25)]",
+                            "text-refine-blue drop-shadow-[0_0_30px_rgba(51,51,255,0.3)]",
+                        )}
+                    >
+                        OpenPanel Enterprise
+                        <span className={clsx("block", "text-left", "text-xs landing-sm:text-sm", "font-normal", "dark:text-gray-400 text-gray-500")}>14.95€ / month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const TableStickyHeader = ({ activeTab, setActiveTab }) => {
+    return (
+        <div
+            className={clsx(
+                "sticky",
+                "z-[1]",
+                "top-[64px]",
+                "pt-4",
+                "flex",
+                "justify-end",
+                "w-full",
+                "border-b",
+                "bg-gray-0",
+                "dark:bg-gray-900",
+                "border-b-gray-200",
+                "dark:border-b-gray-700",
+            )}
+        >
+            <div className={clsx("ml-px", "flex-1", "backdrop-blur-[3px]")} />
+            <TableTabs {...{ activeTab, setActiveTab }} />
+        </div>
+    );
+};
+
+const TableSectionWrapper = ({ children }) => {
+    return (
+        <div
+            className={clsx(
+                "flex",
+                "flex-col",
+                "border-r",
+                "border-b landing-sm:border-b-0",
+                "border-l landing-sm:border-l-0",
+                "rounded-br-2xl landing-md:rounded-br-3xl",
+                "rounded-bl-2xl",
+                "border-gray-200",
+                "dark:border-gray-700",
+            )}
+        >
+            {children}
+        </div>
+    );
+};
+
+const CheckIcon = () => {
+    return (
+        <CheckCircle
+            className={clsx(
+                "dark:text-refine-green-alt text-refine-green",
+                "landing-sm:mx-auto",
+            )}
+        />
+    );
+};
+
+const CrossIcon = () => {
+    return (
+        <CrossCircle className={clsx("text-gray-500", "landing-sm:mx-auto")} />
+    );
+};
+
+const TableText = ({ children }) => {
+    return (
+        <div
+            className={clsx(
+                "text-start",
+                "text-xs landing-sm:text-base",
+                "dark:text-gray-0 text-gray-900",
+            )}
+        >
+            {children}
+        </div>
+    );
+};
+
+const tableData = [
+    {
+        title: "Pricing",
+        items: [
+            {
+                description: "Monthly Pricing",
+                enhance: <TableText>$0.15 / website ($10 minimum)</TableText>,
+                openpanel: <TableText>14.95€ / month</TableText>,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Pricing model",
+                enhance: <TableText>Per website</TableText>,
+                openpanel: <TableText>Per server</TableText>,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "text",
+                },
+            },
+        ],
+    },
+    {
+        title: "System",
+        items: [
+            {
+                description: "Supported OS",
+                enhance: <TableText><a href="https://enhance.com/docs" target="_blank">Ubuntu only</a></TableText>,
+                openpanel: <TableText><a href="/docs/admin/intro/#requirements">OS-agnostic: Ubuntu, Debian, AlmaLinux, Rocky, CentOS</a></TableText>,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Support for ARM CPUs (Aarch64)",
+                enhance: <TableText>Not documented</TableText>,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "User Isolation",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Service Isolation",
+                enhance: <TableText>PHP per website, shared MySQL and email</TableText>,
+                openpanel: <TableText>Service per user</TableText>,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Kernel Updates",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+        ],
+    },
+    {
+        title: "Webservers",
+        items: [
+            {
+                description: "Apache",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Nginx",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "OpenLitespeed",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "OpenResty",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+        ],
+    },
+    {
+        title: "Caching & Search",
+        items: [
+            {
+                description: "Varnish Caching",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Valkey / Redis",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Memcached",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "OpenSearch / ElasticSearch",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+        ],
+    },
+    {
+        title: "PHP",
+        items: [
+            {
+                description: "Supported versions",
+                enhance: <TableText>Legacy to latest</TableText>,
+                openpanel: <TableText>5.6 - 8.5</TableText>,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "PHP Selector",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "PHP.INI Editor",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "PHP service per user",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "PHP version per domain",
+                enhance: <TableText>Per website</TableText>,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "icon",
+                },
+            },
+        ],
+    },
+    {
+        title: "Podman",
+        items: [
+            {
+                description: "Users can manage Containers",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Users can add Containers",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+        ],
+    },
+    {
+        title: "Advanced",
+        items: [
+            {
+                description: "Multi-Server management",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "API for every UI action",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Native MCP server for AI agents",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Process Manager",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Web Terminal",
+                enhance: <CrossIcon />,
+                openpanel: <TableText>Per service</TableText>,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Edit webserver settings",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "View Resource Usage",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+        ],
+    },
+    {
+        title: "Cron Jobs",
+        items: [
+            {
+                description: "Format",
+                enhance: <TableText>Unix</TableText>,
+                openpanel: <TableText>GO</TableText>,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Min Schedule",
+                enhance: <TableText>Minute</TableText>,
+                openpanel: <TableText>Seconds</TableText>,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "No overlap",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Edit cron file",
+                enhance: <TableText>Form-based only</TableText>,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Logs",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+        ],
+    },
+    {
+        title: "Files",
+        items: [
+            {
+                description: "File Manager",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Upload multiple files",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Drag & Drop Upload",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "File Editor",
+                enhance: <TableText>Basic code editor</TableText>,
+                openpanel: <TableText>Monaco (VS Code), Ace, CodeMirror</TableText>,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "FTP",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Malware Scanner",
+                enhance: <TableText>Third-party (cPFence)</TableText>,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Download from URL",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Disk Usage Explorer",
+                enhance: <TableText>Overall usage only</TableText>,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Inodes Explorer",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Fix Permissions",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+        ],
+    },
+    {
+        title: "Databases",
+        items: [
+            {
+                description: "MySQL",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "MariaDB",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Percona",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "phpMyAdmin",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "PostgreSQL",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Import Databases",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Optimize Tables",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Root Privileges",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Edit MySQL Configuration",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Manage Processes",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Switch MySQL to MariaDB",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+        ],
+    },
+    {
+        title: "Accounts",
+        items: [
+            {
+                description: "Account limit",
+                enhance: <TableText>Unlimited, billed per website</TableText>,
+                openpanel: <CrossIcon />,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Multiple Administrator Accounts",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "User can change username",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Features per user",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Detailed Activity Log",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Detailed Login Log",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Add pages to favorites",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Dark Mode",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Custom message per user",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Private notes for Administrators",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Customize email templates",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+        ],
+    },
+    {
+        title: "Domains",
+        items: [
+            {
+                description: "Automatic SSL ",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Edit VirtualHosts file",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Change docroot",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "GoAccess",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "DNS Zone Editor",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Dynamic DNS",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Edit zone file",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "TLSA records",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Export/Import zone",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "User can reset zone",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Comments for DNS records",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Suspend Domains",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+        ],
+    },
+    {
+        title: "Websites",
+        items: [
+            {
+                description: "HTML Website Builder",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "WP Manager",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Temporary Domains",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Google PageSpeed monitoring",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Google Safe Browsing monitoring",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Node / Python Environment",
+                enhance: <TableText>Node.js only</TableText>,
+                openpanel: <TableText>Containerized</TableText>,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Ruby Applications",
+                enhance: <CrossIcon />,
+                openpanel: <TableText>Containerized</TableText>,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Java Applications",
+                enhance: <CrossIcon />,
+                openpanel: <TableText>Containerized</TableText>,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "text",
+                },
+            },
+        ],
+    },
+    {
+        title: "Emails",
+        items: [
+            {
+                description: "Postfix",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Autologin to Webmail",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Sieve (RFC 5228) filtering",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Fail2ban",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Export Addresses",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+        ],
+    },
+    {
+        title: "Security",
+        items: [
+            {
+                description: "CVE Vulnerabilities",
+                enhance: <TableText>Closed source, none published</TableText>,
+                openpanel: <TableText><a href="https://www.cve.org/CVERecord/SearchResults?query=openpanel">3 before 1.0 release</a></TableText>,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Granular per-user permissions",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "2FA",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Enforce 2FA for users",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Passkeys",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "IP Blocker",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Coraza WAF",
+                enhance: <TableText>ModSecurity (OWASP rules)</TableText>,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Edit WAF rules per domain",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "View WAF logs per domain",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Sentinel Firewall (CSF)",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Custom ports",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Containerization",
+                enhance: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Disable admin panel",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Rate-limit logins",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Manage Sessions",
+                enhance: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "icon",
+                },
+            },
+        ],
+    },
+    {
+        title: "Pricing",
+        items: [
+            {
+                description: "Price Increase (3yr)",
+                enhance: <TableText>Minimum spend raised from $5 to $10</TableText>,
+                openpanel: <CrossIcon />,
+                valueType: {
+                    enhance: "text",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Forever free tier",
+                enhance: <CrossIcon />,
+                openpanel: <TableText><a href="/community">Community Edition</a></TableText>,
+                valueType: {
+                    enhance: "icon",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Annual Pricing",
+                enhance: (
+                    <div className={clsx("h-full")}>
+                        <TableText>From $120 / year + $1.80 / website</TableText>
+                    </div>
+                ),
+                openpanel: (
+                    <div className={clsx("flex flex-col", "gap-6", "w-full")}>
+                        <TableText>149.50€ / year (17% OFF)</TableText>
+                        <EnterpriseGetInTouchButton
+                            className={clsx("hidden landing-sm:block")}
+                            linkClassName={clsx("w-full")}
+                        />
+                    </div>
+                ),
+                valueType: {
+                    enhance: "text",
+                    openpanel: "text",
+                },
+            },
+        ],
+    },
+];

@@ -121,7 +121,7 @@ const TOOLTIP_GAP = 10;
 
 // hover card with the features.json description and docs link, rendered in a
 // portal because table rows clip overflow
-const FeatureTooltip = ({
+export const FeatureTooltip = ({
     features,
     children,
 }: {
@@ -439,6 +439,7 @@ const TableItemContentGroup = ({
 const TableItem = ({
     description,
     feature,
+    info,
     community,
     enterprise,
     activeTab,
@@ -447,6 +448,8 @@ const TableItem = ({
 }: {
     description: string;
     feature?: string | string[];
+    // tooltip for a row that isn't an OpenPanel module in features.json
+    info?: Feature;
     community: React.ReactNode;
     enterprise: React.ReactNode;
     activeTab: "community" | "enterprise";
@@ -457,7 +460,8 @@ const TableItem = ({
     const details = [feature ?? []]
         .flat()
         .map((name) => featuresByName[name])
-        .filter(Boolean);
+        .filter(Boolean)
+        .concat(info ? [info] : []);
 
     return (
         <div
@@ -1514,6 +1518,24 @@ const tableData = [
             },
             {
                 description: "DNSSEC",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Multi-Server Cluster",
+                info: {
+                    name: "multi_server",
+                    title: "Multi-Server Cluster",
+                    description:
+                        "Manage several OpenPanel servers from one OpenAdmin: users, domains and services of all servers in one place, settings applied everywhere, and accounts moved between servers.",
+                    link: "",
+                    type: "enterprise",
+                    help_link: "https://openpanel.com/docs/admin/system/multi-server/",
+                },
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {

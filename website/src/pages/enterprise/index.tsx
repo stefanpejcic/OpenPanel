@@ -151,7 +151,7 @@ const Enterprise: React.FC = () => {
                             <div
                                 className={clsx(
                                     "grid",
-                                    "grid-cols-2 landing-sm:grid-cols-4",
+                                    "grid-cols-2 landing-sm:grid-cols-5",
                                     "gap-4",
                                     "mt-8 landing-md:mt-20",
                                 )}
@@ -172,6 +172,10 @@ const Enterprise: React.FC = () => {
                                     {
                                         label: "vs CyberPanel",
                                         to: "/cyberpanel-alternative/",
+                                    },
+                                    {
+                                        label: "vs Enhance",
+                                        to: "/enhance-alternative/",
                                     },
                                 ].map((item) => (
                                     <Link

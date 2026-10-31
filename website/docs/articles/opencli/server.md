@@ -8,6 +8,8 @@ Reads configuration: [`logrotate_enable`](/docs/articles/opencli/config/#logrota
 
 When the distribution already rotates syslog (`/etc/logrotate.d/rsyslog` on Ubuntu and Debian), it adds `maxsize` with the `logrotate_size_limit` value to that file, so syslog is rotated as soon as it grows past the limit instead of once a week. It also makes `/etc/logrotate.d/lfd` (installed by CSF) not group-writable, otherwise logrotate skips it and every run fails.
 
+If journald has no `SystemMaxUse` set, it limits the journal to 1G with `/etc/systemd/journald.conf.d/openpanel.conf`, since container output is stored there too.
+
 ```bash
 opencli server-logrotate
 ```
@@ -19,6 +21,7 @@ opencli server-logrotate
 # opencli server-logrotate
 Caddy log rotation configured.
 Syslog already rotated by /etc/logrotate.d/rsyslog, added maxsize 100m to it.
+Journald limited to 1G.
 OpenPanel log rotation configured.
 ```
 </details>

@@ -260,7 +260,7 @@ Notifications are stored in `/var/log/openpanel/admin/notifications.log`, one JS
 - `source`: `sentinel`, `update`, or the action name for `--action` notifications
 - `count` and `last_seen`: how many times the alert was detected while unread (or, for info entries, happened again) within 24 hours of `time`, and when it was last detected
 - `resolved_at`: when Sentinel detected that the issue was gone
-- `details`: optional structured data used by the Notifications page, e.g. RAM/CPU/disk usage and top processes, OOM kills, or a link to the crashlog or update log
+- `details`: optional structured data used by the Notifications page, e.g. RAM/CPU/disk usage and top processes (with the user running each one and its full command, a process inside a user's container is shown under that user), OOM kills, or a link to the crashlog or update log
 
 Lines in the old text format (from before 2.0.12) are still shown on the Notifications page as plain entries.
 
@@ -339,6 +339,9 @@ opencli sentinel --action=docker_backup --severity=critical --title="Backup fail
 <details>
   <summary>Example email notifications</summary>
 
+### License expiry
+When the Enterprise license expires in 3 days or less, Sentinel sends one warning with a link to renew it at [my.openpanel.com](https://my.openpanel.com/clientarea.php?action=services). The license is checked at most once a day, and the warning is sent once per due date, so renewing and later nearing the next due date warns again.
+
 ### Login to OpenAdmin from an unknown ip address
 ![sentinel_adminlogin.png](/img/docs-content/jjdk02DP-sentinel-adminlogin.png)
 
@@ -355,6 +358,8 @@ opencli sentinel --action=docker_backup --severity=critical --title="Backup fail
 ![sentinel_highload.png](/img/docs-content/PrTWFcp8-sentinel-highload.png)
 
 ### CPU usage alert
+CPU, RAM and load alerts list the top processes with the user running each one and its full command.
+
 ![sentinel_highcpu.png](/img/docs-content/s2kSP0Cx-sentinel-highcpu.png)
 
 ### MEM usage alert

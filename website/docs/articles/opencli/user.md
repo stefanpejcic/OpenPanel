@@ -2,6 +2,10 @@
 
 Manage users: Add, Delete, Suspend, Unsuspend, etc.
 
+:::tip Multi-Server
+On a Multi-Server master these commands also reach the other servers, see [OpenCLI on Multi-Server](/docs/articles/opencli/#multi-server).
+:::
+
 ### List Users
 
 To list all users, use the following command:
@@ -259,9 +263,11 @@ Import started, log file: /var/log/openpanel/admin/transfers/stefan_203.0.113.20
 - `-h`, `--host` - destination server IP.
 - `-u`, `--username` - SSH user on the destination server (default `root`).
 - `--password` - SSH password for the destination server, leave it out to use SSH keys.
+- `--identity` - SSH private key to use instead of the default keys.
+- `--known-hosts` - with `--identity`, a known_hosts file holding the destination's host key. The connection fails if the key doesn't match. Without it the host key isn't checked.
 - `--port` - SSH port on the destination server (default `22`).
 - `--force` - overwrite the account if the username already exists on the destination server.
-- `--live-transfer` - suspend the account after the transfer and forward DNS to the new server.
+- `--live-transfer` - suspend the account for a final sync after the transfer, then forward its websites and DNS to the new server. If the transfer fails, the account is unsuspended on the source. The DNS zones on the source are kept as `<domain>.zone.pre-move` so the move can be undone.
 
 The destination server needs OpenPanel installed. Files, databases, domains, sites, DNS zones, SSL, FTP and email accounts (Enterprise) are copied, and containers are recreated on the destination from the user's volumes. If a plan with the same name already exists on the destination it's reused, and the log shows a warning when its feature set differs from the source. Progress is written to `/var/log/openpanel/admin/transfers/`.
 

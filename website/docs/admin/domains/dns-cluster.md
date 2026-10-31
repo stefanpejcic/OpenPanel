@@ -6,6 +6,8 @@ sidebar_position: 3
 
 DNS clustering allows you to synchronize DNS records from one OpenPanel server to other machines.
 
+This is separate from [Multi-Server](/docs/admin/system/multi-server/), which manages several OpenPanel servers from one OpenAdmin. Each server in a multi-server cluster keeps its own DNS, so use a DNS cluster as well if they should serve each other's zones.
+
 To use this feature, **all machines in the cluster must be running BIND9** — either through the OpenPanel installation or as a standalone service/container.
 
 :::info

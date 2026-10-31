@@ -94,6 +94,7 @@ show_help() {
     cat <<EOF
 Available options:
   --key=<key>                 License key for OpenPanel Enterprise edition.
+  --join-cluster=<invite>     Join a multi-server cluster as a slave, needs --key.
   --domain=<domain>           Domain for OpenAdmin and OpenPanel.
   --panel-domain=<domain>     Separate domain just for OpenPanel UI.
   --username=<username>       Admin username (random if not provided).
@@ -129,6 +130,7 @@ parse_args() {
     while [[ $# -gt 0 ]]; do
         case $1 in
             --key=*)           SET_PREMIUM=true;         license_key="${1#*=}" ;;
+            --join-cluster=*)  cluster_invite="${1#*=}" ;;
             --domain=*)        SET_HOSTNAME_NOW=true;    new_hostname="${1#*=}" ;;
             --panel-domain=*)  SET_HOSTNAME_NOW=true;    separate_panel_domain="${1#*=}" ;;
             --username=*)      SET_ADMIN_USERNAME=true;  custom_username="${1#*=}" ;;
@@ -152,6 +154,10 @@ parse_args() {
         esac
         shift
     done
+    # fail now instead of after a full install, joining needs an Enterprise license
+    if [[ -n "${cluster_invite:-}" && "$SET_PREMIUM" != true ]]; then
+        echo "Error: --join-cluster needs an Enterprise license, add --key=<key>" >&2; exit 1
+    fi
     if [[ "$OS_ID" == "rocky" ]]; then
         if [[ "$SKIP_FIREWALL" != true ]]; then
             die 1 "ERROR: Rocky Linux 10 does not support installing iptables, which is required by CSF. You can rerun the installation with the '--skip-firewall' flag to skip CSF installation."
@@ -1220,6 +1226,28 @@ MSG
     line
 }
 
+# asks the master from the invite to add this server, the master syncs its settings here before answering
+join_cluster() {
+    [[ -z "${cluster_invite:-}" ]] && return
+    local bin
+    for bin in /usr/local/admin/openadmin-amd64 /usr/local/admin/openadmin-arm64 ""; do
+        [[ -x "$bin" ]] && break
+    done
+    [[ -n "$bin" ]] || { warn "OpenAdmin binary not found, add this server to the cluster from the master."; return; }
+    echo "Joining the multi-server cluster..."
+    # admin was just (re)started, wait until it serves https since the master calls back to it
+    local i
+    for i in $(seq 1 30); do
+        curl -sk -o /dev/null --max-time 2 "https://127.0.0.1:${ADMIN_PORT:-2087}/login" && break
+        sleep 2
+    done
+    if "$bin" cluster-enroll "$cluster_invite" "${new_hostname:-$(hostname)}"; then
+        echo "[✔] Joined the cluster."
+    else
+        warn "Could not join the cluster. Generate a new install command or join code on the master and add this server from System > Multi-Server."
+    fi
+}
+
 clean_notifications() {
     echo > /var/log/openpanel/admin/notifications.log
 }
@@ -1299,6 +1327,7 @@ support_message
 create_admin_account
 extra_step_for_podman
 clean_notifications
+join_cluster
 run_post_install
 ) 200>/root/openpanel_install.lock
 

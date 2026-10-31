@@ -97,6 +97,10 @@ export const menuItems = [
                 label: "CyberPanel VS OpenPanel",
                 href: "/cyberpanel-alternative",
             },
+            {
+                label: "Enhance VS OpenPanel",
+                href: "/enhance-alternative",
+            },
         ],
     },
     {

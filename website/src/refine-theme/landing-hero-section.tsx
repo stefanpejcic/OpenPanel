@@ -38,13 +38,8 @@ const HERO_VARIANTS = [
 ];
 
 export const LandingHeroSection = ({ className }: { className?: string }) => {
-    const [variant, setVariant] = React.useState(HERO_VARIANTS[0]);
-
-    React.useEffect(() => {
-        setVariant(
-            HERO_VARIANTS[Math.floor(Math.random() * HERO_VARIANTS.length)],
-        );
-    }, []);
+    // always the "Next Generation" heading, the others are kept below in case they come back
+    const variant = HERO_VARIANTS[0];
 
     return (
         <div

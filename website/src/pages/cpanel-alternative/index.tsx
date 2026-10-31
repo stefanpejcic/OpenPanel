@@ -60,7 +60,7 @@ const Enterprise: React.FC = () => {
                                 "landing-lg:pr-12",
                             )}
                         />
-                        <div className={clsx("w-full", "overflow-hidden")}>
+                        <div className={clsx("w-full", "overflow-x-clip")}>
                             <EnterpriseTable
                                 className={clsx(sectionWidth, sectionPadding)}
                             />
@@ -92,7 +92,7 @@ const Enterprise: React.FC = () => {
                             <div
                                 className={clsx(
                                     "grid",
-                                    "grid-cols-2 landing-sm:grid-cols-4",
+                                    "grid-cols-2 landing-sm:grid-cols-5",
                                     "gap-4",
                                     "mt-8 landing-md:mt-12",
                                 )}
@@ -109,6 +109,10 @@ const Enterprise: React.FC = () => {
                                     {
                                         label: "vs CyberPanel",
                                         to: "/cyberpanel-alternative/",
+                                    },
+                                    {
+                                        label: "vs Enhance",
+                                        to: "/enhance-alternative/",
                                     },
                                     {
                                         label: "OpenPanel Enterprise",

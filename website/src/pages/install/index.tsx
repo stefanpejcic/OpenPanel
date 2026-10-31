@@ -13,6 +13,7 @@ type InstallOptions = Record<string, InstallOption>;
 
 const defaultOptions: InstallOptions = {
     key: { value: "", description: "Set Enterprise license key." },
+    "join-cluster": { value: "", description: "Join a multi-server cluster as a slave, paste the code from Generate install command on the master (needs key)." },
     domain: { value: "", description: "Set the domain to be used for accessing both panels." },
     "panel-domain": { value: "", description: "Set a separate domain to be used for OpenPanel only." },
     "admin-port": { value: "", description: "Specify a custom port for OpenAdmin (default is 2087)." },

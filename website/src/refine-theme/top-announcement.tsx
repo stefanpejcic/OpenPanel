@@ -115,6 +115,16 @@ const messages = [
     {
         text: (
             <>
+                🖧 New in 2.0.20: <span className="font-semibold">Multi-Server</span>. Manage all your OpenPanel
+                servers from one OpenAdmin.
+            </>
+        ),
+        href: "/blog/multi-server-openpanel?utm_content=multi-server",
+        cta: "Read More",
+    },
+    {
+        text: (
+            <>
                 🎉 <span className="font-semibold">Enterprise for €149.50/year</span>: pay for 10 months, get 12.
                 That's <span className="font-semibold">€12.46/mo</span> per server.
             </>
@@ -171,7 +181,12 @@ const Text = () => {
     const [randomMessage, setRandomMessage] = React.useState(messages[0]);
 
     React.useEffect(() => {
-        setRandomMessage(messages[Math.floor(Math.random() * messages.length)]);
+        // multi-server is new, so it gets half of the views and the rest are split evenly
+        setRandomMessage(
+            Math.random() < 0.5
+                ? messages[0]
+                : messages[1 + Math.floor(Math.random() * (messages.length - 1))],
+        );
     }, []);
 
     return (
