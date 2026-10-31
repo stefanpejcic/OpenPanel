@@ -15,6 +15,7 @@ import { LandingHeroNodeJSIcon } from "./icons/landing-hero/nodejs";
 import { LandingHeroWebsiteBuilderIcon } from "./icons/landing-hero/website-builder";
 import { LandingHeroContainersIcon } from "./icons/landing-hero/containers";
 import { LandingHeroCaddyIcon } from "./icons/landing-hero/caddy";
+import { LandingHeroLiteSpeedIcon } from "./icons/landing-hero/litespeed";
 import { LandingHeroOpenLiteSpeedIcon } from "./icons/landing-hero/openlitespeed";
 import { LandingHeroApacheIcon } from "./icons/landing-hero/apache";
 import { LandingHeroNginxIcon } from "./icons/landing-hero/nginx";
@@ -357,6 +358,16 @@ const caching: GroupOption = {
 const webservers: GroupOption = {
     section: "webservers",
     items: [
+        {
+            name: "LiteSpeed",
+            icon: (props) => (
+                <LandingHeroLiteSpeedIcon
+                    {...props}
+                    style={{ marginLeft: "1.5em" }}
+                />
+            ),
+            color: "#5E8CDA",
+        },
         {
             name: "Caddy",
             icon: (props) => (
