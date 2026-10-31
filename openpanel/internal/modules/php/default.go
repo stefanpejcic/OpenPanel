@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strings"
+	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -68,6 +69,10 @@ func handleDefaultPHPVersion(a *appctx.App, w http.ResponseWriter, r *http.Reque
 			fail(http.StatusBadRequest, msg)
 			return
 		}
+
+		// the restart below must not stop halfway when the browser leaves, litespeed would stay stopped
+		ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Minute)
+		defer cancel()
 
 		if prefErr := updatePHPVersionPreference(userContext, newPHPVersion); prefErr == nil {
 			ipAddress := reqip.ClientIP(r)
