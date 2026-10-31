@@ -55,7 +55,7 @@
                     <tr>
 {{template "bulk_head_checkbox" .}}
                         <th scope="col">{{template "sort_header" (dict "Label" (.T.Get "Database Name") "Key" "database" "Type" "string")}}</th>
-                        <th id="size-column-header" scope="col" class="is-num">{{.T.Get "Size"}}</th>
+                        <th id="size-column-header" scope="col" class="is-num">{{.T.Get "Size"}} <span id="size_unit">({{upper .Unit}})</span></th>
                         <th scope="col">{{template "sort_header" (dict "Label" (.T.Get "Assigned Users") "Key" "assigned_users" "Type" "string")}}</th>
                         <th id="tables-column-header" scope="col" class="is-num">{{.T.Get "Tables"}}</th>
                         <th scope="col" class="is-shrink"><span class="sr-only">{{.T.Get "Actions"}}</span></th>

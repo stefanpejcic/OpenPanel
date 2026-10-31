@@ -239,7 +239,7 @@ function opNewCron() {
               <span class="op-hint" x-show="!nameErr()" x-text="name.trim() ? (30 - name.trim().length) + ' characters left.' : 'Leave it empty to use ' + autoName() + '.'"></span><span class="op-hint is-invalid" x-show="nameErr()" x-cloak x-text="nameErr()" role="alert"></span></div></div>
           <div class="op-section"><div><h3>Overlap</h3><p>For jobs that can take longer than the time between runs.</p></div>
             <div class="op-check-row" style="grid-template-columns:minmax(0,1fr) auto;align-items:center"><div><b>No overlap</b><p>Skip this run if the previous run of this job is still in progress.</p></div><button class="op-switch" type="button" role="switch" :aria-checked="noOverlap.toString()" @click="noOverlap = !noOverlap" aria-label="No overlap"></button></div></div>
-          <div class="op-savebar"><span class="op-mono" style="color:var(--color-accent-text);overflow-wrap:anywhere" x-text="'[job-exec &quot;' + autoName() + '&quot;] ' + (schedule() || '…')"></span><a class="op-btn op-btn-secondary" href="cron.html">Cancel</a><button class="op-btn op-btn-primary" type="submit" :disabled="busy" x-text="busy ? 'Scheduling...' : 'Schedule Cron Job'">Schedule Cron Job</button></div>
+          <div class="op-savebar"><span class="op-mono" style="color:var(--color-accent-text);overflow-wrap:anywhere" x-text="'[job-exec &quot;' + autoName() + '&quot;] ' + (schedule() || '…')"></span><a class="op-btn op-btn-secondary" href="cron.html">Cancel</a><button class="op-btn op-btn-primary" type="submit" :disabled="busy" x-text="busy ? 'Scheduling...' : 'Schedule CronJob'">Schedule CronJob</button></div>
         </fieldset></form>
         <aside class="op-col" style="gap:16px">
           <section class="op-card"><div class="op-card-head"><h2>Added to crons.ini</h2></div>
@@ -250,7 +250,7 @@ function opNewCron() {
             <p class="op-hint" style="margin:14px 0 0">Change the time zone from the Cron Jobs page. A job you add here can be paused, run once or edited from its row menu.</p></section>
         </aside>
       </div>
-      <p style="margin:0;font-size:13px;color:var(--color-muted)">Preview: the 31 containers, PHP 8.5, MariaDB, the UTC time zone and the three existing job names are the test account's. Nothing is scheduled: Schedule Cron Job keeps the job for this browser tab and opens Cron Jobs with it highlighted. Try <span class="op-mono">php -v</span> to see the PHP container picked for you, Custom with <span class="op-mono">30 2 * * *</span> for the 5-field error, or the name <span class="op-mono">Apache config test</span> for a duplicate.</p>
+      <p style="margin:0;font-size:13px;color:var(--color-muted)">Preview: the 31 containers, PHP 8.5, MariaDB, the UTC time zone and the three existing job names are the test account's. Nothing is scheduled: Schedule CronJob keeps the job for this browser tab and opens Cron Jobs with it highlighted. Try <span class="op-mono">php -v</span> to see the PHP container picked for you, Custom with <span class="op-mono">30 2 * * *</span> for the 5-field error, or the name <span class="op-mono">Apache config test</span> for a duplicate.</p>
       <div class="op-toast" x-show="toast" x-cloak x-transition role="status" x-text="toast"></div>
       </div>
     </main>

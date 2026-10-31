@@ -33,24 +33,24 @@
 
     {{/* Tools and Classic: label over "used / limit", cPanel style */}}
     <div class="op-info-list" x-show="typeof view !== 'undefined' && view !== 'overview'" x-cloak>
-        <a id="dashboard_usage_cpu" :href="userAllowed.includes('usage') ? '/server/usage' : '#'"><span>{{.T.Get "CPU Usage"}}</span><b class="op-mono" :class="usageTone(cpu.percentage)" x-text="cpu.allocated ? cpu.used + ' / ' + cpu.allocated : cpu.used"></b></a>
-        <a id="dashboard_usage_memory" :href="userAllowed.includes('usage') ? '/server/usage' : '#'"><span>{{.T.Get "Memory Usage"}}</span><b class="op-mono" :class="usageTone(mem.percentage)" x-text="mem.allocated ? mem.used + ' / ' + mem.allocated : mem.used"></b></a>
-        <a id="dashboard_usage_storage" :href="userAllowed.includes('disk_usage') ? '/disk-usage' : '#'"><span>{{.T.Get "Storage"}}</span><b class="op-mono" :class="usageTone(disk.percentage)" x-text="disk.allocated ? disk.used + ' / ' + disk.allocated : disk.used"></b></a>
-        <a id="dashboard_usage_inodes" :href="userAllowed.includes('inodes') ? '/inodes-explorer' : '#'"><span>{{.T.Get "Inodes"}}</span><b class="op-mono" :class="usageTone(inodes.percentage)" x-text="inodes.allocated ? inodes.used + ' / ' + inodes.allocated : inodes.used"></b></a>
+        <a id="dashboard_usage_cpu" :href="userAllowed.includes('usage') ? '/server/usage' : '#'"><p>{{.T.Get "CPU"}}</p><p><b class="op-mono" :class="usageTone(cpu.percentage)" x-text="cpu.allocated ? cpu.used + ' / ' + cpu.allocated : cpu.used"></b></p></a>
+        <a id="dashboard_usage_memory" :href="userAllowed.includes('usage') ? '/server/usage' : '#'"><p>{{.T.Get "Memory"}}</p><p><b class="op-mono" :class="usageTone(mem.percentage)" x-text="mem.allocated ? mem.used + ' / ' + mem.allocated : mem.used"></b></p></a>
+        <a id="dashboard_usage_storage" :href="userAllowed.includes('disk_usage') ? '/disk-usage' : '#'"><p>{{.T.Get "Storage"}}</p><p><b class="op-mono" :class="usageTone(disk.percentage)" x-text="disk.allocated ? disk.used + ' / ' + disk.allocated : disk.used"></b></p></a>
+        <a id="dashboard_usage_inodes" :href="userAllowed.includes('inodes') ? '/inodes-explorer' : '#'"><p>{{.T.Get "Inodes"}}</p><p><b class="op-mono" :class="usageTone(inodes.percentage)" x-text="inodes.allocated ? inodes.used + ' / ' + inodes.allocated : inodes.used"></b></p></a>
         {{if or .UserAllowed.wordpress .UserAllowed.website_builder .UserAllowed.nodejs .UserAllowed.python}}
-        <a id="dashboard_usage_websites" href="/sites"><span>{{.T.Get "Websites"}}</span><b class="op-mono" :class="usageTone(websites.percentage)" x-text="websites.used + ' / ' + websites.allocated"></b></a>
+        <a id="dashboard_usage_websites" href="/sites"><p>{{.T.Get "Websites"}}</p><p><b class="op-mono" :class="usageTone(websites.percentage)" x-text="websites.used + ' / ' + websites.allocated"></b></p></a>
         {{end}}
         {{if .UserAllowed.domains}}
-        <a id="dashboard_usage_domains" href="/domains"><span>{{.T.Get "Domains"}}</span><b class="op-mono" :class="usageTone(domains.percentage)" x-text="domains.used + ' / ' + domains.allocated"></b></a>
+        <a id="dashboard_usage_domains" href="/domains"><p>{{.T.Get "Domains"}}</p><p><b class="op-mono" :class="usageTone(domains.percentage)" x-text="domains.used + ' / ' + domains.allocated"></b></p></a>
         {{end}}
         {{if or .UserAllowed.mysql .UserAllowed.postgresql}}
-        <a id="dashboard_usage_databases" href="/{{if .UserAllowed.mysql}}mysql{{else}}postgresql{{end}}"><span>{{.T.Get "Databases"}}</span><b class="op-mono" :class="usageTone(databases.percentage)" x-text="databases.used + ' / ' + databases.allocated"></b></a>
+        <a id="dashboard_usage_databases" href="/{{if .UserAllowed.mysql}}mysql{{else}}postgresql{{end}}"><p>{{.T.Get "Databases"}}</p><p><b class="op-mono" :class="usageTone(databases.percentage)" x-text="databases.used + ' / ' + databases.allocated"></b></p></a>
         {{end}}
         {{if .UserAllowed.emails}}
-        <a id="dashboard_usage_emails" href="/emails"><span>{{.T.Get "Email accounts"}}</span><b class="op-mono" :class="usageTone(emails.percentage)" x-text="emails.used + ' / ' + emails.allocated"></b></a>
+        <a id="dashboard_usage_emails" href="/emails"><p>{{.T.Get "Email accounts"}}</p><p><b class="op-mono" :class="usageTone(emails.percentage)" x-text="emails.used + ' / ' + emails.allocated"></b></p></a>
         {{end}}
         {{if .UserAllowed.ftp}}
-        <a id="dashboard_usage_ftp" href="/ftp"><span>{{.T.Get "FTP Accounts"}}</span><b class="op-mono" :class="usageTone(ftp.percentage)" x-text="ftp.used + ' / ' + ftp.allocated"></b></a>
+        <a id="dashboard_usage_ftp" href="/ftp"><p>{{.T.Get "FTP Accounts"}}</p><p><b class="op-mono" :class="usageTone(ftp.percentage)" x-text="ftp.used + ' / ' + ftp.allocated"></b></p></a>
         {{end}}
     </div>
     <script>

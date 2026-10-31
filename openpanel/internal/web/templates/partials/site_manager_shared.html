@@ -973,17 +973,17 @@ function siteGit(domain, docroot) {
 {{/* small trash icon with a confirm popover, dict keys: T, Label, Detach/DetachText/DetachJS, Delete/DeleteText/DeleteJS, Typed (domain to type before deleting) */}}
 {{define "op_site_del"}}{{$first := ""}}{{if not .DetachJS}}{{$first = "delete"}}{{else if not .DeleteJS}}{{$first = "detach"}}{{end}}
 <div class="op-del" x-data="Object.assign(opMenu(), { ask: '{{$first}}', typed: '' })" x-init="new URLSearchParams(location.search).get('tab') === 'remove' && setTimeout(() => toggle(), 300)" @click.outside="open = false; ask = '{{$first}}'" @keydown.escape="open = false; ask = '{{$first}}'">
-    <button class="op-icon-btn is-danger" type="button" aria-label="{{.Label}}" title="{{.Label}}" :aria-expanded="open.toString()" x-ref="btn" @click="ask = '{{$first}}'; typed = ''; toggle()">{{template "op_icon" "trash"}}</button>
+    <button class="op-icon-btn is-danger" id="remove-tab" type="button" aria-label="{{.Label}}" title="{{.Label}}" :aria-expanded="open.toString()" x-ref="btn" @click="ask = '{{$first}}'; typed = ''; toggle()">{{template "op_icon" "trash"}}</button>
     <div class="op-menu op-del-menu" x-ref="menu" x-show="open" x-cloak>
         {{if and .DetachJS .DeleteJS}}<div x-show="!ask">
-            <button type="button" class="op-del-opt" @click="ask = 'detach'; $nextTick(() => place())">{{template "op_icon" "unlink"}}<span><b>{{.Detach}}</b><small>{{.T.Get "Files and database stay"}}</small></span></button>
-            <button type="button" class="op-del-opt is-danger" @click="ask = 'delete'; $nextTick(() => place())">{{template "op_icon" "trash"}}<span><b>{{.Delete}}</b><small>{{.T.Get "Files and database, no undo"}}</small></span></button>
+            <button type="button" class="op-del-opt" id="detach-site" @click="ask = 'detach'; $nextTick(() => place())">{{template "op_icon" "unlink"}}<span><b>{{.Detach}}</b><small>{{.T.Get "Files and database stay"}}</small></span></button>
+            <button type="button" class="op-del-opt is-danger" id="delete-site" @click="ask = 'delete'; $nextTick(() => place())">{{template "op_icon" "trash"}}<span><b>{{.Delete}}</b><small>{{.T.Get "Files and database, no undo"}}</small></span></button>
         </div>{{end}}
         {{if .DetachJS}}<div class="op-del-ask" x-show="ask === 'detach'" x-cloak><b>{{.Detach}}</b><p>{{.DetachText}}</p>
-            <div class="op-del-acts"><button type="button" class="op-del-cancel" @click="{{if .DeleteJS}}ask = ''; $nextTick(() => place()){{else}}open = false{{end}}">{{if .DeleteJS}}{{.T.Get "Back"}}{{else}}{{.T.Get "Cancel"}}{{end}}</button><button type="button" class="op-del-go" @click="open = false; {{.DetachJS}}">{{.T.Get "Confirm detach"}}</button></div></div>{{end}}
+            <div class="op-del-acts"><button type="button" class="op-del-cancel" @click="{{if .DeleteJS}}ask = ''; $nextTick(() => place()){{else}}open = false{{end}}">{{if .DeleteJS}}{{.T.Get "Back"}}{{else}}{{.T.Get "Cancel"}}{{end}}</button><button type="button" class="op-del-go" id="confirm-detach-site" @click="open = false; {{.DetachJS}}">{{.T.Get "Confirm detach"}}</button></div></div>{{end}}
         {{if .DeleteJS}}<div class="op-del-ask" x-show="ask === 'delete'" x-cloak><b>{{.Delete}}</b><p>{{.DeleteText}}</p>
             {{if .Typed}}<label class="op-del-type"><span>{{.T.Get "Type"}} <b class="op-mono">{{.Typed}}</b> {{.T.Get "to confirm"}}</span><input class="op-input op-mono" type="text" x-model="typed" autocomplete="off" spellcheck="false" aria-label="{{.T.Get "Type the domain to confirm"}}"></label>{{end}}
-            <div class="op-del-acts"><button type="button" class="op-del-cancel" @click="{{if .DetachJS}}ask = ''; $nextTick(() => place()){{else}}open = false{{end}}">{{if .DetachJS}}{{.T.Get "Back"}}{{else}}{{.T.Get "Cancel"}}{{end}}</button><button type="button" class="op-del-go is-danger"{{if .Typed}} :disabled="typed !== {{toJSON .Typed}}"{{end}} @click="open = false; {{.DeleteJS}}">{{.T.Get "Delete"}}</button></div></div>{{end}}
+            <div class="op-del-acts"><button type="button" class="op-del-cancel" @click="{{if .DetachJS}}ask = ''; $nextTick(() => place()){{else}}open = false{{end}}">{{if .DetachJS}}{{.T.Get "Back"}}{{else}}{{.T.Get "Cancel"}}{{end}}</button><button type="button" class="op-del-go is-danger" id="confirm-delete-site"{{if .Typed}} :disabled="typed !== {{toJSON .Typed}}"{{end}} @click="open = false; {{.DeleteJS}}">{{.T.Get "Delete"}}</button></div></div>{{end}}
     </div>
 </div>
 {{end}}

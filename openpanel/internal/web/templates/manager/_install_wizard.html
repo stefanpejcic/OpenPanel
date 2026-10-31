@@ -23,18 +23,19 @@
         <section class="op-iw-panel" x-show="step === si">
           <div class="op-iw-panel-head"><h2 x-text="s.title || s.label"></h2><p class="op-meta" x-show="s.desc" x-text="s.desc"></p></div>
 
-          <div class="op-iw-where" x-show="s.id === 'where'">
+          <template x-if="s.id === 'where'">
+          <div class="op-iw-where">
             <div class="op-field">
-              <label class="op-label" for="iw_domain_id">{{.T.Get "Domain"}}</label>
-              <select class="op-select" id="iw_domain_id" name="domain_id" @change="pickDomain($event.target.value)" :aria-invalid="!!errs.domain_id">
+              <label class="op-label" for="domain_id">{{.T.Get "Domain"}}</label>
+              <select class="op-select" id="domain_id" name="domain_id" @change="pickDomain($event.target.value)" :aria-invalid="!!errs.domain_id">
                 <option value="" :selected="!domainId" disabled x-text="t.selectDomain"></option>
                 <template x-for="d in domains" :key="d.DomainID"><option :value="d.DomainID" :selected="String(d.DomainID) === String(domainId)" x-text="d.DomainURL"></option></template>
               </select>
               <span class="op-hint op-iw-err" x-show="errs.domain_id" x-text="errs.domain_id"></span>
             </div>
             <div class="op-field">
-              <label class="op-label" for="iw_subdirectory">{{.T.Get "Folder"}} <span class="op-iw-opt" x-text="t.optional"></span></label>
-              <div class="op-affix"><span class="op-affix-addon">/</span><input class="op-input op-mono" id="iw_subdirectory" name="subdirectory" x-model="subdir" @input="errs.subdirectory = ''" @blur="cleanSubdir()" placeholder="{{.T.Get "blog"}}" spellcheck="false" autocapitalize="off"></div>
+              <label class="op-label" for="subdirectory">{{.T.Get "Folder"}} <span class="op-iw-opt" x-text="t.optional"></span></label>
+              <div class="op-affix"><span class="op-affix-addon">/</span><input class="op-input op-mono" id="subdirectory" name="subdirectory" x-model="subdir" @input="errs.subdirectory = ''" @blur="cleanSubdir()" placeholder="{{.T.Get "blog"}}" spellcheck="false" autocapitalize="off"></div>
               <span class="op-hint op-iw-err" x-show="errs.subdirectory" x-text="errs.subdirectory"></span>
               <span class="op-hint" x-show="!errs.subdirectory">{{.T.Get "Leave it empty to install at the domain root."}}</span>
             </div>
@@ -45,6 +46,7 @@
             </div>
             <div class="op-alert op-iw-span" :style="{ '--tone': cfg.php && cfg.php.block ? 'var(--color-danger)' : 'var(--color-warning)' }" x-show="phpIssue()" x-cloak>{{template "op_icon" "warn"}}<span x-text="phpIssue()"></span></div>
           </div>
+          </template>
 
           <div class="op-iw-grid" x-show="fieldsFor(s.id).length">
             <template x-for="f in fieldsFor(s.id)" :key="f.name">
@@ -52,7 +54,7 @@
                 <template x-if="f.type === 'note'"><div class="op-alert" :style="{ '--tone': f.tone || 'var(--color-accent)' }">{{template "op_icon" "info"}}<span x-text="f.label"></span></div></template>
 
                 <template x-if="f.type === 'check'">
-                  <label class="op-check-row op-iw-check" :class="{ 'is-off': off(f) }"><input class="op-check" type="checkbox" :id="'iw_' + f.name" :name="f.name" value="1" :checked="!!v[f.name]" :disabled="off(f)" @change="v[f.name] = $event.target.checked"><span><b x-text="f.label"></b><p x-show="f.hint" x-text="f.hint"></p></span></label>
+                  <label class="op-check-row op-iw-check" :class="{ 'is-off': off(f) }"><input class="op-check" type="checkbox" :id="f.name" :name="f.name" value="1" :checked="!!v[f.name]" :disabled="off(f)" @change="v[f.name] = $event.target.checked"><span><b x-text="f.label"></b><p x-show="f.hint" x-text="f.hint"></p></span></label>
                 </template>
 
                 <template x-if="f.type === 'presets'">
@@ -61,24 +63,24 @@
 
                 <template x-if="!['note', 'check', 'presets'].includes(f.type)">
                   <div class="op-field">
-                    <label class="op-label" :for="'iw_' + f.name"><span x-text="f.label"></span> <span class="op-iw-opt" x-show="!f.required && f.type !== 'select'" x-text="t.optional"></span></label>
+                    <label class="op-label" :for="f.name"><span x-text="f.label"></span> <span class="op-iw-opt" x-show="!f.required && f.type !== 'select'" x-text="t.optional"></span></label>
                     <template x-if="f.type === 'select'">
-                      <select class="op-select" :id="'iw_' + f.name" :name="f.name" :disabled="off(f)" @change="v[f.name] = $event.target.value; edit(f)">
+                      <select class="op-select" :id="f.name" :name="f.name" :disabled="off(f)" @change="v[f.name] = $event.target.value; edit(f)">
                         <template x-for="o in (opts[f.name] || [])" :key="o.value"><option :value="o.value" :selected="String(o.value) === String(v[f.name])" x-text="o.label"></option></template>
                       </select>
                     </template>
                     <template x-if="f.type === 'password'">
                       <div class="op-iw-pass">
-                        <input class="op-input op-mono" :id="'iw_' + f.name" :name="f.name" :type="reveal[f.name] ? 'text' : 'password'" x-model="v[f.name]" @input="edit(f)" :placeholder="f.placeholder || ''" :aria-invalid="!!errs[f.name]" autocomplete="new-password" spellcheck="false" autocapitalize="off">
+                        <input class="op-input op-mono" :id="f.name" :name="f.name" :type="reveal[f.name] ? 'text' : 'password'" x-model="v[f.name]" @input="edit(f)" :placeholder="f.placeholder || ''" :aria-invalid="!!errs[f.name]" autocomplete="new-password" spellcheck="false" autocapitalize="off">
                         <button class="op-btn op-btn-secondary" type="button" x-show="f.gen" @click="regen(f)">{{template "op_icon" "refresh"}}<span x-text="t.generate"></span></button>
                         <button class="op-btn op-btn-secondary op-iw-icon" type="button" @click="reveal[f.name] = !reveal[f.name]" :aria-label="reveal[f.name] ? t.hide : t.show" :title="reveal[f.name] ? t.hide : t.show"><span x-show="!reveal[f.name]">{{template "op_icon" "eye"}}</span><span x-show="reveal[f.name]">{{template "op_icon" "eyeoff"}}</span></button>
                       </div>
                     </template>
                     <template x-if="!['select', 'password'].includes(f.type) && f.prefix && cfg.mysqlPrefix">
-                      <div class="op-affix"><span class="op-affix-addon" x-text="cfg.mysqlPrefix"></span><input class="op-input op-mono" :id="'iw_' + f.name" :name="f.name" type="text" x-model="v[f.name]" @input="edit(f)" :aria-invalid="!!errs[f.name]" spellcheck="false" autocapitalize="off"></div>
+                      <div class="op-affix"><span class="op-affix-addon" x-text="cfg.mysqlPrefix"></span><input class="op-input op-mono" :id="f.name" :name="f.name" type="text" x-model="v[f.name]" @input="edit(f)" :aria-invalid="!!errs[f.name]" spellcheck="false" autocapitalize="off"></div>
                     </template>
                     <template x-if="!['select', 'password'].includes(f.type) && !(f.prefix && cfg.mysqlPrefix)">
-                      <div :class="f.unit && 'op-affix'"><input class="op-input" :class="f.mono && 'op-mono'" :id="'iw_' + f.name" :name="f.name" :type="f.type === 'email' ? 'email' : f.type === 'number' ? 'number' : 'text'" :inputmode="f.type === 'number' ? 'decimal' : null" :min="f.min" :max="f.max" :step="f.inc" :readonly="!!f.readonly" :disabled="off(f)" x-model="v[f.name]" @input="edit(f)" @blur="blur(f)" :placeholder="f.placeholder || ''" :aria-invalid="!!errs[f.name]" spellcheck="false" autocapitalize="off"><span class="op-affix-addon" x-show="f.unit" x-text="f.unit"></span></div>
+                      <div :class="f.unit && 'op-affix'"><input class="op-input" :class="f.mono && 'op-mono'" :id="f.name" :name="f.name" :type="f.type === 'email' ? 'email' : f.type === 'number' ? 'number' : 'text'" :inputmode="f.type === 'number' ? 'decimal' : null" :min="f.min" :max="f.max" :step="f.inc" :readonly="!!f.readonly" :disabled="off(f)" x-model="v[f.name]" @input="edit(f)" @blur="blur(f)" :placeholder="f.placeholder || ''" :aria-invalid="!!errs[f.name]" spellcheck="false" autocapitalize="off"><span class="op-affix-addon" x-show="f.unit" x-text="f.unit"></span></div>
                     </template>
                     <template x-if="f.strength">
                       <div class="op-iw-meter" x-show="v[f.name]"><span :style="{ width: strength(f).pct + '%', background: strength(f).tone }"></span></div>
@@ -114,7 +116,7 @@
         <a class="op-btn op-btn-secondary op-iw-left" href="/auto-installer" x-show="step === 0" x-text="t.cancel"></a>
         <button class="op-btn op-btn-secondary op-iw-left" type="button" x-show="step > 0" @click="back()">{{template "op_icon" "arrowleft"}}<span x-text="t.back"></span></button>
         <button class="op-btn op-btn-primary" type="button" x-show="step < steps.length - 1" @click="next()"><span x-text="t.next"></span>{{template "op_icon" "arrowright"}}</button>
-        <button class="op-btn op-btn-primary" type="submit" x-show="step === steps.length - 1">{{template "op_icon" "download"}}<span x-text="cfg.cta || fmt(t.install + ' %s', cfg.name)"></span></button>
+        <button class="op-btn op-btn-primary" type="submit" id="installButton" x-show="step === steps.length - 1">{{template "op_icon" "download"}}<span x-text="cfg.cta || fmt(t.install + ' %s', cfg.name)"></span></button>
       </div>
     </form>
 

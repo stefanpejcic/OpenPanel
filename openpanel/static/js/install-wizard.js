@@ -80,6 +80,8 @@
   };
 
   function ndjson(endpoint, body, onEvent) {
+    // handlers read r.ParseForm, which skips multipart bodies, so send it urlencoded unless there's a file
+    if (body instanceof FormData && ![...body.values()].some((v) => v instanceof File)) body = new URLSearchParams(body);
     return fetch(endpoint, { method: 'POST', body: body, headers: { 'X-CSRF-TOKEN': window.csrf_token || '' } }).then((res) => {
       if (!res.body) return res.text().then((txt) => txt.split('\n').forEach(line));
       const reader = res.body.getReader();
@@ -232,7 +234,7 @@
           if (e && !first) first = f.name;
         });
         if (first) {
-          this.$nextTick(() => { const el = document.getElementById('iw_' + first); if (el) el.focus(); });
+          this.$nextTick(() => { const el = document.getElementById(first); if (el) el.focus(); });
           return false;
         }
         return true;

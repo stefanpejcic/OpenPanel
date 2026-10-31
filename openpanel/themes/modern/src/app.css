@@ -549,7 +549,7 @@
   .op-info-list { display: flex; flex-direction: column; margin-bottom: -10px; }
   .op-info-list > :is(div, a) { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; padding: 10px 0; box-shadow: inset 0 1px 0 var(--color-raised); font-size: 14px; color: var(--color-heading); text-decoration: none; }
   .op-info-list > a:hover b { color: var(--color-accent-text); }
-  .op-info-list > :is(div, a) > span:first-child { flex: 0 0 100%; color: var(--color-muted); font-size: 12px; font-weight: 500; }
+  .op-info-list > :is(div, a) > :is(span, p):first-child { flex: 0 0 100%; color: var(--color-muted); font-size: 12px; font-weight: 500; }
   .op-info-list b { font-weight: 500; overflow-wrap: anywhere; }
   .op-info-list b.is-hot { color: var(--color-warning); }
   .op-info-list b.is-danger { color: var(--color-danger); }

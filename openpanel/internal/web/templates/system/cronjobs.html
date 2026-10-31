@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td data-label="{{$.T.Get "Command"}}" data-sort-col="command" data-sort-value="{{$item.Command}}">
                         <span x-show="!editing" style="display:block;min-width:0">
                             <span class="op-mono" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:320px;color:var(--color-heading)" title="{{$item.Command}}">{{$item.Command}}</span>
-                            <span class="op-sub">{{$item.Container}}{{if $item.Comment}} · {{$item.Comment}}{{end}}{{if $item.NoOverlap}} · {{$.T.Get "No overlap"}}{{end}}</span>
+                            <span class="op-sub"><span data-sort-col="container">{{$item.Container}}</span>{{if $item.Comment}} · <span data-sort-col="comment">{{$item.Comment}}</span>{{end}}{{if $item.NoOverlap}} · {{$.T.Get "No overlap"}}{{end}}</span>
                         </span>
                         <div x-show="editing" x-cloak class="op-stack" style="gap:6px;min-width:260px">
                             <input form="{{$fid}}" type="text" name="command" class="op-input op-mono" value="{{$item.Command}}" aria-label="{{$.T.Get "Command"}}">

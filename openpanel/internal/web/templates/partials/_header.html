@@ -190,11 +190,14 @@
                         const paint = () => {
                             const on = isFav();
                             btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                            btn.dataset.isFavorite = on;
                             btn.title = on ? "{{.T.Get "Remove from favorites"}}" : "{{.T.Get "Add to favorites"}}";
                             btn.setAttribute('aria-label', btn.title);
                         };
                         window.addEventListener('favorites-loaded', paint);
                         paint();
+                        // right-click only removes, like the classic star
+                        btn.addEventListener('contextmenu', e => { if (isFav()) { e.preventDefault(); btn.click(); } });
                         btn.addEventListener('click', () => {
                             const on = isFav();
                             const body = on ? { link: here } : { link: here, title: document.title.split(' - ')[0] };

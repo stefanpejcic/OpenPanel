@@ -62,7 +62,7 @@ function opNewEmail(c) {
 }
 </script>
 <div class="op-content" x-data="opNewEmail({
-    domain: {{toJSON .Domain}}, user: {{toJSON .Username}}, taken: {{toJSON .Taken}}, full: {{.Full}}, threshold: {{.PasswordStrength}}, wait: {{.Wait}},
+    domain: {{if .Domain}}{{toJSON .Domain}}{{else}}{{with .Domains}}{{toJSON (index . 0).DomainURL}}{{else}}''{{end}}{{end}}, user: {{toJSON .Username}}, taken: {{toJSON .Taken}}, full: {{.Full}}, threshold: {{.PasswordStrength}}, wait: {{.Wait}},
     maxBytes: {{.MaxQuotaBytes}}, maxUnit: {{toJSON .AllocatedUnit}},
     presets: [{{range $i, $p := .Presets}}{{if $i}}, {{end}}{ value: {{toJSON $p.Value}}, unit: {{toJSON $p.Unit}} }{{end}}],
     t: {
@@ -109,7 +109,7 @@ function opNewEmail(c) {
                                 <input class="op-input op-mono" id="username" name="username" x-model="user" maxlength="60" data-no-live-validate placeholder="{{.T.Get "info"}}" autocomplete="off" spellcheck="false" autocapitalize="off" :class="userErr() && 'is-invalid'" :aria-invalid="(!!userErr()).toString()" aria-describedby="username-hint">
                                 <div><span aria-hidden="true">@</span>
                                     <select class="op-select" id="domain" name="domain" aria-label="{{.T.Get "Domain"}}" x-model="domain">
-                                        {{range .Domains}}<option class="punycode" value="{{.DomainURL}}"{{if eq .DomainURL $.Domain}} selected{{end}}>{{.DomainURL}}</option>{{end}}
+                                        <option value="" disabled hidden></option>{{range .Domains}}<option class="punycode" value="{{.DomainURL}}"{{if eq .DomainURL $.Domain}} selected{{end}}>{{.DomainURL}}</option>{{end}}
                                     </select>
                                 </div>
                             </div>
@@ -130,10 +130,10 @@ function opNewEmail(c) {
                         <div class="op-em-pass">
                             <div>
                                 <input class="op-input op-mono" id="password" name="password" :type="show ? 'text' : 'password'" x-model="pass" maxlength="30" autocomplete="new-password" spellcheck="false" placeholder="{{.T.Get "New Password"}}" :class="passErr() && 'is-invalid'" :aria-invalid="(!!passErr()).toString()">
-                                <button class="op-icon-btn" type="button" @click="show = !show" :aria-label="show ? {{toJSON (.T.Get "Hide password")}} : {{toJSON (.T.Get "Show password")}}" :aria-pressed="show.toString()"><span x-show="!show" x-cloak>{{template "op_icon" "eye"}}</span><span x-show="show">{{template "op_icon" "eyeoff"}}</span></button>
+                                <button class="op-icon-btn" id="togglePassword" type="button" @click="show = !show" :aria-label="show ? {{toJSON (.T.Get "Hide password")}} : {{toJSON (.T.Get "Show password")}}" :aria-pressed="show.toString()"><span x-show="!show" x-cloak>{{template "op_icon" "eye"}}</span><span x-show="show">{{template "op_icon" "eyeoff"}}</span></button>
                             </div>
                             <div>
-                                <button class="op-btn op-btn-secondary" type="button" @click="regen()">{{template "op_icon" "shuffle"}} {{.T.Get "Generate"}}</button>
+                                <button class="op-btn op-btn-secondary" id="generatePassword" type="button" @click="regen()">{{template "op_icon" "shuffle"}} {{.T.Get "Generate"}}</button>
                                 <button class="op-icon-btn" type="button" :disabled="!pass" @click="copyPass()" aria-label="{{.T.Get "Copy password"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button>
                             </div>
                         </div>

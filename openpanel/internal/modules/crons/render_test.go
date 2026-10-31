@@ -101,7 +101,7 @@ func TestRenderCronjobsNewPage(t *testing.T) {
 		body := w.Body.String()
 		for _, want := range []string{
 			`action="/cronjobs/save"`, `name="command"`, `name="comment"`, `name="schedule"`, `name="container"`, `name="no_overlap"`,
-			`<option value="php-fpm-8.5"`, `op-cf-presets`, `Europe/Belgrade`, `/cronjobs/new?`, `Schedule Cron Job`, `Added to crons.ini`, `Nightly`,
+			`<option value="php-fpm-8.5"`, `op-cf-presets`, `Europe/Belgrade`, `/cronjobs/new?`, `Schedule CronJob`, `Added to crons.ini`, `Nightly`,
 		} {
 			if !strings.Contains(body, want) {
 				t.Errorf("missing %q", want)

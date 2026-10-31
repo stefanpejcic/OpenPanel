@@ -153,8 +153,8 @@ function opNewCron(c) {
                             <template x-for="p in presets" :key="p[0]"><button type="button" role="radio" :aria-checked="(sel === p[0]).toString()" @click="pick(p[0])"><span x-text="p[1]"></span><small x-show="p[2]" x-text="p[2]"></small></button></template>
                         </div>
                         <div class="op-field" x-show="sel === 'custom'" x-cloak>
-                            <div class="op-cf-label-row"><label class="op-label" for="schedule_expr">{{.T.Get "Cron expression"}}</label><a href="https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format" target="_blank" rel="noopener">{{.T.Get "Expression Format"}} {{template "op_icon" "external"}}</a></div>
-                            <input class="op-input op-mono" id="schedule_expr" x-ref="expr" x-model="expr" data-no-live-validate placeholder="0 30 2 * * *" autocomplete="off" spellcheck="false" :class="schedErr() && 'is-invalid'" :aria-invalid="(!!schedErr()).toString()">
+                            <div class="op-cf-label-row"><label class="op-label" for="schedule">{{.T.Get "Cron expression"}}</label><a href="https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format" target="_blank" rel="noopener">{{.T.Get "Expression Format"}} {{template "op_icon" "external"}}</a></div>
+                            <input class="op-input op-mono" id="schedule" x-ref="expr" x-model="expr" data-no-live-validate placeholder="0 30 2 * * *" autocomplete="off" spellcheck="false" :class="schedErr() && 'is-invalid'" :aria-invalid="(!!schedErr()).toString()">
                             <span class="op-hint" x-show="!schedErr()">{{.T.Get "6 fields, seconds first: second minute hour day month weekday, or a descriptor like @every 2h."}}</span>
                             <span class="op-hint is-invalid" x-show="schedErr()" x-cloak x-text="schedErr()" role="alert"></span>
                         </div>
@@ -175,7 +175,7 @@ function opNewCron(c) {
                     <div class="op-check-row" style="grid-template-columns:minmax(0,1fr) auto;align-items:center"><div><b>{{.T.Get "No overlap"}}</b><p>{{.T.Get "Skip this run if the previous run of this job is still in progress."}}</p></div><button class="op-switch" type="button" role="switch" :aria-checked="noOverlap.toString()" @click="noOverlap = !noOverlap" aria-label="{{.T.Get "No overlap"}}"></button></div>
                     <input type="hidden" name="no_overlap" :value="noOverlap ? '1' : ''" :disabled="!noOverlap">
                 </div>
-                <div class="op-savebar"><span class="op-mono op-cf-cmd" x-text="'[job-exec &quot;' + autoName() + '&quot;] ' + (schedule() || '…')"></span><a class="op-btn op-btn-secondary" href="/cronjobs">{{.T.Get "Cancel"}}</a><button class="op-btn op-btn-primary" type="submit" :disabled="busy">{{.T.Get "Schedule Cron Job"}}</button></div>
+                <div class="op-savebar"><span class="op-mono op-cf-cmd" x-text="'[job-exec &quot;' + autoName() + '&quot;] ' + (schedule() || '…')"></span><a class="op-btn op-btn-secondary" href="/cronjobs">{{.T.Get "Cancel"}}</a><button class="op-btn op-btn-primary" type="submit" :disabled="busy">{{.T.Get "Schedule CronJob"}}</button></div>
             </fieldset>
         </form>
         <aside class="op-col" style="gap:16px">
