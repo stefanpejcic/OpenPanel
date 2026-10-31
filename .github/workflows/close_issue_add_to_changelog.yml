@@ -34,10 +34,9 @@ jobs:
         id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MILESTONE_TITLE: ${{ github.event.issue.milestone.title }}
+          MILESTONE_URL: ${{ github.event.issue.milestone.url }}
         run: |
-          MILESTONE_TITLE="${{ github.event.issue.milestone.title }}"
-          MILESTONE_URL="${{ github.event.issue.milestone.url }}"
-
           # Check if milestone is still open
           STATUS=$(curl -s -H "Authorization: token $GH_TOKEN" "$MILESTONE_URL" | jq -r .state)
           echo "Milestone status: $STATUS"
@@ -51,8 +50,12 @@ jobs:
 
       - name: Append closed issue to changelog
         if: steps.check.outputs.skip == 'false'
+        env:
+          VERSION: ${{ steps.check.outputs.version }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
         run: |
-          VERSION="${{ steps.check.outputs.version }}"
           FILE="website/docs/changelog/${VERSION}.md"
 
           if [[ ! -f "$FILE" ]]; then
@@ -60,16 +63,13 @@ jobs:
             exit 1
           fi
 
-          ISSUE_TITLE="${{ github.event.issue.title }}"
-          ISSUE_NUMBER=${{ github.event.issue.number }}
-          ISSUE_URL=${{ github.event.issue.html_url }}
-
-          ENTRY="- [${ISSUE_TITLE} #${ISSUE_NUMBER}](${ISSUE_URL})"
+          export ENTRY="- [${ISSUE_TITLE} #${ISSUE_NUMBER}](${ISSUE_URL})"
 
           # Insert under '### 🐛 Bug Fixes'
+          # ENVIRON keeps backslashes in the title as typed, awk -v would turn \n into a newline
           TMP_FILE="${FILE}.tmp"
-          awk -v entry="$ENTRY" '
-            BEGIN { inserted=0 }
+          awk '
+            BEGIN { inserted=0; entry=ENVIRON["ENTRY"] }
             /^### 🐛 Bug Fixes/ {
               print; getline;
               if ($0 ~ /^-/ || $0 ~ /^\s*$/) {
@@ -101,10 +101,12 @@ jobs:
         if: steps.check.outputs.skip == 'false'
         env:
           TOKEN: ${{ secrets.TOKEN }}
+          VERSION: ${{ steps.check.outputs.version }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
         run: |
-          VERSION="${{ steps.check.outputs.version }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add "website/docs/changelog/$VERSION.md"
-          git commit -m "chore: update changelog $VERSION for issue #${{ github.event.issue.number }}" || exit 0
-          git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
+          git commit -m "chore: update changelog $VERSION for issue #${ISSUE_NUMBER}" || exit 0
+          git push "https://x-access-token:${TOKEN}@github.com/${REPO}.git"
