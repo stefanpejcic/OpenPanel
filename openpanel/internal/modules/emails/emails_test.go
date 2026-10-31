@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -238,5 +239,119 @@ func TestEmailQuotaFor(t *testing.T) {
 				t.Fatalf("emailQuotaFor(%q, %q) = (%q, %v), want (%q, %v)", c.gb, c.format, got, ok, c.want, c.ok)
 			}
 		})
+	}
+}
+
+func TestNewEmailQuotaError(t *testing.T) {
+	const twoGB = 2 << 30
+	cases := []struct {
+		gb, format string
+		max        float64
+		bad        bool
+	}{
+		{"", "G", twoGB, false},
+		{"2", "G", twoGB, false},
+		{"1.5", "G", twoGB, false},
+		{"750", "M", twoGB, false},
+		{"3", "G", twoGB, true},
+		{"0", "G", twoGB, true},
+		{"0.0", "G", twoGB, true},
+		{"0", "G", 0, false},
+		{"9", "T", 0, false},
+		{"-1", "G", twoGB, true},
+		{"1e3", "M", twoGB, true},
+		{"0x10", "M", twoGB, true},
+		{"NaN", "G", 0, true},
+		{"1", "X", twoGB, true},
+		{"1", "K", twoGB, true},
+		{"512", "k", twoGB, false},
+	}
+	for _, c := range cases {
+		if got := newEmailQuotaError(c.gb, c.format, c.max); (got != "") != c.bad {
+			t.Errorf("newEmailQuotaError(%q, %q, %v) = %q, want bad=%v", c.gb, c.format, c.max, got, c.bad)
+		}
+	}
+}
+
+func TestNewEmailFieldError(t *testing.T) {
+	cases := []struct {
+		user, pass string
+		bad        bool
+	}{
+		{"info", "Abcdef12345!", false},
+		{"first.last+tag", "Abcdef12345!", false},
+		{"a@b", "Abcdef12345!", true},
+		{"has space", "Abcdef12345!", true},
+		{strings.Repeat("a", 61), "Abcdef12345!", true},
+		{"info", "Ab1!", true},
+		{"info", strings.Repeat("Ab1!", 8), true},
+		{"info", "abcdefgh", true},
+	}
+	for _, c := range cases {
+		if got := newEmailFieldError(c.user, c.pass, 50); (got != "") != c.bad {
+			t.Errorf("newEmailFieldError(%q, %q) = %q, want bad=%v", c.user, c.pass, got, c.bad)
+		}
+	}
+}
+
+func TestPlanMaxQuotaBytes(t *testing.T) {
+	for in, want := range map[string]float64{"0": 0, "": 0, "2G": 2 << 30, "512M": 512 << 20, "1T": 1 << 40} {
+		if got := planMaxQuotaBytes(in); got != want {
+			t.Errorf("planMaxQuotaBytes(%q) = %v, want %v", in, got, want)
+		}
+	}
+}
+
+func TestQuotaPresets(t *testing.T) {
+	labels := func(ps []QuotaPreset) string {
+		var out []string
+		for _, p := range ps {
+			out = append(out, p.Value+p.Unit+"="+p.Label)
+		}
+		return strings.Join(out, ",")
+	}
+	cases := []struct {
+		num  float64
+		unit string
+		want string
+	}{
+		{2, "G", "256M=256 MB,512M=512 MB,1G=1 GB,2G=2 GB"},
+		{50, "G", "1G=1 GB,2G=2 GB,5G=5 GB,10G=10 GB,50G=50 GB"},
+		{500, "M", "256M=256 MB,500M=500 MB"},
+		{0, "T", "256M=256 MB,512M=512 MB,1G=1 GB,2G=2 GB,0G=Unlimited"},
+	}
+	for _, c := range cases {
+		maxBytes := c.num * quotaUnitMultipliers[c.unit[0]]
+		if c.num == 0 {
+			maxBytes = 0
+		}
+		ps := quotaPresets(c.num, c.unit, maxBytes)
+		if got := labels(ps); got != c.want {
+			t.Errorf("quotaPresets(%v%s) = %s, want %s", c.num, c.unit, got, c.want)
+		}
+		if c.num > 0 && ps[len(ps)-1].Note != "Plan maximum" {
+			t.Errorf("quotaPresets(%v%s): last preset should be the plan maximum", c.num, c.unit)
+		}
+	}
+}
+
+func TestAddressTaken(t *testing.T) {
+	lines := []string{"* info@demo.rs ( 0 / 2.0G ) [0%]", "* sales@demo.rs ( 0 / 2.0G ) [0%]"}
+	if !addressTaken(lines, "Info@Demo.rs") || addressTaken(lines, "hello@demo.rs") {
+		t.Error("addressTaken should match existing addresses case-insensitively and nothing else")
+	}
+}
+
+func TestAddFailureReason(t *testing.T) {
+	cases := []struct{ stderr, stdout, want string }{
+		{"Error: 'x' already exists\n", "", "Error: 'x' already exists"},
+		{"", "Error: OpenPanel Community edition does not support emails. Please consider purchasing.\nhttps://my.openpanel.com/x\n", "OpenPanel Community edition does not support emails. Please consider purchasing."},
+		{"  ", "\n\nsomething odd\n", "something odd"},
+		{"", "", "command failed"},
+	}
+	for _, c := range cases {
+		if got := addFailureReason(c.stderr, c.stdout); got != c.want {
+			t.Errorf("addFailureReason(%q, %q) = %q, want %q", c.stderr, c.stdout, got, c.want)
+		}
 	}
 }
