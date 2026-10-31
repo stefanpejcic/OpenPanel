@@ -170,6 +170,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		Title:             "Dashboard",
 		BrandName:         a.Config.Get("brand_name", ""),
 		Logo:              a.Config.Get("logo", ""),
+		LogoDark:          a.Config.Get("logo_dark", ""),
 		Favicon:           a.Config.Get("favicon", ""),
 		CSRFToken:         csrf.Token(r),
 		PanelDir:          panelDir,

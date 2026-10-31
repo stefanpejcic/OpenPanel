@@ -115,8 +115,9 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 
 	// a reseller can set their own logo (RESELLER_LOGO_URL), applied instead of the global default for every account they own - except the login page, which always uses the global default (built via LoginPageData, not this function)
 	logo := a.Config.Get("logo", "")
+	logoDark := a.Config.Get("logo_dark", "")
 	if resellerLogo := webserver.GetEnvFileValue(userContext, "RESELLER_LOGO_URL"); resellerLogo != "" {
-		logo = resellerLogo
+		logo, logoDark = resellerLogo, ""
 	}
 
 	menuStyle := ReadMenuStyle(a, r)
@@ -152,6 +153,7 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 		Title:             t.Get(title),
 		BrandName:         a.Config.Get("brand_name", ""),
 		Logo:              logo,
+		LogoDark:          logoDark,
 		Favicon:           a.Config.Get("favicon", ""),
 		CSRFToken:         csrf.Token(r),
 		PanelDir:          panelDir,

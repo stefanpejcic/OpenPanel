@@ -2591,3 +2591,6 @@ div:has(> main.op-scope) { min-width: 0; }
 .dark #alert-stack > [role="alert"] { background: var(--color-page); }
 #alert-stack > [role="alert"] > button { background: transparent; color: #a2a8c0; }
 #alert-stack > [role="alert"] > button:hover { background: rgb(255 255 255 / 0.08); color: #ffffff; }
+
+/* logo_dark: the login card shows whichever logo suits the mode */
+html.dark .op-logo-light, html:not(.dark) .op-logo-dark { display: none !important; }

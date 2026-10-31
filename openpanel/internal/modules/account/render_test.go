@@ -62,6 +62,42 @@ func TestRenderLoginPage(t *testing.T) {
 	}
 }
 
+func TestRenderLoginPageDarkLogo(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	base := loginPageData{Title: "Login", CSRFToken: "x", Locales: localeOptions([]string{"en"}), T: mgr.Translator("en"), Logo: "/light.svg"}
+
+	render := func(d loginPageData) string {
+		w := httptest.NewRecorder()
+		if err := loginPage.Render(w, 200, d); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		return w.Body.String()
+	}
+
+	// no dark logo: one logo, no mode classes
+	body := render(base)
+	if !strings.Contains(body, `src="/light.svg"`) || strings.Contains(body, "op-logo-dark") {
+		t.Errorf("without logo_dark the card should show only the logo")
+	}
+
+	// card: both logos, CSS shows the one for the mode
+	d := base
+	d.LogoDark = "/dark.svg"
+	body = render(d)
+	for _, want := range []string{`src="/light.svg" class="h-16 op-logo-light"`, `src="/dark.svg" class="h-16 op-logo-dark"`} {
+		if !strings.Contains(body, want) {
+			t.Errorf("card login missing %q", want)
+		}
+	}
+
+	// split: the brand panel is always dark, so it uses the dark logo
+	d.LoginLayout = "split"
+	body = render(d)
+	if !strings.Contains(body, `<aside class="op-auth-side dark">`) || !strings.Contains(body[strings.Index(body, "op-auth-side"):strings.Index(body, "op-auth-main")], `src="/dark.svg"`) {
+		t.Errorf("split login brand panel should use the dark logo")
+	}
+}
+
 func TestRenderLoginPageTwofa(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := loginPageData{

@@ -40,6 +40,7 @@ type LayoutData struct {
 	BrandName     string
 	Favicon       string
 	Logo          string
+	LogoDark      string // logo_dark, for dark backgrounds; empty means Logo everywhere
 	CSRFToken     string
 	PanelDir      string
 	FoundABugLink string
