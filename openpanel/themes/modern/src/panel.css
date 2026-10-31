@@ -142,8 +142,6 @@ div:has(> main.op-scope) { min-width: 0; }
   .op-drag { cursor: move; }
   .dashboard-locked .op-drag { cursor: default; }
   .op-dragging { opacity: .4; }
-  .op-md-kbd { display: none; }
-  @media (width >= 48rem) { .op-md-kbd { display: inline; } }
 
   .op-link-list { display: flex; flex-direction: column; gap: 2px; margin: 0 -8px; padding: 0; list-style: none; }
   .op-link-list a { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: var(--radius-sm); color: var(--color-body); text-decoration: none; font-size: 13px; line-height: 18px; }
@@ -1520,8 +1518,6 @@ div:has(> main.op-scope) { min-width: 0; }
   .op-em-form fieldset:disabled { opacity: .55; }
   .op-em-form .op-check-row { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
   .op-em-form .op-check-row p { margin: 2px 0 0; font-size: 13px; line-height: 18px; color: var(--color-muted); }
-  .op-savebar .op-em-cmd { flex: 1 1 200px; min-width: 0; color: var(--color-accent-text); font-size: 13px; overflow-wrap: anywhere; }
-  @media (width < 48rem) { .op-em-form .op-savebar > .op-em-cmd { display: none; } }
   .op-em-side .op-dl { grid-template-columns: auto minmax(0, 1fr); gap: 10px 16px; }
   .op-em-side .op-dl dd { margin: 0; text-align: right; }
   .op-em-side .op-dl dd.op-mono { white-space: normal; overflow-wrap: anywhere; }
@@ -2583,3 +2579,9 @@ div:has(> main.op-scope) { min-width: 0; }
   @media (width < 30rem) { .op-wiz-row > .op-inico { flex: 1 1 100%; } }
 }
 /* end area: database-create port */
+
+/* outside the layers so it beats the old theme's bg-gray-800 utility on the flash banners the backend sends after a post: they use the sidebar's colour */
+#alert-stack > [role="alert"] { background: #161a2b; }
+.dark #alert-stack > [role="alert"] { background: var(--color-page); }
+#alert-stack > [role="alert"] > button { background: transparent; color: #a2a8c0; }
+#alert-stack > [role="alert"] > button:hover { background: rgb(255 255 255 / 0.08); color: #ffffff; }

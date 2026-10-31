@@ -68,7 +68,6 @@
             </div>
 
             <div class="op-savebar">
-                <span style="flex:1;min-width:0;overflow-wrap:anywhere"><span class="op-mono" style="color:var(--color-accent-text);font-size:13px" x-text="'opencli domains-add ' + (name.trim() || 'example.org') + ' {{.CurrentUsername}}'">opencli domains-add example.org {{.CurrentUsername}}</span></span>
                 <a href="/domains" class="op-btn op-btn-secondary">{{.T.Get "Cancel"}}</a>
                 <button class="op-btn op-btn-primary" type="submit" id="installButton">{{template "op_icon" "plus"}} {{.T.Get "Add Domain"}}</button>
             </div>

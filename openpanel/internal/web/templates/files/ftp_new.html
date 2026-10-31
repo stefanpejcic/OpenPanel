@@ -60,7 +60,6 @@ function opNewFTP(c) {
             if (+v === 0) return c.t.zero;
             return '';
         },
-        cmd() { const q = this.quota(); return 'opencli ftp-add ' + this.username() + ' ******** ' + this.path() + ' ' + c.owner + (q && +q > 0 ? ' --quota=' + q + this.unit() : ''); },
         regen() { this.pass = gen(16); this.show = true; },
         copy(text, msg) { if (text && window.copyToClipboard) copyToClipboard(text).then(() => showToast(msg, 'success')); },
         pick(v) { this.qsel = v; if (v === 'custom') this.$nextTick(() => this.$refs.qn.focus()); },
@@ -166,7 +165,7 @@ function opNewFTP(c) {
                         <span class="op-hint is-invalid" x-show="quotaErr()" x-cloak x-text="quotaErr()" role="alert"></span>
                     </div>
                 </div>
-                <div class="op-savebar"><span class="op-mono op-cf-cmd" x-text="cmd()"></span><a class="op-btn op-btn-secondary" href="/ftp">{{.T.Get "Back to FTP Accounts"}}</a><button class="op-btn op-btn-primary" type="submit" :disabled="busy">{{.T.Get "Create Account"}}</button></div>
+                <div class="op-savebar"><a class="op-btn op-btn-secondary" href="/ftp">{{.T.Get "Back to FTP Accounts"}}</a><button class="op-btn op-btn-primary" type="submit" :disabled="busy">{{.T.Get "Create Account"}}</button></div>
             </fieldset>
         </form>
         <aside class="op-col" style="gap:16px">

@@ -117,11 +117,6 @@
 {{end}}
 {{end}}
 
-{{/* copyable opencli line, the command as the dot */}}
-{{define "dash_cli"}}
-<section class="op-card"><div class="op-card-head"><h2>{{.T.Get "From the terminal"}}</h2></div><button class="op-cmd" type="button" @click="copyToClipboard({{toJSON .Cmd}}).then(() => showToast({{toJSON (.T.Get "Copied to clipboard")}}, 'success'))" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}<code>{{.Cmd}}</code></button></section>
-{{end}}
-
 {{define "content"}}
 <!-- START templates/dashboard/dashboard.html -->
 <script src="{{static "vendor/sortablejs/Sortable.min.js"}}"></script>
@@ -144,7 +139,7 @@
             <button type="button" :aria-pressed="(view === 'classic').toString()" @click="setView('classic')">{{template "op_icon" "layout"}} {{.T.Get "Classic"}}</button>
         </div>
         {{if or .UserAllowed.domains .UserAllowed.autoinstaller}}
-        <div class="op-actions" x-show="view === 'overview'">
+        <div class="op-actions" :style="view !== 'overview' && 'visibility:hidden'" :aria-hidden="(view !== 'overview').toString()">
             {{if .UserAllowed.domains}}<a class="op-btn op-btn-ghost" href="/domains/new">{{.T.Get "Add Domain"}}</a>{{end}}
             {{if .UserAllowed.autoinstaller}}<a class="op-btn op-btn-primary" href="/auto-installer">{{template "op_icon" "plus"}} {{.T.Get "New Website"}}</a>{{end}}
         </div>
@@ -165,7 +160,7 @@
     </section>
 {{end}}
 
-    <label class="op-find" x-show="view === 'tools'" x-cloak @keydown.slash.window="if (view === 'tools' && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) { $event.preventDefault(); $refs.find.focus() }">{{template "op_icon" "search"}}<input class="op-input" type="search" x-model="find" x-ref="find" placeholder="{{.T.Get "Find a tool: DNS, PHP version, backups..."}}" aria-label="{{.T.Get "Find a tool"}}"><kbd class="op-md-kbd">/</kbd></label>
+    <label class="op-find" x-show="view === 'tools'" x-cloak>{{template "op_icon" "search"}}<input class="op-input" type="search" x-model="find" x-ref="find" placeholder="{{.T.Get "Find a tool: DNS, PHP version, backups..."}}" aria-label="{{.T.Get "Find a tool"}}"></label>
 
     <div :class="view === 'tools' ? 'op-tools-grid' : 'op-dash-grid'" class="op-dash-grid">
         <div class="op-col">
@@ -243,8 +238,6 @@
             <div class="op-col" x-show="view === 'overview'">{{template "twofa" .}}</div>
             {{template "information" .}}
             {{template "usage" .}}
-            <div class="op-col" x-show="view === 'overview'">{{template "dash_cli" (dict "T" .T "Cmd" (printf "opencli websites-list %s" .CurrentUsername))}}</div>
-            <div class="op-col" x-show="view !== 'overview'" x-cloak>{{template "dash_cli" (dict "T" .T "Cmd" (printf "opencli user-info %s" .CurrentUsername))}}</div>
             {{template "howto" .}}
         </div>
     </div>

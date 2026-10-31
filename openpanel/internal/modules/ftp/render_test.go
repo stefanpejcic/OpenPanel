@@ -112,7 +112,7 @@ func TestRenderNewFTPAccountPage(t *testing.T) {
 		body := w.Body.String()
 		for _, want := range []string{
 			`action="/ftp/new"`, `name="username"`, `name="domain"`, `name="password"`, `name="path"`, `name="quota"`, `name="quota_unit"`,
-			`value="shop.test"`, `203.0.113.10`, `2121`, `old@example.com`, `folder_x1/up`, `opencli ftp-add`, `Create Account`, `op-cf-folder`,
+			`value="shop.test"`, `203.0.113.10`, `2121`, `old@example.com`, `folder_x1/up`, `Create Account`, `op-cf-folder`,
 		} {
 			if !strings.Contains(body, want) {
 				t.Errorf("missing %q", want)

@@ -97,7 +97,6 @@ func TestRenderDashboardPage(t *testing.T) {
 		`id="dashboard-menu"`,
 		"PHP 8.3",
 		"--color-hue-green",
-		"opencli websites-list testuser",
 		`href="/files/wp.example.com"`,
 		`5.6.7.8</span> · <span title="2026-10-29 12:00:00">2 hours ago</span>`,
 		`<span class="op-hint" title="2026-10-29 12:00:00">2 hours ago</span>`,

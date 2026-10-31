@@ -96,7 +96,7 @@
         {{else}}
         <div class="op-empty"><b>{{.T.Get "No containers yet."}}</b><a href="/containers/new" class="op-btn op-btn-primary">{{template "op_icon" "plus"}} {{.T.Get "Add a container"}}</a></div>
         {{end}}
-        <div class="op-tfoot"><span>{{len .Rows}} {{.T.Get "containers"}}</span><span class="op-mono" style="color:var(--color-accent-text)">opencli docker ps {{.CurrentUsername}}</span></div>
+        <div class="op-tfoot"><span>{{len .Rows}} {{.T.Get "containers"}}</span></div>
 </div>
 {{template "bulk_bar" .}}
 </div>

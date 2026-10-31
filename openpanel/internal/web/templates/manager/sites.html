@@ -254,7 +254,7 @@
             </tbody>
         </table>
     </div>
-    <div class="op-tfoot"><span x-effect="typeFilter; searchQuery; $nextTick(() => { $el.querySelector('.op-sites-shown').textContent = [...document.querySelectorAll('#sites-table tbody tr[id^=site-row-]')].filter(r => r.style.display !== 'none').length })">{{.T.Get "Showing"}} <span class="op-sites-shown">{{.SiteCount}}</span> {{.T.Get "of"}} {{.SiteCount}}</span><span class="op-mono" style="color:var(--color-accent-text)">opencli websites-list {{.CurrentUsername}}</span></div>
+    <div class="op-tfoot"><span x-effect="typeFilter; searchQuery; $nextTick(() => { $el.querySelector('.op-sites-shown').textContent = [...document.querySelectorAll('#sites-table tbody tr[id^=site-row-]')].filter(r => r.style.display !== 'none').length })">{{.T.Get "Showing"}} <span class="op-sites-shown">{{.SiteCount}}</span> {{.T.Get "of"}} {{.SiteCount}}</span></div>
 
     <div class="op-floatbar" x-show="selectedCount > 0" x-cloak x-transition>
         <template x-if="!confirmingAction">

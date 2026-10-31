@@ -42,10 +42,6 @@ function opNewEmail(c) {
             if (c.maxBytes > 0 && n * mult[this.qu] > c.maxBytes) return c.t.over;
             return '';
         },
-        cmd() {
-            const a = this.address(), q = this.gb();
-            return 'opencli email-setup email add ' + a + ' ********' + (c.wait ? ' --wait' : '') + (this.welcome ? ' --send-welcome' : '') + (q && parseFloat(q) > 0 ? ' && opencli email-setup quota set ' + a + ' ' + q + this.unit() : '');
-        },
         regen() { this.pass = gen(16); this.show = true; },
         copyPass() { if (this.pass && window.copyToClipboard) copyToClipboard(this.pass).then(() => showToast(c.t.copied, 'success')); },
         pick(i) { this.qsel = i; if (i === 'custom') this.$nextTick(() => this.$refs.qn.focus()); },
@@ -171,7 +167,6 @@ function opNewEmail(c) {
                 </div>
 
                 <div class="op-savebar">
-                    <span class="op-mono op-em-cmd" x-text="cmd()">opencli email-setup email add</span>
                     <a class="op-btn op-btn-secondary" href="/emails">{{.T.Get "Back to Emails"}}</a>
                     <button class="op-btn op-btn-primary" type="submit"{{if .Full}} disabled{{end}} :disabled="{{.Full}} || busy" x-text="busy ? {{toJSON (.T.Get "Creating...")}} : {{toJSON (.T.Get "Create Email")}}">{{.T.Get "Create Email"}}</button>
                 </div>
