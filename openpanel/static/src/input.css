@@ -1,6 +1,16 @@
 /* static/src/input.css */
+/* build: npx @tailwindcss/cli@4.1.6 -i static/src/input.css -o static/dist/output.css --minify, only classes listed in safelist.txt get generated */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss" source(none);
 @custom-variant dark (&:where(.dark, .dark *));
+
+@source "./safelist.txt";
+
+/* hand-added rules tailwind doesn't generate */
+button { cursor: pointer; }
+.hr { height: 1px; width: 100%; background-color: #e5e7eb; }
+.\-left-4 {
+  left: -1rem;
+}
+@keyframes op-upsell-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0.4); } 50% { box-shadow: 0 0 0 5px rgba(59,130,246,0); } }
+.animate-upsell-pulse { animation: op-upsell-pulse 2s ease-in-out infinite; }

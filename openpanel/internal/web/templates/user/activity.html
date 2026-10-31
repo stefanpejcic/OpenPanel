@@ -43,7 +43,7 @@
                         x-model="searchActivityQuery"
                         @keydown.enter.prevent="document.getElementById('activitySearchForm').submit()"
                         name="search"
-                        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 pl-8"
+                        class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 pl-8 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
                         placeholder="{{.T.Get "Search"}}"
                         type="search"
                     />
@@ -59,6 +59,7 @@
         </div>
 
 <div class="activity-toolbar flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+    {{template "filter_chips_css"}}
     <nav class="flex flex-wrap items-center gap-2" aria-label="{{.T.Get "Filter by type"}}">
         <a href="{{.AllURL}}" class="activity-chip{{if not .Filter.Kind}} is-active{{end}}"{{if not .Filter.Kind}} aria-current="true"{{end}}>
             {{.T.Get "All"}} <span class="activity-chip-count">{{.AllCount}}</span>
@@ -185,7 +186,7 @@
 
                     {{if gt .Page 1}}
                         <li>
-                            <a href="{{.PageURL (sub .Page 1)}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Previous"}}</a>
+                            <a href="{{.PageURL (sub .Page 1)}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Previous"}}</a>
                         </li>
                     {{end}}
                 {{range .PageEntries}}
@@ -205,7 +206,7 @@
                 {{end}}
                     {{if lt .Page .TotalPages}}
                         <li>
-                            <a href="{{.PageURL (add .Page 1)}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Next"}}</a>
+                            <a href="{{.PageURL (add .Page 1)}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Next"}}</a>
                         </li>
                     {{end}}
                 </ul>
@@ -264,12 +265,6 @@ document.addEventListener('DOMContentLoaded', function () {
 .dark .activity-kind--security { background: rgb(139 92 246 / 0.14); color: #a78bfa; }
 .dark .activity-kind--command { background: rgb(14 165 233 / 0.12); color: #38bdf8; }
 .dark .activity-kind--info { background: rgb(107 114 128 / 0.18); color: #9ca3af; }
-.activity-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.7rem; border-radius: 9999px; border: 1px solid #e5e7eb; font-size: 0.8125rem; color: #374151; background: #fff; text-decoration: none; transition: background-color .15s, border-color .15s; }
-.activity-chip:hover { background: #f9fafb; border-color: #d1d5db; }
-.activity-chip.is-active { background: #111827; border-color: #111827; color: #fff; }
-.activity-chip-count { font-variant-numeric: tabular-nums; color: #6b7280; font-size: 0.75rem; }
-.activity-chip.is-active .activity-chip-count { color: #d1d5db; }
-.activity-chip-dot { width: 0.5rem; height: 0.5rem; border-radius: 9999px; background: currentColor; }
 .activity-chip--danger .activity-chip-dot { color: #dc2626; }
 .activity-chip--create .activity-chip-dot { color: #059669; }
 .activity-chip--edit .activity-chip-dot { color: #d97706; }
@@ -278,11 +273,6 @@ document.addEventListener('DOMContentLoaded', function () {
 .activity-chip--info .activity-chip-dot { color: #9ca3af; }
 .activity-clear { color: #6b7280; text-decoration: underline; text-underline-offset: 2px; }
 .activity-clear:hover { color: #111827; }
-.dark .activity-chip { border-color: #1f2937; color: #d1d5db; background: #030712; }
-.dark .activity-chip:hover { background: #111827; border-color: #374151; }
-.dark .activity-chip.is-active { background: #f9fafb; border-color: #f9fafb; color: #111827; }
-.dark .activity-chip-count { color: #9ca3af; }
-.dark .activity-chip.is-active .activity-chip-count { color: #4b5563; }
 .dark .activity-chip--danger .activity-chip-dot { color: #f87171; }
 .dark .activity-chip--create .activity-chip-dot { color: #34d399; }
 .dark .activity-chip--edit .activity-chip-dot { color: #fbbf24; }

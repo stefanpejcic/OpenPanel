@@ -4,7 +4,7 @@
 {{define "content"}}
 <!-- START templates/docker/container_form.html -->
 
-{{$in := "relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"}}
+{{$in := "relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"}}
 {{$sel := "w-full cursor-pointer truncate rounded border py-2 pl-3 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"}}
 {{$label := "flex justify-between mb-2 text-sm font-medium text-gray-900 dark:text-gray-50"}}
 {{$step := "inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50"}}
@@ -121,8 +121,8 @@
                 <div>
                     <label class="{{$label}}" for="ram_amount"><span>{{.T.Get "Memory"}}<span class="text-red-500">*</span></span></label>
                     <div class="flex">
-                        <input type="number" id="ram_amount" x-model="ramAmount" min="0.05" step="0.05" required class="{{$in}}" style="border-top-right-radius:0;border-bottom-right-radius:0;">
-                        <span class="inline-flex items-center rounded-r border py-2 px-3 text-sm bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-800 text-gray-500 dark:text-gray-400" style="border-left-width:0">GB</span>
+                        <input type="number" id="ram_amount" x-model="ramAmount" min="0.05" step="0.05" required class="rounded-l border {{$in}} border-gray-300 dark:border-gray-800" style="border-top-right-radius:0;border-bottom-right-radius:0;">
+                        <span class="rounded-r inline-flex items-center border border-l-0 py-2 px-3 text-sm bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-800 text-gray-500 dark:text-gray-400" style="border-left-width:0">GB</span>
                     </div>
                     <input type="hidden" name="ram" :value="ramAmount + 'G'">
                 </div>

@@ -8,7 +8,12 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-func accountsBulkActions(t i18n.Translator) []web.BulkAction {
+// maxQuota is the plan's max_email_quota, "0" or "" when there is none
+func accountsBulkActions(t i18n.Translator, maxQuota string) []web.BulkAction {
+	quotaHint := t.Get("0 = unlimited")
+	if maxQuota != "" && maxQuota != "0" {
+		quotaHint = t.Get("Maximum allowed: ") + maxQuota
+	}
 	return []web.BulkAction{
 		{Key: "suspension", Label: t.Get("Suspend / Unsuspend"), Confirm: t.Get("For the selected accounts:"),
 			Input: &web.BulkInput{Type: "select", Options: []web.BulkOption{
@@ -18,7 +23,7 @@ func accountsBulkActions(t i18n.Translator) []web.BulkAction {
 				{Value: "unsuspend_out", Label: t.Get("Unsuspend outgoing")},
 			}}},
 		{Key: "quota", Label: t.Get("Change quota"), Confirm: t.Get("New mailbox size (GB) for the selected accounts:"),
-			Input: &web.BulkInput{Type: "number", Min: "0", Step: "any", Placeholder: "GB", Hint: t.Get("0 = unlimited")}},
+			Input: &web.BulkInput{Type: "number", Min: "0", Step: "any", Placeholder: "GB", Hint: quotaHint}},
 		{Key: "password", Label: t.Get("Change password"), Confirm: t.Get("Set this password for the selected accounts:"), Input: &web.BulkInput{Type: "password", Placeholder: t.Get("New password")}},
 		{Key: "delete", Label: t.Get("Delete"), Confirm: t.Get("Permanently delete the selected email accounts and all their emails? This cannot be undone."), Danger: true},
 	}

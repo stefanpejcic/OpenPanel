@@ -580,7 +580,10 @@ func handleEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	currentEmailsList := GetEmailList(ctx, a, userID, currentUsername, userDomains)
-	renderAccountsPage(a, w, r, currentEmailsList, domains)
+	injectedData, _ := a.InjectData(ctx, userID)
+	planID, _ := injectedData["hosting_plan"].(int)
+	_, maxEmailQuota, _ := a.QueryPlanEmailMailboxLimits(ctx, planID)
+	renderAccountsPage(a, w, r, currentEmailsList, domains, maxEmailQuota)
 }
 
 func handleSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, email string, userID int, currentUsername string, userDomains map[string]bool) {

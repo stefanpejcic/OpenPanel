@@ -17,20 +17,24 @@ import (
 // containerBulkActions are the buttons in the /containers bulk bar, keys match handleContainersBulk
 func containerBulkActions(t i18n.Translator, totalCPU, totalRAM int) []web.BulkAction {
 	cpuMax, ramMax := "", ""
+	// with a plan limit 0 doesn't mean unlimited, so the hint shows the limit instead
+	cpuHint, ramHint := t.Get("0 = unlimited"), t.Get("0 = unlimited")
 	if totalCPU > 0 {
 		cpuMax = strconv.Itoa(totalCPU)
+		cpuHint = t.Get("Maximum allowed: ") + cpuMax
 	}
 	if totalRAM > 0 {
 		ramMax = strconv.Itoa(totalRAM)
+		ramHint = t.Get("Maximum allowed: ") + ramMax + " GB"
 	}
 	return []web.BulkAction{
 		{Key: "start", Label: t.Get("Start"), Confirm: t.Get("Start the selected containers?")},
 		{Key: "stop", Label: t.Get("Stop"), Confirm: t.Get("Stop the selected containers?")},
 		{Key: "restart", Label: t.Get("Restart"), Confirm: t.Get("Restart the selected containers?")},
 		{Key: "cpu", Label: t.Get("Edit CPU"), Confirm: t.Get("Set the CPU limit for the selected containers:"),
-			Input: &web.BulkInput{Type: "number", Min: "0", Max: cpuMax, Step: ".01", Placeholder: t.Get("cores"), Hint: t.Get("0 = unlimited")}},
+			Input: &web.BulkInput{Type: "number", Min: "0", Max: cpuMax, Step: ".01", Placeholder: t.Get("cores"), Hint: cpuHint}},
 		{Key: "ram", Label: t.Get("Edit RAM"), Confirm: t.Get("Set the memory limit (GB) for the selected containers:"),
-			Input: &web.BulkInput{Type: "number", Min: "0", Max: ramMax, Step: ".01", Placeholder: "GB", Hint: t.Get("0 = unlimited")}},
+			Input: &web.BulkInput{Type: "number", Min: "0", Max: ramMax, Step: ".01", Placeholder: "GB", Hint: ramHint}},
 		{Key: "pids", Label: t.Get("Edit PIDs"), Confirm: t.Get("Set the max processes for the selected containers:"),
 			Input: &web.BulkInput{Type: "number", Min: "0", Step: "1", Placeholder: t.Get("PIDs"), Hint: t.Get("0 = unlimited")}},
 		{Key: "delete", Label: t.Get("Delete"), Confirm: t.Get("Permanently delete the selected containers and their images? This cannot be undone."), Danger: true},

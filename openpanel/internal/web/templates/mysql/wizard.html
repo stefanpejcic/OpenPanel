@@ -184,16 +184,16 @@
           </label>
         </div>
         <div class="flex rounded-lg">
-          {{if .MySQLPrefix}}<span class="inline-flex items-center px-2.5 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border border-r-0 border-gray-300 dark:border-gray-800 rounded-l select-none">{{.MySQLPrefix}}</span>{{end}}
+          {{if .MySQLPrefix}}<span class="rounded-l inline-flex items-center px-2.5 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border border-r-0 border-gray-300 dark:border-gray-800 select-none">{{.MySQLPrefix}}</span>{{end}}
           <input type="text" x-ref="dbname" x-model="dbname" name="database_name" id="dbname"
             minlength="1" maxlength="{{sub 63 (len .MySQLPrefix)}}" pattern="[a-zA-Z0-9_]+"
             title="{{.T.Get "Only letters, numbers, and underscores are allowed (1-63 characters)."}}"
             value="{{.FormDatabaseName}}"
-            class="relative block w-full appearance-none {{if not .MySQLPrefix}}rounded-l {{end}}border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"
+            class="relative block w-full {{if .MySQLPrefix}}rounded-none{{else}}rounded-l{{end}} border appearance-none px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
             placeholder=" {{.T.Get "Database Name"}}" required>
-          <div class="input-group-append">
+          <div class="input-group-append flex">
             <button type="button" @click="dbname = generateString(12); updateGrantCommands(); $nextTick(() => $refs.dbname.dispatchEvent(new Event('input', { bubbles: true })))"
-              class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+              class="rounded-r px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
               <i class="bi bi-shuffle"></i>
             </button>
           </div>
@@ -213,16 +213,16 @@
           </label>
         </div>
         <div class="flex rounded-lg">
-          {{if .MySQLPrefix}}<span class="inline-flex items-center px-2.5 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border border-r-0 border-gray-300 dark:border-gray-800 rounded-l select-none">{{.MySQLPrefix}}</span>{{end}}
+          {{if .MySQLPrefix}}<span class="rounded-l inline-flex items-center px-2.5 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border border-r-0 border-gray-300 dark:border-gray-800 select-none">{{.MySQLPrefix}}</span>{{end}}
           <input type="text" x-ref="username" x-model="username" name="db_user" id="username"
             pattern="[a-zA-Z0-9_]+" minlength="1" maxlength="{{sub 31 (len .MySQLPrefix)}}"
             title="{{.T.Get "Only letters, numbers, and underscores are allowed (1-31 characters)."}}"
             value="{{.FormDBUser}}"
-            class="relative block w-full appearance-none {{if not .MySQLPrefix}}rounded-l {{end}}border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"
+            class="relative block w-full {{if .MySQLPrefix}}rounded-none{{else}}rounded-l{{end}} border appearance-none px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
             placeholder=" {{.T.Get "Database User"}}" required>
-          <div class="input-group-append">
+          <div class="input-group-append flex">
             <button type="button" @click="username = generateString(12); updateGrantCommands(); $nextTick(() => $refs.username.dispatchEvent(new Event('input', { bubbles: true })))"
-              class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+              class="rounded-r px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
               <i class="bi bi-shuffle"></i>
             </button>
           </div>
@@ -243,11 +243,11 @@
           <input type="text" name="password" id="password"
             maxlength="30" minlength="8"
             placeholder=" {{.T.Get "Password"}}"
-            class="relative block w-full appearance-none rounded-l border-l border-y px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"
+            class="relative block w-full rounded-l border appearance-none px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
             x-model="password" x-ref="input" @input="checkStrength()" required>
-          <div class="input-group-append">
+          <div class="input-group-append flex">
             <button type="button" id="generatePassword"
-              class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
+              class="rounded-r px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
               <i class="bi bi-shuffle"></i>
             </button>
           </div>

@@ -36,9 +36,9 @@
   <div class="col-span-full mb-5">
     <label for="db_user" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Select user:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
 
-    <div class="flex rounded-lg shadow-sm">
+    <div class="flex">
 
-  <select name="db_user" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 data-[placeholder]:text-gray-500 data-[placeholder]:dark:text-gray-500 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 data-[disabled]:bg-gray-100 data-[disabled]:text-gray-400 data-[disabled]:dark:border-gray-700 data-[disabled]:dark:bg-gray-800 data-[disabled]:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" required>
+  <select name="db_user" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 data-[placeholder]:text-gray-500 data-[placeholder]:dark:text-gray-500 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 data-[disabled]:bg-gray-100 data-[disabled]:text-gray-400 data-[disabled]:dark:border-gray-700 data-[disabled]:dark:bg-gray-800 data-[disabled]:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 mt-2 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 h-10.5 sm:h-9.5" required>
     <option value=""></option>
   </select>
 
@@ -48,9 +48,9 @@
 
   <div class="col-span-full mb-5">
     <label for="database_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" >{{.T.Get "Select database:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-    <div class="flex rounded-lg shadow-sm">
-        <input type="text" name="db_host" class="form-control" placeholder=" {{.T.Get "Host"}}" value="%" hidden required>
-  <select name="database_name" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 data-[placeholder]:text-gray-500 data-[placeholder]:dark:text-gray-500 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 data-[disabled]:bg-gray-100 data-[disabled]:text-gray-400 data-[disabled]:dark:border-gray-700 data-[disabled]:dark:bg-gray-800 data-[disabled]:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" required>
+    <div class="flex">
+        <input type="text" name="db_host" class="rounded-l border form-control border-gray-300 dark:border-gray-800" placeholder=" {{.T.Get "Host"}}" value="%" hidden required>
+  <select name="database_name" class="rounded-r group/trigger flex w-full select-none items-center justify-between gap-2 truncate border border-l-0 px-3 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 data-[placeholder]:text-gray-500 data-[placeholder]:dark:text-gray-500 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 data-[disabled]:bg-gray-100 data-[disabled]:text-gray-400 data-[disabled]:dark:border-gray-700 data-[disabled]:dark:bg-gray-800 data-[disabled]:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 mt-2 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 h-10.5 sm:h-9.5" required>
     <option value=""></option>
   </select>
 

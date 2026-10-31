@@ -209,7 +209,7 @@ function sendDataToPreview(event) {
         <span class="flex items-center gap-x-2 text-sm font-medium text-gray-900 dark:bg-gray-950 dark:text-gray-950">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-px size-5 shrink-0 text-gray-500 dark:text-gray-500"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM13 12H17V14H11V7H13V12Z"></path></svg>
             {{.T.Get "Last"}}
-            <select id="visitor_seconds" class="cursor-pointer rounded bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-500 dark:bg-blue-400/10 dark:text-blue-500">
+            <select id="visitor_seconds" class="relative rounded border px-2 py-1 outline-none transition text-xs border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 cursor-pointer font-semibold text-blue-500 dark:text-blue-500 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
                 <option value="60" selected>{{.T.Get "1 minute"}}</option>
                 <option value="300">{{.T.Get "5 minutes"}}</option>
                 <option value="1800">{{.T.Get "30 minutes"}}</option>
@@ -951,7 +951,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 {{define "site_git_panel"}}{{if .UserAllowed.git}}
-{{$in := "relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:border-blue-500"}}
+{{$in := "relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"}}
 {{$lbl := "block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"}}
 {{$btn := "inline-flex items-center justify-center gap-1.5 rounded border px-3 py-1.5 text-sm font-medium shadow-sm transition-colors border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-50 dark:hover:bg-gray-800"}}
 <!-- START site_git_panel -->

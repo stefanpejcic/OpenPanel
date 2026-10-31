@@ -226,6 +226,7 @@ var layoutFiles = []string{
 	"partials/theme_switcher.html",
 	"partials/install_success.html",
 	"partials/folder_picker.html",
+	"partials/filter_chips.html",
 }
 
 // LoadPage is MustLoadPage with the standard layout files prepended

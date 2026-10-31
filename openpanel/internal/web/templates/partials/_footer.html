@@ -11,9 +11,9 @@
             </span>
         </button>
     </div>
+    {{end}}
 
     <div class="border-t border-gray-200 dark:border-gray-800"></div>
-    {{end}}
 
     <div x-data="{ isOpen: false }" @click.away="isOpen = false">
         <div dir="ltr" id="popup-menu" :class="{ 'hidden': !isOpen }" class="hidden">

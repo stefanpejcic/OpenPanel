@@ -66,8 +66,8 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
             <div class="col-span-full mb-5">
                 <label for="php_version" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Select PHP version:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-                <div class="flex rounded-lg shadow-sm">
-                    <select id="php_version" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 mt-2" onchange="updateFormAction()" required>
+                <div class="flex">
+                    <select id="php_version" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 mt-2 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" onchange="updateFormAction()" required>
                         <option value="" disabled selected>{{.T.Get "Select PHP Version"}}</option>
                         {{range .InstalledVersions}}
                         <option value="{{.}}">PHP {{.}}</option>
