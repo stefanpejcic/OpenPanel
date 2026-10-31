@@ -90,3 +90,38 @@ func splitFields(line string, maxFields int) []string {
 	}
 	return fields
 }
+
+// lsModeOctal turns ls's "-rwxr-x---" into "750", "" when it isn't a mode string; s/t count only as the execute bit since the panel never sets them
+func lsModeOctal(perm string) string {
+	if len(perm) < 10 {
+		return ""
+	}
+	out := make([]byte, 3)
+	for i := range 3 {
+		r, wr, x := perm[1+3*i], perm[2+3*i], perm[3+3*i]
+		d := byte('0')
+		switch r {
+		case 'r':
+			d += 4
+		case '-':
+		default:
+			return ""
+		}
+		switch wr {
+		case 'w':
+			d += 2
+		case '-':
+		default:
+			return ""
+		}
+		switch x {
+		case 'x', 's', 't':
+			d++
+		case '-', 'S', 'T':
+		default:
+			return ""
+		}
+		out[i] = d
+	}
+	return string(out)
+}

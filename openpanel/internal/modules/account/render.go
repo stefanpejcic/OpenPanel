@@ -1,11 +1,16 @@
 package account
 
 import (
+	"context"
+	"database/sql"
 	"log"
 	"net/http"
+	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/mcptokens"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -28,6 +33,14 @@ type AccountPageData struct {
 	web.LayoutData
 	PermitUsernameChangeByUser bool
 	CurrentEmail               string
+	// the side cards: 2FA state and where this and the previous login came from
+	TwofaEnabled          bool
+	ThisIP                string
+	LastIP, LastLoginTime string
+	// MemberSince is users.registered_date, zero when unknown
+	MemberSince time.Time
+	// PasskeyCount is -1 when it couldn't be read
+	PasskeyCount int
 }
 
 func renderAccountPage(a *appctx.App, w http.ResponseWriter, r *http.Request, permitUsernameChange string) {
@@ -37,10 +50,56 @@ func renderAccountPage(a *appctx.App, w http.ResponseWriter, r *http.Request, pe
 		return
 	}
 	currentEmail, _ := injected["current_email"].(string)
-	data := AccountPageData{LayoutData: layout, PermitUsernameChangeByUser: permitUsernameChange == "yes", CurrentEmail: currentEmail}
+	data := AccountPageData{LayoutData: layout, PermitUsernameChangeByUser: permitUsernameChange == "yes", CurrentEmail: currentEmail, ThisIP: reqip.ClientIP(r), PasskeyCount: -1}
+	if userID, ok := auth.UserID(r); ok {
+		if st, err := a.Get2FAStatusForUser(r.Context(), userID); err == nil {
+			data.TwofaEnabled = st.Enabled
+		}
+		data.MemberSince = memberSince(r.Context(), a, userID)
+		if layout.UserAllowed["passkeys"] {
+			data.PasskeyCount = countPasskeys(r.Context(), a, userID)
+		}
+	}
+	// the newest entry is this login, the one before it is the previous one
+	if logins, err := a.GetLastLoginData(r.Context(), layout.CurrentUsername); err == nil && len(logins) > 0 {
+		last := logins[len(logins)-1]
+		if len(logins) >= 2 {
+			last = logins[len(logins)-2]
+		}
+		data.LastIP, data.LastLoginTime = last.IP, last.LoginTime
+	}
 	if err := accountPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("ACCOUNT - settings template render error: %v", err)
 	}
+}
+
+// MemberSinceLabel is MemberSince as "14 Mar 2026", empty when unknown
+func (d AccountPageData) MemberSinceLabel() string {
+	if d.MemberSince.IsZero() {
+		return ""
+	}
+	return d.MemberSince.Format("2 Jan 2006")
+}
+
+// memberSince reads users.registered_date, zero on any error
+func memberSince(ctx context.Context, a *appctx.App, userID int) time.Time {
+	var t sql.NullTime
+	if err := a.DB.QueryRowContext(ctx, "SELECT registered_date FROM users WHERE id = ?", userID).Scan(&t); err != nil {
+		return time.Time{}
+	}
+	return t.Time
+}
+
+// countPasskeys counts the user's passkeys, 0 when the table doesn't exist yet and -1 on other errors
+func countPasskeys(ctx context.Context, a *appctx.App, userID int) int {
+	if err := ensurePasskeysTable(ctx, a); err != nil {
+		return -1
+	}
+	var n int
+	if err := a.DB.QueryRowContext(ctx, "SELECT COUNT(*) FROM user_passkeys WHERE user_id = ?", userID).Scan(&n); err != nil {
+		return -1
+	}
+	return n
 }
 
 // LocalePageData is user/locale.html's template context.

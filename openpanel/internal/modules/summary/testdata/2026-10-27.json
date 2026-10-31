@@ -1,0 +1,37 @@
+{
+  "username": "testinguser",
+  "date": "2026-10-27",
+  "from": "2026-10-27T00:00:00Z",
+  "to": "2026-10-28T00:00:00Z",
+  "generated_at": "2026-10-28T06:15:03.079700952Z",
+  "headline": "Your websites had no visitors. Nothing needs your attention.",
+  "prev_requests": 34,
+  "attention": [],
+  "look": [],
+  "good": [
+    "Your account stayed within its CPU and memory limits."
+  ],
+  "websites": [],
+  "logins": [],
+  "changes": [
+    "13:20 edited httpd.conf and reloaded apache",
+    "13:20 edited httpd.conf"
+  ],
+  "usage": [
+    {
+      "title": "CPU at the busiest hour",
+      "used": "0.1 cores",
+      "total": "4.0 cores",
+      "percent": 4,
+      "limit": 90
+    },
+    {
+      "title": "Memory at the busiest hour",
+      "used": "331 MB",
+      "total": "6.0 GB",
+      "percent": 5,
+      "limit": 90
+    }
+  ],
+  "facts": []
+}

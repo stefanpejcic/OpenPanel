@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/pem"
 	"net/http"
+	"net/url"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -54,7 +55,16 @@ func handleDomainCustomSSL(a *appctx.App, w http.ResponseWriter, r *http.Request
 	} else {
 		domainName = r.URL.Query().Get("domain_name")
 		if domainName == "" {
-			renderSSLPage(a, w, r, "", "", "", domainsList)
+			// overview of every domain's certificate, same reads as the domains list
+			certs := make([]SSLRow, 0, len(domainsList))
+			for _, d := range domainsList {
+				if strings.HasSuffix(d.DomainURL, ".onion") {
+					continue
+				}
+				https := isRewriteCondEnabled(ctx, a, d.DomainURL).HTTPS
+				certs = append(certs, SSLRow{Domain: d.DomainURL, HTTPS: https, SSL: readSSLCertInfo(d.DomainURL, https)})
+			}
+			renderSSLPage(a, w, r, "", "", "", domainsList, certs)
 			return
 		}
 	}
@@ -124,24 +134,25 @@ func handleDomainCustomSSL(a *appctx.App, w http.ResponseWriter, r *http.Request
 		web.Flash(a, w, r, "error", strings.TrimSpace(string(out)))
 	}
 
-	renderSSLPage(a, w, r, domainName, currentSetting, keys, domainsList)
+	renderSSLPage(a, w, r, domainName, currentSetting, keys, domainsList, nil)
 }
 
 func handleCustomSSLUpload(a *appctx.App, w http.ResponseWriter, r *http.Request, domainName, userContext, currentUsername string) {
 	ctx := r.Context()
 	certificate := strings.TrimSpace(r.Form.Get("certificate"))
 	privateKey := strings.TrimSpace(r.Form.Get("private_key"))
+	// the install sheet on the overview comes back there, the per-domain page stays on its own
+	back, done := "/domains/ssl?domain_name="+domainName, "/domains/ssl?domain_name="+domainName
+	if r.Form.Get("return_to") == "list" {
+		back, done = "/domains/ssl?install="+url.QueryEscape(domainName), "/domains/ssl"
+	}
 
 	if certificate == "" || privateKey == "" {
-		web.FlashRedirect(a, w, r, "error", "Certificate and private key are required.", "/domains/ssl?domain_name="+domainName)
+		web.FlashRedirect(a, w, r, "error", "Certificate and private key are required.", back)
 		return
 	}
-	if !strings.Contains(certificate, "BEGIN CERTIFICATE") {
-		web.FlashRedirect(a, w, r, "error", "Invalid certificate.", "/domains/ssl?domain_name="+domainName)
-		return
-	}
-	if !strings.Contains(privateKey, "BEGIN") || !strings.Contains(privateKey, "PRIVATE KEY") {
-		web.FlashRedirect(a, w, r, "error", "Invalid private key.", "/domains/ssl?domain_name="+domainName)
+	if _, p := checkCustomCert(certificate, privateKey, domainName, time.Now()); p != nil {
+		web.FlashRedirect(a, w, r, "error", p.text(a, r, domainName), back)
 		return
 	}
 
@@ -165,10 +176,10 @@ func handleCustomSSLUpload(a *appctx.App, w http.ResponseWriter, r *http.Request
 	_ = tenantfs.Remove(keyPath)
 
 	if cmdErr == nil {
-		web.FlashRedirect(a, w, r, "success", strings.TrimSpace(string(out)), "/domains/ssl?domain_name="+domainName)
+		web.FlashRedirect(a, w, r, "success", strings.TrimSpace(string(out)), done)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "configured custom SSL for "+domainName, reqip.ClientIP(r))
 	} else {
-		web.FlashRedirect(a, w, r, "error", strings.TrimSpace(string(out)), "/domains/ssl?domain_name="+domainName)
+		web.FlashRedirect(a, w, r, "error", strings.TrimSpace(string(out)), back)
 	}
 }
 
