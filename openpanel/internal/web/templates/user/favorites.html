@@ -46,7 +46,7 @@
                             <button class="op-icon-btn" type="button" aria-label="{{$root.T.Get "Actions for"}} {{$favorite.Name}}" :aria-expanded="open.toString()" x-ref="btn" @click="toggle()">{{template "op_icon" "dots"}}</button>
                             <div class="op-menu" x-ref="menu" x-show="open" x-cloak>
                                 <a href="{{$href}}">{{template "op_icon" "out"}} {{$root.T.Get "Open"}}</a>
-                                <button type="button" class="is-danger" @click="open = false; deleteFavorite({{$favorite.Link}})">{{template "op_icon" "trash"}} {{$root.T.Get "Remove"}}</button>
+                                <button type="button" class="is-danger" @click="open = false; deleteFavorite({{toJSON $favorite.Link}})">{{template "op_icon" "trash"}} {{$root.T.Get "Remove"}}</button>
                             </div>
                         </td>
                     </tr>
