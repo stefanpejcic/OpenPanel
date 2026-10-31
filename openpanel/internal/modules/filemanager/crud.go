@@ -252,8 +252,8 @@ func permissionsError(permissions string) string {
 	return "Invalid permissions format."
 }
 
-// chmodPath applies mode to rel, and to everything under it when recursive is set and rel is a directory, symlinks inside are skipped rather than followed
-func chmodPath(root *paths.UserRoot, rel string, mode os.FileMode, recursive bool) error {
+// chmodPath applies mode to rel, and when recursive is set and rel is a directory, dirMode to it and every folder under it and mode to the files; symlinks inside are skipped rather than followed
+func chmodPath(root *paths.UserRoot, rel string, mode, dirMode os.FileMode, recursive bool) error {
 	if !recursive {
 		return root.Chmod(rel, mode)
 	}
@@ -264,8 +264,37 @@ func chmodPath(root *paths.UserRoot, rel string, mode os.FileMode, recursive boo
 		if d.Type()&fs.ModeSymlink != 0 {
 			return nil
 		}
+		if d.IsDir() {
+			return root.Chmod(itemPath, dirMode)
+		}
 		return root.Chmod(itemPath, mode)
 	})
+}
+
+// recursiveModes parses the file mode and the optional folder mode, folders get the file mode when no folder mode is sent
+func recursiveModes(permissions, folderPermissions string) (mode, dirMode os.FileMode, msg string) {
+	if msg := permissionsError(permissions); msg != "" {
+		return 0, 0, msg
+	}
+	if folderPermissions == "" {
+		folderPermissions = permissions
+	} else if msg := permissionsError(folderPermissions); msg != "" {
+		return 0, 0, msg
+	}
+	m, _ := strconv.ParseUint(permissions, 8, 32)
+	d, _ := strconv.ParseUint(folderPermissions, 8, 32)
+	return os.FileMode(m), os.FileMode(d), ""
+}
+
+// chmodAction is the activity log line, it names both modes when they differ
+func chmodAction(permissions, folderPermissions string, recursive bool) string {
+	if !recursive {
+		return "changed permissions to " + permissions
+	}
+	if folderPermissions != "" && folderPermissions != permissions {
+		return "changed permissions to " + permissions + " for files and " + folderPermissions + " for folders recursively"
+	}
+	return "changed permissions to " + permissions + " recursively"
 }
 
 // handleChangePermissions applies an octal permissions string to one or more selected files, recursing into
@@ -274,10 +303,13 @@ func handleChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	_ = r.ParseForm()
 	filenames := r.Form["filename"]
 	permissions := r.Form.Get("permissions")
+	// only used with recursive, folders get the file mode when it's empty
+	folderPermissions := r.Form.Get("folder_permissions")
 	pathParam := r.Form.Get("path_param")
 	recursive := r.Form.Get("recursive") == "on"
 
-	if msg := permissionsError(permissions); msg != "" {
+	mode, dirMode, msg := recursiveModes(permissions, folderPermissions)
+	if msg != "" {
 		web.FlashRedirect(a, w, r, "error", msg, filesRedirectPath(pathParam))
 		return
 	}
@@ -288,8 +320,6 @@ func handleChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-
-	mode, _ := strconv.ParseUint(permissions, 8, 32)
 
 	root, perr := paths.OpenUserRoot("HOME", user.Context)
 	if perr != nil {
@@ -313,14 +343,11 @@ func handleChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Reque
 			errored = append(errored, filename)
 			continue
 		}
-		if chmodErr := chmodPath(root, rel, os.FileMode(mode), recursive && info.IsDir()); chmodErr != nil {
+		if chmodErr := chmodPath(root, rel, mode, dirMode, recursive && info.IsDir()); chmodErr != nil {
 			errored = append(errored, filename)
 			continue
 		}
-		action := "changed permissions to " + permissions
-		if recursive && info.IsDir() {
-			action += " recursively"
-		}
+		action := chmodAction(permissions, folderPermissions, recursive && info.IsDir())
 		_ = logger.RecordUserAction(a.Config, user.Username, action+" for "+root.Abs(rel)+" using File Manager", reqip.ClientIP(r))
 		changed++
 	}
