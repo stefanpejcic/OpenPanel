@@ -454,7 +454,8 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	webServerType, _ := docker.GetEnvValue(userContext, "WEB_SERVER")
 
 	switch {
-	case webServerType == "apache":
+	// litespeed enterprise reads apache style vhosts, only openlitespeed has its own format
+	case webServerType == "apache", webServerType == "litespeed":
 		emit(map[string]any{"status": "Editing Apache configuration: creating reverse proxy from " + selectedDomain + " to container " + serviceName})
 		editApacheConfig(userContext, topDomain, subdirectory, serviceName, appPort, kind.NeedsWebSocket)
 	case webServerType == "nginx":

@@ -97,6 +97,9 @@ On a [multi-server](/docs/admin/system/multi-server/) master, the **Cluster** wi
 
 On a single server it shows that the server is standalone, and on a slave which master manages it.
 
+![Cluster widget listing the master and two servers with their health bars, users, domains, version and last sync](/img/openadmin-screenshots/001_dashboard-cluster.png#gh-light-mode-only)
+![Cluster widget listing the master and two servers with their health bars, users, domains, version and last sync](/img/openadmin-screenshots/001_dashboard-cluster_dark.png#gh-dark-mode-only)
+
 ## Tasks
 
 The **Tasks** widget lists background tasks that are currently running on the server. Click **View all** to open the full list of tasks, where you can tick running tasks and **Kill** them all at once from the bulk actions bar.
@@ -159,4 +162,7 @@ Press **Ctrl + K** (or **Cmd + K** on macOS) on any page to show the list of ava
 
 ## Logout
 
-To log out of the OpenAdmin account, click your username in the bottom-left corner and select 'Sign out' option.
+To log out of the OpenAdmin account, click your username in the bottom-left corner and select **Sign out**.
+
+![Account menu opened from the username in the bottom-left corner of the sidebar, with the Sign out option](/img/openadmin-screenshots/001_dashboard-logout.png#gh-light-mode-only)
+![Account menu opened from the username in the bottom-left corner of the sidebar, with the Sign out option](/img/openadmin-screenshots/001_dashboard-logout_dark.png#gh-dark-mode-only)

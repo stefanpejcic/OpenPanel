@@ -13,4 +13,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 		return auth.RequireLogin(a, "webserver_conf")(h)
 	}
 	mux.Handle(redirectPath, requireLogin(func(w http.ResponseWriter, r *http.Request) { handleWebserverConf(a, w, r) }))
+	// the license card on the editor page, the /api routes need an api token
+	mux.Handle("GET "+redirectPath+"/litespeed-license", requireLogin(func(w http.ResponseWriter, r *http.Request) { apiLitespeedLicense(a, w, r) }))
+	mux.Handle("POST "+redirectPath+"/litespeed-license", requireLogin(func(w http.ResponseWriter, r *http.Request) { apiLitespeedLicense(a, w, r) }))
 }

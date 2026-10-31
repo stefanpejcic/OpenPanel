@@ -177,7 +177,7 @@ Optional flags:
 - `--send-email` - send an email with login credentials to the user's email address.
 - `--private-note=<NOTE>` - save a private note for this user (visible only in OpenAdmin).
 - `--reseller=<RESELLER_USERNAME>` - assign a reseller as the owner of this user.
-- `--webserver=<TYPE>` - webserver to use, one of the webservers defined in the default `docker-compose.yml` template (by default `nginx`, `apache`, `openresty` or `openlitespeed`), optionally prefixed with `varnish+` (e.g. `varnish+nginx`). A webserver not in the template is ignored with a warning and the default is used.
+- `--webserver=<TYPE>` - webserver to use, one of the webservers defined in the default `docker-compose.yml` template (by default `nginx`, `apache`, `openresty`, `openlitespeed` or `litespeed`), optionally prefixed with `varnish+` (e.g. `varnish+nginx`). A webserver not in the template is ignored with a warning and the default is used.
 - `--sql=<mysql|mariadb>` - database type to use.
 - `--no-sentinel` - don't send the *user_create* notification.
 - `--skip-images` - don't pull container images for the new user.
@@ -1128,6 +1128,67 @@ IP            Country  Time
 </details>
 
 Output is shown as a table by default. Use `--text` for plain text or `--json` for JSON.
+
+### LiteSpeed license
+Show or set the LiteSpeed Enterprise license of a user whose webserver is `litespeed`. A new account starts on a trial license, LiteSpeed gives one trial per server IP. A serial number set here is always used from then on, even if it can't be registered.
+
+```bash
+opencli user-litespeed <USERNAME> [status|serial <SERIAL>|trial] [--json]
+```
+
+Show the current license:
+```bash
+opencli user-litespeed <USERNAME>
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-litespeed stefan
+License: trial
+Your trial license key will expire in 14 days!
+```
+</details>
+
+Register a serial number:
+```bash
+opencli user-litespeed <USERNAME> serial <SERIAL>
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-litespeed stefan serial AbCd-1234-EfGh-5678
+Serial number registered, LiteSpeed restarted with the new license.
+```
+</details>
+
+Go back to a trial license:
+```bash
+opencli user-litespeed <USERNAME> trial
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-litespeed stefan trial
+Switched to a trial license.
+```
+</details>
+
+Use `--json` for JSON output:
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-litespeed stefan --json
+{"success":true,"type":"trial","message":"Your trial license key will expire in 14 days!","days_left":14}
+```
+</details>
 
 ### Varnish
 Check Varnish Caching status for user and enable/disable Varnish service.

@@ -70,7 +70,7 @@ func SwapWebserverComposePort(userContext, webserver, state string) error {
 }
 
 // composeWebservers lists every webserver service whose ports line in docker-compose.yml can use the varnish port variable. Only one runs per account at a time, but the admin can switch it later without re-toggling Varnish, so all their blocks need to agree on whether Varnish is on or off.
-var composeWebservers = []string{"openlitespeed", "openresty", "nginx", "apache"}
+var composeWebservers = []string{"openlitespeed", "litespeed", "openresty", "nginx", "apache"}
 
 // SwapAllWebserversComposePort applies SwapWebserverComposePort to every webserver block in one pass, so enabling/disabling Varnish keeps the compose file consistent regardless of which webserver ends up active
 func SwapAllWebserversComposePort(userContext, state string) error {

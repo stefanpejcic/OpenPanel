@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"os/exec"
+	"regexp"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -21,6 +23,60 @@ import (
 func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "webserver_conf", "GET /api/webserver-conf", func(w http.ResponseWriter, r *http.Request) { apiWebserverConfGet(a, w, r) })
 	apiregistry.Handle(mux, a, "webserver_conf", "PUT /api/webserver-conf", func(w http.ResponseWriter, r *http.Request) { apiWebserverConfPut(a, w, r) })
+	apiregistry.Handle(mux, a, "webserver_conf", "GET /api/webserver-conf/litespeed-license", func(w http.ResponseWriter, r *http.Request) { apiLitespeedLicense(a, w, r) })
+	apiregistry.Handle(mux, a, "webserver_conf", "POST /api/webserver-conf/litespeed-license", func(w http.ResponseWriter, r *http.Request) { apiLitespeedLicense(a, w, r) })
+}
+
+var litespeedSerialRE = regexp.MustCompile(`^[A-Za-z0-9+/=-]{8,64}$`)
+
+// litespeedLicenseCmd is a var so tests don't run opencli
+var litespeedLicenseCmd = func(r *http.Request, args ...string) ([]byte, error) {
+	return exec.CommandContext(r.Context(), "opencli", append([]string{"user-litespeed"}, args...)...).Output()
+}
+
+// apiLitespeedLicense shows the LiteSpeed Enterprise license, a POST sets a serial ({"serial": "..."}) or goes back to a trial ({"trial": true})
+func apiLitespeedLicense(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	_, currentUsername, userContext, err := auth.Injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	if webserver.GetEnvFileValue(userContext, "WEB_SERVER") != "litespeed" {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "LiteSpeed is not your web server."})
+		return
+	}
+	args := []string{userContext, "status", "--json"}
+	if r.Method == http.MethodPost {
+		var body struct {
+			Serial string `json:"serial"`
+			Trial  bool   `json:"trial"`
+		}
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		body.Serial = strings.TrimSpace(body.Serial)
+		switch {
+		case body.Trial:
+			args = []string{userContext, "trial", "--json"}
+		case litespeedSerialRE.MatchString(body.Serial):
+			args = []string{userContext, "serial", body.Serial, "--json"}
+		default:
+			web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid serial number."})
+			return
+		}
+	}
+	out, _ := litespeedLicenseCmd(r, args...)
+	var result map[string]any
+	if json.Unmarshal(out, &result) != nil {
+		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Could not read the LiteSpeed license."})
+		return
+	}
+	if r.Method == http.MethodPost {
+		_ = logger.RecordUserAction(a.Config, currentUsername, "changed the LiteSpeed license ("+args[1]+")", reqip.ClientIP(r))
+	}
+	status := http.StatusOK
+	if ok, _ := result["success"].(bool); !ok {
+		status = http.StatusBadRequest
+	}
+	web.WriteJSON(w, status, result)
 }
 
 // apiWebserverConfLabels gives each web server's short display label - webserverConfEntry.PageTitle is a different, longer string used only for the UI page title, so this stays a separate small lookup

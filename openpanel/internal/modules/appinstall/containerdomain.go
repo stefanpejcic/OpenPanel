@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 )
@@ -19,7 +20,7 @@ func init() {
 func attachContainerDomain(ctx context.Context, userContext, domain, service string, port int) error {
 	webServerType, _ := docker.GetEnvValue(userContext, "WEB_SERVER")
 	switch {
-	case webServerType == "apache":
+	case webServerType == "apache", webServerType == "litespeed":
 		editApacheConfig(userContext, domain, "", service, port, true)
 	case webServerType == "nginx" || webServerType == "openresty":
 		if msg := editNginxConfig(ctx, userContext, domain, "", service, webServerType, port, true); msg != "" {
@@ -36,13 +37,20 @@ func attachContainerDomain(ctx context.Context, userContext, domain, service str
 	return nil
 }
 
-// refreshProxyUpstreams reloads nginx/openresty after an app container is (re)created, they resolved its old IP at load time and would keep proxying there, apache looks it up per request
+// refreshProxyUpstreams reloads the webserver after an app container is (re)created, nginx, openresty and litespeed resolved its old IP and would keep proxying there, apache looks it up per request
 func refreshProxyUpstreams(ctx context.Context, userContext string) {
-	if ws, _ := docker.GetEnvValue(userContext, "WEB_SERVER"); ws == "nginx" || ws == "openresty" {
+	switch ws, _ := docker.GetEnvValue(userContext, "WEB_SERVER"); ws {
+	case "nginx", "openresty", "litespeed", "openlitespeed":
 		reloadWebserver(ctx, userContext, ws)
 	}
 }
 
 func reloadWebserver(ctx context.Context, userContext, webServerType string) {
+	if webServerType == "litespeed" || webServerType == "openlitespeed" {
+		// litespeed keeps resolved names in /dev/shm, which even a container restart keeps, so the cache goes before it starts again
+		cmd := "/usr/local/lsws/bin/lswsctrl stop >/dev/null 2>&1; rm -f /dev/shm/lsws/adns_cache.*; /usr/local/lsws/bin/lswsctrl start >/dev/null 2>&1"
+		_ = podmanmanager.Command(ctx, userContext, podmanmanager.PodmanArgv(userContext, "exec", webServerType, "sh", "-c", cmd)).Run()
+		return
+	}
 	_ = webserver.ReloadWebserver(ctx, userContext, webServerType)
 }

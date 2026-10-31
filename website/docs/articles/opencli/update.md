@@ -372,6 +372,23 @@ opencli update --ols
 ```
 </details>
 
+### LiteSpeed
+
+Update LiteSpeed Enterprise files *(`/etc/openpanel/litespeed/` from [stefanpejcic/openpanel-configuration](https://github.com/stefanpejcic/openpanel-configuration/tree/main/litespeed))*:
+```bash
+opencli update --litespeed
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli update --litespeed
+[INFO] Downloading configuration files from github
+[INFO] [✔] /etc/openpanel/litespeed updated
+```
+</details>
+
 ### Apache
 
 Update Apache files *(`/etc/openpanel/apache/` from [stefanpejcic/openpanel-configuration](https://github.com/stefanpejcic/openpanel-configuration/tree/main/apache))*:
