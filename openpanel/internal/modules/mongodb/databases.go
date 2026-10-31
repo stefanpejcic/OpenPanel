@@ -3,6 +3,7 @@ package mongodb
 import (
 	"context"
 	"net/http"
+	"sort"
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -187,6 +188,18 @@ func handleDeleteDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 // ComputeDatabaseAndUserNames returns the plain database/user name lists, reused by both /mongodb/info and the global entity search
 func ComputeDatabaseAndUserNames(ctx context.Context, userContext string) (databases, users []string, err error) {
+	databases, userList, err := listDatabasesAndUsers(ctx, userContext)
+	if err != nil {
+		return nil, nil, err
+	}
+	for _, u := range userList {
+		users = append(users, u.Username)
+	}
+	return databases, users, nil
+}
+
+// listDatabasesAndUsers lists database names and the non-system users with their roles
+func listDatabasesAndUsers(ctx context.Context, userContext string) (databases []string, users []mongomanager.UserInfo, err error) {
 	dbs, listErr := mongomanager.ListDatabases(ctx, userContext)
 	if listErr != nil {
 		return nil, nil, listErr
@@ -200,12 +213,37 @@ func ComputeDatabaseAndUserNames(ctx context.Context, userContext string) (datab
 		return nil, nil, usersErr
 	}
 	for _, u := range userList {
-		if isRestrictedUser(u.Username) {
-			continue
+		if !isRestrictedUser(u.Username) {
+			users = append(users, u)
 		}
-		users = append(users, u.Username)
 	}
 	return databases, users, nil
+}
+
+// assignedDatabases groups users by the databases their roles cover, the shape the MySQL and PostgreSQL info endpoints use ({database, users: "a,b"})
+func assignedDatabases(users []mongomanager.UserInfo) []map[string]string {
+	byDB := map[string][]string{}
+	for _, u := range users {
+		seen := map[string]bool{}
+		for _, role := range u.Roles {
+			if role.DB == "" || isRestrictedDatabase(role.DB) || seen[role.DB] {
+				continue
+			}
+			seen[role.DB] = true
+			byDB[role.DB] = append(byDB[role.DB], u.Username)
+		}
+	}
+	names := make([]string, 0, len(byDB))
+	for db := range byDB {
+		names = append(names, db)
+	}
+	sort.Strings(names)
+	out := make([]map[string]string, 0, len(names))
+	for _, db := range names {
+		sort.Strings(byDB[db])
+		out = append(out, map[string]string{"database": db, "users": strings.Join(byDB[db], ",")})
+	}
+	return out
 }
 
 func handleDatabasesInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -217,17 +255,23 @@ func handleDatabasesInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 	docker.StartComposeServiceIfNotRunning(ctx, userContext, "mongodb")
 
-	databaseNames, users, namesErr := ComputeDatabaseAndUserNames(ctx, userContext)
+	databaseNames, userList, namesErr := listDatabasesAndUsers(ctx, userContext)
 	if namesErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error executing MongoDB query: " + namesErr.Error()})
 		return
 	}
-	var databases []map[string]string
+	// empty lists, not null: the import and remove pages call forEach on them
+	databases := make([]map[string]string, 0, len(databaseNames))
 	for _, dbName := range databaseNames {
 		databases = append(databases, map[string]string{"database": dbName})
 	}
 
+	users := make([]string, 0, len(userList))
+	for _, u := range userList {
+		users = append(users, u.Username)
+	}
+
 	web.WriteJSON(w, http.StatusOK, map[string]any{
-		"databases": databases, "users": users,
+		"databases": databases, "users": users, "assigned_databases": assignedDatabases(userList),
 	})
 }

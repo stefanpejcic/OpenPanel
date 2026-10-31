@@ -592,6 +592,15 @@ const tableData = [
                 },
             },
             {
+                description: "LiteSpeed",
+                cyberpanel: <TableText>Separate LiteSpeed license</TableText>,
+                openpanel: <TableText>Per user, trial included</TableText>,
+                valueType: {
+                    cyberpanel: "text",
+                    openpanel: "text",
+                },
+            },
+            {
                 description: "OpenLitespeed",
                 cyberpanel: <CheckIcon />,
                 openpanel: <CheckIcon />,

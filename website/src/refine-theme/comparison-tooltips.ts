@@ -20,6 +20,7 @@ const tips: Record<string, Tip> = {
     "CVE Vulnerabilities": { description: "Known security vulnerabilities published for the panel." },
     "Apache": { description: "Apache can be the web server of an account.", link: "/docs/panel/webserver/webserver_type/" },
     "Nginx": { description: "Nginx can be the web server of an account.", link: "/docs/panel/webserver/webserver_type/" },
+    "LiteSpeed": { description: "LiteSpeed Enterprise can be the web server of an account. It starts on a trial and the user adds their own LiteSpeed serial number.", link: "/docs/panel/webserver/webserver_type/#litespeed" },
     "OpenLitespeed": { description: "OpenLiteSpeed can be the web server of an account.", link: "/docs/panel/webserver/webserver_type/" },
     "OpenResty": { description: "OpenResty can be the web server of an account.", link: "/docs/panel/webserver/webserver_type/" },
     "Varnish Caching": { description: "Varnish can run in front of an account's web server to cache pages.", link: "/docs/panel/caching/" },

@@ -192,6 +192,11 @@ func handleLogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	renderLogin(w, http.StatusOK, data)
 }
 
+// loginErrorFields says which field a verifyPassword message is about, compared with the translated texts so it works in every language
+func loginErrorFields(t i18n.Translator, errMsg string) (unrecognized, password bool) {
+	return errMsg == t.Get("Unrecognized account. Please check username."), errMsg == t.Get("Invalid password. Please try again.")
+}
+
 func handleLoginPassword(a *appctx.App, w http.ResponseWriter, r *http.Request, sess *sessions.Session, t i18n.Translator) {
 	username := strings.TrimSpace(r.Form.Get("username"))
 	password := r.Form.Get("password")
@@ -217,8 +222,7 @@ func handleLoginPassword(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 	result, errMsg := verifyPassword(a, r.Context(), username, password, t)
 	if errMsg != "" {
 		data.ErrorMessage = errMsg
-		data.UnrecognizedError = strings.Contains(errMsg, "Unrecognized")
-		data.PasswordError = strings.Contains(strings.ToLower(errMsg), "password")
+		data.UnrecognizedError, data.PasswordError = loginErrorFields(t, errMsg)
 		if errMsg == t.Get("Your account is suspended. Please contact support.") {
 			data.ErrorTone = "warning"
 		}

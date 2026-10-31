@@ -4,6 +4,9 @@ package websites
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"log"
 	"net/http"
 	"os/exec"
 	"path/filepath"
@@ -964,26 +967,43 @@ func getMediaWikiVersion(userContext, directory string) string {
 	return m[1]
 }
 
-// getMySQLVersion resolves the running MySQL/MariaDB version, memoized for 1 hour since it changes only on upgrade.
+// getMySQLVersion resolves the running MySQL/MariaDB version, memoized for 1 hour since it changes only on upgrade; a failed lookup isn't cached, the database container may just not be up yet
 func getMySQLVersion(a *appctx.App, r *http.Request, userContext string) string {
 	ctx := r.Context()
-	version, _ := cache.Memoize(ctx, a.Cache, "get_mysql_version_ws:"+userContext, time.Hour, func() (string, error) {
-		mysqlVersion := webserver.GetEnvFileValue(userContext, "MYSQL_VERSION")
-		if mysqlVersion != "latest" {
-			return mysqlVersion, nil
+	version, err := cache.Memoize(ctx, a.Cache, "get_mysql_version_ws:"+userContext, time.Hour, func() (string, error) {
+		if v := webserver.GetEnvFileValue(userContext, "MYSQL_VERSION"); v != "" && v != "latest" {
+			return v, nil
 		}
 		mysqlContainer := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
+		if mysqlContainer == "" {
+			return "", errors.New("MYSQL_TYPE isn't set in .env")
+		}
 		argv := podmanmanager.PodmanArgv(userContext, "exec", mysqlContainer, mysqlContainer, "-V")
-		out, _ := podmanmanager.Command(ctx, userContext, argv).Output()
-		if m := regexp.MustCompile(`\d+\.\d+\.\d+`).FindString(string(out)); m != "" {
-			return m, nil
+		out, err := podmanmanager.Command(ctx, userContext, argv).Output()
+		if err != nil {
+			return "", fmt.Errorf("%s -V: %w", mysqlContainer, err)
 		}
-		if m := regexp.MustCompile(`(?i)mariadb from (\d+\.\d+\.\d+)`).FindStringSubmatch(string(out)); m != nil {
-			return "MariaDB " + m[1], nil
+		if v := parseDBVersion(string(out)); v != "" {
+			return v, nil
 		}
-		return "Version not found", nil
+		return "", fmt.Errorf("%s -V printed no version", mysqlContainer)
 	})
+	if err != nil {
+		log.Printf("WEBSITES - database version lookup for %s failed: %v", userContext, err)
+		return "Version not found"
+	}
 	return version
+}
+
+// parseDBVersion pulls the server version out of `mysql -V` or `mariadb -V`
+func parseDBVersion(out string) string {
+	if m := regexp.MustCompile(`\d+\.\d+\.\d+`).FindString(out); m != "" {
+		return m
+	}
+	if m := regexp.MustCompile(`(?i)mariadb from (\d+\.\d+\.\d+)`).FindStringSubmatch(out); m != nil {
+		return "MariaDB " + m[1]
+	}
+	return ""
 }
 
 // wpInfoForSite resolves a WordPress site's database credentials, WP version, PHP version, and MySQL version - shared by handleWebsiteWPInfo and apiWPInfo, returns ok=false if the domain's docroot couldn't be found.

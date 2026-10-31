@@ -84,6 +84,14 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },
         {
+            name: "LiteSpeed",
+            icon: Apache,
+            description:
+                "LiteSpeed Enterprise reads Apache configuration and .htaccess files, runs PHP in its own LSPHP and caches pages with LSCache. Each account starts on a trial license and the user adds their serial number from OpenPanel.",
+            url: "/docs/panel/webserver/webserver_type/#litespeed",
+            status: "enterprise",
+        },
+        {
             name: "OpenLiteSpeed",
             icon: Apache,
             description:
@@ -361,7 +369,7 @@ export const integrations: IntegrationsType = {
             name: "Switch web servers",
             icon: Bolt,
             description:
-                "With the Docker module, users have an option to switch to their preferred webserver: Nginx, Apache, OpenLitespeed, OpenResty.",
+                "With the Docker module, users have an option to switch to their preferred webserver: Nginx, Apache, LiteSpeed, OpenLiteSpeed, OpenResty.",
             url: "/docs/panel/webserver/webserver_type/",
             status: "enterprise",
         },
@@ -515,7 +523,7 @@ export const integrations: IntegrationsType = {
             name: "Webserver per user",
             icon: UserServer,
             description:
-                "Administrators can select Apache, Nginx, OpenResty or OpenLitespeed as the default web server for new users. This flexibility allows admins to accommodate a mix of users utilizing Apache and others using Nginx, all within the same server.",
+                "Administrators can select Apache, Nginx, OpenResty, LiteSpeed or OpenLiteSpeed as the default web server for new users. This flexibility allows admins to accommodate a mix of users utilizing Apache and others using Nginx, all within the same server.",
             url: "/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
             status: "stable",
         },

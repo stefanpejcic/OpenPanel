@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org/)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           15.10.2026
+# Last Modified:           31.10.2026
 ################################################################################
 # shellcheck disable=SC2015
 

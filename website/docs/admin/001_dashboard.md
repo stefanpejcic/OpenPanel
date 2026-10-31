@@ -24,6 +24,16 @@ The dashboard page contains widgets:
 ![OpenAdmin dashboard with the summary bar and the User Activity, Latest News, System Information and Resource Usage widgets](/img/openadmin-screenshots/001_dashboard-window.png#gh-light-mode-only)
 ![OpenAdmin dashboard with the summary bar and the User Activity, Latest News, System Information and Resource Usage widgets](/img/openadmin-screenshots/001_dashboard-window_dark.png#gh-dark-mode-only)
 
+## Onboarding
+
+After logging in, OpenAdmin opens an onboarding guide (`/onboarding`) until it's dismissed. It walks through getting a new server ready in three steps:
+
+1. **Enable modules & services** – choose which services run on the server. Services already running are checked, and newly checked ones start in the background when you continue. The Community edition offers OpenPanel and the CSF firewall; Enterprise also offers Email + Webmail, FTP, DNS, phpMyAdmin and ImunifyAV.
+2. **Server configuration** – recommended settings to review before going live: modules, a custom domain for panel access, SMTP and notifications, and update preferences. Each card opens its settings page.
+3. **Users and plans** – the default PHP version and web server, hosting plans and their features, and the first user account (or importing accounts from a backup on Enterprise).
+
+**Skip for now** opens the dashboard and shows the guide again at the next login. **Dismiss completely** hides it for good, and **Skip to dashboard** at the top leaves the guide right away.
+
 ## Customize the dashboard
 
 Administrators can arrange the widgets, and the layout is saved on the admin account, so it's the same in every browser and, on a multi-server master, on the dashboard of every server:
