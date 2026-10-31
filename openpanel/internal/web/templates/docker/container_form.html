@@ -93,7 +93,7 @@
                     <template x-for="img in popular" :key="img"><option :value="img"></option></template>
                 </datalist>
                 {{if not .Editing}}
-                <div><span class="op-label" style="display:block;margin-bottom:8px">{{.T.Get "Popular images"}}</span>
+                <div x-show="!new URLSearchParams(location.search).has('template')"><span class="op-label" style="display:block;margin-bottom:8px">{{.T.Get "Popular images"}}</span>
                     <div class="op-chips" style="gap:6px"><template x-for="img in popular" :key="img"><button class="op-chip op-mono" type="button" style="font-size:12px" @click="image = img; suggestName()" :aria-pressed="(image === img).toString()" x-text="img"></button></template></div>
                 </div>
                 {{end}}

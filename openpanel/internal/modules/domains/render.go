@@ -52,6 +52,7 @@ type DomainsPageData struct {
 type DomainsSummary struct {
 	Subdomains, SSLChecked, SSLValid, SSLExpiring, SSLBroken, WAFOn, Suspended int
 	FirstSuspended                                                             string
+	FirstSSLIssue                                                              string // the SSL note links here
 }
 
 func (d DomainsPageData) Summary() DomainsSummary {
@@ -82,6 +83,10 @@ func (d DomainsPageData) Summary() DomainsSummary {
 			s.SSLBroken++
 		default:
 			s.SSLValid++
+			continue
+		}
+		if s.FirstSSLIssue == "" {
+			s.FirstSSLIssue = r.DomainURL
 		}
 	}
 	return s

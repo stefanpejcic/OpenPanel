@@ -53,7 +53,7 @@
             <div class="op-kpi-label">{{template "op_icon" "lock"}} {{.T.Get "SSL"}}</div>
             <div class="op-kpi-value">{{$s.SSLValid}} <small>/ {{$s.SSLChecked}}</small></div>
             {{if or $s.SSLExpiring $s.SSLBroken}}
-            <div class="op-kpi-note {{if $s.SSLBroken}}is-danger{{else}}is-warning{{end}}">{{if $s.SSLExpiring}}{{$s.SSLExpiring}} {{.T.Get "expiring"}}{{end}}{{if and $s.SSLExpiring $s.SSLBroken}}, {{end}}{{if $s.SSLBroken}}{{$s.SSLBroken}} {{.T.Get "need attention"}}{{end}}</div>
+            <a class="op-kpi-note {{if $s.SSLBroken}}is-danger{{else}}is-warning{{end}}" href="/domains/ssl?domain_name={{$s.FirstSSLIssue}}">{{if $s.SSLExpiring}}{{$s.SSLExpiring}} {{.T.Get "expiring"}}{{end}}{{if and $s.SSLExpiring $s.SSLBroken}}, {{end}}{{if $s.SSLBroken}}{{$s.SSLBroken}} {{.T.Get "need attention"}}{{end}}</a>
             {{else}}
             <div class="op-kpi-note">{{.T.Get "All certificates valid"}}</div>
             {{end}}
@@ -69,7 +69,7 @@
         <div class="op-kpi">
             <div class="op-kpi-label">{{template "op_icon" "ban"}} {{.T.Get "Suspended"}}</div>
             <div class="op-kpi-value">{{$s.Suspended}}</div>
-            <div class="op-kpi-note{{if $s.Suspended}} is-danger{{end}}">{{if $s.Suspended}}<span class="punycode">{{$s.FirstSuspended}}</span>{{if gt $s.Suspended 1}} +{{sub $s.Suspended 1}}{{end}}{{else}}{{.T.Get "None"}}{{end}}</div>
+            {{if and $s.Suspended .UserAllowed.domain_suspend}}<a class="op-kpi-note is-danger" href="/domains/unsuspend?domain={{$s.FirstSuspended}}"><span class="punycode">{{$s.FirstSuspended}}</span>{{if gt $s.Suspended 1}} +{{sub $s.Suspended 1}}{{end}}</a>{{else}}<div class="op-kpi-note{{if $s.Suspended}} is-danger{{end}}">{{if $s.Suspended}}<span class="punycode">{{$s.FirstSuspended}}</span>{{if gt $s.Suspended 1}} +{{sub $s.Suspended 1}}{{end}}{{else}}{{.T.Get "None"}}{{end}}</div>{{end}}
         </div>
     </section>
 {{end}}

@@ -640,7 +640,8 @@ div:has(> main.op-scope) { min-width: 0; }
   .op-ai-body { padding: 16px 16px 32px; }
   @media (width >= 48rem) { .op-ai-body { padding: 20px 24px 32px; } }
   .op-ai-page h2.op-h { margin-bottom: 10px; font: 600 11px/16px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--color-muted); }
-  .op-ai-page dl.grid { grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr)) !important; gap: 12px !important; }
+  /* at most 4 columns, localized Docs / Install labels overlap in narrower cards */
+  .op-ai-page dl.grid { grid-template-columns: repeat(auto-fill, minmax(min(max(250px, calc((100% - 36px) / 4)), 100%), 1fr)) !important; gap: 12px !important; }
   .op-ai-page [data-app] { display: grid !important; grid-template-columns: minmax(0, 1fr) auto; align-items: end; border-radius: var(--radius-lg); background: var(--color-panel); text-align: left; }
   .op-ai-page [data-app] > .p-6 { grid-column: 1 / -1; align-self: start; padding: 16px 16px 6px !important; }
   .op-ai-page [data-app] > a { grid-column: 1; min-width: 0; text-decoration: none; }
@@ -1094,6 +1095,9 @@ div:has(> main.op-scope) { min-width: 0; }
   .op-kpi-split .op-icon-btn { width: 28px; height: 28px; margin: -6px -6px -6px 0; }
   .op-kpi-split .op-icon-btn svg { width: 15px; height: 15px; }
   .op-kpi-note a { color: var(--color-accent-text); text-decoration: none; }
+  /* a note that needs action links to the page where you take it */
+  a.op-kpi-note { display: block; text-decoration: none; }
+  a.op-kpi-note:hover { text-decoration: underline; }
   .op-kpis-auto { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
   @media (width < 30rem) { .op-kpis-auto { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .op-sys { display: grid; grid-template-columns: max-content minmax(0, 1fr); align-items: center; gap: 10px 24px; margin: 0; }
@@ -1292,7 +1296,9 @@ div:has(> main.op-scope) { min-width: 0; }
   .op-ai-page [data-app] > a .op-row svg { display: none; }
   .op-ai-page [data-app] dd { grid-area: desc; margin: 10px 0 0 !important; }
   .op-ai-page .op-ai-image { grid-area: img; margin: 8px 0 0; font: 400 11px/16px var(--font-mono); color: var(--color-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .op-ai-page .op-ai-docs { grid-area: docs; align-self: end; margin-top: 12px; }
+  .op-ai-page .op-ai-docs { grid-area: docs; align-self: end; min-width: 0; margin-top: 12px; }
+  /* a long translated Docs label shortens instead of running under the Install button */
+  .op-ai-page .op-ai-docs .op-btn { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .op-ai-page .op-ai-docs svg { width: 14px; height: 14px; }
   .op-ai-page [data-app] > div:last-child { grid-area: btn; align-self: end; justify-self: end; margin-top: 12px; padding: 0 !important; }
 
@@ -2206,7 +2212,7 @@ div:has(> main.op-scope) { min-width: 0; }
   .op-iw-pass .op-btn { flex: none; }
   .op-iw-icon { width: 36px; padding: 0; justify-content: center; }
   .op-iw-pass .op-btn svg { width: 16px; height: 16px; }
-  .op-iw-meter { height: 4px; border-radius: 9999px; background: var(--color-raised); overflow: hidden; }
+  .op-iw-meter { height: 4px; margin-top: 8px; border-radius: 9999px; background: var(--color-raised); overflow: hidden; }
   .op-iw-meter span { display: block; height: 100%; border-radius: inherit; transition: width .2s; }
   .op-iw-check { grid-template-columns: auto minmax(0, 1fr); cursor: pointer; }
   .op-iw-check .op-check { margin-top: 2px; }
