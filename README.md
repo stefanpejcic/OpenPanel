@@ -81,7 +81,7 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 | Operating System | Version | Last Tested | Status | Average install time[^2] | Notes |
 |---|---|---|---|---|---|
 | Ubuntu | 24 | 2026-10-30 12:49 UTC | ❌ Fail | 2m35s | **recommended for AMD CPU** |
-| Ubuntu | 26 | 2026-10-30 11:25 UTC | ❌ Fail | 2m53s |  |
+| Ubuntu | 26 | 2026-10-31 11:24 UTC | ❌ Fail | 2m53s |  |
 | Debian | 12 | 2026-10-30 14:16 UTC | ❌ Fail | 1m25s |  |
 | Debian | 13 | 2026-10-30 14:19 UTC | ❌ Fail | 1m59s |  |
 | AlmaLinux | 9.7 | 2026-09-07 11:46 UTC | ✅ Pass | 1m42s | **recommended for ARM CPU** |
