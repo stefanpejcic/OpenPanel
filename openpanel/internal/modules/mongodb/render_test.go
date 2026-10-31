@@ -94,7 +94,7 @@ func TestRenderAllPages(t *testing.T) {
 	})
 	t.Run("wizard", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		if err := wizardPage.Render(w, 200, WizardPageData{LayoutData: layout, Roles: mongoRoles}); err != nil {
+		if err := wizardPage.Render(w, 200, CreatePageData{LayoutData: layout, Engine: web.MongoDBEngine, Roles: mongoRoles}); err != nil {
 			t.Fatalf("wizard: %v", err)
 		}
 	})
