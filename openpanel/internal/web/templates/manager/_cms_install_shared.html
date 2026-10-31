@@ -244,7 +244,8 @@
 <div id="progressUI" class="hidden sm:mx-auto sm:max-w-2xl px-6 py-4 m-6">
 {{end}}
 
-{{define "cmsinstall_block_16"}}<div class="grid grid-cols-1 gap-2" id="stepsContainer">
+{{define "cmsinstall_block_16"}}{{template "install_success" .}}
+<div class="grid grid-cols-1 gap-2" id="stepsContainer">
 
       <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors" id="step-preflight">
         <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
@@ -405,7 +406,8 @@
     </a>
 </div>{{end}}
 
-{{define "cmsinstall_block_21"}}<div class="grid grid-cols-1 gap-2" id="stepsContainer">
+{{define "cmsinstall_block_21"}}{{template "install_success" .}}
+<div class="grid grid-cols-1 gap-2" id="stepsContainer">
 
       <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors" id="step-preflight">
         <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
@@ -454,7 +456,8 @@
 </div>
 {{end}}
 
-{{define "cmsinstall_block_22"}}<div class="grid grid-cols-1 gap-2" id="stepsContainer">
+{{define "cmsinstall_block_22"}}{{template "install_success" .}}
+<div class="grid grid-cols-1 gap-2" id="stepsContainer">
 
       <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors" id="step-preflight">
         <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">

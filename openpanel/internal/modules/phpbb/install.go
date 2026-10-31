@@ -219,8 +219,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	waf.EnableProfileForNewSite(a, selectedDomain, "phpbb")
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed phpBB on domain "+selectedDomain, ipAddress)
-	web.Flash(a, w, r, "success", web.Tr(a, r, "phpBB installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
-	emit(map[string]any{"status": "phpBB installation completed!", "admin_user": adminUsername, "admin_password": adminPassword})
+	emit(appkit.InstallDoneEvent("phpBB installation completed!", selectedDomain, appkit.InstallInfo{AdminPath: "/ucp.php?mode=login", AdminUsername: adminUsername, AdminEmail: adminEmail, DBName: dbName, DBUser: dbUser}))
 }
 
 // runPhpbbExtract downloads the release tarball and extracts it into installPath - the tarball wraps everything in a fixed "phpBB3/" directory, so this extracts to a scratch location first and cp -a's that directory's contents into installPath, same reasoning as every other module here

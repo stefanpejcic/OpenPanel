@@ -18,6 +18,7 @@ var fixPermissionsPage = web.MustLoadPage(
 	"partials/_service_js.html",
 	"partials/punnycode.html",
 	"partials/theme_switcher.html",
+	"partials/folder_picker.html",
 	"files/fix_permissions.html",
 )
 

@@ -302,6 +302,5 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed PrestaShop on domain "+selectedDomain, ipAddress)
-	web.Flash(a, w, r, "success", web.Tr(a, r, "PrestaShop installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
-	emit(map[string]any{"status": "PrestaShop installation completed!"})
+	emit(appkit.InstallDoneEvent("PrestaShop installation completed!", selectedDomain, appkit.InstallInfo{AdminPath: "/" + adminDirName + "/", AdminUsername: adminEmail, AdminEmail: adminEmail, DBName: dbName, DBUser: dbUser}))
 }

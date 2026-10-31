@@ -210,22 +210,28 @@ document.getElementById("installForm").addEventListener("submit", function(event
   showToast({{toJSON (.T.Get "PrestaShop installation started. Please wait for the process to finish.")}}, 'loading');
 
   const formData = new FormData(this);
+  installLog.reset();
 
   fetch('/prestashop/install', { method: 'POST', body: formData })
     .then(response => {
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
+      let buffered = '';
 
       function read() {
         reader.read().then(({ done, value }) => {
           if (done) { return; }
 
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n').filter(Boolean);
+          // a json line can get split across chunks, keep the tail until its newline shows up
+          buffered += decoder.decode(value, { stream: true });
+          const parts = buffered.split('\n');
+          buffered = parts.pop();
+          const lines = parts.filter(Boolean);
 
           lines.forEach(line => {
             try {
               const data = JSON.parse(line);
+              installLog.append(data);
 
               if (data.status) {
                 const matched = matchStep(data.status);
@@ -236,7 +242,7 @@ document.getElementById("installForm").addEventListener("submit", function(event
                   updateRing(100);
                   _clearHangTimer();
                   showToast(data.status, 'success');
-                  setTimeout(() => { window.location.href = '/sites'; }, 2000);
+                  showInstallSuccess(data);
                 }
               } else if (data.error) {
                 markStepError(currentStepIndex);

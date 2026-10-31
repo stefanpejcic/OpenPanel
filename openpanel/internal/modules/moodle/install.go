@@ -288,8 +288,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed Moodle on domain "+selectedDomain, ipAddress)
-	web.Flash(a, w, r, "success", web.Tr(a, r, "Moodle installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
-	emit(map[string]any{"status": "Moodle installation completed!"})
+	emit(appkit.InstallDoneEvent("Moodle installation completed!", selectedDomain, appkit.InstallInfo{AdminPath: "/login/index.php", AdminUsername: adminUser, AdminEmail: adminEmail, DBName: dbName, DBUser: dbUser}))
 }
 
 // emitCleanupFiles removes a failed install's docroot symlink and its backing approot/dataroot directories - always safe since install.go just created all three

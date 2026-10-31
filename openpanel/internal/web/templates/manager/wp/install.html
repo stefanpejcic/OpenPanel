@@ -236,6 +236,8 @@
 
 <div id="progressUI" class="hidden sm:mx-auto sm:max-w-2xl px-6 py-4 m-6">
 
+  {{template "install_success" .}}
+
   <div class="grid grid-cols-1 gap-2" id="stepsContainer">
 
       <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" id="step-php-start" data-tooltip="{{.T.Get "Validates provided data, checks if install already exists, fetches PHP version and folder for the domain. Checks the assigned PHP version and webservers, confirms the containers are available, and starts them if needed."}}">
@@ -541,6 +543,8 @@ document.getElementById("installForm").addEventListener("submit", function(event
   showToast(`{{.T.Get "WordPress install started. Please wait for the process to finish."}}`, 'loading');
 
   const formData = new FormData(this);
+  installLog.reset();
+  let buffered = '';
 
   fetch('/wordpress/install', { method: 'POST', body: formData })
     .then(response => {
@@ -551,12 +555,16 @@ document.getElementById("installForm").addEventListener("submit", function(event
         reader.read().then(({ done, value }) => {
           if (done) { return; }
 
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n').filter(Boolean);
+          // a json line can get split across chunks, keep the tail until its newline shows up
+          buffered += decoder.decode(value, { stream: true });
+          const parts = buffered.split('\n');
+          buffered = parts.pop();
+          const lines = parts.filter(Boolean);
 
           lines.forEach(line => {
             try {
               const data = JSON.parse(line);
+              installLog.append(data);
 
               if (data.status) {
                 const matched = matchStep(data.status);
@@ -568,7 +576,7 @@ document.getElementById("installForm").addEventListener("submit", function(event
                   _clearHangTimer();
                   stopHints();
                   showToast(data.status, 'success');
-                  setTimeout(() => { window.location.href = '/wordpress'; }, 2000);
+                  showInstallSuccess(data, { autoLogin: '/wp-cli/login?domain=', primaryLabel: {{toJSON (.T.Get "Login to wp-admin")}} });
                 }
               } else if (data.error) {
                 markStepError(currentStepIndex);

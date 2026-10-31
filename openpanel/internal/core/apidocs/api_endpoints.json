@@ -2699,8 +2699,7 @@
       "nodejs",
       "python",
       "java",
-      "ruby",
-      "n8n"
+      "ruby"
     ],
     "endpoints": [
       {
@@ -2722,11 +2721,6 @@
         "method": "POST",
         "path": "/api/ruby/install",
         "description": "Install a new Ruby app (form-encoded body; response streams newline-delimited JSON progress events)."
-      },
-      {
-        "method": "POST",
-        "path": "/api/n8n/install",
-        "description": "Install n8n with its owner account (form-encoded body; response streams newline-delimited JSON progress events)."
       }
     ]
   },

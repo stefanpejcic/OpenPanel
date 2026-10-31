@@ -169,8 +169,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	waf.EnableProfileForNewSite(a, selectedDomain, "dokuwiki")
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed DokuWiki on domain "+selectedDomain, ipAddress)
-	web.Flash(a, w, r, "success", web.Tr(a, r, "DokuWiki installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
-	emit(map[string]any{"status": "DokuWiki installation completed!", "admin_user": adminUser, "admin_password": adminPassword})
+	emit(appkit.InstallDoneEvent("DokuWiki installation completed!", selectedDomain, appkit.InstallInfo{AdminPath: "/doku.php?do=login", AdminUsername: adminUser, AdminEmail: adminEmail}))
 }
 
 // runDokuwikiExtract downloads and extracts the stable tarball to a scratch dir then copies its top-level dokuwiki-<version>/ contents into installPath with cp -a (installPath may already exist as the docroot, even if empty, so mv won't work - same as sofawiki's runSofawikiExtract), returning the version read from VERSION

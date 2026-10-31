@@ -146,7 +146,8 @@
 
 <div id="progressUI" class="hidden sm:mx-auto sm:max-w-2xl px-6 py-4 m-6">
 
-  <div class="grid grid-cols-1 gap-2" id="stepsContainer">
+  {{template "install_success" .}}
+<div class="grid grid-cols-1 gap-2" id="stepsContainer">
 
       <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" id="step-preflight" data-tooltip="{{.T.Get "Checks for already running install processes and validates the submitted form data."}}">
         <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
@@ -360,22 +361,28 @@ document.getElementById("installForm").addEventListener("submit", function(event
   showToast({{toJSON (.T.Get "Application setup started. Please wait for the process to finish.")}}, 'loading');
 
   const formData = new FormData(this);
+  installLog.reset();
 
   fetch('/php/install', { method: 'POST', body: formData })
     .then(response => {
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
+      let buffered = '';
 
       function read() {
         reader.read().then(({ done, value }) => {
           if (done) { return; }
 
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n').filter(Boolean);
+          // a json line can get split across chunks, keep the tail until its newline shows up
+          buffered += decoder.decode(value, { stream: true });
+          const parts = buffered.split('\n');
+          buffered = parts.pop();
+          const lines = parts.filter(Boolean);
 
           lines.forEach(line => {
             try {
               const data = JSON.parse(line);
+              installLog.append(data);
 
               if (data.status) {
                 const matched = matchStep(data.status);
@@ -386,7 +393,7 @@ document.getElementById("installForm").addEventListener("submit", function(event
                   updateRing(100);
                   _clearHangTimer();
                   showToast(data.status, 'success');
-                  setTimeout(() => { window.location.href = '/sites'; }, 2000);
+                  showInstallSuccess(data);
                 }
               } else if (data.error) {
                 markStepError(currentStepIndex);

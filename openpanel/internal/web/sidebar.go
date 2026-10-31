@@ -96,7 +96,7 @@ func isSitesPath(path string) bool {
 }
 
 func isAppInstallPath(path string) bool {
-	return hasAnyPrefix(path, "/auto-installer", "/pm2", "/nodejs", "/python", "/ruby", "/java", "/n8n", "/website-builder/install",
+	return hasAnyPrefix(path, "/auto-installer", "/pm2", "/nodejs", "/python", "/ruby", "/java", "/website-builder/install",
 		"/drupal/install", "/joomla/install", "/opencart/install", "/nextcloud/install",
 		"/prestashop/install", "/matomo/install", "/moodle/install", "/mediawiki/install")
 }

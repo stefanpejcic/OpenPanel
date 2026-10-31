@@ -53,7 +53,7 @@ function sendDataToPreview(event) {
 
 {{define "screenshot"}}
 <!-- START templates/partials/screenshot.html -->
-<div x-data="screenshotComponent({{toJSON .CurrentDomain}})" x-init="loadScreenshot()" class="flex rounded border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800 screenshot relative" :data-link="'http://' + domain">
+<div x-data="screenshotComponent({{toJSON .CurrentDomain}})" x-init="loadScreenshotWhenIdle()" class="flex rounded border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800 screenshot relative" :data-link="'http://' + domain">
 
   <template x-if="loading">
 <div class="h-72 w-full flex flex-col items-center justify-center text-center text-gray-500 dark:text-gray-400">
@@ -96,6 +96,16 @@ function sendDataToPreview(event) {
 </div>
 
 <script>
+  // counts in-flight fetches so the screenshot can wait until the rest of the page has its data
+  if (!window.__opFetchTracker) {
+    window.__opFetchTracker = { inflight: 0 };
+    const origFetch = window.fetch.bind(window);
+    window.fetch = (...args) => {
+      window.__opFetchTracker.inflight++;
+      return origFetch(...args).finally(() => { window.__opFetchTracker.inflight--; });
+    };
+  }
+
   function screenshotComponent(domain) {
     return {
       domain,
@@ -119,6 +129,19 @@ function sendDataToPreview(event) {
           img.onerror = () => { clearTimeout(timer); reject(new Error('screenshot load failed')); };
           img.src = url;
         });
+      },
+
+      // screenshot API hits the site itself and hogs the PHP container, so let the page's own requests go first
+      loadScreenshotWhenIdle(maxWaitMs = 15000) {
+        const start = Date.now();
+        let quiet = 0;
+        const check = () => {
+          if (window.__opFetchTracker.inflight === 0) quiet++; else quiet = 0;
+          if (quiet >= 3 || Date.now() - start > maxWaitMs) { this.loadScreenshot(); return; }
+          setTimeout(check, 200);
+        };
+        const begin = () => setTimeout(check, 300);
+        if (document.readyState === 'complete') begin(); else window.addEventListener('load', begin, { once: true });
       },
 
       loadScreenshot() {

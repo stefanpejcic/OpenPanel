@@ -68,7 +68,7 @@ func validateContainerDomain(ctx context.Context, a *appctx.App, userID int, com
 		}
 	}
 	var appType string
-	if a.DB.QueryRowContext(ctx, "SELECT type FROM sites WHERE site_name = ? AND type IN ('NodeJS','Python','Ruby','Java','n8n','Docker')", domain).Scan(&appType) == nil {
+	if a.DB.QueryRowContext(ctx, "SELECT type FROM sites WHERE site_name = ? AND type IN ('NodeJS','Python','Ruby','Java','Docker')", domain).Scan(&appType) == nil {
 		return 0, fmt.Errorf("Domain %s already has a %s application at its root, remove it first or choose another domain.", domain, appType)
 	}
 	var subdirSites int

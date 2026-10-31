@@ -275,6 +275,5 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed Matomo on domain "+selectedDomain, ipAddress)
-	web.Flash(a, w, r, "success", web.Tr(a, r, "Matomo installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
-	emit(map[string]any{"status": "Matomo installation completed!"})
+	emit(appkit.InstallDoneEvent("Matomo installation completed!", selectedDomain, appkit.InstallInfo{AdminPath: "/", AdminUsername: adminLogin, AdminEmail: adminEmail, DBName: dbName, DBUser: dbUser}))
 }

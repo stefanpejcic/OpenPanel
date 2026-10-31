@@ -335,8 +335,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed OJS on domain "+selectedDomain, ipAddress)
-	web.Flash(a, w, r, "success", web.Tr(a, r, "OJS installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
-	emit(map[string]any{"status": "OJS installation completed!"})
+	emit(appkit.InstallDoneEvent("OJS installation completed!", selectedDomain, appkit.InstallInfo{AdminPath: "/index.php/index/login", AdminUsername: adminUser, AdminEmail: adminEmail, DBName: dbName, DBUser: dbUser}))
 }
 
 // emitCleanupFiles removes a failed install's docroot symlink and its backing approot/files directories, always safe since install.go just created all three

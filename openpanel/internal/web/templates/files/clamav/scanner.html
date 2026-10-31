@@ -28,13 +28,7 @@
     <div class="mt-8">
         <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
 
-            <div class="col-span-full mb-5">
-                <label for="db_user" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Choose a directory:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-
-                <div class="flex rounded-lg shadow-sm">
-                    <input type="text" id="directory-select" class="py-2 px-3 block w-full border-gray-200 shadow-sm rounded text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600" value="/var/www/html/" placeholder="/var/www/html/">
-                </div>
-            </div>
+            {{template "folder_picker" .}}
       </div>
 
       <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
@@ -116,7 +110,7 @@
         </div>
         <div class="card-body">
             <!-- plain text + fixed height so the browser never has to lay out/reflow an ever-growing HTML tree on scans with tens of thousands of hits -->
-            <pre id="scan-results" class="fs-xs m-0 p-2 border rounded dark:border-gray-800" style="max-height: 24rem; overflow-y: auto; white-space: pre-wrap; word-break: break-all;"></pre>
+            <pre id="scan-results" class="fs-xs m-0 p-2 border rounded border-gray-200 dark:border-gray-800" style="max-height: 24rem; overflow-y: auto; white-space: pre-wrap; word-break: break-all;"></pre>
         </div>
     </div>
 
@@ -125,8 +119,11 @@
         scanFailed: "{{.T.Get "Scan failed: "}}",
         scanComplete: "{{.T.Get "Scan is complete!"}}",
         filesScanned: "{{.T.Get "files scanned."}}",
-        noMalwareFound: "{{.T.Get "No malware found."}}"
+        noMalwareFound: "{{.T.Get "No malware found."}}",
+        stopped: {{toJSON (.T.Get "Stopped")}}
     };
+    let scanAbort = null;
+
 
     let scanLineBuffer = '';
     let scannedCount = 0;
@@ -209,8 +206,10 @@
         document.getElementById('stop-scan-btn').style.display = 'inline-flex';
 
         const selectedDirectory = document.getElementById('directory-select').value;
+        folderPicker.lock(true);
+        scanAbort = new AbortController();
 
-        fetch(`/start-scan?directory=${encodeURIComponent(selectedDirectory)}`)
+        fetch(`/start-scan?directory=${encodeURIComponent(selectedDirectory)}`, { signal: scanAbort.signal })
             .then(response => {
                 if (!response.ok) {
                     throw new Error('{{.T.Get "Network response was not ok"}}');
@@ -235,6 +234,13 @@
                 });
             })
             .catch(error => {
+                // dropping the stream cancels the scan server-side
+                if (error.name === 'AbortError') {
+                    document.getElementById('scan-radar').style.display = 'none';
+                    appendScanResult(i18n.stopped);
+                    if (typeof showToast === 'function') showToast(i18n.stopped, 'warning');
+                    return;
+                }
                 console.error('Scan failed:', error);
                 document.getElementById('scan-radar').style.display = 'none';
                 appendScanResult(i18n.scanFailed + error.message);
@@ -244,17 +250,22 @@
                 document.getElementById('start-scan-btn').style.display = '';
             })
             .finally(() => {
+                scanAbort = null;
+                folderPicker.lock(false);
                 document.getElementById('scanning-btn').style.display = 'none';
                 document.getElementById('stop-scan-btn').style.display = 'none';
                 document.getElementById('start-scan-btn').style.display = '';
             });
     });
 
-    // reloading drops the streaming request, which cancels the scan server-side; strip ?path so it doesn't auto-start again
     document.getElementById('stop-scan-btn').addEventListener('click', function() {
+        if (scanAbort) scanAbort.abort();
+        // drop ?path so a reload doesn't start the scan again
         const url = new URL(window.location.href);
-        url.searchParams.delete('path');
-        window.location.replace(url.toString());
+        if (url.searchParams.has('path')) {
+            url.searchParams.delete('path');
+            history.replaceState(null, '', url.toString());
+        }
     });
 
 
@@ -268,6 +279,8 @@ function inputScanDomain() {
 
   if (pathValue) {
     directoryInput.value = pathValue;
+    // a ?path= link shows exactly what gets scanned
+    folderPicker.setManual(true);
     document.getElementById('start-scan-btn').click();
   }
 }

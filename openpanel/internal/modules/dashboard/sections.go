@@ -356,7 +356,6 @@ var appItems = map[string]SectionItem{
 	"python":           {"python", "/python/install", "bi-filetype-py", "Python", "", false},
 	"ruby":             {"ruby", "/ruby/install", "bi-filetype-rb", "Ruby", "", false},
 	"java":             {"java", "/java/install", "bi-filetype-java", "Java", "", false},
-	"n8n":              {"n8n", "/n8n/install", "bi-diagram-3", "n8n", "", false},
 	"php":              {"php", "/php/install", "bi-filetype-php", "PHP", "", false},
 	"docker":           {"docker", "/containers/new", "bi-box-seam", "Docker", "", false},
 }
