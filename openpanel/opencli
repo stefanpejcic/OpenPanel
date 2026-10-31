@@ -5,7 +5,7 @@
 # Usage: opencli <COMMAND-NAME> <ATTRIBUTES>
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 20.04.2026
+# Last Modified: 31.10.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -33,6 +33,9 @@ readonly LOG_FILE="/var/log/openpanel/admin/opencli.log"
 readonly SCRIPTS_DIR="/usr/local/opencli"
 readonly HOOKS_DIR="/etc/openpanel/openpanel/hooks"
 debug_flag=""
+
+# shellcheck disable=SC1091
+[[ -f "${SCRIPTS_DIR}/lib/cluster.sh" ]] && source "${SCRIPTS_DIR}/lib/cluster.sh"
 
 show_about() {
     cat <<EOF
@@ -123,11 +126,78 @@ execute_command() {
 
     [[ -f "$binary_path" ]] || { echo "Error: Command '$command' not found." >&2; show_usage; show_history; show_about; exit 1; }
 
+    # --local, --server= and --all-servers are for the dispatcher, the scripts never see them
+    local args=() a target="" all_servers=false local_only=false
+    for a in "$@"; do
+        case "$a" in
+            --local) local_only=true ;;
+            --all-servers) all_servers=true ;;
+            --server=*) target="${a#--server=}" ;;
+            *) args+=("$a") ;;
+        esac
+    done
+    set -- "${args[@]}"
+
+    local slaves=""
+    if ! $local_only && { [[ -n "$target" ]] || $all_servers || [[ "$CLUSTER_LIST_CMDS$CLUSTER_USER_CMDS$CLUSTER_DOMAIN_CMDS" == *" $command "* ]]; }; then
+        slaves=$(cluster_slaves)
+    fi
+
+    if [[ -n "$target" ]] && ! cluster_is_self "$target"; then
+        [[ -n "$slaves" ]] || { echo "Error: --server works only on a master with other servers." >&2; return 1; }
+        [[ "$CLUSTER_SERVER_CMDS" == *" $command "* ]] || { echo "Error: opencli $command can't be run on another server." >&2; return 1; }
+        log_command "$command --server=$target"
+        cluster_run_remote "$target" "$command" "$@"
+        return
+    fi
+
+    if $all_servers && [[ "$CLUSTER_ALL_CMDS" != *" $command "* ]]; then
+        echo "Error: opencli $command doesn't support --all-servers." >&2
+        return 1
+    fi
+
+    if [[ -n "$slaves" && -z "$target" ]]; then
+        local kind="" owner=""
+        [[ "$CLUSTER_USER_CMDS" == *" $command "* ]] && kind=user
+        [[ "$CLUSTER_DOMAIN_CMDS" == *" $command "* ]] && kind=domain
+        # ftp-list for one account goes to its server, without one it lists all
+        [[ "$command" == "ftp-list" && -n "$(cluster_subject "$command" "$@")" ]] && kind=user
+        if [[ -z "$kind" && "$CLUSTER_LIST_CMDS" == *" $command "* ]] && { [[ "$command" != "email-manage" ]] || [[ "$*" == "setup email list" ]]; }; then
+            log_command "$command"
+            cluster_list "$binary_path" "$command" "$@"
+            return
+        fi
+        # domains-update_ns --all is a whole-server run, not one domain
+        [[ "$command" == "domains-update_ns" && " $* " == *" --all "* ]] && kind=""
+        [[ -n "$kind" ]] && owner=$(cluster_owner "$kind" "$(cluster_subject "$command" "$@")")
+        if [[ -n "$owner" ]]; then
+            echo "Running on $owner, where $(cluster_subject "$command" "$@") is." >&2
+            log_command "$command --server=$owner"
+            cluster_run_remote "$owner" "$command" "$@" | sed '1{/^── /d}'
+            return "${PIPESTATUS[0]}"
+        fi
+    fi
+
+    # plan ids differ per server, remember the name before this server's edit can change it
+    local plan_name=""
+    if $all_servers && [[ -n "$slaves" && "$command" == "plan-edit" ]]; then
+        for a in "$@"; do [[ "$a" == id=* ]] && plan_name=$(cluster_plan_name_by_id "${a#id=}"); done
+    fi
+
+    $all_servers && [[ -n "$slaves" ]] && cluster_header "$(cluster_self)"
     log_command "$command"
     run_hook "pre"  "$command" "$@"
     bash ${debug_flag:+"$debug_flag"} "$binary_path" "$@"
     local status=$?
     run_hook "post" "$command" "$@"
+
+    if $all_servers && [[ -n "$slaves" ]]; then
+        if [[ "$command" == "plan-edit" ]]; then
+            cluster_plan_edit_all "$plan_name" "$@" || status=$?
+        else
+            cluster_run_remote all "$command" "$@" || status=$?
+        fi
+    fi
     # pass the command's exit code through, the post hook used to swallow it
     return "$status"
 }
