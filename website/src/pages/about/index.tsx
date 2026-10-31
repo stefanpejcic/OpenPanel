@@ -87,6 +87,7 @@ const timeline = [
         achievements: [
             {
                 title: "OpenPanel 0.3",
+                link: "/blog/openpanel-public-beta-released",
                 description:
                     "First public beta release: Docker-native from day one, not bolted on later.",
             },
@@ -121,8 +122,15 @@ const timeline = [
             },
             {
                 title: "OpenPanel 2.0",
+                link: "/blog/podman-switch-openpanel-2",
                 description:
-                    "Rewrote the core to run on Podman, replacing Docker as the container engine, for rootless isolation by default.",
+                    "Rewrote the core in Go to run on Podman, replacing Docker as the container engine, for rootless isolation by default.",
+            },
+            {
+                title: "Multi-Server Clustering",
+                link: "/blog/multi-server-openpanel",
+                description:
+                    "Manage several OpenPanel servers from one OpenAdmin, with settings synced between them and accounts moved from one server to another.",
             },
         ],
     },
@@ -479,7 +487,16 @@ const About: React.FC = () => {
                                                                 "dark:text-gray-0 text-gray-900",
                                                             )}
                                                         >
-                                                            {achievement.title}
+                                                            {achievement.link ? (
+                                                                <Link
+                                                                    to={achievement.link}
+                                                                    className="text-inherit underline decoration-dotted underline-offset-4 hover:no-underline"
+                                                                >
+                                                                    {achievement.title}
+                                                                </Link>
+                                                            ) : (
+                                                                achievement.title
+                                                            )}
                                                         </div>
                                                         <div
                                                             className={clsx(
