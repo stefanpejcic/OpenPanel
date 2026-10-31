@@ -27,7 +27,7 @@ func AppDBHost(userContext, mysqlVersion string) string {
 	return mysqlVersion
 }
 
-// mysqlSocketReady checks all php-fpm/openlitespeed services mount the socket dir and all php.ini copies point PHP at it, users created before this was added have neither
+// mysqlSocketReady checks all php-fpm/litespeed services mount the socket dir and all php.ini copies point PHP at it, users created before this was added have neither
 func mysqlSocketReady(userContext string) bool {
 	if userContext == "" || strings.ContainsAny(userContext, "/.") {
 		return false
@@ -48,7 +48,7 @@ func mysqlSocketReady(userContext string) bool {
 	}
 	phpServices := 0
 	for name, svc := range compose.Services {
-		if !strings.HasPrefix(name, "php-fpm-") && name != "openlitespeed" {
+		if !strings.HasPrefix(name, "php-fpm-") && name != "openlitespeed" && name != "litespeed" {
 			continue
 		}
 		phpServices++

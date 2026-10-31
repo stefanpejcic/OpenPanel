@@ -515,7 +515,7 @@ var webserverChoices = []ServerChoice{
 	{Value: "nginx", Label: "Nginx", Description: "Recommended for NodeJS and Python applications, and high-traffic sites.", Icon: "nginx"},
 	{Value: "openlitespeed", Label: "OpenLiteSpeed", Description: "Recommended for WordPress websites, but only one PHP version.", Icon: "openlitespeed"},
 	{Value: "openresty", Label: "OpenResty", Description: "Nginx core bundled with Lua scripting for custom logic.", Icon: "openresty"},
-	{Value: "litespeed", Label: "LiteSpeed", Description: "LiteSpeed Enterprise, needs a license.", Icon: "openlitespeed"},
+	{Value: "litespeed", Label: "LiteSpeed", Description: "LiteSpeed Enterprise with .htaccess support, starts on a trial and takes your license key any time.", Icon: "litespeed"},
 }
 
 type ChangeWebserverPageData struct {

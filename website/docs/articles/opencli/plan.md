@@ -2,6 +2,10 @@
 
 Scripts for creating and editing hosting plans (packages).
 
+:::tip Multi-Server
+On a Multi-Server master these commands also reach the other servers, see [OpenCLI on Multi-Server](/docs/articles/opencli/#multi-server).
+:::
+
 ## List Plans
 
 To list all current hosting packages (plans) run:

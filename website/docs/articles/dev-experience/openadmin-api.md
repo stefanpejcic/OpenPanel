@@ -1011,16 +1011,6 @@ Passkey **registration** requires a live WebAuthn ceremony in a browser and isn'
 `GET /api/server/processes` — supports `?sort=cpu|memory|priority|name|owner|command|pid` (prefix with `-` to reverse)
 `POST /api/server/processes/{pid}/kill`
 
-### Clustering Node
-
-`GET /api/server/node`
-`POST /api/server/node`
-**Request Body:**
-
-```json
-{ "default_node": "root@1.2.3.4", "default_ssh_key_path": "/root/.ssh/id_rsa" }
-```
-
 ### Root Password
 
 `POST /api/server/root-password`

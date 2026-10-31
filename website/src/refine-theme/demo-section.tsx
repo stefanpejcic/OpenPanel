@@ -172,7 +172,7 @@ const LandingTryItOptionsSection = ({
                             "landing-lg:max-w-[446px]",
                         )}
                     >
-			This is where you can manage your server, customer accounts, hosting plans..
+			This is where you can manage your servers, customer accounts, hosting plans..
 		    </p>
                         <Link
                             to="https://demo.openpanel.com:2087/login"

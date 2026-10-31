@@ -6,16 +6,16 @@ sidebar_position: 2
 
 The dashboard page is the hub of the OpenAdmin interface and provides the overview of the current server performance and usage.
 
-For administrator accounts, the dashboard also displays a quick summary bar with counts for **Nodes**, **Containers**, **Users**, **Domains**, **Websites**, **Packages**, and **Emails** (each showing current usage against the license's limit, if any). Reseller accounts instead see their own **OpenPanel Accounts** and **Disk Space Used** usage against the limits set by the administrator.
+For administrator accounts, the dashboard also displays a quick summary bar with counts for **Servers**, **Containers**, **Users**, **Domains**, **Websites**, **Packages**, and **Emails** (each showing current usage against the license's limit, if any). Reseller accounts instead see their own **OpenPanel Accounts** and **Disk Space Used** usage against the limits set by the administrator.
 
 ![Summary bar with the number of nodes, containers, users, domains, websites, packages and emails](/img/openadmin-screenshots/001_dashboard-summary.png#gh-light-mode-only)
 ![Summary bar with the number of nodes, containers, users, domains, websites, packages and emails](/img/openadmin-screenshots/001_dashboard-summary_dark.png#gh-dark-mode-only)
 
-Below the welcome message, quick action buttons open the most common tasks: **Create User**, **Add Domain**, **New Plan** and **Check for Updates** (resellers see **Create User** and **New Plan**).
-
 The dashboard page contains widgets:
 
-- **Daily Summary** widget: Displays yesterday's traffic and issues for all accounts combined. Shown only when the [Daily Summary module](/docs/admin/settings/modules/#daily-summary) is enabled.
+- **Tasks** widget: Lists background tasks that are running now.
+- **Cluster** widget: On Enterprise, shows every server of a [multi-server](/docs/admin/system/multi-server/) cluster with its users, domains, version and unread notifications.
+- **Daily Summary** tab: Displays yesterday's traffic and issues for all accounts combined, see [Daily Summary](/docs/admin/daily-summary). Shown only when the [Daily Summary module](/docs/admin/settings/modules/#daily-summary) is enabled.
 - **User Activity** widget: Displays real-time combined activity log of all OpenPanel users.
 - **Latest News** widget: Displays blog articles from the OpenPanel blog.
 - **System Information** widget: Displays Information about your server configuration: Hostname, IPv4 address, OS, OpenPanel version, Server Time, Kernel, CPU type, Uptime, Number of Running Processes and available Package Updates.
@@ -23,6 +23,16 @@ The dashboard page contains widgets:
 
 ![OpenAdmin dashboard with the summary bar and the User Activity, Latest News, System Information and Resource Usage widgets](/img/openadmin-screenshots/001_dashboard-window.png#gh-light-mode-only)
 ![OpenAdmin dashboard with the summary bar and the User Activity, Latest News, System Information and Resource Usage widgets](/img/openadmin-screenshots/001_dashboard-window_dark.png#gh-dark-mode-only)
+
+## Customize the dashboard
+
+Administrators can arrange the widgets, and the layout is saved on the admin account, so it's the same in every browser and, on a multi-server master, on the dashboard of every server:
+
+- **Move a widget**: hover over it and drag it by the handle in its top right corner.
+- **Change the width**: hover over a widget and pick **1/3**, **2/3** or **3/3** of the page. By default Resource Usage takes 2/3 of the page and the other widgets 1/3. Two 1/3 widgets that follow a 2/3 one stack in the column next to it, like Tasks and Cluster next to Resource Usage.
+- **Collapse a widget**: click the arrow in its top right corner to show only its title. Click it again to expand it.
+
+To go back to the default layout, click **Reset dashboard layout** under the widgets.
 
 ## Usage
 
@@ -40,18 +50,7 @@ Hovering over each metric provides detailed information:
 
 ## Daily Summary
 
-The **Daily Summary** widget adds up the [daily summaries](/docs/panel/statistics/daily_summary/) of all OpenPanel accounts for the most recent day that has them (up to 7 days back). Resellers see only their own accounts.
-
-It shows:
-
-- **Requests** (with the change from the day before), **Visitors**, **Data sent**, **Server errors** and **WAF blocks**
-- **Needs attention**: issues found on user accounts, each with a link to the user
-- **Busiest websites**: the top 5 websites by number of requests
-
-The widget is shown only when:
-
-- the **`summary`** module is enabled on [**Settings > Modules**](/docs/admin/settings/modules/#daily-summary), and
-- at least one user has the **summary** feature in their [feature set](/docs/admin/plans/feature-manager/) and already has a saved summary (they are saved each day at 06:15 for the previous day).
+The daily summary of all accounts is on its own tab, see [Daily Summary](/docs/admin/daily-summary).
 
 ## User Activity
 
@@ -87,10 +86,19 @@ The **System Information** widget displays information about your server:
 
 ## Resource Usage
 
-The **Resource Usage** widget displays a chart of CPU % and RAM % usage over the last hour. Click **View history** to open the full Resource Usage history page (**Server > Resource Usage**).
+The **Resource Usage** widget displays a chart of CPU % and RAM % usage over the last hour. On a multi-server master it draws a line for every server, click a server's name above the chart to show only that one. Click **View history** to open the full Resource Usage history page (**Server > Resource Usage**).
 
 ![Resource Usage widget with a chart of CPU and RAM usage over the last hour and the View history link](/img/openadmin-screenshots/001_dashboard-usage.png#gh-light-mode-only)
 ![Resource Usage widget with a chart of CPU and RAM usage over the last hour and the View history link](/img/openadmin-screenshots/001_dashboard-usage_dark.png#gh-dark-mode-only)
+
+## Cluster
+
+On a [multi-server](/docs/admin/system/multi-server/) master, the **Cluster** widget lists every server with three bars for its health: green when it's healthy, orange when its disk or RAM is almost full, red when it's offline or a service is down, and grey when it's paused. Each value opens the page to act on it: users and domains of that server, the updates page, its notifications and the sync settings.
+
+On a single server it shows that the server is standalone, and on a slave which master manages it.
+
+![Cluster widget listing the master and two servers with their health bars, users, domains, version and last sync](/img/openadmin-screenshots/001_dashboard-cluster.png#gh-light-mode-only)
+![Cluster widget listing the master and two servers with their health bars, users, domains, version and last sync](/img/openadmin-screenshots/001_dashboard-cluster_dark.png#gh-dark-mode-only)
 
 ## Tasks
 
@@ -154,4 +162,7 @@ Press **Ctrl + K** (or **Cmd + K** on macOS) on any page to show the list of ava
 
 ## Logout
 
-To log out of the OpenAdmin account, click your username in the bottom-left corner and select 'Sign out' option.
+To log out of the OpenAdmin account, click your username in the bottom-left corner and select **Sign out**.
+
+![Account menu opened from the username in the bottom-left corner of the sidebar, with the Sign out option](/img/openadmin-screenshots/001_dashboard-logout.png#gh-light-mode-only)
+![Account menu opened from the username in the bottom-left corner of the sidebar, with the Sign out option](/img/openadmin-screenshots/001_dashboard-logout_dark.png#gh-dark-mode-only)

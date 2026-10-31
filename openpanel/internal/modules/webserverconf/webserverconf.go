@@ -9,7 +9,7 @@ var defaultConfTemplates = map[string]string{
 	"apache":        "/etc/openpanel/apache/httpd.conf",
 	"openresty":     "/etc/openpanel/openresty/nginx.conf",
 	"openlitespeed": "/etc/openpanel/openlitespeed/httpd_config.conf",
-	// TODO: file for LSWS ENTERPRISE!
+	"litespeed":     "/etc/openpanel/litespeed/httpd.conf",
 }
 
 // webserverConfEntry is one row of the WEB_SERVER -> (filename, service, page title) lookup table
@@ -24,7 +24,7 @@ var webserverConfs = map[string]webserverConfEntry{
 	"apache":        {"httpd.conf", "apache", "Apache Configuration Editor"},
 	"openresty":     {"openresty.conf", "openresty", "OpenResty Configuration Editor"},
 	"openlitespeed": {"openlitespeed.conf", "openlitespeed", "OpenLitespeed Configuration Editor"},
-	"litespeed":     {"openlitespeed.conf", "litespeed", "Litespeed Configuration Editor"},
+	"litespeed":     {"litespeed.conf", "litespeed", "LiteSpeed Configuration Editor"},
 }
 
 // lookupWebserverConf returns webServer's config entry, or a fallback with just a generic page title if webServer is unrecognized

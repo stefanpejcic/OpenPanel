@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import clsx from "clsx";
+import { FeatureTooltip } from "./enterprise-table";
+import { comparisonTip } from "./comparison-tooltips";
 
 import { CheckCircle } from "@site/src/refine-theme/icons/check-circle";
 import { CrossCircle } from "@site/src/refine-theme/icons/cross-circle";
@@ -250,7 +252,13 @@ const TableItem = ({
                 )}
             >
                 <TableItemDescription isLast={isLast}>
-                    {description}
+                    {comparisonTip(description) ? (
+                        <FeatureTooltip features={[comparisonTip(description)]}>
+                            {description}
+                        </FeatureTooltip>
+                    ) : (
+                        description
+                    )}
                 </TableItemDescription>
                 <TableItemContentGroup
                     {...{ cpanel, openpanel, activeTab, isLast, valueType }}
@@ -361,6 +369,7 @@ const TableTabs = ({ activeTab, setActiveTab }) => {
                         )}
                     >
                         cPanel/WHM
+                        <span className={clsx("block", "text-left", "text-xs landing-sm:text-sm", "font-normal", "dark:text-gray-400 text-gray-500")}>26 - 60€/ month</span>
                     </div>
                 </div>
                 <div
@@ -404,6 +413,7 @@ const TableTabs = ({ activeTab, setActiveTab }) => {
                         )}
                     >
                         OpenPanel Enterprise
+                        <span className={clsx("block", "text-left", "text-xs landing-sm:text-sm", "font-normal", "dark:text-gray-400 text-gray-500")}>14.95€ / month</span>
                     </div>
                 </div>
             </div>
@@ -729,6 +739,15 @@ const tableData = [
     {
         title: "Advanced",
         items: [
+            {
+                description: "Multi-Server management",
+                cpanel: <TableText>Config & DNS cluster only</TableText>,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "text",
+                    openpanel: "icon",
+                },
+            },
             {
                 description: "API for every UI action",
                 cpanel: <CrossIcon />,
@@ -1303,6 +1322,24 @@ const tableData = [
             {
                 description: "Node / Python Environment",
                 cpanel: <TableText>venv</TableText>,
+                openpanel: <TableText>Containerized</TableText>,
+                valueType: {
+                    cpanel: "text",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Ruby Applications",
+                cpanel: <TableText>Passenger (Application Manager)</TableText>,
+                openpanel: <TableText>Containerized</TableText>,
+                valueType: {
+                    cpanel: "text",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Java Applications",
+                cpanel: <TableText>Tomcat via EasyApache</TableText>,
                 openpanel: <TableText>Containerized</TableText>,
                 valueType: {
                     cpanel: "text",

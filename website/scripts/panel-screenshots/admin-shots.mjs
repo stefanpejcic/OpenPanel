@@ -13,6 +13,8 @@ const DEMO_NAMES = {
   // second test server used for pages the demo can't show
   '185.7.32.112': '203.0.113.10',
   'stefan.openpanel.org': 'server.example.com',
+  'petar.openpanel.org': 'server2.example.com',
+  'lazar.openpanel.org': 'server3.example.com',
   'asdadsadsadasdas@': 'info@',
   'asdadsadsdasdas@': 'info@',
   'assaasas@': 'sales@',
@@ -232,6 +234,42 @@ export const pages = {
       { name: 'sysinfo', alt: 'System Information widget with hostname, IPv4 address, OS, OpenPanel version, server time, kernel, CPU, uptime, processes and package updates', crop: { from: '#tour-system-info', pad: 12 } },
       { name: 'usage', alt: 'Resource Usage widget with a chart of CPU and RAM usage over the last hour and the View history link', prepare: async page => { await page.waitForTimeout(7000); }, viewportHeight: 1600, crop: { from: '#tour-usage-graphs', pad: 12 } },
       { name: 'tasks', alt: 'Tasks widget with the currently running background tasks and the View all link', crop: { from: '#tour-tasks', pad: 12 } },
+      // needs a multi-server master, shot on the test server with ADMIN_URL
+      {
+        name: 'cluster',
+        alt: 'Cluster widget listing the master and two servers with their health bars, users, domains, version and last sync',
+        prepare: all(async page => { await page.waitForSelector('#cluster-health-list li', { timeout: 20000 }).catch(() => {}); await page.waitForTimeout(1500); }, rename({ lazar: 'server3.example.com' }, '#cluster-health-widget'), async page => {
+          // the list scrolls inside a fixed-height grid cell, let it grow so every server is in the shot
+          await page.evaluate(() => {
+            const w = document.getElementById('cluster-health-widget');
+            w.querySelector('#cluster-health-list').parentElement.style.overflow = 'visible';
+            w.querySelector('#cluster-health-list').parentElement.style.maxHeight = 'none';
+            document.querySelectorAll('#dashboard-widgets > [data-widget]').forEach(o => { if (o !== w) o.style.visibility = 'hidden'; });
+          });
+          await page.waitForTimeout(300);
+        }),
+        viewportHeight: 1600,
+        crop: { from: '#cluster-health-widget', to: '#cluster-health-list', clamp: false, pad: 12 },
+      },
+      {
+        name: 'logout',
+        alt: 'Account menu opened from the username in the bottom-left corner of the sidebar, with the Sign out option',
+        prepare: async page => {
+          await page.locator('[data-sidebar=footer] button').last().click();
+          await page.waitForTimeout(500);
+          // the test server's admin shows as the demo one
+          await page.evaluate(() => {
+            const footer = document.querySelector('[data-sidebar=footer]');
+            const walk = document.createTreeWalker(footer, NodeFilter.SHOW_TEXT);
+            for (let n; (n = walk.nextNode());) {
+              if (n.nodeValue.trim() === 'pwsuite') n.nodeValue = n.nodeValue.replace('pwsuite', 'administrator');
+              else if (n.nodeValue.trim() === 'P') n.nodeValue = n.nodeValue.replace('P', 'A');
+            }
+          });
+        },
+        viewportHeight: 860,
+        crop: { from: '#popup-menu', to: '[data-sidebar=footer]', clamp: false, pad: 2 },
+      },
       {
         name: 'shortcuts',
         alt: 'Keyboard shortcuts dialog opened with Ctrl + K, listing the key combinations for OpenAdmin pages',

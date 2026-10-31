@@ -118,6 +118,18 @@ func editApacheConfig(userContext, domainURL, subdirectory, serviceName string, 
 		searchFrom = pos + len(marker)
 	}
 
+	// litespeed's vhost has no default_page in its DirectoryIndex, the proxy goes at the end of each vhost there
+	if len(markerPositions) == 0 && marker != "</VirtualHost>" {
+		marker = "</VirtualHost>"
+		for searchFrom = 0; ; {
+			idx := strings.Index(vhostData[searchFrom:], marker)
+			if idx == -1 {
+				break
+			}
+			markerPositions = append(markerPositions, searchFrom+idx)
+			searchFrom += idx + len(marker)
+		}
+	}
 	if len(markerPositions) == 0 {
 		return
 	}

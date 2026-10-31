@@ -1,0 +1,127 @@
+{
+  "price": "14.95€ / month",
+  "buy_url": "https://my.openpanel.com/index.php?rp=/store/openpanel/enterprise-license",
+  "compare_url": "https://openpanel.com/enterprise/",
+  "limits": [
+    {
+      "name": "Websites",
+      "community": "50",
+      "enterprise": "Unlimited"
+    },
+    {
+      "name": "User Accounts",
+      "community": "3",
+      "enterprise": "Unlimited"
+    },
+    {
+      "name": "Total Domains",
+      "community": "50",
+      "enterprise": "Unlimited"
+    }
+  ],
+  "sections": [
+    {
+      "title": "Websites",
+      "features": [
+        "NodeJS Applications",
+        "Python Applications",
+        "Ruby Applications",
+        "Java Applications",
+        "Git Deployments",
+        "PHP Extensions",
+        "Temporary Domains",
+        "Varnish Caching"
+      ]
+    },
+    {
+      "title": "Files",
+      "features": [
+        "FTP",
+        "Malware Scanner",
+        "Download from URL",
+        "Disk Usage Explorer",
+        "Inodes Explorer",
+        "Trash"
+      ]
+    },
+    {
+      "title": "Databases",
+      "features": [
+        "Switch MySQL Type (MySQL / MariaDB)",
+        "MariaDB",
+        "Percona",
+        "PostgreSQL",
+        "PostgreSQL Configuration",
+        "MongoDB",
+        "Import PostgreSQL & MongoDB Databases",
+        "Remote PostgreSQL"
+      ]
+    },
+    {
+      "title": "Web servers",
+      "features": [
+        "Litespeed",
+        "Varnish",
+        "Switch WebServer"
+      ]
+    },
+    {
+      "title": "Accounts",
+      "features": [
+        "Resellers",
+        "Multiple Administrator Accounts",
+        "Transfer Accounts between Servers",
+        "Import from a cPanel Backup",
+        "Passkeys"
+      ]
+    },
+    {
+      "title": "Domains",
+      "features": [
+        "Custom SSL",
+        "Coraza WAF",
+        "DNSSEC",
+        "Multi-Server Cluster",
+        "DNS Clustering",
+        "Dynamic DNS",
+        "Domain Redirects",
+        "IP Blocker",
+        "Suspend Domains",
+        "Capitalize Domains",
+        "Edit VirtualHosts"
+      ]
+    },
+    {
+      "title": "Emails",
+      "features": [
+        "Email Accounts",
+        "Email Deliverability (SPF, DKIM, DMARC)",
+        "Email Filters & Forwarders",
+        "Email Aliases",
+        "Address Importer / Exporter",
+        "Email Migration (IMAP)",
+        "Default (Catch-All) Address"
+      ]
+    },
+    {
+      "title": "Integrations",
+      "features": [
+        "REST API",
+        "MCP (Model Context Protocol)",
+        "AI Assistant"
+      ]
+    },
+    {
+      "title": "System",
+      "features": [
+        "Users can manage Containers",
+        "Users can add Containers",
+        "Web Terminal",
+        "Change Container Image Tag",
+        "User manages Backups",
+        "Support for ARM CPUs (Aarch64)",
+        "Available on Metal/Dedicated"
+      ]
+    }
+  ]
+}

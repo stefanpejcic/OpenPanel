@@ -4,7 +4,7 @@
 
 {{if .DomainName}}
 {{template "op_conf_editor_assets" .}}
-{{$kind := "brace"}}{{if eq .WebServerPreference "apache"}}{{$kind = "apache"}}{{end}}
+{{$kind := "brace"}}{{if or (eq .WebServerPreference "apache") (eq .WebServerPreference "litespeed")}}{{$kind = "apache"}}{{end}}
 
 <form method="post" class="op-content" x-data="opConfEditor({ kind: {{toJSON $kind}}, busy: { save: {{toJSON (.T.Get "Saving the VirtualHost file")}}, steps: {{toJSON (.T.Get "Writing the file|Testing the configuration|Reloading the web server")}}, note: {{toJSON (.T.Get "Stay on this page until it finishes.")}} } })" @submit="onSubmit($event)" @keydown.window.ctrl.s.prevent="save()" @keydown.window.meta.s.prevent="save()">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>

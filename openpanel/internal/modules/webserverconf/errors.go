@@ -29,6 +29,7 @@ var containerConfPaths = map[string]string{
 	"openresty":     "/usr/local/openresty/nginx/conf/nginx.conf",
 	"apache":        "/usr/local/apache2/conf/httpd.conf",
 	"openlitespeed": "/usr/local/lsws/conf/httpd_config.conf",
+	"litespeed":     "/etc/apache2/httpd.conf",
 }
 
 // vhostDirs is where each web server's container sees the domains' VirtualHost files
@@ -37,6 +38,7 @@ var vhostDirs = map[string]string{
 	"openresty":     "/etc/nginx/conf.d/",
 	"apache":        "/etc/httpd/conf.d/",
 	"openlitespeed": "/usr/local/lsws/conf/vhosts/",
+	"litespeed":     "/etc/httpd/conf.d/",
 }
 
 var hostNotFound = regexp.MustCompile(`host not found in upstream "([^":]+)`)

@@ -103,6 +103,12 @@ const SITE_PAGES: SitePageOgEntry[] = [
             "Compare OpenPanel vs Plesk: true per-user Podman isolation, native ARM support, and one fixed €14.95/month price per server - no per-account licensing fees.",
     },
     {
+        permalink: "/enhance-alternative/",
+        title: "OpenPanel vs Enhance: Alternative Hosting Panel Compared",
+        description:
+            "Compare OpenPanel vs Enhance: per-user container isolation, multi-server management and one flat price per server, not per website, from €14.95/month.",
+    },
+    {
         permalink: "/about/",
         title: "About | OpenPanel Project",
         description:

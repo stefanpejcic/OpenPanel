@@ -59,7 +59,8 @@ function validateVhostConfig(content, serverType) {
     var errors = [];
     var lines = content.split('\n');
 
-    if (serverType === 'apache') {
+    // litespeed enterprise reads apache style vhosts
+    if (serverType === 'apache' || serverType === 'litespeed') {
         var stack = [];
         var tagRegex = /<(\/?)\s*([A-Za-z][A-Za-z0-9]*)\b[^>]*?(\/?)>/g;
 
@@ -96,7 +97,7 @@ function validateVhostConfig(content, serverType) {
         });
 
     } else {
-        // brace based configs: nginx, openresty, openlitespeed/litespeed
+        // brace based configs: nginx, openresty, openlitespeed
         var braceDepth = 0;
         var openStack = [];
         var inSingle = false, inDouble = false, escape = false;

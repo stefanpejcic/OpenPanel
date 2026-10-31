@@ -22,5 +22,5 @@ LINK: https://demo.openpanel.com:2087/login
 
 If you are a web host, then we recommend interacting with the **OpenAdmin** interface.
 
-This is where you can manage your server and customers.
+This is where you can manage your servers and customers.
 

@@ -12,7 +12,7 @@ func TestLookupWebserverConf(t *testing.T) {
 		{"apache", "httpd.conf", "apache"},
 		{"openresty", "openresty.conf", "openresty"},
 		{"openlitespeed", "openlitespeed.conf", "openlitespeed"},
-		{"litespeed", "openlitespeed.conf", "litespeed"},
+		{"litespeed", "litespeed.conf", "litespeed"},
 	}
 	for _, c := range cases {
 		entry := lookupWebserverConf(c.webServer)

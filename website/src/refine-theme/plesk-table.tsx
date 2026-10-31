@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import clsx from "clsx";
+import { FeatureTooltip } from "./enterprise-table";
+import { comparisonTip } from "./comparison-tooltips";
 
 import { CheckCircle } from "@site/src/refine-theme/icons/check-circle";
 import { CrossCircle } from "@site/src/refine-theme/icons/cross-circle";
@@ -250,7 +252,13 @@ const TableItem = ({
                 )}
             >
                 <TableItemDescription isLast={isLast}>
-                    {description}
+                    {comparisonTip(description) ? (
+                        <FeatureTooltip features={[comparisonTip(description)]}>
+                            {description}
+                        </FeatureTooltip>
+                    ) : (
+                        description
+                    )}
                 </TableItemDescription>
                 <TableItemContentGroup
                     {...{ plesk, openpanel, activeTab, isLast, valueType }}
@@ -361,6 +369,7 @@ const TableTabs = ({ activeTab, setActiveTab }) => {
                         )}
                     >
                         Plesk
+                        <span className={clsx("block", "text-left", "text-xs landing-sm:text-sm", "font-normal", "dark:text-gray-400 text-gray-500")}>13 - 55€/ month</span>
                     </div>
                 </div>
                 <div
@@ -404,6 +413,7 @@ const TableTabs = ({ activeTab, setActiveTab }) => {
                         )}
                     >
                         OpenPanel Enterprise
+                        <span className={clsx("block", "text-left", "text-xs landing-sm:text-sm", "font-normal", "dark:text-gray-400 text-gray-500")}>14.95€ / month</span>
                     </div>
                 </div>
             </div>
@@ -729,6 +739,15 @@ const tableData = [
     {
         title: "Advanced",
         items: [
+            {
+                description: "Multi-Server management",
+                plesk: <TableText>Dropped after Onyx 17.5</TableText>,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "text",
+                    openpanel: "icon",
+                },
+            },
             {
                 description: "API for every UI action",
                 plesk: <TableText>Limited (legacy XML API required)</TableText>,
@@ -1302,6 +1321,24 @@ const tableData = [
             {
                 description: "Node / Python Environment",
                 plesk: <TableText>venv</TableText>,
+                openpanel: <TableText>Containerized</TableText>,
+                valueType: {
+                    plesk: "text",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Ruby Applications",
+                plesk: <TableText>Passenger (Ruby extension)</TableText>,
+                openpanel: <TableText>Containerized</TableText>,
+                valueType: {
+                    plesk: "text",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Java Applications",
+                plesk: <TableText>Tomcat dropped in Obsidian</TableText>,
                 openpanel: <TableText>Containerized</TableText>,
                 valueType: {
                     plesk: "text",

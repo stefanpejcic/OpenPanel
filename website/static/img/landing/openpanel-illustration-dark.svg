@@ -4,8 +4,8 @@
 <linearGradient id="logoG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f93ff"/><stop offset="1" stop-color="#2563eb"/></linearGradient>
 </defs>
 <style>
-@keyframes opAppsScroll { from { transform: translateY(0); } to { transform: translateY(-2516px); } }
-.op-apps-scroll { animation: opAppsScroll 68s linear infinite; }
+@keyframes opAppsScroll { from { transform: translateY(0); } to { transform: translateY(-3626px); } }
+.op-apps-scroll { animation: opAppsScroll 98s linear infinite; }
 @media (prefers-reduced-motion: reduce) { .op-apps-scroll { animation: none; } }
 
 .fa-off, .fa-on { animation-duration: 8s; animation-iteration-count: infinite; animation-timing-function: linear; }
@@ -107,39 +107,60 @@
 <text x="48" y="164" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#6d7889" text-anchor="start">memcached</text>
 <text x="48" y="188" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="400" fill="#6d7889" text-anchor="start">info@wp.demo.openpanel…</text>
 <line x1="12" y1="210" x2="196" y2="210" stroke="#161d29" stroke-width="1"/>
-<g stroke="#6d7889" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="21" y="217" width="13" height="10" rx="2"/><path d="M21 220.5 h13"/><circle cx="23.5" cy="218.8" r="0.5"/></g>
-<text x="46" y="227" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Sites</text>
+<g transform="translate(27.5,222) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle r="9"/><path d="M-9 0 h18 M0 -9 c-6 4 -6 14 0 18 c6 -4 6 -14 0 -18"/></g>
+<text x="46" y="227" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Domains</text>
 <path d="M178 223 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<g stroke="#6d7889" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M22 248 h4 l1.5 2 h6 v9 h-11 z"/></g>
-<text x="46" y="257" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Files</text>
-<path d="M178 253 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<g stroke="#6d7889" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="27.5" cy="278.5" rx="6.0" ry="2.2"/><path d="M22 278.5 v8 a6.0 2.2 0 0 0 11 0 v-8 M22 281.5 a6.0 2.2 0 0 0 11 0"/></g>
-<text x="46" y="287" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">MySQL</text>
-<path d="M178 283 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<g stroke="#6d7889" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="27.5" cy="308.5" rx="6.0" ry="2.2"/><path d="M22 308.5 v8 a6.0 2.2 0 0 0 11 0 v-8"/></g>
-<text x="46" y="317" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">PostgreSQL</text>
-<path d="M178 313 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<g stroke="#6d7889" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="27.5" cy="342.5" r="6.5"/><path d="M21 342.5 h13 M27.5 336 c-5.1000000000000005 3.0 -5.1000000000000005 9.0 0 13 c5.1000000000000005-6.0 5.1000000000000005-12.0 0-13"/></g>
-<text x="46" y="347" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Domains</text>
-<path d="M178 343 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<g stroke="#6d7889" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="21" y="367.5" width="13" height="10" rx="2"/><path d="M21.5 368.5 l6.5 5.1000000000000005 l6.5-5.1000000000000005"/></g>
-<text x="46" y="377" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Emails</text>
+<g transform="translate(27.5,247) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-9" y="-8" width="18" height="16" rx="2"/><path d="M-9 -3 h18"/><circle cx="-6" cy="-5.5" r="0.6"/><circle cx="-3.5" cy="-5.5" r="0.6"/></g>
+<text x="46" y="252" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Websites</text>
+<path d="M178 248 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(27.5,272) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-9" y="-6" width="18" height="13" rx="2"/><path d="M-8.5 -5 l8.5 6 l8.5 -6"/></g>
+<text x="46" y="277" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Email</text>
+<path d="M178 273 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(27.5,297) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-9 -6 v13 a1 1 0 0 0 1 1 h16 a1 1 0 0 0 1 -1 v-9 a1 1 0 0 0 -1 -1 h-8 l-2 -2 h-6 a1 1 0 0 0 -1 1 z"/></g>
+<text x="46" y="302" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Files</text>
+<path d="M178 298 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(27.5,322) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-5 6 h-1 a4.5 4.5 0 0 1 0 -9 a6 6 0 0 1 11.5 1 a4 4 0 0 1 0.5 8 h-1"/><path d="M0 9 v-8 M-3 4 l3 -3 3 3"/></g>
+<text x="46" y="327" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Backups</text>
+<path d="M178 323 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(27.5,347) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cy="-6" rx="8" ry="2.5"/><path d="M-8 -6 v12 a8 2.5 0 0 0 16 0 v-12 M-8 0 a8 2.5 0 0 0 16 0"/></g>
+<text x="46" y="352" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">MySQL</text>
+<path d="M178 348 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(27.5,372) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cy="-6" rx="8" ry="2.5"/><path d="M-8 -6 v12 a8 2.5 0 0 0 16 0 v-12 M-8 0 a8 2.5 0 0 0 16 0"/></g>
+<text x="46" y="377" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">PostgreSQL</text>
 <path d="M178 373 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<g stroke="#6d7889" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="27.5" cy="402.5" r="6.5"/><path d="M27.5 399.2 v3.5999999999999996 l3.0 2.1"/></g>
-<text x="46" y="407" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Caching</text>
-<path d="M178 403 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<g stroke="#6d7889" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="27.5" cy="432.5" rx="6.5" ry="4.5"/><path d="M24 434.0 l1-3 M27.5 434.0 l1-3 M29 434.0 l1-3"/></g>
-<text x="46" y="437" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">PHP</text>
-<path d="M178 433 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<g stroke="#6d7889" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 459.8 h13 M21 465.2 h13"/><circle cx="29.9" cy="459.8" r="2"/><circle cx="25.1" cy="465.2" r="2"/></g>
-<text x="46" y="467" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Advanced</text>
-<path d="M178 463 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<g stroke="#6d7889" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="23" y="491" width="9" height="4.5" rx="0.6"/><path d="M25 491 v-2 M27.5 491 v-2 M22 496 c3 2 8 2 12-1"/></g>
-<text x="46" y="497" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Containers</text>
-<path d="M178 493 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<g stroke="#6d7889" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="27.5" cy="520.4" r="3.0"/><path d="M22 529 c0-4.8 9.9-4.8 9.9 0"/></g>
-<text x="46" y="527" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Account</text>
+<g transform="translate(27.5,397) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M0 -9 c5 5 5 12 0 18 c-5 -6 -5 -13 0 -18 M0 -6 v15"/></g>
+<text x="46" y="402" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">MongoDB</text>
+<path d="M178 398 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(27.5,422) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse rx="9" ry="6"/><path d="M-5 3 l1.5 -6 h2 a1.3 1.3 0 0 1 0 2.6 h-2 M1 3 l1.5 -6 M2 0 h2.5 l-0.8 3"/></g>
+<text x="46" y="427" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">PHP</text>
+<path d="M178 423 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(27.5,447) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-8" y="-6" width="16" height="14" rx="2"/><path d="M-8 -2 h16 M-4 -9 v4 M4 -9 v4 M-4 2 h2 M1 2 h2 M-4 5 h2"/></g>
+<text x="46" y="452" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Cron Jobs</text>
+<path d="M178 448 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(27.5,472) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M2 -9 l-8 11 h6 l-2 7 8 -11 h-6 z"/></g>
+<text x="46" y="477" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Cache &amp; Search</text>
+<path d="M178 473 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(27.5,497) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-8" y="-9" width="16" height="7" rx="1.5"/><path d="M0 -2 v5 M-7 7 h14 M-7 3 v4 M7 3 v4 M0 3 v4"/></g>
+<text x="46" y="502" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Web Server Config</text>
+<path d="M178 498 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(27.5,522) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-8 1 h7 v7 h-7 z M1 1 h7 v7 h-7 z M-3.5 -7 h7 v7 h-7 z"/></g>
+<text x="46" y="527" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Containers</text>
 <path d="M178 523 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(27.5,547) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="-2" cy="-4" r="3.5"/><path d="M-9 8 c0 -6 9 -7 11 -3"/><circle cx="6" cy="5" r="2"/><path d="M6 1 v1.5 M6 7.5 v1.5 M2 5 h1.5 M8.5 5 h1.5"/></g>
+<text x="46" y="552" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Account</text>
+<path d="M178 548 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(27.5,572) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-9 -9 v18 h18 M-6 4 l4 -5 4 3 6 -8"/></g>
+<text x="46" y="577" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Statistics</text>
+<path d="M178 573 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(27.5,597) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-6" y="-6" width="12" height="12" rx="1.5"/><rect x="-2.5" y="-2.5" width="5" height="5"/><path d="M-3 -9 v3 M3 -9 v3 M-3 6 v3 M3 6 v3 M-9 -3 h3 M-9 3 h3 M6 -3 h3 M6 3 h3"/></g>
+<text x="46" y="602" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Processes &amp; Services</text>
+<path d="M178 598 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(27.5,622) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M0 -9 l8 3 v5 c0 5 -4 8 -8 10 c-4 -2 -8 -5 -8 -10 v-5 z"/><rect x="-3" y="-1" width="6" height="5" rx="1"/><path d="M-1.8 -1 v-1.5 a1.8 1.8 0 0 1 3.6 0 v1.5"/></g>
+<text x="46" y="627" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Security</text>
+<path d="M178 623 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<g transform="translate(27.5,647) scale(0.7)" stroke="#6d7889" stroke-width="2.00" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-8" y="-8" width="16" height="16" rx="2"/><path d="M0 -1 v6"/><circle cx="0" cy="-4" r="0.8"/></g>
+<text x="46" y="652" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#e7eaef" text-anchor="start">Server Info</text>
+<path d="M178 648 l3 3 l3-3" stroke="#4a5464" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M108 967 l3-4 3 4 M108 973 l3 4 3-4" stroke="#6d7889" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <text x="122" y="973" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#6d7889" text-anchor="start">Expand all</text>
 <line x1="12" y1="689" x2="196" y2="689" stroke="#161d29" stroke-width="1"/>
@@ -163,304 +184,386 @@
 <g id="opAppsBlock">
 <rect x="232" y="118" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
 <rect x="232" y="130" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
-<text x="250" y="143" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Files</text>
+<text x="250" y="143" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Domains</text>
 <path d="M840 140 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="232" y="162" width="632" height="232" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
-<rect x="292.0" y="179" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M302.0 193.0 v13 a1 1 0 0 0 1 1 h16 a1 1 0 0 0 1-1 v-9 a1 1 0 0 0-1-1 h-8.0 l-2-2 h-5.6000000000000005 a1 1 0 0 0-1 1 z"/></g>
-<text x="311.0" y="232" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">File Manager</text>
-<rect x="450.0" y="179" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M462.0 206.0 h14 M469.0 203.0 v-12 M465.0 192.0 l4-4 4 4"/></g>
-<text x="469.0" y="232" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Upload Files</text>
-<rect x="608.0" y="179" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M620.0 206.0 h14 M627.0 189.0 v12 M623.0 199.0 l4 4 4-4"/></g>
-<text x="627.0" y="232" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Download Files</text>
-<rect x="766.0" y="179" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M776.0 193.0 h18 v13 h-18 z"/><path d="M779.0 197.0 l3 3 4-4 M788.0 195.0 h4"/></g>
-<text x="785.0" y="232" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">FTP Accounts</text>
-<rect x="292.0" y="253" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M305.0 264.0 v4 M317.0 264.0 v4 M303.0 268.0 h16 v3 a8.0 8.0 0 0 1-16 0 z M311.0 276.0 v4"/></g>
-<text x="311.0" y="306" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">FTP Connections</text>
-<rect x="450.0" y="253" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="469.0" cy="272.0" r="9.0"/><circle cx="469.0" cy="272.0" r="2"/><path d="M469.0 264.0 v3"/></g>
-<text x="469.0" y="306" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Disk Usage</text>
-<rect x="608.0" y="253" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="618.0" y="264.0" width="18" height="16" rx="2"/><path d="M618.0 269.0 h18 M621.0 273.0 h6"/></g>
-<text x="627.0" y="306" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Backups</text>
-<rect x="766.0" y="253" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M776.0 267.0 h18 v13 h-18 z"/><path d="M779.0 271.0 h8 M779.0 274.0 h5"/></g>
-<text x="785.0" y="306" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Inode Viewer</text>
-<rect x="292.0" y="327" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="303.0" y="338.0" width="16" height="16" rx="2"/><path d="M306.0 344.0 l2.5 2.5 5-5"/></g>
-<text x="311.0" y="380" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Fix Permissions</text>
-<rect x="450.0" y="327" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M462.0 341.0 h14 M464.0 341.0 v-2 h10 v2 M463.0 341.0 l1 12 h10 l1-12"/></g>
-<text x="469.0" y="380" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Trash</text>
-<rect x="232" y="414" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
-<rect x="232" y="426" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
-<text x="250" y="439" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Domains</text>
-<path d="M840 436 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="232" y="458" width="632" height="232" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
-<rect x="292.0" y="475" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="311.0" cy="494.0" r="9.0"/><path d="M302.0 494.0 h18 M311.0 485.0 c-6.800000000000001 4.0 -6.800000000000001 12.0 0 18 c6.800000000000001-8.0 6.800000000000001-16.0 0-18"/></g>
-<text x="311.0" y="528" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Domains</text>
-<rect x="450.0" y="475" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M461.0 491.0 a5 5 0 0 1 5-5 h4 M466.0 485.0 l-4 4 4 4 M477.0 497.0 a5 5 0 0 1-5 5 h-4 M472.0 498.0 l4-4-4-4"/></g>
-<text x="469.0" y="528" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Redirects</text>
-<rect x="608.0" y="475" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="619.0" y="486.0" width="16" height="16" rx="2"/><path d="M622.0 491.0 h10 M622.0 494.0 h10 M622.0 497.0 h5"/></g>
-<text x="627.0" y="528" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">DNS Zone Editor</text>
-<rect x="766.0" y="475" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M777.0 490.0 a8.0 7.0 0 1 1 0 12" /><path d="M777.0 486.0 v4 h4 M793.0 502.0 v-4 h-4"/></g>
-<text x="785.0" y="528" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Dynamic DNS</text>
-<rect x="292.0" y="549" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="304.0 " y="566.0" width="14" height="10" rx="1.5"/><path d="M306.5 566.0 v-3 a2.8000000000000003 2.8000000000000003 0 0 1 5.6000000000000005 0 v3"/></g>
-<text x="311.0" y="602" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">SSL</text>
-<rect x="450.0" y="549" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="469.0" cy="568.0" r="9.0"/><path d="M467.4 565.2 v5.6000000000000005 M470.6 565.2 v5.6000000000000005"/></g>
-<text x="469.0" y="602" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Suspend Domain</text>
-<rect x="608.0" y="549" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="627.0" cy="568.0" r="9.0"/><path d="M625.0 565.2 l5.6000000000000005 2.8000000000000003 -5.6000000000000005 2.8000000000000003 z"/></g>
-<text x="627.0" y="602" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Unsuspend Domain</text>
-<rect x="766.0" y="549" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M776.0 563.0 v13 a1 1 0 0 0 1 1 h16 a1 1 0 0 0 1-1 v-9 a1 1 0 0 0-1-1 h-8.0 l-2-2 h-5.6000000000000005 a1 1 0 0 0-1 1 z"/></g>
-<text x="785.0" y="602" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Change Docroot</text>
-<rect x="292.0" y="623" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="303.0" y="634.0" width="16" height="16" rx="2"/><path d="M306.0 639.0 h6 M306.0 642.0 h8 M306.0 645.0 h4"/></g>
-<text x="311.0" y="676" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Edit Virtual Hosts</text>
-<rect x="450.0" y="623" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M461.0 650.0 v-16 M461.0 650.0 h16"/><path d="M463.0 647.0 l3-3 3 2 4-5"/></g>
-<text x="469.0" y="676" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">GoAccess</text>
-<rect x="608.0" y="623" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="619.0" y="634.0" width="16" height="16" rx="2"/><path d="M622.0 639.0 h10 M622.0 642.0 h10 M622.0 645.0 h6"/></g>
-<text x="627.0" y="676" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Raw Access Logs</text>
-<rect x="232" y="710" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
-<rect x="232" y="722" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
-<text x="250" y="735" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">MySQL</text>
-<path d="M840 732 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="232" y="754" width="632" height="158" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
-<rect x="292.0" y="771" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="311.0" cy="784.0" rx="8.0" ry="2.5"/><path d="M303.0 784.0 v12 a8.0 2.5 0 0 0 16 0 v-12 M303.0 789.0 a8.0 2.5 0 0 0 16 0"/></g>
-<text x="311.0" y="824" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Databases</text>
-<rect x="450.0" y="771" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="466.2" cy="786.8" r="3.2"/><circle cx="472.2" cy="786.8" r="3.2"/><path d="M461.0 798.0 c0-6.0 10.0-6.0 10.0 0 M469.0 798.0 c0-6.0 10.0-6.0 10.0 0"/></g>
-<text x="469.0" y="824" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Users</text>
-<rect x="608.0" y="771" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="625.0" cy="784.0" rx="6.800000000000001" ry="2"/><path d="M619.0 784.0 v6 a6.800000000000001 2 0 0 0 13.600000000000001 0 v-6"/><path d="M632.0 794.0 l1.5-1.5 M631.0 798.0 l4-4"/></g>
-<text x="627.0" y="824" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Database Wizard</text>
-<rect x="766.0" y="771" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="783.0" cy="784.0" rx="6.800000000000001" ry="2"/><path d="M777.0 784.0 v6 a6.800000000000001 2 0 0 0 13.600000000000001 0 v-6"/><path d="M791.0 782.0 v6 M788.0 785.0 l3 3 3-3"/></g>
-<text x="785.0" y="824" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Import Database</text>
-<rect x="292.0" y="845" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="303.0" y="856.0" width="16" height="16" rx="2"/><path d="M315.0 860.0 l3-3 M318.0 857.0 v3 h-3"/><path d="M306.0 862.0 l3 3-3 3"/></g>
-<text x="311.0" y="898" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Open phpMyAdmin</text>
-<rect x="450.0" y="845" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M468.0 856.0 h9 v16 h-9 M461.0 864.0 h9 M467.0 861.0 l3 3-3 3"/></g>
-<text x="469.0" y="898" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">phpMyAdmin Login Form</text>
-<rect x="608.0" y="845" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="619.0" y="856.0" width="16" height="16" rx="2"/><path d="M622.0 861.0 h10 M622.0 865.0 h6"/></g>
-<text x="627.0" y="898" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Process List</text>
-<rect x="766.0" y="845" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M777.0 858.0 h16 M777.0 862.0 h16 M777.0 866.0 h16"/><circle cx="781.0" cy="858.0" r="1.5" fill="#3b82f6"/><circle cx="786.0" cy="862.0" r="1.5" fill="#3b82f6"/><circle cx="782.0" cy="866.0" r="1.5" fill="#3b82f6"/></g>
-<text x="785.0" y="898" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Remote Access</text>
-<rect x="232" y="932" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
-<rect x="232" y="944" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
-<text x="250" y="957" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">PostgreSQL</text>
-<path d="M840 954 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="232" y="976" width="632" height="158" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
-<rect x="292.0" y="993" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="311.0" cy="1006.0" rx="8.0" ry="2.5"/><path d="M303.0 1006.0 v12 a8.0 2.5 0 0 0 16 0 v-12 M303.0 1011.0 a8.0 2.5 0 0 0 16 0"/></g>
-<text x="311.0" y="1046" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Databases</text>
-<rect x="450.0" y="993" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="466.2" cy="1008.8" r="3.2"/><circle cx="472.2" cy="1008.8" r="3.2"/><path d="M461.0 1020.0 c0-6.0 10.0-6.0 10.0 0 M469.0 1020.0 c0-6.0 10.0-6.0 10.0 0"/></g>
-<text x="469.0" y="1046" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Users</text>
-<rect x="608.0" y="993" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="625.0" cy="1006.0" rx="6.800000000000001" ry="2"/><path d="M619.0 1006.0 v6 a6.800000000000001 2 0 0 0 13.600000000000001 0 v-6"/><path d="M632.0 1016.0 l1.5-1.5 M631.0 1020.0 l4-4"/></g>
-<text x="627.0" y="1046" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Database Wizard</text>
-<rect x="766.0" y="993" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="783.0" cy="1006.0" rx="6.800000000000001" ry="2"/><path d="M777.0 1006.0 v6 a6.800000000000001 2 0 0 0 13.600000000000001 0 v-6"/><path d="M791.0 1004.0 v6 M788.0 1007.0 l3 3 3-3"/></g>
-<text x="785.0" y="1046" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Import Database</text>
-<rect x="292.0" y="1067" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="303.0" y="1078.0" width="16" height="16" rx="2"/><path d="M306.0 1083.0 h10 M306.0 1087.0 h6"/></g>
-<text x="311.0" y="1120" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Process List</text>
-<rect x="450.0" y="1067" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M461.0 1080.0 h16 M461.0 1084.0 h16 M461.0 1088.0 h16"/><circle cx="465.0" cy="1080.0" r="1.5" fill="#3b82f6"/><circle cx="470.0" cy="1084.0" r="1.5" fill="#3b82f6"/><circle cx="466.0" cy="1088.0" r="1.5" fill="#3b82f6"/></g>
-<text x="469.0" y="1120" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Remote Access</text>
-<rect x="608.0" y="1067" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="619.0" y="1078.0" width="16" height="16" rx="2"/><path d="M622.0 1083.0 h6 M622.0 1086.0 h8 M622.0 1089.0 h4"/></g>
-<text x="627.0" y="1120" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">PostgreSQL Config</text>
-<rect x="232" y="1154" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
-<rect x="232" y="1166" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
-<text x="250" y="1179" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Sites</text>
-<path d="M840 1176 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="232" y="1198" width="632" height="84" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
-<rect x="318.3333333333333" y="1215" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M328.3333333333333 1229.0 v13 a1 1 0 0 0 1 1 h16 a1 1 0 0 0 1-1 v-9 a1 1 0 0 0-1-1 h-8.0 l-2-2 h-5.6000000000000005 a1 1 0 0 0-1 1 z"/></g>
-<text x="337.3333333333333" y="1268" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Site Manager</text>
-<rect x="529.0" y="1215" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M541.0 1242.0 h14 M548.0 1225.0 v12 M544.0 1235.0 l4 4 4-4"/></g>
-<text x="548.0" y="1268" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Auto Installer</text>
-<rect x="739.6666666666666" y="1215" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="758.6666666666666" cy="1234.0" r="9.0"/><path d="M749.6666666666666 1234.0 h18 M758.6666666666666 1225.0 c-6.800000000000001 4.0 -6.800000000000001 12.0 0 18 c6.800000000000001-8.0 6.800000000000001-16.0 0-18"/></g>
-<text x="758.6666666666666" y="1268" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">WP Manager</text>
-<rect x="232" y="1302" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
-<rect x="232" y="1314" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
-<text x="250" y="1327" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Cache</text>
-<path d="M840 1324 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="232" y="1346" width="632" height="158" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
-<rect x="292.0" y="1363" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="311.0" cy="1376.0" rx="8.0" ry="2.5"/><path d="M303.0 1376.0 v12 a8.0 2.5 0 0 0 16 0 v-12 M303.0 1381.0 a8.0 2.5 0 0 0 16 0"/></g>
-<text x="311.0" y="1416" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Redis</text>
-<rect x="450.0" y="1363" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="469.0" cy="1376.0" rx="8.0" ry="2.5"/><path d="M461.0 1376.0 v12 a8.0 2.5 0 0 0 16 0 v-12 M461.0 1381.0 a8.0 2.5 0 0 0 16 0"/></g>
-<text x="469.0" y="1416" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Valkey</text>
-<rect x="608.0" y="1363" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="618.0" y="1374.0" width="18" height="16" rx="2"/><path d="M618.0 1379.0 h18 M621.0 1383.0 h6"/></g>
-<text x="627.0" y="1416" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Memcached</text>
-<rect x="766.0" y="1363" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M778.0 1390.0 h14 M785.0 1387.0 v-12 M781.0 1376.0 l4-4 4 4"/></g>
-<text x="785.0" y="1416" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Varnish</text>
-<rect x="292.0" y="1437" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="311.0" cy="1456.0" r="9.0"/><circle cx="311.0" cy="1456.0" r="2"/><path d="M311.0 1448.0 v3"/></g>
-<text x="311.0" y="1490" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">OpenSearch</text>
-<rect x="450.0" y="1437" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="469.0" cy="1456.0" r="9.0"/><circle cx="469.0" cy="1456.0" r="2"/><path d="M469.0 1448.0 v3"/></g>
-<text x="469.0" y="1490" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">ElasticSearch</text>
+<rect x="232" y="162" width="632" height="158" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
+<rect x="292" y="179" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,198) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle r="9"/><path d="M-9 0 h18 M0 -9 c-6 4 -6 14 0 18 c6 -4 6 -14 0 -18"/></g>
+<text x="311" y="232" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Domains</text>
+<rect x="450" y="179" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,198) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-7" y="-9" width="14" height="18" rx="2"/><path d="M-4 -4 h8 M-4 0 h8 M-4 4 h5"/></g>
+<text x="469" y="232" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">DNS Zone Editor</text>
+<rect x="608" y="179" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,198) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-7 -1 a7 7 0 0 1 12 -4 M7 1 a7 7 0 0 1 -12 4"/><path d="M5 -9 v4 h-4 M-5 9 v-4 h4"/></g>
+<text x="627" y="232" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Dynamic DNS</text>
+<rect x="766" y="179" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,198) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-7" y="-2" width="14" height="10" rx="1.5"/><path d="M-4 -2 v-3 a4 4 0 0 1 8 0 v3"/></g>
+<text x="785" y="232" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">SSL Certificates</text>
+<rect x="292" y="253" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,272) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-2 2 l4 -4"/><path d="M-1 -5 l2 -2 a3.5 3.5 0 0 1 5 5 l-2 2 M1 5 l-2 2 a3.5 3.5 0 0 1 -5 -5 l2 -2"/></g>
+<text x="311" y="306" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Redirects</text>
+<rect x="232" y="340" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<rect x="232" y="352" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
+<text x="250" y="365" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Websites</text>
+<path d="M840 362 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="232" y="384" width="632" height="84" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
+<rect x="292" y="401" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,420) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-9" y="-8" width="18" height="16" rx="2"/><path d="M-9 -3 h18"/><circle cx="-6" cy="-5.5" r="0.6"/><circle cx="-3.5" cy="-5.5" r="0.6"/></g>
+<text x="311" y="454" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Sites</text>
+<rect x="450" y="401" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,420) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle r="9"/><path d="M-6 -3 l3 9 l3 -7 l3 7 l3 -9"/></g>
+<text x="469" y="454" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">WordPress</text>
+<rect x="608" y="401" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,420) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-8 8 h16 M0 -9 v13 M-4 0 l4 4 4 -4"/></g>
+<text x="627" y="454" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Install App</text>
+<rect x="766" y="401" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,420) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="-4" cy="-6" r="2"/><circle cx="-4" cy="6" r="2"/><circle cx="5" cy="-2" r="2"/><path d="M-4 -4 v8 M5 0 c0 4 -9 2 -9 4"/></g>
+<text x="785" y="454" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Git</text>
+<rect x="232" y="488" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<rect x="232" y="500" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
+<text x="250" y="513" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Email</text>
+<path d="M840 510 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="232" y="532" width="632" height="232" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
+<rect x="292" y="549" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,568) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-9" y="-6" width="18" height="13" rx="2"/><path d="M-8.5 -5 l8.5 6 l8.5 -6"/></g>
+<text x="311" y="602" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Email Accounts</text>
+<rect x="450" y="549" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,568) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle r="3.5"/><path d="M3.5 -3 v4 a2.5 2.5 0 0 0 5 0 v-1 a8.5 8.5 0 1 0 -3.5 7"/></g>
+<text x="469" y="602" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Aliases</text>
+<rect x="608" y="549" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,568) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-9" y="-6" width="14" height="11" rx="2"/><path d="M-8.5 -5 l6.5 4.5 l6.5 -4.5"/><circle cx="6" cy="6" r="3"/></g>
+<text x="627" y="602" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Catch-all Address</text>
+<rect x="766" y="549" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,568) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-9 -8 h18 l-7 9 v7 l-4 -2 v-5 z"/></g>
+<text x="785" y="602" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Filters</text>
+<rect x="292" y="623" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,642) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-9" y="-6" width="14" height="11" rx="2"/><path d="M-8.5 -5 l6.5 4.5 l6.5 -4.5 M3 6 l2 2 4 -4"/></g>
+<text x="311" y="676" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Deliverability</text>
+<rect x="450" y="623" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,642) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-9" y="-6" width="14" height="11" rx="2"/><path d="M-8.5 -5 l6.5 4.5 l6.5 -4.5 M6 9 v-6 M3.5 5.5 l2.5 -2.5 2.5 2.5"/></g>
+<text x="469" y="676" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Import</text>
+<rect x="608" y="623" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,642) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-8 -3 h15 M3 -7 l4 4 -4 4 M8 4 h-15 M-3 0 l-4 4 4 4"/></g>
+<text x="627" y="676" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Migrate</text>
+<rect x="766" y="623" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,642) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-9" y="-6" width="14" height="11" rx="2"/><path d="M-8.5 -5 l6.5 4.5 l6.5 -4.5 M6 3 v6 M3.5 6.5 l2.5 2.5 2.5 -2.5"/></g>
+<text x="785" y="676" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Export</text>
+<rect x="292" y="697" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,716) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-8" y="-6" width="13" height="13" rx="2"/><path d="M1 -9 h8 v8 M9 -9 l-8 8"/></g>
+<text x="311" y="750" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Webmail</text>
+<rect x="232" y="784" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<rect x="232" y="796" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
+<text x="250" y="809" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Files</text>
+<path d="M840 806 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="232" y="828" width="632" height="158" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
+<rect x="292" y="845" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,864) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-9 -6 v13 a1 1 0 0 0 1 1 h16 a1 1 0 0 0 1 -1 v-9 a1 1 0 0 0 -1 -1 h-8 l-2 -2 h-6 a1 1 0 0 0 -1 1 z"/></g>
+<text x="311" y="898" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">File Manager</text>
+<rect x="450" y="845" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,864) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-8 8 h16 M0 4 v-13 M-4 -5 l4 -4 4 4"/></g>
+<text x="469" y="898" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Upload</text>
+<rect x="608" y="845" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,864) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-8 8 h16 M0 -9 v13 M-4 0 l4 4 4 -4"/></g>
+<text x="627" y="898" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Download from URL</text>
+<rect x="766" y="845" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,864) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-7 -5 h14 M-5 -5 v-2 h10 v2 M-6 -5 l1 13 h10 l1 -13 M-2 -1 v6 M2 -1 v6"/></g>
+<text x="785" y="898" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Trash</text>
+<rect x="292" y="919" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,938) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-9 -6 v13 a1 1 0 0 0 1 1 h16 a1 1 0 0 0 1 -1 v-9 a1 1 0 0 0 -1 -1 h-8 l-2 -2 h-6 a1 1 0 0 0 -1 1 z M-4 5 c0 -4 3 -5 7 -5 M1 -3 l2.5 3 -2.5 3"/></g>
+<text x="311" y="972" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">FTP Accounts</text>
+<rect x="450" y="919" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,938) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-9 -6 v13 a1 1 0 0 0 1 1 h16 a1 1 0 0 0 1 -1 v-9 a1 1 0 0 0 -1 -1 h-8 l-2 -2 h-6 a1 1 0 0 0 -1 1 z M-4 5 c0 -4 3 -5 7 -5 M1 -3 l2.5 3 -2.5 3"/></g>
+<text x="469" y="972" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">FTP Connections</text>
+<rect x="608" y="919" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,938) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-7" y="-9" width="14" height="18" rx="2"/><path d="M-3 -4 v5 M2 -4 a1.5 2.5 0 1 0 0.01 0 M-3 4 a1.5 2 0 1 0 0.01 0 M2 3 v4"/></g>
+<text x="627" y="972" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Fix Permissions</text>
+<rect x="232" y="1006" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<rect x="232" y="1018" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
+<text x="250" y="1031" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Backups</text>
+<path d="M840 1028 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="232" y="1050" width="632" height="158" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
+<rect x="292" y="1067" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,1086) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-9 -6 v13 a1 1 0 0 0 1 1 h16 a1 1 0 0 0 1 -1 v-9 a1 1 0 0 0 -1 -1 h-8 l-2 -2 h-6 a1 1 0 0 0 -1 1 z M-3 2 l2.5 2.5 4.5 -4.5"/></g>
+<text x="311" y="1120" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Backups</text>
+<rect x="450" y="1067" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,1086) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-7 -2 a7.5 7.5 0 1 1 2 6"/><path d="M-8 -7 v5 h5 M0 -4 v4 l3 2"/></g>
+<text x="469" y="1120" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Restore</text>
+<rect x="608" y="1067" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,1086) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle r="3"/><path d="M0 -9 v3 M0 6 v3 M-9 0 h3 M6 0 h3 M-6.4 -6.4 l2.1 2.1 M4.3 4.3 l2.1 2.1 M-6.4 6.4 l2.1 -2.1 M4.3 -4.3 l2.1 -2.1"/><circle r="6"/></g>
+<text x="627" y="1120" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Configuration</text>
+<rect x="766" y="1067" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,1086) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-5 6 h-1 a4.5 4.5 0 0 1 0 -9 a6 6 0 0 1 11.5 1 a4 4 0 0 1 0.5 8 h-1"/><path d="M0 9 v-8 M-3 4 l3 -3 3 3"/></g>
+<text x="785" y="1120" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Destination</text>
+<rect x="292" y="1141" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,1160) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-5 6 h-1 a4.5 4.5 0 0 1 0 -9 a6 6 0 0 1 11.5 1 a4 4 0 0 1 0.5 8 h-1"/><path d="M0 0 v9 M-3 6 l3 3 3 -3"/></g>
+<text x="311" y="1194" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Backup Wizard</text>
+<rect x="232" y="1228" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<rect x="232" y="1240" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
+<text x="250" y="1253" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">MySQL</text>
+<path d="M840 1250 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="232" y="1272" width="632" height="232" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
+<rect x="292" y="1289" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,1308) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cy="-6" rx="8" ry="2.5"/><path d="M-8 -6 v12 a8 2.5 0 0 0 16 0 v-12 M-8 0 a8 2.5 0 0 0 16 0"/></g>
+<text x="311" y="1342" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Databases</text>
+<rect x="450" y="1289" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,1308) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="-3" cy="-3" r="3.2"/><circle cx="4" cy="-3" r="3.2"/><path d="M-8.5 8 c0 -6 10 -6 10 0 M-0.5 8 c0 -6 10 -6 10 0"/></g>
+<text x="469" y="1342" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Users</text>
+<rect x="608" y="1289" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,1308) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="-2" cy="-6" rx="6.8" ry="2"/><path d="M-8.8 -6 v8 a6.8 2 0 0 0 13.6 0 v-8 M7 2 v6 M4 5 h6"/></g>
+<text x="627" y="1342" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Database Wizard</text>
+<rect x="766" y="1289" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,1308) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="-2" cy="-6" rx="6.8" ry="2"/><path d="M-8.8 -6 v8 a6.8 2 0 0 0 13.6 0 v-8 M7 0 v7 M4 4 l3 3 3 -3"/></g>
+<text x="785" y="1342" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Import</text>
+<rect x="292" y="1363" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,1382) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-8" y="-6" width="13" height="13" rx="2"/><path d="M1 -9 h8 v8 M9 -9 l-8 8"/></g>
+<text x="311" y="1416" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">phpMyAdmin</text>
+<rect x="450" y="1363" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,1382) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-1 -8 h9 v16 h-9 M-9 0 h10 M-2 -3 l3 3 -3 3"/></g>
+<text x="469" y="1416" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">phpMyAdmin Login Form</text>
+<rect x="608" y="1363" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,1382) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-8" y="-9" width="16" height="7" rx="1.5"/><path d="M0 -2 v5 M-7 7 h14 M-7 3 v4 M7 3 v4 M0 3 v4"/></g>
+<text x="627" y="1416" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Remote Access</text>
+<rect x="766" y="1363" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,1382) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="0" cy="-6" rx="7.5" ry="2.3"/><path d="M-7.5 -6 v12 a7.5 2.3 0 0 0 15 0 v-12 M-9 -9 l18 18"/></g>
+<text x="785" y="1416" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Running Queries</text>
+<rect x="292" y="1437" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,1456) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="-2" cy="-6" rx="6.8" ry="2"/><path d="M-8.8 -6 v10 a6.8 2 0 0 0 9 1.8"/><rect x="3" y="2" width="7" height="6" rx="1"/><path d="M4.5 2 v-1.5 a2 2 0 0 1 4 0 v1.5"/></g>
+<text x="311" y="1490" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Configuration</text>
+<rect x="450" y="1437" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,1456) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="-4" cy="0" r="4"/><path d="M0 0 h9 M6 0 v3 M9 0 v3"/></g>
+<text x="469" y="1490" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Root Password</text>
+<rect x="608" y="1437" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,1456) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-9" y="-5" width="18" height="10" rx="5"/><circle cx="-4" cy="0" r="3"/></g>
+<text x="627" y="1490" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Server Type</text>
 <rect x="232" y="1524" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
 <rect x="232" y="1536" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
-<text x="250" y="1549" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Emails</text>
+<text x="250" y="1549" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">PostgreSQL</text>
 <path d="M840 1546 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <rect x="232" y="1568" width="632" height="158" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
-<rect x="292.0" y="1585" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="303.0" y="1598.0" width="16" height="12" rx="2"/><path d="M303.0 1599.0 l8 6 l8 -6"/></g>
-<text x="311.0" y="1638" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Email Accounts</text>
-<rect x="450.0" y="1585" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="466.2" cy="1600.8" r="3.2"/><circle cx="472.2" cy="1600.8" r="3.2"/><path d="M461.0 1612.0 c0-6.0 10.0-6.0 10.0 0 M469.0 1612.0 c0-6.0 10.0-6.0 10.0 0"/></g>
-<text x="469.0" y="1638" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Aliases</text>
-<rect x="608.0" y="1585" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="619.0" y="1596.0" width="16" height="16" rx="2"/><path d="M622.0 1601.0 h10 M622.0 1604.0 h10 M622.0 1607.0 h5"/></g>
-<text x="627.0" y="1638" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Filters</text>
-<rect x="766.0" y="1585" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M778.0 1612.0 h14 M785.0 1609.0 v-12 M781.0 1598.0 l4-4 4 4"/></g>
-<text x="785.0" y="1638" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Email Deliverability</text>
-<rect x="292.0" y="1659" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="303.0" y="1672.0" width="16" height="12" rx="2"/><path d="M303.0 1673.0 l8 6 l8 -6"/><path d="M321 1663.5 l0.9 2.1 l2.1 0.9 l-2.1 0.9 l-0.9 2.1 l-0.9 -2.1 l-2.1 -0.9 l2.1 -0.9 z"/></g>
-<text x="311.0" y="1712" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Default Address</text>
-<rect x="450.0" y="1659" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="467.0" cy="1672.0" rx="6.800000000000001" ry="2"/><path d="M461.0 1672.0 v6 a6.800000000000001 2 0 0 0 13.600000000000001 0 v-6"/><path d="M475.0 1670.0 v6 M472.0 1673.0 l3 3 3-3"/></g>
-<text x="469.0" y="1712" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Address Importer</text>
-<rect x="608.0" y="1659" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M620.0 1686.0 h14 M627.0 1669.0 v12 M623.0 1679.0 l4 4 4-4"/></g>
-<text x="627.0" y="1712" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Address Exporter</text>
+<rect x="292" y="1585" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,1604) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cy="-6" rx="8" ry="2.5"/><path d="M-8 -6 v12 a8 2.5 0 0 0 16 0 v-12 M-8 0 a8 2.5 0 0 0 16 0"/></g>
+<text x="311" y="1638" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Databases</text>
+<rect x="450" y="1585" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,1604) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="-3" cy="-3" r="3.2"/><circle cx="4" cy="-3" r="3.2"/><path d="M-8.5 8 c0 -6 10 -6 10 0 M-0.5 8 c0 -6 10 -6 10 0"/></g>
+<text x="469" y="1638" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Users</text>
+<rect x="608" y="1585" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,1604) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="-2" cy="-6" rx="6.8" ry="2"/><path d="M-8.8 -6 v8 a6.8 2 0 0 0 13.6 0 v-8 M7 2 v6 M4 5 h6"/></g>
+<text x="627" y="1638" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Database Wizard</text>
+<rect x="766" y="1585" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,1604) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="-2" cy="-6" rx="6.8" ry="2"/><path d="M-8.8 -6 v8 a6.8 2 0 0 0 13.6 0 v-8 M7 0 v7 M4 4 l3 3 3 -3"/></g>
+<text x="785" y="1638" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Import</text>
+<rect x="292" y="1659" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,1678) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-8" y="-9" width="16" height="7" rx="1.5"/><path d="M0 -2 v5 M-7 7 h14 M-7 3 v4 M7 3 v4 M0 3 v4"/></g>
+<text x="311" y="1712" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Remote Access</text>
+<rect x="450" y="1659" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,1678) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="0" cy="-6" rx="7.5" ry="2.3"/><path d="M-7.5 -6 v12 a7.5 2.3 0 0 0 15 0 v-12 M-9 -9 l18 18"/></g>
+<text x="469" y="1712" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Running Queries</text>
+<rect x="608" y="1659" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,1678) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="-2" cy="-6" rx="6.8" ry="2"/><path d="M-8.8 -6 v10 a6.8 2 0 0 0 9 1.8"/><rect x="3" y="2" width="7" height="6" rx="1"/><path d="M4.5 2 v-1.5 a2 2 0 0 1 4 0 v1.5"/></g>
+<text x="627" y="1712" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Configuration</text>
 <rect x="232" y="1746" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
 <rect x="232" y="1758" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
-<text x="250" y="1771" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">PHP</text>
+<text x="250" y="1771" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">MongoDB</text>
 <path d="M840 1768 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="232" y="1790" width="632" height="84" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
-<rect x="292.0" y="1807" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="303.0" y="1818.0" width="16" height="16" rx="2"/><path d="M306.0 1823.0 h6 M306.0 1826.0 h8 M306.0 1829.0 h4"/></g>
-<text x="311.0" y="1860" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Select PHP Version</text>
-<rect x="450.0" y="1807" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="461.0" y="1818.0" width="16" height="16" rx="2"/><path d="M464.0 1824.0 l2.5 2.5 5-5"/></g>
-<text x="469.0" y="1860" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Default Version</text>
-<rect x="608.0" y="1807" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="619.0" y="1818.0" width="16" height="16" rx="2"/><path d="M622.0 1823.0 h10 M622.0 1826.0 h10 M622.0 1829.0 h6"/></g>
-<text x="627.0" y="1860" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">PHP Options</text>
-<rect x="766.0" y="1807" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M776.0 1821.0 h18 v13 h-18 z"/><path d="M779.0 1825.0 h8 M779.0 1828.0 h5"/></g>
-<text x="785.0" y="1860" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">PHP.INI Editor</text>
-<rect x="232" y="1894" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
-<rect x="232" y="1906" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
-<text x="250" y="1919" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Docker</text>
-<path d="M840 1916 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="232" y="1938" width="632" height="158" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
-<rect x="292.0" y="1955" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="302.0" y="1966.0" width="18" height="16" rx="2"/><path d="M302.0 1971.0 h18 M305.0 1975.0 h6"/></g>
-<text x="311.0" y="2008" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Containers</text>
-<rect x="450.0" y="1955" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="461.0" y="1966.0" width="16" height="16" rx="2"/><path d="M464.0 1971.0 h10 M464.0 1975.0 h6"/></g>
-<text x="469.0" y="2008" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Terminal</text>
-<rect x="608.0" y="1955" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="619.0" y="1966.0" width="16" height="16" rx="2"/><path d="M622.0 1971.0 h10 M622.0 1974.0 h10 M622.0 1977.0 h6"/></g>
-<text x="627.0" y="2008" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Logs</text>
-<rect x="766.0" y="1955" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M777.0 1970.0 a8.0 7.0 0 1 1 0 12" /><path d="M777.0 1966.0 v4 h4 M793.0 1982.0 v-4 h-4"/></g>
-<text x="785.0" y="2008" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Image Updates</text>
-<rect x="292.0" y="2029" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="303.0" y="2040.0" width="16" height="16" rx="2"/><path d="M306.0 2045.0 h6 M306.0 2048.0 h8 M306.0 2051.0 h4"/></g>
-<text x="311.0" y="2082" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Change Image Tag</text>
-<rect x="450.0" y="2029" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M463.0 2040.0 v4 M475.0 2040.0 v4 M461.0 2044.0 h16 v3 a8.0 8.0 0 0 1-16 0 z M469.0 2052.0 v4"/></g>
-<text x="469.0" y="2082" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Change Web Server</text>
-<rect x="608.0" y="2029" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="627.0" cy="2042.0" rx="8.0" ry="2.5"/><path d="M619.0 2042.0 v12 a8.0 2.5 0 0 0 16 0 v-12 M619.0 2047.0 a8.0 2.5 0 0 0 16 0"/></g>
-<text x="627.0" y="2082" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Change MySQL Type</text>
-<rect x="232" y="2116" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
-<rect x="232" y="2128" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
-<text x="250" y="2141" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Advanced</text>
-<path d="M840 2138 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="232" y="2160" width="632" height="232" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
-<rect x="292.0" y="2177" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="303.0" y="2188.0" width="16" height="16" rx="2"/><path d="M306.0 2193.0 h10 M306.0 2196.0 h10 M306.0 2199.0 h6"/></g>
-<text x="311.0" y="2230" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Services</text>
-<rect x="450.0" y="2177" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="461.0" y="2188.0" width="16" height="16" rx="2"/><path d="M464.0 2193.0 h10 M464.0 2196.0 h10 M464.0 2199.0 h5"/></g>
-<text x="469.0" y="2230" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Cron Jobs</text>
-<rect x="608.0" y="2177" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="627.0" cy="2196.0" r="9.0"/><path d="M625.4 2193.2 v5.6000000000000005 M628.6 2193.2 v5.6000000000000005"/></g>
-<text x="627.0" y="2230" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">IP Blocker</text>
-<rect x="766.0" y="2177" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M777.0 2204.0 v-16 M777.0 2204.0 h16"/><path d="M779.0 2201.0 l3-3 3 2 4-5"/></g>
-<text x="785.0" y="2230" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Resource Usage</text>
-<rect x="292.0" y="2251" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M303.0 2278.0 v-16 M303.0 2278.0 h16"/><path d="M305.0 2275.0 l3-3 3 2 4-5"/></g>
-<text x="311.0" y="2304" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Resource History</text>
-<rect x="450.0" y="2251" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="461.0" y="2262.0" width="16" height="16" rx="2"/><path d="M464.0 2267.0 h10 M464.0 2271.0 h6"/></g>
-<text x="469.0" y="2304" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Process Manager</text>
-<rect x="608.0" y="2251" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="619.0" y="2262.0" width="16" height="16" rx="2"/><path d="M622.0 2267.0 h6 M622.0 2270.0 h8 M622.0 2273.0 h4"/></g>
-<text x="627.0" y="2304" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Web Server Config</text>
-<rect x="766.0" y="2251" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="778.0 " y="2268.0" width="14" height="10" rx="1.5"/><path d="M780.5 2268.0 v-3 a2.8000000000000003 2.8000000000000003 0 0 1 5.6000000000000005 0 v3"/></g>
-<text x="785.0" y="2304" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">WAF Settings</text>
-<rect x="292.0" y="2325" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="304.0 " y="2342.0" width="14" height="10" rx="1.5"/><path d="M306.5 2342.0 v-3 a2.8000000000000003 2.8000000000000003 0 0 1 5.6000000000000005 0 v3"/></g>
-<text x="311.0" y="2378" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">WAF Logs</text>
-<rect x="450.0" y="2325" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M460.0 2339.0 h18 v13 h-18 z"/><path d="M463.0 2343.0 h8 M463.0 2346.0 h5"/></g>
-<text x="469.0" y="2378" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Server Info</text>
+<rect x="232" y="1790" width="632" height="158" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
+<rect x="292" y="1807" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,1826) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cy="-6" rx="8" ry="2.5"/><path d="M-8 -6 v12 a8 2.5 0 0 0 16 0 v-12 M-8 0 a8 2.5 0 0 0 16 0"/></g>
+<text x="311" y="1860" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Databases</text>
+<rect x="450" y="1807" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,1826) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="-3" cy="-3" r="3.2"/><circle cx="4" cy="-3" r="3.2"/><path d="M-8.5 8 c0 -6 10 -6 10 0 M-0.5 8 c0 -6 10 -6 10 0"/></g>
+<text x="469" y="1860" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Users</text>
+<rect x="608" y="1807" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,1826) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="-2" cy="-6" rx="6.8" ry="2"/><path d="M-8.8 -6 v8 a6.8 2 0 0 0 13.6 0 v-8 M7 2 v6 M4 5 h6"/></g>
+<text x="627" y="1860" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Database Wizard</text>
+<rect x="766" y="1807" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,1826) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="-2" cy="-6" rx="6.8" ry="2"/><path d="M-8.8 -6 v8 a6.8 2 0 0 0 13.6 0 v-8 M7 0 v7 M4 4 l3 3 3 -3"/></g>
+<text x="785" y="1860" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Import</text>
+<rect x="292" y="1881" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,1900) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="0" cy="-6" rx="7.5" ry="2.3"/><path d="M-7.5 -6 v12 a7.5 2.3 0 0 0 15 0 v-12 M-9 -9 l18 18"/></g>
+<text x="311" y="1934" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Running Queries</text>
+<rect x="232" y="1968" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<rect x="232" y="1980" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
+<text x="250" y="1993" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">PHP</text>
+<path d="M840 1990 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="232" y="2012" width="632" height="158" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
+<rect x="292" y="2029" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,2048) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-8" y="-8" width="16" height="16" rx="2"/><path d="M-3 -3 l-3 3 3 3 M3 -3 l3 3 -3 3"/></g>
+<text x="311" y="2082" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Version per Domain</text>
+<rect x="450" y="2029" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,2048) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse rx="9" ry="6"/><path d="M-5 3 l1.5 -6 h2 a1.3 1.3 0 0 1 0 2.6 h-2 M1 3 l1.5 -6 M2 0 h2.5 l-0.8 3"/></g>
+<text x="469" y="2082" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Default Version</text>
+<rect x="608" y="2029" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,2048) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-9 -4 h18 M-9 4 h18"/><circle cx="3" cy="-4" r="2.2"/><circle cx="-3" cy="4" r="2.2"/></g>
+<text x="627" y="2082" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Options</text>
+<rect x="766" y="2029" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,2048) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-8 -5 h4 a2.5 2.5 0 1 1 5 0 h4 v4 a2.5 2.5 0 1 1 0 5 v4 h-13 z"/></g>
+<text x="785" y="2082" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Extensions</text>
+<rect x="292" y="2103" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,2122) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-7" y="-9" width="14" height="18" rx="2"/><path d="M-4 -4 h8 M-4 0 h8 M-4 4 h5"/></g>
+<text x="311" y="2156" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">php.ini Editor</text>
+<rect x="232" y="2190" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<rect x="232" y="2202" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
+<text x="250" y="2215" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Cache &amp; Search</text>
+<path d="M840 2212 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="232" y="2234" width="632" height="158" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
+<rect x="292" y="2251" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,2270) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cy="-6" rx="8" ry="2.5"/><path d="M-8 -6 v12 a8 2.5 0 0 0 16 0 v-12"/><rect x="-3" y="0" width="6" height="5" rx="1"/><path d="M-1.8 0 v-1.5 a1.8 1.8 0 0 1 3.6 0 v1.5"/></g>
+<text x="311" y="2304" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Redis</text>
+<rect x="450" y="2251" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,2270) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cy="-6" rx="8" ry="2.5"/><path d="M-8 -6 v12 a8 2.5 0 0 0 16 0 v-12"/><rect x="-3" y="0" width="6" height="5" rx="1"/><path d="M-1.8 0 v-1.5 a1.8 1.8 0 0 1 3.6 0 v1.5"/></g>
+<text x="469" y="2304" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Valkey</text>
+<rect x="608" y="2251" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,2270) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-8" y="-9" width="16" height="7" rx="1.5"/><path d="M0 -2 v5 M-7 7 h14 M-7 3 v4 M7 3 v4 M0 3 v4"/></g>
+<text x="627" y="2304" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Memcached</text>
+<rect x="766" y="2251" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,2270) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M2 -9 l-8 11 h6 l-2 7 8 -11 h-6 z"/></g>
+<text x="785" y="2304" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Varnish</text>
+<rect x="292" y="2325" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,2344) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="-2" cy="-2" r="6"/><path d="M2.5 2.5 l6 6"/></g>
+<text x="311" y="2378" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">OpenSearch</text>
+<rect x="450" y="2325" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,2344) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="-2" cy="-2" r="6"/><path d="M2.5 2.5 l6 6 M-2 1 l-2.5 -2.5 a1.5 1.5 0 0 1 2.5 -2 a1.5 1.5 0 0 1 2.5 2 z"/></g>
+<text x="469" y="2378" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Elasticsearch</text>
 <rect x="232" y="2412" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
 <rect x="232" y="2424" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
-<text x="250" y="2437" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Account</text>
+<text x="250" y="2437" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Web Server Config</text>
 <path d="M840 2434 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="232" y="2456" width="632" height="158" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
-<rect x="292.0" y="2473" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="303.0" y="2484.0" width="16" height="16" rx="2"/><path d="M306.0 2490.0 l2.5 2.5 5-5"/></g>
-<text x="311.0" y="2526" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Email &amp; Password</text>
-<rect x="450.0" y="2473" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="469.0" cy="2492.0" r="9.0"/><path d="M460.0 2492.0 h18 M469.0 2483.0 c-6.800000000000001 4.0 -6.800000000000001 12.0 0 18 c6.800000000000001-8.0 6.800000000000001-16.0 0-18"/></g>
-<text x="469.0" y="2526" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Change Language</text>
-<rect x="608.0" y="2473" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M627 2481 c-3.5 0 -6 2.8 -6 6.2 v3.3 l-2 3 h16 l-2 -3 v-3.3 c0 -3.4 -2.5 -6.2 -6 -6.2 z"/><path d="M624 2494.5 a3 3 0 0 0 6 0"/></g>
-<text x="627.0" y="2526" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Email Notifications</text>
-<rect x="766.0" y="2473" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="778.0 " y="2490.0" width="14" height="10" rx="1.5"/><path d="M780.5 2490.0 v-3 a2.8000000000000003 2.8000000000000003 0 0 1 5.6000000000000005 0 v3"/></g>
-<text x="785.0" y="2526" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Two-Factor Auth</text>
-<rect x="292.0" y="2547" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="308.2" cy="2562.8" r="3.2"/><circle cx="314.2" cy="2562.8" r="3.2"/><path d="M303.0 2574.0 c0-6.0 10.0-6.0 10.0 0 M311.0 2574.0 c0-6.0 10.0-6.0 10.0 0"/></g>
-<text x="311.0" y="2600" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Active Sessions</text>
-<rect x="450.0" y="2547" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M460.0 2561.0 v13 a1 1 0 0 0 1 1 h16 a1 1 0 0 0 1-1 v-9 a1 1 0 0 0-1-1 h-8.0 l-2-2 h-5.6000000000000005 a1 1 0 0 0-1 1 z"/></g>
-<text x="469.0" y="2600" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Favorite Pages</text>
-<rect x="608.0" y="2547" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M619.0 2574.0 v-16 M619.0 2574.0 h16"/><path d="M621.0 2571.0 l3-3 3 2 4-5"/></g>
-<text x="627.0" y="2600" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Account Activity</text>
-<rect x="766.0" y="2547" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
-<g stroke="#3b82f6" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M784.0 2558.0 h9 v16 h-9 M777.0 2566.0 h9 M783.0 2563.0 l3 3-3 3"/></g>
-<text x="785.0" y="2600" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Login History</text>
+<rect x="232" y="2456" width="632" height="84" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
+<rect x="292" y="2473" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,2492) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-8" y="-9" width="16" height="7" rx="1.5"/><path d="M0 -2 v5 M-7 7 h14 M-7 3 v4 M7 3 v4 M0 3 v4"/></g>
+<text x="311" y="2526" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Server Settings</text>
+<rect x="450" y="2473" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,2492) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-7" y="-9" width="14" height="18" rx="2"/><path d="M-4 -4 h8 M-4 0 h8 M-4 4 h5"/></g>
+<text x="469" y="2526" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Domain VHosts</text>
+<rect x="608" y="2473" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,2492) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-9" y="-5" width="18" height="10" rx="5"/><circle cx="4" cy="0" r="3"/></g>
+<text x="627" y="2526" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Web Server Type</text>
+<rect x="232" y="2560" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<rect x="232" y="2572" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
+<text x="250" y="2585" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Containers</text>
+<path d="M840 2582 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="232" y="2604" width="632" height="158" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
+<rect x="292" y="2621" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,2640) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-8 1 h7 v7 h-7 z M1 1 h7 v7 h-7 z M-3.5 -7 h7 v7 h-7 z"/></g>
+<text x="311" y="2674" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Containers</text>
+<rect x="450" y="2621" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,2640) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-9" y="-7" width="18" height="14" rx="2"/><path d="M-5 -2 l3 2.5 -3 2.5 M1 4 h4"/></g>
+<text x="469" y="2674" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Terminal</text>
+<rect x="608" y="2621" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,2640) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-7" y="-9" width="14" height="18" rx="2"/><path d="M-3 -4 v5 M2 -4 v5 M-3 4 v1 M2 4 v1"/></g>
+<text x="627" y="2674" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Logs</text>
+<rect x="766" y="2621" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,2640) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-8 -8 h7 l9 9 -7 7 -9 -9 z"/><circle cx="-4" cy="-4" r="1.3"/></g>
+<text x="785" y="2674" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Software Versions</text>
+<rect x="292" y="2695" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,2714) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-8" y="-6" width="16" height="14" rx="2"/><path d="M-8 -2 h16 M-4 -9 v4 M4 -9 v4 M-4 2 h2 M1 2 h2 M-4 5 h2"/></g>
+<text x="311" y="2748" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Cron Jobs</text>
+<rect x="450" y="2695" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,2714) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle r="9"/><path d="M0 -5 v5 l3.5 2.5"/></g>
+<text x="469" y="2748" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Change TimeZone</text>
+<rect x="232" y="2782" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<rect x="232" y="2794" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
+<text x="250" y="2807" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Account</text>
+<path d="M840 2804 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="232" y="2826" width="632" height="158" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
+<rect x="292" y="2843" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,2862) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="-2" cy="-4" r="3.5"/><path d="M-9 8 c0 -6 9 -7 11 -3"/><circle cx="6" cy="5" r="2"/><path d="M6 1 v1.5 M6 7.5 v1.5 M2 5 h1.5 M8.5 5 h1.5"/></g>
+<text x="311" y="2896" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Login Details</text>
+<rect x="450" y="2843" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,2862) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-9 -6 h9 M-4.5 -8 v2 M-7 -6 c1 4 4 7 7 8 M-2 -6 c-1 4 -4 7 -7 8 M2 9 l3.5 -9 3.5 9 M3.3 5.5 h4.5"/></g>
+<text x="469" y="2896" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Language</text>
+<rect x="608" y="2843" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,2862) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-6 4 v-4 a6 6 0 0 1 12 0 v4 l2 2 h-16 z M-2 7 a2 2 0 0 0 4 0"/></g>
+<text x="627" y="2896" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Notifications</text>
+<rect x="766" y="2843" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,2862) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M0 -9 l2.6 5.6 6.1 0.7 -4.5 4.2 1.2 6 -5.4 -3 -5.4 3 1.2 -6 -4.5 -4.2 6.1 -0.7 z"/></g>
+<text x="785" y="2896" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Favorites</text>
+<rect x="292" y="2917" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,2936) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-4 -9 c-3 0 -3 2 -3 4 v2 c0 2 -2 3 -2 3 c0 0 2 1 2 3 v2 c0 2 0 4 3 4 M4 -9 c3 0 3 2 3 4 v2 c0 2 2 3 2 3 c0 0 -2 1 -2 3 v2 c0 2 0 4 -3 4"/></g>
+<text x="311" y="2970" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">API</text>
+<rect x="450" y="2917" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,2936) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-8" y="-4" width="16" height="12" rx="3"/><path d="M0 -4 v-4"/><circle cx="0" cy="-8.5" r="1"/><circle cx="-3.5" cy="1.5" r="1.3"/><circle cx="3.5" cy="1.5" r="1.3"/></g>
+<text x="469" y="2970" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">AI Assistant (MCP)</text>
+<rect x="608" y="2917" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,2936) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-7 9 v-17 h10 v17 M-9 9 h14 M3 -8 l5 2 v15"/><circle cx="0" cy="1" r="0.8"/></g>
+<text x="627" y="2970" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Log out</text>
+<rect x="232" y="3004" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<rect x="232" y="3016" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
+<text x="250" y="3029" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Statistics</text>
+<path d="M840 3026 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="232" y="3048" width="632" height="232" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
+<rect x="292" y="3065" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,3084) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-9 4 a9 9 0 1 1 18 0"/><path d="M0 4 l4 -6"/><circle cx="0" cy="4" r="1.5"/></g>
+<text x="311" y="3118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Resource Usage</text>
+<rect x="450" y="3065" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,3084) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-9 4 a9 9 0 1 1 18 0"/><path d="M0 4 l4 -6 M-6 8 h12"/></g>
+<text x="469" y="3118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Resource Usage History</text>
+<rect x="608" y="3065" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,3084) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-9 -6 v13 a1 1 0 0 0 1 1 h16 a1 1 0 0 0 1 -1 v-9 a1 1 0 0 0 -1 -1 h-8 l-2 -2 h-6 a1 1 0 0 0 -1 1 z M0 0 v6 M-3 3 h6"/></g>
+<text x="627" y="3118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Disk Usage</text>
+<rect x="766" y="3065" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,3084) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-9 -6 v13 a1 1 0 0 0 1 1 h16 a1 1 0 0 0 1 -1 v-9 a1 1 0 0 0 -1 -1 h-8 l-2 -2 h-6 a1 1 0 0 0 -1 1 z M-2.5 0.5 l5 5 M2.5 0.5 l-5 5"/></g>
+<text x="785" y="3118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Inode Usage</text>
+<rect x="292" y="3139" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,3158) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-6" y="-9" width="14" height="18" rx="2"/><path d="M-9 -5 h3 M-9 0 h3 M-9 5 h3 M-2 -4 h7 M-2 0 h7"/></g>
+<text x="311" y="3192" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Daily Summary</text>
+<rect x="450" y="3139" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,3158) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-9 -9 v18 h18 M-6 4 l4 -5 4 3 6 -8"/></g>
+<text x="469" y="3192" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Visitor Statistics</text>
+<rect x="608" y="3139" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,3158) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-7" y="-9" width="14" height="18" rx="2"/><path d="M-4 -4 h8 M-4 0 h8 M-4 4 h5"/></g>
+<text x="627" y="3192" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Access Logs</text>
+<rect x="766" y="3139" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,3158) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="0" cy="2" rx="5" ry="7"/><path d="M0 -5 v14 M-5 0 h-4 M5 0 h4 M-5 5 l-3 3 M5 5 l3 3 M-4 -4 l-3 -3 M4 -4 l3 -3"/></g>
+<text x="785" y="3192" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Error Logs</text>
+<rect x="292" y="3213" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,3232) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-8" y="-8" width="16" height="16" rx="2"/><path d="M0 -1 v6"/><circle cx="0" cy="-4" r="0.8"/></g>
+<text x="311" y="3266" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Server Info</text>
+<rect x="232" y="3300" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<rect x="232" y="3312" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
+<text x="250" y="3325" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Processes &amp; Services</text>
+<path d="M840 3322 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="232" y="3344" width="632" height="84" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
+<rect x="292" y="3361" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,3380) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-8" y="-8" width="16" height="7" rx="1.5"/><rect x="-8" y="1" width="16" height="7" rx="1.5"/><circle cx="4.5" cy="-4.5" r="0.8"/><circle cx="4.5" cy="4.5" r="0.8"/></g>
+<text x="311" y="3414" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Services</text>
+<rect x="450" y="3361" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,3380) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-6" y="-6" width="12" height="12" rx="1.5"/><rect x="-2.5" y="-2.5" width="5" height="5"/><path d="M-3 -9 v3 M3 -9 v3 M-3 6 v3 M3 6 v3 M-9 -3 h3 M-9 3 h3 M6 -3 h3 M6 3 h3"/></g>
+<text x="469" y="3414" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Processes</text>
+<rect x="232" y="3448" width="632" height="40" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<rect x="232" y="3460" width="3" height="16" rx="1.5" fill="#3b82f6" stroke="none" stroke-width="1" />
+<text x="250" y="3473" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="13.5" font-weight="700" fill="#e7eaef" text-anchor="start">Security</text>
+<path d="M840 3470 l4-4 4 4" stroke="#6d7889" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="232" y="3492" width="632" height="232" rx="0" fill="#0e131c" stroke="#1b2330" stroke-width="1" />
+<rect x="292" y="3509" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,3528) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M0 -9 l8 3 v5 c0 5 -4 8 -8 10 c-4 -2 -8 -5 -8 -10 v-5 z"/><rect x="-3" y="-1" width="6" height="5" rx="1"/><path d="M-1.8 -1 v-1.5 a1.8 1.8 0 0 1 3.6 0 v1.5"/></g>
+<text x="311" y="3562" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Web Firewall</text>
+<rect x="450" y="3509" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,3528) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M0 -9 l8 3 v5 c0 5 -4 8 -8 10 c-4 -2 -8 -5 -8 -10 v-5 z M0 -4 v5"/><circle cx="0" cy="4" r="0.8"/></g>
+<text x="469" y="3562" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Web Firewall Logs</text>
+<rect x="608" y="3509" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,3528) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle r="9"/><path d="M-6.4 -6.4 l12.8 12.8"/></g>
+<text x="627" y="3562" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">IP Blocker</text>
+<rect x="766" y="3509" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,3528) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-9 -5 v-4 h4 M5 -9 h4 v4 M9 5 v4 h-4 M-5 9 h-4 v-4 M-5 -4 v8 M-2 -4 v8 M1 -4 v8 M5 -4 v8"/></g>
+<text x="785" y="3562" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Malware Scanner</text>
+<rect x="292" y="3583" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,3602) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-6 6 c-2 -4 -2 -10 3 -12 c5 -2 10 2 9 7 M-3 8 c-2 -4 -2 -9 3 -9 c3 0 4 3 3 7 M0 9 c0 -3 0 -5 0 -8 M3 9 c1 -2 2 -4 2 -6"/></g>
+<text x="311" y="3636" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Two-Factor Auth</text>
+<rect x="450" y="3583" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(469,3602) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="-4" cy="-3" r="4"/><path d="M-1 0 l8 8 M3 4 l2 -2 M5 6 l2 -2"/></g>
+<text x="469" y="3636" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Passkeys</text>
+<rect x="608" y="3583" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(627,3602) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="-3" cy="-3" r="3.2"/><circle cx="4" cy="-3" r="3.2"/><path d="M-8.5 8 c0 -6 10 -6 10 0 M-0.5 8 c0 -6 10 -6 10 0"/></g>
+<text x="627" y="3636" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Active Sessions</text>
+<rect x="766" y="3583" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(785,3602) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-9 0 h4 l2 -7 4 14 2 -7 h6"/></g>
+<text x="785" y="3636" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Activity Log</text>
+<rect x="292" y="3657" width="38" height="38" rx="10" fill="#0f1420" stroke="#1b2330" stroke-width="1" />
+<g transform="translate(311,3676) scale(1)" stroke="#3b82f6" stroke-width="1.50" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="-2" cy="-4" r="3.5"/><path d="M-9 8 c0 -6 9 -7 11 -3 M5 2 l4 4 M9 2 l-4 4"/></g>
+<text x="311" y="3710" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6d7889" text-anchor="middle">Login History</text>
 </g>
-<use href="#opAppsBlock" y="2516"/>
+<use href="#opAppsBlock" y="3626"/>
 </g>
 </g>
 </g>

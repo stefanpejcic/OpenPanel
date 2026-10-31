@@ -24,7 +24,7 @@ When the license's next due date is 3 days away or less, a warning is shown unde
 
 ## Contact Support
 
-When reaching out to support, generate a system report to provide detailed information about your setup.
+When reaching out to support, generate a system report to provide detailed information about your setup. **Generate report** saves the report on the server and shows the path to the file, send its content to the support team.
 
 ![Contact Support section with the Generate report button](/img/openadmin-screenshots/license-support.png#gh-light-mode-only)
 ![Contact Support section with the Generate report button](/img/openadmin-screenshots/license-support_dark.png#gh-dark-mode-only)

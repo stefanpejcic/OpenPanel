@@ -130,7 +130,7 @@ const faq = [
     },
     {
         question: "Is OpenPanel open source?",
-        answer: "Yes, OpenAdmin, configuration, and terminal commands are all 100% open source. The only thing that's closed is the core for the OpenPanel UI and its enterprise-only modules, such as FTP, emails, Docker manager, and API.",
+        answer: "Yes, nothing is closed. The full source code of OpenPanel is on GitHub: OpenAdmin, the OpenPanel UI with all Enterprise modules like FTP, emails, Docker manager and API, OpenCLI and the configuration files. OpenCLI and the configuration are licensed under CC BY-NC 4.0, the web interfaces under the OpenPanel EULA.",
     },
     {
         question: "What operating systems does OpenPanel Community support?",

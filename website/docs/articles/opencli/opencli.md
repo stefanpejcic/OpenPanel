@@ -303,7 +303,7 @@ Description: Check system services, traffic and resource usage, and log/send cus
 Usage: opencli sentinel [--startup] [--report] [--action=<name> --title=<title> --message=<msg> [--severity=<level>] [--details=<json> [--merge-key=<key>]] [--no-send]]
 ------------------------
 opencli server-logrotate
-Description: Configures logrotate for caddy, openpanel, syslog.
+Description: Configures logrotate for caddy, openpanel, syslog and limits the journald size.
 Usage: opencli server-logrotate
 ------------------------
 opencli server-migrate
@@ -446,5 +446,249 @@ opencli locale
 Description: Install locales (Languages) for OpenPanel UI.
 Usage: opencli locale <CODE>
 ------------------------
+```
+</details>
+
+## Multi-Server
+
+On a [Multi-Server](/docs/admin/system/multi-server/) master that has other servers, OpenCLI works with all of them from the master's terminal. On a single server or on a slave, every command works exactly as before.
+
+| Commands | On the master |
+|---|---|
+| `user-list`, `domains-all`, `websites-all`, `plan-list`, `ftp-list`, `email-manage setup email list` | Show every server, under a header with the server name. With `--json` the output of all servers is joined into one and every item gets a `server` field. |
+| `user-suspend`, `user-unsuspend`, `user-password`, `user-change_plan`, `user-quota --update`, `user-2fa`, `user-email`, `user-login`, `user-delete`, `php-default`, `domains-user`, `websites-user`, `ftp-list <USERNAME>` | Run on the server that has the account. |
+| `domains-suspend`, `domains-unsuspend`, `domains-delete`, `domains-ssl`, `domains-dns`, `domains-docroot`, `domains-update_ns`, `domains-whoowns` | Run on the server that has the domain. |
+| `config`, `waf`, `plan-create`, `plan-edit`, `plan-delete`, `domains-update_ns --all`, `license`, `update`, `sentinel`, `version`, `imunify`, `api`, `email-server` | Take `--all-servers` to run on the master and then on every other server. |
+
+Paused servers are left out. When an account or domain exists on the master, the command runs on the master.
+
+Three flags work with these commands:
+
+- `--local` runs the command only on the current server, like on a single server.
+- `--server=<NAME>` runs the command on one server. The name can be the full hostname, the short name or the server id. `user-add` and `domains-add` use it to create the account or domain on another server.
+- `--all-servers` runs the command on the master and every other server, one after another.
+
+### List from all servers
+
+```bash
+opencli user-list
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+── server1.example.com ──
+USERNAME   EMAIL              STATUS  ONLINE  2FA  IP ADDRESS            PLAN           DOMAINS
+john       john@example.com   Active  No      Off  203.0.113.10 (shared)  Standard plan  1
+── server2.example.com ──
+No users.
+── server3.example.com ──
+USERNAME   EMAIL              STATUS  ONLINE  2FA  IP ADDRESS            PLAN           DOMAINS
+jane       jane@example.com   Active  No      Off  203.0.113.12 (shared)  Developer Plus 2
+```
+</details>
+
+```bash
+opencli user-list --json
+```
+
+<details>
+  <summary>Example output</summary>
+
+```json
+{
+  "data": [
+    {
+      "server": "server1.example.com",
+      "id": 1003,
+      "username": "john",
+      ...
+    },
+    {
+      "server": "server3.example.com",
+      "id": 1001,
+      "username": "jane",
+      ...
+    }
+  ],
+  ...
+}
+```
+</details>
+
+Numbers are added up:
+
+```bash
+opencli user-list --total --json
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+2
+```
+</details>
+
+Only the current server:
+
+```bash
+opencli user-list --local
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+USERNAME   EMAIL              STATUS  ONLINE  2FA  IP ADDRESS            PLAN           DOMAINS
+john       john@example.com   Active  No      Off  203.0.113.10 (shared)  Standard plan  1
+```
+</details>
+
+### Run on the server that has the account
+
+```bash
+opencli user-suspend jane -y
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+Running on server3.example.com, where jane is.
+User 'jane' suspended successfully.
+```
+</details>
+
+```bash
+opencli domains-whoowns jane.example.net
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+Running on server3.example.com, where jane.example.net is.
+Owner of 'jane.example.net': jane
+```
+</details>
+
+### Run on one server
+
+```bash
+opencli user-add bob generate bob@example.com "Standard plan" --server=server2
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+── server2.example.com ──
+[✔] Successfully added user bob with password: Xk2pQ8vLm4Rt7sWz
+```
+</details>
+
+```bash
+opencli domains-add bob.example.org bob --server=server2
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+── server2.example.com ──
+Domain bob.example.org added successfully
+```
+</details>
+
+### Run on all servers
+
+```bash
+opencli version --all-servers
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+── server1.example.com ──
+2.0.20
+── server2.example.com ──
+2.0.20
+── server3.example.com ──
+2.0.20
+```
+</details>
+
+```bash
+opencli config update autoupdate off --all-servers
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+── server1.example.com ──
+Updated autoupdate to off
+── server2.example.com ──
+Updated autoupdate to off
+── server3.example.com ──
+Updated autoupdate to off
+```
+</details>
+
+Plan ids differ between servers, so `plan-edit --all-servers` edits the plan with the same name on every server:
+
+```bash
+opencli plan-edit id=17 name="Standard plan" description="Small plan" emails=2 ftp=1 domains=1 websites=1 disk=1 inodes=100000 databases=1 cpu=1 ram=1 bandwidth=10 feature_set=basic max_email_quota=1G max_hourly_email=10 --all-servers
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+── server1.example.com ──
+Successfully updated plan id 17
+── server2.example.com ──
+Successfully updated plan id 9
+── server3.example.com ──
+Successfully updated plan id 9
+```
+</details>
+
+`api`, `license` and `update` restart OpenAdmin on the other servers. The command keeps running there, but the master can't show its output:
+
+```bash
+opencli api on --all-servers
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+── server1.example.com ──
+Updated api to on
+── server2.example.com ──
+Error: OpenAdmin restarted while the command ran, it keeps running there, check the result with --server=server2.example.com
+── server3.example.com ──
+Error: OpenAdmin restarted while the command ran, it keeps running there, check the result with --server=server3.example.com
+```
+</details>
+
+```bash
+opencli api status --all-servers
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+── server1.example.com ──
+on
+── server2.example.com ──
+on
+── server3.example.com ──
+on
 ```
 </details>

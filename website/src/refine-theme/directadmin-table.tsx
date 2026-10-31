@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import clsx from "clsx";
+import { FeatureTooltip } from "./enterprise-table";
+import { comparisonTip } from "./comparison-tooltips";
 
 import { CheckCircle } from "@site/src/refine-theme/icons/check-circle";
 import { CrossCircle } from "@site/src/refine-theme/icons/cross-circle";
@@ -250,7 +252,13 @@ const TableItem = ({
                 )}
             >
                 <TableItemDescription isLast={isLast}>
-                    {description}
+                    {comparisonTip(description) ? (
+                        <FeatureTooltip features={[comparisonTip(description)]}>
+                            {description}
+                        </FeatureTooltip>
+                    ) : (
+                        description
+                    )}
                 </TableItemDescription>
                 <TableItemContentGroup
                     {...{ directadmin, openpanel, activeTab, isLast, valueType }}
@@ -361,6 +369,7 @@ const TableTabs = ({ activeTab, setActiveTab }) => {
                         )}
                     >
                         DirectAdmin
+                        <span className={clsx("block", "text-left", "text-xs landing-sm:text-sm", "font-normal", "dark:text-gray-400 text-gray-500")}>5 - 29$/ month</span>
                     </div>
                 </div>
                 <div
@@ -404,6 +413,7 @@ const TableTabs = ({ activeTab, setActiveTab }) => {
                         )}
                     >
                         OpenPanel Enterprise
+                        <span className={clsx("block", "text-left", "text-xs landing-sm:text-sm", "font-normal", "dark:text-gray-400 text-gray-500")}>14.95€ / month</span>
                     </div>
                 </div>
             </div>
@@ -718,6 +728,15 @@ const tableData = [
     {
         title: "Advanced",
         items: [
+            {
+                description: "Multi-Server management",
+                directadmin: <TableText>DNS only</TableText>,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    directadmin: "text",
+                    openpanel: "icon",
+                },
+            },
             {
                 description: "API for every UI action",
                 directadmin: <CheckIcon />,
@@ -1294,6 +1313,24 @@ const tableData = [
                 openpanel: <TableText>Containerized</TableText>,
                 valueType: {
                     directadmin: "text",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Ruby Applications",
+                directadmin: <TableText>Only with CloudLinux</TableText>,
+                openpanel: <TableText>Containerized</TableText>,
+                valueType: {
+                    directadmin: "text",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Java Applications",
+                directadmin: <CrossIcon />,
+                openpanel: <TableText>Containerized</TableText>,
+                valueType: {
+                    directadmin: "icon",
                     openpanel: "text",
                 },
             },

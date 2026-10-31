@@ -16,22 +16,7 @@ Information collected successfully. Please provide content of the following file
 ```
 </details>
 
-To upload the report to support.openpanel.org and get a key to share when asking for support:
-```bash
-opencli report --public
-```
-
-<details>
-  <summary>Example output</summary>
-
-```bash
-# opencli report --public
-Information collected successfully. Please provide the following key to the support team:
-XXXXXXXXXX
-```
-</details>
-
-`--link` and `--upload` are aliases for `--public`.
+Reports are not uploaded anywhere, send the content of the file to the support team. `--public`, `--link` and `--upload` are still accepted so older commands keep working, but they no longer upload the report.
 
 For plain output without progress messages, screen clearing or colors (useful in scripts):
 ```bash
@@ -63,7 +48,7 @@ Information collected successfully. Please provide content of the following file
 ```
 </details>
 
-Flags can be combined, e.g. `opencli report --user stefan --public`.
+Flags can be combined, e.g. `opencli report --user stefan --non-interactive`.
 
 The report is saved to `/var/log/openpanel/admin/reports/` (readable by root only) and contains:
 

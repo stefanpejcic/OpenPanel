@@ -25,7 +25,7 @@
     </div>
 
     {{with .Summary}}{{if .State}}
-    {{$icon := $.Service}}{{if eq $.Service "litespeed"}}{{$icon = "openlitespeed"}}{{end}}
+    {{$icon := $.Service}}
     <section class="op-kpis" aria-label="{{$.T.Get "Web server"}}">
         <div class="op-kpi"><div class="op-kpi-label">{{if $icon}}<img src="{{static (printf "img/servers/%s.svg" $icon)}}" alt="" width="16" height="16">{{else}}{{template "op_icon" "server"}}{{end}} {{$.T.Get "Web server"}}</div><div class="op-kpi-value" style="font-size:20px">{{if .Version}}{{.Version}}{{else}}{{title $.Service}}{{end}}</div><div class="op-kpi-note">{{if .Image}}<span class="op-mono">{{.Image}}</span>{{else}}&nbsp;{{end}}</div></div>
         <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "box"}} {{$.T.Get "Container"}}</div><div class="op-kpi-value" style="font-size:20px">{{if .Running}}<span class="op-status is-success">{{$.T.Get "Running"}}</span>{{else if eq .State "not_found"}}<span class="op-status is-muted">{{$.T.Get "Not created"}}</span>{{else}}<span class="op-status is-danger">{{$.T.Get "Stopped"}}</span>{{end}}</div><div class="op-kpi-note"><span class="op-mono">{{$.Service}}</span>{{if .Uptime}} · {{$.T.Get "up"}} {{.Uptime}}{{end}}</div></div>
@@ -63,6 +63,57 @@
     }
     </script>
     {{end}}{{end}}
+
+    {{if eq .Service "litespeed"}}
+    <section class="op-card" aria-label="{{.T.Get "LiteSpeed license"}}" x-data="litespeedLicense()" x-init="load()" style="padding:16px 20px">
+        <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between">
+            <div style="min-width:0">
+                <h3 style="margin:0">{{.T.Get "LiteSpeed license"}}</h3>
+                <p class="op-meta" x-show="loading">{{.T.Get "Checking license..."}}</p>
+                <p class="op-meta" x-show="!loading" x-cloak><span x-text="type === 'trial' ? '{{.T.Get "Trial license"}}' : (type === 'none' ? '{{.T.Get "No license"}}' : '{{.T.Get "Your serial number"}}')"></span><span x-show="message">: <span class="op-mono" x-text="message"></span></span></p>
+                <p class="op-hint is-invalid" x-show="error" x-text="error" x-cloak></p>
+                <p class="op-hint" style="color:var(--color-success)" x-show="notice" x-text="notice" x-cloak></p>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+                <input type="text" class="op-input op-mono" style="width:16rem;max-width:100%" x-model="serial" placeholder="{{.T.Get "Serial number"}}" autocomplete="off" aria-label="{{.T.Get "Serial number"}}" @keydown.enter.prevent="serial.trim() && save()">
+                <button type="button" class="op-btn op-btn-primary" @click="save()" :disabled="busy || !serial.trim()">{{.T.Get "Save serial"}}</button>
+                <button type="button" class="op-btn op-btn-secondary" x-show="type === 'serial' || type === 'license'" @click="trial()" :disabled="busy" x-cloak>{{.T.Get "Use trial"}}</button>
+            </div>
+        </div>
+    </section>
+    <script>
+    function litespeedLicense() {
+        return {
+            loading: true, busy: false, type: '', message: '', serial: '', error: '', notice: '',
+            call(method, body) {
+                this.busy = true;
+                // a status reload keeps the message of the save before it
+                if (method !== 'GET') { this.error = ''; this.notice = ''; }
+                return fetch('/server/webserver_conf/litespeed-license', {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf_token },
+                    body: body ? JSON.stringify(body) : undefined
+                }).then(r => r.json()).then(d => {
+                    this.busy = false;
+                    if (d.error) { this.error = d.error; }
+                    return d;
+                }).catch(() => { this.busy = false; this.error = '{{.T.Get "Could not reach the server."}}'; return {}; });
+            },
+            load() {
+                this.loading = true;
+                this.call('GET').then(d => { this.loading = false; this.type = d.type || ''; this.message = d.message || ''; });
+            },
+            save() {
+                this.call('POST', { serial: this.serial }).then(d => { if (d.success) { this.notice = d.message; this.serial = ''; } this.load(); });
+            },
+            trial() {
+                if (!confirm('{{.T.Get "Remove the serial number and go back to a trial license?"}}')) { return; }
+                this.call('POST', { trial: true }).then(d => { if (d.success) { this.notice = d.message; } this.load(); });
+            }
+        };
+    }
+    </script>
+    {{end}}
 
     {{if .Path}}
     {{with .TestFailure}}
