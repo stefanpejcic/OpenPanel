@@ -91,7 +91,7 @@ func handleRateLimitExceeded(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 	locale := resolveLocale(a, r, sess)
 	t := a.I18n.Translator(locale)
-	flash.Add(sess, "danger", t.Get("Too many failed login attempts. Please try again later."))
+	flash.Add(sess, "warning", t.Get("Too many failed login attempts. Please try again later."))
 	_ = a.Sessions.Save(r, w, sess)
 	http.Redirect(w, r, "/login", http.StatusFound)
 }

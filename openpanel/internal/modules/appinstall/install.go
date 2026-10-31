@@ -154,10 +154,13 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	pidsLimit := getValidatedInt(r.FormValue("pids_limit"), "500")
 
 	var appPort int
-	if portStr := r.FormValue("port"); portStr != "" {
-		if p, perr := strconv.Atoi(portStr); perr == nil && p >= 1 && p <= 65535 {
-			appPort = p
+	if portStr := strings.TrimSpace(r.FormValue("port")); portStr != "" && kind.AppType != "n8n" {
+		p, perr := strconv.Atoi(portStr)
+		if perr != nil || p < 1 || p > 65535 {
+			emit(map[string]any{"error": "Invalid port, use a number from 1 to 65535."})
+			return
 		}
+		appPort = p
 	}
 	if kind.AppType == "n8n" {
 		// n8n always listens on 5678 inside the container - not user-configurable, so the simplified n8n install form doesn't even show a port field
@@ -190,6 +193,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	docroot := docrootNull.String
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, topDomain) {
+		emit(map[string]any{"error": "You do not own this domain."})
 		return
 	}
 
@@ -239,6 +243,10 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		}
 		if len(ownerPassword) < 8 || len(ownerPassword) > 64 {
 			emit(map[string]any{"error": "Owner password must be 8 to 64 characters long."})
+			return
+		}
+		if !cmsapp.ValidEmail(ownerEmail) {
+			emit(map[string]any{"error": "Invalid owner email address."})
 			return
 		}
 	}

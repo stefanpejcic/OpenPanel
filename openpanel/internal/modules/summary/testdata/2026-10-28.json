@@ -1,0 +1,63 @@
+{
+  "username": "testinguser",
+  "date": "2026-10-28",
+  "from": "2026-10-28T00:00:00Z",
+  "to": "2026-10-29T00:00:00Z",
+  "generated_at": "2026-10-29T06:15:02.795164196Z",
+  "headline": "Your websites had no visitors. Nothing needs your attention.",
+  "prev_requests": 0,
+  "attention": [],
+  "look": [],
+  "good": [
+    "Your account stayed within its CPU and memory limits."
+  ],
+  "websites": [],
+  "logins": [],
+  "changes": [
+    "12:02 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "12:03 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "12:04 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "12:04 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "12:05 cancelled email migration",
+    "12:06 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "12:07 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "12:08 started email migration from src2@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "12:09 started email migration from src2@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "12:10 started email migration from src2@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "12:11 started email migration from src2@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "12:11 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "12:20 started email migration from src2@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "12:20 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "12:21 cancelled email migration",
+    "13:23 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "13:26 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "13:27 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "13:43 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "13:44 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "13:46 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "14:06 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "14:08 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "14:09 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "14:09 cancelled email migration",
+    "14:10 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org",
+    "14:10 cancelled email migration",
+    "14:12 started email migration from src@source-migtest.com@10.0.2.15 to dest@php.tests.openpanel.org"
+  ],
+  "usage": [
+    {
+      "title": "CPU at the busiest hour",
+      "used": "0.2 cores",
+      "total": "4.0 cores",
+      "percent": 4,
+      "limit": 90
+    },
+    {
+      "title": "Memory at the busiest hour",
+      "used": "384 MB",
+      "total": "6.0 GB",
+      "percent": 6,
+      "limit": 90
+    }
+  ],
+  "facts": []
+}

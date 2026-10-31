@@ -19,6 +19,19 @@ type SSLCertInfo struct {
 	Problem string // "" | "expiring" | "expired" | "missing" | "unreadable"
 	Expires string // 2006-01-02, empty when unknown
 	Issuer  string
+	Days    int // days until expiry, negative once expired
+}
+
+// Percent is how much of a 90 day certificate life is left, for the validity bar
+func (c SSLCertInfo) Percent() int {
+	p := c.Days * 100 / 90
+	if p < 3 {
+		p = 3
+	}
+	if p > 100 {
+		p = 100
+	}
+	return p
 }
 
 // sslCertPath uses the same layout opencli domains-ssl writes to
@@ -51,7 +64,7 @@ func readSSLCertInfo(domain, httpsType string) SSLCertInfo {
 		return SSLCertInfo{Problem: "unreadable"}
 	}
 
-	info := SSLCertInfo{Expires: cert.NotAfter.Format("2006-01-02"), Issuer: cert.Issuer.CommonName}
+	info := SSLCertInfo{Expires: cert.NotAfter.Format("2006-01-02"), Issuer: cert.Issuer.CommonName, Days: int(time.Until(cert.NotAfter).Hours() / 24)}
 	if len(cert.Issuer.Organization) > 0 {
 		info.Issuer = cert.Issuer.Organization[0]
 	}

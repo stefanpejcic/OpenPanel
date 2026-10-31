@@ -93,6 +93,7 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	docroot := docrootNull.String
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, topDomain) {
+		emit(map[string]any{"error": "You do not own this domain."})
 		return
 	}
 

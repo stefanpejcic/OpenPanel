@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -504,9 +503,6 @@ func apiDomainsGetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request
 	writeAPIDomainsJSON(w, http.StatusOK, map[string]string{"domain": domain, "redirect_url": getRedirectURL(domain)})
 }
 
-// apiHTTPURLRE requires the whole value to be a scheme plus at least one non-whitespace char, see httpURLRE in redirect.go for why a mere prefix check isn't enough
-var apiHTTPURLRE = regexp.MustCompile(`^https?://\S+$`)
-
 // apiDomainsSetRedirect sets or replaces a domain's redirect rule.
 func apiDomainsSetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -526,8 +522,9 @@ func apiDomainsSetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 	_ = json.NewDecoder(r.Body).Decode(&body)
 	redirectTo := strings.TrimSpace(body.RedirectURL)
-	if !apiHTTPURLRE.MatchString(redirectTo) {
-		writeAPIDomainsJSON(w, http.StatusBadRequest, map[string]string{"error": "redirect_url must start with http:// or https://."})
+	existing, _ := userRedirects(ctx, a, userID)
+	if msg, other := redirectTargetProblem(domain, redirectTo, redirectTargets(existing)); msg != "" {
+		writeAPIDomainsJSON(w, http.StatusBadRequest, map[string]string{"error": web.Tr(a, r, msg, "domain", domain, "other", other)})
 		return
 	}
 
@@ -537,7 +534,7 @@ func apiDomainsSetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request
 		writeAPIDomainsJSON(w, http.StatusInternalServerError, map[string]string{"error": readErr.Error()})
 		return
 	}
-	updated := insertOrReplaceRedirect(content, redirectTo)
+	updated := insertOrReplaceRedirect(content, redirectRule{To: redirectTo}, domain)
 	if writeErr := writeTextFile(confPath, updated); writeErr != nil {
 		writeAPIDomainsJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
@@ -574,7 +571,7 @@ func apiDomainsDeleteRedirect(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		writeAPIDomainsJSON(w, http.StatusInternalServerError, map[string]string{"error": readErr.Error()})
 		return
 	}
-	newContent := strings.ReplaceAll(content, "redir "+redirectURL, "")
+	newContent := removeRedirect(content, redirectURL)
 	if writeErr := writeTextFile(confPath, newContent); writeErr != nil {
 		writeAPIDomainsJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
@@ -1210,7 +1207,11 @@ func apiDomainsLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logPath := "/var/log/caddy/domlogs/" + domain + "/access.log"
+	logPath, ok := accessLogPath(domain)
+	if !ok {
+		writeAPIDomainsJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid domain."})
+		return
+	}
 	info, statErr := tenantfs.Stat(logPath)
 	if statErr != nil {
 		writeAPIDomainsJSON(w, http.StatusNotFound, map[string]string{"error": "Log file not found for " + domain + "."})
@@ -1224,6 +1225,11 @@ func apiDomainsLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	page := web.AtoiDefault(r.URL.Query().Get("page"), 1)
 	itemsPerPage := web.AtoiDefault(a.Config.Get("domain_log_per_page", "1000"), 1000)
 	showAll := r.URL.Query().Get("show_all") == "true"
+	// page 0 or a negative page used to slice out of range and panic
+	page = max(page, 1)
+	if itemsPerPage < 1 {
+		itemsPerPage = 1000
+	}
 
 	content, readErr := tenantfs.ReadFile(logPath)
 	if readErr != nil {
@@ -1231,19 +1237,7 @@ func apiDomainsLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var allLogs []AccessLogEntry
-	for _, line := range strings.Split(string(content), "\n") {
-		if strings.TrimSpace(line) == "" {
-			continue
-		}
-		var entry AccessLogEntry
-		if json.Unmarshal([]byte(line), &entry) == nil {
-			allLogs = append(allLogs, entry)
-		}
-	}
-	for i, j := 0, len(allLogs)-1; i < j; i, j = i+1, j-1 {
-		allLogs[i], allLogs[j] = allLogs[j], allLogs[i]
-	}
+	allLogs := parseAccessLog(string(content))
 	total := len(allLogs)
 
 	var logs []AccessLogEntry

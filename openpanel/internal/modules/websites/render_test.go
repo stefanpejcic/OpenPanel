@@ -18,6 +18,7 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 		NavGroups: web.BuildClassicSidebarNav(userAllowed, nil, path), UserAllowed: userAllowed,
 		UserAllowedJSON: web.UserAllowedList(userAllowed), CurrentUsername: "testuser",
 		RequestPath: path, AdminPort: "2087", PasswordStrength: 50, T: mgr.Translator("en"),
+		PageTabs: web.BuildPageTabs(userAllowed, nil, path, web.TabContext{}),
 	}
 }
 
@@ -136,14 +137,15 @@ func TestSiteManagerGitTab(t *testing.T) {
 			if hasTab != gitOn {
 				t.Errorf("%s: git tab shown = %v, want %v", name, hasTab, gitOn)
 			}
-			if !strings.Contains(body, "data-tab-overflow") {
+			// the vertical section rail has room for every tab, only the horizontal bar folds into More
+			if !strings.Contains(body, "op-mgr-rail") && !strings.Contains(body, "data-tab-overflow") {
 				t.Errorf("%s: tab bar is missing data-tab-overflow", name)
 			}
 		}
 	}
 }
 
-// the WordPress debugging tab shows the site's latest errors only when error_logs is allowed
+// the WordPress debugging tab shows the site's latest errors only when error_logs is allowed, below the debug.log card
 func TestWPDebuggingErrorLogs(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	for _, on := range []bool{true, false} {
@@ -159,8 +161,28 @@ func TestWPDebuggingErrorLogs(t *testing.T) {
 		if shown != on {
 			t.Errorf("error logs block shown = %v, want %v", shown, on)
 		}
-		if on && strings.Index(body, "exact: 1, limit: 10") > strings.Index(body, `id="updateDebugForm"`) {
-			t.Error("error logs block should come before the debugging settings")
+		if on && strings.Index(body, "exact: 1, limit: 10") < strings.Index(body, `x-data="wpDebugLog()"`) {
+			t.Error("error logs block should come after the debug.log card")
+		}
+	}
+}
+
+func TestRenderN8nAppPage(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	pd := pageData{LayoutData: baseLayout(mgr, "/website"), CurrentDomain: "flows.example.com", Docroot: "/var/www/html/flows.example.com"}
+	for _, status := range []string{"true", "false"} {
+		data := N8nAppPageData{
+			pageData:  pd,
+			Container: ContainerInfo{SiteName: "flows.example.com", Type: "n8n", Version: "1.64.0", CreatedDate: "2026-04-02", Port: "5678"},
+			Service:   "n8n", PM2Status: status, CPU: "1", RAM: "1", CurrentVersion: "1.64.0",
+			EnvVars: "N8N_HOST=flows.example.com\nGENERIC_TIMEZONE=UTC",
+		}
+		w := httptest.NewRecorder()
+		if err := n8nAppPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render (%s): %v", status, err)
+		}
+		if !strings.Contains(w.Body.String(), "N8N_HOST=flows.example.com") {
+			t.Errorf("expected env vars in the page (%s)", status)
 		}
 	}
 }

@@ -60,15 +60,47 @@ func renderFTPConnectionsPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 type FTPNewPageData struct {
 	web.LayoutData
 	Domains []domainOption
+	FTPNewForm
 }
 
-func renderNewFTPAccountPage(a *appctx.App, w http.ResponseWriter, r *http.Request, list []appctx.Domain) {
+// FTPNewForm is the create form's prefill and side column
+type FTPNewForm struct {
+	Domain, Username string
+	Folder           string // path under /var/www/html/, "" means the domain's document root
+	FTPHost, FTPPort string
+	Taken            []string // existing usernames, lower case
+}
+
+// newFTPForm reads the ?domain=&username=&path= a rejected submit comes back with
+func newFTPForm(a *appctx.App, r *http.Request, currentUsername string, list []appctx.Domain, accounts []Account) FTPNewForm {
+	q := r.URL.Query()
+	f := FTPNewForm{Username: q.Get("username")}
+	for _, d := range list {
+		if d.DomainURL == q.Get("domain") {
+			f.Domain = d.DomainURL
+		}
+	}
+	if p, ok := cleanFTPPath(ftpPathInput(q.Get("path"))); ok && q.Get("path") != "" {
+		f.Folder = strings.TrimPrefix(p, ftpRoot)
+	}
+	host := a.GetCachedIPForUserOrPublicIPv4(r.Context(), currentUsername)
+	if ip, ok := appctx.ReadDedicatedIPFromFile(currentUsername); ok {
+		host = ip
+	}
+	f.FTPHost, f.FTPPort = resolveFTPHostPort(host)
+	for _, acc := range accounts {
+		f.Taken = append(f.Taken, strings.ToLower(acc.Username))
+	}
+	return f
+}
+
+func renderNewFTPAccountPage(a *appctx.App, w http.ResponseWriter, r *http.Request, list []appctx.Domain, form FTPNewForm) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "New FTP Account")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := FTPNewPageData{LayoutData: layout, Domains: domainOptions(list)}
+	data := FTPNewPageData{LayoutData: layout, Domains: domainOptions(list), FTPNewForm: form}
 	if err := ftpNewPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("FTP - new account template render error: %v", err)
 	}
