@@ -598,6 +598,15 @@ const tableData = [
                 },
             },            
             {
+                description: "LiteSpeed",
+                cloudpanel: <CrossIcon />,
+                openpanel: <TableText>Per user, trial included</TableText>,
+                valueType: {
+                    cloudpanel: "icon",
+                    openpanel: "text",
+                },
+            },
+            {
                 description: "OpenLitespeed",
                 cloudpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,

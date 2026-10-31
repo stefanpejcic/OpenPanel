@@ -600,6 +600,15 @@ const tableData = [
                 },
             },            
             {
+                description: "LiteSpeed",
+                plesk: <TableText>Separate LiteSpeed license</TableText>,
+                openpanel: <TableText>Per user, trial included</TableText>,
+                valueType: {
+                    plesk: "text",
+                    openpanel: "text",
+                },
+            },
+            {
                 description: "OpenLitespeed",
                 plesk: <CrossIcon />,
                 openpanel: <CheckIcon />,
