@@ -227,10 +227,20 @@ func apiCronsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if containsAnyPattern(command, execPatterns) {
+		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": "job-run, job-local, and job-service-run are not allowed in command"})
+		return
+	}
+	var existing []CronJob
+	if existingContent, readErr := tenantfs.ReadFile(path); readErr == nil {
+		existing = ParseCronFile(string(existingContent))
+	}
+	if msg := newJobProblem(container, comment, autoComment, cronContainers(ctx, userContext), existing); msg != "" {
+		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": strings.NewReplacer("%(name)s", comment, "%(container)s", container).Replace(msg)})
+		return
+	}
 	if autoComment {
-		if existingContent, readErr := tenantfs.ReadFile(path); readErr == nil {
-			comment = uniqueCronComment(ParseCronFile(string(existingContent)), comment)
-		}
+		comment = uniqueCronComment(existing, comment)
 	}
 
 	truncatedComment := comment

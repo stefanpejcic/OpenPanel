@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 )
 
 const twoJobs = `[job-exec "backup"]
@@ -179,5 +181,29 @@ func TestSetComposeCronTZ(t *testing.T) {
 	}
 	if _, err := setComposeCronTZ("services:\n    apache:\n        image: x\n", "UTC"); err == nil {
 		t.Error("expected an error without a cron service")
+	}
+}
+
+func TestDescribeSchedule(t *testing.T) {
+	tr := i18n.NewManager(t.TempDir(), nil).Translator("en")
+	cases := map[string]string{
+		"0 0 3 * * *":    "Every day at 03:00",
+		"0 */5 * * * *":  "Every 5 minutes",
+		"*/30 * * * * *": "Every 30 seconds",
+		"0 * * * * *":    "Every minute",
+		"0 15 * * * *":   "Every hour at minute 15",
+		"0 0 */6 * * *":  "Every 6 hours",
+		"0 30 2 * * 0":   "Sundays at 02:30",
+		"0 0 4 1 * *":    "Monthly on day 1 at 04:00",
+		"15 0 1 * * *":   "Every day at 01:00:15",
+		"@daily":         "Every day at 00:00",
+		"@every 10s":     "Every 10s",
+		"0 0 1 1 1 *":    "",
+		"garbage":        "",
+	}
+	for in, want := range cases {
+		if got := describeSchedule(tr, in); got != want {
+			t.Errorf("describeSchedule(%q) = %q, want %q", in, got, want)
+		}
 	}
 }
