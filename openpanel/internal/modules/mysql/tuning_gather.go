@@ -31,6 +31,10 @@ func rowsToMap(rows [][]any) map[string]string {
 
 // gatherTuningStats collects everything BuildRecommendations needs from the running server
 func gatherTuningStats(ctx context.Context, a *appctx.App, userContext string) (TuningStats, error) {
+	// php-fpm -tt per container is the slow part, so it runs while the queries below do
+	phpWorkers := make(chan int, 1)
+	go func() { phpWorkers <- dbtuning.PHPWorkers(ctx, userContext) }()
+
 	s := TuningStats{
 		EngineData: map[string]int64{}, EngineIndex: map[string]int64{}, EngineTables: map[string]int64{},
 		AvailableKeys: availableConfKeys,
@@ -80,7 +84,7 @@ func gatherTuningStats(ctx context.Context, a *appctx.App, userContext string) (
 	}
 
 	gatherInsights(ctx, userContext, &s)
-	s.PHPWorkers = dbtuning.PHPWorkers(ctx, userContext)
+	s.PHPWorkers = <-phpWorkers
 
 	service := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
 	if service == "mysql" || service == "mariadb" {

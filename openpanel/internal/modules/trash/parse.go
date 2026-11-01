@@ -95,6 +95,10 @@ func parseLsOutputTrash(output, trashInfoContent string) []Entry {
 			}
 		}
 		name = strings.Trim(name, "'\"")
+		// the trash's own bookkeeping, not something the user put there, the api listed it as an item
+		if name == ".trash_restore" {
+			continue
+		}
 
 		var entryType string
 		switch {

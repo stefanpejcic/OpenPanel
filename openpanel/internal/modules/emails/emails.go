@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -279,6 +280,11 @@ func getDedicatedOrSharedIP(ctx context.Context, currentUsername string) string 
 	if ip, ok := appctx.ReadDedicatedIPFromFile(currentUsername); ok {
 		return ip
 	}
+	publicIPCache.mu.Lock()
+	defer publicIPCache.mu.Unlock()
+	if publicIPCache.ip != "" && time.Since(publicIPCache.at) < publicIPTTL {
+		return publicIPCache.ip
+	}
 	out, err := exec.CommandContext(ctx, "curl", "-4", "https://ip.openpanel.com").Output()
 	if err != nil {
 		return "mail.example.com"
@@ -287,7 +293,17 @@ func getDedicatedOrSharedIP(ctx context.Context, currentUsername string) string 
 	if ipStr == "" {
 		return "mail.example.com"
 	}
+	publicIPCache.ip, publicIPCache.at = ipStr, time.Now()
 	return ipStr
+}
+
+// the shared public ip was fetched with curl on every email page load, it practically never changes
+const publicIPTTL = 10 * time.Minute
+
+var publicIPCache struct {
+	mu sync.Mutex
+	ip string
+	at time.Time
 }
 
 // NEW EMAIL
@@ -744,13 +760,20 @@ func getEmailRestriction(direction, email string) string {
 
 func getSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, email string, userID int, currentUsername string, userDomains map[string]bool, maxEmailQuotaNumeric float64, allocatedUnit string) {
 	ctx := r.Context()
-	sendRestriction := getEmailRestriction("send", email)
-	receiveRestriction := getEmailRestriction("receive", email)
+	// each of these shells out, side by side the page waits for the slowest one instead of all of them
+	var (
+		sendRestriction, receiveRestriction, serverIP, dedicatedIP string
+		emailLines                                                 []string
+		wg                                                         sync.WaitGroup
+	)
+	wg.Add(5)
+	go func() { defer wg.Done(); sendRestriction = getEmailRestriction("send", email) }()
+	go func() { defer wg.Done(); receiveRestriction = getEmailRestriction("receive", email) }()
+	go func() { defer wg.Done(); serverIP = a.GetCachedIPForUserOrPublicIPv4(ctx, currentUsername) }()
+	go func() { defer wg.Done(); dedicatedIP = getDedicatedOrSharedIP(ctx, currentUsername) }()
+	go func() { defer wg.Done(); emailLines = GetEmailList(ctx, a, userID, currentUsername, userDomains) }()
+	wg.Wait()
 
-	serverIP := a.GetCachedIPForUserOrPublicIPv4(ctx, currentUsername)
-	dedicatedIP := getDedicatedOrSharedIP(ctx, currentUsername)
-
-	emailLines := GetEmailList(ctx, a, userID, currentUsername, userDomains)
 	currentEmailsList := ""
 	for _, line := range emailLines {
 		if strings.Contains(line, email) {

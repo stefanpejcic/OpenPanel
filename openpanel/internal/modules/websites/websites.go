@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -271,17 +272,14 @@ func handlePageSpeed(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/sites", http.StatusFound)
 			return
 		}
-		cmd := exec.Command("opencli", "websites-pagespeed", websiteParam)
-		if startErr := cmd.Start(); startErr == nil {
-			go func() { _ = cmd.Wait() }()
-		}
+		pageSpeedFailures.forget(websiteParam)
+		startPageSpeedJob(websiteParam, pageSpeedFilePath(websiteParam))
 		_ = logger.RecordUserAction(a.Config, currentUsername, "initiated refresh for PageSpeed data on website "+websiteParam, reqip.ClientIP(r))
 		http.Redirect(w, r, "/sites", http.StatusFound)
 		return
 	}
 
-	filename := strings.ReplaceAll(strings.ReplaceAll(websiteParam, "://", "_"), "/", "_") + ".json"
-	filePath := filepath.Join("/etc/openpanel/openpanel/websites", filename)
+	filePath := pageSpeedFilePath(websiteParam)
 
 	if content, readErr := tenantfs.ReadFile(filePath); readErr == nil {
 		var data map[string]any
@@ -296,16 +294,84 @@ func handlePageSpeed(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"message": "Invalid website parameter"})
 		return
 	}
-	out, runErr := exec.CommandContext(ctx, "opencli", "websites-pagespeed", websiteParam).CombinedOutput()
-	message := strings.TrimSpace(string(out))
-	if message == "" {
-		message = "No data yet, please allow a few minutes for data gathering.."
+	// a site google can't reach writes no file, so without this every page view waited ~18s for the same error
+	if f, ok := pageSpeedFailures.get(websiteParam); ok {
+		web.WriteJSON(w, f.status, map[string]string{"message": f.message})
+		return
 	}
-	status := http.StatusOK
-	if runErr != nil {
-		status = http.StatusInternalServerError
+	// the page polls every 15s while it gets this message, the run itself takes ~20s
+	startPageSpeedJob(websiteParam, filePath)
+	web.WriteJSON(w, http.StatusOK, map[string]string{"message": "No data yet, please allow a few minutes for data gathering.."})
+}
+
+func pageSpeedFilePath(websiteParam string) string {
+	filename := strings.ReplaceAll(strings.ReplaceAll(websiteParam, "://", "_"), "/", "_") + ".json"
+	return filepath.Join("/etc/openpanel/openpanel/websites", filename)
+}
+
+const pageSpeedRunTimeout = 3 * time.Minute
+
+var pageSpeedRunning sync.Map
+
+// startPageSpeedJob runs opencli in the background, one run per site at a time, and remembers the error when google couldn't load the site
+func startPageSpeedJob(websiteParam, filePath string) {
+	if _, busy := pageSpeedRunning.LoadOrStore(websiteParam, struct{}{}); busy {
+		return
 	}
-	web.WriteJSON(w, status, map[string]string{"message": message})
+	go func() {
+		defer pageSpeedRunning.Delete(websiteParam)
+		ctx, cancel := context.WithTimeout(context.Background(), pageSpeedRunTimeout)
+		defer cancel()
+		out, _ := exec.CommandContext(ctx, "opencli", "websites-pagespeed", websiteParam).CombinedOutput()
+		if _, statErr := tenantfs.Stat(filePath); statErr == nil {
+			return
+		}
+		message := strings.TrimSpace(string(out))
+		if message == "" {
+			message = "Aborting, no PageSpeed data was returned for " + websiteParam
+		}
+		// always an error status, a 200 with a message keeps the site page polling every 15s
+		pageSpeedFailures.set(websiteParam, pageSpeedFailure{status: http.StatusInternalServerError, message: message})
+	}()
+}
+
+const pageSpeedFailureTTL = time.Hour
+
+type pageSpeedFailure struct {
+	status  int
+	message string
+	at      time.Time
+}
+
+type pageSpeedFailureCache struct {
+	mu sync.Mutex
+	m  map[string]pageSpeedFailure
+}
+
+var pageSpeedFailures = &pageSpeedFailureCache{m: map[string]pageSpeedFailure{}}
+
+func (c *pageSpeedFailureCache) get(site string) (pageSpeedFailure, bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	f, ok := c.m[site]
+	if !ok || time.Since(f.at) > pageSpeedFailureTTL {
+		delete(c.m, site)
+		return pageSpeedFailure{}, false
+	}
+	return f, true
+}
+
+func (c *pageSpeedFailureCache) set(site string, f pageSpeedFailure) {
+	f.at = time.Now()
+	c.mu.Lock()
+	c.m[site] = f
+	c.mu.Unlock()
+}
+
+func (c *pageSpeedFailureCache) forget(site string) {
+	c.mu.Lock()
+	delete(c.m, site)
+	c.mu.Unlock()
 }
 
 // ---------------------- WP VULNERABILITY ---------------------- //

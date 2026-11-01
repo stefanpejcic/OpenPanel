@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
@@ -191,11 +192,61 @@ func PHPWorkers(ctx context.Context, userContext string) int {
 	if err != nil {
 		return 0
 	}
-	total := 0
+	var fpm []string
 	for _, name := range strings.Fields(string(out)) {
 		if strings.HasPrefix(name, "php-fpm-") {
-			total += FPMMaxChildren(ctx, userContext, name)
+			fpm = append(fpm, name)
 		}
 	}
+	key := userContext + "|" + strings.Join(fpm, ",")
+	if n, ok := phpWorkersCache.get(key); ok {
+		return n
+	}
+	counts := make([]int, len(fpm))
+	var wg sync.WaitGroup
+	for i, name := range fpm {
+		wg.Add(1)
+		go func(i int, name string) {
+			defer wg.Done()
+			counts[i] = FPMMaxChildren(ctx, userContext, name)
+		}(i, name)
+	}
+	wg.Wait()
+	total := 0
+	for _, n := range counts {
+		total += n
+	}
+	phpWorkersCache.set(key, total)
 	return total
+}
+
+// pool sizes only change when someone edits php-fpm, a few minutes stale is fine for tuning advice
+const phpWorkersTTL = 5 * time.Minute
+
+type workersEntry struct {
+	n  int
+	at time.Time
+}
+
+type workersCache struct {
+	mu sync.Mutex
+	m  map[string]workersEntry
+}
+
+var phpWorkersCache = &workersCache{m: map[string]workersEntry{}}
+
+func (c *workersCache) get(key string) (int, bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	e, ok := c.m[key]
+	if !ok || time.Since(e.at) > phpWorkersTTL {
+		return 0, false
+	}
+	return e.n, true
+}
+
+func (c *workersCache) set(key string, n int) {
+	c.mu.Lock()
+	c.m[key] = workersEntry{n: n, at: time.Now()}
+	c.mu.Unlock()
 }

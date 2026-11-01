@@ -63,7 +63,8 @@ func getPodmanProcesses(ctx context.Context, userContext string) ([]Process, err
 	running := runningContainerNames(ctx, userContext)
 	perService := make([][]Process, len(serviceNames))
 	var wg sync.WaitGroup
-	sem := make(chan struct{}, 4)
+	// accounts run 20+ containers (one php-fpm per version), 4 at a time made the page wait on podman top
+	sem := make(chan struct{}, 8)
 	for i, name := range serviceNames {
 		// same substring match as docker.IsServiceRunning's name= filter, one podman ps for all of them
 		if !containsAny(running, name) {

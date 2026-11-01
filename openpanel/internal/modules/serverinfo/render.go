@@ -5,6 +5,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -22,6 +23,32 @@ var (
 // ServerInfoPageData is system/server_info.html's template context - the page is filled in almost entirely client-side via /json/system/hosting/* fetches, so this only carries the layout
 type ServerInfoPageData struct {
 	web.LayoutData
+	Features []Feature
+}
+
+// Feature is one entry of OpenAdmin's features.json, only what the page lists
+type Feature struct {
+	Name     string `json:"name"`
+	HelpLink string `json:"help_link"`
+}
+
+// enabledFeatures reads the local features.json the configuration repo ships, the page used to fetch it from github on every load
+func enabledFeatures(allowed map[string]bool) []Feature {
+	content, err := os.ReadFile(featuresFile)
+	if err != nil {
+		return nil
+	}
+	var all []Feature
+	if json.Unmarshal(content, &all) != nil {
+		return nil
+	}
+	var out []Feature
+	for _, f := range all {
+		if allowed[f.Name] {
+			out = append(out, f)
+		}
+	}
+	return out
 }
 
 func renderServerInfoPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -30,7 +57,7 @@ func renderServerInfoPage(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if err := serverInfoPage.Render(w, http.StatusOK, ServerInfoPageData{LayoutData: layout}); err != nil {
+	if err := serverInfoPage.Render(w, http.StatusOK, ServerInfoPageData{LayoutData: layout, Features: enabledFeatures(layout.UserAllowed)}); err != nil {
 		log.Printf("SERVERINFO - server info template render error: %v", err)
 	}
 }
