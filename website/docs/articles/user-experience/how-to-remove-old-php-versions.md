@@ -18,7 +18,7 @@ On OpenLiteSpeed and LiteSpeed web servers, PHP versions come from the web serve
 
 ## For new users
 
-Edit the template file `/etc/openpanel/docker/compose/1.0/docker-compose.yml` and delete the service blocks of the versions you want to remove. Each block starts at a `  php-fpm-X.Y:` line and ends right before the next service:
+Edit the template from **OpenAdmin > Settings > [User Defaults](/docs/admin/settings/defaults/) > Advanced**, or in the file `/etc/openpanel/docker/compose/1.0/docker-compose.yml`, and delete the service blocks of the versions you want to remove. Each block starts at a `  php-fpm-X.Y:` line and ends right before the next service:
 
 ```yaml
   php-fpm-5.6:
@@ -114,9 +114,11 @@ OpenPanel caches the PHP version list for up to one hour. To show the change rig
 podman restart openpanel
 ```
 
-## Don't run `opencli update --php`
+## Don't run `opencli update --php` or `--compose`
 
 [`opencli update --php`](/docs/articles/opencli/update/#php) adds every PHP version from the upstream template that is missing on your server. It adds them to the template and to all users, so it would bring the removed versions back. It only runs when you start it manually. It doesn't run with automatic updates.
+
+[`opencli update --compose`](/docs/articles/opencli/update/#templates) replaces the whole template with the latest upstream version, so the removed versions come back for new users. Existing users aren't affected. If you run it, remove the versions from the template again. The previous template is saved at `/etc/openpanel/docker/compose/1.0/docker-compose.yml.bak`.
 
 The [PHP Settings](/docs/admin/settings/php/) page in OpenAdmin may show a recommendation to install supported PHP versions that are missing. You can ignore it for the versions you removed on purpose.
 

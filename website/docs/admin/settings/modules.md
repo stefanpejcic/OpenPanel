@@ -169,6 +169,8 @@ When enabled:
 When disabled:
 * Users do not have access to the *Web Server Config > Web Server Type* page.
 
+To keep the page but offer only some webservers, see [How to Disable Webservers for Users](/docs/articles/web-servers/how-to-disable-webservers-for-users/).
+
 
 ## Switch MySQL Type {#change-db}
 
