@@ -56,16 +56,7 @@ func HandleDockerTags(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	body, err := cache.Memoize(ctx, a.Cache, "docker_tags_for_py_n_node:"+appType, 24*time.Hour, func() ([]byte, error) {
-		client := &http.Client{Timeout: 5 * time.Second}
-		resp, getErr := client.Get("https://endoflife.date/api/" + appType + ".json")
-		if getErr != nil {
-			return nil, getErr
-		}
-		defer resp.Body.Close()
-		if resp.StatusCode != http.StatusOK {
-			return nil, errors.New("unexpected status code")
-		}
-		return io.ReadAll(resp.Body)
+		return fetchEndOfLife(appType)
 	})
 	if err != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to fetch " + appType + " versions."})
@@ -74,6 +65,34 @@ func HandleDockerTags(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	_, _ = w.Write(body)
+}
+
+func fetchEndOfLife(appType string) ([]byte, error) {
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Get("https://endoflife.date/api/" + appType + ".json")
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return nil, errors.New("unexpected status code")
+	}
+	return io.ReadAll(resp.Body)
+}
+
+// WarmDockerTags fills the version caches HandleDockerTags reads, so the first install form after a restart doesn't wait ~3s on docker hub
+func WarmDockerTags(ctx context.Context, a *appctx.App) {
+	for _, appType := range []string{"nodejs", "python"} {
+		_, _ = cache.Memoize(ctx, a.Cache, "docker_tags_for_py_n_node:"+appType, 24*time.Hour, func() ([]byte, error) {
+			return fetchEndOfLife(appType)
+		})
+	}
+	_, _ = cache.Memoize(ctx, a.Cache, "docker_tags_for_ruby", 24*time.Hour, func() ([]string, error) {
+		return fetchRubyDockerHubVersions(ctx)
+	})
+	_, _ = cache.Memoize(ctx, a.Cache, "docker_tags_for_java", 24*time.Hour, func() ([]string, error) {
+		return fetchJavaDockerHubVersions(ctx)
+	})
 }
 
 var rubyCleanTagRE = regexp.MustCompile(`^\d+\.\d+\.\d+$`)

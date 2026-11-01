@@ -737,7 +737,7 @@
         "path": "/api/crons",
         "description": "Create cron job (comment defaults to the container name).",
         "body": {
-          "schedule": "0 * * * *",
+          "schedule": "0 0 * * * *",
           "command": "/usr/bin/php script.php",
           "container": "php-fpm-8.1",
           "comment": "my job"
@@ -748,7 +748,7 @@
         "path": "/api/crons",
         "description": "Edit cron job. All original_* fields must match the existing job exactly.",
         "body": {
-          "original_schedule": "0 * * * *",
+          "original_schedule": "0 0 * * * *",
           "original_command": "...",
           "original_container": "php-fpm-8.1",
           "original_comment": "my job",
@@ -763,7 +763,7 @@
         "path": "/api/crons",
         "description": "Delete cron job (all fields must match the existing job exactly).",
         "body": {
-          "schedule": "0 * * * *",
+          "schedule": "0 0 * * * *",
           "command": "...",
           "container": "php-fpm-8.1",
           "comment": "my job"
@@ -772,14 +772,14 @@
       {
         "method": "GET",
         "path": "/api/crons/raw",
-        "description": "Get raw crontab."
+        "description": "Get the raw cron file."
       },
       {
         "method": "PUT",
         "path": "/api/crons/raw",
-        "description": "Save raw crontab.",
+        "description": "Save the raw cron file, one [job-exec \"name\"] section per job with a 6-field schedule.",
         "body": {
-          "content": "0 * * * * /usr/bin/php ..."
+          "content": "[job-exec \"my job\"]\nschedule = 0 0 * * * *\ncontainer = php-fpm-8.3\ncommand = /usr/bin/php script.php\n"
         }
       },
       {

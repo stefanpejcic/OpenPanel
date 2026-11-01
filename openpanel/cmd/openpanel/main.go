@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"crypto/tls"
 	"fmt"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/appinstall"
 	"io/fs"
 	"log"
 	"net/http"
@@ -169,7 +170,13 @@ func main() {
 			fatalLogger.Fatalf("BOOTSTRAP - server error: %v", serveErr)
 		}
 	}()
-	go flushRedisCache(a.Cache)
+	go func() {
+		flushRedisCache(a.Cache)
+		// after the flush, it would wipe whatever this put in
+		warmCtx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+		defer cancel()
+		appinstall.WarmDockerTags(warmCtx, a)
+	}()
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()

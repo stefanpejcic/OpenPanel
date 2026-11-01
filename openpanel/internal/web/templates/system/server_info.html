@@ -222,35 +222,13 @@
 						<i class="bi bi-menu-app-fill"></i> {{.T.Get "Enabled Features"}}
 					</td>
 					<td class="text-wrap p-4 text-sm text-gray-600 dark:text-gray-400">
-					<ul x-data="modules()" class="flex flex-wrap gap-x-4">
-						<template x-for="module in filteredModules()" :key="module.name">
+					<ul class="flex flex-wrap gap-x-4">
+						{{range .Features}}
 							<li class="py-1">
-								<a :href="module.help_link" target="_blank" class="text-blue-600 hover:underline">
-									<span x-text="module.name"></span>
-								</a>
+								<a href="{{.HelpLink}}" target="_blank" class="text-blue-600 hover:underline">{{.Name}}</a>
 							</li>
-						</template>
+						{{end}}
 					</ul>
-
-					<script>
-					function modules() {
-						return {
-							modules: [],
-							userAllowed: {{.UserAllowedJSON}},
-							init() {
-								fetch('https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json')
-									.then(res => res.json())
-									.then(data => {
-										this.modules = data;
-									})
-									.catch(err => console.error('Error loading modules:', err));
-							},
-							filteredModules() {
-								return this.modules.filter(m => this.userAllowed.includes(m.name));
-							}
-						}
-					}
-					</script>
 					</td>
 				</tr>
 			</tbody>

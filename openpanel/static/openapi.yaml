@@ -3085,7 +3085,7 @@ paths:
               properties:
                 schedule:
                   type: string
-                  example: 0 * * * *
+                  example: 0 0 * * * *
                 command:
                   type: string
                   example: /usr/bin/php script.php
@@ -3126,7 +3126,7 @@ paths:
               properties:
                 original_schedule:
                   type: string
-                  example: 0 * * * *
+                  example: 0 0 * * * *
                 original_command:
                   type: string
                   example: '...'
@@ -3183,7 +3183,7 @@ paths:
               properties:
                 schedule:
                   type: string
-                  example: 0 * * * *
+                  example: 0 0 * * * *
                 command:
                   type: string
                   example: '...'
@@ -3229,7 +3229,7 @@ paths:
       security:
       - bearerAuth: []
     put:
-      summary: Save raw crontab.
+      summary: Save the raw cron file.
       operationId: put_crons_raw
       tags:
       - Cron Jobs
@@ -3242,9 +3242,10 @@ paths:
               properties:
                 content:
                   type: string
-                  example: 0 * * * * /usr/bin/php ...
+                  description: The whole cron file, one [job-exec "name"] section per job with a 6-field schedule (seconds first).
+                  example: "[job-exec \"my job\"]\nschedule = 0 0 * * * *\ncontainer = php-fpm-8.3\ncommand = /usr/bin/php script.php\n"
               example:
-                content: 0 * * * * /usr/bin/php ...
+                content: "[job-exec \"my job\"]\nschedule = 0 0 * * * *\ncontainer = php-fpm-8.3\ncommand = /usr/bin/php script.php\n"
       responses:
         '200':
           description: Success.

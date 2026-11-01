@@ -69,6 +69,8 @@
             presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
             layout: 'StandaloneLayout',
             deepLinking: true,
+            // the badge sends our spec url to validator.swagger.io on every load, it can't reach this panel anyway
+            validatorUrl: null,
             onComplete: function () {
                 {{if .Token}}
                 window.ui.preauthorizeApiKey('bearerAuth', {{.Token}});

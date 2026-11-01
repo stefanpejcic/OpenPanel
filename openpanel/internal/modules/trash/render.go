@@ -69,10 +69,6 @@ func renderTrashPage(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 		data.PurgeNote = web.Tr(a, r, "Items in the trash are automatically deleted after %(days)s days.", "days", strconv.Itoa(days))
 	}
 	for _, info := range filesInfo {
-		// .trash_restore is the trash's own bookkeeping, not something the user put there
-		if info.Name == ".trash_restore" {
-			continue
-		}
 		row := toRow(info)
 		if info.Type == "directory" {
 			data.Directories = append(data.Directories, row)
