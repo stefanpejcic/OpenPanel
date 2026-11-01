@@ -531,6 +531,9 @@ func sizeBytes(s string) int64 {
 	return int64(n * float64(mult))
 }
 
+// a var so tests can hand checkMailboxes their own lines
+var emailList = emails.GetEmailList
+
 // checkMailboxes warns about mailboxes close to their quota, a full mailbox bounces new mail
 func (b *builder) checkMailboxes(ctx context.Context) {
 	if !b.can("emails") {
@@ -540,23 +543,20 @@ func (b *builder) checkMailboxes(ctx context.Context) {
 	for _, d := range b.domains {
 		set[d.DomainURL] = true
 	}
-	lines := emails.GetEmailList(ctx, b.a, b.userID, b.username, set)
+	lines := emailList(ctx, b.a, b.userID, b.username, set)
 	if len(lines) == 0 {
 		return
 	}
 	full := 0
 	for _, line := range lines {
-		f := strings.Fields(strings.TrimLeft(line, "* "))
-		if len(f) < 3 {
-			continue
-		}
-		limit, used := sizeBytes(f[1]), sizeBytes(f[2])
+		address, u, l := emails.ParseMailboxQuota(line)
+		limit, used := sizeBytes(l), sizeBytes(u)
 		if limit <= 0 || used*100 < limit*90 {
 			continue
 		}
 		full++
 		b.look(Item{
-			Title:  fmt.Sprintf("The mailbox %s is almost full (%d%%)", f[0], used*100/limit),
+			Title:  fmt.Sprintf("The mailbox %s is almost full (%d%%)", address, used*100/limit),
 			Detail: "Once it's full, new emails bounce back to the sender.",
 			Action: "Raise its quota or delete old emails", Link: "/emails",
 		})

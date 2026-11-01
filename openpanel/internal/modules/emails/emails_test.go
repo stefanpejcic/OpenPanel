@@ -76,6 +76,23 @@ func TestParseSingleEmailQuotaCapped(t *testing.T) {
 	}
 }
 
+func TestParseMailboxQuota(t *testing.T) {
+	cases := []struct{ line, address, used, limit string }{
+		{"* info@demo.rs ( 28M / 2.0G ) [1%]", "info@demo.rs", "28M", "2.0G"},
+		{"* info@demo.rs ( 0 / ~ ) [0%]", "info@demo.rs", "0", "~"},
+		{"* info@demo.rs (  /  ) [%]", "info@demo.rs", "", ""},
+		{"* info@demo.rs ( 28M /  ) [%]", "info@demo.rs", "", ""},
+		{"* info@demo.rs", "info@demo.rs", "", ""},
+		{"", "", "", ""},
+	}
+	for _, c := range cases {
+		address, used, limit := ParseMailboxQuota(c.line)
+		if address != c.address || used != c.used || limit != c.limit {
+			t.Errorf("%q: got %q %q %q, want %q %q %q", c.line, address, used, limit, c.address, c.used, c.limit)
+		}
+	}
+}
+
 func TestIsValidEmail(t *testing.T) {
 	valid := []string{"user@example.com", "a.b+c%d-e@sub.example.co", "x_y@z.io"}
 	for _, v := range valid {

@@ -89,18 +89,11 @@ func apiEmailsList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	lines := GetEmailList(ctx, a, userID, currentUsername, userDomains)
 	entries := make([]apiMailboxEntry, 0, len(lines))
 	for _, line := range lines {
-		parts := strings.Fields(strings.TrimLeft(line, "* "))
-		if len(parts) == 0 {
+		address, used, limit := ParseMailboxQuota(line)
+		if address == "" {
 			continue
 		}
-		e := apiMailboxEntry{Address: parts[0]}
-		if len(parts) >= 2 {
-			e.QuotaLimit = parts[1]
-		}
-		if len(parts) >= 3 {
-			e.QuotaUsed = parts[2]
-		}
-		entries = append(entries, e)
+		entries = append(entries, apiMailboxEntry{Address: address, QuotaLimit: limit, QuotaUsed: used})
 	}
 	writeAPIEmailsJSON(w, http.StatusOK, map[string]any{"emails": entries})
 }
@@ -242,13 +235,10 @@ func apiEmailDetailGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
-	parts := strings.Fields(strings.TrimLeft(rawLine, "* "))
+	_, used, limit := ParseMailboxQuota(rawLine)
 	var quotaLimit, quotaUsed *string
-	if len(parts) >= 2 {
-		quotaLimit = &parts[1]
-	}
-	if len(parts) >= 3 {
-		quotaUsed = &parts[2]
+	if limit != "" {
+		quotaLimit, quotaUsed = &limit, &used
 	}
 
 	writeAPIEmailsJSON(w, http.StatusOK, map[string]any{
