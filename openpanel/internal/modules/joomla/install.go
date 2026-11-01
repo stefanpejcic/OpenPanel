@@ -235,6 +235,5 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed Joomla on domain "+selectedDomain, ipAddress)
-	web.Flash(a, w, r, "success", web.Tr(a, r, "Joomla installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
-	emit(map[string]any{"status": "Joomla installation completed!"})
+	emit(appkit.InstallDoneEvent("Joomla installation completed!", selectedDomain, appkit.InstallInfo{AdminPath: "/administrator", AdminUsername: adminUsername, AdminEmail: adminEmail, DBName: dbName, DBUser: dbUser}))
 }

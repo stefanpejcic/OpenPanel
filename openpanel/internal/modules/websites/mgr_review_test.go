@@ -170,22 +170,6 @@ func TestPHPAppProject(t *testing.T) {
 	}
 }
 
-func TestN8nSideCards(t *testing.T) {
-	webtest.ModernOnly(t)
-	pd := mgrPage(t, "n8n.tests.openpanel.org")
-	data := N8nAppPageData{pageData: pd, Container: ContainerInfo{SiteName: "n8n.tests.openpanel.org", Version: "3.0.1", Port: "5678", CreatedDate: "2026-10-29T11:22:12Z"},
-		Service: "N8N", PM2Status: "true", CPU: "1.0", RAM: "1.0", PIDs: "500", CurrentVersion: "3.0.1",
-		Mounts: []ComposeMount{{"n8n_data", "/home/node/.n8n"}}, Networks: []string{"www", "db"},
-		Image: "n8nio/n8n:3.0.1", Restart: "always", WebhookURL: "https://n8n.tests.openpanel.org/", Timezone: "UTC", EnvVars: "N8N_HOST=n8n.tests.openpanel.org"}
-	body := renderPage(t, n8nAppPage, data)
-	mustContain(t, body, "op-dk-usage", "n8n:5678", "n8nio/n8n:3.0.1", "always", "www, db", "Editor and webhooks", "Open in", ">Environment<", "window.loadAppLogs")
-	for _, gone := range []string{"pagespeed", "Env Vars"} {
-		if strings.Contains(body, gone) {
-			t.Errorf("still has %q", gone)
-		}
-	}
-}
-
 func TestWebsiteBuilderBlankAndFiles(t *testing.T) {
 	webtest.ModernOnly(t)
 	pd := mgrPage(t, "website-builder.tests.openpanel.org")

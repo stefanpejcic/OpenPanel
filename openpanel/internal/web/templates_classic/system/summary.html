@@ -18,7 +18,7 @@
         {{if .Dates}}
         <div class="flex shrink-0 items-center gap-2">
             {{if .Prev}}<a href="/summary/{{.Prev}}" class="{{$btn}}" aria-label="{{.T.Get "Previous day"}}" title="{{.T.Get "Previous day"}}">&larr;</a>{{end}}
-            <select aria-label="{{.T.Get "Date"}}" onchange="window.location.href = '/summary/' + this.value" class="rounded border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-sm dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50">
+            <select aria-label="{{.T.Get "Date"}}" onchange="window.location.href = '/summary/' + this.value" class="relative rounded border px-2.5 py-1.5 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
                 {{range .Dates}}<option value="{{.}}" {{if eq . $.Summary.Date}}selected{{end}}>{{.}}</option>{{end}}
             </select>
             {{if .Next}}<a href="/summary/{{.Next}}" class="{{$btn}}" aria-label="{{.T.Get "Next day"}}" title="{{.T.Get "Next day"}}">&rarr;</a>{{end}}

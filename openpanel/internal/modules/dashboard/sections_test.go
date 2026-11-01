@@ -96,8 +96,8 @@ func TestBuildDashboardSectionsMatchSidebarOrder(t *testing.T) {
 }
 
 func TestBuildDashboardSectionsAppKeys(t *testing.T) {
-	allowed := map[string]bool{"wordpress": true, "n8n": true, "nodejs": true, "joomla": true, "websites": true}
-	keys := parseAppKeys("wordpress n8n,nodejs bogus python")
+	allowed := map[string]bool{"wordpress": true, "nodejs": true, "joomla": true, "websites": true}
+	keys := parseAppKeys("wordpress joomla,nodejs bogus python")
 	for _, style := range []string{"classic", "modern"} {
 		var got []string
 		for _, s := range buildDashboardSections(testTranslator(t), allowed, nil, style, keys) {
@@ -107,7 +107,7 @@ func TestBuildDashboardSectionsAppKeys(t *testing.T) {
 				}
 			}
 		}
-		if strings.Join(got, " ") != "wordpress n8n nodejs" {
+		if strings.Join(got, " ") != "wordpress joomla nodejs" {
 			t.Errorf("%s: expected configured apps in order, got %v", style, got)
 		}
 	}

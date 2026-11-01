@@ -10,48 +10,38 @@
 <script>
 (function () {
   var K = window.opIWKit;
-  var kind = {{toJSON .Kind.AppType}}, label = {{toJSON .Display.Label}}, isN8N = kind === 'n8n';
+  var kind = {{toJSON .Kind.AppType}}, label = {{toJSON .Display.Label}};
   var ext = {{toJSON .Display.RequiredExtension}}, run = {{toJSON .Display.RunCommand}}, file = {{toJSON .Kind.DefaultStartupFile}};
   var git = {{if .UserAllowed.git}}true{{else}}false{{end}};
   function post(url, params) {
     return fetch(url, { method: 'POST', headers: { 'X-CSRF-TOKEN': window.csrf_token, 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(params).toString() }).then(function (r) { return r.json(); });
   }
-  var appStep = { id: 'app', label: {{toJSON (.T.Get "Application")}}, title: {{toJSON (.T.Get "Application")}}, desc: isN8N ? {{toJSON (.T.Get "n8n runs in its own container on port 5678, the domain is reverse-proxied to it.")}} : {{toJSON (.T.Get "The app runs in its own container, the domain is reverse-proxied to its port.")}} };
+  var appStep = { id: 'app', label: {{toJSON (.T.Get "Application")}}, title: {{toJSON (.T.Get "Application")}}, desc: {{toJSON (.T.Get "The app runs in its own container, the domain is reverse-proxied to its port.")}} };
   var fields = [
     { name: 'service_name', step: 'app', label: {{toJSON (.T.Get "Name")}}, required: true, validate: 'service', lower: true, strip: /[^a-z0-9]/g, half: true, mono: true, hint: {{toJSON (.T.Get "Container name, only used on the server.")}}, auto: function (d) { return d.split('.')[0].replace(/[^a-z0-9]/g, '').replace(/^[0-9]+/, '').slice(0, 20) || 'app'; } },
     { name: 'version', step: 'app', label: {{toJSON (.T.Get "Version")}}, type: 'select', half: true, versions: function () { return fetch('/docker/tags/' + kind).then(function (r) { return r.json(); }).then(function (d) { if (!Array.isArray(d)) throw new Error(d && d.error || 'unexpected response'); return d.map(function (x) { return x.latest; }); }); } }
   ];
-  if (isN8N) {
-    fields.push(
-      { name: 'port', step: 'app', label: {{toJSON (.T.Get "Port")}}, value: '5678', readonly: true, half: true, mono: true, hint: {{toJSON (.T.Get "n8n always listens on 5678.")}} },
-      { name: 'owner_first_name', step: 'owner', label: {{toJSON (.T.Get "First name")}}, value: 'Admin', required: true, half: true },
-      { name: 'owner_last_name', step: 'owner', label: {{toJSON (.T.Get "Last name")}}, value: 'User', required: true, half: true },
-      { name: 'owner_email', step: 'owner', label: {{toJSON (.T.Get "Email")}}, type: 'email', required: true, validate: 'email', auto: function (d) { return 'admin@' + d; } },
-      { name: 'owner_password', step: 'owner', label: {{toJSON (.T.Get "Password")}}, type: 'password', gen: 'password', required: true, minLen: 8, maxLen: 64, hint: {{toJSON (.T.Get "8 to 64 characters, you log in to n8n with it.")}} }
-    );
-  } else {
-    fields.push(
-      { name: 'port', step: 'app', label: {{toJSON (.T.Get "Port")}}, type: 'number', min: 1000, max: 65535, validate: 'port', half: true, mono: true, hint: {{toJSON (.T.Get "The port your app listens on. Left empty, port 80 is used.")}} },
-      { name: 'startup_file', step: 'app', label: {{toJSON (.T.Get "Startup file")}}, required: true, mono: true, ext: ext,
-        auto: function (d, vm) { return vm.installPath() + '/' + file; }, followsPath: true, hint: {{toJSON (.T.Get "The main entry point of the app, the file the container starts.")}},
-        check: function (v) {
-          if (!v.toLowerCase().endsWith(ext)) return { tone: 'warning', text: {{toJSON (.T.Get "Incorrect file extension - Please use")}} + ' ' + ext };
-          return post('/json/check_if_file_exists', { file: v }).then(function (d) { return d.message && d.message.indexOf('exists') !== -1 && d.message.indexOf('not') === -1 ? { tone: 'success', text: {{toJSON (.T.Get "file exists")}} } : { tone: 'warning', text: {{toJSON (.T.Get "file does not exist!")}} }; }).catch(function () { return null; });
-        } },
-      { name: 'requirements', step: 'app', type: 'check', label: {{toJSON (.T.Get .Display.RequirementsLabel)}}, hint: {{toJSON (.T.Get .Display.RequirementsTooltip)}}, value: true, on: {{toJSON (.T.Get "Yes")}}, offLabel: {{toJSON (.T.Get "No")}} },
-      { name: 'custom_cmd', step: 'app', label: {{toJSON (.T.Get "Startup command")}}, mono: true, more: true, placeholder: run + ' <startupfile>', hint: {{toJSON (.T.Get "If custom startup command is provided, it will be executed instead of the default")}} + ': ' + run + ' <startupfile>' }
-    );
-    if (git) fields.push({ name: 'git_repo_url', step: 'app', label: {{toJSON (.T.Get "Git repository URL")}}, validate: 'https', mono: true, more: true, placeholder: 'https://github.com/user/repo.git',
-      hint: {{toJSON (.T.Get "Only https:// URLs are supported, and only public repositories - for a private repo, generate a personal access token and embed it in the URL, e.g.")}} + ' https://<token>@github.com/user/repo.git',
-      onBlur: function (v, vm) {
-        if (!v) return;
-        vm.hints.git_repo_url = { tone: 'warning', text: {{toJSON (.T.Get "Detecting startup file from repository...")}} };
-        post('/json/detect_git_startup_file', { git_repo_url: v, app_type: kind }).then(function (d) {
-          if (d.startup_file) { vm.v.startup_file = d.startup_file; vm.touched.startup_file = true; vm.hints.git_repo_url = { tone: 'success', text: {{toJSON (.T.Get "Detected startup file from repository, feel free to edit it below.")}} }; }
-          else vm.hints.git_repo_url = { tone: 'warning', text: d.error || {{toJSON (.T.Get "Could not detect a startup file, please set it manually.")}} };
-        }).catch(function () { vm.hints.git_repo_url = null; });
-      } });
-  }
+  fields.push(
+    { name: 'port', step: 'app', label: {{toJSON (.T.Get "Port")}}, type: 'number', min: 1000, max: 65535, validate: 'port', half: true, mono: true, hint: {{toJSON (.T.Get "The port your app listens on. Left empty, port 80 is used.")}} },
+    { name: 'startup_file', step: 'app', label: {{toJSON (.T.Get "Startup file")}}, required: true, mono: true, ext: ext,
+      auto: function (d, vm) { return vm.installPath() + '/' + file; }, followsPath: true, hint: {{toJSON (.T.Get "The main entry point of the app, the file the container starts.")}},
+      check: function (v) {
+        if (!v.toLowerCase().endsWith(ext)) return { tone: 'warning', text: {{toJSON (.T.Get "Incorrect file extension - Please use")}} + ' ' + ext };
+        return post('/json/check_if_file_exists', { file: v }).then(function (d) { return d.message && d.message.indexOf('exists') !== -1 && d.message.indexOf('not') === -1 ? { tone: 'success', text: {{toJSON (.T.Get "file exists")}} } : { tone: 'warning', text: {{toJSON (.T.Get "file does not exist!")}} }; }).catch(function () { return null; });
+      } },
+    { name: 'requirements', step: 'app', type: 'check', label: {{toJSON (.T.Get .Display.RequirementsLabel)}}, hint: {{toJSON (.T.Get .Display.RequirementsTooltip)}}, value: true, on: {{toJSON (.T.Get "Yes")}}, offLabel: {{toJSON (.T.Get "No")}} },
+    { name: 'custom_cmd', step: 'app', label: {{toJSON (.T.Get "Startup command")}}, mono: true, more: true, placeholder: run + ' <startupfile>', hint: {{toJSON (.T.Get "If custom startup command is provided, it will be executed instead of the default")}} + ': ' + run + ' <startupfile>' }
+  );
+  if (git) fields.push({ name: 'git_repo_url', step: 'app', label: {{toJSON (.T.Get "Git repository URL")}}, validate: 'https', mono: true, more: true, placeholder: 'https://github.com/user/repo.git',
+    hint: {{toJSON (.T.Get "Only https:// URLs are supported, and only public repositories - for a private repo, generate a personal access token and embed it in the URL, e.g.")}} + ' https://<token>@github.com/user/repo.git',
+    onBlur: function (v, vm) {
+      if (!v) return;
+      vm.hints.git_repo_url = { tone: 'warning', text: {{toJSON (.T.Get "Detecting startup file from repository...")}} };
+      post('/json/detect_git_startup_file', { git_repo_url: v, app_type: kind }).then(function (d) {
+        if (d.startup_file) { vm.v.startup_file = d.startup_file; vm.touched.startup_file = true; vm.hints.git_repo_url = { tone: 'success', text: {{toJSON (.T.Get "Detected startup file from repository, feel free to edit it below.")}} }; }
+        else vm.hints.git_repo_url = { tone: 'warning', text: d.error || {{toJSON (.T.Get "Could not detect a startup file, please set it manually.")}} };
+      }).catch(function () { vm.hints.git_repo_url = null; });
+    } });
   fields.push(
     { name: 'res_presets', step: 'res', type: 'presets', label: {{toJSON (.T.Get "Presets")}}, presets: [{ label: {{toJSON (.T.Get "Small")}}, values: { cpu_limit: '0.25', mem_limit: '0.25', pids_limit: '100' } }, { label: {{toJSON (.T.Get "Medium")}}, values: { cpu_limit: '0.5', mem_limit: '1', pids_limit: '500' } }, { label: {{toJSON (.T.Get "Large")}}, values: { cpu_limit: '1', mem_limit: '2', pids_limit: '1000' } }] },
     { name: 'cpu_limit', step: 'res', label: {{toJSON (.T.Get "CPU cores")}}, type: 'number', value: '0.5', min: 0.1, max: 9.99, inc: 0.01, required: true, half: true, hint: {{toJSON (.T.Get "Restrict CPU cores that the container can use.")}} },
@@ -59,27 +49,26 @@
     { name: 'pids_limit', step: 'res', label: {{toJSON (.T.Get "Max processes")}}, type: 'number', value: '500', min: 10, max: 1000, inc: 1, required: true, half: true, hint: {{toJSON (.T.Get "Max number of processes this application can run.")}} }
   );
   var steps = [K.steps.where, appStep];
-  if (isN8N) steps.push({ id: 'owner', label: {{toJSON (.T.Get "Owner account")}}, title: {{toJSON (.T.Get "Owner account")}}, desc: {{toJSON (.T.Get "Creates n8n's first (owner) account automatically, so you land straight on the login screen instead of n8n's own setup wizard.")}} });
   steps.push(K.steps.res, K.steps.review);
   // fields, checks and run checkpoints mirror appinstall/install.go
   window.opIWConfig = {
-    slug: kind, name: isN8N ? 'n8n' : label, title: {{toJSON (.T.Get .Kind.Title)}}, cta: {{toJSON (.T.Get .Kind.Title)}},
+    slug: kind, name: label, title: {{toJSON (.T.Get .Kind.Title)}}, cta: {{toJSON (.T.Get .Kind.Title)}},
     desc: {{toJSON (.T.Get "Create a new")}} + ' ' + label + ' ' + {{toJSON (.T.Get "application.")}}, endpoint: '/' + kind + '/install',
     logo: {{toJSON (static (print "images/apps/" .Kind.AppType ".svg"))}},
     domains: {{toJSON .Domains}}, strength: {{.PasswordStrength}}, t: K.t,
     note: {{toJSON (.T.Get "Installing at the domain root is blocked when the domain already has sites in subfolders, and the other way round.")}},
     success: ['application setup completed'], manager: '/sites',
     steps: steps, fields: fields,
-    summary: isN8N ? ['service_name', 'version', 'owner_email'] : ['service_name', 'version', 'port', 'startup_file'],
+    summary: ['service_name', 'version', 'port', 'startup_file'],
     run: [
       K.run.pre,
       K.run.step({{toJSON (.T.Get "Adding service to docker-compose.yml")}}, ['Generating docker-compose entry', 'Starting the actual install', "Added '", 'Service added successfully']),
-      K.run.step({{toJSON (.T.Get "Starting application container")}}, ['Starting docker container', 'Checking if container started', 'is running successfully', 'n8n owner account', 'Waiting for n8n']),
+      K.run.step({{toJSON (.T.Get "Starting application container")}}, ['Starting docker container', 'Checking if container started', 'is running successfully']),
       K.run.step({{toJSON (.T.Get "Configuring reverse proxy")}}, ['Detecting installed webserver', 'Editing Apache configuration', 'Editing Nginx configuration', 'Editing Litespeed configuration', 'Editing OpenResty configuration', 'Unknown webserver']),
       K.run.step({{toJSON (.T.Get "Restarting webserver")}}, ['Reloading', 'Restarting']),
       K.run.step({{toJSON (.T.Get "Saving to Site Manager")}}, ['Installation finished', 'application setup completed'])
     ],
-    creds: isN8N ? [{ label: {{toJSON (.T.Get "Email")}}, field: 'owner_email' }, { label: {{toJSON (.T.Get "Password")}}, field: 'owner_password', secret: true }, { label: {{toJSON (.T.Get "Container")}}, field: 'service_name' }] : [{ label: {{toJSON (.T.Get "Container")}}, field: 'service_name' }, { label: {{toJSON (.T.Get "Port")}}, field: 'port' }]
+    creds: [{ label: {{toJSON (.T.Get "Container")}}, field: 'service_name' }, { label: {{toJSON (.T.Get "Port")}}, field: 'port' }]
   };
 })();
 </script>

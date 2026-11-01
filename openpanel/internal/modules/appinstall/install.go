@@ -154,17 +154,13 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	pidsLimit := getValidatedInt(r.FormValue("pids_limit"), "500")
 
 	var appPort int
-	if portStr := strings.TrimSpace(r.FormValue("port")); portStr != "" && kind.AppType != "n8n" {
+	if portStr := strings.TrimSpace(r.FormValue("port")); portStr != "" {
 		p, perr := strconv.Atoi(portStr)
 		if perr != nil || p < 1 || p > 65535 {
 			emit(map[string]any{"error": "Invalid port, use a number from 1 to 65535."})
 			return
 		}
 		appPort = p
-	}
-	if kind.AppType == "n8n" {
-		// n8n always listens on 5678 inside the container - not user-configurable, so the simplified n8n install form doesn't even show a port field
-		appPort = 5678
 	}
 
 	composeFile := "/home/" + userContext + "/docker-compose.yml"
@@ -231,26 +227,6 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	var ownerEmail, ownerFirstName, ownerLastName, ownerPassword string
-	if kind.AppType == "n8n" {
-		ownerEmail = strings.TrimSpace(r.FormValue("owner_email"))
-		ownerFirstName = strings.TrimSpace(r.FormValue("owner_first_name"))
-		ownerLastName = strings.TrimSpace(r.FormValue("owner_last_name"))
-		ownerPassword = r.FormValue("owner_password")
-		if ownerEmail == "" || ownerFirstName == "" || ownerLastName == "" || ownerPassword == "" {
-			emit(map[string]any{"error": "Owner account first name, last name, email and password are all required."})
-			return
-		}
-		if len(ownerPassword) < 8 || len(ownerPassword) > 64 {
-			emit(map[string]any{"error": "Owner password must be 8 to 64 characters long."})
-			return
-		}
-		if !cmsapp.ValidEmail(ownerEmail) {
-			emit(map[string]any{"error": "Invalid owner email address."})
-			return
-		}
-	}
-
 	// a root-level install gets a catch-all `ProxyPass /` in the vhost, which Apache matches before any other path (mod_proxy matches by file order, not specificity) - so a root app would silently break every subdirectory site on the domain, and the reverse breaks too (a subdirectory app behind an existing root app is unreachable). Neither can be fixed by reordering, so both cases are blocked outright.
 	if subdirectory == "" {
 		var otherSitesCount int
@@ -260,7 +236,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		}
 	} else {
 		var rootAppType string
-		if scanErr := a.DB.QueryRowContext(ctx, "SELECT type FROM sites WHERE site_name = ? AND type IN ('NodeJS','Python','Ruby','Java','n8n','Docker')", topDomain).Scan(&rootAppType); scanErr == nil {
+		if scanErr := a.DB.QueryRowContext(ctx, "SELECT type FROM sites WHERE site_name = ? AND type IN ('NodeJS','Python','Ruby','Java','Docker')", topDomain).Scan(&rootAppType); scanErr == nil {
 			emit(map[string]any{"error": "This domain already has a " + rootAppType + " application installed at its root. That root app's reverse proxy catches every request on the domain, so a new site in a subdirectory would never actually be reachable - remove the root application first, or choose a different domain."})
 			return
 		}
@@ -386,13 +362,6 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 		"\n" + serviceNameUp + "_" + kind.PyOrNode + "_RAM=\"" + formatPyFloat(memLimit) + "G\"" +
 		"\n" + serviceNameUp + "_" + kind.PyOrNode + "_PIDS=\"" + strconv.Itoa(pidsLimit) + "\"\n"
 
-	if kind.AppType == "n8n" {
-		// n8n needs to know its own public URL to generate correct webhook/OAuth callback URLs when it's sitting behind this reverse proxy - without these it defaults to http://localhost:5678/...
-		envVariables += "\n" + serviceNameUp + "_" + kind.PyOrNode + "_HOST=\"" + topDomain + "\"" +
-			"\n" + serviceNameUp + "_" + kind.PyOrNode + "_PROTOCOL=\"https\"" +
-			"\n" + serviceNameUp + "_" + kind.PyOrNode + "_WEBHOOK_URL=\"https://" + topDomain + "/\"\n"
-	}
-
 	if envF, openErr := tenantfs.OpenFile(envFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644); openErr == nil {
 		_, _ = envF.WriteString(envVariables)
 		_ = envF.Close()
@@ -446,18 +415,6 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	_ = tenantfs.Remove(composeBackup)
 	_ = tenantfs.Remove(envBackup)
 
-	if kind.AppType == "n8n" {
-		emit(map[string]any{"status": "Creating n8n owner account"})
-		if setupErr := setupN8NOwner(ctx, userContext, serviceName, ownerEmail, ownerFirstName, ownerLastName, ownerPassword, func() {
-			emit(map[string]any{"status": "Waiting for n8n to finish setting up its database"})
-		}); setupErr != nil {
-			// best-effort - the app itself is already up, so a failure here (e.g. n8n not fully warmed up yet) just means the user completes n8n's own /setup wizard manually instead of skipping it
-			emit(map[string]any{"status": "Could not auto-create the n8n owner account, you'll need to complete n8n's setup manually: " + setupErr.Error()})
-		} else {
-			emit(map[string]any{"status": "n8n owner account created"})
-		}
-	}
-
 	emit(map[string]any{"status": "Detecting installed webserver"})
 	webServerType, _ := docker.GetEnvValue(userContext, "WEB_SERVER")
 
@@ -509,7 +466,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
-	emit(map[string]any{"status": "New " + kind.DisplayAppType + " application setup completed!"})
+	emit(appkit.InstallDoneEvent("New "+kind.DisplayAppType+" application setup completed!", selectedDomain, appkit.InstallInfo{}))
 	_ = logger.RecordUserAction(a.Config, currentUsername, "created a new "+kind.DisplayAppType+" application on domain "+selectedDomain, ipAddress)
 }
 

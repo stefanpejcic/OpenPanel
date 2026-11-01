@@ -30,9 +30,9 @@
 
   <div class="col-span-full mb-5">
     <label for="quota" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Disk quota"}}</label>
-    <div class="flex rounded-lg shadow-sm">
-      <input type="number" min="0" step="1" name="quota" id="quota" value="{{.QuotaValue}}" placeholder="{{.T.Get "Unlimited"}}" class="w-full py-2 px-3 block border-gray-200 shadow-sm rounded-l-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:focus:ring-neutral-600">
-      <select name="quota_unit" id="quota_unit" aria-label="{{.T.Get "Unit"}}" class="w-24 py-2 px-3 block border-gray-200 shadow-sm rounded-r-lg text-sm focus:z-10 focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400">
+    <div class="flex">
+      <input type="number" min="0" step="1" name="quota" id="quota" value="{{.QuotaValue}}" placeholder="{{.T.Get "Unlimited"}}" class="relative block w-full rounded-l appearance-none border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 focus:z-10 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
+      <select name="quota_unit" id="quota_unit" aria-label="{{.T.Get "Unit"}}" class="relative block rounded-r w-24 border border-l-0 px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 focus:z-10 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 h-10.5 sm:h-9.5">
         <option value="M"{{if eq .QuotaUnit "M"}} selected{{end}}>MB</option>
         <option value="G"{{if eq .QuotaUnit "G"}} selected{{end}}>GB</option>
       </select>

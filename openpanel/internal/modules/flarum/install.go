@@ -232,8 +232,7 @@ printf '%s\n' '<?php' 'chdir(__DIR__ . "/public"); require __DIR__ . "/public/in
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed Flarum on domain "+selectedDomain, ipAddress)
-	web.Flash(a, w, r, "success", web.Tr(a, r, "Flarum installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
-	emit(map[string]any{"status": "Flarum installation completed!"})
+	emit(appkit.InstallDoneEvent("Flarum installation completed!", selectedDomain, appkit.InstallInfo{AdminUsername: adminUsername, AdminEmail: adminEmail, DBName: dbName, DBUser: dbUser}))
 }
 
 // flarumInstallParams is runFlarumInstaller's input.

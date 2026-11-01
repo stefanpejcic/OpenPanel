@@ -33,13 +33,12 @@ func TestRenderInstallPage(t *testing.T) {
 		}
 	})
 
-	// the wizard posts the field names appinstall/install.go reads, n8n swaps the startup step for its owner account
+	// the wizard posts the field names appinstall/install.go reads
 	for _, tc := range []struct {
 		kind Kind
 		want []string
 	}{
 		{NodeJS, []string{`var kind = "nodejs"`, `ext = ".js"`, `'service_name'`, `'startup_file'`, `'requirements'`, `'custom_cmd'`, `'cpu_limit'`, `'mem_limit'`, `'pids_limit'`}},
-		{N8N, []string{`var kind = "n8n"`, `'owner_first_name'`, `'owner_last_name'`, `'owner_email'`, `'owner_password'`, `value: '5678'`}},
 	} {
 		t.Run(tc.kind.AppType+", with domains", func(t *testing.T) {
 			data := InstallPageData{

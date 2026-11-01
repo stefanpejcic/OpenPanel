@@ -35,16 +35,16 @@
             <label class="block mb-1.5 text-sm font-medium text-gray-900 dark:text-gray-50" for="domain_id">
                 {{.T.Get "Domain"}}<span class="text-red-500">*</span>
             </label>
-            <div class="flex rounded-lg shadow-sm">
+            <div class="flex">
                 <select name="domain_id" id="domain_id" onchange="updateDocroot()"
-                    class="peer flex-1 min-w-0 cursor-pointer appearance-none truncate rounded-l border py-2 pl-3 pr-7 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                    class="peer flex-1 min-w-0 cursor-pointer appearance-none rounded-l truncate border py-2 pl-3 pr-7 outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 h-10.5 sm:h-9.5">
                     <option selected disabled value="">{{.T.Get "Select a domain"}}</option>
                     {{range .Domains}}
                         <option class="punycode" docroot="{{.Docroot}}" value="{{.DomainID}}">{{.DomainURL}}</option>
                     {{end}}
                 </select>
                 <input type="text" name="subdirectory" id="subdirectory" placeholder="{{.T.Get "subfolder"}}" oninput="syncSubdirectory()"
-                    class="w-36 appearance-none rounded-r border-t border-b border-r px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                    class="relative w-36 appearance-none rounded-r border border-l-0 px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
             </div>
             <p class="mt-1.5 text-xs text-gray-400 dark:text-gray-500">{{.T.Get "Leave subfolder blank to install at the domain root"}}</p>
         </div>
@@ -72,7 +72,8 @@
 
 <div id="progressUI" class="hidden sm:mx-auto sm:max-w-2xl px-6 py-4 m-6">
 
-  <div class="grid grid-cols-1 gap-2" id="stepsContainer">
+  {{template "install_success" .}}
+<div class="grid grid-cols-1 gap-2" id="stepsContainer">
 
       <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" id="step-create-files" data-tooltip="{{.T.Get "Creates the destination folder and writes the initial index.html and style.css files."}}">
         <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
@@ -308,22 +309,28 @@ document.getElementById("installForm").addEventListener("submit", function(event
   showToast({{toJSON (.T.Get "Creating website. Please wait for the process to finish.")}}, 'loading');
 
   const formData = new FormData(this);
+  installLog.reset();
 
   fetch('/website-builder/install', { method: 'POST', body: formData })
     .then(response => {
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
+      let buffered = '';
 
       function read() {
         reader.read().then(({ done, value }) => {
           if (done) { return; }
 
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n').filter(Boolean);
+          // a json line can get split across chunks, keep the tail until its newline shows up
+          buffered += decoder.decode(value, { stream: true });
+          const parts = buffered.split('\n');
+          buffered = parts.pop();
+          const lines = parts.filter(Boolean);
 
           lines.forEach(line => {
             try {
               const data = JSON.parse(line);
+              installLog.append(data);
 
               if (data.status) {
                 const matched = matchStep(data.status);
@@ -334,7 +341,7 @@ document.getElementById("installForm").addEventListener("submit", function(event
                   updateRing(100);
                   _clearHangTimer();
                   showToast(data.status, 'success');
-                  setTimeout(() => { window.location.href = _installUrl; }, 2000);
+                  showInstallSuccess(data, { primaryUrl: _installUrl, primaryLabel: {{toJSON (.T.Get "Open Website Builder")}}, sameTab: true });
                 }
               } else if (data.error) {
                 markStepError(currentStepIndex);

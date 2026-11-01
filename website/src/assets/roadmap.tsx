@@ -6,9 +6,8 @@ import {
     PhpIcon,
     MonitorIcon,
     SelfHostedIcon,
-    RoutesIcon,
-    SupportIcon,
     IdentityIcon,
+    ComponentsIcon,
 } from "@site/src/components/landing/icons";
 
 // The two items currently being worked on. Update this once they ship.
@@ -46,12 +45,8 @@ export const plannedFeatures = [
         title: "Ongoing improvements in container isolation",
     },
     {
-        icon: <RoutesIcon />,
-        title: "IP assignment for Resellers",
-    },
-    {
-        icon: <SupportIcon />,
-        title: "Message all users",
+        icon: <ComponentsIcon />,
+        title: "Docker app templates: set up any Dockerized app in one click",
     },
     {
         icon: <IdentityIcon />,

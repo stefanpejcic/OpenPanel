@@ -41,7 +41,7 @@
         <div class="relative w-full sm:w-64 [&>input]:py-1.5">
     <input
         x-model="searchQuery"
-        class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
+        class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
         placeholder="{{.T.Get "Search"}}"
         type="search"
     />
@@ -384,7 +384,7 @@ class="relative group cursor-pointer p-4 text-sm whitespace-nowrap text-gray-600
                 <span x-show="!editing"><span class="font-medium" x-text="value"></span> {{$t.Get "cores"}} <a href="#" @click.prevent="editing = !editing" class="transform hidden group-hover:inline-block text-gray-400 hover:text-gray-600"><span x-show="!editing"><i class="bi bi-pencil-fill"></i></a></span>
             <form action="/containers/cpu/{{$row.Service}}" method="POST" x-show="editing" @click.stop="editing = true" class="flex items-center gap-2">
                 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-                <input x-model="CPUinputValue" title='{{$t.Get "Max CPUs that this service can use. 0 = unlimited"}}' name="value" type="number" min="0" {{if ne .TotalCPU 0}}max="{{.TotalCPU}}"{{end}} step=".01" class="w-20 px-2 py-1 border rounded dark:bg-gray-700 dark:text-white" />
+                <input x-model="CPUinputValue" title='{{if ne .TotalCPU 0}}{{$t.Get "Maximum allowed: "}}{{.TotalCPU}} {{$t.Get "cores"}}{{else}}{{$t.Get "Max CPUs that this service can use. 0 = unlimited"}}{{end}}' name="value" type="number" min="0" {{if ne .TotalCPU 0}}max="{{.TotalCPU}}"{{end}} step=".01" class="relative w-20 appearance-none rounded border px-2 py-1 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" />
                 <button type="submit" class="px-2 py-1 text-white bg-blue-500 rounded hover:bg-blue-600">{{$t.Get "Save"}}</button>
             </form>
             </span>
@@ -429,7 +429,7 @@ class="relative group cursor-pointer p-4 text-sm whitespace-nowrap text-gray-600
             <form action="/containers/ram/{{$row.Service}}" method="POST" x-show="editing" @click.stop="editing = true" class="flex items-center gap-2">
                 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
-    <input x-model="RAMinputValue" name="value"  title='{{$t.Get "Max Memory that this service can use. 0 = unlimited"}}' type="number" min="0" {{if ne .TotalRAM 0}}max="{{.TotalRAM}}"{{end}} step=".01" class="w-20 px-2 py-1 border rounded dark:bg-gray-700 dark:text-white" />
+    <input x-model="RAMinputValue" name="value"  title='{{if ne .TotalRAM 0}}{{$t.Get "Maximum allowed: "}}{{.TotalRAM}} GB{{else}}{{$t.Get "Max Memory that this service can use. 0 = unlimited"}}{{end}}' type="number" min="0" {{if ne .TotalRAM 0}}max="{{.TotalRAM}}"{{end}} step=".01" class="relative w-20 appearance-none rounded border px-2 py-1 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" />
 
                 <button type="submit" class="px-2 py-1 text-white bg-blue-500 rounded hover:bg-blue-600">{{$t.Get "Save"}}</button>
             </form>
@@ -457,7 +457,7 @@ class="relative group cursor-pointer p-4 text-sm whitespace-nowrap text-gray-600
     </span>
     <form action="/containers/pids/{{$row.Service}}" method="POST" x-show="editing" @click.stop="editing = true" class="flex items-center gap-2">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-        <input x-model="PIDsinputValue" title='{{$t.Get "Max processes that this service can run. 0 = unlimited"}}' name="value" type="number" min="0" step="1" class="w-20 px-2 py-1 border rounded dark:bg-gray-700 dark:text-white" />
+        <input x-model="PIDsinputValue" title='{{$t.Get "Max processes that this service can run. 0 = unlimited"}}' name="value" type="number" min="0" step="1" class="relative w-20 appearance-none rounded border px-2 py-1 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" />
         <button type="submit" class="px-2 py-1 text-white bg-blue-500 rounded hover:bg-blue-600">{{$t.Get "Save"}}</button>
     </form>
     </td>

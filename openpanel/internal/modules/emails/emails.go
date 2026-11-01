@@ -688,7 +688,7 @@ func handleEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	currentEmailsList := GetEmailList(ctx, a, userID, currentUsername, userDomains)
 	injectedData, _ := a.InjectData(ctx, userID)
 	planID, _ := injectedData["hosting_plan"].(int)
-	emailLimitStr, _, _ := a.QueryPlanEmailMailboxLimits(ctx, planID)
+	emailLimitStr, maxEmailQuota, _ := a.QueryPlanEmailMailboxLimits(ctx, planID)
 	emailLimit, _ := strconv.Atoi(emailLimitStr)
 	aliases := func() []AliasEntry { return GetAliasList(ctx, a, userID, currentUsername, userDomains) }
 	var connect AccountsConnect
@@ -699,7 +699,7 @@ func handleEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	connect.Host, connect.Secure = mailConnectHost(ctx, a, currentUsername)
-	renderAccountsPage(a, w, r, currentEmailsList, domains, emailLimit, aliases, connect)
+	renderAccountsPage(a, w, r, currentEmailsList, domains, emailLimit, maxEmailQuota, aliases, connect)
 }
 
 func handleSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, email string, userID int, currentUsername string, userDomains map[string]bool) {

@@ -396,8 +396,17 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed WordPress on domain "+selectedDomain, ipAddress)
-	web.Flash(a, w, r, "success", web.Tr(a, r, "WordPress installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
-	emit(map[string]any{"status": "WordPress installation completed!"})
+	// page stays put and shows these, so no flash here or it'd pop up again on the next page
+	emit(map[string]any{
+		"status":         "WordPress installation completed!",
+		"domain":         selectedDomain,
+		"site_url":       "https://" + selectedDomain,
+		"admin_url":      "https://" + selectedDomain + "/wp-admin",
+		"admin_username": adminUsername,
+		"admin_email":    adminEmail,
+		"db_name":        dbName,
+		"db_user":        dbUser,
+	})
 }
 
 var tablePrefixRE = regexp.MustCompile(`(\$table_prefix\s*=\s*')[^']*(';)`)

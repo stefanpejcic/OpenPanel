@@ -224,6 +224,5 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	waf.EnableProfileForNewSite(a, selectedDomain, "drupal")
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed Drupal on domain "+selectedDomain, ipAddress)
-	web.Flash(a, w, r, "success", web.Tr(a, r, "Drupal installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
-	emit(map[string]any{"status": "Drupal installation completed!"})
+	emit(appkit.InstallDoneEvent("Drupal installation completed!", selectedDomain, appkit.InstallInfo{AdminPath: "/user/login", AdminUsername: adminUsername, AdminEmail: adminEmail, DBName: dbName, DBUser: dbUser}))
 }

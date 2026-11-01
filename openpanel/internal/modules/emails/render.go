@@ -168,7 +168,7 @@ func emailQuotaToast(rows []EmailListRow) (id, message string) {
 	}
 }
 
-func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, currentEmailsList []string, domains []appctx.Domain, emailLimit int, aliases func() []AliasEntry, connect AccountsConnect) {
+func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, currentEmailsList []string, domains []appctx.Domain, emailLimit int, maxEmailQuota string, aliases func() []AliasEntry, connect AccountsConnect) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Emails")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -185,7 +185,7 @@ func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, c
 		}
 	}
 	toastID, toastMsg := emailQuotaToast(rows)
-	layout.BulkActions = accountsBulkActions(layout.T)
+	layout.BulkActions = accountsBulkActions(layout.T, maxEmailQuota)
 	data := AccountsPageData{LayoutData: layout, Rows: rows, TotalCount: len(currentEmailsList), QuotaToastID: toastID, QuotaToastMsg: toastMsg, Connect: connect}
 	var aliasList []AliasEntry
 	if layout.UserAllowed["email_aliases"] {

@@ -38,17 +38,17 @@
                     {{.T.Get "Admin Username"}}<span class="text-red-500">*</span>
                 </label>
                 <input type="text" name="admin_username" id="admin_username" value="admin" required
-                    class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                    class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
             </div>
             <div>
                 <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_password">
                     {{.T.Get "Admin Password"}}<span class="text-red-500">*</span>
                 </label>
-                <div class="flex rounded-lg shadow-sm">
+                <div class="flex">
                     <input type="password" name="admin_password" id="admin_password" required
-                        class="relative block w-full appearance-none rounded-l border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">
+                        class="relative block w-full rounded-l appearance-none border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
                     <button type="button" id="togglePassword"
-                        class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-r hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        class="rounded-r px-3 py-2 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 border border-l-0 border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                         <i class="bi bi-eye"></i>
                     </button>
                 </div>
@@ -218,22 +218,28 @@ document.getElementById("installForm").addEventListener("submit", function(event
   showToast({{toJSON (.T.Get "TinyFileManager installation started. Please wait for the process to finish.")}}, 'loading');
 
   const formData = new FormData(this);
+  installLog.reset();
 
   fetch('/tinyfilemanager/install', { method: 'POST', body: formData })
     .then(response => {
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
+      let buffered = '';
 
       function read() {
         reader.read().then(({ done, value }) => {
           if (done) { return; }
 
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n').filter(Boolean);
+          // a json line can get split across chunks, keep the tail until its newline shows up
+          buffered += decoder.decode(value, { stream: true });
+          const parts = buffered.split('\n');
+          buffered = parts.pop();
+          const lines = parts.filter(Boolean);
 
           lines.forEach(line => {
             try {
               const data = JSON.parse(line);
+              installLog.append(data);
 
               if (data.status) {
                 const matched = matchStep(data.status);
@@ -244,7 +250,7 @@ document.getElementById("installForm").addEventListener("submit", function(event
                   updateRing(100);
                   _clearHangTimer();
                   showToast(data.status, 'success');
-                  setTimeout(() => { window.location.href = '/sites'; }, 2500);
+                  showInstallSuccess(data);
                 }
               } else if (data.error) {
                 markStepError(currentStepIndex);

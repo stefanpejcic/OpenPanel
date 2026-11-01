@@ -332,7 +332,7 @@
       finish(ev) {
         clearInterval(this._tick);
         this.runIdx = this.run.length;
-        this.result = { status: ev.status, user: ev.admin_user, pass: ev.admin_password };
+        this.result = { status: ev.status, user: ev.admin_username || ev.admin_user, pass: ev.admin_password, adminUrl: ev.admin_url };
         this.phase = 'done';
         if (window.showToast) window.showToast(ev.status, 'success');
       },
@@ -365,7 +365,7 @@
         });
         return out;
       },
-      adminUrl() { return cfg.adminPath && this.siteUrl() ? this.siteUrl() + cfg.adminPath : ''; },
+      adminUrl() { if (this.result && this.result.adminUrl) return this.result.adminUrl; return cfg.adminPath && this.siteUrl() ? this.siteUrl() + cfg.adminPath : ''; },
       managerUrl() { return typeof cfg.manager === 'function' ? cfg.manager(this) : cfg.manager; },
       copy(text) {
         const ok = () => this.notify(this.t.copied);

@@ -16,7 +16,6 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cmsapp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/websites"
-	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 // tinyPhotoGallerySourceFile is the only source TinyPhotoGallery ships: a single PHP file on the main branch, no tagged releases and no composer.json
@@ -101,8 +100,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed TinyPhotoGallery on domain "+selectedDomain, ipAddress)
-	web.Flash(a, w, r, "success", web.Tr(a, r, "TinyPhotoGallery installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
-	emit(map[string]any{"status": "TinyPhotoGallery installation completed! Visit the site to start uploading photos."})
+	emit(appkit.InstallDoneEvent("TinyPhotoGallery installation completed! Visit the site to start uploading photos.", selectedDomain, appkit.InstallInfo{}))
 }
 
 // runTinyPhotoGalleryInstall downloads index.php from the main branch into installPath and creates an empty photos/ folder next to it - that's the entire upstream install procedure

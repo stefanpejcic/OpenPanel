@@ -25,7 +25,7 @@
         <div class="space-y-4">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{.T.Get "Email address"}}</label>
             <select id="filter-email-select" name="ignore" onchange="window.location.href='/emails/filter/'+this.value"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                    class="relative block w-full rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 h-10.5 sm:h-9.5">
                 <option value="" disabled selected>{{.T.Get "Select address"}}</option>
                 {{range .Addresses}}
                     <option class="punycode" value="{{.}}">{{.}}</option>
@@ -91,7 +91,7 @@
                     <div class="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-800">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 cursor-grab flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/></svg>
                         <input type="text" x-model="filter.name" placeholder="{{.T.Get "Filter name…"}}"
-                               class="flex-1 min-w-0 text-sm bg-transparent border-0 border-b border-dashed border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-50 focus:ring-0 focus:border-blue-500 px-0 py-0.5"/>
+                               class="flex-1 min-w-0 text-sm bg-transparent border-0 border-b border-dashed border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-50 focus:ring-0 focus:border-blue-500 px-0 py-0.5 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"/>
                         <div class="flex items-center gap-1 ml-auto flex-shrink-0">
                             <button @click="moveUp(fi)" :disabled="fi === 0"
                                     class="p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-30" title="{{.T.Get "Move up"}}">
@@ -114,7 +114,7 @@
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">{{.T.Get "If"}}</span>
                                 <select x-model="filter.logic"
-                                        class="text-xs rounded border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 py-0.5 px-1.5 focus:ring-blue-500 focus:border-blue-500">
+                                        class="relative rounded border px-1.5 py-0.5 outline-none transition text-xs border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
                                     <option value="anyof">{{.T.Get "any"}}</option>
                                     <option value="allof">{{.T.Get "all"}}</option>
                                 </select>
@@ -124,7 +124,7 @@
                             <template x-for="(rule, ri) in filter.rules" :key="rule.id">
                                 <div class="flex items-center gap-2 mb-1 flex-wrap">
                                     <select x-model="rule.field"
-                                            class="text-sm rounded border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-50 py-1.5 px-2 focus:ring-blue-500 focus:border-blue-500">
+                                            class="relative rounded border px-2 py-1.5 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
                                         <option value="from">{{.T.Get "From"}}</option>
                                         <option value="subject">{{.T.Get "Subject"}}</option>
                                         <option value="to">{{.T.Get "To"}}</option>
@@ -136,7 +136,7 @@
                                         <option value="list_id">{{.T.Get "List ID"}}</option>
                                     </select>
                                     <select x-model="rule.match"
-                                            class="text-sm rounded border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-50 py-1.5 px-2 focus:ring-blue-500 focus:border-blue-500">
+                                            class="relative rounded border px-2 py-1.5 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
                                         <option value="contains">{{.T.Get "contains"}}</option>
                                         <option value="not_contains">{{.T.Get "does not contain"}}</option>
                                         <option value="is">{{.T.Get "equals"}}</option>
@@ -146,7 +146,7 @@
                                         <option value="not_matches">{{.T.Get "does not match regex"}}</option>
                                     </select>
                                     <input type="text" x-model="rule.value" placeholder="{{.T.Get "Value…"}}"
-                                           class="flex-1 min-w-[120px] text-sm rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-50 py-1.5 px-2.5 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700"/>
+                                           class="relative appearance-none rounded border px-2.5 py-1.5 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 flex-1 min-w-[120px] disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"/>
                                     <button @click="removeRule(fi, ri)" :disabled="filter.rules.length === 1"
                                             class="p-1 rounded text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-30 flex-shrink-0" title="{{.T.Get "Remove condition"}}">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
@@ -167,7 +167,7 @@
                             <template x-for="(action, ai) in filter.actions" :key="action.id">
                                 <div class="flex items-center gap-2 mb-1 flex-wrap">
                                     <select x-model="action.type" @change="onActionTypeChange(action)"
-                                            class="text-sm rounded border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-50 py-1.5 px-2 focus:ring-blue-500 focus:border-blue-500">
+                                            class="relative rounded border px-2 py-1.5 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
                                         <option value="deliver_folder">{{.T.Get "Deliver to folder"}}</option>
                                         <option value="redirect">{{.T.Get "Redirect to email"}}</option>
                                         <option value="forward">{{.T.Get "Forward to email (keep copy)"}}</option>
@@ -181,18 +181,18 @@
                                     <template x-if="['deliver_folder','redirect','forward','reject','add_flag'].includes(action.type)">
                                         <input type="text" x-model="action.value"
                                                :placeholder="actionPlaceholder(action.type)"
-                                               class="flex-1 min-w-[120px] text-sm rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-50 py-1.5 px-2.5 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700"/>
+                                               class="relative appearance-none rounded border px-2.5 py-1.5 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 flex-1 min-w-[120px] disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"/>
                                     </template>
                                     <template x-if="action.type === 'autoresponder'">
                                         <div class="flex-1 min-w-[260px] flex flex-col gap-1.5">
                                             <input type="text" x-model="action.value.subject" placeholder="{{.T.Get "Subject, e.g. Re: ${subjectwas}"}}"
-                                                   class="text-sm rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-50 py-1.5 px-2.5 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700"/>
+                                                   class="relative appearance-none rounded border px-2.5 py-1.5 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"/>
                                             <textarea x-model="action.value.message" rows="3" placeholder="{{.T.Get "Auto-reply message…"}}"
-                                                      class="text-sm rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-50 py-1.5 px-2.5 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700"></textarea>
+                                                      class="relative appearance-none rounded border px-2.5 py-1.5 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700"></textarea>
                                             <div class="flex items-center gap-2">
                                                 <label class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Reply at most once every"}}</label>
                                                 <input type="number" min="1" x-model.number="action.value.days"
-                                                       class="w-16 text-sm rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-50 py-1 px-2 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700"/>
+                                                       class="relative w-16 appearance-none rounded border px-2 py-1 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"/>
                                                 <span class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "day(s) per sender"}}</span>
                                             </div>
                                         </div>
@@ -233,7 +233,7 @@
             <form method="POST" action="/emails/filter/{{.Email}}/raw">
                 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
                 <textarea id="raw_content" name="new_content" rows="22"
-                          class="flex min-h-[4rem] w-full rounded border px-3 py-2 shadow-sm outline-none transition-colors font-mono text-sm text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700">{{.RawContent}}</textarea>
+                          class="flex min-h-[4rem] w-full rounded border px-3 py-2 outline-none transition-colors font-mono text-sm text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700">{{.RawContent}}</textarea>
                 <div class="flex justify-end mt-4">
                     <button type="submit"
                             class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-sm font-medium border-black bg-black text-white hover:bg-gray-800">

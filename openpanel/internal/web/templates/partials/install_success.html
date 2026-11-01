@@ -1,0 +1,147 @@
+{{define "install_success"}}
+<!-- START templates/partials/install_success.html -->
+<div id="installSuccess" class="hidden mb-4 rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950 overflow-hidden">
+  <div class="flex items-start gap-3 bg-gray-50 dark:bg-gray-900 p-4 border-b border-gray-200 dark:border-gray-800">
+    <svg viewBox="0 0 24 24" fill="currentColor" class="size-8 shrink-0 text-emerald-500"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path></svg>
+    <div class="min-w-0">
+      <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Installed successfully"}}</h2>
+      <p class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Your new website is ready. Save the login details below."}}</p>
+    </div>
+  </div>
+
+  <dl class="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
+    <div class="flex items-center justify-between gap-3 px-4 py-2.5" data-row="site">
+      <dt class="text-gray-500 dark:text-gray-400 shrink-0">{{.T.Get "Website"}}</dt>
+      <dd class="flex items-center gap-2 min-w-0"><a id="succSiteUrl" href="#" target="_blank" rel="noopener" class="font-mono text-blue-600 dark:text-blue-400 hover:underline truncate"></a><button type="button" class="copy-btn shrink-0" data-copy="succSiteUrl"></button></dd>
+    </div>
+    <div class="flex items-center justify-between gap-3 px-4 py-2.5" data-row="admin">
+      <dt class="text-gray-500 dark:text-gray-400 shrink-0">{{.T.Get "Admin URL"}}</dt>
+      <dd class="flex items-center gap-2 min-w-0"><a id="succAdminUrl" href="#" target="_blank" rel="noopener" class="font-mono text-blue-600 dark:text-blue-400 hover:underline truncate"></a><button type="button" class="copy-btn shrink-0" data-copy="succAdminUrl"></button></dd>
+    </div>
+    <div class="flex items-center justify-between gap-3 px-4 py-2.5" data-row="user">
+      <dt class="text-gray-500 dark:text-gray-400 shrink-0">{{.T.Get "Admin username"}}</dt>
+      <dd class="flex items-center gap-2 min-w-0"><span id="succUser" class="font-mono text-gray-900 dark:text-gray-50 truncate"></span><button type="button" class="copy-btn shrink-0" data-copy="succUser"></button></dd>
+    </div>
+    <div class="flex items-center justify-between gap-3 px-4 py-2.5" data-row="pass">
+      <dt class="text-gray-500 dark:text-gray-400 shrink-0">{{.T.Get "Admin password"}}</dt>
+      <dd class="flex items-center gap-2 min-w-0">
+        <span id="succPass" data-secret="" class="font-mono text-gray-900 dark:text-gray-50 truncate">••••••••••</span>
+        <button type="button" id="succPassToggle" class="shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" title="{{.T.Get "Show"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/></svg></button>
+        <button type="button" class="copy-btn shrink-0" data-copy="succPass"></button>
+      </dd>
+    </div>
+    <div class="flex items-center justify-between gap-3 px-4 py-2.5" data-row="email">
+      <dt class="text-gray-500 dark:text-gray-400 shrink-0">{{.T.Get "Admin email"}}</dt>
+      <dd class="flex items-center gap-2 min-w-0"><span id="succEmail" class="font-mono text-gray-900 dark:text-gray-50 truncate"></span><button type="button" class="copy-btn shrink-0" data-copy="succEmail"></button></dd>
+    </div>
+    <div class="flex items-center justify-between gap-3 px-4 py-2.5" data-row="db">
+      <dt class="text-gray-500 dark:text-gray-400 shrink-0">{{.T.Get "Database"}}</dt>
+      <dd class="flex items-center gap-2 min-w-0"><span id="succDb" class="font-mono text-gray-900 dark:text-gray-50 truncate"></span></dd>
+    </div>
+  </dl>
+
+  <div class="flex flex-wrap items-center gap-2 border-t border-gray-100 dark:border-gray-800 p-4">
+    <button type="button" id="succPrimaryBtn" class="inline-flex items-center gap-1.5 rounded border border-black bg-black px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-gray-800">{{.T.Get "Open admin panel"}}</button>
+    <a id="succManageBtn" href="#" class="inline-flex items-center gap-1.5 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800">{{.T.Get "Manage website"}}</a>
+    <a id="succAnotherBtn" href="#" class="inline-flex items-center gap-1.5 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800">{{.T.Get "Install another"}}</a>
+  </div>
+</div>
+
+<div id="installLogWrap" class="hidden">
+  <a href="#" id="installLogToggle" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">{{.T.Get "Show installation log"}}</a>
+  <pre id="installLog" class="hidden mt-2 max-h-64 overflow-auto rounded border border-gray-200 bg-gray-50 p-3 text-xs font-mono text-gray-700 whitespace-pre-wrap dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300"></pre>
+</div>
+
+<script>
+// raw backend stream, shown behind the "Show installation log" link once the install is done
+window.installLog = {
+  reset() { const el = document.getElementById('installLog'); if (el) el.textContent = ''; },
+  append(data) {
+    const el = document.getElementById('installLog');
+    if (!el) return;
+    let text = data.status || (data.error ? 'ERROR: ' + data.error : JSON.stringify(data));
+    if (data.deleted) text += ' deleted: ' + data.deleted.join(', ');
+    if (data.failed) text += ' failed: ' + data.failed.join(', ');
+    el.textContent += `[${new Date().toLocaleTimeString()}] ${text}\n`;
+  },
+};
+
+document.getElementById('installLogToggle').addEventListener('click', e => {
+  e.preventDefault();
+  const log = document.getElementById('installLog');
+  const open = log.classList.toggle('hidden') === false;
+  e.target.textContent = open ? {{toJSON (.T.Get "Hide installation log")}} : {{toJSON (.T.Get "Show installation log")}};
+});
+
+// opts: autoLogin (endpoint prefix returning {login_link}), primaryUrl, primaryLabel
+function showInstallSuccess(data, opts = {}) {
+  const form = document.getElementById('installForm');
+  const field = name => (form && form.elements[name] && form.elements[name].value) || '';
+  const domain = data.domain || (typeof _installDomain !== 'undefined' ? _installDomain : '');
+  const siteUrl = data.site_url || ('https://' + domain);
+  const adminUrl = data.admin_url || '';
+  const password = field('admin_password') || field('owner_password');
+  const user = data.admin_username || field('admin_username') || field('admin_user');
+  const dbName = data.db_name || '';
+  const dbUser = data.db_user || '';
+
+  const row = (name, show) => { document.querySelector(`#installSuccess [data-row="${name}"]`).style.display = show ? '' : 'none'; };
+  const link = (id, url) => { const el = document.getElementById(id); el.textContent = url; el.href = url; };
+
+  link('succSiteUrl', siteUrl);
+  row('admin', !!adminUrl); if (adminUrl) link('succAdminUrl', adminUrl);
+  row('user', !!user); document.getElementById('succUser').textContent = user;
+  row('pass', !!password); document.getElementById('succPass').dataset.secret = password;
+  row('email', !!data.admin_email); document.getElementById('succEmail').textContent = data.admin_email || '';
+  row('db', !!dbName); document.getElementById('succDb').textContent = dbUser && dbUser !== dbName ? `${dbName} / ${dbUser}` : dbName;
+
+  document.getElementById('succManageBtn').href = '/website?domain=' + encodeURIComponent(domain);
+  document.getElementById('succAnotherBtn').href = window.location.pathname;
+
+  const copyIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/></svg>`;
+  document.querySelectorAll('#installSuccess .copy-btn').forEach(btn => {
+    btn.innerHTML = copyIcon;
+    btn.title = {{toJSON (.T.Get "Copy")}};
+    btn.onclick = () => {
+      const el = document.getElementById(btn.dataset.copy);
+      const val = el.dataset.secret !== undefined ? el.dataset.secret : el.textContent;
+      navigator.clipboard.writeText(val).then(() => showToast({{toJSON (.T.Get "Copied to clipboard")}}, 'success'));
+    };
+  });
+
+  const pass = document.getElementById('succPass');
+  let shown = false;
+  pass.textContent = '••••••••••';
+  document.getElementById('succPassToggle').onclick = () => {
+    shown = !shown;
+    pass.textContent = shown ? pass.dataset.secret : '••••••••••';
+  };
+
+  const primary = document.getElementById('succPrimaryBtn');
+  const primaryUrl = opts.primaryUrl || adminUrl;
+  if (opts.primaryLabel) primary.textContent = opts.primaryLabel;
+  primary.style.display = (primaryUrl || opts.autoLogin) ? '' : 'none';
+  primary.onclick = () => {
+    if (!opts.autoLogin) { window.open(primaryUrl, opts.sameTab ? '_self' : '_blank'); return; }
+    // open the tab right away so the popup blocker doesn't eat it after the fetch
+    const win = window.open('about:blank', '_blank');
+    const go = url => { if (win) win.location = url; else window.open(url, '_blank'); };
+    fetch(opts.autoLogin + encodeURIComponent(domain), { headers: { 'X-CSRF-Token': field('csrf_token') } })
+      .then(r => r.json())
+      .then(res => go(res && res.login_link ? res.login_link : (adminUrl || siteUrl)))
+      .catch(() => go(adminUrl || siteUrl));
+  };
+
+  if (typeof _setDescription === 'function') {
+    _setDescription({{toJSON (.T.Get "Installed on")}} + ` <a href="${siteUrl}" target="_blank" rel="noopener" class="font-mono text-blue-500 hover:underline">${domain}</a>`);
+  }
+  // stepsContainer is a grid, and .grid comes after .hidden in output.css so the class alone won't hide it
+  const steps = document.getElementById('stepsContainer');
+  if (steps) steps.style.display = 'none';
+  document.getElementById('installSuccess').classList.remove('hidden');
+  document.getElementById('installLogWrap').classList.remove('hidden');
+  document.getElementById('installSuccess').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+<!-- END templates/partials/install_success.html -->
+{{end}}

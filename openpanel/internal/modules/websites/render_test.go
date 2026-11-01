@@ -190,26 +190,6 @@ func TestWPDebuggingErrorLogs(t *testing.T) {
 	}
 }
 
-func TestRenderN8nAppPage(t *testing.T) {
-	mgr := i18n.NewManager(t.TempDir(), nil)
-	pd := pageData{LayoutData: baseLayout(mgr, "/website"), CurrentDomain: "flows.example.com", Docroot: "/var/www/html/flows.example.com"}
-	for _, status := range []string{"true", "false"} {
-		data := N8nAppPageData{
-			pageData:  pd,
-			Container: ContainerInfo{SiteName: "flows.example.com", Type: "n8n", Version: "1.64.0", CreatedDate: "2026-04-02", Port: "5678"},
-			Service:   "n8n", PM2Status: status, CPU: "1", RAM: "1", CurrentVersion: "1.64.0",
-			EnvVars: "N8N_HOST=flows.example.com\nGENERIC_TIMEZONE=UTC",
-		}
-		w := httptest.NewRecorder()
-		if err := n8nAppPage.Render(w, 200, data); err != nil {
-			t.Fatalf("Render (%s): %v", status, err)
-		}
-		if !strings.Contains(w.Body.String(), "N8N_HOST=flows.example.com") {
-			t.Errorf("expected env vars in the page (%s)", status)
-		}
-	}
-}
-
 func TestRenderWebsiteBuilderInstallPage(t *testing.T) {
 	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)

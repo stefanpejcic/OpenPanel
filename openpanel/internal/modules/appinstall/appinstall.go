@@ -36,7 +36,6 @@ var kindsByAppType = map[string]Kind{
 	Python.AppType: Python,
 	Ruby.AppType:   Ruby,
 	Java.AppType:   Java,
-	N8N.AppType:    N8N,
 }
 
 // kindByAppType looks up a Kind by its lowercase sites.type value.

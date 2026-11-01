@@ -63,33 +63,6 @@ func TestRuntimeManagerExtras(t *testing.T) {
 	}
 }
 
-func TestN8nRouteStrip(t *testing.T) {
-	webtest.ModernOnly(t)
-	mgr := i18n.NewManager(t.TempDir(), nil)
-	pd := pageData{LayoutData: baseLayout(mgr, "/website"), CurrentDomain: "n8n.example.com", Docroot: "/var/www/html/n8n.example.com"}
-	data := N8nAppPageData{pageData: pd, Service: "n8n", PM2Status: "true", CPU: "1.0", RAM: "1.0", PIDs: "500",
-		Mounts: []ComposeMount{{"n8n_data", "/home/node/.n8n"}}, Networks: []string{"www", "db"}}
-	w := httptest.NewRecorder()
-	if err := n8nAppPage.Render(w, 200, data); err != nil {
-		t.Fatalf("Render: %v", err)
-	}
-	body := w.Body.String()
-	for _, want := range []string{"op-dk-route is-4", "n8n_data", "/home/node/.n8n", "www, db"} {
-		if !strings.Contains(body, want) {
-			t.Errorf("missing %q", want)
-		}
-	}
-
-	data.Mounts, data.Networks = nil, nil
-	w = httptest.NewRecorder()
-	if err := n8nAppPage.Render(w, 200, data); err != nil {
-		t.Fatalf("Render without compose info: %v", err)
-	}
-	if strings.Contains(w.Body.String(), "is-4") {
-		t.Error("no volume means three nodes")
-	}
-}
-
 func TestPHPAppComposerTable(t *testing.T) {
 	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)

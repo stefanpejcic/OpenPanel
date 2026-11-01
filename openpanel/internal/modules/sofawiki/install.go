@@ -119,8 +119,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed SofaWiki on domain "+selectedDomain, ipAddress)
-	web.Flash(a, w, r, "success", web.Tr(a, r, "SofaWiki installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
-	emit(map[string]any{"status": "SofaWiki installation completed! Visit the site to finish setup (folder rights, then the SofaWiki setup wizard)."})
+	emit(appkit.InstallDoneEvent("SofaWiki installation completed! Visit the site to finish setup (folder rights, then the SofaWiki setup wizard).", selectedDomain, appkit.InstallInfo{}))
 }
 
 // runSofawikiExtract downloads the master branch archive and extracts it into installPath - GitHub wraps everything in "sofawiki-master/", so this extracts to a scratch location first then cp -a's the contents into installPath, which works whether installPath already exists (root install) or not (subdirectory install)

@@ -84,8 +84,8 @@
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
         <div class="flex items-center gap-2">
             <input type="text" name="name" placeholder="{{.T.Get "e.g. Laptop - Claude Desktop"}}" maxlength="100"
-                   class="rounded border-gray-300 dark:border-gray-700 dark:bg-gray-950 text-sm px-3 py-2 w-64" required>
-            <select name="expires_in_days" class="rounded border-gray-300 dark:border-gray-700 dark:bg-gray-950 text-sm px-3 py-2">
+                   class="relative w-64 appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" required>
+            <select name="expires_in_days" class="relative rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 h-10.5 sm:h-9.5">
                 <option value="">{{.T.Get "Never expires"}}</option>
                 <option value="30">{{.T.Get "Expires in 30 days"}}</option>
                 <option value="90">{{.T.Get "Expires in 90 days"}}</option>

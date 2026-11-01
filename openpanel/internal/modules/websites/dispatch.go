@@ -262,20 +262,6 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			HiddenFiles:  hidden,
 		})
 
-	case "n8n":
-		pm2Data := getPM2ForApplication(a, r, userContext, container.Container, "N8N")
-		svc := composeServiceFor(userContext, container.Container)
-		renderN8nAppPage(a, w, r, N8nAppPageData{
-			pageData:  basePageData,
-			Container: container,
-			PM2Data:   pm2Data,
-			EnvVars:   envVarsOf(svc),
-			Mounts:    composeMounts(svc),
-			Networks:  composeNetworks(svc),
-			Image:     svcImage(userContext, svc),
-			Restart:   svcString(svc, "restart"),
-		})
-
 	case "php":
 		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
 		settings := getPHPAppSettings(userContext, websiteParam)

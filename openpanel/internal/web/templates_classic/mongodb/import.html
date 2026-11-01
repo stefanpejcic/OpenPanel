@@ -19,8 +19,8 @@
 
   <div class="col-span-full mb-5">
     <label for="database_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Select database:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-    <div class="flex rounded-lg shadow-sm">
-  <select name="database_name" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 mt-2" required>
+    <div class="flex">
+  <select name="database_name" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 mt-2 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" required>
     <option value=""></option>
   </select>
     </div>
@@ -30,8 +30,8 @@
 
         <div class="col-span-full">
             <label for="file" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Select File"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-            <div class="flex rounded-lg shadow-sm">
-            <input type="file" name="db_file" accept=".archive,.gz" id="file" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950" placeholder=" {{.T.Get "Select file to upload"}}" required>
+            <div class="flex">
+            <input type="file" name="db_file" accept=".archive,.gz" id="file" class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950" placeholder=" {{.T.Get "Select file to upload"}}" required>
             </div>
         </div>
 

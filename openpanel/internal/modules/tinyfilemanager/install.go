@@ -173,8 +173,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed TinyFileManager on domain "+selectedDomain, ipAddress)
-	web.Flash(a, w, r, "success", web.Tr(a, r, "TinyFileManager installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
-	emit(map[string]any{"status": "TinyFileManager installation completed!", "admin_user": adminUsername})
+	emit(appkit.InstallDoneEvent("TinyFileManager installation completed!", selectedDomain, appkit.InstallInfo{AdminPath: "/tinyfilemanager.php", AdminUsername: adminUsername}))
 }
 
 // runTinyFileManagerInstall downloads tinyfilemanager.php from the master branch into installPath - that's the entire upstream install procedure for a single-file app with no build step

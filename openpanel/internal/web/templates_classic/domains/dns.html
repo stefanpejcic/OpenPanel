@@ -4,6 +4,35 @@
 
 {{define "content"}}
 <!-- START templates/domains/dns.html -->
+<script>
+// type pills next to the search, counted from the rows so deletes without a reload stay right
+function dnsTypeFilter() {
+    return {
+        searchQuery: '',
+        typeFilter: '',
+        types: [],
+        counts: {},
+        total: 0,
+        recount() {
+            const counts = {};
+            let total = 0;
+            document.querySelectorAll('#filemanager_table tr.domain_row[data-type]').forEach(tr => {
+                counts[tr.dataset.type] = (counts[tr.dataset.type] || 0) + 1;
+                total++;
+            });
+            this.counts = counts;
+            this.total = total;
+            this.types = Object.keys(counts).sort();
+            if (this.typeFilter && !counts[this.typeFilter]) this.typeFilter = '';
+        },
+        init() {
+            this.recount();
+            const tbody = document.querySelector('#filemanager_table tbody');
+            if (tbody) new MutationObserver(() => this.recount()).observe(tbody, { childList: true });
+        },
+    };
+}
+</script>
 
 {{if .Domain}}
 
@@ -55,15 +84,26 @@ document.addEventListener('DOMContentLoaded', function () {
     </header>
 </div>
 
-<section aria-label="{{.T.Get "Records Table"}}" x-data="{ searchQuery: '' }">
+<section aria-label="{{.T.Get "Records Table"}}" x-data="dnsTypeFilter()">
     <div class="flex flex-col justify-between gap-2 p-4 px-6 sm:flex-row sm:items-center">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center min-w-0">
         <div class="relative w-full sm:w-64 [&>input]:py-1.5">
-            <input x-model="searchQuery" class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 pl-8" placeholder="{{.T.Get "Search"}}" type="search"/>
+            <input x-model="searchQuery" class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 pl-8 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" placeholder="{{.T.Get "Search"}}" type="search"/>
             <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
                     <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
                 </svg>
             </div>
+        </div>
+        {{template "filter_chips_css"}}
+        <div id="dnsTypeFilters" class="flex flex-wrap items-center gap-2">
+            <template x-for="t in ['', ...types]" :key="t">
+                <button type="button" @click="typeFilter = t" :data-type-filter="t" class="activity-chip cursor-pointer" :class="{ 'is-active': typeFilter === t }" :aria-current="typeFilter === t">
+                    <span x-text="t || {{toJSON (.T.Get "All")}}"></span>
+                    <span class="activity-chip-count" x-text="t ? counts[t] : total"></span>
+                </button>
+            </template>
+        </div>
         </div>
 
         <input type="text" id="serial_number_current" value="{{.Serial}}" hidden>
@@ -119,13 +159,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
             <td></td>
             <td class="px-6 py-4">
-                                <input type="text" name="Name" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" placeholder="" aria-label="{{.T.Get "Name"}}" required pattern="^[A-Za-z0-9.@_-]+$" title="{{.T.Get "Only letters, numbers, and the characters . @ _ - are allowed."}}">
+                                <input type="text" name="Name" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 mt-2 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" placeholder="" aria-label="{{.T.Get "Name"}}" required pattern="^[A-Za-z0-9.@_-]+$" title="{{.T.Get "Only letters, numbers, and the characters . @ _ - are allowed."}}">
                             </td>
                             <td class="px-6 py-4">
-                                <input type="number" name="TTL" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" placeholder="" aria-label="{{.T.Get "TTL"}}" required min="60" value="14400">
+                                <input type="number" name="TTL" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 mt-2 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" placeholder="" aria-label="{{.T.Get "TTL"}}" required min="60" value="14400">
                             </td>
                             <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                                <select name="Type" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" required onchange="updateForm()">
+                                <select name="Type" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 mt-2 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 h-10.5 sm:h-9.5" required onchange="updateForm()">
                                     <option value="A">{{.T.Get "A"}}</option>
                                     <option value="AAAA">{{.T.Get "AAAA"}}</option>
                                     <option value="CAA">{{.T.Get "CAA"}}</option>
@@ -138,8 +178,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <input type="text" name="IN" class="d-none" required value="IN" hidden>
                             </td>
                             <td class="px-6 py-4">
-                                <input type="text" name="Priority" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" placeholder="0" aria-label="{{.T.Get "Priority"}}" style="display:none;">
-                                <input type="text" name="Record" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" placeholder="" aria-label="{{.T.Get "Record"}}" required>
+                                <input type="text" name="Priority" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 mt-2 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" placeholder="0" aria-label="{{.T.Get "Priority"}}" style="display:none;">
+                                <input type="text" name="Record" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 mt-2 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" placeholder="" aria-label="{{.T.Get "Record"}}" required>
 
                               <div id="tlsa_helper" style="display:none;" class="mt-3">
                                   <div class="flex items-center gap-2 mb-2">
@@ -171,10 +211,10 @@ document.addEventListener('DOMContentLoaded', function () {
                                   <div class="flex items-center gap-2 mt-1">
                                       <label class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{{.T.Get "Port"}}</label>
                                       <input type="number" id="tlsa_port" value="443" min="1" max="65535"
-                                          class="w-20 rounded border px-2 py-1 text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:border-blue-500">
+                                          class="relative w-20 appearance-none rounded border px-2 py-1 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
                                       <label class="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{{.T.Get "Protocol"}}</label>
                                       <select id="tlsa_protocol"
-                                          class="rounded border px-2 py-1 text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:border-blue-500">
+                                          class="relative rounded border px-2 py-1 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
                                           <option value="tcp">TCP</option>
                                           <option value="udp">UDP</option>
                                       </select>
@@ -350,7 +390,7 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
             {{range .Rows}}
-                    <tr x-show="searchQuery === '' || '{{.Name}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.TTL}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Type}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.DisplayValue}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                    <tr data-type="{{.Type}}" x-show="(typeFilter === '' || typeFilter === '{{.Type}}') && (searchQuery === '' || '{{.Name}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.TTL}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Type}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.DisplayValue}}'.toLowerCase().includes(searchQuery.toLowerCase()))" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
 {{template "bulk_row_checkbox" (dict "T" $.T "Key" .BulkKey "Label" (printf "%s %s" .Name .Type))}}
 
                         <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
@@ -478,10 +518,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                   var bulkCell = row.querySelector('input.bulk-select-box') ? row.firstElementChild.outerHTML : '';
                   row.innerHTML = bulkCell + `
-                      <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"><input type="text" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" name="field1" value='${existingField1}'></td>
-                      <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"><input type="number" min="0" max="65535" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2"  name="field2" value='${existingField2}'></td>
+                      <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"><input type="text" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 mt-2 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" name="field1" value='${existingField1}'></td>
+                      <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"><input type="number" min="0" max="65535" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 mt-2 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"  name="field2" value='${existingField2}'></td>
                       <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-        <select name="field3" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" id="Type" required onchange="updateForm()">
+        <select name="field3" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 mt-2 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 h-10.5 sm:h-9.5" id="Type" required onchange="updateForm()">
             <option value="A" ${existingField3 === 'A' ? 'selected' : ''}>A</option>
             <option value="AAAA" ${existingField3 === 'AAAA' ? 'selected' : ''}>AAAA</option>
             <option value="CAA" ${existingField3 === 'CAA' ? 'selected' : ''}>CAA</option>
@@ -496,10 +536,10 @@ document.addEventListener('DOMContentLoaded', function () {
                       <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
   ${
     existingField3 === 'MX'
-    ? `<input type="number" name="priority" min="0" max="65535" value='${existingPriority}' class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 id="Priority" focus:border-blue-500 focus:dark:border-blue-700 mt-2">`
+    ? `<input type="number" name="priority" min="0" max="65535" value='${existingPriority}' class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 id= disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"Priority" focus:border-blue-500 focus:dark:border-blue-700 mt-2">`
     : ``
   }
-                      <input type="text" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 mt-2" name="field4" id="Record" value='${existingField4}'>
+                      <input type="text" class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 mt-2 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" name="field4" id="Record" value='${existingField4}'>
                       </td>
                       <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
 <button type="button" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800 save-button" style="display: none;" data-line-number="${lineNumber}" data-end-line-number="${endLineNumber}" data-domain="${domain}"><i class="bi bi-check"></i><span class="hidden sm:inline">{{.T.Get "Save"}}</span></button>
@@ -702,7 +742,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   <div class="h-full w-2/2">
     <div class="h-full m-6">
-      <textarea class="flex resize-none w-full h-full min-h-svh rounded border px-3 py-1.5 shadow-sm outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 " id="zone_content" name="zone_content">{{.ZoneContent}}</textarea>
+      <textarea class="flex resize-none w-full h-full min-h-svh rounded border px-3 py-1.5 outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50 border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700" id="zone_content" name="zone_content">{{.ZoneContent}}</textarea>
     </div>
   </div>
 

@@ -257,8 +257,7 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
 	_ = logger.RecordUserAction(a.Config, currentUsername, "installed MediaWiki on domain "+selectedDomain, ipAddress)
-	web.Flash(a, w, r, "success", web.Tr(a, r, "MediaWiki installed successfully on %(selected_domain)s", "selected_domain", selectedDomain))
-	emit(map[string]any{"status": "MediaWiki installation completed!"})
+	emit(appkit.InstallDoneEvent("MediaWiki installation completed!", selectedDomain, appkit.InstallInfo{AdminPath: "/index.php?title=Special:UserLogin", AdminUsername: adminUsername, AdminEmail: adminEmail, DBName: dbName, DBUser: dbUser}))
 }
 
 // emitCleanupFiles clears the failed install's files but leaves installPath itself - it's the domain's docroot, not ours to delete. Host-side removal, not `podman exec ... rm`, since once the archive is extracted host-side (owned by this process's own real UID) a rootless container's "root" can't write into a directory it doesn't own outside its user-namespace mapping, so `podman exec rm -rf` would silently fail

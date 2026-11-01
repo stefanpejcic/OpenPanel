@@ -210,7 +210,7 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	websites.TriggerScreenshotGeneration(a, selectedDomain)
 
-	emit(map[string]any{"status": "New PHP application setup completed!"})
+	emit(appkit.InstallDoneEvent("New PHP application setup completed!", selectedDomain, appkit.InstallInfo{}))
 	_ = logger.RecordUserAction(a.Config, currentUsername, "created a new PHP application on domain "+selectedDomain, ipAddress)
 }
 

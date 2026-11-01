@@ -26,7 +26,7 @@ func RegisterAccounts(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /emails/edit/{email}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleEmails(a, w, r) }))
 	mux.Handle("DELETE /emails/edit/{email}", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleEmails(a, w, r) }))
 	mux.Handle("POST /emails/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) {
-		web.ServeBulkDispatch(a, mux, w, r, accountsBulkActions(web.RequestTranslator(a, r)), accountsBulkRoute)
+		web.ServeBulkDispatch(a, mux, w, r, accountsBulkActions(web.RequestTranslator(a, r), ""), accountsBulkRoute)
 	}))
 
 	mux.Handle("GET /emails/delete", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleEmailsDelete(a, w, r) }))

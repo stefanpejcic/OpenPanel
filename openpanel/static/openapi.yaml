@@ -127,7 +127,7 @@ tags:
 - name: Node.js / Python Apps
   description: Requires the `nodejs or python` feature to be enabled on the account's plan.
 - name: App Installer
-  description: Requires the `nodejs or python or java or ruby or n8n` feature to be enabled on the account's
+  description: Requires the `nodejs or python or java or ruby` feature to be enabled on the account's
     plan.
 - name: Helpers
   description: Requires the `helpers` feature to be enabled on the account's plan.
@@ -10425,74 +10425,6 @@ paths:
               required:
               - domain_id
               - service_name
-      responses:
-        '200':
-          description: Success.
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: true
-        default:
-          $ref: '#/components/responses/Error'
-      security:
-      - bearerAuth: []
-  /api/n8n/install:
-    post:
-      summary: Install n8n with its owner account (form-encoded body; response streams newline-delimited
-        JSON progress events).
-      operationId: n8n_install
-      tags:
-      - App Installer
-      requestBody:
-        required: true
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                domain_id:
-                  type: string
-                service_name:
-                  type: string
-                startup_file:
-                  type: string
-                cpu_limit:
-                  type: string
-                mem_limit:
-                  type: string
-                pids_limit:
-                  type: integer
-                subdirectory:
-                  type: string
-                version:
-                  type: string
-                  default: latest
-                custom_cmd:
-                  type: string
-                requirements:
-                  type: string
-                git_repo_url:
-                  type: string
-                  format: uri
-                owner_email:
-                  type: string
-                  format: email
-                owner_first_name:
-                  type: string
-                owner_last_name:
-                  type: string
-                owner_password:
-                  type: string
-                  minLength: 8
-                  maxLength: 64
-              required:
-              - domain_id
-              - service_name
-              - owner_email
-              - owner_first_name
-              - owner_last_name
-              - owner_password
       responses:
         '200':
           description: Success.

@@ -247,6 +247,9 @@ var layoutFiles = []string{
 	"partials/_service_js.html",
 	"partials/punnycode.html",
 	"partials/theme_switcher.html",
+	"partials/install_success.html",
+	"partials/folder_picker.html",
+	"partials/filter_chips.html",
 }
 
 // LoadPage is MustLoadPage with the standard layout files prepended
