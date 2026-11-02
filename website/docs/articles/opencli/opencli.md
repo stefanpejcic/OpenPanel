@@ -162,6 +162,10 @@ opencli domains-whoowns
 Description: Check which username owns a certain domain name.
 Usage: opencli domains-whoowns <DOMAIN-NAME> [--context] [--docroot]
 ------------------------
+opencli email-default_sync
+Description: Writes the default (catch-all) email addresses to docker-mailserver's postfix-regexp.cf.
+Usage: opencli email-default_sync
+------------------------
 opencli email-manage
 Description: Pass commands through to docker-mailserver's setup CLI inside the mailserver container.
 Usage: opencli email-manage <COMMAND> [<ARGS>...]
