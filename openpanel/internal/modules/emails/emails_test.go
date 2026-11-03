@@ -224,6 +224,30 @@ func TestReadRestrictedAddresses(t *testing.T) {
 	}
 }
 
+// "a@b.com" is also inside "data@b.com"'s line and restriction entry
+func TestLookupsMatchTheWholeAddress(t *testing.T) {
+	cases := []struct {
+		line, email string
+		want        bool
+	}{
+		{"* data@b.com ( 1M / 5.0G ) [0%]", "a@b.com", false},
+		{"* a@b.com ( 2M / 1.0G ) [0%]", "a@b.com", true},
+		{"* data@b.com ( 1M / 5.0G ) [0%]", "DATA@b.com", true},
+		{"* a@b.com", "a@b.com", true},
+		{"* a@b.com.au ( 2M / 1.0G ) [0%]", "a@b.com", false},
+		{"", "a@b.com", false},
+	}
+	for _, c := range cases {
+		if got := isMailboxLine(c.line, c.email); got != c.want {
+			t.Errorf("isMailboxLine(%q, %q) = %v, want %v", c.line, c.email, got, c.want)
+		}
+	}
+	restricted := restrictedAddresses("Data@b.com \t\t REJECT\n")
+	if restricted["a@b.com"] || !restricted["data@b.com"] {
+		t.Errorf("restricted = %v, want data@b.com only", restricted)
+	}
+}
+
 func TestParseEmailListRowNearQuota(t *testing.T) {
 	if !parseEmailListRow("* a@b.com ( 0 / 2.0G ) [85%]").NearQuota {
 		t.Fatal("85% should be near quota")

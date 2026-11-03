@@ -221,7 +221,7 @@ func apiEmailDetailGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if cmdErr != nil {
 			return "unknown"
 		}
-		if strings.Contains(string(out), email) {
+		if restrictedAddresses(string(out))[strings.ToLower(email)] {
 			return "REJECT"
 		}
 		return "ACCEPT"
@@ -230,7 +230,7 @@ func apiEmailDetailGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	lines := GetEmailList(ctx, a, userID, currentUsername, userDomains)
 	rawLine := ""
 	for _, l := range lines {
-		if strings.Contains(l, email) {
+		if isMailboxLine(l, email) {
 			rawLine = l
 			break
 		}
