@@ -10,8 +10,7 @@
 |---|---|
 |__[2.0.21](/docs/changelog/2.0.21)__| November 03, 2026 |
 
-| Version| Release date |
-|---|---|
+
 ### Previous versions
 
 | Version| Release date | 
