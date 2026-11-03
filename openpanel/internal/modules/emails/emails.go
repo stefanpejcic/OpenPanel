@@ -489,6 +489,18 @@ func parseEmailListRow(entry string) EmailListRow {
 	return EmailListRow{Address: address, QuotaDisplay: quota, PercentVal: percentVal, CappedVal: cappedVal, BarColor: barColor, NearQuota: percentVal > 80}
 }
 
+// ParseMailboxQuota splits one `opencli email-setup email list` line ("* info@demo.rs ( 28M / 2.0G ) [1%]") into the address and docker-mailserver's "( used / limit )", "~" being no limit; used and limit are empty when the line shows no quota
+func ParseMailboxQuota(line string) (address, used, limit string) {
+	parts := strings.Fields(strings.TrimLeft(line, "* "))
+	if len(parts) == 0 {
+		return "", "", ""
+	}
+	if len(parts) >= 6 && parts[1] == "(" && parts[3] == "/" && parts[5] == ")" {
+		return parts[0], parts[2], parts[4]
+	}
+	return parts[0], "", ""
+}
+
 const dmsConfigDir = "/usr/local/mail/openmail/docker-data/dms/config"
 
 // readRestrictedAddresses returns the addresses listed in a postfix access file (lines like "user@domain REJECT")

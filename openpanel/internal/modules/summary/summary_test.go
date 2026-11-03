@@ -1,6 +1,7 @@
 package summary
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -205,6 +206,18 @@ func TestSizeBytes(t *testing.T) {
 		if got := sizeBytes(in); got != want {
 			t.Errorf("sizeBytes(%q) = %d, want %d", in, got, want)
 		}
+	}
+}
+
+func TestCheckMailboxes(t *testing.T) {
+	defer func(f func(context.Context, *appctx.App, int, string, map[string]bool) []string) { emailList = f }(emailList)
+	emailList = func(context.Context, *appctx.App, int, string, map[string]bool) []string {
+		return []string{"* full@a.com ( 4.5G / 5.0G ) [90%]", "* ok@a.com ( 28M / 5.0G ) [0%]", "* nolimit@a.com ( 58K / ~ ) [0%]", "* new@a.com (  /  ) [%]"}
+	}
+	b := testBuilder(t, "emails")
+	b.checkMailboxes(context.Background())
+	if len(b.s.Look) != 1 || b.s.Look[0].Title != "The mailbox full@a.com is almost full (90%)" || len(b.s.Good) != 0 {
+		t.Errorf("look = %+v, good = %v", b.s.Look, b.s.Good)
 	}
 }
 
