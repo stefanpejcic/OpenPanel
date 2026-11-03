@@ -9,6 +9,13 @@ fi
 # shellcheck disable=SC1091
 . /usr/local/opencli/lib/podman.sh
 
+
+
+
+# env
+sed -i 's/^# LITESPEED (tag is <release>-lsphpXX, the php version comes with the image)$/# LITESPEED/' /etc/openpanel/docker/compose/1.0/.env /home/*/.env 2>/dev/null
+
+
 # repairs compose files where the litespeed service / litespeed_conf volume were added with a different indentation than the rest of the file (e.g. 2 spaces in a file that uses 4)
 # only those two blocks are re-indented, the rest of the file is not touched; runs first so that podman-compose below never reads a broken file
 fix_litespeed_indent() {
