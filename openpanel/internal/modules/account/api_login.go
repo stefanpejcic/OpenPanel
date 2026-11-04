@@ -81,8 +81,8 @@ func handleAPILogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			writeAPIJSON(w, http.StatusUnauthorized, map[string]any{"twofa_required": true, "user_id": result.UserID})
 			return
 		}
-		if !totp.Validate(body.TwofaCode, otp.String) || !claimTOTPCode(ctx, a, result.UserID, body.TwofaCode) {
-			writeAPIJSON(w, http.StatusUnauthorized, map[string]any{"error": "invalid_2fa"})
+		if status, code := checkAPITwofa(ctx, a, result.UserID, body.TwofaCode, otp.String); status != 0 {
+			writeAPIJSON(w, status, map[string]any{"error": code})
 			return
 		}
 	}
@@ -108,6 +108,18 @@ func handleAPILogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	writeAPIJSON(w, http.StatusOK, map[string]any{
 		"token": token, "user_id": result.UserID, "expires_in": jwtExpSeconds,
 	})
+}
+
+// checkAPITwofa counts the guess against the same per-user limit as the login form, so the API can't be used to brute-force a 2FA code
+func checkAPITwofa(ctx context.Context, a *appctx.App, userID int, code, secret string) (int, string) {
+	if !allowTwofaGuess(userID, time.Now()) {
+		return http.StatusTooManyRequests, "too_many_2fa_attempts"
+	}
+	if !totp.Validate(code, secret) || !claimTOTPCode(ctx, a, userID, code) {
+		return http.StatusUnauthorized, "invalid_2fa"
+	}
+	forgetTwofaGuesses(userID)
+	return 0, ""
 }
 
 // mintAPIToken signs a Bearer JWT for userID, same shape as handleAPILogin issues - reused by the /account/api Swagger page to pre-authorize "Try it out" for an already-logged-in user
