@@ -69,7 +69,7 @@ func TestQueueRunsOneAtATimeInOrder(t *testing.T) {
 	if len(order) != 3 || order[0] != "one" || order[1] != "bad" || order[2] != "three" {
 		t.Errorf("order = %v", order)
 	}
-	queue, logs := q.snapshot(nil)
+	queue, logs := q.snapshot(nil, restoreRequest{})
 	if len(queue) != 0 || len(logs) != 3 {
 		t.Fatalf("queue %d, logs %d", len(queue), len(logs))
 	}
@@ -84,7 +84,7 @@ func TestQueueMarksInterruptedJobsFailed(t *testing.T) {
 	if err := os.WriteFile(q.path, []byte(content), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	queue, logs := q.snapshot(nil)
+	queue, logs := q.snapshot(nil, restoreRequest{})
 	if len(queue) != 0 || len(logs) != 1 || logs[0].Status != "failed" || logs[0].Finished == nil {
 		t.Errorf("queue %+v logs %+v", queue, logs)
 	}

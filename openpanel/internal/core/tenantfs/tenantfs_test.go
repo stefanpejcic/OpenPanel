@@ -282,3 +282,58 @@ func TestHomeRootFifoRefused(t *testing.T) {
 		t.Error("ReadFile blocked on a fifo")
 	}
 }
+
+func TestReadFileRefusesFifoInVolume(t *testing.T) {
+	home := t.TempDir()
+	t.Cleanup(SetHomeRootForTest(home))
+	vol := filepath.Join(home, "alice", "docker-data", "volumes", "alice_html_data", "_data")
+	if err := os.MkdirAll(vol, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := syscall.Mkfifo(filepath.Join(vol, "id_rsa"), 0o600); err != nil {
+		t.Skip("mkfifo not available:", err)
+	}
+	done := make(chan error, 1)
+	go func() { _, err := ReadFile(filepath.Join(vol, "id_rsa")); done <- err }()
+	select {
+	case err := <-done:
+		if !errors.Is(err, ErrNotRegular) {
+			t.Fatalf("err=%v, want ErrNotRegular", err)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("ReadFile blocked on a fifo in the volume")
+	}
+}
+
+func TestVolumePrefixSymlinkNotFollowed(t *testing.T) {
+	home := t.TempDir()
+	t.Cleanup(SetHomeRootForTest(home))
+	bobVol := filepath.Join(home, "bob", "docker-data", "volumes", "bob_html_data")
+	if err := os.MkdirAll(filepath.Join(bobVol, "_data"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(bobVol, "_data", "secret.txt"), []byte("BOB"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	vols := filepath.Join(home, "alice", "docker-data", "volumes")
+	if err := os.MkdirAll(vols, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	// alice's container swapped her volume dir for a link to bob's, the link is hers so it must not be followed
+	if err := os.Symlink(bobVol, filepath.Join(vols, "alice_html_data")); err != nil {
+		t.Fatal(err)
+	}
+	if data, err := ReadFile(filepath.Join(vols, "alice_html_data", "_data", "secret.txt")); err == nil {
+		t.Fatalf("read bob's file through alice's volume: %q", data)
+	}
+	if err := WriteFile(filepath.Join(vols, "alice_html_data", "_data", "planted.txt"), []byte("x"), 0o644); err == nil {
+		t.Fatal("wrote into bob's volume through alice's")
+	}
+	if _, err := os.Stat(filepath.Join(bobVol, "_data", "planted.txt")); err == nil {
+		t.Fatal("planted file landed in bob's volume")
+	}
+	// bob's own path still works
+	if data, err := ReadFile(filepath.Join(bobVol, "_data", "secret.txt")); err != nil || string(data) != "BOB" {
+		t.Fatalf("own volume read: %q %v", data, err)
+	}
+}

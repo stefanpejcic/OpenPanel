@@ -90,7 +90,27 @@ func dialSSH(config map[string]string) (*ssh.Client, error) {
 		HostKeyCallback: hostKey,
 		Timeout:         15 * time.Second,
 	}
-	return ssh.Dial("tcp", sshAddr(config), clientConfig)
+	return sshDial(config, clientConfig)
+}
+
+// sshDial is ssh.Dial with the destination address policy of the other backup stores
+func sshDial(config map[string]string, clientConfig *ssh.ClientConfig) (*ssh.Client, error) {
+	addr := sshAddr(config)
+	conn, err := dialRemote(config, addr)
+	if err != nil {
+		return nil, err
+	}
+	// ssh.Dial used to bound the handshake with clientConfig.Timeout, keep that
+	if clientConfig.Timeout > 0 {
+		_ = conn.SetDeadline(time.Now().Add(clientConfig.Timeout))
+	}
+	c, chans, reqs, err := ssh.NewClientConn(conn, addr, clientConfig)
+	if err != nil {
+		conn.Close()
+		return nil, err
+	}
+	_ = conn.SetDeadline(time.Time{})
+	return ssh.NewClient(c, chans, reqs), nil
 }
 
 // errGotHostKey stops the handshake once the host key is in, fetchHostKey doesn't need to log in
@@ -107,7 +127,7 @@ func fetchHostKey(config map[string]string) (string, error) {
 		},
 		Timeout: 15 * time.Second,
 	}
-	_, err := ssh.Dial("tcp", sshAddr(config), clientConfig)
+	_, err := sshDial(config, clientConfig)
 	if found != "" {
 		return found, nil
 	}
@@ -125,8 +145,22 @@ func runSSHCommand(client *ssh.Client, command string) (string, error) {
 	}
 	defer session.Close()
 
-	out, err := session.Output(command)
-	return string(out), err
+	stdout, err := session.StdoutPipe()
+	if err != nil {
+		return "", err
+	}
+	if err := session.Start(command); err != nil {
+		return "", err
+	}
+	// the remote host is the account's choice, so don't keep more of its output than a real listing needs
+	out, err := io.ReadAll(io.LimitReader(stdout, int64(maxListedBytes)+1))
+	if err != nil {
+		return "", err
+	}
+	if len(out) > maxListedBytes {
+		return "", errListingTooLarge
+	}
+	return string(out), session.Wait()
 }
 
 // sshStore is the remoteStore implementation for the "ssh" backup.env section. Each method opens its own short-lived connection rather than sharing one across a doReindex run - simpler than plumbing connection lifetime through the remoteStore interface for a destination that's only reindexed manually.

@@ -49,7 +49,11 @@ type downloadState struct {
 }
 
 func stateFile(downloadID string) (string, error) {
-	if err := os.MkdirAll(wgetStateDir, 0o755); err != nil {
+	// ids are always uuid.NewString(), anything else would be a path we never made
+	if u, err := uuid.Parse(downloadID); err != nil || u.String() != downloadID {
+		return "", errors.New("invalid download id")
+	}
+	if err := os.MkdirAll(wgetStateDir, 0o700); err != nil {
 		return "", err
 	}
 	return filepath.Join(wgetStateDir, downloadID+".json"), nil
@@ -65,7 +69,7 @@ func saveDownloadState(downloadID string, s downloadState) error {
 		return err
 	}
 	tmp := path + ".tmp"
-	if err := os.WriteFile(tmp, data, 0o644); err != nil {
+	if err := os.WriteFile(tmp, data, 0o600); err != nil {
 		return err
 	}
 	return os.Rename(tmp, path)
@@ -319,7 +323,7 @@ func handleWgetStatus(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	if info.Status == "done" && !info.Logged {
 		if claimed, first := claimDoneLog(downloadID); first {
-			_ = logger.RecordUserAction(a.Config, claimed.CurrentUsername, "downloaded file from URL "+claimed.URL+" via File Manager", reqip.ClientIP(r))
+			_ = logger.RecordUserAction(a.Config, user.Username, "downloaded file from URL "+claimed.URL+" via File Manager", reqip.ClientIP(r))
 		}
 	}
 

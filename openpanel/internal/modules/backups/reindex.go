@@ -40,7 +40,13 @@ func readBackupEnv(username string) (map[string]string, string) {
 		}
 	}
 
-	if sshKeyPath, ok := config["SSH_IDENTITY_FILE"]; ok && strings.HasPrefix(sshKeyPath, "/var/www/html/") {
+	delete(config, allowPrivateKey)
+	if AdminManagedBackups(username) {
+		config[allowPrivateKey] = "1"
+	}
+
+	// the account edits this file, so its key is only ever read from its own web root, an admin-managed file is the admin's own choice
+	if sshKeyPath := config["SSH_IDENTITY_FILE"]; sshKeyPath != "" && (strings.HasPrefix(sshKeyPath, "/var/www/html/") || !AdminManagedBackups(username)) {
 		config["SSH_IDENTITY_FILE"] = userHome + "/docker-data/volumes/" + username + "_html_data/_data/" + filepath.Base(sshKeyPath)
 	}
 
@@ -175,6 +181,7 @@ func classifyArchiveStream(backup string, r io.Reader, listAll bool, saveList fu
 	defer gz.Close()
 
 	var names []string
+	nameBytes := 0
 	var metas []backupMeta
 	dbSizes := map[string]int64{}
 	pastMeta := false
@@ -190,6 +197,10 @@ func classifyArchiveStream(backup string, r io.Reader, listAll bool, saveList fu
 		}
 		name := strings.Trim(header.Name, "/")
 		canonical, _ := canonicalName(name)
+		nameBytes += len(canonical) + 1
+		if len(names) >= maxListedNames || nameBytes > maxListedBytes {
+			return BackupInfo{}, false, errListingTooLarge
+		}
 		names = append(names, canonical)
 		if _, isDump := dumpEngine(canonical); isDump {
 			if db, ok := dumpDBName(canonical); ok {
@@ -204,6 +215,9 @@ func classifyArchiveStream(backup string, r io.Reader, listAll bool, saveList fu
 			continue
 		}
 		if kind := listKind(name); kind != "" && header.Typeflag == tar.TypeReg && saveList != nil {
+			if header.Size > maxListBytes {
+				return BackupInfo{}, false, errListTooLarge
+			}
 			if err := saveList(kind, tr); err != nil {
 				return BackupInfo{}, false, err
 			}
@@ -418,6 +432,17 @@ func keepLockFresh(lockFile string) (stop func()) {
 	}
 }
 
+// archives without a manifest are listed member by member, these keep a crafted one from filling the panel's memory
+var (
+	maxListedNames = 2_000_000
+	maxListedBytes = 256 << 20
+)
+
+// reindexTimeout bounds a whole reindex run, a stalled destination used to hold it and its lock forever
+const reindexTimeout = 6 * time.Hour
+
+var errListingTooLarge = errors.New("archive listing is too large")
+
 func doReindex(userHome string, config map[string]string, prefix, jsonFile, lockFile string) {
 	defer tenantfs.Remove(lockFile)
 	defer keepLockFresh(lockFile)()
@@ -433,7 +458,8 @@ func doReindex(userHome string, config map[string]string, prefix, jsonFile, lock
 		return
 	}
 
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), reindexTimeout)
+	defer cancel()
 	files, err := store.List(ctx)
 	if err != nil {
 		writeError(err.Error())

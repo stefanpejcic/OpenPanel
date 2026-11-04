@@ -76,7 +76,9 @@ func open(p string) (*os.Root, string, error) {
 	if err != nil || !ok {
 		return nil, "", err
 	}
-	root, err := os.OpenRoot(dir)
+	// every component under the account home is the account's, so none of them is followed as a symlink
+	ctx, _, _ := strings.Cut(strings.TrimPrefix(dir, homeRoot), "/")
+	root, err := paths.OpenAccountDir(homeRoot+ctx, dir)
 	if err != nil {
 		return nil, "", err
 	}
@@ -106,9 +108,22 @@ func do(p string, inRoot func(*os.Root, string) error, inHome func(base, rel str
 	return plain()
 }
 
+// volumeReadFile is os.Root.ReadFile that won't block on or stream from a fifo the account planted, the home branch already refuses those
+func volumeReadFile(r *os.Root, rel string) ([]byte, error) {
+	f, err := r.OpenFile(rel, os.O_RDONLY|syscall.O_NONBLOCK, 0)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	if err := requireRegular(f); err != nil {
+		return nil, err
+	}
+	return io.ReadAll(f)
+}
+
 func ReadFile(p string) ([]byte, error) {
 	var data []byte
-	err := do(p, func(r *os.Root, rel string) (err error) { data, err = r.ReadFile(rel); return },
+	err := do(p, func(r *os.Root, rel string) (err error) { data, err = volumeReadFile(r, rel); return },
 		func(base, rel string) (err error) { data, err = homeReadFile(base, rel); return },
 		func() (err error) { data, err = os.ReadFile(p); return })
 	return data, err

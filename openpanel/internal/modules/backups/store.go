@@ -2,12 +2,17 @@ package backups
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"io"
+	"net"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/safenet"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
@@ -43,6 +48,29 @@ func detectActiveTarget(config map[string]string) string {
 }
 
 // newRemoteStore builds the remoteStore implementation matching whichever destination is currently active in config
+// allowPrivateKey marks a config read from an admin-managed backup.env, readBackupEnv always sets or clears it so backup.env itself can't
+const allowPrivateKey = "\x00allow_private"
+
+// remoteTransport is what backup stores dial with, only public addresses unless the admin manages the destination
+func remoteTransport(config map[string]string, insecure bool) http.RoundTripper {
+	if config[allowPrivateKey] == "1" {
+		t := http.DefaultTransport.(*http.Transport).Clone()
+		if insecure {
+			t.TLSClientConfig = &tls.Config{InsecureSkipVerify: true} //nolint:gosec // opt-in by the admin for their own endpoint
+		}
+		return t
+	}
+	return safenet.Transport(insecure)
+}
+
+// dialRemote opens the tcp connection for ssh stores with the same address policy as remoteTransport
+func dialRemote(config map[string]string, addr string) (net.Conn, error) {
+	if config[allowPrivateKey] == "1" {
+		return net.DialTimeout("tcp", addr, 15*time.Second)
+	}
+	return safenet.Dialer.Dial("tcp", addr)
+}
+
 func newRemoteStore(config map[string]string) (remoteStore, error) {
 	switch detectActiveTarget(config) {
 	case "ssh":

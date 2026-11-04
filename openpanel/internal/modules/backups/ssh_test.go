@@ -9,6 +9,8 @@ import (
 	"strings"
 	"testing"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/safenet"
+
 	"golang.org/x/crypto/ssh"
 )
 
@@ -84,7 +86,11 @@ func TestFetchHostKey(t *testing.T) {
 	}()
 
 	host, port, _ := net.SplitHostPort(ln.Addr().String())
-	got, err := fetchHostKey(map[string]string{"SSH_HOST_NAME": host, "SSH_PORT": port, "SSH_USER": "backup"})
+	// an account-set destination never reaches loopback
+	if _, err := fetchHostKey(map[string]string{"SSH_HOST_NAME": host, "SSH_PORT": port, "SSH_USER": "backup"}); !errors.Is(err, safenet.ErrBlockedAddress) {
+		t.Fatalf("loopback ssh host from an account config: err=%v, want ErrBlockedAddress", err)
+	}
+	got, err := fetchHostKey(map[string]string{"SSH_HOST_NAME": host, "SSH_PORT": port, "SSH_USER": "backup", allowPrivateKey: "1"})
 	if err != nil {
 		t.Fatal(err)
 	}

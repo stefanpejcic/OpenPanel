@@ -76,6 +76,17 @@ var (
 	}
 )
 
+// CheckCronsPolicy runs the editor's security checks on a whole crons.ini for writers other than the editor (backup restore), "" means fine
+func CheckCronsPolicy(content string) string {
+	if containsAnyPattern(content, forbiddenPatterns) {
+		return "image= or network= are not allowed in the crons file."
+	}
+	if containsAnyPattern(content, execPatterns) {
+		return "job-run, job-local, and job-service-run are not allowed in the crons file."
+	}
+	return ""
+}
+
 func containsAnyPattern(text string, patterns []*regexp.Regexp) bool {
 	for _, p := range patterns {
 		if p.MatchString(text) {

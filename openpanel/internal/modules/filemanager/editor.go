@@ -23,7 +23,7 @@ var allowedEditors = map[string]bool{"monaco": true, "ace": true, "codemirror": 
 
 // isEditableFile is a crude binary-file sniff: no NUL byte in the first 8KB
 func isEditableFile(root *paths.UserRoot, rel string) bool {
-	f, err := root.Open(rel)
+	f, err := openRegular(root, rel)
 	if err != nil {
 		return false
 	}
@@ -192,7 +192,7 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 	fileLimitBytes := int64(fileLimitMB) * 1024 * 1024
 	var fileContent string
 
-	f, openErr := root.Open(rel)
+	f, openErr := openRegular(root, rel)
 	if openErr != nil {
 		if !isNew {
 			fail(http.StatusNotFound, "Error accessing file size.")
@@ -256,7 +256,7 @@ func handleDownloadFile(a *appctx.App, w http.ResponseWriter, r *http.Request, f
 	}
 	defer root.Close()
 
-	f, openErr := root.Open(rel)
+	f, openErr := openRegular(root, rel)
 	if openErr != nil {
 		web.FlashRedirect(a, w, r, "error", "Error retrieving file size.", filesRedirectPath(pathParam))
 		return
@@ -350,7 +350,7 @@ func handleViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filen
 
 	fileLimitMB := atoiDefault(a.Config.Get("filemanager_view_size", "500"), 500)
 
-	f, openErr := root.Open(rel)
+	f, openErr := openRegular(root, rel)
 	if openErr != nil {
 		web.FlashRedirect(a, w, r, "error", "Error opening file.", "/files")
 		return
@@ -372,7 +372,7 @@ func handleViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filen
 		return
 	}
 
-	content, err := io.ReadAll(f)
+	content, err := io.ReadAll(io.LimitReader(f, int64(fileLimitMB)*1024*1024))
 	if err != nil {
 		web.FlashRedirect(a, w, r, "error", "Error opening file.", "/files")
 		return

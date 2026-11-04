@@ -2,7 +2,6 @@ package backups
 
 import (
 	"context"
-	"crypto/tls"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -41,11 +40,8 @@ func (s *webdavStore) targetURL() (*url.URL, error) {
 }
 
 func (s *webdavStore) httpClient() *http.Client {
-	client := &http.Client{}
-	if s.config["WEBDAV_URL_INSECURE"] == "true" || s.config["WEBDAV_URL_INSECURE"] == "1" {
-		client.Transport = &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}} //nolint:gosec // opt-in via WEBDAV_URL_INSECURE, mirrors AWS_ENDPOINT_INSECURE/etc.
-	}
-	return client
+	insecure := s.config["WEBDAV_URL_INSECURE"] == "true" || s.config["WEBDAV_URL_INSECURE"] == "1"
+	return &http.Client{Transport: remoteTransport(s.config, insecure)}
 }
 
 func (s *webdavStore) newRequest(ctx context.Context, method string, u *url.URL, extraHeaders map[string]string) (*http.Request, error) {
@@ -125,7 +121,7 @@ func (s *webdavStore) List(ctx context.Context) ([]remoteFile, error) {
 	}
 
 	var ms davMultistatus
-	if err := xml.NewDecoder(resp.Body).Decode(&ms); err != nil {
+	if err := xml.NewDecoder(io.LimitReader(resp.Body, int64(maxListedBytes))).Decode(&ms); err != nil {
 		return nil, err
 	}
 

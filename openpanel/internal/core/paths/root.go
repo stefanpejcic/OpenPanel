@@ -30,7 +30,12 @@ func OpenUserRoot(base, context string) (*UserRoot, error) {
 	if err != nil {
 		return nil, err
 	}
-	root, err := os.OpenRoot(home)
+	var root *os.Root
+	if base == "HOME" && homeVolumeOverride == "" {
+		root, err = OpenAccountDir("/home/"+context, VolumeDir(context, "html_data"))
+	} else {
+		root, err = os.OpenRoot(home)
+	}
 	if err != nil {
 		return nil, abort(404, "User root directory not found")
 	}
@@ -63,7 +68,12 @@ func OpenDir(dir string) (*UserRoot, error) {
 	if err != nil {
 		return nil, abort(404, "Directory not found")
 	}
-	root, err := os.OpenRoot(resolved)
+	var root *os.Root
+	if base, ok := accountHomeOf(dir); ok {
+		root, err = OpenAccountDir(base, filepath.Clean(dir))
+	} else {
+		root, err = os.OpenRoot(resolved)
+	}
 	if err != nil {
 		return nil, abort(404, "Directory not found")
 	}
@@ -319,4 +329,14 @@ func CopyContents(root *os.Root, src, dst string) error {
 		}
 		return nil
 	})
+}
+
+// accountHomeOf reports the /home/<ctx> a dir sits under, if any
+func accountHomeOf(dir string) (string, bool) {
+	rest, ok := strings.CutPrefix(filepath.Clean(dir), "/home/")
+	ctx, sub, _ := strings.Cut(rest, "/")
+	if !ok || ctx == "" || ctx == "." || ctx == ".." || sub == "" {
+		return "", false
+	}
+	return "/home/" + ctx, true
 }

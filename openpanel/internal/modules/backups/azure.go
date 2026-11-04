@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"net/http"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 )
@@ -13,6 +14,12 @@ type azureStore struct {
 	config map[string]string
 }
 
+func (s *azureStore) clientOptions() *azblob.ClientOptions {
+	opts := &azblob.ClientOptions{}
+	opts.Transport = &http.Client{Transport: remoteTransport(s.config, false)}
+	return opts
+}
+
 func (s *azureStore) client() (*azblob.Client, string, error) {
 	container := s.config["AZURE_STORAGE_CONTAINER_NAME"]
 	if container == "" {
@@ -20,7 +27,7 @@ func (s *azureStore) client() (*azblob.Client, string, error) {
 	}
 
 	if connStr := s.config["AZURE_STORAGE_CONNECTION_STRING"]; connStr != "" {
-		c, err := azblob.NewClientFromConnectionString(connStr, nil)
+		c, err := azblob.NewClientFromConnectionString(connStr, s.clientOptions())
 		if err != nil {
 			return nil, "", err
 		}
@@ -43,7 +50,7 @@ func (s *azureStore) client() (*azblob.Client, string, error) {
 		serviceURL = "https://" + account + ".blob.core.windows.net/"
 	}
 
-	c, err := azblob.NewClientWithSharedKeyCredential(serviceURL, cred, nil)
+	c, err := azblob.NewClientWithSharedKeyCredential(serviceURL, cred, s.clientOptions())
 	if err != nil {
 		return nil, "", err
 	}

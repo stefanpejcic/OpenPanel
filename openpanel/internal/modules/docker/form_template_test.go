@@ -67,12 +67,25 @@ func TestCheckHostPaths(t *testing.T) {
 		"php": map[string]any{"volumes": []any{"/etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro"}},
 	}}
 	ok := []string{"html_data", "", "./data", "./sockets/mysqld", "/etc/openpanel/wordpress/wp-cli.phar", "/run/user/${USER_ID}/podman/podman.sock"}
-	if err := checkHostPaths(compose, ok, "alice"); err != nil {
+	if err := checkHostPaths(compose, ok, "alice", ""); err != nil {
 		t.Fatal(err)
 	}
-	for _, bad := range []string{"/", "/etc", "/home/ctx", "./", ".", "./..", "./../x", "./a/../../x", "./features.txt", "./docker-compose.yml", "./.env", "./.config/containers", "${HOME}/x", "./a:/b", "~/x"} {
-		if checkHostPaths(compose, []string{bad}, "alice") == nil {
+	for _, bad := range []string{"/", "/etc", "/home/ctx", "./", ".", "./..", "./../x", "./a/../../x", "./features.txt", "./docker-compose.yml", "./docker-data", "./docker-data/volumes/alice_html_data", "./crons.ini", "./backup.env", "./backup_restores.json", "./.env", "./.config/containers", "${HOME}/x", "./a:/b", "~/x"} {
+		if checkHostPaths(compose, []string{bad}, "alice", "") == nil {
 			t.Errorf("%q should be rejected", bad)
 		}
+	}
+}
+
+func TestDeniedPathsOnlyForTheServiceThatHasThem(t *testing.T) {
+	compose := map[string]any{"services": map[string]any{
+		"backup": map[string]any{"volumes": []any{"./crons.ini:/backup/crons.ini:ro"}},
+	}}
+	// another service listing ./crons.ini doesn't let a new container mount it read-write
+	if checkHostPaths(compose, []string{"./crons.ini"}, "alice", "") == nil {
+		t.Error("new container could mount ./crons.ini")
+	}
+	if err := checkHostPaths(compose, []string{"./crons.ini"}, "alice", "backup"); err != nil {
+		t.Errorf("editing the backup service broke: %v", err)
 	}
 }
