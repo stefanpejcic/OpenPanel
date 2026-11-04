@@ -1,7 +1,9 @@
 package account
 
 import (
+	"context"
 	"maps"
+	"net/http"
 	"testing"
 	"time"
 
@@ -52,5 +54,25 @@ func TestAllowTwofaGuessWindow(t *testing.T) {
 		if !allowTwofaGuess(user, start) {
 			t.Fatalf("guess %d refused after a successful login reset the count", i+1)
 		}
+	}
+}
+
+func TestAPITwofaGuessesShareTheLimit(t *testing.T) {
+	const user = 44
+	t.Cleanup(func() { forgetTwofaGuesses(user) })
+
+	// a few tries on the login form first, the API must keep counting from there
+	for i := 0; i < 2; i++ {
+		if !allowTwofaGuess(user, time.Now()) {
+			t.Fatalf("form guess %d refused", i+1)
+		}
+	}
+	for i := 2; i < twofaMaxAttempts; i++ {
+		if status, code := checkAPITwofa(context.Background(), nil, user, "000000", ""); status != http.StatusUnauthorized || code != "invalid_2fa" {
+			t.Fatalf("API guess %d = %d %q, want 401 invalid_2fa", i+1, status, code)
+		}
+	}
+	if status, code := checkAPITwofa(context.Background(), nil, user, "000000", ""); status != http.StatusTooManyRequests || code != "too_many_2fa_attempts" {
+		t.Fatalf("API guess past the limit = %d %q, want 429 too_many_2fa_attempts", status, code)
 	}
 }

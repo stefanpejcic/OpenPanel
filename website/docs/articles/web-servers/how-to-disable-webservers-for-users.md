@@ -28,6 +28,10 @@ A webserver that isn't on the list is rejected, even if someone calls the API di
 A user can only change the webserver while the account has no domains. This applies in OpenAdmin too.
 :::
 
+:::warning
+The `docker` module lets users add their own services on the **Containers** page, with any image. If you need to make sure users only run the webservers you offer, disable the [`docker` module](/docs/admin/settings/modules/#docker) too.
+:::
+
 ## Option 1: Stop users from changing the webserver
 
 If you only want every user to stay on the webserver you assign, disable the [Switch WebServer (`change_ws`)](/docs/admin/settings/modules/#change-ws) module from **OpenAdmin > Settings > Modules**. To disable it for some users only, remove it from the [feature set](/docs/admin/plans/feature-manager) of their plan.

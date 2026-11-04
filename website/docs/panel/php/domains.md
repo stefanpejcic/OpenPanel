@@ -10,6 +10,8 @@ For each version, the current development status is displayed, highlighting doma
 
 Ensure you check your site's requirements before selecting the appropriate PHP version.
 
+Only the PHP versions your hosting provider offers are listed. If a version your website needs is missing, contact your hosting provider.
+
 ![PHP version for domains page listing each domain with its current PHP version and a dropdown to change it](/img/openpanel-screenshots/php/domains-list.png#gh-light-mode-only)
 ![PHP version for domains page listing each domain with its current PHP version and a dropdown to change it](/img/openpanel-screenshots/php/domains-list_dark.png#gh-dark-mode-only)
 

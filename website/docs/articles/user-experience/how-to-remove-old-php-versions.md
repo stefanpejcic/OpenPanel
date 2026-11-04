@@ -16,6 +16,10 @@ The same list is used for every PHP selector in OpenPanel: **PHP > Domains**, **
 On OpenLiteSpeed and LiteSpeed web servers, PHP versions come from the web server's image tags instead, and users can't select a PHP version per domain.
 :::
 
+:::warning
+The `docker` module lets users add their own services on the **Containers** page, with any image, an old PHP image included. If you need to make sure users only run the PHP versions you offer, disable the [`docker` module](/docs/admin/settings/modules/#docker) too.
+:::
+
 ## For new users
 
 Edit the template from **OpenAdmin > Settings > [User Defaults](/docs/admin/settings/defaults/) > Advanced**, or in the file `/etc/openpanel/docker/compose/1.0/docker-compose.yml`, and delete the service blocks of the versions you want to remove. Each block starts at a `  php-fpm-X.Y:` line and ends right before the next service:

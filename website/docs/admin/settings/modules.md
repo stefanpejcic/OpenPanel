@@ -158,6 +158,8 @@ When enabled:
 When disabled:
 * Users do not have access to the *Containers > Software Versions* page.
 
+To choose which versions users run, see [How to Restrict Software Versions for Users](/docs/articles/containers/how-to-restrict-software-versions-for-users/).
+
 
 ## Switch WebServer {#change-ws}
 
@@ -680,6 +682,8 @@ When enabled:
 
 When disabled:
 * Users do not have access to the *Processes & Services > Services* page.
+
+To remove services from users' stacks, see [How to Limit Which Services Users Can Run](/docs/articles/containers/how-to-limit-services-for-users/).
 
 
 ## Memcached

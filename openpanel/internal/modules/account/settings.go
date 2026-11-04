@@ -15,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/mcptokens"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
@@ -29,10 +30,19 @@ func updateEmailByID(ctx context.Context, a *appctx.App, userID int, newEmail st
 
 // clearUserSessions deletes every "session:<id>:*" Redis key for the user, forcing all of that user's devices (including this one) to log in again
 func clearUserSessions(ctx context.Context, a *appctx.App, userID int) int {
+	return clearOtherUserSessions(ctx, a, userID, "")
+}
+
+// clearOtherUserSessions is clearUserSessions but keeps the session with keepToken, empty keeps none
+func clearOtherUserSessions(ctx context.Context, a *appctx.App, userID int, keepToken string) int {
 	pattern := fmt.Sprintf("session:%d:*", userID)
+	keep := fmt.Sprintf("session:%d:%s", userID, keepToken)
 	var keys []string
 	iter := a.Cache.Raw().Scan(ctx, 0, pattern, 100).Iterator()
 	for iter.Next(ctx) {
+		if keepToken != "" && iter.Val() == keep {
+			continue
+		}
 		keys = append(keys, iter.Val())
 	}
 	if err := iter.Err(); err != nil {
@@ -78,6 +88,12 @@ func updatePasswordByID(ctx context.Context, a *appctx.App, sess *sessions.Sessi
 	}
 
 	clearUserSessions(ctx, a, userID)
+	// jwts die on the pwd fingerprint, mcp tokens have no such binding so drop them here
+	if n, err := mcptokens.RevokeAllForUser(ctx, a.DB, userID); err != nil {
+		log.Printf("ACCOUNT - Failed to revoke MCP tokens for user ID %d after password change: %v", userID, err)
+	} else if n > 0 {
+		log.Printf("ACCOUNT - Revoked %d MCP token(s) for user ID %d after password change", n, userID)
+	}
 	if uid, _ := sess.Values["user_id"].(int); uid == userID {
 		clearSessionValues(sess)
 	}
@@ -139,7 +155,7 @@ func handleAccountSettings(a *appctx.App, w http.ResponseWriter, r *http.Request
 				flash.Add(sess, "error", passwordErrorText(a, r, errMsg))
 			} else {
 				message := securityEmail(a, r, "Password changed for account "+currentUsername,
-					"The password for account "+currentUsername+" was changed from the OpenPanel interface. All other sessions stay logged in until they expire.",
+					"The password for account "+currentUsername+" was changed from the OpenPanel interface. All sessions were logged out and MCP tokens were revoked.",
 					"If you didn't change it, reset your password right away or contact your hosting provider.")
 				checkIfUserShouldBeNotified(a, ctx, userID, currentUsername, "notify_password_change", message)
 				flash.Add(sess, "success", "Password has been changed successfully.")
@@ -155,6 +171,9 @@ func handleAccountSettings(a *appctx.App, w http.ResponseWriter, r *http.Request
 			checkIfUserShouldBeNotified(a, ctx, userID, currentUsername, "notify_contact_address_change", message)
 			_ = updateEmailByID(ctx, a, userID, newEmail)
 			a.Cache.Delete(ctx, "get_user_details_with_plan:"+strconv.Itoa(userID))
+			// the email is what password reset goes to, so log out everywhere but here
+			currentToken, _ := sess.Values["session_token"].(string)
+			clearOtherUserSessions(ctx, a, userID, currentToken)
 
 			flash.Add(sess, "success", web.Tr(a, r, "Email address has been changed successfully from %(old_email)s to %(new_email)s.", "old_email", currentEmail, "new_email", newEmail))
 			_ = logger.RecordUserAction(a.Config, currentUsername, "changed email address to "+newEmail, ip)
