@@ -238,3 +238,21 @@ func TestAPILoginRejectsNonJSONBodies(t *testing.T) {
 		t.Fatalf("/api/login set the browser session cookie")
 	}
 }
+
+func TestEmailChangeEndsOtherSessions(t *testing.T) {
+	a, _ := newFakeApp(t, nil, map[int]*fakeUser{})
+	ctx := context.Background()
+	for _, k := range []string{"session:2:here", "session:2:other", "session:3:someoneelse"} {
+		a.Cache.Raw().HSet(ctx, k, "user_id", "x")
+	}
+
+	if n := clearOtherUserSessions(ctx, a, 2, "here"); n != 1 {
+		t.Fatalf("cleared %d sessions, want 1", n)
+	}
+	for k, want := range map[string]bool{"session:2:here": true, "session:2:other": false, "session:3:someoneelse": true} {
+		n, _ := a.Cache.Raw().Exists(ctx, k).Result()
+		if (n == 1) != want {
+			t.Fatalf("%s exists=%v, want %v", k, n == 1, want)
+		}
+	}
+}

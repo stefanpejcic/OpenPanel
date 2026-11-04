@@ -373,6 +373,8 @@ func (m *miniRedis) handle(c net.Conn) {
 			for _, k := range cmd[1:] {
 				if _, ok := m.kv[k]; ok {
 					n++
+				} else if _, ok := m.hash[k]; ok {
+					n++
 				}
 				delete(m.kv, k)
 				delete(m.hash, k)
@@ -394,10 +396,40 @@ func (m *miniRedis) handle(c net.Conn) {
 			for k, v := range h {
 				resp += bulk(k) + bulk(v)
 			}
+		case "EXISTS":
+			n := 0
+			for _, k := range cmd[1:] {
+				if _, ok := m.get(k); ok {
+					n++
+				} else if _, ok := m.hash[k]; ok {
+					n++
+				}
+			}
+			resp = fmt.Sprintf(":%d\r\n", n)
 		case "EXPIRE":
 			resp = ":1\r\n"
 		case "SCAN":
-			resp = "*2\r\n$1\r\n0\r\n*0\r\n"
+			pattern := "*"
+			for i := 2; i+1 < len(cmd); i++ {
+				if strings.EqualFold(cmd[i], "MATCH") {
+					pattern = cmd[i+1]
+				}
+			}
+			var found []string
+			for k := range m.kv {
+				if ok, _ := filepath.Match(pattern, k); ok {
+					found = append(found, k)
+				}
+			}
+			for k := range m.hash {
+				if ok, _ := filepath.Match(pattern, k); ok {
+					found = append(found, k)
+				}
+			}
+			resp = fmt.Sprintf("*2\r\n$1\r\n0\r\n*%d\r\n", len(found))
+			for _, k := range found {
+				resp += bulk(k)
+			}
 		}
 		m.mu.Unlock()
 		if _, err := c.Write([]byte(resp)); err != nil {
