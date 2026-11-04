@@ -1,7 +1,7 @@
 import Head from "@docusaurus/Head";
 import Link from "@docusaurus/Link";
 import clsx from "clsx";
-import React from "react";
+import React, { useEffect } from "react";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
 import { SoftwareApplicationSchema } from "@site/src/refine-theme/software-application-schema";
@@ -21,7 +21,19 @@ import { PlanFeaturesList } from "@site/src/refine-theme/plan-features-list";
 
 const Enterprise: React.FC = () => {
     const title = "OpenPanel Enterprise | Next Generation Hosting Panel";
+    useEffect(() => {
+        const s1 = document.createElement("script");
+        s1.async = true;
+        s1.src = "https://embed.tawk.to/6aeb368ea77e793c392887ee/1k6jcq82d";
+        s1.charset = "UTF-8";
+        s1.setAttribute("crossorigin", "*");
 
+        document.body.appendChild(s1);
+
+        return () => {
+            document.body.removeChild(s1);
+        };
+    }, []);
     return (
         <>
             <Head>
