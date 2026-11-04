@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/mail"
 	"net/smtp"
 	"strconv"
 	"strings"
@@ -19,6 +20,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/captcha"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
@@ -44,7 +46,12 @@ func RegisterPasswordReset(mux *http.ServeMux, a *appctx.App) {
 	if strings.ToLower(a.Config.Get("password_reset", "yes")) != "yes" {
 		return
 	}
+	limiter := newLoginRateLimiter(a)
 	mux.HandleFunc("/reset_password", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodPost && !limiter.Allow(reqip.ClientIP(r)) {
+			renderResetRequestError(a, w, r, http.StatusTooManyRequests, "Too many requests. Please wait a minute and try again.")
+			return
+		}
 		handleForgotPassword(a, w, r)
 	})
 	mux.HandleFunc("/reset_password/{token}", func(w http.ResponseWriter, r *http.Request) {
@@ -114,53 +121,73 @@ func resetTokenCacheKey(token string) string {
 	return cache.KeyPrefix + "reset_token:" + token
 }
 
+// resetCooldown is how long we wait before mailing the same account another reset link
+const resetCooldown = 5 * time.Minute
+
+func renderResetRequestError(a *appctx.App, w http.ResponseWriter, r *http.Request, status int, msg string) {
+	sess, _ := a.Sessions.Get(r, session.CookieName)
+	t := a.I18n.Translator(resolveLocale(a, r, sess))
+	data := basePageData(a, r, t)
+	data.Title = t.Get("Forgot Password")
+	data.Locales = localeOptions(a.I18n.AvailableLocales(r.Context()))
+	data.Email = r.Form.Get("email")
+	data.ErrorMessage = t.Get(msg)
+	renderPage(w, requestEmailPage, status, data)
+}
+
 func handleForgotPassword(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	sess, _ := a.Sessions.Get(r, session.CookieName)
 	locale := resolveLocale(a, r, sess)
 	t := a.I18n.Translator(locale)
+	ctx := r.Context()
 
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
-		email := r.Form.Get("email")
-
-		var userID int
-		var username string
-		row := a.DB.QueryRowContext(r.Context(), "SELECT id, username FROM users WHERE email = ?", email)
-		if err := row.Scan(&userID, &username); err != nil {
-			data := basePageData(a, r, t)
-			data.Title = t.Get("Forgot Password")
-			data.Locales = localeOptions(a.I18n.AvailableLocales(r.Context()))
-			data.Email = email
-			data.ErrorMessage = t.Get("Email %(email)s not found", "email", email)
-			renderPage(w, requestEmailPage, http.StatusOK, data)
+		email := strings.TrimSpace(r.Form.Get("email"))
+		if addr, err := mail.ParseAddress(email); err != nil || addr.Address != email {
+			renderResetRequestError(a, w, r, http.StatusOK, "Please enter a valid email address.")
 			return
 		}
 
-		if err := sendPasswordResetEmail(a, r.Context(), t, userID, username, email); err != nil {
-			log.Printf("FORGOT_PASSWORD - failed to send reset email to %s: %v", email, err)
-			if errors.Is(err, errSMTPNotConfigured) {
-				data := basePageData(a, r, t)
-				data.Title = t.Get("Forgot Password")
-				data.Locales = localeOptions(a.I18n.AvailableLocales(r.Context()))
-				data.Email = email
-				data.ErrorMessage = t.Get("Email sending is not configured. Please contact your administrator.")
-				renderPage(w, requestEmailPage, http.StatusOK, data)
+		if widget := captcha.GetWidget(a.Config); widget.Provider != "" {
+			if !captcha.Verify(ctx, a.Config, r.Form.Get(widget.FieldName), reqip.ClientIP(r)) {
+				renderResetRequestError(a, w, r, http.StatusOK, "Captcha verification failed. Please try again.")
 				return
 			}
 		}
 
-		_ = logger.RecordUserAction(a.Config, username, t.Get("password reset requested"), reqip.ClientIP(r))
+		// checked before the lookup so this error doesn't tell anyone whether the email exists
+		if _, ok := loadSMTPConfig(a); !ok {
+			renderResetRequestError(a, w, r, http.StatusOK, "Email sending is not configured. Please contact your administrator.")
+			return
+		}
 
+		var userID int
+		var username, storedEmail string
+		row := a.DB.QueryRowContext(ctx, "SELECT id, username, email FROM users WHERE email = ? LIMIT 1", email)
+		if err := row.Scan(&userID, &username, &storedEmail); err != nil {
+			log.Printf("FORGOT_PASSWORD - reset requested for unknown email from %s", reqip.ClientIP(r))
+		} else if fresh, err := a.Cache.Raw().SetNX(ctx, cache.KeyPrefix+"reset_cooldown:"+strconv.Itoa(userID), 1, resetCooldown).Result(); err == nil && !fresh {
+			log.Printf("FORGOT_PASSWORD - reset for user ID %d skipped, one was sent less than %s ago", userID, resetCooldown)
+		} else {
+			// mail the address on file, the db match can be looser than the typed string (case, accents)
+			if err := sendPasswordResetEmail(a, ctx, t, userID, username, storedEmail); err != nil {
+				log.Printf("FORGOT_PASSWORD - failed to send reset email for user ID %d: %v", userID, err)
+			}
+			_ = logger.RecordUserAction(a.Config, username, t.Get("password reset requested"), reqip.ClientIP(r))
+		}
+
+		// same page either way so the form can't be used to check which emails have accounts
 		data := basePageData(a, r, t)
 		data.Title = t.Get("Password Reset Link Sent")
-		data.Locales = localeOptions(a.I18n.AvailableLocales(r.Context()))
+		data.Locales = localeOptions(a.I18n.AvailableLocales(ctx))
 		renderPage(w, linkSentPage, http.StatusOK, data)
 		return
 	}
 
 	data := basePageData(a, r, t)
 	data.Title = t.Get("Forgot Password")
-	data.Locales = localeOptions(a.I18n.AvailableLocales(r.Context()))
+	data.Locales = localeOptions(a.I18n.AvailableLocales(ctx))
 	renderPage(w, requestEmailPage, http.StatusOK, data)
 }
 
@@ -375,6 +402,7 @@ func handleResetPasswordToken(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		_ = logger.RecordUserAction(a.Config, username, t.Get("password changed using email confirmation"), reqip.ClientIP(r))
 
 		a.Cache.Raw().Del(ctx, resetTokenCacheKey(token))
+		revokePasskeysOnRecovery(ctx, a, userID)
 
 		flash.Add(sess, "success", t.Get("Your password has been reset. Please log in."))
 		_ = a.Sessions.Save(r, w, sess)
@@ -387,6 +415,18 @@ func handleResetPasswordToken(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	data.Locales = localeOptions(a.I18n.AvailableLocales(ctx))
 	data.PasswordStrength = passwordStrengthThreshold(a)
 	renderPage(w, setNewPasswordPage, http.StatusOK, data)
+}
+
+// revokePasskeysOnRecovery drops every passkey after an emailed reset, so one added by whoever had the account can't log back in
+func revokePasskeysOnRecovery(ctx context.Context, a *appctx.App, userID int) {
+	result, err := a.DB.ExecContext(ctx, "DELETE FROM user_passkeys WHERE user_id = ?", userID)
+	if err != nil {
+		log.Printf("ACCOUNT - Failed to remove passkeys for user ID %d after password reset: %v", userID, err)
+		return
+	}
+	if n, _ := result.RowsAffected(); n > 0 {
+		log.Printf("ACCOUNT - Removed %d passkey(s) for user ID %d after password reset", n, userID)
+	}
 }
 
 func passwordStrengthThreshold(a *appctx.App) int {

@@ -25,7 +25,7 @@ The **Docker Hub** link at the top of the page opens the tags page of that image
 
 The tag list is loaded from Docker Hub once and then reused for 12 hours. Services whose image isn't on Docker Hub, or doesn't have a changeable tag, don't show a list, you can still type a tag.
 
-The internal **cron**, **backup** and **docker-proxy** services and the PHP services are not listed, their images are managed by OpenPanel.
+The internal **cron**, **backup** and **docker-proxy** services and the PHP services are not listed, their images are managed by OpenPanel. Your hosting provider can also pin the version of a service, a new tag then has no effect for that service.
 
 After confirmation:
 

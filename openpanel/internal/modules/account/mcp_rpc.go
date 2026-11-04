@@ -373,6 +373,10 @@ func handleMCPEndpoint(dispatcher http.Handler, limiter *mcpRateLimiter, a *appc
 			_ = json.NewEncoder(w).Encode(jsonRPCError(payload.ID, -32602, "Unknown tool '"+name+"'"))
 			return
 		}
+		if auth.MCPReadOnly(r) && tool.Method != "GET" && tool.Method != "HEAD" {
+			_ = json.NewEncoder(w).Encode(jsonRPCError(payload.ID, -32602, "This token is read-only"))
+			return
+		}
 		arguments, _ := payload.Params["arguments"].(map[string]any)
 		responseBody, status := mcpCallTool(dispatcher, tool, arguments, r.Header.Get("Authorization"))
 		text, _ := json.Marshal(responseBody)

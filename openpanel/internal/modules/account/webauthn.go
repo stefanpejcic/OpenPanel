@@ -2,17 +2,21 @@ package account
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
 	"encoding/base64"
+	"encoding/hex"
 	"net"
 	"net/http"
 	"strconv"
 	"strings"
 	"sync/atomic"
+	"time"
 
 	"github.com/go-webauthn/webauthn/webauthn"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 )
 
 const createPasskeysTableSQL = `
@@ -90,11 +94,45 @@ func newWebAuthnForRequest(r *http.Request, brandName string) (*webauthn.WebAuth
 	if brandName == "" {
 		brandName = "OpenPanel"
 	}
+	ceremony := webauthn.TimeoutConfig{Enforce: true, Timeout: passkeyCeremonyTTL, TimeoutUVD: passkeyCeremonyTTL}
 	return webauthn.New(&webauthn.Config{
 		RPID:          rpID,
 		RPDisplayName: brandName,
 		RPOrigins:     []string{origin},
+		Timeouts:      webauthn.TimeoutsConfig{Login: ceremony, Registration: ceremony},
 	})
+}
+
+// passkeyCeremonyTTL is how long a begun login/registration stays usable
+const passkeyCeremonyTTL = 5 * time.Minute
+
+func passkeyCeremonyKey(kind, id string) string {
+	return cache.KeyPrefix + "passkey_" + kind + ":" + id
+}
+
+// stashPasskeyCeremony keeps the challenge in redis and returns the id that goes in the cookie
+func stashPasskeyCeremony(ctx context.Context, a *appctx.App, kind string, sessionJSON []byte) (string, error) {
+	b := make([]byte, 16)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	id := hex.EncodeToString(b)
+	if err := a.Cache.Raw().Set(ctx, passkeyCeremonyKey(kind, id), sessionJSON, passkeyCeremonyTTL).Err(); err != nil {
+		return "", err
+	}
+	return id, nil
+}
+
+// takePasskeyCeremony hands the challenge back once, replaying the same cookie gets nothing
+func takePasskeyCeremony(ctx context.Context, a *appctx.App, kind, id string) string {
+	if id == "" {
+		return ""
+	}
+	raw, err := a.Cache.Raw().GetDel(ctx, passkeyCeremonyKey(kind, id)).Result()
+	if err != nil {
+		return ""
+	}
+	return raw
 }
 
 // passkeyUser adapts a user row to go-webauthn's webauthn.User interface. WebAuthnID returns the decimal-ASCII user id rather than a random opaque handle - changing this would break every already-registered passkey.

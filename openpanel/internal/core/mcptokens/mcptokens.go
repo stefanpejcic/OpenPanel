@@ -126,6 +126,15 @@ func CreateTokenForUser(ctx context.Context, db *sql.DB, userID int, name string
 	return rawToken, nil
 }
 
+// RevokeAllForUser deletes every token the user has, returns how many were removed
+func RevokeAllForUser(ctx context.Context, db *sql.DB, userID int) (int64, error) {
+	result, err := db.ExecContext(ctx, "DELETE FROM mcp_tokens WHERE user_id = ?", userID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 // RevokeToken deletes the token row matching tokenID and userID; false means "not found", not an error
 func RevokeToken(ctx context.Context, db *sql.DB, tokenID, userID int) (bool, error) {
 	result, err := db.ExecContext(ctx, "DELETE FROM mcp_tokens WHERE id = ? AND user_id = ?", tokenID, userID)

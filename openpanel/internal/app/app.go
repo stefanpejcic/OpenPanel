@@ -139,6 +139,14 @@ func (a *App) ModuleEnabled(module string) bool {
 	return a.enabledModuleSet[module]
 }
 
+// SetEnabledModulesForTest turns modules on for other packages' tests, which can't reach the unexported set
+func (a *App) SetEnabledModulesForTest(modules ...string) {
+	a.enabledModuleSet = map[string]bool{}
+	for _, m := range modules {
+		a.enabledModuleSet[m] = true
+	}
+}
+
 func parseEnabledModules(cfg config.Config) []string {
 	raw := strings.Split(cfg.Get("enabled_modules", ""), ",")
 	modules := make([]string, 0, len(raw)+len(mainModules))

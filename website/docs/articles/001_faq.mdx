@@ -92,6 +92,16 @@ export const faq = [
     link: { href: "/docs/panel/applications/nodejs/", label: "Node.js applications" },
   },
   {
+    question: "Can I remove old PHP versions from OpenPanel?",
+    answer: "Yes. OpenPanel offers every PHP version defined in the user's docker-compose.yml file, from PHP 5.6 to the latest release. Remove the versions you don't want from the template for new users and from existing users' files, and they are no longer offered anywhere in OpenPanel.",
+    link: { href: "/docs/articles/user-experience/how-to-remove-old-php-versions/", label: "Remove old PHP versions" },
+  },
+  {
+    question: "Can I limit which webservers and services users can use?",
+    answer: "Yes. Webservers and services such as Redis, Elasticsearch or MongoDB are offered only if they are in the user's docker-compose.yml file. You can remove them from the template and from existing users, or disable their modules per plan to hide the pages in OpenPanel.",
+    link: { href: "/docs/articles/web-servers/how-to-disable-webservers-for-users/", label: "Disable webservers for users" },
+  },
+  {
     question: "Can I use OpenPanel to sell web hosting?",
     answer: "Yes, with OpenPanel Enterprise. It has unlimited accounts, hosting plans, resellers, an API and integrations with WHMCS, Blesta, FOSSBilling, ClientExec and WISECP for automated provisioning. The Community edition is for personal use only.",
     link: { href: "/docs/articles/extensions/openpanel-and-whmcs/", label: "WHMCS integration" },
