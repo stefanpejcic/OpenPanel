@@ -932,6 +932,28 @@ opencli email-quotas
 ```
 </details>
 
+## Default addresses
+
+Write the default (catch-all) addresses set in the panel to the mailserver:
+```bash
+opencli email-default_sync
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli email-default_sync
+```
+</details>
+
+The panel keeps each domain's default address in `postfix-regex.cf`. This writes a rule for each one to `postfix-regexp.cf`, the file docker-mailserver reads, between `# BEGIN opencli email-default_sync` and `# END opencli email-default_sync`, and keeps the file's other lines. A rule takes mail only for addresses of the domain that are not a mailbox or alias, with or without a `+tag`. A domain gets a rule only while it has a mailbox or alias on this server: the mailserver accepts mail only for those domains, and Postfix applies the rules to every recipient, so a rule for any other domain would only redirect the mail this server's users send to it. A default address that points to an address on a domain of this server gets a rule only while that address is a mailbox or alias. It prints nothing when it succeeds, and runs on its own when a default address is set or removed, when email accounts or aliases are added or deleted, when a domain is added or deleted, and when a user is deleted, restored or transferred.
+
+Most mail to made-up addresses is spam with a forged sender. Two kinds of default address accept that mail and bounce it later, and the bounces go from this server's IP to whoever the sender claims to be:
+
+- An address outside this server, or an alias that forwards outside. The mailserver forwards the spam without SRS (`ENABLE_SRS=0` by default), so the receiver sees SPF and DMARC fail and may refuse it.
+- A full mailbox. The quota check at RCPT sees only the made-up address, which has no mailbox, so the mail is refused only after it has been accepted.
+
 ## Manage
 
 Run a command inside the mailserver container:
