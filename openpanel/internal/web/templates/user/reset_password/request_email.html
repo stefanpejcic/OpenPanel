@@ -18,6 +18,20 @@
                 <input type="text" name="email" id="email" class="op-input" required placeholder="{{.T.Get "Enter your email address"}}" {{if contains .ErrorMessage "@"}}autofocus value="{{.Email}}"{{else if .Email}}value="{{.Email}}"{{else}}autofocus{{end}}>
             </div>
 
+{{if .CaptchaProvider}}
+<div class="flex justify-center">
+{{if eq .CaptchaProvider "google"}}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<div class="g-recaptcha" data-sitekey="{{.CaptchaSiteKey}}"></div>
+{{else if eq .CaptchaProvider "turnstile"}}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<div class="cf-turnstile" data-sitekey="{{.CaptchaSiteKey}}"></div>
+{{else}}
+<input type="hidden" name="{{.CaptchaFieldName}}" data-custom-captcha-response>
+{{end}}
+</div>
+{{end}}
+
             <button type="submit" class="w-full me-2 mb-2 op-btn op-btn-primary">{{.T.Get "Send Reset Link"}}</button>
         </form>
 

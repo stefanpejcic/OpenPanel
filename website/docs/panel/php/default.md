@@ -20,6 +20,8 @@ Each installed PHP version is shown as a card, newest first, with its support st
 
 The current default version is marked **Default**.
 
+Only the PHP versions your hosting provider offers are listed, so you may see fewer versions than on other servers.
+
 ## Change the Default Version
 
 1. Navigate to **PHP > Default Version**.

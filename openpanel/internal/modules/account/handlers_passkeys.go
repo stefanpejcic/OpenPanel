@@ -97,8 +97,13 @@ func handlePasskeysRegisterBegin(a *appctx.App, w http.ResponseWriter, r *http.R
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	ceremonyID, stashErr := stashPasskeyCeremony(ctx, a, "reg", sessionJSON)
+	if stashErr != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
 	sess, _ := a.Sessions.Get(r, session.CookieName)
-	sess.Values["passkey_reg_session"] = string(sessionJSON)
+	sess.Values["passkey_reg_session"] = ceremonyID
 	_ = a.Sessions.Save(r, w, sess)
 
 	writeJSONPasskeys(w, http.StatusOK, creation.Response)
@@ -110,8 +115,9 @@ func handlePasskeysRegisterComplete(a *appctx.App, w http.ResponseWriter, r *htt
 	ctx := r.Context()
 
 	sess, _ := a.Sessions.Get(r, session.CookieName)
-	rawSession, _ := sess.Values["passkey_reg_session"].(string)
+	ceremonyID, _ := sess.Values["passkey_reg_session"].(string)
 	delete(sess.Values, "passkey_reg_session")
+	rawSession := takePasskeyCeremony(ctx, a, "reg", ceremonyID)
 	_ = a.Sessions.Save(r, w, sess)
 
 	if rawSession == "" {
@@ -213,6 +219,7 @@ func handlePasskeysDelete(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 // handlePasskeysLoginBegin starts WebAuthn login - unauthenticated.
 func handlePasskeysLoginBegin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	wa, waErr := newWebAuthnForRequest(r, a.Config.Get("brand_name", ""))
 	if waErr != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -230,8 +237,13 @@ func handlePasskeysLoginBegin(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	ceremonyID, stashErr := stashPasskeyCeremony(ctx, a, "auth", sessionJSON)
+	if stashErr != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
 	sess, _ := a.Sessions.Get(r, session.CookieName)
-	sess.Values["passkey_auth_session"] = string(sessionJSON)
+	sess.Values["passkey_auth_session"] = ceremonyID
 	_ = a.Sessions.Save(r, w, sess)
 
 	writeJSONPasskeys(w, http.StatusOK, assertion.Response)
@@ -242,8 +254,9 @@ func handlePasskeysLoginComplete(a *appctx.App, w http.ResponseWriter, r *http.R
 	ctx := r.Context()
 
 	sess, _ := a.Sessions.Get(r, session.CookieName)
-	rawSession, _ := sess.Values["passkey_auth_session"].(string)
+	ceremonyID, _ := sess.Values["passkey_auth_session"].(string)
 	delete(sess.Values, "passkey_auth_session")
+	rawSession := takePasskeyCeremony(ctx, a, "auth", ceremonyID)
 
 	if rawSession == "" {
 		writeJSONErrorPasskeys(w, http.StatusBadRequest, "Login session expired. Please try again.")

@@ -77,6 +77,23 @@ func TestParseSingleEmailQuotaCapped(t *testing.T) {
 	}
 }
 
+func TestParseMailboxQuota(t *testing.T) {
+	cases := []struct{ line, address, used, limit string }{
+		{"* info@demo.rs ( 28M / 2.0G ) [1%]", "info@demo.rs", "28M", "2.0G"},
+		{"* info@demo.rs ( 0 / ~ ) [0%]", "info@demo.rs", "0", "~"},
+		{"* info@demo.rs (  /  ) [%]", "info@demo.rs", "", ""},
+		{"* info@demo.rs ( 28M /  ) [%]", "info@demo.rs", "", ""},
+		{"* info@demo.rs", "info@demo.rs", "", ""},
+		{"", "", "", ""},
+	}
+	for _, c := range cases {
+		address, used, limit := ParseMailboxQuota(c.line)
+		if address != c.address || used != c.used || limit != c.limit {
+			t.Errorf("%q: got %q %q %q, want %q %q %q", c.line, address, used, limit, c.address, c.used, c.limit)
+		}
+	}
+}
+
 func TestIsValidEmail(t *testing.T) {
 	valid := []string{"user@example.com", "a.b+c%d-e@sub.example.co", "x_y@z.io"}
 	for _, v := range valid {
@@ -205,6 +222,30 @@ func TestReadRestrictedAddresses(t *testing.T) {
 	}
 	if len(readRestrictedAddresses(filepath.Join(t.TempDir(), "missing"))) != 0 {
 		t.Fatal("missing file should give empty set")
+	}
+}
+
+// "a@b.com" is also inside "data@b.com"'s line and restriction entry
+func TestLookupsMatchTheWholeAddress(t *testing.T) {
+	cases := []struct {
+		line, email string
+		want        bool
+	}{
+		{"* data@b.com ( 1M / 5.0G ) [0%]", "a@b.com", false},
+		{"* a@b.com ( 2M / 1.0G ) [0%]", "a@b.com", true},
+		{"* data@b.com ( 1M / 5.0G ) [0%]", "DATA@b.com", true},
+		{"* a@b.com", "a@b.com", true},
+		{"* a@b.com.au ( 2M / 1.0G ) [0%]", "a@b.com", false},
+		{"", "a@b.com", false},
+	}
+	for _, c := range cases {
+		if got := isMailboxLine(c.line, c.email); got != c.want {
+			t.Errorf("isMailboxLine(%q, %q) = %v, want %v", c.line, c.email, got, c.want)
+		}
+	}
+	restricted := restrictedAddresses("Data@b.com \t\t REJECT\n")
+	if restricted["a@b.com"] || !restricted["data@b.com"] {
+		t.Errorf("restricted = %v, want data@b.com only", restricted)
 	}
 }
 

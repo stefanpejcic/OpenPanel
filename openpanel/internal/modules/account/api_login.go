@@ -4,12 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"mime"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/gorilla/sessions"
 	"github.com/pquerna/otp/totp"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -52,6 +54,11 @@ func handleAPILogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		Password  string `json:"password"`
 		TwofaCode string `json:"twofa_code"`
 	}
+	// a cross-site form can only send text/plain or form bodies, so json-only keeps it out
+	if mt, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type")); mt != "application/json" {
+		writeAPIJSON(w, http.StatusUnsupportedMediaType, map[string]any{"error": "Content-Type must be application/json"})
+		return
+	}
 	_ = json.NewDecoder(r.Body).Decode(&body)
 
 	if body.Username == "" || body.Password == "" {
@@ -82,11 +89,12 @@ func handleAPILogin(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	ip := reqip.ClientIP(r)
 	knownIP := loginIPIsKnown(result.Username, ip)
-	if err := logUserLogin(a, r, sess, result.UserID, result.Username, ip); err != nil {
+	// api clients get the jwt, the browser's own panel cookie is left alone
+	apiSess := &sessions.Session{Values: map[interface{}]interface{}{}}
+	if err := logUserLogin(a, r, apiSess, result.UserID, result.Username, ip); err != nil {
 		writeAPIJSON(w, http.StatusInternalServerError, map[string]any{"error": "internal_error"})
 		return
 	}
-	_ = a.Sessions.Save(r, w, sess)
 	_ = logger.RecordUserAction(a.Config, result.Username, "logged in via user API", ip)
 	clearFailedAttempts(ip)
 	notifyLogin(a, ctx, result.UserID, result.Username, loginNotifyMessage(a, r, "api", ip), knownIP)

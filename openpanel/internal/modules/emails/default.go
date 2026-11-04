@@ -1,7 +1,9 @@
 package emails
 
 import (
+	"fmt"
 	"net/http"
+	"os/exec"
 	"regexp"
 	"strings"
 
@@ -13,10 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-// defaultAliasesFile is the postfix-regex.cf file used for domain default addresses.
-//
-// https://docker-mailserver.github.io/docker-mailserver/v10.4/config/user-management/aliases/#configuring-regexp-aliases
-// TODO: /usr/local/mail/openmail/docker-data/dms/config/postfix-regex.cf is readonly in docker compose!
+// defaultAliasesFile keeps the domains' default addresses as "/*@domain/ destination" lines; docker-mailserver never reads it, `opencli email-default_sync` turns it into the postfix-regexp.cf rules it does read
 const defaultAliasesFile = "/usr/local/mail/openmail/docker-data/dms/config/postfix-regex.cf"
 
 // checkCurrentDefaultAliasForDomain looks up the current default (catch-all) alias for domain.
@@ -56,7 +55,13 @@ func setDefaultAliasForDomain(domain, destination string) error {
 		content = pattern.ReplaceAllString(content, "")
 	}
 
-	return tenantfs.WriteFile(defaultAliasesFile, []byte(content), 0o644)
+	if err := tenantfs.WriteFile(defaultAliasesFile, []byte(content), 0o644); err != nil {
+		return err
+	}
+	if out, err := exec.Command("opencli", "email-default_sync").CombinedOutput(); err != nil {
+		return fmt.Errorf("%v: %s", err, strings.TrimSpace(string(out)))
+	}
+	return nil
 }
 
 // handleDefaultAlias views and updates a domain's default (catch-all) email address.

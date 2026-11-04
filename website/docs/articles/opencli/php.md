@@ -114,3 +114,5 @@ grep php-fpm- /home/<USERNAME>/docker-compose.yml
 </details>
 
 To add PHP versions that are newer than the user's `docker-compose.yml` file, run [`opencli update --php`](/docs/articles/opencli/update/#php).
+
+These are also the versions users can select in OpenPanel. To stop offering old versions, see [How to Remove Old PHP Versions](/docs/articles/user-experience/how-to-remove-old-php-versions/).

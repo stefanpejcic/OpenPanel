@@ -30,7 +30,7 @@ The page shows recommendations based on the sites, plans and services already on
 
 The webservers offered on this page, on the **Add User** form and to users are the ones defined in the `docker-compose.yml` template, not a fixed list. A service counts as a webserver if it mounts the `webserver_data` volume and publishes ports.
 
-To stop offering a webserver, for example OpenLiteSpeed, remove its service block from the default `docker-compose.yml` using the 'Advanced' option. New accounts won't get it and it disappears from the Defaults page and the Add User form. Existing accounts keep their own copy of the file, so their current webserver isn't affected. To hide it from one existing user, remove the block from that user's `docker-compose.yml`.
+To stop offering a webserver, for example OpenLiteSpeed, remove its service block from the default `docker-compose.yml` using the 'Advanced' option. New accounts won't get it and it disappears from the Defaults page and the Add User form. Existing accounts keep their own copy of the file, so their current webserver isn't affected. To hide it from one existing user, remove the block from that user's `docker-compose.yml`. For scripts and the full steps, see [How to Disable Webservers for Users](/docs/articles/web-servers/how-to-disable-webservers-for-users/). PHP versions are removed the same way, see [How to Remove Old PHP Versions](/docs/articles/user-experience/how-to-remove-old-php-versions/), and so are other services, see [How to Limit Which Services Users Can Run](/docs/articles/containers/how-to-limit-services-for-users/).
 
 ---
 

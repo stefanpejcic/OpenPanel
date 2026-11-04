@@ -23,5 +23,7 @@ func NewStore(secretKey []byte) *sessions.CookieStore {
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
 	}
+	// also caps the signed timestamp, otherwise securecookie keeps accepting a copied cookie for 30 days
+	store.MaxAge(int(Lifetime.Seconds()))
 	return store
 }

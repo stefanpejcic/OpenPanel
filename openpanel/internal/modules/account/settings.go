@@ -15,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/mcptokens"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
@@ -78,6 +79,12 @@ func updatePasswordByID(ctx context.Context, a *appctx.App, sess *sessions.Sessi
 	}
 
 	clearUserSessions(ctx, a, userID)
+	// jwts die on the pwd fingerprint, mcp tokens have no such binding so drop them here
+	if n, err := mcptokens.RevokeAllForUser(ctx, a.DB, userID); err != nil {
+		log.Printf("ACCOUNT - Failed to revoke MCP tokens for user ID %d after password change: %v", userID, err)
+	} else if n > 0 {
+		log.Printf("ACCOUNT - Revoked %d MCP token(s) for user ID %d after password change", n, userID)
+	}
 	if uid, _ := sess.Values["user_id"].(int); uid == userID {
 		clearSessionValues(sess)
 	}
@@ -139,7 +146,7 @@ func handleAccountSettings(a *appctx.App, w http.ResponseWriter, r *http.Request
 				flash.Add(sess, "error", passwordErrorText(a, r, errMsg))
 			} else {
 				message := securityEmail(a, r, "Password changed for account "+currentUsername,
-					"The password for account "+currentUsername+" was changed from the OpenPanel interface. All other sessions stay logged in until they expire.",
+					"The password for account "+currentUsername+" was changed from the OpenPanel interface. All sessions were logged out and MCP tokens were revoked.",
 					"If you didn't change it, reset your password right away or contact your hosting provider.")
 				checkIfUserShouldBeNotified(a, ctx, userID, currentUsername, "notify_password_change", message)
 				flash.Add(sess, "success", "Password has been changed successfully.")

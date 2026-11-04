@@ -595,16 +595,33 @@ func parseEmailListRow(entry string) EmailListRow {
 	return row
 }
 
+// ParseMailboxQuota splits one `opencli email-setup email list` line ("* info@demo.rs ( 28M / 2.0G ) [1%]") into the address and docker-mailserver's "( used / limit )", "~" being no limit; used and limit are empty when the line shows no quota
+func ParseMailboxQuota(line string) (address, used, limit string) {
+	parts := strings.Fields(strings.TrimLeft(line, "* "))
+	if len(parts) == 0 {
+		return "", "", ""
+	}
+	if len(parts) >= 6 && parts[1] == "(" && parts[3] == "/" && parts[5] == ")" {
+		return parts[0], parts[2], parts[4]
+	}
+	return parts[0], "", ""
+}
+
 const dmsConfigDir = "/usr/local/mail/openmail/docker-data/dms/config"
 
 // readRestrictedAddresses returns the addresses listed in a postfix access file (lines like "user@domain REJECT")
 func readRestrictedAddresses(path string) map[string]bool {
-	set := map[string]bool{}
 	data, err := tenantfs.ReadFile(path)
 	if err != nil {
-		return set
+		return map[string]bool{}
 	}
-	for _, line := range strings.Split(string(data), "\n") {
+	return restrictedAddresses(string(data))
+}
+
+// restrictedAddresses returns the lowercased addresses of a postfix access file's lines, which is also what `opencli email-setup email restrict list` prints
+func restrictedAddresses(text string) map[string]bool {
+	set := map[string]bool{}
+	for _, line := range strings.Split(text, "\n") {
 		fields := strings.Fields(line)
 		if len(fields) == 0 || strings.HasPrefix(fields[0], "#") {
 			continue
@@ -747,12 +764,18 @@ func handleSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, em
 	}
 }
 
+// isMailboxLine reports whether line, one `opencli email-setup email list` line ("* info@demo.rs ( 0 / 2.0G ) [0%]"), is email's own; "a@b.com" is also inside "data@b.com"'s line
+func isMailboxLine(line, email string) bool {
+	f := strings.Fields(strings.TrimLeft(line, "* "))
+	return len(f) > 0 && strings.EqualFold(f[0], email)
+}
+
 func getEmailRestriction(direction, email string) string {
 	out, err := exec.Command("opencli", "email-setup", "email", "restrict", "list", direction).CombinedOutput()
 	if err != nil {
 		return "Error: " + strings.TrimSpace(string(out))
 	}
-	if strings.Contains(string(out), email) {
+	if restrictedAddresses(string(out))[strings.ToLower(email)] {
 		return "REJECT"
 	}
 	return "ACCEPT"
@@ -776,7 +799,7 @@ func getSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, email
 
 	currentEmailsList := ""
 	for _, line := range emailLines {
-		if strings.Contains(line, email) {
+		if isMailboxLine(line, email) {
 			currentEmailsList = line
 			break
 		}

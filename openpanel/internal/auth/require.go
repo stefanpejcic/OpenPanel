@@ -232,7 +232,19 @@ func RequireAPI(a *appctx.App, featureName string) func(http.Handler) http.Handl
 				return
 			}
 
-			if via == ViaMCP && MCPReadOnly(r) && featureName != "mcp" && r.Method != http.MethodGet && r.Method != http.MethodHead {
+			// same 2fa enforcement as RequireLogin, bearer tokens only get the 2fa enrollment routes until it's on
+			if a.TwofaEnforce && a.ModuleEnabled("twofa") && featureName != "twofa" {
+				status, err := a.Get2FAStatusForUser(ctx, userID)
+				if err != nil || !status.Enabled {
+					log.Printf("APP - API user %d (%s): 2FA required but not enabled, blocked %s %s", userID, details.Username, r.Method, r.URL.Path)
+					writeJSONError(w, http.StatusForbidden, "Two-Factor Authentication is required", "Enable 2FA via /api/account/2fa/setup first")
+					return
+				}
+			}
+
+			// only the json-rpc transport itself is exempt, token create/revoke under /api/account/mcp is not
+			isMCPTransport := r.Method == http.MethodPost && r.URL.Path == "/mcp"
+			if via == ViaMCP && MCPReadOnly(r) && !isMCPTransport && r.Method != http.MethodGet && r.Method != http.MethodHead {
 				log.Printf("APP - API user %d (%s): read-only MCP token blocked %s %s", userID, details.Username, r.Method, r.URL.Path)
 				writeJSONError(w, http.StatusForbidden, "This token is read-only", "Generate a token without the read-only option to make changes")
 				return
