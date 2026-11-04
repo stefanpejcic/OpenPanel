@@ -22,16 +22,31 @@ import { PlanFeaturesList } from "@site/src/refine-theme/plan-features-list";
 const Enterprise: React.FC = () => {
     const title = "OpenPanel Enterprise | Next Generation Hosting Panel";
     useEffect(() => {
-        const s1 = document.createElement("script");
-        s1.async = true;
-        s1.src = "https://embed.tawk.to/6aeb368ea77e793c392887ee/1k6jcq82d";
-        s1.charset = "UTF-8";
-        s1.setAttribute("crossorigin", "*");
+        const w = window as any;
+        const onEnterprise = () =>
+            /^\/enterprise\/?$/.test(window.location.pathname);
 
-        document.body.appendChild(s1);
+        // tawk stays loaded after SPA navigation, so show/hide it instead of reloading
+        if (w.Tawk_API?.showWidget) {
+            w.Tawk_API.showWidget();
+        } else if (!document.getElementById("tawk-script")) {
+            w.Tawk_API = w.Tawk_API || {};
+            w.Tawk_LoadStart = new Date();
+            w.Tawk_API.onLoad = () => {
+                if (!onEnterprise()) w.Tawk_API.hideWidget();
+            };
+
+            const s1 = document.createElement("script");
+            s1.id = "tawk-script";
+            s1.async = true;
+            s1.src = "https://embed.tawk.to/6aeb368ea77e793c392887ee/1k6jcq82d";
+            s1.charset = "UTF-8";
+            s1.setAttribute("crossorigin", "*");
+            document.body.appendChild(s1);
+        }
 
         return () => {
-            document.body.removeChild(s1);
+            w.Tawk_API?.hideWidget?.();
         };
     }, []);
     return (
