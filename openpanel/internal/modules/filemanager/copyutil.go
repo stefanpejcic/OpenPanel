@@ -7,11 +7,35 @@ import (
 	"os"
 	"path"
 	"strings"
+	"syscall"
 )
+
+// errNotRegular is returned for fifos, devices and sockets, which a read would hang on or never finish
+var errNotRegular = errors.New("not a regular file")
+
+// openRegular opens rel for reading without blocking on a fifo and refuses anything that isn't a regular file
+func openRegular(root interface {
+	OpenFile(string, int, os.FileMode) (*os.File, error)
+}, rel string) (*os.File, error) {
+	f, err := root.OpenFile(rel, os.O_RDONLY|syscall.O_NONBLOCK, 0)
+	if err != nil {
+		return nil, err
+	}
+	info, err := f.Stat()
+	if err != nil {
+		f.Close()
+		return nil, err
+	}
+	if !info.Mode().IsRegular() {
+		f.Close()
+		return nil, errNotRegular
+	}
+	return f, nil
+}
 
 // copyFile copies file contents and permission bits inside root, failing if dst already exists
 func copyFile(root *os.Root, src, dst string) error {
-	in, err := root.Open(src)
+	in, err := openRegular(root, src)
 	if err != nil {
 		return err
 	}

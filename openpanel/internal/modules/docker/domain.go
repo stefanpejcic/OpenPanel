@@ -95,15 +95,27 @@ func checkNewVolumes(available, names []string) error {
 const podmanSocketVolume = "/run/user/${USER_ID}/podman/podman.sock"
 
 // hostPathDenied are entries in the account's home the panel itself reads and trusts, so they can't be mounted into a container
-var hostPathDenied = map[string]bool{"features.txt": true, "docker-compose.yml": true}
+var hostPathDenied = map[string]bool{
+	"features.txt": true, "docker-compose.yml": true,
+	// the root panel reads or walks these, a container that could rewrite them could steer it
+	"docker-data": true, "crons.ini": true, "backup.env": true, "backup_restores.json": true, "backup_files": true,
+}
 
 // checkHostPaths only lets bind mounts point inside the account's home (./folder), anything already in the compose file stays allowed so editing a template service still works
-func checkHostPaths(composeData map[string]any, names []string, userContext string) error {
+func checkHostPaths(composeData map[string]any, names []string, userContext, service string) error {
 	existing := existingVolumeSources(composeData)
+	ownExisting := map[string]bool{}
+	if service != "" {
+		ownExisting = serviceVolumeSources(composeData, service)
+	}
 	home := homePath(userContext)
 	for _, n := range names {
 		n = strings.TrimSpace(n)
 		isPath := strings.ContainsAny(n, "/\\") || strings.HasPrefix(n, ".") || strings.HasPrefix(n, "~")
+		// the backup service mounting ./crons.ini doesn't make it fine for any other container
+		if isPath && deniedHostPath(n, userContext) && !ownExisting[n] {
+			return fmt.Errorf("Volume %q is not allowed. Use a named volume or a folder inside your account like ./data.", n)
+		}
 		if n == "" || !isPath || existing[n] || n == podmanSocketVolume {
 			continue
 		}
@@ -159,9 +171,36 @@ func safeRelativeHostPath(n string) bool {
 
 // existingVolumeSources collects the source side of every service's volumes already in the compose file
 func existingVolumeSources(composeData map[string]any) map[string]bool {
+	return serviceVolumeSources(composeData, "")
+}
+
+// deniedHostPath reports whether a bind source points at something in hostPathDenied, written as ./x or as the absolute /home/<context>/x
+func deniedHostPath(n, userContext string) bool {
+	rest, ok := strings.CutPrefix(n, "./")
+	if !ok {
+		cleaned := path.Clean(n)
+		for _, home := range []string{"/home/${CONTEXT}/", "/home/$CONTEXT/", "/home/" + userContext + "/"} {
+			if r, found := strings.CutPrefix(cleaned, home); found {
+				rest, ok = r, true
+				break
+			}
+		}
+		if !ok {
+			return false
+		}
+	}
+	first, _, _ := strings.Cut(path.Clean(rest), "/")
+	return hostPathDenied[first]
+}
+
+// serviceVolumeSources collects bind sources of one service, or of every service when service is empty
+func serviceVolumeSources(composeData map[string]any, service string) map[string]bool {
 	out := map[string]bool{}
 	services, _ := composeData["services"].(map[string]any)
-	for _, raw := range services {
+	for name, raw := range services {
+		if service != "" && name != service {
+			continue
+		}
 		svc, _ := raw.(map[string]any)
 		vols, _ := svc["volumes"].([]any)
 		for _, v := range vols {

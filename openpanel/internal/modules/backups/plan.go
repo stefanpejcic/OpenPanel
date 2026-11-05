@@ -2,6 +2,7 @@ package backups
 
 import (
 	"archive/tar"
+	"bytes"
 	"compress/gzip"
 	"context"
 	"errors"
@@ -14,6 +15,7 @@ import (
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 )
 
 // restorePlan knows where each archive entry goes on the host, emails and dns zones only for domains the account owns
@@ -155,6 +157,20 @@ func (p *restorePlan) extractEntry(tr io.Reader, name string, uid int) (string, 
 	owner := uid
 	if !chown {
 		owner = 0
+	}
+	if name == "backup/crons.ini" {
+		// the archive is whatever the account's destination served, so it gets the same rules as the cron editor
+		data, err := io.ReadAll(io.LimitReader(tr, 1<<20+1))
+		if err != nil {
+			return "", err
+		}
+		if len(data) > 1<<20 {
+			return "", errors.New("crons.ini in the backup is too large")
+		}
+		if msg := crons.CheckCronsPolicy(string(data)); msg != "" {
+			return "", errors.New("crons.ini in the backup was not restored: " + msg)
+		}
+		tr = bytes.NewReader(data)
 	}
 	if err := writeTarEntry(tr, dest, root, owner); err != nil {
 		return "", err

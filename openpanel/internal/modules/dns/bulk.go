@@ -44,7 +44,7 @@ func handleDNSBulk(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	domain := r.PathValue("domain")
-	if !a.CheckDomainBelongsToUser(r.Context(), userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(r.Context(), userID, domain) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
@@ -112,7 +112,7 @@ func handleDNSBulk(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(targets) > 0 {
-		if writeErr := tenantfs.WriteFile(path, []byte(strings.Join(lines, "")), 0o644); writeErr != nil {
+		if writeErr := WriteZoneFile(path, []byte(strings.Join(lines, ""))); writeErr != nil {
 			for _, i := range targets {
 				results[i].Message = "Error saving the zone file."
 			}

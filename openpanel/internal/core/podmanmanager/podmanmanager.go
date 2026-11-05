@@ -24,6 +24,11 @@ func isRootContext(userContext string) bool {
 	}
 }
 
+// IsRootContext is isRootContext for callers that must refuse the root podman, like the web terminal
+func IsRootContext(userContext string) bool {
+	return isRootContext(userContext)
+}
+
 // GetUID returns the owning UID of /home/<context>, used to find that user's rootless podman socket
 func GetUID(userContext string) (int, error) {
 	info, err := os.Stat("/home/" + userContext)
@@ -40,8 +45,9 @@ func GetUID(userContext string) (int, error) {
 // PodmanUserSocket returns the unix:// URL for <context>'s rootless podman socket - the /hostfs prefix matters since this binary runs in a container with the host rootfs bind-mounted there
 func PodmanUserSocket(userContext string) string {
 	uid, err := GetUID(userContext)
-	if err != nil {
-		uid = 0
+	if err != nil || uid == 0 {
+		// never fall back to root's own socket
+		return "unix:///hostfs/run/user/nonexistent/podman/podman.sock"
 	}
 	return fmt.Sprintf("unix:///hostfs/run/user/%d/podman/podman.sock", uid)
 }

@@ -1,6 +1,7 @@
 package backups
 
 import (
+	"errors"
 	"log"
 	"maps"
 	"net/http"
@@ -91,12 +92,21 @@ func handleBackupSettings(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	renderBackupSettingsFromFile(a, w, r, path)
 }
 
+// badSettingError is a posted value we refuse to write, its text is shown to the user
+type badSettingError string
+
+func (e badSettingError) Error() string { return string(e) }
+
 // updateBackupSettings saves the posted settings unless a backup is running, returns the status and message to show
 func updateBackupSettings(a *appctx.App, r *http.Request, path, userContext, currentUsername string) (int, string) {
 	if isBackupInProgress(r.Context(), userContext) {
 		return http.StatusConflict, "A backup is currently in progress. Please wait until it finishes before saving settings. Or if you want to interrupt the backup process: stop and start the backup service."
 	}
 	if err := saveBackupSettings(a, r, path, userContext, currentUsername); err != nil {
+		var bad badSettingError
+		if errors.As(err, &bad) {
+			return http.StatusBadRequest, string(bad)
+		}
 		return http.StatusInternalServerError, "Error updating settings."
 	}
 	return http.StatusOK, "Settings updated successfully."
@@ -129,6 +139,15 @@ func saveBackupSettings(a *appctx.App, r *http.Request, path, userContext, curre
 	}
 	for k, v := range parseFormGroups(r, "settings") {
 		updated[k] = v
+	}
+	for k, v := range updated {
+		// a newline would add lines to backup.env that the form never offered
+		if strings.ContainsAny(k, "\r\n=") || strings.ContainsAny(v, "\r\n") {
+			return badSettingError("Backup settings can not contain line breaks.")
+		}
+		if k == "SSH_IDENTITY_FILE" && v != "" && (!strings.HasPrefix(v, "/var/www/html/") || strings.Contains(v, "..")) {
+			return badSettingError("The SSH key file must be inside /var/www/html/.")
+		}
 	}
 	before := maps.Clone(envDict)
 	for k, v := range updated {

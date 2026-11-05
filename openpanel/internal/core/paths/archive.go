@@ -5,12 +5,14 @@ import (
 	"archive/zip"
 	"compress/gzip"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
 	"os"
 	"path"
 	"strings"
+	"sync/atomic"
 	"syscall"
 )
 
@@ -56,7 +58,27 @@ func (c ctxReader) Read(p []byte) (int, error) {
 	if err := c.ctx.Err(); err != nil {
 		return 0, err
 	}
-	return c.r.Read(p)
+	n, err := c.r.Read(p)
+	if b, ok := c.ctx.Value(sizeLimitKey{}).(*sizeBudget); ok && n > 0 {
+		if b.left.Add(-int64(n)) < 0 {
+			return n, ErrTooLarge
+		}
+	}
+	return n, err
+}
+
+// ErrTooLarge is returned once an extraction writes more than the limit set with WithSizeLimit
+var ErrTooLarge = errors.New("archive expands past the size limit")
+
+type sizeLimitKey struct{}
+
+type sizeBudget struct{ left atomic.Int64 }
+
+// WithSizeLimit caps how many bytes every extraction run with ctx may write in total, a tiny archive can otherwise expand to anything
+func WithSizeLimit(ctx context.Context, maxBytes int64) context.Context {
+	b := &sizeBudget{}
+	b.left.Store(maxBytes)
+	return context.WithValue(ctx, sizeLimitKey{}, b)
 }
 
 // extracted files get the archive's mode minus a 022 umask, like tar --no-same-permissions

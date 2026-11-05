@@ -2,14 +2,19 @@ package emails
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -25,7 +30,8 @@ const (
 	masterUser              = "openpanel"
 	mailserverContainerName = "openadmin_mailserver"
 	roundcubeContainerName  = "openadmin_roundcube"
-	dovecotMasterPassPath   = "/etc/openpanel/openpanel/secret.key"
+	// its own key, the panel's secret.key signs sessions and must never end up in the roundcube container
+	dovecotMasterPassPath = "/etc/openpanel/openpanel/dovecot_master.key"
 )
 
 var (
@@ -37,6 +43,9 @@ var (
 func loadDovecotMasterPass() string {
 	masterPassOnce.Do(func() {
 		data, err := tenantfs.ReadFile(dovecotMasterPassPath)
+		if errors.Is(err, os.ErrNotExist) {
+			data, err = createDovecotMasterPass(dovecotMasterPassPath)
+		}
 		if err != nil {
 			log.Printf("WEBMAIL - Could not read dovecot master password file %s: %v", dovecotMasterPassPath, err)
 			return
@@ -44,6 +53,27 @@ func loadDovecotMasterPass() string {
 		masterPass = strings.TrimSpace(string(data))
 	})
 	return masterPass
+}
+
+// createDovecotMasterPass makes a random key on first use, O_EXCL so two starts can't write different ones
+func createDovecotMasterPass(path string) ([]byte, error) {
+	buf := make([]byte, 32)
+	if _, err := rand.Read(buf); err != nil {
+		return nil, err
+	}
+	key := []byte(hex.EncodeToString(buf))
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL|syscall.O_NOFOLLOW, 0o600)
+	if errors.Is(err, os.ErrExist) {
+		return tenantfs.ReadFile(path)
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	if _, err := f.Write(key); err != nil {
+		return nil, err
+	}
+	return key, nil
 }
 
 func isIPv4(value string) bool {
@@ -193,7 +223,8 @@ func createWebmailToken(ctx context.Context, email string) (string, error) {
 	encoded := base64.StdEncoding.EncodeToString(payloadBytes)
 	tokenFile := "/tmp/wmt_" + token
 
-	cmd := "echo " + encoded + " | base64 -d > " + tokenFile + " && chown www-data:www-data " + tokenFile
+	// autologin.php only reads the file, so tokens nobody used are swept here
+	cmd := "find /tmp -maxdepth 1 -name 'wmt_*' -mmin +2 -delete 2>/dev/null; umask 077 && echo " + encoded + " | base64 -d > " + tokenFile + " && chown www-data:www-data " + tokenFile
 	if err := exec.CommandContext(ctx, "podman", "exec", roundcubeContainerName, "sh", "-lc", cmd).Run(); err != nil {
 		return "", err
 	}

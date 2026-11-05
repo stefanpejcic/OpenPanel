@@ -27,7 +27,7 @@ func handleSuspendDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			web.FlashRedirect(a, w, r, "error", "Invalid request. Domain name must be provided.", "/domains/suspend")
 			return
 		}
-		if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
+		if !a.CheckExactDomainBelongsToUser(ctx, userID, domainName) {
 			http.Error(w, "You do not own this domain.", http.StatusForbidden)
 			return
 		}
@@ -53,7 +53,7 @@ func handleSuspendDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		renderSuspendPage(a, w, r, "", domainsList)
 		return
 	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domainName) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
@@ -74,7 +74,7 @@ func handleUnsuspendDomain(a *appctx.App, w http.ResponseWriter, r *http.Request
 			web.FlashRedirect(a, w, r, "error", "Invalid request. Domain name must be provided.", "/domains/unsuspend")
 			return
 		}
-		if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
+		if !a.CheckExactDomainBelongsToUser(ctx, userID, domainName) {
 			http.Error(w, "You do not own this domain.", http.StatusForbidden)
 			return
 		}
@@ -96,7 +96,7 @@ func handleUnsuspendDomain(a *appctx.App, w http.ResponseWriter, r *http.Request
 		renderUnsuspendPage(a, w, r, "", domainsList)
 		return
 	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domainName) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}

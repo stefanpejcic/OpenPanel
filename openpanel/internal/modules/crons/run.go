@@ -64,6 +64,11 @@ func handleCronjobsRunWS(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	if !cronContainerRE.MatchString(job.Container) {
+		http.Error(w, "invalid container name", http.StatusBadRequest)
+		return
+	}
+
 	conn, err := runWsUpgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return
@@ -85,7 +90,7 @@ func handleCronjobsRunWS(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		}
 	}()
 
-	argv := podmanmanager.PodmanArgv(userContext, "exec", job.Container, "sh", "-c", job.Command)
+	argv := podmanmanager.PodmanArgv(userContext, "exec", "--", job.Container, "sh", "-c", job.Command)
 	cmd := podmanmanager.Command(runCtx, userContext, argv)
 
 	stdout, _ := cmd.StdoutPipe()

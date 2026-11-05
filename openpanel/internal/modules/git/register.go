@@ -15,6 +15,7 @@ import (
 
 // Register wires the Git page, the site manager tab's JSON, and the public push/webhook endpoints which do their own auth
 func Register(mux *http.ServeMux, a *appctx.App) {
+	loadGitLimits(a)
 	requireLogin := func(h http.HandlerFunc) http.Handler {
 		return auth.RequireLogin(a, "git")(h)
 	}

@@ -69,7 +69,7 @@ func handleEditDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !a.CheckDomainBelongsToUser(ctx, userID, domainParam) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domainParam) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}

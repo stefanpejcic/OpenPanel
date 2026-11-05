@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"golang.org/x/net/idna"
 
@@ -46,6 +47,10 @@ func (a *App) AllDomainsForUser(ctx context.Context, userID int) ([]Domain, erro
 
 // CheckDomainBelongsToUser reports whether domainParam (a domain_id or domain name) belongs to userID; any error just means "no"
 func (a *App) CheckDomainBelongsToUser(ctx context.Context, userID int, domainParam string) bool {
+	// callers often use the whole value later, so anything that could leave the domain's own path or line is refused up front
+	if strings.Contains(domainParam, "..") || strings.ContainsFunc(domainParam, func(r rune) bool { return r == '\\' || unicode.IsSpace(r) || unicode.IsControl(r) }) {
+		return false
+	}
 	if idx := strings.Index(domainParam, "/"); idx != -1 {
 		domainParam = domainParam[:idx]
 	}
@@ -70,6 +75,11 @@ func (a *App) CheckDomainBelongsToUser(ctx context.Context, userID int, domainPa
 		return false
 	}
 	return gotUserID == userID
+}
+
+// CheckExactDomainBelongsToUser is CheckDomainBelongsToUser for callers that use the value as a domain name, a site path like example.com/blog is refused
+func (a *App) CheckExactDomainBelongsToUser(ctx context.Context, userID int, domain string) bool {
+	return !strings.Contains(domain, "/") && a.CheckDomainBelongsToUser(ctx, userID, domain)
 }
 
 // ReadDedicatedIPFromFile reads a user's dedicated-IP file, returning ("", false) if it's missing or empty

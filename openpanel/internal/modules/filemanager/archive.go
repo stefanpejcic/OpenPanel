@@ -5,6 +5,7 @@ import (
 	"archive/zip"
 	"compress/gzip"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -82,7 +83,14 @@ func handleExtractFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	timeoutCtx, cancel := context.WithTimeout(ctx, time.Duration(maxTime*float64(time.Minute)))
 	defer cancel()
 
-	if extractErr := extractArchive(timeoutCtx, root, archivePath, selectedFile, destinationPath); extractErr != nil {
+	maxMB := atoiDefault(a.Config.Get("filemanager_extract_max_size", "10240"), 10240)
+	limitCtx := paths.WithSizeLimit(timeoutCtx, int64(maxMB)<<20)
+	if extractErr := extractArchive(limitCtx, root, archivePath, selectedFile, destinationPath); extractErr != nil {
+		if errors.Is(extractErr, paths.ErrTooLarge) {
+			msg := web.Tr(a, r, "The archive expands to more than %(size)s MB, extraction was stopped.", "size", strconv.Itoa(maxMB))
+			web.FlashRedirect(a, w, r, "error", msg, filesRedirectPath(pathParam))
+			return
+		}
 		if timeoutCtx.Err() == context.DeadlineExceeded {
 			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Extraction timed out after %(minutes)s minutes!", "minutes", maxTime), filesRedirectPath(pathParam))
 			return
@@ -223,7 +231,7 @@ func validateArchiveMembers(root *paths.UserRoot, archiveRel, selectedFile, dest
 }
 
 func openZip(root *paths.UserRoot, archiveRel string) (*zip.Reader, func(), error) {
-	f, err := root.Open(archiveRel)
+	f, err := openRegular(root, archiveRel)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -241,7 +249,7 @@ func openZip(root *paths.UserRoot, archiveRel string) (*zip.Reader, func(), erro
 }
 
 func openTar(root *paths.UserRoot, archiveRel, selectedFile string) (*tar.Reader, func(), error) {
-	f, err := root.Open(archiveRel)
+	f, err := openRegular(root, archiveRel)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -285,7 +293,7 @@ func extractArchive(ctx context.Context, root *paths.UserRoot, archiveRel, selec
 		defer closeFn()
 		return paths.ExtractTar(ctx, root.Root, destRel, tr, 0)
 	case "gz":
-		f, err := root.Open(archiveRel)
+		f, err := openRegular(root, archiveRel)
 		if err != nil {
 			return err
 		}

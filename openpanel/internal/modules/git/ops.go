@@ -53,18 +53,32 @@ func PublicKey(ctx context.Context, userContext string) (string, error) {
 	return strings.TrimSpace(string(data)), nil
 }
 
-// remoteEnv carries the remote's credentials without putting them in argv or the repo config
-func remoteEnv(userContext string, r Repo) []string {
+// remoteEnv carries the remote's credentials without putting them in argv or the repo config, and pins git to the address pinRemote checked so DNS can't swap it
+func remoteEnv(ctx context.Context, userContext string, r Repo) ([]string, error) {
+	host, port, ip, err := pinRemote(ctx, r.RemoteURL)
+	if err != nil {
+		return nil, err
+	}
 	if isSSHURL(r.RemoteURL) {
+		// HostName makes ssh connect to the checked address while known_hosts still uses the name
 		return []string{"GIT_SSH_COMMAND=ssh -i " + sshKeyPath(userContext) +
 			" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=" +
-			filepath.Join(sshDir(userContext), "known_hosts")}
+			filepath.Join(sshDir(userContext), "known_hosts") + " -o HostName=" + ip}, nil
 	}
+	if strings.Contains(ip, ":") {
+		ip = "[" + ip + "]"
+	}
+	kv := []string{"http.followRedirects", "false", "http.curloptResolve", host + ":" + port + ":" + ip}
 	if r.RemoteUser != "" || r.RemotePass != "" {
 		auth := base64.StdEncoding.EncodeToString([]byte(r.RemoteUser + ":" + r.RemotePass))
-		return []string{"GIT_CONFIG_COUNT=1", "GIT_CONFIG_KEY_0=http.extraHeader", "GIT_CONFIG_VALUE_0=Authorization: Basic " + auth}
+		kv = append(kv, "http.extraHeader", "Authorization: Basic "+auth)
 	}
-	return nil
+	env := []string{"GIT_CONFIG_COUNT=" + strconv.Itoa(len(kv)/2)}
+	for i := 0; i < len(kv); i += 2 {
+		n := strconv.Itoa(i / 2)
+		env = append(env, "GIT_CONFIG_KEY_"+n+"="+kv[i], "GIT_CONFIG_VALUE_"+n+"="+kv[i+1])
+	}
+	return env, nil
 }
 
 // initRepo creates the bare repo on disk, cloning it for remotes, and fills in the branch when it was left empty
@@ -101,9 +115,17 @@ func initRepo(ctx context.Context, userContext string, r *Repo) error {
 	}
 	cctx, cancel := context.WithTimeout(ctx, fetchTimeout)
 	defer cancel()
-	if _, err := runGit(cctx, userContext, remoteEnv(userContext, *r), "clone", "--bare", "-q", "--", r.RemoteURL, dir); err != nil {
+	env, err := remoteEnv(cctx, userContext, *r)
+	if err != nil {
+		return err
+	}
+	if _, err := runGit(cctx, userContext, env, "clone", "--bare", "-q", "--", r.RemoteURL, dir); err != nil {
 		_ = os.RemoveAll(dir)
 		return err
+	}
+	if gitRoomLeft(userContext) == 0 {
+		_ = os.RemoveAll(dir)
+		return errGitStorageFull
 	}
 	// bare clones have no fetch refspec, add one so pulls update every branch
 	if _, err := runGit(ctx, userContext, nil, "-C", dir, "config", "remote.origin.fetch", "+refs/heads/*:refs/heads/*"); err != nil {
@@ -129,9 +151,16 @@ func fetchRepo(ctx context.Context, userContext string, r Repo) (string, error) 
 	if r.Source != SourceRemote {
 		return "", errors.New("only remote repositories can be pulled")
 	}
+	if gitRoomLeft(userContext) == 0 {
+		return "", errGitStorageFull
+	}
 	cctx, cancel := context.WithTimeout(ctx, fetchTimeout)
 	defer cancel()
-	return runGit(cctx, userContext, remoteEnv(userContext, r), "-C", repoDir(userContext, r.Name), "fetch", "--prune", "origin")
+	env, err := remoteEnv(cctx, userContext, r)
+	if err != nil {
+		return "", err
+	}
+	return runGit(cctx, userContext, env, "-C", repoDir(userContext, r.Name), "fetch", "--prune", "origin")
 }
 
 // branchCommit returns the branch tip, false when the branch doesn't exist yet (e.g. nothing pushed)

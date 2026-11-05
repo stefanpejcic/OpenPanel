@@ -35,8 +35,9 @@ func (s *s3Store) client() (*minio.Client, string, string, error) {
 	secure := s.config["AWS_ENDPOINT_PROTO"] != "http"
 
 	c, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
-		Secure: secure,
+		Creds:     credentials.NewStaticV4(accessKey, secretKey, ""),
+		Secure:    secure,
+		Transport: remoteTransport(s.config, s.config["AWS_ENDPOINT_INSECURE"] == "true" || s.config["AWS_ENDPOINT_INSECURE"] == "1"),
 	})
 	if err != nil {
 		return nil, "", "", err

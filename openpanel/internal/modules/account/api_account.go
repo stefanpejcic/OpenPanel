@@ -105,6 +105,8 @@ func apiAccountUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		a.Cache.Delete(ctx, "get_user_details_with_plan:"+strconv.Itoa(userID))
+		// bearer calls have no browser session of their own, so every logged in session goes
+		clearUserSessions(ctx, a, userID)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "changed email to "+newEmail+" via API", ip)
 		actions = append(actions, "email updated to "+newEmail)
 	}

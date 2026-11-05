@@ -1,0 +1,4 @@
+
+# third-party agent skills, restored from skills-lock.json
+.agents/
+.claude/skills/security-audit

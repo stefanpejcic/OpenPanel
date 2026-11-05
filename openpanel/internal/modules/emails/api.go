@@ -49,7 +49,7 @@ func writeAPIEmailsJSON(w http.ResponseWriter, status int, v any) {
 }
 
 func apiOwnDomainOr403(a *appctx.App, w http.ResponseWriter, r *http.Request, userID int, domain string) bool {
-	if !a.CheckDomainBelongsToUser(r.Context(), userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(r.Context(), userID, domain) {
 		writeAPIEmailsJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain."})
 		return false
 	}
