@@ -3,6 +3,7 @@ package services
 
 import (
 	"encoding/json"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"net/http"
 	"sync"
 
@@ -56,6 +57,10 @@ func FilterServices(all []string, webserver, mysqlType string) []string {
 func handleManageService(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service := r.PathValue("service")
+	if !podmanmanager.ValidName(service) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 
 	userID, _ := auth.UserID(r)
 	injected, err := a.InjectData(ctx, userID)

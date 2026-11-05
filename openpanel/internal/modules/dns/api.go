@@ -309,15 +309,8 @@ func apiDNSAddRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		newRecord = name + " " + ttl + " IN " + recordType + " " + record
 	}
 
-	f, openErr := tenantfs.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
-	if openErr != nil {
-		writeAPIDNSJSON(w, http.StatusInternalServerError, map[string]string{"error": openErr.Error()})
-		return
-	}
-	_, writeErr := f.WriteString(newRecord + "\n")
-	_ = f.Close()
-	if writeErr != nil {
-		writeAPIDNSJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
+	if writeErr := AppendZoneRecord(path, newRecord); writeErr != nil {
+		writeAPIDNSJSON(w, http.StatusBadRequest, map[string]string{"error": writeErr.Error()})
 		return
 	}
 

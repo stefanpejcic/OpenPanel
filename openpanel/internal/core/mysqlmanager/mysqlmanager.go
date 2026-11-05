@@ -3,16 +3,20 @@ package mysqlmanager
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"database/sql"
 	"fmt"
-	"os"
+	"net"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-sql-driver/mysql"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/usersocket"
 )
 
 const (
@@ -44,15 +48,15 @@ func openLockFor(userContext string) *sync.Mutex {
 // mycnfCredentials reads the [client] section of /home/<context>/my.cnf, same ini format as /etc/my.cnf but a distinct per-user file
 func mycnfCredentials(userContext string) (user, password string, err error) {
 	path := fmt.Sprintf("/home/%s/my.cnf", userContext)
-	f, err := os.Open(path)
+	// tenantfs refuses a symlink there, otherwise the account could point us at another account's root password
+	data, err := tenantfs.ReadFile(path)
 	if err != nil {
 		return "", "", fmt.Errorf("MySQL config not readable: %s: %w", path, err)
 	}
-	defer f.Close()
 
 	opts := map[string]string{}
 	section := ""
-	scanner := bufio.NewScanner(f)
+	scanner := bufio.NewScanner(bytes.NewReader(data))
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" || strings.HasPrefix(line, "#") || strings.HasPrefix(line, ";") {
@@ -80,23 +84,31 @@ func mycnfCredentials(userContext string) (user, password string, err error) {
 
 // SocketExists reports whether the user's mysqld socket is there, i.e. their MySQL/MariaDB container has started
 func SocketExists(userContext string) bool {
-	_, err := os.Stat(socketPathFor(userContext))
-	return err == nil
+	return usersocket.Exists(userContext, socketRel)
 }
 
+// socketRel is the socket under the account home, it's only ever dialed through usersocket so a symlink there is refused
+const socketRel = "sockets/mysqld/mysqld.sock"
+
 func socketPathFor(userContext string) string {
-	return fmt.Sprintf("/home/%s/sockets/mysqld/mysqld.sock", userContext)
+	return fmt.Sprintf("/home/%s/%s", userContext, socketRel)
+}
+
+func init() {
+	mysql.RegisterDialContext("opuser", func(ctx context.Context, userContext string) (net.Conn, error) {
+		return usersocket.Dial(ctx, userContext, socketRel)
+	})
 }
 
 // waitForSocket waits for a freshly-started mysqld to create its socket
-func waitForSocket(socketPath string) error {
+func waitForSocket(userContext string) error {
 	deadline := time.Now().Add(socketWaitTimeout)
 	for {
-		if _, err := os.Stat(socketPath); err == nil {
+		if usersocket.Exists(userContext, socketRel) {
 			return nil
 		}
 		if time.Now().After(deadline) {
-			return fmt.Errorf("MySQL socket not found: %s", socketPath)
+			return fmt.Errorf("MySQL socket not found: %s", socketPathFor(userContext))
 		}
 		time.Sleep(socketWaitInterval)
 	}
@@ -108,13 +120,12 @@ func openPool(userContext string) (*sql.DB, error) {
 		return nil, err
 	}
 
-	socketPath := socketPathFor(userContext)
-	if err := waitForSocket(socketPath); err != nil {
+	if err := waitForSocket(userContext); err != nil {
 		return nil, err
 	}
 
-	dsn := fmt.Sprintf("%s:%s@unix(%s)/?parseTime=true&timeout=10s",
-		user, password, socketPath)
+	dsn := fmt.Sprintf("%s:%s@opuser(%s)/?parseTime=true&timeout=10s",
+		user, password, userContext)
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, err

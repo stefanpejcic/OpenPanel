@@ -238,6 +238,10 @@ func handleContainersStatus(a *appctx.App, w http.ResponseWriter, r *http.Reques
 // handleManageContainer mirrors manage_container(). action is one of "start"/"stop"/"restart"/"cpu"/"ram", fixed by the caller - docker.go registers one literal route per action rather than a single "{action}/{container_name}" wildcard, which would create an unresolvable net/http.ServeMux ambiguity against other literal-prefixed /containers/* routes like /containers/image/.
 func handleManageContainer(a *appctx.App, w http.ResponseWriter, r *http.Request, action string) {
 	containerName := r.PathValue("container_name")
+	if !podmanmanager.ValidName(containerName) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 	ctx := r.Context()
 
 	userID, _ := auth.UserID(r)

@@ -71,7 +71,23 @@ func volumeOf(p string) (dir, rel string, ok bool, err error) {
 }
 
 // open resolves p, root is nil when p is outside every volume
+// hasDotDotUnderHome catches a path like /home/alice/x/../../bob/y, cleaning it first would pick bob's home as the trusted base
+func hasDotDotUnderHome(p string) bool {
+	if !strings.HasPrefix(p, homeRoot) && !strings.HasPrefix(path.Clean(p), homeRoot) {
+		return false
+	}
+	for _, c := range strings.Split(p, "/") {
+		if c == ".." {
+			return true
+		}
+	}
+	return false
+}
+
 func open(p string) (*os.Root, string, error) {
+	if hasDotDotUnderHome(p) {
+		return nil, "", &fs.PathError{Op: "open", Path: p, Err: ErrEscape}
+	}
 	dir, rel, ok, err := volumeOf(p)
 	if err != nil || !ok {
 		return nil, "", err
@@ -245,6 +261,9 @@ func Create(p string) (*os.File, error) {
 
 // Rename handles both ends in volumes, in home dirs, in different ones or outside any
 func Rename(oldPath, newPath string) error {
+	if hasDotDotUnderHome(oldPath) || hasDotDotUnderHome(newPath) {
+		return &os.LinkError{Op: "rename", Old: oldPath, New: newPath, Err: ErrEscape}
+	}
 	if !isVolumeOrHome(oldPath) && !isVolumeOrHome(newPath) {
 		return os.Rename(oldPath, newPath)
 	}

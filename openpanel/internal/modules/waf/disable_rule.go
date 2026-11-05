@@ -55,11 +55,8 @@ func disableRuleForDomain(ctx context.Context, domain, ruleID string) (alreadyDi
 	}
 	removedRules = append([]string{excludedRuleID}, append(removedRules, ruleID)...)
 	removedTags = append([]string{excludedTag}, filterOut(removedTags, excludedTag)...)
-	if writeErr := tenantfs.WriteFile(path, []byte(rewriteDirectivesBlock(string(content), removedRules, removedTags)), 0o644); writeErr != nil {
+	if writeErr := writeConfAndReload(ctx, path, content, rewriteDirectivesBlock(string(content), removedRules, removedTags)); writeErr != nil {
 		return false, writeErr
-	}
-	if reloadErr := reloadCaddy(ctx); reloadErr != nil {
-		return false, errCaddyReload
 	}
 	return false, nil
 }
@@ -120,11 +117,8 @@ func enableRuleForDomain(ctx context.Context, domain, ruleID string) error {
 	}
 	removedRules = append([]string{excludedRuleID}, filterOut(removedRules, ruleID)...)
 	removedTags = append([]string{excludedTag}, filterOut(removedTags, excludedTag)...)
-	if writeErr := tenantfs.WriteFile(path, []byte(rewriteDirectivesBlock(string(content), removedRules, removedTags)), 0o644); writeErr != nil {
+	if writeErr := writeConfAndReload(ctx, path, content, rewriteDirectivesBlock(string(content), removedRules, removedTags)); writeErr != nil {
 		return writeErr
-	}
-	if reloadErr := reloadCaddy(ctx); reloadErr != nil {
-		return errCaddyReload
 	}
 	return nil
 }

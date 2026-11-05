@@ -925,7 +925,7 @@ EOF
             else
                 local admin_port
                 admin_port=$(/usr/local/bin/opencli admin port)
-                local ip_block="# START HOSTNAME IP #\n${new_hostname} {\n  tls {\n    issuer acme {\n      profile shortlived\n    }\n  }\n  reverse_proxy localhost:${admin_port}\n}\n# END HOSTNAME IP #\n"
+                local ip_block="# START HOSTNAME IP #\n${new_hostname} {\n  tls {\n    reuse_private_keys\n    issuer acme {\n      profile shortlived\n    }\n  }\n  reverse_proxy localhost:${admin_port}\n}\n# END HOSTNAME IP #\n"
                 sed -i "s|# START HOSTNAME DOMAIN #|${ip_block}# START HOSTNAME DOMAIN #|" "${ETC_DIR}caddy/Caddyfile"
             fi
         else

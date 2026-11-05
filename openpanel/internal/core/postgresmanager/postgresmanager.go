@@ -5,13 +5,15 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"os"
+	"net"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/usersocket"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 )
 
@@ -38,6 +40,31 @@ func creds(userContext string) (user, password string, err error) {
 	return user, password, nil
 }
 
+// pgSocketRel is the account's postgres socket, always dialed through usersocket so a symlink there is refused
+const pgSocketRel = "sockets/postgres/.s.PGSQL.5432"
+
+// userDialer ignores the address lib/pq builds and dials the account's own socket inode
+type userDialer struct{ userContext string }
+
+func (d userDialer) Dial(_, _ string) (net.Conn, error) {
+	return usersocket.Dial(context.Background(), d.userContext, pgSocketRel)
+}
+
+func (d userDialer) DialTimeout(_, _ string, timeout time.Duration) (net.Conn, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	return usersocket.Dial(ctx, d.userContext, pgSocketRel)
+}
+
+func (d userDialer) DialContext(ctx context.Context, _, _ string) (net.Conn, error) {
+	return usersocket.Dial(ctx, d.userContext, pgSocketRel)
+}
+
+// dsnQuote is libpq's quoting for a key=value connection string
+func dsnQuote(v string) string {
+	return "'" + strings.NewReplacer(`\`, `\\`, `'`, `\'`).Replace(v) + "'"
+}
+
 // openPool opens one *sql.DB per (context, database), connecting over the account's own postgres unix socket directory
 func openPool(userContext, database string) (*sql.DB, error) {
 	user, password, err := creds(userContext)
@@ -46,16 +73,19 @@ func openPool(userContext, database string) (*sql.DB, error) {
 	}
 
 	socketDir := "/home/" + userContext + "/sockets/postgres"
-	if _, statErr := os.Stat(socketDir); statErr != nil {
+	if !usersocket.Exists(userContext, pgSocketRel) {
 		return nil, fmt.Errorf("PostgreSQL socket not found: %s", socketDir)
 	}
 
+	// every value is quoted, a database name read back from the account's own server can't add keys like host=
 	dsn := fmt.Sprintf("user=%s password=%s host=%s dbname=%s sslmode=disable connect_timeout=10",
-		user, password, socketDir, database)
-	db, err := sql.Open("postgres", dsn)
+		dsnQuote(user), dsnQuote(password), dsnQuote(socketDir), dsnQuote(database))
+	connector, err := pq.NewConnector(dsn)
 	if err != nil {
 		return nil, err
 	}
+	connector.Dialer(userDialer{userContext})
+	db := sql.OpenDB(connector)
 	// a handful of connections at most, reused across light panel-side queries for this account's database
 	db.SetMaxOpenConns(5)
 	db.SetMaxIdleConns(1)

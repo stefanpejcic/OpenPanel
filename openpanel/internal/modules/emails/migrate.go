@@ -354,23 +354,33 @@ func openJobDir(userContext string) (*os.Root, int, int, error) {
 	if err != nil {
 		return nil, 0, 0, err
 	}
-	dir := jobDir(userContext)
-	info, err := os.Lstat(dir)
-	switch {
-	case errors.Is(err, fs.ErrNotExist):
-		if err := os.Mkdir(dir, 0o700); err != nil {
-			return nil, 0, 0, err
-		}
-		if err := os.Lchown(dir, uid, gid); err != nil {
-			return nil, 0, 0, err
-		}
-	case err != nil:
+	// /home is root's, so opening the home as a root and the job dir inside it leaves no path for the account to swap
+	home, err := os.OpenRoot(filepath.Join(migrateHomeRoot, userContext))
+	if err != nil {
 		return nil, 0, 0, err
-	case !info.IsDir():
-		return nil, 0, 0, fmt.Errorf("%s is not a directory", dir)
 	}
-	root, err := os.OpenRoot(dir)
-	return root, uid, gid, err
+	defer home.Close()
+	if err := home.Mkdir("imapsync", 0o700); err == nil {
+		if err := home.Lchown("imapsync", uid, gid); err != nil {
+			return nil, 0, 0, err
+		}
+	} else if !errors.Is(err, fs.ErrExist) {
+		return nil, 0, 0, err
+	}
+	if info, err := home.Lstat("imapsync"); err != nil || !info.IsDir() {
+		return nil, 0, 0, fmt.Errorf("%s is not a directory", jobDir(userContext))
+	}
+	root, err := home.OpenRoot("imapsync")
+	if err != nil {
+		return nil, 0, 0, err
+	}
+	// a swap between the Lstat and OpenRoot can only land inside this home, still require the account's own dir
+	info, err := root.Stat(".")
+	if st, ok := info.Sys().(*syscall.Stat_t); err != nil || !ok || !info.IsDir() || int(st.Uid) != uid {
+		root.Close()
+		return nil, 0, 0, fmt.Errorf("%s is not the account's directory", jobDir(userContext))
+	}
+	return root, uid, gid, nil
 }
 
 // writeOwned writes a new file in root owned by the account, so the container (running as the account) can read it

@@ -4,6 +4,7 @@ description: "Every OpenPanel account can use PHP 5.6 to 8.5. Here is why the ol
 slug: remove-old-php-versions-openpanel
 authors: stefanpejcic
 tags: [PHP, Security, PHP-FPM, OpenPanel, OpenAdmin, Hosting]
+image: https://openpanel.com/img/blog/remove_old_php_versions_cover.png
 hide_table_of_contents: false
 ---
 

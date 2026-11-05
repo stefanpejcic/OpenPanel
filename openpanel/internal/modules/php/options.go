@@ -1,6 +1,7 @@
 package php
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"net/http"
@@ -93,6 +94,9 @@ var iniValueNewlines = strings.NewReplacer("\r", "", "\n", "")
 
 // updatePHPConfigFile deletes, updates, or appends each key in keyOrder, then overwrites the file in place so the bind mount in the php container sees it without a restart
 func updatePHPConfigFile(userContext, version string, keyOrder []string, values map[string]string) error {
+	if !phpVersionFormRE.MatchString(version) {
+		return errors.New("invalid PHP version")
+	}
 	phpIniFile := "/home/" + userContext + "/php.ini/" + version + ".ini"
 	content, err := tenantfs.ReadFile(phpIniFile)
 	if err != nil && !os.IsNotExist(err) {
@@ -234,6 +238,10 @@ func handlePHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request, ver
 	}
 
 	version := phpVersionFromSegment(versionSeg)
+	if version != "" && !phpVersionFormRE.MatchString(version) {
+		http.Error(w, "invalid PHP version", http.StatusBadRequest)
+		return
+	}
 	title := "Options"
 
 	if version == "" {
@@ -256,6 +264,7 @@ func handlePHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request, ver
 	availableKeys := loadKeysFromFile(userContext)
 
 	if r.Method == http.MethodPost {
+		r.Body = http.MaxBytesReader(w, r.Body, web.MaxConfigBody)
 		_ = r.ParseForm()
 		values := make(map[string]string, len(availableKeys))
 		for _, key := range availableKeys {
