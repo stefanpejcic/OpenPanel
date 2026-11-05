@@ -115,7 +115,7 @@ func apiDNSList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 func apiDNSGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	domain := r.PathValue("domain")
-	if !a.CheckDomainBelongsToUser(r.Context(), userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(r.Context(), userID, domain) {
 		writeAPIDNSJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
@@ -149,7 +149,7 @@ func apiDNSGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 func apiDNSRawGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	domain := r.PathValue("domain")
-	if !a.CheckDomainBelongsToUser(r.Context(), userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(r.Context(), userID, domain) {
 		writeAPIDNSJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
@@ -173,7 +173,7 @@ func apiDNSRawPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		writeAPIDNSJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
@@ -185,6 +185,10 @@ func apiDNSRawPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	newContent := body.Content
 	if newContent == "" {
 		writeAPIDNSJSON(w, http.StatusBadRequest, map[string]string{"error": "content is required"})
+		return
+	}
+	if msg := ZoneDirectiveError(newContent); msg != "" {
+		writeAPIDNSJSON(w, http.StatusBadRequest, map[string]string{"error": msg})
 		return
 	}
 	if !strings.HasSuffix(newContent, "\n") {
@@ -218,7 +222,7 @@ func apiDNSRawPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := zoneFilePath(domain)
-	if writeErr := tenantfs.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
+	if writeErr := WriteZoneFile(path, []byte(newContent)); writeErr != nil {
 		writeAPIDNSJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
@@ -238,7 +242,7 @@ func apiDNSAddRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		writeAPIDNSJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
@@ -332,7 +336,7 @@ func apiDNSUpdateRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		writeAPIDNSJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
@@ -396,7 +400,7 @@ func apiDNSUpdateRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	newLines = append(newLines, newBlock)
 	newLines = append(newLines, lines[endRowID:]...)
 
-	if writeErr := tenantfs.WriteFile(path, []byte(strings.Join(newLines, "")), 0o644); writeErr != nil {
+	if writeErr := WriteZoneFile(path, []byte(strings.Join(newLines, ""))); writeErr != nil {
 		writeAPIDNSJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
@@ -416,7 +420,7 @@ func apiDNSDeleteRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		writeAPIDNSJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
@@ -467,7 +471,7 @@ func apiDNSDeleteRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		lines = append(lines[:rowID-1], lines[rowID:]...)
 	}
 
-	if writeErr := tenantfs.WriteFile(path, []byte(strings.Join(lines, "")), 0o644); writeErr != nil {
+	if writeErr := WriteZoneFile(path, []byte(strings.Join(lines, ""))); writeErr != nil {
 		writeAPIDNSJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
@@ -487,7 +491,7 @@ func apiDNSReset(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		writeAPIDNSJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
@@ -514,7 +518,7 @@ func apiDNSExport(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if !a.CheckDomainBelongsToUser(r.Context(), userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(r.Context(), userID, domain) {
 		writeAPIDNSJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}

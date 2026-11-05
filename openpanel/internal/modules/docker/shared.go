@@ -3,9 +3,10 @@ package docker
 import (
 	"context"
 	"fmt"
-	"os/exec"
+	"strings"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // ComposeContainer is a small start/stop/status/restart helper other modules use directly on the shared services (redis, memcached, mysql, postgres, phpmyadmin, valkey) rather than through the docker-compose.yml edit/save flow the rest of this package uses, exported here since internal/app can't import this package - "restart" is fire-and-forget, so this reports whether it launched, not whether it finished.
@@ -50,9 +51,7 @@ func StartComposeServiceIfNotRunning(ctx context.Context, userContext, serviceNa
 	case "sql":
 		serviceName, _ = GetEnvValue(userContext, "MYSQL_TYPE")
 		rootPass, _ := GetEnvValue(userContext, "MYSQL_ROOT_PASSWORD")
-		myCnfPath := homePath(userContext, "my.cnf")
-		_ = exec.CommandContext(ctx, "sed", "-i",
-			fmt.Sprintf("s/^password=.*/password=%s/", rootPass), myCnfPath).Run()
+		_ = syncMyCnfPassword(homePath(userContext, "my.cnf"), rootPass)
 	case "ws":
 		serviceName, _ = GetEnvValue(userContext, "WEB_SERVER")
 	}
@@ -60,4 +59,27 @@ func StartComposeServiceIfNotRunning(ctx context.Context, userContext, serviceNa
 		return
 	}
 	StartOrStopContainer(ctx, userContext, serviceName, "activate", "")
+}
+
+// syncMyCnfPassword sets the password= lines in my.cnf, done in Go because the value comes from the account's .env and must never be read as a sed script
+func syncMyCnfPassword(path, password string) error {
+	if strings.ContainsAny(password, "\r\n") {
+		return fmt.Errorf("invalid password")
+	}
+	content, err := tenantfs.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	lines := strings.Split(string(content), "\n")
+	changed := false
+	for i, line := range lines {
+		if strings.HasPrefix(line, "password=") && line != "password="+password {
+			lines[i] = "password=" + password
+			changed = true
+		}
+	}
+	if !changed {
+		return nil
+	}
+	return tenantfs.WriteFile(path, []byte(strings.Join(lines, "\n")), 0o600)
 }

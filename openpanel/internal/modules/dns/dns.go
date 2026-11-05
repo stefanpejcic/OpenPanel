@@ -60,6 +60,28 @@ func validateZoneFile(domain, zoneFilePath string) string {
 	return ""
 }
 
+// ZoneDirectiveError refuses master-file directives other than $TTL and $ORIGIN, $INCLUDE reads files inside the shared bind container and $GENERATE can blow up the shared named, "" means fine
+func ZoneDirectiveError(content string) string {
+	for _, line := range strings.Split(content, "\n") {
+		if !strings.HasPrefix(line, "$") {
+			continue
+		}
+		name := strings.ToUpper(strings.Fields(line)[0])
+		if name != "$TTL" && name != "$ORIGIN" {
+			return "Zone directive " + strings.Fields(line)[0] + " is not allowed."
+		}
+	}
+	return ""
+}
+
+// WriteZoneFile writes a zone after the directive check, every tenant-driven zone write goes through here
+func WriteZoneFile(path string, data []byte) error {
+	if msg := ZoneDirectiveError(string(data)); msg != "" {
+		return fmt.Errorf("%s", msg)
+	}
+	return tenantfs.WriteFile(path, data, 0o644)
+}
+
 // serialNumberRE matches an 8-digit date plus a 2-digit daily counter, immediately followed by the "; Serial number" marker comment
 var serialNumberRE = regexp.MustCompile(`(\d{8})(\d{2})\s*;\s*Serial number`)
 

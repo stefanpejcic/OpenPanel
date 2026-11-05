@@ -199,3 +199,40 @@ func TestGetRedirectURLFromRealFile(t *testing.T) {
 		t.Errorf("expected empty string for a nonexistent domain conf, got %q", got)
 	}
 }
+
+func TestOnionKeyPathsRejectDotDot(t *testing.T) {
+	for _, p := range []string{"/var/www/html/lnk/../.env", "/var/www/html/../../../../home/victim/.env", "/var/www/html/a/.."} {
+		if !hasDotDot(p) {
+			t.Errorf("hasDotDot(%q) = false, want true", p)
+		}
+	}
+	for _, p := range []string{"/var/www/html/keys/hs_ed25519_secret_key", "/var/www/html/a..b/key"} {
+		if hasDotDot(p) {
+			t.Errorf("hasDotDot(%q) = true, want false", p)
+		}
+	}
+}
+
+func TestRedirectURLRejectsCaddyTokens(t *testing.T) {
+	for _, s := range []string{"https://a\vroot\v*\v/srv", "https://a root", "https://x/?k={file./etc/passwd}", "https://x/{env.SECRET}", "https://x/{$HOME}", `https://x/"a"`, "https://x/a\\b"} {
+		if httpURLRE.MatchString(s) {
+			t.Errorf("accepted %q", s)
+		}
+	}
+	for _, s := range []string{"https://example.com/a?b=c&d=e#f", "http://example.com:8080/x_y-z~"} {
+		if !httpURLRE.MatchString(s) {
+			t.Errorf("rejected %q", s)
+		}
+	}
+}
+
+func TestRemoveRedirectLinesOnlyDropsRedir(t *testing.T) {
+	conf := "example.com {\n    redir https://b\n    import domain_log example.com\n}\n"
+	got := removeRedirectLines(conf, "https://b")
+	if strings.Contains(got, "redir") || !strings.Contains(got, "import domain_log example.com") {
+		t.Fatalf("unexpected result: %q", got)
+	}
+	if removeRedirectLines(conf, "https://b\n    import domain_log example.com") != conf {
+		t.Fatal("a multi-line value removed more than the redir line")
+	}
+}

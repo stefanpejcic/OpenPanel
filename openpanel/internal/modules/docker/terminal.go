@@ -1,11 +1,12 @@
 package docker
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
-	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -83,6 +84,21 @@ func handleDockerTerminalWS(a *appctx.App, w http.ResponseWriter, r *http.Reques
 
 	containerName := r.PathValue("container_name")
 
+	// the account only gets a shell in its own compose services on its own podman, never the root one
+	ctx := r.Context()
+	userID, _ := auth.UserID(r)
+	injected, err := a.InjectData(ctx, userID)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	username, _ := injected["current_username"].(string)
+	userContext, _ := injected["context"].(string)
+	if podmanmanager.IsRootContext(userContext) || !isOwnComposeService(ctx, userContext, containerName) {
+		http.Error(w, "Unknown container.", http.StatusForbidden)
+		return
+	}
+
 	conn, err := wsUpgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return
@@ -116,15 +132,6 @@ func handleDockerTerminalWS(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		cols = 80
 	}
 
-	ctx := r.Context()
-	userID, _ := auth.UserID(r)
-	injected, err := a.InjectData(ctx, userID)
-	if err != nil {
-		return
-	}
-	username, _ := injected["current_username"].(string)
-	userContext, _ := injected["context"].(string)
-
 	_ = logger.RecordUserAction(a.Config, username, "opened interactive terminal for service "+containerName, reqip.ClientIP(r))
 
 	ip := reqip.ClientIP(r)
@@ -132,15 +139,15 @@ func handleDockerTerminalWS(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		_ = logger.RecordUserAction(a.Config, username, terminalCommandLogMessage(containerName, line, edited), ip)
 	}
 
-	argv := podmanmanager.PodmanArgv(userContext, "exec", "-it", "-e", "TERM=xterm-256color", containerName, shell)
+	argv := podmanmanager.PodmanArgv(userContext, "exec", "-it", "-e", "TERM=xterm-256color", "--", containerName, shell)
 	runPTYSession(conn, argv, rows, cols, podmanmanager.PodmanEnv(userContext), terminalCommandTimeout(a), onCommand)
 }
 
 // runPTYSession forks a PTY running argv, pumps its output to the websocket, and forwards websocket input (keystrokes, or {"type":"resize",...} control messages) to the PTY, reporting typed commands to onCommand
 func runPTYSession(conn *websocket.Conn, argv []string, rows, cols int, extraEnv []string, readTimeout time.Duration, onCommand func(line string, edited bool)) {
 	cmd := exec.Command(argv[0], argv[1:]...)
-	cmd.Env = append(append([]string{}, os.Environ()...), "TERM=xterm-256color", "COLORTERM=truecolor")
-	cmd.Env = append(cmd.Env, extraEnv...)
+	// extraEnv is already the full environment, adding os.Environ() back would bring the image's root CONTAINER_HOST with it
+	cmd.Env = append(append([]string{}, extraEnv...), "TERM=xterm-256color", "COLORTERM=truecolor")
 
 	ptmx, err := pty.StartWithSize(cmd, &pty.Winsize{Rows: uint16(rows), Cols: uint16(cols)})
 	if err != nil {
@@ -212,4 +219,18 @@ func runPTYSession(conn *websocket.Conn, argv []string, rows, cols int, extraEnv
 			return
 		}
 	}
+}
+
+// isOwnComposeService reports whether name is a service in the account's own compose file
+func isOwnComposeService(ctx context.Context, userContext, name string) bool {
+	if name == "" || strings.HasPrefix(name, "-") {
+		return false
+	}
+	compose, err := podmanmanager.LoadComposeConfig(ctx, userContext)
+	if err != nil {
+		return false
+	}
+	services, _ := compose["services"].(map[string]any)
+	_, ok := services[name]
+	return ok
 }

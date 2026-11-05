@@ -250,8 +250,8 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			web.FlashRedirect(a, w, r, "error", "Missing one or more required fields (schedule, command, container).", "/cronjobs/new")
 			return
 		}
-		if strings.Contains(schedule, "\n") || strings.Contains(command, "\n") || strings.Contains(container, "\n") || strings.Contains(comment, "\n") {
-			web.FlashRedirect(a, w, r, "error", "Invalid characters in input.", "/cronjobs/new")
+		if msg := checkCronJobFields(schedule, command, container, comment); msg != "" {
+			web.FlashRedirect(a, w, r, "error", msg, "/cronjobs/new")
 			return
 		}
 		if _, parseErr := nextCronRuns(schedule, time.Now(), 1, time.UTC); parseErr != nil {
@@ -358,8 +358,8 @@ func handleEditCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		web.FlashRedirect(a, w, r, "error", "Missing original cron job fields.", "/cronjobs")
 		return
 	}
-	if strings.Contains(container, "\n") || strings.Contains(comment, "\n") || strings.Contains(schedule, "\n") {
-		web.FlashRedirect(a, w, r, "error", "Invalid characters in input.", "/cronjobs")
+	if msg := checkCronJobFields(schedule, command, container, comment); msg != "" {
+		web.FlashRedirect(a, w, r, "error", msg, "/cronjobs")
 		return
 	}
 
@@ -391,6 +391,10 @@ func handleEditCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	if !updated {
 		web.FlashRedirect(a, w, r, "error", "Cron job not found.", "/cronjobs")
+		return
+	}
+	if msg := CheckCronsPolicy(newContent); msg != "" {
+		web.FlashRedirect(a, w, r, "error", msg, "/cronjobs")
 		return
 	}
 

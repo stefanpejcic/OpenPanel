@@ -14,8 +14,21 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-// httpURLRE requires the whole value to be a scheme plus at least one non-whitespace char, not just a prefix check, so a redirect_url can't smuggle a newline into the Caddyfile line insertOrReplaceRedirect() splices this into
-var httpURLRE = regexp.MustCompile(`^https?://\S+$`)
+// httpURLRE allows printable ASCII only, without quotes, backslash or braces, so a redirect can't add Caddyfile tokens, unicode spaces or {file.*}/{env.*} placeholders
+var httpURLRE = regexp.MustCompile(`^https?://[!#-&(-\[\]-_a-z|~]+$`)
+
+// removeRedirectLines drops the panel's own "redir <url>" lines and leaves everything else alone
+func removeRedirectLines(content, redirectURL string) string {
+	lines := strings.Split(content, "\n")
+	out := lines[:0]
+	for _, l := range lines {
+		if strings.TrimSpace(l) == "redir "+redirectURL {
+			continue
+		}
+		out = append(out, l)
+	}
+	return strings.Join(out, "\n")
+}
 
 func domainConfPath(domainURL string) string {
 	return "/etc/openpanel/caddy/domains/" + domainURL + ".conf"
@@ -37,12 +50,13 @@ func handleDeleteRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 	_ = r.ParseForm()
 	domainURL := r.Form.Get("domain_name")
-	redirectURL := r.Form.Get("redirect_url")
 
-	if !a.CheckDomainBelongsToUser(ctx, userID, domainURL) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domainURL) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
+	// what gets removed comes from the file, never from the form
+	redirectURL := getRedirectURL(domainURL)
 	if redirectURL == "" {
 		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Domain %(domain_url)s does not have a redirect URL configured.", "domain_url", domainURL), "/domains")
 		return
@@ -63,8 +77,7 @@ func handleDeleteRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	redirectLine := "redir " + redirectURL
-	newContent := strings.ReplaceAll(content, redirectLine, "")
+	newContent := removeRedirectLines(content, redirectURL)
 
 	if writeErr := writeTextFile(path, newContent); writeErr != nil {
 		web.FlashRedirect(a, w, r, "error", writeErr.Error(), "/domains")
@@ -95,7 +108,7 @@ func handleSetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			web.FlashRedirect(a, w, r, "error", "Domain name not provided.", "/domains")
 			return
 		}
-		if !a.CheckDomainBelongsToUser(ctx, userID, domainURL) {
+		if !a.CheckExactDomainBelongsToUser(ctx, userID, domainURL) {
 			http.Error(w, "You do not own this domain.", http.StatusForbidden)
 			return
 		}
@@ -129,7 +142,7 @@ func handleSetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		renderRedirectSelectPage(a, w, r, domainsList)
 		return
 	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domainName) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}

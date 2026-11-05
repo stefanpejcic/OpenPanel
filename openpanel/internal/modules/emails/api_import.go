@@ -79,7 +79,7 @@ func apiEmailImportPreview(a *appctx.App, w http.ResponseWriter, r *http.Request
 		_, domain, _ := strings.Cut(raw[0], "@")
 		row := ImportRow{
 			Email: raw[0], Password: raw[1], Quota: raw[2], Domain: domain,
-			DomainValid: a.CheckDomainBelongsToUser(ctx, userID, domain),
+			DomainValid: a.CheckExactDomainBelongsToUser(ctx, userID, domain),
 			EmailExists: existingEmails[raw[0]],
 		}
 		row.IsValid = row.DomainValid && !row.EmailExists
@@ -146,7 +146,7 @@ func apiEmailImportConfirm(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 	injectedData, _ := a.InjectData(ctx, userID)
 	planID, _ := injectedData["hosting_plan"].(int)
-	_, maxEmailQuota, _ := a.QueryPlanEmailMailboxLimits(ctx, planID)
+	emailLimit, existing, maxEmailQuota := importLimits(ctx, a, userID, currentUsername, planID)
 
 	results := make([]apiImportResult, 0, len(users))
 	created := 0
@@ -157,8 +157,13 @@ func apiEmailImportConfirm(a *appctx.App, w http.ResponseWriter, r *http.Request
 		quota := user.Quota
 		_, domain, _ := strings.Cut(email, "@")
 
-		if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+		if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 			results = append(results, apiImportResult{Email: email, Status: "skipped", Detail: "domain '" + domain + "' does not exist"})
+			continue
+		}
+
+		if emailLimit != 0 && existing+created >= emailLimit {
+			results = append(results, apiImportResult{Email: email, Status: "skipped", Detail: "email account limit reached for your plan"})
 			continue
 		}
 
@@ -174,6 +179,9 @@ func apiEmailImportConfirm(a *appctx.App, w http.ResponseWriter, r *http.Request
 		}
 		created++
 		detail := ""
+		if strings.TrimSpace(quota) == "" {
+			applyPlanMaxQuota(ctx, email, maxEmailQuota)
+		}
 
 		if quota != "" {
 			quotaStr := strings.TrimSpace(quota)
@@ -183,6 +191,7 @@ func apiEmailImportConfirm(a *appctx.App, w http.ResponseWriter, r *http.Request
 			} else {
 				amount, unit := m[1], m[2]
 				if amount == "0" {
+					applyPlanMaxQuota(ctx, email, maxEmailQuota)
 					results = append(results, apiImportResult{Email: email, Status: "created", Detail: "quota skipped (0 specified)"})
 					continue
 				}

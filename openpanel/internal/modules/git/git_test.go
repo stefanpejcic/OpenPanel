@@ -3,6 +3,7 @@ package git
 import (
 	"context"
 	"mime/multipart"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -217,6 +218,9 @@ func TestLocalRepoDeployFlow(t *testing.T) {
 func TestRemoteRepoCloneAndPull(t *testing.T) {
 	userContext, volume := withFakeAccount(t)
 	ctx := context.Background()
+	oldOK := remoteAddrOK
+	remoteAddrOK = func(net.IP) bool { return true }
+	t.Cleanup(func() { remoteAddrOK = oldOK })
 
 	// the remote is served over http so isValidRemoteURL is happy and the real transport is used
 	upstream := t.TempDir()

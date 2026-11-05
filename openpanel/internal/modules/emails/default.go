@@ -34,6 +34,10 @@ func checkCurrentDefaultAliasForDomain(domain string) string {
 
 // setDefaultAliasForDomain sets, replaces, or removes the default (catch-all) alias for domain.
 func setDefaultAliasForDomain(domain, destination string) error {
+	// this file is shared by every account, one line per domain
+	if domain == "" || strings.ContainsAny(domain+destination, "/ \t\r\n\x00") {
+		return fmt.Errorf("invalid domain or destination")
+	}
 	pattern := regexp.MustCompile(`(?m)^/\*@` + regexp.QuoteMeta(domain) + `/[ \t]+\S+[ \t]*\n?`)
 
 	content := ""

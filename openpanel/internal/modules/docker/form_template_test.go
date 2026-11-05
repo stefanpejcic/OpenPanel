@@ -89,3 +89,17 @@ func TestDeniedPathsOnlyForTheServiceThatHasThem(t *testing.T) {
 		t.Errorf("editing the backup service broke: %v", err)
 	}
 }
+
+func TestDeniedPathsAbsoluteForm(t *testing.T) {
+	compose := map[string]any{"services": map[string]any{
+		"cron": map[string]any{"volumes": []any{"/home/${CONTEXT}/crons.ini:/etc/ofelia/config.ini"}},
+	}}
+	for _, n := range []string{"/home/${CONTEXT}/crons.ini", "/home/alice/crons.ini", "/home/${CONTEXT}/./docker-data/volumes", "/home/alice/backup.env"} {
+		if checkHostPaths(compose, []string{n}, "alice", "") == nil {
+			t.Errorf("new container could mount %s", n)
+		}
+	}
+	if err := checkHostPaths(compose, []string{"/home/${CONTEXT}/crons.ini"}, "alice", "cron"); err != nil {
+		t.Errorf("editing the cron service broke: %v", err)
+	}
+}

@@ -87,6 +87,26 @@ func CheckCronsPolicy(content string) string {
 	return ""
 }
 
+// cronContainerRE keeps the container a plain name, a leading - would turn it into a podman option
+var cronContainerRE = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9_.-]*$`)
+
+// checkCronJobFields is the shared field check for every create and edit path, "" means fine
+func checkCronJobFields(schedule, command, container, comment string) string {
+	if strings.ContainsAny(schedule+command+container+comment, "\r\n") {
+		return "Newlines are not allowed in fields."
+	}
+	if !cronContainerRE.MatchString(container) {
+		return "Invalid container name."
+	}
+	if containsAnyPattern(command, forbiddenPatterns) {
+		return "image= or network= are not allowed in the command."
+	}
+	if containsAnyPattern(command, execPatterns) {
+		return "job-run, job-local, and job-service-run are not allowed in the command."
+	}
+	return ""
+}
+
 func containsAnyPattern(text string, patterns []*regexp.Regexp) bool {
 	for _, p := range patterns {
 		if p.MatchString(text) {
@@ -292,6 +312,9 @@ func ValidateCronFileFormat(content string) string {
 			key, val, ok := splitKV(lines[idx+1])
 			if !ok || key != expectedKey || val == "" {
 				return fmt.Sprintf(`%s: expected "%s = ..." on line %d, got %q.`, jobLabel, expectedKey, idx+2, lines[idx+1])
+			}
+			if key == "container" && !cronContainerRE.MatchString(val) {
+				return fmt.Sprintf(`%s: invalid container name %q.`, jobLabel, val)
 			}
 		}
 

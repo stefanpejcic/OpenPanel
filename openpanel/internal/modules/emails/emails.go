@@ -352,7 +352,7 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+		if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 			http.Error(w, "You do not own this domain.", http.StatusForbidden)
 			return
 		}
@@ -628,7 +628,7 @@ func handleSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, em
 	}
 
 	_, domain, _ := strings.Cut(email, "@")
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}

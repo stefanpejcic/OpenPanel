@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -67,7 +66,7 @@ func writeAPIDomainsJSON(w http.ResponseWriter, status int, v any) {
 }
 
 func apiOwnDomainOr403Domains(a *appctx.App, w http.ResponseWriter, r *http.Request, userID int, domain string) bool {
-	if !a.CheckDomainBelongsToUser(r.Context(), userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(r.Context(), userID, domain) {
 		writeAPIDomainsJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain."})
 		return false
 	}
@@ -311,7 +310,13 @@ func apiDomainsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			writeAPIDomainsJSON(w, http.StatusBadRequest, map[string]string{"error": "Both hs_ed25519_public_key and hs_ed25519_secret_key are required for .onion domains."})
 			return
 		}
-		args = append(args, "--hs_ed25519_public_key", body.HsEd25519PublicKey, "--hs_ed25519_secret_key", body.HsEd25519SecretKey)
+		pub, pubOK := resolveUnderVarWWWHTML(body.HsEd25519PublicKey)
+		sec, secOK := resolveUnderVarWWWHTML(body.HsEd25519SecretKey)
+		if !pubOK || !secOK || hasDotDot(body.HsEd25519PublicKey) || hasDotDot(body.HsEd25519SecretKey) {
+			writeAPIDomainsJSON(w, http.StatusBadRequest, map[string]string{"error": "Onion key paths must be files inside /var/www/html/."})
+			return
+		}
+		args = append(args, "--hs_ed25519_public_key", pub, "--hs_ed25519_secret_key", sec)
 	}
 
 	cctx, cancel := context.WithTimeout(ctx, 120*time.Second)
@@ -504,8 +509,8 @@ func apiDomainsGetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request
 	writeAPIDomainsJSON(w, http.StatusOK, map[string]string{"domain": domain, "redirect_url": getRedirectURL(domain)})
 }
 
-// apiHTTPURLRE requires the whole value to be a scheme plus at least one non-whitespace char, see httpURLRE in redirect.go for why a mere prefix check isn't enough
-var apiHTTPURLRE = regexp.MustCompile(`^https?://\S+$`)
+// apiHTTPURLRE is the same check as httpURLRE in redirect.go
+var apiHTTPURLRE = httpURLRE
 
 // apiDomainsSetRedirect sets or replaces a domain's redirect rule.
 func apiDomainsSetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -574,7 +579,7 @@ func apiDomainsDeleteRedirect(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		writeAPIDomainsJSON(w, http.StatusInternalServerError, map[string]string{"error": readErr.Error()})
 		return
 	}
-	newContent := strings.ReplaceAll(content, "redir "+redirectURL, "")
+	newContent := removeRedirectLines(content, redirectURL)
 	if writeErr := writeTextFile(confPath, newContent); writeErr != nil {
 		writeAPIDomainsJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
@@ -845,6 +850,10 @@ func apiDomainsSaveDNS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIDomainsJSON(w, http.StatusBadRequest, map[string]string{"error": "zone_content is required."})
 		return
 	}
+	if msg := dns.ZoneDirectiveError(newContent); msg != "" {
+		writeAPIDomainsJSON(w, http.StatusBadRequest, map[string]string{"error": msg})
+		return
+	}
 	if !strings.HasSuffix(newContent, "\n") {
 		newContent += "\n"
 	}
@@ -875,7 +884,7 @@ func apiDomainsSaveDNS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if writeErr := tenantfs.WriteFile(apiZoneFilePath(domain), []byte(newContent), 0o644); writeErr != nil {
+	if writeErr := dns.WriteZoneFile(apiZoneFilePath(domain), []byte(newContent)); writeErr != nil {
 		writeAPIDomainsJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
@@ -1056,7 +1065,7 @@ func apiDomainsUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Req
 	newLines = append(newLines, block)
 	newLines = append(newLines, lines[endRowID:]...)
 
-	if writeErr := tenantfs.WriteFile(zonePath, []byte(strings.Join(newLines, "")), 0o644); writeErr != nil {
+	if writeErr := dns.WriteZoneFile(zonePath, []byte(strings.Join(newLines, ""))); writeErr != nil {
 		writeAPIDomainsJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}
@@ -1121,7 +1130,7 @@ func apiDomainsDeleteDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Req
 		lines = append(lines[:zeroBased], lines[zeroBased+1:]...)
 	}
 
-	if writeErr := tenantfs.WriteFile(zonePath, []byte(strings.Join(lines, "")), 0o644); writeErr != nil {
+	if writeErr := dns.WriteZoneFile(zonePath, []byte(strings.Join(lines, ""))); writeErr != nil {
 		writeAPIDomainsJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
 		return
 	}

@@ -113,7 +113,7 @@ func checkHostPaths(composeData map[string]any, names []string, userContext, ser
 		n = strings.TrimSpace(n)
 		isPath := strings.ContainsAny(n, "/\\") || strings.HasPrefix(n, ".") || strings.HasPrefix(n, "~")
 		// the backup service mounting ./crons.ini doesn't make it fine for any other container
-		if isPath && deniedHostPath(n) && !ownExisting[n] {
+		if isPath && deniedHostPath(n, userContext) && !ownExisting[n] {
 			return fmt.Errorf("Volume %q is not allowed. Use a named volume or a folder inside your account like ./data.", n)
 		}
 		if n == "" || !isPath || existing[n] || n == podmanSocketVolume {
@@ -174,11 +174,20 @@ func existingVolumeSources(composeData map[string]any) map[string]bool {
 	return serviceVolumeSources(composeData, "")
 }
 
-// deniedHostPath reports whether a ./ bind source points at something in hostPathDenied
-func deniedHostPath(n string) bool {
+// deniedHostPath reports whether a bind source points at something in hostPathDenied, written as ./x or as the absolute /home/<context>/x
+func deniedHostPath(n, userContext string) bool {
 	rest, ok := strings.CutPrefix(n, "./")
 	if !ok {
-		return false
+		cleaned := path.Clean(n)
+		for _, home := range []string{"/home/${CONTEXT}/", "/home/$CONTEXT/", "/home/" + userContext + "/"} {
+			if r, found := strings.CutPrefix(cleaned, home); found {
+				rest, ok = r, true
+				break
+			}
+		}
+		if !ok {
+			return false
+		}
 	}
 	first, _, _ := strings.Cut(path.Clean(rest), "/")
 	return hostPathDenied[first]

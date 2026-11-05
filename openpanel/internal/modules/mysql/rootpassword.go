@@ -31,6 +31,11 @@ func handleRootPasswordMySQL(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		if dbHost == "" {
 			dbHost = "%"
 		}
+		// the password also goes into .env and my.cnf, so it has to fit on one quoted line
+		if password == "" || !docker.ValidEnvValue(password) {
+			web.FlashRedirect(a, w, r, "error", "Password can't be empty or contain quotes, backslashes or line breaks.", "/mysql/root-password")
+			return
+		}
 		escapedPassword := escapeMySQLString(password)
 
 		ok := func() bool {

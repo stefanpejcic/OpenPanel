@@ -34,7 +34,7 @@ func handleDomainDocroot(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domainName) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}

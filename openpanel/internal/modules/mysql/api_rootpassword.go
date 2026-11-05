@@ -35,6 +35,11 @@ func apiMySQLSetRootPassword(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		writeAPIMySQLJSON(w, http.StatusBadRequest, map[string]string{"error": "Password is required."})
 		return
 	}
+	// the password also goes into .env and my.cnf, so it has to fit on one quoted line
+	if !docker.ValidEnvValue(password) {
+		writeAPIMySQLJSON(w, http.StatusBadRequest, map[string]string{"error": "Password can't contain quotes, backslashes or line breaks."})
+		return
+	}
 	escapedPassword := escapeMySQLString(password)
 
 	if _, execErr := mysqlmanager.Exec(ctx, userContext, "ALTER USER 'root'@'"+dbHost+"' IDENTIFIED BY '"+escapedPassword+"'", ""); execErr != nil {

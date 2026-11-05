@@ -34,7 +34,7 @@ func handleEditVhosts(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			web.FlashRedirect(a, w, r, "error", "Invalid request. Domain name and Vhost content must be provided.", "/domains/vhosts")
 			return
 		}
-		if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
+		if !a.CheckExactDomainBelongsToUser(ctx, userID, domainName) {
 			http.Error(w, "You do not own this domain.", http.StatusForbidden)
 			return
 		}
@@ -55,7 +55,7 @@ func handleEditVhosts(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		renderVhostSelectPage(a, w, r, webServerPreference, domainsList)
 		return
 	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domainName) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}

@@ -65,7 +65,7 @@ func handleCapitalizeDomains(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	userID, _ := auth.UserID(r)
 	domain := r.PathValue("domain")
 
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}

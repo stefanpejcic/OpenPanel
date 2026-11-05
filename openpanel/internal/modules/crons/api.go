@@ -218,12 +218,8 @@ func apiCronsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": errMsg})
 		return
 	}
-	if containsAnyPattern(command, forbiddenPatterns) {
-		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": "image= or network= are not allowed in command"})
-		return
-	}
-	if strings.Contains(schedule, "\n") || strings.Contains(command, "\n") || strings.Contains(container, "\n") || strings.Contains(comment, "\n") {
-		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": "Newlines are not allowed in fields"})
+	if msg := checkCronJobFields(schedule, command, container, comment); msg != "" {
+		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": msg})
 		return
 	}
 
@@ -308,8 +304,8 @@ func apiCronsEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": errMsg})
 		return
 	}
-	if strings.Contains(container, "\n") || strings.Contains(comment, "\n") || strings.Contains(schedule, "\n") {
-		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": "Newlines are not allowed in fields"})
+	if msg := checkCronJobFields(schedule, command, container, comment); msg != "" {
+		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": msg})
 		return
 	}
 
@@ -333,6 +329,10 @@ func apiCronsEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	})
 	if !updated {
 		writeAPICronsJSON(w, http.StatusNotFound, map[string]string{"error": "Cron job not found — check original_* fields match exactly"})
+		return
+	}
+	if msg := CheckCronsPolicy(newContent); msg != "" {
+		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": msg})
 		return
 	}
 
