@@ -93,7 +93,7 @@ func apiDynamicDNSCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid IP address"})
 		return
 	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
@@ -147,10 +147,10 @@ func apiDynamicDNSUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	if !dynDNSTokenRE.MatchString(token) {
-		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid token"})
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "token has to be 16 to 64 letters and numbers"})
 		return
 	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
@@ -184,7 +184,7 @@ func apiDynamicDNSDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and line_number are required"})
 		return
 	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}

@@ -121,6 +121,10 @@ func apiContainerServiceStatus(a *appctx.App, w http.ResponseWriter, r *http.Req
 		return
 	}
 	service := r.PathValue("service")
+	if !podmanmanager.ValidName(service) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 	status := GetContainerStatus(r.Context(), userContext, service)
 	writeAPIDockerJSON(w, http.StatusOK, map[string]string{"service": service, "state": status.State, "health": status.Health})
 }
@@ -134,6 +138,10 @@ func apiContainerStart(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	service := r.PathValue("service")
+	if !podmanmanager.ValidName(service) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 
 	var body struct {
 		Pull bool `json:"pull"`
@@ -158,6 +166,10 @@ func apiContainerStop(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	service := r.PathValue("service")
+	if !podmanmanager.ValidName(service) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 
 	response := StartOrStopContainer(ctx, userContext, service, "deactivate", "")
 	_ = logger.RecordUserAction(a.Config, currentUsername, "stopped container "+service, reqip.ClientIP(r))
@@ -173,6 +185,10 @@ func apiContainerRestart(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	service := r.PathValue("service")
+	if !podmanmanager.ValidName(service) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 
 	response := RestartContainer(ctx, userContext, service)
 	if !response.Success {
@@ -196,6 +212,10 @@ func apiContainerResources(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 	service := r.PathValue("service")
+	if !podmanmanager.ValidName(service) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 
 	userID, _ := auth.UserID(r)
 	injected, injErr := a.InjectData(ctx, userID)
@@ -257,6 +277,10 @@ func apiContainerLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	service := r.PathValue("service")
+	if !podmanmanager.ValidName(service) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 
 	lines := 100
 	if v := r.URL.Query().Get("lines"); v != "" {

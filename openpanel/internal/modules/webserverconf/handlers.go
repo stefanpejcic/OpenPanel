@@ -68,6 +68,7 @@ func canRestoreDefault(entry webserverConfEntry) bool {
 
 // handleSaveOrRestore performs the POST action - either "restore_default" or the normal save-and-validate path, followed by a service reload - returns false once it has written a response (redirect or rejected edit), so the caller should stop
 func handleSaveOrRestore(a *appctx.App, w http.ResponseWriter, r *http.Request, username, userContext, webServer string, entry webserverConfEntry, configFilePath string) bool {
+	r.Body = http.MaxBytesReader(w, r.Body, web.MaxConfigBody)
 	_ = r.ParseForm()
 	action := r.Form.Get("action")
 	if action == "" {

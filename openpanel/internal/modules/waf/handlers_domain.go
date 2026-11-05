@@ -18,6 +18,22 @@ import (
 
 var ruleIDRE = regexp.MustCompile(`^\d+$`)
 
+// tagRE matches a CRS tag such as attack-sqli or paranoia-level/1, nothing that could end the quoted SecLang argument or the Caddyfile backtick token
+var tagRE = regexp.MustCompile(`^[A-Za-z0-9._/:-]{1,128}$`)
+
+// writeConfAndReload writes a domain conf and reloads the shared caddy, a conf caddy rejects is put back so it can't break reloads for everyone
+func writeConfAndReload(ctx context.Context, path string, old []byte, newContent string) error {
+	if err := tenantfs.WriteFile(path, []byte(newContent), 0o644); err != nil {
+		return err
+	}
+	if err := reloadCaddy(ctx); err != nil {
+		_ = tenantfs.WriteFile(path, old, 0o644)
+		_ = reloadCaddy(ctx)
+		return errCaddyReload
+	}
+	return nil
+}
+
 // reloadCaddy mirrors the `podman exec caddy caddy reload --config /etc/caddy/Caddyfile` call every WAF config change makes to apply it
 var reloadCaddy = func(ctx context.Context) error {
 	return exec.CommandContext(ctx, "podman", "exec", "caddy", "caddy", "reload", "--config", "/etc/caddy/Caddyfile").Run()
@@ -62,21 +78,21 @@ func handleWAFDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		// removed_tags has no meaningful validation - the pattern this was checked against matches any non-empty string, so every split value already passes
+		for _, tag := range removedTags {
+			if !tagRE.MatchString(tag) {
+				web.FlashRedirect(a, w, r, "error", "Error: tags can only contain letters, numbers and . _ / : -", "/server/waf/"+domainName)
+				return
+			}
+		}
 
 		removedRules = append([]string{excludedRuleID}, filterOut(removedRules, excludedRuleID)...)
 		removedTags = append([]string{excludedTag}, filterOut(removedTags, excludedTag)...)
 
 		if content, readErr := tenantfs.ReadFile(configFilePath); readErr == nil {
 			newContent := rewriteDirectivesBlock(string(content), removedRules, removedTags)
-			if writeErr := tenantfs.WriteFile(configFilePath, []byte(newContent), 0o644); writeErr == nil {
-				if reloadErr := reloadCaddy(r.Context()); reloadErr == nil {
-					_ = logger.RecordUserAction(a.Config, username, "updated WAF rules for domain "+domainName, reqip.ClientIP(r))
-					web.Flash(a, w, r, "success", "WAF configuration updated.")
-				} else {
-					log.Printf("WAF - Error occurred during updating WAF settings: %v", reloadErr)
-					web.Flash(a, w, r, "error", "Error updating WAF!")
-				}
+			if writeErr := writeConfAndReload(r.Context(), configFilePath, content, newContent); writeErr == nil {
+				_ = logger.RecordUserAction(a.Config, username, "updated WAF rules for domain "+domainName, reqip.ClientIP(r))
+				web.Flash(a, w, r, "success", "WAF configuration updated.")
 			} else {
 				log.Printf("WAF - Error occurred during updating WAF settings: %v", writeErr)
 				web.Flash(a, w, r, "error", "Error updating WAF!")
@@ -166,6 +182,9 @@ func rewriteDirectivesBlock(content string, removedRules, removedTags []string) 
 				}
 				filtered = append(filtered, "            SecRuleRemoveById "+strings.Join(removedRules, " ")+"\n")
 				for _, tag := range removedTags {
+					if !tagRE.MatchString(tag) {
+						continue
+					}
 					filtered = append(filtered, "            SecRuleRemoveByTag \""+tag+"\"\n")
 				}
 				filtered = append(filtered, line)

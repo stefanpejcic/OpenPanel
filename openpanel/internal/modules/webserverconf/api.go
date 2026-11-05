@@ -51,6 +51,7 @@ func apiLitespeedLicense(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			Serial string `json:"serial"`
 			Trial  bool   `json:"trial"`
 		}
+		r.Body = http.MaxBytesReader(w, r.Body, web.MaxConfigBody)
 		_ = json.NewDecoder(r.Body).Decode(&body)
 		body.Serial = strings.TrimSpace(body.Serial)
 		switch {
@@ -138,6 +139,7 @@ func apiWebserverConfPut(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	var body struct {
 		Content *string `json:"content"`
 	}
+	r.Body = http.MaxBytesReader(w, r.Body, web.MaxConfigBody)
 	_ = json.NewDecoder(r.Body).Decode(&body)
 	if body.Content == nil {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Missing \"content\" field"})

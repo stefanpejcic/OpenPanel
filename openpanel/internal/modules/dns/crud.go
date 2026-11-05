@@ -236,19 +236,7 @@ func handleAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	f, openErr := tenantfs.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
-	if openErr != nil {
-		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error adding DNS record: %(error)s", "error", openErr.Error()), redirectTarget)
-		return
-	}
-	// a zone ending without a newline would glue the record onto its last line
-	prefix := ""
-	if existing, _ := tenantfs.ReadFile(path); len(existing) > 0 && existing[len(existing)-1] != '\n' {
-		prefix = "\n"
-	}
-	_, writeErr := f.WriteString(prefix + newRecord + "\n")
-	_ = f.Close()
-	if writeErr != nil {
+	if writeErr := AppendZoneRecord(path, newRecord); writeErr != nil {
 		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error adding DNS record: %(error)s", "error", writeErr.Error()), redirectTarget)
 		return
 	}

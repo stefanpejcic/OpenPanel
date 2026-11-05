@@ -32,6 +32,10 @@ func handlePHPIniEditor(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 	}
 
 	version := phpVersionFromIniSegment(versionSeg)
+	if version != "" && !phpVersionFormRE.MatchString(version) {
+		http.Error(w, "invalid PHP version", http.StatusBadRequest)
+		return
+	}
 	title := "PHP.INI Editor"
 	var phpIniContent, displayFilePath string
 	installedVersions := FetchPHPVersions(ctx, a, userContext)
@@ -63,6 +67,7 @@ func handlePHPIniEditor(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 		phpIniContent = string(content)
 
 		if r.Method == http.MethodPost {
+			r.Body = http.MaxBytesReader(w, r.Body, web.MaxConfigBody)
 			_ = r.ParseForm()
 			if newContent := web.FormText(r, "editor_content"); newContent != "" {
 				if writeErr := tenantfs.WriteFile(phpIniFilePath, []byte(newContent), 0o644); writeErr != nil {

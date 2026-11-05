@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/json"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"net/http"
 	"strings"
 
@@ -79,6 +80,10 @@ func apiServiceGet(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	userContext, _ := injected["context"].(string)
 	service := r.PathValue("service")
+	if !podmanmanager.ValidName(service) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 
 	allowed, ok := apiAllowedServices(w, userContext)
 	if !ok {
@@ -112,6 +117,10 @@ func apiServiceAction(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userContext, _ := injected["context"].(string)
 	currentUsername, _ := injected["current_username"].(string)
 	service := r.PathValue("service")
+	if !podmanmanager.ValidName(service) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 
 	allowed, ok := apiAllowedServices(w, userContext)
 	if !ok {

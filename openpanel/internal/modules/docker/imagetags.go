@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -169,6 +170,10 @@ func handleContainerImageTags(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 	userContext, _ := injected["context"].(string)
 	service := r.PathValue("service")
+	if !podmanmanager.ValidName(service) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 	if !imageChangeable(service) {
 		writeJSON(w, map[string]any{"tags": []string{}, "error": "The image of this service can't be changed."})
 		return

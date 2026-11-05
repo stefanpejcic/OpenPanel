@@ -7,8 +7,8 @@ package mongomanager
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/url"
-	"os"
 	"sync"
 	"time"
 
@@ -16,6 +16,7 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/usersocket"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 )
 
@@ -44,6 +45,16 @@ func creds(userContext string) (user, password string, err error) {
 	return user, password, nil
 }
 
+// mongoSocketRel is the account's mongod socket, dialed through usersocket so a symlink there is refused
+const mongoSocketRel = "sockets/mongodb/mongodb-27017.sock"
+
+// userDialer ignores the address from the URI and dials the account's own socket inode
+type userDialer struct{ userContext string }
+
+func (d userDialer) DialContext(ctx context.Context, _, _ string) (net.Conn, error) {
+	return usersocket.Dial(ctx, d.userContext, mongoSocketRel)
+}
+
 // openClient connects to the account's own mongod over its unix domain socket
 func openClient(ctx context.Context, userContext string) (*mongo.Client, error) {
 	user, password, err := creds(userContext)
@@ -51,8 +62,8 @@ func openClient(ctx context.Context, userContext string) (*mongo.Client, error) 
 		return nil, err
 	}
 
-	socketPath := "/home/" + userContext + "/sockets/mongodb/mongodb-27017.sock"
-	if _, statErr := os.Stat(socketPath); statErr != nil {
+	socketPath := "/home/" + userContext + "/" + mongoSocketRel
+	if !usersocket.Exists(userContext, mongoSocketRel) {
 		return nil, fmt.Errorf("MongoDB socket not found: %s", socketPath)
 	}
 
@@ -63,7 +74,7 @@ func openClient(ctx context.Context, userContext string) (*mongo.Client, error) 
 	defer cancel()
 
 	// clients stay cached per user, so keep each one small and quiet when idle
-	client, err := mongo.Connect(options.Client().ApplyURI(uri).SetMaxPoolSize(4).SetMaxConnIdleTime(5 * time.Minute).SetHeartbeatInterval(time.Minute))
+	client, err := mongo.Connect(options.Client().ApplyURI(uri).SetDialer(userDialer{userContext}).SetMaxPoolSize(4).SetMaxConnIdleTime(5 * time.Minute).SetHeartbeatInterval(time.Minute))
 	if err != nil {
 		return nil, err
 	}

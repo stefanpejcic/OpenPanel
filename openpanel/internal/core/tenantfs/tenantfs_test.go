@@ -337,3 +337,25 @@ func TestVolumePrefixSymlinkNotFollowed(t *testing.T) {
 		t.Fatalf("own volume read: %q %v", data, err)
 	}
 }
+
+func TestDotDotUnderHomeIsRefused(t *testing.T) {
+	tmp := t.TempDir()
+	defer SetHomeRootForTest(tmp)()
+	for _, d := range []string{"alice/php.ini", "bob/php.ini"} {
+		if err := os.MkdirAll(filepath.Join(tmp, d), 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	victim := filepath.Join(tmp, "bob/php.ini/8.3.ini")
+	os.WriteFile(victim, []byte("bob\n"), 0o644)
+	p := filepath.Join(tmp, "alice/php.ini") + "/../../bob/php.ini/8.3.ini"
+	if _, err := ReadFile(p); err == nil {
+		t.Fatal("read went into another home")
+	}
+	if err := WriteFile(p, []byte("alice\n"), 0o644); err == nil {
+		t.Fatal("write went into another home")
+	}
+	if got, _ := os.ReadFile(victim); string(got) != "bob\n" {
+		t.Fatalf("victim file changed: %q", got)
+	}
+}

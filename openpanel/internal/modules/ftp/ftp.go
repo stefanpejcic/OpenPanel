@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os/exec"
 	"path"
+	"regexp"
 	"strings"
 	"time"
 
@@ -91,8 +92,11 @@ func isValidUsername(username string) bool {
 const ftpRoot = "/var/www/html/"
 
 // cleanFTPPath returns the path opencli should get, or false if it isn't plainly inside /var/www/html/
+// ftpPathRE keeps the path to plain path characters, opencli puts it into usermod and a sed replacement
+var ftpPathRE = regexp.MustCompile(`^/var/www/html/[A-Za-z0-9._/-]*$`)
+
 func cleanFTPPath(p string) (string, bool) {
-	if !strings.HasPrefix(p, ftpRoot) || strings.Contains(p, "..") || strings.ContainsAny(p, "|*?[]\x00") {
+	if !ftpPathRE.MatchString(p) || strings.Contains(p, "..") {
 		return "", false
 	}
 	clean := path.Clean(p)

@@ -23,3 +23,15 @@ func TestZoneDirectiveError(t *testing.T) {
 		t.Fatal("WriteZoneFile wrote a $GENERATE zone")
 	}
 }
+
+func TestAppendZoneRecordRefusesDirectives(t *testing.T) {
+	p := filepath.Join(t.TempDir(), "x.zone")
+	for _, line := range []string{"$GENERATE 1-4294967294 h$ IN A 192.0.2.1", "$INCLUDE /etc/bind/rndc.key ; IN A x", "a 3600 IN A 1.2.3.4\n$INCLUDE /x"} {
+		if err := AppendZoneRecord(p, line); err == nil {
+			t.Errorf("appended %q", line)
+		}
+	}
+	if err := AppendZoneRecord(p, "www 3600 IN A 192.0.2.1"); err != nil {
+		t.Fatalf("normal record refused: %v", err)
+	}
+}

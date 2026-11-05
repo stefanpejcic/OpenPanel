@@ -43,6 +43,10 @@ func apiPHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	version := r.PathValue("version")
+	if !phpVersionFormRE.MatchString(version) {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid PHP version"})
+		return
+	}
 	availableKeys := loadKeysFromFile(userContext)
 
 	if r.Method == http.MethodGet {
@@ -60,6 +64,7 @@ func apiPHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	// PUT
 	var body map[string]any
+	r.Body = http.MaxBytesReader(w, r.Body, web.MaxConfigBody)
 	_ = json.NewDecoder(r.Body).Decode(&body)
 	newConfig := map[string]string{}
 	var providedKeys []string

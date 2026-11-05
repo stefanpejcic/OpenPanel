@@ -44,10 +44,15 @@ func handleServicesStats(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	}
 	userContext, _ := injected["context"].(string)
 	containerName := r.URL.Query().Get("name")
+	// empty lists every container, anything else has to be a plain name
+	if containerName != "" && !podmanmanager.ValidName(containerName) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 
 	argv := podmanmanager.PodmanArgv(userContext, "stats", "--no-stream", "--format", "json")
 	if containerName != "" {
-		argv = append(argv, containerName)
+		argv = append(argv, "--", containerName)
 	}
 	out, err := podmanmanager.Command(ctx, userContext, argv).Output()
 	if err != nil {

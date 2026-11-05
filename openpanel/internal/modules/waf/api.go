@@ -98,6 +98,7 @@ func apiWAFDomainToggle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Status string `json:"status"`
 	}
+	r.Body = http.MaxBytesReader(w, r.Body, web.MaxConfigBody)
 	if jsonErr := json.NewDecoder(r.Body).Decode(&body); jsonErr != nil {
 		_ = r.ParseForm()
 		body.Status = r.Form.Get("status")
@@ -116,13 +117,8 @@ func apiWAFDomainToggle(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	contentStr := setEngine(string(content), newStatus)
 
-	if writeErr := tenantfs.WriteFile(path, []byte(contentStr), 0o644); writeErr != nil {
-		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
-		return
-	}
-
-	if reloadErr := reloadCaddy(ctx); reloadErr != nil {
-		web.WriteJSON(w, http.StatusMultiStatus, map[string]string{"warning": "Config written but Caddy reload failed"})
+	if writeErr := writeConfAndReload(ctx, path, content, contentStr); writeErr != nil {
+		writeJSONError(w, http.StatusBadRequest, "The web server rejected the new WAF config, nothing was changed.")
 		return
 	}
 
@@ -157,6 +153,7 @@ func apiWAFDomainRules(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		RemovedRules []string `json:"removed_rules"`
 		RemovedTags  []string `json:"removed_tags"`
 	}
+	r.Body = http.MaxBytesReader(w, r.Body, web.MaxConfigBody)
 	_ = json.NewDecoder(r.Body).Decode(&body)
 
 	for _, ruleID := range body.RemovedRules {
@@ -165,9 +162,12 @@ func apiWAFDomainRules(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	// removed_tags has no meaningful format restriction - any non-empty string is accepted as a tag
+	if len(body.RemovedTags) > 500 || len(body.RemovedRules) > 500 {
+		writeJSONError(w, http.StatusBadRequest, "too many rules or tags")
+		return
+	}
 	for _, tag := range body.RemovedTags {
-		if tag == "" {
+		if !tagRE.MatchString(tag) {
 			writeJSONError(w, http.StatusBadRequest, "removed_tags contains invalid characters")
 			return
 		}
@@ -184,13 +184,8 @@ func apiWAFDomainRules(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	newContent := rewriteDirectivesBlock(string(content), removedRules, removedTags)
-	if writeErr := tenantfs.WriteFile(path, []byte(newContent), 0o644); writeErr != nil {
-		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
-		return
-	}
-
-	if reloadErr := reloadCaddy(ctx); reloadErr != nil {
-		web.WriteJSON(w, http.StatusMultiStatus, map[string]string{"warning": "Rules written but Caddy reload failed"})
+	if writeErr := writeConfAndReload(ctx, path, content, newContent); writeErr != nil {
+		writeJSONError(w, http.StatusBadRequest, "The web server rejected the new WAF config, nothing was changed.")
 		return
 	}
 

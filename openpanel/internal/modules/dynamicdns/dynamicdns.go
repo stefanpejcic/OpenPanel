@@ -3,6 +3,7 @@ package dynamicdns
 
 import (
 	"crypto/rand"
+	"errors"
 	"math/big"
 	"net"
 	"os"
@@ -120,19 +121,26 @@ func buildZoneLine(subdomain, recordType, ip, token, updated string) string {
 
 // writeZoneLines writes lines back to domain's zone file under an exclusive flock, guarding against concurrent writers since this route and the public update webcall both write the same file
 func writeZoneLines(domain string, lines []string) error {
+	content := strings.Join(lines, "\n")
+	if msg := dns.ZoneDirectiveError(content); msg != "" {
+		return errors.New(msg)
+	}
 	path := zoneFilePath(domain)
-	f, err := tenantfs.OpenFile(path, os.O_WRONLY|os.O_TRUNC, 0o644)
+	f, err := tenantfs.OpenFile(path, os.O_WRONLY, 0o644)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 
+	// lock first, then truncate, so a reader never sees the file empty while another writer holds it
 	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
 		return err
 	}
 	defer syscall.Flock(int(f.Fd()), syscall.LOCK_UN)
-
-	_, err = f.WriteString(strings.Join(lines, "\n"))
+	if err := f.Truncate(0); err != nil {
+		return err
+	}
+	_, err = f.WriteAt([]byte(content), 0)
 	return err
 }
 
@@ -184,17 +192,10 @@ func addDynamicDNSEntry(domain, subdomain, recordType, ip string) (token string,
 	token = generateToken(16)
 	newLine := buildZoneLine(subdomain, recordType, ip, token, "")
 
-	content, err := tenantfs.ReadFile(zoneFilePath(domain))
-	if err != nil {
+	if _, err := tenantfs.Stat(zoneFilePath(domain)); err != nil {
 		return "", false
 	}
-	updated := string(content)
-	if !strings.HasSuffix(updated, "\n") {
-		updated += "\n"
-	}
-	updated += newLine + "\n"
-
-	if err := tenantfs.WriteFile(zoneFilePath(domain), []byte(updated), 0o644); err != nil {
+	if err := dns.AppendZoneRecord(zoneFilePath(domain), newLine); err != nil {
 		return "", false
 	}
 	dns.RestartDNSService(domain)

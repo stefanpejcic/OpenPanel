@@ -24,3 +24,17 @@ func TestPodmanEnvDropsRootContainerHost(t *testing.T) {
 		}
 	}
 }
+
+func TestComposeRefusesOptionShapedService(t *testing.T) {
+	for _, n := range []string{"-v", "--remove-orphans", "a b", "", "../x", "--url=unix:///run/podman/podman.sock"} {
+		if ValidName(n) {
+			t.Errorf("ValidName(%q) = true", n)
+		}
+		if _, _, ok := BuildComposeUpDownCommand("alice", n, "activate"); ok {
+			t.Errorf("compose accepted %q", n)
+		}
+	}
+	if _, _, ok := BuildComposeUpDownCommand("alice", "php-fpm-8.3", "activate"); !ok {
+		t.Fatal("normal service refused")
+	}
+}

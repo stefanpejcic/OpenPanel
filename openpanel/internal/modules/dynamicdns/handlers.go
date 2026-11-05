@@ -1,6 +1,7 @@
 package dynamicdns
 
 import (
+	"crypto/subtle"
 	"net/http"
 	"path/filepath"
 	"regexp"
@@ -16,7 +17,8 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var dynDNSTokenRE = regexp.MustCompile(`^[a-zA-Z0-9]+$`)
+// dynDNSTokenRE is the only credential of the public update URL, so short user-picked tokens are refused
+var dynDNSTokenRE = regexp.MustCompile(`^[a-zA-Z0-9]{16,64}$`)
 
 // handleDynamicDNS serves the create/edit/delete panel and its POST action dispatch
 func handleDynamicDNS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -33,7 +35,7 @@ func handleDynamicDNS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		action := r.Form.Get("action")
 		domain := r.Form.Get("domain")
 
-		if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+		if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 			web.FlashRedirect(a, w, r, "error", "You do not own this domain.", "/domains/dynamic-dns")
 			return
 		}
@@ -80,7 +82,7 @@ func handleDynamicDNS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			if !dynDNSTokenRE.MatchString(token) {
-				web.FlashRedirect(a, w, r, "error", "Invalid token.", "/domains/dynamic-dns")
+				web.FlashRedirect(a, w, r, "error", "The token has to be 16 to 64 letters and numbers.", "/domains/dynamic-dns")
 				return
 			}
 
@@ -136,6 +138,14 @@ func handleDynamicDNSUpdate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing token", http.StatusBadRequest)
 		return
 	}
+	if !updateLimiter.allow(reqip.ClientIP(r)) {
+		http.Error(w, "Too many requests", http.StatusTooManyRequests)
+		return
+	}
+	if !dynDNSTokenRE.MatchString(token) {
+		http.Error(w, "Invalid token", http.StatusNotFound)
+		return
+	}
 
 	entries, err := tenantfs.ReadDir(dns.ZoneFileDir)
 	if err != nil {
@@ -158,8 +168,11 @@ func handleDynamicDNSUpdate(w http.ResponseWriter, r *http.Request) {
 
 		for i, rawLine := range lines {
 			line := strings.TrimSpace(rawLine)
+			if strings.HasPrefix(line, ";") {
+				continue
+			}
 			m := webcallTokenRE.FindStringSubmatch(line)
-			if m == nil || m[1] != token {
+			if m == nil || subtle.ConstantTimeCompare([]byte(m[1]), []byte(token)) != 1 {
 				continue
 			}
 
