@@ -5,81 +5,155 @@
 
 <!-- page header -->
 <section aria-label="{{.T.Get "Edit Redirect Header"}}">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{if .RedirectURL}}{{.T.Get "Edit Redirect for"}}{{else}}{{.T.Get "Create Redirect for"}}{{end}} {{.DomainName}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{if .RedirectURL}}{{.T.Get "Edit or delete URL redirect for domain"}} <span class="punycode">{{.DomainName}}</span>{{else}}{{.T.Get "Redirect domain to URL."}}{{end}}</p>
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{if .RedirectURL}}{{.T.Get "Edit redirect for"}}{{else}}{{.T.Get "Create redirect for"}}{{end}} <span class="punycode">{{.DomainName}}</span></h1>
+        <p class="mt-1 text-sm text-gray-500">{{if .RedirectURL}}{{.T.Get "Edit or delete URL redirect for domain"}} <span class="punycode">{{.DomainName}}</span>{{else}}{{.T.Get "Redirect domain to URL."}}{{end}}</p>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-    </div>
+    <a href="/domains" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"><i class="ri-arrow-left-line text-base leading-none rtl:rotate-180" aria-hidden="true"></i>{{.T.Get "Back to domains"}}</a>
 </div>
 <!-- END page header -->
 
+<div class="px-4 pb-6 sm:px-6 lg:px-8">
+<div class="max-w-2xl rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised sm:p-6 CrawlerStatusCard" id="toAddActive">
+    <form method="POST" id="redirect-form">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+        <input type="hidden" name="domain_name" value="{{.DomainName}}">
+        <label for="redirect_url" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Redirect URL"}}</label>
+        <input type="url" id="redirect_url" name="redirect_url" value="{{if .RedirectURL}}{{.RedirectURL}}{{end}}" pattern="https?://.*" title="{{.T.Get "Must be a valid URL starting with http:// or https://."}}" aria-describedby="redirect_url-help" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" placeholder="{{.T.Get "https://"}}">
+        <p id="redirect_url-help" class="mt-2 text-xs text-gray-500">{{.T.Get "Must be a valid URL starting with http:// or https://."}}</p>
+    </form>
 
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
-    <form class="mt-8" method="POST">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-        <div class="col-span-full">
-            <input type="hidden" name="domain_name" value="{{.DomainName}}">
-            <input type="url" name="redirect_url" value="{{if .RedirectURL}}{{.RedirectURL}}{{end}}" pattern="https?://.*" title="{{.T.Get "Must be a valid URL starting with http:// or https://."}}" class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" placeholder="{{.T.Get "https://"}}">
-        </div>
-    </div>
-
-    <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
-
-    <div class="md:flex items-center md:justify-end md:space-x-4">
-
-        <button id="save-redirect" type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full md:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 md:mt-0">{{.T.Get "Save Redirect"}}<svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"> <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/> </svg>
-        </button>
-
-        </form>
+    <div class="mt-6 flex flex-col-reverse gap-2 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end dark:border-gray-800">
         {{if .RedirectURL}}
-        <form action="/domains/redirect/delete" method="post">
+        <form action="/domains/redirect/delete" method="post" class="sm:mr-auto">
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
             <input class="d-none" type="hidden" name="domain_name" value="{{.DomainName}}">
             <input class="d-none" type="hidden" name="redirect_url" value="{{.RedirectURL}}">
-            <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full md:w-auto gap-x-1.5 whitespace-nowrap bg-red-700 hover:bg-red-800 text-white hover:bg-gray-800 md:mt-0">{{.T.Get "Delete Redirect"}}</button>
+            <button type="submit" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600"><i class="ri-delete-bin-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "Delete redirect"}}</button>
         </form>
         {{end}}
-
-    <a href="/domains" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 mt-2 w-full md:w-auto gap-x-1.5 disabled:text-gray-400 disabled:dark:text-gray-600 md:mt-0">{{.T.Get "Back to Domains"}}</a>
+        <button id="save-redirect" type="submit" form="redirect-form" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">{{.T.Get "Save redirect"}}</button>
+    </div>
 </div>
-
 </div>
 
 </section>
 
-
 {{else}}
 
-<!-- Content to display when domain is not provided -->
+<section aria-label="{{.T.Get "Redirects"}}" x-data="{ q: '', open: false, mode: 'new', domain: '', url: '', first: '{{if .Free}}{{index .Free 0}}{{end}}',
+    openNew() { this.mode = 'new'; this.domain = this.first; this.url = ''; this.open = true; this.$nextTick(() => this.$refs.url.focus()); },
+    openEdit(el) { this.mode = 'edit'; this.domain = el.dataset.domain; this.url = el.dataset.url; this.open = true; this.$nextTick(() => this.$refs.url.focus()); } }">
 
 <!-- page header -->
-<section
-    aria-label="{{.T.Get "Redirect Header"}}"
->
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Redirect Domain to URL"}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Redirecting a domain will immediately redirect all traffic to the new URL, while Email and other services remain operational."}}</p>
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Redirects"}}</h1>
+        <p class="mt-1 max-w-3xl text-sm text-gray-500">{{.T.Get "Redirecting a domain will immediately redirect all traffic to the new URL, while Email and other services remain operational."}}</p>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-    </div>
+    {{if .Domains}}
+    <button type="button" @click="openNew()" {{if not .Free}}disabled title="{{.T.Get "Every domain already has a redirect."}}"{{end}} class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400"><i class="ri-add-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "New redirect"}}</button>
+    {{end}}
 </div>
 <!-- END page header -->
 
-
-{{if .Domains}}
-    {{template "domain_selector" (dict "T" .T "Domains" .Domains "RedirectBase" "/domains/redirect?domain=")}}
-{{else}}
+{{if not .Domains}}
     {{template "no_domain" .}}
+{{else if not .Redirects}}
+<div class="mx-4 flex h-64 flex-col items-center justify-center rounded-md border border-dashed border-gray-300 px-4 text-center sm:mx-6 lg:mx-8 dark:border-gray-800">
+    <i class="ri-link text-2xl leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+    <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No redirects yet"}}</p>
+    <p class="mt-1 max-w-md text-sm text-gray-500">{{.T.Get "All your domains serve their own websites. Add a redirect to send a domain's visitors somewhere else, like an old domain to your new one."}}</p>
+    <button type="button" @click="openNew()" class="mt-4 relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-add-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "Add a redirect"}}</button>
+</div>
+{{else}}
+<!-- toolbar -->
+<div class="flex flex-wrap items-center gap-2 px-4 pb-4 sm:px-6 lg:px-8">
+    <div class="relative w-full sm:w-64">
+        <label for="redirects-search" class="sr-only">{{.T.Get "Search"}}</label>
+        <input id="redirects-search" x-model="q" type="search" placeholder="{{.T.Get "Search"}}"
+            class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden">
+        <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+    </div>
+</div>
+
+<div class="overflow-x-auto">
+<table class="w-full border-t border-gray-200 text-sm dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+    <thead>
+        <tr>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Domain"}}</th>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Redirects to"}}</th>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Type"}}</th>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Redirects}}
+        <tr x-show="q === '' || $el.dataset.search.includes(q.toLowerCase())" data-search="{{lower .Domain}} {{lower .URL}}" class="hover:bg-gray-50 dark:hover:bg-gray-900/60 [&>td]:border-b [&>td]:border-gray-200 dark:[&>td]:border-gray-800">
+            <td class="px-4 py-2.5 whitespace-nowrap">
+                <div class="font-medium text-gray-900 dark:text-gray-50"><span class="punycode">{{.Domain}}</span></div>
+                <div class="text-xs text-gray-500">{{$.T.Get "and"}} www.<span class="punycode">{{.Domain}}</span></div>
+            </td>
+            <td class="max-w-md px-4 py-2.5 text-gray-600 dark:text-gray-400">
+                <a href="{{.URL}}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 break-all text-blue-500 hover:underline hover:underline-offset-4">{{.URL}} <i class="ri-external-link-line text-sm leading-none" aria-hidden="true"></i></a>
+            </td>
+            <td class="px-4 py-2.5 whitespace-nowrap">
+                <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{$.T.Get "302 temporary"}}</span>
+            </td>
+            <td class="px-4 py-2.5 whitespace-nowrap text-right">
+                <div class="inline-flex items-center gap-1">
+                    <button type="button" data-domain="{{.Domain}}" data-url="{{.URL}}" @click="openEdit($el)" aria-label="{{$.T.Get "Edit redirect for"}} {{.Domain}}" title="{{$.T.Get "Edit"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"><i class="ri-pencil-line text-base leading-none" aria-hidden="true"></i></button>
+                    <form action="/domains/redirect/delete" method="post" data-confirm="{{$.T.Get "Remove the redirect for"}} {{.Domain}}?">
+                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                        <input type="hidden" name="domain_name" value="{{.Domain}}">
+                        <input type="hidden" name="redirect_url" value="{{.URL}}">
+                        <input type="hidden" name="next" value="redirects">
+                        <button type="submit" aria-label="{{$.T.Get "Delete redirect for"}} {{.Domain}}" title="{{$.T.Get "Delete"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-400/10 dark:hover:text-red-400 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"><i class="ri-delete-bin-line text-base leading-none" aria-hidden="true"></i></button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+</div>
+<p class="px-4 pt-3 pb-6 text-xs text-gray-500 sm:px-6 lg:px-8"><span class="tabular-nums">{{len .Redirects}}</span> {{if eq (len .Redirects) 1}}{{.T.Get "redirect"}}{{else}}{{.T.Get "redirects"}}{{end}} · <span class="tabular-nums">{{len .Free}}</span> {{.T.Get "domains without a redirect"}}</p>
 {{end}}
 
+<!-- new / edit redirect dialog -->
+<div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4" @keydown.escape.window="open = false" @click.self="open = false">
+    <form method="POST" action="/domains/redirect" role="dialog" aria-modal="true" aria-labelledby="redirect-dialog-title" class="w-full max-w-lg rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-900 dark:bg-raised">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        <input type="hidden" name="next" value="redirects">
+        <input type="hidden" name="domain_name" :value="domain">
+        <div class="px-6 pt-6">
+            <h2 id="redirect-dialog-title" class="font-semibold text-gray-900 dark:text-gray-50" x-text="mode === 'edit' ? '{{.T.Get "Edit redirect"}}' : '{{.T.Get "New redirect"}}'"></h2>
+            <p class="mt-1 text-sm text-gray-500">{{.T.Get "The website on this domain stops being reachable while the redirect is on."}}</p>
+        </div>
+        <div class="space-y-5 px-6 py-5">
+            <div>
+                <label for="redirect-domain" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Domain"}}</label>
+                <select id="redirect-domain" x-show="mode === 'new'" x-model="domain" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
+                    {{range .Free}}<option value="{{.}}">{{.}}</option>{{end}}
+                </select>
+                <p x-show="mode === 'edit'" class="mt-2 rounded-md bg-gray-50 px-2.5 py-2 text-sm text-gray-900 dark:bg-gray-900 dark:text-gray-50" x-text="domain"></p>
+                <p x-show="mode === 'new'" class="mt-2 text-xs text-gray-500">{{.T.Get "Only domains without a redirect are listed."}}</p>
+            </div>
+            <div>
+                <label for="redirect-url" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Redirect URL"}}</label>
+                <input type="url" id="redirect-url" name="redirect_url" x-ref="url" x-model="url" required pattern="https?://.*" title="{{.T.Get "Must be a valid URL starting with http:// or https://."}}" aria-describedby="redirect-url-help" placeholder="{{.T.Get "https://"}}" autocomplete="off" spellcheck="false" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
+                <p id="redirect-url-help" class="mt-2 text-xs text-gray-500">{{.T.Get "Must be a valid URL starting with http:// or https://."}}</p>
+            </div>
+        </div>
+        <div class="flex flex-col-reverse gap-2 border-t border-gray-200 px-6 py-4 sm:flex-row sm:justify-end dark:border-gray-800">
+            <button type="button" @click="open = false" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Cancel"}}</button>
+            <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600">{{.T.Get "Save redirect"}}</button>
+        </div>
+    </form>
+</div>
+
 </section>
-
-
 
 {{end}}
 

@@ -7,134 +7,126 @@
 
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
-<div x-data="{ searchQuery: '' }">
-    <div x-data="{ showSection: false }" class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
-        <header>
-            <div class="flex flex-col gap-2 text-center sm:flex-row sm:items-center sm:justify-between sm:text-start">
-                <div>
-                    <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Backup Settings"}}</h1>
-                    <h2 class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Configure backup options and schedule."}}</h2>
-                </div>
-                <div class="flex flex-none items-center justify-center gap-2 rounded-sm px-2 sm:justify-end sm:bg-transparent sm:px-0">
-
-            <button class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500 border-transparent text-white dark:text-gray-900 bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-500 dark:hover:bg-indigo-600 disabled:bg-indigo-100 disabled:text-gray-400 disabled:dark:bg-indigo-800 disabled:dark:text-indigo-400"
-                    type="submit">{{.T.Get "Save settings"}}</button>
-
-                </div>
-            </div>
-        </header>
-    </div>
-
-    {{if .Error}}
-        <div style="font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji'; height: 100vh; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center">
-            <div>
-                <h1 class="next-error-h1" style="display: inline-block; margin: 0 20px 0 0; padding: 0 23px 0 0; font-size: 24px; font-weight: 500; vertical-align: top; line-height: 49px">{{.T.Get "error"}}</h1>
-                <div style="display: inline-block">
-                    <h2 style="font-size:14px;font-weight:400;line-height:49px;margin:0">{{.Error}}</h2>
-                </div>
-            </div>
+    <header class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <div>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Backup settings"}}</h1>
+            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Configure backup options and schedule."}}</p>
         </div>
+    </header>
 
+    {{if .NoTarget}}
+    <div class="px-4 pb-8 sm:px-6 lg:px-8">
+        <div class="flex max-w-5xl flex-col gap-3 rounded-md p-4 text-sm bg-amber-50 text-amber-900 sm:flex-row sm:items-center dark:bg-amber-950/70 dark:text-amber-400" role="status">
+            <i class="ri-error-warning-line text-lg leading-5" aria-hidden="true"></i>
+            <div class="flex-1"><p class="font-semibold">{{.T.Get "No destination yet"}}</p><p class="mt-1">{{.T.Get "Choose where backups go first, then come back here to set the schedule."}}</p></div>
+            <a href="/backups/destination" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 self-start sm:self-auto"><i class="ri-database-2-line" aria-hidden="true"></i> {{.T.Get "Choose destination"}}</a>
+        </div>
+    </div>
+    {{else if .Error}}
+    <div class="px-4 pb-8 sm:px-6 lg:px-8">
+        <div class="flex max-w-5xl gap-3 rounded-md p-4 text-sm bg-red-50 text-red-900 dark:bg-red-950/70 dark:text-red-500" role="alert">
+            <i class="ri-error-warning-line text-lg leading-5" aria-hidden="true"></i>
+            <div><p class="font-semibold">{{.T.Get "Error"}}</p><p class="mt-1">{{.Error}}</p></div>
+        </div>
+    </div>
     {{else}}
-        <div class="m-8">
-
-                    {{if .Target}}
-
-            <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+    <div class="px-4 pb-8 sm:px-6 lg:px-8">
+        <div class="max-w-5xl divide-y divide-gray-200 border-t border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+            {{if .Target}}
+            <section aria-labelledby="bk-dest-title" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
                 <div>
-                    <h2 class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.Target}} {{.T.Get "settings"}}</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Configure custom domain for accessing panels."}}</p>
+                    <h2 id="bk-dest-title" class="flex items-center gap-2 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Destination credentials"}} <span class="inline-flex items-center whitespace-nowrap rounded-md px-2 py-1 font-mono text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{.Target}}</span></h2>
+                    <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "What the backup service uses to reach your destination. To switch to another type, use the Destination tab."}}</p>
                 </div>
                 <div class="md:col-span-2">
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-
                         {{range .Values}}
             <div class="col-span-full">
-            <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="values[{{.Key}}]">{{.Key}}</label>
+            <label class="block text-sm font-medium text-gray-900 dark:text-gray-50 font-mono" for="{{.Key}}">{{.Key}}</label>
             <div class="relative w-full mt-2">
-                        <input class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 truncate disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 [&::--webkit-search-cancel-button]:hidden [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" type="text" name="values[{{.Key}}]" id="{{.Key}}" value="{{.Value}}">
+                        <input class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 truncate" type="text" name="values[{{.Key}}]" id="{{.Key}}" value="{{.Value}}">
                 </div>
                 </div>
                         {{end}}
-
                     </div>
                 </div>
-            </div>
+            </section>
+            {{end}}
 
-            <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
-        {{end}}
-
-                    {{if .Settings}}
-            <div class="grid grid-cols-1 gap-x-14 gap-y-8 md:grid-cols-3">
+            {{if .Settings}}
+            <section aria-labelledby="bk-sched-title" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
                 <div>
-                    <h2 class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Backup settings"}}</h2>
-                    <p class="mt-1 text-sm leading-6 text-gray-500">{{.T.Get "Configure schedule, retention, etc."}}</p>
+                    <h2 id="bk-sched-title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Schedule and retention"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "When backups run, what they include, how long they are kept and who hears about it."}}</p>
                 </div>
                 <div class="md:col-span-2">
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
                         {{range .Settings}}
 
                             <div class="col-span-full">
-                            <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="settings[{{.Key}}]">{{.Key}}</label>
+                            <label class="block text-sm font-medium text-gray-900 dark:text-gray-50 font-mono" for="{{if or (eq .Key "BACKUP_SOURCES") (eq .Key "NOTIFICATION_LEVEL")}}{{.Key}}{{else}}settings-{{.Key}}{{end}}">{{.Key}}</label>
             {{if eq .Key "BACKUP_SOURCES"}}
             <div class="relative w-full mt-2">
-                <select class="relative block w-full appearance-none truncate rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 focus:ring-2 focus:ring-indigo-200 focus:dark:ring-indigo-700/30 focus:border-indigo-500 focus:dark:border-indigo-700" name="values[{{.Key}}]" id="{{.Key}}">
+                <select class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 truncate" name="values[{{.Key}}]" id="{{.Key}}">
                     {{if not (eq .Value "/backup" "/backup/html" "/backup/01-mail" "/backup/01-vhosts" "/backup/01-mysql" "/backup/01-postgres" "/backup/crons.ini")}}<option value="{{.Value}}" selected>{{if .Value}}{{.Value}}{{else}}{{$.T.Get "(not set)"}}{{end}}</option>{{end}}
                     <option value="/backup" {{if eq .Value "/backup"}}selected{{end}}>{{$.T.Get "Everything"}}</option>
-                    <option value="/backup/html" {{if eq .Value "/backup/html"}}selected{{end}}>{{$.T.Get "Website Files"}} (/var/www/html/)</option>
+                    <option value="/backup/html" {{if eq .Value "/backup/html"}}selected{{end}}>{{$.T.Get "Website files"}} (/var/www/html/)</option>
                     <option value="/backup/01-mail" {{if eq .Value "/backup/01-mail"}}selected{{end}}>{{$.T.Get "Emails"}}</option>
                     <option value="/backup/01-vhosts" {{if eq .Value "/backup/01-vhosts"}}selected{{end}}>{{$.T.Get "VirtualHosts"}}</option>
-                    <option value="/backup/01-mysql" {{if eq .Value "/backup/01-mysql"}}selected{{end}}>{{$.T.Get "MySQL Databases"}}</option>
-                    <option value="/backup/01-postgres" {{if eq .Value "/backup/01-postgres"}}selected{{end}}>{{$.T.Get "PostgreSQL Databases"}}</option>
+                    <option value="/backup/01-mysql" {{if eq .Value "/backup/01-mysql"}}selected{{end}}>{{$.T.Get "MySQL databases"}}</option>
+                    <option value="/backup/01-postgres" {{if eq .Value "/backup/01-postgres"}}selected{{end}}>{{$.T.Get "PostgreSQL databases"}}</option>
 
-                    <option value="/backup/crons.ini" {{if eq .Value "/backup/crons.ini"}}selected{{end}}>{{$.T.Get "Cron Jobs"}}</option>
+                    <option value="/backup/crons.ini" {{if eq .Value "/backup/crons.ini"}}selected{{end}}>{{$.T.Get "Cron jobs"}}</option>
 
                 </select>
                 </div>
             {{else if eq .Key "NOTIFICATION_LEVEL"}}
             <div class="relative w-full mt-2">
-                <select class="relative block w-full appearance-none truncate rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 focus:ring-2 focus:ring-indigo-200 focus:dark:ring-indigo-700/30 focus:border-indigo-500 focus:dark:border-indigo-700" name="values[{{.Key}}]" id="{{.Key}}">
+                <select class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 truncate" name="values[{{.Key}}]" id="{{.Key}}">
                     {{if not (eq .Value "info" "error")}}<option value="{{.Value}}" selected>{{if .Value}}{{.Value}}{{else}}{{$.T.Get "(not set)"}}{{end}}</option>{{end}}
                     <option value="info" {{if eq .Value "info"}}selected{{end}}>{{$.T.Get "INFO"}}</option>
                     <option value="error" {{if eq .Value "error"}}selected{{end}}>{{$.T.Get "ERROR"}}</option>
                 </select>
-<div class="mt-4"><p class="text-xs text-gray-500">{{$.T.Get "By default, notifications would only be sent out when a backup run fails. To receive notifications for every run, set NOTIFICATION_LEVEL to"}} <code>{{$.T.Get "info"}}</code> {{$.T.Get "instead of the default"}} <code>{{$.T.Get "error"}}</code>.</p></div>
+<div class="mt-2"><p class="text-xs text-gray-500">{{$.T.Get "By default, notifications would only be sent out when a backup run fails. To receive notifications for every run, set NOTIFICATION_LEVEL to"}} <code class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">{{$.T.Get "info"}}</code> {{$.T.Get "instead of the default"}} <code class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">{{$.T.Get "error"}}</code>.</p></div>
                 </div>
                 {{else}}
                 <div class="relative w-full mt-2">
-                                        <input class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 truncate disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 [&::--webkit-search-cancel-button]:hidden [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" type="text" name="settings[{{.Key}}]" id="settings-{{.Key}}}" value="{{.Value}}">
+                                        <input class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 truncate" type="text" name="settings[{{.Key}}]" id="settings-{{.Key}}" value="{{.Value}}">
 
 {{if eq .Key "NOTIFICATION_URLS"}}
-<div class="mt-4"><p class="text-xs text-gray-500">{{$.T.Get "Notifications (email, Slack, etc.) can be sent out when a backup run finishes. Configuration is provided as a comma-separated list of URLs."}} <a href="https://containrrr.dev/shoutrrr/v0.8/services/overview/" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">{{$.T.Get "Learn more"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a>
+<div class="mt-2"><p class="text-xs text-gray-500">{{$.T.Get "Notifications (email, Slack, etc.) can be sent out when a backup run finishes. Configuration is provided as a comma-separated list of URLs."}} <a href="https://containrrr.dev/shoutrrr/v0.8/services/overview/" target="_blank" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4">{{$.T.Get "Learn more"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a>
 </p></div>
 {{else if eq .Key "GZIP_PARALLELISM"}}
-<div class="mt-4"><p class="text-xs text-gray-500">{{$.T.Get "Parallelism level for \"gz\" (Gzip) compression defines how many blocks of data are concurrently processed. Higher values result in faster compression. Default = 1. Setting this to 0 will use all available threads."}}
+<div class="mt-2"><p class="text-xs text-gray-500">{{$.T.Get "Parallelism level for \"gz\" (Gzip) compression defines how many blocks of data are concurrently processed. Higher values result in faster compression. Default = 1. Setting this to 0 will use all available threads."}}
 </p></div>
 {{else if eq .Key "BACKUP_EXCLUDE_REGEXP"}}
-<div class="mt-4"><p class="text-xs text-gray-500">{{$.T.Get "Full path to exclude, or regular expressions."}}</p></div>
+<div class="mt-2"><p class="text-xs text-gray-500">{{$.T.Get "Full path to exclude, or regular expressions."}}</p></div>
 {{else if eq .Key "BACKUP_RETENTION_DAYS"}}
-<div class="mt-4"><p class="text-xs text-gray-500">{{$.T.Get "IThe number of days for which a backup is kept. Pass zero or a positive integer value to enable automatic rotation of old backups."}}</p></div>
+<div class="mt-2"><p class="text-xs text-gray-500">{{$.T.Get "The number of days for which a backup is kept. Pass zero or a positive integer value to enable automatic rotation of old backups."}}</p></div>
 
 
 
 {{end}}
                                 </div>
             {{end}}
+                            </div>
 
                         {{end}}
                     </div>
                 </div>
+            </section>
+            {{end}}
+
+            {{if or .Target .Settings}}
+            <div class="flex justify-end pt-6">
+                <button class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400" type="submit"><i class="ri-save-line" aria-hidden="true"></i> {{.T.Get "Save settings"}}</button>
             </div>
-
-                        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
-
-                    {{end}}
-
+            {{end}}
         </div>
+    </div>
     {{end}}
 
 </form>
-</div>
 
 <!-- END templates/files/backup_settings.html -->
 {{end}}

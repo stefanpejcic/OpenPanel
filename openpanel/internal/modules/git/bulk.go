@@ -12,9 +12,9 @@ import (
 
 func gitBulkActions(t i18n.Translator) []web.BulkAction {
 	return []web.BulkAction{
-		{Key: "pull", Label: t.Get("Pull Updates"), Confirm: t.Get("Pull updates for the selected repositories? Automatic ones are deployed too."), Icon: "bi-cloud-download"},
-		{Key: "deploy", Label: t.Get("Deploy"), Confirm: t.Get("Deploy the selected repositories now?"), Icon: "bi-rocket-takeoff"},
-		{Key: "mode", Label: t.Get("Change deployment mode"), Confirm: t.Get("Deployment mode for the selected repositories:"), Icon: "bi-sliders",
+		{Key: "pull", Label: t.Get("Pull updates"), Confirm: t.Get("Pull updates for the selected repositories? Automatic ones are deployed too."), Icon: "ri-download-cloud-2-line"},
+		{Key: "deploy", Label: t.Get("Deploy"), Confirm: t.Get("Deploy the selected repositories now?"), Icon: "ri-rocket-line"},
+		{Key: "mode", Label: t.Get("Change deployment mode"), Confirm: t.Get("Deployment mode for the selected repositories:"), Icon: "ri-equalizer-line",
 			Input: &web.BulkInput{Type: "select", Options: []web.BulkOption{
 				{Value: DeployAutomatic, Label: t.Get("Automatic")},
 				{Value: DeployManual, Label: t.Get("Manual")},

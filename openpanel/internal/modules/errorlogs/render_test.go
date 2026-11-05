@@ -40,10 +40,10 @@ func TestRenderErrorLogsPage(t *testing.T) {
 	}
 	body := w.Body.String()
 	for _, want := range []string{
-		"Error Logs", `value="a.com" class="punycode" selected`, `value="a.com/blog" class="punycode" >&nbsp;&nbsp;↳ a.com/blog`, `value="php-fpm-8.2"`, "PHP 8.2",
+		"Error logs", `value="a.com" class="punycode" selected`, `value="a.com/blog" class="punycode" >&nbsp;&nbsp;↳ a.com/blog`, `value="php-fpm-8.2"`, "PHP 8.2",
 		"Critical", "Showing 1 out of 2 rows", "&lt;script&gt;x&lt;/script&gt;",
 		"[critical] [php-fpm-8.2] [a.com] Fatal error",
-		`id="bulk-actions-bar"`, "bulkClient(", `data-row="0"`, "bi-clipboard", "bi-download",
+		`id="bulk-actions-bar"`, "bulkClient(", `data-row="0"`, "ri-clipboard-line", "ri-download-line",
 		`data-sort-key="severity"`, `data-sort-col="time"`, "js/table-sort.js", `<option value="error" selected>`,
 		`border-gray-200 dark:border-gray-800">`,
 	} {

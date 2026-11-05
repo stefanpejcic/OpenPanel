@@ -3,53 +3,52 @@
 {{define "content"}}
 <!-- START templates/manager/tinyfilemanager_install.html -->
 
-<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
-    <header class="flex items-center justify-between gap-4">
-        <div>
-            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Install TinyFileManager"}}</h1>
-            <p id="description_type" class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Set up a new TinyFileManager file manager in an existing domain."}}</p>
-        </div>
-        <div id="headerRing" class="hidden flex-shrink-0">
-            <div class="relative w-12 h-12">
-                <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#e5e7eb" stroke-width="10" class="dark:stroke-gray-700"/><circle id="progressRing" cx="50" cy="50" r="42" fill="none" stroke="url(#installRingGrad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9" style="transition: stroke-dashoffset 0.6s ease"/><defs><linearGradient id="installRingGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#10b981"/></linearGradient></defs></svg>
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <span id="progressPercent" class="text-xs font-bold text-gray-900 dark:text-gray-50">0%</span>
-                </div>
+<header class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Install TinyFileManager"}}</h1>
+        <p id="description_type" class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Set up a new TinyFileManager file manager in an existing domain."}}</p>
+    </div>
+    <div id="headerRing" class="hidden flex-shrink-0">
+        <div class="relative w-12 h-12">
+            <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="10" class="text-gray-200 dark:text-gray-800"/><circle id="progressRing" cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9" class="text-blue-500" style="transition: stroke-dashoffset 0.6s ease"/></svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <span id="progressPercent" class="text-xs font-semibold tabular-nums text-gray-900 dark:text-gray-50">0%</span>
             </div>
         </div>
-    </header>
-</div>
+    </div>
+</header>
 
 {{if .Domains}}
 {{template "cmsinstall_block_4" .}}
-    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+    <div class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+    <div class="p-4 sm:p-6">
         {{template "cmsinstall_block_7" .}}
         {{template "cmsinstall_block_9" .}}
             {{template "cmsinstall_block_12" .}}
-        <div class="flex items-center gap-2 px-3 py-2 rounded bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="orange" class="text-amber-500 flex-shrink-0" viewBox="0 0 16 16"><path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.19a2 2 0 0 1 1.45.63l.26.28a2 2 0 0 0 1.45.63H14a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3.87z"/></svg>
-            <span class="text-xs font-mono text-gray-500 dark:text-gray-400 truncate"><span id="path">/var/www/html/</span><span id="display_subdirectory"></span></span>
+        <div class="mt-3 flex items-center gap-2 rounded-md bg-gray-50 px-3 py-2 dark:bg-gray-900">
+            <i class="ri-folder-line shrink-0 text-gray-500" aria-hidden="true"></i>
+            <span class="truncate font-mono text-xs text-gray-600 dark:text-gray-400"><span id="path">/var/www/html/</span><span id="display_subdirectory"></span></span>
         </div>
 
 
         <div class="mt-3 grid grid-cols-2 gap-3">
             <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_username">
-                    {{.T.Get "Admin Username"}}<span class="text-red-500">*</span>
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_username">
+                    {{.T.Get "Admin username"}}<span class="ml-0.5 text-red-600 dark:text-red-500" aria-hidden="true">*</span>
                 </label>
                 <input type="text" name="admin_username" id="admin_username" value="admin" required
-                    class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
+                    class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
             </div>
             <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_password">
-                    {{.T.Get "Admin Password"}}<span class="text-red-500">*</span>
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_password">
+                    {{.T.Get "Admin password"}}<span class="ml-0.5 text-red-600 dark:text-red-500" aria-hidden="true">*</span>
                 </label>
-                <div class="flex">
+                <div class="mt-2 flex">
                     <input type="password" name="admin_password" id="admin_password" required
-                        class="relative block w-full rounded-l appearance-none border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
-                    <button type="button" id="togglePassword"
-                        class="rounded-r px-3 py-2 text-sm text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 border border-l-0 border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                        <i class="bi bi-eye"></i>
+                        class="block w-full appearance-none rounded-md rounded-r-none border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
+                    <button type="button" id="togglePassword" aria-label="{{.T.Get "Show password"}}"
+                        class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap -ml-px rounded-md rounded-l-none shadow-none border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">
+                        <i class="ri-eye-line" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>
@@ -58,7 +57,7 @@
             document.getElementById('togglePassword').addEventListener('click', function() {
                 const pw = document.getElementById('admin_password');
                 pw.type = pw.type === 'password' ? 'text' : 'password';
-                this.querySelector('i').className = pw.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+                this.querySelector('i').className = pw.type === 'password' ? 'ri-eye-line' : 'ri-eye-off-line';
             });
         </script>
 
@@ -66,6 +65,7 @@
     </div>
 
     {{template "cmsinstall_block_14" .}}
+    </div>
     {{template "cmsinstall_block_15" .}}
   {{template "cmsinstall_block_16" .}}
 <script>
@@ -84,7 +84,7 @@ function startInstall(name) {
 
   if (_hangTimer) clearTimeout(_hangTimer);
   _hangTimer = setTimeout(() => {
-    _setDescription({{toJSON (.T.Get "Install process hanged for")}} + ` <span class="font-mono text-blue-500">${name}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-600 dark:text-blue-400 hover:underline">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
+    _setDescription({{toJSON (.T.Get "Install process hanged for")}} + ` <span class="font-mono text-blue-500">${name}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-500 hover:underline hover:underline-offset-4">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
   }, 5 * 60 * 1000);
 }
 
@@ -94,7 +94,7 @@ function _clearHangTimer() {
 
 function showInstallError(name) {
   _clearHangTimer();
-  _setDescription({{toJSON (.T.Get "Install process failed for")}} + ` <span class="font-mono text-blue-500">${name}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-600 dark:text-blue-400 hover:underline">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
+  _setDescription({{toJSON (.T.Get "Install process failed for")}} + ` <span class="font-mono text-blue-500">${name}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-500 hover:underline hover:underline-offset-4">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
 }
 
 function resetDescription() {
@@ -134,10 +134,10 @@ function _setState(el, state) {
   const label = _label(el);
 
   const states = {
-    pending: { row: 'flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500', svg: ICON_PENDING },
-    active:  { row: 'flex items-center justify-between rounded bg-blue-50 p-3 dark:bg-blue-900/20 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-900 dark:text-gray-50', svg: ICON_SPIN },
-    done:    { row: 'flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-500 dark:text-gray-400', svg: ICON_DONE },
-    error:   { row: 'flex items-center justify-between rounded bg-red-50 p-3 dark:bg-red-900/20 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-red-600 dark:text-red-400', svg: ICON_ERROR },
+    pending: { row: 'flex items-center justify-between gap-4 px-4 py-3 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500', svg: ICON_PENDING },
+    active:  { row: 'flex items-center justify-between gap-4 px-4 py-3 transition-colors bg-blue-50 dark:bg-blue-950/70', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-900 dark:text-gray-50', svg: ICON_SPIN },
+    done:    { row: 'flex items-center justify-between gap-4 px-4 py-3 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-500 dark:text-gray-400', svg: ICON_DONE },
+    error:   { row: 'flex items-center justify-between gap-4 px-4 py-3 transition-colors bg-red-50 dark:bg-red-950/70', label: 'step-label font-medium text-sm flex items-center gap-3 text-red-600 dark:text-red-400', svg: ICON_ERROR },
   };
 
   const cfg = states[state];
@@ -189,7 +189,7 @@ function retryInstall() {
   document.getElementById('toAddActive').classList.remove('hidden');
   const button = document.getElementById("installButton");
   button.disabled = false;
-  button.innerHTML = {{toJSON (.T.Get "Start Installation")}} + `<svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg>`;
+  button.innerHTML = {{toJSON (.T.Get "Start installation")}} + `<i class="ri-arrow-right-line" aria-hidden="true"></i>`;
 }
 
 document.getElementById("installForm").addEventListener("submit", function(event) {

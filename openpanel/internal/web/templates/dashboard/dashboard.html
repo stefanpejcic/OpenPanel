@@ -16,16 +16,15 @@
               localStorage.setItem("section_state_" + {{toJSON .Section.Key}}, this.open);
             }
           }'
-          class="flex flex-col space-y-2 justify-center overflow-hidden rounded bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-800 xl:col-span-3"
+          class="flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950 xl:col-span-3"
         >
-          <div class="flex items-center justify-between gap-4 relative m-0 p-2 border-b border-gray-200 dark:border-gray-800 cursor-move active:cursor-grabbing" id="section-title-{{.Section.Key}}">
-            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+          <div class="relative m-0 flex items-center justify-between gap-4 border-b border-gray-200 py-2 pr-2 pl-4 cursor-move active:cursor-grabbing dark:border-gray-800" id="section-title-{{.Section.Key}}">
+            <h2 class="flex items-center gap-3 text-sm font-semibold text-gray-900 dark:text-gray-50">
+              {{if .Section.Icon}}<span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-500 dark:bg-blue-950/70 dark:text-blue-400" aria-hidden="true"><i class="{{.Section.Icon}}"></i></span>{{end}}
+              {{.Section.Title}}
+            </h2>
 
-            <div class="flex items-center gap-2 pl-4">
-              <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.Section.Title}}</h2>
-            </div>
-
-            <button type="button" @click="toggleOpen" class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-gray-100 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-gray-800 dark:hover:text-black dark:active:bg-slate-700/50" :aria-expanded="open" :aria-controls="'section-icons-{{.Section.Key}}'">
+            <button type="button" @click="toggleOpen" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" :aria-label="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" :aria-expanded="open" :aria-controls="'section-icons-{{.Section.Key}}'">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="open" x-cloak><path fill-rule="evenodd" d="M5.23 12.21a.75.75 0 0 0 1.06.02L10 8.94l3.71 3.29a.75.75 0 1 0 1-1.12l-4.25-3.75a.75.75 0 0 0-1 0L5.21 11.1a.75.75 0 0 0 .02 1.06z" clip-rule="evenodd"/></svg>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="!open" x-cloak><path fill-rule="evenodd" d="M14.77 7.79a.75.75 0 0 0-1.06-.02L10 11.06 6.29 7.77a.75.75 0 1 0-1 1.12l4.25 3.75a.75.75 0 0 0 1 0l4.25-3.75a.75.75 0 0 0-.02-1.06z" clip-rule="evenodd"/></svg>
               <span x-text="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" class="sr-only"></span>
@@ -34,33 +33,28 @@
 
           <div
             id="section-icons-{{.Section.Key}}"
-            class="flex flex-wrap lg:w-full md:w-5/6 xl:shadow-small-blue transition-all duration-300"
+            class="grid grid-cols-1 gap-1 p-2 sm:grid-cols-2 lg:grid-cols-3"
             x-show="open"
             x-collapse
           >
-            {{$iconView := .IconView}}
             {{$upsellPlanName := .UpsellPlanName}}
             {{$upsellURL := .UpsellURL}}
             {{range .Section.Items}}
               {{if .Disabled}}
                 <a title="{{if $upsellPlanName}}{{$.T.Get "Upgrade to"}} {{$upsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
                    {{if $upsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}
-                   class="block w-1/2 py-1 text-center lg:w-1/4 opacity-50 grayscale cursor-not-allowed">
-                  <div :class="$store.dashboardIconView.value === 'icon' ? 'py-2 text-center' : 'p-2 px-4 flex gap-2'" class="{{if eq $iconView "icon"}}py-2 text-center{{else}}p-2 px-4 flex gap-2{{end}}">
-                    <button type="button" tabindex="-1" class="size-9 items-center justify-center rounded-xl bg-slate-700 text-white ring-4 ring-slate-400/50 dark:ring-slate-600/50 cursor-not-allowed">
-                      <i class="bi {{.Icon}}"></i>
-                    </button>
-                    <p class="pt-2 text-sm font-medium font-body md:text-base md:pt-2 text-slate-500 dark:text-slate-400">{{.Label}}</p>
-                  </div>
+                   class="flex min-w-0 items-center gap-3 rounded-md px-2 py-2 text-left opacity-50 grayscale cursor-not-allowed">
+                    <span class="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-gray-100 text-lg text-gray-700 dark:bg-gray-900 dark:text-gray-300" aria-hidden="true">
+                      <i class="{{.Icon}}"></i>
+                    </span>
+                    <span class="text-sm font-medium leading-tight text-gray-700 group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-gray-50">{{.Label}}</span>
                 </a>
               {{else}}
-                <a href="{{.Href}}" target="{{if .Target}}{{.Target}}{{else}}_self{{end}}" class="block w-1/2 py-1 text-center lg:w-1/4 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                  <div :class="$store.dashboardIconView.value === 'icon' ? 'py-2 text-center' : 'p-2 px-4 flex gap-2'" class="{{if eq $iconView "icon"}}py-2 text-center{{else}}p-2 px-4 flex gap-2{{end}}">
-                    <button type="button" class="size-9 items-center justify-center rounded-xl bg-slate-700 text-white hover:bg-slate-600 active:bg-slate-700 ring-4 ring-slate-400/50 dark:ring-slate-600/50 cursor-pointer">
-                      <i class="bi {{.Icon}}"></i>
-                    </button>
-                    <p class="pt-2 text-sm font-medium font-body md:text-base md:pt-2 text-slate-500 dark:text-slate-400">{{.Label}}</p>
-                  </div>
+                <a href="{{.Href}}" target="{{if .Target}}{{.Target}}{{else}}_self{{end}}" class="group flex min-w-0 items-center gap-3 rounded-md px-2 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-900/60 cursor-pointer outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                    <span class="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-gray-100 text-lg text-gray-700 transition group-hover:bg-blue-50 group-hover:text-blue-500 dark:bg-gray-900 dark:text-gray-300 dark:group-hover:bg-blue-950/70 dark:group-hover:text-blue-400" aria-hidden="true">
+                      <i class="{{.Icon}}"></i>
+                    </span>
+                    <span class="text-sm font-medium leading-tight text-gray-700 group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-gray-50">{{.Label}}</span>
                 </a>
               {{end}}
             {{end}}
@@ -83,15 +77,15 @@
               localStorage.setItem("section_state_" + {{toJSON .Section.Key}}, this.open);
             }
           }'
-          class="overflow-hidden rounded bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-800"
+          class="mb-4 overflow-hidden rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950"
         >
           <div class="flex items-center justify-between gap-4 px-4 py-3 border-b border-gray-200 dark:border-gray-800 cursor-move active:cursor-grabbing" id="section-title-{{.Section.Key}}">
-            <h2 class="flex items-center gap-3 text-base font-semibold text-gray-900 dark:text-gray-50">
-              {{if .Section.Icon}}<span class="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300" aria-hidden="true"><i class="bi {{.Section.Icon}}"></i></span>{{end}}
+            <h2 class="flex items-center gap-3 text-sm font-semibold text-gray-900 dark:text-gray-50">
+              {{if .Section.Icon}}<span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-500 dark:bg-blue-950/70 dark:text-blue-400" aria-hidden="true"><i class="{{.Section.Icon}}"></i></span>{{end}}
               {{.Section.Title}}
             </h2>
 
-            <button type="button" @click="toggleOpen" class="flex items-center rounded-lg px-1.5 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50" :aria-expanded="open" :aria-controls="'section-icons-{{.Section.Key}}'">
+            <button type="button" @click="toggleOpen" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" :aria-label="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" :aria-expanded="open" :aria-controls="'section-icons-{{.Section.Key}}'">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="open" x-cloak><path fill-rule="evenodd" d="M5.23 12.21a.75.75 0 0 0 1.06.02L10 8.94l3.71 3.29a.75.75 0 1 0 1-1.12l-4.25-3.75a.75.75 0 0 0-1 0L5.21 11.1a.75.75 0 0 0 .02 1.06z" clip-rule="evenodd"/></svg>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="!open" x-cloak><path fill-rule="evenodd" d="M14.77 7.79a.75.75 0 0 0-1.06-.02L10 11.06 6.29 7.77a.75.75 0 1 0-1 1.12l4.25 3.75a.75.75 0 0 0 1 0l4.25-3.75a.75.75 0 0 0-.02-1.06z" clip-rule="evenodd"/></svg>
               <span x-text="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" class="sr-only"></span>
@@ -106,12 +100,12 @@
                 <a title="{{if $upsellPlanName}}{{$.T.Get "Upgrade to"}} {{$upsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
                    {{if $upsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}
                    class="flex min-w-0 items-center gap-3 rounded-md px-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 opacity-50 grayscale cursor-not-allowed">
-                  <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200" aria-hidden="true"><i class="bi {{.Icon}}"></i></span>
+                  <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300" aria-hidden="true"><i class="{{.Icon}}"></i></span>
                   <span class="leading-tight">{{.Label}}</span>
                 </a>
               {{else}}
-                <a href="{{.Href}}" target="{{if .Target}}{{.Target}}{{else}}_self{{end}}" class="flex min-w-0 items-center gap-3 rounded-md px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-50">
-                  <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200" aria-hidden="true"><i class="bi {{.Icon}}"></i></span>
+                <a href="{{.Href}}" target="{{if .Target}}{{.Target}}{{else}}_self{{end}}" class="flex min-w-0 items-center gap-3 rounded-md px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-900/60 dark:hover:text-gray-50">
+                  <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300" aria-hidden="true"><i class="{{.Icon}}"></i></span>
                   <span class="leading-tight">{{.Label}}</span>
                 </a>
               {{end}}
@@ -134,36 +128,250 @@
 </style>
 {{end}}
 
-<div class="p-6 grid sm:flex grid-cols-1 gap-4 sm:grid-cols-2 md:gap-4 xl:grid-cols-4 bg-gray-50 dark:bg-gray-950">
-  <div class="flex flex-col space-y-4 xl:col-span-3 w-full">
+<div x-data="{
+        view: ['overview', 'tools', 'classic'].find(v => v === new URLSearchParams(location.search).get('view')) || (function () { try { return localStorage.getItem('dashboard_view') } catch (e) { return null } })() || 'classic',
+        find: '',
+        setView(v) { this.view = v; try { localStorage.setItem('dashboard_view', v) } catch (e) {} }
+    }">
+
+<div class="flex flex-col gap-4 px-4 pt-6 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+  <div class="min-w-0">
+    <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Welcome back,"}} {{.CurrentUsername}}</h1>
+    {{if .LastIP}}<p class="mt-1 text-sm text-gray-500">{{.T.Get "Last login from"}} <span class="font-mono text-gray-700 dark:text-gray-300">{{.LastIP}}</span>{{if .LastLoginAgo}} · <span title="{{.LastLoginTime}}">{{.LastLoginAgo}}</span>{{end}}</p>{{end}}
+  </div>
+  <div class="inline-flex self-start rounded-md bg-gray-100 p-1 sm:self-auto dark:bg-gray-900" role="group" aria-label="{{.T.Get "Dashboard view"}}">
+    <button type="button" class="inline-flex items-center gap-1.5 rounded px-3 py-1 text-sm font-medium text-gray-500 hover:text-gray-900 aria-pressed:bg-white aria-pressed:text-gray-900 aria-pressed:shadow-xs aria-pressed:ring-1 aria-pressed:ring-gray-200 dark:hover:text-gray-50 dark:aria-pressed:bg-gray-950 dark:aria-pressed:text-gray-50 dark:aria-pressed:ring-gray-800 cursor-pointer" :aria-pressed="(view === 'overview').toString()" @click="setView('overview')"><i class="ri-dashboard-line" aria-hidden="true"></i>{{.T.Get "Overview"}}</button>
+    <button type="button" class="inline-flex items-center gap-1.5 rounded px-3 py-1 text-sm font-medium text-gray-500 hover:text-gray-900 aria-pressed:bg-white aria-pressed:text-gray-900 aria-pressed:shadow-xs aria-pressed:ring-1 aria-pressed:ring-gray-200 dark:hover:text-gray-50 dark:aria-pressed:bg-gray-950 dark:aria-pressed:text-gray-50 dark:aria-pressed:ring-gray-800 cursor-pointer" :aria-pressed="(view === 'tools').toString()" @click="setView('tools')"><i class="ri-apps-2-line" aria-hidden="true"></i>{{.T.Get "Tools"}}</button>
+    <button type="button" class="inline-flex items-center gap-1.5 rounded px-3 py-1 text-sm font-medium text-gray-500 hover:text-gray-900 aria-pressed:bg-white aria-pressed:text-gray-900 aria-pressed:shadow-xs aria-pressed:ring-1 aria-pressed:ring-gray-200 dark:hover:text-gray-50 dark:aria-pressed:bg-gray-950 dark:aria-pressed:text-gray-50 dark:aria-pressed:ring-gray-800 cursor-pointer" :aria-pressed="(view === 'classic').toString()" @click="setView('classic')"><i class="ri-layout-grid-line" aria-hidden="true"></i>{{.T.Get "Classic"}}</button>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 gap-4 px-4 pt-4 pb-6 sm:flex sm:grid-cols-2 sm:px-6 md:gap-6 lg:px-8 xl:grid-cols-4">
+  <div class="flex flex-col space-y-4 xl:col-span-3 w-full min-w-0">
 
     {{template "custommessage" .}}
 
     {{$root := .}}
-    {{$modern := eq .MenuStyle "modern"}}
-    <div id="dashboard-sortable-area" class="{{if $modern}}grid grid-cols-1 xl:grid-cols-2 gap-4 items-start{{else}}flex flex-col space-y-4{{end}}">
+
+    <!-- overview: one surface split by lines, like OpenAdmin's dashboard -->
+    <div x-show="view === 'overview'" class="-mx-4 -mt-4 -mb-6 sm:-mx-6 lg:-mx-8">
+      {{with .PlanTiles}}
+      <dl aria-label="{{$root.T.Get "Plan usage"}}" class="grid grid-cols-2 gap-x-8 gap-y-5 px-4 pt-2 pb-6 sm:grid-cols-4 sm:px-6 lg:flex lg:flex-wrap lg:gap-x-12 lg:px-8">
+        {{range .}}
+        <div>
+          <dt class="text-sm text-gray-500">{{.Label}}</dt>
+          <dd class="mt-1"><a href="{{.Href}}" class="text-lg font-semibold text-gray-900 tabular-nums hover:opacity-75 dark:text-gray-50">{{.Used}}<span class="font-normal text-gray-500"> / {{if .Limit}}{{.Limit}}{{else}}∞{{end}}</span></a></dd>
+        </div>
+        {{end}}
+      </dl>
+      {{end}}
+      <div class="grid grid-cols-1 gap-px border-y border-gray-200 bg-gray-200 lg:grid-flow-row-dense lg:grid-cols-3 dark:border-gray-800 dark:bg-gray-800">
+      <div class="flex flex-col bg-white dark:bg-gray-950 lg:col-span-2" data-widget="sites"
+           x-data="{ open: (function () { try { return localStorage.getItem('dash_widget_sites') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('dash_widget_sites', this.open ? 'open' : 'closed') } catch (e) {} } }">
+        <div class="flex items-center justify-between gap-4 px-6 py-4" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
+          <div class="min-w-0">
+            <h3 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{$root.T.Get "Websites"}}</h3><a href="/sites" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{$root.T.Get "View all"}} &rarr;</a>
+            <p class="text-sm/6 text-gray-500" x-show="open">{{$root.T.Get "Your newest sites and what they run on."}}</p>
+          </div>
+          <button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? '{{$root.T.Get "Collapse"}}' : '{{$root.T.Get "Expand"}}'" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button>
+        </div>
+        <div x-show="open">
+        {{with .Websites}}
+        <div>
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-gray-200 text-xs font-medium text-gray-500 dark:border-gray-800">
+                <th scope="col" class="py-2.5 pr-4 pl-6 text-left font-medium">{{$root.T.Get "Site"}}</th>
+                <th scope="col" class="hidden px-4 py-2.5 text-center font-medium sm:table-cell">{{$root.T.Get "Runs on"}}</th>
+                <th scope="col" class="px-4 py-2.5 text-center font-medium">{{$root.T.Get "Status"}}</th>
+                <th scope="col" class="w-px py-2.5 pr-6 pl-4"><span class="sr-only">{{$root.T.Get "Actions"}}</span></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+              {{range .}}
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                <td class="w-full max-w-0 py-2.5 pr-4 pl-6">
+                  <a href="{{.Href}}" class="flex min-w-0 items-center gap-3">
+                    <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300" title="{{.Type}}" aria-hidden="true"><i class="{{.TileIcon}}"></i></span>
+                    <span class="min-w-0">
+                      <span class="block truncate font-medium text-gray-900 dark:text-gray-50">{{.Name}}</span>
+                      <span class="block text-xs text-gray-500">{{.Type}}</span>
+                    </span>
+                  </a>
+                </td>
+                <td class="hidden px-4 py-2.5 text-center font-mono text-xs text-gray-700 sm:table-cell dark:text-gray-300">{{.RunsOn}}</td>
+                <td class="px-4 py-2.5 text-center">
+                  {{if .Suspended}}<span class="inline-flex items-center gap-x-1.5 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"><span class="size-2 rounded-full bg-red-500" aria-hidden="true"></span>{{$root.T.Get "Suspended"}}</span>
+                  {{else if eq .StateLabel "Stopped"}}<span class="inline-flex items-center gap-x-1.5 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"><span class="size-2 rounded-full bg-gray-400" aria-hidden="true"></span>{{$root.T.Get "Stopped"}}</span>
+                  {{else if eq .StateLabel "Running"}}<span class="inline-flex items-center gap-x-1.5 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"><span class="size-2 rounded-full bg-emerald-500" aria-hidden="true"></span>{{$root.T.Get "Running"}}</span>
+                  {{else}}<span class="inline-flex items-center gap-x-1.5 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"><span class="size-2 rounded-full bg-emerald-500" aria-hidden="true"></span>{{$root.T.Get "Active"}}</span>{{end}}
+                </td>
+                <td class="py-2.5 pr-6 pl-4 text-right">
+                  <div class="relative inline-block text-left" x-data="{ open: false }" @click.outside="open = false" @keydown.escape="open = false">
+                    <button type="button" class="inline-flex size-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer" aria-label="{{$root.T.Get "Actions for"}} {{.Name}}" :aria-expanded="open.toString()" @click="open = !open"><i class="ri-more-2-line text-base leading-none" aria-hidden="true"></i></button>
+                    <div x-show="open" x-cloak class="absolute right-0 z-20 mt-1 w-48 rounded-md border border-gray-200 bg-white p-1 shadow-xl dark:border-gray-800 dark:bg-gray-950">
+                      <a href="{{.Href}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-settings-3-line" aria-hidden="true"></i>{{$root.T.Get "Manage"}}</a>
+                      <a href="https://{{.Name}}" target="_blank" rel="noopener" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-external-link-line" aria-hidden="true"></i>{{$root.T.Get "Open site"}}</a>
+                      {{if $root.UserAllowed.filemanager}}<a href="/files/{{.Name}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-folder-line" aria-hidden="true"></i>{{$root.T.Get "File manager"}}</a>{{end}}
+                      {{if $root.UserAllowed.dns}}<a href="/domains/edit-dns-zone/{{.Name}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-file-list-3-line" aria-hidden="true"></i>{{$root.T.Get "DNS zone"}}</a>{{end}}
+                      {{if $root.UserAllowed.ssl}}<a href="/domains/ssl?domain_name={{.Name}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-lock-line" aria-hidden="true"></i>{{$root.T.Get "SSL"}}</a>{{end}}
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {{end}}
+            </tbody>
+          </table>
+        </div>
+        {{else}}
+        <div class="m-6 flex flex-col items-center justify-center rounded-md border border-dashed border-gray-300 px-4 py-10 text-center dark:border-gray-800">
+          <i class="ri-window-line text-2xl leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+          <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{$root.T.Get "No websites yet"}}</p>
+          {{if $root.UserAllowed.autoinstaller}}<a href="/auto-installer" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 mt-4"><i class="ri-add-line" aria-hidden="true"></i>{{$root.T.Get "Install an app"}}</a>{{end}}
+        </div>
+        {{end}}
+        </div>
+      </div>
+      <div class="flex flex-col bg-white dark:bg-gray-950 [&>section]:rounded-none [&>section]:border-0 [&>section+section]:border-t [&>section+section]:border-gray-200 dark:[&>section+section]:border-gray-800">{{template "twofa" $root}}{{template "information" $root}}</div>
+      <div class="flex flex-col bg-white dark:bg-gray-950 lg:col-span-2" data-widget="usage"
+           x-data="{ open: (function () { try { return localStorage.getItem('dash_widget_usage') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('dash_widget_usage', this.open ? 'open' : 'closed') } catch (e) {} } }">
+        <div class="flex items-center justify-between gap-4 px-6 py-4" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
+          <div class="min-w-0">
+            <h3 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{$root.T.Get "Usage"}}</h3>{{if $root.UserAllowed.usage}}<a href="/server/usage" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{$root.T.Get "View details"}} &rarr;</a>{{end}}
+            <p class="text-sm/6 text-gray-500" x-show="open">{{$root.T.Get "Disk, inodes, CPU and memory for your account."}}</p>
+          </div>
+          <button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? '{{$root.T.Get "Collapse"}}' : '{{$root.T.Get "Expand"}}'" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button>
+        </div>
+        <div x-show="open"
+               x-data="{ r: { disk: {}, inodes: {}, cpu: {}, mem: {} }, ring(p) { p = parseFloat(p) || 0; return p >= 90 ? 'stroke-red-500' : p >= 70 ? 'stroke-yellow-500' : 'stroke-blue-500' } }"
+               @dashboard-resources.window="r = $event.detail">
+        <div class="grid grid-cols-1 gap-2 p-6 sm:grid-cols-2">
+          <a href="/disk-usage" class="flex min-w-0 items-center gap-3 rounded-md bg-gray-50 p-2.5 transition hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800/80">
+            <svg viewBox="0 0 36 36" class="size-9 shrink-0 -rotate-90" aria-hidden="true">
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.5" class="stroke-gray-200 dark:stroke-gray-800"></circle>
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.5" :stroke-dasharray="(r.disk.percentage || 0) + ' 100'" :class="ring(r.disk.percentage)"></circle>
+            </svg>
+            <span class="min-w-0 flex-1">
+              <span class="flex items-baseline justify-between gap-3 text-sm"><span class="text-gray-600 dark:text-gray-400">{{$root.T.Get "Storage"}}</span><span class="font-semibold text-gray-900 tabular-nums dark:text-gray-50" x-text="(r.disk.percentage ?? 0) + '%'"></span></span>
+              <span class="mt-0.5 block truncate text-xs text-gray-500 tabular-nums" x-text="r.disk.allocated ? r.disk.used + ' {{$root.T.Get "of"}} ' + r.disk.allocated : (r.disk.used || '')"></span>
+            </span>
+          </a>
+          <a href="/inodes-explorer" class="flex min-w-0 items-center gap-3 rounded-md bg-gray-50 p-2.5 transition hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800/80">
+            <svg viewBox="0 0 36 36" class="size-9 shrink-0 -rotate-90" aria-hidden="true">
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.5" class="stroke-gray-200 dark:stroke-gray-800"></circle>
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.5" :stroke-dasharray="(r.inodes.percentage || 0) + ' 100'" :class="ring(r.inodes.percentage)"></circle>
+            </svg>
+            <span class="min-w-0 flex-1">
+              <span class="flex items-baseline justify-between gap-3 text-sm"><span class="text-gray-600 dark:text-gray-400">{{$root.T.Get "Inodes"}}</span><span class="font-semibold text-gray-900 tabular-nums dark:text-gray-50" x-text="(r.inodes.percentage ?? 0) + '%'"></span></span>
+              <span class="mt-0.5 block truncate text-xs text-gray-500 tabular-nums" x-text="r.inodes.allocated ? r.inodes.used + ' {{$root.T.Get "of"}} ' + r.inodes.allocated : (r.inodes.used || '')"></span>
+            </span>
+          </a>
+          <a href="/server/usage" class="flex min-w-0 items-center gap-3 rounded-md bg-gray-50 p-2.5 transition hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800/80">
+            <svg viewBox="0 0 36 36" class="size-9 shrink-0 -rotate-90" aria-hidden="true">
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.5" class="stroke-gray-200 dark:stroke-gray-800"></circle>
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.5" :stroke-dasharray="(r.cpu.visual || 0) + ' 100'" :class="ring(r.cpu.visual)"></circle>
+            </svg>
+            <span class="min-w-0 flex-1">
+              <span class="flex items-baseline justify-between gap-3 text-sm"><span class="text-gray-600 dark:text-gray-400">{{$root.T.Get "CPU"}}</span><span class="font-semibold text-gray-900 tabular-nums dark:text-gray-50" x-text="(r.cpu.percentage ?? 0) + '%'"></span></span>
+              <span class="mt-0.5 block truncate text-xs text-gray-500 tabular-nums" x-text="r.cpu.allocated ? r.cpu.used + ' {{$root.T.Get "of"}} ' + r.cpu.allocated : (r.cpu.used || '')"></span>
+            </span>
+          </a>
+          <a href="/server/usage" class="flex min-w-0 items-center gap-3 rounded-md bg-gray-50 p-2.5 transition hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800/80">
+            <svg viewBox="0 0 36 36" class="size-9 shrink-0 -rotate-90" aria-hidden="true">
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.5" class="stroke-gray-200 dark:stroke-gray-800"></circle>
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.5" :stroke-dasharray="(r.mem.percentage || 0) + ' 100'" :class="ring(r.mem.percentage)"></circle>
+            </svg>
+            <span class="min-w-0 flex-1">
+              <span class="flex items-baseline justify-between gap-3 text-sm"><span class="text-gray-600 dark:text-gray-400">{{$root.T.Get "Memory"}}</span><span class="font-semibold text-gray-900 tabular-nums dark:text-gray-50" x-text="(r.mem.percentage ?? 0) + '%'"></span></span>
+              <span class="mt-0.5 block truncate text-xs text-gray-500 tabular-nums" x-text="r.mem.allocated ? r.mem.used + ' {{$root.T.Get "of"}} ' + r.mem.allocated : (r.mem.used || '')"></span>
+            </span>
+          </a>
+        </div>
+        </div>
+      </div>
+      <div class="bg-white dark:bg-gray-950 lg:row-span-2 [&>section]:rounded-none [&>section]:border-0">{{template "howto" $root}}</div>
+      {{with $root.QuickActions}}
+      <div class="flex flex-col bg-white dark:bg-gray-950 lg:col-span-2" data-widget="quick"
+           x-data="{ open: (function () { try { return localStorage.getItem('dash_widget_quick') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('dash_widget_quick', this.open ? 'open' : 'closed') } catch (e) {} } }">
+        <div class="flex items-center justify-between gap-4 px-6 py-4" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
+          <div class="min-w-0">
+            <h3 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{$root.T.Get "Quick actions"}}</h3><a href="#" @click.prevent="setView('tools')" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{$root.T.Get "All tools"}} &rarr;</a>
+            <p class="text-sm/6 text-gray-500" x-show="open">{{$root.T.Get "Tools you are likely to need."}}</p>
+          </div>
+          <button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? '{{$root.T.Get "Collapse"}}' : '{{$root.T.Get "Expand"}}'" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button>
+        </div>
+        <div x-show="open">
+        <div class="flex flex-wrap gap-2 p-6">
+          {{range .}}<a href="{{.Href}}" {{if .Target}}target="{{.Target}}"{{end}} class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="{{.Icon}}" aria-hidden="true"></i>{{.Label}}</a>{{end}}
+        </div>
+        </div>
+      </div>
+      {{end}}
+      </div>
+    </div>
+
+    <!-- tools -->
+    <div class="space-y-4" x-show="view === 'tools'" x-cloak @keydown.slash.window="if (!['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) { $event.preventDefault(); $refs.find.focus() }">
+      <label class="relative block max-w-md">
+        <span class="sr-only">{{.T.Get "Find a tool"}}</span>
+        <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
+        <input type="search" x-model="find" x-ref="find" placeholder="{{.T.Get "Find a tool: DNS, PHP version, backups..."}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-2 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
+      </label>
+      <div class="flex flex-col space-y-4">
+        {{range .Sections}}{{if .Items}}
+        <section class="overflow-hidden rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950" data-labels="{{range .Items}}{{lower .Label}}|{{end}}" x-show="!find || $el.dataset.labels.includes(find.toLowerCase())">
+          <div class="flex items-center justify-between gap-4 border-b border-gray-200 px-4 py-3 dark:border-gray-800">
+            <h2 class="flex items-center gap-3 text-sm font-semibold text-gray-900 dark:text-gray-50">
+              {{if .Icon}}<span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-500 dark:bg-blue-950/70 dark:text-blue-400" aria-hidden="true"><i class="{{.Icon}}"></i></span>{{end}}
+              {{.Title}} <span class="text-xs font-normal text-gray-500 tabular-nums">{{len .Items}}</span>
+            </h2>
+          </div>
+          <div class="grid grid-cols-1 gap-1 p-2 sm:grid-cols-2 lg:grid-cols-3">
+            {{range .Items}}
+            {{if .Disabled}}
+            <a {{if $root.UpsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}} data-label="{{lower .Label}}" x-show="!find || $el.dataset.label.includes(find.toLowerCase())" title="{{if $root.UpsellPlanName}}{{$root.T.Get "Upgrade to"}} {{$root.UpsellPlanName}} {{$root.T.Get "to use this feature."}}{{else}}{{$root.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}" class="flex min-w-0 items-center gap-3 rounded-md px-2 py-2 text-left text-sm font-medium leading-tight text-gray-700 opacity-50 grayscale cursor-not-allowed dark:text-gray-300">
+              <span class="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-gray-100 text-lg dark:bg-gray-900" aria-hidden="true"><i class="{{.Icon}}"></i></span>{{.Label}}
+            </a>
+            {{else}}
+            <a href="{{.Href}}" target="{{if .Target}}{{.Target}}{{else}}_self{{end}}" data-label="{{lower .Label}}" x-show="!find || $el.dataset.label.includes(find.toLowerCase())" class="group flex min-w-0 items-center gap-3 rounded-md px-2 py-2 text-left text-sm font-medium leading-tight text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-900/60 dark:hover:text-gray-50">
+              <span class="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-gray-100 text-lg text-gray-700 transition group-hover:bg-blue-50 group-hover:text-blue-500 dark:bg-gray-900 dark:text-gray-300 dark:group-hover:bg-blue-950/70 dark:group-hover:text-blue-400" aria-hidden="true"><i class="{{.Icon}}"></i></span>{{.Label}}
+            </a>
+            {{end}}
+            {{end}}
+          </div>
+        </section>
+        {{end}}{{end}}
+      </div>
+      <div class="flex flex-col items-center justify-center rounded-md border border-dashed border-gray-300 px-4 py-10 text-center dark:border-gray-800" x-show="find && ![...$el.parentElement.querySelectorAll('[data-labels]')].some(s => s.dataset.labels.includes(find.toLowerCase()))" x-cloak>
+        <i class="ri-search-line text-2xl leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+        <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No tool matches"}}</p>
+        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Try another word, or switch to Classic to see every section."}}</p>
+      </div>
+    </div>
+
+    <!-- classic -->
+    <div x-show="view === 'classic'" x-cloak>
+    <div id="dashboard-sortable-area" class="flex flex-col space-y-4">
       {{range .Sections}}
         <div id="wrapper-{{.Key}}" data-id="{{.Key}}">
           {{if eq $root.CustomSectionPosition (printf "before_%s" .Key)}}
             {{template "customsection" $root}}
           {{end}}
-          {{if $modern}}
-          {{template "modern_section" (dict "Section" . "T" $root.T "UpsellPlanName" $root.UpsellPlanName "UpsellURL" $root.UpsellURL)}}
-          {{else}}
           {{template "icon_section" (dict "Section" . "UserAllowedJSON" $root.UserAllowedJSON "IconView" $root.DashboardIconView "T" $root.T "UpsellPlanName" $root.UpsellPlanName "UpsellURL" $root.UpsellURL)}}
-          {{end}}
         </div>
       {{end}}
+    </div>
     </div>
 
   </div>
 
-  <div class="flex flex-col space-y-4 xl:col-span-1" style="min-width:360px;">
+  <div class="order-first flex flex-col space-y-6 sm:order-none xl:col-span-1 sm:min-w-[340px] sm:max-w-[360px]" x-show="view !== 'overview'">
     {{template "twofa" .}}
     {{template "information" .}}
     {{template "usage" .}}
     {{template "howto" .}}
   </div>
+</div>
 </div>
 
 {{template "onboarding" .}}
@@ -205,7 +413,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ghostClass: 'opacity-50',
         filter: 'button',
         preventOnFilter: false,
-        {{if ne .MenuStyle "modern"}}direction: 'vertical',{{end}}
+        direction: 'vertical',
         fallbackOnBody: true,
         swapThreshold: 0.65,
 

@@ -298,7 +298,7 @@ func handleListBackupsFromDestination(a *appctx.App, w http.ResponseWriter, r *h
 		return
 	}
 
-	renderBackupRestorePage(a, w, r, backups, reindexing, reindexErr)
+	renderBackupRestorePage(a, w, r, backups, reindexing, reindexErr, ActiveBackupTarget(userContext) == "", AdminManagedBackups(userContext))
 }
 
 // handleRestoreFromBackup restores from a remote backup archive per restore_target: everything, a single database, all files, one section (html/vhosts/mail/crons/dns), or single items (paths/mailboxes/domains/dns_zones) streamed without downloading the whole archive

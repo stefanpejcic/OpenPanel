@@ -52,8 +52,8 @@ function showToast(message, type, isPermanent = false, link = false) {
         action = link;
         link = `
             ${action.href
-                ? `<a href="${action.href}" data-toast-action class="flex flex-1 items-center justify-center px-6 text-sm font-semibold transition-colors hover:bg-gray-50 hover:dark:bg-gray-900/30 active:bg-gray-100 active:dark:bg-gray-800 text-indigo-600 dark:text-indigo-400"></a>`
-                : `<button type="button" data-toast-action class="flex flex-1 items-center justify-center px-6 text-sm font-semibold transition-colors hover:bg-gray-50 hover:dark:bg-gray-900/30 active:bg-gray-100 active:dark:bg-gray-800 text-indigo-600 dark:text-indigo-400"></button>`}
+                ? `<a href="${action.href}" data-toast-action class="flex flex-1 items-center justify-center px-6 text-sm font-semibold transition-colors hover:bg-gray-50 hover:dark:bg-gray-900/30 active:bg-gray-100 active:dark:bg-gray-800 text-blue-600 dark:text-blue-400"></a>`
+                : `<button type="button" data-toast-action class="flex flex-1 items-center justify-center px-6 text-sm font-semibold transition-colors hover:bg-gray-50 hover:dark:bg-gray-900/30 active:bg-gray-100 active:dark:bg-gray-800 text-blue-600 dark:text-blue-400"></button>`}
             <div class="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
         `;
     } else if (link) {

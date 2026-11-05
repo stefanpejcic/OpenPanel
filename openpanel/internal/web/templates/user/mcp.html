@@ -4,129 +4,153 @@
 <!-- START templates/user/mcp.html -->
 
 <section aria-label="{{.T.Get "MCP"}}">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div>
-            <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "MCP"}}</h1></div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Let AI assistants (Claude, and other MCP clients) manage this account through the panel API."}}</p>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "MCP"}}</h1>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">{{.T.Get "Let AI assistants (Claude, and other MCP clients) manage this account through the panel API."}}</p>
         </div>
     </div>
-</section>
 
 {{if not (index .UserAllowed "api")}}
-<div class="sm:mx-auto sm:max-w-2xl mt-6 m-6 rounded-lg bg-amber-50 p-4 ring-1 ring-inset ring-amber-200 dark:bg-amber-400/10 dark:ring-amber-900">
-    <h4 class="text-sm font-semibold text-amber-800 dark:text-amber-300">{{.T.Get "API access is not enabled for your account"}}</h4>
-    <p class="mt-1 text-sm leading-6 text-amber-700 dark:text-amber-400">{{.T.Get "MCP tools call the panel API under the hood, so any token you generate here will not work until API access is enabled. Please contact your Administrator to enable it."}}</p>
+<div class="mx-4 mb-4 sm:mx-6 lg:mx-8 flex gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500">
+    <i class="ri-error-warning-line size-5 shrink-0 text-lg leading-5" aria-hidden="true"></i>
+    <div>
+        <h2 class="font-semibold">{{.T.Get "API access is not enabled for your account"}}</h2>
+        <p class="mt-1">{{.T.Get "MCP tools call the panel API under the hood, so any token you generate here will not work until API access is enabled. Please contact your Administrator to enable it."}}</p>
+    </div>
 </div>
 {{end}}
 
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard">
-    <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-2">{{.T.Get "Tokens"}}</h2>
-
-    {{if .NewToken}}
-    <div class="rounded border border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 mb-4">
-        <p class="text-xs font-semibold text-amber-800 dark:text-amber-300 mb-1">{{.T.Get "Your new token - copy it now, it will not be shown again:"}}</p>
-        <div class="relative">
-            <pre id="new-token-value" class="rounded bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 p-2 pr-14 text-xs text-gray-800 dark:text-gray-200 overflow-x-auto font-mono">{{.NewToken}}</pre>
-            <button type="button" class="copy-btn absolute top-1.5 right-1.5 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 px-1.5 py-0.5 text-[11px] text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800" data-copy-target="new-token-value">{{.T.Get "Copy"}}</button>
+{{if .NewToken}}
+<div class="mx-4 mb-4 sm:mx-6 lg:mx-8 flex gap-3 rounded-md p-4 text-sm bg-emerald-50 text-emerald-900 dark:bg-emerald-950/70 dark:text-emerald-500">
+    <i class="ri-checkbox-circle-line size-5 shrink-0 text-lg leading-5" aria-hidden="true"></i>
+    <div class="min-w-0 flex-1">
+        <p class="font-semibold">{{.T.Get "Your new token - copy it now, it will not be shown again:"}}</p>
+        <div class="relative mt-2">
+            <pre id="new-token-value" class="whitespace-pre-wrap break-all rounded-md bg-white p-3 pr-24 font-mono text-xs text-gray-900 dark:bg-gray-950 dark:text-gray-50">{{.NewToken}}</pre>
+            <button type="button" class="copy-btn absolute top-2 right-2 inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" data-copy-target="new-token-value"><i class="ri-file-copy-line" aria-hidden="true"></i>{{.T.Get "Copy"}}</button>
         </div>
     </div>
-    {{end}}
+</div>
+{{end}}
+
+<div class="CrawlerStatusCard">
+    <div class="flex items-center justify-between gap-4 border-t border-gray-200 px-4 pt-6 pb-3 sm:px-6 lg:px-8 dark:border-gray-800">
+        <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Tokens"}}</h2>
+    </div>
 
     {{if .Tokens}}
     {{template "bulk_open" (dict "T" .T "Table" "#mcp-tokens-table" "Endpoint" "/account/mcp/bulk")}}
-    <table id="mcp-tokens-table" class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-800 dark:text-gray-400">
+    <div class="overflow-x-auto">
+    <table id="mcp-tokens-table" class="border-t border-gray-200 dark:border-gray-800 w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+        <thead>
             <tr>
                 {{template "bulk_head_checkbox" .}}
-                <th scope="col" class="px-4 py-3">{{.T.Get "Name"}}</th>
-                <th scope="col" class="px-4 py-3">{{.T.Get "Token"}}</th>
-                <th scope="col" class="px-4 py-3">{{.T.Get "Scope"}}</th>
-                <th scope="col" class="px-4 py-3">{{.T.Get "Created"}}</th>
-                <th scope="col" class="px-4 py-3">{{.T.Get "Expires"}}</th>
-                <th scope="col" class="px-4 py-3">{{.T.Get "Last used"}}</th>
-                <th scope="col" class="px-4 py-3"></th>
+                <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Name"}}</th>
+                <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Token"}}</th>
+                <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Scope"}}</th>
+                <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Created"}}</th>
+                <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Expires"}}</th>
+                <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Last used"}}</th>
+                <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 w-10"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
             </tr>
         </thead>
         <tbody>
             {{$root := .}}
             {{range .Tokens}}
-            <tr class="border-b border-gray-200 dark:border-gray-800">
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
                 {{template "bulk_row_checkbox" (dict "T" $root.T "Key" (toString .ID) "Label" .Name)}}
-                <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">{{.Name}}</td>
-                <td class="px-4 py-3 font-mono">{{.TokenPrefix}}&hellip;</td>
-                <td class="px-4 py-3">
+                <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 font-medium text-gray-900 dark:text-gray-50">{{.Name}}</td>
+                <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 font-mono text-xs">{{.TokenPrefix}}&hellip;</td>
+                <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-center">
                     {{if .ReadOnly}}
-                        <span class="text-xs rounded px-1.5 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">{{$root.T.Get "Read-only"}}</span>
+                        <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-blue-50 text-blue-900 ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">{{$root.T.Get "Read-only"}}</span>
                     {{else}}
-                        <span class="text-xs rounded px-1.5 py-0.5 bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">{{$root.T.Get "Full access"}}</span>
+                        <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{$root.T.Get "Full access"}}</span>
                     {{end}}
                 </td>
-                <td class="px-4 py-3">{{.CreatedAt}}</td>
-                <td class="px-4 py-3">{{if .ExpiresAt.Valid}}{{.ExpiresAt.String}}{{else}}{{$root.T.Get "Never"}}{{end}}</td>
-                <td class="px-4 py-3">{{if .LastUsedAt.Valid}}{{.LastUsedAt.String}}{{else}}{{$root.T.Get "Never"}}{{end}}</td>
-                <td class="px-4 py-3 text-right">
-                    <form method="POST" action="/account/mcp/{{.ID}}/revoke" onsubmit="return confirm('{{$root.T.Get "Revoke this token? Any MCP client using it will stop working immediately."}}');">
+                <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums text-center">{{.CreatedAt}}</td>
+                <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums text-center">{{if .ExpiresAt.Valid}}{{.ExpiresAt.String}}{{else}}<span class="text-gray-400 dark:text-gray-600">{{$root.T.Get "Never"}}</span>{{end}}</td>
+                <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums text-center">{{if .LastUsedAt.Valid}}{{.LastUsedAt.String}}{{else}}<span class="text-gray-400 dark:text-gray-600">{{$root.T.Get "Never"}}</span>{{end}}</td>
+                <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-right">
+                    <form method="POST" action="/account/mcp/{{.ID}}/revoke" data-confirm="{{$root.T.Get "Revoke this token? Any MCP client using it will stop working immediately."}}">
                         <input type="hidden" name="csrf_token" value="{{$root.CSRFToken}}"/>
-                        <button type="submit" class="text-red-600 dark:text-red-500 hover:underline">{{$root.T.Get "Revoke"}}</button>
+                        <button type="submit" class="inline-flex items-center rounded-md px-2 py-1 text-sm font-medium text-red-600 transition hover:bg-red-50 dark:text-red-500 dark:hover:bg-red-400/10 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{$root.T.Get "Revoke"}}</button>
                     </form>
                 </td>
             </tr>
             {{end}}
         </tbody>
     </table>
+    </div>
     {{template "bulk_bar" .}}
     </div>
     {{else}}
-    <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No MCP tokens yet."}}</p>
+    <div class="border-b border-gray-200 px-4 py-6 sm:px-6 lg:px-8 dark:border-gray-800">
+        <div class="flex flex-col items-center justify-center rounded-md border border-dashed border-gray-300 px-4 py-10 text-center dark:border-gray-800">
+            <i class="ri-key-2-line text-2xl leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+            <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No MCP tokens yet"}}</p>
+            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Generate one below, then add it to your MCP client."}}</p>
+        </div>
+    </div>
     {{end}}
 
-    <form id="mcp-generate-form" method="POST" action="/account/mcp/create" class="mt-4 space-y-2">
+    <form id="mcp-generate-form" method="POST" action="/account/mcp/create" class="max-w-2xl px-4 py-6 sm:px-6 lg:px-8">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-        <div class="flex items-center gap-2">
-            <input type="text" name="name" placeholder="{{.T.Get "e.g. Laptop - Claude Desktop"}}" maxlength="100"
-                   class="relative w-64 appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" required>
-            <select name="expires_in_days" class="relative rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 h-10.5 sm:h-9.5">
-                <option value="">{{.T.Get "Never expires"}}</option>
-                <option value="30">{{.T.Get "Expires in 30 days"}}</option>
-                <option value="90">{{.T.Get "Expires in 90 days"}}</option>
-                <option value="365">{{.T.Get "Expires in 1 year"}}</option>
-            </select>
+        <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Generate new token"}}</h3>
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div class="sm:col-span-2">
+                <label for="mcp_token_name" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Name"}}</label>
+                <input type="text" id="mcp_token_name" name="name" placeholder="{{.T.Get "e.g. Laptop - Claude Desktop"}}" maxlength="100" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" required>
+            </div>
+            <div>
+                <label for="mcp_token_expires" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Expires"}}</label>
+                <select id="mcp_token_expires" name="expires_in_days" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
+                    <option value="">{{.T.Get "Never expires"}}</option>
+                    <option value="30">{{.T.Get "Expires in 30 days"}}</option>
+                    <option value="90">{{.T.Get "Expires in 90 days"}}</option>
+                    <option value="365">{{.T.Get "Expires in 1 year"}}</option>
+                </select>
+            </div>
         </div>
-        <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <input type="checkbox" name="read_only" class="rounded border-gray-300 dark:border-gray-700">
+        <label class="mt-4 flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <input type="checkbox" name="read_only" class="mt-0.5">
             {{.T.Get "Read-only (blocks anything other than GET requests, e.g. Claude can look things up but not change them)"}}
         </label>
-        <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800 dark:border-gray-800">
-            {{.T.Get "Generate new token"}}
-        </button>
+        <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400"><i class="ri-add-line" aria-hidden="true"></i>{{.T.Get "Generate new token"}}</button>
+            <p class="text-xs text-gray-500">{{.T.Get "The full token is only ever shown once, right after you generate it."}}</p>
+        </div>
     </form>
-    <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">{{.T.Get "The full token is only ever shown once, right after you generate it."}}</p>
 </div>
 
-<div id="mcp-connect-section" class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard">
-    <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-2">{{.T.Get "Connecting an MCP client"}}</h2>
-    <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
+<div id="mcp-connect-section" class="CrawlerStatusCard border-t border-gray-200 px-4 py-6 sm:px-6 lg:px-8 dark:border-gray-800">
+  <div class="max-w-2xl">
+    <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Connecting an MCP client"}}</h2>
+    <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
         {{.T.Get "Generate a token above, then point your MCP client at this server's"}}
-        <code class="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">{{.MCPURL}}</code>
+        <code class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">{{.MCPURL}}</code>
         {{.T.Get "endpoint with the token as a Bearer credential."}}
     </p>
 
-    <p class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">{{.T.Get "Claude Code CLI"}}</p>
-    <div class="relative mb-3">
-        <pre id="claude-code-snippet" class="rounded bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-2 pr-14 text-xs text-gray-700 dark:text-gray-300 overflow-x-auto font-mono">claude mcp add --transport http openpanel {{.MCPURL}} \
+    <p class="mt-6 text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Claude Code CLI"}}</p>
+    <div class="relative mt-2">
+        <pre id="claude-code-snippet" class="whitespace-pre-wrap break-all rounded-md bg-gray-50 p-4 pr-24 font-mono text-xs text-gray-900 dark:bg-gray-900 dark:text-gray-50">claude mcp add --transport http openpanel {{.MCPURL}} \
   --header "Authorization: Bearer &lt;your-token&gt;"</pre>
-        <button type="button" class="copy-btn absolute top-1.5 right-1.5 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 px-1.5 py-0.5 text-[11px] text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800" data-copy-target="claude-code-snippet">{{.T.Get "Copy"}}</button>
+        <button type="button" class="copy-btn absolute top-2 right-2 inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" data-copy-target="claude-code-snippet"><i class="ri-file-copy-line" aria-hidden="true"></i>{{.T.Get "Copy"}}</button>
     </div>
 
-    <p class="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">{{.T.Get "Claude Desktop (claude_desktop_config.json)"}}</p>
-    <div class="relative">
-        <pre id="claude-desktop-snippet" class="rounded bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-2 pr-14 text-xs text-gray-700 dark:text-gray-300 overflow-x-auto font-mono">"openpanel": {
+    <p class="mt-6 text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Claude Desktop (claude_desktop_config.json)"}}</p>
+    <div class="relative mt-2">
+        <pre id="claude-desktop-snippet" class="whitespace-pre-wrap break-all rounded-md bg-gray-50 p-4 pr-24 font-mono text-xs text-gray-900 dark:bg-gray-900 dark:text-gray-50">"openpanel": {
   "url": "{{.MCPURL}}",
   "headers": { "Authorization": "Bearer &lt;your-token&gt;" }
 }</pre>
-        <button type="button" class="copy-btn absolute top-1.5 right-1.5 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950 px-1.5 py-0.5 text-[11px] text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800" data-copy-target="claude-desktop-snippet">{{.T.Get "Copy"}}</button>
+        <button type="button" class="copy-btn absolute top-2 right-2 inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" data-copy-target="claude-desktop-snippet"><i class="ri-file-copy-line" aria-hidden="true"></i>{{.T.Get "Copy"}}</button>
     </div>
+  </div>
 </div>
+</section>
 
 <script>
     document.querySelectorAll('.copy-btn').forEach(function (btn) {
@@ -134,9 +158,9 @@
             var target = document.getElementById(btn.dataset.copyTarget);
             if (!target) return;
             copyToClipboard(target.textContent).then(function () {
-                var original = btn.textContent;
-                btn.textContent = '{{.T.Get "Copied!"}}';
-                setTimeout(function () { btn.textContent = original; }, 1500);
+                var original = btn.innerHTML;
+                btn.innerHTML = '<i class="ri-check-line" aria-hidden="true"></i>{{.T.Get "Copied!"}}';
+                setTimeout(function () { btn.innerHTML = original; }, 1500);
             });
         });
     });

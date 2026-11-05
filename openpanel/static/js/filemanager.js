@@ -7,6 +7,10 @@ var endRowIndex = null;
 var anchorRow = null;
 
 // HELPERS
+
+// classes a selected row gets, the row hover skips selected rows
+const SELECTED = ['selected-row', 'bg-gray-50', 'dark:bg-gray-900'];
+
 function setClassAll(selector, className) {
     document.querySelectorAll(selector).forEach(el => el.className = className);
 }
@@ -27,9 +31,9 @@ function resetSelectAllBtn() {
 }
 
 function setSelectAllLabel(deselect) {
-    const icon = deselect ? 'bi-hand-index-fill' : 'bi-hand-index';
+    const icon = deselect ? 'ri-cursor-line' : 'ri-cursor-line';
     const text = deselect ? FM.i18n.deselect : FM.i18n.selectAll;
-    document.getElementById('spanAll').innerHTML = `<i class="bi ${icon}"></i> ${text}`;
+    document.getElementById('spanAll').innerHTML = `<i class="${icon}"></i> ${text}`;
     resetSelectAllBtn();
 }
 
@@ -212,9 +216,8 @@ function sortTable(tableId, columnIndex) {
     sortState.dir = newDir;
 
     allThs.forEach(h => h.querySelector('.sort-icon')?.remove());
-    const icon = document.createElement('span');
-    icon.className = 'sort-icon ml-1 text-xs text-gray-400';
-    icon.textContent = newDir === 'asc' ? '▲' : '▼';
+    const icon = document.createElement('i');
+    icon.className = 'sort-icon ml-1 text-gray-400 ' + (newDir === 'asc' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line');
     (th.querySelector('span') || th).appendChild(icon);
 
     rows.sort((a, b) => {
@@ -274,12 +277,12 @@ function initTableSelection() {
                 const from = rows.indexOf(anchorRow), to = rows.indexOf(this);
                 if (!event.ctrlKey && !event.metaKey) {
                     table.querySelectorAll('tbody tr.selected-row').forEach(r =>
-                        r.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900')
+                        r.classList.remove(...SELECTED)
                     );
                     selectedRows = [];
                 }
                 rows.slice(Math.min(from, to), Math.max(from, to) + 1).forEach(r => {
-                    r.classList.add('selected-row', 'bg-gray-200', 'dark:bg-gray-900');
+                    r.classList.add(...SELECTED);
                     if (!selectedRows.includes(r.dataset.rowIndex)) selectedRows.push(r.dataset.rowIndex);
                 });
                 sveselect = 0;
@@ -291,7 +294,7 @@ function initTableSelection() {
 
             anchorRow = this;
             if (event.ctrlKey || event.metaKey) {
-                toggleClasses(this, 'selected-row bg-gray-200 dark:bg-gray-900');
+                toggleClasses(this, SELECTED.join(' '));
                 const idx = selectedRows.indexOf(rowIndex);
                 if (idx === -1) selectedRows.push(rowIndex);
                 else selectedRows.splice(idx, 1);
@@ -299,9 +302,9 @@ function initTableSelection() {
                 setSelectAllLabel(false);
             } else {
                 table.querySelectorAll('tbody tr.selected-row').forEach(r =>
-                    r.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900')
+                    r.classList.remove(...SELECTED)
                 );
-                toggleClasses(this, 'selected-row bg-gray-200 dark:bg-gray-900');
+                toggleClasses(this, SELECTED.join(' '));
                 selectedRows = [rowIndex];
             }
             enableDisableButtons();
@@ -354,10 +357,10 @@ function initTableSelection() {
                 );
                 const rowIndex = row.dataset.rowIndex;
                 if (intersects) {
-                    row.classList.add('selected-row', 'bg-gray-200', 'dark:bg-gray-900');
+                    row.classList.add(...SELECTED);
                     if (!selectedRows.includes(rowIndex)) selectedRows.push(rowIndex);
                 } else {
-                    row.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900');
+                    row.classList.remove(...SELECTED);
                     const i = selectedRows.indexOf(rowIndex);
                     if (i !== -1) selectedRows.splice(i, 1);
                 }
@@ -395,7 +398,7 @@ function initTableSelection() {
             !wasSelecting
         ) {
             table.querySelectorAll('tbody tr.selected-row').forEach(r =>
-                r.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900')
+                r.classList.remove(...SELECTED)
             );
             selectedRows = [];
             anchorRow = null;
@@ -422,8 +425,9 @@ function initContextMenu() {
         if (!btn) return '';
         const icon = btn.querySelector('i')?.className || '';
         const label = btn.querySelector('span')?.textContent.trim() || '';
-        const danger = id === 'deleteButton' ? ' text-red-600 dark:text-red-500' : '';
-        return `<li data-target="${id}" class="flex items-center gap-x-2 px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800${danger}"><i class="${icon}"></i>${label}</li>`;
+        const tone = id === 'deleteButton' ? 'text-red-600 hover:bg-red-50 dark:text-red-500 dark:hover:bg-red-400/10' : 'text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900';
+        const sep = id === 'deleteButton' ? '<li role="separator" class="-mx-1 my-1 h-px bg-gray-200 dark:bg-gray-800"></li>' : '';
+        return `${sep}<li data-target="${id}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm cursor-pointer ${tone}"><i class="${icon} text-base leading-none"></i>${label}</li>`;
     }).join('');
 
     const table = document.getElementById('filemanager_table');
@@ -435,9 +439,9 @@ function initContextMenu() {
 
         if (!row.classList.contains('selected-row')) {
             table.querySelectorAll('tbody tr.selected-row').forEach(r =>
-                r.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900')
+                r.classList.remove(...SELECTED)
             );
-            row.classList.add('selected-row', 'bg-gray-200', 'dark:bg-gray-900');
+            row.classList.add(...SELECTED);
             selectedRows = [row.dataset.rowIndex];
             sveselect = 0;
             setSelectAllLabel(false);
@@ -490,12 +494,12 @@ function initSelectAll() {
         const rows  = table.querySelectorAll('tbody tr.clickable-row');
 
         if (!sveselect) {
-            rows.forEach(r => r.classList.add('selected-row', 'bg-gray-200', 'dark:bg-gray-900'));
+            rows.forEach(r => r.classList.add(...SELECTED));
             selectedRows = Array.from(rows).map((_, i) => String(i));
             sveselect = 1;
             setSelectAllLabel(true);
         } else {
-            rows.forEach(r => r.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900'));
+            rows.forEach(r => r.classList.remove(...SELECTED));
             selectedRows = [];
             sveselect = 0;
             setSelectAllLabel(false);
@@ -527,7 +531,7 @@ function initDirectorySizeCalculate() {
 
             fetch(url, { headers: { 'X-CSRF-Token': csrf_token } })
                 .then(r => r.json())
-                .then(data => { cell.textContent = data.size; })
+                .then(data => { cell.textContent = duSizeLabel(data.size); })
                 .catch(error => {
                     showToast(`${FM.i18n.folderSizeError} ${error.message || error}`, 'error');
                     if (button.isConnected) {
@@ -557,8 +561,7 @@ function initActionButtons() {
 
         const crossed = rows.slice(1).flatMap(r => Array.from(r.querySelectorAll('td:first-child h6, td:first-child h6 a')));
         const crossOut = on => crossed.forEach(el => {
-            el.style.textDecoration = on ? 'line-through' : '';
-            el.style.color = on ? '#dc2626' : '';
+            ['line-through', 'text-red-600', 'dark:text-red-500'].forEach(c => el.classList.toggle(c, on));
         });
 
         const firstCell = rows[0].querySelector('td');
@@ -568,7 +571,7 @@ function initActionButtons() {
 
         inlineEdit(firstCell, `
             <div class="w-4 text-center">${icon}</div>
-            <span class="text-sm text-red-600 dark:text-red-400" style="text-decoration: line-through;">${nameEl.innerHTML}</span>
+            <span class="text-sm font-medium text-red-600 line-through dark:text-red-500">${nameEl.innerHTML}</span>
         `, (input, editor) => {
             const permanent = !FM.canTrash || editor.querySelector('.fm-inline-skip-trash').checked;
             const total = items.length;
@@ -585,7 +588,7 @@ function initActionButtons() {
                 .catch(e => { failed++; showToast(`${FM.i18n.deleteError} "${fileName}": ${e.message}`, 'error'); })
                 .finally(() => {
                     done++;
-                    if (total > 1) saveBtn.innerHTML = `<i class="bi bi-trash"></i> ${done}/${total}`;
+                    if (total > 1) saveBtn.innerHTML = `<i class="ri-delete-bin-line"></i> ${done}/${total}`;
                     if (done < total) return;
                     if (failed) {
                         showToast(failed === total ? FM.i18n.deleteFailed : FM.i18n.deletePartial, 'warning');
@@ -597,9 +600,9 @@ function initActionButtons() {
             });
         }, {
             saveLabel: items.length > 1 ? `${FM.i18n.delete} (${items.length})` : FM.i18n.delete,
-            saveIcon: 'bi-trash',
-            saveClass: 'border-transparent bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600',
-            extra: FM.canTrash ? `<label class="inline-flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"><input type="checkbox" class="fm-inline-skip-trash w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600"> ${FM.i18n.skipTrash}</label>` : '',
+            saveIcon: 'ri-delete-bin-line',
+            danger: true,
+            extra: FM.canTrash ? `<label class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer"><input type="checkbox" class="fm-inline-skip-trash"> ${FM.i18n.skipTrash}</label>` : '',
             onClose: () => crossOut(false),
         });
         crossOut(true);
@@ -641,7 +644,7 @@ function initActionButtons() {
 
         const input = inlineEdit(nameCell, `
             <div class="w-4 text-center">${icon}</div>
-            <input type="text" class="fm-inline-input select-text block w-64 appearance-none rounded-md border px-2.5 py-1 shadow-sm outline-none transition text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:border-blue-500">
+            <input type="text" aria-label="${FM.i18n.rename}" class="fm-inline-input select-text w-64 block appearance-none rounded-md border border-gray-300 bg-white px-2 py-1 text-xs text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
         `, input => {
             const newName = input.value.trim();
             if (!newName) return false;
@@ -654,55 +657,178 @@ function initActionButtons() {
         input.setSelectionRange(0, dot > 0 ? dot : name.length);
     });
 
-    // PERMISSIONS (inline, first selected row gets the input, the rest mirror what's typed)
-    document.getElementById('permButton').addEventListener('click', () => {
-        const items = getSelectedItems();
+    // PERMISSIONS (dialog, one mode for every selected item)
+    const openForSelection = () => {
         const rows = Array.from(document.querySelectorAll('#filemanager_table tbody tr.selected-row'));
-        if (!rows.length) return;
-
-        const current = rows.map(r => symbolicToOctal(r.dataset.permissions));
-        const shared = current.every(v => v === current[0]) ? current[0] : '';
-        const hasDirectory = items.some(({ itemType }) => itemType === 'directory');
-
-        // the other rows get a preview cell in place of their permissions cell
-        const previews = rows.slice(1).map((r, i) => {
-            const cell = r.querySelector('td.permissions-cell');
-            if (!cell) return null;
-            const td = document.createElement('td');
-            td.className = cell.className + ' font-medium text-blue-500';
-            td.textContent = shared || current[i + 1];
-            cell.style.display = 'none';
-            cell.insertAdjacentElement('afterend', td);
-            return { cell, td, original: current[i + 1] };
-        }).filter(Boolean);
-
-        const input = inlineEdit(rows[0].querySelector('td.permissions-cell'), `
-            <input type="text" inputmode="numeric" maxlength="3" pattern="[0-7]{3}" required data-no-live-hint class="fm-inline-input select-text block w-16 appearance-none rounded-md border px-2 py-1 shadow-sm outline-none transition text-sm text-center border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 focus:border-blue-500">
-        `, (input, editor) => {
-            const value = input.value.trim();
-            if (!/^[0-7]{3}$/.test(value)) return false;
-            if (current.every(v => v === value) && !editor.querySelector('.fm-inline-recursive')?.checked) return true;
-
-            const fields = [['path_param', FM.pathParam], ['permissions', value]];
-            items.forEach(({ fileName }) => fields.push(['filename', fileName]));
-            if (editor.querySelector('.fm-inline-recursive')?.checked) fields.push(['recursive', 'on']);
-            postForm('/file-manager/permissions', fields);
-        }, {
-            buttonsBefore: true,
-            extra: hasDirectory ? `<label class="inline-flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300 cursor-pointer"><input type="checkbox" class="fm-inline-recursive rounded border-gray-300 dark:border-gray-800"> ${FM.i18n.recursive}</label>` : '',
-            onClose: () => previews.forEach(({ cell, td }) => { td.remove(); cell.style.display = ''; }),
-        });
-
-        input.value = shared;
-        input.addEventListener('input', () => {
-            // octal only, so drop letters and 8/9 as they're typed
-            const clean = input.value.replace(/[^0-7]/g, '').slice(0, 3);
-            if (clean !== input.value) input.value = clean;
-            const value = clean;
-            previews.forEach(p => { p.td.textContent = value || p.original; });
-        });
-        input.select();
+        if (rows.length) openPermDialog(getSelectedItems(), rows);
+    };
+    document.getElementById('permButton').addEventListener('click', openForSelection);
+    document.getElementById('filemanager_table')?.addEventListener('click', event => {
+        if (event.target.closest('[data-perm-open]')) openForSelection();
     });
+}
+
+// PERMISSIONS DIALOG
+
+function octalToSymbolic(mode) {
+    return mode.split('').map(d => {
+        const n = parseInt(d, 8);
+        return (n & 4 ? 'r' : '-') + (n & 2 ? 'w' : '-') + (n & 1 ? 'x' : '-');
+    }).join('');
+}
+
+// a saved mode shows up in the row without a reload: the digits, the rwx tooltip and red when anyone can write
+function updatePermCell(row, mode) {
+    const sym = row.dataset.permissions.charAt(0) + octalToSymbolic(mode);
+    row.dataset.mode = mode;
+    row.dataset.permissions = sym;
+    const btn = row.querySelector('[data-perm-open]');
+    if (!btn) return;
+    btn.textContent = mode;
+    btn.title = sym;
+    const risky = (parseInt(mode[2], 8) & 2) !== 0;
+    btn.classList.toggle('text-red-600', risky);
+    btn.classList.toggle('dark:text-red-500', risky);
+    btn.classList.toggle('text-gray-600', !risky);
+    btn.classList.toggle('dark:text-gray-400', !risky);
+}
+
+function openPermDialog(items, rows) {
+    const modal = document.getElementById('fmPermModal');
+    if (!modal) return;
+    const input = document.getElementById('fmPermMode');
+    const bits = Array.from(modal.querySelectorAll('[data-perm-bit]'));
+    const digits = Array.from(modal.querySelectorAll('[data-perm-digit]'));
+    const presets = Array.from(modal.querySelectorAll('[data-perm-preset]'));
+    const recursive = document.getElementById('fmPermRecursive');
+    const recursiveRow = document.getElementById('fmPermRecursiveRow');
+    const apply = document.getElementById('fmPermApply');
+
+    const current = rows.map(r => r.dataset.mode || symbolicToOctal(r.dataset.permissions));
+    const shared = current.every(v => v === current[0]) ? current[0] : '';
+    const hasDirectory = items.some(({ itemType }) => itemType === 'directory');
+    const names = items.map(i => i.fileName);
+    const errorBox = document.getElementById('fmPermError');
+    errorBox.classList.add('hidden');
+
+    document.getElementById('fmPermItems').textContent = names.length === 1
+        ? names[0]
+        : `${names.length} ${FM.i18n.selected}: ${names.slice(0, 3).join(', ')}${names.length > 3 ? ', …' : ''}`;
+    document.getElementById('fmPermWas').classList.toggle('hidden', !shared);
+    document.getElementById('fmPermWasMode').textContent = shared;
+    const recursiveState = document.getElementById('fmPermRecursiveState');
+    recursive.checked = false;
+    recursiveState.classList.add('hidden');
+    recursiveRow.open = false;
+    recursiveRow.classList.toggle('hidden', !hasDirectory);
+
+    // checkboxes, digits, presets and the Apply label all follow one mode
+    function show(mode, fromInput) {
+        const valid = /^[0-7]{3}$/.test(mode);
+        if (!fromInput) input.value = mode;
+        input.setAttribute('aria-invalid', valid || mode === '' ? 'false' : 'true');
+        if (!valid) {
+            apply.disabled = true;
+            document.getElementById('fmPermSymbolic').textContent = '';
+            document.getElementById('fmPermApplyMode').textContent = '';
+            presets.forEach(b => b.setAttribute('aria-pressed', 'false'));
+            return;
+        }
+        apply.disabled = false;
+        const flags = octalToSymbolic(mode);
+        bits.forEach(b => { b.checked = flags[+b.dataset.permBit] !== '-'; });
+        digits.forEach(d => { d.textContent = mode[+d.dataset.permDigit]; });
+        document.getElementById('fmPermSymbolic').textContent = flags;
+        document.getElementById('fmPermApplyMode').textContent = mode;
+        presets.forEach(b => b.setAttribute('aria-pressed', b.dataset.permPreset === mode ? 'true' : 'false'));
+    }
+
+    function fromBits() {
+        let mode = '';
+        for (let i = 0; i < 3; i++) {
+            let n = 0;
+            if (bits[i * 3].checked) n += 4;
+            if (bits[i * 3 + 1].checked) n += 2;
+            if (bits[i * 3 + 2].checked) n += 1;
+            mode += n;
+        }
+        show(mode);
+    }
+
+    function onInput() {
+        // octal only, so drop letters and 8/9 as they're typed
+        const clean = input.value.replace(/[^0-7]/g, '').slice(0, 3);
+        if (clean !== input.value) input.value = clean;
+        show(clean, true);
+    }
+
+    function onPreset(e) { show(e.currentTarget.dataset.permPreset); }
+
+    function onApply() {
+        const mode = input.value.trim();
+        if (!/^[0-7]{3}$/.test(mode)) return;
+        if (current.every(v => v === mode) && !recursive.checked) { close(); return; }
+        const body = new URLSearchParams([['csrf_token', csrf_token], ['path_param', FM.pathParam], ['permissions', mode]]);
+        names.forEach(name => body.append('filename', name));
+        if (recursive.checked) body.append('recursive', 'on');
+        apply.disabled = true;
+        errorBox.classList.add('hidden');
+        fetch('/file-manager/permissions', { method: 'POST', headers: { Accept: 'application/json', 'X-CSRF-Token': csrf_token }, body })
+            .then(r => r.json())
+            .then(res => {
+                (res.changed || []).forEach(name => {
+                    const row = rows.find(r => r.dataset.file === name);
+                    if (row) updatePermCell(row, mode);
+                });
+                if (res.success) {
+                    close();
+                    showToast(FM.i18n.permsChanged, 'success');
+                    return;
+                }
+                errorBox.textContent = res.error || FM.i18n.permsFailed;
+                errorBox.classList.remove('hidden');
+                apply.disabled = false;
+            })
+            .catch(() => {
+                errorBox.textContent = FM.i18n.permsFailed;
+                errorBox.classList.remove('hidden');
+                apply.disabled = false;
+            });
+    }
+
+    function onKey(e) {
+        if (e.key === 'Escape') close();
+        if (e.key === 'Enter' && e.target === input) onApply();
+    }
+
+    function onBackdrop(e) { if (e.target === modal) close(); }
+
+    function close() {
+        modal.classList.add('hidden');
+        recursive.removeEventListener('change', onRecursive);
+        bits.forEach(b => b.removeEventListener('change', fromBits));
+        presets.forEach(b => b.removeEventListener('click', onPreset));
+        input.removeEventListener('input', onInput);
+        apply.removeEventListener('click', onApply);
+        modal.querySelectorAll('[data-perm-close]').forEach(b => b.removeEventListener('click', close));
+        modal.removeEventListener('click', onBackdrop);
+        document.removeEventListener('keydown', onKey);
+    }
+
+    const onRecursive = () => recursiveState.classList.toggle('hidden', !recursive.checked);
+    recursive.addEventListener('change', onRecursive);
+    bits.forEach(b => b.addEventListener('change', fromBits));
+    presets.forEach(b => b.addEventListener('click', onPreset));
+    input.addEventListener('input', onInput);
+    apply.addEventListener('click', onApply);
+    modal.querySelectorAll('[data-perm-close]').forEach(b => b.addEventListener('click', close));
+    modal.addEventListener('click', onBackdrop);
+    document.addEventListener('keydown', onKey);
+
+    show(shared || current[0] || '644');
+    modal.classList.remove('hidden');
+    input.focus();
+    input.select();
 }
 
 // FOLDER PICKER MODAL (copy, move, compress, extract)
@@ -752,28 +878,28 @@ function openPicker(action, items) {
     if (action === 'compress') {
         const folderName = FM.pathParam.split('/').filter(Boolean).pop();
         nameInput.value = items.length === 1 ? items[0].fileName.replace(/\.[^.]+$/, '') || items[0].fileName : (folderName || 'archive');
-        nameInput.style.borderColor = '';
+        nameInput.removeAttribute('aria-invalid');
     }
 
     function setDest(path) {
         cur = path;
         destInput.value = '/' + cur;
-        destInput.style.borderColor = '';
+        destInput.removeAttribute('aria-invalid');
         // moving into the folder the items already live in is a no-op
         confirmBtn.disabled = (action === 'move' || action === 'copy') && (cur === FM.pathParam.replace(/^\/|\/$/g, '') || isBlocked(cur));
     }
 
     function renderCrumbs() {
         const parts = cur ? cur.split('/') : [];
-        const crumbs = [`<button type="button" data-path="" class="text-gray-700 dark:text-gray-300 hover:underline cursor-pointer"><i class="bi bi-house"></i></button>`];
+        const crumbs = [`<button type="button" data-path="" aria-label="/" class="text-gray-500 hover:text-gray-900 dark:hover:text-gray-50 cursor-pointer"><i class="ri-home-4-line"></i></button>`];
         parts.forEach((part, i) => {
-            crumbs.push(`<span class="text-gray-400">/</span><button type="button" data-path="${escHTML(parts.slice(0, i + 1).join('/'))}" class="text-gray-700 dark:text-gray-300 hover:underline cursor-pointer truncate">${escHTML(part)}</button>`);
+            crumbs.push(`<span class="text-gray-400 dark:text-gray-600">/</span><button type="button" data-path="${escHTML(parts.slice(0, i + 1).join('/'))}" class="text-gray-900 dark:text-gray-50 hover:underline hover:underline-offset-4 cursor-pointer truncate">${escHTML(part)}</button>`);
         });
         $('fmPickerCrumbs').innerHTML = crumbs.join('');
     }
 
     async function load(path) {
-        list.innerHTML = `<li class="px-3 py-2 text-gray-500 dark:text-gray-400">${FM.i18n.working}</li>`;
+        list.innerHTML = `<li class="px-3 py-2 text-gray-500">${FM.i18n.working}</li>`;
         let folders;
         try {
             const res = await fetch('/json/folders/' + path.split('/').map(encodeURIComponent).join('/'));
@@ -782,7 +908,7 @@ function openPicker(action, items) {
             // the malware scanner's quarantine is not a place to put files
             if (!path) folders = folders.filter(f => f.name !== '.quarantine');
         } catch (e) {
-            destInput.style.borderColor = '#ef4444';
+            destInput.setAttribute('aria-invalid', 'true');
             showToast(FM.i18n.folderNotFound, 'error');
             if (path !== cur) return load(cur);
             folders = [];
@@ -792,19 +918,19 @@ function openPicker(action, items) {
         renderCrumbs();
         const rows = [];
         if (cur) {
-            rows.push(`<li><button type="button" data-path="${escHTML(cur.split('/').slice(0, -1).join('/'))}" class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer"><i class="bi bi-arrow-up"></i> ..</button></li>`);
+            rows.push(`<li><button type="button" data-path="${escHTML(cur.split('/').slice(0, -1).join('/'))}" class="flex w-full items-center gap-2 px-3 py-2 text-left text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-900/60 cursor-pointer"><i class="ri-corner-left-up-line"></i> ..</button></li>`);
         }
         folders.sort((x, y) => x.name.localeCompare(y.name)).forEach(f => {
             const p = joinPath(cur, f.name);
             const off = isBlocked(p);
-            rows.push(`<li><button type="button" data-path="${escHTML(p)}" ${off ? 'disabled' : ''} class="flex w-full items-center gap-2 px-3 py-2 text-left ${off ? 'cursor-not-allowed text-gray-400' : 'hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer'}"><i class="bi bi-folder-fill text-orange-500"></i><span class="truncate min-w-0">${escHTML(f.name)}</span>${f.has_subfolders && !off ? '<i class="bi bi-chevron-right ml-auto text-gray-400"></i>' : ''}</button></li>`);
+            rows.push(`<li><button type="button" data-path="${escHTML(p)}" ${off ? 'disabled' : ''} class="flex w-full items-center gap-2 px-3 py-2 text-left ${off ? 'cursor-not-allowed text-gray-400 dark:text-gray-600' : 'hover:bg-gray-50 dark:hover:bg-gray-900/60 cursor-pointer'}"><i class="ri-folder-fill text-orange-500"></i><span class="truncate min-w-0">${escHTML(f.name)}</span>${f.has_subfolders && !off ? '<i class="ri-arrow-right-s-line ml-auto text-gray-400"></i>' : ''}</button></li>`);
         });
-        if (!folders.length) rows.push(`<li class="px-3 py-2 text-gray-500 dark:text-gray-400">${FM.i18n.noSubfolders}</li>`);
+        if (!folders.length) rows.push(`<li class="px-3 py-2 text-gray-500">${FM.i18n.noSubfolders}</li>`);
         list.innerHTML = rows.join('');
     }
 
     function showStatus(kind, html) {
-        status.className = 'rounded-md border border-gray-200 dark:border-gray-800 p-3 text-sm ' + (kind === 'error' ? 'bg-red-50 dark:bg-red-400/10 text-red-600 dark:text-red-400' : 'bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300');
+        status.className = 'rounded-md p-3 text-sm ' + (kind === 'error' ? 'bg-red-50 text-red-900 dark:bg-red-950/70 dark:text-red-500' : 'bg-gray-100 text-gray-900 dark:bg-gray-800/70 dark:text-gray-400');
         status.innerHTML = html;
     }
 
@@ -824,7 +950,7 @@ function openPicker(action, items) {
         if (list.querySelector('.fm-picker-new')) return;
         const li = document.createElement('li');
         li.className = 'fm-picker-new flex items-center gap-2 px-3 py-1.5';
-        li.innerHTML = `<i class="bi bi-folder-fill text-orange-500"></i><input type="text" data-no-live-validate class="select-text block w-full appearance-none rounded-md border px-2 py-1 text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:border-blue-500 outline-none">`;
+        li.innerHTML = `<i class="ri-folder-fill text-orange-500"></i><input type="text" data-no-live-validate aria-label="${FM.i18n.newFolder}" class="select-text w-full block appearance-none rounded-md border border-gray-300 bg-white px-2 py-1 text-xs text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">`;
         list.prepend(li);
         const input = li.querySelector('input');
         input.focus();
@@ -833,7 +959,7 @@ function openPicker(action, items) {
             if (e.key === 'Escape') return li.remove();
             if (e.key !== 'Enter') return;
             const name = input.value.trim();
-            if (!name || name.includes('/')) { input.style.borderColor = '#ef4444'; return; }
+            if (!name || name.includes('/')) { input.setAttribute('aria-invalid', 'true'); return; }
             const body = new URLSearchParams({ csrf_token, path_param: cur, foldername: name });
             await fetch('/file-manager/new-directory', { method: 'POST', body }).catch(() => {});
             load(joinPath(cur, name));
@@ -907,12 +1033,12 @@ function openPicker(action, items) {
     $('fmPickerNewFolder').onclick = newFolderRow;
     confirmBtn.onclick = () => {
         if (action === 'compress' && (!nameInput.value.trim() || nameInput.value.includes('/'))) {
-            nameInput.style.borderColor = '#ef4444';
+            nameInput.setAttribute('aria-invalid', 'true');
             return nameInput.focus();
         }
         runAction();
     };
-    nameInput.oninput = () => { nameInput.style.borderColor = ''; };
+    nameInput.oninput = () => { nameInput.removeAttribute('aria-invalid'); };
     nameInput.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); confirmBtn.click(); } };
     modal.querySelectorAll('[data-picker-close]').forEach(b => { b.onclick = close; });
     modal.onclick = e => { if (e.target === modal) close(); };
@@ -924,6 +1050,14 @@ function openPicker(action, items) {
 }
 
 // UTILITIES
+
+// small recipe buttons for the inline editors
+const FM_BTN_BASE = 'relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-xs font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2';
+const FM_BTN_PRIMARY = FM_BTN_BASE + ' border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400';
+const FM_BTN_DANGER = FM_BTN_BASE + ' border-transparent bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600';
+const FM_BTN_GHOST = FM_BTN_BASE + ' border-transparent bg-transparent shadow-none text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80';
+const FM_BTN_SECONDARY = FM_BTN_BASE + ' border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600';
+
 
 // plain form POST so the server's redirect + flash work as usual
 function postForm(action, fields) {
@@ -957,7 +1091,15 @@ function formatBytes(bytes) {
         bytes /= 1024;
         i++;
     }
-    return bytes.toFixed(2) + ' ' + units[i];
+    // whole bytes stay whole, bigger units get one decimal: 62 B, 4.5 KB
+    return (i === 0 ? Math.round(bytes) : bytes.toFixed(1)) + ' ' + units[i];
+}
+
+// du -h prints 4.0K / 12M / 0, the table shows 4.0 KB / 12 MB / 0 B like the file sizes
+function duSizeLabel(size) {
+    const m = String(size).trim().match(/^([\d.]+)\s*([KMGTP])?i?B?$/i);
+    if (!m) return size;
+    return m[1] + ' ' + (m[2] ? m[2].toUpperCase() + 'B' : 'B');
 }
 
 // swaps a table cell for an input + save/cancel, onSave returns false to flag the input red, true to just close
@@ -968,15 +1110,15 @@ function inlineEdit(cell, innerHTML, onSave, opts = {}) {
 
     const buttons = `
             ${opts.extra || ''}
-            <button type="button" data-act="save" class="inline-flex items-center gap-1 rounded-md border px-3 py-1 text-sm font-medium text-white shadow-sm cursor-pointer ${opts.saveClass || 'border-black bg-black hover:bg-gray-800 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60'}"><i class="bi ${opts.saveIcon || 'bi-check-lg'}"></i> ${opts.saveLabel || FM.i18n.save}</button>
-            <button type="button" data-act="cancel" class="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-1 text-sm font-medium text-gray-900 shadow-sm hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 cursor-pointer"><i class="bi bi-x-lg"></i> ${FM.i18n.cancel}</button>`;
+            <button type="button" data-act="save" class="${opts.danger ? FM_BTN_DANGER : FM_BTN_PRIMARY}"><i class="${opts.saveIcon || 'ri-check-line'}"></i> ${opts.saveLabel || FM.i18n.save}</button>
+            <button type="button" data-act="cancel" class="${FM_BTN_GHOST}">${FM.i18n.cancel}</button>`;
 
     const editor = document.createElement('td');
-    editor.className = cell.className.replace('text-center', '') + ' fm-inline-editor';
+    editor.className = cell.className.replace(/\b(text-center|font-mono|text-xs)\b/g, '').replace(/\bpy-2\.5\b/, 'py-1.5') + ' fm-inline-editor';
     // last column has no room to the right, so float the buttons left over the neighbouring cells
     editor.innerHTML = opts.buttonsBefore ? `
-        <div class="flex items-center justify-center py-0.5" style="position: relative;">
-            <div class="flex items-center gap-2 bg-gray-200 dark:bg-gray-900 pl-2" style="position: absolute; right: 100%; top: 50%; transform: translateY(-50%); margin-right: .5rem; white-space: nowrap; z-index: 10;">${buttons}</div>
+        <div class="relative flex items-center justify-center py-0.5">
+            <div class="absolute top-1/2 right-full z-10 mr-2 flex -translate-y-1/2 items-center gap-2 whitespace-nowrap rounded-md bg-white py-1 pl-2 dark:bg-gray-950">${buttons}</div>
             ${innerHTML}
         </div>` : `
         <div class="flex flex-wrap items-center gap-2 py-0.5">
@@ -1000,7 +1142,7 @@ function inlineEdit(cell, innerHTML, onSave, opts = {}) {
     function save() {
         const result = onSave(input, editor);
         if (result === false && input) {
-            input.style.borderColor = '#ef4444';
+            input.setAttribute('aria-invalid', 'true');
             input.focus();
         } else if (result === true) {
             close();
@@ -1016,7 +1158,7 @@ function inlineEdit(cell, innerHTML, onSave, opts = {}) {
     saveBtn.addEventListener('click', save);
     editor.querySelector('[data-act="cancel"]').addEventListener('click', close);
     if (input) {
-        input.addEventListener('input', () => { input.style.borderColor = ''; });
+        input.addEventListener('input', () => { input.removeAttribute('aria-invalid'); });
         input.addEventListener('keydown', e => {
             if (e.key === 'Enter') { e.preventDefault(); save(); }
         });
@@ -1034,46 +1176,12 @@ function inlineEdit(cell, innerHTML, onSave, opts = {}) {
 
 function symbolicToOctal(symbolic) {
     if (!symbolic || symbolic.length < 9) return '';
-    const map = { r: 4, w: 2, x: 1, '-': 0 };
+    // setuid/setgid/sticky (s, t) still mean execute is on, capital S/T mean it's off
+    const map = { r: 4, w: 2, x: 1, s: 1, t: 1, S: 0, T: 0, '-': 0 };
     return symbolic.slice(-9).match(/.{3}/g)
         .map(p => p.split('').reduce((s, c) => s + (map[c] || 0), 0))
         .join('');
 }
-
-// legacy for table
-document.addEventListener('alpine:init', () => {
-    Alpine.data('permissionCell', () => ({
-        symbolic: '',
-        numeric: '',
-        display: '',
-        cache: window.__permCache || (window.__permCache = {}),
-        init(symbolicValue) {
-            this.symbolic = symbolicValue;
-            this.display  = symbolicValue;
-        },
-        showNumeric() {
-            if (!this.cache[this.symbolic]) {
-                const perms = this.symbolic.slice(1);
-                let numeric = '';
-                for (let i = 0; i < perms.length; i += 3) {
-                    const segment = perms.substr(i, 3);
-                    let value = 0;
-                    if (segment[0] === 'r') value += 4;
-                    if (segment[1] === 'w') value += 2;
-                    if (segment[2] === 'x') value += 1;
-                    numeric += value.toString();
-                }
-                this.cache[this.symbolic] = numeric;
-            }
-            this.numeric = this.cache[this.symbolic];
-            this.display = this.numeric;
-        },
-        showSymbolic() {
-            this.display = this.symbolic;
-        }
-    }));
-});
-
 
 // INIT
 document.addEventListener('DOMContentLoaded', () => {

@@ -252,7 +252,7 @@ func handlePHPOptions(a *appctx.App, w http.ResponseWriter, r *http.Request, ver
 		return
 	}
 	currentConfig := configEntriesToMap(parseConfigContent(string(currentContent)))
-	title = version + " Options"
+	title = "PHP " + version + " options"
 	availableKeys := loadKeysFromFile(userContext)
 
 	if r.Method == http.MethodPost {

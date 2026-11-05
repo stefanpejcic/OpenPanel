@@ -1,11 +1,11 @@
 {{define "content"}}
 <!-- START templates/user/login.html -->
 
-<div class="w-full bg-white rounded shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700 border border-gray-300">
-    <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-        <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">{{.T.Get "Sign in to your account"}}</h1>
+<div class="w-full rounded-md border border-gray-200 bg-white p-6 shadow-xs dark:border-gray-900 dark:bg-raised">
+    <div>
+        <h1 class="text-center text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Sign in to your account"}}</h1>
 
-<form method="POST" class="space-y-4 md:space-y-6" action="/login">
+<form method="POST" class="mt-6 space-y-4" action="/login">
 
 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
@@ -13,12 +13,15 @@
 {{if not .TwofaEnabled}}
 <!-- Username and password fields only if 2FA is not enabled -->
             <div>
-                <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Username"}}</label>
-                <input type="text" name="username" id="username" class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" required="" placeholder="{{.T.Get "username"}}" {{if .UnrecognizedError}}autofocus value="{{.Username}}"{{else if .Username}}value="{{.Username}}"{{else}}autofocus{{end}}>
+                <label for="username" class="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Username"}}</label>
+                <input type="text" name="username" id="username" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" required="" placeholder="{{.T.Get "username"}}" {{if .UnrecognizedError}}autofocus value="{{.Username}}"{{else if .Username}}value="{{.Username}}"{{else}}autofocus{{end}}>
             </div>
             <div>
-                <label for="password" class="flex mb-2 text-sm font-medium text-gray-900 dark:text-white justify-between">{{.T.Get "Password"}}{{if eq .PasswordReset "yes"}} <a href="/reset_password" tabindex="-1">{{.T.Get "Forgot password?"}}</a>{{end}}</label>
-                <input type="password" name="password" id="password" placeholder="••••••••" class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" required="" {{if .PasswordError}}autofocus{{end}}>
+                <label for="password" class="mb-2 flex items-baseline justify-between text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Password"}}{{if eq .PasswordReset "yes"}} <a href="/reset_password" tabindex="-1" class="font-normal text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Forgot password?"}}</a>{{end}}</label>
+                <div class="relative">
+                <input type="password" name="password" id="password" placeholder="••••••••" class="pr-10 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" required="" {{if .PasswordError}}autofocus{{end}}>
+                <button type="button" data-toggle-password="password" aria-label="{{.T.Get "Show password"}}" aria-pressed="false" class="absolute inset-y-0 right-1 my-auto inline-flex size-8 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50"><i class="ri-eye-line text-base" aria-hidden="true"></i></button>
+                </div>
             </div>
 
 {{else}}
@@ -26,9 +29,9 @@
 <input type="hidden" name="user_id" value="{{.UserID}}">
 
             <div>
-                <label for="twofa_code" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Two-Factor Authentication Code"}}</label>
+                <label for="twofa_code" class="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Two-factor authentication code"}}</label>
 
-                <input autofocus id="twofa_code" name="twofa_code" class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" required="">
+                <input autofocus id="twofa_code" name="twofa_code" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" required="">
             </div>
 {{end}}
 
@@ -47,11 +50,12 @@
 </div>
 {{end}}
 
-            <button type="submit" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 border-transparent text-white bg-[#090E1A] hover:bg-black disabled:text-white mt-4 w-full">{{.T.Get "Sign In"}}</button>
+            <button type="submit" class="w-full relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">{{.T.Get "Sign In"}}</button>
         </form>
 
 {{if not .TwofaEnabled}}
-<button type="button" id="passkey-login-btn" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 text-gray-900 bg-white hover:bg-gray-100 dark:border-gray-700 dark:text-white dark:bg-gray-800 dark:hover:bg-gray-700 mt-3 w-full">{{.T.Get "Sign in with a passkey"}}</button>
+<div class="my-5 flex items-center gap-3 text-xs text-gray-500"><span class="h-px flex-1 bg-gray-200 dark:bg-gray-800"></span>{{.T.Get "or"}}<span class="h-px flex-1 bg-gray-200 dark:bg-gray-800"></span></div>
+<button type="button" id="passkey-login-btn" class="w-full relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Sign in with a passkey"}}</button>
 <script>window.PasskeyI18n = { registerStart: '{{.T.Get "Failed to start passkey registration."}}', save: '{{.T.Get "Failed to save passkey."}}', loginStart: '{{.T.Get "Failed to start passkey login."}}', login: '{{.T.Get "Passkey login failed."}}' };</script>
 <script src="{{static "js/passkeys.js"}}"></script>
 <script>
@@ -75,9 +79,9 @@
         {{with .FirstFlash}}{{$message = $.T.Get .Text}}{{end}}
 
         {{if $message}}
-        <div class="mt-6 flex items-center space-x-2.5 rounded bg-red-50 p-4 dark:bg-red-500/10">
+        <div class="mt-5 flex gap-3 rounded-md p-4 text-sm bg-red-50 text-red-900 dark:bg-red-950/70 dark:text-red-500" role="alert">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-red-500 dark:text-red-500"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"></path></svg>
-        <p class="text-sm text-red-600 dark:text-red-500">
+        <p>
             {{$message}}
         </p>
         </div>

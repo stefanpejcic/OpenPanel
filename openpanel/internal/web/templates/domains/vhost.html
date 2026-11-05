@@ -7,7 +7,7 @@
     <script src="{{static "vendor/codemirror/mode/clike/clike.min.js"}}"></script>
     <link rel="stylesheet" href="{{static "vendor/codemirror/theme/dracula.min.css"}}">
     <style>
-        .CodeMirror {min-height: 50vh;height: auto;}
+        .CodeMirror {min-height: 50vh;height: auto;font-size: 0.8125rem;}
         div.CodeMirror-sizer {min-height: 500px!important;}
     </style>
 
@@ -15,26 +15,24 @@
 <form method="post">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
-
 <section>
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts File"}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Edit"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts file for the domain name"}} <b><span class="punycode">{{.DomainName}}</span></b></p>
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts file"}}</h1>
+        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Edit"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts file for the domain name"}} <span class="punycode font-medium text-gray-900 dark:text-gray-50">{{.DomainName}}</span></p>
     </div>
-
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-        <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Save Changes"}}</button>
-
-    </div>
-
+    <button type="submit" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">{{.T.Get "Save changes"}}</button>
 </div>
 
     <input type="hidden" name="domain_name" value="{{.DomainName}}">
 
-    <div id="editor-container" class="overflow-auto">
-        <textarea id="editor" name="vhost_content" rows="40" cols="100">{{.VhostContent}}</textarea>
+    <div class="px-4 pb-6 sm:px-6 lg:px-8">
+        <div id="editor-container" class="overflow-auto rounded-md border border-gray-200 dark:border-gray-800">
+            <label for="editor" class="sr-only">{{.T.Get "VirtualHosts file"}}</label>
+            <textarea id="editor" name="vhost_content" rows="40" cols="100">{{.VhostContent}}</textarea>
+        </div>
     </div>
+</section>
 
 </form>
 
@@ -52,6 +50,7 @@ function vfmt(msg, vals) {
 }
 var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
     mode: "javascript",
+    theme: document.documentElement.classList.contains("dark") ? "dracula" : "default",
     lineNumbers: true,
 });
 
@@ -174,10 +173,11 @@ function validateVhostConfig(content, serverType) {
             e.preventDefault();
             var message = "{{.T.Get "Potential syntax issues were found:"}}\n\n" + errors.join('\n') +
                 "\n\n" + "{{.T.Get "Do you want to save anyway?"}}";
-            if (confirm(message)) {
+            window.opConfirm(message, { ok: {{toJSON (.T.Get "Save")}} }).then(function (yes) {
+                if (!yes) return;
                 skipValidation = true;
                 form.submit();
-            }
+            });
         }
     });
 })();
@@ -187,21 +187,24 @@ function validateVhostConfig(content, serverType) {
 
 <!-- page header -->
 <section aria-label="{{.T.Get "Select Domain Header"}}">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts File"}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Select domain name to edit"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts file for."}}</p>
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts file"}}</h1>
+        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Each domain has its own"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts file."}}</p>
     </div>
 </div>
 <!-- END page header -->
 
     {{if .Domains}}
-        <div class="p-6 m-6 bg-blue-100 border-l-4 border-blue-500 text-blue-700">
-            <strong>{{.T.Get "Attention:"}}</strong> {{.T.Get "Editing the domain file is intended for advanced users only. This action can potentially lead to server misconfiguration or downtime if not done correctly."}}
-            <br><br>
-            {{.T.Get "Please be cautious and make sure you understand the changes you are making. We use a rollback mechanism to check for errors, and if any issues are detected, we will revert the changes. However, it's important to have a backup of your configurations before proceeding."}}
+        <div class="px-4 pb-6 sm:px-6 lg:px-8">
+            <div class="max-w-3xl flex gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500"><i class="ri-error-warning-line text-lg leading-5 shrink-0" aria-hidden="true"></i>
+                <div>
+                    <p><span class="font-semibold">{{.T.Get "Attention:"}}</span> {{.T.Get "Editing the domain file is intended for advanced users only. This action can potentially lead to server misconfiguration or downtime if not done correctly."}}</p>
+                    <p class="mt-2">{{.T.Get "Please be cautious and make sure you understand the changes you are making. We use a rollback mechanism to check for errors, and if any issues are detected, we will revert the changes. However, it's important to have a backup of your configurations before proceeding."}}</p>
+                </div>
+            </div>
         </div>
-        {{template "domain_selector" (dict "T" .T "Domains" .Domains "RedirectBase" "/domains/vhosts?domain=")}}
+        {{template "domain_list" (dict "T" .T "Rows" .Picks "Base" "/domains/vhosts?domain=" "Action" "Edit vhost" "Icon" "ri-code-s-slash-line" "DetailLabel" "Document root" "LongDetail" true)}}
     {{else}}
         {{template "no_domain" .}}
     {{end}}

@@ -60,7 +60,7 @@ func buildDomainFilters(t i18n.Translator, allowed map[string]bool, rows []Domai
 		{Key: "status", Label: t.Get("Status"), Options: []FilterOption{all, {"active", t.Get("Active")}, {"suspended", t.Get("Suspended")}}},
 	}
 
-	php := DomainFilter{Key: "php", Label: t.Get("PHP Version"), Options: []FilterOption{all}}
+	php := DomainFilter{Key: "php", Label: t.Get("PHP version"), Options: []FilterOption{all}}
 	seen := map[string]bool{}
 	for _, r := range rows {
 		if r.PHPVersion != "" && !seen[r.PHPVersion] {
@@ -129,7 +129,7 @@ type NewDomainPageData struct {
 }
 
 func renderNewDomainPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Add Domain")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Add domain")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -169,6 +169,7 @@ type DomainSelectorPageData struct {
 	web.LayoutData
 	DomainName string
 	Domains    []appctx.Domain
+	Picks      []web.DomainPick
 }
 
 func renderSuspendPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainName string, domainsList []appctx.Domain) {
@@ -182,6 +183,9 @@ func renderSuspendPage(a *appctx.App, w http.ResponseWriter, r *http.Request, do
 		return
 	}
 	data := DomainSelectorPageData{LayoutData: layout, DomainName: domainName, Domains: domainsList}
+	if domainName == "" {
+		data.Picks = suspendPicks(r.Context(), a, domainsList, true)
+	}
 	if err := suspendPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOMAINS - suspend template render error: %v", err)
 	}
@@ -198,6 +202,9 @@ func renderUnsuspendPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		return
 	}
 	data := DomainSelectorPageData{LayoutData: layout, DomainName: domainName, Domains: domainsList}
+	if domainName == "" {
+		data.Picks = suspendPicks(r.Context(), a, domainsList, false)
+	}
 	if err := unsuspendPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOMAINS - unsuspend template render error: %v", err)
 	}
@@ -209,6 +216,7 @@ type DocrootPageData struct {
 	DomainName string
 	Docroot    string
 	Domains    []appctx.Domain
+	Picks      []web.DomainPick
 }
 
 func renderDocrootPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainName, docroot string, domainsList []appctx.Domain) {
@@ -222,6 +230,9 @@ func renderDocrootPage(a *appctx.App, w http.ResponseWriter, r *http.Request, do
 		return
 	}
 	data := DocrootPageData{LayoutData: layout, DomainName: domainName, Docroot: docroot, Domains: domainsList}
+	if domainName == "" {
+		data.Picks = docrootPicks(domainsList)
+	}
 	if err := docrootPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOMAINS - docroot template render error: %v", err)
 	}
@@ -237,6 +248,7 @@ type DomainLogsPageData struct {
 	TotalPages, TotalLines      int
 	TotalAllowedLinesForShowAll int
 	Domains                     []appctx.Domain
+	Picks                       []web.DomainPick
 	LogPageEntries              []PageEntry
 }
 
@@ -272,19 +284,19 @@ func buildLogPageEntries(current, total int) []PageEntry {
 }
 
 func renderDomainLogsSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainsList []appctx.Domain) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Access Logs")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Access logs")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := DomainLogsPageData{LayoutData: layout, Domains: domainsList}
+	data := DomainLogsPageData{LayoutData: layout, Domains: domainsList, Picks: logPicks(domainsList)}
 	if err := domainLogsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOMAINS - logs template render error: %v", err)
 	}
 }
 
 func renderDomainLogsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainName string, entries []AccessLogEntry, showAll bool, currentPage, itemsPerPage, totalPages, totalLines, totalAllowedForShowAll int) {
-	layout, _, err := web.BuildLayoutData(a, w, r, domainName+" Access Log")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Access log for "+domainName)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -326,15 +338,16 @@ type VhostPageData struct {
 	WebServerPreference string
 	VhostContent        string
 	Domains             []appctx.Domain
+	Picks               []web.DomainPick
 }
 
 func renderVhostSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, webServerPreference string, domainsList []appctx.Domain) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Edit VirtualHosts File")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Edit VirtualHosts file")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := VhostPageData{LayoutData: layout, WebServerPreference: webServerPreference, Domains: domainsList}
+	data := VhostPageData{LayoutData: layout, WebServerPreference: webServerPreference, Domains: domainsList, Picks: docrootPicks(domainsList)}
 	if err := vhostPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOMAINS - vhost template render error: %v", err)
 	}
@@ -358,15 +371,30 @@ type RedirectPageData struct {
 	DomainName  string
 	RedirectURL string
 	Domains     []appctx.Domain
+	Redirects   []RedirectRow
+	Free        []string
+}
+
+// RedirectRow is one domain with its redirect target on the redirects list.
+type RedirectRow struct {
+	Domain string
+	URL    string
 }
 
 func renderRedirectSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainsList []appctx.Domain) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Redirect Domain to URL")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Redirects")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 	data := RedirectPageData{LayoutData: layout, Domains: domainsList}
+	for _, d := range domainsList {
+		if u := getRedirectURL(d.DomainURL); u != "" {
+			data.Redirects = append(data.Redirects, RedirectRow{Domain: d.DomainURL, URL: u})
+		} else {
+			data.Free = append(data.Free, d.DomainURL)
+		}
+	}
 	if err := redirectPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOMAINS - redirect template render error: %v", err)
 	}
@@ -395,6 +423,7 @@ type SSLPageData struct {
 	CurrentSetting string
 	Keys           string
 	Domains        []appctx.Domain
+	Picks          []web.DomainPick
 }
 
 func renderSSLPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainName, currentSetting, keys string, domainsList []appctx.Domain) {
@@ -408,6 +437,9 @@ func renderSSLPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domain
 		return
 	}
 	data := SSLPageData{LayoutData: layout, DomainName: domainName, CurrentSetting: currentSetting, Keys: keys, Domains: domainsList}
+	if domainName == "" {
+		data.Picks = sslPicks(r.Context(), a, domainsList)
+	}
 	if err := sslPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOMAINS - ssl template render error: %v", err)
 	}

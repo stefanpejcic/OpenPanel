@@ -4,9 +4,10 @@
 {{template "cmsinstall_block" .}}
 {{if .Domains}}
 {{template "cmsinstall_block_4" .}}
-    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+    <div class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+    <div class="p-4 sm:p-6">
         {{template "cmsinstall_block_6" .}}
-    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+    <div class="p-4 sm:p-6">
         {{template "cmsinstall_block_10" .}}
         {{template "cmsinstall_block_9" .}}
             {{template "cmsinstall_block_11" .}}
@@ -14,10 +15,11 @@
         {{template "cmsinstall_script" .}}
     </div>
 
-    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+    <div class="p-4 sm:p-6">
         {{template "cmsinstall_block_17" .}}
         {{template "cmsinstall_block_19" .}}
             {{template "cmsinstall_block_18" .}}
+    </div>
     {{template "cmsinstall_block_15" .}}
   {{template "cmsinstall_block_22" .}}
 <script>
@@ -36,7 +38,7 @@ function startInstall(name) {
 
   if (_hangTimer) clearTimeout(_hangTimer);
   _hangTimer = setTimeout(() => {
-    _setDescription({{toJSON (.T.Get "Install process hanged for")}} + ` <span class="font-mono text-blue-500">${name}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-600 dark:text-blue-400 hover:underline">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
+    _setDescription({{toJSON (.T.Get "Install process hanged for")}} + ` <span class="font-mono text-blue-500">${name}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-500 hover:underline hover:underline-offset-4">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
   }, 5 * 60 * 1000);
 }
 
@@ -46,7 +48,7 @@ function _clearHangTimer() {
 
 function showInstallError(name) {
   _clearHangTimer();
-  _setDescription({{toJSON (.T.Get "Install process failed for")}} + ` <span class="font-mono text-blue-500">${name}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-600 dark:text-blue-400 hover:underline">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
+  _setDescription({{toJSON (.T.Get "Install process failed for")}} + ` <span class="font-mono text-blue-500">${name}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-500 hover:underline hover:underline-offset-4">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
 }
 
 function resetDescription() {
@@ -89,10 +91,10 @@ function _setState(el, state) {
   const label = _label(el);
 
   const states = {
-    pending: { row: 'flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500', svg: ICON_PENDING },
-    active:  { row: 'flex items-center justify-between rounded bg-blue-50 p-3 dark:bg-blue-900/20 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-900 dark:text-gray-50', svg: ICON_SPIN },
-    done:    { row: 'flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-500 dark:text-gray-400', svg: ICON_DONE },
-    error:   { row: 'flex items-center justify-between rounded bg-red-50 p-3 dark:bg-red-900/20 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-red-600 dark:text-red-400', svg: ICON_ERROR },
+    pending: { row: 'flex items-center justify-between gap-4 px-4 py-3 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500', svg: ICON_PENDING },
+    active:  { row: 'flex items-center justify-between gap-4 px-4 py-3 transition-colors bg-blue-50 dark:bg-blue-950/70', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-900 dark:text-gray-50', svg: ICON_SPIN },
+    done:    { row: 'flex items-center justify-between gap-4 px-4 py-3 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-500 dark:text-gray-400', svg: ICON_DONE },
+    error:   { row: 'flex items-center justify-between gap-4 px-4 py-3 transition-colors bg-red-50 dark:bg-red-950/70', label: 'step-label font-medium text-sm flex items-center gap-3 text-red-600 dark:text-red-400', svg: ICON_ERROR },
   };
 
   const cfg = states[state];
@@ -144,7 +146,7 @@ function retryInstall() {
   document.getElementById('toAddActive').classList.remove('hidden');
   const button = document.getElementById("installButton");
   button.disabled = false;
-  button.innerHTML = {{toJSON (.T.Get "Start Installation")}} + `<svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg>`;
+  button.innerHTML = {{toJSON (.T.Get "Start installation")}} + `<i class="ri-arrow-right-line" aria-hidden="true"></i>`;
 }
 
 document.getElementById("installForm").addEventListener("submit", function(event) {

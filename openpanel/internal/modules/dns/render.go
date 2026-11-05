@@ -20,6 +20,7 @@ type DNSPageData struct {
 	Domain       string
 	ViewMode     string
 	Domains      []appctx.Domain // zone-having domains only, for the selector
+	Picks        []web.DomainPick
 	Rows         []ZoneRow
 	Serial       string
 	ZoneContent  string
@@ -28,25 +29,33 @@ type DNSPageData struct {
 }
 
 func renderDNSListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainRows []DomainZoneRow) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "DNS Zone Editor")
+	layout, _, err := web.BuildLayoutData(a, w, r, "DNS zone editor")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 	var withZone []appctx.Domain
+	var picks []web.DomainPick
 	for _, d := range domainRows {
 		if d.ZoneFileExists {
 			withZone = append(withZone, appctx.Domain{DomainURL: d.DomainURL})
+			picks = append(picks, web.DomainPick{Domain: d.DomainURL, Detail: zoneRecordCount(d.DomainURL)})
+		} else {
+			note := "No zone file"
+			if hasSubdomainLabel(d.DomainURL) {
+				note = "Uses the main domain's zone"
+			}
+			picks = append(picks, web.DomainPick{Domain: d.DomainURL, Disabled: true, Note: note})
 		}
 	}
-	data := DNSPageData{LayoutData: layout, Domains: withZone}
+	data := DNSPageData{LayoutData: layout, Domains: withZone, Picks: picks}
 	if err := dnsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DNS - list template render error: %v", err)
 	}
 }
 
 func renderDNSTablePage(a *appctx.App, w http.ResponseWriter, r *http.Request, domain string, rows []ZoneRow, serial string, issues []HealthIssue) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Edit DNS Zone")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Edit DNS zone")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -62,7 +71,7 @@ func renderDNSTablePage(a *appctx.App, w http.ResponseWriter, r *http.Request, d
 }
 
 func renderDNSCodePage(a *appctx.App, w http.ResponseWriter, r *http.Request, domain, zoneContent string, issues []HealthIssue) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Edit DNS File")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Edit DNS file")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

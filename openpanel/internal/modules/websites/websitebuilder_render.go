@@ -34,7 +34,7 @@ type WebsiteBuilderInstallPageData struct {
 }
 
 func renderWebsiteBuilderInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domains []appctx.Domain) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Create Website")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Create website")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

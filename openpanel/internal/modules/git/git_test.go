@@ -285,7 +285,7 @@ func TestRenderGitPage(t *testing.T) {
 		t.Fatalf("Render: %v", err)
 	}
 	body := w.Body.String()
-	for _, want := range []string{`id="add-repository"`, "pw123", "https://x/git-http/bob/site.git", "https://x/git-webhook/bob/t", `id="repo-blog"`, `id="git-table"`, `id="bulk-actions-bar"`, `data-bulk-action="mode"`, `data-bulk-skip="pull"`, "bi-git"} {
+	for _, want := range []string{`id="add-repository"`, "pw123", "https://x/git-http/bob/site.git", "https://x/git-webhook/bob/t", `id="repo-blog"`, `id="git-table"`, `id="bulk-actions-bar"`, `data-bulk-action="mode"`, `data-bulk-skip="pull"`, "ri-git-branch-line"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("rendered page missing %q", want)
 		}

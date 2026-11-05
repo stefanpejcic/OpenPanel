@@ -1,6 +1,6 @@
 {{define "information"}}<!-- START templates/dashboard/information.html -->
-<div id="dashboard_info"
-    class="flex flex-col justify-center overflow-hidden rounded bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-800 xl:col-span-1"
+<section id="dashboard_info" aria-labelledby="dashboard_info_heading"
+    class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950 xl:col-span-1"
     x-data="{
         lastIp: '{{.LastIP}}',
         showFlag: '{{.IPCountyFlag}}' === 'yes',
@@ -22,77 +22,66 @@
         }
     }"
     x-init="fetchFlag()">
-    <div class="flex items-center justify-between gap-4 relative m-0 p-2 border-b border-gray-200  dark:border-gray-800 mb-2"  id="dashboard_info_title" >
-        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-        <h2 class="pl-4 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Information"}}</h2>
+    <div class="border-b border-gray-200 px-4 py-3 dark:border-gray-800" id="dashboard_info_title">
+        <h2 id="dashboard_info_heading" class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Information"}}</h2>
     </div>
 
-    <!-- Username Info -->
-    <div id="dashboard_info_username" class="w-full text-sm mx-2 mb-2">
-    <div class="grid grid-cols-2 text-slate-500 dark:text-slate-400 font-medium pb-1 mb-1">
-        <div>{{.T.Get "Username"}}</div>
-        <div>{{.T.Get "Plan"}}</div>
-    </div>
-    <div class="grid grid-cols-2">
-        <div class="relative">
-        <a class="font-medium hover:underline"
-            {{if .UserAllowed.account}}href="/account#username"{{end}}>
-            {{.CurrentUsername}}
-        </a>
+    <dl class="divide-y divide-gray-200 text-sm dark:divide-gray-800">
+        <!-- Username Info -->
+        <div id="dashboard_info_username" class="grid grid-cols-2 gap-4 px-4 py-3">
+            <div class="min-w-0">
+                <dt class="text-xs text-gray-500">{{.T.Get "Username"}}</dt>
+                <dd class="mt-1 truncate font-medium text-gray-900 dark:text-gray-50">
+                    <a class="hover:underline hover:underline-offset-4" {{if .UserAllowed.account}}href="/account#username"{{end}}>{{.CurrentUsername}}</a>
+                </dd>
+            </div>
+            <div class="min-w-0">
+                <dt class="text-xs text-gray-500">{{.T.Get "Plan"}}</dt>
+                <dd class="mt-1 truncate font-medium text-gray-900 dark:text-gray-50">
+                    <a class="hover:underline hover:underline-offset-4" {{if .UserAllowed.info}}href="/server/info#plan"{{end}}>{{.HostingPlanName}}</a>
+                </dd>
+            </div>
         </div>
-        <div class="relative">
-        <a class="font-medium hover:underline"
-            {{if .UserAllowed.info}}href="/server/info#plan"{{end}}>
-            {{.HostingPlanName}}
-        </a>
-        </div>
-    </div>
-    </div>
 
-    <!-- IP Address Info -->
-    <div id="dashboard_info_ip" class="w-full text-sm m-2 ">
-    <div class="grid grid-cols-2 text-slate-500 dark:text-slate-400 font-medium pb-1 mb-1">
-        <div>{{.T.Get "IP Address"}}</div>
-        <div>{{.T.Get "Last Login IP Address"}}</div>
-    </div>
-    <div class="grid grid-cols-2 items-center">
-        <div class="relative">
-        <a class="font-medium hover:underline" href="javascript:void(0)">{{.IPAddress}}</a>
+        <!-- IP Address Info -->
+        <div id="dashboard_info_ip" class="grid grid-cols-2 gap-4 px-4 py-3">
+            <div class="min-w-0">
+                <dt class="text-xs text-gray-500">{{.T.Get "IP address"}}</dt>
+                <dd class="mt-1 truncate font-mono text-xs font-medium text-gray-900 tabular-nums dark:text-gray-50">{{.IPAddress}}</dd>
+            </div>
+            <div class="min-w-0">
+                <dt class="text-xs text-gray-500">{{.T.Get "Last login IP address"}}</dt>
+                <dd class="mt-1 flex min-w-0 items-center gap-2" id="last-login-info">
+                {{if .LastIP}}
+                    <a class="truncate font-mono text-xs font-medium text-gray-900 tabular-nums hover:underline hover:underline-offset-4 dark:text-gray-50" :href="'{{if .UserAllowed.login_history}}/account/login-history{{else}}#{{end}}'" id="last-ip" x-text="lastIp">{{.LastIP}}</a>
+                    <template x-if="flagSrc">
+                    <img :src="flagSrc" :alt="country" :title="country" class="h-3 w-4 shrink-0 rounded-xs" />
+                    </template>
+                {{else}}
+                    <span class="text-gray-400">{{.T.Get "/"}}</span>
+                {{end}}
+                </dd>
+            </div>
         </div>
-        <div class="relative flex items-center" id="last-login-info">
-        {{if .LastIP}}
-            <a class="font-medium hover:underline mr-1 truncate" :href="'{{if .UserAllowed.login_history}}/account/login-history{{else}}#{{end}}'" id="last-ip" x-text="lastIp">{{.LastIP}}</a>
-            <template x-if="flagSrc">
-            <img :src="flagSrc" :alt="country" :title="country" class="w-8 h-6 rounded-sm mr-2" />
-            </template>
-        {{else}}
-            {{.T.Get "/"}}
-        {{end}}
-        </div>
-    </div>
-    </div>
 
-    {{if .UserAllowed.domains}}
-    <!-- Nameservers Info -->
-    {{if and .NS1 .NS2}}
-    <div id="dashboard_info_nameservers" class="w-full text-sm m-2">
-        <div class="text-slate-500 dark:text-slate-400 font-medium pb-1 mb-1">
-        {{.T.Get "Nameservers"}}
-        </div>
-        <div class="grid grid-cols-2">
-        <div class="relative">{{.NS1}}</div>
-        <div class="relative">{{.NS2}}</div>
-        </div>
-        {{if .NS3}}
-        <div class="grid grid-cols-2">
-            <div class="relative">{{.NS3}}</div>
-            <div class="relative">{{.NS4}}</div>
+        {{if .UserAllowed.domains}}
+        <!-- Nameservers Info -->
+        {{if and .NS1 .NS2}}
+        <div id="dashboard_info_nameservers" class="px-4 py-3">
+            <dt class="text-xs text-gray-500">{{.T.Get "Nameservers"}}</dt>
+            <dd class="mt-1 grid grid-cols-2 gap-x-4 gap-y-1 font-mono text-xs text-gray-900 dark:text-gray-50">
+                <span class="truncate">{{.NS1}}</span>
+                <span class="truncate">{{.NS2}}</span>
+                {{if .NS3}}
+                <span class="truncate">{{.NS3}}</span>
+                <span class="truncate">{{.NS4}}</span>
+                {{end}}
+            </dd>
         </div>
         {{end}}
-    </div>
-    {{end}}
-    {{end}}
+        {{end}}
+    </dl>
 
-</div>
+</section>
 <!-- END templates/dashboard/information.html -->
 {{end}}

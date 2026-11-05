@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -40,6 +41,8 @@ type PHPVersionChoice struct {
 	Version     string
 	Description string
 	Current     bool
+	Level       string // good, secure or unsupported, for the badge colour
+	Label       string
 }
 
 // phpVersionDescription is the same support hint the onboarding wizard shows, from the version's status label
@@ -76,9 +79,14 @@ func phpVersionChoices(installed []string, current string, isLitespeed bool, api
 		if !known && olderThanAll(v, api) {
 			info, known = VersionInfo{IsEOLVersion: true}, true
 		}
+		level, label := "", ""
+		if known {
+			level, label = classifyPHPVersionLevel(v, api)
+		}
 		out = append(out, PHPVersionChoice{
 			Version: v, Description: phpVersionDescription(info, known),
 			Current: v == current || strings.HasPrefix(current, v+"."),
+			Level:   level, Label: label,
 		})
 	}
 	return out
@@ -131,10 +139,38 @@ type PHPSettingsPageData struct {
 	VersionCounts        []PHPVersionCount
 	OutdatedDomains      int
 	AvailablePHPVersions []string
+	DefaultVersion       string // DEFAULT_PHP_VERSION from the user's .env
+	WebServer            string // label like Apache, named in the busy dialog's steps
+}
+
+// webServerLabel is how a WEB_SERVER value reads in page headings
+func webServerLabel(ws string) string {
+	switch ws {
+	case "apache":
+		return "Apache"
+	case "nginx":
+		return "Nginx"
+	case "openresty":
+		return "OpenResty"
+	case "openlitespeed":
+		return "OpenLiteSpeed"
+	case "litespeed":
+		return "LiteSpeed"
+	}
+	return ws
+}
+
+// envLabels reads the default PHP version and the web server label for the page eyebrows
+func envLabels(injectedData map[string]any) (defaultVersion, webServer string) {
+	userContext, _ := injectedData["context"].(string)
+	if userContext == "" {
+		return "", ""
+	}
+	return webserver.GetEnvFileValue(userContext, "DEFAULT_PHP_VERSION"), webServerLabel(webserver.GetEnvFileValue(userContext, "WEB_SERVER"))
 }
 
 func renderPHPSettingsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, rows []PHPDomainRow, counts []PHPVersionCount, outdatedDomains int, availableVersions []string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Settings")
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, "Settings")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -146,6 +182,7 @@ func renderPHPSettingsPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 		LayoutData: layout, Domains: rows, VersionCounts: counts,
 		OutdatedDomains: outdatedDomains, AvailablePHPVersions: sortedAvailable,
 	}
+	data.DefaultVersion, data.WebServer = envLabels(injectedData)
 	if err := settingsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("PHP - settings template render error: %v", err)
 	}
@@ -175,16 +212,27 @@ func renderPHPInfoPage(a *appctx.App, w http.ResponseWriter, r *http.Request, ve
 // PHPIniEditorPageData is php/ini_editor.html's template context.
 type PHPIniEditorPageData struct {
 	web.LayoutData
+	VersionPicks      []PHPVersionPick
 	Version           string
 	Service           string
 	FilePath          string
 	FileContent       string
 	InstalledVersions []string
 	Issues            []HealthIssue
+	WebServer         string // label like Apache
+	SavedPath         string // where the file lives in the user's home
+}
+
+// LineCount is how many lines the php.ini has, for the editor footer
+func (d PHPIniEditorPageData) LineCount() int {
+	if d.FileContent == "" {
+		return 0
+	}
+	return strings.Count(strings.TrimSuffix(d.FileContent, "\n"), "\n") + 1
 }
 
 func renderPHPIniEditorPage(a *appctx.App, w http.ResponseWriter, r *http.Request, version, service, title, filePath, fileContent string, installedVersions []string, issues []HealthIssue) {
-	layout, _, err := web.BuildLayoutData(a, w, r, title)
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, title)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -192,6 +240,13 @@ func renderPHPIniEditorPage(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	data := PHPIniEditorPageData{
 		LayoutData: layout, Version: version, Service: service, FilePath: filePath,
 		FileContent: fileContent, InstalledVersions: installedVersions, Issues: issues,
+	}
+	if version == "" {
+		data.VersionPicks = versionPicks(r.Context(), installedVersions)
+	}
+	_, data.WebServer = envLabels(injectedData)
+	if userContext, _ := injectedData["context"].(string); userContext != "" && version != "" {
+		data.SavedPath = "/home/" + userContext + "/php.ini/" + version + ".ini"
 	}
 	if err := iniEditorPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("PHP - ini editor template render error: %v", err)
@@ -201,11 +256,13 @@ func renderPHPIniEditorPage(a *appctx.App, w http.ResponseWriter, r *http.Reques
 // PHPOptionsPageData is php/options.html's template context (both the version-picker state and the per-version options-table state)
 type PHPOptionsPageData struct {
 	web.LayoutData
+	VersionPicks      []PHPVersionPick
 	Version           string
 	InstalledVersions []string
 	Fields            []OptionField
 	Issues            []HealthIssue
 	StartupFunctions  []string // disable_functions entries that stop PHP-FPM from starting, warned about live on the field
+	WebServer         string   // label like Apache
 }
 
 func renderPHPOptionsSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, title string, installedVersions []string) {
@@ -214,19 +271,20 @@ func renderPHPOptionsSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Re
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := PHPOptionsPageData{LayoutData: layout, InstalledVersions: installedVersions}
+	data := PHPOptionsPageData{LayoutData: layout, InstalledVersions: installedVersions, VersionPicks: versionPicks(r.Context(), installedVersions)}
 	if err := optionsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("PHP - options select template render error: %v", err)
 	}
 }
 
 func renderPHPOptionsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, version, title string, fields []OptionField, issues []HealthIssue, startupFuncs []string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, title)
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, title)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 	data := PHPOptionsPageData{LayoutData: layout, Version: version, Fields: fields, Issues: issues, StartupFunctions: startupFuncs}
+	_, data.WebServer = envLabels(injectedData)
 	if err := optionsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("PHP - options template render error: %v", err)
 	}
@@ -235,6 +293,7 @@ func renderPHPOptionsPage(a *appctx.App, w http.ResponseWriter, r *http.Request,
 // PHPExtensionsPageData is php/extensions.html's template context (both the version-picker state and the per-version extensions-table state)
 type PHPExtensionsPageData struct {
 	web.LayoutData
+	VersionPicks      []PHPVersionPick
 	Version           string
 	InstalledVersions []string
 	Extensions        []ExtensionRow
@@ -243,19 +302,19 @@ type PHPExtensionsPageData struct {
 }
 
 func renderPHPExtensionsSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, installedVersions []string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "PHP Extensions")
+	layout, _, err := web.BuildLayoutData(a, w, r, "PHP extensions")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := PHPExtensionsPageData{LayoutData: layout, InstalledVersions: installedVersions}
+	data := PHPExtensionsPageData{LayoutData: layout, InstalledVersions: installedVersions, VersionPicks: versionPicks(r.Context(), installedVersions)}
 	if err := extensionsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("PHP - extensions select template render error: %v", err)
 	}
 }
 
 func renderPHPExtensionsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, version string, extensions []ExtensionRow, history, recentlyRemoved []string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "PHP "+version+" Extensions")
+	layout, _, err := web.BuildLayoutData(a, w, r, "PHP "+version+" extensions")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

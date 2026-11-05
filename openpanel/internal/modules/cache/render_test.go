@@ -37,7 +37,7 @@ func TestRenderCacheServicePage(t *testing.T) {
 		if !strings.Contains(body, "6379") {
 			t.Error("expected port in body")
 		}
-		if !strings.Contains(body, "Click to Enable") {
+		if !strings.Contains(body, `name="action" value="enable"`) {
 			t.Error("expected enable button when not_found")
 		}
 	})
@@ -55,7 +55,7 @@ func TestRenderCacheServicePage(t *testing.T) {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		if !strings.Contains(body, "Click to Disable") {
+		if !strings.Contains(body, `name="action" value="disable"`) {
 			t.Error("expected disable button when running")
 		}
 		if !strings.Contains(body, "containerStats") {

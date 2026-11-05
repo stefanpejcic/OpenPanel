@@ -51,7 +51,7 @@ type LocalePageData struct {
 }
 
 func renderLocalePage(a *appctx.App, w http.ResponseWriter, r *http.Request, locales []string, current string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Change Language")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Change language")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -74,7 +74,7 @@ type TwofaPageData struct {
 }
 
 func renderTwofaPage(a *appctx.App, w http.ResponseWriter, r *http.Request, twofaEnabled bool, otpSecret string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Two-Factor Authentication")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Two-factor authentication")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -182,7 +182,7 @@ type ActiveSessionsPageData struct {
 }
 
 func renderActiveSessionsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, sessionsList []ActiveSession) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Active Sessions")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Active sessions")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -201,7 +201,7 @@ type ActivityPageData struct {
 }
 
 func renderActivityPage(a *appctx.App, w http.ResponseWriter, r *http.Request, result ActivityPageResult) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Activity Log")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Activity log")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -219,7 +219,7 @@ type LoginHistoryPageData struct {
 }
 
 func renderLoginHistoryPage(a *appctx.App, w http.ResponseWriter, r *http.Request, lastLoginData []appctx.LastLogin) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Login History")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Login history")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

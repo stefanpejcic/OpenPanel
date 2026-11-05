@@ -16,8 +16,8 @@ var errorLogsPage = web.LoadPage("system/error_logs.html")
 // errorLogsBulkActions are both browser-only, the page script copies or saves the selected rows' lines
 func errorLogsBulkActions(t i18n.Translator) []web.BulkAction {
 	return []web.BulkAction{
-		{Key: "copy", Label: t.Get("Copy"), Icon: "bi-clipboard", Client: true},
-		{Key: "download", Label: t.Get("Download"), Icon: "bi-download", Client: true},
+		{Key: "copy", Label: t.Get("Copy"), Icon: "ri-clipboard-line", Client: true},
+		{Key: "download", Label: t.Get("Download"), Icon: "ri-download-line", Client: true},
 	}
 }
 
@@ -48,7 +48,7 @@ type ErrorLogsPageData struct {
 }
 
 func renderErrorLogsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, q Query, res Result, targets []Target, status int, errMsg string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Error Logs")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Error logs")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

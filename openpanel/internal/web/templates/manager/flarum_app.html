@@ -8,7 +8,7 @@
 {{template "cms_block" .}}
         {{template "cms_block_2" .}}
         {{template "cms_block_4" .}}
-    <div class="flex flex-col space-y-4 rounded xl:col-span-3">
+    <div class="flex flex-col space-y-4 rounded-md xl:col-span-3">
 
         {{template "cms_block_7" .}}
             {{template "cms_tabbtn_dashboard" .}}
@@ -19,15 +19,14 @@
             {{template "cms_tab_security" .}}
         {{template "cms_tab_dashboard" .}}
             <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
-                <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
-                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded xl:col-span-3">
+                <div class="flex flex-col space-y-4 overflow-hidden rounded-md xl:col-span-3">
+                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded-md xl:col-span-3">
                         {{template "cms_block_10" .}}
                 {{template "cms_block_13" .}}
                 {{template "cms_block_14" .}}
-                <div class="flex flex-col justify-top overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
-                    <div class="mb-2 flex items-center justify-between gap-4 relative">
-                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-                        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>
+                <div class="flex flex-col justify-start overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
+                    <div class="mb-3 flex items-center justify-between gap-4">
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>
                         {{if .UserAllowed.mysql}}
                         <a
                             type="button"
@@ -35,13 +34,11 @@
                             href="/mysql"
                             target="_blank"
                             data-tooltip-target="tooltip-db-link" data-tooltip-placement="left"
-                            class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                            class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
-                                <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
-                            </svg>
+                            <i class="ri-arrow-right-up-line text-lg leading-none" aria-hidden="true"></i>
                         </a>
-                        <div id="tooltip-db-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                        <div id="tooltip-db-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-md shadow-xs opacity-0 tooltip dark:bg-gray-700">
                             {{.T.Get "Manage MySQL databases"}}
                             <div class="tooltip-arrow" data-popper-arrow></div>
                         </div>
@@ -49,60 +46,58 @@
                     </div>
 
                     {{if .DBInfo.error}}
-                    <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                    <div class="flex items-center justify-between gap-4 rounded-md border border-gray-200 px-4 py-3 dark:border-gray-800">
                         <span class="text-sm text-gray-500 dark:text-gray-500">{{.DBInfo.error}}</span>
                     </div>
                     {{else}}
-                    <div class="grid grid-cols-1 gap-2">
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50" id="database-size-row">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Size:"}}</span>
-                            <span class="font-medium" id="databaseSize">{{.T.Get "Calculating.."}}</span>
+                    <div class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+                        <div class="flex items-center justify-between gap-4 px-4 py-3" id="database-size-row">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Database size"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50" id="databaseSize">{{.T.Get "Calculating.."}}</span>
                         </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Host:"}}</span>
-                            <span class="font-medium">{{.DBInfo.database_host}}</span>
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Database host"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.DBInfo.database_host}}</span>
                         </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Name:"}}</span>
-                            <span class="font-medium">
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Database name"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">
                             {{if .UserAllowed.mysql}}
-                                <a href="/mysql" class="hover:underline">{{.DBInfo.database_name}}</a>
+                                <a href="/mysql" class="text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50">{{.DBInfo.database_name}}</a>
                             {{else}}
                                 {{.DBInfo.database_name}}
                             {{end}}
                             </span>
                         </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database User:"}}</span>
-                            <span class="font-medium">
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Database user"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">
                             {{if .UserAllowed.mysql}}
-                                <a href="/mysql/users" class="hover:underline">{{.DBInfo.database_user}}</a>
+                                <a href="/mysql/users" class="text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50">{{.DBInfo.database_user}}</a>
                             {{else}}
                                 {{.DBInfo.database_user}}
                             {{end}}
                             </span>
                         </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Password:"}}</span>
-                            <span class="font-medium" id="database-password" style="filter: blur(5px); cursor: pointer;" onclick="revealFlarumDBPassword()">{{.DBInfo.database_password}}</span>
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Password"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50" id="database-password" style="filter: blur(5px); cursor: pointer;" onclick="revealFlarumDBPassword()">{{.DBInfo.database_password}}</span>
                         </div>
 
                         {{if .UserAllowed.phpmyadmin}}
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "phpMyAdmin:"}}</span>
-                            <span class="font-medium flex items-center gap-1.5"><a
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "phpMyAdmin"}}</span>
+                            <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-50"><a
                                         type="button"
                                         id="phpmyadmin-link"
                                         href="/phpmyadmin"
                                         target="_blank"
                                         data-tooltip-target="tooltip-phpmyadmin-link" data-tooltip-placement="left"
-                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                        class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
-                                            <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
-                                        </svg>
+                                        <i class="ri-arrow-right-up-line text-lg leading-none" aria-hidden="true"></i>
                                     </a>
-                                    <div id="tooltip-phpmyadmin-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                    <div id="tooltip-phpmyadmin-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-md shadow-xs opacity-0 tooltip dark:bg-gray-700">
                                         {{.T.Get "Open database in phpMyAdmin"}}
                                         <div class="tooltip-arrow" data-popper-arrow></div>
                                     </div>
@@ -112,14 +107,11 @@
                                         href="/phpmyadmin/link"
                                         target="_blank"
                                         data-tooltip-target="tooltip-phpmyadmin-link-manual" data-tooltip-placement="left"
-                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                        class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-right-end-on-rectangle inline-block size-5">
-                                            <path fill-rule="evenodd" d="M6 3.75A2.75 2.75 0 0 1 8.75 1h4.5A2.75 2.75 0 0 1 16 3.75v12.5A2.75 2.75 0 0 1 13.25 19h-4.5A2.75 2.75 0 0 1 6 16.25v-1a.75.75 0 0 1 1.5 0v1c0 .69.56 1.25 1.25 1.25h4.5c.69 0 1.25-.56 1.25-1.25V3.75c0-.69-.56-1.25-1.25-1.25h-4.5c-.69 0-1.25.56-1.25 1.25v1a.75.75 0 0 1-1.5 0v-1Z" clip-rule="evenodd"></path>
-                                            <path fill-rule="evenodd" d="M1 10a.75.75 0 0 1 .75-.75h9.546l-1.048-.943a.75.75 0 1 1 1.004-1.114l2.5 2.25a.75.75 0 0 1 0 1.114l-2.5 2.25a.75.75 0 1 1-1.004-1.114l1.048-.943H1.75A.75.75 0 0 1 1 10Z" clip-rule="evenodd"></path>
-                                        </svg>
+                                        <i class="ri-login-box-line text-lg leading-none" aria-hidden="true"></i>
                                     </a>
-                                    <div id="tooltip-phpmyadmin-link-manual" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                    <div id="tooltip-phpmyadmin-link-manual" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-md shadow-xs opacity-0 tooltip dark:bg-gray-700">
                                         {{.T.Get "Open phpMyAdmin login form"}}
                                         <div class="tooltip-arrow" data-popper-arrow></div>
                                     </div></span>
@@ -137,7 +129,7 @@
                     }
                 </script>
 {{template "cms_block_20" .}}
-        <div class="hidden p-4 rounded" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+        <div class="hidden p-4 rounded-md" id="logs" role="tabpanel" aria-labelledby="logs-tab">
 
             <div class="flex items-center justify-between mb-4">
                 <h3 id="flarum-log-title" class="font-semibold text-gray-900 dark:text-gray-50">
@@ -192,7 +184,7 @@
             </script>
         </div>
 
-        <div class="hidden p-4 rounded" id="update" role="tabpanel" aria-labelledby="update-tab">
+        <div class="hidden p-4 rounded-md" id="update" role="tabpanel" aria-labelledby="update-tab">
             {{template "cms_block_28" .}}
             <script>
                 function compareFlarumVersionsDesc(a, b) {
@@ -238,12 +230,12 @@
                             latestEl.textContent = latest || {{toJSON (.T.Get "Unknown")}};
                             const updateBtn = document.getElementById('flarum-update-btn');
                             if (latest && installed && isVersionOlder(installed, latest)) {
-                                statusEl.innerHTML = '<span class="text-orange-500">' + {{toJSON (.T.Get "A newer version is available.")}} + '</span>';
+                                statusEl.innerHTML = '<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">' + {{toJSON (.T.Get "A newer version is available.")}} + '</span>';
                                 updateBtn.classList.remove('hidden');
                                 updateBtn.classList.add('inline-flex');
                                 document.getElementById('flarum-update-hint').classList.remove('hidden');
                             } else if (latest && installed) {
-                                statusEl.innerHTML = '<span class="text-green-600">' + {{toJSON (.T.Get "You are running the latest version.")}} + '</span>';
+                                statusEl.innerHTML = '<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20">' + {{toJSON (.T.Get "You are running the latest version.")}} + '</span>';
                             }
                         })
                         .catch(error => {
@@ -294,7 +286,7 @@
                                                 log.textContent += 'Error: ' + data.error + '\n';
                                                 showToast(data.error, 'error');
                                                 btn.disabled = false;
-                                                btn.textContent = {{toJSON (.T.Get "Retry Update")}};
+                                                btn.textContent = {{toJSON (.T.Get "Retry update")}};
                                             }
                                         } catch (e) { /* non-JSON line, ignore */ }
                                     });
@@ -302,7 +294,7 @@
                                 }).catch(streamErr => {
                                     showToast({{toJSON (.T.Get "Connection lost during update.")}}, 'error');
                                     btn.disabled = false;
-                                    btn.textContent = {{toJSON (.T.Get "Retry Update")}};
+                                    btn.textContent = {{toJSON (.T.Get "Retry update")}};
                                     console.error('Stream read error:', streamErr);
                                 });
                             }
@@ -311,7 +303,7 @@
                         .catch(error => {
                             showToast({{toJSON (.T.Get "Fetch error. Please try again.")}}, 'error');
                             btn.disabled = false;
-                            btn.textContent = {{toJSON (.T.Get "Retry Update")}};
+                            btn.textContent = {{toJSON (.T.Get "Retry update")}};
                             console.error('Fetch error:', error);
                         });
                 });
@@ -324,7 +316,7 @@
                 {{template "cms_block_19" .}}
             {{template "cms_script_4" .}}
 {{template "cms_block_21" .}}
-        <div class="hidden p-4 rounded" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+        <div class="hidden p-4 rounded-md" id="backups" role="tabpanel" aria-labelledby="backups-tab">
 
             {{template "cms_block_29" .}}
             {{template "cms_block_30" .}}
@@ -332,7 +324,7 @@
         </div>
 
         {{template "cms_tab_remove" .}}
-    <div class="flex flex-col space-y-4 rounded xl:col-span-1">
+    <div class="flex flex-col space-y-4 rounded-md xl:col-span-1">
 
         {{template "pagespeed_panel" .}}
 
@@ -391,7 +383,7 @@ function confirmDetachFlarum() {
 
 {{define "flarum_cache"}}
 <!-- START flarum_cache widget -->
-<div x-data="flarumCacheComponent()" class="flex flex-col justify-center overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+<div x-data="flarumCacheComponent()" class="flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
   {{template "cms_block_32" .}}
     <div class="grid grid-cols-1 gap-2">
         {{template "cms_block_33" .}}
@@ -401,22 +393,16 @@ function confirmDetachFlarum() {
 
 {{define "flarum_scheduler"}}
 <!-- START flarum_scheduler widget -->
-<div x-data="flarumSchedulerComponent()" x-init="load()" class="flex flex-col justify-center overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
-    <div class="mb-2 flex items-center justify-between gap-4 relative">
-        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Scheduler"}}</h2>
-        <svg aria-hidden="true" class="size-5 shrink-0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+<div x-data="flarumSchedulerComponent()" x-init="load()" class="flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
+    <div class="mb-3 flex items-center justify-between gap-4">
+        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Scheduler"}}</h2>
+        <i class="ri-time-line text-lg leading-none text-gray-500 dark:text-gray-400" aria-hidden="true"></i>
     </div>
     <div class="flex items-center justify-between gap-4">
         <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Runs php flarum schedule:run every minute, needed by extensions that do scheduled tasks or queue jobs."}}</p>
-        <button type="button" role="switch" :aria-checked="enabled.toString()" aria-label="{{.T.Get "Scheduler on"}}"
-                @click="toggle()" :disabled="!loaded || busy"
-                class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-                :class="enabled ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'">
-            <span class="pointer-events-none inline-block size-5 rounded-full bg-white shadow transition-transform" :class="enabled ? 'translate-x-5' : 'translate-x-0'"></span>
-        </button>
+        <input type="checkbox" role="switch" aria-label="{{.T.Get "Scheduler on"}}" :checked="enabled" @change="toggle(); $el.checked = enabled" :disabled="!loaded || busy" class="shrink-0">
     </div>
-    <a href="/cronjobs" class="mt-2 text-xs text-gray-500 hover:underline dark:text-gray-400">{{.T.Get "View in Cron Jobs"}}</a>
+    <a href="/cronjobs" class="mt-2 text-xs text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "View in cron jobs"}}</a>
 </div>
 <script>
   function flarumSchedulerComponent() {

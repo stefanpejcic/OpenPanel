@@ -416,13 +416,13 @@ func databaseService(choice string) string {
 
 // renderChangeMySQLPage renders the database server switch page, blocked while user databases still exist
 func renderChangeMySQLPage(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext, flavor string, blocked bool, dbCount int) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Database Server")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Database server")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 	data := ChangeMySQLPageData{
-		LayoutData: layout, Title: "Database Server", MySQLType: flavor, Blocked: blocked, DBCount: dbCount,
+		LayoutData: layout, Title: "Database server", MySQLType: flavor, Blocked: blocked, DBCount: dbCount,
 		Choices: serverChoicesFor(userContext, databaseChoices, flavor, databaseService),
 	}
 	if err := changeMySQLPage.Render(w, http.StatusOK, data); err != nil {
@@ -541,7 +541,7 @@ func renderChangeImagePage(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 // renderChangeImageSelectPage renders the service picker for changing an image tag when no specific service was requested
 func renderChangeImageSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, composeData map[string]any) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Change docker image tag")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Change Docker image tag")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

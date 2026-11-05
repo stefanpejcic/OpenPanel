@@ -27,7 +27,7 @@ func TestRenderServicesListPage(t *testing.T) {
 		t.Fatalf("Render: %v", err)
 	}
 	body := w.Body.String()
-	if !strings.Contains(body, "Choose Service") || !strings.Contains(body, `value="redis"`) || !strings.Contains(body, `value="nginx"`) {
+	if !strings.Contains(body, "The services on your account") || !strings.Contains(body, `href="/services/redis"`) || !strings.Contains(body, `href="/services/nginx"`) {
 		t.Errorf("rendered services list page missing expected content:\n%s", body)
 	}
 }
@@ -41,13 +41,13 @@ func TestRenderServiceDetailPage(t *testing.T) {
 			LayoutData: baseLayout(mgr, "/services/nginx"), Service: "nginx", UserContext: "testuser",
 			IsRunning: true, StatusKey: "running", StatusColor: "emerald-500", StatusLabel: "Running",
 			StatusMapJSON: StatusMapJSON(mgr.Translator("en")),
-			ActionValue:   "disable", ActionLabel: "Click to Disable",
+			ActionValue:   "disable", ActionLabel: "Click to disable",
 		}
 		if err := servicesPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		for _, want := range []string{"nginx", "Click to Disable", `value="disable"`, "containerStats()", "/json/containers/log/nginx"} {
+		for _, want := range []string{"nginx", "Click to disable", `value="disable"`, "containerStats()", "/json/containers/log/nginx"} {
 			if !strings.Contains(body, want) {
 				t.Errorf("rendered running-service page missing %q", want)
 			}
@@ -60,13 +60,13 @@ func TestRenderServiceDetailPage(t *testing.T) {
 			LayoutData: baseLayout(mgr, "/services/redis"), Service: "redis", UserContext: "testuser",
 			IsRunning: false, StatusKey: "not_found", StatusColor: "gray-400", StatusLabel: "Disabled",
 			StatusMapJSON: StatusMapJSON(mgr.Translator("en")),
-			ActionValue:   "enable", ActionLabel: "Click to Enable",
+			ActionValue:   "enable", ActionLabel: "Click to enable",
 		}
 		if err := servicesPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		if !strings.Contains(body, "Click to Enable") || !strings.Contains(body, `value="enable"`) {
+		if !strings.Contains(body, "Click to enable") || !strings.Contains(body, `value="enable"`) {
 			t.Error("expected enable button for a not_found service")
 		}
 		if strings.Contains(body, "containerStats()") {

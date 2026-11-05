@@ -157,7 +157,7 @@ func TestRenderAllPages(t *testing.T) {
 			t.Fatalf("configuration: %v", err)
 		}
 		body := w.Body.String()
-		for _, want := range []string{`id="db-tuning"`, "dbTuning('/postgresql/configuration/recommendations')", "Confirm Changes", `x-ref="form"`} {
+		for _, want := range []string{`id="db-tuning"`, "dbTuning('/postgresql/configuration/recommendations')", "Confirm changes", `x-ref="form"`} {
 			if !strings.Contains(body, want) {
 				t.Errorf("expected %q in body", want)
 			}

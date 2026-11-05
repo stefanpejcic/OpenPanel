@@ -3,18 +3,34 @@
 {{define "content"}}
 <!-- START templates/psql/users.html -->
 
-<section aria-label="{{.T.Get "Users Table"}}" x-data="{ searchQuery: '' }">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<section aria-label="{{.T.Get "Users table"}}" x-data="{ searchQuery: '' }">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div>
-            <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "PostgreSQL Users"}}</h1></div>
-            <p class="text-sm text-gray-500 dark:text-gray-500"> {{.T.Get "Total users:"}} <span id="total_records_count" class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white">{{len .Users}}</span></p>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "PostgreSQL users"}}</h1>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Total users:"}} <span id="total_records_count" class="font-medium text-gray-900 tabular-nums dark:text-gray-50">{{len .Users}}</span></p>
         </div>
 
-        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-            <p class="text-sm text-gray-500 dark:text-gray-500">
-                <input class="form-check-input mr-2" type="checkbox" role="switch" id="showAllCheckbox" {{if .ShowAll}}checked{{end}}>
-                <label class="form-check-label text-secondary fs-sm" for="showAllCheckbox">{{.T.Get "Show system users"}}</label>
-            </p>
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+            {{if eq .ContainerState "running"}}
+            <a href="/postgresql/remove" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"><span>{{.T.Get "Remove user"}}<span class="hidden sm:inline"> {{.T.Get "from"}} {{.T.Get "database"}}</span></span></a>
+            <a href="/postgresql/assign" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"><span>{{.T.Get "Assign user"}}<span class="hidden sm:inline"> {{.T.Get "to"}} {{.T.Get "database"}}</span></span></a>
+            <a href="/postgresql/user" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400"><i class="ri-add-line text-base" aria-hidden="true"></i>{{.T.Get "Create user"}}</a>
+            {{else}}
+            <span title="{{.T.Get "Unavailable while the service is not running."}}" aria-disabled="true" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 cursor-not-allowed opacity-50"><span>{{.T.Get "Remove user"}}<span class="hidden sm:inline"> {{.T.Get "from"}} {{.T.Get "database"}}</span></span></span>
+            <span title="{{.T.Get "Unavailable while the service is not running."}}" aria-disabled="true" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 cursor-not-allowed opacity-50"><span>{{.T.Get "Assign user"}}<span class="hidden sm:inline"> {{.T.Get "to"}} {{.T.Get "database"}}</span></span></span>
+            <span title="{{.T.Get "Unavailable while the service is not running."}}" aria-disabled="true" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 cursor-not-allowed opacity-50"><i class="ri-add-line text-base" aria-hidden="true"></i>{{.T.Get "Create user"}}</span>
+            {{end}}
+        </div>
+    </div>
+
+    <div class="flex flex-col gap-3 px-4 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <div class="relative w-full sm:w-64">
+            <input x-model="searchQuery" type="search" aria-label="{{.T.Get "Search"}}" placeholder="{{.T.Get "Search"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 py-1.5 pl-8"/>
+            <div class="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-gray-400 dark:text-gray-500"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" class="size-4 shrink-0"><path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path></svg></div>
+        </div>
+        <div class="flex items-center gap-2">
+            <input type="checkbox" role="switch" id="showAllCheckbox" {{if .ShowAll}}checked{{end}}>
+            <label for="showAllCheckbox" class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Show system users"}}</label>
         </div>
     </div>
 
@@ -27,106 +43,54 @@
     });
     </script>
 
-    <div class="flex flex-col justify-between gap-2 p-4 px-6 sm:flex-row sm:items-center">
-        <div class="relative w-full sm:w-64 [&>input]:py-1.5">
-            <input x-model="searchQuery" type="search" placeholder="{{.T.Get "Search"}}" class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 pl-8 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"/>
-            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
-                    <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
-                </svg>
-            </div>
-        </div>
-
-        <div class="flex flex-col items-center gap-2 sm:flex-row">
-            {{if eq .ContainerState "running"}}
-            <a href="/postgresql/user" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>{{.T.Get "Create User"}}</a>
-            <a href="/postgresql/assign" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Assign User"}} <span class="hidden sm:inline">{{.T.Get "to"}} {{.T.Get "Database"}}</span></a>
-            <a href="/postgresql/remove" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Remove User"}} <span class="hidden sm:inline">{{.T.Get "from"}} {{.T.Get "Database"}}</span></a>
-            {{else}}
-            <span title="{{.T.Get "Unavailable while the service is not running."}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm cursor-not-allowed opacity-50 border-black bg-black text-white sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap sm:mt-0"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>{{.T.Get "Create User"}}</span>
-            <span title="{{.T.Get "Unavailable while the service is not running."}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm cursor-not-allowed opacity-50 border-black bg-black text-white sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap sm:mt-0">{{.T.Get "Assign User"}} <span class="hidden sm:inline">{{.T.Get "to"}} {{.T.Get "Database"}}</span></span>
-            <span title="{{.T.Get "Unavailable while the service is not running."}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm cursor-not-allowed opacity-50 border-black bg-black text-white sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap sm:mt-0">{{.T.Get "Remove User"}} <span class="hidden sm:inline">{{.T.Get "from"}} {{.T.Get "Database"}}</span></span>
-            {{end}}
-        </div>
-    </div>
-
 {{template "bulk_open" (dict "T" .T "Table" "#users-table" "Endpoint" "/postgresql/users/bulk")}}
-    <div class="overflow-x-auto">
-        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
-            <table id="users-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
-                <thead class="">
-                    <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+    <div class="relative overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+        <table id="users-table" class="w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+            <thead>
+                <tr>
 {{template "bulk_head_checkbox" .}}
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Username"}}</th>
-                        <th scope="col" class="w-10 whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Actions"}}</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-                    {{$root := .}}
-                    {{range .Users}}
-                    {{$user := .}}
-                    <tr x-show="searchQuery === '' || {{toJSON $user.Name}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                    <th scope="col" class="border-b border-gray-200 px-4 py-1 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Username") "Key" "username" "Type" "string")}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 w-10 text-right"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                {{$root := .}}
+                {{range .Users}}
+                {{$user := .}}
+                <tr x-show="searchQuery === '' || {{toJSON $user.Name}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row hover:bg-gray-50 dark:hover:bg-gray-900/60">
 {{$skip := ""}}{{if $user.IsSystem}}{{$skip = "*"}}{{end}}{{template "bulk_row_checkbox" (dict "T" $.T "Key" $user.Name "Label" $user.Name "Skip" $skip)}}
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{$user.Name}}</td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                            <div class="flex gap-2">
-                                {{if $user.IsSystem}}
-                                <span class="bg-gray-100 text-gray-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-300">{{$root.T.Get "System User"}}</span>
-                                {{else}}
-                                <a href="/postgresql/password/{{$user.Name}}" class="btn btn-primary" type="button"><i class="bi bi-key-fill"></i> {{$root.T.Get "Change Password"}}</a>
-                                <form method="POST" action="/delete_postgres_user">
-                                    <input type="hidden" name="csrf_token" value="{{$root.CSRFToken}}"/>
-                                    <input type="hidden" name="db_user" value="{{$user.Name}}">
-                                    <button class="btn btn-danger" type="button" onclick="confirmDelete(this);"><i class="bi bi-trash3"></i> {{$root.T.Get "Delete"}}</button>
-                                </form>
-                                {{end}}
-                            </div>
-                        </td>
-                    </tr>
-                    {{end}}
-                </tbody>
-            </table>
-        </div>
+                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap font-medium text-gray-900 dark:border-gray-800 dark:text-gray-50" data-sort-col="username">{{$user.Name}}</td>
+                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
+                        <div class="flex items-center justify-end gap-1">
+                            {{if $user.IsSystem}}
+                            <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{$root.T.Get "System user"}}</span>
+                            {{else}}
+                            <a href="/postgresql/password/{{$user.Name}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" title="{{$root.T.Get "Change password"}}" aria-label="{{$root.T.Get "Change password"}} {{$user.Name}}"><i class="ri-key-2-line text-base" aria-hidden="true"></i></a>
+                            <form method="POST" action="/delete_postgres_user">
+                                <input type="hidden" name="csrf_token" value="{{$root.CSRFToken}}"/>
+                                <input type="hidden" name="db_user" value="{{$user.Name}}">
+                                <button type="button" onclick="confirmDelete(this)" data-confirm-label="{{$root.T.Get "Confirm"}}" class="btn-danger inline-flex h-8 min-w-8 shrink-0 gap-1 px-1.5 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-400/10 dark:hover:text-red-500 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" title="{{$root.T.Get "Delete"}}" aria-label="{{$root.T.Get "Delete"}} {{$user.Name}}"><i class="ri-delete-bin-line text-base" aria-hidden="true"></i></button>
+                            </form>
+                            {{end}}
+                        </div>
+                    </td>
+                </tr>
+                {{else}}
+                <tr><td colspan="3" class="border-b border-gray-200 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-500">{{.T.Get "No users yet."}}</td></tr>
+                {{end}}
+            </tbody>
+        </table>
     </div>
 {{template "bulk_bar" .}}
 </div>
 </section>
 
-<script>
-function confirmDelete(button) {
-    var countdown = 5;
-    var countdownActive = true;
+<script src="{{static "js/table-sort.js"}}"></script>
 
-    button.classList.remove('btn-danger');
-    button.classList.add('btn-dark');
-    button.innerHTML = '<i class="bi bi-trash3-fill"></i> {{.T.Get "Confirm"}} <span class="btn-indicator btn-indicator-mini bg-danger">' + countdown + '</span>';
-
-    var intervalId = setInterval(function () {
-        countdown--;
-        var indicator = button.querySelector('.btn-indicator-mini');
-        if (indicator) indicator.textContent = countdown;
-        button.removeAttribute('onclick');
-        if (countdown === 0) {
-            clearInterval(intervalId);
-            revertButton(button);
-            countdownActive = false;
-        }
-    }, 1000);
-
-    button.addEventListener('click', function () {
-        if (countdownActive) {
-            button.closest('form').submit();
-        }
-    });
-}
-
-function revertButton(button) {
-    button.classList.remove('btn-dark');
-    button.classList.add('btn-danger');
-    button.innerHTML = '<i class="bi bi-trash3"></i> {{.T.Get "Delete"}}';
-    button.setAttribute('onclick', 'confirmDelete(this);');
-}
-</script>
-
+<script src="{{static "js/confirm-delete.js"}}"></script>
 <!-- END templates/psql/users.html -->
+{{end}}
+
+{{define "sort_header"}}
+<button type="button" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.Label}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
 {{end}}

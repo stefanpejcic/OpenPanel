@@ -28,7 +28,7 @@ func TestRenderIPBlockerPage(t *testing.T) {
 		if err := ipBlockerPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "IP Blocker") {
+		if !strings.Contains(w.Body.String(), "IP blocker") {
 			t.Error("expected page title in body")
 		}
 	})

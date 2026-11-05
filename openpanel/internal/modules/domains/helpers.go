@@ -79,6 +79,17 @@ type SSLStatus struct {
 }
 
 // isRewriteCondEnabled reads a domain's SSL/suspend status from its Caddy config, cached 30s
+// IsSuspended reports whether the domain's Caddy config has it suspended
+func IsSuspended(ctx context.Context, a *appctx.App, domainURL string) bool {
+	return isRewriteCondEnabled(ctx, a, domainURL).Suspended == "Suspended"
+}
+
+// SiteStatus reports whether the domain is suspended, its HTTPS mode and what its certificate looks like
+func SiteStatus(ctx context.Context, a *appctx.App, domainURL string) (suspended bool, https string, cert SSLCertInfo) {
+	st := isRewriteCondEnabled(ctx, a, domainURL)
+	return st.Suspended == "Suspended", st.HTTPS, readSSLCertInfo(domainURL, st.HTTPS)
+}
+
 func isRewriteCondEnabled(ctx context.Context, a *appctx.App, domainURL string) SSLStatus {
 	status, _ := cache.Memoize(ctx, a.Cache, "is_rewrite_cond_enabled:"+domainURL, 30*time.Second, func() (SSLStatus, error) {
 		return computeRewriteCondEnabled(domainURL), nil

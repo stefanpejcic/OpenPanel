@@ -1,10 +1,12 @@
 package php
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -49,6 +51,35 @@ func classifyPHPVersionLevel(version string, data map[string]VersionInfo) (level
 		return "secure", info.StatusLabel
 	}
 	return "unsupported", "Unsupported"
+}
+
+// statusLabelText turns the API's "Security-Fixes Only" into "Security fixes only" for display
+func statusLabelText(label string) string {
+	label = strings.ToLower(strings.ReplaceAll(label, "-", " "))
+	if label == "" {
+		return label
+	}
+	return strings.ToUpper(label[:1]) + label[1:]
+}
+
+// PHPVersionPick is one row of the version list on the options, extensions and php.ini pages
+type PHPVersionPick struct {
+	Version string
+	Level   string
+	Label   string
+}
+
+// versionPicks lists the installed versions newest first with their support level
+func versionPicks(ctx context.Context, installed []string) []PHPVersionPick {
+	data := fetchPHPVersionsAPI(ctx)
+	sorted := append([]string(nil), installed...)
+	sortVersionsDesc(sorted)
+	picks := make([]PHPVersionPick, 0, len(sorted))
+	for _, v := range sorted {
+		level, label := classifyPHPVersionLevel(v, data)
+		picks = append(picks, PHPVersionPick{Version: v, Level: level, Label: statusLabelText(label)})
+	}
+	return picks
 }
 
 // handlePHPDomains renders the per-domain PHP version table and handles the version-switch POST from it
@@ -109,6 +140,10 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Domain %(domain_url)s already uses PHP %(new_phpversion)s, nothing to change", "domain_url", domainURL, "new_phpversion", newPHPVersion), target)
 			return
 		}
+
+		// from here the switch has to finish even if the browser leaves, or the vhost could end up pointing at a php the web server never reloaded
+		ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Minute)
+		defer cancel()
 
 		newPHPContainer := "php-fpm-" + newPHPVersion
 		if !docker.IsServiceRunning(ctx, userContext, newPHPContainer) {
@@ -213,7 +248,7 @@ func buildPHPDomainRows(userContext string, domainsList []appctx.Domain, phpVers
 	for i := range counts {
 		level, label := classifyPHPVersionLevel(counts[i].Version, phpVersionsData)
 		counts[i].Level = level
-		counts[i].Label = label
+		counts[i].Label = statusLabelText(label)
 		if level == "unsupported" {
 			outdatedDomains += counts[i].Count
 		}

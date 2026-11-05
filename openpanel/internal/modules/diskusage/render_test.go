@@ -32,7 +32,7 @@ func TestRenderDiskUsagePage(t *testing.T) {
 		t.Fatalf("Render: %v", err)
 	}
 	body := w.Body.String()
-	for _, want := range []string{"dir1", "120M", "dir2", "Up One Level"} {
+	for _, want := range []string{"dir1", "120M", "dir2", "Up one level"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("rendered disk usage page missing %q", want)
 		}

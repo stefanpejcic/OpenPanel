@@ -117,7 +117,7 @@ func inProgressInfo(currentUsername, userContext string) (started, currentSize, 
 	return started, currentSize, inProgressFile
 }
 
-// BackupFile is one entry of the "Existing Backups" table.
+// BackupFile is one entry of the "Existing backups" table.
 type BackupFile struct {
 	Name       string `json:"name"`
 	SizeRaw    int64  `json:"size_raw"`

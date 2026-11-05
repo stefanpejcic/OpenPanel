@@ -5,20 +5,21 @@
 
 <script src="{{static "vendor/chartjs/chart.umd.js"}}"></script>
 <script src="{{static "vendor/chartjs/chartjs-adapter-date-fns.bundle.min.js"}}"></script>
+<script src="{{static "js/charts.js"}}"></script>
 
 <!-- page header -->
 <section aria-label="{{.T.Get "Usage Header"}}" x-data="{ searchQuery: '' }">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div>
         <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Historical CPU and Memory Usage"}}</h1>
 </div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "View past CPU and Memory usage."}}</p>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">{{.T.Get "View past CPU and Memory usage."}}</p>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+    <div class="flex flex-col gap-2 sm:flex-row">
         <div class="relative w-full sm:w-64">
             <input
-                x-model="searchQuery"
-                class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
+                x-model="searchQuery" aria-label="{{.T.Get "Search"}}"
+                class="pl-8 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
                 placeholder="{{.T.Get "Search"}}"
                 type="search"
             />
@@ -32,66 +33,41 @@
 </div>
 <!-- END page header -->
 
-    <div class="p-6 mx-auto text-center">
-        <div class="">
-
-        {{if eq .ChartsMode "one"}}
-
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-1 md:gap-6 xl:grid-cols-1">
-
-        <div class="flex flex-col space-y-2  overflow-hidden rounded-lg bg-white p-6 border border-gray-200 dark:border-gray-800 dark:bg-slate-900  xl:col-span-2 w-full">
-
-            <div class="mb-6 flex items-center justify-between gap-4">
-                <h2 class="text-l font-extrabold">{{.T.Get "Historical CPU and Memory Usage"}}</h2>
+    <!-- charts sit on one surface split by a line, edge to edge like the table under them -->
+    {{if eq .ChartsMode "one"}}
+    <div class="border-y border-gray-200 dark:border-gray-800">
+        <div class="bg-white px-4 py-5 sm:px-6 lg:px-8 dark:bg-gray-950">
+            <div class="mb-3 flex items-center justify-between gap-4">
+                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "CPU and memory usage"}}</h2>
+                <div class="flex items-center gap-4 text-xs text-gray-500"><span class="inline-flex items-center gap-1.5"><span class="size-2 rounded-full bg-blue-500" aria-hidden="true"></span>CPU %</span><span class="inline-flex items-center gap-1.5"><span class="size-2 rounded-full bg-emerald-500" aria-hidden="true"></span>{{.T.Get "Memory %"}}</span></div>
             </div>
-            <div class="grid mx-auto max-w-screen-xl justify-center text-center lg:w-full md:w-5/6 xl:shadow-small-blue w-full">
-
-                <canvas id="combinedChart"></canvas>
-
+            <div class="relative h-64"><canvas id="combinedChart"></canvas></div>
+        </div>
+    </div>
+    {{else if eq .ChartsMode "two"}}
+    <div class="grid grid-cols-1 gap-px border-y border-gray-200 bg-gray-200 md:grid-cols-2 dark:border-gray-800 dark:bg-gray-800">
+        <div class="bg-white px-4 py-5 sm:px-6 lg:px-8 dark:bg-gray-950">
+            <div class="mb-3 flex items-center justify-between gap-4">
+                <h2 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-50"><span class="size-2 rounded-full bg-blue-500" aria-hidden="true"></span>{{.T.Get "CPU usage"}}</h2>
+                <span class="text-xs text-gray-500">%</span>
             </div>
+            <div class="relative h-56"><canvas id="cpuChart"></canvas></div>
         </div>
-
-        </div>
-
-        {{else if eq .ChartsMode "two"}}
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
-
-        <div class="flex flex-col space-y-2  overflow-hidden rounded-lg bg-white p-6 border border-gray-200 dark:border-gray-800 dark:bg-slate-900 xl:col-span-2 w-full">
-
-            <div class="mb-6 flex items-center justify-between gap-4">
-                <h2 class="text-l font-extrabold"><i class="bi bi-cpu"></i> {{.T.Get "History CPU Usage"}}</h2>
+        <div class="bg-white px-4 py-5 sm:px-6 lg:px-8 dark:bg-gray-950">
+            <div class="mb-3 flex items-center justify-between gap-4">
+                <h2 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-50"><span class="size-2 rounded-full bg-emerald-500" aria-hidden="true"></span>{{.T.Get "Memory usage"}}</h2>
+                <span class="text-xs text-gray-500">%</span>
             </div>
-            <div class="grid mx-auto max-w-screen-xl justify-center text-center lg:w-full md:w-5/6 xl:shadow-small-blue w-full">
-
-                <canvas id="cpuChart"></canvas>
-
-            </div>
+            <div class="relative h-56"><canvas id="ramChart"></canvas></div>
         </div>
+    </div>
+    {{else}}
+    <div class="px-4 sm:px-6 lg:px-8"><div class="flex gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500">{{.T.Get "charts_mode must be set to either two or one!"}}</div></div>
+    {{end}}
 
-
-        <div class="flex flex-col space-y-2  overflow-hidden rounded-lg bg-white p-6 border border-gray-200 dark:border-gray-800 dark:bg-slate-900 xl:col-span-2 w-full">
-
-            <div class="mb-6 flex items-center justify-between gap-4">
-                <h2 class="text-l font-extrabold"><i class="bi bi-memory"></i> {{.T.Get "History Memory Usage"}}</h2>
-            </div>
-            <div class="grid mx-auto max-w-screen-xl justify-center text-center lg:w-full md:w-5/6 xl:shadow-small-blue w-full">
-
-                <canvas id="ramChart"></canvas>
-
-            </div>
-        </div>
-
-        </div>
-        {{else}}
-
-        {{.T.Get "charts_mode must be set to either two or one!"}}
-
-        {{end}}
-
-        </div>
-
-        <div class="mt-6 flex justify-between items-center mb-4">
-            <h5 class="section-title mb-0 text-sm">
+    <div class="px-4 sm:px-6 lg:px-8">
+        <div class="mt-6 mb-3 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+            <p class="text-sm text-gray-500 tabular-nums">
                 {{if .ShowAll}}
                     {{.T.Get "Showing"}} 1 - {{.TotalLines}} {{.T.Get "of"}} {{.TotalLines}} {{.T.Get "items"}}
                 {{else}}
@@ -103,11 +79,11 @@
                     {{end}}
                     {{.T.Get "out of"}} {{.TotalLines}} {{.T.Get "items"}}
                 {{end}}
-            </h5>
-            <div class="flex items-center space-x-2">
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="showAllCheckboxOnHistoryPage" {{if .ShowAll}}checked{{end}}>
-                    <label class="form-check-label text-gray-600 text-sm" for="showAllCheckboxOnHistoryPage">
+            </p>
+            <div class="flex items-center">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" role="switch" id="showAllCheckboxOnHistoryPage" {{if .ShowAll}}checked{{end}}>
+                    <label class="text-sm text-gray-600 dark:text-gray-400" for="showAllCheckboxOnHistoryPage">
                         {{.T.Get "Show all data"}}
                     </label>
                 </div>
@@ -120,36 +96,36 @@
 <!-- usage table -->
     <div class="overflow-x-auto">
         <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
-            <table id="usage" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+            <table id="usage" class="caption-bottom w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
                 <thead class="">
-                    <tr class="bg-gray-50 dark:bg-gray-900 sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_th:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 sm:[&amp;_th:first-child]:pl-6">
+                    <tr>
 
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800"><i class="bi bi-calendar-month"></i> {{.T.Get "Date"}}</th>
+                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Date"}}</th>
 
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800"><i class="bi bi-cpu"> </i>{{.T.Get "CPU %"}}</th>
+                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "CPU %"}}</th>
 
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800"><i class="bi bi-cpu"></i> {{.T.Get "CPU Total"}}</th>
+                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "CPU total"}}</th>
 
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800"><i class="bi bi-memory"></i> {{.T.Get "Memory %"}}</th>
+                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Memory %"}}</th>
 
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800"><i class="bi bi-memory"></i> {{.T.Get "Memory Used/Total"}}</th>
+                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Memory used / total"}}</th>
 
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800"><i class="bi bi-wifi"></i> {{.T.Get "Bandwidth Usage"}}</th>
+                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Bandwidth Usage"}}</th>
 
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800"><i class="bi bi-exclamation-triangle"></i> {{.T.Get "Warning"}}</th>
+                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Warning"}}</th>
 
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                <tbody>
                     {{range .UsageData}}
-                    <tr x-show="searchQuery === '' || '{{.Timestamp}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.CPU.Usage.Pct}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Memory.UsagePct}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Memory.Used.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Memory.Total.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Bandwidth.UsagePct}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Bandwidth.Limit.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.CPU.Total.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Warning}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 time_readable">{{.Timestamp}}</td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.CPU.Usage.Pct}}</td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.CPU.Total.Human}}</td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Memory.UsagePct}}</td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Memory.Used.Human}} / {{.Memory.Total.Human}}</td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Bandwidth.TotalSent.Human}} / {{.Bandwidth.Limit.Human}} ({{.Bandwidth.UsagePct}}%)</td>
-                        <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{if .Warning}}{{.Warning}}{{else}}-{{end}}</td>
+                    <tr x-show="searchQuery === '' || '{{.Timestamp}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.CPU.Usage.Pct}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Memory.UsagePct}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Memory.Used.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Memory.Total.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Bandwidth.UsagePct}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Bandwidth.Limit.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.CPU.Total.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Warning}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                        <td class="time_readable tabular-nums border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400"><time datetime="{{.Timestamp}}">{{.Timestamp}}</time></td>
+                        <td class="border-b border-gray-200 px-4 py-2.5 text-center whitespace-nowrap text-gray-600 tabular-nums dark:border-gray-800 dark:text-gray-400">{{.CPU.Usage.Pct}}</td>
+                        <td class="border-b border-gray-200 px-4 py-2.5 text-center whitespace-nowrap text-gray-600 tabular-nums dark:border-gray-800 dark:text-gray-400">{{.CPU.Total.Human}}</td>
+                        <td class="border-b border-gray-200 px-4 py-2.5 text-center whitespace-nowrap text-gray-600 tabular-nums dark:border-gray-800 dark:text-gray-400">{{.Memory.UsagePct}}</td>
+                        <td data-size class="border-b border-gray-200 px-4 py-2.5 text-center whitespace-nowrap text-gray-600 tabular-nums dark:border-gray-800 dark:text-gray-400">{{.Memory.Used.Human}} / {{.Memory.Total.Human}}</td>
+                        <td data-size class="border-b border-gray-200 px-4 py-2.5 text-center whitespace-nowrap text-gray-600 tabular-nums dark:border-gray-800 dark:text-gray-400">{{.Bandwidth.TotalSent.Human}} / {{.Bandwidth.Limit.Human}} ({{.Bandwidth.UsagePct}}%)</td>
+                        <td class="border-b border-gray-200 px-4 py-2.5 text-center whitespace-nowrap text-gray-600 tabular-nums dark:border-gray-800 dark:text-gray-400">{{if .Warning}}{{.Warning}}{{else}}<span class="text-gray-400 dark:text-gray-600">—</span>{{end}}</td>
                     </tr>
                     {{end}}
 </tbody>
@@ -158,15 +134,15 @@
 <!-- END usage table -->
 
 <!-- Pagination -->
-<div class="mt-6 flex justify-center">
+<div class="flex justify-center px-4 py-4 sm:justify-end sm:px-6 lg:px-8">
     <nav aria-label="{{.T.Get "Usage History Navigation"}}">
-        <ul class="inline-flex -space-x-px text-sm">
+        <ul class="inline-flex text-sm">
             {{if not .ShowAll}}
                 {{if gt .CurrentPage 1}}
                     <li>
                         <a
                             href="/server/usage/history?page={{sub .CurrentPage 1}}"
-                            class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700"
+                            class="rounded-l-md relative -ml-px inline-flex items-center border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60"
                         >{{.T.Get "Previous"}}</a>
                     </li>
                 {{end}}
@@ -174,15 +150,15 @@
                 {{range .PageEntries}}
                     {{if .IsEllipsis}}
                         <li class="page-item disabled">
-                            <span class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">...</span>
+                            <span class="tabular-nums relative -ml-px inline-flex items-center border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60">...</span>
                         </li>
                     {{else}}
                         <li class="page-item {{if eq .Number $.CurrentPage}}active{{end}}">
                             {{if eq .Number $.CurrentPage}}
-                                <span class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 bg-gray-200 dark:bg-gray-700">{{.Number}}</span>
+                                <span aria-current="page" class="relative z-10 -ml-px inline-flex items-center border border-gray-300 bg-gray-100 px-3 py-1.5 text-sm font-semibold text-gray-900 tabular-nums dark:border-gray-800 dark:bg-gray-900 dark:text-gray-50">{{.Number}}</span>
                             {{else}}
                                 <a
-                                    class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700"
+                                    class="tabular-nums relative -ml-px inline-flex items-center border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60"
                                     href="/server/usage/history?page={{.Number}}"
                                 >{{.Number}}</a>
                             {{end}}
@@ -194,7 +170,7 @@
                     <li>
                         <a
                             href="/server/usage/history?page={{add .CurrentPage 1}}"
-                            class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700"
+                            class="rounded-r-md relative -ml-px inline-flex items-center border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60"
                         >{{.T.Get "Next"}}</a>
                     </li>
                 {{end}}
@@ -204,6 +180,7 @@
 </div>
 <!-- END Pagination -->
 
+<script src="{{static "js/usage-format.js"}}"></script>
 <script>
     // Script to handle toggling the "Show all activity" checkbox
     const showAllCheckboxOnHistoryPage = document.getElementById('showAllCheckboxOnHistoryPage');
@@ -237,80 +214,54 @@
         ramData.push(parseFloat(cells[3].textContent)); // Memory %
     });
 
-    // Reverse the arrays
-    timestamps.reverse();
-    cpuData.reverse();
-    ramData.reverse();
+    // charts read left to right oldest first, whichever way the table is sorted
+    const firstTime = tableRows.length ? Date.parse(tableRows[0].querySelector('time').getAttribute('datetime')) : 0;
+    const lastTime = tableRows.length ? Date.parse(tableRows[tableRows.length - 1].querySelector('time').getAttribute('datetime')) : 0;
+    if (firstTime > lastTime) {
+        timestamps.reverse();
+        cpuData.reverse();
+        ramData.reverse();
+    }
 
 </script>
 
-{{if eq .ChartsMode "one"}}
 <script>
-// Create combined chart
-const combinedChartCtx = document.getElementById('combinedChart').getContext('2d');
-new Chart(combinedChartCtx, {
-    type: 'line',
-    data: {
-        labels: timestamps,
-        datasets: [
-            {
-                label: 'CPU %',
-                data: cpuData,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                fill: false,
-            },
-            {
-                label: 'Memory %',
-                data: ramData,
-                borderColor: 'rgba(255, 99, 132, 1)',
-                fill: false,
-            },
-        ],
-    },
-    options: {
+// shared options for both chart modes, colors come from the brand palette in charts.js
+function usageChartOptions() {
+    return {
         responsive: true,
         maintainAspectRatio: false,
-    },
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 6 } },
+            y: { min: 0, suggestedMax: 100, ticks: { maxTicksLimit: 5 } }
+        }
+    };
+}
+function usageLine(label, data, color) {
+    return { label: label, data: data, borderColor: opChart.rgb(color), backgroundColor: opChart.rgb(color, 0.1), fill: true };
+}
+</script>
+{{if eq .ChartsMode "one"}}
+<script>
+new Chart(document.getElementById('combinedChart'), {
+    type: 'line',
+    data: { labels: timestamps, datasets: [usageLine('CPU %', cpuData, 'blue'), usageLine('Memory %', ramData, 'emerald')] },
+    options: usageChartOptions(),
 });
 </script>
 {{else if eq .ChartsMode "two"}}
 <script>
-    // Create CPU chart
-    const cpuChartCtx = document.getElementById('cpuChart').getContext('2d');
-    new Chart(cpuChartCtx, {
+    new Chart(document.getElementById('cpuChart'), {
         type: 'line',
-        data: {
-            labels: timestamps,
-            datasets: [{
-                label: 'CPU %',
-                data: cpuData,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                fill: false
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-        }
+        data: { labels: timestamps, datasets: [usageLine('CPU %', cpuData, 'blue')] },
+        options: usageChartOptions()
     });
-
-    // Create RAM chart
-    const ramChartCtx = document.getElementById('ramChart').getContext('2d');
-    new Chart(ramChartCtx, {
+    new Chart(document.getElementById('ramChart'), {
         type: 'line',
-        data: {
-            labels: timestamps,
-            datasets: [{
-                label: 'Memory %',
-                data: ramData,
-                borderColor: 'rgba(255, 99, 132, 1)',
-                fill: false
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-        }
+        data: { labels: timestamps, datasets: [usageLine('Memory %', ramData, 'emerald')] },
+        options: usageChartOptions()
     });
 </script>
 {{end}}

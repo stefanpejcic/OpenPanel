@@ -439,12 +439,15 @@ func isAllDigits(s string) bool {
 type EmailListRow struct {
 	Address      string
 	QuotaDisplay string
-	PercentVal   int
-	CappedVal    int
-	BarColor     string
-	Suspended    bool
-	HasFilter    bool
-	NearQuota    bool
+	// Used and Limit are the readable sizes ("28 MB", "2.0 GB"), empty when the line has no quota
+	Used       string
+	Limit      string
+	PercentVal int
+	CappedVal  int
+	BarColor   string
+	Suspended  bool
+	HasFilter  bool
+	NearQuota  bool
 }
 
 // parseEmailListRow mirrors accounts.html's per-row quota parsing.
@@ -476,17 +479,32 @@ func parseEmailListRow(entry string) EmailListRow {
 		cappedVal = 100
 	}
 
-	barColor := "bg-green-500"
+	barColor := "bg-blue-500"
 	switch {
-	case percentVal <= 80:
-		barColor = "bg-green-500"
-	case percentVal <= 90:
-		barColor = "bg-orange-500"
-	default:
+	case percentVal >= 90:
 		barColor = "bg-red-500"
+	case percentVal >= 70:
+		barColor = "bg-yellow-500"
 	}
 
-	return EmailListRow{Address: address, QuotaDisplay: quota, PercentVal: percentVal, CappedVal: cappedVal, BarColor: barColor, NearQuota: percentVal > 80}
+	_, used, limit := ParseMailboxQuota(entry)
+	return EmailListRow{Address: address, QuotaDisplay: quota, Used: readableQuotaSize(used), Limit: readableQuotaSize(limit), PercentVal: percentVal, CappedVal: cappedVal, BarColor: barColor, NearQuota: percentVal > 80}
+}
+
+// readableQuotaSize turns docker-mailserver's "28M" / "2.0G" / "0" / "~" into "28 MB" / "2.0 GB" / "0 B" / "no limit"
+func readableQuotaSize(v string) string {
+	switch {
+	case v == "":
+		return ""
+	case v == "~":
+		return "no limit"
+	case v == "0":
+		return "0 B"
+	}
+	if u := v[len(v)-1]; u == 'K' || u == 'M' || u == 'G' || u == 'T' {
+		return v[:len(v)-1] + " " + string(u) + "B"
+	}
+	return v
 }
 
 // ParseMailboxQuota splits one `opencli email-setup email list` line ("* info@demo.rs ( 28M / 2.0G ) [1%]") into the address and docker-mailserver's "( used / limit )", "~" being no limit; used and limit are empty when the line shows no quota
@@ -550,6 +568,9 @@ type SingleEmailQuota struct {
 	CappedVal      int
 	AllocatedQuota string
 	AllocatedValue string
+	// Used and Limit are the readable sizes the accounts list shows, empty when the line has no quota
+	Used  string
+	Limit string
 }
 
 // parseSingleEmailQuota mirrors single_account.html's inline parsing.
@@ -586,9 +607,11 @@ func parseSingleEmailQuota(entry string) SingleEmailQuota {
 		}
 	}
 
+	_, used, limit := ParseMailboxQuota(entry)
 	return SingleEmailQuota{
 		Address: address, QuotaDisplay: quota, PercentVal: percentVal, CappedVal: cappedVal,
 		AllocatedQuota: allocatedQuota, AllocatedValue: allocatedValue,
+		Used: readableQuotaSize(used), Limit: readableQuotaSize(limit),
 	}
 }
 

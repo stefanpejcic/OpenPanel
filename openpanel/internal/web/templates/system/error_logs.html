@@ -3,38 +3,38 @@
 {{define "content"}}
 <!-- START templates/system/error_logs.html -->
 
-{{$field := "relative block w-full appearance-none rounded border px-2.5 py-1.5 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"}}
+{{$field := "block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"}}
 
-<section aria-label="{{.T.Get "Error Logs"}}">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<section aria-label="{{.T.Get "Error logs"}}">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div>
-            <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Error Logs"}}</h1></div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "PHP, web server, database and HTTP 5xx errors for all your websites in one place."}}</p>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Error logs"}}</h1>
+            <p class="mt-1 text-sm text-gray-500">{{.T.Get "PHP, web server, database and HTTP 5xx errors for all your websites in one place."}}</p>
         </div>
     </div>
 
-    <form method="GET" action="/error-logs" id="errorLogsFilters" class="grid grid-cols-1 gap-3 border-b border-gray-200 p-4 px-6 dark:border-gray-800 sm:grid-cols-2 lg:grid-cols-6">
-        <label class="text-sm text-gray-700 dark:text-gray-300">{{.T.Get "Website"}}
-            <select name="domain" class="{{$field}} mt-1">
+    <form method="GET" action="/error-logs" id="errorLogsFilters" class="grid grid-cols-1 gap-3 px-4 pb-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-6 lg:px-8">
+        <label class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Website"}}
+            <select name="domain" class="{{$field}} mt-2 font-normal">
                 <option value="">{{.T.Get "All websites"}}</option>
                 {{range .Targets}}<option value="{{.Value}}" class="punycode" {{if eq .Value $.Query.Domain}}selected{{end}}>{{if .Sub}}&nbsp;&nbsp;↳ {{end}}{{.Value}}</option>{{end}}
             </select>
         </label>
-        <label class="text-sm text-gray-700 dark:text-gray-300">{{.T.Get "Service"}}
-            <select name="service" class="{{$field}} mt-1">
+        <label class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Service"}}
+            <select name="service" class="{{$field}} mt-2 font-normal">
                 <option value="">{{.T.Get "All services"}}</option>
                 {{range .Sources}}<option value="{{.Name}}" {{if eq .Name $.Query.Service}}selected{{end}}>{{$.T.Get .Label}}</option>{{end}}
             </select>
         </label>
-        <label class="text-sm text-gray-700 dark:text-gray-300">{{.T.Get "Severity"}}
-            <select name="level" class="{{$field}} mt-1">
+        <label class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Severity"}}
+            <select name="level" class="{{$field}} mt-2 font-normal">
                 <option value="" {{if eq .Query.Level ""}}selected{{end}}>{{.T.Get "All"}}</option>
                 <option value="warning" {{if eq .Query.Level "warning"}}selected{{end}}>{{.T.Get "Warnings and errors"}}</option>
                 <option value="error" {{if eq .Query.Level "error"}}selected{{end}}>{{.T.Get "Errors only"}}</option>
             </select>
         </label>
-        <label class="text-sm text-gray-700 dark:text-gray-300 lg:col-span-3">{{.T.Get "Search"}}
-            <input type="search" name="q" value="{{.Query.Search}}" placeholder="{{.T.Get "e.g. Fatal error, wp-content, 502"}}" class="{{$field}} mt-1">
+        <label class="text-sm font-medium text-gray-900 lg:col-span-3 dark:text-gray-50">{{.T.Get "Search"}}
+            <input type="search" name="q" value="{{.Query.Search}}" placeholder="{{.T.Get "e.g. Fatal error, wp-content, 502"}}" class="{{$field}} mt-2 font-normal">
         </label>
         {{if .Query.Exact}}<input type="hidden" name="exact" value="1">{{end}}
         {{if or .Query.FromDay .Query.ToDay}}
@@ -45,45 +45,45 @@
         <div class="flex flex-wrap items-center justify-between gap-2 sm:col-span-2 lg:col-span-6">
             {{template "date_range" (dict "T" .T "From" .Query.FromDay "To" .Query.ToDay "Tz" true)}}
             <div class="flex items-center gap-2">
-            <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800">{{.T.Get "Apply"}}</button>
-            <a href="/error-logs" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Reset"}}</a>
+            <a href="/error-logs" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent shadow-none bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80">{{.T.Get "Reset"}}</a>
+            <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">{{.T.Get "Apply"}}</button>
             </div>
         </div>
     </form>
 
     {{if .Error}}
-    <div class="m-6 rounded border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300">{{.T.Get .Error}}</div>
+    <div class="mx-4 mb-4 sm:mx-6 lg:mx-8 flex gap-3 rounded-md p-4 text-sm bg-red-50 text-red-900 dark:bg-red-950/70 dark:text-red-500" role="alert"><i class="ri-error-warning-line text-base" aria-hidden="true"></i><p>{{.T.Get .Error}}</p></div>
     {{end}}
 
-    <div class="flex flex-col gap-1 px-6 py-3 text-sm text-gray-500 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-1 px-4 pb-3 text-sm text-gray-500 tabular-nums sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <span>{{if .Truncated}}{{.T.Get "Showing"}} {{.Matched}} {{.T.Get "out of"}} {{.Total}} {{.T.Get "rows"}}{{else}}{{.Total}} {{.T.Get "rows"}}{{end}}</span>
     </div>
 
     {{if .Rows}}
     {{template "bulk_open" (dict "T" .T "Table" "#errorLogsTable" "Endpoint" "")}}
     <div class="overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-        <table id="errorLogsTable" class="w-full border-b border-gray-200 text-left dark:border-gray-800">
+        <table id="errorLogsTable" class="w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8 text-left">
             <thead>
-                <tr class="bg-gray-50 dark:bg-gray-900">
+                <tr>
                     {{template "bulk_head_checkbox" .}}
-                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Time") "Key" "time" "Type" "number")}}</th>
-                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Severity") "Key" "severity" "Type" "number")}}</th>
-                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Service") "Key" "service" "Type" "string")}}</th>
-                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{template "sort_header" (dict "Label" (.T.Get "Website") "Key" "website" "Type" "string")}}</th>
-                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 w-full">{{template "sort_header" (dict "Label" (.T.Get "Message") "Key" "message" "Type" "string")}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1">{{template "sort_header" (dict "Label" (.T.Get "Time") "Key" "time" "Type" "number")}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1">{{template "sort_header" (dict "Label" (.T.Get "Severity") "Key" "severity" "Type" "number")}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1">{{template "sort_header" (dict "Label" (.T.Get "Service") "Key" "service" "Type" "string")}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1">{{template "sort_header" (dict "Label" (.T.Get "Website") "Key" "website" "Type" "string")}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 w-full py-1">{{template "sort_header" (dict "Label" (.T.Get "Message") "Key" "message" "Type" "string")}}</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+            <tbody>
                 {{range $i, $row := .Rows}}
-                <tr x-data="{ open: false }" @click="if ($event.target.type !== 'checkbox') open = !open" data-row="{{$i}}" data-line="{{.Line}}" class="cursor-pointer align-top text-sm text-gray-600 hover:bg-white dark:text-gray-400 dark:hover:bg-gray-900">
+                <tr x-data="{ open: false }" @click="if ($event.target.type !== 'checkbox') open = !open" data-row="{{$i}}" data-line="{{.Line}}" class="cursor-pointer align-top hover:bg-gray-50 dark:hover:bg-gray-900/60">
                     {{template "bulk_row_checkbox" (dict "T" $.T "Key" (toString $i) "Label" (.Time.UTC.Format "2006-01-02 15:04:05"))}}
-                    <td class="whitespace-nowrap px-4 py-3 log-time" data-ts="{{.Unix}}" data-sort-col="time" data-sort-value="{{.Unix}}">{{.Time.UTC.Format "2006-01-02 15:04:05"}} UTC</td>
-                    <td class="whitespace-nowrap px-4 py-3" data-sort-col="severity" data-sort-value="{{.Rank}}">{{template "level_badge" (dict "T" $.T "Level" .Level)}}</td>
-                    <td class="whitespace-nowrap px-4 py-3" data-sort-col="service">{{.Service}}</td>
-                    <td class="whitespace-nowrap px-4 py-3" data-sort-col="website" data-sort-value="{{.Domain}}">{{if .Domain}}<span class="punycode">{{.Domain}}</span>{{else}}-{{end}}</td>
-                    <td class="px-4 py-3 text-gray-900 dark:text-gray-100" data-sort-col="message" data-sort-value="{{.Message}}">
-                        <div x-show="!open" class="max-w-3xl truncate font-mono text-xs">{{.Message}}</div>
-                        <pre x-show="open" x-cloak class="max-w-3xl whitespace-pre-wrap break-all font-mono text-xs">{{.Message}}</pre>
+                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 log-time tabular-nums" data-ts="{{.Unix}}" data-sort-col="time" data-sort-value="{{.Unix}}">{{.Time.UTC.Format "2006-01-02 15:04:05"}} UTC</td>
+                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400" data-sort-col="severity" data-sort-value="{{.Rank}}">{{template "level_badge" (dict "T" $.T "Level" .Level)}}</td>
+                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400" data-sort-col="service">{{.Service}}</td>
+                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400" data-sort-col="website" data-sort-value="{{.Domain}}">{{if .Domain}}<span class="punycode">{{.Domain}}</span>{{else}}<span class="text-gray-400">—</span>{{end}}</td>
+                    <td class="border-b border-gray-200 px-4 py-2.5 text-gray-900 dark:border-gray-800 dark:text-gray-50" data-sort-col="message" data-sort-value="{{.Message}}">
+                        <div x-show="!open" class="max-w-sm truncate font-mono text-xs xl:max-w-xl 2xl:max-w-3xl">{{.Message}}</div>
+                        <pre x-show="open" x-cloak class="max-w-sm font-mono text-xs break-all whitespace-pre-wrap xl:max-w-xl 2xl:max-w-3xl">{{.Message}}</pre>
                     </td>
                 </tr>
                 {{end}}
@@ -92,17 +92,17 @@
     </div>
     {{template "bulk_bar" .}}
     {{if gt .TotalPages 1}}
-    <div class="flex items-center justify-between px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+    <div class="flex items-center justify-between px-4 py-4 text-sm text-gray-500 sm:px-6 lg:px-8">
         <span>{{.T.Get "Page"}} {{.Page}} {{.T.Get "of"}} {{.TotalPages}}</span>
         <div class="flex gap-2">
-            {{if .PrevURL}}<a href="{{.PrevURL}}" class="rounded border px-3 py-1.5 border-gray-300 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Previous"}}</a>{{end}}
-            {{if .NextURL}}<a href="{{.NextURL}}" class="rounded border px-3 py-1.5 border-gray-300 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Next"}}</a>{{end}}
+            {{if .PrevURL}}<a href="{{.PrevURL}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Previous"}}</a>{{end}}
+            {{if .NextURL}}<a href="{{.NextURL}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Next"}}</a>{{end}}
         </div>
     </div>
     {{end}}
     </div>
     {{else if not .Error}}
-    <div class="m-6 rounded border border-dashed border-gray-300 p-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+    <div class="border-t border-gray-200 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-800">
         {{.T.Get "No errors found for these filters."}}
     </div>
     {{end}}
@@ -150,14 +150,8 @@ document.addEventListener('DOMContentLoaded', function () {
 <!-- END templates/system/error_logs.html -->
 {{end}}
 
-{{define "level_badge"}}{{if eq .Level "critical"}}<span class="inline-block rounded-sm bg-red-600 px-2 py-0.5 text-xs font-medium text-white">{{.T.Get "Critical"}}</span>{{else if eq .Level "error"}}<span class="inline-block rounded-sm bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-300">{{.T.Get "Error"}}</span>{{else if eq .Level "warning"}}<span class="inline-block rounded-sm bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">{{.T.Get "Warning"}}</span>{{else if eq .Level "notice"}}<span class="inline-block rounded-sm bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300">{{.T.Get "Notice"}}</span>{{else}}<span class="inline-block rounded-sm bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">{{.T.Get "Info"}}</span>{{end}}{{end}}
+{{define "level_badge"}}{{if eq .Level "critical"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20"><i class="ri-alarm-warning-line" aria-hidden="true"></i>{{.T.Get "Critical"}}</span>{{else if eq .Level "error"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.T.Get "Error"}}</span>{{else if eq .Level "warning"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">{{.T.Get "Warning"}}</span>{{else if eq .Level "notice"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-blue-50 text-blue-900 ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">{{.T.Get "Notice"}}</span>{{else}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{.T.Get "Info"}}</span>{{end}}{{end}}
 
 {{define "sort_header"}}
-<div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
-    <span>{{.Label}}</span>
-    <div class="-space-y-2">
-        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
-        <a href="#" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
-    </div>
-</div>
+<button type="button" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.Label}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
 {{end}}

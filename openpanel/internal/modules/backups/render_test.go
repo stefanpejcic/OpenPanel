@@ -30,7 +30,7 @@ func TestRenderBackupsPage(t *testing.T) {
 		if err := backupsPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "Connect a Destination") {
+		if !strings.Contains(w.Body.String(), "Connect a destination") {
 			t.Error("expected step 1 prompt")
 		}
 	})
@@ -45,7 +45,7 @@ func TestRenderBackupsPage(t *testing.T) {
 		if !strings.Contains(body, "Current destination") {
 			t.Error("expected destination-configured step")
 		}
-		if !strings.Contains(body, "Edit Backup Limits") {
+		if !strings.Contains(body, "Edit backup limits") {
 			t.Error("expected step 3 prompt when service inactive")
 		}
 	})
@@ -66,13 +66,28 @@ func TestRenderBackupSettingsPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("error state", func(t *testing.T) {
-		data := BackupSettingsPageData{LayoutData: baseLayout(mgr, "/backups/settings"), Error: "no backup target configured"}
+		data := BackupSettingsPageData{LayoutData: baseLayout(mgr, "/backups/settings"), Error: "multiple backup targets configured"}
 		w := httptest.NewRecorder()
 		if err := backupSettingsPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "no backup target configured") {
+		if !strings.Contains(w.Body.String(), "multiple backup targets configured") {
 			t.Error("expected error message")
+		}
+	})
+
+	t.Run("no target points to destination", func(t *testing.T) {
+		data := BackupSettingsPageData{LayoutData: baseLayout(mgr, "/backups/settings"), Error: "No backup target is configured.", NoTarget: true}
+		w := httptest.NewRecorder()
+		if err := backupSettingsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, `href="/backups/destination"`) {
+			t.Error("expected a link to the destination tab")
+		}
+		if strings.Contains(body, "Save settings") {
+			t.Error("save button should be hidden without a target")
 		}
 	})
 

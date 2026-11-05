@@ -125,7 +125,7 @@ type DiskUsagePageData struct {
 }
 
 func renderDiskUsagePage(a *appctx.App, w http.ResponseWriter, r *http.Request, duOutput string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Disk Usage")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Disk usage")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

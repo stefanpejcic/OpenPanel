@@ -136,6 +136,15 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		emit(map[string]any{"error": subErr.Error()})
 		return
 	}
+	// wp core install needs both, the wizard always sends them
+	if strings.TrimSpace(adminUsername) == "" || adminPassword == "" {
+		emit(map[string]any{"error": "Admin username and password are required."})
+		return
+	}
+	if msg := cmsapp.ValidateInstallForm(r.FormValue, cmsapp.PasswordStrength(a)); msg != "" {
+		emit(map[string]any{"error": msg})
+		return
+	}
 	dbName := strings.ToLower(r.FormValue("db_name"))
 	if dbName == "" {
 		dbName = generateRandomString(6)

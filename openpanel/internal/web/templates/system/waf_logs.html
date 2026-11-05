@@ -10,95 +10,70 @@
 {{if .JSONLogs}}
 
 <section aria-label="{{.T.Get "Select Domain Log Header"}}" x-data="logsTable()" x-init="init()">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "WAF Logs for"}} <span class="punycode">{{.DomainName}}</span></h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Showing"}} {{add (mul .ItemsPerPage (sub .CurrentPage 1)) 1}} - {{if gt (mul .ItemsPerPage .CurrentPage) .TotalLines}}{{.TotalLines}}{{else}}{{mul .ItemsPerPage .CurrentPage}}{{end}} {{.T.Get "out of"}} {{.TotalLines}} {{.T.Get "rows"}}</p>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "WAF logs for"}} <span class="punycode">{{.DomainName}}</span></h1>
+            <p class="mt-1 text-sm text-gray-500 tabular-nums">{{.T.Get "Showing"}} {{add (mul .ItemsPerPage (sub .CurrentPage 1)) 1}} - {{if gt (mul .ItemsPerPage .CurrentPage) .TotalLines}}{{.TotalLines}}{{else}}{{mul .ItemsPerPage .CurrentPage}}{{end}} {{.T.Get "out of"}} {{.TotalLines}} {{.T.Get "rows"}}</p>
         </div>
-        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-
-        <p class="text-sm text-gray-500 dark:text-gray-500">
+        <div class="flex items-center gap-3">
             {{if lt .TotalLines .TotalAllowedLinesForShowAll}}
-            <input class="form-check-input" type="checkbox" role="switch" id="showAllCheckbox" {{if .ShowAll}}checked{{end}}>
-            <label class="form-check-label text-secondary fs-sm" for="showAllCheckbox">{{.T.Get "Show all"}} {{.TotalLines}} {{.T.Get "rows"}}</label>
+            <label for="showAllCheckbox" class="inline-flex cursor-pointer items-center gap-2 text-sm text-gray-900 dark:text-gray-50">
+                <input type="checkbox" role="switch" id="showAllCheckbox" {{if .ShowAll}}checked{{end}}>
+                <span>{{.T.Get "Show all"}} <span class="tabular-nums">{{.TotalLines}}</span> {{.T.Get "rows"}}</span>
+            </label>
             {{end}}
-        </p>
         </div>
     </div>
 
-
-    <div class="flex flex-col justify-between gap-2 p-4 px-6 sm:flex-row sm:items-center">
-        <div class="relative w-full sm:w-64 [&>input]:py-1.5">
-            <input
-                x-model="searchQuery"
-                class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 file:-my-2 file:-ml-2.5 file:cursor-pointer file:rounded-l-[5px] file:rounded-r-none file:border-0 file:px-3 file:py-2 file:outline-none disabled:pointer-events-none file:disabled:pointer-events-none file:border-solid file:border-gray-300 file:bg-gray-50 file:text-gray-500 file:hover:bg-gray-100 file:dark:border-gray-800 file:dark:bg-gray-950 file:hover:dark:bg-gray-900/20 file:disabled:dark:border-gray-700 file:disabled:bg-gray-100 file:disabled:text-gray-500 file:disabled:dark:bg-gray-800 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
-                placeholder="{{.T.Get "Search"}}"
-                type="search"
-            />
-            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
-                    <path
-                        d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"
-                    ></path>
-                </svg>
-            </div>
+    <div class="flex flex-wrap items-center gap-2 px-4 pb-4 sm:px-6 lg:px-8">
+        <div class="relative w-full sm:w-64">
+            <label for="waf-logs-search" class="sr-only">{{.T.Get "Search"}}</label>
+            <input id="waf-logs-search" x-model="searchQuery" type="search" placeholder="{{.T.Get "Search"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 py-1.5 pl-8 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden">
+            <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
         </div>
 
-        <div class="mb-4 flex flex-wrap gap-2">
         <!-- Dropdown for Column Visibility -->
         <div class="relative">
-            <button id="dropdownToggleButton" data-dropdown-toggle="dropdownToggle" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
-                {{.T.Get "Show Columns"}}
-                <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-                </svg>
+            <button id="dropdownToggleButton" data-dropdown-toggle="dropdownToggle" type="button" class="flex items-center gap-x-1.5 whitespace-nowrap rounded-md border border-gray-300 px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 cursor-pointer border-dashed">
+                <i class="ri-equalizer-line text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Show columns"}}
             </button>
-
-            <!-- Dropdown menu -->
-            <div id="dropdownToggle" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-72 dark:bg-gray-700 dark:divide-gray-600">
-                <ul class="p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownToggleButton">
-		            <template x-for="col in columnList" :key="col">
-		                    <li>
-		                        <div class="flex pb-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
-		                            <label class="inline-flex items-center w-full cursor-pointer">
-		                                <input type="checkbox" x-model="columns[col]" class="sr-only peer">
-		                                <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
-		                                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300" x-text="col"></span>
-		                            </label>
-		                        </div>
-		                    </li>
-		            </template>
+            <div id="dropdownToggle" class="z-20 hidden max-h-96 w-72 overflow-y-auto rounded-md border border-gray-200 bg-white p-1 shadow-xl dark:border-gray-800 dark:bg-gray-950">
+                <ul aria-labelledby="dropdownToggleButton">
+                    <template x-for="col in columnList" :key="col">
+                        <li>
+                            <label :for="'waf-col-' + col" class="flex w-full cursor-pointer items-center justify-between gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900">
+                                <span class="truncate font-mono text-xs" x-text="col"></span>
+                                <input type="checkbox" role="switch" :id="'waf-col-' + col" x-model="columns[col]">
+                            </label>
+                        </li>
+                    </template>
                 </ul>
             </div>
         </div>
-        </div>
-
     </div>
 
-
     <div class="overflow-x-auto">
-        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
-            <table id="waf-logs-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
-                <thead class="">
-                    <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
+            <table id="waf-logs-table" class="w-full border-t border-gray-200 text-sm dark:border-gray-800 [&>tbody>tr>td]:py-2.5 [&_th:first-of-type]:pl-4 sm:[&_th:first-of-type]:pl-6 lg:[&_th:first-of-type]:pl-8 [&_td:first-of-type]:pl-4 sm:[&_td:first-of-type]:pl-6 lg:[&_td:first-of-type]:pl-8 [&_th:last-of-type]:pr-4 sm:[&_th:last-of-type]:pr-6 lg:[&_th:last-of-type]:pr-8 [&_td:last-of-type]:pr-4 sm:[&_td:last-of-type]:pr-6 lg:[&_td:last-of-type]:pr-8">
+                <thead>
+                    <tr>
                         <template x-for="col in columnList" :key="col">
-                            <th x-show="columns[col]" x-text="col" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800"></th>
+                            <th x-show="columns[col]" x-text="col" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 font-mono"></th>
                         </template>
-                        <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Disable rule"}}</th>
+                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Disable rule"}}</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                <tbody>
                     <template x-for="log in filteredLogs()" :key="log.id">
-                    <tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
+                    <tr class="domain_row hover:bg-gray-50 dark:hover:bg-gray-900/60">
                                 <template x-for="col in columnList" :key="col">
-                                    <td x-show="columns[col]" x-text="getValue(log, col)" class="px-2 py-1"></td>
+                                    <td x-show="columns[col]" x-text="getValue(log, col)" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 max-w-xs truncate"></td>
                                 </template>
-                                <td class="px-2 py-1">
+                                <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
                                     <div class="flex flex-wrap gap-1">
                                         <template x-for="rule in log._rules" :key="rule.id">
                                             <button type="button" @click="disableRule(rule)" :disabled="disabled.includes(rule.id) || busy === rule.id" :title="rule.msg"
-                                                class="inline-flex items-center gap-1 rounded border px-2 py-0.5 text-xs font-medium border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-50 hover:border-red-300 hover:text-red-700 dark:hover:bg-red-500/10 disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:border-gray-300 disabled:hover:text-gray-700">
-                                                <i class="bi" :class="disabled.includes(rule.id) ? 'bi-check2' : 'bi-slash-circle'"></i>
+                                                class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium tabular-nums text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-red-50 hover:text-red-700 hover:ring-red-600/30 disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-gray-900 disabled:hover:ring-gray-300 dark:text-gray-50 dark:ring-gray-700 dark:hover:bg-red-400/10 dark:hover:text-red-400 dark:disabled:hover:text-gray-50">
+                                                <i :class="disabled.includes(rule.id) ? 'ri-check-line' : 'ri-forbid-line'" aria-hidden="true"></i>
                                                 <span x-text="rule.id"></span>
                                                 <span x-show="disabled.includes(rule.id)">{{.T.Get "disabled"}}</span>
                                             </button>
@@ -109,42 +84,46 @@
                     </template>
                 </tbody>
             </table>
-        </div>
     </div>
-
 
 </section>
 
 <!-- pagination -->
-<div class="m-6 flex justify-center">
+{{if gt .TotalPages 1}}
+<div class="flex justify-center px-4 py-4 sm:px-6 lg:px-8">
     <nav aria-label="{{.T.Get "Pagination"}}">
-        <ul class="inline-flex -space-x-px text-sm">
+        <ul class="flex items-center gap-1 text-sm">
             {{if gt .CurrentPage 1}}
-                <li>
-                    <a href="/server/waf/log/{{.DomainName}}?page={{sub .CurrentPage 1}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Previous"}}</a>
-                </li>
+            <li><a href="/server/waf/log/{{.DomainName}}?page={{sub .CurrentPage 1}}" class="inline-flex items-center rounded-md px-2.5 py-1.5 font-medium text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80">{{.T.Get "Previous"}}</a></li>
             {{end}}
-
             {{range .PageEntries}}
                 {{if .IsEllipsis}}
-                    <li><span class="px-3 py-2 text-gray-500 dark:text-gray-400">&hellip;</span></li>
+            <li><span class="px-2 text-gray-400">&hellip;</span></li>
+                {{else if eq .Number $.CurrentPage}}
+            <li><span aria-current="page" class="inline-flex min-w-8 items-center justify-center rounded-md px-2.5 py-1.5 font-medium tabular-nums text-gray-900 ring-1 ring-gray-300 dark:text-gray-50 dark:ring-gray-700">{{.Number}}</span></li>
                 {{else}}
-                    <li>
-                        <a href="/server/waf/log/{{$.DomainName}}?page={{.Number}}" class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 {{if eq .Number $.CurrentPage}}bg-gray-200 dark:bg-gray-700{{end}}">{{.Number}}</a>
-                    </li>
+            <li><a href="/server/waf/log/{{$.DomainName}}?page={{.Number}}" class="inline-flex min-w-8 items-center justify-center rounded-md px-2.5 py-1.5 font-medium tabular-nums text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800/80">{{.Number}}</a></li>
                 {{end}}
             {{end}}
-
             {{if lt .CurrentPage .TotalPages}}
-                <li>
-                    <a href="/server/waf/log/{{.DomainName}}?page={{add .CurrentPage 1}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Next"}}</a>
-                </li>
+            <li><a href="/server/waf/log/{{.DomainName}}?page={{add .CurrentPage 1}}" class="inline-flex items-center rounded-md px-2.5 py-1.5 font-medium text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80">{{.T.Get "Next"}}</a></li>
             {{end}}
         </ul>
     </nav>
 </div>
+{{end}}
 <!-- END pagination -->
 
+{{if lt .TotalLines .TotalAllowedLinesForShowAll}}
+<script>
+    // same show-all switch as the domain access logs
+    document.getElementById('showAllCheckbox').addEventListener('change', (e) => {
+        const params = new URLSearchParams(window.location.search);
+        if (e.target.checked) { params.set('show_all', 'true'); params.delete('page'); } else { params.delete('show_all'); }
+        window.location.search = params.toString();
+    });
+</script>
+{{end}}
 
 <script type="text/javascript">
 window.jsonLogs = {{toJSON .JSONLogs}};
@@ -174,7 +153,7 @@ function logsTable() {
         async disableRule(rule) {
             if (this.disabled.includes(rule.id)) return;
             const q = {{toJSON (.T.Get "Disable WAF rule")}} + ' ' + rule.id + (rule.msg ? ' (' + rule.msg + ')' : '') + ' ' + {{toJSON (.T.Get "for")}} + ' ' + {{toJSON .DomainName}} + '?\n\n' + {{toJSON (.T.Get "The firewall will stop checking requests against this rule on the whole domain. You can enable it again on the domain's WAF page.")}};
-            if (!confirm(q)) return;
+            if (!(await window.opConfirm(q, { danger: true, ok: {{toJSON (.T.Get "Disable rule")}} }))) return;
             this.busy = rule.id;
             const body = new FormData();
             body.append('rule_id', rule.id);
@@ -226,7 +205,7 @@ function logsTable() {
                     if (!id || this.isScoringRule(id) || rules.some(r => r.id === id)) return;
                     rules.push({ id, msg: (em.match(/\[msg "([^"]+)"\]/) || [])[1] || '' });
                 });
-                Object.defineProperty(flattened, '_rules', { value: rules, enumerable: false });
+                Object.defineProperty(flattened, '_rules', { value: rules, enumerable: false, writable: true, configurable: true });
 
                 // parse rule IDs/msg/severity out of error_message strings
                 if (l.messages && l.messages.length > 0) {
@@ -313,48 +292,15 @@ function logsTable() {
 
 <!-- page header -->
 <section aria-label="{{.T.Get "WAF logs for domain"}}">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "WAF Logs"}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "View Coraza WAF logs for domains."}}</p>
-    </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Web firewall logs"}}</h1>
+        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Requests the firewall checked or blocked, per domain."}}</p>
     </div>
 </div>
 <!-- END page header -->
 
-
-
-<!-- form -->
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
-    <form class="mt-8" method="GET">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-
-
-            <div class="col-span-full">
-
-
-  <select id="domains" class="relative block w-full rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 h-10.5 sm:h-9.5" name="version" onchange="redirectToSelectedVersion(this)">
-                          <option value="" disabled selected>{{.T.Get "Select domain"}}</option>
-                      {{range .Domains}}
-                          <option value="{{.DomainURL}}">{{.DomainURL}}</option>
-                      {{end}}
-                      </select>
-              <script>
-                  // JavaScript function to redirect to the same page with domain parameter
-                  function redirectToSelectedVersion(selectElement) {
-                      var selectedVersion = selectElement.value;
-                      if (selectedVersion) {
-                          var url = `/server/waf/log/${selectedVersion}`;
-                          window.open(url, '_self');
-                      }
-                  }
-              </script>
-
-    </form>
-</div>
+{{template "domain_list" (dict "T" .T "Rows" .Picks "Base" "/server/waf/log/" "Action" "View log" "Icon" "ri-file-list-3-line" "DetailLabel" "Log size" "NoteInDetail" true)}}
 
 </section>
 {{end}}

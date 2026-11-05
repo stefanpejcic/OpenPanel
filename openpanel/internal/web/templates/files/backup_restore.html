@@ -374,46 +374,43 @@
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
     <!-- Header -->
-    <div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+    <div class="px-4 pt-6 pb-4 sm:px-6 lg:px-8">
         <header>
-            <div class="flex flex-col gap-2 text-center sm:flex-row sm:items-center sm:justify-between sm:text-start">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <div class="flex items-center gap-x-3">
-                        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Restore & Download"}}</h1>
+                        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Restore & download"}}</h1>
                         <template x-if="reindexing">
-                            <span class="inline-flex items-center gap-1.5 rounded-full bg-yellow-100 dark:bg-yellow-400/10 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:text-yellow-300">
-                                <svg class="animate-spin size-3" viewBox="0 0 24 24" fill="none">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-                                </svg>
+                            <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">
+                                <i class="ri-loader-4-line animate-spin" aria-hidden="true"></i>
                                 {{.T.Get "Indexing..."}}
                             </span>
                         </template>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Restore or download backups from destination."}}</p>
+                    <p class="mt-1 text-sm text-gray-500">{{.T.Get "Restore or download backups from destination."}}</p>
                 </div>
-                <div class="flex flex-none items-center justify-center gap-2 rounded-sm px-2 sm:justify-end sm:bg-transparent sm:px-0">
+                {{if not .NoTarget}}
+                <div class="flex flex-none items-center gap-2">
                     <form method="post" action="">
                         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
                         <button
                             :disabled="reindexing"
-                            class="relative inline-flex items-center justify-center gap-x-1.5 whitespace-nowrap rounded border border-black bg-black px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"
+                            class="{{if .Backups}}relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600{{else}}relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400{{end}}"
                             type="submit">
                             <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="size-4 shrink-0">
                                 <path d="M5.463 4.433A9.961 9.961 0 0 1 12 2c5.523 0 10 4.477 10 10 0 2.136-.67 4.116-1.81 5.74L17 12h3A8 8 0 0 0 6.46 6.228l-.997-1.795zm13.074 15.134A9.961 9.961 0 0 1 12 22C6.477 22 2 17.523 2 12c0-2.136.67-4.116 1.81-5.74L7 12H4a8 8 0 0 0 13.54 5.772l.997 1.795z"/>
                             </svg>
-                            {{.T.Get "Reindex Destination"}}
+                            {{.T.Get "Reindex destination"}}
                         </button>
                     </form>
                 </div>
+                {{end}}
             </div>
 
             {{if .ReindexError}}
-            <div class="mt-3 flex gap-2 rounded-md bg-red-50 dark:bg-red-900/40 border border-red-500 dark:border-red-900 px-3 py-2">
-                <svg viewBox="0 0 24 24" fill="currentColor" class="size-4 shrink-0 text-red-500 mt-0.5">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                </svg>
-                <p class="text-xs text-red-700 dark:text-red-400">{{.ReindexError}}</p>
+            <div class="mt-4 flex gap-3 rounded-md p-4 text-sm bg-red-50 text-red-900 dark:bg-red-950/70 dark:text-red-500">
+                <i class="ri-error-warning-line text-lg leading-5" aria-hidden="true"></i>
+                <p>{{.ReindexError}}</p>
             </div>
             {{end}}
         </header>
@@ -425,7 +422,7 @@
         <ul class="-mb-px flex gap-x-6 overflow-x-auto text-sm">
             <li class="shrink-0">
                 <button type="button" role="tab" @click="setTab('')" :aria-selected="tab === ''"
-                    :class="tab === '' ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+                    :class="tab === '' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
                     class="inline-flex items-center gap-1.5 border-b-2 py-3 font-medium transition">
                     <span class="size-4 shrink-0">{{template "bk_icon" "home"}}</span>
                     <span>{{.T.Get "Overview"}}</span>
@@ -433,83 +430,83 @@
             </li>
             <li class="shrink-0">
                 <button type="button" role="tab" @click="setTab('full')" :aria-selected="tab === 'full'"
-                    :class="tab === 'full' ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+                    :class="tab === 'full' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
                     class="inline-flex items-center gap-1.5 border-b-2 py-3 font-medium transition">
                     <span class="size-4 shrink-0">{{template "bk_icon" "full"}}</span>
                     <span>{{.T.Get "Everything"}}</span>
-                    <span class="rounded-full bg-gray-100 px-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300" x-text="backupsFor('full').length"></span>
+                    <span class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="backupsFor('full').length"></span>
                 </button>
             </li>
             <li class="shrink-0">
                 <button type="button" role="tab" @click="setTab('html')" :aria-selected="tab === 'html'"
-                    :class="tab === 'html' ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+                    :class="tab === 'html' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
                     class="inline-flex items-center gap-1.5 border-b-2 py-3 font-medium transition">
                     <span class="size-4 shrink-0">{{template "bk_icon" "html"}}</span>
-                    <span>{{.T.Get "Website Files"}}</span>
-                    <span class="rounded-full bg-gray-100 px-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300" x-text="backupsFor('html').length"></span>
+                    <span>{{.T.Get "Website files"}}</span>
+                    <span class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="backupsFor('html').length"></span>
                 </button>
             </li>
             <li class="shrink-0">
                 <button type="button" role="tab" @click="setTab('databases')" :aria-selected="tab === 'databases'"
-                    :class="tab === 'databases' ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+                    :class="tab === 'databases' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
                     class="inline-flex items-center gap-1.5 border-b-2 py-3 font-medium transition">
                     <span class="size-4 shrink-0">{{template "bk_icon" "databases"}}</span>
                     <span>{{.T.Get "Databases"}}</span>
-                    <span class="rounded-full bg-gray-100 px-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300" x-text="itemsFor('databases').length"></span>
+                    <span class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="itemsFor('databases').length"></span>
                 </button>
             </li>
             <li class="shrink-0">
                 <button type="button" role="tab" @click="setTab('mail')" :aria-selected="tab === 'mail'"
-                    :class="tab === 'mail' ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+                    :class="tab === 'mail' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
                     class="inline-flex items-center gap-1.5 border-b-2 py-3 font-medium transition">
                     <span class="size-4 shrink-0">{{template "bk_icon" "mail"}}</span>
                     <span>{{.T.Get "Emails"}}</span>
-                    <span class="rounded-full bg-gray-100 px-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300" x-text="itemsFor('mail').length"></span>
+                    <span class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="itemsFor('mail').length"></span>
                 </button>
             </li>
             <li class="shrink-0">
                 <button type="button" role="tab" @click="setTab('vhosts')" :aria-selected="tab === 'vhosts'"
-                    :class="tab === 'vhosts' ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+                    :class="tab === 'vhosts' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
                     class="inline-flex items-center gap-1.5 border-b-2 py-3 font-medium transition">
                     <span class="size-4 shrink-0">{{template "bk_icon" "vhosts"}}</span>
                     <span>{{.T.Get "Domains"}}</span>
-                    <span class="rounded-full bg-gray-100 px-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300" x-text="itemsFor('vhosts').length"></span>
+                    <span class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="itemsFor('vhosts').length"></span>
                 </button>
             </li>
             <li class="shrink-0">
                 <button type="button" role="tab" @click="setTab('crons')" :aria-selected="tab === 'crons'"
-                    :class="tab === 'crons' ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+                    :class="tab === 'crons' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
                     class="inline-flex items-center gap-1.5 border-b-2 py-3 font-medium transition">
                     <span class="size-4 shrink-0">{{template "bk_icon" "crons"}}</span>
-                    <span>{{.T.Get "Cron Jobs"}}</span>
-                    <span class="rounded-full bg-gray-100 px-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300" x-text="backupsFor('crons').length"></span>
+                    <span>{{.T.Get "Cron jobs"}}</span>
+                    <span class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="backupsFor('crons').length"></span>
                 </button>
             </li>
             <li class="shrink-0">
                 <button type="button" role="tab" @click="setTab('queue')" :aria-selected="tab === 'queue'"
-                    :class="tab === 'queue' ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+                    :class="tab === 'queue' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
                     class="inline-flex items-center gap-1.5 border-b-2 py-3 font-medium transition">
                     <span class="size-4 shrink-0">{{template "bk_icon" "queue"}}</span>
                     <span>{{.T.Get "Queue"}}</span>
-                    <span class="rounded-full bg-gray-100 px-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300" x-text="jobs.queue.length"></span>
+                    <span class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="jobs.queue.length"></span>
                 </button>
             </li>
             <li class="shrink-0">
                 <button type="button" role="tab" @click="setTab('logs')" :aria-selected="tab === 'logs'"
-                    :class="tab === 'logs' ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+                    :class="tab === 'logs' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
                     class="inline-flex items-center gap-1.5 border-b-2 py-3 font-medium transition">
                     <span class="size-4 shrink-0">{{template "bk_icon" "logs"}}</span>
                     <span>{{.T.Get "Logs"}}</span>
-                    <span class="rounded-full bg-gray-100 px-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300" x-text="jobs.logs.length"></span>
+                    <span class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="jobs.logs.length"></span>
                 </button>
             </li>
         </ul>
     </nav>
 
     <!-- overview: stats and a card per type, a table only shows once a type is picked -->
-    <div x-show="!tab" class="px-6 pt-4 pb-6">
+    <div x-show="!tab" class="px-4 pt-6 pb-8 sm:px-6 lg:px-8">
         <!-- summary, same strip as the cron jobs page -->
-        <div class="flex flex-col divide-y divide-gray-200 overflow-hidden rounded border border-gray-200 bg-white sm:flex-row md:divide-x md:divide-y-0 dark:divide-gray-800 dark:border-gray-800 dark:bg-gray-950">
+        <div class="flex flex-col divide-y divide-gray-200 overflow-hidden rounded-md border border-gray-200 bg-white sm:flex-row md:divide-x md:divide-y-0 dark:divide-gray-800 dark:border-gray-800 dark:bg-gray-950">
             <div class="min-w-0 flex-1 p-4">
                 <p class="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0"><path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/><path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10"/><path d="M10 12l4 0"/></svg>{{.T.Get "Total Backups"}}</p>
                 <p class="mt-1 truncate text-xl font-semibold tabular-nums text-gray-900 dark:text-gray-50" x-text="backups.length"></p>
@@ -528,17 +525,17 @@
                     <span x-show="!jobs.queue.length && jobs.logs[0]?.status === 'failed'" class="text-red-600 dark:text-red-400">· {{.T.Get "Failed"}}</span>
                 </p>
                 <p class="mt-1 truncate text-xl font-semibold tabular-nums text-gray-900 dark:text-gray-50">
-                    <span x-show="jobs.queue.length" class="inline-flex items-center gap-1.5"><i class="bi bi-arrow-repeat animate-spin"></i><span x-text="jobs.queue.length"></span> {{.T.Get "in queue"}}</span>
+                    <span x-show="jobs.queue.length" class="inline-flex items-center gap-1.5"><i class="ri-loop-right-line animate-spin"></i><span x-text="jobs.queue.length"></span> {{.T.Get "in queue"}}</span>
                     <span x-show="!jobs.queue.length" x-text="jobs.logs[0] ? fmtDate(jobs.logs[0].finished) : '–'"></span>
                 </p>
             </div>
         </div>
 
-        <h2 class="mt-6 text-base font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "What do you want to restore?"}}</h2>
-        <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Pick a type to see its backups."}}</p>
+        <h2 class="mt-8 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "What do you want to restore?"}}</h2>
+        <p class="mt-1 mb-3 text-sm text-gray-500">{{.T.Get "Pick a type to see its backups."}}</p>
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 <button type="button" @click="setTab('full')"
-                    class="flex items-center gap-3 rounded border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
+                    class="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
                     <span class="size-5 shrink-0 text-gray-500 dark:text-gray-400">{{template "bk_icon" "full"}}</span>
                     <span class="min-w-0">
                         <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Everything"}}</span>
@@ -546,15 +543,15 @@
                     </span>
                 </button>
                 <button type="button" @click="setTab('html')"
-                    class="flex items-center gap-3 rounded border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
+                    class="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
                     <span class="size-5 shrink-0 text-gray-500 dark:text-gray-400">{{template "bk_icon" "html"}}</span>
                     <span class="min-w-0">
-                        <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Website Files"}}</span>
+                        <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Website files"}}</span>
                         <span class="block text-xs text-gray-500 dark:text-gray-400"><span x-text="backupsFor('html').length"></span> {{.T.Get "backups"}}</span>
                     </span>
                 </button>
                 <button type="button" @click="setTab('databases')"
-                    class="flex items-center gap-3 rounded border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
+                    class="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
                     <span class="size-5 shrink-0 text-gray-500 dark:text-gray-400">{{template "bk_icon" "databases"}}</span>
                     <span class="min-w-0">
                         <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Databases"}}</span>
@@ -562,7 +559,7 @@
                     </span>
                 </button>
                 <button type="button" @click="setTab('mail')"
-                    class="flex items-center gap-3 rounded border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
+                    class="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
                     <span class="size-5 shrink-0 text-gray-500 dark:text-gray-400">{{template "bk_icon" "mail"}}</span>
                     <span class="min-w-0">
                         <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Emails"}}</span>
@@ -570,7 +567,7 @@
                     </span>
                 </button>
                 <button type="button" @click="setTab('vhosts')"
-                    class="flex items-center gap-3 rounded border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
+                    class="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
                     <span class="size-5 shrink-0 text-gray-500 dark:text-gray-400">{{template "bk_icon" "vhosts"}}</span>
                     <span class="min-w-0">
                         <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Domains"}}</span>
@@ -578,20 +575,20 @@
                     </span>
                 </button>
                 <button type="button" @click="setTab('crons')"
-                    class="flex items-center gap-3 rounded border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
+                    class="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
                     <span class="size-5 shrink-0 text-gray-500 dark:text-gray-400">{{template "bk_icon" "crons"}}</span>
                     <span class="min-w-0">
-                        <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Cron Jobs"}}</span>
+                        <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Cron jobs"}}</span>
                         <span class="block text-xs text-gray-500 dark:text-gray-400"><span x-text="backupsFor('crons').length"></span> {{.T.Get "backups"}}</span>
                     </span>
                 </button>
         </div>
 
-        <h2 class="mt-6 text-base font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Restore activity"}}</h2>
-        <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Restores run one at a time, the rest wait in the queue."}}</p>
+        <h2 class="mt-8 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Restore activity"}}</h2>
+        <p class="mt-1 mb-3 text-sm text-gray-500">{{.T.Get "Restores run one at a time, the rest wait in the queue."}}</p>
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <button type="button" @click="setTab('queue')"
-                class="flex items-center gap-3 rounded border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
+                class="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
                 <span class="size-5 shrink-0 text-gray-500 dark:text-gray-400">{{template "bk_icon" "queue"}}</span>
                 <span class="min-w-0">
                     <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Queue"}}</span>
@@ -599,7 +596,7 @@
                 </span>
             </button>
             <button type="button" @click="setTab('logs')"
-                class="flex items-center gap-3 rounded border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
+                class="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
                 <span class="size-5 shrink-0 text-gray-500 dark:text-gray-400">{{template "bk_icon" "logs"}}</span>
                 <span class="min-w-0">
                     <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Logs"}}</span>
@@ -610,37 +607,37 @@
     </div>
 
     <!-- restore queue -->
-    <div x-show="tab === 'queue'" x-cloak class="pt-4 pb-6">
+    <div x-show="tab === 'queue'" x-cloak class="pt-6 pb-8">
         <!-- queue: one restore runs at a time, the rest wait their turn -->
-        <h2 class="flex items-center gap-2 px-6 text-base font-semibold text-gray-900 dark:text-gray-50">
+        <h2 class="flex items-center gap-2 px-4 font-semibold text-gray-900 sm:px-6 lg:px-8 dark:text-gray-50">
             {{.T.Get "Queue"}}
             <span x-show="jobs.queue.length" class="rounded-full bg-gray-100 px-2 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-300" x-text="jobs.queue.length"></span>
         </h2>
-        <p class="mb-3 px-6 text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Restores run one at a time, the rest wait here."}}</p>
+        <p class="mt-1 mb-4 px-4 text-sm text-gray-500 sm:px-6 lg:px-8">{{.T.Get "Restores run one at a time, the rest wait here."}}</p>
         <div class="overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-            <table class="w-full border-b border-gray-200 dark:border-gray-800">
-                <thead class="bg-gray-50 dark:bg-gray-900">
+            <table class="w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+                <thead>
                     <tr>
-                        <th class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "What"}}</th>
-                        <th class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "From backup"}}</th>
-                        <th class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Added"}}</th>
-                        <th class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Status"}}</th>
+                        <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "What"}}</th>
+                        <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "From backup"}}</th>
+                        <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Added"}}</th>
+                        <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Status"}}</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                <tbody>
                     <template x-for="j in jobs.queue" :key="j.id">
                         <tr>
-                            <td class="p-4 text-sm">{{template "bk_job_what" .}}</td>
-                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" x-text="fmtDate(j.created) || '–'"></td>
-                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" x-text="fmtDate(j.queued)"></td>
-                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                                <span x-show="j.status === 'running'" class="inline-flex items-center gap-1.5 text-gray-900 dark:text-gray-50"><i class="bi bi-arrow-repeat animate-spin"></i>{{.T.Get "Restoring..."}} <span class="text-gray-500 dark:text-gray-400" x-text="fmtDuration(j.started, null)"></span></span>
+                            <td class="border-b border-gray-200 px-4 py-2.5 text-gray-600 dark:border-gray-800 dark:text-gray-400">{{template "bk_job_what" .}}</td>
+                            <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums" x-text="fmtDate(j.created) || '–'"></td>
+                            <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums" x-text="fmtDate(j.queued)"></td>
+                            <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums">
+                                <span x-show="j.status === 'running'" class="inline-flex items-center gap-1.5 text-gray-900 dark:text-gray-50"><i class="ri-loop-right-line animate-spin"></i>{{.T.Get "Restoring..."}} <span class="text-gray-500 dark:text-gray-400" x-text="fmtDuration(j.started, null)"></span></span>
                                 <span x-show="j.status === 'queued'">{{.T.Get "Waiting"}}</span>
                             </td>
                         </tr>
                     </template>
                     <tr x-show="!jobs.queue.length">
-                        <td colspan="4" class="p-4 text-center text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Nothing is being restored right now."}}</td>
+                        <td colspan="4" class="border-b border-gray-200 py-10 text-center text-sm text-gray-500 dark:border-gray-800">{{.T.Get "Nothing is being restored right now."}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -648,37 +645,37 @@
     </div>
 
     <!-- restore log -->
-    <div x-show="tab === 'logs'" x-cloak class="pt-4 pb-6">
+    <div x-show="tab === 'logs'" x-cloak class="pt-6 pb-8">
         <!-- logs: what was restored and how it went -->
-        <h2 class="px-6 text-base font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Logs"}}</h2>
-        <p class="mb-3 px-6 text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Your latest restores, newest first."}}</p>
+        <h2 class="px-4 font-semibold text-gray-900 sm:px-6 lg:px-8 dark:text-gray-50">{{.T.Get "Logs"}}</h2>
+        <p class="mt-1 mb-4 px-4 text-sm text-gray-500 sm:px-6 lg:px-8">{{.T.Get "Your latest restores, newest first."}}</p>
         <div class="overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-            <table class="w-full border-b border-gray-200 dark:border-gray-800">
-                <thead class="bg-gray-50 dark:bg-gray-900">
+            <table class="w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+                <thead>
                     <tr>
-                        <th class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "What"}}</th>
-                        <th class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "From backup"}}</th>
-                        <th class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Restored"}}</th>
-                        <th class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Took"}}</th>
-                        <th class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Status"}}</th>
+                        <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "What"}}</th>
+                        <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "From backup"}}</th>
+                        <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Restored"}}</th>
+                        <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Took"}}</th>
+                        <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Status"}}</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                <tbody>
                     <template x-for="j in jobs.logs" :key="j.id">
                         <tr>
-                            <td class="p-4 text-sm">{{template "bk_job_what" .}}</td>
-                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" x-text="fmtDate(j.created) || '–'"></td>
-                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" x-text="fmtDate(j.finished)"></td>
-                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400" x-text="fmtDuration(j.started, j.finished)"></td>
-                            <td class="p-4 text-sm text-gray-600 dark:text-gray-400">
-                                <span x-show="j.status === 'done'" class="rounded bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-gray-700 dark:text-white">{{.T.Get "Done"}}</span>
-                                <span x-show="j.status === 'failed'" class="rounded bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-gray-700 dark:text-white">{{.T.Get "Failed"}}</span>
+                            <td class="border-b border-gray-200 px-4 py-2.5 text-gray-600 dark:border-gray-800 dark:text-gray-400">{{template "bk_job_what" .}}</td>
+                            <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums" x-text="fmtDate(j.created) || '–'"></td>
+                            <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums" x-text="fmtDate(j.finished)"></td>
+                            <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums" x-text="fmtDuration(j.started, j.finished)"></td>
+                            <td class="border-b border-gray-200 px-4 py-2.5 text-gray-600 dark:border-gray-800 dark:text-gray-400">
+                                <span x-show="j.status === 'done'" class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20">{{.T.Get "Done"}}</span>
+                                <span x-show="j.status === 'failed'" class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.T.Get "Failed"}}</span>
                                 <p x-show="j.message" class="mt-1 max-w-xl text-xs" :class="j.status === 'failed' ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'" x-text="j.message"></p>
                             </td>
                         </tr>
                     </template>
                     <tr x-show="!jobs.logs.length">
-                        <td colspan="5" class="p-4 text-center text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No restores yet."}}</td>
+                        <td colspan="5" class="border-b border-gray-200 py-10 text-center text-sm text-gray-500 dark:border-gray-800">{{.T.Get "No restores yet."}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -700,7 +697,7 @@
         <div class="flex flex-col justify-between gap-2 p-4 sm:flex-row sm:items-center sm:px-6">
             <div class="relative w-full sm:w-64 [&>input]:py-1.5">
                 <input x-model="search" type="search" placeholder="{{.T.Get "Search"}}"
-                    class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 pl-8 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"/>
+                    class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 pl-8"/>
                 <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
                     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="size-[1.125rem] shrink-0"><path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"/></svg>
                 </div>
@@ -709,29 +706,29 @@
 
         <!-- backups (full, website files, cron jobs) -->
         <div x-show="!isItemTab(tab)" class="overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-            <table class="w-full border-b border-gray-200 dark:border-gray-800">
-                <thead class="bg-gray-50 dark:bg-gray-900">
+            <table class="w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+                <thead>
                     <tr>
-                        <th scope="col" class="w-10 whitespace-nowrap border-b pl-4 sm:pl-6 pr-2 py-3.5 text-left border-gray-200 dark:border-gray-800"></th>
-                        <th class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Created"}}</th>
-                        <th x-show="tab === 'full'" class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Contents"}}</th>
-                        <th class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50 text-right">{{.T.Get "Size"}}</th>
+                        <th scope="col" class="w-10 whitespace-nowrap border-b border-gray-200 pr-2 py-2.5 text-left dark:border-gray-800"></th>
+                        <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Created"}}</th>
+                        <th x-show="tab === 'full'" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Contents"}}</th>
+                        <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 text-right">{{.T.Get "Size"}}</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                <tbody>
                     <template x-for="b in visibleBackups()" :key="b.file">
                         <tr @click="selectedFile = (selectedFile === b.file ? null : b.file)"
-                            :class="selectedFile === b.file ? 'bg-gray-100 dark:bg-gray-800' : 'hover:bg-gray-50 dark:hover:bg-gray-900'"
+                            :class="selectedFile === b.file ? 'bg-blue-50 dark:bg-blue-400/10' : 'hover:bg-gray-50 dark:hover:bg-gray-900/60'"
                             class="cursor-pointer">
-                            <td class="w-10 py-4 pl-4 sm:pl-6 pr-2 align-middle">
-                                <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800" :checked="selectedFile === b.file" @click.stop="selectedFile = $event.target.checked ? b.file : null" :aria-label="fmtDate(b.created)"/>
+                            <td class="w-10 border-b border-gray-200 py-2.5 pr-2 align-middle dark:border-gray-800">
+                                <input type="checkbox" :checked="selectedFile === b.file" @click.stop="selectedFile = $event.target.checked ? b.file : null" :aria-label="fmtDate(b.created)"/>
                             </td>
-                            <td class="whitespace-nowrap p-4 text-sm">
+                            <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
                                 <span class="font-medium text-gray-900 dark:text-gray-50" x-text="fmtDate(b.created) || '—'"></span>
-                                <span x-show="b === backupsFor(tab)[0]" class="ml-1 rounded bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-gray-700 dark:text-white">{{.T.Get "Latest"}}</span>
+                                <span x-show="b === backupsFor(tab)[0]" class="ml-1 inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-blue-50 text-blue-900 ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">{{.T.Get "Latest"}}</span>
                                 <p x-show="b.error" class="mt-0.5 text-xs text-red-500" x-text="b.error"></p>
                             </td>
-                            <td x-show="tab === 'full'" class="p-4 text-sm text-gray-700 dark:text-gray-300">
+                            <td x-show="tab === 'full'" class="border-b border-gray-200 px-4 py-2.5 text-gray-600 dark:border-gray-800 dark:text-gray-400">
                                 <div class="flex flex-wrap items-center gap-x-4 gap-1">
                                     <span x-show="b.types.includes('html')" class="inline-flex items-center gap-1.5"><span class="size-3.5 shrink-0 text-gray-400 dark:text-gray-500">{{template "bk_icon" "html"}}</span>{{.T.Get "Website files"}}</span>
                                     <span x-show="b.databases.length" class="inline-flex items-center gap-1.5"><span class="size-3.5 shrink-0 text-gray-400 dark:text-gray-500">{{template "bk_icon" "databases"}}</span>{{.T.Get "Databases"}}<span x-show="b.databases.length" class="tabular-nums text-gray-400 dark:text-gray-500" x-text="b.databases.length"></span></span>
@@ -740,11 +737,11 @@
                                     <span x-show="b.types.includes('crons')" class="inline-flex items-center gap-1.5"><span class="size-3.5 shrink-0 text-gray-400 dark:text-gray-500">{{template "bk_icon" "crons"}}</span>{{.T.Get "Cron jobs"}}</span>
                                 </div>
                             </td>
-                            <td class="whitespace-nowrap p-4 text-right text-sm text-gray-600 dark:text-gray-400" x-text="b.size_text || '—'"></td>
+                            <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-right tabular-nums" x-text="b.size_text || '—'"></td>
                         </tr>
                     </template>
                     <tr x-show="visibleBackups().length === 0">
-                        <td colspan="4" class="p-4 text-center text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No backups found."}}</td>
+                        <td colspan="4" class="border-b border-gray-200 py-10 text-center text-sm text-gray-500 dark:border-gray-800">{{.T.Get "No backups found."}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -752,61 +749,61 @@
 
         <!-- databases, email accounts and domains, each listed once -->
         <div x-show="isItemTab(tab)" x-cloak class="overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-            <table class="w-full border-b border-gray-200 dark:border-gray-800">
-                <thead class="bg-gray-50 dark:bg-gray-900">
+            <table class="w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+                <thead>
                     <tr>
-                        <th scope="col" class="w-10 whitespace-nowrap border-b pl-4 sm:pl-6 pr-2 py-3.5 text-left border-gray-200 dark:border-gray-800">
-                            <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800" :checked="allSelected()" :indeterminate="someSelected()" @change="toggleAll($event.target.checked)" aria-label="{{.T.Get "Select all"}}"/>
+                        <th scope="col" class="w-10 whitespace-nowrap border-b border-gray-200 pr-2 py-2.5 text-left dark:border-gray-800">
+                            <input type="checkbox" :checked="allSelected()" :indeterminate="someSelected()" @change="toggleAll($event.target.checked)" aria-label="{{.T.Get "Select all"}}"/>
                         </th>
-                        <th class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">
-                            <span x-show="tab === 'databases'">{{.T.Get "Database Name"}}</span>
-                            <span x-show="tab === 'mail'">{{.T.Get "Email Account"}}</span>
+                        <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">
+                            <span x-show="tab === 'databases'">{{.T.Get "Database name"}}</span>
+                            <span x-show="tab === 'mail'">{{.T.Get "Email account"}}</span>
                             <span x-show="tab === 'vhosts'">{{.T.Get "Domain"}}</span>
                         </th>
-                        <th class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Created"}}</th>
-                        <th class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50 text-right">{{.T.Get "Size"}}</th>
+                        <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Created"}}</th>
+                        <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 text-right">{{.T.Get "Size"}}</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                <tbody>
                     <template x-for="d in visibleItems()" :key="d.key">
                         <tr @click="if (pickable(d)) selected[d.key] = !selected[d.key]"
-                            :class="selected[d.key] ? 'bg-gray-100 dark:bg-gray-800' : (pickable(d) ? 'hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer' : 'opacity-50')">
-                            <td class="w-10 py-4 pl-4 sm:pl-6 pr-2 align-middle">
-                                <input type="checkbox" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800" :checked="selected[d.key]" :disabled="!pickable(d)" @click.stop="selected[d.key] = $event.target.checked" :aria-label="itemLabel(d.name, tab)"/>
+                            :class="selected[d.key] ? 'bg-blue-50 dark:bg-blue-400/10' : (pickable(d) ? 'hover:bg-gray-50 dark:hover:bg-gray-900/60 cursor-pointer' : 'opacity-50')">
+                            <td class="w-10 border-b border-gray-200 py-2.5 pr-2 align-middle dark:border-gray-800">
+                                <input type="checkbox" :checked="selected[d.key]" :disabled="!pickable(d)" @click.stop="selected[d.key] = $event.target.checked" :aria-label="itemLabel(d.name, tab)"/>
                             </td>
-                            <td class="p-4 text-sm">
+                            <td class="border-b border-gray-200 px-4 py-2.5 text-gray-600 dark:border-gray-800 dark:text-gray-400">
                                 <span class="font-medium text-gray-900 dark:text-gray-50" x-text="itemLabel(d.name, tab)"></span>
                                 <div class="mt-1 flex flex-wrap gap-1">
-                                    <span x-show="d.engine === 'mysql'" class="rounded bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-gray-700 dark:text-white">MySQL</span>
-                                    <span x-show="d.engine === 'postgres'" class="rounded bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-gray-700 dark:text-white">PostgreSQL</span>
-                                    <span x-show="tab === 'vhosts'" class="rounded bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">+ {{.T.Get "VirtualHost"}}</span>
-                                    <span x-show="tab === 'vhosts'" class="rounded bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">+ {{.T.Get "PHP version"}}</span>
-                                    <span x-show="tab === 'vhosts' && chosenBackup(d).zone" class="rounded bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">+ {{.T.Get "DNS zone"}}</span>
-                                    <span x-show="tab === 'vhosts' && d.suspended" :title="$el.dataset.hint" data-hint="{{.T.Get "Unsuspend the domain to restore its VirtualHost."}}" class="rounded bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-gray-700 dark:text-white">{{.T.Get "Suspended"}}</span>
-                                    <span x-show="tab === 'vhosts' && !d.on_server" class="rounded bg-yellow-50 px-2.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-400/10 dark:text-yellow-300">{{.T.Get "Will be added"}}</span>
+                                    <span x-show="d.engine === 'mysql'" class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-blue-50 text-blue-900 ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">MySQL</span>
+                                    <span x-show="d.engine === 'postgres'" class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-blue-50 text-blue-900 ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">PostgreSQL</span>
+                                    <span x-show="tab === 'vhosts'" class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">+ {{.T.Get "VirtualHost"}}</span>
+                                    <span x-show="tab === 'vhosts'" class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">+ {{.T.Get "PHP version"}}</span>
+                                    <span x-show="tab === 'vhosts' && chosenBackup(d).zone" class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">+ {{.T.Get "DNS zone"}}</span>
+                                    <span x-show="tab === 'vhosts' && d.suspended" :title="$el.dataset.hint" data-hint="{{.T.Get "Unsuspend the domain to restore its VirtualHost."}}" class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.T.Get "Suspended"}}</span>
+                                    <span x-show="tab === 'vhosts' && !d.on_server" class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">{{.T.Get "Will be added"}}</span>
                                     <span x-show="tab === 'mail' && !d.on_server" class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Restore the domain first"}}</span>
                                 </div>
                             </td>
-                            <td class="p-4 text-sm" @click.stop>
+                            <td class="border-b border-gray-200 px-4 py-2.5 text-gray-600 dark:border-gray-800 dark:text-gray-400" @click.stop>
                                 <span class="font-medium text-gray-900 dark:text-gray-50" x-text="fmtDate(chosenBackup(d).created) || '—'"></span>
                                 <span class="text-xs text-gray-500 dark:text-gray-400">· <span x-text="d.backups.length"></span> {{.T.Get "backups found"}}</span>
                                 <select x-show="d.backups.length > 1"
                                     :value="chosenBackup(d).file"
                                     @change="choice[d.key] = $event.target.value; if (pickable(d)) selected[d.key] = true"
-                                    class="mt-1 block w-full appearance-none truncate rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-900 shadow-sm outline-none sm:w-64 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50">
+                                    class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2 py-1 text-xs text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 mt-1 truncate sm:w-64">
                                     <template x-for="b in d.backups" :key="b.file">
                                         <option :value="b.file" :selected="b.file === chosenBackup(d).file" x-text="(fmtDate(b.created) || '—') + (b.size_text ? ' (' + b.size_text + ')' : '')"></option>
                                     </template>
                                 </select>
                             </td>
-                            <td class="whitespace-nowrap p-4 text-right text-sm text-gray-600 dark:text-gray-400">
+                            <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-right tabular-nums">
                                 <span x-text="chosenBackup(d).size_text || '—'"></span>
                                 <p x-show="tab === 'mail'" class="text-xs text-gray-500 dark:text-gray-400"><span x-text="chosenBackup(d).count"></span> {{.T.Get "messages"}}</p>
                             </td>
                         </tr>
                     </template>
                     <tr x-show="visibleItems().length === 0">
-                        <td colspan="4" class="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                        <td colspan="4" class="border-b border-gray-200 py-10 text-center text-sm text-gray-500 dark:border-gray-800">
                             <span x-show="tab === 'databases'">{{.T.Get "No databases found in the backups."}}</span>
                             <span x-show="tab !== 'databases'">{{.T.Get "Nothing found in the backups. Backups made before this version don't list emails and domains, restore those from the Everything tab."}}</span>
                         </td>
@@ -819,34 +816,41 @@
         {{template "bulk_btn_style"}}
         <div x-show="hasSelection()" class="h-24" aria-hidden="true"></div>
         <div x-show="hasSelection()" x-cloak x-transition :style="barStyle" x-init="placeBar()"
-            class="fixed bottom-0 z-40 flex flex-col gap-3 border-t border-gray-200 bg-white px-4 py-3 shadow-lg dark:border-gray-800 dark:bg-gray-950 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            class="fixed bottom-0 z-40 flex flex-col gap-3 border-t border-gray-200 bg-white px-4 py-3 shadow-lg dark:border-gray-800 dark:bg-gray-950 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
             <div class="text-sm font-medium text-gray-900 dark:text-gray-50">
                 <span x-show="isItemTab(tab)"><span x-text="selectedCount()"></span> {{.T.Get "selected"}}</span>
                 <span x-show="!isItemTab(tab)" x-text="fmtDate(backups.find(b => b.file === selectedFile)?.created)"></span>
-                <button type="button" class="ms-2 text-xs text-blue-600 hover:underline dark:text-blue-400" @click="selected = {}; selectedFile = null">{{.T.Get "Clear"}}</button>
+                <button type="button" class="ms-2 text-xs text-blue-500 hover:underline hover:underline-offset-4" @click="selected = {}; selectedFile = null">{{.T.Get "Clear"}}</button>
             </div>
             <div class="flex flex-wrap items-center gap-2">
                 <button type="button" x-show="listKind(tab) && selectedFile" @click="openPicker()" :disabled="!canPick()"
                     :title="canPick() ? '' : $el.dataset.hint" data-hint="{{.T.Get "This backup was made before single items could be restored."}}" aria-label="{{.T.Get "Choose files"}}"
-                    class="bulk-btn relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:cursor-not-allowed disabled:opacity-50"><i class="bi bi-list-check" aria-hidden="true"></i><span class="bulk-btn-label">{{.T.Get "Choose files"}}</span></button>
+                    class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 bulk-btn"><i class="ri-list-check" aria-hidden="true"></i><span class="bulk-btn-label">{{.T.Get "Choose files"}}</span></button>
                 <button type="button" @click="if (isItemTab(tab)) downloadSelected(); else { downloadResult = null; downloadOpen = true; }" :disabled="downloading" aria-label="{{.T.Get "Download"}}"
-                    class="bulk-btn relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-1.5 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:cursor-not-allowed disabled:opacity-50"><i class="bi" :class="downloading ? 'bi-arrow-repeat animate-spin' : 'bi-download'" aria-hidden="true"></i><span class="bulk-btn-label">{{.T.Get "Download"}}</span></button>
+                    class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 bulk-btn"><i :class="downloading ? 'ri-loop-right-line animate-spin' : 'ri-download-line'" aria-hidden="true"></i><span class="bulk-btn-label">{{.T.Get "Download"}}</span></button>
                 <button type="button" @click="openSummary()" :disabled="!canRestore()" aria-label="{{.T.Get "Restore"}}"
-                    class="bulk-btn relative inline-flex items-center justify-center whitespace-nowrap rounded border border-transparent bg-black px-3 py-1.5 text-center text-sm font-medium text-white shadow-sm transition-all duration-100 ease-in-out hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i><span class="bulk-btn-label">{{.T.Get "Restore"}}</span></button>
+                    class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 bulk-btn"><i class="ri-arrow-go-back-line" aria-hidden="true"></i><span class="bulk-btn-label">{{.T.Get "Restore"}}</span></button>
             </div>
         </div>
     </div>
 
     {{else}}
     <div class="p-4 sm:p-6 lg:p-8">
-        <div class="rounded border border-dashed border-gray-300 p-4 py-6 text-center dark:border-gray-700">
+        <div class="rounded-md border border-dashed border-gray-300 p-4 py-6 text-center dark:border-gray-700">
             <template x-if="reindexing">
                 <span class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Indexing destination, please wait..."}}</span>
             </template>
             <template x-if="!reindexing">
                 <div>
-                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No backups indexed yet"}}</span>
-                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Click \"Reindex Destination\" to fetch available backups."}}</p>
+                    <i class="ri-archive-stack-line block text-2xl leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+                    {{if .NoTarget}}
+                    <span class="mt-3 block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No backup destination set up"}}</span>
+                    {{if .AdminManaged}}<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Your hosting provider hasn't set up a backup destination for this account yet."}}</p>
+                    {{else}}<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Add a destination in backup settings, then reindex it to load its backups."}} <a href="/backups/destination" class="text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Set up a destination"}}</a></p>{{end}}
+                    {{else}}
+                    <span class="mt-3 block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No backups indexed yet"}}</span>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Reindex the destination to load the backups stored there."}}</p>
+                    {{end}}
                 </div>
             </template>
         </div>
@@ -855,62 +859,61 @@
 
     <!-- File picker: folder browser for website files, same listing as the /files folder picker -->
     <div x-show="picker.open" x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
         @keydown.escape.window="picker.open = false" @click.self="picker.open = false">
-        <div class="flex w-full max-w-xl flex-col rounded border border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-950">
-            <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-gray-800">
+        <div class="flex w-full max-w-xl flex-col rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-900 dark:bg-raised">
+            <div class="flex items-center justify-between border-b border-gray-200 px-4 py-4 dark:border-gray-800">
                 <div class="min-w-0">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-50">
+                    <h3 class="font-semibold text-gray-900 dark:text-gray-50">
                         {{.T.Get "Choose files"}}
                     </h3>
                     <p class="truncate text-xs text-gray-500 dark:text-gray-400" x-text="fmtDate(backups.find(b => b.file === picker.file)?.created)"></p>
                 </div>
-                <button type="button" @click="picker.open = false" class="rounded p-1 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-300">
-                    <svg viewBox="0 0 24 24" fill="currentColor" class="size-4"><path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"/></svg>
+                <button type="button" @click="picker.open = false" aria-label="{{.T.Get "Close"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"><i class="ri-close-line"></i>
                 </button>
             </div>
 
-            <div class="space-y-3 px-5 py-4">
+            <div class="space-y-3 px-4 py-4">
                 <!-- breadcrumbs, like the /files folder picker -->
                 <div class="flex flex-wrap items-center gap-1 text-sm">
-                    <button type="button" @click="loadDir('')" class="cursor-pointer text-gray-700 hover:underline dark:text-gray-300"><i class="bi bi-house"></i></button>
+                    <button type="button" @click="loadDir('')" aria-label="/" class="cursor-pointer text-gray-500 hover:text-gray-900 dark:hover:text-gray-50"><i class="ri-home-4-line"></i></button>
                     <template x-for="c in crumbs()" :key="c.path">
                         <span class="flex items-center gap-1">
                             <span class="text-gray-400">/</span>
-                            <button type="button" @click="loadDir(c.path)" class="cursor-pointer truncate text-gray-700 hover:underline dark:text-gray-300" x-text="c.name"></button>
+                            <button type="button" @click="loadDir(c.path)" class="cursor-pointer truncate text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50" x-text="c.name"></button>
                         </span>
                     </template>
                 </div>
 
-                <p x-show="picker.error" class="rounded border border-red-500 bg-red-50 px-3 py-2 text-xs text-red-700 dark:bg-red-900/40 dark:text-red-400" x-text="picker.error"></p>
+                <p x-show="picker.error" class="rounded-md bg-red-50 p-3 text-sm text-red-900 dark:bg-red-950/70 dark:text-red-500" x-text="picker.error"></p>
 
-                <ul class="h-72 divide-y divide-gray-200 overflow-y-auto rounded border border-gray-200 text-sm dark:divide-gray-800 dark:border-gray-800">
+                <ul class="h-72 divide-y divide-gray-200 overflow-y-auto rounded-md border border-gray-200 text-sm text-gray-900 dark:divide-gray-800 dark:border-gray-800 dark:text-gray-50">
                     <li x-show="picker.loading" class="px-3 py-2 text-gray-500 dark:text-gray-400">{{.T.Get "Loading..."}}</li>
 
                     <!-- website files -->
                     <template x-if="!picker.loading">
                         <div>
                             <li x-show="picker.path">
-                                <button type="button" @click="loadDir(parentPath())" class="flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-900"><i class="bi bi-arrow-up"></i> ..</button>
+                                <button type="button" @click="loadDir(parentPath())" class="flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-900/60"><i class="ri-corner-left-up-line"></i> ..</button>
                             </li>
                             <template x-for="d in picker.dirs" :key="'d' + d.name">
-                                <li class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-900">
-                                    <input type="checkbox" :checked="picker.picked[childPath(d.name)]" @change="picker.picked[childPath(d.name)] = $event.target.checked" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800"/>
+                                <li class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                                    <input type="checkbox" :checked="picker.picked[childPath(d.name)]" @change="picker.picked[childPath(d.name)] = $event.target.checked"/>
                                     <button type="button" @click="loadDir(childPath(d.name))" class="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-left">
-                                        <i class="bi bi-folder-fill text-orange-500"></i>
+                                        <i class="ri-folder-fill text-orange-500"></i>
                                         <span class="min-w-0 truncate text-gray-900 dark:text-gray-50" x-text="d.name"></span>
                                         <span class="ml-auto whitespace-nowrap text-xs text-gray-500 dark:text-gray-400" x-text="d.files + ' · ' + fmtSize(d.size)"></span>
-                                        <i class="bi bi-chevron-right text-gray-400"></i>
+                                        <i class="ri-arrow-right-s-line text-gray-400"></i>
                                     </button>
                                 </li>
                             </template>
                             <template x-for="f in picker.files" :key="'f' + f.name">
-                                <li class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-900">
-                                    <input type="checkbox" :checked="picker.picked[childPath(f.name)]" @change="picker.picked[childPath(f.name)] = $event.target.checked" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800"/>
-                                    <i class="bi bi-file-earmark text-gray-400"></i>
+                                <li class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                                    <input type="checkbox" :checked="picker.picked[childPath(f.name)]" @change="picker.picked[childPath(f.name)] = $event.target.checked"/>
+                                    <i class="ri-file-line text-gray-400"></i>
                                     <span class="min-w-0 flex-1 truncate text-gray-900 dark:text-gray-50" x-text="f.name"></span>
                                     <span class="whitespace-nowrap text-xs text-gray-500 dark:text-gray-400" x-text="fmtSize(f.size) + ' · ' + fmtUnix(f.mtime)"></span>
-                                    <button type="button" @click="downloadOne(childPath(f.name))" title="{{.T.Get "Download"}}" class="cursor-pointer text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"><i class="bi bi-download"></i></button>
+                                    <button type="button" @click="downloadOne(childPath(f.name))" title="{{.T.Get "Download"}}" aria-label="{{.T.Get "Download"}}" class="inline-flex shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 size-7"><i class="ri-download-line"></i></button>
                                 </li>
                             </template>
                             <li x-show="!picker.dirs.length && !picker.files.length" class="px-3 py-2 text-gray-500 dark:text-gray-400">{{.T.Get "This folder is empty."}}</li>
@@ -920,13 +923,13 @@
                 </ul>
             </div>
 
-            <div class="flex items-center justify-between gap-2 border-t border-gray-200 px-5 py-3 dark:border-gray-800">
+            <div class="flex items-center justify-between gap-2 border-t border-gray-200 px-4 py-3 dark:border-gray-800">
                 <span class="text-xs text-gray-500 dark:text-gray-400"><span x-text="pickedKeys().length"></span> {{.T.Get "selected"}}</span>
                 <div class="flex gap-2">
                     <button type="button" @click="picker.open = false"
-                        class="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">{{.T.Get "Cancel"}}</button>
+                        class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Cancel"}}</button>
                     <button type="button" @click="restorePicked()" :disabled="!pickedKeys().length"
-                        class="relative inline-flex items-center justify-center gap-x-1.5 whitespace-nowrap rounded border border-black bg-black px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Restore selected"}}</button>
+                        class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">{{.T.Get "Restore selected"}}</button>
                 </div>
             </div>
         </div>
@@ -934,25 +937,24 @@
 
     <!-- Restore summary modal -->
     <div x-show="summaryOpen" x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
         @keydown.escape.window="closeSummary()" @click.self="closeSummary()">
-        <div class="w-full max-w-xl rounded border border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-950">
-            <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 dark:border-gray-800">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Restore Summary"}}</h3>
-                <button type="button" @click="closeSummary()" :disabled="running" class="rounded p-1 text-gray-400 transition-colors hover:text-gray-600 disabled:opacity-50 dark:hover:text-gray-300">
-                    <svg viewBox="0 0 24 24" fill="currentColor" class="size-4"><path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"/></svg>
+        <div class="w-full max-w-xl rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-900 dark:bg-raised">
+            <div class="flex items-center justify-between border-b border-gray-200 px-4 py-4 dark:border-gray-800">
+                <h3 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Restore summary"}}</h3>
+                <button type="button" @click="closeSummary()" :disabled="running" aria-label="{{.T.Get "Close"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 disabled:opacity-50"><i class="ri-close-line"></i>
                 </button>
             </div>
 
-            <div class="space-y-4 px-5 py-4">
-                <div x-show="!finished && !running" class="flex gap-2 rounded-md border border-yellow-500 bg-yellow-50 px-3 py-2 dark:bg-yellow-400/10">
-                    <svg viewBox="0 0 24 24" fill="currentColor" class="mt-0.5 size-4 shrink-0 text-yellow-500"><path d="M12.866 3l9.526 16.5a1 1 0 0 1-.866 1.5H2.474a1 1 0 0 1-.866-1.5L11.134 3a1 1 0 0 1 1.732 0zM11 16v2h2v-2h-2zm0-7v5h2V9h-2z"/></svg>
-                    <p class="text-xs text-yellow-800 dark:text-yellow-300">{{.T.Get "Restoring will overwrite existing data. This action cannot be undone."}} {{.T.Get "The items are added to the queue and restored one at a time."}}</p>
+            <div class="space-y-4 px-4 py-4">
+                <div x-show="!finished && !running" class="flex gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500">
+                    <i class="ri-alert-line text-lg leading-5" aria-hidden="true"></i>
+                    <p>{{.T.Get "Restoring will overwrite existing data. This action cannot be undone."}} {{.T.Get "The items are added to the queue and restored one at a time."}}</p>
                 </div>
 
                 <div>
-                    <p class="mb-2 text-xs font-medium text-gray-700 dark:text-gray-300">{{.T.Get "Items to restore"}}</p>
-                    <ul class="divide-y divide-gray-200 rounded border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+                    <p class="mb-2 text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Items to restore"}}</p>
+                    <ul class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
                         <template x-for="item in summaryItems" :key="item.target + item.database + item.file + (item.picks || []).join()">
                             <li class="flex items-start justify-between gap-3 px-3 py-2.5">
                                 <div class="min-w-0">
@@ -969,13 +971,13 @@
                                         <span x-show="item.target === 'domains'">{{.T.Get "Selected domains"}}</span>
                                         <span x-show="item.target === 'dns_zones'">{{.T.Get "Selected DNS zones"}}</span>
                                     </p>
-                                    <p x-show="item.picks?.length" class="text-xs text-gray-700 dark:text-gray-300 break-words" x-text="(item.picks || []).map(p => itemLabel(p, item.target)).join(', ')"></p>
+                                    <p x-show="item.picks?.length" class="text-xs text-gray-600 dark:text-gray-400 break-words" x-text="(item.picks || []).map(p => itemLabel(p, item.target)).join(', ')"></p>
                                     <p class="truncate text-xs text-gray-500 dark:text-gray-400" x-text="fmtDate(item.created)"></p>
-                                    <p x-show="item.message" class="mt-0.5 text-xs" :class="item.status === 'error' ? 'text-red-600 dark:text-red-400' : 'text-green-700 dark:text-green-400'" x-text="item.message"></p>
+                                    <p x-show="item.message" class="mt-0.5 text-xs" :class="item.status === 'error' ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-500'" x-text="item.message"></p>
                                 </div>
                                 <div class="shrink-0">
-                                    <svg x-show="item.status === 'running'" class="size-4 animate-spin text-blue-500" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
-                                    <svg x-show="item.status === 'done'" viewBox="0 0 24 24" fill="currentColor" class="size-4 text-green-500"><path d="M10 15.172l9.192-9.193 1.415 1.414L10 18l-6.364-6.364 1.414-1.414z"/></svg>
+                                    <i x-show="item.status === 'running'" class="ri-loader-4-line animate-spin" aria-hidden="true"></i>
+                                    <svg x-show="item.status === 'done'" viewBox="0 0 24 24" fill="currentColor" class="size-4 text-emerald-500"><path d="M10 15.172l9.192-9.193 1.415 1.414L10 18l-6.364-6.364 1.414-1.414z"/></svg>
                                     <svg x-show="item.status === 'error'" viewBox="0 0 24 24" fill="currentColor" class="size-4 text-red-500"><path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"/></svg>
                                 </div>
                             </li>
@@ -984,16 +986,16 @@
                 </div>
             </div>
 
-            <div class="flex justify-end gap-2 border-t border-gray-200 px-5 py-3 dark:border-gray-800">
+            <div class="flex flex-col-reverse gap-2 border-t border-gray-200 px-4 py-3 sm:flex-row sm:justify-end dark:border-gray-800">
                 <button type="button" @click="closeSummary()" :disabled="running"
-                    class="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">
+                    class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">
                     <span x-show="!finished">{{.T.Get "Cancel"}}</span>
                     <span x-show="finished">{{.T.Get "Close"}}</span>
                 </button>
                 <button type="button" x-show="!finished" @click="runRestore()" :disabled="running"
-                    class="relative inline-flex items-center justify-center gap-x-1.5 whitespace-nowrap rounded border border-black bg-black px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
-                    <svg x-show="running" class="size-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
-                    <span x-show="!running">{{.T.Get "Restore Selected Items"}}</span>
+                    class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">
+                    <i x-show="running" class="ri-loader-4-line animate-spin" aria-hidden="true"></i>
+                    <span x-show="!running">{{.T.Get "Restore selected items"}}</span>
                     <span x-show="running">{{.T.Get "Restoring..."}}</span>
                 </button>
             </div>
@@ -1002,27 +1004,27 @@
 
     <!-- Download modal -->
     <div x-show="downloadOpen" x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
         @keydown.escape.window="if (!downloading) downloadOpen = false" @click.self="if (!downloading) downloadOpen = false">
-        <div class="w-full max-w-xl rounded border border-gray-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-950">
-            <div class="border-b border-gray-200 px-5 py-4 dark:border-gray-800">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Download Backup"}}</h3>
+        <div class="w-full max-w-xl rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-900 dark:bg-raised">
+            <div class="border-b border-gray-200 px-4 py-4 dark:border-gray-800">
+                <h3 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Download backup"}}</h3>
                 <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400" x-text="fmtDate(backups.find(b => b.file === selectedFile)?.created)"></p>
             </div>
-            <div class="space-y-2 px-5 py-4">
+            <div class="space-y-2 px-4 py-4">
                 <p x-show="!downloadResult" class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "The backup archive will be fetched from the destination and downloaded to your browser."}} {{.T.Get "Large files may take a moment to transfer."}}</p>
-                <p x-show="downloadResult?.success" class="text-sm text-green-700 dark:text-green-400">{{.T.Get "Download started."}}</p>
+                <p x-show="downloadResult?.success" class="text-sm text-emerald-600 dark:text-emerald-500">{{.T.Get "Download started."}}</p>
                 <div x-show="downloadResult?.error">
-                    <p class="text-sm font-medium text-red-700 dark:text-red-400">{{.T.Get "Download failed."}}</p>
-                    <p class="mt-0.5 text-xs text-red-600 dark:text-red-400" x-text="downloadResult?.error"></p>
+                    <p class="text-sm font-medium text-red-600 dark:text-red-500">{{.T.Get "Download failed."}}</p>
+                    <p class="mt-0.5 text-xs text-red-600 dark:text-red-500" x-text="downloadResult?.error"></p>
                 </div>
             </div>
-            <div class="flex justify-end gap-2 border-t border-gray-200 px-5 py-3 dark:border-gray-800">
+            <div class="flex flex-col-reverse gap-2 border-t border-gray-200 px-4 py-3 sm:flex-row sm:justify-end dark:border-gray-800">
                 <button type="button" @click="downloadOpen = false" :disabled="downloading"
-                    class="inline-flex items-center rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800">{{.T.Get "Close"}}</button>
+                    class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Close"}}</button>
                 <button type="button" x-show="!downloadResult?.success" @click="submitDownload()" :disabled="downloading"
-                    class="relative inline-flex items-center justify-center gap-x-1.5 whitespace-nowrap rounded border border-black bg-black px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
-                    <svg x-show="downloading" class="size-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+                    class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">
+                    <i x-show="downloading" class="ri-loader-4-line animate-spin" aria-hidden="true"></i>
                     <span x-show="!downloading">{{.T.Get "Download"}}</span>
                     <span x-show="downloading">{{.T.Get "Downloading..."}}</span>
                 </button>

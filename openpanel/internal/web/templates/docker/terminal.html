@@ -11,70 +11,52 @@
   <script src="{{static "vendor/xterm/xterm-addon-fit.min.js"}}"></script>
   <script src="{{static "vendor/xterm/xterm-addon-web-links.min.js"}}"></script>
 
-  <section aria-label="{{.T.Get "Container Terminal"}}" x-data="{ tooltip: false }">
+  <section aria-label="{{.T.Get "Container terminal"}}">
 
-    <!-- header -->
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
       <div>
-        <div class="flex items-center gap-x-3">
-          <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container Terminal"}}</h1>
-
-          <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                 class="bi bi-info-circle-fill" viewBox="0 0 16 16">
-              <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194
-                       0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703
-                       0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381
-                       2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/>
-            </svg>
-            <template x-if="tooltip">
-              <div x-transition
-                   class="absolute z-10 mt-2 w-64 rounded-lg bg-gray-800 text-white text-sm px-3 py-2 shadow-lg"
-                   style="top: 100%; left: 0;">
-                {{.T.Get "The terminal is interactive and executes commands as 'root' user inside the container."}}
-                <br>{{.T.Get "Inactivity timeout:"}} <b>{{.TerminalTimeoutSeconds}} {{.T.Get "seconds"}}</b>.
-              </div>
-            </template>
+        <div class="flex items-center gap-2">
+          <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container terminal"}}</h1>
+          <span x-data="{ tooltip: false }" @mouseenter="tooltip = true" @mouseleave="tooltip = false" @focusin="tooltip = true" @focusout="tooltip = false" class="relative">
+            <button type="button" class="inline-flex text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" aria-label="{{.T.Get "Info"}}" aria-describedby="term-tip"><i class="ri-information-line text-base" aria-hidden="true"></i></button>
+            <div x-show="tooltip" x-cloak x-transition id="term-tip" role="tooltip"
+                 class="absolute top-full left-0 z-10 mt-2 w-64 rounded-md border border-gray-200 bg-white px-3 py-2 text-xs text-gray-600 shadow-xl dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400">
+              {{.T.Get "The terminal is interactive and executes commands as 'root' user inside the container."}}
+              <br>{{.T.Get "Inactivity timeout:"}} <b class="font-semibold text-gray-900 dark:text-gray-50">{{.TerminalTimeoutSeconds}} {{.T.Get "seconds"}}</b>.
+            </div>
           </span>
         </div>
-
-        <p class="text-sm text-gray-500 dark:text-gray-500">
+        <p class="mt-1 text-sm text-gray-500">
           {{.T.Get "Container:"}}
-          <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white">
-            {{.ContainerName}}
-          </span>
+          <span class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">{{.ContainerName}}</span>
         </p>
       </div>
 
-      <div class="mt-2 gap-2 sm:mt-0 flex items-center sm:inline-flex">
-        <select id="shell"
-                class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 h-10.5 sm:h-9.5">
+      <div class="flex items-center gap-2">
+        <select id="shell" aria-label="{{.T.Get "Shell type"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 cursor-pointer py-1.5 sm:w-40">
           <option disabled value=""> -- {{.T.Get "Shell type"}} -- </option>
           <option value="sh">sh</option>
           <option value="bash">bash</option>
         </select>
 
         <!-- shown only when connection drops -->
-        <button id="reconnect-btn"
-                style="display:none"
-                onclick="connectTerminal()"
-                class="px-3 py-2 rounded border border-blue-500 text-blue-600 dark:text-blue-400
-                       text-sm hover:bg-blue-50 dark:hover:bg-blue-900/30 transition whitespace-nowrap">
-          &#8635; {{.T.Get "Reconnect"}}
+        <button id="reconnect-btn" type="button" style="display:none" onclick="connectTerminal()" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">
+          <i class="ri-refresh-line text-base" aria-hidden="true"></i> {{.T.Get "Reconnect"}}
         </button>
       </div>
     </div>
 
-    <!-- status bar -->
-    <div id="term-status"
-         class="flex items-center gap-2 px-4 py-1 text-xs bg-gray-100 dark:bg-gray-900
-                text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-800">
-      <span id="status-dot" class="inline-block w-2 h-2 rounded-full bg-yellow-400"></span>
-      <span id="status-text">{{.T.Get "Connecting…"}}</span>
+    <div class="px-4 pb-8 sm:px-6 lg:px-8">
+      <div class="overflow-hidden rounded-md bg-gray-950">
+        <!-- status bar -->
+        <div id="term-status" class="flex items-center gap-2 border-b border-gray-800 px-4 py-2 text-xs text-gray-400" role="status">
+          <span id="status-dot" class="inline-block size-2 rounded-full bg-yellow-500"></span>
+          <span id="status-text">{{.T.Get "Connecting…"}}</span>
+        </div>
+        <!-- terminal viewport -->
+        <div id="terminal" class="w-full bg-gray-950 p-2" style="height:calc(60vh - 2rem)"></div>
+      </div>
     </div>
-
-    <!-- terminal viewport -->
-    <div id="terminal" style="width:100%; height:calc(60vh - 2rem); background:#1a1b26;"></div>
 
   </section>
 
@@ -87,7 +69,7 @@
       fontSize: 14,
       fontFamily: '"JetBrains Mono", "Fira Code", "Cascadia Code", monospace',
       theme: {
-        background:    '#1a1b26',
+        background:    '#030712',
         foreground:    '#c0caf5',
         cursor:        '#c0caf5',
         black:         '#15161e',
@@ -134,10 +116,10 @@
     const rBtn = document.getElementById('reconnect-btn');
 
     function setStatus(state) {
-      dot.className = 'inline-block w-2 h-2 rounded-full ' + {
-        connecting: 'bg-yellow-400',
-        open:       'bg-green-400',
-        closed:     'bg-red-400',
+      dot.className = 'inline-block size-2 rounded-full ' + {
+        connecting: 'bg-yellow-500',
+        open:       'bg-emerald-500',
+        closed:     'bg-red-500',
       }[state];
       txt.textContent = { connecting: '{{.T.Get "Connecting…"}}', open: '{{.T.Get "Connected"}}', closed: '{{.T.Get "Disconnected"}}' }[state];
       rBtn.style.display = state === 'closed' ? 'inline-flex' : 'none';
@@ -212,31 +194,23 @@
 {{else}}
 
   <!-- ── service picker ───────────────────────────────────────────────────── -->
-  <section aria-label="{{.T.Get "Select Container"}}">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+  <section aria-label="{{.T.Get "Select container"}}">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
       <div>
-        <div class="flex items-center gap-x-3">
-          <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container Terminal"}}</h1>
-        </div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Select active service to open web terminal."}}</p>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container terminal"}}</h1>
+        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Select active service to open web terminal."}}</p>
       </div>
     </div>
 
-    <div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard">
-      <div class="mt-8">
-        <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-          <div class="col-span-full">
-            <select id="service-select"
-                    class="group/trigger flex w-full select-none items-center justify-between gap-2 truncate rounded border px-3 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 hover:dark:bg-gray-950/50 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 mt-2 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 h-10.5 sm:h-9.5"
-                    onchange="if(this.value) window.location.href = '/containers/terminal/' + this.value">
-              <option value="" disabled selected>{{.T.Get "Select service"}}</option>
-              {{range .ActiveServices}}
-                  <option value="{{.}}">{{.}}</option>
-              {{end}}
-            </select>
-          </div>
-        </div>
-      </div>
+    <div class="max-w-2xl px-4 pb-8 sm:px-6 lg:px-8">
+      <label for="service-select" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Select service"}}</label>
+      <select id="service-select" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 cursor-pointer"
+              onchange="if(this.value) window.location.href = '/containers/terminal/' + this.value">
+        <option value="" disabled selected>{{.T.Get "Select service"}}</option>
+        {{range .ActiveServices}}
+        <option value="{{.}}">{{.}}</option>
+        {{end}}
+      </select>
     </div>
   </section>
 

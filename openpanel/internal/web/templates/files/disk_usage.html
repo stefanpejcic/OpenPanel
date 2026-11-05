@@ -9,85 +9,93 @@
     aria-label="{{.T.Get "Disk Usage Header"}}"
     x-data="{ searchQuery: '' }"
 >
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div>
             <div class="flex items-center gap-x-3">
-                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Disk Usage"}}</h1>
+                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Disk usage"}}</h1>
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Disk usage is the amount of space that is used by the content of your sites, this includes databases, files, videos, images, emails and pages."}}</p>
+            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Disk usage is the amount of space that is used by the content of your sites, this includes databases, files, videos, images, emails and pages."}}</p>
         </div>
 
-        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-            <button type="button" onclick="location.reload(true); return false;" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 hidden dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Reload Data"}}</button>
+        <div class="flex flex-wrap items-center gap-2">
+            <button type="button" onclick="location.reload(true); return false;" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 hidden sm:w-fit mt-2 w-full sm:w-auto sm:mt-0"><i class="ri-refresh-line"></i> {{.T.Get "Reload data"}}</button>
         </div>
     </div>
 </section>
 <!-- END page header -->
 
-<div class="m-6">
-    <nav aria-label="{{.T.Get "Breadcrumb"}}" class="ml-2">
-        <ol role="list" class="flex items-center space-x-3 text-sm">
+<div class="px-4 pb-4 sm:px-6 lg:px-8">
+    <nav aria-label="{{.T.Get "Breadcrumb"}}" class="rounded-md bg-gray-50 px-3 py-2 dark:bg-gray-900">
+        <ol role="list" class="flex flex-wrap items-center gap-1 text-sm">
             <li class="flex">
-                <a class="text-gray-500 transition hover:text-gray-700 dark:text-gray-400 hover:dark:text-gray-300" href="/disk-usage/">/</a>
+                <a class="inline-flex items-center gap-1.5 {{if .Breadcrumbs}}text-gray-500 hover:text-gray-900 dark:hover:text-gray-50{{else}}font-medium text-gray-900 dark:text-gray-50{{end}}" href="/disk-usage/"><i class="ri-home-4-line" aria-hidden="true"></i>{{.T.Get "Home"}}</a>
             </li>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4 shrink-0 text-gray-600 dark:text-gray-400" aria-hidden="true">
-                <path d="m9 18 6-6-6-6"></path>
-            </svg>
+            {{if .Breadcrumbs}}<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4 shrink-0 text-gray-400 dark:text-gray-600" aria-hidden="true"><path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path></svg>{{end}}
             {{range .Breadcrumbs}}
                 <li class="flex">
-                    <a class="text-gray-900 dark:text-gray-50" href="{{.Path}}">{{.Name}}</a>
+                    <a class="{{if .Last}}font-medium text-gray-900 dark:text-gray-50{{else}}text-gray-500 hover:text-gray-900 dark:hover:text-gray-50{{end}}" href="{{.Path}}"{{if .Last}} aria-current="page"{{end}}>{{.Name}}</a>
                 </li>
                 {{if not .Last}}
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4 shrink-0 text-gray-600 dark:text-gray-400" aria-hidden="true">
-                    <path d="m9 18 6-6-6-6"></path>
-                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4 shrink-0 text-gray-400 dark:text-gray-600" aria-hidden="true"><path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path></svg>
                 {{end}}
             {{end}}
         </ol>
     </nav>
 </div>
 
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 m-6">
+<div class="pb-8">
+    <!-- largest folders, edge to edge like the table under it -->
+    <div class="border-t border-gray-200 px-4 py-5 sm:px-6 lg:px-8 dark:border-gray-800">
+        <h2 class="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Largest folders"}}</h2>
+        <div class="relative h-56">
+            <canvas id="folderChart"></canvas>
+        </div>
+        <script src="{{static "vendor/chartjs/chart.umd.js"}}"></script>
+        <script src="{{static "js/charts.js"}}"></script>
+    </div>
+
 
     <!-- folders table -->
-    <div class="relative w-full col-span-2 rounded-lg border text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900">
-                    <table id="folders_to_navigate" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+    <div class="overflow-x-auto">
+            <table id="folders_to_navigate" class="w-full text-sm border-t border-gray-200 dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
             <thead>
-                <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
-                    <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                <tr>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">
                         {{.T.Get "Directory"}}
                     </th>
-                    <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">
                         {{.T.Get "Size"}}
                     </th>
-                    <th scope="col" class="hidden whitespace-nowrap border-b px-4 py-3.5 text-left text-sm text-right font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
-                        {{.T.Get "Actions"}}
+                    <th scope="col" class="w-1/3 border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Share"}}</th>
+                    <th scope="col" class="hidden border-b border-gray-200 px-4 py-2.5 text-right text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">
+                        <span class="sr-only">{{.T.Get "Actions"}}</span>
                     </th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+            <tbody>
                 {{if .ShowUpLink}}
-                    <tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-                        <td colspan="3" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                            <a id="goUp" href="{{.UpLink}}">
-                                <i class="bi bi-arrow-up-circle"></i> {{.T.Get "Up One Level"}}
+                    <tr class="domain_row hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                        <td colspan="4" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
+                            <a id="goUp" href="{{.UpLink}}" class="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 dark:hover:text-gray-50">
+                                <i class="ri-corner-left-up-line"></i> {{.T.Get "Up one level"}}
                             </a>
                         </td>
                     </tr>
                 {{end}}
 
                 {{range .Rows}}
-                        <tr class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                                <a href="{{.Href}}">
-                                    <i class="bi bi-folder-fill" style="color: orange;"></i> {{.Directory}}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                            <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
+                                <a href="{{.Href}}" class="inline-flex items-center gap-2 font-medium text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50">
+                                    <i class="ri-folder-line text-base text-gray-400 dark:text-gray-500" aria-hidden="true"></i> {{.Directory}}
                                 </a>
                             </td>
-                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Count}}</td>
-                            <td class="hidden whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 text-end">
+                            <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-center tabular-nums">{{.Count}}</td>
+                            <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400"><div class="flex items-center gap-3"><div class="h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800"><div data-share class="h-full rounded-full bg-blue-500" style="width: 0%"></div></div><span data-share-pct class="w-10 shrink-0 text-right text-xs tabular-nums text-gray-500"></span></div></td>
+                            <td class="hidden border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-end">
                                 {{if .FileManagerHref}}
-                                <a href="{{.FileManagerHref}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
-                                    {{$.T.Get "File Manager"}}
+                                <a href="{{.FileManagerHref}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 mt-2 w-full sm:w-auto sm:mt-0">
+                                    {{$.T.Get "File manager"}}
                                 </a>
                                 {{end}}
                             </td>
@@ -98,12 +106,7 @@
     </div>
     <!-- END folders table -->
 
-    <!-- chart -->
-    <div class="relative w-full col-span-3 rounded-lg border p-4 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900">
-            <canvas id="folderChart"></canvas>
-            <script src="{{static "vendor/chartjs/chart.umd.js"}}"></script>
-    </div>
-    <!-- END chart -->
+
 </div>
 
 
@@ -122,7 +125,7 @@
         const sizeText = columns[1].textContent.trim();
         const disk = parseHumanReadableSize(sizeText);
 
-        if (directory !== "{{.T.Get "Up One Level"}}") {
+        if (directory !== "{{.T.Get "Up one level"}}") {
           data.push({ directory, disk });
         }
       }
@@ -159,24 +162,38 @@
   }
 
     function createChart(data) {
-      const labels = data.map((entry) => entry.directory);
-      const values = data.map((entry) => entry.disk);
+      const values = data.map((entry) => Number(entry.disk) || 0);
+      const total = values.reduce((sum, v) => sum + v, 0);
+      // each row's share of this folder, the bars in the table
+      document.querySelectorAll("#folders_to_navigate tbody tr").forEach((row, i) => {
+        const bar = row.querySelector("[data-share]");
+        const pct = row.querySelector("[data-share-pct]");
+        if (!bar) return;
+        const idx = data.findIndex((entry) => entry.directory === row.querySelector("td").textContent.trim());
+        const share = idx >= 0 && total > 0 ? values[idx] / total * 100 : 0;
+        bar.style.width = share.toFixed(1) + "%";
+        pct.textContent = (share > 0 && share < 1 ? "<1" : Math.round(share)) + "%";
+      });
 
-      const ctx = document.getElementById("folderChart").getContext("2d");
-
-      const chart = new Chart(ctx, {
+      const top = data.map((entry, i) => ({ label: entry.directory, value: values[i] })).sort((x, y) => y.value - x.value).slice(0, 8);
+      const old = Chart.getChart("folderChart");
+      if (old) old.destroy();
+      const chart = new Chart(document.getElementById("folderChart"), {
         type: "bar",
         data: {
-          labels: labels,
-          datasets: [
-            {
-              label: "{{.T.Get "Disk Usage (MB)"}}",
-              data: values,
-              backgroundColor: "#506fd9",
-            },
-          ],
+          labels: top.map((t) => t.label),
+          datasets: [{ label: "{{.T.Get "Disk usage (MB)"}}", data: top.map((t) => t.value), backgroundColor: opChart.rgb("blue"), borderRadius: 4, barThickness: 14 }],
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true, ticks: { maxTicksLimit: 6 } }, y: { grid: { display: false }, ticks: { callback: function (v) { const l = this.getLabelForValue(v); return l.length > 16 ? l.slice(0, 15) + "…" : l; } } } },
         },
       });
+      // label widths are measured before Geist loads, measure again once it has
+      if (document.fonts) document.fonts.ready.then(() => chart.update());
     }
 
     function initializeChart() {
@@ -189,40 +206,9 @@
       const goUpElement = document.getElementById('goUp');
 
       if (goUpElement) {
-        goUpElement.addEventListener('click', async function(event) {
-          // the link used to navigate anyway while this fetched the current folder again, its href is already the parent
-          event.preventDefault();
-          const toastMessage = `{{.T.Get "Calculating disk usage for parent directory.."}}`;
-          showToast(toastMessage, 'loading');
-
-          var newUrl = goUpElement.href;
-
-          try {
-            const response = await fetch(newUrl);
-
-            if (!response.ok) {
-              throw new Error(`Failed to fetch ${newUrl}`);
-            }
-
-            const resultHtml = await response.text();
-
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(resultHtml, 'text/html');
-            const mainScopeContent = doc.getElementById("main-scope")?.innerHTML;
-
-            const mainScopeElement = document.getElementById("main-scope");
-            if (mainScopeElement) {
-              mainScopeElement.innerHTML = mainScopeContent || '';
-            }
-
-            history.pushState({}, '', newUrl);
-
-            initializeChart();
-
-          } catch (error) {
-            console.error('Error fetching data:', error);
-            window.location.href = newUrl;
-          }
+        goUpElement.addEventListener('click', function() {
+          // a plain page load, the page has no fragment to swap in place
+          showToast(`{{.T.Get "Calculating disk usage for parent directory.."}}`, 'loading');
         });
       }
     }

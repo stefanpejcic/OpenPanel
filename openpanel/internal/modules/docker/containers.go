@@ -181,7 +181,7 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		prefill := templateFormValues(r.URL.Query(), availableNetworks)
 		renderContainerFormPage(a, w, r, containerFormView{
 			Volumes: availableVolumes, Networks: availableNetworks,
-			ExistingServices: existingServices, Title: "Add service", Editing: false,
+			ExistingServices: existingServices, Title: "Add a container", Editing: false,
 			FormData: prefill, Domains: domainNames,
 		})
 		return
@@ -199,7 +199,7 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	formView := containerFormView{
 		Volumes: availableVolumes, Networks: availableNetworks,
-		ExistingServices: existingServices, FormData: r.Form, Title: "Add service", Editing: false,
+		ExistingServices: existingServices, FormData: r.Form, Title: "Add a container", Editing: false,
 		Domains: domainNames,
 	}
 

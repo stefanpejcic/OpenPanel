@@ -276,8 +276,14 @@ func handleChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	permissions := r.Form.Get("permissions")
 	pathParam := r.Form.Get("path_param")
 	recursive := r.Form.Get("recursive") == "on"
+	// the /files permissions editor posts with fetch and updates the rows itself instead of reloading
+	wantsJSON := strings.Contains(r.Header.Get("Accept"), "application/json")
 
 	if msg := permissionsError(permissions); msg != "" {
+		if wantsJSON {
+			web.WriteJSON(w, http.StatusBadRequest, map[string]any{"success": false, "error": web.Tr(a, r, msg)})
+			return
+		}
 		web.FlashRedirect(a, w, r, "error", msg, filesRedirectPath(pathParam))
 		return
 	}
@@ -294,13 +300,17 @@ func handleChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	root, perr := paths.OpenUserRoot("HOME", user.Context)
 	if perr != nil {
 		status, msg := pathErrorStatus(perr)
+		if wantsJSON {
+			web.WriteJSON(w, status, map[string]any{"success": false, "error": msg})
+			return
+		}
 		http.Error(w, msg, status)
 		return
 	}
 	defer root.Close()
 
-	changed := 0
-	var errored []string
+	changed := []string{}
+	errored := []string{}
 	for _, filename := range filenames {
 		relPath := filepath.Join(pathParam, filename)
 		rel, perr := root.Rel(relPath, true)
@@ -322,14 +332,23 @@ func handleChangePermissions(a *appctx.App, w http.ResponseWriter, r *http.Reque
 			action += " recursively"
 		}
 		_ = logger.RecordUserAction(a.Config, user.Username, action+" for "+root.Abs(rel)+" using File Manager", reqip.ClientIP(r))
-		changed++
+		changed = append(changed, filename)
+	}
+
+	if wantsJSON {
+		res := map[string]any{"success": len(errored) == 0, "changed": changed, "errored": errored}
+		if len(errored) > 0 {
+			res["error"] = web.Tr(a, r, "Error changing permissions for: %(errored)s. Check ownership.", "errored", strings.Join(errored, ", "))
+		}
+		web.WriteJSON(w, http.StatusOK, res)
+		return
 	}
 
 	sess, _ := a.Sessions.Get(r, session.CookieName)
-	if changed == 1 {
+	if len(changed) == 1 {
 		flash.Add(sess, "success", "Permissions changed.")
-	} else if changed > 1 {
-		flash.Add(sess, "success", web.Tr(a, r, "%(changed)s items updated.", "changed", strconv.Itoa(changed)))
+	} else if len(changed) > 1 {
+		flash.Add(sess, "success", web.Tr(a, r, "%(changed)s items updated.", "changed", strconv.Itoa(len(changed))))
 	}
 	if len(errored) > 0 {
 		flash.Add(sess, "error", web.Tr(a, r, "Error changing permissions for: %(errored)s. Check ownership.", "errored", strings.Join(errored, ", ")))

@@ -18,7 +18,18 @@ func handleDomainStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domainName := r.PathValue("domain_name")
 	if domainName == "" {
 		domainsList, _ := a.AllDomainsForUser(ctx, userID)
-		renderGoaccessSelectPage(a, w, r, domainsList)
+		_, currentUsername, _, _ := auth.Injected(a, r)
+		picks := make([]web.DomainPick, 0, len(domainsList))
+		for _, d := range domainsList {
+			p := web.DomainPick{Domain: d.DomainURL}
+			if info, statErr := tenantfs.Stat("/var/log/caddy/stats/" + currentUsername + "/" + d.DomainURL + ".html"); statErr == nil {
+				p.Detail = info.ModTime().Format("2006-01-02 15:04")
+			} else {
+				p.Disabled, p.Note = true, "No report yet, they're made every 24 hours"
+			}
+			picks = append(picks, p)
+		}
+		renderGoaccessSelectPage(a, w, r, picks)
 		return
 	}
 

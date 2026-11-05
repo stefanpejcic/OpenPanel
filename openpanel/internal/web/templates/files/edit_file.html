@@ -12,17 +12,16 @@
     #editor-container.fullscreen {
         position: fixed; top: 0; left: 0;
         width: 100%; height: 100%;
-        z-index: 9999; background-color: #1e1e1e;
+        z-index: 55;
     }
     .editor-header { display: flex; padding: 0px 10px; justify-content: space-between; align-items: center; }
     #editor-container.fullscreen h3 { display: none; }
-    #fullscreenButton { margin-left: 10px; }
+
 
     /* textarea editor */
     #editor-text {
         width: 100%; min-height: 90vh; height: 100%;
-        background: #1e1e1e; color: #d4d4d4;
-        font-family: 'Courier New', monospace; font-size: 14px;
+        font-size: 14px;
         border: none; outline: none; resize: none;
         padding: 16px; box-sizing: border-box;
         tab-size: 4;
@@ -50,7 +49,7 @@
 
 
 {{if eq .Editor "monaco"}}
-    <link rel="stylesheet" href="{{static "vendor/monaco/editor.main.css"}}">
+    <link rel="stylesheet" href="{{static "vendor/monaco/vs/editor/editor.main.css"}}">
     <script src="{{static "vendor/monaco/loader.js"}}"></script>
 {{else if eq .Editor "ace"}}
     <script src="{{static "vendor/ace/ace.min.js"}}"></script>
@@ -79,73 +78,72 @@
 <form method="post">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
-    <section aria-label="{{.T.Get "File Editor Header"}}" id="editor-container" x-data="{ isFullscreen: true }" :class="{ 'fullscreen': isFullscreen }">
-        <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between"
-             :class="{ 'sm:p-6 lg:p-8': !isFullscreen }">
+    <section aria-label="{{.T.Get "File Editor Header"}}" id="editor-container" class="bg-white dark:bg-gray-950" x-data="{ isFullscreen: true }" :class="{ 'fullscreen': isFullscreen }">
+        <div class="flex flex-col gap-4 border-b border-gray-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 dark:border-gray-800">
             <div>
 
                 {{if eq .FilePath "wpcli_themes.txt"}}
-                    <div class="flex items-center gap-x-3">
-                        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit WordPress Themes Set"}}</h1>
+                    <div>
+                        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit WordPress themes set"}}</h1>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Themes listed here will be automatically installed to new WordPress websites."}} <a href="https://openpanel.com/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel#themes-set" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">{{.T.Get "View Examples"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a></p>
+                    <p class="mt-1 text-sm text-gray-500">{{.T.Get "Themes listed here will be automatically installed to new WordPress websites."}} <a href="https://openpanel.com/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel#themes-set" target="_blank" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "View examples"}}<i class="ri-external-link-line" aria-hidden="true"></i></a></p>
                 {{else if eq .FilePath "wpcli_plugins.txt"}}
-                    <div class="flex items-center gap-x-3">
-                        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit WordPress Plugins Set"}}</h1>
+                    <div>
+                        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit WordPress plugins set"}}</h1>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Plugins listed here will be automatically installed to new WordPress websites."}} <a href="https://openpanel.com/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel#plugins-set" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">{{.T.Get "View Examples"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a></p>
+                    <p class="mt-1 text-sm text-gray-500">{{.T.Get "Plugins listed here will be automatically installed to new WordPress websites."}} <a href="https://openpanel.com/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel#plugins-set" target="_blank" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "View examples"}}<i class="ri-external-link-line" aria-hidden="true"></i></a></p>
                 {{else if eq .FilePath "pagespeed_api_key.txt"}}
-                    <div class="flex items-center gap-x-3">
+                    <div>
                         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit Google PageSpeed API key"}}</h1>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Set API key to be used on Site Manager for your websites."}} <a href="https://openpanel.com/docs/articles/websites/google-pagespeed-insights-api-key" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">{{.T.Get "Documentation"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a></p>
+                    <p class="mt-1 text-sm text-gray-500">{{.T.Get "Set API key to be used on Site Manager for your websites."}} <a href="https://openpanel.com/docs/articles/websites/google-pagespeed-insights-api-key" target="_blank" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Documentation"}}<i class="ri-external-link-line" aria-hidden="true"></i></a></p>
                 {{else}}
-                    <div class="flex items-center gap-x-3">
-                        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit File"}}</h1>
+                    <div>
+                        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit file"}}</h1>
                     </div>
 
       <!-- START breadcrumbs -->
-      <p class="text-sm text-gray-500 dark:text-gray-500 flex">
-<a href="/files" title="{{.T.Get "Open in File Manager"}}" class="text-gray-500 transition hover:text-gray-700 dark:text-gray-400 hover:dark:text-gray-300">/var/www/html/</a>{{range .Breadcrumbs}}{{if .Last}}{{.Name}}{{else}}<a href="/files/{{.Path}}" title="{{$.T.Get "Open in File Manager"}}">{{.Name}}</a>{{end}}{{if not .Last}}/{{end}}{{end}}</p>
+      <p class="mt-1 text-sm text-gray-500 flex flex-wrap font-mono text-xs">
+<a href="/files" title="{{.T.Get "Open in File Manager"}}" class="hover:text-gray-900 hover:underline hover:underline-offset-4 dark:hover:text-gray-50">/var/www/html/</a>{{range .Breadcrumbs}}{{if .Last}}<span class="text-gray-900 dark:text-gray-50">{{.Name}}</span>{{else}}<a href="/files/{{.Path}}" title="{{$.T.Get "Open in File Manager"}}" class="hover:text-gray-900 hover:underline hover:underline-offset-4 dark:hover:text-gray-50">{{.Name}}</a>{{end}}{{if not .Last}}/{{end}}{{end}}</p>
       <!-- END breadcrumbs -->
 
                 {{end}}
 
             </div>
 
-            <div class="editor-header mt-2 gap-2 sm:mt-0 sm:flex">
+            <div class="editor-header flex flex-wrap items-center gap-2">
 
                 <div class="relative" x-data="{ open: false }">
                     <button type="button"
                             @click="open = !open"
-                            class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 w-full gap-x-1.5 whitespace-nowrap sm:w-fit">
-                        <i class="bi bi-code-slash"></i>
-                        <span class="ml-1">{{.EditorLabel}}</span>
-                        <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">
+                        <i class="ri-code-s-slash-line" aria-hidden="true"></i>
+                        <span>{{.EditorLabel}}</span>
+                        <i class="ri-arrow-down-s-line text-gray-400" aria-hidden="true"></i>
                     </button>
                     <div x-show="open"
                          @click.outside="open = false"
                          x-cloak
-                         class="absolute right-0 z-50 mt-1 w-40 rounded border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
+                         class="absolute right-0 z-[56] mt-1 w-44 rounded-md border border-gray-200 bg-white p-1 shadow-xl dark:border-gray-800 dark:bg-gray-950">
                         {{range .EditorOptions}}
                             <a href="?editor={{.Value}}{{$.FullscreenQS}}"
-                               class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 {{if .Selected}}font-semibold text-indigo-600 dark:text-indigo-400{{end}}">
-                                {{if .Selected}}<i class="bi bi-check2"></i>{{else}}<span class="w-4"></span>{{end}}
+                               class="flex items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 {{if .Selected}}font-medium{{end}}">
+                                {{if .Selected}}<i class="ri-check-line"></i>{{else}}<span class="w-4"></span>{{end}}
                                 {{.Label}}
                             </a>
                         {{end}}
                     </div>
                 </div>
 
-                <button type="submit" id="editorcontentvalue" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Save"}}</button>
-                <button type="button" @click="isFullscreen = !isFullscreen" id="fullscreenButton" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit"><i class="bi bi-arrows-fullscreen"></i></button>
+                <button type="submit" id="editorcontentvalue" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400"><i class="ri-save-line" aria-hidden="true"></i> {{.T.Get "Save"}}</button>
+                <button type="button" @click="isFullscreen = !isFullscreen" id="fullscreenButton" aria-label="{{.T.Get "Fullscreen"}}" title="{{.T.Get "Fullscreen"}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"><i class="ri-fullscreen-line" aria-hidden="true"></i></button>
             </div>
         </div>
 
         <input type="hidden" name="editor_content" id="editor_content">
 
         {{if eq .Editor "text"}}
-            <textarea id="editor-text" spellcheck="false" autocorrect="off" autocapitalize="off">{{.FileContent}}</textarea>
+            <textarea id="editor-text" aria-label="{{.T.Get "Edit file"}}" class="block bg-white font-mono text-gray-900 dark:bg-gray-950 dark:text-gray-50" spellcheck="false" autocorrect="off" autocapitalize="off">{{.FileContent}}</textarea>
         {{else if eq .Editor "codemirror"}}
             <textarea id="editor-codemirror" style="display:none;">{{.FileContent}}</textarea>
             <div id="editor-codemirror-mount"></div>
@@ -164,8 +162,10 @@
     const filePath    = {{.FilePathJSON}};
     const fileContent = {{.FileContentJSON}};
     const editorType  = '{{.Editor}}';
+    const isDark      = document.documentElement.classList.contains('dark');
     const i18n = {
-        unsavedChanges: "{{.T.Get "You have unsaved changes. Leave anyway?"}}"
+        unsavedChanges: "{{.T.Get "You have unsaved changes. Leave anyway?"}}",
+        leave: "{{.T.Get "Leave"}}"
     };
 
     function getExtension(name) {
@@ -231,7 +231,7 @@
             const lang   = languageMap[getExtension(filePath)] || 'plaintext';
             const editor = monaco.editor.create(document.getElementById('editor'), {
                 value: fileContent, language: lang,
-                theme: 'vs-dark', automaticLayout: true, lineNumbers: 'on',
+                theme: isDark ? 'vs-dark' : 'vs', automaticLayout: true, lineNumbers: 'on',
             });
 
             window._editorLayout = () => editor.layout();
@@ -267,8 +267,8 @@
         };
 
         const aceEl  = document.getElementById('editor-ace');
-        const editor = ace.edit(aceEl);
-        editor.setTheme('ace/theme/monokai');
+        editor = ace.edit(aceEl);
+        editor.setTheme(isDark ? 'ace/theme/monokai' : 'ace/theme/chrome');
 
         const mode = aceModMap[getExtension(filePath)] || 'text';
         editor.session.setMode('ace/mode/' + mode);
@@ -308,10 +308,10 @@
     const mode    = cmModeMap[getExtension(filePath)] || 'null';
     const mountEl = document.getElementById('editor-codemirror-mount');
 
-    const cm = CodeMirror(mountEl, {
+    cm = CodeMirror(mountEl, {
         value: fileContent,
         mode: mode,
-        theme: 'dracula',
+        theme: isDark ? 'dracula' : 'default',
         lineNumbers: true,
         matchBrackets: true,
         autoCloseBrackets: true,
@@ -403,8 +403,13 @@
         const href = anchor.getAttribute('href');
         if (!href || href.startsWith('#')) return;
         if (anchor.closest('[x-data]')) return;
-        const confirmed = window.confirm(i18n.unsavedChanges);
-        if (!confirmed) e.preventDefault();
+        e.preventDefault();
+        window.opConfirm(i18n.unsavedChanges, { ok: i18n.leave, danger: true }).then((ok) => {
+            if (!ok) return;
+            isDirty = false;
+            if (anchor.target === '_blank') window.open(anchor.href, '_blank');
+            else window.location.href = anchor.href;
+        });
     });
 
 

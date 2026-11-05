@@ -34,7 +34,7 @@ func TestRenderWebserverConfPage(t *testing.T) {
 	if !strings.Contains(body, "server { listen 80; }") {
 		t.Error("expected file content in body")
 	}
-	if !strings.Contains(body, "Restore Default") {
+	if !strings.Contains(body, `value="restore_default"`) {
 		t.Error("expected restore-default button when CanRestoreDefault is true")
 	}
 }

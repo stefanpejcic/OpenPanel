@@ -12,6 +12,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	domainspkg "gist.github.com/stefanpejcic/openpanel/internal/modules/domains"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 	"golang.org/x/net/idna"
@@ -204,6 +205,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		availablePHPVersions := php.FetchPHPVersions(ctx, a, userContext)
 		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
 		domains, _ := a.AllDomainsForUser(ctx, userID)
+		suspended, https, cert := domainspkg.SiteStatus(ctx, a, domainNameUsed)
 		renderWPSinglePage(a, w, r, WPSinglePageData{
 			pageData:             basePageData,
 			Domains:              domains,
@@ -213,6 +215,10 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			MainDomain:           domain,
 			CurrentPHPVersion:    currentPHPVersion,
 			AvailablePHPVersions: availablePHPVersions,
+			Suspended:            suspended,
+			SSLState:             sslState(https, cert),
+			SSLExpires:           cert.Expires,
+			RedisOn:              wpRedisDropinOn(userContext, docroot),
 		})
 
 	case "python", "nodejs", "ruby", "java":

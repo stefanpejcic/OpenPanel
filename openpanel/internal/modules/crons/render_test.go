@@ -107,12 +107,12 @@ func TestRenderCronjobsLogsPage(t *testing.T) {
 		t.Fatalf("Render: %v", err)
 	}
 	body := w.Body.String()
-	for _, want := range []string{`cronLogs(&#34;db dump&#34;)`, "Cron Job Logs", `<option value="db dump">`} {
+	for _, want := range []string{`cronLogs(&#34;db dump&#34;)`, "Cron job logs", `<option value="db dump">`} {
 		if !strings.Contains(body, want) {
 			t.Errorf("expected %q in body", want)
 		}
 	}
-	if strings.Contains(body, "Switch to File Editor") || strings.Contains(body, "Need Help?") {
+	if strings.Contains(body, "Switch to File Editor") || strings.Contains(body, "Need help?") {
 		t.Error("logs tab shouldn't show the editor switch or help button")
 	}
 }

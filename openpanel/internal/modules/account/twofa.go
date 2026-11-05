@@ -66,7 +66,7 @@ func handleTwofaSettings(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 				return
 			}
 			twofaEnabled = true
-			message = web.Tr(a, r, "OTP code removed and Two-Factor Authentication is now required on new logins.")
+			message = web.Tr(a, r, "OTP code removed and Two-factor authentication is now required on new logins.")
 
 		case twofaActive:
 			otpSecret, err = randomBase32Secret()
@@ -80,7 +80,7 @@ func handleTwofaSettings(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		default:
 			otpSecret = ""
 			twofaEnabled = false
-			message = web.Tr(a, r, "Two-Factor Authentication is now disabled.")
+			message = web.Tr(a, r, "Two-factor authentication is now disabled.")
 		}
 
 		if _, execErr := a.DB.ExecContext(ctx, "UPDATE users SET twofa_enabled = ?, otp_secret = ? WHERE id = ?",

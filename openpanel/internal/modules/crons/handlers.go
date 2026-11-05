@@ -3,6 +3,7 @@ package crons
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -167,6 +168,12 @@ func handleCronjobsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// live schedule check for the form, same parser and zone the save and the jobs table use
+	if r.URL.Query().Has("preview") {
+		web.WriteJSON(w, http.StatusOK, schedulePreview(web.RequestTranslator(a, r), r.URL.Query().Get("preview"), time.Now(), cronTimeZone(userContext)))
+		return
+	}
+
 	serviceNames := cronContainers(ctx, userContext)
 
 	if r.URL.Query().Get("output") == "json" {
@@ -181,7 +188,13 @@ func handleCronjobsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if v, ok := docker.GetEnvValue(userContext, "MYSQL_TYPE"); ok && containsString(serviceNames, v) {
 		dbContainer = v
 	}
-	renderCronjobsNewPage(a, w, r, serviceNames, phpContainer, dbContainer)
+	var names []string
+	if data, readErr := tenantfs.ReadFile(cronFilePath(userContext)); readErr == nil {
+		for _, j := range ParseCronFile(string(data)) {
+			names = append(names, j.Comment)
+		}
+	}
+	renderCronjobsNewPage(a, w, r, serviceNames, phpContainer, dbContainer, names, cronTimeZone(userContext).String())
 }
 
 // writeCronFile mirrors write_cron_file().
@@ -235,15 +248,18 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = r.ParseForm()
+	crontabContent := web.FormText(r, "crontab_content")
 	schedule := r.Form.Get("schedule")
 	command := r.Form.Get("command")
 	container := r.Form.Get("container")
 	comment := r.Form.Get("comment")
+	if crontabContent == "" {
+		schedule, command, container, comment = strings.TrimSpace(schedule), strings.TrimSpace(command), strings.TrimSpace(container), strings.TrimSpace(comment)
+	}
 	autoComment := comment == ""
 	if autoComment {
 		comment = container
 	}
-	crontabContent := web.FormText(r, "crontab_content")
 
 	if crontabContent == "" {
 		if schedule == "" || command == "" || container == "" {
@@ -267,6 +283,15 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		var existing []CronJob
+		if existingContent, readErr := tenantfs.ReadFile(resolvedPath); readErr == nil {
+			existing = ParseCronFile(string(existingContent))
+		}
+		if msg := newJobProblem(container, comment, autoComment, cronContainers(ctx, userContext), existing); msg != "" {
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, msg, "name", comment, "container", container), "/cronjobs/new")
+			return
+		}
+
 		truncatedComment := comment
 		if len(truncatedComment) > 30 {
 			truncatedComment = truncatedComment[:30]
@@ -274,9 +299,7 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		truncatedComment = strings.ReplaceAll(truncatedComment, `"`, `\"`)
 
 		if autoComment {
-			if existingContent, readErr := tenantfs.ReadFile(resolvedPath); readErr == nil {
-				truncatedComment = uniqueCronComment(ParseCronFile(string(existingContent)), truncatedComment)
-			}
+			truncatedComment = uniqueCronComment(existing, truncatedComment)
 		}
 
 		cronJobBlock := "[job-exec \"" + truncatedComment + "\"]\n" +
@@ -297,7 +320,7 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		restartOrActivateCron(ctx, userContext)
 
-		http.Redirect(w, r, "/cronjobs", http.StatusFound)
+		http.Redirect(w, r, "/cronjobs?created="+url.QueryEscape(truncatedComment), http.StatusFound)
 		return
 	}
 

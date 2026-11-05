@@ -4,12 +4,13 @@
 {{define "content"}}
 <!-- START templates/docker/container_form.html -->
 
-{{$in := "relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"}}
-{{$sel := "w-full cursor-pointer truncate rounded border py-2 pl-3 shadow-sm outline-none transition-all sm:text-sm bg-white dark:bg-gray-950 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700"}}
-{{$label := "flex justify-between mb-2 text-sm font-medium text-gray-900 dark:text-gray-50"}}
-{{$step := "inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50"}}
-{{$card := "rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4"}}
-{{$ghost := "relative inline-flex items-center justify-center gap-x-1.5 whitespace-nowrap rounded border px-3 py-1.5 text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900"}}
+{{$in := "block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"}}
+{{$sel := "block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 cursor-pointer truncate"}}
+{{$label := "mb-2 flex justify-between text-sm font-medium text-gray-900 dark:text-gray-50"}}
+{{$step := "inline-flex size-6 items-center justify-center rounded-md bg-gray-100 text-xs font-medium text-gray-600 tabular-nums dark:bg-gray-800 dark:text-gray-400"}}
+{{$card := "p-4 sm:p-6"}}
+{{$ghost := "relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"}}
+{{$icon := "inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"}}
 
 <div x-data="containerForm({
         editing: {{.Editing}},
@@ -27,12 +28,12 @@
         existing: {{if .ExistingServicesJSON}}{{.ExistingServicesJSON}}{{else}}[]{{end}},
         availableVolumes: {{toJSON .AvailableVolumes}}
     })">
-<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
+<div class="px-4 pt-6 pb-4 sm:px-6 lg:px-8">
     <header class="flex items-center justify-between gap-4">
         <div>
             <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{if .Editing}}{{.Title}}{{else}}{{.T.Get "Add a container"}}{{end}}</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-500" x-show="phase === 'form'">{{if .Editing}}{{.T.Get "Change the image, limits, networks and storage of this service. Saving restarts it with the new settings."}}{{else}}{{.T.Get "Run any Docker image next to your websites, for example a Redis cache, a queue worker or your own app."}}{{end}}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-500" x-show="phase !== 'form'" x-cloak>
+            <p class="mt-1 text-sm text-gray-500" x-show="phase === 'form'">{{if .Editing}}{{.T.Get "Change the image, limits, networks and storage of this service. Saving restarts it with the new settings."}}{{else}}{{.T.Get "Run any Docker image next to your websites, for example a Redis cache, a queue worker or your own app."}}{{end}}</p>
+            <p class="mt-1 text-sm text-gray-500" x-show="phase !== 'form'" x-cloak>
                 <span x-show="phase === 'running'">{{.T.Get "Creating container"}}</span>
                 <span x-show="phase === 'done'">{{.T.Get "Container created"}}</span>
                 <span x-show="phase === 'error'">{{.T.Get "Could not create container"}}</span>
@@ -40,36 +41,37 @@
             </p>
         </div>
         <div x-show="phase !== 'form'" x-cloak class="relative shrink-0" style="width:3rem;height:3rem">
-            <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#e5e7eb" stroke-width="10" class="dark:stroke-gray-700"/><circle cx="50" cy="50" r="42" fill="none" stroke="url(#ctRingGrad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="263.9" :stroke-dashoffset="263.9 - 263.9 * progress() / 100" style="transition: stroke-dashoffset 0.6s ease"/><defs><linearGradient id="ctRingGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#10b981"/></linearGradient></defs></svg>
-            <div class="absolute inset-0 flex items-center justify-center"><span class="text-xs font-bold text-gray-900 dark:text-gray-50" x-text="progress() + '%'"></span></div>
+            <svg class="h-full w-full -rotate-90" viewBox="0 0 100 100" role="progressbar" aria-valuemin="0" aria-valuemax="100" :aria-valuenow="progress()"><circle cx="50" cy="50" r="42" fill="none" stroke-width="10" class="stroke-gray-200 dark:stroke-gray-800"/><circle cx="50" cy="50" r="42" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="263.9" :stroke-dashoffset="263.9 - 263.9 * progress() / 100" class="stroke-blue-500" style="transition: stroke-dashoffset 0.6s ease"/></svg>
+            <div class="absolute inset-0 flex items-center justify-center"><span class="text-xs font-semibold text-gray-900 tabular-nums dark:text-gray-50" x-text="progress() + '%'"></span></div>
         </div>
     </header>
 </div>
 
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6" x-show="phase === 'form'">
-    <form class="space-y-3" method="POST" @submit="onSubmit($event)">
+<div class="max-w-3xl px-4 pb-8 sm:px-6 lg:px-8" x-show="phase === 'form'">
+    <form class="space-y-4" method="POST" @submit="onSubmit($event)">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
         {{if .Error}}
-        <div class="flex items-start gap-3 rounded border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-900 dark:text-red-300">
-            <i class="bi bi-exclamation-circle-fill mt-0.5"></i>
+        <div class="flex gap-3 rounded-md p-4 text-sm bg-red-50 text-red-900 dark:bg-red-950/70 dark:text-red-500" role="alert">
+            <i class="ri-error-warning-line size-5 shrink-0 text-base" aria-hidden="true"></i>
             <p>{{.T.Get .Error}}</p>
         </div>
         {{end}}
 
+        <div class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
         <!-- 1: image and name -->
         <div class="{{$card}}">
-            <div class="flex items-center gap-2.5 mb-3">
+            <div class="mb-4 flex items-center gap-2.5">
                 <div class="{{$step}}">1</div>
-                <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Image and name"}}</span>
+                <span class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Image and name"}}</span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="{{$label}}" for="image">
-                        <span>{{.T.Get "Docker image"}}<span class="text-red-500">*</span></span>
+                        <span>{{.T.Get "Docker image"}}<span class="ml-0.5 text-red-600 dark:text-red-500" aria-hidden="true">*</span></span>
                     </label>
                     <input type="text" id="image" name="image" x-model.trim="image" @input="suggestName()" required autocomplete="off" spellcheck="false"
-                           list="popular-images" placeholder="redis:7-alpine" class="{{$in}} font-mono">
+                           list="popular-images" placeholder="redis:7-alpine" aria-describedby="image-help" class="{{$in}} font-mono">
                     <datalist id="popular-images">
                         <option value="redis:alpine"></option>
                         <option value="valkey/valkey:alpine"></option>
@@ -82,16 +84,17 @@
                         <option value="python:3-alpine"></option>
                         <option value="nginx:alpine"></option>
                     </datalist>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Image from Docker Hub, or a full address like ghcr.io/owner/app:1.0. Add a tag to pin the version."}}</p>
+                    <p id="image-help" class="mt-2 text-xs text-gray-500">{{.T.Get "Image from Docker Hub, or a full address like ghcr.io/owner/app:1.0. Add a tag to pin the version."}}</p>
                 </div>
                 <div>
                     <label class="{{$label}}" for="service_name">
-                        <span>{{.T.Get "Name"}}<span class="text-red-500">*</span></span>
+                        <span>{{.T.Get "Name"}}<span class="ml-0.5 text-red-600 dark:text-red-500" aria-hidden="true">*</span></span>
                     </label>
                     <input type="text" id="service_name" name="service_name" x-model="name" @input="name = name.toLowerCase().replace(/[^a-z0-9]/g, ''); nameTouched = true"
                            {{if .Editing}}readonly{{end}} required pattern="[a-z][a-z0-9]{2,}" autocomplete="off" spellcheck="false"
+                           aria-describedby="service-name-help" :aria-invalid="nameError ? 'true' : null"
                            class="{{$in}} font-mono {{if .Editing}}opacity-50{{end}}">
-                    <p class="mt-1 text-xs" :class="nameError ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'"
+                    <p id="service-name-help" class="mt-2 text-xs" :class="nameError ? 'text-red-600 dark:text-red-500' : 'text-gray-500'"
                        x-text="nameError || {{toJSON (.T.Get "Other services reach this container by its name, for example redis:6379.")}}"></p>
                 </div>
             </div>
@@ -99,76 +102,74 @@
 
         <!-- 2: resources -->
         <div class="{{$card}}">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
                 <div class="flex items-center gap-2.5">
                     <div class="{{$step}}">2</div>
-                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Resources"}}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Resources"}}</span>
                 </div>
-                <div class="inline-flex items-center rounded-md text-xs font-medium shadow-sm">
+                <div class="inline-flex rounded-md bg-gray-100 p-1 dark:bg-gray-900" role="group" aria-label="{{.T.Get "Resources"}}">
                     <template x-for="(p, i) in presets" :key="p.name">
-                        <button type="button" @click="applyPreset(p)" x-text="p.label"
-                                :class="(i > 0 ? '-ml-px ' : '') + (isPreset(p) ? 'border-black bg-black text-white dark:bg-gray-50 dark:text-gray-900' : 'border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 hover:dark:bg-gray-950/50')"
-                                :style="(i === 0 ? 'border-radius:6px 0 0 6px;' : i === presets.length - 1 ? 'border-radius:0 6px 6px 0;' : '') + (isPreset(p) ? 'z-index:1;' : '')"
-                                class="relative border px-2.5 py-1 focus:outline-none"></button>
+                        <button type="button" @click="applyPreset(p)" x-text="p.label" :aria-pressed="isPreset(p) ? 'true' : 'false'"
+                                class="rounded px-3 py-1 text-sm font-medium text-gray-500 outline outline-0 outline-offset-2 outline-blue-500 hover:text-gray-700 focus-visible:outline-2 dark:hover:text-gray-300 aria-pressed:bg-white aria-pressed:text-gray-900 aria-pressed:shadow-xs aria-pressed:ring-1 aria-pressed:ring-gray-200 dark:aria-pressed:bg-gray-950 dark:aria-pressed:text-gray-50 dark:aria-pressed:ring-gray-800"></button>
                     </template>
                 </div>
             </div>
             <div class="grid sm:grid-cols-3 gap-4">
                 <div>
-                    <label class="{{$label}}" for="cpu"><span>{{.T.Get "CPU cores"}}<span class="text-red-500">*</span></span></label>
+                    <label class="{{$label}}" for="cpu"><span>{{.T.Get "CPU cores"}}<span class="ml-0.5 text-red-600 dark:text-red-500" aria-hidden="true">*</span></span></label>
                     <input type="number" id="cpu" name="cpu" x-model="cpu" min="0.05" step="0.05" required class="{{$in}}">
                 </div>
                 <div>
-                    <label class="{{$label}}" for="ram_amount"><span>{{.T.Get "Memory"}}<span class="text-red-500">*</span></span></label>
+                    <label class="{{$label}}" for="ram_amount"><span>{{.T.Get "Memory"}}<span class="ml-0.5 text-red-600 dark:text-red-500" aria-hidden="true">*</span></span></label>
                     <div class="flex">
-                        <input type="number" id="ram_amount" x-model="ramAmount" min="0.05" step="0.05" required class="rounded-l border {{$in}} border-gray-300 dark:border-gray-800" style="border-top-right-radius:0;border-bottom-right-radius:0;">
-                        <span class="rounded-r inline-flex items-center border border-l-0 py-2 px-3 text-sm bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-800 text-gray-500 dark:text-gray-400" style="border-left-width:0">GB</span>
+                        <input type="number" id="ram_amount" x-model="ramAmount" min="0.05" step="0.05" required class="{{$in}} rounded-r-none">
+                        <span class="inline-flex items-center rounded-r-md border border-l-0 border-gray-300 bg-gray-50 px-3 text-sm text-gray-500 dark:border-gray-800 dark:bg-gray-900">GB</span>
                     </div>
                     <input type="hidden" name="ram" :value="ramAmount + 'G'">
                 </div>
                 <div>
-                    <label class="{{$label}}" for="pids"><span>{{.T.Get "Max processes"}}<span class="text-red-500">*</span></span></label>
+                    <label class="{{$label}}" for="pids"><span>{{.T.Get "Max processes"}}<span class="ml-0.5 text-red-600 dark:text-red-500" aria-hidden="true">*</span></span></label>
                     <input type="number" id="pids" name="pids" x-model="pids" min="1" step="1" required class="{{$in}}">
                 </div>
             </div>
-            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Limits for this container only, it can't use more than your plan allows."}}</p>
+            <p class="mt-2 text-xs text-gray-500">{{.T.Get "Limits for this container only, it can't use more than your plan allows."}}</p>
         </div>
 
         <!-- 3: networks -->
         <div class="{{$card}}">
-            <div class="flex items-center gap-2.5 mb-3">
+            <div class="mb-4 flex items-center gap-2.5">
                 <div class="{{$step}}">3</div>
-                <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Networks"}}</span>
+                <span class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Networks"}}</span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {{range .AvailableNetworks}}
-                <label class="flex cursor-pointer items-center gap-3 rounded border p-3 text-sm"
-                       :class="networks.includes({{toJSON .}}) ? 'border-indigo-500 shadow-md' : 'border-gray-200 dark:border-gray-700'">
+                <label class="flex cursor-pointer items-center gap-3 rounded-md border p-3 text-sm"
+                       :class="networks.includes({{toJSON .}}) ? 'border-blue-500 bg-blue-50/50 dark:border-blue-700 dark:bg-blue-400/5' : 'border-gray-200 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/60'">
                     <input type="checkbox" name="network" value="{{.}}" x-model="networks">
                     <span class="font-mono text-gray-900 dark:text-gray-50">{{.}}</span>
                 </label>
                 {{else}}
-                <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No networks are defined for your account."}}</p>
+                <p class="text-sm text-gray-500">{{.T.Get "No networks are defined for your account."}}</p>
                 {{end}}
             </div>
-            <p class="mt-2 text-xs" :class="networks.length ? 'text-gray-500 dark:text-gray-400' : 'text-red-600 dark:text-red-400'"
+            <p class="mt-2 text-xs" :class="networks.length ? 'text-gray-500' : 'text-red-600 dark:text-red-500'"
                x-text="networks.length ? {{toJSON (.T.Get "The container can talk to every service on the networks you choose.")}} : {{toJSON (.T.Get "Choose at least one network.")}}"></p>
         </div>
 
         <!-- 4: storage -->
         <div class="{{$card}}">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
                 <div class="flex items-center gap-2.5">
                     <div class="{{$step}}">4</div>
-                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Storage"}}</span>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "optional"}}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Storage"}}</span>
+                    <span class="text-xs text-gray-500">{{.T.Get "optional"}}</span>
                 </div>
-                <button type="button" @click="addVolume()" class="{{$ghost}}"><i class="bi bi-plus-lg"></i> {{.T.Get "Add volume"}}</button>
+                <button type="button" @click="addVolume()" class="{{$ghost}}"><i class="ri-add-line" aria-hidden="true"></i> {{.T.Get "Add volume"}}</button>
             </div>
 
             <template x-for="(v, i) in volumes" :key="v.id">
                 <div class="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center">
-                    <select x-show="!v.isNew" :name="v.isNew ? '' : 'volume_name'" x-model="v.Name" @change="if (v.Name === '__new__') { v.isNew = true; v.Name = ''; $nextTick(() => $el.nextElementSibling.querySelector('input').focus()); }" class="{{$sel}} sm:w-64">
+                    <select x-show="!v.isNew" :name="v.isNew ? '' : 'volume_name'" x-model="v.Name" @change="if (v.Name === '__new__') { v.isNew = true; v.Name = ''; $nextTick(() => $el.nextElementSibling.querySelector('input').focus()); }" aria-label="{{.T.Get "Volume"}}" class="{{$sel}} sm:w-64">
                         <template x-for="name in availableVolumes" :key="name">
                             <option :value="name" :selected="name === v.Name" x-text="name"></option>
                         </template>
@@ -176,79 +177,79 @@
                     </select>
                     <div x-show="v.isNew" x-cloak class="flex shrink-0 items-center gap-1 sm:w-64">
                         <input type="text" :name="v.isNew ? 'volume_name' : ''" x-model.trim="v.Name" :required="v.isNew" :pattern="v.isNew ? '[a-z][a-z0-9_]{2,63}' : null" placeholder="app_data" spellcheck="false" autocomplete="off"
-                               title="{{.T.Get "3 to 64 lowercase letters, digits or _, starting with a letter"}}" class="{{$in}} font-mono">
-                        <button type="button" x-show="availableVolumes.length" @click="v.isNew = false; v.Name = availableVolumes[0]" class="shrink-0 rounded p-1.5 text-gray-400 hover:text-gray-700" title="{{.T.Get "Use an existing volume"}}"><i class="bi bi-list-ul"></i></button>
+                               title="{{.T.Get "3 to 64 lowercase letters, digits or _, starting with a letter"}}" aria-label="{{.T.Get "Volume"}}" class="{{$in}} font-mono">
+                        <button type="button" x-show="availableVolumes.length" @click="v.isNew = false; v.Name = availableVolumes[0]" class="{{$icon}}" title="{{.T.Get "Use an existing volume"}}" aria-label="{{.T.Get "Use an existing volume"}}"><i class="ri-list-unordered" aria-hidden="true"></i></button>
                     </div>
-                    <input type="text" name="volume_mount" x-model.trim="v.Mount" required placeholder="/data" spellcheck="false" class="{{$in}} font-mono">
+                    <input type="text" name="volume_mount" x-model.trim="v.Mount" required placeholder="/data" spellcheck="false" aria-label="{{.T.Get "Mount path"}}" class="{{$in}} font-mono">
                     <input type="hidden" name="volume_readonly" :value="v.ReadOnly ? 'on' : 'off'">
-                    <label class="flex shrink-0 cursor-pointer items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300">
+                    <label class="flex shrink-0 cursor-pointer items-center gap-2 text-sm text-gray-900 dark:text-gray-50">
                         <input type="checkbox" x-model="v.ReadOnly"> {{.T.Get "Read-only"}}
                     </label>
-                    <button type="button" @click="volumes.splice(i, 1)" class="shrink-0 rounded p-1.5 text-gray-400 hover:text-gray-700" title="{{.T.Get "Remove"}}"><i class="bi bi-trash3"></i></button>
+                    <button type="button" @click="volumes.splice(i, 1)" class="{{$icon}}" title="{{.T.Get "Remove"}}" aria-label="{{.T.Get "Remove"}}"><i class="ri-delete-bin-line" aria-hidden="true"></i></button>
                 </div>
             </template>
-            <p x-show="!volumes.length" class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No volumes, data written by the container is lost when it's recreated."}}</p>
-            <p x-show="volumes.some(v => v.isNew)" x-cloak class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "New volumes are created when you save, and keep their data if the container is deleted."}}</p>
+            <p x-show="!volumes.length" class="text-sm text-gray-500">{{.T.Get "No volumes, data written by the container is lost when it's recreated."}}</p>
+            <p x-show="volumes.some(v => v.isNew)" x-cloak class="mt-2 text-xs text-gray-500">{{.T.Get "New volumes are created when you save, and keep their data if the container is deleted."}}</p>
 
-            <label class="mt-3 flex cursor-pointer items-start gap-3 rounded border border-gray-200 dark:border-gray-700 p-3 text-sm">
+            <label class="mt-4 flex cursor-pointer items-start gap-3 rounded-md border border-gray-200 p-3 text-sm dark:border-gray-800">
                 <input type="checkbox" name="add_socket" class="mt-0.5" {{if .AddSocket}}checked{{end}}>
                 <span>
                     <span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Give access to the Docker socket"}}</span>
-                    <span class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Only for tools that manage containers, like Portainer or Watchtower. The container can then control all your other containers."}}</span>
+                    <span class="mt-0.5 block text-xs text-gray-500">{{.T.Get "Only for tools that manage containers, like Portainer or Watchtower. The container can then control all your other containers."}}</span>
                 </span>
             </label>
         </div>
 
         <!-- 5: environment -->
         <div class="{{$card}}">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
                 <div class="flex items-center gap-2.5">
                     <div class="{{$step}}">5</div>
-                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Environment variables"}}</span>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "optional"}}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Environment variables"}}</span>
+                    <span class="text-xs text-gray-500">{{.T.Get "optional"}}</span>
                 </div>
                 <div class="flex gap-2">
                     <button type="button" @click="toggleBulk()" class="{{$ghost}}" x-text="bulk ? {{toJSON (.T.Get "Use rows")}} : {{toJSON (.T.Get "Paste as text")}}"></button>
-                    <button type="button" x-show="!bulk" @click="envRows.push({ id: nextId++, key: '', value: '' })" class="{{$ghost}}"><i class="bi bi-plus-lg"></i> {{.T.Get "Add"}}</button>
+                    <button type="button" x-show="!bulk" @click="envRows.push({ id: nextId++, key: '', value: '' })" class="{{$ghost}}"><i class="ri-add-line" aria-hidden="true"></i> {{.T.Get "Add"}}</button>
                 </div>
             </div>
 
             <div x-show="!bulk">
                 <template x-for="(e, i) in envRows" :key="e.id">
                     <div class="mb-2 flex items-center gap-2">
-                        <input type="text" x-model.trim="e.key" placeholder="KEY" spellcheck="false" class="{{$in}} font-mono" style="max-width: 40%;">
-                        <input type="text" x-model="e.value" placeholder="{{.T.Get "value"}}" spellcheck="false" class="{{$in}} font-mono">
-                        <button type="button" @click="envRows.splice(i, 1)" class="shrink-0 rounded p-1.5 text-gray-400 hover:text-gray-700" title="{{.T.Get "Remove"}}"><i class="bi bi-trash3"></i></button>
+                        <input type="text" x-model.trim="e.key" placeholder="KEY" spellcheck="false" aria-label="{{.T.Get "Key"}}" class="{{$in}} max-w-[40%] font-mono">
+                        <input type="text" x-model="e.value" placeholder="{{.T.Get "value"}}" spellcheck="false" aria-label="{{.T.Get "Value"}}" class="{{$in}} font-mono">
+                        <button type="button" @click="envRows.splice(i, 1)" class="{{$icon}}" title="{{.T.Get "Remove"}}" aria-label="{{.T.Get "Remove"}}"><i class="ri-delete-bin-line" aria-hidden="true"></i></button>
                     </div>
                 </template>
-                <p x-show="!envRows.length" class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No environment variables."}}</p>
+                <p x-show="!envRows.length" class="text-sm text-gray-500">{{.T.Get "No environment variables."}}</p>
             </div>
             <div x-show="bulk" x-cloak>
-                <textarea x-model="bulkText" rows="6" spellcheck="false" placeholder="REDIS_PASSWORD: secret&#10;TZ: Europe/Belgrade" class="{{$in}} font-mono"></textarea>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "One variable per line, as KEY: value or KEY=value."}}</p>
+                <textarea x-model="bulkText" rows="6" spellcheck="false" placeholder="REDIS_PASSWORD: secret&#10;TZ: Europe/Belgrade" aria-label="{{.T.Get "Environment variables"}}" class="{{$in}} min-h-24 font-mono text-xs"></textarea>
+                <p class="mt-2 text-xs text-gray-500">{{.T.Get "One variable per line, as KEY: value or KEY=value."}}</p>
             </div>
             <div x-show="!editing && envText().includes('{domain}')" x-cloak>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "{domain} is replaced with the domain chosen below, or localhost if none."}}</p>
+                <p class="mt-2 text-xs text-gray-500">{{.T.Get "{domain} is replaced with the domain chosen below, or localhost if none."}}</p>
             </div>
             <textarea name="environment" class="hidden" :value="envText()"></textarea>
         </div>
 
         <!-- 6: domain -->
         <div class="{{$card}}">
-            <div class="flex items-center gap-2.5 mb-3">
+            <div class="mb-4 flex items-center gap-2.5">
                 <div class="{{$step}}">6</div>
-                <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Domain"}}</span>
-                <span class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "optional"}}</span>
+                <span class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Domain"}}</span>
+                <span class="text-xs text-gray-500">{{.T.Get "optional"}}</span>
             </div>
             {{if .Editing}}
             {{if .Domain}}
             <p class="text-sm text-gray-900 dark:text-gray-50">
-                <a href="https://{{.Domain}}" target="_blank" rel="noopener" class="font-mono text-blue-600 hover:underline dark:text-blue-500">{{.Domain}}</a>
-                <span class="text-gray-500 dark:text-gray-400">&rarr; {{.ServiceName}}:{{.Port}}</span>
+                <a href="https://{{.Domain}}" target="_blank" rel="noopener" class="font-mono text-blue-500 hover:underline hover:underline-offset-4">{{.Domain}}</a>
+                <span class="text-gray-500">&rarr; {{.ServiceName}}:{{.Port}}</span>
             </p>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Deleting the container removes the proxy from the domain."}}</p>
+            <p class="mt-2 text-xs text-gray-500">{{.T.Get "Deleting the container removes the proxy from the domain."}}</p>
             {{else}}
-            <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "This container is not reachable from a domain. A domain can only be set when the container is created."}}</p>
+            <p class="text-sm text-gray-500">{{.T.Get "This container is not reachable from a domain. A domain can only be set when the container is created."}}</p>
             {{end}}
             {{else}}
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -260,49 +261,51 @@
                     </select>
                 </div>
                 <div x-show="domain" x-cloak>
-                    <label class="{{$label}}" for="port"><span>{{.T.Get "Container port"}}<span class="text-red-500">*</span></span></label>
+                    <label class="{{$label}}" for="port"><span>{{.T.Get "Container port"}}<span class="ml-0.5 text-red-600 dark:text-red-500" aria-hidden="true">*</span></span></label>
                     <input type="number" id="port" name="port" x-model="port" min="1" max="65535" step="1" placeholder="80" :required="!!domain" class="{{$in}}">
                 </div>
             </div>
-            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400" x-show="!domain">{{.T.Get "Pick a domain to make the app reachable from outside, the web server will proxy it to this container."}}</p>
-            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400" x-show="domain" x-cloak>{{.T.Get "All requests to this domain go to the container on the port the app listens on, any website files on the domain stop being served. The container joins the www network."}}</p>
+            <p class="mt-2 text-xs text-gray-500" x-show="!domain">{{.T.Get "Pick a domain to make the app reachable from outside, the web server will proxy it to this container."}}</p>
+            <p class="mt-2 text-xs text-gray-500" x-show="domain" x-cloak>{{.T.Get "All requests to this domain go to the container on the port the app listens on, any website files on the domain stop being served. The container joins the www network."}}</p>
             {{end}}
         </div>
 
         <!-- 7: health check -->
         <div class="{{$card}}" x-data="{ openHc: {{if .Healthcheck}}true{{else}}false{{end}} }">
-            <button type="button" @click="openHc = !openHc" class="flex w-full items-center justify-between gap-2">
+            <button type="button" @click="openHc = !openHc" :aria-expanded="openHc ? 'true' : 'false'" aria-controls="hc-body" class="flex w-full items-center justify-between gap-2 rounded-md outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
                 <span class="flex items-center gap-2.5">
                     <span class="{{$step}}">7</span>
-                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Health check"}}</span>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "optional"}}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Health check"}}</span>
+                    <span class="text-xs text-gray-500">{{.T.Get "optional"}}</span>
                 </span>
-                <i class="bi text-gray-400" :class="openHc ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                <i class="text-gray-500" :class="openHc ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'" aria-hidden="true"></i>
             </button>
-            <div x-show="openHc" x-cloak class="mt-3">
-                <textarea name="healthcheck" x-model="healthcheck" rows="6" spellcheck="false" class="{{$in}} font-mono"
+            <div x-show="openHc" x-cloak id="hc-body" class="mt-4">
+                <textarea name="healthcheck" x-model="healthcheck" rows="6" spellcheck="false" aria-label="{{.T.Get "Health check"}}" class="{{$in}} min-h-24 font-mono text-xs"
                           placeholder="test: [&#34;CMD&#34;, &#34;redis-cli&#34;, &#34;ping&#34;]&#10;interval: 30s&#10;timeout: 5s&#10;retries: 3"></textarea>
-                <div class="mt-1 flex items-center justify-between gap-2">
-                    <p class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "In docker compose healthcheck format. The Containers page shows the container as healthy or unhealthy."}}</p>
-                    <button type="button" x-show="!healthcheck" @click="healthcheck = exampleHealthcheck()" class="shrink-0 text-xs font-medium text-blue-600 hover:underline dark:text-blue-500">{{.T.Get "Insert example"}}</button>
+                <div class="mt-2 flex items-center justify-between gap-2">
+                    <p class="text-xs text-gray-500">{{.T.Get "In docker compose healthcheck format. The Containers page shows the container as healthy or unhealthy."}}</p>
+                    <button type="button" x-show="!healthcheck" @click="healthcheck = exampleHealthcheck()" class="shrink-0 text-xs font-medium text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Insert example"}}</button>
                 </div>
             </div>
         </div>
 
-        <div class="flex items-center justify-end gap-2 pt-3">
-            <a href="/containers" class="{{$ghost}} py-2">{{.T.Get "Cancel"}}</a>
-            <button type="submit" :disabled="!canSubmit()" :class="!canSubmit() && 'opacity-50'" class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-center text-sm font-medium shadow-sm transition-all border-black bg-black text-white hover:bg-gray-800 gap-x-1.5 whitespace-nowrap">
+        </div>
+
+        <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <a href="/containers" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Cancel"}}</a>
+            <button type="submit" :disabled="!canSubmit()" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">
                 {{if .Editing}}{{.T.Get "Save changes"}}{{else}}{{.T.Get "Create container"}}{{end}}
             </button>
         </div>
     </form>
 </div>
 
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6" x-show="phase !== 'form'" x-cloak>
-    <div class="grid grid-cols-1 gap-2">
+<div class="max-w-3xl px-4 pb-8 sm:px-6 lg:px-8" x-show="phase !== 'form'" x-cloak>
+    <div class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
         <template x-for="st in steps" :key="st.id">
-            <div class="flex items-center gap-3 rounded p-3 text-sm font-medium transition-colors"
-                 :class="{ 'bg-gray-50 dark:bg-gray-800/50 text-gray-400 dark:text-gray-500': st.state === 'pending', 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-50': st.state === 'active', 'bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400': st.state === 'done', 'bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-300': st.state === 'error' }">
+            <div class="flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors"
+                 :class="{ 'text-gray-400 dark:text-gray-600': st.state === 'pending', 'text-gray-900 dark:text-gray-50': st.state === 'active', 'text-gray-600 dark:text-gray-400': st.state === 'done', 'bg-red-50 text-red-900 dark:bg-red-950/70 dark:text-red-500': st.state === 'error' }">
                 <svg x-show="st.state === 'pending'" class="size-5 shrink-0 text-gray-300 dark:text-gray-600" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" opacity=".25"/><circle cx="12" cy="12" r="3"/></svg>
                 <svg x-show="st.state === 'active'" class="size-5 shrink-0 text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity=".3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
                 <svg x-show="st.state === 'done'" class="size-5 shrink-0 text-emerald-500 dark:text-emerald-400" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"/></svg>
@@ -312,11 +315,11 @@
         </template>
     </div>
 
-    <div x-show="errorText" x-cloak class="mt-4 rounded border border-red-300 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-900 dark:text-red-300 font-mono" style="white-space:pre-line;overflow-wrap:anywhere" x-text="errorText"></div>
+    <div x-show="errorText" x-cloak role="alert" class="mt-4 rounded-md bg-red-50 p-4 font-mono text-xs whitespace-pre-line text-red-900 [overflow-wrap:anywhere] dark:bg-red-950/70 dark:text-red-500" x-text="errorText"></div>
 
     <div x-show="phase === 'error'" x-cloak class="mt-4 flex items-center justify-end gap-2">
-        <a x-show="saved" href="/containers" class="{{$ghost}} py-2">{{.T.Get "Go to containers"}}</a>
-        <button x-show="!saved" type="button" @click="phase = 'form'" class="relative inline-flex items-center justify-center rounded border px-4 py-2 text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800">{{.T.Get "Back to the form"}}</button>
+        <a x-show="saved" href="/containers" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Go to containers"}}</a>
+        <button x-show="!saved" type="button" @click="phase = 'form'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">{{.T.Get "Back to the form"}}</button>
     </div>
 </div>
 </div>

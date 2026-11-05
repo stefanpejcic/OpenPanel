@@ -3,28 +3,27 @@
 {{define "content"}}
 <!-- START templates/manager/ojs_install.html -->
 
-<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
-    <header class="flex items-center justify-between gap-4">
-        <div>
-            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Install OJS"}}</h1>
-            <p id="description_type" class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Set up a new Open Journal Systems site in an existing domain."}}</p>
-        </div>
-        <div id="headerRing" class="hidden flex-shrink-0">
-            <div class="relative w-12 h-12">
-                <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#e5e7eb" stroke-width="10" class="dark:stroke-gray-700"/><circle id="progressRing" cx="50" cy="50" r="42" fill="none" stroke="url(#installRingGrad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9" style="transition: stroke-dashoffset 0.6s ease"/><defs><linearGradient id="installRingGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#10b981"/></linearGradient></defs></svg>
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <span id="progressPercent" class="text-xs font-bold text-gray-900 dark:text-gray-50">0%</span>
-                </div>
+<header class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Install OJS"}}</h1>
+        <p id="description_type" class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Set up a new Open Journal Systems site in an existing domain."}}</p>
+    </div>
+    <div id="headerRing" class="hidden flex-shrink-0">
+        <div class="relative w-12 h-12">
+            <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="10" class="text-gray-200 dark:text-gray-800"/><circle id="progressRing" cx="50" cy="50" r="42" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9" class="text-blue-500" style="transition: stroke-dashoffset 0.6s ease"/></svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <span id="progressPercent" class="text-xs font-semibold tabular-nums text-gray-900 dark:text-gray-50">0%</span>
             </div>
         </div>
-    </header>
-</div>
+    </div>
+</header>
 
 {{if .Domains}}
 {{template "cmsinstall_block_4" .}}
-    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+    <div class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+    <div class="p-4 sm:p-6">
         {{template "cmsinstall_block_6" .}}
-    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+    <div class="p-4 sm:p-6">
         {{template "cmsinstall_block_10" .}}
         {{template "cmsinstall_block_9" .}}
             {{template "cmsinstall_block_11" .}}
@@ -32,22 +31,22 @@
         {{template "cmsinstall_script" .}}
     </div>
 
-    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
+    <div class="p-4 sm:p-6">
         {{template "cmsinstall_block_17" .}}
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 mb-3">
             <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_username">
-                    {{.T.Get "Username"}}<span class="text-red-500">*</span>
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_username">
+                    {{.T.Get "Username"}}<span class="ml-0.5 text-red-600 dark:text-red-500" aria-hidden="true">*</span>
                 </label>
                 <input type="text" name="admin_username" id="admin_username" value="admin" required
-                    class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
+                    class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
             </div>
             <div>
-                <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_email">
-                    {{.T.Get "Email"}}<span class="text-red-500">*</span>
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_email">
+                    {{.T.Get "Email"}}<span class="ml-0.5 text-red-600 dark:text-red-500" aria-hidden="true">*</span>
                 </label>
                 <input type="email" name="admin_email" id="admin_email" placeholder="admin@example.com" required
-                    class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
+                    class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
             </div>
         </div>
 
@@ -61,51 +60,52 @@
             }, {{.PasswordStrength}})"
             x-init="checkStrength()"
         >
-            <label class="mb-1.5 block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_password">
-                {{.T.Get "Password"}}<span class="text-red-500">*</span>
+            <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="admin_password">
+                {{.T.Get "Password"}}<span class="ml-0.5 text-red-600 dark:text-red-500" aria-hidden="true">*</span>
             </label>
             {{template "cmsinstall_block_18" .}}
+    </div>
     {{template "cmsinstall_block_15" .}}
   {{template "install_success" .}}
-<div class="grid grid-cols-1 gap-2" id="stepsContainer">
+<div class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800" id="stepsContainer">
 
-      <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors" id="step-preflight">
+      <div class="step-row flex items-center justify-between gap-4 px-4 py-3 transition-colors" id="step-preflight">
         <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
           <span class="step-icon flex-shrink-0"></span>{{.T.Get "Running pre-flight checks"}}
         </span>
       </div>
 
-      <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors" id="step-container">
+      <div class="step-row flex items-center justify-between gap-4 px-4 py-3 transition-colors" id="step-container">
         <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
           <span class="step-icon flex-shrink-0"></span>{{.T.Get "Starting PHP container"}}
         </span>
       </div>
 
-      <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors" id="step-download">
+      <div class="step-row flex items-center justify-between gap-4 px-4 py-3 transition-colors" id="step-download">
         <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
           <span class="step-icon flex-shrink-0"></span>{{.T.Get "Downloading OJS archive"}}
         </span>
       </div>
 
-      <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors" id="step-extract">
+      <div class="step-row flex items-center justify-between gap-4 px-4 py-3 transition-colors" id="step-extract">
         <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
           <span class="step-icon flex-shrink-0"></span>{{.T.Get "Extracting files and linking web root"}}
         </span>
       </div>
 
-      <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors" id="step-database">
+      <div class="step-row flex items-center justify-between gap-4 px-4 py-3 transition-colors" id="step-database">
         <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
           <span class="step-icon flex-shrink-0"></span>{{.T.Get "Creating database"}}
         </span>
       </div>
 
-      <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors" id="step-cli">
+      <div class="step-row flex items-center justify-between gap-4 px-4 py-3 transition-colors" id="step-cli">
         <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
           <span class="step-icon flex-shrink-0"></span>{{.T.Get "Running OJS CLI installer"}}
         </span>
       </div>
 
-      <div class="step-row flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors" id="step-done">
+      <div class="step-row flex items-center justify-between gap-4 px-4 py-3 transition-colors" id="step-done">
         <span class="step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500">
           <span class="step-icon flex-shrink-0"></span>{{.T.Get "Registering cron job and saving to Site Manager"}}
         </span>
@@ -131,7 +131,7 @@ function startInstall(name) {
 
   if (_hangTimer) clearTimeout(_hangTimer);
   _hangTimer = setTimeout(() => {
-    _setDescription({{toJSON (.T.Get "Install process hanged for")}} + ` <span class="font-mono text-blue-500">${name}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-600 dark:text-blue-400 hover:underline">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
+    _setDescription({{toJSON (.T.Get "Install process hanged for")}} + ` <span class="font-mono text-blue-500">${name}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-500 hover:underline hover:underline-offset-4">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
   }, 5 * 60 * 1000);
 }
 
@@ -141,7 +141,7 @@ function _clearHangTimer() {
 
 function showInstallError(name) {
   _clearHangTimer();
-  _setDescription({{toJSON (.T.Get "Install process failed for")}} + ` <span class="font-mono text-blue-500">${name}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-600 dark:text-blue-400 hover:underline">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
+  _setDescription({{toJSON (.T.Get "Install process failed for")}} + ` <span class="font-mono text-blue-500">${name}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-500 hover:underline hover:underline-offset-4">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
 }
 
 function resetDescription() {
@@ -184,10 +184,10 @@ function _setState(el, state) {
   const label = _label(el);
 
   const states = {
-    pending: { row: 'flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500', svg: ICON_PENDING },
-    active:  { row: 'flex items-center justify-between rounded bg-blue-50 p-3 dark:bg-blue-900/20 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-900 dark:text-gray-50', svg: ICON_SPIN },
-    done:    { row: 'flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-500 dark:text-gray-400', svg: ICON_DONE },
-    error:   { row: 'flex items-center justify-between rounded bg-red-50 p-3 dark:bg-red-900/20 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-red-600 dark:text-red-400', svg: ICON_ERROR },
+    pending: { row: 'flex items-center justify-between gap-4 px-4 py-3 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-400 dark:text-gray-500', svg: ICON_PENDING },
+    active:  { row: 'flex items-center justify-between gap-4 px-4 py-3 transition-colors bg-blue-50 dark:bg-blue-950/70', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-900 dark:text-gray-50', svg: ICON_SPIN },
+    done:    { row: 'flex items-center justify-between gap-4 px-4 py-3 transition-colors', label: 'step-label font-medium text-sm flex items-center gap-3 text-gray-500 dark:text-gray-400', svg: ICON_DONE },
+    error:   { row: 'flex items-center justify-between gap-4 px-4 py-3 transition-colors bg-red-50 dark:bg-red-950/70', label: 'step-label font-medium text-sm flex items-center gap-3 text-red-600 dark:text-red-400', svg: ICON_ERROR },
   };
 
   const cfg = states[state];
@@ -239,7 +239,7 @@ function retryInstall() {
   document.getElementById('toAddActive').classList.remove('hidden');
   const button = document.getElementById("installButton");
   button.disabled = false;
-  button.innerHTML = {{toJSON (.T.Get "Start Installation")}} + `<svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg>`;
+  button.innerHTML = {{toJSON (.T.Get "Start installation")}} + `<i class="ri-arrow-right-line" aria-hidden="true"></i>`;
 }
 
 document.getElementById("installForm").addEventListener("submit", function(event) {

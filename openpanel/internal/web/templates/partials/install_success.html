@@ -1,6 +1,6 @@
 {{define "install_success"}}
 <!-- START templates/partials/install_success.html -->
-<div id="installSuccess" class="hidden mb-4 rounded border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950 overflow-hidden">
+<div id="installSuccess" class="hidden mb-4 rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950 overflow-hidden">
   <div class="flex items-start gap-3 bg-gray-50 dark:bg-gray-900 p-4 border-b border-gray-200 dark:border-gray-800">
     <svg viewBox="0 0 24 24" fill="currentColor" class="size-8 shrink-0 text-emerald-500"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path></svg>
     <div class="min-w-0">
@@ -40,16 +40,19 @@
     </div>
   </dl>
 
-  <div class="flex flex-wrap items-center gap-2 border-t border-gray-100 dark:border-gray-800 p-4">
-    <button type="button" id="succPrimaryBtn" class="inline-flex items-center gap-1.5 rounded border border-black bg-black px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-gray-800">{{.T.Get "Open admin panel"}}</button>
-    <a id="succManageBtn" href="#" class="inline-flex items-center gap-1.5 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800">{{.T.Get "Manage website"}}</a>
-    <a id="succAnotherBtn" href="#" class="inline-flex items-center gap-1.5 rounded border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800">{{.T.Get "Install another"}}</a>
+  <div class="flex flex-col-reverse gap-2 border-t border-gray-100 p-4 sm:flex-row sm:justify-end dark:border-gray-800">
+    <a id="succAnotherBtn" href="#" class="inline-flex items-center justify-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800">{{.T.Get "Install another"}}</a>
+    <a id="succManageBtn" href="#" class="inline-flex items-center justify-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-xs hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800">{{.T.Get "Manage website"}}</a>
+    <button type="button" id="succPrimaryBtn" class="inline-flex items-center justify-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium text-white border-transparent bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 shadow-xs ">{{.T.Get "Open admin panel"}}</button>
   </div>
 </div>
 
 <div id="installLogWrap" class="hidden">
-  <a href="#" id="installLogToggle" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">{{.T.Get "Show installation log"}}</a>
-  <pre id="installLog" class="hidden mt-2 max-h-64 overflow-auto rounded border border-gray-200 bg-gray-50 p-3 text-xs font-mono text-gray-700 whitespace-pre-wrap dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300"></pre>
+  <div class="flex items-center gap-4">
+    <a href="#" id="installLogToggle" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">{{.T.Get "Show installation log"}}</a>
+    <button type="button" id="installLogCopy" class="hidden text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50">{{.T.Get "Copy log"}}</button>
+  </div>
+  <pre id="installLog" class="hidden mt-2 max-h-64 overflow-auto rounded-md border border-gray-200 bg-gray-50 p-3 text-xs font-mono text-gray-700 whitespace-pre-wrap dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300"></pre>
 </div>
 
 <script>
@@ -66,10 +69,15 @@ window.installLog = {
   },
 };
 
+document.getElementById('installLogCopy').addEventListener('click', () => {
+  navigator.clipboard.writeText(document.getElementById('installLog').textContent).then(() => showToast({{toJSON (.T.Get "Copied to clipboard")}}, 'success'));
+});
+
 document.getElementById('installLogToggle').addEventListener('click', e => {
   e.preventDefault();
   const log = document.getElementById('installLog');
   const open = log.classList.toggle('hidden') === false;
+  document.getElementById('installLogCopy').classList.toggle('hidden', !open);
   e.target.textContent = open ? {{toJSON (.T.Get "Hide installation log")}} : {{toJSON (.T.Get "Show installation log")}};
 });
 

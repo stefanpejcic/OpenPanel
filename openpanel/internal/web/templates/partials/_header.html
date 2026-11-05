@@ -4,12 +4,12 @@
 
                   <!-- Left Section -->
                   <div class="flex items-center justify-center gap-2">
-                    <button id="sidebar_toggle_button" onclick="toggleSidebar()" class="group inline-flex rounded p-1.5 hover:bg-gray-200/50 hover:dark:bg-gray-900 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500">
+                    <button id="sidebar_toggle_button" onclick="toggleSidebar()" class="group inline-flex rounded-md p-1.5 hover:bg-gray-100 hover:dark:bg-gray-800/80 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-left size-[18px] shrink-0 text-gray-700 dark:text-gray-300" aria-hidden="true">
                         <rect width="18" height="18" x="3" y="3" rx="2"></rect>
                         <path d="M9 3v18"></path>
                     </svg>
-                    <span class="sr-only">{{.T.Get "Toggle Sidebar"}}</span>
+                    <span class="sr-only">{{.T.Get "Toggle sidebar"}}</span>
                     </button>
                     <div class="mr-2 h-4 w-px bg-gray-200 dark:bg-gray-800"></div>
                     {{if eq .MenuStyle "modern"}}
@@ -145,11 +145,13 @@
                                                 '/pm2',
                                                 '/nodejs',
                                                 '/python',
+                                                '/ruby',
+                                                '/java',
                                                 '/website-builder',
                                                 '/wordpress',
                                                 '/auto-installer',
                                                 '/website',
-                                            ].some(p => currentPath.startsWith(p)) || currentPath === '/git'
+                                            ].some(p => currentPath.startsWith(p)) || currentPath === '/git' || /^\/[a-z]+\/install$/.test(currentPath) && !currentPath.startsWith('/php/')
                                         }
                                     ]
                                 }
@@ -189,8 +191,8 @@
                      <div class="dark:text-white">
                         <span aria-hidden="true">
                            <div>
-                              <button data-toggle="tooltip" data-placement="bottom" title="{{.T.Get "Left-click to add to Favorites"}}" class="flex items-center justify-center w-8 h-8 rounded text-gray-400 dark:text-gray-600 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" id="addFavoriteBtn">
-                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-star"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path></svg>
+                              <button data-toggle="tooltip" data-placement="bottom" title="{{.T.Get "Left-click to add to favorites"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" aria-label="{{.T.Get "Favorites"}}" id="addFavoriteBtn">
+                                 <i class="ri-star-line text-lg leading-none" aria-hidden="true"></i>
                               </button>
                            </div>
                         </span>
@@ -211,12 +213,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isFavorite) {
             favoriteButton.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" class="icon icon-tabler icons-tabler-filled icon-tabler-star">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path fill="orange" d="M8.243 7.34l-6.38 .925l-.113 .023a1 1 0 0 0 -.44 1.684l4.622 4.499l-1.09 6.355l-.013 .11a1 1 0 0 0 1.464 .944l5.706 -3l5.693 3l.1 .046a1 1 0 0 0 1.352 -1.1l-1.091 -6.355l4.624 -4.5l.078 -.085a1 1 0 0 0 -.633 -1.62l-6.38 -.926l-2.852 -5.78a1 1 0 0 0 -1.794 0l-2.853 5.78z" />
-                </svg>
+                <i class="ri-star-fill text-lg leading-none text-yellow-500" aria-hidden="true"></i>
             `;
-            favoriteButton.title = "{{.T.Get "Right-click to remove from Favorites"}}";
+            favoriteButton.title = "{{.T.Get "Right-click to remove from favorites"}}";
         }
     }
 
@@ -244,11 +243,9 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast("{{.T.Get "Successfully removed from favorites!"}}", 'success');
             favoriteButton.dataset.isFavorite = 'false';
             favoriteButton.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-star">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
-                </svg>
+                <i class="ri-star-line text-lg leading-none" aria-hidden="true"></i>
             `;
-            favoriteButton.title = "{{.T.Get "Left-click to add to Favorites"}}";
+            favoriteButton.title = "{{.T.Get "Left-click to add to favorites"}}";
             loadFavorites();
         })
         .catch(error => {
@@ -287,12 +284,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast("{{.T.Get "Successfully added to favorites!"}}", 'success');
                 favoriteButton.dataset.isFavorite = 'true';
                 favoriteButton.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" class="icon icon-tabler icons-tabler-filled icon-tabler-star">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path fill="orange" d="M8.243 7.34l-6.38 .925l-.113 .023a1 1 0 0 0 -.44 1.684l4.622 4.499l-1.09 6.355l-.013 .11a1 1 0 0 0 1.464 .944l5.706 -3l5.693 3l.1 .046a1 1 0 0 0 1.352 -1.1l-1.091 -6.355l4.624 -4.5l.078 -.085a1 1 0 0 0 -.633 -1.62l-6.38 -.926l-2.852 -5.78a1 1 0 0 0 -1.794 0l-2.853 5.78z" />
-                    </svg>
+                    <i class="ri-star-fill text-lg leading-none text-yellow-500" aria-hidden="true"></i>
                 `;
-                favoriteButton.title = "{{.T.Get "Right-click to remove from Favorites"}}";
+                favoriteButton.title = "{{.T.Get "Right-click to remove from favorites"}}";
                 loadFavorites();
             }
         })

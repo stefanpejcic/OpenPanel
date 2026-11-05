@@ -74,12 +74,27 @@
         rows.forEach(row => tbody.appendChild(row));
     }
 
+    const IDLE_ICON = 'ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400';
+    const ACTIVE_ICON = 'text-sm leading-none text-gray-900 dark:text-gray-50';
+
+    // one button per column: grey up/down arrow until sorted, then a single arrow for the direction
     function updateSortIndicators(table, activeKey, activeDirection) {
-        table.querySelectorAll('a[data-sort-key]').forEach(function (link) {
-            const isActive = link.dataset.sortKey === activeKey && link.dataset.direction === activeDirection;
-            link.querySelector('svg').classList.toggle('opacity-30', !isActive);
+        table.querySelectorAll('[data-sort-key]').forEach(function (button) {
+            const isActive = button.dataset.sortKey === activeKey;
+            const icon = button.querySelector('i');
+            const th = button.closest('th');
+            if (isActive) {
+                button.dataset.direction = activeDirection;
+                if (icon) icon.className = (activeDirection === 'asc' ? 'ri-arrow-up-line ' : 'ri-arrow-down-line ') + ACTIVE_ICON;
+                if (th) th.setAttribute('aria-sort', activeDirection === 'asc' ? 'ascending' : 'descending');
+            } else {
+                delete button.dataset.direction;
+                if (icon) icon.className = IDLE_ICON;
+                if (th) th.removeAttribute('aria-sort');
+            }
         });
     }
+    window.updateSortIndicators = updateSortIndicators;
 
     function updateSortUrl(key, direction) {
         const url = new URL(window.location.href);
@@ -97,13 +112,12 @@
         });
     }
 
-    function applySort(link) {
+    function applySort(link, direction) {
         const table = link.closest('table');
         if (!table) return;
 
         const key = link.dataset.sortKey;
         const type = link.dataset.sortType || 'string';
-        const direction = link.dataset.direction;
 
         sortTableByColumn(table, key, type, direction);
         updateSortIndicators(table, key, direction);
@@ -112,7 +126,7 @@
 
     window.sortTableColumn = function (event, link) {
         event.preventDefault();
-        applySort(link);
+        applySort(link, link.dataset.direction === 'asc' ? 'desc' : 'asc');
     };
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -121,9 +135,7 @@
         const direction = params.get('direction') === 'asc' ? 'asc' : 'desc';
         if (!sortKey) return;
 
-        const link = document.querySelector(
-            'a[data-sort-key="' + CSS.escape(sortKey) + '"][data-direction="' + direction + '"]'
-        );
-        if (link) applySort(link);
+        const link = document.querySelector('[data-sort-key="' + CSS.escape(sortKey) + '"]');
+        if (link) applySort(link, direction);
     });
 })();

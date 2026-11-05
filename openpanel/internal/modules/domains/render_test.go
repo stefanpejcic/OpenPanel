@@ -78,7 +78,7 @@ func TestRenderDeleteDomainPage(t *testing.T) {
 		if err := deleteDomainPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), `>Delete Domain <svg`) {
+		if !strings.Contains(w.Body.String(), `Delete domain</button>`) {
 			t.Error("expected delete button when no sites/subdomains block it")
 		}
 	})
@@ -92,7 +92,7 @@ func TestRenderDeleteDomainPage(t *testing.T) {
 		if err := deleteDomainPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if strings.Contains(w.Body.String(), `>Delete Domain <svg`) {
+		if strings.Contains(w.Body.String(), `Delete domain</button>`) {
 			t.Error("expected delete button hidden when sites exist")
 		}
 	})
@@ -102,13 +102,24 @@ func TestRenderSuspendUnsuspendPages(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("suspend selector", func(t *testing.T) {
-		data := DomainSelectorPageData{LayoutData: baseLayout(mgr, "/domains/suspend"), Domains: []appctx.Domain{{DomainURL: "example.com"}}}
+		data := DomainSelectorPageData{
+			LayoutData: baseLayout(mgr, "/domains/suspend"),
+			Domains:    []appctx.Domain{{DomainURL: "example.com"}, {DomainURL: "off.example"}},
+			Picks: []web.DomainPick{
+				{Domain: "example.com", Badge: "Active", Tone: "success"},
+				{Domain: "off.example", Badge: "Suspended", Tone: "error", Disabled: true},
+			},
+		}
 		w := httptest.NewRecorder()
 		if err := suspendPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "example.com") {
-			t.Error("expected domain selector option")
+		body := w.Body.String()
+		if !strings.Contains(body, `href="/domains/suspend?domain=example.com"`) {
+			t.Error("expected suspend link for an active domain")
+		}
+		if strings.Contains(body, `href="/domains/suspend?domain=off.example"`) {
+			t.Error("expected suspended domain to have no suspend link")
 		}
 	})
 
@@ -151,13 +162,14 @@ func TestRenderDomainLogsPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("selector", func(t *testing.T) {
-		data := DomainLogsPageData{LayoutData: baseLayout(mgr, "/domains/log"), Domains: []appctx.Domain{{DomainURL: "example.com"}}}
+		data := DomainLogsPageData{LayoutData: baseLayout(mgr, "/domains/log"), Domains: []appctx.Domain{{DomainURL: "example.com"}}, Picks: []web.DomainPick{{Domain: "example.com", Detail: "1.5 KB"}}}
 		w := httptest.NewRecorder()
 		if err := domainLogsPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "example.com") {
-			t.Error("expected domain selector")
+		body := w.Body.String()
+		if !strings.Contains(body, `href="/domains/log/example.com"`) || !strings.Contains(body, "1.5 KB") {
+			t.Error("expected domain list with log size")
 		}
 	})
 
@@ -225,7 +237,7 @@ func TestRenderRedirectPages(t *testing.T) {
 		if err := redirectPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if strings.Contains(w.Body.String(), "Delete Redirect") {
+		if strings.Contains(w.Body.String(), "Delete redirect") {
 			t.Error("expected no delete button when no redirect exists yet")
 		}
 	})
@@ -237,11 +249,41 @@ func TestRenderRedirectPages(t *testing.T) {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		if !strings.Contains(body, "Delete Redirect") {
+		if !strings.Contains(body, "Delete redirect") {
 			t.Error("expected delete button when redirect exists")
 		}
 		if !strings.Contains(body, "https://target.example") {
 			t.Error("expected redirect URL value")
+		}
+	})
+
+	t.Run("list", func(t *testing.T) {
+		data := RedirectPageData{
+			LayoutData: baseLayout(mgr, "/domains/redirect"),
+			Domains:    []appctx.Domain{{DomainURL: "old.example"}, {DomainURL: "free.example"}},
+			Redirects:  []RedirectRow{{Domain: "old.example", URL: "https://new.example"}},
+			Free:       []string{"free.example"},
+		}
+		w := httptest.NewRecorder()
+		if err := redirectPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		for _, want := range []string{"https://new.example", `action="/domains/redirect/delete"`, `<option value="free.example">`, `name="next" value="redirects"`} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q in redirects list", want)
+			}
+		}
+	})
+
+	t.Run("list empty", func(t *testing.T) {
+		data := RedirectPageData{LayoutData: baseLayout(mgr, "/domains/redirect"), Domains: []appctx.Domain{{DomainURL: "free.example"}}, Free: []string{"free.example"}}
+		w := httptest.NewRecorder()
+		if err := redirectPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "No redirects yet") {
+			t.Error("expected empty state when no domain has a redirect")
 		}
 	})
 }
@@ -255,7 +297,7 @@ func TestRenderSSLPage(t *testing.T) {
 		if err := sslPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "No Certificate!") {
+		if !strings.Contains(w.Body.String(), "No certificate") {
 			t.Error("expected no-certificate state")
 		}
 	})

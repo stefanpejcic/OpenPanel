@@ -34,7 +34,7 @@ func handleDockerTerminal(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	terminalTimeout := terminalCommandTimeout(a)
 
 	if containerName != "" {
-		renderTerminalPage(a, w, r, terminalTimeout, "Container Terminal", containerName, nil)
+		renderTerminalPage(a, w, r, terminalTimeout, "Container terminal", containerName, nil)
 		return
 	}
 

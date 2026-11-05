@@ -179,7 +179,7 @@ func handleForgotPassword(a *appctx.App, w http.ResponseWriter, r *http.Request)
 
 		// same page either way so the form can't be used to check which emails have accounts
 		data := basePageData(a, r, t)
-		data.Title = t.Get("Password Reset Link Sent")
+		data.Title = t.Get("Password reset link sent")
 		data.Locales = localeOptions(a.I18n.AvailableLocales(ctx))
 		renderPage(w, linkSentPage, http.StatusOK, data)
 		return
@@ -411,7 +411,7 @@ func handleResetPasswordToken(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 
 	data := basePageData(a, r, t)
-	data.Title = t.Get("Reset Password")
+	data.Title = t.Get("Reset password")
 	data.Locales = localeOptions(a.I18n.AvailableLocales(ctx))
 	data.PasswordStrength = passwordStrengthThreshold(a)
 	renderPage(w, setNewPasswordPage, http.StatusOK, data)
