@@ -307,9 +307,12 @@ var publicIPCache struct {
 
 // NEW EMAIL
 
+// docker-mailserver colors its errors even without a terminal
+var emailAnsiRE = regexp.MustCompile(`\x1b\[[0-9;]*m`)
+
 // emailAddFailure reads the result of `opencli email-setup email add`: a non-zero exit always failed, and so does stdout without one since success prints nothing, except the known harmless quota messages
 func emailAddFailure(cmdErr error, stdout, stderr string) (string, bool) {
-	stdout, stderr = strings.TrimSpace(stdout), strings.TrimSpace(stderr)
+	stdout, stderr = strings.TrimSpace(emailAnsiRE.ReplaceAllString(stdout, "")), strings.TrimSpace(emailAnsiRE.ReplaceAllString(stderr, ""))
 	if cmdErr == nil && stdout == "" {
 		return "", false
 	}

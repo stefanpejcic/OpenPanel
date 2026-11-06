@@ -23,6 +23,7 @@ func TestEmailAddFailure(t *testing.T) {
 		{"stdout without exit code", nil, "oops", "", "oops", true},
 		{"oci error", exit1, "", "OCI runtime error\n", "OCI runtime error", true},
 		{"quota text can't hide a real failure", exit1, "", "User doesn't exist", "User doesn't exist", true},
+		{"colors are stripped", exit1, "", "\x1b[1;31mERROR\x1b[0m already exists", "ERROR already exists", true},
 		{"silent failure", exit1, "", "", "command failed", true},
 	}
 	for _, c := range cases {
