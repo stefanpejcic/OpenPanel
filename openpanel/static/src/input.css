@@ -192,6 +192,22 @@ select:not([multiple]):not([size]) {
 }
 .dark select:not([multiple]):not([size]) { background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 24 24' fill='%236b7280' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z'/%3e%3c/svg%3e"); }
 select:not([multiple]):not([size]):disabled { cursor: not-allowed; opacity: 0.6; }
+/* the open option list follows the brandbook where the browser allows it (Chromium's customizable select); others keep the native list */
+@supports (appearance: base-select) {
+  select:not([multiple]):not([size]), select:not([multiple]):not([size])::picker(select) { appearance: base-select; }
+  select:not([multiple]):not([size])::picker-icon { display: none; }
+  select::picker(select) { margin-top: 4px; padding: 4px; border: 1px solid var(--color-gray-200); border-radius: 0.375rem; background: #fff; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08); max-height: 20rem; }
+  select option { display: flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.625rem; border-radius: 0.25rem; font-size: 0.875rem; color: var(--color-gray-900); cursor: pointer; }
+  select option::checkmark { order: 1; margin-left: auto; color: var(--color-blue-500); }
+  select option:hover, select option:focus-visible { background: var(--color-gray-100); outline: none; }
+  select option:checked { font-weight: 500; }
+  select option:disabled { color: var(--color-gray-400); cursor: not-allowed; }
+  .dark select::picker(select) { border-color: var(--color-gray-800); background: var(--color-gray-950); }
+  .dark select option { color: var(--color-gray-50); }
+  .dark select option:hover, .dark select option:focus-visible { background: var(--color-gray-900); }
+  .dark select option:disabled { color: var(--color-gray-600); }
+}
+
 
 /* rows ticked for a bulk action stay highlighted */
 tr:has(> td > .bulk-select-box:checked) { background-color: var(--color-gray-50); }
