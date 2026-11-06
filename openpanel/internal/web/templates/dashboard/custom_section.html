@@ -15,9 +15,9 @@
         <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{if .CustomSectionTitle}}{{.T.Get .CustomSectionTitle}}{{else}}{{.T.Get "Custom"}}{{end}}</h2>
         <button type="button" @click="toggleOpen" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" :aria-label="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" :aria-expanded="open" :aria-controls="'section-icons-custom'">
             <!-- Minus icon (show when open) -->
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="open" x-cloak><rect x="4" y="9" width="12" height="2" rx="1" ry="1" /></svg>
+            <i class="ri-arrow-down-s-line inline-block text-xl leading-none" x-show="open" x-cloak aria-hidden="true"></i>
             <!-- Plus icon (show when closed) -->
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="!open" x-cloak><rect x="9" y="4" width="2" height="12" rx="1" ry="1" /><rect x="4" y="9" width="12" height="2" rx="1" ry="1" /></svg>
+            <i class="ri-arrow-down-s-line inline-block text-xl leading-none" x-show="!open" x-cloak aria-hidden="true"></i>
             <span x-text="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" class="sr-only"></span>
         </button>
     </div>

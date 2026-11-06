@@ -5,10 +5,7 @@
                   <!-- Left Section -->
                   <div class="flex items-center justify-center gap-2">
                     <button id="sidebar_toggle_button" onclick="toggleSidebar()" class="group inline-flex rounded-md p-1.5 hover:bg-gray-100 hover:dark:bg-gray-800/80 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-left size-[18px] shrink-0 text-gray-700 dark:text-gray-300" aria-hidden="true">
-                        <rect width="18" height="18" x="3" y="3" rx="2"></rect>
-                        <path d="M9 3v18"></path>
-                    </svg>
+                    <i class="ri-layout-left-line shrink-0 text-gray-700 dark:text-gray-300 text-lg leading-none" aria-hidden="true"></i>
                     <span class="sr-only">{{.T.Get "Toggle sidebar"}}</span>
                     </button>
                     <div class="mr-2 h-4 w-px bg-gray-200 dark:bg-gray-800"></div>
@@ -20,7 +17,7 @@
                             {{range $i, $c := .NavTrail}}
                             {{/* on phones only the current page fits */}}
                             <li class="{{if lt $i $last}}hidden sm:flex{{else}}flex{{end}} items-center gap-3">
-                                {{if $i}}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4 shrink-0 text-gray-600 dark:text-gray-400" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>{{end}}
+                                {{if $i}}<i class="ri-arrow-right-s-line shrink-0 text-gray-600 dark:text-gray-400 text-base leading-none" aria-hidden="true"></i>{{end}}
                                 {{if $c.Href}}
                                 <a href="{{$c.Href}}" class="text-gray-500 transition hover:text-gray-700 dark:text-gray-400 hover:dark:text-gray-300">{{$.T.Get $c.Label}}</a>
                                 {{else}}
@@ -160,7 +157,7 @@
 {{if ne .RequestPath "/"}}
                             {{if .Title}}
                             <template x-if="!isSectionRoot() && items.some(i => i.show)">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4 shrink-0 text-gray-600 dark:text-gray-400" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+                            <i class="ri-arrow-right-s-line shrink-0 text-gray-600 dark:text-gray-400 text-base leading-none" aria-hidden="true"></i>
                             </template>
                             <template x-if="!isSectionRoot()">
                             <li class="flex"><div class="flex items-center"><a class="text-gray-900 dark:text-gray-50" href="{{.RequestPath}}">{{.Title}}</a></div></li>

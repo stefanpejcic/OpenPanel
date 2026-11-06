@@ -5,8 +5,8 @@
     <div class="px-2">
         <button x-data="{ allOpen: false }" @click="allOpen = !allOpen; $dispatch('sidebar-toggle-all', { open: allOpen })" class="flex w-full items-center justify-between gap-x-2 rounded-md px-2 text-xs text-gray-500 transition hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-300 outline outline-offset-2 outline-0 focus-visible:outline-2 justify-center" :title="allOpen ? '{{.T.Get "Collapse all"}}' : '{{.T.Get "Expand all"}}'">
             <span class="flex items-center gap-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" x-show="allOpen"><path d="M4 14h6m0 0v6m0-6-7 7"/><path d="M20 10h-6m0 0V4m0 6 7-7"/></svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" x-show="!allOpen"><path d="M3 8h6V3"/><path d="m3 8 7-7"/><path d="M21 16h-6v5"/><path d="m21 16-7 7"/></svg>
+                <i class="ri-contract-up-down-line text-sm leading-none" x-show="allOpen" aria-hidden="true"></i>
+                <i class="ri-expand-up-down-line text-sm leading-none" x-show="!allOpen" aria-hidden="true"></i>
                 <span x-text="allOpen ? '{{.T.Get "Collapse all"}}' : '{{.T.Get "Expand all"}}'">{{.T.Get "Expand all"}}</span>
             </span>
         </button>
@@ -83,7 +83,7 @@
                         data-orientation="vertical"
                     >
                         {{.T.Get "Changelog"}}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right mb-1 ml-1 size-3 shrink-0 text-gray-500 dark:text-gray-500" aria-hidden="true"> <path d="M7 7h10v10"></path> <path d="M7 17 17 7"></path></svg>
+                        <i class="ri-arrow-right-up-line mb-1 ml-1 shrink-0 text-gray-500 dark:text-gray-500 text-xs leading-none" aria-hidden="true"></i>
                     </a>
                     <a
                         role="menuitem"
@@ -94,7 +94,7 @@
                         target="_blank"
                     >
                         {{.T.Get "Documentation"}}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right mb-1 ml-1 size-3 shrink-0 text-gray-500" aria-hidden="true"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
+                        <i class="ri-arrow-right-up-line mb-1 ml-1 shrink-0 text-gray-500 text-xs leading-none" aria-hidden="true"></i>
                     </a>
                     <a
                         role="menuitem"
@@ -105,7 +105,7 @@
                         data-orientation="vertical"
                     >
                         {{.T.Get "Community forums"}}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right mb-1 ml-1 size-3 shrink-0 text-gray-500" aria-hidden="true"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
+                        <i class="ri-arrow-right-up-line mb-1 ml-1 shrink-0 text-gray-500 text-xs leading-none" aria-hidden="true"></i>
                     </a>
                 </div>
                 <div role="separator" aria-orientation="horizontal" class="-mx-1 my-1 h-px border-t border-gray-200 dark:border-gray-800"></div>
@@ -138,10 +138,7 @@
                 <span class="block text-xs text-gray-500">{{.HostingPlanName}}</span>
                 </div>
             </span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevrons-up-down size-4 shrink-0 text-gray-500 group-hover:text-gray-700 group-hover:dark:text-gray-400" aria-hidden="true">
-                <path d="m7 15 5 5 5-5"></path>
-                <path d="m7 9 5-5 5 5"></path>
-            </svg>
+            <i class="ri-expand-up-down-line shrink-0 text-gray-500 group-hover:text-gray-700 group-hover:dark:text-gray-400 text-base leading-none" aria-hidden="true"></i>
         </button>
     </div>
 

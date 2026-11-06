@@ -508,19 +508,19 @@
         <!-- summary, same strip as the cron jobs page -->
         <div class="flex flex-col divide-y divide-gray-200 overflow-hidden rounded-md border border-gray-200 bg-white sm:flex-row md:divide-x md:divide-y-0 dark:divide-gray-800 dark:border-gray-800 dark:bg-gray-950">
             <div class="min-w-0 flex-1 p-4">
-                <p class="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0"><path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/><path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10"/><path d="M10 12l4 0"/></svg>{{.T.Get "Total Backups"}}</p>
+                <p class="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"><i class="ri-archive-line shrink-0 text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Total Backups"}}</p>
                 <p class="mt-1 truncate text-xl font-semibold tabular-nums text-gray-900 dark:text-gray-50" x-text="backups.length"></p>
             </div>
             <div class="min-w-0 flex-1 p-4">
-                <p class="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0"><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M12 7v5l3 3"/></svg>{{.T.Get "Latest Backup"}}</p>
+                <p class="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"><i class="ri-time-line shrink-0 text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Latest Backup"}}</p>
                 <p class="mt-1 truncate text-xl font-semibold tabular-nums text-gray-900 dark:text-gray-50" x-text="fmtDate(backups[0]?.created) || '–'"></p>
             </div>
             <div class="min-w-0 flex-1 p-4">
-                <p class="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0"><path d="M4 13m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"/><path d="M17 17l0 .01"/><path d="M4 15l2.5 -8.5a2 2 0 0 1 1.9 -1.5h7.2a2 2 0 0 1 1.9 1.5l2.5 8.5"/></svg>{{.T.Get "Total Size"}}</p>
+                <p class="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"><i class="ri-hard-drive-2-line shrink-0 text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Total Size"}}</p>
                 <p class="mt-1 truncate text-xl font-semibold tabular-nums text-gray-900 dark:text-gray-50" x-text="fmtSize(backups.reduce((sum, b) => sum + (b.size || 0), 0))"></p>
             </div>
             <div class="min-w-0 flex-1 p-4">
-                <p class="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="shrink-0"><path d="M12 8l0 4l2 2"/><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"/></svg>{{.T.Get "Last Restore"}}
+                <p class="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"><i class="ri-history-line shrink-0 text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Last Restore"}}
                     <span x-show="!jobs.queue.length && jobs.logs[0]?.status === 'done'">· {{.T.Get "Done"}}</span>
                     <span x-show="!jobs.queue.length && jobs.logs[0]?.status === 'failed'" class="text-red-600 dark:text-red-400">· {{.T.Get "Failed"}}</span>
                 </p>
