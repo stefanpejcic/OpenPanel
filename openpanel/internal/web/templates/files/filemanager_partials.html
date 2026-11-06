@@ -226,7 +226,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <p class="text-sm font-semibold text-red-600 dark:text-red-400 mb-1">{{.T.Get "Upload failed:"}}</p>
             <ul class="text-sm text-red-600 dark:text-red-400 list-disc pl-5">${errors.map(e => `<li>${esc(e)}</li>`).join('')}</ul>
         `;
-        showToast("{{.T.Get "Upload failed:"}} " + errors.map(esc).join('; '), "error");
+        showToast("{{.T.Get "Upload failed:"}} " + errors.join('; '), "error");
     }
 
     // file picker selection is already an explicit choice so upload right away, merged with anything dropped
