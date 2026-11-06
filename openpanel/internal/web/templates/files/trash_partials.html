@@ -271,7 +271,7 @@
             return request(row)
                 .then(function (r) { return r.json(); })
                 .then(function (data) { if (!data.success) throw new Error(data.error || '{{.T.Get "Unknown error"}}'); })
-                .catch(function (e) { failed++; showToast(row.dataset.file + ': ' + e.message, 'error'); });
+                .catch(function (e) { failed++; showToast(escHTML(row.dataset.file) + ': ' + escHTML(e.message), 'error'); });
         })).then(function () {
             showToast(failed ? i18n.failed : doneMsg, failed ? 'warning' : 'success');
             setTimeout(function () { location.reload(); }, failed ? 1500 : 500);
