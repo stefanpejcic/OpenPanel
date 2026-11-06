@@ -43,8 +43,8 @@
                   <label for="{{.Key}}" class="font-mono text-xs">{{.Key}}</label>
                 </td>
                 <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
-                <div class="flex max-w-xl items-center gap-2">
-                  <div class="w-full">
+                <div class="flex max-w-md items-center gap-2">
+                  <div class="{{if or (eq .Kind "number") (eq .Kind "unit")}}w-48{{else if eq .Kind "timezone"}}w-72{{else}}w-full{{end}}">
                     {{if eq .Kind "checkbox_binary"}}
                         <input type="checkbox" role="switch" id="{{.Key}}" name="{{.Key}}" value="1" {{if .Checked}}checked{{end}} />
                         <input type="hidden" name="{{.Key}}" value="0" />
