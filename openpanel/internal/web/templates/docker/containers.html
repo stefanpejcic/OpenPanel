@@ -20,6 +20,7 @@
         </div>
     </div>
 
+{{if .Created.Service}}{{template "container_created" .}}{{end}}
 
 <script src="{{static "js/data-table.js"}}"></script>
 {{template "bulk_open" (dict "T" .T "Table" "#containers-table" "Endpoint" "/containers/bulk")}}

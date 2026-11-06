@@ -446,3 +446,58 @@ func TestParseMemoryBytes(t *testing.T) {
 		}
 	}
 }
+
+func TestCreatedContainerFor(t *testing.T) {
+	rows := []ContainerRow{{Service: "myapp", DisplayName: "myapp", Image: "nginx:latest"}}
+	services := map[string]any{"myapp": map[string]any{"labels": map[string]any{domainLabel: "app.demo.rs", portLabel: "8080"}}}
+
+	got := createdContainerFor("myapp", rows, services)
+	if got.Service != "myapp" || got.Domain != "app.demo.rs" || got.Port != 8080 {
+		t.Errorf("got %+v", got)
+	}
+	for _, name := range []string{"", "mysql", "<script>"} {
+		if got := createdContainerFor(name, rows, services); got.Service != "" {
+			t.Errorf("%q: expected nothing, got %+v", name, got)
+		}
+	}
+}
+
+func TestRenderContainersPageCreated(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	row := ContainerRow{Service: "myapp", DisplayName: "myapp", Image: "nginx:latest", CPUValue: "1", RAMGB: "1", PIDsUnlimited: true}
+	render := func(c CreatedContainer, terminal bool) string {
+		layout := baseLayout(mgr, "/containers")
+		layout.UserAllowed["terminal"] = terminal
+		w := httptest.NewRecorder()
+		if err := containersPage.Render(w, 200, ContainersPageData{LayoutData: layout, Rows: []ContainerRow{row}, Created: c}); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		return w.Body.String()
+	}
+
+	stopped := render(CreatedContainer{ContainerRow: row}, true)
+	for _, want := range []string{`id="containerCreated"`, "ready to start", `action="/containers/start/myapp"`, "/containers/logs?container=myapp", "nginx:latest", "1 GB", "Unlimited"} {
+		if !strings.Contains(stopped, want) {
+			t.Errorf("stopped: expected %q", want)
+		}
+	}
+	if strings.Contains(stopped, `href="/containers/terminal/myapp" class="inline-flex`) {
+		t.Error("terminal link shown for a stopped container")
+	}
+
+	running := render(CreatedContainer{ContainerRow: row, Domain: "app.demo.rs", Port: 8080, Running: true}, true)
+	for _, want := range []string{"is running", `href="https://app.demo.rs"`, "8080", `href="/containers/terminal/myapp" class="inline-flex`} {
+		if !strings.Contains(running, want) {
+			t.Errorf("running: expected %q", want)
+		}
+	}
+	if strings.Contains(running, "ready to start") {
+		t.Error("running: still says ready to start")
+	}
+	if strings.Contains(render(CreatedContainer{ContainerRow: row, Running: true}, false), `href="/containers/terminal/myapp" class="inline-flex`) {
+		t.Error("terminal link shown without the terminal feature")
+	}
+	if strings.Contains(render(CreatedContainer{}, true), `id="containerCreated"`) {
+		t.Error("section shown with nothing created")
+	}
+}
