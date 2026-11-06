@@ -65,9 +65,10 @@ or fight that.
         // hint below the whole row, not squeezed between flex items.
         let insertAfter = el;
         const parent = el.parentElement;
-        if (parent && parent.classList.contains('flex')) {
-            const realSiblings = Array.from(parent.children).filter((c) => !c.classList.contains('iv-hint-host'));
-            if (realSiblings.length > 1) insertAfter = parent;
+        // A row flex wrapper around a lone input counts too, or the hint lands beside it.
+        if (parent) {
+            const cs = getComputedStyle(parent);
+            if (cs.display.includes('flex') && !cs.flexDirection.startsWith('column')) insertAfter = parent;
         }
 
         let host = insertAfter.nextElementSibling;
