@@ -307,6 +307,24 @@ var publicIPCache struct {
 
 // NEW EMAIL
 
+// emailAddFailure reads the result of `opencli email-setup email add`: a non-zero exit always failed, and so does stdout without one since success prints nothing, except the known harmless quota messages
+func emailAddFailure(cmdErr error, stdout, stderr string) (string, bool) {
+	stdout, stderr = strings.TrimSpace(stdout), strings.TrimSpace(stderr)
+	if cmdErr == nil && stdout == "" {
+		return "", false
+	}
+	if cmdErr == nil && (strings.Contains(stderr, "Supplied non-number argument") || strings.Contains(stderr, "User doesn't exist")) {
+		return "", false
+	}
+	switch {
+	case stderr != "":
+		return stderr, true
+	case stdout != "":
+		return stdout, true
+	}
+	return "command failed", true
+}
+
 // handleEmailsNew mirrors emails_new().
 func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -387,17 +405,9 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		var stderrBuf strings.Builder
 		cmd.Stderr = &stderrBuf
 		stdout, cmdErr := cmd.Output()
-		// mirrors emails_new(): a zero-exit run with non-empty stdout is ALSO treated as a failure (opencli's success case prints nothing)
-		if cmdErr != nil || strings.TrimSpace(string(stdout)) != "" {
-			stderrStr := strings.TrimSpace(stderrBuf.String())
-			if !strings.Contains(stderrStr, "Supplied non-number argument") && !strings.Contains(stderrStr, "User doesn't exist") {
-				msg := stderrStr
-				if msg == "" {
-					msg = "command failed"
-				}
-				web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to add email %(email)s: %(msg)s", "email", email, "msg", msg), "/emails/new")
-				return
-			}
+		if msg, failed := emailAddFailure(cmdErr, string(stdout), stderrBuf.String()); failed {
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to add email %(email)s: %(msg)s", "email", email, "msg", msg), "/emails/new")
+			return
 		}
 
 		if gb != "" {
