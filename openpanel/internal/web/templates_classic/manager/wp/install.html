@@ -582,7 +582,7 @@ document.getElementById("installForm").addEventListener("submit", function(event
                 markStepError(currentStepIndex);
                 stopHints();
                 showInstallError(_installDomain);
-                showToast(`${data.error} — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">{{$.T.Get "Retry"}}</a>`, 'error');
+                showToast(data.error, 'error', false, { label: {{toJSON ($.T.Get "Retry")}}, onClick: retryInstall });
                 button.disabled = false;
               }
             } catch(e) { /* non-JSON line, ignore */ }
@@ -593,7 +593,7 @@ document.getElementById("installForm").addEventListener("submit", function(event
           markStepError(currentStepIndex);
           stopHints();
           showInstallError(_installDomain);
-          showToast(`{{.T.Get "Connection lost during installation."}} — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">{{$.T.Get "Retry"}}</a>`, 'error');
+          showToast({{toJSON (.T.Get "Connection lost during installation.")}}, 'error', false, { label: {{toJSON ($.T.Get "Retry")}}, onClick: retryInstall });
           button.disabled = false;
           console.error("Stream read error:", streamErr);
         });
@@ -604,7 +604,7 @@ document.getElementById("installForm").addEventListener("submit", function(event
       stopHints();
       markStepError(currentStepIndex);
       showInstallError(_installDomain);
-      showToast(`{{.T.Get "Fetch error. Please try again."}} — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">{{$.T.Get "Retry"}}</a>`, 'error');
+      showToast({{toJSON (.T.Get "Fetch error. Please try again.")}}, 'error', false, { label: {{toJSON ($.T.Get "Retry")}}, onClick: retryInstall });
       button.disabled = false;
       console.error("Fetch error:", error);
     });

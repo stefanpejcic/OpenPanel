@@ -38,19 +38,19 @@
     <h1 class="op-title">{{.T.Get "Create a Database"}}</h1>
     <p class="op-meta">{{.T.Get .Engine.NewIntro}}</p>
   </div>
-  {{if not .Created}}<div class="op-actions"><a class="op-btn op-btn-secondary" href="/{{.Engine.Slug}}/wizard">{{template "op_icon" "wand"}} {{.T.Get "Database Wizard"}}</a></div>{{end}}
+  {{if not .Created.Name}}<div class="op-actions"><a class="op-btn op-btn-secondary" href="/{{.Engine.Slug}}/wizard">{{template "op_icon" "wand"}} {{.T.Get "Database Wizard"}}</a></div>{{end}}
 </div>
 
-{{if .Created}}
+{{if .Created.Name}}
 <div class="op-col" style="gap:16px">
   <div class="op-alert is-success" role="status">{{template "op_icon" "check"}}<span><b>{{.T.Get "Database created"}}</b><br>{{.T.Get "Nobody can use it until you assign a user to it."}}</span></div>
   <section class="op-card">
     <div class="op-card-head"><h2>{{.T.Get "Your new database"}}</h2></div>
-    <div class="op-copybox"><span class="op-mono" id="db-created-name">{{.Created}}</span><button class="op-icon-btn" type="button" data-op-copy-from="db-created-name" data-op-copied="{{.T.Get "Copied database name."}}" aria-label="{{.T.Get "Copy database name"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
+    <div class="op-copybox"><span class="op-mono" id="db-created-name">{{.Created.Name}}</span><button class="op-icon-btn" type="button" data-op-copy-from="db-created-name" data-op-copied="{{.T.Get "Copied database name."}}" aria-label="{{.T.Get "Copy database name"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
     <div class="op-wiz-next">
-      <a href="/{{.Engine.Slug}}/assign?database_name={{.Created}}"><b>{{template "op_icon" "link"}} {{.T.Get "Assign a user"}}</b>{{.T.Get "Give an existing user access to this database."}}</a>
+      <a href="/{{.Engine.Slug}}/assign?database_name={{.Created.Name}}"><b>{{template "op_icon" "link"}} {{.T.Get "Assign a user"}}</b>{{.T.Get "Give an existing user access to this database."}}</a>
       <a href="/{{.Engine.Slug}}/user"><b>{{template "op_icon" "user"}} {{.T.Get "Create a user"}}</b>{{.T.Get "Make a new user with its own password first."}}</a>
-      <a href="/{{.Engine.Slug}}/import/{{.Created}}"><b>{{template "op_icon" "upload"}} {{.T.Get "Import a dump"}}</b>{{.T.Get "Load an existing backup into it."}}</a>
+      {{if .Created.CanImport}}<a href="/{{.Engine.Slug}}/import/{{.Created.Name}}"><b>{{template "op_icon" "upload"}} {{.T.Get "Import a dump"}}</b>{{.T.Get "Load an existing backup into it."}}</a>{{end}}
     </div>
     <div class="op-form-foot">
       <a href="/{{.Engine.Slug}}" class="op-btn op-btn-secondary">{{.T.Get "View Databases"}}</a>
@@ -151,21 +151,20 @@
   </div>
 </div>
 
-{{if .Created}}
+{{if .Created.Name}}
 <div class="op-col" style="gap:16px">
-  <div class="op-alert is-success" role="status">{{template "op_icon" "check"}}<span><b>{{.T.Get "User created"}}</b><br>{{.T.Get "Save the password now, it can't be shown again."}}</span></div>
+  <div class="op-alert is-success" role="status">{{template "op_icon" "check"}}<span><b>{{.T.Get "User created"}}</b><br>{{.T.Get "Your new user is ready. Assign it to a database to give it access."}}</span></div>
   <section class="op-card">
     <div class="op-card-head"><h2>{{.T.Get "Credentials"}}</h2></div>
     <div class="op-wiz-creds" style="margin-top:0">
-      <span class="op-label">{{.T.Get "Username"}}</span><div class="op-copybox"><span class="op-mono" id="db-created-user">{{.Created}}</span><button class="op-icon-btn" type="button" data-op-copy-from="db-created-user" data-op-copied="{{.T.Get "Copied username."}}" aria-label="{{.T.Get "Copy username"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
-      <span class="op-label">{{.T.Get "Password"}}</span><div class="op-copybox"><span class="op-mono" id="db-created-pass">{{.CreatedPassword}}</span><button class="op-icon-btn" type="button" data-op-copy-from="db-created-pass" data-op-copied="{{.T.Get "Copied password."}}" aria-label="{{.T.Get "Copy password"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
+      <span class="op-label">{{.T.Get "Username"}}</span><div class="op-copybox"><span class="op-mono" id="db-created-user">{{.Created.Name}}</span><button class="op-icon-btn" type="button" data-op-copy-from="db-created-user" data-op-copied="{{.T.Get "Copied username."}}" aria-label="{{.T.Get "Copy username"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
       <span class="op-label">{{.T.Get "Server"}}</span><div class="op-copybox"><span class="op-mono" id="db-created-host">{{.Engine.Host}}</span><button class="op-icon-btn" type="button" data-op-copy-from="db-created-host" data-op-copied="{{.T.Get "Copied server."}}" aria-label="{{.T.Get "Copy server"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
       <span class="op-label">{{.T.Get "Port"}}</span><span class="op-mono op-wiz-plain">{{.Engine.Port}}</span>
     </div>
     <div class="op-form-foot">
       <a href="/{{.Engine.Slug}}/users" class="op-btn op-btn-secondary">{{.T.Get "View Users"}}</a>
       <a href="/{{.Engine.Slug}}/user" class="op-btn op-btn-secondary">{{template "op_icon" "plus"}} {{.T.Get "Create Another"}}</a>
-      <a href="/{{.Engine.Slug}}/assign?db_user={{.Created}}" class="op-btn op-btn-primary">{{template "op_icon" "link"}} {{.T.Get "Assign to a Database"}}</a>
+      <a href="/{{.Engine.Slug}}/assign?db_user={{.Created.Name}}" class="op-btn op-btn-primary">{{template "op_icon" "link"}} {{.T.Get "Assign to a Database"}}</a>
     </div>
   </section>
 </div>

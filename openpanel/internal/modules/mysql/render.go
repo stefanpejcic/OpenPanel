@@ -13,9 +13,9 @@ import (
 
 var (
 	databasesPage     = web.LoadPage("mysql/databases.html")
-	newDatabasePage   = web.LoadPage("db/new.html", "partials/_db_create.html")
+	newDatabasePage   = web.LoadPage("db/new.html", "partials/_db_create.html", "partials/_db_created.html")
 	usersPage         = web.LoadPage("mysql/users.html")
-	createUserPage    = web.LoadPage("mysql/mysql_user.html", "partials/_db_create.html")
+	createUserPage    = web.LoadPage("mysql/mysql_user.html", "partials/_db_create.html", "partials/_db_created.html")
 	passwordPage      = web.LoadPage("mysql/password.html")
 	wizardPage        = web.LoadPage("mysql/wizard.html", "partials/_db_create.html")
 	assignPage        = web.LoadPage("mysql/assign.html", "partials/_db_create.html")
@@ -124,13 +124,13 @@ type NewDatabasePageData struct {
 	Engine     web.DBEngine
 	Names      web.DBNames
 	DBUsage    int
-	DBLimit    int    // plan limit, 0 is unlimited
-	RemotePort string // published host port, "" when unknown
-	FormName   string // what was typed, kept after a failed submit
-	Created    string // the database just created, shows the done state
+	DBLimit    int           // plan limit, 0 is unlimited
+	RemotePort string        // published host port, "" when unknown
+	FormName   string        // what was typed, kept after a failed submit
+	Created    web.DBCreated // set by the ?created= redirect, shows the done state
 }
 
-func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request, mysqlVersion, formName, created string) {
+func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request, mysqlVersion, formName string) {
 	layout, injectedData, err := web.BuildLayoutData(a, w, r, "Create Database")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -138,10 +138,11 @@ func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 	userContext, _ := injectedData["context"].(string)
 	data := NewDatabasePageData{
-		LayoutData: layout, Service: mysqlVersion, Engine: web.MySQLEngine, FormName: formName, Created: created,
+		LayoutData: layout, Service: mysqlVersion, Engine: web.MySQLEngine, FormName: formName,
+		Created: web.CreatedDBFromRequest(r, layout, "mysql", "mysql_import"),
 		DBLimit: planDBLimit(r.Context(), a, injectedData), RemotePort: remoteMySQLPort(userContext),
 	}
-	if created == "" {
+	if data.Created.Name == "" {
 		data.Names = loadNames(r.Context(), userContext)
 		data.DBUsage = getDatabaseCount(r.Context(), a, layout.CurrentUsername, userContext)
 	}
@@ -182,16 +183,15 @@ func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, stat
 // CreateUserPageData is mysql/mysql_user.html's template context.
 type CreateUserPageData struct {
 	web.LayoutData
-	Service         string
-	Engine          web.DBEngine
-	Names           web.DBNames
-	RemotePort      string
-	FormName        string
-	Created         string // the user just created, shows the done state with CreatedPassword once
-	CreatedPassword string
+	Service    string
+	Engine     web.DBEngine
+	Names      web.DBNames
+	RemotePort string
+	FormName   string
+	Created    web.DBCreated
 }
 
-func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request, mysqlVersion, formName, created, password string) {
+func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request, mysqlVersion, formName string) {
 	layout, injectedData, err := web.BuildLayoutData(a, w, r, "Create User")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -200,9 +200,9 @@ func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request,
 	userContext, _ := injectedData["context"].(string)
 	data := CreateUserPageData{
 		LayoutData: layout, Service: mysqlVersion, Engine: web.MySQLEngine, RemotePort: remoteMySQLPort(userContext),
-		FormName: formName, Created: created, CreatedPassword: password,
+		FormName: formName, Created: web.CreatedDBFromRequest(r, layout, "mysql", ""),
 	}
-	if created == "" {
+	if data.Created.Name == "" {
 		data.Names = loadNames(r.Context(), userContext)
 	}
 	if err := createUserPage.Render(w, http.StatusOK, data); err != nil {

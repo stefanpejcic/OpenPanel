@@ -88,26 +88,24 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		threshold := validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)
 		if msg := checkNewUser(dbUser, dbHost, password, threshold, loadNames(ctx, userContext)); msg != "" {
 			web.Flash(a, w, r, "error", web.Tr(a, r, msg))
-			renderCreateUserPage(a, w, r, mysqlVersion, typed, "", "")
+			renderCreateUserPage(a, w, r, mysqlVersion, typed)
 			return
 		}
 
 		escapedPassword := escapeMySQLString(password)
 		if _, execErr := mysqlmanager.Exec(ctx, userContext, "CREATE USER '"+dbUser+"'@'"+dbHost+"' IDENTIFIED BY '"+escapedPassword+"'", ""); execErr != nil {
 			web.Flash(a, w, r, "error", execErr.Error())
-			renderCreateUserPage(a, w, r, mysqlVersion, typed, "", "")
+			renderCreateUserPage(a, w, r, mysqlVersion, typed)
 			return
 		}
 		invalidateDatabasesInfo(ctx, a, userContext)
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created a MySQL database user "+dbUser, ipAddress)
-		web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created a database user %(db_user)s", "db_user", dbUser))
-		// the password is shown this once, like the wizard does
-		renderCreateUserPage(a, w, r, mysqlVersion, "", dbUser, password)
+		http.Redirect(w, r, web.CreatedDBUserURL("mysql", dbUser), http.StatusFound)
 		return
 	}
 
-	renderCreateUserPage(a, w, r, mysqlVersion, "", "", "")
+	renderCreateUserPage(a, w, r, mysqlVersion, "")
 }
 
 // handleDatabasesPassword renders the change-password form for one existing user.

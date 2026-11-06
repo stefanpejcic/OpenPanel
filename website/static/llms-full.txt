@@ -144,6 +144,16 @@ The dashboard page contains widgets:
 ![OpenAdmin dashboard with the summary bar and the User Activity, Latest News, System Information and Resource Usage widgets](/img/openadmin-screenshots/001_dashboard-window.png#gh-light-mode-only)
 ![OpenAdmin dashboard with the summary bar and the User Activity, Latest News, System Information and Resource Usage widgets](/img/openadmin-screenshots/001_dashboard-window_dark.png#gh-dark-mode-only)
 
+## Onboarding
+
+After logging in, OpenAdmin opens an onboarding guide (`/onboarding`) until it's dismissed. It walks through getting a new server ready in three steps:
+
+1. **Enable modules & services** – choose which services run on the server. Services already running are checked, and newly checked ones start in the background when you continue. The Community edition offers OpenPanel and the CSF firewall; Enterprise also offers Email + Webmail, FTP, DNS, phpMyAdmin and ImunifyAV.
+2. **Server configuration** – recommended settings to review before going live: modules, a custom domain for panel access, SMTP and notifications, and update preferences. Each card opens its settings page.
+3. **Users and plans** – the default PHP version and web server, hosting plans and their features, and the first user account (or importing accounts from a backup on Enterprise).
+
+**Skip for now** opens the dashboard and shows the guide again at the next login. **Dismiss completely** hides it for good, and **Skip to dashboard** at the top leaves the guide right away.
+
 ## Customize the dashboard
 
 Administrators can arrange the widgets, and the layout is saved on the admin account, so it's the same in every browser and, on a multi-server master, on the dashboard of every server:
@@ -1743,6 +1753,35 @@ Tick the checkbox of one or more processes, or the checkbox in the table header 
 The same **Kill** bulk action is on the **Tasks** page for running background tasks.
 
 Click an action, confirm it, and it runs on the selected processes one after another. When it's done the page reloads with a notice listing the processes it worked for, or which ones failed and why.
+
+---
+
+// File: admin/advanced/tasks
+
+# Tasks
+
+The **Server > Tasks** page lists the background tasks of OpenPanel: the `opencli` commands that are running right now and the ones scheduled to run from [Scheduled Actions](/docs/admin/advanced/crons/). The list refreshes on its own every 5 seconds.
+
+Each row shows:
+
+- **Command** – the `opencli` command.
+- **Status** – **Running** for a command that is running now, **Scheduled** for one that runs from cron.
+- **Time** – how long a running command has been running, or when a scheduled one runs next (for example `in 3h 30m`).
+- **Actions** – **Trace** shows what a running command is doing and **Kill** stops it. **Edit** opens the job on the Scheduled Actions page, where its schedule can be changed.
+
+Click the **Command**, **Status** or **Time** column to sort the list by it, and click again to reverse the order. The sort stays when the list refreshes. Sorting by **Time** puts the running commands first, then the scheduled ones in the order they run.
+
+:::info
+Only `opencli` commands are listed. To see every process on the server, use the [Process Manager](/docs/admin/advanced/processes/).
+:::
+
+## Multi-Server
+
+On a [multi-server](/docs/admin/system/multi-server/) master, the page lists the tasks of every server and adds a **Server** column:
+
+- A cron job that runs the same command on the same schedule on several servers is shown once, with all of those servers in the **Server** column. If the schedule differs on a server, that server gets its own row.
+- **Trace** and **Kill** act on the server the command runs on.
+- Use the **Server** filter above the table to show the tasks of one server, or sort by the **Server** column.
 
 ---
 
@@ -5224,7 +5263,7 @@ The page shows recommendations based on the sites, plans and services already on
 
 The webservers offered on this page, on the **Add User** form and to users are the ones defined in the `docker-compose.yml` template, not a fixed list. A service counts as a webserver if it mounts the `webserver_data` volume and publishes ports.
 
-To stop offering a webserver, for example OpenLiteSpeed, remove its service block from the default `docker-compose.yml` using the 'Advanced' option. New accounts won't get it and it disappears from the Defaults page and the Add User form. Existing accounts keep their own copy of the file, so their current webserver isn't affected. To hide it from one existing user, remove the block from that user's `docker-compose.yml`.
+To stop offering a webserver, for example OpenLiteSpeed, remove its service block from the default `docker-compose.yml` using the 'Advanced' option. New accounts won't get it and it disappears from the Defaults page and the Add User form. Existing accounts keep their own copy of the file, so their current webserver isn't affected. To hide it from one existing user, remove the block from that user's `docker-compose.yml`. For scripts and the full steps, see [How to Disable Webservers for Users](/docs/articles/web-servers/how-to-disable-webservers-for-users/). PHP versions are removed the same way, see [How to Remove Old PHP Versions](/docs/articles/user-experience/how-to-remove-old-php-versions/), and so are other services, see [How to Limit Which Services Users Can Run](/docs/articles/containers/how-to-limit-services-for-users/).
 
 ---
 
@@ -5399,6 +5438,8 @@ When enabled:
 When disabled:
 * Users do not have access to the *Containers > Software Versions* page.
 
+To choose which versions users run, see [How to Restrict Software Versions for Users](/docs/articles/containers/how-to-restrict-software-versions-for-users/).
+
 
 ## Switch WebServer {#change-ws}
 
@@ -5409,6 +5450,8 @@ When enabled:
 
 When disabled:
 * Users do not have access to the *Web Server Config > Web Server Type* page.
+
+To keep the page but offer only some webservers, see [How to Disable Webservers for Users](/docs/articles/web-servers/how-to-disable-webservers-for-users/).
 
 
 ## Switch MySQL Type {#change-db}
@@ -5919,6 +5962,8 @@ When enabled:
 
 When disabled:
 * Users do not have access to the *Processes & Services > Services* page.
+
+To remove services from users' stacks, see [How to Limit Which Services Users Can Run](/docs/articles/containers/how-to-limit-services-for-users/).
 
 
 ## Memcached
@@ -6871,7 +6916,7 @@ zlib.output_compression
 
 Here you can edit the PHP.INI configuration files that will be applied to new user accounts.
 
-If a PHP version that is released and still supported has no PHP.INI file on the server, a recommendation lists it with a link to install it with [`opencli update --php`](/docs/articles/opencli/update/#php). The supported versions come from the same list the [Edit User Defaults](/docs/admin/settings/defaults/) page uses. Unreleased and end-of-life versions aren't recommended.
+If a PHP version that is released and still supported has no PHP.INI file on the server, a recommendation lists it with a link to install it with [`opencli update --php`](/docs/articles/opencli/update/#php). The supported versions come from the same list the [Edit User Defaults](/docs/admin/settings/defaults/) page uses. Unreleased and end-of-life versions aren't recommended. If you [removed PHP versions](/docs/articles/user-experience/how-to-remove-old-php-versions/) on purpose, ignore the recommendation for them and don't run `opencli update --php`, because it adds them back.
 
 ![Default PHP.INI Files section with a php.ini per PHP version and Restore Default and Save buttons](/img/openadmin-screenshots/settings/php-ini.png#gh-light-mode-only)
 ![Default PHP.INI Files section with a php.ini per PHP version and Restore Default and Save buttons](/img/openadmin-screenshots/settings/php-ini_dark.png#gh-dark-mode-only)
@@ -8463,6 +8508,16 @@ export const faq = [
     question: "Can I host Node.js or Python applications?",
     answer: "Yes. OpenPanel Enterprise can create and manage containerized Node.js and Python applications, in addition to PHP websites.",
     link: { href: "/docs/panel/applications/nodejs/", label: "Node.js applications" },
+  },
+  {
+    question: "Can I remove old PHP versions from OpenPanel?",
+    answer: "Yes. OpenPanel offers every PHP version defined in the user's docker-compose.yml file, from PHP 5.6 to the latest release. Remove the versions you don't want from the template for new users and from existing users' files, and they are no longer offered anywhere in OpenPanel.",
+    link: { href: "/docs/articles/user-experience/how-to-remove-old-php-versions/", label: "Remove old PHP versions" },
+  },
+  {
+    question: "Can I limit which webservers and services users can use?",
+    answer: "Yes. Webservers and services such as Redis, Elasticsearch or MongoDB are offered only if they are in the user's docker-compose.yml file. You can remove them from the template and from existing users, or disable their modules per plan to hide the pages in OpenPanel.",
+    link: { href: "/docs/articles/web-servers/how-to-disable-webservers-for-users/", label: "Disable webservers for users" },
   },
   {
     question: "Can I use OpenPanel to sell web hosting?",
@@ -11137,6 +11192,125 @@ add to `docker-compose.yml` file in the **services** section:
 
 ---
 
+// File: articles/containers/how-to-limit-services-for-users
+
+# How to Limit Which Services Users Can Run
+
+Every OpenPanel user has their own set of services, such as Redis, Memcached, Elasticsearch, OpenSearch, PostgreSQL and MongoDB. If you don't want to offer or support some of them, you can hide them in OpenPanel, or remove them so they can't be started at all.
+
+## How OpenPanel lists services
+
+The services a user can run are the ones defined in their `/home/<USERNAME>/docker-compose.yml` file. When a new user is created, that file is copied from the template at `/etc/openpanel/docker/compose/1.0/docker-compose.yml`. Services are only defined there. They don't run, and don't use any resources, until the user or a feature starts them.
+
+There are two ways to limit a service, and you can combine them:
+
+| | Disable the module | Remove the service |
+|---|---|---|
+| What it does | Hides the page for that service in OpenPanel | Removes the service from the user's stack |
+| Where | **OpenAdmin > Settings > [Modules](/docs/admin/settings/modules/)**, or per plan with [feature sets](/docs/admin/plans/feature-manager) | The `docker-compose.yml` template and users' own files |
+| Existing users | Applies right away | Each user's file has to be edited |
+| Service can still be started | Yes, from the **Services** or **Containers** page | No |
+
+## Modules per service
+
+| Service | Module | OpenPanel page |
+|---|---|---|
+| `redis` | `redis` | Cache & Search > Redis |
+| `valkey` | `valkey` | Cache & Search > Valkey |
+| `memcached` | `memcached` | Cache & Search > Memcached |
+| `elasticsearch` | `elasticsearch` | Cache & Search > ElasticSearch |
+| `opensearch` | `opensearch` | Cache & Search > OpenSearch |
+| `varnish` | `varnish` | Cache & Search > Varnish |
+| `postgres`, `pgadmin` | `postgresql` | PostgreSQL pages |
+| `mongodb` | `mongodb` | MongoDB pages |
+
+Every service in the user's file is also listed on **Processes & Services > Services** (`services` module) and on **Containers** (`docker` module). To fully hide a service, disable its module and remove it from the stack.
+
+:::warning
+The `docker` module lets users add their own services on the **Containers** page, with any image. If you need to make sure users only run what you offer, disable the `docker` module too. The `services` module still lets them start and stop the services you left in place.
+:::
+
+## Services you shouldn't remove
+
+- `cron`, `backup` and `docker-proxy` are used by OpenPanel itself.
+- `mysql` and `mariadb`: to keep users on one database type, disable the [Switch MySQL Type (`change_db`)](/docs/admin/settings/modules/#change-db) module instead, and set the default type on the [User Defaults](/docs/admin/settings/defaults/) page.
+- Webservers and PHP versions can be removed, but they need extra steps. See [How to Disable Webservers for Users](/docs/articles/web-servers/how-to-disable-webservers-for-users/) and [How to Remove Old PHP Versions](/docs/articles/user-experience/how-to-remove-old-php-versions/).
+
+## Remove a service for new users
+
+Remove the service block from the template. You can edit it from **OpenAdmin > Settings > User Defaults > Advanced**, or in the file `/etc/openpanel/docker/compose/1.0/docker-compose.yml`. The block starts at the service name, for example `  elasticsearch:`, and ends right before the next service.
+
+Or remove it with a script. Set `SERVICES` to the services you want to remove:
+
+```bash
+SERVICES="elasticsearch opensearch"
+f=/etc/openpanel/docker/compose/1.0/docker-compose.yml
+cp -p "$f" "$f.bak"
+for s in $SERVICES; do
+  awk -v svc="$s" '
+    $0 ~ "^  " svc ":[ \t]*$" { skip=1; next }
+    skip && (/^  [^ #]/ || /^[^ \t#]/) { skip=0 }
+    !skip
+  ' "$f" > "$f.tmp" && cat "$f.tmp" > "$f" && rm -f "$f.tmp"
+done
+```
+
+If the service is in the **Autostart services** list on the [User Defaults](/docs/admin/settings/defaults/) page, remove it from there too.
+
+## Remove a service for existing users
+
+### 1. Find users that run it
+
+A service that is running has data or websites that depend on it. Check before you remove it:
+
+```bash
+SERVICE=elasticsearch
+source /usr/local/opencli/lib/podman.sh
+for f in /home/*/docker-compose.yml; do
+  u=$(basename "$(dirname "$f")")
+  podman_user "$u" ps --format '{{.Names}}' 2>/dev/null | grep -qx "$SERVICE" && echo "$u"
+done
+```
+
+Ask these users to move off the service, or leave it in place for them.
+
+### 2. Remove it for everyone else
+
+This skips users that run the service, and checks that each file is still valid afterwards:
+
+```bash
+SERVICE=elasticsearch
+source /usr/local/opencli/lib/podman.sh
+for f in /home/*/docker-compose.yml; do
+  u=$(basename "$(dirname "$f")")
+  grep -q "^  $SERVICE:" "$f" || continue
+  if podman_user "$u" ps --format '{{.Names}}' 2>/dev/null | grep -qx "$SERVICE"; then echo "$u: runs $SERVICE, skipped"; continue; fi
+  cp -p "$f" "$f.bak"
+  awk -v svc="$SERVICE" '
+    $0 ~ "^  " svc ":[ \t]*$" { skip=1; next }
+    skip && (/^  [^ #]/ || /^[^ \t#]/) { skip=0 }
+    !skip
+  ' "$f" > "$f.tmp" && cat "$f.tmp" > "$f" && rm -f "$f.tmp"
+  (cd "/home/$u" && podman-compose config >/dev/null 2>&1) && echo "$u: OK" || { cp -p "$f.bak" "$f"; echo "$u: invalid config, restored backup"; }
+done
+```
+
+The service's data volume, for example `es_data`, is not deleted. Remove it yourself when you no longer need the data.
+
+## Don't run `opencli update --compose`
+
+[`opencli update --compose`](/docs/articles/opencli/update/#templates) replaces the whole template with the latest upstream version, which brings back every removed service for new users. Existing users aren't affected. If you run it, remove the services again. The previous template is saved at `/etc/openpanel/docker/compose/1.0/docker-compose.yml.bak`.
+
+To add a removed service back later, copy its block from the [upstream template](https://github.com/stefanpejcic/openpanel-configuration/blob/main/docker/compose/1.0/docker-compose.yml).
+
+## Related
+
+- [How to Restrict Software Versions for Users](/docs/articles/containers/how-to-restrict-software-versions-for-users/)
+- [How to Disable Webservers for Users](/docs/articles/web-servers/how-to-disable-webservers-for-users/)
+- [How to Remove Old PHP Versions](/docs/articles/user-experience/how-to-remove-old-php-versions/)
+
+---
+
 // File: articles/containers/how-to-remove-resource-limits-for-user-service-containers
 
 # How to Remove CPU and RAM Limits for User Services
@@ -11207,6 +11381,78 @@ sed -i '/deploy:/,/^[^[:space:]]/{
 Once these changes are applied, any new or restarted services will be able to consume all available system resources. The control panel will display a warning to users indicating that CPU and RAM limits are disabled:
 
 ![userlimits3.png](/img/panel/v2/userlimits-guide3.png)
+
+---
+
+// File: articles/containers/how-to-restrict-software-versions-for-users
+
+# How to Restrict Software Versions for Users
+
+On the **Containers > [Software Versions](/docs/panel/containers/change/)** page, OpenPanel users can change the image tag, which is the version, of their services. They can pick any tag from Docker Hub or type one in, for example an old MySQL, Nginx or Redis release. If you only want to support the versions you choose, you can turn this off for everyone, for some plans, or for single services.
+
+## How the version is set
+
+Most services in the `docker-compose.yml` template read their tag from a variable in the `.env` file, with a default after `:-`:
+
+```yaml
+  redis:
+    image: redis:${REDIS_VERSION:-8.6.2-alpine}
+```
+
+```bash
+REDIS_VERSION="8.6.2-alpine"
+```
+
+When a user picks a new tag on the Software Versions page, OpenPanel writes it to that variable in the user's `/home/<USERNAME>/.env` file and recreates the service. MySQL and MariaDB share the `MYSQL_VERSION` variable.
+
+The PHP services and the internal `cron`, `backup` and `docker-proxy` services aren't listed on the page. Their images are managed by OpenPanel. To limit PHP versions, see [How to Remove Old PHP Versions](/docs/articles/user-experience/how-to-remove-old-php-versions/).
+
+## Option 1: Disable the Software Versions page
+
+Disable the [Change Container Image Tag (`change_image`)](/docs/admin/settings/modules/#change-image) module from **OpenAdmin > Settings > Modules**. To disable it for some users only, remove it from the [feature set](/docs/admin/plans/feature-manager) of their plan.
+
+Users keep the versions they have now, and you decide which versions are used:
+
+- **New users** get the tags from `/etc/openpanel/docker/compose/1.0/.env`. You can edit it from **OpenAdmin > Settings > [User Defaults](/docs/admin/settings/defaults/) > Advanced**.
+- **Existing users:** change the variable in their `/home/<USERNAME>/.env` file, then recreate the service. For example, to move a user to Redis 8.6:
+
+```bash
+USERNAME=dorotea
+sed -i 's/^REDIS_VERSION=.*/REDIS_VERSION="8.6.2-alpine"/' /home/$USERNAME/.env
+source /usr/local/opencli/lib/podman.sh
+cd /home/$USERNAME && CONTAINER_HOST=$(podman_user_socket "$USERNAME") podman-compose up -d --force-recreate redis
+```
+
+:::warning
+The `docker` module lets users add their own services on the **Containers** page, with any image and version. If you need to make sure users only run the versions you choose, disable the `docker` module too.
+:::
+
+## Option 2: Pin the version of one service
+
+To keep the Software Versions page for most services, but fix the version of one of them, replace the variable in the `image:` line with a fixed tag. For example, in `/etc/openpanel/docker/compose/1.0/docker-compose.yml` for new users, or in `/home/<USERNAME>/docker-compose.yml` for an existing user:
+
+```yaml
+  redis:
+    image: redis:8.6.2-alpine
+```
+
+Docker Hub tags are then no longer listed for that service. The service is still shown on the page and a tag can still be typed in, but it's only saved to the `.env` file and isn't used. Tell your users which services are pinned, so they aren't surprised when nothing changes. To fully remove a service instead, see [How to Limit Which Services Users Can Run](/docs/articles/containers/how-to-limit-services-for-users/).
+
+## Find users on old versions
+
+To see which tag every user has set for a service:
+
+```bash
+grep -H '^REDIS_VERSION=' /home/*/.env
+```
+
+Users without the variable use the default from their `docker-compose.yml`.
+
+## Related
+
+- [Change Image Tag](/docs/panel/containers/change/) (OpenPanel docs for users)
+- [How to Limit Which Services Users Can Run](/docs/articles/containers/how-to-limit-services-for-users/)
+- [How to Remove Old PHP Versions](/docs/articles/user-experience/how-to-remove-old-php-versions/)
 
 ---
 
@@ -27442,6 +27688,30 @@ opencli email-quotas
 ```
 </details>
 
+## Default addresses
+
+Write the default (catch-all) addresses set in the panel to the mailserver:
+```bash
+opencli email-default_sync
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli email-default_sync
+```
+</details>
+
+The panel keeps each domain's default address in `postfix-regex.cf`. This writes a rule for each one to `postfix-regexp.cf`, the file docker-mailserver reads, between `# BEGIN opencli email-default_sync` and `# END opencli email-default_sync`, and keeps the file's other lines. A rule takes mail only for addresses of the domain that are not a mailbox or alias, with or without a `+tag`. A domain gets a rule only while it has a mailbox or alias on this server: the mailserver accepts mail only for those domains, and Postfix applies the rules to every recipient, so a rule for any other domain would only redirect the mail this server's users send to it. A default address that points to an address on a domain of this server gets a rule only while that address is a mailbox or alias. It prints nothing when it succeeds. It runs on its own when a default address is set or removed, when email accounts or aliases are added or deleted, when a user is restored or transferred, and when a domain or user with a default address is deleted. Adding a domain removes any default address an older delete left behind for it, so it never reaches the domain's previous owner.
+
+Default addresses set before this command existed start working at the next email account or alias change on the server, or right away after one `opencli email-default_sync`.
+
+Most mail to made-up addresses is spam with a forged sender. Two kinds of default address accept that mail and bounce it later, and the bounces go from this server's IP to whoever the sender claims to be:
+
+- An address outside this server, or an alias that forwards outside. The receiver may refuse the forwarded spam. With SRS, which `opencli domain set` turns on when the panel uses a hostname, it passes SPF, but the forged sender has no DKIM signature, so DMARC still fails. Without SRS, SPF fails too.
+- A full mailbox. The quota check at RCPT sees only the made-up address, which has no mailbox, so the mail is refused only after it has been accepted.
+
 ## Manage
 
 Run a command inside the mailserver container:
@@ -27467,7 +27737,7 @@ Mail queue is empty
 
 `opencli email-setup` command is used to create and manage email accounts. It runs the [docker-mailserver `setup`](https://docker-mailserver.github.io/docker-mailserver/latest/config/setup.sh/) command inside the mailserver container.
 
-Commands that add, change or delete email accounts, aliases, quotas, restrictions, relay settings or Dovecot master accounts print no output when they succeed. If the mailserver is not running, the change is written directly to the mailserver configuration files and this warning is shown:
+Commands that add, change or delete email accounts, aliases, quotas, restrictions, relay settings or Dovecot master accounts print no output when they succeed and exit with a non-zero code when they fail. If the mailserver is not running, or podman reports it as running but commands can't be executed inside it, the change is written directly to the mailserver configuration files and this warning is shown:
 
 <details>
   <summary>Example output</summary>
@@ -27477,6 +27747,8 @@ Commands that add, change or delete email accounts, aliases, quotas, restriction
 Warning: 'openadmin_mailserver' is not running - writing directly to mailserver config files instead.
 ```
 </details>
+
+After adding an account this way, the mailserver is recreated in the background if it is still not responding 15 seconds later. docker-mailserver doesn't stay up without an email account, so this is the normal path for the first account on a new server.
 
 To view a list of all available sub-commands:
 
@@ -29068,6 +29340,10 @@ opencli domains-whoowns
 Description: Check which username owns a certain domain name.
 Usage: opencli domains-whoowns <DOMAIN-NAME> [--context] [--docroot]
 ------------------------
+opencli email-default_sync
+Description: Writes the default (catch-all) email addresses to docker-mailserver's postfix-regexp.cf.
+Usage: opencli email-default_sync
+------------------------
 opencli email-manage
 Description: Pass commands through to docker-mailserver's setup CLI inside the mailserver container.
 Usage: opencli email-manage <COMMAND> [<ARGS>...]
@@ -29719,6 +29995,8 @@ grep php-fpm- /home/<USERNAME>/docker-compose.yml
 </details>
 
 To add PHP versions that are newer than the user's `docker-compose.yml` file, run [`opencli update --php`](/docs/articles/opencli/update/#php).
+
+These are also the versions users can select in OpenPanel. To stop offering old versions, see [How to Remove Old PHP Versions](/docs/articles/user-experience/how-to-remove-old-php-versions/).
 
 ---
 
@@ -36105,6 +36383,136 @@ After editing restart the php service. Navigate to PHP.INI editor and select the
 
 ---
 
+// File: articles/user-experience/how-to-remove-old-php-versions
+
+# How to Remove Old PHP Versions
+
+By default, every OpenPanel user gets all PHP versions from 5.6 to the latest release. If you don't want users to select end-of-life versions, you can remove them per user and for all new users.
+
+## How OpenPanel lists PHP versions
+
+There is no hardcoded list of PHP versions. OpenPanel reads them from the `php-fpm-X.Y` services in each user's `/home/<USERNAME>/docker-compose.yml` file. When a new user is created, that file is copied from the template at `/etc/openpanel/docker/compose/1.0/docker-compose.yml`.
+
+The same list is used for every PHP selector in OpenPanel: **PHP > Domains**, **PHP > Default Version**, **PHP > Options** and the application installers. Versions that aren't in the list are also rejected when a domain's PHP version is changed through the API. Once you remove a `php-fpm-X.Y` service, users can't select that version anymore.
+
+:::info
+On OpenLiteSpeed and LiteSpeed web servers, PHP versions come from the web server's image tags instead, and users can't select a PHP version per domain.
+:::
+
+:::warning
+The `docker` module lets users add their own services on the **Containers** page, with any image, an old PHP image included. If you need to make sure users only run the PHP versions you offer, disable the [`docker` module](/docs/admin/settings/modules/#docker) too.
+:::
+
+## For new users
+
+Edit the template from **OpenAdmin > Settings > [User Defaults](/docs/admin/settings/defaults/) > Advanced**, or in the file `/etc/openpanel/docker/compose/1.0/docker-compose.yml`, and delete the service blocks of the versions you want to remove. Each block starts at a `  php-fpm-X.Y:` line and ends right before the next service:
+
+```yaml
+  php-fpm-5.6:
+    image: shinsenter/php:5.6-fpm
+    container_name: php-fpm-5.6
+    ...
+    command: php-fpm --allow-to-run-as-root
+```
+
+Or remove them with a script. Set `VERSIONS` to the versions you want to remove:
+
+```bash
+VERSIONS="5.6 7.0 7.1 7.2 7.3 7.4 8.0 8.1"
+f=/etc/openpanel/docker/compose/1.0/docker-compose.yml
+cp -p "$f" "$f.bak"
+for v in $VERSIONS; do
+  awk -v svc="php-fpm-$v" '
+    $0 ~ "^  " svc ":[ \t]*$" { skip=1; next }
+    skip && (/^  [^ #]/ || /^[^ \t#]/) { skip=0 }
+    !skip
+  ' "$f" > "$f.tmp" && cat "$f.tmp" > "$f" && rm -f "$f.tmp"
+done
+grep -E '^  php-fpm-' "$f"
+```
+
+Then make sure `DEFAULT_PHP_VERSION` in `/etc/openpanel/docker/compose/1.0/.env` is set to a version you are keeping. You can also change it from the [Edit User Defaults](/docs/admin/settings/defaults/) page. The `PHP_FPM_X_Y_RAM` and `PHP_FPM_X_Y_CPU` lines of the removed versions in that `.env` file can stay. They aren't used without the service.
+
+## For existing users
+
+:::warning
+Websites that still use a removed PHP version stop working. Move them to a supported version before you remove it.
+:::
+
+### 1. Find domains that use old versions
+
+A domain's PHP version is set in its vhost file. To list all domains on the versions you want to remove:
+
+```bash
+VERSIONS="5.6 7.0 7.1 7.2 7.3 7.4 8.0 8.1"
+for v in $VERSIONS; do
+  grep -l "php-fpm-$v:" /home/*/docker-data/volumes/*_webserver_data/_data/*.conf 2>/dev/null |
+    sed "s|.*/||; s|\.conf$| (PHP $v)|"
+done
+```
+
+### 2. Move them to a supported version
+
+For each domain from the list, run [`opencli php-domain`](/docs/articles/opencli/php/#change-version-for-a-domain):
+
+```bash
+opencli php-domain example.com --update 8.3
+```
+
+Users can also do this themselves from **OpenPanel > PHP > Domains**.
+
+### 3. Change the default version
+
+If a user's default PHP version is one you are removing, change it with [`opencli php-default`](/docs/articles/opencli/php/#change-the-default-version):
+
+```bash
+opencli php-default <USERNAME>
+opencli php-default <USERNAME> --update 8.3
+```
+
+### 4. Stop and remove the old services
+
+Stop the old PHP containers through the user's own podman socket, then remove the service blocks from the user's `docker-compose.yml`. This loops through all users. To do one user only, replace `/home/*/docker-compose.yml` with `/home/<USERNAME>/docker-compose.yml`:
+
+```bash
+VERSIONS="5.6 7.0 7.1 7.2 7.3 7.4 8.0 8.1"
+source /usr/local/opencli/lib/podman.sh
+for f in /home/*/docker-compose.yml; do
+  u=$(basename "$(dirname "$f")")
+  cp -p "$f" "$f.bak"
+  for v in $VERSIONS; do
+    grep -q "^  php-fpm-$v:" "$f" || continue
+    (cd "/home/$u" && CONTAINER_HOST=$(podman_user_socket "$u") podman-compose down "php-fpm-$v") >/dev/null 2>&1
+    awk -v svc="php-fpm-$v" '
+      $0 ~ "^  " svc ":[ \t]*$" { skip=1; next }
+      skip && (/^  [^ #]/ || /^[^ \t#]/) { skip=0 }
+      !skip
+    ' "$f" > "$f.tmp" && cat "$f.tmp" > "$f" && rm -f "$f.tmp"
+  done
+  (cd "/home/$u" && podman-compose config >/dev/null 2>&1) && echo "$u: OK" || { cp -p "$f.bak" "$f"; echo "$u: invalid config, restored backup"; }
+done
+```
+
+### 5. Restart OpenPanel
+
+OpenPanel caches the PHP version list for up to one hour. To show the change right away, restart the OpenPanel container:
+
+```bash
+podman restart openpanel
+```
+
+## Don't run `opencli update --php` or `--compose`
+
+[`opencli update --php`](/docs/articles/opencli/update/#php) adds every PHP version from the upstream template that is missing on your server. It adds them to the template and to all users, so it would bring the removed versions back. It only runs when you start it manually. It doesn't run with automatic updates.
+
+[`opencli update --compose`](/docs/articles/opencli/update/#templates) replaces the whole template with the latest upstream version, so the removed versions come back for new users. Existing users aren't affected. If you run it, remove the versions from the template again. The previous template is saved at `/etc/openpanel/docker/compose/1.0/docker-compose.yml.bak`.
+
+The [PHP Settings](/docs/admin/settings/php/) page in OpenAdmin may show a recommendation to install supported PHP versions that are missing. You can ignore it for the versions you removed on purpose.
+
+To add a removed version back later, copy its service block from the [upstream template](https://github.com/stefanpejcic/openpanel-configuration/blob/main/docker/compose/1.0/docker-compose.yml) into the user's `docker-compose.yml`.
+
+---
+
 // File: articles/user-experience/how-to-setup-email-in-openpanel
 
 # How to Enable Email Hosting on Your Server
@@ -36413,6 +36821,113 @@ Then open it in your browser:
 `https://yourdomain.tld/info.php`
 
 Look for **IonCube PHP Loader** in the output to verify that it is enabled.
+
+---
+
+// File: articles/web-servers/how-to-disable-webservers-for-users
+
+# How to Disable Webservers for Users
+
+By default, OpenPanel users can choose between Apache, Nginx, OpenResty and OpenLiteSpeed. If you don't want to support all of them, you can remove a webserver for new users, for existing users, or stop users from changing their webserver at all.
+
+## How OpenPanel lists webservers
+
+There is no hardcoded list of webservers. OpenPanel reads them from the services in each user's `/home/<USERNAME>/docker-compose.yml` file. A service counts as a webserver if it mounts the `webserver_data` volume and publishes ports. When a new user is created, that file is copied from the template at `/etc/openpanel/docker/compose/1.0/docker-compose.yml`.
+
+The webservers in the template are offered on:
+
+- **OpenAdmin > Settings > [User Defaults](/docs/admin/settings/defaults/)**
+- the **OpenAdmin > Users > Add User** form
+- `opencli user-add --webserver`. A webserver that isn't in the template is ignored, and the template default is used.
+
+The webservers in a user's own `docker-compose.yml` are offered on:
+
+- **OpenPanel > Web Server Config > [Web Server Type](/docs/panel/webserver/webserver_type/)**, and the API endpoint behind it
+- the webserver step of the onboarding wizard on the OpenPanel dashboard
+- the webserver setting on the user's page in OpenAdmin
+
+A webserver that isn't on the list is rejected, even if someone calls the API directly.
+
+:::info
+A user can only change the webserver while the account has no domains. This applies in OpenAdmin too.
+:::
+
+:::warning
+The `docker` module lets users add their own services on the **Containers** page, with any image. If you need to make sure users only run the webservers you offer, disable the [`docker` module](/docs/admin/settings/modules/#docker) too.
+:::
+
+## Option 1: Stop users from changing the webserver
+
+If you only want every user to stay on the webserver you assign, disable the [Switch WebServer (`change_ws`)](/docs/admin/settings/modules/#change-ws) module from **OpenAdmin > Settings > Modules**. To disable it for some users only, remove it from the [feature set](/docs/admin/plans/feature-manager) of their plan.
+
+Users then don't have access to the **Web Server Type** page, and the onboarding wizard skips the webserver step. You can still set the webserver when creating the user, or later from the user's page in OpenAdmin.
+
+## Option 2: Remove a webserver for new users
+
+Remove the webserver's service block from the template. You can edit it from **OpenAdmin > Settings > User Defaults > Advanced**, or in the file `/etc/openpanel/docker/compose/1.0/docker-compose.yml`. The block starts at the service name, for example `  openresty:`, and ends right before the next service.
+
+Or remove it with a script. Set `WS` to the webserver you want to remove:
+
+```bash
+WS=openresty
+f=/etc/openpanel/docker/compose/1.0/docker-compose.yml
+cp -p "$f" "$f.bak"
+awk -v svc="$WS" '
+  $0 ~ "^  " svc ":[ \t]*$" { skip=1; next }
+  skip && (/^  [^ #]/ || /^[^ \t#]/) { skip=0 }
+  !skip
+' "$f" > "$f.tmp" && cat "$f.tmp" > "$f" && rm -f "$f.tmp"
+```
+
+Then make sure the default webserver isn't the one you removed. Check the **Webserver** option on the [User Defaults](/docs/admin/settings/defaults/) page, or `WEB_SERVER` in `/etc/openpanel/docker/compose/1.0/.env`.
+
+:::warning
+Don't remove a webserver that another service depends on in the template. If Varnish is enabled by default, it proxies to the default webserver.
+:::
+
+## Option 3: Remove a webserver for existing users
+
+Existing users keep their own copy of `docker-compose.yml`, so the template change doesn't affect them.
+
+### 1. Find users that use it
+
+```bash
+WS=openresty
+grep -l "^WEB_SERVER=\"\?$WS\"\?$" /home/*/.env | cut -d/ -f3
+```
+
+Leave the service in place for these users. Their websites stop working without it, and their webserver can only be changed after all their domains are removed.
+
+### 2. Remove the service for everyone else
+
+This loops through all users, skips the ones that use the webserver, and checks that each file is still valid afterwards:
+
+```bash
+WS=openresty
+for f in /home/*/docker-compose.yml; do
+  u=$(basename "$(dirname "$f")")
+  grep -q "^  $WS:" "$f" || continue
+  if grep -q "^WEB_SERVER=\"\?$WS\"\?$" "/home/$u/.env"; then echo "$u: uses $WS, skipped"; continue; fi
+  cp -p "$f" "$f.bak"
+  awk -v svc="$WS" '
+    $0 ~ "^  " svc ":[ \t]*$" { skip=1; next }
+    skip && (/^  [^ #]/ || /^[^ \t#]/) { skip=0 }
+    !skip
+  ' "$f" > "$f.tmp" && cat "$f.tmp" > "$f" && rm -f "$f.tmp"
+  (cd "/home/$u" && podman-compose config >/dev/null 2>&1) && echo "$u: OK" || { cp -p "$f.bak" "$f"; echo "$u: invalid config, restored backup"; }
+done
+```
+
+## Don't run `opencli update --compose`
+
+[`opencli update --compose`](/docs/articles/opencli/update/#templates) replaces the whole `docker-compose.yml` template with the latest upstream version, which brings back every removed webserver. Existing users aren't affected. If you run it, compare the new template with the backup it saves at `/etc/openpanel/docker/compose/1.0/docker-compose.yml.bak`, and remove the webservers again.
+
+To add a removed webserver back later, copy its service block from the [upstream template](https://github.com/stefanpejcic/openpanel-configuration/blob/main/docker/compose/1.0/docker-compose.yml).
+
+## Related
+
+- [How to Remove Old PHP Versions](/docs/articles/user-experience/how-to-remove-old-php-versions/)
+- [How to set Apache, Nginx, OpenResty, OpenLiteSpeed or Varnish as the default webserver](/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
 
 ---
 
@@ -42875,6 +43390,14 @@ Not yet released
 Released on October 31, 2026.
 
 ### 💡 New
+- [LiteSpeed Enterprise](/docs/panel/webserver/webserver_type/#litespeed) as a webserver. It reads Apache style configuration and `.htaccess` files, runs PHP in its own LSPHP and has LSCache with the crawler turned on.
+  - A new account starts on a 15-day trial license, and the user adds a serial number any time on **Web Server Config > Server Settings** in OpenPanel. LiteSpeed gives one trial per server IP.
+  - `opencli user-litespeed <username> [status|serial <SERIAL>|trial]` shows or sets the license, and `opencli update --litespeed` updates its files.
+  - LiteSpeed is offered on the OpenAdmin **Settings > Defaults** page, the Add User form and the OpenPanel setup wizard. Existing accounts get it with this update.
+- OpenAdmin > Settings > Defaults: Percona can be set as the default database for new accounts, it runs as the account's mysql service with the Percona Server image, the same as switching to Percona in OpenPanel.
+- OpenAdmin > Settings > Defaults: Varnish is a toggle and shows that it isn't recommended with LiteSpeed or OpenLiteSpeed, since they cache pages themselves.
+- OpenAdmin > License: without a license key the page lists what Enterprise adds over the Community edition.
+- OpenAdmin > Dashboard: the Cluster widget shows a server's problem on its own line, so the server names and stats don't move.
 - [Multi-server clustering](/docs/admin/system/multi-server) (Enterprise): manage several OpenPanel servers from one OpenAdmin. Every server stays a complete install with its own users, domains, mail and DNS, so a server keeps working when the master is down.
   - Add a server with a one-time join code from **System > Multi-Server**, and switch between servers from the server name in the sidebar.
   - Tables show the rows of all servers with a **Server** column and filter, and search, notifications, dashboard stats, `/services` and the header resource usage cover all servers. Row actions and bulk actions run on the server the row belongs to.
@@ -42892,6 +43415,11 @@ Released on October 31, 2026.
 - `opencli sentinel` warns once when the Enterprise license expires in 3 days or less, with a link to renew it.
 
 ### 🐛 Bug Fixes
+- OpenAdmin: the Documentation panel on Dashboard, Notifications, Daily Summary, Multi-Server and Websites could not load its page.
+- OpenAdmin > License: "License info: undefined" was shown before a license key was added.
+- OpenAdmin > Services: **Restart on all servers** gave no feedback and failed silently, it now waits for every server and reports the result.
+- OpenAdmin > Dashboard: without the Cluster widget, Tasks and the next widget were stretched to the height of two rows.
+- Multi-server: a slave was reported offline after a single slow answer, it now takes three failed checks in a row.
 - OpenAdmin > Services: restarting a service recreates only that container. It used to stop and start its dependencies too, so restarting OpenPanel also restarted the panel's MySQL and Redis and took several seconds longer.
 - `opencli report` and **Generate report** on the License page no longer try to upload the report to support.openpanel.org, which no longer accepts them. They show the path to the report file to send to support, `--public`, `--link` and `--upload` are still accepted but don't upload.
 - `opencli backup` no longer includes `/etc/openpanel/openadmin/cluster`, and `opencli server-migrate` doesn't copy it, so restoring or migrating a server can't clone a cluster master.
@@ -42903,6 +43431,7 @@ Released on October 31, 2026.
 - `opencli server-logrotate` adds `maxsize` to the distribution's `/etc/logrotate.d/rsyslog`, so syslog filled by container output is rotated once it passes `logrotate_size_limit` instead of growing for a whole week.
 - `opencli docker-backup` no longer fails random accounts with "error running archive-pre commands" when the account still has a `backup` container running: the leftover container is removed before the backup, and `files-list.sh` gives each run its own temp files so two runs can't collide on the backup_meta volume.
 - OpenPanel > Node.js, Python, Ruby, Java and n8n applications on Nginx and OpenResty: a stopped application no longer keeps the web server from starting. Nginx now looks up the application's container on every request, so only that application's URLs return 502 while it is stopped and they work again as soon as it starts. Applications installed before this keep the old proxy until they are reinstalled. [#1267](https://github.com/stefanpejcic/OpenPanel/pull/1267)
+- `opencli user-add` no longer fails with `Can't connect to server on '127.0.0.1'` for the first user after **OpenAdmin > Settings > Modules** has been saved. Saving that page changes `/root/docker-compose.yml`, so starting OpenPanel for the first user recreated MySQL in the middle of the insert. `opencli user-add` now waits for OpenPanel to start and for MySQL to answer before it inserts the user. [#249](https://github.com/stefanpejcic/opencli/pull/249)
 
 ### 💅 Polish
 - `opencli sentinel` webhook notifications now include the server hostname and public IP in the title, so you can tell which server sent them.
@@ -42916,24 +43445,71 @@ Released on October 31, 2026.
 
 // File: changelog/2.0.21
 
-Not yet released.
-
-### 💡 New
-- [LiteSpeed Enterprise](/docs/panel/webserver/webserver_type/#litespeed) as a webserver. It reads Apache style configuration and `.htaccess` files, runs PHP in its own LSPHP and has LSCache with the crawler turned on.
-  - A new account starts on a 15-day trial license, and the user adds a serial number any time on **Web Server Config > Server Settings** in OpenPanel. LiteSpeed gives one trial per server IP.
-  - `opencli user-litespeed <username> [status|serial <SERIAL>|trial]` shows or sets the license, and `opencli update --litespeed` updates its files.
-  - LiteSpeed is offered on the OpenAdmin **Settings > Defaults** page, the Add User form and the OpenPanel setup wizard. Existing accounts get it with this update.
-- OpenAdmin > Settings > Defaults: Percona can be set as the default database for new accounts, it runs as the account's mysql service with the Percona Server image, the same as switching to Percona in OpenPanel.
-- OpenAdmin > Settings > Defaults: Varnish is a toggle and shows that it isn't recommended with LiteSpeed or OpenLiteSpeed, since they cache pages themselves.
-- OpenAdmin > License: without a license key the page lists what Enterprise adds over the Community edition.
-- OpenAdmin > Dashboard: the Cluster widget shows a server's problem on its own line, so the server names and stats don't move.
+Released on November 03, 2026
 
 ### 🐛 Bug Fixes
-- OpenAdmin: the Documentation panel on Dashboard, Notifications, Daily Summary, Multi-Server and Websites could not load its page.
-- OpenAdmin > License: "License info: undefined" was shown before a license key was added.
-- OpenAdmin > Services: **Restart on all servers** gave no feedback and failed silently, it now waits for every server and reports the result.
-- OpenAdmin > Dashboard: without the Cluster widget, Tasks and the next widget were stretched to the height of two rows.
-- Multi-server: a slave was reported offline after a single slow answer, it now takes three failed checks in a row.
+- Fixed spacing bug introduced in some compose files by the 2.0.20 update.
+- [email-setup: a mailbox created with an uppercase letter gets no owner uid, dovecot defers all its mail #1302](https://github.com/stefanpejcic/OpenPanel/issues/1302)
+
+---
+
+// File: changelog/2.0.22
+
+Not yet released.
+
+### 🐛 Bug Fixes
+- [First mailbox creation reports success but doesn't save the account #1317](https://github.com/stefanpejcic/OpenPanel/issues/1317)
+- [Forwarded mail fails SPF: SRS is off, and turning it on with docker-mailserver's defaults rewrites the users' own mail too #1308](https://github.com/stefanpejcic/OpenPanel/issues/1308)
+- [Default (catch-all) email address never receives mail: it is written to postfix-regex.cf, which docker-mailserver does not read #1306](https://github.com/stefanpejcic/OpenPanel/issues/1306)
+- [LiteSpeed Web Server Option Missing on Enterprise Edition After Updating to OpenPanel 2.0.20 #1297](https://github.com/stefanpejcic/OpenPanel/issues/1297)
+- OpenAdmin > Multi-Server: servers on a Let's Encrypt IP certificate showed as offline a few days after joining, the shortlived cert renews with a new key and that no longer matched the pinned one. A publicly valid cert for the server's IP is now trusted like one for a hostname, and Caddy keeps the same key on renewal (`reuse_private_keys`), set when a server joins a cluster, on new installs and by the update.
+- [Forwarded mail fails SPF: SRS is off, and turning it on with docker-mailserver's defaults rewrites the users' own mail too #1308](https://github.com/stefanpejcic/OpenPanel/issues/1308)
+- [Fix DNS zone merge, SSL, cron, alias docroots, access logs, mail cleanup and custom locales in cPanel import- #30](https://github.com/stefanpejcic/cPanel-to-OpenPanel/pull/30)
+- [First mailbox creation reports success but doesn't save the account #1317](https://github.com/stefanpejcic/OpenPanel/issues/1317): `opencli email-setup` now exits with the real result and checks a new account was saved, adds it to the config files when the mailserver container can't run commands even if podman says it's running, and no longer empties `emails.yml` when the list fails. OpenAdmin can add the first account while the mailserver is down. `opencli email-server start` and `stop` clear a container stuck in `stopping` and report failures.
+
+### 🔒 Security
+- OpenPanel > MCP: a read-only MCP token could create a new token with full access and revoke the account's other tokens through `POST /api/account/mcp`, `DELETE /api/account/mcp/{id}` or `/mcp` `tools/call`. Read-only tokens are now refused there, and `tools/call` checks the tool's method itself.
+- OpenPanel: changing or resetting the password now revokes all MCP tokens of the account, and a reset through the email link also removes the account's passkeys, so credentials added by whoever had access don't survive the recovery. [#1311](https://github.com/stefanpejcic/OpenPanel/issues/1311)
+- OpenPanel > Forgot password: the request form is rate limited per IP (`login_ratelimit`), uses the login captcha when one is set, sends at most one reset email per account every 5 minutes, and shows the same page whether the email has an account or not. The link is sent to the address stored on the account, not to what was typed in the form.
+- OpenPanel > Passkeys: the login and registration challenge is kept server-side and can be used only once, and expires after 5 minutes. Session cookies are also rejected once they are older than the 5 hour session lifetime.
+- OpenPanel API: with `twofa_enforce` on, JWT and MCP tokens of an account without 2FA can only reach the 2FA setup routes, the same as the web panel. [#1314](https://github.com/stefanpejcic/OpenPanel/issues/1314)
+- OpenPanel API: `POST /api/login` accepts only `application/json` and no longer writes the browser's session cookie, so a form on another site can't log the user out of the panel.
+- OpenPanel: changing the contact email logs out every other session of the account (through the API, every session), since password reset links go to that address. [#1310](https://github.com/stefanpejcic/OpenPanel/issues/1310)
+- `opencli user-delete` removes the deleted account's MCP tokens and passkeys, they were left in the database. [#1313](https://github.com/stefanpejcic/OpenPanel/issues/1313)
+- OpenPanel > File Manager: the download id of a URL download (wget) is checked to be one the panel created before it is used to find the download's status file, and the activity log entry uses the logged-in user.
+- OpenPanel > Backups: the SSH key file in the backup settings is always read from the account's own `/var/www/html/`, a path elsewhere is refused when saving, and line breaks in setting values are refused.
+- OpenPanel > Backups: WebDAV, S3, Azure and SSH destinations set by the user can no longer point at loopback, private or link-local addresses. Destinations managed by the admin still can.
+- OpenPanel > Backups: reindexing caps the size of the file lists it saves and how many archive entries it keeps in memory, limits the WebDAV and SSH listing size, and stops after 6 hours.
+- OpenPanel > Backups: a restored `crons.ini` goes through the same checks as the Cron Jobs editor, a restored job can't use `job-run`, `job-local`, `job-service-run`, `image=` or `network=`.
+- OpenPanel > Backups: queued restores always run as the account that queued them.
+- OpenPanel > File Manager: view, edit, download, copy and extract only read regular files, a fifo or device in the web root is refused instead of hanging the request, and view never reads more than `filemanager_view_size`.
+- OpenPanel > File Manager: extracting an archive stops once it writes more than `filemanager_extract_max_size` MB (default 10240).
+- OpenPanel: file operations on an account's volumes don't follow a symlink the account put in place of the volume folder, and `docker-data`, `crons.ini`, `backup.env`, `backup_restores.json` and `backup_files` can't be mounted into a custom container.
+- OpenPanel > Site Managers: uninstalling a site, and recording or clearing what an installer created, no longer follows a symlink out of the account's web root.
+- OpenPanel > Backup Wizard: a backup running for an account whose name contains yours (bob and bobby) no longer shows as yours and blocks your backups.
+- `opencli files-fix_permissions` uses `chmod -h` where available, so a file replaced by a symlink while it runs can't change the permissions of the link's target.
+- OpenPanel > Domains: .onion key paths must be files inside the account's own `/var/www/html/` in the API too, `..` is refused, and `opencli domains-add` copies the keys without following symlinks, so a key path can't make it copy another account's files.
+- OpenPanel > Cron Jobs: editing a job runs the same checks as creating one, a command can't add its own `[job-run]` or `[job-local]` section, and the container has to be a plain name so "Run now" can't pass podman options.
+- OpenPanel > Domains > Redirects: deleting a redirect removes only the redirect line the panel wrote, and redirect URLs can't contain spaces, quotes or `{...}` placeholders.
+- OpenPanel API: domain ownership checks refuse values with spaces, line breaks or `..`, and the email, DNS and domains endpoints take only a plain domain name, so a catch-all address can't be set for another account's domain.
+- OpenPanel > Emails > Import: importing respects the plan's mailbox limit, and mailboxes without a quota in the CSV get the plan's max quota like ones created by hand.
+- OpenPanel > MySQL: the root password is written to `my.cnf` by the panel instead of `sed`, and quotes, backslashes and line breaks are refused since the password is also stored in `.env`.
+- OpenPanel: values the panel writes to an account's `.env` can't contain quotes or line breaks, so they can't add lines like `USER_ID`.
+- OpenPanel > DNS: zone files can't use `$INCLUDE` or `$GENERATE`, only `$TTL` and `$ORIGIN`.
+- OpenPanel > Webmail: the dovecot master user has its own key in `/etc/openpanel/openpanel/dovecot_master.key` instead of the panel's `secret.key`, and unused autologin tokens are removed from the Roundcube container.
+- OpenPanel > Git: each account's git storage is capped by `git_max_storage_mb` (default 2048) and `git_max_repos` (default 50), since git data is stored as root and doesn't count against the disk quota.
+- OpenPanel > Git: remote repositories can't point at loopback, private or link-local addresses, git doesn't follow redirects, and clone and pull connect to the address that was checked.
+- OpenPanel > Web Terminal: the terminal opens only in the account's own services and never on the server's main podman.
+- OpenPanel > Docker: `/home/<user>/crons.ini` and the other files the panel trusts can't be mounted into a container by their absolute path either.
+- OpenPanel > FTP: FTP paths can only contain letters, numbers, `.`, `_`, `-` and `/`, and `opencli ftp-path`, `ftp-add`, `ftp-password` and `ftp-delete` call the FTP container without `sh -c`, so a path can't run commands in the shared FTP container.
+- OpenPanel > WAF: removed tags are checked against the CRS tag format, so they can't add Caddy or SecLang directives to the domain config, and when Caddy rejects a WAF change the previous config is put back.
+- OpenPanel > PHP: the version in the php.ini and PHP options routes has to be a plain `8.3` style version, and file operations refuse `..` under `/home`, so one account can't read or write another account's php.ini.
+- OpenPanel > MySQL, PostgreSQL, MongoDB: the panel no longer follows symlinks to `my.cnf` or to the database sockets in the account's home, and the PostgreSQL connection string quotes every value, so an account can't point the panel at another account's database server.
+- OpenPanel > PostgreSQL, MongoDB > Import: the uploaded dump is streamed into the container from an opened file instead of `podman cp` by path, so a symlink swapped in can't copy another file into the container.
+- OpenPanel > Emails > Migrate: the imapsync job folder is opened inside the account's own home, a symlink swapped in can't make the panel open another account's folder.
+- OpenPanel > DNS: adding a record goes through the same `$INCLUDE`/`$GENERATE` check as every other zone write, also in the domains API, and zone files can't contain carriage returns.
+- OpenPanel > Dynamic DNS: tokens have to be 16 to 64 letters and numbers (existing shorter custom tokens stop working and need a new one), the public update URL is rate limited per IP and compares tokens in constant time, and zone writes take the lock before truncating.
+- OpenPanel: php.ini, PHP options, web server config and WAF rule requests are capped at 1 MB, and container and service names in podman and podman-compose calls are checked so they can't be read as options.
 
 ---
 
@@ -43106,19 +43682,20 @@ Released on 17. September 2026.
 
 | Version| Release date | 
 |---|---|
+|__[2.0.22](/docs/changelog/2.0.22)__| November 26, 2026 |
 |__[1.7.67](/docs/changelog/1.7.67)__|  |
-|__[2.0.21](/docs/changelog/2.0.21)__|  |
 
 ### Latest
 
 | Version| Release date | 
 |---|---|
-|__[2.0.20](/docs/changelog/2.0.20)__| October 31, 2026 |
+|__[2.0.21](/docs/changelog/2.0.21)__| November 03, 2026 |
 
 ### Previous versions
 
 | Version| Release date | 
 |---|---|
+|__[2.0.20](/docs/changelog/2.0.20)__| October 31, 2026 |
 |__[2.0.19](/docs/changelog/2.0.19)__| October 29, 2026 |
 |__[2.0.18](/docs/changelog/2.0.18)__| October 29, 2026 |
 |__[2.0.16](/docs/changelog/2.0.16)__| October 22, 2026 |
@@ -51980,7 +52557,7 @@ The **Docker Hub** link at the top of the page opens the tags page of that image
 
 The tag list is loaded from Docker Hub once and then reused for 12 hours. Services whose image isn't on Docker Hub, or doesn't have a changeable tag, don't show a list, you can still type a tag.
 
-The internal **cron**, **backup** and **docker-proxy** services and the PHP services are not listed, their images are managed by OpenPanel.
+The internal **cron**, **backup** and **docker-proxy** services and the PHP services are not listed, their images are managed by OpenPanel. Your hosting provider can also pin the version of a service, a new tag then has no effect for that service.
 
 After confirmation:
 
@@ -53038,17 +53615,23 @@ Click an action, confirm it, and it runs on the selected aliases one after anoth
 
 A default (catch-all) address receives any email sent to an invalid or non-existent address at your domain.
 
-When a catch-all is configured, mail sent to `anything@yourdomain.com` that does not match an existing mailbox is forwarded to the destination you set. Without a catch-all, unmatched emails are rejected (this is the default in OpenPanel).
+When a catch-all is configured, mail sent to `anything@yourdomain.com` that does not match an existing email account or alias is delivered to the destination you set. Mail to an existing account or alias, with or without a `+tag` (such as `info+news@yourdomain.com`), still goes to that account or alias. Without a catch-all, unmatched emails are rejected (this is the default in OpenPanel).
+
+The catch-all starts working once the domain has at least one email account or alias.
 
 ## Setting a Catch-all
 
 1. Go to **OpenPanel > Email > Catch-all Address**.
 2. Select the domain to configure.
-3. Enter the **Destination address**: any valid email address, local or external.
+3. Enter the **Destination address**: an email account or alias on this server, or an outside address. A destination on a domain hosted here must be an existing email account or alias: until it is, the catch-all does nothing.
 4. Click **Save**.
 
 ![Default Email Address page with the current catch-all configuration and the destination address field](/img/openpanel-screenshots/emails/default-form.png#gh-light-mode-only)
 ![Default Email Address page with the current catch-all configuration and the destination address field](/img/openpanel-screenshots/emails/default-form_dark.png#gh-dark-mode-only)
+
+:::warning
+Most mail sent to made-up addresses is spam. The best destination is an email account on the same domain with room to spare. An outside address gets that spam forwarded from the server, which can hurt the server's sending reputation, and a full mailbox bounces it back to forged senders.
+:::
 
 ## Removing a Catch-all
 
@@ -54914,6 +55497,8 @@ For each version, the current development status is displayed, highlighting doma
 
 Ensure you check your site's requirements before selecting the appropriate PHP version.
 
+Only the PHP versions your hosting provider offers are listed. If a version your website needs is missing, contact your hosting provider.
+
 ![PHP version for domains page listing each domain with its current PHP version and a dropdown to change it](/img/openpanel-screenshots/php/domains-list.png#gh-light-mode-only)
 ![PHP version for domains page listing each domain with its current PHP version and a dropdown to change it](/img/openpanel-screenshots/php/domains-list_dark.png#gh-dark-mode-only)
 
@@ -54960,6 +55545,8 @@ Each installed PHP version is shown as a card, newest first, with its support st
 | **No longer receives any patches** | End of life, you should definitely plan an upgrade. |
 
 The current default version is marked **Default**.
+
+Only the PHP versions your hosting provider offers are listed, so you may see fewer versions than on other servers.
 
 ## Change the Default Version
 

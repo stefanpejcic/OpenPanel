@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	accountsPage             = web.LoadPage("emails/accounts.html")
+	accountsPage             = web.LoadPage("emails/accounts.html", "partials/_account_created.html")
 	newEmailPage             = web.LoadPage("emails/new.html")
 	singleAccountPage        = web.LoadPage("emails/single_account.html")
 	deletePage               = web.LoadPage("emails/delete.html")
@@ -60,6 +60,7 @@ type AccountsPageData struct {
 	AliasInboxes   int
 	Full           bool
 	Connect        AccountsConnect
+	Created        CreatedMailbox // classic's connect block, Modern uses Connect
 }
 
 // AccountsConnect drives the "Connect a mail app" card, Created is the mailbox the create form just made
@@ -134,6 +135,13 @@ func oneDecimal(v float64) string {
 	return strings.TrimSuffix(strconv.FormatFloat(v, 'f', 1, 64), ".0")
 }
 
+// CreatedMailbox fills the connect section above the table, a blank Address hides it
+type CreatedMailbox struct {
+	Address string
+	Welcome bool
+	Conn    MailConnection
+}
+
 // emailQuotaToast mirrors accounts.html's ns.quota_issues + quota_toast_issues 1/2/multiple pluralization branch (percent_val > 80)
 func emailQuotaToast(rows []EmailListRow) (id, message string) {
 	type issue struct {
@@ -168,7 +176,7 @@ func emailQuotaToast(rows []EmailListRow) (id, message string) {
 	}
 }
 
-func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, currentEmailsList []string, domains []appctx.Domain, emailLimit int, maxEmailQuota string, aliases func() []AliasEntry, connect AccountsConnect) {
+func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, currentEmailsList []string, domains []appctx.Domain, emailLimit int, maxEmailQuota string, aliases func() []AliasEntry, connect AccountsConnect, created CreatedMailbox) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Emails")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -186,7 +194,7 @@ func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, c
 	}
 	toastID, toastMsg := emailQuotaToast(rows)
 	layout.BulkActions = accountsBulkActions(layout.T, maxEmailQuota)
-	data := AccountsPageData{LayoutData: layout, Rows: rows, TotalCount: len(currentEmailsList), QuotaToastID: toastID, QuotaToastMsg: toastMsg, Connect: connect}
+	data := AccountsPageData{LayoutData: layout, Rows: rows, TotalCount: len(currentEmailsList), QuotaToastID: toastID, QuotaToastMsg: toastMsg, Connect: connect, Created: created}
 	var aliasList []AliasEntry
 	if layout.UserAllowed["email_aliases"] {
 		aliasList = aliases()

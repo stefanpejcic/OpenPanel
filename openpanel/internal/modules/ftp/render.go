@@ -9,7 +9,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var ftpAccountsPage = web.LoadPage("files/ftp.html")
+var ftpAccountsPage = web.LoadPage("files/ftp.html", "partials/_account_created.html")
 var ftpConnectionsPage = web.LoadPage("files/ftp_connections.html")
 var ftpNewPage = web.LoadPage("files/ftp_new.html")
 var ftpPasswordPage = web.LoadPage("files/ftp_password.html")
@@ -22,6 +22,7 @@ type FTPAccountsPageData struct {
 	ServerIP, DedicatedIP string
 	FTPHost, FTPPort      string
 	Accounts              []Account
+	Created               Account // blank Username hides the connect section
 }
 
 func renderFTPAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, serverIP, dedicatedIP, ftpHost, ftpPort string, accounts []Account) {
@@ -31,10 +32,21 @@ func renderFTPAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 	layout.BulkActions = ftpBulkActions(layout.T)
-	data := FTPAccountsPageData{LayoutData: layout, ServerIP: serverIP, DedicatedIP: dedicatedIP, FTPHost: ftpHost, FTPPort: ftpPort, Accounts: accounts}
+	data := FTPAccountsPageData{LayoutData: layout, ServerIP: serverIP, DedicatedIP: dedicatedIP, FTPHost: ftpHost, FTPPort: ftpPort, Accounts: accounts, Created: createdAccount(r, accounts)}
 	if err := ftpAccountsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("FTP - accounts template render error: %v", err)
 	}
+}
+
+// createdAccount finds ?created= in this user's own accounts, anything else shows nothing
+func createdAccount(r *http.Request, accounts []Account) Account {
+	created := r.URL.Query().Get("created")
+	for _, account := range accounts {
+		if created != "" && account.Username == created {
+			return account
+		}
+	}
+	return Account{}
 }
 
 // FTPConnectionsPageData is ftp_connections.html's template context.

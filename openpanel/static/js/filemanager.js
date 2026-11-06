@@ -614,7 +614,7 @@ function initActionButtons() {
         const row  = document.querySelector('#filemanager_table tbody tr.selected-row');
         const cell = row.querySelector('td[data-download-url]');
         if (row.dataset.type !== 'directory' && cell?.dataset.downloadUrl) {
-            showToast(FM.i18n.downloadStarted.replace('{file}', row.dataset.file), 'loading');
+            showToast(FM.i18n.downloadStarted.replace('{file}', () => row.dataset.file), 'loading');
             window.location.href = cell.dataset.downloadUrl;
         }
     });
@@ -872,7 +872,8 @@ function fmPermSheet() {
 function escHTML(str) {
     const d = document.createElement('div');
     d.textContent = str;
-    return d.innerHTML;
+    // innerHTML leaves quotes alone and this also goes into attributes
+    return d.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 const joinPath = (...parts) => parts.filter(Boolean).join('/').replace(/\/+/g, '/').replace(/^\/|\/$/g, '');

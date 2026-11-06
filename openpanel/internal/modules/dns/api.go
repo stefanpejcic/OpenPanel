@@ -288,14 +288,15 @@ func apiDNSAddRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if strings.HasSuffix(name, domain) {
-		name += "."
+	requestedType := recordType
+	if !recordTypeSet(allowedDNSRecordTypes(a.Config))[recordType] {
+		writeAPIDNSJSON(w, http.StatusForbidden, map[string]string{"error": recordType + " records are not allowed on this server"})
+		return
 	}
-	if strings.HasSuffix(record, domain) {
-		record += "."
-	}
-	if recordType == "TXT" && !(strings.HasPrefix(record, `"`) && strings.HasSuffix(record, `"`)) {
-		record = `"` + record + `"`
+	name, recordType, record, normalizeErr := normalizeNewRecord(domain, name, recordType, record)
+	if normalizeErr != nil {
+		writeAPIDNSJSON(w, http.StatusBadRequest, map[string]string{"error": normalizeErr.Error()})
+		return
 	}
 	if recordType == "CNAME" && CnameRecordExists(ctx, a, path, name) {
 		writeAPIDNSJSON(w, http.StatusConflict, map[string]string{"error": "CNAME record with this name already exists"})
@@ -307,6 +308,20 @@ func apiDNSAddRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		newRecord = name + " " + ttl + " IN " + recordType + " " + priority + " " + record
 	} else {
 		newRecord = name + " " + ttl + " IN " + recordType + " " + record
+	}
+
+	currentZone, readErr := tenantfs.ReadFile(path)
+	if readErr != nil {
+		writeAPIDNSJSON(w, http.StatusInternalServerError, map[string]string{"error": readErr.Error()})
+		return
+	}
+	if requestedType == dmarcHelperType && dmarcExists(string(currentZone), name) {
+		writeAPIDNSJSON(w, http.StatusConflict, map[string]string{"error": "This name already has a DMARC record, edit that one instead"})
+		return
+	}
+	if checkErr := zoneWriteError(domain, string(currentZone), appendedZone(string(currentZone), newRecord)); checkErr != nil {
+		writeAPIDNSJSON(w, http.StatusBadRequest, map[string]string{"error": checkErr.Error()})
+		return
 	}
 
 	if writeErr := AppendZoneRecord(path, newRecord); writeErr != nil {
@@ -384,6 +399,11 @@ func apiDNSUpdateRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if editErr := checkRecordEdit(recordTypeSet(allowedDNSRecordTypes(a.Config)), domain, strings.Join(lines[rowID-1:endRowID], ""), newContent); editErr != nil {
+		writeAPIDNSJSON(w, http.StatusForbidden, map[string]string{"error": editErr.Error()})
+		return
+	}
+
 	newBlock := newContent
 	if !strings.HasSuffix(newBlock, "\n") {
 		newBlock += "\n"
@@ -392,6 +412,11 @@ func apiDNSUpdateRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	newLines = append(newLines, lines[:rowID-1]...)
 	newLines = append(newLines, newBlock)
 	newLines = append(newLines, lines[endRowID:]...)
+
+	if checkErr := zoneWriteError(domain, string(content), strings.Join(newLines, "")); checkErr != nil {
+		writeAPIDNSJSON(w, http.StatusBadRequest, map[string]string{"error": checkErr.Error()})
+		return
+	}
 
 	if writeErr := WriteZoneFile(path, []byte(strings.Join(newLines, ""))); writeErr != nil {
 		writeAPIDNSJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})

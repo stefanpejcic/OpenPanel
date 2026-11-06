@@ -78,6 +78,11 @@ func handleUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	if editErr := checkRecordEdit(recordTypeSet(allowedDNSRecordTypes(a.Config)), domain, strings.Join(lines[rowID-1:endRowID], ""), newContent); editErr != nil {
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"status": "error", "message": editErr.Error()})
+		return
+	}
+
 	newBlock := newContent
 	if !strings.HasSuffix(newBlock, "\n") {
 		newBlock += "\n"
@@ -86,6 +91,11 @@ func handleUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 	newLines = append(newLines, lines[:rowID-1]...)
 	newLines = append(newLines, newBlock)
 	newLines = append(newLines, lines[endRowID:]...)
+
+	if checkErr := zoneWriteError(domain, string(content), strings.Join(newLines, "")); checkErr != nil {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"status": "error", "message": checkErr.Error()})
+		return
+	}
 
 	if writeErr := WriteZoneFile(path, []byte(strings.Join(newLines, ""))); writeErr != nil {
 		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Error updating DNS record: " + writeErr.Error()})
@@ -214,14 +224,16 @@ func handleAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if strings.HasSuffix(name, domain) {
-		name += "."
+	recordType = strings.ToUpper(recordType)
+	requestedType := recordType
+	if !recordTypeSet(allowedDNSRecordTypes(a.Config))[recordType] {
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "%(type)s records are not allowed on this server.", "type", recordType), redirectTarget)
+		return
 	}
-	if strings.HasSuffix(record, domain) {
-		record += "."
-	}
-	if recordType == "TXT" && !(strings.HasPrefix(record, `"`) && strings.HasSuffix(record, `"`)) {
-		record = `"` + record + `"`
+	name, recordType, record, normalizeErr := normalizeNewRecord(domain, name, recordType, record)
+	if normalizeErr != nil {
+		web.FlashRedirect(a, w, r, "error", normalizeErr.Error(), redirectTarget)
+		return
 	}
 
 	var newRecord string
@@ -233,6 +245,20 @@ func handleAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	if recordType == "CNAME" && CnameRecordExists(ctx, a, path, name) {
 		web.FlashRedirect(a, w, r, "error", "CNAME record with this name already exists.", redirectTarget)
+		return
+	}
+
+	currentZone, readErr := tenantfs.ReadFile(path)
+	if readErr != nil {
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error adding DNS record: %(error)s", "error", readErr.Error()), redirectTarget)
+		return
+	}
+	if requestedType == dmarcHelperType && dmarcExists(string(currentZone), name) {
+		web.FlashRedirect(a, w, r, "error", "This name already has a DMARC record, edit that one instead.", redirectTarget)
+		return
+	}
+	if checkErr := zoneWriteError(domain, string(currentZone), appendedZone(string(currentZone), newRecord)); checkErr != nil {
+		web.FlashRedirect(a, w, r, "error", checkErr.Error(), redirectTarget)
 		return
 	}
 

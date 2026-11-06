@@ -7,6 +7,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
@@ -324,5 +325,71 @@ func TestRenderEnforcedPrefix(t *testing.T) {
 		if !strings.Contains(w.Body.String(), "john_") {
 			t.Errorf("%s: expected the john_ prefix on the page", name)
 		}
+	}
+}
+
+func TestRenderNewDatabaseCreated(t *testing.T) {
+	// asserts the classic theme's created-state markup
+	webtest.Classic(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	r := httptest.NewRequest("GET", "/mysql/new?created=app_db", nil)
+
+	render := func(allowed bool) string {
+		layout := baseLayout(mgr, "/mysql/new")
+		layout.UserAllowed["mysql_import"] = allowed
+		w := httptest.NewRecorder()
+		data := NewDatabasePageData{LayoutData: layout, Service: "mysql", Engine: web.MySQLEngine, Created: web.CreatedDBFromRequest(r, layout, "mysql", "mysql_import")}
+		if err := newDatabasePage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		return w.Body.String()
+	}
+
+	body := render(true)
+	for _, want := range []string{`/mysql/assign?database_name=app_db`, `/mysql/import/app_db`, `href="/mysql/user"`, `href="/mysql/new"`} {
+		if !strings.Contains(body, want) {
+			t.Errorf("expected %q in body", want)
+		}
+	}
+	if strings.Contains(body, `name="database_name"`) {
+		t.Error("create form should be replaced by the success section")
+	}
+	if body := render(false); strings.Contains(body, "/mysql/import/app_db") {
+		t.Error("import card shown without mysql_import")
+	}
+}
+
+func TestCreatedDBFromRequestRejectsBadNames(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	for _, q := range []string{"", "?created=", "?created=%3Cscript%3E", "?created=a%2Fb"} {
+		r := httptest.NewRequest("GET", "/mysql/new"+q, nil)
+		if got := web.CreatedDBFromRequest(r, baseLayout(mgr, "/mysql/new"), "mysql", "mysql_import"); got.Name != "" {
+			t.Errorf("%q: expected no created section, got %+v", q, got)
+		}
+	}
+}
+
+func TestRenderCreateUserCreated(t *testing.T) {
+	// asserts the classic theme's created-state markup
+	webtest.Classic(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	layout := baseLayout(mgr, "/mysql/user")
+	r := httptest.NewRequest("GET", "/mysql/user?created=app_user", nil)
+	w := httptest.NewRecorder()
+	data := CreateUserPageData{LayoutData: layout, Service: "mysql", Created: web.CreatedDBFromRequest(r, layout, "mysql", "")}
+	if err := createUserPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	for _, want := range []string{"/mysql/assign?database_user=app_user", "/mysql/password/app_user", `href="/mysql/users"`, `href="/mysql/user"`} {
+		if !strings.Contains(body, want) {
+			t.Errorf("expected %q in body", want)
+		}
+	}
+	if strings.Contains(body, `name="db_user"`) {
+		t.Error("create form should be replaced by the success section")
+	}
+	if strings.Contains(body, "generatePassword") {
+		t.Error("form script would throw without the form")
 	}
 }

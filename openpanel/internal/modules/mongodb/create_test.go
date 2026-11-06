@@ -14,8 +14,7 @@ import (
 func joinParts(parts ...string) string { return strings.Join(parts, "") }
 
 var (
-	shownOnce = joinParts("Pw-0nce", "-shown") // ggignore
-	wizValue  = joinParts("s3c", "r3t")        // ggignore
+	wizValue = joinParts("s3c", "r3t") // ggignore
 )
 
 var testNames = web.DBNames{
@@ -74,12 +73,12 @@ func TestRenderCreatePages(t *testing.T) {
 	}{
 		{"new database form", newDatabasePage, page(func(d *CreatePageData) { d.FormName = "typed_db" }),
 			[]string{`name="database_name"`, `"typed_db"`, `["shop"]`, "1 of 40 databases used", "mongodb", "27017", "/mongodb/wizard", "_init collection"}},
-		{"new database done", newDatabasePage, page(func(d *CreatePageData) { d.Created = "fresh_db" }),
+		{"new database done", newDatabasePage, page(func(d *CreatePageData) { d.Created = web.DBCreated{Name: "fresh_db", Slug: "mongodb", CanImport: true} }),
 			[]string{"Database created", "/mongodb/assign?database_name=fresh_db", "/mongodb/import/fresh_db"}},
 		{"new user form", createUserPage, page(func(d *CreatePageData) { d.FormName = "typed_user" }),
 			[]string{`name="db_user"`, `name="password"`, `"typed_user"`, `["app"]`, "Create MongoDB User"}},
-		{"new user done", createUserPage, page(func(d *CreatePageData) { d.Created, d.CreatedPassword = "fresh_user", shownOnce }), // ggignore
-			[]string{"User created", shownOnce, "/mongodb/assign?db_user=fresh_user"}},
+		{"new user done", createUserPage, page(func(d *CreatePageData) { d.Created = web.DBCreated{Name: "fresh_user", Slug: "mongodb"} }),
+			[]string{"User created", "/mongodb/assign?db_user=fresh_user"}},
 		{"wizard form", wizardPage, page(func(d *CreatePageData) { d.FormDatabaseName, d.FormDBUser = "typed_db", "typed_user" }),
 			[]string{`action="/mongodb/wizard"`, `"typed_db"`, `"typed_user"`, `name="role" value="dbOwner"`, "grantRolesToUser", "Already on this account"}},
 		{"wizard success", wizardPage, page(func(d *CreatePageData) {
@@ -101,7 +100,7 @@ func TestRenderCreatePages(t *testing.T) {
 				}
 			}
 			// the done states show what was made, never the form again
-			if (c.data.Created != "" || c.data.Success) && strings.Contains(body, `name="password"`+" ") {
+			if (c.data.Created.Name != "" || c.data.Success) && strings.Contains(body, `name="password"`+" ") {
 				t.Error("done state shouldn't render the form")
 			}
 		})

@@ -81,10 +81,16 @@ func ZoneDirectiveError(content string) string {
 
 // WriteZoneFile writes a zone after the directive check, every tenant-driven zone write goes through here
 func WriteZoneFile(path string, data []byte) error {
-	if msg := ZoneDirectiveError(string(data)); msg != "" {
+	content := NormalizeZoneLineEndings(string(data))
+	if msg := ZoneDirectiveError(content); msg != "" {
 		return fmt.Errorf("%s", msg)
 	}
-	return tenantfs.WriteFile(path, data, 0o644)
+	return tenantfs.WriteFile(path, []byte(content), 0o644)
+}
+
+// zones from older templates are CRLF, a lone \r is still refused by ZoneDirectiveError
+func NormalizeZoneLineEndings(content string) string {
+	return strings.ReplaceAll(content, "\r\n", "\n")
 }
 
 // AppendZoneRecord adds one record line to a zone, it goes through the same directive check as WriteZoneFile

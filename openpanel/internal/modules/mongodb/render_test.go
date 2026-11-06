@@ -151,3 +151,41 @@ func TestRenderProcessListPage(t *testing.T) {
 		t.Error("expected processlist link in the sidebar")
 	}
 }
+
+func TestRenderNewDatabaseCreated(t *testing.T) {
+	// asserts the classic theme's created-state markup
+	webtest.Classic(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	layout := baseLayout(mgr, "/mongodb/new")
+	r := httptest.NewRequest("GET", "/mongodb/new?created=app_db", nil)
+	data := struct {
+		web.LayoutData
+		Created web.DBCreated
+	}{layout, web.CreatedDBFromRequest(r, layout, "mongodb", "mongodb_import")}
+	w := httptest.NewRecorder()
+	if err := newDatabasePage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	if body := w.Body.String(); !strings.Contains(body, "/mongodb/import/app_db") || !strings.Contains(body, "/mongodb/assign?database_name=app_db") {
+		t.Error("expected assign and import links for the new database")
+	}
+}
+
+func TestRenderCreateUserCreated(t *testing.T) {
+	// asserts the classic theme's created-state markup
+	webtest.Classic(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	layout := baseLayout(mgr, "/mongodb/user")
+	r := httptest.NewRequest("GET", "/mongodb/user?created=app_user", nil)
+	data := struct {
+		web.LayoutData
+		Created web.DBCreated
+	}{layout, web.CreatedDBFromRequest(r, layout, "mongodb", "")}
+	w := httptest.NewRecorder()
+	if err := createUserPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	if body := w.Body.String(); !strings.Contains(body, "/mongodb/assign?database_user=app_user") || !strings.Contains(body, "/mongodb/password/app_user") {
+		t.Error("expected assign and password links for the new user")
+	}
+}

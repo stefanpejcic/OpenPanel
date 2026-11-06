@@ -14,8 +14,7 @@ import (
 func joinParts(parts ...string) string { return strings.Join(parts, "") }
 
 var (
-	shownOnce = joinParts("Pw-0nce", "-shown") // ggignore
-	wizValue  = joinParts("s3cr3t", "'pw")     // ggignore
+	wizValue = joinParts("s3cr3t", "'pw") // ggignore
 )
 
 var testNames = web.DBNames{
@@ -98,7 +97,7 @@ func TestRenderCreatePages(t *testing.T) {
 
 	t.Run("new database done", func(t *testing.T) {
 		body := render(t, newDatabasePage, NewDatabasePageData{
-			LayoutData: baseLayout(mgr, "/mysql/new"), Service: "mysql", Engine: web.MySQLEngine, Created: "fresh_db",
+			LayoutData: baseLayout(mgr, "/mysql/new"), Service: "mysql", Engine: web.MySQLEngine, Created: web.DBCreated{Name: "fresh_db", Slug: "mysql", CanImport: true},
 		})
 		wantAll(t, body, "Database created", "fresh_db", "/mysql/assign?database_name=fresh_db", "/mysql/import/fresh_db", "/mysql/new")
 		if strings.Contains(body, `name="database_name"`) {
@@ -115,9 +114,9 @@ func TestRenderCreatePages(t *testing.T) {
 
 	t.Run("new user done", func(t *testing.T) {
 		body := render(t, createUserPage, CreateUserPageData{
-			LayoutData: baseLayout(mgr, "/mysql/user"), Service: "mysql", Engine: web.MySQLEngine, Created: "fresh_user", CreatedPassword: shownOnce, // ggignore
+			LayoutData: baseLayout(mgr, "/mysql/user"), Service: "mysql", Engine: web.MySQLEngine, Created: web.DBCreated{Name: "fresh_user", Slug: "mysql"},
 		})
-		wantAll(t, body, "User created", "fresh_user", shownOnce, "/mysql/assign?db_user=fresh_user", "localhost", "3306")
+		wantAll(t, body, "User created", "fresh_user", "/mysql/assign?db_user=fresh_user", "localhost", "3306")
 		if strings.Contains(body, `name="password"`) {
 			t.Error("done state shouldn't render the form")
 		}

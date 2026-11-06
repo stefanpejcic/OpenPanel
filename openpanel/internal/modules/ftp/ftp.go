@@ -329,7 +329,7 @@ func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		if strings.Contains(string(out), "Success: FTP user") {
 			_ = logger.RecordUserAction(a.Config, currentUsername, "created FTP account "+ftpUsername, reqip.ClientIP(r))
 			_ = a.Cache.Delete(ctx, "count_ftp_accounts:"+userContext)
-			flashAndRedirectToAccounts(a, w, r, "success", web.Tr(a, r, "FTP account %(ftp_username)s created successfully.", "ftp_username", ftpUsername))
+			http.Redirect(w, r, "/ftp?created="+url.QueryEscape(ftpUsername), http.StatusFound)
 			return
 		}
 		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to create FTP account %(ftp_username)s: %(output)s", "ftp_username", ftpUsername, "output", string(out)), back)

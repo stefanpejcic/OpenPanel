@@ -75,6 +75,17 @@ Domain example.com added successfully
 ```
 </details>
 
+On the Community edition (no `key` in the panel config) a server can have 50 domains in total, subdomains and domains of all users included. Over that, the command refuses to add the domain:
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli domains-add example.com stefan
+ERROR: Community edition is limited to 50 domains. Upgrade to Enterprise for unlimited domains.
+```
+</details>
+
 The domain's mail folder and DNS zone are also mounted read-only into the user's `backup` service (`backup/emails/<domain>` and `backup/dns/<domain>.zone` in the user's `docker-compose.yml`), so both end up in their backups. If the user runs backups on their own schedule and the backup container is running, it's recreated to pick up the new mounts.
 
 ### Custom Docroot

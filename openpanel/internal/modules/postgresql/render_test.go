@@ -173,3 +173,42 @@ func TestRenderAllPages(t *testing.T) {
 		}
 	})
 }
+
+func TestRenderNewDatabaseCreated(t *testing.T) {
+	// asserts the classic theme's created-state markup
+	webtest.Classic(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	layout := baseLayout(mgr, "/postgresql/new")
+	r := httptest.NewRequest("GET", "/postgresql/new?created=app_db", nil)
+	data := struct {
+		web.LayoutData
+		Engine  web.DBEngine
+		Created web.DBCreated
+	}{layout, web.PostgreSQLEngine, web.CreatedDBFromRequest(r, layout, "postgresql", "postgresql_import")}
+	w := httptest.NewRecorder()
+	if err := newDatabasePage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	if body := w.Body.String(); !strings.Contains(body, "/postgresql/import/app_db") || !strings.Contains(body, "/postgresql/assign?database_name=app_db") {
+		t.Error("expected assign and import links for the new database")
+	}
+}
+
+func TestRenderCreateUserCreated(t *testing.T) {
+	// asserts the classic theme's created-state markup
+	webtest.Classic(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	layout := baseLayout(mgr, "/postgresql/user")
+	r := httptest.NewRequest("GET", "/postgresql/user?created=app_user", nil)
+	data := struct {
+		web.LayoutData
+		Created web.DBCreated
+	}{layout, web.CreatedDBFromRequest(r, layout, "postgresql", "")}
+	w := httptest.NewRecorder()
+	if err := createUserPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	if body := w.Body.String(); !strings.Contains(body, "/postgresql/assign?database_user=app_user") || !strings.Contains(body, "/postgresql/password/app_user") {
+		t.Error("expected assign and password links for the new user")
+	}
+}

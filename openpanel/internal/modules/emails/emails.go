@@ -361,19 +361,6 @@ func newEmailFieldError(username, password string, threshold int) string {
 	return ""
 }
 
-// addFailureReason picks what to show when opencli email add fails, some errors (no license, no mailserver) only go to stdout
-func addFailureReason(stderr, stdout string) string {
-	if s := strings.TrimSpace(stderr); s != "" {
-		return s
-	}
-	for _, line := range strings.Split(stdout, "\n") {
-		if line = strings.TrimSpace(line); line != "" {
-			return strings.TrimPrefix(line, "Error: ")
-		}
-	}
-	return "command failed"
-}
-
 func addressTaken(lines []string, email string) bool {
 	for _, addr := range addressesOf(lines) {
 		if strings.EqualFold(addr, email) {
@@ -389,6 +376,29 @@ func mailConnectHost(ctx context.Context, a *appctx.App, username string) (strin
 		return a.ForceDomain, sysinfo.HasSSL(ctx, a.Cache, a.ForceDomain)
 	}
 	return a.GetCachedIPForUserOrPublicIPv4(ctx, username), false
+}
+
+// docker-mailserver colors its errors even without a terminal
+var emailAnsiRE = regexp.MustCompile(`\x1b\[[0-9;]*m`)
+
+// emailAddFailure reads the result of `opencli email-setup email add`: a non-zero exit always failed, and so does stdout without one since success prints nothing, except the known harmless quota messages
+func emailAddFailure(cmdErr error, stdout, stderr string) (string, bool) {
+	stdout, stderr = strings.TrimSpace(emailAnsiRE.ReplaceAllString(stdout, "")), strings.TrimSpace(emailAnsiRE.ReplaceAllString(stderr, ""))
+	if cmdErr == nil && stdout == "" {
+		return "", false
+	}
+	if cmdErr == nil && (strings.Contains(stderr, "Supplied non-number argument") || strings.Contains(stderr, "User doesn't exist")) {
+		return "", false
+	}
+	switch {
+	case stderr != "":
+		return stderr, true
+	case stdout != "":
+		// some errors (no license, no mailserver) only go to stdout, the first line is the message
+		line, _, _ := strings.Cut(stdout, "\n")
+		return strings.TrimPrefix(strings.TrimSpace(line), "Error: "), true
+	}
+	return "command failed", true
 }
 
 // handleEmailsNew mirrors emails_new().
@@ -480,14 +490,9 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		var stderrBuf strings.Builder
 		cmd.Stderr = &stderrBuf
 		stdout, cmdErr := cmd.Output()
-		// mirrors emails_new(): a zero-exit run with non-empty stdout is ALSO treated as a failure (opencli's success case prints nothing)
-		if cmdErr != nil || strings.TrimSpace(string(stdout)) != "" {
-			stderrStr := strings.TrimSpace(stderrBuf.String())
-			if !strings.Contains(stderrStr, "Supplied non-number argument") && !strings.Contains(stderrStr, "User doesn't exist") {
-				msg := addFailureReason(stderrStr, string(stdout))
-				web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to add email %(email)s: %(msg)s", "email", email, "msg", msg), back)
-				return
-			}
+		if msg, failed := emailAddFailure(cmdErr, string(stdout), stderrBuf.String()); failed {
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to add email %(email)s: %(msg)s", "email", email, "msg", msg), back)
+			return
 		}
 
 		if gb != "" {
@@ -732,7 +737,25 @@ func handleEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	connect.Host, connect.Secure = mailConnectHost(ctx, a, currentUsername)
-	renderAccountsPage(a, w, r, currentEmailsList, domains, emailLimit, maxEmailQuota, aliases, connect)
+	// classic shows the same mailbox through its own Created block
+	created := createdMailboxFromRequest(r, userDomains)
+	if created.Address != "" {
+		created.Conn = currentMailConnection(ctx, a, currentUsername)
+	}
+	renderAccountsPage(a, w, r, currentEmailsList, domains, emailLimit, maxEmailQuota, aliases, connect, created)
+}
+
+// createdMailboxFromRequest reads ?created=&welcome=, ignoring addresses on domains this account doesn't own
+func createdMailboxFromRequest(r *http.Request, userDomains map[string]bool) CreatedMailbox {
+	address := r.URL.Query().Get("created")
+	if !isValidEmail(address) {
+		return CreatedMailbox{}
+	}
+	_, domain, _ := strings.Cut(address, "@")
+	if !userDomains[domain] {
+		return CreatedMailbox{}
+	}
+	return CreatedMailbox{Address: address, Welcome: r.URL.Query().Get("welcome") == "1"}
 }
 
 func handleSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, email string, userID int, currentUsername string, userDomains map[string]bool) {
@@ -922,15 +945,59 @@ func handleEmailsServerInfo(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	_, currentUsername, _, err := auth.Injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	conn := currentMailConnection(r.Context(), a, currentUsername)
 	scheme := "http"
-	if a.ForceDomain != "" && sysinfo.HasSSL(r.Context(), a.Cache, a.ForceDomain) {
+	if conn.SSL {
 		scheme = "https"
 	}
 
-	renderInfoPage(a, w, r, address, scheme, a.ForceDomain)
+	renderInfoPage(a, w, r, address, scheme, conn.Host)
 }
 
 // CONNECT DEVICES
+
+// MailConnection is how a mail app reaches this server, there's one mode per server and clients can't pick another
+type MailConnection struct {
+	Host     string
+	IMAPPort int
+	SMTPPort int
+	Security string
+	SSL      bool
+}
+
+// mailConnectionFor maps the server's mode to its settings, without a certificate the mailserver has no TLS at all
+func mailConnectionFor(ssl bool, host string) MailConnection {
+	if ssl {
+		return MailConnection{Host: host, IMAPPort: 993, SMTPPort: 465, Security: "SSL/TLS", SSL: true}
+	}
+	return MailConnection{Host: host, IMAPPort: 143, SMTPPort: 587, Security: "No encryption"}
+}
+
+// currentMailConnection uses the panel domain when it has a certificate since that's what the cert covers, otherwise the IP
+func currentMailConnection(ctx context.Context, a *appctx.App, username string) MailConnection {
+	if a.ForceDomain != "" && sysinfo.HasSSL(ctx, a.Cache, a.ForceDomain) {
+		return mailConnectionFor(true, a.ForceDomain)
+	}
+	host := getDedicatedOrSharedIP(ctx, username)
+	if host == "mail.example.com" && a.ForceDomain != "" {
+		host = a.ForceDomain
+	}
+	return mailConnectionFor(false, host)
+}
+
+// appleSSLValue is the plist value for the mobileconfig UseSSL keys
+func (c MailConnection) appleSSLValue() string {
+	if c.SSL {
+		return "<true />"
+	}
+	return "<false />"
+}
 
 // handleEmailConfiguration mirrors email_configuration().
 func handleEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -958,21 +1025,8 @@ func handleEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	sslParam := strings.ToLower(r.URL.Query().Get("ssl"))
-	if sslParam == "" {
-		sslParam = "true"
-	}
-	sslEnabled := sslParam == "1" || sslParam == "true" || sslParam == "yes"
-
-	var incomingPort, outgoingPort int
-	var encryption, sslTrueFalse string
-	if sslEnabled {
-		incomingPort, outgoingPort, encryption, sslTrueFalse = 993, 465, "SSL/TLS", "<true />"
-	} else {
-		incomingPort, outgoingPort, encryption, sslTrueFalse = 143, 587, "STARTTLS", "<false />"
-	}
-
-	mailHost := getDedicatedOrSharedIP(ctx, currentUsername)
+	conn := currentMailConnection(ctx, a, currentUsername)
+	mailHost, incomingPort, outgoingPort, encryption, sslTrueFalse := conn.Host, conn.IMAPPort, conn.SMTPPort, conn.Security, conn.appleSSLValue()
 	username, domain, _ := strings.Cut(account, "@")
 
 	var content, filename, mimetype string
@@ -999,7 +1053,7 @@ func handleEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		innerUUID := uuid.New().String()
 		outerUUID := uuid.New().String()
 		payloadIdentifierBase := mailHost + "." + domain
-		description := account + " Secure Email Setup"
+		description := account + " Email Setup"
 		content = fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">

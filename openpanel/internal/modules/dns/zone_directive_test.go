@@ -35,3 +35,16 @@ func TestAppendZoneRecordRefusesDirectives(t *testing.T) {
 		t.Fatalf("normal record refused: %v", err)
 	}
 }
+
+func TestNormalizeZoneLineEndings(t *testing.T) {
+	got := NormalizeZoneLineEndings("$TTL 1h\r\nwww IN A 1.1.1.1\r\n")
+	if got != "$TTL 1h\nwww IN A 1.1.1.1\n" {
+		t.Errorf("got %q", got)
+	}
+	if msg := ZoneDirectiveError(got); msg != "" {
+		t.Errorf("a CRLF zone should save once normalized: %s", msg)
+	}
+	if msg := ZoneDirectiveError(NormalizeZoneLineEndings("www IN A 1.1.1.1\r$INCLUDE /etc/passwd\n")); msg == "" {
+		t.Error("a lone carriage return has to stay refused")
+	}
+}

@@ -223,6 +223,8 @@ To transfer user account to another server:
 opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--port 22] [--force] [--live-transfer]
 ```
 
+The transfer is refused before anything is copied when the destination runs the Community edition and the account's domains would bring it over 50 domains. It's also refused when the destination already has 3 or more user accounts, unless both servers have an Enterprise license.
+
 <details>
   <summary>Example output</summary>
 
@@ -327,6 +329,8 @@ To restore a user account from a `.tar.gz` backup created with `user-backup`:
 ```bash
 opencli user-restore --file <ARCHIVE> [--force] [--new-username=<NAME>] [--reseller=<NAME>] [--temp-dir=<PATH>] [--quiet]
 ```
+
+On the Community edition the restore is refused before anything is created when the backup's domains would bring the server over 50 domains.
 
 `--reseller=<NAME>` restores the account for a reseller: it's refused when the reseller has reached their account or disk limit, when the plan from the backup doesn't exist or isn't assigned to the reseller, or together with `--force`. The restored account is owned by the reseller.
 

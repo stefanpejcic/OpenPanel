@@ -981,7 +981,7 @@ Mail queue is empty
 
 `opencli email-setup` command is used to create and manage email accounts. It runs the [docker-mailserver `setup`](https://docker-mailserver.github.io/docker-mailserver/latest/config/setup.sh/) command inside the mailserver container.
 
-Commands that add, change or delete email accounts, aliases, quotas, restrictions, relay settings or Dovecot master accounts print no output when they succeed. If the mailserver is not running, the change is written directly to the mailserver configuration files and this warning is shown:
+Commands that add, change or delete email accounts, aliases, quotas, restrictions, relay settings or Dovecot master accounts print no output when they succeed and exit with a non-zero code when they fail. If the mailserver is not running, or podman reports it as running but commands can't be executed inside it, the change is written directly to the mailserver configuration files and this warning is shown:
 
 <details>
   <summary>Example output</summary>
@@ -991,6 +991,8 @@ Commands that add, change or delete email accounts, aliases, quotas, restriction
 Warning: 'openadmin_mailserver' is not running - writing directly to mailserver config files instead.
 ```
 </details>
+
+After adding an account this way, the mailserver is recreated in the background if it is still not responding 15 seconds later. docker-mailserver doesn't stay up without an email account, so this is the normal path for the first account on a new server.
 
 To view a list of all available sub-commands:
 

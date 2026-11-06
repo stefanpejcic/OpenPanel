@@ -228,7 +228,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		// errors keep the typed name in the form instead of bouncing to an empty one
 		fail := func(message string) {
 			web.Flash(a, w, r, "error", message)
-			renderNewDatabasePage(a, w, r, mysqlVersion, typed, "")
+			renderNewDatabasePage(a, w, r, mysqlVersion, typed)
 		}
 		if msg := checkNewDatabase(databaseName, loadNames(ctx, userContext)); msg != "" {
 			fail(web.Tr(a, r, msg))
@@ -259,12 +259,11 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created a MySQL database "+databaseName, ipAddress)
-		web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created a database %(database_name)s", "database_name", databaseName))
-		renderNewDatabasePage(a, w, r, mysqlVersion, "", databaseName)
+		http.Redirect(w, r, web.CreatedDBURL("mysql", databaseName), http.StatusFound)
 		return
 	}
 
-	renderNewDatabasePage(a, w, r, mysqlVersion, "", "")
+	renderNewDatabasePage(a, w, r, mysqlVersion, "")
 }
 
 // handleDeleteDatabase drops a database.

@@ -48,17 +48,18 @@ function showToast(message, type, isPermanent = false, link = false) {
 
     // {label, href} or {label, onClick} adds a neutral action like Open or Undo, a plain string keeps the old red Cancel link
     let action = null;
+    const linkHref = typeof link === 'string' ? link : '';
     if (link && typeof link === 'object') {
         action = link;
         link = `
             ${action.href
-                ? `<a href="${action.href}" data-toast-action class="flex flex-1 items-center justify-center px-6 text-sm font-semibold transition-colors hover:bg-gray-50 hover:dark:bg-gray-900/30 active:bg-gray-100 active:dark:bg-gray-800 text-indigo-600 dark:text-indigo-400"></a>`
+                ? `<a data-toast-action class="flex flex-1 items-center justify-center px-6 text-sm font-semibold transition-colors hover:bg-gray-50 hover:dark:bg-gray-900/30 active:bg-gray-100 active:dark:bg-gray-800 text-indigo-600 dark:text-indigo-400"></a>`
                 : `<button type="button" data-toast-action class="flex flex-1 items-center justify-center px-6 text-sm font-semibold transition-colors hover:bg-gray-50 hover:dark:bg-gray-900/30 active:bg-gray-100 active:dark:bg-gray-800 text-indigo-600 dark:text-indigo-400"></button>`}
             <div class="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
         `;
     } else if (link) {
         link = `
-            <a href="${link}" class="flex flex-1 items-center justify-center px-6 text-sm font-semibold transition-colors hover:bg-gray-50 hover:dark:bg-gray-900/30 active:bg-gray-100 active:dark:bg-gray-800 text-red-600 dark:text-red-500">${window.ToastI18n?.cancel || 'Cancel'}</a>
+            <a data-toast-link class="flex flex-1 items-center justify-center px-6 text-sm font-semibold transition-colors hover:bg-gray-50 hover:dark:bg-gray-900/30 active:bg-gray-100 active:dark:bg-gray-800 text-red-600 dark:text-red-500">${window.ToastI18n?.cancel || 'Cancel'}</a>
             <div class="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
         `;
     } else {
@@ -150,7 +151,7 @@ function showToast(message, type, isPermanent = false, link = false) {
             </svg>
             <div class="flex flex-col gap-1">
                 <div class="text-sm font-semibold text-gray-900 dark:text-gray-50">${text}</div>
-                <div class="text-sm text-gray-600 dark:text-gray-400" id="toastMessage">${message}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400" id="toastMessage" style="white-space: pre-line; max-width: 32rem; max-height: 12rem; overflow-y: auto; overflow-wrap: anywhere;"></div>
             </div>
         </div>
         <div class="flex flex-col">
@@ -161,9 +162,14 @@ function showToast(message, type, isPermanent = false, link = false) {
         </div>
     `;
 
+    // always plain text, callers pass server output in here, use link for anything clickable
+    toastElement.querySelector('#toastMessage').textContent = message;
+    if (linkHref) toastElement.querySelector('[data-toast-link]').setAttribute('href', linkHref);
+
     if (action) {
         const actionEl = toastElement.querySelector('[data-toast-action]');
         actionEl.textContent = action.label;
+        if (action.href) actionEl.setAttribute('href', action.href);
         if (action.onClick) {
             actionEl.addEventListener('click', () => {
                 removeToast(toastElement);

@@ -48,9 +48,39 @@ Settings for OpenPanel user accounts:
 - **Allow Subdomain Sharing:** If allowed, users can add subdomains for domains that another user owns.
 - **Forbidden Usernames:** List of usernames that can not be used, one per line.
 - **Restricted Domains:** List of domains that can not be used, one per line.
+- **DNS record types users can add and edit:** Record types offered in the [DNS Zone Editor](/docs/panel/domains/dns/). See [DNS record types](#dns-record-types).
 
 ![Users section with toggles for what OpenPanel users can change](/img/openadmin-screenshots/settings/openpanel-users.png#gh-light-mode-only)
 ![Users section with toggles for what OpenPanel users can change](/img/openadmin-screenshots/settings/openpanel-users_dark.png#gh-dark-mode-only)
+
+### DNS record types
+
+Choose which record types users can add and edit in the OpenPanel [DNS Zone Editor](/docs/panel/domains/dns/). Click a type to turn it on or off, or click **Restore Default** to go back to the default list.
+
+| Type | On by default | Used for |
+|---|---|---|
+| `A`, `AAAA` | Yes | IPv4 and IPv6 address of a name |
+| `CAA` | Yes | Which certificate authorities can issue SSL for the domain |
+| `CNAME` | Yes | Alias to another name |
+| `MX` | Yes | Mail servers for the domain |
+| `SRV` | Yes | Host and port of a service |
+| `TLSA` | Yes | Certificate pinning with DANE |
+| `TXT` | Yes | Text values, such as SPF and verification records |
+| `HTTPS`, `SVCB` | No | Connection hints for browsers and other clients |
+| `NS` | No | Delegates a subdomain to other nameservers, the domain itself is refused |
+| `SSHFP` | No | SSH host key fingerprints |
+| `URI` | No | Maps a name to a URL |
+| `DMARC` | No | Form helper that saves a `TXT` record on `_dmarc`, not a real record type |
+
+Save the settings and restart OpenPanel for the change to apply.
+
+What changes for users:
+
+- The add and edit forms only offer the allowed types, and adding or editing any other type is refused, also through the API.
+- Existing records of other types stay in the zone and keep working. Users can't edit them, but they can delete them.
+- The [Advanced Editor](/docs/panel/domains/dns/#advanced-editor) edits the zone file directly, so it isn't limited by this setting.
+
+The value is saved as `dns_record_types` and can also be [set with OpenCLI](/docs/articles/opencli/config/#dns_record_types).
 
 ## Display
 

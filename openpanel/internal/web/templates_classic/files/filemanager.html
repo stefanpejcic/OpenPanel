@@ -204,8 +204,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const searchText = searchInput.value.toLowerCase();
         const folderFilter = searchFolder.value.trim();
 
-        let dropdownItems = '';
-
         const searchFilesEnabled = toggleFiles.checked;
         const searchFoldersEnabled = toggleFolders.checked;
 
@@ -234,71 +232,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const [filesData, foldersData] = await Promise.all(requests);
 
-        const currentQuery = window.location.search;
+        const matches = data => data.filter(item => (item.name || '').toLowerCase().includes(searchText));
+        const items = [
+            ...matches(foldersData).map(item => searchResultItem(item, 'text-orange-500 mr-2', 'bi bi-folder-fill')),
+            ...matches(filesData).map(item => searchResultItem(item, 'mr-2', 'bi bi-file-earmark')),
+        ];
 
-        foldersData.forEach(item => {
-            const itemName = (item.name || '').toLowerCase();
-            const linkTarget = item.path || '';
-
-            if (itemName.includes(searchText)) {
-                const fullLink =
-                    `${window.location.protocol}//${window.location.host}/files/${linkTarget}${currentQuery}`;
-
-                dropdownItems += `
-                    <li class="p-1 border-r border-gray-200 dark:border-gray-800">
-                        <h3 class="m-0">
-                            <a class="flex" href="${fullLink}">
-                                <span class="text-orange-500 mr-2">
-                                    <i class="bi bi-folder-fill"></i>
-                                </span>
-                                ${item.name}
-                                <br>
-                                <p class="dropdown-item-description"
-                                   style="display:contents;font-size:0.7em;">
-                                    ${linkTarget}
-                                </p>
-                            </a>
-                        </h3>
-                    </li>`;
-            }
-        });
-
-        filesData.forEach(item => {
-            const itemName = (item.name || '').toLowerCase();
-            const linkTarget = item.path || '';
-
-            if (itemName.includes(searchText)) {
-                const fullLink =
-                    `${window.location.protocol}//${window.location.host}/files/${linkTarget}${currentQuery}`;
-
-                dropdownItems += `
-                    <li class="p-1 border-r border-gray-200 dark:border-gray-800">
-                        <h3 class="m-0">
-                            <a class="flex" href="${fullLink}">
-                                <span class="mr-2">
-                                    <i class="bi bi-file-earmark"></i>
-                                </span>
-                                ${item.name}
-                                <br>
-                                <p class="dropdown-item-description"
-                                   style="display:contents;font-size:0.7em;">
-                                    ${linkTarget}
-                                </p>
-                            </a>
-                        </h3>
-                    </li>`;
-            }
-        });
-
-        if (dropdownItems) {
-            dropdown.innerHTML = dropdownItems;
+        dropdown.replaceChildren(...items);
+        if (items.length) {
             dropdown.style.display = '';
             dropdown.classList.add('p-1');
         } else {
-            dropdown.innerHTML = '';
             dropdown.style.display = 'none';
             dropdown.classList.remove('p-1');
         }
+    }
+
+    // names come from the volume so anyone with FTP or site code can pick them, never build this from a html string
+    function searchResultItem(item, iconWrapClass, iconClass) {
+        const linkTarget = item.path || '';
+        const li = document.createElement('li');
+        li.className = 'p-1 border-r border-gray-200 dark:border-gray-800';
+        li.innerHTML = `
+            <h3 class="m-0">
+                <a class="flex">
+                    <span class="${iconWrapClass}"><i class="${iconClass}"></i></span>
+                    <span data-name></span>
+                    <br>
+                    <p class="dropdown-item-description" style="display:contents;font-size:0.7em;"></p>
+                </a>
+            </h3>`;
+        li.querySelector('a').href = '/files/' + linkTarget.split('/').map(encodeURIComponent).join('/') + window.location.search;
+        li.querySelector('[data-name]').textContent = item.name;
+        li.querySelector('p').textContent = linkTarget;
+        return li;
     }
 
     searchInput?.addEventListener('input', doSearch);

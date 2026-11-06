@@ -47,14 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <input type="hidden" name="Domain" value="{{.Domain}}">
             <label class="op-field"><span class="op-label">{{.T.Get "Type"}}</span>
                 <select name="Type" class="op-select" required onchange="updateForm()">
-                    <option value="A">A</option>
-                    <option value="AAAA">AAAA</option>
-                    <option value="CAA">CAA</option>
-                    <option value="CNAME">CNAME</option>
-                    <option value="MX">MX</option>
-                    <option value="SRV">SRV</option>
-                    <option value="TLSA">TLSA</option>
-                    <option value="TXT">TXT</option>
+                    {{range .RecordTypes}}<option value="{{.}}">{{$.T.Get .}}</option>{{end}}
                 </select>
             </label>
             <label class="op-field"><span class="op-label">{{.T.Get "Name"}}</span>
@@ -70,6 +63,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 <input type="number" name="TTL" class="op-input op-mono" required min="60" value="14400">
             </label>
             <button type="submit" class="op-btn op-btn-primary" id="save-row">{{template "op_icon" "plus"}} {{.T.Get "Add Record"}}</button>
+
+            <div id="dmarc_helper" class="op-dns-tlsa" style="display:none;">
+                <label class="op-field"><span class="op-label">{{.T.Get "Policy for mail that fails the check"}}</span>
+                    <select id="dmarc_policy" class="op-select" onchange="dmarcBuild()">
+                        <option value="none">{{.T.Get "none: only report"}}</option>
+                        <option value="quarantine">{{.T.Get "quarantine: send to spam"}}</option>
+                        <option value="reject">{{.T.Get "reject: refuse the message"}}</option>
+                    </select>
+                </label>
+                <label class="op-field"><span class="op-label">{{.T.Get "Email for reports (optional)"}}</span>
+                    <input type="email" id="dmarc_rua" class="op-input op-mono" data-no-live-validate oninput="dmarcBuild()" placeholder="postmaster@{{.Domain}}">
+                </label>
+            </div>
 
             <div id="tlsa_helper" class="op-dns-tlsa" style="display:none;">
                 <div class="op-row">
@@ -134,8 +140,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td class="is-shrink op-cell-menu" x-data="opMenu()" @click.outside="open = false" @keydown.escape="open = false" @scroll.window="open = false" @resize.window="open = false">
                         <button x-ref="btn" class="op-icon-btn" type="button" :aria-expanded="open.toString()" @click="toggle()" aria-label="{{$.T.Get "Actions for"}} {{.Name}} {{.Type}}">{{template "op_icon" "dots"}}</button>
                         <div x-ref="menu" class="op-menu" x-show="open" x-cloak>
-                            <button type="button" class="edit-button" @click="open = false">{{template "op_icon" "pencil"}} {{$.T.Get "Edit"}}</button>
-                            <hr>
+                            {{if index $.EditableType .Type}}<button type="button" class="edit-button" @click="open = false">{{template "op_icon" "pencil"}} {{$.T.Get "Edit"}}</button>
+                            <hr>{{end}}
                             <button type="button" class="delete-button is-danger">{{template "op_icon" "trash"}} <span>{{$.T.Get "Delete"}}</span></button>
                         </div>
                     </td>
@@ -167,6 +173,18 @@ document.addEventListener('DOMContentLoaded', function () {
         ttl: {{toJSON (.T.Get "TTL")}},
         unexpectedError: {{toJSON (.T.Get "An unexpected error occurred. Please try again.")}}
     };
+    const dnsEditTypes = {{toJSON .EditTypes}};
+    // what the DMARC helper wrote, so leaving it only clears its own values
+    var dmarcFilled = { record: "" };
+
+    function dmarcBuild() {
+        var rua = document.getElementById("dmarc_rua").value.trim();
+        var record = "v=DMARC1; p=" + document.getElementById("dmarc_policy").value;
+        if (rua) record += "; rua=mailto:" + rua;
+        document.getElementsByName("Record")[0].value = record;
+        dmarcFilled.record = record;
+    }
+
     function updateForm() {
         var selectedType = document.getElementsByName("Type")[0].value;
         var recordInput = document.getElementsByName("Record")[0];
@@ -177,6 +195,14 @@ document.addEventListener('DOMContentLoaded', function () {
         tlsaHelper.style.display = "none";
         var warningEl = document.getElementById("tlsa_renewal_warning");
         if (warningEl) { warningEl.style.display = "none"; }
+
+        var dmarcHelper = document.getElementById("dmarc_helper");
+        dmarcHelper.style.display = selectedType === "DMARC" ? "flex" : "none";
+        if (selectedType !== "DMARC" && dmarcFilled.record) {
+            if (recordInput.value === dmarcFilled.record) recordInput.value = "";
+            if (nameInput.value === "_dmarc") nameInput.value = "";
+            dmarcFilled.record = "";
+        }
 
         recordInput.required = true;
 
@@ -199,9 +225,37 @@ document.addEventListener('DOMContentLoaded', function () {
                 nameInput.value = "_443._tcp";
             }
             tlsaHelper.style.display = "flex";
+        } else if (selectedType === "HTTPS") {
+            recordInput.removeAttribute("pattern");
+            recordInput.placeholder = '1 . alpn="h2,h3"';
+        } else if (selectedType === "SVCB") {
+            recordInput.removeAttribute("pattern");
+            recordInput.placeholder = "1 svc.{{.Domain}}. port=8443";
+        } else if (selectedType === "NS") {
+            recordInput.placeholder = "ns1.example.net";
+            recordInput.pattern = "^[A-Za-z0-9._-]+$";
+            nameInput.placeholder = "{{.T.Get "Subdomain"}}";
+        } else if (selectedType === "SSHFP") {
+            recordInput.placeholder = "4 2 <{{.T.Get "fingerprint"}}>";
+            recordInput.pattern = "^[0-9]+ [0-9]+ [0-9A-Fa-f]+$";
+        } else if (selectedType === "URI") {
+            recordInput.removeAttribute("pattern");
+            recordInput.placeholder = "10 1 https://{{.Domain}}/";
+        } else if (selectedType === "DMARC") {
+            recordInput.removeAttribute("pattern");
+            recordInput.placeholder = "v=DMARC1; p=none";
+            if (!nameInput.value || nameInput.value === "@") nameInput.value = "_dmarc";
+            dmarcBuild();
+        } else if (selectedType === "CAA") {
+            recordInput.removeAttribute("pattern");
+            recordInput.placeholder = '0 issue "letsencrypt.org"';
+        } else if (selectedType === "SRV") {
+            recordInput.removeAttribute("pattern");
+            recordInput.placeholder = "0 5 5060 sip.{{.Domain}}.";
         } else {
             recordInput.placeholder = "";
-            recordInput.pattern = "";
+            // an empty pattern only matches an empty value, so the browser would block the submit
+            recordInput.removeAttribute("pattern");
         }
 
         if (selectedType === "MX") {
@@ -357,14 +411,16 @@ document.addEventListener('DOMContentLoaded', function () {
         var row = editButton.closest('.domain_row');
         if (row.querySelector('td.dns-edit')) return;
         var type = row.dataset.type;
-        var value = row.dataset.value.trim().replace(/\.$/, '');
+        // shown as stored, the final dot is what makes a target absolute
+        var value = row.dataset.value.trim();
         var priority = '';
         if (type === 'MX') {
             var m = value.match(/^(\d+)\s+/);
             priority = m ? m[1] : '';
             value = value.replace(/^(\d+)\s+/, '');
         }
-        var types = ['A', 'AAAA', 'CAA', 'CNAME', 'MX', 'SRV', 'TLSA', 'TXT'];
+        row.dataset.originalTarget = value;
+        var types = dnsEditTypes.slice();
         if (!types.includes(type)) types.push(type);
         var cells = dnsCells(row);
         var menuCell = row.querySelector('td.op-cell-menu');
@@ -407,14 +463,24 @@ document.addEventListener('DOMContentLoaded', function () {
         var priorityInput = row.querySelector('input[name="priority"]');
         var priority = (priorityInput ? priorityInput.value : '') || '0';
 
-        if (updatedField3 === 'MX') {
-            updatedField4 = priority + ' ' + updatedField4;
-        }
         if (updatedField1.endsWith(domain)) {
             updatedField1 += '.';
         }
-        if (updatedField4.endsWith(domain)) {
+        if (updatedField3 === 'TXT') {
+            // the table shows TXT without quotes, saved bare a ; would cut the value off
+            if (!(updatedField4.startsWith('"') && updatedField4.endsWith('"'))) {
+                updatedField4 = '"' + updatedField4 + '"';
+            }
+        } else if (['CNAME', 'MX', 'NS'].includes(updatedField3)) {
+            // a typed hostname is absolute, an untouched relative target has to stay relative
+            if (updatedField4 !== row.dataset.originalTarget && updatedField4.includes('.') && !updatedField4.endsWith('.')) {
+                updatedField4 += '.';
+            }
+        } else if (updatedField4.endsWith(domain)) {
             updatedField4 += '.';
+        }
+        if (updatedField3 === 'MX') {
+            updatedField4 = priority + ' ' + updatedField4;
         }
 
         if (updatedField3 === 'CNAME') {

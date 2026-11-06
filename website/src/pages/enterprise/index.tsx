@@ -145,7 +145,7 @@ const Enterprise: React.FC = () => {
                             buttonHref={ENTERPRISE_TRIAL_URL}
                             eventName="trial_click_cta2"
                         />
-                        <div className={clsx("w-full", "overflow-hidden")}>
+                        <div className={clsx("w-full", "overflow-x-clip")}>
                             <EnterpriseTable
                                 className={clsx(sectionWidth, sectionPadding)}
                             />
