@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	accountsPage             = web.LoadPage("emails/accounts.html")
+	accountsPage             = web.LoadPage("emails/accounts.html", "partials/_account_created.html")
 	newEmailPage             = web.LoadPage("emails/new.html")
 	singleAccountPage        = web.LoadPage("emails/single_account.html")
 	deletePage               = web.LoadPage("emails/delete.html")
@@ -50,6 +50,14 @@ type AccountsPageData struct {
 	TotalCount    int
 	QuotaToastID  string
 	QuotaToastMsg string
+	Created       CreatedMailbox
+}
+
+// CreatedMailbox fills the connect section above the table, a blank Address hides it
+type CreatedMailbox struct {
+	Address string
+	Welcome bool
+	Conn    MailConnection
 }
 
 // emailQuotaToast mirrors accounts.html's ns.quota_issues + quota_toast_issues 1/2/multiple pluralization branch (percent_val > 80)
@@ -86,7 +94,7 @@ func emailQuotaToast(rows []EmailListRow) (id, message string) {
 	}
 }
 
-func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, currentEmailsList []string, domains []appctx.Domain, maxEmailQuota string) {
+func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, currentEmailsList []string, domains []appctx.Domain, maxEmailQuota string, created CreatedMailbox) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Emails")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -99,7 +107,7 @@ func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, c
 	annotateEmailRows(rows)
 	toastID, toastMsg := emailQuotaToast(rows)
 	layout.BulkActions = accountsBulkActions(layout.T, maxEmailQuota)
-	data := AccountsPageData{LayoutData: layout, Rows: rows, TotalCount: len(currentEmailsList), QuotaToastID: toastID, QuotaToastMsg: toastMsg}
+	data := AccountsPageData{LayoutData: layout, Rows: rows, TotalCount: len(currentEmailsList), QuotaToastID: toastID, QuotaToastMsg: toastMsg, Created: created}
 	if err := accountsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("EMAILS - accounts template render error: %v", err)
 	}

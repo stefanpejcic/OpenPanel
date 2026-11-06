@@ -371,21 +371,8 @@ func apiEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	sslParam := strings.ToLower(r.URL.Query().Get("ssl"))
-	if sslParam == "" {
-		sslParam = "true"
-	}
-	sslEnabled := sslParam == "1" || sslParam == "true" || sslParam == "yes"
-
-	var incomingPort, outgoingPort int
-	var encryption, sslTrueFalse string
-	if sslEnabled {
-		incomingPort, outgoingPort, encryption, sslTrueFalse = 993, 465, "SSL/TLS", "<true />"
-	} else {
-		incomingPort, outgoingPort, encryption, sslTrueFalse = 143, 587, "STARTTLS", "<false />"
-	}
-
-	mailHost := getDedicatedOrSharedIP(ctx, currentUsername)
+	conn := currentMailConnection(ctx, a, currentUsername)
+	mailHost, incomingPort, outgoingPort, encryption, sslTrueFalse := conn.Host, conn.IMAPPort, conn.SMTPPort, conn.Security, conn.appleSSLValue()
 	username, domain, _ := strings.Cut(account, "@")
 
 	var content, filename, mimetype string
@@ -409,7 +396,7 @@ func apiEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Request
 		innerUUID := uuid.New().String()
 		outerUUID := uuid.New().String()
 		pidBase := mailHost + "." + domain
-		desc := account + " Secure Email Setup"
+		desc := account + " Email Setup"
 		content = fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>

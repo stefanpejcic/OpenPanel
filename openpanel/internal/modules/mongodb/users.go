@@ -93,7 +93,8 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		} else {
 			ipAddress := reqip.ClientIP(r)
 			_ = logger.RecordUserAction(a.Config, currentUsername, "created a MongoDB user "+dbUser, ipAddress)
-			web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created a MongoDB user %(db_user)s", "db_user", dbUser))
+			http.Redirect(w, r, web.CreatedDBUserURL("mongodb", dbUser), http.StatusFound)
+			return
 		}
 
 		http.Redirect(w, r, "/mongodb/user", http.StatusFound)

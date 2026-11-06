@@ -151,7 +151,7 @@ function showToast(message, type, isPermanent = false, link = false) {
             </svg>
             <div class="flex flex-col gap-1">
                 <div class="text-sm font-semibold text-gray-900 dark:text-gray-50">${text}</div>
-                <div class="text-sm text-gray-600 dark:text-gray-400" id="toastMessage" style="white-space: pre-line;"></div>
+                <div class="text-sm text-gray-600 dark:text-gray-400" id="toastMessage" style="white-space: pre-line; max-width: 32rem; max-height: 12rem; overflow-y: auto; overflow-wrap: anywhere;"></div>
             </div>
         </div>
         <div class="flex flex-col">

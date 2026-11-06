@@ -575,8 +575,7 @@
       {
         "method": "GET",
         "path": "/api/emails/configuration/<config_type>/<account>",
-        "description": "Download mail client config (config_type: thunderbird, outlook, apple).",
-        "params": "?ssl=true"
+        "description": "Download mail client config (config_type: thunderbird, outlook, apple)."
       },
       {
         "method": "GET",

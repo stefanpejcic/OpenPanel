@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os/exec"
 	"path/filepath"
 	"regexp"
@@ -427,7 +428,11 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created email "+email, ipAddress)
 		InvalidateEmailCache(ctx, a, userID, currentUsername)
-		web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Email %(email)s added successfully.", "email", email), "/emails")
+		target := "/emails?created=" + url.QueryEscape(email)
+		if r.Form.Get("send_welcome") != "" {
+			target += "&welcome=1"
+		}
+		http.Redirect(w, r, target, http.StatusFound)
 		return
 	}
 
@@ -629,7 +634,24 @@ func handleEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	injectedData, _ := a.InjectData(ctx, userID)
 	planID, _ := injectedData["hosting_plan"].(int)
 	_, maxEmailQuota, _ := a.QueryPlanEmailMailboxLimits(ctx, planID)
-	renderAccountsPage(a, w, r, currentEmailsList, domains, maxEmailQuota)
+	created := createdMailboxFromRequest(r, userDomains)
+	if created.Address != "" {
+		created.Conn = currentMailConnection(ctx, a, currentUsername)
+	}
+	renderAccountsPage(a, w, r, currentEmailsList, domains, maxEmailQuota, created)
+}
+
+// createdMailboxFromRequest reads ?created=&welcome=, ignoring addresses on domains this account doesn't own
+func createdMailboxFromRequest(r *http.Request, userDomains map[string]bool) CreatedMailbox {
+	address := r.URL.Query().Get("created")
+	if !isValidEmail(address) {
+		return CreatedMailbox{}
+	}
+	_, domain, _ := strings.Cut(address, "@")
+	if !userDomains[domain] {
+		return CreatedMailbox{}
+	}
+	return CreatedMailbox{Address: address, Welcome: r.URL.Query().Get("welcome") == "1"}
 }
 
 func handleSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, email string, userID int, currentUsername string, userDomains map[string]bool) {
@@ -819,15 +841,59 @@ func handleEmailsServerInfo(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	_, currentUsername, _, err := auth.Injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+
+	conn := currentMailConnection(r.Context(), a, currentUsername)
 	scheme := "http"
-	if a.ForceDomain != "" && sysinfo.HasSSL(r.Context(), a.Cache, a.ForceDomain) {
+	if conn.SSL {
 		scheme = "https"
 	}
 
-	renderInfoPage(a, w, r, address, scheme, a.ForceDomain)
+	renderInfoPage(a, w, r, address, scheme, conn.Host)
 }
 
 // CONNECT DEVICES
+
+// MailConnection is how a mail app reaches this server, there's one mode per server and clients can't pick another
+type MailConnection struct {
+	Host     string
+	IMAPPort int
+	SMTPPort int
+	Security string
+	SSL      bool
+}
+
+// mailConnectionFor maps the server's mode to its settings, without a certificate the mailserver has no TLS at all
+func mailConnectionFor(ssl bool, host string) MailConnection {
+	if ssl {
+		return MailConnection{Host: host, IMAPPort: 993, SMTPPort: 465, Security: "SSL/TLS", SSL: true}
+	}
+	return MailConnection{Host: host, IMAPPort: 143, SMTPPort: 587, Security: "No encryption"}
+}
+
+// currentMailConnection uses the panel domain when it has a certificate since that's what the cert covers, otherwise the IP
+func currentMailConnection(ctx context.Context, a *appctx.App, username string) MailConnection {
+	if a.ForceDomain != "" && sysinfo.HasSSL(ctx, a.Cache, a.ForceDomain) {
+		return mailConnectionFor(true, a.ForceDomain)
+	}
+	host := getDedicatedOrSharedIP(ctx, username)
+	if host == "mail.example.com" && a.ForceDomain != "" {
+		host = a.ForceDomain
+	}
+	return mailConnectionFor(false, host)
+}
+
+// appleSSLValue is the plist value for the mobileconfig UseSSL keys
+func (c MailConnection) appleSSLValue() string {
+	if c.SSL {
+		return "<true />"
+	}
+	return "<false />"
+}
 
 // handleEmailConfiguration mirrors email_configuration().
 func handleEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -850,21 +916,8 @@ func handleEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	sslParam := strings.ToLower(r.URL.Query().Get("ssl"))
-	if sslParam == "" {
-		sslParam = "true"
-	}
-	sslEnabled := sslParam == "1" || sslParam == "true" || sslParam == "yes"
-
-	var incomingPort, outgoingPort int
-	var encryption, sslTrueFalse string
-	if sslEnabled {
-		incomingPort, outgoingPort, encryption, sslTrueFalse = 993, 465, "SSL/TLS", "<true />"
-	} else {
-		incomingPort, outgoingPort, encryption, sslTrueFalse = 143, 587, "STARTTLS", "<false />"
-	}
-
-	mailHost := getDedicatedOrSharedIP(ctx, currentUsername)
+	conn := currentMailConnection(ctx, a, currentUsername)
+	mailHost, incomingPort, outgoingPort, encryption, sslTrueFalse := conn.Host, conn.IMAPPort, conn.SMTPPort, conn.Security, conn.appleSSLValue()
 	username, domain, _ := strings.Cut(account, "@")
 
 	var content, filename, mimetype string
@@ -891,7 +944,7 @@ func handleEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		innerUUID := uuid.New().String()
 		outerUUID := uuid.New().String()
 		payloadIdentifierBase := mailHost + "." + domain
-		description := account + " Secure Email Setup"
+		description := account + " Email Setup"
 		content = fmt.Sprintf(`<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">

@@ -11,9 +11,9 @@ import (
 
 var (
 	databasesPage   = web.LoadPage("mongodb/databases.html")
-	newDatabasePage = web.LoadPage("mongodb/new.html")
+	newDatabasePage = web.LoadPage("mongodb/new.html", "partials/_db_created.html")
 	usersPage       = web.LoadPage("mongodb/users.html")
-	createUserPage  = web.LoadPage("mongodb/mongodb_user.html")
+	createUserPage  = web.LoadPage("mongodb/mongodb_user.html", "partials/_db_created.html")
 	passwordPage    = web.LoadPage("mongodb/password.html")
 	wizardPage      = web.LoadPage("mongodb/wizard.html")
 	assignPage      = web.LoadPage("mongodb/assign.html")
@@ -66,7 +66,11 @@ func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 	layout.Service = "mongodb"
-	if err := newDatabasePage.Render(w, http.StatusOK, struct{ web.LayoutData }{layout}); err != nil {
+	data := struct {
+		web.LayoutData
+		Created web.DBCreated
+	}{layout, web.CreatedDBFromRequest(r, layout, "mongodb", "mongodb_import")}
+	if err := newDatabasePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MONGODB - new database template render error: %v", err)
 	}
 }
@@ -114,7 +118,11 @@ func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 	layout.Service = "mongodb"
-	if err := createUserPage.Render(w, http.StatusOK, struct{ web.LayoutData }{layout}); err != nil {
+	data := struct {
+		web.LayoutData
+		Created web.DBCreated
+	}{layout, web.CreatedDBFromRequest(r, layout, "mongodb", "")}
+	if err := createUserPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MONGODB - create user template render error: %v", err)
 	}
 }

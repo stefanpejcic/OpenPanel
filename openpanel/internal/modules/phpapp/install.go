@@ -126,6 +126,17 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		selectedDomain = selectedDomain + "/" + subdirectory
 	}
 
+	// has to stop here, past this point composer and the .env writes would already touch the existing site
+	var existingSites int
+	if countErr := a.DB.QueryRowContext(ctx, "SELECT COUNT(*) FROM sites WHERE site_name = ?", selectedDomain).Scan(&existingSites); countErr != nil {
+		emit(map[string]any{"error": "Could not check existing sites. Please try again."})
+		return
+	}
+	if existingSites > 0 {
+		emit(map[string]any{"error": "A site already exists at " + selectedDomain + ". Pick another subfolder or remove that site first."})
+		return
+	}
+
 	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
 	isLitespeed := strings.Contains(strings.ToLower(webServer), "litespeed")
 	phpContainer := webServer
@@ -149,13 +160,24 @@ func HandleInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if initialProject != "" {
 		if isArchiveURL(initialProject) {
 			// unlike composer create-project (which creates its own target directory), extraction needs somewhere to extract into
+			chownFrom := firstMissingDir(hostOSPath)
 			if mkErr := tenantfs.MkdirAll(hostOSPath, 0o755); mkErr != nil {
 				emit(map[string]any{"error": "Error creating document root: " + mkErr.Error()})
 				return
 			}
 			emit(map[string]any{"status": "Downloading and extracting " + initialProject})
-			if extractErr := downloadAndExtractInitialProject(ctx, initialProject, hostOSPath); extractErr != nil {
+			extractErr := downloadAndExtractInitialProject(ctx, initialProject, hostOSPath)
+			// the panel extracts as root, php-fpm and ftp need to own this, also after a partial extract
+			uid, uidErr := podmanmanager.GetUID(userContext)
+			if uidErr == nil {
+				uidErr = tenantfs.ChownR(chownFrom, uid, uid)
+			}
+			if extractErr != nil {
 				emit(map[string]any{"error": "Error extracting initial project: " + extractErr.Error()})
+				return
+			}
+			if uidErr != nil {
+				emit(map[string]any{"error": "Error setting file ownership: " + uidErr.Error()})
 				return
 			}
 		} else {
