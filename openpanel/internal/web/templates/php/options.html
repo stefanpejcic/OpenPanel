@@ -39,8 +39,8 @@
 {{if .Fields}}
               {{range .Fields}}
               <tr x-show="searchQuery === '' || '{{.Key}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Value}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
-                <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap font-medium text-gray-900 dark:border-gray-800 dark:text-gray-50">
-                  <label for="{{.Key}}" class="font-mono text-xs">{{.Key}}</label>
+                <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-sm text-gray-600 dark:border-gray-800 dark:text-gray-400">
+                  <label for="{{.Key}}">{{.Key}}</label>
                 </td>
                 <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
                 <div class="flex max-w-md items-center gap-2">
