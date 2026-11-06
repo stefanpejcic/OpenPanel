@@ -25,6 +25,9 @@ type DNSPageData struct {
 	ZoneContent  string
 	Issues       []HealthIssue
 	TotalRecords int
+	RecordTypes  []string        // add form dropdown
+	EditTypes    []string        // edit dropdown, no DMARC helper there
+	EditableType map[string]bool // rows of other types show no Edit button
 }
 
 func renderDNSListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainRows []DomainZoneRow) {
@@ -56,6 +59,9 @@ func renderDNSTablePage(a *appctx.App, w http.ResponseWriter, r *http.Request, d
 		LayoutData: layout, Domain: domain, ViewMode: "table", Rows: rows,
 		Serial: serial, Issues: issues, TotalRecords: len(rows),
 	}
+	data.RecordTypes = allowedDNSRecordTypes(a.Config)
+	data.EditTypes = editableRecordTypes(data.RecordTypes)
+	data.EditableType = recordTypeSet(data.RecordTypes)
 	if err := dnsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DNS - table template render error: %v", err)
 	}

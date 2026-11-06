@@ -47,3 +47,14 @@ if [ -f "$FTP_START" ] && ! grep -q "prepare_ftp_folder" "$FTP_START"; then
     fi
     rm -f "$tmp"
 fi
+
+# DNS record types users can add and edit, new in 2.0.22
+OPENPANEL_CONFIG="/etc/openpanel/openpanel/conf/openpanel.config"
+if [ -f "$OPENPANEL_CONFIG" ] && ! grep -q "^dns_record_types=" "$OPENPANEL_CONFIG"; then
+    echo "Adding dns_record_types to $OPENPANEL_CONFIG..."
+    if grep -q "^\[USERS\]" "$OPENPANEL_CONFIG"; then
+        sed -i '/^\[USERS\]/a dns_record_types=A AAAA CAA CNAME MX SRV TLSA TXT' "$OPENPANEL_CONFIG"
+    else
+        printf '\n[USERS]\ndns_record_types=A AAAA CAA CNAME MX SRV TLSA TXT\n' >> "$OPENPANEL_CONFIG"
+    fi
+fi
