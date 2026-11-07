@@ -560,6 +560,45 @@ func buildDashboardData(a *appctx.App, ctx context.Context, userID int, injected
 	return d, nil
 }
 
+// PlanUsage counts what the account uses against its plan limits with the dashboard's own counters, keys are left out when the count isn't available
+func PlanUsage(a *appctx.App, ctx context.Context, userID int, injected map[string]any) map[string]int {
+	currentUsername, _ := injected["current_username"].(string)
+	userContext, _ := injected["context"].(string)
+	userAllowedSlice, _ := injected["user_allowed"].([]string)
+	userAllowed := map[string]bool{}
+	for _, m := range userAllowedSlice {
+		userAllowed[m] = true
+	}
+
+	usage := map[string]int{}
+	if sites, err := GetUserWebsites(a, ctx, userID); err == nil {
+		usage["websites"] = len(sites)
+	}
+	if userDomains, err := a.AllDomainsForUser(ctx, userID); err == nil {
+		main, _ := appctx.Categorize(userDomains)
+		usage["domains"] = len(main)
+		if userAllowed["emails"] {
+			domainSet := make(map[string]bool, len(userDomains))
+			for _, dm := range userDomains {
+				domainSet[dm.DomainURL] = true
+			}
+			usage["emails"] = emails.GetEmailCount(ctx, a, userID, currentUsername, domainSet)
+		}
+	}
+	if userAllowed["mysql"] {
+		usage["databases"] = getDatabaseCount(a, ctx, currentUsername, userContext)
+	}
+	if userAllowed["ftp"] {
+		usage["ftp"] = countFTPAccounts(a, ctx, userContext)
+	}
+	if disk, err := getDiskAndInodesForUser(a, ctx, currentUsername); err == nil && disk != nil {
+		// quota numbers are 1K blocks, the soft limits are what the plan set
+		usage["disk_used_kb"], usage["disk_soft_kb"] = int(disk.DiskUsed), int(disk.DiskSoft)
+		usage["inodes"], usage["inodes_soft"] = int(disk.InodesUsed), int(disk.InodesSoft)
+	}
+	return usage
+}
+
 // restrictedDatabasesSQL renders config's mysql_restricted_databases (space-separated, optionally quoted) as a SQL string list for `NOT IN (...)`
 func restrictedDatabasesSQL(cfg config.Config) string {
 	raw := stripQuotes(cfg.Get("mysql_restricted_databases",

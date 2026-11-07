@@ -260,28 +260,7 @@ func handleListBackupsFromDestination(a *appctx.App, w http.ResponseWriter, r *h
 
 	reindexing := reindexRunning(lockFile)
 
-	var backups []BackupInfo
-	var reindexErr string
-	if content, readErr := tenantfs.ReadFile(jsonFile); readErr == nil {
-		var errPayload struct {
-			Error string `json:"error"`
-		}
-		if json.Unmarshal(content, &errPayload) == nil && errPayload.Error != "" {
-			reindexErr = errPayload.Error
-		} else {
-			_ = json.Unmarshal(content, &backups)
-		}
-	}
-	// an index written before the prefix filter existed can still hold other accounts' archives
-	if prefix := backupNamePrefix(config, userContext); prefix != "" {
-		own := backups[:0]
-		for _, b := range backups {
-			if strings.HasPrefix(b.BackupFile, prefix) {
-				own = append(own, b)
-			}
-		}
-		backups = own
-	}
+	backups, reindexErr := loadOwnBackups(userContext, config)
 
 	if r.URL.Query().Get("output") == "json" {
 		// status=1 is the polling shape (onboarding wizard's destination test), which needs "reindexing" to tell an in-progress run apart from a finished one - kept opt-in so the existing Array.isArray() poller keeps working unchanged
@@ -514,4 +493,32 @@ func handleDownloadBackup(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		// no Content-Length here, so drop the connection or the browser saves the cut off archive as complete
 		panic(http.ErrAbortHandler)
 	}
+}
+
+// loadOwnBackups reads the reindex cache, keeping only this account's archives
+func loadOwnBackups(userContext string, config map[string]string) ([]BackupInfo, string) {
+	jsonFile := filepath.Join("/home/"+userContext, "available_backups.json")
+	var backups []BackupInfo
+	var reindexErr string
+	if content, readErr := tenantfs.ReadFile(jsonFile); readErr == nil {
+		var errPayload struct {
+			Error string `json:"error"`
+		}
+		if json.Unmarshal(content, &errPayload) == nil && errPayload.Error != "" {
+			reindexErr = errPayload.Error
+		} else {
+			_ = json.Unmarshal(content, &backups)
+		}
+	}
+	// an index written before the prefix filter existed can still hold other accounts' archives
+	if prefix := backupNamePrefix(config, userContext); prefix != "" {
+		own := backups[:0]
+		for _, b := range backups {
+			if strings.HasPrefix(b.BackupFile, prefix) {
+				own = append(own, b)
+			}
+		}
+		backups = own
+	}
+	return backups, reindexErr
 }

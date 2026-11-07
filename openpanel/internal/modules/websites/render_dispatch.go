@@ -1,6 +1,7 @@
 package websites
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"sort"
@@ -35,6 +36,11 @@ type PHPAppPageData struct {
 	InitialProject             string
 	AutorunComposerInstall     bool
 	ComposerOptimizeAutoloader bool
+	ComposerRows               []ComposerRow // composer.json requirements next to composer.lock's installed versions
+	Packages                   []ComposerPackage
+	Files                      []SiteEntry
+	HiddenFiles                int
+	WebServer                  string
 }
 
 func renderPHPAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data PHPAppPageData) {
@@ -54,7 +60,11 @@ var websiteBuilderPage = loadPage("manager/websitebuilder.html")
 // WebsiteBuilderPageData is manager/websitebuilder.html's template context.
 type WebsiteBuilderPageData struct {
 	pageData
-	Container ContainerInfo
+	Container   ContainerInfo
+	IndexSource string // index.html as saved by the editor, shown read-only
+	HasSource   bool
+	BlankPage   bool // index.html has an empty body, the editor hasn't added anything yet
+	Files       []SiteEntry
 }
 
 func renderWebsiteBuilderPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data WebsiteBuilderPageData) {
@@ -113,9 +123,10 @@ type WPSinglePageData struct {
 	AvailablePHPVersions []string
 	SecurityToggles      []SecurityToggle
 	Suspended            bool
-	SSLState             string // valid, expiring, expired, missing, pending or empty when unknown
-	SSLExpires           string
-	RedisOn              bool
+	SSLState             string            // valid, expiring, expired, missing, pending or empty when unknown
+	SSLExpires           string            // 2006-01-02
+	RedisOn              bool              // the Redis Object Cache drop-in is in wp-content
+	TakenSites           map[string]string // every site on the account by name, the Clone tab won't copy onto one
 }
 
 // sslState turns the domain's HTTPS mode and certificate into the header badge
@@ -133,11 +144,31 @@ func sslState(https string, cert domains.SSLCertInfo) string {
 	return "valid"
 }
 
-// wpRedisDropinOn reports whether the site's object-cache.php is the Redis drop-in
+// wpRedisDropinOn reads the site's object-cache.php drop-in like the Cache tab does, a file read so the header can show it without asking Redis
 func wpRedisDropinOn(userContext, docroot string) bool {
-	dropin := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + strings.TrimPrefix(docroot, "/var/www/html/") + "/wp-content/object-cache.php"
-	content, err := tenantfs.ReadFile(dropin)
-	return err == nil && strings.Contains(string(content), redisDropinMarker)
+	rel := strings.TrimPrefix(docroot, "/var/www/html/")
+	if rel == docroot || strings.Contains(rel, "..") {
+		return false
+	}
+	b, err := tenantfs.ReadFile("/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/" + rel + "/wp-content/object-cache.php")
+	return err == nil && strings.Contains(string(b), redisDropinMarker)
+}
+
+// accountSites maps every site name on the account to its app type
+func accountSites(r *http.Request, a *appctx.App, userID int) map[string]string {
+	out := map[string]string{}
+	rows, err := a.DB.QueryContext(r.Context(), "SELECT site_name, type FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?)", userID)
+	if err != nil {
+		return out
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var name, typ sql.NullString
+		if rows.Scan(&name, &typ) == nil && name.String != "" {
+			out[name.String] = typ.String
+		}
+	}
+	return out
 }
 
 func renderWPSinglePage(a *appctx.App, w http.ResponseWriter, r *http.Request, data WPSinglePageData) {
@@ -170,6 +201,13 @@ type PythonNodeAppsPageData struct {
 	RequirementsSelected                                                        bool
 	EnvVars                                                                     string          // the service's current `environment:` list from docker-compose.yml, one "KEY=VALUE" per line, for the Env Vars tab's textarea - empty if none set yet
 	Domains                                                                     []appctx.Domain // every domain the user owns, for the Clone tab's target domain dropdown - same list appinstall's own install page uses
+	StartCommand                                                                string          // the service's compose command without its sh -c wrapper
+	Manifest                                                                    Manifest
+	SSLState, SSLExpires                                                        string // see sslState
+	WebServer                                                                   string // WEB_SERVER from the account's .env
+	Image                                                                       string // the service's image, e.g. node:24.22.2
+	Files                                                                       []SiteEntry
+	HiddenFiles                                                                 int
 }
 
 func renderPythonNodeAppsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data PythonNodeAppsPageData) {
@@ -237,6 +275,7 @@ type CMSAppPageData struct {
 	Version              string
 	PHPVersion           string
 	MySQLVersion         string
+	MySQLType            string
 	DBInfo               map[string]string
 	IsSubdirectory       bool
 	MainDomain           string
@@ -244,6 +283,13 @@ type CMSAppPageData struct {
 	AvailablePHPVersions []string
 	HasPhotos            bool
 	App                  web.AppNames
+	Switch               []SiteOption
+}
+
+// SiteOption is one entry in a manager's site switcher
+type SiteOption struct {
+	Name string
+	App  string
 }
 
 // cmsPage is how the /website dispatcher reads one CMS type, dbInfo is nil for apps without a database

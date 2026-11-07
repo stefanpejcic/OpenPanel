@@ -88,7 +88,7 @@ func handleDomainsPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	totalPages := (totalDomains + perPage - 1) / perPage
 
-	renderDomainsPage(a, w, r, paginated, totalPages, page, startIndex+1, endIndex, totalDomains)
+	renderDomainsPage(a, w, r, paginated, totalPages, page, startIndex+1, endIndex, totalDomains, totalDomains-len(subdomainURLs))
 }
 
 func rowFilterValues(row DomainRow) map[string]string {

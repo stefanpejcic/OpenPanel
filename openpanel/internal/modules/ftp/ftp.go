@@ -19,6 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -257,20 +258,23 @@ func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	userDomains, _ := a.AllDomainsForUser(ctx, userID)
 
+	usersListFile := "/etc/openpanel/ftp/users/" + userContext + "/users.list"
+
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
-		ftpUsername := r.Form.Get("username")
+		ftpUsername := strings.TrimSpace(r.Form.Get("username"))
 		ftpPassword := r.Form.Get("password")
-		ftpDomain := r.Form.Get("domain")
-		ftpPath := r.Form.Get("path")
+		ftpDomain := strings.TrimSpace(r.Form.Get("domain"))
+		ftpPath := strings.TrimSpace(r.Form.Get("path"))
 		ftpQuota, quotaOK := normalizeQuota(r.Form.Get("quota"), r.Form.Get("quota_unit"))
+		back := newAccountBack(ftpUsername, ftpDomain, ftpPath)
 
 		if ftpUsername == "" {
-			web.FlashRedirect(a, w, r, "error", "FTP username not provided.", "/ftp/new")
+			web.FlashRedirect(a, w, r, "error", "FTP username not provided.", back)
 			return
 		}
 		if ftpDomain == "" {
-			web.FlashRedirect(a, w, r, "error", "FTP domain not provided.", "/ftp/new")
+			web.FlashRedirect(a, w, r, "error", "FTP domain not provided.", back)
 			return
 		}
 		if !a.CheckDomainBelongsToUser(ctx, userID, ftpDomain) {
@@ -278,28 +282,34 @@ func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			return
 		}
 		if ftpPath == "" {
-			web.FlashRedirect(a, w, r, "error", "FTP path not provided.", "/ftp/new")
+			web.FlashRedirect(a, w, r, "error", "FTP path not provided.", back)
 			return
 		}
 		if ftpPassword == "" {
-			web.FlashRedirect(a, w, r, "error", "FTP password not provided.", "/ftp/new")
+			web.FlashRedirect(a, w, r, "error", "FTP password not provided.", back)
 			return
 		}
 		if !quotaOK {
-			web.FlashRedirect(a, w, r, "error", "Invalid quota, use a whole number of MB or GB.", "/ftp/new")
+			web.FlashRedirect(a, w, r, "error", "Invalid quota, use a whole number of MB or GB.", back)
 			return
 		}
 
-		cleanPath, pathOK := cleanFTPPath(ftpPath)
+		cleanPath, pathOK := cleanFTPPath(ftpPathInput(ftpPath))
 		if !pathOK {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "The FTP path must start with %(real_path)s", "real_path", ftpRoot), "/ftp/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "The FTP path must start with %(real_path)s", "real_path", ftpRoot), back)
 			return
 		}
 		ftpPath = cleanPath
 
+		threshold := validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)
+		if msg := newAccountProblem(ftpUsername, ftpDomain, ftpPassword, threshold, loadAccounts(usersListFile)); msg != "" {
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, msg, "ftp_username", ftpUsername+"@"+ftpDomain), back)
+			return
+		}
+
 		ftpUsername = ftpUsername + "@" + ftpDomain
 		if !isValidUsername(ftpUsername) {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Username %(ftp_username)s contains invalid characters, only allowed: BCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_@.", "ftp_username", ftpUsername), "/ftp/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Username %(ftp_username)s contains invalid characters, only allowed: BCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_@.", "ftp_username", ftpUsername), back)
 			return
 		}
 
@@ -309,7 +319,7 @@ func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		}
 		out, cmdErr := exec.CommandContext(ctx, "opencli", args...).CombinedOutput()
 		if cmdErr != nil {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error creating FTP user %(ftp_username)s: %(output)s", "ftp_username", ftpUsername, "output", string(out)), "/ftp/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error creating FTP user %(ftp_username)s: %(output)s", "ftp_username", ftpUsername, "output", string(out)), back)
 			return
 		}
 		if strings.Contains(string(out), "Success: FTP user") {
@@ -318,11 +328,11 @@ func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			flashAndRedirectToAccounts(a, w, r, "success", web.Tr(a, r, "FTP account %(ftp_username)s created successfully.", "ftp_username", ftpUsername))
 			return
 		}
-		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to create FTP account %(ftp_username)s: %(output)s", "ftp_username", ftpUsername, "output", string(out)), "/ftp/new")
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to create FTP account %(ftp_username)s: %(output)s", "ftp_username", ftpUsername, "output", string(out)), back)
 		return
 	}
 
-	renderNewFTPAccountPage(a, w, r, userDomains)
+	renderNewFTPAccountPage(a, w, r, userDomains, newFTPForm(a, r, currentUsername, userDomains, loadAccounts(usersListFile)))
 }
 
 // handleDeleteFTPAccount deletes an FTP account by username.

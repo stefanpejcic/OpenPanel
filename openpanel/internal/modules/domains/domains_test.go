@@ -1,9 +1,13 @@
 package domains
 
 import (
+	"net/http/httptest"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 func TestDocrootRefusesBackupsFolder(t *testing.T) {
@@ -112,7 +116,7 @@ func TestResolveUnderVarWWWHTML(t *testing.T) {
 func TestInsertOrReplaceRedirect(t *testing.T) {
 	t.Run("insert before log block", func(t *testing.T) {
 		content := "example.com {\n    root * /srv\n    log {\n        output file /var/log/x.log\n    }\n}\n"
-		got := insertOrReplaceRedirect(content, "https://target.example")
+		got := insertOrReplaceRedirect(content, redirectRule{To: "https://target.example"}, "example.com")
 		if !containsLine(got, "redir https://target.example") {
 			t.Errorf("expected inserted redir line, got:\n%s", got)
 		}
@@ -120,7 +124,7 @@ func TestInsertOrReplaceRedirect(t *testing.T) {
 
 	t.Run("replace existing redir before anchor", func(t *testing.T) {
 		content := "example.com {\n    redir https://old.example\n    import domain_log\n}\n"
-		got := insertOrReplaceRedirect(content, "https://new.example")
+		got := insertOrReplaceRedirect(content, redirectRule{To: "https://new.example"}, "example.com")
 		if containsLine(got, "redir https://old.example") {
 			t.Errorf("expected old redir line replaced, got:\n%s", got)
 		}
@@ -128,6 +132,22 @@ func TestInsertOrReplaceRedirect(t *testing.T) {
 			t.Errorf("expected new redir line present, got:\n%s", got)
 		}
 	})
+}
+
+func TestRemoveRedirect(t *testing.T) {
+	orig := "http://a.example {\n  import domain_log a.example\n}\nhttps://a.example {\n  import domain_log a.example\n}\n"
+	added := insertOrReplaceRedirect(orig, redirectRule{To: "https://example.com"}, "old.example")
+	if got := removeRedirect(added, "https://example.com"); got != orig {
+		t.Errorf("add then remove should give the original back, got:\n%q", got)
+	}
+	// only the exact target goes, a longer url sharing the prefix stays
+	other := "x {\n  redir https://example.com/path\n  import domain_log x\n}"
+	if got := removeRedirect(other, "https://example.com"); got != other {
+		t.Errorf("unrelated redir line removed:\n%q", got)
+	}
+	if got := removeRedirect("x {\n\tredir https://t.example 301\n}", "https://t.example"); got != "x {\n}" {
+		t.Errorf("redir with a status code not removed: %q", got)
+	}
 }
 
 func containsLine(content, substr string) bool {
@@ -169,33 +189,71 @@ func TestReadWriteTextFile(t *testing.T) {
 	}
 }
 
-func TestSplitMax(t *testing.T) {
-	cases := []struct {
-		in   string
-		max  int
-		want []string
-	}{
-		{"redir https://x.com permanent", 3, []string{"redir", "https://x.com", "permanent"}},
-		{"redir https://x.com", 3, []string{"redir", "https://x.com"}},
-		{"", 3, nil},
-	}
-	for _, c := range cases {
-		got := splitMax(c.in, c.max)
-		if len(got) != len(c.want) {
-			t.Errorf("splitMax(%q, %d) = %v, want %v", c.in, c.max, got, c.want)
-			continue
-		}
-		for i := range got {
-			if got[i] != c.want[i] {
-				t.Errorf("splitMax(%q, %d)[%d] = %q, want %q", c.in, c.max, i, got[i], c.want[i])
-			}
-		}
-	}
-}
-
 func TestGetRedirectURLFromRealFile(t *testing.T) {
 	// getRedirectURL() hardcodes /etc/openpanel/caddy/domains/, not writable in a sandboxed test env, so this just confirms the not-found path returns "" rather than panicking
 	if got := getRedirectURL("no-such-domain-ever.example"); got != "" {
 		t.Errorf("expected empty string for a nonexistent domain conf, got %q", got)
+	}
+}
+
+func TestRedirectTargetProblem(t *testing.T) {
+	existing := map[string]string{"old-shop.com": "https://example.com/", "blog.example.com": "https://medium.com/@me", "alt.com": "https://example.com:8443/"}
+	cases := []struct {
+		domain, target, want, other string
+	}{
+		{"example.com", "https://openpanel.com/", "", ""},
+		{"example.com", "http://openpanel.com/path?q=1", "", ""},
+		{"example.com", "", "Enter the URL visitors should go to.", ""},
+		{"example.com", "openpanel.com", "Start with http:// or https:// and leave out spaces.", ""},
+		{"example.com", "ftp://openpanel.com", "Start with http:// or https:// and leave out spaces.", ""},
+		{"example.com", "https://a.com/x y", "Start with http:// or https:// and leave out spaces.", ""},
+		{"example.com", "https://", "Start with http:// or https:// and leave out spaces.", ""},
+		{"example.com", "https:///path", "That doesn't look like a full URL.", ""},
+		{"example.com", "https://example.com/other", "This points back at %(domain)s, so visitors would loop forever.", ""},
+		{"example.com", "http://WWW.Example.com.", "This points back at %(domain)s, so visitors would loop forever.", ""},
+		{"www.example.com", "https://example.com/", "This points back at %(domain)s, so visitors would loop forever.", ""},
+		{"example.com", "https://example.com:443/", "This points back at %(domain)s, so visitors would loop forever.", ""},
+		{"example.com", "https://example.com:8080/", "", ""},
+		{"example.com", "https://old-shop.com/", "%(other)s already redirects to %(domain)s. Saving this would send visitors in a circle.", "old-shop.com"},
+		{"example.com", "https://www.old-shop.com/x", "%(other)s already redirects to %(domain)s. Saving this would send visitors in a circle.", "old-shop.com"},
+		{"example.com", "https://blog.example.com/", "", ""},
+		{"example.com", "https://alt.com/", "", ""},
+		{"old-shop.com", "https://example.net/", "", ""},
+		{"example.com", "https://a.com/?x={env.SECRET}", "The URL can't contain { } \" ` or \\ characters.", ""},
+		{"example.com", "https://a.com/\"x", "The URL can't contain { } \" ` or \\ characters.", ""},
+	}
+	for _, c := range cases {
+		msg, other := redirectTargetProblem(c.domain, c.target, existing)
+		if msg != c.want || other != c.other {
+			t.Errorf("redirectTargetProblem(%q, %q) = %q, %q; want %q, %q", c.domain, c.target, msg, other, c.want, c.other)
+		}
+	}
+}
+
+func TestBuildRedirectPageData(t *testing.T) {
+	domains := []appctx.Domain{{DomainURL: "a.com"}, {DomainURL: "b.com"}, {DomainURL: "x.onion"}, {DomainURL: "c.com"}}
+	data := buildRedirectPageData(web.LayoutData{}, domains, map[string]redirectRule{"b.com": {To: "https://a.com/"}}, "c.com")
+	if data.DomainCount != 3 || len(data.Rows) != 1 || data.Rows[0] != (RedirectRow{Domain: "b.com", To: "https://a.com/"}) {
+		t.Errorf("unexpected rows: %+v (count %d)", data.Rows, data.DomainCount)
+	}
+	if strings.Join(data.Free, ",") != "a.com,c.com" || data.Open != "c.com" {
+		t.Errorf("unexpected free list %v or open %q", data.Free, data.Open)
+	}
+}
+
+func TestRedirectBack(t *testing.T) {
+	r := httptest.NewRequest("POST", "/domains/redirect", strings.NewReader("return_to=redirects"))
+	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	_ = r.ParseForm()
+	if got := redirectBack(r, "a.com", true); got != "/domains/redirect?domain=a.com" {
+		t.Errorf("failed save from the Redirects page went to %q", got)
+	}
+	if got := redirectBack(r, "a.com", false); got != "/domains/redirect" {
+		t.Errorf("saved from the Redirects page went to %q", got)
+	}
+	plain := httptest.NewRequest("POST", "/domains/redirect", nil)
+	_ = plain.ParseForm()
+	if got := redirectBack(plain, "a.com", true); got != "/domains" {
+		t.Errorf("domains list form went to %q", got)
 	}
 }

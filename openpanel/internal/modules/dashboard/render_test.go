@@ -215,3 +215,34 @@ func TestRenderDashboardPageWithFlashAndImpersonation(t *testing.T) {
 		t.Error("expected flash message to render")
 	}
 }
+
+// a new account sees the setup wizard over the dashboard
+func TestRenderDashboardPageOnboarding(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	userAllowed := map[string]bool{
+		"dashboard": true, "domains": true, "websites": true, "wordpress": true, "mysql": true, "php": true,
+		"change_ws": true, "change_db": true, "varnish": true, "backups": true, "waf": true, "ip_blocker": true,
+		"twofa": true, "passkeys": true, "filemanager": true, "autoinstaller": true,
+	}
+	data := DashboardPageData{
+		LayoutData: web.LayoutData{
+			Title: "Dashboard", BrandName: "Test Panel", CSRFToken: "test-csrf-token", PanelDir: "ltr",
+			MenuStyle: "modern", NavItems: web.BuildSidebarNav(userAllowed, nil, "/dashboard"),
+			NavTrail: []web.NavLink{{Label: "Dashboard"}}, UserAllowed: userAllowed,
+			UserAllowedJSON: web.UserAllowedList(userAllowed), CurrentUsername: "newuser",
+			HostingPlanName: "Starter", AvatarType: "letter", RequestPath: "/dashboard", AdminPort: "2087",
+			T: mgr.Translator("en"),
+		},
+		Sections:           buildDashboardSections(mgr.Translator("en"), userAllowed, nil, "modern", nil),
+		OnboardingShow:     true,
+		TwofaStatusMessage: twofaStatusMessage(mgr.Translator("en"), false),
+		IPAddress:          "1.2.3.4",
+	}
+	w := httptest.NewRecorder()
+	if err := dashboardPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	if !strings.Contains(w.Body.String(), "onboardingWizard(") {
+		t.Error("expected the onboarding wizard")
+	}
+}

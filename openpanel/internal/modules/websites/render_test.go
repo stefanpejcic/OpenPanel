@@ -18,6 +18,7 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 		NavGroups: web.BuildClassicSidebarNav(userAllowed, nil, path), UserAllowed: userAllowed,
 		UserAllowedJSON: web.UserAllowedList(userAllowed), CurrentUsername: "testuser",
 		RequestPath: path, AdminPort: "2087", PasswordStrength: 50, T: mgr.Translator("en"),
+		PageTabs: web.BuildPageTabs(userAllowed, nil, path, web.TabContext{}),
 	}
 }
 
@@ -136,14 +137,15 @@ func TestSiteManagerGitTab(t *testing.T) {
 			if hasTab != gitOn {
 				t.Errorf("%s: git tab shown = %v, want %v", name, hasTab, gitOn)
 			}
-			if !strings.Contains(body, "data-tab-overflow") {
+			// the vertical section rail has room for every tab, only the horizontal bar folds into More
+			if !strings.Contains(body, "op-mgr-rail") && !strings.Contains(body, "data-tab-overflow") {
 				t.Errorf("%s: tab bar is missing data-tab-overflow", name)
 			}
 		}
 	}
 }
 
-// the WordPress debugging tab shows the site's latest errors only when error_logs is allowed
+// the WordPress debugging tab shows the site's latest errors only when error_logs is allowed, below the debug.log card
 func TestWPDebuggingErrorLogs(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	for _, on := range []bool{true, false} {
@@ -159,8 +161,9 @@ func TestWPDebuggingErrorLogs(t *testing.T) {
 		if shown != on {
 			t.Errorf("error logs block shown = %v, want %v", shown, on)
 		}
-		if on && strings.Index(body, "exact: 1, limit: 10") > strings.Index(body, `id="updateDebugForm"`) {
-			t.Error("error logs block should come before the debugging settings")
+		if on && strings.Index(body, "exact: 1, limit: 10") < strings.Index(body, `x-data="wpDebugLog()"`) {
+			t.Error("error logs block should come after the debug.log card")
 		}
 	}
 }
+

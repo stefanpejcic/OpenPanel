@@ -37,9 +37,107 @@ func validateSubdomain(s string) bool {
 	return subdomainRE.MatchString(s)
 }
 
-// validateIP reports whether ip parses as a valid IPv4 or IPv6 address.
-func validateIP(ip string) bool {
-	return net.ParseIP(ip) != nil
+// validateIPv4 reports whether ip is a plain dotted IPv4 address, the only kind an A record can hold
+func validateIPv4(ip string) bool {
+	parsed := net.ParseIP(ip)
+	return parsed != nil && parsed.To4() != nil && !strings.Contains(ip, ":")
+}
+
+// ipFitsRecordType reports whether ip can go into a record of this type
+func ipFitsRecordType(ip, recordType string) bool {
+	switch strings.ToUpper(recordType) {
+	case "A":
+		return validateIPv4(ip)
+	case "AAAA":
+		parsed := net.ParseIP(ip)
+		return parsed != nil && strings.Contains(ip, ":")
+	}
+	return false
+}
+
+// Host conflicts hostConflict reports.
+const (
+	conflictNone   = ""
+	conflictDDNS   = "ddns"
+	conflictRecord = "record"
+)
+
+// hostConflict checks a zone for another record already using sub, skipLine being the entry that's being edited
+func hostConflict(content, domain, sub string, skipLine int) string {
+	sub = strings.ToLower(sub)
+	domain = strings.ToLower(strings.TrimSuffix(domain, "."))
+	found := conflictNone
+	for i, rawLine := range strings.Split(content, "\n") {
+		if i+1 == skipLine || rawLine == "" || rawLine[0] == ' ' || rawLine[0] == '\t' {
+			continue
+		}
+		line := strings.TrimSpace(rawLine)
+		if strings.HasPrefix(line, "$") || strings.HasPrefix(line, ";") {
+			continue
+		}
+		fields := strings.Fields(line)
+		if len(fields) < 3 || zoneOwnerLabel(fields[0], domain) != sub {
+			continue
+		}
+		if webcallTokenRE.MatchString(line) {
+			return conflictDDNS
+		}
+		switch recordTypeOf(fields[1:]) {
+		case "A", "AAAA", "CNAME":
+			found = conflictRecord
+		}
+	}
+	return found
+}
+
+// zoneOwnerLabel turns a record owner like "home", "home.example.com." or "@" into the label relative to domain
+func zoneOwnerLabel(owner, domain string) string {
+	owner = strings.ToLower(owner)
+	if owner == "@" {
+		return ""
+	}
+	if !strings.HasSuffix(owner, ".") {
+		return owner
+	}
+	owner = strings.TrimSuffix(owner, ".")
+	if owner == domain {
+		return ""
+	}
+	if label, ok := strings.CutSuffix(owner, "."+domain); ok {
+		return label
+	}
+	return owner + "."
+}
+
+// recordTypeOf skips the optional TTL and class in a record's fields and returns its type
+func recordTypeOf(fields []string) string {
+	for _, f := range fields {
+		u := strings.ToUpper(f)
+		if u == "IN" || u == "CH" || u == "HS" || strings.Trim(u, "0123456789SMHDW") == "" {
+			continue
+		}
+		return u
+	}
+	return ""
+}
+
+// hostConflictInZone is hostConflict on a domain's zone file
+func hostConflictInZone(domain, sub string, skipLine int) string {
+	content, err := tenantfs.ReadFile(zoneFilePath(domain))
+	if err != nil {
+		return conflictNone
+	}
+	return hostConflict(string(content), domain, sub, skipLine)
+}
+
+// entryAt returns the dynamic DNS entry on a zone line, so edit and delete can't touch ordinary records
+func entryAt(domain string, lineNumber int) (DynDNSEntry, bool) {
+	for _, e := range parseDynamicDNSFromZone(domain) {
+		if e.LineNumber == lineNumber {
+			return e, true
+		}
+	}
+	return DynDNSEntry{}, false
 }
 
 // nowUTCStr returns the current UTC time in the format stored in each entry's "updated=" marker
@@ -47,7 +145,7 @@ func nowUTCStr() string {
 	return time.Now().UTC().Format("2006-01-02T15:04:05Z")
 }
 
-// DynDNSEntry is one dynamic DNS entry parsed from a zone file, its JSON tags read back out by dynamic_dns.html's Alpine component as a flat array
+// DynDNSEntry is one dynamic DNS entry parsed from a zone file, its JSON tags are what GET /api/dynamic-dns returns
 type DynDNSEntry struct {
 	LineNumber  int    `json:"line_number"`
 	Subdomain   string `json:"subdomain"`
@@ -57,8 +155,6 @@ type DynDNSEntry struct {
 	Token       string `json:"token"`
 	LastUpdated string `json:"last_updated"`
 	RawLine     string `json:"raw_line"`
-	// Index is this entry's 0-based position in the flattened list that openEdit()/openDelete() index into, computed here since text/template has no running counter across nested range loops
-	Index int `json:"-"`
 }
 
 var webcallTokenRE = regexp.MustCompile(`;\s*webcall=(\S+)`)
@@ -177,6 +273,16 @@ func deleteZoneLine(domain string, lineNumber int) (deleted string, ok bool) {
 	}
 	dns.RestartDNSService(domain)
 	return strings.TrimSpace(deleted), true
+}
+
+// regenerateToken gives entry a new token and keeps its name, record and last update; the old update URL stops working right away
+func regenerateToken(domain string, entry DynDNSEntry) bool {
+	return updateZoneLine(domain, entry.LineNumber, regeneratedLine(entry))
+}
+
+// regeneratedLine is entry's zone line with a fresh token
+func regeneratedLine(entry DynDNSEntry) string {
+	return buildZoneLine(entry.Subdomain, entry.Type, entry.Record, generateToken(16), entry.LastUpdated)
 }
 
 // addDynamicDNSEntry appends a new dynamic DNS record to domain's zone file and returns its generated token

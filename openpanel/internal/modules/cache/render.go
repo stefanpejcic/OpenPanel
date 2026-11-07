@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -47,6 +48,53 @@ type CachePageData struct {
 
 	// Varnish-only.
 	VarnishDomains []DomainVarnishRow
+}
+
+// VarnishDomainNames feeds the domain search's empty state
+func (d CachePageData) VarnishDomainNames() []string {
+	names := make([]string, 0, len(d.VarnishDomains))
+	for _, v := range d.VarnishDomains {
+		names = append(names, v.DomainURL)
+	}
+	return names
+}
+
+// StatusTone picks the kit colour class for the status pill
+func (d CachePageData) StatusTone() string {
+	switch d.StatusKey {
+	case "running", "healthy":
+		return "is-success"
+	case "unhealthy", "exited", "dead":
+		return "is-danger"
+	case "not_found":
+		return "is-muted"
+	}
+	return "is-warning"
+}
+
+// ConnectAddress is how apps in the account reach the service
+func (d CachePageData) ConnectAddress() string {
+	host := fmt.Sprintf("%s:%d", d.Service, d.Port)
+	switch d.Service {
+	case "redis", "valkey":
+		return "tcp://" + host
+	case "elasticsearch", "opensearch":
+		return "http://" + host
+	}
+	return host
+}
+
+// PingCommand is a quick connection check to run from the account's terminal
+func (d CachePageData) PingCommand() string {
+	switch d.Service {
+	case "redis", "valkey":
+		return fmt.Sprintf("%s-cli -h %s -p %d ping", d.Service, d.Service, d.Port)
+	case "memcached":
+		return fmt.Sprintf("echo stats | nc %s %d", d.Service, d.Port)
+	case "elasticsearch", "opensearch":
+		return fmt.Sprintf("curl -s http://%s:%d", d.Service, d.Port)
+	}
+	return ""
 }
 
 func renderCacheServicePage(a *appctx.App, w http.ResponseWriter, r *http.Request, def serviceDef, status docker.ContainerStatus) {
