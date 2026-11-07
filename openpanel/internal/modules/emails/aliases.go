@@ -319,7 +319,7 @@ func handleAliasNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}

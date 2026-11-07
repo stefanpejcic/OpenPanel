@@ -39,6 +39,11 @@ func resolveUnderVarWWWHTML(raw string) (resolved string, ok bool) {
 	return cleaned, true
 }
 
+// hasDotDot reports a .. path component
+func hasDotDot(p string) bool {
+	return strings.Contains("/"+p+"/", "/../")
+}
+
 // backupsDir holds every site's backups, database dumps and wp-config.php copies included, so a docroot there would publish them
 const backupsDir = "/var/www/html/backups"
 
@@ -123,7 +128,12 @@ func handleDomainsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		onionFlags = []string{"--hs_ed25519_public_key", onionPublicKey, "--hs_ed25519_secret_key", onionSecretKey}
+		// raw paths can hold lnk/.. which Clean hides but the kernel follows, so only the cleaned ones go to opencli
+		if hasDotDot(onionPublicKey) || hasDotDot(onionSecretKey) {
+			web.FlashRedirect(a, w, r, "error", "Onion key paths can't contain '..'.", "/domains/new")
+			return
+		}
+		onionFlags = []string{"--hs_ed25519_public_key", normalizedPublic, "--hs_ed25519_secret_key", normalizedSecret}
 	}
 
 	docroot, docrootOK := resolveUnderVarWWWHTML(providedDocroot)

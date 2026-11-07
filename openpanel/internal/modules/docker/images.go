@@ -17,6 +17,10 @@ import (
 func handleContainersChangeImage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service := r.PathValue("service")
+	if !podmanmanager.ValidName(service) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 
 	userID, _ := auth.UserID(r)
 	injected, err := a.InjectData(ctx, userID)

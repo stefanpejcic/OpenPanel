@@ -4,7 +4,9 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"syscall"
 	"testing"
+	"time"
 )
 
 func writeHomeFile(t *testing.T, home, name, content string) {
@@ -108,4 +110,41 @@ func TestRenameNoReplace(t *testing.T) {
 	if err := renameNoReplace(root.Root, "a.txt", "c.txt"); err != nil || readHomeFile(home, "c.txt") != "a" {
 		t.Fatalf("rename to a new name: err = %v, c.txt = %q", err, readHomeFile(home, "c.txt"))
 	}
+}
+
+func TestOpenRegularRefusesFifo(t *testing.T) {
+	dir := t.TempDir()
+	root, err := os.OpenRoot(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer root.Close()
+	if err := syscall.Mkfifo(filepath.Join(dir, "notes.txt"), 0o644); err != nil {
+		t.Skip("mkfifo not available:", err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "ok.txt"), []byte("hi"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	// a fifo used to block the open and then stream past the view size limit
+	done := make(chan error, 1)
+	go func() {
+		f, err := openRegular(root, "notes.txt")
+		if f != nil {
+			f.Close()
+		}
+		done <- err
+	}()
+	select {
+	case err := <-done:
+		if !errors.Is(err, errNotRegular) {
+			t.Fatalf("fifo: err=%v, want errNotRegular", err)
+		}
+	case <-time.After(2 * time.Second):
+		t.Fatal("opening a fifo blocked")
+	}
+	f, err := openRegular(root, "ok.txt")
+	if err != nil {
+		t.Fatalf("regular file refused: %v", err)
+	}
+	f.Close()
 }

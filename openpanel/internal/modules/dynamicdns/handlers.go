@@ -1,6 +1,7 @@
 package dynamicdns
 
 import (
+	"crypto/subtle"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -17,7 +18,8 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var dynDNSTokenRE = regexp.MustCompile(`^[a-zA-Z0-9]+$`)
+// dynDNSTokenRE is the only credential of the public update URL, so short user-picked tokens are refused
+var dynDNSTokenRE = regexp.MustCompile(`^[a-zA-Z0-9]{16,64}$`)
 
 // hostProblem returns why a host can't be saved as an untranslated message with a %(host)s slot, or "" when it's fine
 func hostProblem(zone, domain, sub, ip string, skipLine int) string {
@@ -60,7 +62,7 @@ func handleDynamicDNS(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		domain := strings.TrimSpace(r.Form.Get("domain"))
 
 		// the ownership check stops at the first slash, the zone path doesn't
-		if strings.ContainsAny(domain, "/\\") || !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+		if strings.ContainsAny(domain, "/\\") || !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 			web.FlashRedirect(a, w, r, "error", "You do not own this domain.", back)
 			return
 		}
@@ -160,6 +162,14 @@ func handleDynamicDNSUpdate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Missing token", http.StatusBadRequest)
 		return
 	}
+	if !updateLimiter.allow(reqip.ClientIP(r)) {
+		http.Error(w, "Too many requests", http.StatusTooManyRequests)
+		return
+	}
+	if !dynDNSTokenRE.MatchString(token) {
+		http.Error(w, "Invalid token", http.StatusNotFound)
+		return
+	}
 
 	entries, err := tenantfs.ReadDir(dns.ZoneFileDir)
 	if err != nil {
@@ -182,8 +192,11 @@ func handleDynamicDNSUpdate(w http.ResponseWriter, r *http.Request) {
 
 		for i, rawLine := range lines {
 			line := strings.TrimSpace(rawLine)
+			if strings.HasPrefix(line, ";") {
+				continue
+			}
 			m := webcallTokenRE.FindStringSubmatch(line)
-			if m == nil || m[1] != token {
+			if m == nil || subtle.ConstantTimeCompare([]byte(m[1]), []byte(token)) != 1 {
 				continue
 			}
 

@@ -57,6 +57,7 @@ func setWAFForDomains(ctx context.Context, domains []string, enabled bool) (chan
 	if enabled {
 		to = "On"
 	}
+	olds := map[string][]byte{}
 	for _, d := range domains {
 		path := domainConfigPath(d)
 		content, readErr := tenantfs.ReadFile(path)
@@ -72,10 +73,17 @@ func setWAFForDomains(ctx context.Context, domains []string, enabled bool) (chan
 			failed = append(failed, d)
 			continue
 		}
+		olds[path] = content
 		changed++
 	}
 	if changed > 0 {
-		err = reloadCaddy(ctx)
+		if err = reloadCaddy(ctx); err != nil {
+			// caddy rejected something, put every file back so the shared config still loads
+			for p, c := range olds {
+				_ = tenantfs.WriteFile(p, c, 0o644)
+			}
+			_ = reloadCaddy(ctx)
+		}
 	}
 	return changed, failed, err
 }

@@ -2,6 +2,7 @@ package emails
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -123,7 +124,7 @@ func handleImportEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		_, domain, _ := strings.Cut(raw[0], "@")
 		row := ImportRow{
 			Email: raw[0], Password: raw[1], Quota: raw[2], Domain: domain,
-			DomainValid: a.CheckDomainBelongsToUser(ctx, userID, domain),
+			DomainValid: a.CheckExactDomainBelongsToUser(ctx, userID, domain),
 			EmailExists: existingEmails[raw[0]],
 		}
 		row.IsValid = row.DomainValid && !row.EmailExists
@@ -185,7 +186,8 @@ func handleConfirmEmailImport(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 	injectedData, _ := a.InjectData(ctx, userID)
 	planID, _ := injectedData["hosting_plan"].(int)
-	_, maxEmailQuota, _ := a.QueryPlanEmailMailboxLimits(ctx, planID)
+	emailLimit, existing, maxEmailQuota := importLimits(ctx, a, userID, currentUsername, planID)
+	added := 0
 	ipAddress := reqip.ClientIP(r)
 
 	w.Header().Set("Content-Type", "text/plain")
@@ -207,8 +209,13 @@ func handleConfirmEmailImport(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		quota := user.Quota
 		_, domain, _ := strings.Cut(email, "@")
 
-		if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+		if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 			writeLine("[%d/%d] Skipping %s: domain '%s' does not exist.\n", idx+1, total, email, domain)
+			continue
+		}
+
+		if emailLimit != 0 && existing+added >= emailLimit {
+			writeLine("[%d/%d] Skipping %s: email account limit reached for your plan.\n", idx+1, total, email)
 			continue
 		}
 
@@ -217,12 +224,12 @@ func handleConfirmEmailImport(a *appctx.App, w http.ResponseWriter, r *http.Requ
 
 		out, cmdErr := exec.CommandContext(ctx, "opencli", "email-setup", "email", "add", email, password, "--wait").CombinedOutput()
 		if cmdErr != nil {
-			errorMessage := strings.TrimSpace(string(out))
-			if strings.Contains(errorMessage, "Supplied non-number argument") || strings.Contains(errorMessage, "User doesn't exist") {
-				writeLine("%s\n", errorMessage)
-			} else {
-				writeLine("Failed to add email %s: %s\n", email, errorMessage)
-			}
+			writeLine("Failed to add email %s: %s\n", email, strings.TrimSpace(string(out)))
+			continue
+		}
+		added++
+		if strings.TrimSpace(quota) == "" {
+			applyPlanMaxQuota(ctx, email, maxEmailQuota)
 		}
 
 		if quota != "" {
@@ -233,6 +240,7 @@ func handleConfirmEmailImport(a *appctx.App, w http.ResponseWriter, r *http.Requ
 			} else {
 				amount, unit := m[1], m[2]
 				if amount == "0" {
+					applyPlanMaxQuota(ctx, email, maxEmailQuota)
 					writeLine("[%d/%d] Skipping quota for %s (0 specified)\n", idx+1, total, email)
 					writeLine("\n")
 					continue
@@ -280,3 +288,23 @@ func handleConfirmEmailImport(a *appctx.App, w http.ResponseWriter, r *http.Requ
 }
 
 var importQuotaRE = regexp.MustCompile(`(?i)^(\d+)([BKMGT])?$`)
+
+// importLimits loads the plan's mailbox limit and how many mailboxes the account has now, so import can't go past what single create allows
+func importLimits(ctx context.Context, a *appctx.App, userID int, username string, planID int) (emailLimit, existing int, maxEmailQuota string) {
+	limitStr, maxQuota, _ := a.QueryPlanEmailMailboxLimits(ctx, planID)
+	emailLimit, _ = strconv.Atoi(limitStr)
+	if emailLimit != 0 {
+		domains, _ := a.AllDomainsForUser(ctx, userID)
+		existing = GetEmailCount(ctx, a, userID, username, domainSet(domains))
+	}
+	return emailLimit, existing, maxQuota
+}
+
+// applyPlanMaxQuota gives a mailbox imported without a quota the plan's max, same as single create
+func applyPlanMaxQuota(ctx context.Context, email, maxEmailQuota string) {
+	if maxEmailQuota == "0" || maxEmailQuota == "" {
+		return
+	}
+	num, unit := parseMaxQuota(maxEmailQuota)
+	_ = exec.CommandContext(ctx, "opencli", "email-setup", "quota", "set", email, trimFloat(num)+unit).Run()
+}

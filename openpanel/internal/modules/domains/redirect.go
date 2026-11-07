@@ -16,8 +16,21 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-// httpURLRE requires the whole value to be a scheme plus at least one non-whitespace char, not just a prefix check, so a redirect_url can't smuggle a newline into the Caddyfile line insertOrReplaceRedirect() splices this into
-var httpURLRE = regexp.MustCompile(`^https?://\S+$`)
+// httpURLRE allows printable ASCII only, without quotes, backslash or braces, so a redirect can't add Caddyfile tokens, unicode spaces or {file.*}/{env.*} placeholders
+var httpURLRE = regexp.MustCompile(`^https?://[!#-&(-\[\]-_a-z|~]+$`)
+
+// removeRedirectLines drops the panel's own "redir <url>" lines and leaves everything else alone
+func removeRedirectLines(content, redirectURL string) string {
+	lines := strings.Split(content, "\n")
+	out := lines[:0]
+	for _, l := range lines {
+		if strings.TrimSpace(l) == "redir "+redirectURL {
+			continue
+		}
+		out = append(out, l)
+	}
+	return strings.Join(out, "\n")
+}
 
 func domainConfPath(domainURL string) string {
 	return "/etc/openpanel/caddy/domains/" + domainURL + ".conf"
@@ -59,7 +72,7 @@ func handleDeleteRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	_ = r.ParseForm()
 	domainURL := r.Form.Get("domain_name")
 
-	if !a.CheckDomainBelongsToUser(ctx, userID, domainURL) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domainURL) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
@@ -120,7 +133,7 @@ func handleSetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		// the ownership check stops at the first slash, the conf path doesn't
-		if strings.ContainsAny(domainURL, "/\\") || !a.CheckDomainBelongsToUser(ctx, userID, domainURL) {
+		if strings.ContainsAny(domainURL, "/\\") || !a.CheckExactDomainBelongsToUser(ctx, userID, domainURL) {
 			http.Error(w, "You do not own this domain.", http.StatusForbidden)
 			return
 		}
@@ -151,7 +164,7 @@ func handleSetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	// ?domain= opens that domain's form straight away, old links to the per-domain page land there
 	open := r.URL.Query().Get("domain")
-	if open != "" && !a.CheckDomainBelongsToUser(ctx, userID, open) {
+	if open != "" && !a.CheckExactDomainBelongsToUser(ctx, userID, open) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
@@ -270,12 +283,12 @@ func redirectTargetProblem(domain, target string, existing map[string]string) (m
 	if target == "" {
 		return "Enter the URL visitors should go to.", ""
 	}
-	if !httpURLRE.MatchString(target) {
-		return "Start with http:// or https:// and leave out spaces.", ""
-	}
-	// caddy expands {placeholders} in redir targets and quotes would break the conf
+	// caddy expands {placeholders} and quotes break the conf, checked first for the clearer message
 	if strings.ContainsAny(target, "{}\"`\\") {
 		return "The URL can't contain { } \" ` or \\ characters.", ""
+	}
+	if !httpURLRE.MatchString(target) {
+		return "Start with http:// or https:// and leave out spaces.", ""
 	}
 	u, err := url.Parse(target)
 	if err != nil || u.Hostname() == "" {

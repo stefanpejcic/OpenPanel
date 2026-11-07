@@ -8,37 +8,19 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"syscall"
 	"time"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/safenet"
 )
 
 var (
-	errBlockedAddress   = errors.New("destination address is not public")
+	errBlockedAddress   = safenet.ErrBlockedAddress
 	errDownloadTooLarge = errors.New("download exceeds size limit")
 )
 
-func isPublicIP(ip net.IP) bool {
-	return !(ip.IsPrivate() || ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() ||
-		ip.IsInterfaceLocalMulticast() || ip.IsMulticast() || ip.IsUnspecified() || cgnatRange.Contains(ip))
-}
+func isPublicIP(ip net.IP) bool { return safenet.IsPublicIP(ip) }
 
-var cgnatRange = &net.IPNet{IP: net.IPv4(100, 64, 0, 0), Mask: net.CIDRMask(10, 32)}
-
-// safeDialer checks the IP actually being connected to, so redirects and DNS rebinding can't reach internal services
-var safeDialer = &net.Dialer{
-	Timeout: 15 * time.Second,
-	Control: func(network, address string, _ syscall.RawConn) error {
-		host, _, err := net.SplitHostPort(address)
-		if err != nil {
-			return err
-		}
-		ip := net.ParseIP(host)
-		if ip == nil || !isPublicIP(ip) {
-			return fmt.Errorf("%w: %s", errBlockedAddress, host)
-		}
-		return nil
-	},
-}
+var safeDialer = safenet.Dialer
 
 var safeHTTPClient = &http.Client{
 	Transport: &http.Transport{

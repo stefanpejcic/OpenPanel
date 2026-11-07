@@ -10,6 +10,9 @@
     </header>
 </div>
 
+{{if .Created.Name}}
+{{template "db_created" .}}
+{{else}}
 <!-- form -->
 <div class="max-w-2xl px-4 pb-8 sm:px-6 lg:px-8">
 <div id="toAddActive" class="CrawlerStatusCard rounded-md border border-gray-200 bg-white dark:border-gray-900 dark:bg-raised">
@@ -38,5 +41,6 @@
 
 <script src="{{static "js/generator.js"}}"></script>
 
+{{end}}
 <!-- END templates/mongodb/new.html -->
 {{end}}

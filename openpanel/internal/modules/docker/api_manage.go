@@ -3,6 +3,7 @@ package docker
 import (
 	"encoding/json"
 	"fmt"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"net/http"
 	"strings"
 
@@ -130,7 +131,7 @@ func apiContainerCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
 		return
 	}
-	if volErr := checkHostPaths(composeData, volNames, userContext); volErr != nil {
+	if volErr := checkHostPaths(composeData, volNames, userContext, ""); volErr != nil {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
 		return
 	}
@@ -172,6 +173,10 @@ func apiContainerCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 // apiContainerEdit updates an existing service's compose definition, same as handleEditContainer's POST branch (containers.go). If service_name is present in the body it must match the {service} path value - renaming isn't supported here either.
 func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	service := r.PathValue("service")
+	if !podmanmanager.ValidName(service) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 
 	currentUsername, userContext, err := apiInjected(a, r)
 	if err != nil {
@@ -233,7 +238,7 @@ func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
 		return
 	}
-	if volErr := checkHostPaths(composeData, volNames, userContext); volErr != nil {
+	if volErr := checkHostPaths(composeData, volNames, userContext, service); volErr != nil {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
 		return
 	}
@@ -279,6 +284,10 @@ func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 func apiContainerDelete(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service := r.PathValue("service")
+	if !podmanmanager.ValidName(service) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 
 	currentUsername, userContext, err := apiInjected(a, r)
 	if err != nil {
@@ -444,6 +453,10 @@ func apiContainerSwitchWebserver(a *appctx.App, w http.ResponseWriter, r *http.R
 func apiContainerChangeImage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service := r.PathValue("service")
+	if !podmanmanager.ValidName(service) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 
 	currentUsername, userContext, err := apiInjected(a, r)
 	if err != nil {

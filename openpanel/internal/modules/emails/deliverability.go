@@ -217,7 +217,7 @@ func handleEmailDeliverabilityDomain(a *appctx.App, w http.ResponseWriter, r *ht
 	}
 
 	domain := r.PathValue("domain")
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}

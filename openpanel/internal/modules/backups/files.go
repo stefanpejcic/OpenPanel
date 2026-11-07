@@ -37,6 +37,11 @@ func listsExist(userHome, backup string, kinds []string) bool {
 	return true
 }
 
+// maxListBytes caps one saved file list, far above what a real account's file list reaches
+const maxListBytes = 256 << 20
+
+var errListTooLarge = errors.New("backup file list is too large")
+
 func saveList(userHome, backup, kind string, r io.Reader) error {
 	dest := listPath(userHome, backup, kind)
 	if err := tenantfs.MkdirAll(filepath.Dir(dest), 0o700); err != nil {
@@ -47,7 +52,12 @@ func saveList(userHome, backup, kind string, r io.Reader) error {
 	if err != nil {
 		return err
 	}
-	if _, err := io.Copy(f, r); err != nil {
+	// the archive comes from a destination the account picked, so a tiny gzip could expand to anything here
+	n, err := io.Copy(f, io.LimitReader(r, maxListBytes+1))
+	if err == nil && n > maxListBytes {
+		err = errListTooLarge
+	}
+	if err != nil {
 		f.Close()
 		tenantfs.Remove(tmp)
 		return err

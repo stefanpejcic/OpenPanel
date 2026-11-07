@@ -118,9 +118,15 @@ func importPostgresDump(ctx context.Context, userContext, dbName, targetDir, tem
 	}
 
 	containerFilePath := "/tmp/" + filename
-	copyArgv := podmanmanager.PodmanArgv(userContext, "cp", tempFilePath, "postgres:"+containerFilePath)
-	if runErr := podmanmanager.Command(ctx, userContext, copyArgv).Run(); runErr != nil {
-		return false, runErr.Error()
+	// opened no-follow and streamed in, the account can swap the file in its dumps volume for a symlink and podman cp would follow it
+	inFile, openErr := tenantfs.Open(tempFilePath)
+	if openErr != nil {
+		return false, openErr.Error()
+	}
+	copyErr = podmanmanager.CopyIn(ctx, userContext, inFile, "postgres", containerFilePath)
+	_ = inFile.Close()
+	if copyErr != nil {
+		return false, copyErr.Error()
 	}
 
 	importArgv := podmanmanager.PodmanArgv(userContext, "exec", "-i", "postgres",

@@ -4,8 +4,10 @@ package podmanmanager
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 	"sync"
 	"syscall"
@@ -24,6 +26,11 @@ func isRootContext(userContext string) bool {
 	}
 }
 
+// IsRootContext is isRootContext for callers that must refuse the root podman, like the web terminal
+func IsRootContext(userContext string) bool {
+	return isRootContext(userContext)
+}
+
 // GetUID returns the owning UID of /home/<context>, used to find that user's rootless podman socket
 func GetUID(userContext string) (int, error) {
 	info, err := os.Stat("/home/" + userContext)
@@ -40,8 +47,9 @@ func GetUID(userContext string) (int, error) {
 // PodmanUserSocket returns the unix:// URL for <context>'s rootless podman socket - the /hostfs prefix matters since this binary runs in a container with the host rootfs bind-mounted there
 func PodmanUserSocket(userContext string) string {
 	uid, err := GetUID(userContext)
-	if err != nil {
-		uid = 0
+	if err != nil || uid == 0 {
+		// never fall back to root's own socket
+		return "unix:///hostfs/run/user/nonexistent/podman/podman.sock"
 	}
 	return fmt.Sprintf("unix:///hostfs/run/user/%d/podman/podman.sock", uid)
 }
@@ -110,6 +118,9 @@ func BuildWPCLIBaseCommand(userContext, phpContainer string) []string {
 // BuildComposeUpDownCommand returns the `podman-compose up -d`/`down` argv and working directory for a container (ok is false for an unrecognized action) - "up" always passes --no-deps since callers already start real dependencies themselves, and the vendored podman-compose crashes with a KeyError resolving a `${VAR:-default}` depends_on entry otherwise, which looks like activate silently failed
 func BuildComposeUpDownCommand(userContext, containerName, action string) (argv []string, dir string, ok bool) {
 	dir = "/home/" + userContext
+	if !ValidName(containerName) {
+		return nil, dir, false
+	}
 	switch action {
 	case "activate":
 		return PodmanComposeArgv("up", "-d", "--no-deps", containerName), dir, true
@@ -165,4 +176,22 @@ func composeConfigOutput(ctx context.Context, userContext string) ([]byte, error
 	composeConfigCache[userContext] = composeConfigEntry{stamp: stamp, at: time.Now(), out: out}
 	composeConfigMu.Unlock()
 	return out, nil
+}
+
+// CopyIn streams src into dst inside the account's container, src should be an already opened no-follow handle, `podman cp` would re-resolve a path the account can swap for a symlink
+func CopyIn(ctx context.Context, userContext string, src io.Reader, container, dst string) error {
+	argv := PodmanArgv(userContext, "exec", "-i", container, "sh", "-c", `cat > "$1"`, "sh", dst)
+	cmd := Command(ctx, userContext, argv)
+	cmd.Stdin = src
+	if out, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("%v: %s", err, strings.TrimSpace(string(out)))
+	}
+	return nil
+}
+
+var validNameRE = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$`)
+
+// ValidName reports whether a service or container name is plain, a leading - would be read as a podman or podman-compose option
+func ValidName(name string) bool {
+	return validNameRE.MatchString(name)
 }

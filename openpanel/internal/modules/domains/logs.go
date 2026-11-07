@@ -265,7 +265,7 @@ func handleViewDomainAccessLog(a *appctx.App, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domainName) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
@@ -343,7 +343,7 @@ func handleDownloadDomainAccessLog(a *appctx.App, w http.ResponseWriter, r *http
 		http.Error(w, "Invalid domain.", http.StatusBadRequest)
 		return
 	}
-	if !a.CheckDomainBelongsToUser(r.Context(), userID, domainName) {
+	if !a.CheckExactDomainBelongsToUser(r.Context(), userID, domainName) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}

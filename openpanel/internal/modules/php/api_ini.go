@@ -66,6 +66,10 @@ func apiPHPIni(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	version := r.PathValue("version")
+	if !phpVersionFormRE.MatchString(version) {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid PHP version"})
+		return
+	}
 	iniPath := apiIniPath(userContext, version)
 
 	if r.Method == http.MethodGet {
@@ -83,6 +87,7 @@ func apiPHPIni(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Content *string `json:"content"`
 	}
+	r.Body = http.MaxBytesReader(w, r.Body, web.MaxConfigBody)
 	_ = json.NewDecoder(r.Body).Decode(&body)
 	if body.Content == nil {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "content is required"})

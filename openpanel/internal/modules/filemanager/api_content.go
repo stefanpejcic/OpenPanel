@@ -115,7 +115,7 @@ func apiDownloadFile(a *appctx.App, w http.ResponseWriter, r *http.Request, file
 	}
 	defer root.Close()
 
-	f, openErr := root.Open(rel)
+	f, openErr := openRegular(root, rel)
 	if openErr != nil {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Error retrieving file size."})
 		return
@@ -177,7 +177,7 @@ func apiViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filename
 	}
 
 	fileLimitMB := atoiDefault(a.Config.Get("filemanager_view_size", "500"), 500)
-	f, openErr := root.Open(rel)
+	f, openErr := openRegular(root, rel)
 	if openErr != nil {
 		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "Error accessing file size."})
 		return
@@ -199,7 +199,7 @@ func apiViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filename
 		return
 	}
 
-	content, readErr := io.ReadAll(f)
+	content, readErr := io.ReadAll(io.LimitReader(f, int64(fileLimitMB)*1024*1024))
 	if readErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Error opening file."})
 		return

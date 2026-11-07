@@ -49,7 +49,7 @@ func writeAPIEmailsJSON(w http.ResponseWriter, status int, v any) {
 }
 
 func apiOwnDomainOr403(a *appctx.App, w http.ResponseWriter, r *http.Request, userID int, domain string) bool {
-	if !a.CheckDomainBelongsToUser(r.Context(), userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(r.Context(), userID, domain) {
 		writeAPIEmailsJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain."})
 		return false
 	}
@@ -173,16 +173,9 @@ func apiEmailsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var stderrBuf strings.Builder
 	cmd.Stderr = &stderrBuf
 	stdout, cmdErr := cmd.Output()
-	if cmdErr != nil || strings.TrimSpace(string(stdout)) != "" {
-		stderrStr := strings.TrimSpace(stderrBuf.String())
-		if !strings.Contains(stderrStr, "Supplied non-number argument") && !strings.Contains(stderrStr, "User doesn't exist") {
-			msg := stderrStr
-			if msg == "" {
-				msg = "command failed"
-			}
-			writeAPIEmailsJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to create email: " + msg})
-			return
-		}
+	if msg, failed := emailAddFailure(cmdErr, string(stdout), stderrBuf.String()); failed {
+		writeAPIEmailsJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to create email: " + msg})
+		return
 	}
 
 	if gb != "" {

@@ -389,6 +389,27 @@ func mailConnectHost(ctx context.Context, a *appctx.App, username string) (strin
 	return c.Host, c.SSL
 }
 
+// docker-mailserver colors its errors even without a terminal
+var emailAnsiRE = regexp.MustCompile(`\x1b\[[0-9;]*m`)
+
+// emailAddFailure reads the result of `opencli email-setup email add`: a non-zero exit always failed, and so does stdout without one since success prints nothing, except the known harmless quota messages
+func emailAddFailure(cmdErr error, stdout, stderr string) (string, bool) {
+	stdout, stderr = strings.TrimSpace(emailAnsiRE.ReplaceAllString(stdout, "")), strings.TrimSpace(emailAnsiRE.ReplaceAllString(stderr, ""))
+	if cmdErr == nil && stdout == "" {
+		return "", false
+	}
+	if cmdErr == nil && (strings.Contains(stderr, "Supplied non-number argument") || strings.Contains(stderr, "User doesn't exist")) {
+		return "", false
+	}
+	switch {
+	case stderr != "":
+		return stderr, true
+	case stdout != "":
+		return stdout, true
+	}
+	return "command failed", true
+}
+
 // handleEmailsNew mirrors emails_new().
 func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -436,7 +457,7 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+		if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 			http.Error(w, "You do not own this domain.", http.StatusForbidden)
 			return
 		}
@@ -478,14 +499,9 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		var stderrBuf strings.Builder
 		cmd.Stderr = &stderrBuf
 		stdout, cmdErr := cmd.Output()
-		// mirrors emails_new(): a zero-exit run with non-empty stdout is ALSO treated as a failure (opencli's success case prints nothing)
-		if cmdErr != nil || strings.TrimSpace(string(stdout)) != "" {
-			stderrStr := strings.TrimSpace(stderrBuf.String())
-			if !strings.Contains(stderrStr, "Supplied non-number argument") && !strings.Contains(stderrStr, "User doesn't exist") {
-				msg := addFailureReason(stderrStr, string(stdout))
-				web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to add email %(email)s: %(msg)s", "email", email, "msg", msg), back)
-				return
-			}
+		if msg, failed := emailAddFailure(cmdErr, string(stdout), stderrBuf.String()); failed {
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to add email %(email)s: %(msg)s", "email", email, "msg", msg), back)
+			return
 		}
 
 		if gb != "" {
@@ -739,16 +755,25 @@ func handleEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	emailLimitStr, maxEmailQuota, _ := a.QueryPlanEmailMailboxLimits(ctx, planID)
 	emailLimit, _ := strconv.Atoi(emailLimitStr)
 	aliases := func() []AliasEntry { return GetAliasList(ctx, a, userID, currentUsername, userDomains) }
-	var connect AccountsConnect
 	// ?created= comes from the create form's redirect and opens the mail app settings for that mailbox
-	if created := r.URL.Query().Get("created"); isValidEmail(created) {
-		if _, domain, _ := strings.Cut(created, "@"); userDomains[domain] {
-			connect.Created, connect.Welcome = created, r.URL.Query().Get("welcome") == "1"
-		}
+	created := createdMailboxFromRequest(r, userDomains)
+	if created.Address != "" {
+		created.Conn = currentMailConnection(ctx, a, currentUsername)
 	}
-	connect.Conn = currentMailConnection(ctx, a, currentUsername)
-	connect.Host, connect.Secure = connect.Conn.Host, connect.Conn.SSL
-	renderAccountsPage(a, w, r, currentEmailsList, domains, maxEmailQuota, emailLimit, aliases, connect)
+	renderAccountsPage(a, w, r, currentEmailsList, domains, maxEmailQuota, emailLimit, aliases, created)
+}
+
+// createdMailboxFromRequest reads ?created=&welcome=, ignoring addresses on domains this account doesn't own
+func createdMailboxFromRequest(r *http.Request, userDomains map[string]bool) CreatedMailbox {
+	address := r.URL.Query().Get("created")
+	if !isValidEmail(address) {
+		return CreatedMailbox{}
+	}
+	_, domain, _ := strings.Cut(address, "@")
+	if !userDomains[domain] {
+		return CreatedMailbox{}
+	}
+	return CreatedMailbox{Address: address, Welcome: r.URL.Query().Get("welcome") == "1"}
 }
 
 func handleSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, email string, userID int, currentUsername string, userDomains map[string]bool) {
@@ -760,7 +785,7 @@ func handleSingleEmail(a *appctx.App, w http.ResponseWriter, r *http.Request, em
 	}
 
 	_, domain, _ := strings.Cut(email, "@")
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
@@ -1007,7 +1032,7 @@ func handleEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 	userID, _ := auth.UserID(r)
-	if _, accountDomain, _ := strings.Cut(account, "@"); !a.CheckDomainBelongsToUser(ctx, userID, accountDomain) {
+	if _, accountDomain, _ := strings.Cut(account, "@"); !a.CheckExactDomainBelongsToUser(ctx, userID, accountDomain) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}

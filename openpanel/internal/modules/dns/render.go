@@ -27,9 +27,12 @@ type DNSPageData struct {
 	ZoneContent  string
 	Issues       []HealthIssue
 	TotalRecords int
-	Zones        []ZoneSummary // list page: every zone with its record counts
-	ZoneRecords  int           // list page: records across all zones
-	Nameservers  []string      // list page: the server's ns1-ns4, for the footer
+	Zones        []ZoneSummary   // list page: every zone with its record counts
+	ZoneRecords  int             // list page: records across all zones
+	Nameservers  []string        // list page: the server's ns1-ns4, for the footer
+	RecordTypes  []string        // add form dropdown
+	EditTypes    []string        // edit dropdown, no DMARC helper there
+	EditableType map[string]bool // rows of other types show no Edit button
 }
 
 // ZoneSummary is one row of the zone list: the domain, how many records its zone holds and how many of each type
@@ -109,6 +112,9 @@ func renderDNSTablePage(a *appctx.App, w http.ResponseWriter, r *http.Request, d
 		LayoutData: layout, Domain: domain, ViewMode: "table", Rows: rows,
 		Serial: serial, Issues: issues, TotalRecords: len(rows), Domains: zoneDomains,
 	}
+	data.RecordTypes = allowedDNSRecordTypes(a.Config)
+	data.EditTypes = editableRecordTypes(data.RecordTypes)
+	data.EditableType = recordTypeSet(data.RecordTypes)
 	if err := dnsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DNS - table template render error: %v", err)
 	}

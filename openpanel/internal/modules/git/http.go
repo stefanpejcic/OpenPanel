@@ -8,6 +8,7 @@ import (
 	"net/http/cgi"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 
@@ -132,6 +133,16 @@ func handleSmartHTTP(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if service != "git-receive-pack" || rest != "git-receive-pack" {
 		h.ServeHTTP(w, r)
 		return
+	}
+
+	// pushes are capped to what's left of the account's git storage, receive.maxInputSize covers the pack and MaxBytesReader the raw body
+	if left := gitRoomLeft(userContext); left >= 0 {
+		if left == 0 {
+			http.Error(w, errGitStorageFull.Error(), http.StatusRequestEntityTooLarge)
+			return
+		}
+		h.Env = append(h.Env, "GIT_CONFIG_COUNT=1", "GIT_CONFIG_KEY_0=receive.maxInputSize", "GIT_CONFIG_VALUE_0="+strconv.FormatInt(left, 10))
+		r.Body = http.MaxBytesReader(w, r.Body, left+1<<20)
 	}
 
 	unlock := lockRepo(userContext, name)

@@ -13,9 +13,9 @@ import (
 
 var (
 	databasesPage     = web.LoadPage("mysql/databases.html")
-	newDatabasePage   = web.LoadPage("db/new.html")
+	newDatabasePage   = web.LoadPage("db/new.html", "partials/_db_created.html")
 	usersPage         = web.LoadPage("mysql/users.html")
-	createUserPage    = web.LoadPage("mysql/mysql_user.html")
+	createUserPage    = web.LoadPage("mysql/mysql_user.html", "partials/_db_created.html")
 	passwordPage      = web.LoadPage("mysql/password.html")
 	wizardPage        = web.LoadPage("mysql/wizard.html")
 	assignPage        = web.LoadPage("mysql/assign.html")
@@ -127,7 +127,7 @@ type NewDatabasePageData struct {
 	DBLimit    int    // plan limit, 0 is unlimited
 	RemotePort string // published host port, "" when unknown
 	FormName   string // what was typed, kept after a failed submit
-	Created    string // the database just created, shows the done state
+	Created    web.DBCreated // the database just created, a blank Name shows the form
 }
 
 func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request, mysqlVersion, formName, created string) {
@@ -138,7 +138,7 @@ func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 	userContext, _ := injectedData["context"].(string)
 	data := NewDatabasePageData{
-		LayoutData: layout, Service: mysqlVersion, Engine: web.MySQLEngine, FormName: formName, Created: created,
+		LayoutData: layout, Service: mysqlVersion, Engine: web.MySQLEngine, FormName: formName, Created: web.DBCreated{Name: created, Slug: "mysql", CanImport: layout.UserAllowed["mysql_import"]},
 		DBLimit: planDBLimit(r.Context(), a, injectedData), RemotePort: remoteMySQLPort(userContext),
 	}
 	if created == "" {
@@ -187,7 +187,7 @@ type CreateUserPageData struct {
 	Names           web.DBNames
 	RemotePort      string
 	FormName        string
-	Created         string // the user just created, shows the done state with CreatedPassword once
+	Created         web.DBCreated // the user just created, shows the done state with CreatedPassword once
 	CreatedPassword string
 }
 
@@ -200,7 +200,7 @@ func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request,
 	userContext, _ := injectedData["context"].(string)
 	data := CreateUserPageData{
 		LayoutData: layout, Service: mysqlVersion, Engine: web.MySQLEngine, RemotePort: remoteMySQLPort(userContext),
-		FormName: formName, Created: created, CreatedPassword: password,
+		FormName: formName, Created: web.DBCreated{Name: created, Slug: "mysql"}, CreatedPassword: password,
 	}
 	if created == "" {
 		data.Names = loadNames(r.Context(), userContext)

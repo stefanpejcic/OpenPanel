@@ -6,11 +6,11 @@ package installmanifest
 
 import (
 	"context"
-	"os"
 	"path/filepath"
 	"strings"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
 // Name is the hidden marker file dropped in the install directory listing every top-level entry the
@@ -20,7 +20,8 @@ const Name = ".op-install-manifest"
 // Record snapshots dir's current top-level entries (host path, e.g. hostOSPath) and writes them to dir's
 // manifest file. Call this once, right after an install finishes successfully.
 func Record(dir string) error {
-	entries, err := os.ReadDir(dir)
+	// dir sits in the account's own volume, tenantfs keeps a symlink the account swapped in from leading the root panel elsewhere
+	entries, err := tenantfs.ReadDir(dir)
 	if err != nil {
 		return err
 	}
@@ -31,12 +32,12 @@ func Record(dir string) error {
 		}
 		names = append(names, e.Name())
 	}
-	return os.WriteFile(filepath.Join(dir, Name), []byte(strings.Join(names, "\n")), 0o644)
+	return tenantfs.WriteFile(filepath.Join(dir, Name), []byte(strings.Join(names, "\n")), 0o644)
 }
 
 // Entries reads back dir's manifest from the host, nil if there's none
 func Entries(dir string) []string {
-	out, err := os.ReadFile(filepath.Join(dir, Name))
+	out, err := tenantfs.ReadFile(filepath.Join(dir, Name))
 	if err != nil {
 		return nil
 	}
@@ -56,11 +57,11 @@ func Remove(dir string, entries []string) error {
 		if e == "" || e == "." || e == ".." || strings.Contains(e, "/") {
 			continue
 		}
-		if err := os.RemoveAll(filepath.Join(dir, e)); err != nil {
+		if err := tenantfs.RemoveAll(filepath.Join(dir, e)); err != nil {
 			return err
 		}
 	}
-	return os.Remove(filepath.Join(dir, Name))
+	return tenantfs.Remove(filepath.Join(dir, Name))
 }
 
 // EntriesViaContainer reads back the manifest for containerPath (as seen inside phpContainer) via podman
@@ -104,7 +105,7 @@ func ClearContentsViaContainer(ctx context.Context, userContext, phpContainer, c
 // host-side equivalent of ClearContentsViaContainer, for installers that extract host-side and can't
 // rely on the container's rootless "root" having permission to touch those files via podman exec.
 func ClearContents(dir string) error {
-	entries, err := os.ReadDir(dir)
+	entries, err := tenantfs.ReadDir(dir)
 	if err != nil {
 		return err
 	}
@@ -112,7 +113,7 @@ func ClearContents(dir string) error {
 		if e.Name() == Name {
 			continue
 		}
-		if rmErr := os.RemoveAll(filepath.Join(dir, e.Name())); rmErr != nil {
+		if rmErr := tenantfs.RemoveAll(filepath.Join(dir, e.Name())); rmErr != nil {
 			return rmErr
 		}
 	}

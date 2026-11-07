@@ -142,20 +142,26 @@ document.addEventListener('DOMContentLoaded', function () {
                             </td>
                             <td class="px-4">
                                 <select name="Type" aria-label="{{.T.Get "Type"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 w-28 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]" required onchange="updateForm()">
-                                    <option value="A">{{.T.Get "A"}}</option>
-                                    <option value="AAAA">{{.T.Get "AAAA"}}</option>
-                                    <option value="CAA">{{.T.Get "CAA"}}</option>
-                                    <option value="CNAME">{{.T.Get "CNAME"}}</option>
-                                    <option value="MX">{{.T.Get "MX"}}</option>
-                                    <option value="SRV">{{.T.Get "SRV"}}</option>
-                                    <option value="TLSA">{{.T.Get "TLSA"}}</option>
-                                    <option value="TXT">{{.T.Get "TXT"}}</option>
+                                    {{range .RecordTypes}}<option value="{{.}}">{{$.T.Get .}}</option>{{end}}
                                 </select>
                                 <input type="text" name="IN" class="d-none" required value="IN" hidden>
                             </td>
                             <td class="px-4">
                                 <input type="text" name="Priority" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 mb-2" placeholder="0" aria-label="{{.T.Get "Priority"}}" style="display:none;">
                                 <input type="text" name="Record" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" placeholder="" aria-label="{{.T.Get "Record"}}" required>
+
+                              <div id="dmarc_helper" style="display:none;" class="mt-3 space-y-2">
+                                  <label class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Policy for mail that fails the check"}}
+                                      <select id="dmarc_policy" onchange="dmarcBuild()" class="mt-1 block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+                                          <option value="none">{{.T.Get "none: only report"}}</option>
+                                          <option value="quarantine">{{.T.Get "quarantine: send to spam"}}</option>
+                                          <option value="reject">{{.T.Get "reject: refuse the message"}}</option>
+                                      </select>
+                                  </label>
+                                  <label class="block text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Email for reports (optional)"}}
+                                      <input type="email" id="dmarc_rua" data-no-live-validate oninput="dmarcBuild()" placeholder="postmaster@{{.Domain}}" class="mt-1 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
+                                  </label>
+                              </div>
 
                               <div id="tlsa_helper" style="display:none;" class="mt-3 whitespace-normal">
                                   <div class="mb-2 flex items-center gap-2">
@@ -214,6 +220,18 @@ document.addEventListener('DOMContentLoaded', function () {
         deleteWithSpace: {{toJSON (.T.Get " Delete")}},
         unexpectedError: {{toJSON (.T.Get "An unexpected error occurred. Please try again.")}}
     };
+    const dnsEditTypes = {{toJSON .EditTypes}};
+    // what the DMARC helper wrote, so leaving it only clears its own values
+    var dmarcFilled = { name: "", record: "" };
+
+    function dmarcBuild() {
+        var rua = document.getElementById("dmarc_rua").value.trim();
+        var record = "v=DMARC1; p=" + document.getElementById("dmarc_policy").value;
+        if (rua) record += "; rua=mailto:" + rua;
+        document.getElementsByName("Record")[0].value = record;
+        dmarcFilled.record = record;
+    }
+
     function updateForm() {
         var selectedType = document.getElementsByName("Type")[0].value;
         var recordInput = document.getElementsByName("Record")[0];
@@ -224,6 +242,14 @@ document.addEventListener('DOMContentLoaded', function () {
         tlsaHelper.style.display = "none";
         var warningEl = document.getElementById("tlsa_renewal_warning");
         if (warningEl) { warningEl.style.display = "none"; }
+
+        var dmarcHelper = document.getElementById("dmarc_helper");
+        dmarcHelper.style.display = selectedType === "DMARC" ? "block" : "none";
+        if (selectedType !== "DMARC" && dmarcFilled.record) {
+            if (recordInput.value === dmarcFilled.record) recordInput.value = "";
+            if (nameInput.value === "_dmarc") nameInput.value = "";
+            dmarcFilled.record = "";
+        }
 
         recordInput.required = true;
 
@@ -246,9 +272,37 @@ document.addEventListener('DOMContentLoaded', function () {
                 nameInput.value = "_443._tcp";
             }
             tlsaHelper.style.display = "block";
+        } else if (selectedType === "HTTPS") {
+            recordInput.removeAttribute("pattern");
+            recordInput.placeholder = '1 . alpn="h2,h3"';
+        } else if (selectedType === "SVCB") {
+            recordInput.removeAttribute("pattern");
+            recordInput.placeholder = "1 svc.{{.Domain}}. port=8443";
+        } else if (selectedType === "NS") {
+            recordInput.placeholder = "ns1.example.net";
+            recordInput.pattern = "^[A-Za-z0-9._-]+$";
+            nameInput.placeholder = "{{.T.Get "Subdomain"}}";
+        } else if (selectedType === "SSHFP") {
+            recordInput.placeholder = "4 2 <{{.T.Get "fingerprint"}}>";
+            recordInput.pattern = "^[0-9]+ [0-9]+ [0-9A-Fa-f]+$";
+        } else if (selectedType === "URI") {
+            recordInput.removeAttribute("pattern");
+            recordInput.placeholder = "10 1 https://{{.Domain}}/";
+        } else if (selectedType === "DMARC") {
+            recordInput.removeAttribute("pattern");
+            recordInput.placeholder = "v=DMARC1; p=none";
+            if (!nameInput.value || nameInput.value === "@") nameInput.value = "_dmarc";
+            dmarcBuild();
+        } else if (selectedType === "CAA") {
+            recordInput.removeAttribute("pattern");
+            recordInput.placeholder = '0 issue "letsencrypt.org"';
+        } else if (selectedType === "SRV") {
+            recordInput.removeAttribute("pattern");
+            recordInput.placeholder = "0 5 5060 sip.{{.Domain}}.";
         } else {
             recordInput.placeholder = "";
-            recordInput.pattern = "";
+            // an empty pattern only matches an empty value, so the browser would block the submit
+            recordInput.removeAttribute("pattern");
         }
 
         if (selectedType === "MX") {
@@ -380,7 +434,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         <td class="px-4 text-right whitespace-nowrap">
                             <div class="flex justify-end gap-2">
-                                <button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 py-1.5 edit-button" data-line="{{.RawLine}}" data-line-number="{{.LineNumber}}" data-end-line-number="{{.EndLineNumber}}" data-domain="{{$.Domain}}" aria-label="{{$.T.Get " Edit"}}"><i class="ri-pencil-line text-base leading-none" aria-hidden="true"></i><span class="hidden sm:inline">{{$.T.Get " Edit"}}</span></button>
+                                {{if index $.EditableType .Type}}<button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 py-1.5 edit-button" data-line="{{.RawLine}}" data-line-number="{{.LineNumber}}" data-end-line-number="{{.EndLineNumber}}" data-domain="{{$.Domain}}" aria-label="{{$.T.Get " Edit"}}"><i class="ri-pencil-line text-base leading-none" aria-hidden="true"></i><span class="hidden sm:inline">{{$.T.Get " Edit"}}</span></button>{{end}}
                                 <button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 py-1.5 text-red-600 dark:text-red-500 delete-button" data-row-id="{{.LineNumber}}" data-end-line-number="{{.EndLineNumber}}" data-domain="{{$.Domain}}" aria-label="{{$.T.Get " Delete"}}"><i class="ri-delete-bin-line text-base leading-none" aria-hidden="true"></i><span class="hidden sm:inline">{{$.T.Get " Delete"}}</span></button>
                                 <button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 py-1.5 save-button" style="display: none;" data-line-number="{{.LineNumber}}" data-domain="{{$.Domain}}"><i class="ri-check-line text-base leading-none" aria-hidden="true"></i><span class="hidden sm:inline">{{$.T.Get " Save"}}</span></button>
                                 <button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 py-1.5 cancel-button" style="display: none;" data-line="{{.RawLine}}"><i class="ri-close-line text-base leading-none" aria-hidden="true"></i><span class="hidden sm:inline">{{$.T.Get " Cancel"}}</span></button>
@@ -474,7 +528,8 @@ document.addEventListener('DOMContentLoaded', function () {
                   var existingField2 = dnsCells(row)[1].textContent;
                   var existingField3 = dnsCells(row)[2].textContent;
                   var existingPriority = '';
-                  var existingField4 = dnsCells(row)[3].textContent.trim().replace(/\.$/, '');
+                  // shown as stored, the final dot is what makes a target absolute
+                  var existingField4 = dnsCells(row)[3].textContent.trim();
 
                   if(existingField3 === 'MX') {
                     let priorityMatch = existingField4.match(/^(\d+)\s+/);
@@ -482,20 +537,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     existingField4 = existingField4.replace(/^(\d+)\s+/, '');
                   }
 
+                  row.dataset.originalTarget = existingField4;
+
                   var bulkCell = row.querySelector('input.bulk-select-box') ? row.firstElementChild.outerHTML : '';
                   row.innerHTML = bulkCell + `
                       <td class="px-4 whitespace-nowrap"><input type="text" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" aria-label="{{.T.Get "Name"}}" name="field1" value='${existingField1}'></td>
                       <td class="px-4 whitespace-nowrap"><input type="number" min="0" max="65535" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 w-28" aria-label="{{.T.Get "TTL"}}" name="field2" value='${existingField2}'></td>
                       <td class="px-4 whitespace-nowrap">
         <select name="field3" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 w-28 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]" aria-label="{{.T.Get "Type"}}" id="Type" required onchange="updateForm()">
-            <option value="A" ${existingField3 === 'A' ? 'selected' : ''}>A</option>
-            <option value="AAAA" ${existingField3 === 'AAAA' ? 'selected' : ''}>AAAA</option>
-            <option value="CAA" ${existingField3 === 'CAA' ? 'selected' : ''}>CAA</option>
-            <option value="CNAME" ${existingField3 === 'CNAME' ? 'selected' : ''}>CNAME</option>
-            <option value="MX" ${existingField3 === 'MX' ? 'selected' : ''}>MX</option>
-            <option value="SRV" ${existingField3 === 'SRV' ? 'selected' : ''}>SRV</option>
-            <option value="TLSA" ${existingField3 === 'TLSA' ? 'selected' : ''}>TLSA</option>
-            <option value="TXT" ${existingField3 === 'TXT' ? 'selected' : ''}>TXT</option>
+            ${dnsEditTypes.map(t => `<option value=\"${t}\" ${existingField3 === t ? 'selected' : ''}>${t}</option>`).join('')}
         </select>
                       </td>
 
@@ -559,15 +609,26 @@ document.addEventListener('click', function(e) {
     var priorityInput = row.querySelector('input[name="priority"]');
     var existingPriority = (priorityInput ? priorityInput.value : '') || '0';
 
-    if (updatedField3 === 'MX' && existingPriority) {
-        updatedField4 = existingPriority + ' ' + updatedField4;
-    }
 
     if (updatedField1.endsWith(domain)) {
         updatedField1 += '.';
     }
-    if (updatedField4.endsWith(domain)) {
+    if (updatedField3 === 'TXT') {
+        // the table shows TXT without quotes, saved bare a ; would cut the value off
+        if (!(updatedField4.startsWith('"') && updatedField4.endsWith('"'))) {
+            updatedField4 = '"' + updatedField4 + '"';
+        }
+    } else if (['CNAME', 'MX', 'NS'].includes(updatedField3)) {
+        // a typed hostname is absolute, an untouched relative target has to stay relative
+        if (updatedField4 !== row.dataset.originalTarget && updatedField4.includes('.') && !updatedField4.endsWith('.')) {
+            updatedField4 += '.';
+        }
+    } else if (updatedField4.endsWith(domain)) {
         updatedField4 += '.';
+    }
+
+    if (updatedField3 === 'MX' && existingPriority) {
+        updatedField4 = existingPriority + ' ' + updatedField4;
     }
 
     if (updatedField3 === 'CNAME') {

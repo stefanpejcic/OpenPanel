@@ -147,6 +147,12 @@ func createRepo(ctx context.Context, a *appctx.App, userID int, userContext stri
 	if _, dup := findRepo(existing, r.Name); dup {
 		return r, "", errors.New("A repository with this name already exists.")
 	}
+	if gitMaxRepos > 0 && len(existing) >= gitMaxRepos {
+		return r, "", errors.New("Repository limit reached for this account.")
+	}
+	if gitRoomLeft(userContext) == 0 {
+		return r, "", errors.New("Git storage limit reached for this account.")
+	}
 
 	r.WebhookToken = randomToken(32)
 	r.CreatedAt = nowStr()

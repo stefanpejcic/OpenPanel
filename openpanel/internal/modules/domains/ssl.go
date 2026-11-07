@@ -69,7 +69,7 @@ func handleDomainCustomSSL(a *appctx.App, w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domainName) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
@@ -189,7 +189,7 @@ func handleGetTLSAHash(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	userID, _ := auth.UserID(r)
 	domain := r.PathValue("domain")
 
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}

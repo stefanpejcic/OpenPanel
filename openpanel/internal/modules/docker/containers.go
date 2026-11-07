@@ -262,7 +262,7 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		fail(err.Error())
 		return
 	}
-	if err := checkHostPaths(composeData, r.Form["volume_name"], userContext); err != nil {
+	if err := checkHostPaths(composeData, r.Form["volume_name"], userContext, ""); err != nil {
 		fail(err.Error())
 		return
 	}
@@ -365,6 +365,10 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service := r.PathValue("service")
+	if !podmanmanager.ValidName(service) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 
 	userID, _ := auth.UserID(r)
 	injected, err := a.InjectData(ctx, userID)
@@ -446,7 +450,7 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			renderContainerFormPage(a, w, r, formView)
 			return
 		}
-		if err := checkHostPaths(composeData, r.Form["volume_name"], userContext); err != nil {
+		if err := checkHostPaths(composeData, r.Form["volume_name"], userContext, service); err != nil {
 			formView.Error = err.Error()
 			renderContainerFormPage(a, w, r, formView)
 			return
@@ -608,6 +612,10 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 func handleDeleteContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service := r.PathValue("service")
+	if !podmanmanager.ValidName(service) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 
 	userID, _ := auth.UserID(r)
 	injected, err := a.InjectData(ctx, userID)

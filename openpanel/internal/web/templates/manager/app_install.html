@@ -512,11 +512,6 @@ function showInstallError(name) {
   _setDescription({{toJSON (.T.Get "Install process failed for")}} + ` <span class="font-mono text-blue-500">${name}</span> — <a href="#" onclick="retryInstall();return false;" class="font-medium text-blue-500 hover:underline hover:underline-offset-4">` + {{toJSON (.T.Get "Click to retry")}} + `</a>`);
 }
 
-function _escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
 
 function resetDescription() {
   _clearHangTimer();
@@ -723,14 +718,8 @@ document.getElementById("installForm").addEventListener("submit", function(event
               } else if (data.error) {
                 markStepError(currentStepIndex);
                 showInstallError(_installDomain);
-                // data.error can now carry a tail of the container's own
-                // logs (e.g. an npm/pip failure) so it's attacker/app
-                // -influenced text, not just a static message from this
-                // code - escape it before it goes into showToast's
-                // innerHTML sink. isPermanent=true because that detail is
-                // too much to read before the default 5s auto-dismiss.
-                const safeError = _escapeHtml(data.error).replace(/\n/g, '<br>');
-                showToast(`${safeError} — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">{{$.T.Get "Retry"}}</a>`, 'error', true);
+                // can carry a tail of the container's logs, too long to read in the default 5s
+                showToast(data.error, 'error', true, { label: {{toJSON ($.T.Get "Retry")}}, onClick: retryInstall });
                 button.disabled = false;
               }
             } catch(e) { /* non-JSON line, ignore */ }
@@ -740,7 +729,7 @@ document.getElementById("installForm").addEventListener("submit", function(event
         }).catch(streamErr => {
           markStepError(currentStepIndex);
           showInstallError(_installDomain);
-          showToast({{toJSON (.T.Get "Connection lost during installation.")}} + ` — <a href="#" onclick="retryInstall();return false;" class="underline font-medium">{{$.T.Get "Retry"}}</a>`, 'error');
+          showToast({{toJSON (.T.Get "Connection lost during installation.")}}, 'error', false, { label: {{toJSON ($.T.Get "Retry")}}, onClick: retryInstall });
           button.disabled = false;
           console.error("Stream read error:", streamErr);
         });

@@ -394,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const parts = [];
             if (d.attention) parts.push({{.T.Get "Needs your attention"}} + ': ' + d.attention);
             if (d.look) parts.push({{.T.Get "Worth a look"}} + ': ' + d.look);
-            const msg = {{.T.Get "Yesterday's summary found something to check."}} + '<br>' + parts.join(' · ');
+            const msg = {{.T.Get "Yesterday's summary found something to check."}} + '\n' + parts.join(' · ');
             setTimeout(() => showToast(msg, d.attention ? 'warning' : 'info', true, { label: {{.T.Get "View summary"}}, href: d.url }), 800);
         })
         .catch(() => {});

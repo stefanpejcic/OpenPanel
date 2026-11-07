@@ -59,15 +59,13 @@ type AccountsPageData struct {
 	AliasCount     int
 	AliasInboxes   int
 	Full           bool
-	Connect        AccountsConnect
+	Created        CreatedMailbox
 }
 
-// AccountsConnect drives the "Connect a mail app" card, Created is the mailbox the create form just made
-type AccountsConnect struct {
-	Created string
+// CreatedMailbox fills the "Connect a mail app" section above the table, a blank Address hides it
+type CreatedMailbox struct {
+	Address string
 	Welcome bool
-	Host    string
-	Secure  bool
 	Conn    MailConnection
 }
 
@@ -169,7 +167,7 @@ func emailQuotaToast(rows []EmailListRow) (id, message string) {
 	}
 }
 
-func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, currentEmailsList []string, domains []appctx.Domain, maxEmailQuota string, emailLimit int, aliases func() []AliasEntry, connect AccountsConnect) {
+func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, currentEmailsList []string, domains []appctx.Domain, maxEmailQuota string, emailLimit int, aliases func() []AliasEntry, created CreatedMailbox) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Emails")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -181,13 +179,13 @@ func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, c
 	}
 	annotateEmailRows(rows)
 	for i := range rows {
-		if connect.Created != "" && strings.EqualFold(rows[i].Address, connect.Created) {
-			rows[i].IsNew, connect.Created = true, rows[i].Address
+		if created.Address != "" && strings.EqualFold(rows[i].Address, created.Address) {
+			rows[i].IsNew, created.Address = true, rows[i].Address
 		}
 	}
 	toastID, toastMsg := emailQuotaToast(rows)
 	layout.BulkActions = accountsBulkActions(layout.T, maxEmailQuota)
-	data := AccountsPageData{LayoutData: layout, Rows: rows, TotalCount: len(currentEmailsList), QuotaToastID: toastID, QuotaToastMsg: toastMsg, Connect: connect}
+	data := AccountsPageData{LayoutData: layout, Rows: rows, TotalCount: len(currentEmailsList), QuotaToastID: toastID, QuotaToastMsg: toastMsg, Created: created}
 	var aliasList []AliasEntry
 	if layout.UserAllowed["email_aliases"] {
 		aliasList = aliases()

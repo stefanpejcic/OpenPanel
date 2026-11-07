@@ -41,6 +41,15 @@ type accountQueue struct {
 	jobs    []*restoreJob
 	loaded  bool
 	working bool
+	// owner is the account identity from the session, jobs always run as it whatever the saved file says
+	owner    restoreRequest
+	ownerSet bool
+}
+
+// setOwner remembers who this queue belongs to, call with mu held
+func (q *accountQueue) setOwner(req restoreRequest) {
+	q.owner = restoreRequest{UserID: req.UserID, Username: req.Username, UserContext: req.UserContext}
+	q.ownerSet = true
 }
 
 var (
@@ -117,6 +126,7 @@ func newJobID() string {
 func (q *accountQueue) enqueue(a *appctx.App, req restoreRequest) *restoreJob {
 	q.mu.Lock()
 	defer q.mu.Unlock()
+	q.setOwner(req)
 	q.load()
 	job := &restoreJob{ID: newJobID(), Request: req, Status: "queued", Queued: time.Now().UTC()}
 	q.jobs = append(q.jobs, job)
@@ -157,6 +167,14 @@ func (q *accountQueue) work(a *appctx.App) {
 		}
 		now := time.Now().UTC()
 		job.Status, job.Started = "running", &now
+		// the saved file sits in the account's home, so the identity in it is never trusted
+		if !q.ownerSet {
+			job.Status, job.Message, job.Finished = "failed", "Restore owner unknown, queue it again.", &now
+			q.save()
+			q.mu.Unlock()
+			continue
+		}
+		job.Request.UserID, job.Request.Username, job.Request.UserContext = q.owner.UserID, q.owner.Username, q.owner.UserContext
 		q.save()
 		q.mu.Unlock()
 
@@ -209,9 +227,10 @@ func viewOf(j *restoreJob) jobView {
 }
 
 // snapshot returns the queue oldest first and the log newest first
-func (q *accountQueue) snapshot(a *appctx.App) (queue, logs []jobView) {
+func (q *accountQueue) snapshot(a *appctx.App, owner restoreRequest) (queue, logs []jobView) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
+	q.setOwner(owner)
 	q.load()
 	// queued jobs saved before a panel restart get picked up again here
 	q.startLocked(a)
@@ -250,11 +269,11 @@ func handleQueueRestore(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 // handleRestoreJobs lists the account's restore queue and log for the restore page
 func handleRestoreJobs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	_, _, userContext, err := auth.Injected(a, r)
+	userID, username, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	queue, logs := queueFor(userContext).snapshot(a)
+	queue, logs := queueFor(userContext).snapshot(a, restoreRequest{UserID: userID, Username: username, UserContext: userContext})
 	web.WriteJSON(w, http.StatusOK, map[string]any{"queue": queue, "logs": logs})
 }

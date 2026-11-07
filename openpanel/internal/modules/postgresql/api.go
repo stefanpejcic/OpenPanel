@@ -309,8 +309,14 @@ func apiPsqlImportDatabase(a *appctx.App, w http.ResponseWriter, r *http.Request
 	defer tenantfs.Remove(tempPath)
 
 	containerPath := "/tmp/" + header.Filename
-	cpArgv := podmanmanager.PodmanArgv(userContext, "cp", tempPath, "postgres:"+containerPath)
-	if cpErr := podmanmanager.Command(ctx, userContext, cpArgv).Run(); cpErr != nil {
+	inFile, openErr := tenantfs.Open(tempPath)
+	if openErr != nil {
+		writeAPIPsqlJSON(w, http.StatusInternalServerError, map[string]string{"error": "Import failed: " + openErr.Error()})
+		return
+	}
+	cpErr := podmanmanager.CopyIn(ctx, userContext, inFile, "postgres", containerPath)
+	_ = inFile.Close()
+	if cpErr != nil {
 		writeAPIPsqlJSON(w, http.StatusInternalServerError, map[string]string{"error": "Import failed: " + cpErr.Error()})
 		return
 	}

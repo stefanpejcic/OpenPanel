@@ -355,3 +355,67 @@ func TestRenderConfirmImportPage(t *testing.T) {
 		t.Error("expected both valid and invalid rows in body")
 	}
 }
+
+func TestRenderAccountsPageCreated(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	render := func(created CreatedMailbox, webmail bool) string {
+		layout := baseLayout(mgr, "/emails")
+		layout.UserAllowed["webmail"] = webmail
+		w := httptest.NewRecorder()
+		if err := accountsPage.Render(w, 200, AccountsPageData{LayoutData: layout, Created: created}); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		return w.Body.String()
+	}
+
+	body := render(CreatedMailbox{Address: "info@demo.rs", Welcome: true, Conn: mailConnectionFor(true, "mail.demo.rs")}, true)
+	for _, want := range []string{"Connect a mail app", "mail.demo.rs", "993", "465", "SSL/TLS", "welcome email", "/emails/configuration/apple/info@demo.rs", "/webmail/info@demo.rs"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("expected %q in body", want)
+		}
+	}
+
+	for _, unwanted := range []string{"STARTTLS", "?ssl=", "sent unencrypted"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("unexpected %q with SSL on", unwanted)
+		}
+	}
+
+	body = render(CreatedMailbox{Address: "info@demo.rs", Conn: mailConnectionFor(false, "1.2.3.4")}, false)
+	for _, want := range []string{"1.2.3.4", "143", "587", "No encryption", "sent unencrypted"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("expected %q with no SSL", want)
+		}
+	}
+	for _, unwanted := range []string{"STARTTLS", ">993<", ">465<", "SSL/TLS"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("unexpected %q with no SSL", unwanted)
+		}
+	}
+	if strings.Contains(body, "welcome email") {
+		t.Error("welcome line shown without welcome=1")
+	}
+	if strings.Contains(body, "/webmail/info@demo.rs") {
+		t.Error("webmail button shown without the webmail feature")
+	}
+	if strings.Contains(render(CreatedMailbox{}, true), "Connect a mail app") {
+		t.Error("section shown with nothing created")
+	}
+}
+
+func TestCreatedMailboxFromRequest(t *testing.T) {
+	owned := map[string]bool{"demo.rs": true}
+	cases := map[string]CreatedMailbox{
+		"created=a%40demo.rs&welcome=1": {Address: "a@demo.rs", Welcome: true},
+		"created=a%40demo.rs":           {Address: "a@demo.rs"},
+		"created=a%40other.rs":          {},
+		"created=%3Cscript%3E":          {},
+		"":                              {},
+	}
+	for query, want := range cases {
+		r := httptest.NewRequest("GET", "/emails?"+query, nil)
+		if got := createdMailboxFromRequest(r, owned); got != want {
+			t.Errorf("%q: got %+v, want %+v", query, got, want)
+		}
+	}
+}

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
@@ -58,6 +59,60 @@ func validateZoneFile(domain, zoneFilePath string) string {
 		return strings.TrimSpace(string(out))
 	}
 	return ""
+}
+
+// ZoneDirectiveError refuses master-file directives other than $TTL and $ORIGIN, $INCLUDE reads files inside the shared bind container and $GENERATE can blow up the shared named, "" means fine
+func ZoneDirectiveError(content string) string {
+	// a lone \r could end a line for BIND but not for the split below
+	if strings.Contains(content, "\r") {
+		return "Carriage returns are not allowed in zone files."
+	}
+	for _, line := range strings.Split(content, "\n") {
+		if !strings.HasPrefix(line, "$") {
+			continue
+		}
+		name := strings.ToUpper(strings.Fields(line)[0])
+		if name != "$TTL" && name != "$ORIGIN" {
+			return "Zone directive " + strings.Fields(line)[0] + " is not allowed."
+		}
+	}
+	return ""
+}
+
+// WriteZoneFile writes a zone after the directive check, every tenant-driven zone write goes through here
+func WriteZoneFile(path string, data []byte) error {
+	content := NormalizeZoneLineEndings(string(data))
+	if msg := ZoneDirectiveError(content); msg != "" {
+		return fmt.Errorf("%s", msg)
+	}
+	return tenantfs.WriteFile(path, []byte(content), 0o644)
+}
+
+// zones from older templates are CRLF, a lone \r is still refused by ZoneDirectiveError
+func NormalizeZoneLineEndings(content string) string {
+	return strings.ReplaceAll(content, "\r\n", "\n")
+}
+
+// AppendZoneRecord adds one record line to a zone, it goes through the same directive check as WriteZoneFile
+func AppendZoneRecord(path, line string) error {
+	if strings.ContainsAny(line, "\r\n") {
+		return fmt.Errorf("line breaks are not allowed in a record")
+	}
+	if msg := ZoneDirectiveError(line); msg != "" {
+		return fmt.Errorf("%s", msg)
+	}
+	f, err := tenantfs.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	// a zone ending without a newline would glue the record onto its last line
+	prefix := ""
+	if existing, _ := tenantfs.ReadFile(path); len(existing) > 0 && existing[len(existing)-1] != '\n' {
+		prefix = "\n"
+	}
+	_, err = f.WriteString(prefix + line + "\n")
+	return err
 }
 
 // serialNumberRE matches an 8-digit date plus a 2-digit daily counter, immediately followed by the "; Serial number" marker comment

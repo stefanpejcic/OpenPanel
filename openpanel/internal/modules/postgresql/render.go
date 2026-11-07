@@ -12,9 +12,9 @@ import (
 
 var (
 	databasesPage      = web.LoadPage("psql/databases.html")
-	newDatabasePage    = web.LoadPage("db/new.html")
+	newDatabasePage    = web.LoadPage("db/new.html", "partials/_db_created.html")
 	usersPage          = web.LoadPage("psql/users.html")
-	createUserPage     = web.LoadPage("psql/psql_user.html")
+	createUserPage     = web.LoadPage("psql/psql_user.html", "partials/_db_created.html")
 	passwordPage       = web.LoadPage("psql/password.html")
 	wizardPage         = web.LoadPage("psql/wizard.html")
 	assignPage         = web.LoadPage("psql/assign.html")
@@ -107,7 +107,7 @@ type CreatePageData struct {
 	DBLimit  int // plan limit, 0 is unlimited
 	DBUsage  int
 	FormName string // what was typed, kept after a failed submit
-	Created  string // the database or user just created, shows the done state
+	Created  web.DBCreated // the database or user just created, a blank Name shows the form
 
 	CreatedPassword  string // a new user's password, shown once
 	Success          bool   // wizard done
@@ -142,7 +142,7 @@ func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request
 	if !ok {
 		return
 	}
-	data.FormName, data.Created = formName, created
+	data.FormName, data.Created = formName, web.DBCreated{Name: created, Slug: "postgresql", CanImport: data.UserAllowed["postgresql_import"]}
 	if err := newDatabasePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - new database template render error: %v", err)
 	}
@@ -189,7 +189,7 @@ func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request,
 	if !ok {
 		return
 	}
-	data.FormName, data.Created, data.CreatedPassword = formName, created, password
+	data.FormName, data.Created, data.CreatedPassword = formName, web.DBCreated{Name: created, Slug: "postgresql"}, password
 	if err := createUserPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - create user template render error: %v", err)
 	}

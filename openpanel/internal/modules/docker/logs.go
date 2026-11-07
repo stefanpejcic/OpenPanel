@@ -61,6 +61,10 @@ func runPodmanLogs(ctx context.Context, userContext string, args ...string) (str
 func handleContainerLogs(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	containerName := r.PathValue("container_name")
+	if containerName != "" && !podmanmanager.ValidName(containerName) {
+		http.Error(w, "invalid service name", http.StatusBadRequest)
+		return
+	}
 
 	userID, _ := auth.UserID(r)
 	injected, err := a.InjectData(ctx, userID)

@@ -1,12 +1,39 @@
 package emails
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
 )
+
+func TestEmailAddFailure(t *testing.T) {
+	exit1 := errors.New("exit status 1")
+	cases := []struct {
+		name           string
+		err            error
+		stdout, stderr string
+		msg            string
+		failed         bool
+	}{
+		{"clean", nil, "", "", "", false},
+		{"offline warning only", nil, "", "Warning: not running", "", false},
+		{"harmless quota message", nil, "x", "User doesn't exist", "", false},
+		{"stdout without exit code", nil, "oops", "", "oops", true},
+		{"oci error", exit1, "", "OCI runtime error\n", "OCI runtime error", true},
+		{"quota text can't hide a real failure", exit1, "", "User doesn't exist", "User doesn't exist", true},
+		{"colors are stripped", exit1, "", "\x1b[1;31mERROR\x1b[0m already exists", "ERROR already exists", true},
+		{"silent failure", exit1, "", "", "command failed", true},
+	}
+	for _, c := range cases {
+		msg, failed := emailAddFailure(c.err, c.stdout, c.stderr)
+		if msg != c.msg || failed != c.failed {
+			t.Errorf("%s: got (%q, %v), want (%q, %v)", c.name, msg, failed, c.msg, c.failed)
+		}
+	}
+}
 
 func TestParseEmailListRow(t *testing.T) {
 	row := parseEmailListRow("* info@demo.rs ( 0 / 2.0G ) [45%]")

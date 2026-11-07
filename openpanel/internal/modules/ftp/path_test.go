@@ -23,6 +23,12 @@ func TestCleanFTPPath(t *testing.T) {
 		"/var/www/html/a|b",
 		"/var/www/html/*",
 		"",
+		"/var/www/html/x';touch INJECTED;'",
+		"/var/www/html/a$(id)",
+		"/var/www/html/a`id`",
+		"/var/www/html/a b",
+		"/var/www/html/a\nb",
+		"/var/www/html/a&b",
 	}
 	for _, in := range bad {
 		if got, good := cleanFTPPath(in); good {

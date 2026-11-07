@@ -43,8 +43,13 @@ func backupDir(userContext string) string {
 
 // isBackupInProgress mirrors _is_backup_in_progress().
 func isBackupInProgress(ctx context.Context, currentUsername string) bool {
-	err := exec.CommandContext(ctx, "pgrep", "-f", "user-backup.*--account.*"+currentUsername).Run()
+	err := exec.CommandContext(ctx, "pgrep", "-f", backupProcessPattern(currentUsername)).Run()
 	return err == nil
+}
+
+// backupProcessPattern matches only this account's user-backup, bob used to match bobby's and xbob's too
+func backupProcessPattern(username string) string {
+	return "user-backup.*--account " + regexp.QuoteMeta(username) + "( |$)"
 }
 
 // formatSize mirrors _format_size().

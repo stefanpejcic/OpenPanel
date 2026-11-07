@@ -12,7 +12,7 @@
     </div>
 </header>
 
-{{if .Created}}
+{{if .Created.Name}}
 <!-- done state, the password is shown this once -->
 <div class="max-w-2xl px-4 pb-8 sm:px-6 lg:px-8" id="dbUserCreated" x-data="{
   copied: null,
@@ -28,7 +28,7 @@
 
     <div class="mt-6 divide-y divide-gray-200 overflow-hidden rounded-md border border-gray-200 bg-white text-sm dark:divide-gray-800 dark:border-gray-800 dark:bg-raised">
         <template x-for="row in [
-          {label:{{toJSON (.T.Get "Username")}}, key:'user', val:{{toJSON .Created}}},
+          {label:{{toJSON (.T.Get "Username")}}, key:'user', val:{{toJSON .Created.Name}}},
           {label:{{toJSON (.T.Get "Password")}}, key:'pass', val:{{toJSON .CreatedPassword}}},
           {label:{{toJSON (.T.Get "Server")}},   key:'host', val:{{toJSON .Engine.Host}}},
           {label:{{toJSON (.T.Get "Port")}},     key:'port', val:{{toJSON .Engine.Port}}, nocopy: true}
@@ -42,12 +42,12 @@
             <span x-show="row.nocopy" class="size-8 shrink-0" aria-hidden="true"></span>
           </div>
         </template>
-        <noscript><p class="px-4 py-2 font-mono text-xs text-gray-900 dark:text-gray-50">{{.Created}}</p></noscript>
+        <noscript><p class="px-4 py-2 font-mono text-xs text-gray-900 dark:text-gray-50">{{.Created.Name}}</p></noscript>
     </div>
     {{with .RemotePort}}<p class="mt-2 text-xs text-gray-500">{{$.T.Get "From another server, turn on"}} <a href="/mysql/remote-mysql" class="text-blue-500 hover:underline">{{$.T.Get "Remote access"}}</a> {{$.T.Get "and use port"}} <span class="font-mono tabular-nums text-gray-900 dark:text-gray-50">{{.}}</span>.</p>{{end}}
 
     <ul class="mt-6 divide-y divide-gray-200 rounded-md border border-gray-200 bg-white text-sm dark:divide-gray-800 dark:border-gray-800 dark:bg-raised">
-        <li><a href="/mysql/assign?database_user={{.Created}}" class="flex items-start gap-3 px-4 py-3 transition hover:bg-gray-50 dark:hover:bg-gray-900/60">
+        <li><a href="/mysql/assign?database_user={{.Created.Name}}" class="flex items-start gap-3 px-4 py-3 transition hover:bg-gray-50 dark:hover:bg-gray-900/60">
             <i class="ri-links-line mt-0.5 text-gray-500" aria-hidden="true"></i>
             <span><span class="block font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Assign to a database"}}</span><span class="mt-0.5 block text-gray-500">{{.T.Get "The user can't see any database until you assign it to one."}}</span></span>
         </a></li>
@@ -55,7 +55,7 @@
             <i class="ri-database-2-line mt-0.5 text-gray-500" aria-hidden="true"></i>
             <span><span class="block font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Create a database"}}</span><span class="mt-0.5 block text-gray-500">{{.T.Get "Make a database for this user first."}}</span></span>
         </a></li>
-        <li><a href="/mysql/password/{{.Created}}" class="flex items-start gap-3 px-4 py-3 transition hover:bg-gray-50 dark:hover:bg-gray-900/60">
+        <li><a href="/mysql/password/{{.Created.Name}}" class="flex items-start gap-3 px-4 py-3 transition hover:bg-gray-50 dark:hover:bg-gray-900/60">
             <i class="ri-key-2-line mt-0.5 text-gray-500" aria-hidden="true"></i>
             <span><span class="block font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Change password"}}</span><span class="mt-0.5 block text-gray-500">{{.T.Get "Set a different password for this user."}}</span></span>
         </a></li>

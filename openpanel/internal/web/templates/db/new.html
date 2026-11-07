@@ -11,53 +11,13 @@
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Create a database"}}</h1>
         <p class="mt-1 max-w-3xl text-sm text-gray-500">{{.T.Get .Engine.NewIntro}}</p>
     </div>
-    {{if not .Created}}
+    {{if not .Created.Name}}
     <a href="/{{.Engine.Slug}}/wizard" class="{{$btn}}"><i class="ri-magic-line" aria-hidden="true"></i>{{.T.Get "Database wizard"}}</a>
     {{end}}
 </header>
 
-{{if .Created}}
-<!-- done state -->
-<div class="max-w-2xl px-4 pb-8 sm:px-6 lg:px-8" id="dbCreated">
-    <div class="flex gap-3 rounded-md bg-emerald-50 p-4 text-sm text-emerald-900 dark:bg-emerald-950/70 dark:text-emerald-500" role="status">
-        <i class="ri-checkbox-circle-line size-5 shrink-0 text-lg leading-5" aria-hidden="true"></i>
-        <div>
-            <p class="font-semibold">{{.T.Get "Database created"}}</p>
-            <p class="mt-1">{{.T.Get "Nobody can use it until you assign a user to it."}}</p>
-        </div>
-    </div>
-
-    <div class="mt-6 rounded-md border border-gray-200 bg-white dark:border-gray-900 dark:bg-raised" x-data="{ copied: false }">
-        <div class="flex items-center gap-2 py-1.5 pr-1.5 pl-4 text-sm">
-            <span class="w-24 shrink-0 text-gray-500">{{.T.Get "Database"}}</span>
-            <span class="min-w-0 flex-1 truncate font-mono text-xs text-gray-900 dark:text-gray-50">{{.Created}}</span>
-            <button type="button" @click="copyToClipboard({{toJSON .Created}}).then(() => { copied = true; setTimeout(() => copied = false, 1500) })" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" title="{{.T.Get "Copy"}}" aria-label="{{.T.Get "Copy database name"}}">
-                <i :class="copied ? 'ri-check-line text-emerald-600 dark:text-emerald-500' : 'ri-file-copy-line'" class="ri-file-copy-line" aria-hidden="true"></i>
-            </button>
-        </div>
-        <ul class="divide-y divide-gray-200 border-t border-gray-200 text-sm dark:divide-gray-800 dark:border-gray-800">
-            <li><a href="/{{.Engine.Slug}}/assign?database_name={{.Created}}" class="flex items-start gap-3 px-4 py-3 transition hover:bg-gray-50 dark:hover:bg-gray-900/60">
-                <i class="ri-links-line mt-0.5 text-gray-500" aria-hidden="true"></i>
-                <span><span class="block font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Assign a user"}}</span><span class="mt-0.5 block text-gray-500">{{.T.Get "Give an existing user access to this database."}}</span></span>
-            </a></li>
-            <li><a href="/{{.Engine.Slug}}/user" class="flex items-start gap-3 px-4 py-3 transition hover:bg-gray-50 dark:hover:bg-gray-900/60">
-                <i class="ri-user-add-line mt-0.5 text-gray-500" aria-hidden="true"></i>
-                <span><span class="block font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Create a user"}}</span><span class="mt-0.5 block text-gray-500">{{.T.Get "Make a new user with its own password first."}}</span></span>
-            </a></li>
-            {{if index .UserAllowed (print .Engine.Slug "_import")}}
-            <li><a href="/{{.Engine.Slug}}/import/{{.Created}}" class="flex items-start gap-3 px-4 py-3 transition hover:bg-gray-50 dark:hover:bg-gray-900/60">
-                <i class="ri-upload-2-line mt-0.5 text-gray-500" aria-hidden="true"></i>
-                <span><span class="block font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Import a dump"}}</span><span class="mt-0.5 block text-gray-500">{{.T.Get "Load an existing backup into it."}}</span></span>
-            </a></li>
-            {{end}}
-        </ul>
-    </div>
-
-    <div class="mt-6 flex flex-col-reverse gap-2 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end dark:border-gray-800">
-        <a href="/{{.Engine.Slug}}" class="{{$btn}}">{{.T.Get "View databases"}}</a>
-        <a href="/{{.Engine.Slug}}/new" class="{{$btnPrimary}}"><i class="ri-add-line" aria-hidden="true"></i>{{.T.Get "Create another"}}</a>
-    </div>
-</div>
+{{if .Created.Name}}
+{{template "db_created" .}}
 {{else}}
 
 <script src="{{static "js/generator.js"}}"></script>

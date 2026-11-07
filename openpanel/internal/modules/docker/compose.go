@@ -123,7 +123,9 @@ func LoadEnvFile(userContext string) map[string]string {
 func SaveEnvFile(userContext string, env map[string]string) error {
 	path := homePath(userContext, ".env")
 	existing, _ := tenantfs.ReadFile(path)
-	line := func(k string) string { return k + `="` + strings.ReplaceAll(env[k], `"`, `\"`) + `"` }
+	line := func(k string) string {
+		return k + `="` + strings.ReplaceAll(strings.NewReplacer("\r", "", "\n", "").Replace(env[k]), `"`, `\"`) + `"`
+	}
 
 	var out []string
 	written := map[string]bool{}
@@ -181,11 +183,21 @@ var restrictedEnvKeys = map[string]bool{
 	"TOTAL_CPU": true, "TOTAL_RAM": true, "HOSTNAME": true, "OS": true,
 }
 
+var envKeyRE = regexp.MustCompile(`^[A-Z_][A-Z0-9_]*$`)
+
+// ValidEnvValue reports whether v can sit inside KEY="v" without ending the quote or the line
+func ValidEnvValue(v string) bool {
+	return !strings.ContainsAny(v, "\r\n\"\\\x00")
+}
+
 // SetEnvValue updates (or appends) one KEY=value line in /home/<context>/.env, preserving every other line's exact formatting. Returns a non-empty error message for a restricted key, or "" on success.
 func SetEnvValue(userContext, variableName, newValue string) string {
 	variableName = strings.ToUpper(variableName)
 	if restrictedEnvKeys[variableName] {
 		return "restricted"
+	}
+	if !envKeyRE.MatchString(variableName) || !ValidEnvValue(newValue) {
+		return "invalid characters"
 	}
 
 	path := homePath(userContext, ".env")

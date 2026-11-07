@@ -11,9 +11,9 @@ import (
 
 var (
 	databasesPage   = web.LoadPage("mongodb/databases.html")
-	newDatabasePage = web.LoadPage("mongodb/new.html")
+	newDatabasePage = web.LoadPage("mongodb/new.html", "partials/_db_created.html")
 	usersPage       = web.LoadPage("mongodb/users.html")
-	createUserPage  = web.LoadPage("mongodb/mongodb_user.html")
+	createUserPage  = web.LoadPage("mongodb/mongodb_user.html", "partials/_db_created.html")
 	passwordPage    = web.LoadPage("mongodb/password.html")
 	wizardPage      = web.LoadPage("mongodb/wizard.html")
 	assignPage      = web.LoadPage("mongodb/assign.html")
@@ -114,7 +114,7 @@ type CreatePageData struct {
 	DBLimit  int // plan limit, 0 is unlimited
 	DBUsage  int
 	FormName string // what was typed, kept after a failed submit
-	Created  string // the database or user just created, shows the done state
+	Created  web.DBCreated // the database or user just created, a blank Name shows the form
 	Roles    []string
 
 	CreatedPassword  string // a new user's password, shown once
@@ -150,7 +150,7 @@ func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request
 	if !ok {
 		return
 	}
-	data.FormName, data.Created = formName, created
+	data.FormName, data.Created = formName, web.DBCreated{Name: created, Slug: "mongodb", CanImport: data.UserAllowed["mongodb_import"]}
 	if err := newDatabasePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MONGODB - new database template render error: %v", err)
 	}
@@ -197,7 +197,7 @@ func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request,
 	if !ok {
 		return
 	}
-	data.FormName, data.Created, data.CreatedPassword = formName, created, password
+	data.FormName, data.Created, data.CreatedPassword = formName, web.DBCreated{Name: created, Slug: "mongodb"}, password
 	if err := createUserPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MONGODB - create user template render error: %v", err)
 	}

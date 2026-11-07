@@ -27,7 +27,7 @@ func handleDomainCloudflare(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		web.FlashRedirect(a, w, r, "error", "Invalid request. Domain name must be provided.", "/domains")
 		return
 	}
-	if !a.CheckDomainBelongsToUser(ctx, userID, domainName) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domainName) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}

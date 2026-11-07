@@ -29,7 +29,7 @@ func handleUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 	}
 
 	domain := r.PathValue("domain")
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
@@ -78,6 +78,11 @@ func handleUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	if editErr := checkRecordEdit(recordTypeSet(allowedDNSRecordTypes(a.Config)), domain, strings.Join(lines[rowID-1:endRowID], ""), newContent); editErr != nil {
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"status": "error", "message": editErr.Error()})
+		return
+	}
+
 	newBlock := newContent
 	if !strings.HasSuffix(newBlock, "\n") {
 		newBlock += "\n"
@@ -87,7 +92,12 @@ func handleUpdateDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 	newLines = append(newLines, newBlock)
 	newLines = append(newLines, lines[endRowID:]...)
 
-	if writeErr := tenantfs.WriteFile(path, []byte(strings.Join(newLines, "")), 0o644); writeErr != nil {
+	if checkErr := zoneWriteError(domain, string(content), strings.Join(newLines, "")); checkErr != nil {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"status": "error", "message": checkErr.Error()})
+		return
+	}
+
+	if writeErr := WriteZoneFile(path, []byte(strings.Join(newLines, ""))); writeErr != nil {
 		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Error updating DNS record: " + writeErr.Error()})
 		return
 	}
@@ -125,7 +135,7 @@ func handleDeleteDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
@@ -155,7 +165,7 @@ func handleDeleteDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request
 		lines = append(lines[:rowID], lines[rowID+1:]...)
 	}
 
-	if writeErr := tenantfs.WriteFile(path, []byte(strings.Join(lines, "")), 0o644); writeErr != nil {
+	if writeErr := WriteZoneFile(path, []byte(strings.Join(lines, ""))); writeErr != nil {
 		web.WriteJSON(w, http.StatusOK, map[string]string{"error": "Error deleting DNS record: " + writeErr.Error()})
 		return
 	}
@@ -204,7 +214,7 @@ func handleAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	path := zoneFilePath(domain)
 
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
@@ -214,14 +224,16 @@ func handleAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if strings.HasSuffix(name, domain) {
-		name += "."
+	recordType = strings.ToUpper(recordType)
+	requestedType := recordType
+	if !recordTypeSet(allowedDNSRecordTypes(a.Config))[recordType] {
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "%(type)s records are not allowed on this server.", "type", recordType), redirectTarget)
+		return
 	}
-	if strings.HasSuffix(record, domain) {
-		record += "."
-	}
-	if recordType == "TXT" && !(strings.HasPrefix(record, `"`) && strings.HasSuffix(record, `"`)) {
-		record = `"` + record + `"`
+	name, recordType, record, normalizeErr := normalizeNewRecord(domain, name, recordType, record)
+	if normalizeErr != nil {
+		web.FlashRedirect(a, w, r, "error", normalizeErr.Error(), redirectTarget)
+		return
 	}
 
 	var newRecord string
@@ -236,19 +248,21 @@ func handleAddDNSRecord(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	f, openErr := tenantfs.OpenFile(path, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
-	if openErr != nil {
-		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error adding DNS record: %(error)s", "error", openErr.Error()), redirectTarget)
+	currentZone, readErr := tenantfs.ReadFile(path)
+	if readErr != nil {
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error adding DNS record: %(error)s", "error", readErr.Error()), redirectTarget)
 		return
 	}
-	// a zone ending without a newline would glue the record onto its last line
-	prefix := ""
-	if existing, _ := tenantfs.ReadFile(path); len(existing) > 0 && existing[len(existing)-1] != '\n' {
-		prefix = "\n"
+	if requestedType == dmarcHelperType && dmarcExists(string(currentZone), name) {
+		web.FlashRedirect(a, w, r, "error", "This name already has a DMARC record, edit that one instead.", redirectTarget)
+		return
 	}
-	_, writeErr := f.WriteString(prefix + newRecord + "\n")
-	_ = f.Close()
-	if writeErr != nil {
+	if checkErr := zoneWriteError(domain, string(currentZone), appendedZone(string(currentZone), newRecord)); checkErr != nil {
+		web.FlashRedirect(a, w, r, "error", checkErr.Error(), redirectTarget)
+		return
+	}
+
+	if writeErr := AppendZoneRecord(path, newRecord); writeErr != nil {
 		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Error adding DNS record: %(error)s", "error", writeErr.Error()), redirectTarget)
 		return
 	}
@@ -270,7 +284,7 @@ func handleSaveDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	domain := r.PathValue("domain")
 
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
@@ -279,6 +293,10 @@ func handleSaveDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	newContent := web.FormText(r, "zone_content")
 	if newContent == "" {
 		writeText(w, "New content not provided.")
+		return
+	}
+	if msg := ZoneDirectiveError(newContent); msg != "" {
+		writeText(w, msg)
 		return
 	}
 	if !strings.HasSuffix(newContent, "\n") {
@@ -311,7 +329,7 @@ func handleSaveDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := zoneFilePath(domain)
-	if err := tenantfs.WriteFile(path, []byte(newContent), 0o644); err != nil {
+	if err := WriteZoneFile(path, []byte(newContent)); err != nil {
 		writeText(w, "Failed - zone validation error")
 		return
 	}
@@ -339,7 +357,7 @@ func handleRestartDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
@@ -402,7 +420,7 @@ func handleExportDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if !a.CheckDomainBelongsToUser(ctx, userID, domain) {
+	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}

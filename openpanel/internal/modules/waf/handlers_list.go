@@ -81,15 +81,10 @@ func handleWAFList(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				contentStr = setEngine(contentStr, newStatus)
 			}
 
-			if writeErr := tenantfs.WriteFile(configFilePath, []byte(contentStr), 0o644); writeErr == nil {
-				if reloadErr := reloadCaddy(r.Context()); reloadErr == nil {
-					_ = logger.RecordUserAction(a.Config, username, statusText+" WAF for domain "+domainName, reqip.ClientIP(r))
-					notifySentinel(domainName, statusText)
-					flash.Add(sess, "success", web.Tr(a, r, "WAF for domain: %(domain_name)s is now %(status_text)s", "domain_name", domainName, "status_text", web.Tr(a, r, statusText)))
-				} else {
-					log.Printf("WAF - Error changing WAF status for domain: %v", reloadErr)
-					flash.Add(sess, "error", "Error changing WAF status.")
-				}
+			if writeErr := writeConfAndReload(r.Context(), configFilePath, content, contentStr); writeErr == nil {
+				_ = logger.RecordUserAction(a.Config, username, statusText+" WAF for domain "+domainName, reqip.ClientIP(r))
+				notifySentinel(domainName, statusText)
+				flash.Add(sess, "success", web.Tr(a, r, "WAF for domain: %(domain_name)s is now %(status_text)s", "domain_name", domainName, "status_text", web.Tr(a, r, statusText)))
 			} else {
 				log.Printf("WAF - Error changing WAF status for domain: %v", writeErr)
 				flash.Add(sess, "error", "Error changing WAF status.")
