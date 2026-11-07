@@ -4,13 +4,16 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
-	userAllowed := map[string]bool{"dashboard": true, "services": true, "docker": true}
+	userAllowed := map[string]bool{"dashboard": true, "services": true, "docker": true, "process_manager": true}
 	return web.LayoutData{
 		Title: "Test", BrandName: "Test Panel", CSRFToken: "test-csrf-token", PanelDir: "ltr",
 		NavGroups: web.BuildClassicSidebarNav(userAllowed, nil, path), UserAllowed: userAllowed,
@@ -20,15 +23,30 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 }
 
 func TestRenderServicesListPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	w := httptest.NewRecorder()
-	data := ServicesPageData{LayoutData: baseLayout(mgr, "/services/"), Services: []string{"redis", "nginx"}}
+	names := []string{"nginx", "mysql", "php-fpm-8.3", "redis", "memcached", "elasticsearch"}
+	statuses := []docker.ContainerStatus{{State: "running", Health: "healthy", Started: time.Now().Add(-50 * time.Hour)}, {State: "running", Health: "none", Started: time.Now().Add(-3 * time.Hour)}, {State: "running"}, {State: "exited"}, {State: "running", Health: "starting"}, {State: "not_found"}}
+	data := servicesListData(baseLayout(mgr, "/services/"), names, statuses, "nginx", "mysql")
 	if err := servicesPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)
 	}
 	body := w.Body.String()
-	if !strings.Contains(body, "Choose Service") || !strings.Contains(body, `value="redis"`) || !strings.Contains(body, `value="nginx"`) {
-		t.Errorf("rendered services list page missing expected content:\n%s", body)
+	for _, want := range []string{"4 of 6 running", `data-href="/services/redis"`, "PHP 8.3", "Object cache", `value="enable"`, `value="restart"`, `name="service" value="nginx"`, "nginx · mysql", "op-status is-success", "op-status is-muted", "op-status is-warning", "2 days", "3 hours", `data-stat="pids"`} {
+		if !strings.Contains(body, want) {
+			t.Errorf("services list missing %q", want)
+		}
+	}
+	// running first, then by name
+	if i, j := strings.Index(body, `data-service="php-fpm-8.3"`), strings.Index(body, `data-service="redis"`); i < 0 || j < 0 || i > j {
+		t.Error("running services should be listed before stopped ones")
+	}
+	if i, j := strings.Index(body, `data-service="memcached"`), strings.Index(body, `data-service="mysql"`); i < 0 || j < 0 || i > j {
+		t.Error("services should be sorted by name within a group")
+	}
+	if strings.Contains(body, "service-select") {
+		t.Error("services list still renders the old picker")
 	}
 }
 
@@ -42,6 +60,7 @@ func TestRenderServiceDetailPage(t *testing.T) {
 			IsRunning: true, StatusKey: "running", StatusColor: "emerald-500", StatusLabel: "Running",
 			StatusMapJSON: StatusMapJSON(mgr.Translator("en")),
 			ActionValue:   "disable", ActionLabel: "Click to Disable",
+			Kind: "Web server", StatusTone: "is-success", Uptime: "2 days",
 		}
 		if err := servicesPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)

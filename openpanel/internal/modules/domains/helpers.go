@@ -47,25 +47,25 @@ func domainsWithSites(ctx context.Context, a *appctx.App, userID int) ([]DomainW
 
 // getRedirectURL returns the first "redir <url>" line (not a comment) inside a domain's Caddy config, if any
 func getRedirectURL(domainURL string) string {
+	rule, _ := getRedirectRule(domainURL)
+	return rule.To
+}
+
+// getRedirectRule reads the redirect the panel wrote into a domain's conf, ok is false when there's none
+func getRedirectRule(domainURL string) (redirectRule, bool) {
 	f, err := tenantfs.Open("/etc/openpanel/caddy/domains/" + domainURL + ".conf")
 	if err != nil {
-		return ""
+		return redirectRule{}, false
 	}
 	defer f.Close()
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		line := scanner.Text()
-		if !strings.Contains(line, "redir ") {
-			continue
-		}
-		// split the whole line into at most 3 fields and take the second, matches even a naive "redir " inside a comment line
-		parts := splitMax(line, 3)
-		if len(parts) > 1 {
-			return strings.TrimSpace(parts[1])
+		if rule, ok := parseRedirectLine(scanner.Text()); ok {
+			return rule, true
 		}
 	}
-	return ""
+	return redirectRule{}, false
 }
 
 // SSLStatus is a domain's SSL/suspend state as shown on the domains list.
@@ -76,6 +76,17 @@ type SSLStatus struct {
 	SuspendedBy    string // "admin" locks the domain for the user
 	SuspendReason  string
 	Cloudflare     bool // conf imports the cloudflare-only snippet
+}
+
+// IsSuspended reports whether a domain is suspended, for pages outside this module that list domains
+func IsSuspended(ctx context.Context, a *appctx.App, domainURL string) bool {
+	return isRewriteCondEnabled(ctx, a, domainURL).Suspended == "Suspended"
+}
+
+// SiteStatus is a domain's suspension state plus its certificate, for the site manager headers
+func SiteStatus(ctx context.Context, a *appctx.App, domainURL string) (suspended bool, https string, cert SSLCertInfo) {
+	st := isRewriteCondEnabled(ctx, a, domainURL)
+	return st.Suspended == "Suspended", st.HTTPS, readSSLCertInfo(domainURL, st.HTTPS)
 }
 
 // isRewriteCondEnabled reads a domain's SSL/suspend status from its Caddy config, cached 30s
@@ -134,30 +145,6 @@ func computeRewriteCondEnabled(domainURL string) SSLStatus {
 // invalidateRewriteCondCache busts isRewriteCondEnabled's cache entry for one domain.
 func invalidateRewriteCondCache(ctx context.Context, a *appctx.App, domainURL string) {
 	_ = a.Cache.Delete(ctx, "is_rewrite_cond_enabled:"+domainURL)
-}
-
-// splitMax splits on runs of whitespace, stopping after maxFields-1 splits so the final field keeps any remaining content intact
-func splitMax(s string, maxFields int) []string {
-	var fields []string
-	rest := s
-	for len(fields) < maxFields-1 {
-		rest = strings.TrimLeft(rest, " \t")
-		if rest == "" {
-			return fields
-		}
-		idx := strings.IndexAny(rest, " \t")
-		if idx == -1 {
-			fields = append(fields, rest)
-			return fields
-		}
-		fields = append(fields, rest[:idx])
-		rest = rest[idx:]
-	}
-	rest = strings.TrimLeft(rest, " \t")
-	if rest != "" {
-		fields = append(fields, rest)
-	}
-	return fields
 }
 
 func injected(a *appctx.App, ctx context.Context, userID int) (username, userContext string, err error) {

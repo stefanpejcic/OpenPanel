@@ -1,235 +1,112 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 {{define "flowbite_js"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/files/disk_usage.html -->
-
-<!-- page header -->
-<section
-    aria-label="{{.T.Get "Disk Usage Header"}}"
-    x-data="{ searchQuery: '' }"
->
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<section class="op-content" aria-label="{{.T.Get "Disk Usage Header"}}">
+    <div class="op-page-head">
         <div>
-            <div class="flex items-center gap-x-3">
-                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Disk Usage"}}</h1>
+            <div class="op-eyebrow">/home/{{.CurrentUsername}}{{range .Breadcrumbs}}/{{.Name}}{{end}}</div>
+            <h1 class="op-title">{{.T.Get "Disk Usage"}}</h1>
+            <p class="op-meta">{{.T.Get "Find what takes up space or file count, then open it in the File Manager."}}</p>
+        </div>
+        <div class="op-actions">
+            <div class="op-segmented" role="group" aria-label="{{.T.Get "Measure"}}">
+                <a href="/disk-usage/" role="button" aria-pressed="true">{{.T.Get "Disk space"}}</a>
+                <a href="/inodes-explorer/" role="button" aria-pressed="false">{{.T.Get "Inodes"}}</a>
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Disk usage is the amount of space that is used by the content of your sites, this includes databases, files, videos, images, emails and pages."}}</p>
         </div>
+    </div>
 
-        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-            <button type="button" onclick="location.reload(true); return false;" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 hidden dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Reload Data"}}</button>
+    {{with .KPIs}}
+    <section class="op-kpis" aria-label="{{$.T.Get "Summary"}}">
+        {{with .Disk}}<div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "server"}} {{$.T.Get "Disk"}}</div><div class="op-kpi-value">{{.Value}} <small>{{.Unit}}</small></div><div class="op-kpi-note">{{if .FromListing}}{{$.T.Get "Home folder total"}}{{else if .Limit}}{{$.T.Get "of"}} {{.Limit}}{{else}}{{$.T.Get "No limit"}}{{end}}</div>{{if .Limit}}<div class="op-progress{{if ge .Pct 90}} is-danger{{else if ge .Pct 75}} is-warning{{end}}"><span style="width:{{.Pct}}%"></span></div>{{end}}</div>{{end}}
+        {{with .Inodes}}<div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "file"}} {{$.T.Get "Inodes"}}</div><div class="op-kpi-value">{{.Value}}</div><div class="op-kpi-note">{{if .Limit}}{{$.T.Get "of"}} {{.Limit}}{{else}}{{$.T.Get "No limit"}}{{end}}</div>{{if .Limit}}<div class="op-progress{{if ge .Pct 90}} is-danger{{else if ge .Pct 75}} is-warning{{end}}"><span style="width:{{.Pct}}%"></span></div>{{end}}</div>{{end}}
+        {{with .LargestFolder}}<div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "folder"}} {{$.T.Get "Largest folder"}}</div><div class="op-kpi-value" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><a href="{{.Href}}" style="color:inherit;text-decoration:none" title="{{.Directory}}">{{.Directory}}</a></div><div class="op-kpi-note">{{$.KPIs.LargestSize}}</div></div>{{end}}
+        {{with .Trash}}<div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "trash"}} {{$.T.Get "Trash"}}</div><div class="op-kpi-value">{{.Value}} <small>{{.Unit}}</small></div>{{if $.KPIs.TrashBytes}}<div class="op-kpi-note is-warning">{{if $.KPIs.TrashHref}}<a href="{{$.KPIs.TrashHref}}" style="color:inherit">{{$.T.Get "Empty it to free space"}}</a>{{else}}{{$.T.Get "Empty it to free space"}}{{end}}</div>{{else}}<div class="op-kpi-note">{{$.T.Get "Trash is empty"}}</div>{{end}}</div>{{end}}
+    </section>
+    {{end}}
+
+    <div class="op-cols-2">
+    <section class="op-card op-du">
+        <div class="op-card-head">
+            <h2>{{.T.Get "Folders by size"}}</h2>
+            <button type="button" onclick="location.reload(true); return false;" class="op-btn op-btn-secondary op-btn-sm">{{template "op_icon" "refresh"}} {{.T.Get "Rescan"}}</button>
         </div>
+        <nav aria-label="{{.T.Get "Breadcrumb"}}" class="op-du-crumbs">
+            {{if .ShowUpLink}}<a id="goUp" class="op-icon-btn" href="{{.UpLink}}" title="{{.T.Get "Up One Level"}}" aria-label="{{.T.Get "Up One Level"}}">{{template "op_icon" "cornerup"}}</a>{{end}}
+            <a class="op-tag op-mono" href="/disk-usage/">{{.CurrentUsername}}</a>
+            {{range .Breadcrumbs}}<span class="op-hint">/</span><a class="op-tag op-mono" href="{{.Path}}"{{if .Last}} aria-current="page"{{end}}>{{.Name}}</a>{{end}}
+        </nav>
+        <ul class="op-du-list" id="folders_to_navigate">
+            {{range .Rows}}
+            <li data-size="{{.Count}}">
+                <div class="op-du-row">
+                    <a class="op-du-name" href="{{.Href}}"><span class="op-file-ico fm-folder">{{template "op_icon" "folder"}}</span><span>{{.Directory}}</span></a>
+                    <span class="op-mono op-du-size">{{.Count}}</span>
+                    {{if .FileManagerHref}}<a class="op-icon-btn op-du-open" href="{{.FileManagerHref}}" title="{{$.T.Get "File Manager"}}" aria-label="{{$.T.Get "File Manager"}}">{{template "op_icon" "out"}}</a>{{end}}
+                </div>
+                <span class="op-progress op-du-bar"><span style="width:0%"></span></span>
+            </li>
+            {{else}}
+            <li class="op-du-empty"><span class="op-hint">{{.T.Get "No folders here."}}</span></li>
+            {{end}}
+        </ul>
+    </section>
+
+    <section class="op-card" aria-labelledby="du-largest" x-data="largestFiles()">
+        <div class="op-card-head"><h2 id="du-largest">{{.T.Get "Largest files"}}</h2>{{if index .UserAllowed "filemanager"}}<a href="/files/">{{.T.Get "Open File Manager"}}</a>{{end}}</div>
+        <p class="op-hint" style="margin:0 0 8px">{{.T.Get "Files over 1 MB in this folder and below."}}</p>
+        <p class="op-hint" x-show="loading">{{.T.Get "Looking for large files…"}}</p>
+        <p class="op-hint" x-show="!loading && failed" x-cloak>{{.T.Get "Not available"}}</p>
+        <p class="op-hint" x-show="!loading && !failed && !files.length" x-cloak>{{.T.Get "No files over 1 MB here."}}</p>
+        <div class="op-bars" x-show="files.length" x-cloak>
+            <template x-for="f in files" :key="f.path">
+                <div class="op-bar-row">
+                    {{/* rtl so a long path is cut at the start and the file name stays visible */}}<span class="op-mono" style="font-size:12.5px;display:block;direction:rtl;text-align:left" :title="f.path"><a x-show="f.file_manager_href" :href="f.file_manager_href" style="color:inherit;text-decoration:none;unicode-bidi:plaintext" x-text="f.path"></a><span x-show="!f.file_manager_href" style="unicode-bidi:plaintext" x-text="f.path"></span></span>
+                    <b x-text="f.size"></b>
+                    <div class="op-progress"><span :style="{ width: f.pct + '%' }"></span></div>
+                </div>
+            </template>
+        </div>
+        <p class="op-hint" x-show="partial" x-cloak style="margin:8px 0 0">{{.T.Get "The search stopped after 10 seconds, so this list may be incomplete."}}</p>
+    </section>
     </div>
 </section>
-<!-- END page header -->
 
-<div class="m-6">
-    <nav aria-label="{{.T.Get "Breadcrumb"}}" class="ml-2">
-        <ol role="list" class="flex items-center space-x-3 text-sm">
-            <li class="flex">
-                <a class="text-gray-500 transition hover:text-gray-700 dark:text-gray-400 hover:dark:text-gray-300" href="/disk-usage/">/</a>
-            </li>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4 shrink-0 text-gray-600 dark:text-gray-400" aria-hidden="true">
-                <path d="m9 18 6-6-6-6"></path>
-            </svg>
-            {{range .Breadcrumbs}}
-                <li class="flex">
-                    <a class="text-gray-900 dark:text-gray-50" href="{{.Path}}">{{.Name}}</a>
-                </li>
-                {{if not .Last}}
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4 shrink-0 text-gray-600 dark:text-gray-400" aria-hidden="true">
-                    <path d="m9 18 6-6-6-6"></path>
-                </svg>
-                {{end}}
-            {{end}}
-        </ol>
-    </nav>
-</div>
-
-<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 m-6">
-
-    <!-- folders table -->
-    <div class="relative w-full col-span-2 rounded-lg border text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900">
-                    <table id="folders_to_navigate" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
-            <thead>
-                <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
-                    <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
-                        {{.T.Get "Directory"}}
-                    </th>
-                    <th scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
-                        {{.T.Get "Size"}}
-                    </th>
-                    <th scope="col" class="hidden whitespace-nowrap border-b px-4 py-3.5 text-left text-sm text-right font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
-                        {{.T.Get "Actions"}}
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-                {{if .ShowUpLink}}
-                    <tr class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-                        <td colspan="3" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                            <a id="goUp" href="{{.UpLink}}">
-                                <i class="bi bi-arrow-up-circle"></i> {{.T.Get "Up One Level"}}
-                            </a>
-                        </td>
-                    </tr>
-                {{end}}
-
-                {{range .Rows}}
-                        <tr class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                                <a href="{{.Href}}">
-                                    <i class="bi bi-folder-fill" style="color: orange;"></i> {{.Directory}}
-                                </a>
-                            </td>
-                            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Count}}</td>
-                            <td class="hidden whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 text-end">
-                                {{if .FileManagerHref}}
-                                <a href="{{.FileManagerHref}}" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
-                                    {{$.T.Get "File Manager"}}
-                                </a>
-                                {{end}}
-                            </td>
-                        </tr>
-                {{end}}
-            </tbody>
-                    </table>
-    </div>
-    <!-- END folders table -->
-
-    <!-- chart -->
-    <div class="relative w-full col-span-3 rounded-lg border p-4 text-left shadow-sm bg-white dark:bg-[#090E1A] border-gray-200 dark:border-gray-900">
-            <canvas id="folderChart"></canvas>
-            <script src="{{static "vendor/chartjs/chart.umd.js"}}"></script>
-    </div>
-    <!-- END chart -->
-</div>
-
-
-
-<!-- js for chart -->
 <script>
-  function extractDataFromTable() {
-    const data = [];
-    const tableRows = document.querySelectorAll("#folders_to_navigate tbody tr");
-
-    tableRows.forEach((row) => {
-      const columns = row.querySelectorAll("td");
-
-      if (columns.length >= 2) {
-        const directory = columns[0].textContent.trim();
-        const sizeText = columns[1].textContent.trim();
-        const disk = parseHumanReadableSize(sizeText);
-
-        if (directory !== "{{.T.Get "Up One Level"}}") {
-          data.push({ directory, disk });
-        }
-      }
-    });
-
-    return data;
-  }
-
-  function parseHumanReadableSize(sizeStr) {
-    const sizeRegex = /^(\d+(\.\d+)?)\s*([BKMGT])?B?$/;
-    const match = sizeStr.match(sizeRegex);
-
-    if (!match) {
-      return sizeStr;
-    }
-
-    const size = parseFloat(match[1]);
-    const unit = match[3];
-
-    switch (unit) {
-      case 'B':
-        return size / 1024 / 1024;
-      case 'K':
-        return size / 1024;
-      case 'M':
-        return size;
-      case 'G':
-        return size * 1024;
-      case 'T':
-        return size * 1024 * 1024;
-      default:
-        return size;
-    }
-  }
-
-    function createChart(data) {
-      const labels = data.map((entry) => entry.directory);
-      const values = data.map((entry) => entry.disk);
-
-      const ctx = document.getElementById("folderChart").getContext("2d");
-
-      const chart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: "{{.T.Get "Disk Usage (MB)"}}",
-              data: values,
-              backgroundColor: "#506fd9",
-            },
-          ],
+function largestFiles() {
+    return {
+        files: [], loading: true, failed: false, partial: false,
+        init() {
+            fetch(location.pathname + '?largest=1')
+                .then(r => r.ok ? r.json() : Promise.reject(r.status))
+                .then(d => { this.files = d.files || []; this.partial = !!d.partial; })
+                .catch(() => { this.failed = true; })
+                .finally(() => { this.loading = false; });
         },
-      });
-    }
-
-    function initializeChart() {
-      const tableData = extractDataFromTable();
-      createChart(tableData);
-      RefreshOnBackLink();
-    }
-
-    function RefreshOnBackLink() {
-      const goUpElement = document.getElementById('goUp');
-
-      if (goUpElement) {
-        goUpElement.addEventListener('click', async function(event) {
-          // the link used to navigate anyway while this fetched the current folder again, its href is already the parent
-          event.preventDefault();
-          const toastMessage = `{{.T.Get "Calculating disk usage for parent directory.."}}`;
-          showToast(toastMessage, 'loading');
-
-          var newUrl = goUpElement.href;
-
-          try {
-            const response = await fetch(newUrl);
-
-            if (!response.ok) {
-              throw new Error(`Failed to fetch ${newUrl}`);
-            }
-
-            const resultHtml = await response.text();
-
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(resultHtml, 'text/html');
-            const mainScopeContent = doc.getElementById("main-scope")?.innerHTML;
-
-            const mainScopeElement = document.getElementById("main-scope");
-            if (mainScopeElement) {
-              mainScopeElement.innerHTML = mainScopeContent || '';
-            }
-
-            history.pushState({}, '', newUrl);
-
-            initializeChart();
-
-          } catch (error) {
-            console.error('Error fetching data:', error);
-            window.location.href = newUrl;
-          }
-        });
-      }
-    }
-
-    initializeChart();
+    };
+}
 </script>
-<!-- END js for chart -->
 
+<script>
+// bars are sized against the biggest folder on the page
+(function () {
+    function parse(v) {
+        const m = String(v).trim().match(/^(\d+(?:\.\d+)?)\s*([BKMGT])?/i);
+        if (!m) return 0;
+        const n = parseFloat(m[1]);
+        return n * ({ B: 1, K: 1024, M: 1048576, G: 1073741824, T: 1099511627776 }[(m[2] || '').toUpperCase()] || 1);
+    }
+    const rows = [...document.querySelectorAll('#folders_to_navigate li[data-size]')];
+    const sizes = rows.map(r => parse(r.dataset.size));
+    const max = Math.max(1, ...sizes);
+    rows.forEach((r, i) => { const bar = r.querySelector('.op-du-bar span'); if (bar) bar.style.width = Math.max(1, Math.round(sizes[i] * 100 / max)) + '%'; });
+    // du prints 9.2G, show it as 9.2 GB
+    document.querySelectorAll('#folders_to_navigate .op-du-size').forEach(el => { el.textContent = el.textContent.trim().replace(/^([0-9.,]+)\s*([KMGTP])$/i, (m, n, u) => n + ' ' + u.toUpperCase() + 'B'); });
+})();
+</script>
 <!-- END templates/files/disk_usage.html -->
 {{end}}

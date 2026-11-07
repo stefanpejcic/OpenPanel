@@ -1,4 +1,6 @@
 {{define "alpine_plugins"}}{{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
 {{define "flowbite_js"}}
 <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
@@ -10,7 +12,7 @@
         {{template "cms_block_3" .}}
 {{template "cms_script" .}}
 {{template "cms_block_5" .}}
-    <div class="flex flex-col space-y-4 rounded xl:col-span-3">
+    <div class="op-wp-main">
 
         {{template "cms_block_6" .}}
             {{template "cms_tabbtn_dashboard" .}}
@@ -21,16 +23,16 @@
             {{template "cms_tabbtn_backups" .}}
             {{template "cms_tab_security_2" .}}
         {{template "cms_tab_dashboard" .}}
-            <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
-                <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
-                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded xl:col-span-3">
+            <div class="op-wp-overview">
+                <div class="op-wp-shot">
+                    <div class="op-wp-shot-frame">
                         {{template "cms_block_10" .}}
                 {{template "cms_block_13" .}}
                 {{template "cms_block_14" .}}
-                <div class="flex flex-col justify-top overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
-                    <div class="mb-2 flex items-center justify-between gap-4 relative">
-                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-                        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>
+                <div class="op-card">
+                    <div class="op-card-head">
+                        <div class="op-hide"></div>
+                        <h2 class="op-strong">{{.T.Get "Database"}}</h2>
                         {{if .UserAllowed.mysql}}
                         <a
                             type="button"
@@ -38,7 +40,7 @@
                             href="/mysql"
                             target="_blank"
                             data-tooltip-target="tooltip-db-link" data-tooltip-placement="left"
-                            class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                            class="op-btn op-btn-sm op-btn-secondary"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
                                 <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
@@ -52,21 +54,21 @@
                     </div>
 
                     {{if .DBInfo.error}}
-                    <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                    <div class="op-setting-row">
                         <span class="text-sm text-gray-500 dark:text-gray-500">{{.DBInfo.error}}</span>
                     </div>
                     {{else}}
-                    <div class="grid grid-cols-1 gap-2">
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50" id="database-size-row">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Size:"}}</span>
+                    <div class="op-kvs">
+                        <div class="op-setting-row" id="database-size-row">
+                            <span class="op-setting-label">{{.T.Get "Database Size:"}}</span>
                             <span class="font-medium" id="databaseSize">{{.T.Get "Calculating.."}}</span>
                         </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Host:"}}</span>
+                        <div class="op-setting-row">
+                            <span class="op-setting-label">{{.T.Get "Database Host:"}}</span>
                             <span class="font-medium">{{.DBInfo.database_host}}</span>
                         </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Name:"}}</span>
+                        <div class="op-setting-row">
+                            <span class="op-setting-label">{{.T.Get "Database Name:"}}</span>
                             <span class="font-medium">
                             {{if .UserAllowed.mysql}}
                                 <a href="/mysql" class="hover:underline">{{.DBInfo.database_name}}</a>
@@ -75,8 +77,8 @@
                             {{end}}
                             </span>
                         </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database User:"}}</span>
+                        <div class="op-setting-row">
+                            <span class="op-setting-label">{{.T.Get "Database User:"}}</span>
                             <span class="font-medium">
                             {{if .UserAllowed.mysql}}
                                 <a href="/mysql/users" class="hover:underline">{{.DBInfo.database_user}}</a>
@@ -85,13 +87,13 @@
                             {{end}}
                             </span>
                         </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Password:"}}</span>
+                        <div class="op-setting-row">
+                            <span class="op-setting-label">{{.T.Get "Password:"}}</span>
                             <span class="font-medium" id="database-password" style="filter: blur(5px); cursor: pointer;" onclick="revealDrupalDBPassword()">{{.DBInfo.database_password}}</span>
                         </div>
 
                         {{if .UserAllowed.phpmyadmin}}
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                        <div class="op-setting-row">
                             <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "phpMyAdmin:"}}</span>
                             <span class="font-medium flex items-center gap-1.5"><a
                                         type="button"
@@ -99,7 +101,7 @@
                                         href="/phpmyadmin"
                                         target="_blank"
                                         data-tooltip-target="tooltip-phpmyadmin-link" data-tooltip-placement="left"
-                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                        class="op-btn op-btn-sm op-btn-secondary"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
                                             <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
@@ -115,7 +117,7 @@
                                         href="/phpmyadmin/link"
                                         target="_blank"
                                         data-tooltip-target="tooltip-phpmyadmin-link-manual" data-tooltip-placement="left"
-                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                        class="op-btn op-btn-sm op-btn-secondary"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-right-end-on-rectangle inline-block size-5">
                                             <path fill-rule="evenodd" d="M6 3.75A2.75 2.75 0 0 1 8.75 1h4.5A2.75 2.75 0 0 1 16 3.75v12.5A2.75 2.75 0 0 1 13.25 19h-4.5A2.75 2.75 0 0 1 6 16.25v-1a.75.75 0 0 1 1.5 0v1c0 .69.56 1.25 1.25 1.25h4.5c.69 0 1.25-.56 1.25-1.25V3.75c0-.69-.56-1.25-1.25-1.25h-4.5c-.69 0-1.25.56-1.25 1.25v1a.75.75 0 0 1-1.5 0v-1Z" clip-rule="evenodd"></path>
@@ -140,27 +142,27 @@
                     }
                 </script>
 {{template "cms_block_20" .}}
-        <div class="hidden p-4 rounded" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+        <div class="hidden op-wp-panel" id="logs" role="tabpanel" aria-labelledby="logs-tab">
 
             {{template "cms_block_27" .}}
                 {{template "cms_block_22" .}}
             {{template "cms_script_7" .}}
         </div>
 
-        <div class="hidden p-4 rounded" id="maintenance" role="tabpanel" aria-labelledby="maintenance-tab">
-            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+        <div class="hidden op-wp-panel" id="maintenance" role="tabpanel" aria-labelledby="maintenance-tab">
+            <div class="op-section">
                 <div>
-                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Maintenance Mode"}}</h2>
-                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Show visitors a maintenance page while you make changes."}}</p>
+                    <h2 class="op-h">{{.T.Get "Maintenance Mode"}}</h2>
+                    <p class="op-meta">{{.T.Get "Show visitors a maintenance page while you make changes."}}</p>
                 </div>
-                <div class="sm:max-w-3xl md:col-span-2">
-                    <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                        <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Status:"}}</span>
+                <div class="op-section-body">
+                    <div class="op-setting-row">
+                        <span class="op-setting-label">{{.T.Get "Status:"}}</span>
                         <span class="font-medium" id="drupal-maintenance-status">{{.T.Get "Checking..."}}</span>
                     </div>
                     <div class="mt-4">
                         <button type="button" id="drupal-maintenance-toggle" onclick="toggleDrupalMaintenance()"
-                            class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap w-100">
+                            class="op-btn op-btn-secondary">
                             {{.T.Get "Loading..."}}
                         </button>
                     </div>
@@ -227,7 +229,7 @@
             </script>
         </div>
 
-        <div class="hidden p-4 rounded" id="update" role="tabpanel" aria-labelledby="update-tab">
+        <div class="hidden op-wp-panel" id="update" role="tabpanel" aria-labelledby="update-tab">
             {{template "cms_block_28" .}}
             <script>
                 function compareDrupalVersionsDesc(a, b) {
@@ -357,7 +359,7 @@
                 {{template "cms_block_19" .}}
             {{template "cms_script_4" .}}
 {{template "cms_block_21" .}}
-        <div class="hidden p-4 rounded" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+        <div class="hidden op-wp-panel" id="backups" role="tabpanel" aria-labelledby="backups-tab">
 
             {{template "cms_block_29" .}}
             {{template "cms_block_30" .}}
@@ -365,7 +367,7 @@
         </div>
 
         {{template "cms_tab_remove_2" .}}
-    <div class="flex flex-col space-y-4 rounded xl:col-span-1">
+    <div class="op-wp-side">
 
         {{template "pagespeed_panel" .}}
 
@@ -422,17 +424,17 @@ function confirmDetachDrupal() {
 
 {{define "drupal_cache"}}
 <!-- START drupal_cache widget -->
-<div x-data="drupalCacheComponent()" class="flex flex-col justify-center overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+<div x-data="drupalCacheComponent()" class="op-card">
   {{template "cms_block_32" .}}
     <div class="grid grid-cols-1 gap-2">
-        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Rebuild Drupal cache:"}}</span>
+        <div class="op-setting-row">
+            <span class="op-setting-label">{{.T.Get "Rebuild Drupal cache:"}}</span>
             <span class="font-medium">
 
         <button
         @click="rebuildCache"
         data-tooltip-target="tooltip-drupal_rebuild_cache-link" data-tooltip-placement="left"
-        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50 cursor-pointer"
+        class="op-btn op-btn-sm op-btn-secondary"
         type="button"
         aria-label="{{.T.Get "Rebuild Drupal Cache"}}"
         >

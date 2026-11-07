@@ -1,169 +1,246 @@
 {{define "alpine_plugins"}}
     <script defer src="{{static "vendor/alpinejs/alpinejs3xx-collapse.min.js"}}"></script>
 {{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
-{{define "icon_section"}}
-{{if .Section.Items}}
-        <div
-          data-section-id="{{.Section.Key}}"
-          x-data='{
-            open: (function() {
-              const s = localStorage.getItem("section_state_" + {{toJSON .Section.Key}});
-              return s === null ? true : s === "true";
-            })(),
-            toggleOpen() {
-              this.open = !this.open;
-              localStorage.setItem("section_state_" + {{toJSON .Section.Key}}, this.open);
-            }
-          }'
-          class="flex flex-col space-y-2 justify-center overflow-hidden rounded bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-800 xl:col-span-3"
-        >
-          <div class="flex items-center justify-between gap-4 relative m-0 p-2 border-b border-gray-200 dark:border-gray-800 cursor-move active:cursor-grabbing" id="section-title-{{.Section.Key}}">
-            <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+{{define "dash_hue"}}{{if eq . "files" "backups"}}cyan{{else if eq . "domains"}}blue{{else if eq . "websites"}}green{{else if eq . "emails"}}orange{{else if eq . "mysql" "postgresql" "mongodb"}}indigo{{else if eq . "php" "webserver"}}purple{{else if eq . "docker" "cache"}}yellow{{else if eq . "security" "advanced" "processes"}}red{{else}}blue{{end}}{{end}}
 
-            <div class="flex items-center gap-2 pl-4">
-              <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.Section.Title}}</h2>
-            </div>
+{{/* the section's Bootstrap icon as the matching Tabler one where the kit has it */}}
+{{define "dash_icon"}}{{$n := .}}
+{{- if eq $n "bi-globe"}}{{template "op_icon" "globe"}}
+{{- else if eq $n "bi-folder" "bi-folder-fill" "bi-folder2" "bi-folder2-open" "bi-folder-check" "bi-folder-plus"}}{{template "op_icon" "folder"}}
+{{- else if eq $n "bi-upload" "bi-cloud-upload"}}{{template "op_icon" "upload"}}
+{{- else if eq $n "bi-download" "bi-cloud-arrow-down"}}{{template "op_icon" "download"}}
+{{- else if eq $n "bi-trash3"}}{{template "op_icon" "trash"}}
+{{- else if eq $n "bi-envelope" "bi-at" "bi-envelope-at" "bi-envelope-check" "bi-envelope-arrow-up" "bi-envelope-arrow-down"}}{{template "op_icon" "mail"}}
+{{- else if eq $n "bi-database" "bi-database-add" "bi-database-fill-add" "bi-database-lock" "bi-database-fill-lock" "bi-database-slash"}}{{template "op_icon" "db"}}
+{{- else if eq $n "bi-people" "bi-person-circle" "bi-person-gear"}}{{template "op_icon" "user"}}
+{{- else if eq $n "bi-lock" "bi-shield-lock" "bi-fingerprint"}}{{template "op_icon" "lock"}}
+{{- else if eq $n "bi-link-45deg"}}{{template "op_icon" "link"}}
+{{- else if eq $n "bi-arrow-repeat" "bi-arrow-counterclockwise"}}{{template "op_icon" "refresh"}}
+{{- else if eq $n "bi-file-text"}}{{template "op_icon" "dns"}}
+{{- else if eq $n "bi-box-arrow-up-right" "bi-box-arrow-in-right"}}{{template "op_icon" "out"}}
+{{- else if eq $n "bi-gear" "bi-toggles"}}{{template "op_icon" "settings"}}
+{{- else if eq $n "bi-terminal"}}{{template "op_icon" "terminal"}}
+{{- else if eq $n "bi-star"}}{{template "op_icon" "star"}}
+{{- else if eq $n "bi-wordpress"}}{{template "op_icon" "wordpress"}}
+{{- else if eq $n "bi-filetype-php"}}{{template "op_icon" "php"}}
+{{- else if eq $n "bi-cpu"}}{{template "op_icon" "cpu"}}
+{{- else if eq $n "bi-boxes" "bi-box-seam"}}{{template "op_icon" "box"}}
+{{- else if eq $n "bi-ban" "bi-ban-fill"}}{{template "op_icon" "ban"}}
+{{- else if eq $n "bi-search" "bi-upc-scan" "bi-search-heart"}}{{template "op_icon" "search"}}
+{{- else if eq $n "bi-key" "bi-key-fill"}}{{template "op_icon" "key"}}
+{{- else if eq $n "bi-journal-text" "bi-journal"}}{{template "op_icon" "logs"}}
+{{- else if eq $n "bi-bar-chart" "bi-bar-chart-line" "bi-graph-up" "bi-speedometer2" "bi-activity"}}{{template "op_icon" "chart"}}
+{{- else if eq $n "bi-info-square"}}{{template "op_icon" "info"}}
+{{- else if eq $n "bi-funnel"}}{{template "op_icon" "filter"}}
+{{- else if eq $n "bi-cloud" "bi-cloud-check"}}{{template "op_icon" "cloud"}}
+{{- else if eq $n "bi-app-indicator" "bi-window-stack"}}{{template "op_icon" "browser"}}
+{{- else if eq $n "bi-hdd-network" "bi-hdd-network-fill" "bi-hdd-stack"}}{{template "op_icon" "server"}}
+{{- else if eq $n "bi-git" "bi-code-square" "bi-braces"}}{{template "op_icon" "code"}}
+{{- else if eq $n "bi-file-binary" "bi-file-binary-fill"}}{{template "op_icon" "file"}}
+{{- else if eq $n "bi-folder-symlink" "bi-folder-symlink-fill"}}{{template "op_icon" "ftp"}}
+{{- else if eq $n "bi-grid-3x3-gap" "bi-puzzle"}}{{template "op_icon" "apps"}}
+{{- else if eq $n "bi-bell"}}{{template "op_icon" "bell"}}
+{{- else if eq $n "bi-brush"}}{{template "op_icon" "brush"}}
+{{- else if eq $n "bi-cart" "bi-cart3"}}{{template "op_icon" "cart"}}
+{{- else if eq $n "bi-chat-dots" "bi-chat-square-text"}}{{template "op_icon" "message"}}
+{{- else if eq $n "bi-droplet"}}{{template "op_icon" "droplet"}}
+{{- else if eq $n "bi-images"}}{{template "op_icon" "photo"}}
+{{- else if eq $n "bi-mortarboard"}}{{template "op_icon" "school"}}
+{{- else if eq $n "bi-robot"}}{{template "op_icon" "robot"}}
+{{- else if eq $n "bi-toggle2-off" "bi-toggle2-on"}}{{template "op_icon" "toggle"}}
+{{- else if eq $n "bi-translate"}}{{template "op_icon" "language"}}
+{{- else if eq $n "bi-door-open"}}{{template "op_icon" "out"}}
+{{- else if eq $n "bi-arrow-left-right"}}{{template "op_icon" "swap"}}
+{{- else if eq $n "bi-calendar2-week"}}{{template "op_icon" "calendar"}}
+{{- else if eq $n "bi-clock"}}{{template "op_icon" "clock"}}
+{{- else if eq $n "bi-bug"}}{{template "op_icon" "bug"}}
+{{- else if eq $n "bi-book" "bi-journal-bookmark"}}{{template "op_icon" "book"}}
+{{- else if eq $n "bi-shield-exclamation"}}{{template "op_icon" "shield"}}
+{{- else if eq $n "bi-lightning-charge" "bi-lightning-charge-fill"}}{{template "op_icon" "bolt"}}
+{{- else if eq $n "bi-filetype-java" "bi-filetype-js" "bi-filetype-py" "bi-filetype-rb"}}{{template "op_icon" "code"}}
+{{- else if eq $n "bi-diagram-3"}}{{template "op_icon" "router"}}
+{{- else if eq $n "bi-folder-x"}}{{template "op_icon" "file"}}
+{{- else if eq $n "bi-person-exclamation"}}{{template "op_icon" "history"}}
+{{- else if eq $n "bi-textarea-t"}}{{template "op_icon" "stack"}}
+{{- else}}<i class="bi {{$n}}" aria-hidden="true"></i>
+{{- end}}{{end}}
 
-            <button type="button" @click="toggleOpen" class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-gray-100 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-gray-800 dark:hover:text-black dark:active:bg-slate-700/50" :aria-expanded="open" :aria-controls="'section-icons-{{.Section.Key}}'">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="open" x-cloak><path fill-rule="evenodd" d="M5.23 12.21a.75.75 0 0 0 1.06.02L10 8.94l3.71 3.29a.75.75 0 1 0 1-1.12l-4.25-3.75a.75.75 0 0 0-1 0L5.21 11.1a.75.75 0 0 0 .02 1.06z" clip-rule="evenodd"/></svg>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="!open" x-cloak><path fill-rule="evenodd" d="M14.77 7.79a.75.75 0 0 0-1.06-.02L10 11.06 6.29 7.77a.75.75 0 1 0-1 1.12l4.25 3.75a.75.75 0 0 0 1 0l4.25-3.75a.75.75 0 0 0-.02-1.06z" clip-rule="evenodd"/></svg>
-              <span x-text="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" class="sr-only"></span>
-            </button>
-          </div>
-
-          <div
-            id="section-icons-{{.Section.Key}}"
-            class="flex flex-wrap lg:w-full md:w-5/6 xl:shadow-small-blue transition-all duration-300"
-            x-show="open"
-            x-collapse
-          >
-            {{$iconView := .IconView}}
-            {{$upsellPlanName := .UpsellPlanName}}
-            {{$upsellURL := .UpsellURL}}
-            {{range .Section.Items}}
-              {{if .Disabled}}
-                <a title="{{if $upsellPlanName}}{{$.T.Get "Upgrade to"}} {{$upsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
-                   {{if $upsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}
-                   class="block w-1/2 py-1 text-center lg:w-1/4 opacity-50 grayscale cursor-not-allowed">
-                  <div :class="$store.dashboardIconView.value === 'icon' ? 'py-2 text-center' : 'p-2 px-4 flex gap-2'" class="{{if eq $iconView "icon"}}py-2 text-center{{else}}p-2 px-4 flex gap-2{{end}}">
-                    <button type="button" tabindex="-1" class="size-9 items-center justify-center rounded-xl bg-slate-700 text-white ring-4 ring-slate-400/50 dark:ring-slate-600/50 cursor-not-allowed">
-                      <i class="bi {{.Icon}}"></i>
-                    </button>
-                    <p class="pt-2 text-sm font-medium font-body md:text-base md:pt-2 text-slate-500 dark:text-slate-400">{{.Label}}</p>
-                  </div>
-                </a>
-              {{else}}
-                <a href="{{.Href}}" target="{{if .Target}}{{.Target}}{{else}}_self{{end}}" class="block w-1/2 py-1 text-center lg:w-1/4 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                  <div :class="$store.dashboardIconView.value === 'icon' ? 'py-2 text-center' : 'p-2 px-4 flex gap-2'" class="{{if eq $iconView "icon"}}py-2 text-center{{else}}p-2 px-4 flex gap-2{{end}}">
-                    <button type="button" class="size-9 items-center justify-center rounded-xl bg-slate-700 text-white hover:bg-slate-600 active:bg-slate-700 ring-4 ring-slate-400/50 dark:ring-slate-600/50 cursor-pointer">
-                      <i class="bi {{.Icon}}"></i>
-                    </button>
-                    <p class="pt-2 text-sm font-medium font-body md:text-base md:pt-2 text-slate-500 dark:text-slate-400">{{.Label}}</p>
-                  </div>
-                </a>
-              {{end}}
-            {{end}}
-          </div>
-        </div>
+{{/* one tile, dict "Item", "T", "UpsellPlanName", "UpsellURL" */}}
+{{define "dash_tile"}}{{with .Item}}
+{{if .Disabled}}
+<a class="op-tool is-locked" title="{{if $.UpsellPlanName}}{{$.T.Get "Upgrade to"}} {{$.UpsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}" {{if $.UpsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}} data-label="{{lower .Label}}"><span class="op-ico-tile">{{template "dash_icon" .Icon}}</span><span>{{.Label}}</span></a>
+{{else}}
+<a class="op-tool" href="{{.Href}}" {{if .Target}}target="{{.Target}}"{{end}} data-label="{{lower .Label}}"><span class="op-ico-tile">{{template "dash_icon" .Icon}}</span><span>{{.Label}}</span></a>
 {{end}}
+{{end}}{{end}}
+
+{{/* one Classic link row, same dict as dash_tile */}}
+{{define "dash_link"}}{{with .Item}}
+{{if .Disabled}}
+<a class="op-link is-locked" title="{{if $.UpsellPlanName}}{{$.T.Get "Upgrade to"}} {{$.UpsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}" {{if $.UpsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}><span class="op-ico-tile is-xs">{{template "dash_icon" .Icon}}</span>{{.Label}}</a>
+{{else}}
+<a class="op-link" href="{{.Href}}" {{if .Target}}target="{{.Target}}"{{end}}><span class="op-ico-tile is-xs">{{template "dash_icon" .Icon}}</span>{{.Label}}</a>
 {{end}}
+{{end}}{{end}}
 
-{{define "modern_section"}}
+{{/* a Classic section, dict "Section", "T", "UpsellPlanName", "UpsellURL" */}}
+{{define "dash_section"}}
 {{if .Section.Items}}
-        <div
-          data-section-id="{{.Section.Key}}"
-          x-data='{
-            open: (function() {
-              const s = localStorage.getItem("section_state_" + {{toJSON .Section.Key}});
-              return s === null ? true : s === "true";
-            })(),
-            toggleOpen() {
-              this.open = !this.open;
-              localStorage.setItem("section_state_" + {{toJSON .Section.Key}}, this.open);
-            }
-          }'
-          class="overflow-hidden rounded bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-800"
-        >
-          <div class="flex items-center justify-between gap-4 px-4 py-3 border-b border-gray-200 dark:border-gray-800 cursor-move active:cursor-grabbing" id="section-title-{{.Section.Key}}">
-            <h2 class="flex items-center gap-3 text-base font-semibold text-gray-900 dark:text-gray-50">
-              {{if .Section.Icon}}<span class="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300" aria-hidden="true"><i class="bi {{.Section.Icon}}"></i></span>{{end}}
-              {{.Section.Title}}
-            </h2>
-
-            <button type="button" @click="toggleOpen" class="flex items-center rounded-lg px-1.5 py-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50" :aria-expanded="open" :aria-controls="'section-icons-{{.Section.Key}}'">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="open" x-cloak><path fill-rule="evenodd" d="M5.23 12.21a.75.75 0 0 0 1.06.02L10 8.94l3.71 3.29a.75.75 0 1 0 1-1.12l-4.25-3.75a.75.75 0 0 0-1 0L5.21 11.1a.75.75 0 0 0 .02 1.06z" clip-rule="evenodd"/></svg>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="!open" x-cloak><path fill-rule="evenodd" d="M14.77 7.79a.75.75 0 0 0-1.06-.02L10 11.06 6.29 7.77a.75.75 0 1 0-1 1.12l4.25 3.75a.75.75 0 0 0 1 0l4.25-3.75a.75.75 0 0 0-.02-1.06z" clip-rule="evenodd"/></svg>
-              <span x-text="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" class="sr-only"></span>
-            </button>
-          </div>
-
-          <div id="section-icons-{{.Section.Key}}" class="grid grid-cols-2 gap-1 p-2" x-show="open" x-collapse>
-            {{$upsellPlanName := .UpsellPlanName}}
-            {{$upsellURL := .UpsellURL}}
-            {{range .Section.Items}}
-              {{if .Disabled}}
-                <a title="{{if $upsellPlanName}}{{$.T.Get "Upgrade to"}} {{$upsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
-                   {{if $upsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}
-                   class="flex min-w-0 items-center gap-3 rounded-md px-2 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 opacity-50 grayscale cursor-not-allowed">
-                  <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200" aria-hidden="true"><i class="bi {{.Icon}}"></i></span>
-                  <span class="leading-tight">{{.Label}}</span>
-                </a>
-              {{else}}
-                <a href="{{.Href}}" target="{{if .Target}}{{.Target}}{{else}}_self{{end}}" class="flex min-w-0 items-center gap-3 rounded-md px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-gray-50">
-                  <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200" aria-hidden="true"><i class="bi {{.Icon}}"></i></span>
-                  <span class="leading-tight">{{.Label}}</span>
-                </a>
-              {{end}}
-            {{end}}
-          </div>
+<section class="op-card op-dash-section" style="--hue:var(--color-hue-{{template "dash_hue" .Section.Key}})" data-section-id="{{.Section.Key}}"
+    x-data='{
+        open: (function() {
+            const s = localStorage.getItem("section_state_" + {{toJSON .Section.Key}});
+            return s === null ? true : s === "true";
+        })(),
+        toggleOpen() {
+            this.open = !this.open;
+            localStorage.setItem("section_state_" + {{toJSON .Section.Key}}, this.open);
+        }
+    }'>
+    <div class="op-card-head op-drag" id="section-title-{{.Section.Key}}">
+        <h2 class="op-with-icon">{{if .Section.Icon}}<span class="op-ico-tile is-sm">{{template "dash_icon" .Section.Icon}}</span>{{else}}<span class="op-cat-dot"></span>{{end}}{{.Section.Title}}</h2>
+        <button type="button" class="op-chev" @click="toggleOpen" :aria-expanded="open.toString()" aria-controls="section-icons-{{.Section.Key}}" :aria-label="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'">{{template "op_icon" "up"}}</button>
+    </div>
+    {{$o := .}}
+    <div id="section-icons-{{.Section.Key}}" x-show="open" x-collapse>
+        <div class="op-links" x-show="!$store.dashboardIconView || $store.dashboardIconView.value !== 'icon'">
+            {{range .Section.Items}}{{template "dash_link" (dict "Item" . "T" $o.T "UpsellPlanName" $o.UpsellPlanName "UpsellURL" $o.UpsellURL)}}{{end}}
         </div>
+        <div class="op-tool-grid" x-show="$store.dashboardIconView && $store.dashboardIconView.value === 'icon'" x-cloak>
+            {{range .Section.Items}}{{template "dash_tile" (dict "Item" . "T" $o.T "UpsellPlanName" $o.UpsellPlanName "UpsellURL" $o.UpsellURL)}}{{end}}
+        </div>
+    </div>
+</section>
 {{end}}
 {{end}}
 
 {{define "content"}}
 <!-- START templates/dashboard/dashboard.html -->
-
 <script src="{{static "vendor/sortablejs/Sortable.min.js"}}"></script>
-<style>.cursor-move { cursor: move; } .cursor-grabbing:active { cursor: grab; } .\-left-4 { left:0!important;} .dashboard-locked .cursor-move { cursor: default; }</style>
-{{if eq .MenuStyle "modern"}}
-<!-- utilities missing from dist/output.css -->
-<style>
-.px-1\.5 { padding-left: .375rem; padding-right: .375rem; } .py-1\.5 { padding-top: .375rem; padding-bottom: .375rem; }
-@media (min-width: 80rem) { .xl\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-</style>
-{{end}}
+{{$root := .}}
+<div class="op-content op-icons-line" x-data="{
+        view: ['overview', 'tools', 'classic'].find(v => v === new URLSearchParams(location.search).get('view')) || (function () { try { return localStorage.getItem('dashboard_view') } catch (e) { return null } })() || 'overview',
+        find: '',
+        setView(v) { this.view = v; try { localStorage.setItem('dashboard_view', v) } catch (e) {} }
+    }" @dashboard-view.window="setView($event.detail)">
 
-<div class="p-6 grid sm:flex grid-cols-1 gap-4 sm:grid-cols-2 md:gap-4 xl:grid-cols-4 bg-gray-50 dark:bg-gray-950">
-  <div class="flex flex-col space-y-4 xl:col-span-3 w-full">
+    <div class="op-page-head">
+        <div>
+            <div class="op-eyebrow">{{.HostingPlanName}}{{if and .HostingPlanName .IPAddress}} · {{end}}{{.IPAddress}}</div>
+            <h1 class="op-title">{{.T.Get "Welcome back,"}} {{.CurrentUsername}}</h1>
+            {{if .LastIP}}<p class="op-meta">{{.T.Get "Last login from"}} <span class="op-mono">{{.LastIP}}</span>{{if .LastLoginAgo}} · <span title="{{.LastLoginTime}}">{{.LastLoginAgo}}</span>{{end}}</p>{{end}}
+        </div>
+        <div class="op-segmented" role="group" aria-label="{{.T.Get "Dashboard view"}}">
+            <button type="button" :aria-pressed="(view === 'overview').toString()" @click="setView('overview')">{{template "op_icon" "dash"}} {{.T.Get "Overview"}}</button>
+            <button type="button" :aria-pressed="(view === 'tools').toString()" @click="setView('tools')">{{template "op_icon" "apps"}} {{.T.Get "Tools"}}</button>
+            <button type="button" :aria-pressed="(view === 'classic').toString()" @click="setView('classic')">{{template "op_icon" "layout"}} {{.T.Get "Classic"}}</button>
+        </div>
+        {{if or .UserAllowed.domains .UserAllowed.autoinstaller}}
+        <div class="op-actions" :style="view !== 'overview' && 'visibility:hidden'" :aria-hidden="(view !== 'overview').toString()">
+            {{if .UserAllowed.domains}}<a class="op-btn op-btn-ghost" href="/domains/new">{{.T.Get "Add Domain"}}</a>{{end}}
+            {{if .UserAllowed.autoinstaller}}<a class="op-btn op-btn-primary" href="/auto-installer">{{template "op_icon" "plus"}} {{.T.Get "New Website"}}</a>{{end}}
+        </div>
+        {{end}}
+    </div>
 
     {{template "custommessage" .}}
 
-    {{$root := .}}
-    {{$modern := eq .MenuStyle "modern"}}
-    <div id="dashboard-sortable-area" class="{{if $modern}}grid grid-cols-1 xl:grid-cols-2 gap-4 items-start{{else}}flex flex-col space-y-4{{end}}">
-      {{range .Sections}}
-        <div id="wrapper-{{.Key}}" data-id="{{.Key}}">
-          {{if eq $root.CustomSectionPosition (printf "before_%s" .Key)}}
-            {{template "customsection" $root}}
-          {{end}}
-          {{if $modern}}
-          {{template "modern_section" (dict "Section" . "T" $root.T "UpsellPlanName" $root.UpsellPlanName "UpsellURL" $root.UpsellURL)}}
-          {{else}}
-          {{template "icon_section" (dict "Section" . "UserAllowedJSON" $root.UserAllowedJSON "IconView" $root.DashboardIconView "T" $root.T "UpsellPlanName" $root.UpsellPlanName "UpsellURL" $root.UpsellURL)}}
-          {{end}}
+{{with .PlanTiles}}
+    <section class="op-kpis" aria-label="{{$root.T.Get "Plan usage"}}" x-show="view === 'overview'">
+    {{range .}}
+        <a class="op-kpi" href="{{.Href}}">
+            <div class="op-kpi-label">{{template "op_icon" .Icon}} {{.Label}}</div>
+            <div class="op-kpi-value">{{.Used}} <small>/ {{if .Limit}}{{.Limit}}{{else}}∞{{end}}</small></div>
+            <div class="op-progress{{if ge .Pct 90}} is-danger{{else if ge .Pct 70}} is-warning{{end}}"><span style="width:{{.Pct}}%"></span></div>
+        </a>
+    {{end}}
+    </section>
+{{end}}
+
+    <label class="op-find" x-show="view === 'tools'" x-cloak>{{template "op_icon" "search"}}<input class="op-input" type="search" x-model="find" x-ref="find" placeholder="{{.T.Get "Find a tool: DNS, PHP version, backups..."}}" aria-label="{{.T.Get "Find a tool"}}"></label>
+
+    <div :class="view === 'tools' ? 'op-tools-grid' : 'op-dash-grid'" class="op-dash-grid">
+        <div class="op-col">
+
+            <div class="op-col" x-show="view === 'overview'">
+                <section class="op-card">
+                    <div class="op-card-head"><h2>{{$root.T.Get "Websites"}}</h2><a href="/sites">{{$root.T.Get "View all"}}</a></div>
+{{with .Websites}}
+                    <div class="op-table-wrap"><table class="op-table"><thead><tr><th>{{$root.T.Get "Site"}}</th><th>{{$root.T.Get "Runs on"}}</th><th>{{$root.T.Get "Status"}}</th><th class="is-shrink"><span class="op-sr">{{$root.T.Get "Actions"}}</span></th></tr></thead><tbody>
+                    {{range .}}
+                        <tr data-href="{{.Href}}">
+                            <td class="op-cell-title"><div class="op-row-title"><span class="op-ico-tile" style="--hue:var(--color-hue-{{.TileHue}})" title="{{.Type}}" aria-label="{{.Type}}" role="img">{{template "op_icon" .TileIcon}}</span><div style="min-width:0"><b class="op-wrap"><a class="op-site-link" href="{{.Href}}">{{.Name}}</a></b></div></div></td>
+                            <td data-label="{{$root.T.Get "Runs on"}}"><span class="op-mono op-dash-runs">{{.RunsOn}}</span></td>
+                            <td data-label="{{$root.T.Get "Status"}}">{{if .Suspended}}<span class="op-status is-danger">{{$root.T.Get "Suspended"}}</span>{{else if eq .StateLabel "Running"}}<span class="op-status is-success">{{$root.T.Get "Running"}}</span>{{else if .StateLabel}}<span class="op-status is-muted">{{$root.T.Get "Stopped"}}</span>{{else}}<span class="op-status is-success">{{$root.T.Get "Active"}}</span>{{end}}</td>
+                            <td class="is-shrink op-cell-menu" x-data="opMenu()" @click.outside="open = false" @keydown.escape="open = false">
+                                <button class="op-icon-btn" type="button" aria-label="{{$root.T.Get "Actions for"}} {{.Name}}" :aria-expanded="open.toString()" x-ref="btn" @click="toggle()">{{template "op_icon" "dots"}}</button>
+                                <div class="op-menu" x-ref="menu" x-show="open" x-cloak>
+                                    <a href="{{.Href}}">{{template "op_icon" "settings"}} {{$root.T.Get "Manage"}}</a>
+                                    <a href="https://{{.Name}}" target="_blank" rel="noopener">{{template "op_icon" "out"}} {{$root.T.Get "Open site"}}</a>
+                                    {{if $root.UserAllowed.filemanager}}<a href="/files/{{.Name}}">{{template "op_icon" "folder"}} {{$root.T.Get "File Manager"}}</a>{{end}}
+                                    {{if $root.UserAllowed.dns}}<a href="/domains/edit-dns-zone/{{.Name}}">{{template "op_icon" "dns"}} {{$root.T.Get "DNS zone"}}</a>{{end}}
+                                    {{if $root.UserAllowed.ssl}}<a href="/domains/ssl?domain_name={{.Name}}">{{template "op_icon" "lock"}} {{$root.T.Get "SSL"}}</a>{{end}}
+                                </div>
+                            </td>
+                        </tr>
+                    {{end}}
+                    </tbody></table></div>
+{{else}}
+                    <div class="op-empty">
+                        <span class="op-ico-tile">{{template "op_icon" "browser"}}</span>
+                        <b>{{$root.T.Get "No websites yet."}}</b>
+                        {{if $root.UserAllowed.autoinstaller}}<a class="op-btn op-btn-secondary op-btn-sm" href="/auto-installer">{{template "op_icon" "plus"}} {{$root.T.Get "Install an app"}}</a>{{end}}
+                    </div>
+{{end}}
+                </section>
+{{with .QuickActions}}
+                <section class="op-card">
+                    <div class="op-card-head"><h2>{{$root.T.Get "Quick actions"}}</h2><a href="#" @click.prevent="setView('tools')">{{$root.T.Get "All tools"}}</a></div>
+                    <div class="op-chips">
+                    {{range .}}<a class="op-chip" href="{{.Href}}" {{if .Target}}target="{{.Target}}"{{end}}>{{template "dash_icon" .Icon}} {{.Label}}</a>{{end}}
+                    </div>
+                </section>
+{{end}}
+            </div>
+
+            <div class="op-col" x-show="view === 'tools'" x-cloak>
+                {{range .Sections}}{{if .Items}}
+                <section class="op-card" style="--hue:var(--color-hue-{{template "dash_hue" .Key}})" data-labels="{{range .Items}}{{lower .Label}}|{{end}}" x-data="{ open: true }" x-show="!find || $el.dataset.labels.includes(find.toLowerCase())">
+                    <div class="op-card-head"><h2 class="op-with-icon"><span class="op-cat-dot"></span>{{.Title}} <span class="op-count">{{len .Items}}</span></h2><button class="op-chev" type="button" :aria-expanded="open.toString()" @click="open = !open" :aria-label="open ? '{{$root.T.Get "Hide icons"}}' : '{{$root.T.Get "Show icons"}}'">{{template "op_icon" "up"}}</button></div>
+                    <div class="op-tool-grid" x-show="open || find">
+                        {{range .Items}}<div class="op-tool-wrap" x-show="!find || $el.firstElementChild.dataset.label.includes(find.toLowerCase())">{{template "dash_tile" (dict "Item" . "T" $root.T "UpsellPlanName" $root.UpsellPlanName "UpsellURL" $root.UpsellURL)}}</div>{{end}}
+                    </div>
+                </section>
+                {{end}}{{end}}
+                <div class="op-empty" x-show="find && ![...$el.parentElement.querySelectorAll('[data-labels]')].some(s => s.dataset.labels.includes(find.toLowerCase()))" x-cloak>
+                    <span class="op-ico-tile">{{template "op_icon" "search"}}</span>
+                    <b>{{.T.Get "No tool matches"}}</b>
+                    <span class="op-hint">{{.T.Get "Try another word, or switch to Classic to see every section."}}</span>
+                </div>
+            </div>
+
+            <div class="op-col" x-show="view === 'classic'" x-cloak>
+                <div id="dashboard-sortable-area" class="op-dash-sections">
+                {{range .Sections}}
+                    <div id="wrapper-{{.Key}}" data-id="{{.Key}}">
+                        {{if eq $root.CustomSectionPosition (printf "before_%s" .Key)}}{{template "customsection" $root}}{{end}}
+                        {{template "dash_section" (dict "Section" . "T" $root.T "UpsellPlanName" $root.UpsellPlanName "UpsellURL" $root.UpsellURL)}}
+                    </div>
+                {{end}}
+                </div>
+            </div>
         </div>
-      {{end}}
+
+        <div class="op-col">
+            <div class="op-col" x-show="view === 'overview'">{{template "twofa" .}}</div>
+            {{template "information" .}}
+            {{template "usage" .}}
+            {{template "howto" .}}
+        </div>
     </div>
-
-  </div>
-
-  <div class="flex flex-col space-y-4 xl:col-span-1" style="min-width:360px;">
-    {{template "twofa" .}}
-    {{template "information" .}}
-    {{template "usage" .}}
-    {{template "howto" .}}
-  </div>
 </div>
 
 {{template "onboarding" .}}
@@ -202,16 +279,13 @@ document.addEventListener('DOMContentLoaded', function() {
         disabled: locked,
         animation: 150,
         handle: '[id^="section-title-"]',
-        ghostClass: 'opacity-50',
+        ghostClass: 'op-dragging',
         filter: 'button',
         preventOnFilter: false,
-        {{if ne .MenuStyle "modern"}}direction: 'vertical',{{end}}
         fallbackOnBody: true,
         swapThreshold: 0.65,
-
         onEnd: function() {
-            const order = sortable.toArray();
-            localStorage.setItem('dashboard_section_order', JSON.stringify(order));
+            localStorage.setItem('dashboard_section_order', JSON.stringify(sortable.toArray()));
         }
     });
 
@@ -220,18 +294,15 @@ document.addEventListener('DOMContentLoaded', function() {
         sortableContainer.classList.toggle('dashboard-locked', e.detail);
     });
 
-    const savedOrder = JSON.parse(localStorage.getItem('dashboard_section_order'));
+    let savedOrder = null;
+    try { savedOrder = JSON.parse(localStorage.getItem('dashboard_section_order')); } catch (e) {}
     if (savedOrder) {
         savedOrder.forEach(key => {
             const element = sortableContainer.querySelector(`[data-id="${key}"]`);
-            if (element) {
-                sortableContainer.appendChild(element);
-            }
+            if (element) sortableContainer.appendChild(element);
         });
     }
 });
 </script>
-
-
 <!-- END templates/dashboard/dashboard.html -->
 {{end}}

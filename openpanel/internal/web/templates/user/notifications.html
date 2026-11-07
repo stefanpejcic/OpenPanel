@@ -1,3 +1,5 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "notification_icon"}}
@@ -40,71 +42,66 @@
 {{define "content"}}
 <!-- START templates/user/notifications.html -->
 
-{{$switch := "relative w-9 h-5 shrink-0 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"}}
+{{$switch := "op-peer-switch"}}
 
-<section aria-label="{{.T.Get "Notifications Settings"}}" x-data="{ on: { {{range $i, $p := .Notifications}}{{if $i}}, {{end}}{{toJSON $p.Key}}: {{if eq $p.Value "1"}}true{{else}}false{{end}}{{end}} } }">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between gap-4">
+<div class="op-content" aria-label="{{.T.Get "Notifications Settings"}}" x-data="{ group: 'all', on: { {{range $i, $p := .Notifications}}{{if $i}}, {{end}}{{toJSON $p.Key}}: {{if eq $p.Value "1"}}true{{else}}false{{end}}{{end}} } }">
+    <div class="op-page-head">
         <div>
-            <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Email Notifications"}}</h1></div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">
+            <h1 class="op-title">{{.T.Get "Email Notifications"}}</h1>
+            <p class="op-meta">
                 {{.T.Get "Security alerts help you spot unwanted changes early, usage alerts warn you before you run out of space."}}
-                {{if .Email}}{{.T.Get "Emails are sent to"}} <span class="font-medium text-gray-900 dark:text-gray-50">{{.Email}}</span> (<a href="/account" class="text-blue-600 hover:underline hover:underline-offset-4 dark:text-blue-500">{{.T.Get "change"}}</a>).{{end}}
+                {{if .Email}}{{.T.Get "Emails are sent to"}} <b class="op-mono op-strong">{{.Email}}</b> (<a href="/account" class="op-accent-text">{{.T.Get "change"}}</a>).{{end}}
             </p>
         </div>
-        <div class="shrink-0">
-            <button type="submit" form="notifications-form" class="whitespace-nowrap rounded border border-black bg-black px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-gray-800">{{.T.Get "Save Preferences"}}</button>
+        <div class="op-actions">
+            <button type="submit" form="notifications-form" class="op-btn op-btn-primary">{{.T.Get "Save Preferences"}}</button>
         </div>
     </div>
 
-    <div class="p-4 sm:p-6 lg:p-8">
-        <form method="POST" id="notifications-form">
-            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {{range .Cards}}
-                {{$card := .}}
-                <div class="flex flex-col rounded border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950">
-                    <div class="flex items-center gap-3">
-                        <span class="notif-icon notif-icon--{{if eq .Group "Usage"}}usage{{else}}security{{end}}">{{template "notification_icon" .}}</span>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{$.T.Get .Group}}</p>
-                    </div>
-                    <h4 class="mt-4 font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get .Title}}</h4>
-                    <p class="mt-2 flex-1 text-sm leading-6 text-gray-500 dark:text-gray-400">{{$.T.Get .Description}}</p>
-                    <div class="my-6 border-t border-gray-200 dark:border-gray-800"></div>
-                    <div class="flex items-center justify-between gap-4">
-                        <label class="inline-flex cursor-pointer items-center gap-3">
-                            <input type="checkbox" name="{{.Key}}" value="1" x-model="on[{{toJSON .Key}}]" class="sr-only peer">
-                            <div class="{{$switch}}"></div>
-                            <span class="text-sm text-gray-500 dark:text-gray-400">{{$.T.Get "Email me"}} <span class="sr-only">{{$.T.Get .Title}}</span></span>
-                        </label>
-                        <a href="{{.DocsURL}}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline hover:underline-offset-4 dark:text-blue-500">
-                            {{$.T.Get "Learn more"}} <i class="bi bi-box-arrow-up-right text-xs" aria-hidden="true"></i>
-                        </a>
-                    </div>
-                    {{if .Subs}}
-                    <div class="mt-4 space-y-3 border-l border-gray-200 pl-4 dark:border-gray-800" x-show="on[{{toJSON $card.Key}}]" x-cloak>
-                        {{range .Subs}}
-                        <label class="flex cursor-pointer items-center gap-3">
-                            <input type="checkbox" name="{{.Key}}" value="1" x-model="on[{{toJSON .Key}}]" class="sr-only peer">
-                            <div class="{{$switch}}"></div>
-                            <span class="text-sm text-gray-500 dark:text-gray-400">{{$.T.Get .Title}}</span>
-                        </label>
-                        {{end}}
-                    </div>
+    <div class="op-segmented op-notif-filter" role="group" aria-label="{{.T.Get "Group"}}">
+        <button type="button" :aria-pressed="(group === 'all').toString()" @click="group = 'all'">{{.T.Get "All"}} <span class="op-count">{{len .Cards}}</span></button>
+        <button type="button" :aria-pressed="(group === 'Security').toString()" @click="group = 'Security'">{{template "op_icon" "shield"}} {{.T.Get "Security"}} <span class="op-count">{{$n := 0}}{{range .Cards}}{{if ne .Group "Usage"}}{{$n = add $n 1}}{{end}}{{end}}{{$n}}</span></button>
+        <button type="button" :aria-pressed="(group === 'Usage').toString()" @click="group = 'Usage'">{{template "op_icon" "chart"}} {{.T.Get "Usage"}} <span class="op-count">{{$u := 0}}{{range .Cards}}{{if eq .Group "Usage"}}{{$u = add $u 1}}{{end}}{{end}}{{$u}}</span></button>
+    </div>
+
+    <form method="POST" id="notifications-form">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+        <div class="op-notif-grid">
+            {{range .Cards}}
+            {{$card := .}}
+            <section class="op-card op-notif" data-group="{{if eq .Group "Usage"}}Usage{{else}}Security{{end}}" x-show="group === 'all' || group === $el.dataset.group">
+                <div class="op-notif-top">
+                    <span class="op-ico-tile" style="--hue:var(--color-hue-{{if eq .Group "Usage"}}blue{{else}}purple{{end}})">{{template "notification_icon" .}}</span>
+                    <span class="op-eyebrow">{{$.T.Get .Group}}</span>
+                </div>
+                <div>
+                    <b class="op-notif-title">{{$.T.Get .Title}}</b>
+                    <p class="op-meta">{{$.T.Get .Description}}</p>
+                </div>
+                <div class="op-notif-foot">
+                    <label class="op-notif-switch">
+                        <input type="checkbox" name="{{.Key}}" value="1" x-model="on[{{toJSON .Key}}]" class="sr-only peer">
+                        <div class="op-peer-switch"></div>
+                        <span class="op-meta">{{$.T.Get "Email me"}} <span class="sr-only">{{$.T.Get .Title}}</span></span>
+                    </label>
+                    <a href="{{.DocsURL}}" target="_blank" rel="noopener" class="op-notif-docs">{{$.T.Get "Learn more"}} <span class="op-menu-ext">{{template "op_icon" "out"}}</span></a>
+                </div>
+                {{if .Subs}}
+                <div class="op-notif-subs" x-show="on[{{toJSON $card.Key}}]" x-cloak>
+                    {{range .Subs}}
+                    <label class="op-notif-switch">
+                        <input type="checkbox" name="{{.Key}}" value="1" x-model="on[{{toJSON .Key}}]" class="sr-only peer">
+                        <div class="op-peer-switch"></div>
+                        <span class="op-meta">{{$.T.Get .Title}}</span>
+                    </label>
                     {{end}}
                 </div>
                 {{end}}
-            </div>
-        </form>
-    </div>
-</section>
-
-<style>
-.notif-icon { display: inline-flex; width: 2.25rem; height: 2.25rem; flex-shrink: 0; align-items: center; justify-content: center; border-radius: 9999px; }
-.notif-icon--security { background: #f5f3ff; color: #7c3aed; }
-.notif-icon--usage { background: #f0f9ff; color: #0284c7; }
-.dark .notif-icon--security { background: rgb(139 92 246 / 0.14); color: #a78bfa; }
-.dark .notif-icon--usage { background: rgb(14 165 233 / 0.12); color: #38bdf8; }
-</style>
+            </section>
+            {{end}}
+        </div>
+    </form>
+</div>
 
 <!-- END templates/user/notifications.html -->
 {{end}}

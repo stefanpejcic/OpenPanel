@@ -154,10 +154,13 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	pidsLimit := getValidatedInt(r.FormValue("pids_limit"), "500")
 
 	var appPort int
-	if portStr := r.FormValue("port"); portStr != "" {
-		if p, perr := strconv.Atoi(portStr); perr == nil && p >= 1 && p <= 65535 {
-			appPort = p
+	if portStr := strings.TrimSpace(r.FormValue("port")); portStr != "" {
+		p, perr := strconv.Atoi(portStr)
+		if perr != nil || p < 1 || p > 65535 {
+			emit(map[string]any{"error": "Invalid port, use a number from 1 to 65535."})
+			return
 		}
+		appPort = p
 	}
 
 	composeFile := "/home/" + userContext + "/docker-compose.yml"
@@ -186,6 +189,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	docroot := docrootNull.String
 
 	if !a.CheckDomainBelongsToUser(ctx, userID, topDomain) {
+		emit(map[string]any{"error": "You do not own this domain."})
 		return
 	}
 

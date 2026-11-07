@@ -1,148 +1,99 @@
 {{define "wp_vulnerabilities"}}
 <!-- START templates/manager/wp/_vulnerabilities.html -->
-<div id="partials_wp_vulnerability">
-    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
-        <div>
-            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "WP Vulnerabilities"}}</h2>
-            <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "WP Manager automatically scans your WP core version, plugins and themes for known vulnerabilities."}}</p>
-        </div>
-
-        <div class="sm:max-w-3xl md:col-span-2">
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                <div class="flex gap-2 justify-between items-center col-span-full pb-2">
-                    <span class="my-2 flex gap-2 text-sm/6 text-gray-500 dark:text-gray-500">
-                        <span id="partials_wp_vulnerability_total_count_text">{{.T.Get "Vulnerabilities detected"}} <span class="text-sm font-medium text-gray-900 dark:text-gray-50" id="partials_wp_vulnerability_total_count">0</span></span>
-                        <span class="text-sm font-medium text-gray-900 dark:text-gray-50" id="vulnerabilities_checked"></span>
-                    </span>
-                    <form method="post" action="/json/wp_vulnerability/{{.CurrentDomain}}">
-                        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-                        <input type="hidden" name="redirect_to" value="/website?domain={{.CurrentDomain}}"/>
-                        <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Scan for vulnerabilities"}}</button>
-                    </form>
-                </div>
-            </div>
-            <div class="relative w-full mt-2">
-                <div class="card-body text-center" id="partials_wp_vulnerability_loading">
-                    <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Loading WordPress vulnerability data.."}}</p>
-                </div>
-
-                <div class="card-body text-center hidden" id="partials_wp_vulnerability_no_data">
-                    <div class="flex items-center space-x-2">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-emerald-500 dark:text-emerald-400">
-                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path>
-                        </svg>
-                        <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No vulnerabilities found"}}</p>
-                    </div>
-                </div>
-
-                <div class="card-body hidden" id="partials_wp_vulnerability_data">
-                    <div id="wp_vulnerability_table_body"></div>
-                </div>
-            </div>
-        </div>
+<section class="op-card" id="partials_wp_vulnerability">
+    <div class="op-card-head">
+        <h2>{{.T.Get "WP Vulnerabilities"}}</h2>
+        <form method="post" action="/json/wp_vulnerability/{{.CurrentDomain}}">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+            <input type="hidden" name="redirect_to" value="/website?domain={{.CurrentDomain}}"/>
+            <button type="submit" class="op-btn op-btn-secondary op-btn-sm">{{template "op_icon" "search"}} {{.T.Get "Scan for vulnerabilities"}}</button>
+        </form>
     </div>
-</div>
+    <p class="op-meta op-wp-lead">{{.T.Get "WP Manager automatically scans your WP core version, plugins and themes for known vulnerabilities."}}</p>
+
+    <div id="partials_wp_vulnerability_loading">
+        <p class="op-hint">{{.T.Get "Loading WordPress vulnerability data.."}}</p>
+    </div>
+
+    <div class="hidden" id="partials_wp_vulnerability_no_data">
+        <div class="op-alert is-success">{{template "op_icon" "check"}}<span>{{.T.Get "No vulnerabilities found"}}</span></div>
+    </div>
+
+    <div class="hidden" id="partials_wp_vulnerability_data">
+        <div id="wp_vulnerability_table_body" class="op-wp-vulns"></div>
+    </div>
+
+    <div class="op-tfoot">
+        <span id="partials_wp_vulnerability_total_count_text">{{.T.Get "Vulnerabilities detected"}} <b class="op-strong" id="partials_wp_vulnerability_total_count">0</b></span>
+        <span id="vulnerabilities_checked"></span>
+    </div>
+</section>
 <!-- END templates/manager/wp/_vulnerabilities.html -->
 {{end}}
 
 {{define "wp_secure"}}
-<div id="partials_wp_harden">
-    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
-        <div>
-            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Security Measures"}}</h2>
-            <p class="mt-2 text-sm text-gray-500">{{.T.Get "Server-level restrictions to harden your WordPress instance. Rules are applied at the webserver level before PHP processing."}}</p>
-        </div>
-
-        <div class="sm:max-w-3xl md:col-span-2">
-            <form id="wordpress-security-form" method="post" action="/wordpress/secure/{{.CurrentDomain}}">
-                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                    <div class="grid grid-cols-1 gap-2 col-span-full mb-2">
-
-                        {{/* Named "hardening-update", not "security-update": Go's html/template
-                             flags any attribute whose name contains "uri"/"url"/"src" as a URL
-                             attribute (a heuristic against "javascript:..." injection in custom
-                             attrs), and "security" itself contains "uri" - that misclassification
-                             made it percent-escape the quotes in the JS expression below (%22
-                             instead of &#34;), which browsers don't auto-decode outside URL
-                             context, breaking the Alpine expression with a syntax error. */}}
-                        {{range $rule := .SecurityToggles}}
-                        <div x-data="{ enabled: false, tooltip: false }"
-                             @hardening-update.window="enabled = $event.detail.includes({{toJSON $rule.ID}})"
-                             class="flex items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-
-                            <span class="font-medium flex items-center gap-3 text-gray-700 dark:text-gray-200">
-                                <button
-                                    type="button"
-                                    @click="enabled = !enabled"
-                                    :class="enabled ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700'"
-                                    class="group relative isolate inline-flex shrink-0 items-center rounded-full p-0.5 shadow-inner ring-1 ring-inset transition-all ring-black/5 dark:ring-white/5 h-5 w-9">
-                                    <span
-                                        class="pointer-events-none relative inline-block transform rounded-full bg-white shadow-md transition-all duration-150 ease-in-out h-4 w-4"
-                                        :class="enabled ? 'translate-x-4' : 'translate-x-0'"></span>
-                                </button>
-                                {{$.T.Get $rule.Label}}
-                            </span>
-
-                            <input type="hidden" name="{{$rule.ID}}" value="{{$rule.ID}}" x-bind:disabled="!enabled" />
-
-                            <div class="relative flex items-center" @mouseenter="tooltip = true" @mouseleave="tooltip = false">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="text-gray-400 hover:text-gray-600 cursor-help transition-colors" viewBox="0 0 16 16">
-                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-                                    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
-                                </svg>
-
-                                <div x-show="tooltip"
-                                     x-transition:enter="transition ease-out duration-200"
-                                     x-transition:enter-start="opacity-0 scale-95"
-                                     x-transition:enter-end="opacity-100 scale-100"
-                                     class="absolute right-0 bottom-full mb-2 z-50 w-72 rounded bg-gray-900 p-3 text-xs text-white shadow-xl ring-1 ring-white/10">
-                                    <div class="font-bold mb-1 text-indigo-400 uppercase tracking-wider text-[10px]">{{$.T.Get "How it works"}}</div>
-                                    <div class="leading-relaxed opacity-90">{{$.T.Get $rule.TechDetails}}</div>
-                                    <div class="mt-2 pt-2 border-t border-white/10 font-mono text-gray-400 text-[10px]">{{$.T.Get "Action"}}: 403 Forbidden</div>
-                                </div>
-                            </div>
-                        </div>
-                        {{end}}
-
-                    </div>
-                    <div class="flex items-center justify-end space-x-4">
-                        <button type="submit" class="relative inline-flex items-center justify-center rounded border border-black bg-black px-4 py-2 text-center text-sm font-medium text-white shadow-sm transition-all hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60">{{.T.Get "Apply Changes"}}</button>
-                    </div>
-                </div>
-            </form>
-
-            <script>
-            document.querySelector('#security-tab')?.addEventListener('click', function() {
-                fetch(`/wordpress/secure/{{.CurrentDomain}}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        window.dispatchEvent(new CustomEvent('hardening-update', { detail: data }));
-                    })
-                    .catch(err => console.error('Failed to fetch security status:', err));
-            });
-            </script>
-        </div>
+<section class="op-card" id="partials_wp_harden" x-data="{ active: null }" @hardening-update.window="active = $event.detail.length">
+    <div class="op-card-head">
+        <h2>{{.T.Get "Security Measures"}}</h2>
+        <span class="op-status" x-show="active !== null" x-cloak :class="active >= {{len .SecurityToggles}} ? 'is-success' : 'is-warning'" x-text="active + ' / {{len .SecurityToggles}} ' + {{toJSON (.T.Get "active")}}"></span>
     </div>
-</div>
+    <p class="op-meta op-wp-lead">{{.T.Get "Server-level restrictions to harden your WordPress instance. Rules are applied at the webserver level before PHP processing."}}</p>
+
+    <form id="wordpress-security-form" method="post" action="/wordpress/secure/{{.CurrentDomain}}">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+        <div class="op-checks">
+            {{/* Named "hardening-update", not "security-update": Go's html/template
+                 flags any attribute whose name contains "uri"/"url"/"src" as a URL
+                 attribute (a heuristic against "javascript:..." injection in custom
+                 attrs), and "security" itself contains "uri" - that misclassification
+                 made it percent-escape the quotes in the JS expression below (%22
+                 instead of &#34;), which browsers don't auto-decode outside URL
+                 context, breaking the Alpine expression with a syntax error. */}}
+            {{range $rule := .SecurityToggles}}
+            <div class="op-check-row" x-data="{ enabled: false }"
+                 @hardening-update.window="enabled = $event.detail.includes({{toJSON $rule.ID}})">
+                <span class="op-wp-state" :class="enabled ? 'is-success' : 'is-off'">
+                    <span x-show="enabled">{{template "op_icon" "check"}}</span>
+                    <span x-show="!enabled">{{template "op_icon" "alert"}}</span>
+                </span>
+                <div>
+                    <b>{{$.T.Get $rule.Label}}</b>
+                    <p>{{$.T.Get $rule.TechDetails}}</p>
+                </div>
+                <button type="button" @click="enabled = !enabled" role="switch" :aria-checked="enabled.toString()" aria-label="{{$.T.Get $rule.Label}}" class="op-switch"></button>
+                <input type="hidden" name="{{$rule.ID}}" value="{{$rule.ID}}" x-bind:disabled="!enabled" />
+            </div>
+            {{end}}
+        </div>
+
+        <div class="op-form-foot">
+            <button type="submit" class="op-btn op-btn-primary">{{.T.Get "Apply Changes"}}</button>
+        </div>
+    </form>
+
+    <script>
+    document.querySelector('#security-tab')?.addEventListener('click', function() {
+        fetch(`/wordpress/secure/{{.CurrentDomain}}`)
+            .then(response => response.json())
+            .then(data => {
+                window.dispatchEvent(new CustomEvent('hardening-update', { detail: data }));
+            })
+            .catch(err => console.error('Failed to fetch security status:', err));
+    });
+    </script>
+</section>
 {{end}}
 
 {{define "wp_googlesafebrowsing"}}
 <!-- START templates/partials/googlesafebrowsing.html -->
-    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
-        <div>
-            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Google Safe Browsing"}}</h2>
-            <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Check website status on"}} <a href="https://transparencyreport.google.com/safe-browsing/search?url=http:%2F%2F{{.CurrentDomain}}" target="_blank" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4 dark:text-blue-500" rel="noopener noreferrer">{{.T.Get "Google Safe Browsing"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path></svg></a></p>
-        </div>
-        <div class="sm:max-w-3xl md:col-span-2">
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                <div class="col-span-full">
-
-<p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Google's Safe Browsing technology examines billions of URLs per day looking for unsafe websites, many of which are legitimate websites that have been compromised. When an unsafe site is detected, warning is shown on Google Search and in web browsers. Here you can see whether this website is currently marked by Google as dangerous to visit."}}</p>
-
-                    <div class="relative w-full mt-2">
-                        <span id="safebrowsing_results"></span>
+<section class="op-card">
+    <div class="op-card-head">
+        <h2>{{.T.Get "Google Safe Browsing"}}</h2>
+        <a href="https://transparencyreport.google.com/safe-browsing/search?url=http:%2F%2F{{.CurrentDomain}}" target="_blank" rel="noopener noreferrer">{{.T.Get "Check website status on"}} Google ↗</a>
+    </div>
+    <p class="op-meta op-wp-lead">{{.T.Get "Google's Safe Browsing technology examines billions of URLs per day looking for unsafe websites, many of which are legitimate websites that have been compromised. When an unsafe site is detected, warning is shown on Google Search and in web browsers. Here you can see whether this website is currently marked by Google as dangerous to visit."}}</p>
+    <div id="safebrowsing_results"></div>
 
 <script>
     var securityTab = document.getElementById('security-tab');
@@ -187,27 +138,29 @@
                         svgIcon = escHTML(s.name);
                     }
 
-                	return `<a href="${safeLink(s.link)}" target="_blank" rel="noopener noreferrer" class="inline-block ml-1 hover:opacity-80 transition">${svgIcon}</a>`;
+                	return `<a href="${safeLink(s.link)}" target="_blank" rel="noopener noreferrer" class="inline-block ml-1 transition">${svgIcon}</a>`;
 
                 }).join('');
 
 	            vulnHTML += `
-                <div class="items-center justify-between rounded bg-gray-50 p-3 dark:bg-gray-800/50 mb-2">
-                    <span class="text-sm font-bold capitalize text-gray-700 dark:text-gray-300">${escHTML(v.name)}</span>
-                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">${escHTML(displayDesc)}</div>
-                    <div class="mt-2 text-xs text-gray-500 hidden">Fixed in: ${escHTML(v.operator && v.operator.max_version)}</div>
-                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">Date: ${escHTML(displayDate)}</div>
-                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400 space-x-2">Source: ${sourcesHTML}</div>
+                <div class="op-check-row">
+                    <span class="op-wp-state is-warning">{{template "op_icon" "alert"}}</span>
+                    <div>
+                        <b>${escHTML(v.name)}</b>
+                        <p>${escHTML(displayDesc)}</p>
+                        <p class="hidden">Fixed in: ${escHTML(v.operator && v.operator.max_version)}</p>
+                        <p class="op-wp-vuln-src"><span>Date: ${escHTML(displayDate)}</span><span>Source: ${sourcesHTML}</span></p>
+                    </div>
                 </div>`;
 
                 });
             } else {
-                vulnHTML = '<div class="flex items-center space-x-2"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-emerald-500 dark:text-emerald-400"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path></svg><p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{$.T.Get "None"}}</p></div>';
+                vulnHTML = '<div class="op-check-row op-wp-plain"><div><b class="op-wp-none">{{$.T.Get "None"}}</b></div></div>';
             }
 
-            let linkHTML = link ? `<a href="${safeLink(link)}" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">${escHTML(name)}</a>` : escHTML(name);
+            let linkHTML = link ? `<a href="${safeLink(link)}" target="_blank" rel="noopener noreferrer" class="op-accent-text">${escHTML(name)}</a>` : escHTML(name);
 
-            return `<p class="py-2 text-sm leading-none text-gray-900 dark:text-gray-50 font-medium flex gap-2">${type} ${linkHTML}${latest ? ` &nbsp;(Updated: ${escHTML(latest)})` : ''}</p><div class="grid grid-cols-1 gap-2">${vulnHTML}</div>`;
+            return `<div class="op-wp-vuln"><div class="op-row-title"><span class="op-ico-tile is-sm">${type}</span><div><b>${linkHTML}</b>${latest ? `<span class="op-sub">Updated: ${escHTML(latest)}</span>` : ''}</div></div><div class="op-checks">${vulnHTML}</div></div>`;
         }
 
         function fetchWPVulnerabilities() {
@@ -297,7 +250,7 @@
         fetchWPVulnerabilities();
 
         var resultsContainer = document.getElementById('safebrowsing_results');
-        resultsContainer.innerHTML = {{toJSON (printf "<p class=\"text-sm text-gray-500 dark:text-gray-400\">%s</p>" (.T.Get "Checking website status..."))}};
+        resultsContainer.innerHTML = {{toJSON (printf "<p class=\"op-hint\">%s</p>" (.T.Get "Checking website status..."))}};
 
         fetch(`/json/safebrowsing/${selectedDomain}`, {
             method: "GET",
@@ -309,29 +262,24 @@
         .then(function(response) {
             var html = '';
             if (response.status === "safe") {
-                html = `<div class="flex items-center space-x-2"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-emerald-500 dark:text-emerald-400"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path></svg><p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No unsafe content found"}}</p></div>`;
+                html = `<div class="op-alert is-success">{{template "op_icon" "check"}}<span>{{.T.Get "No unsafe content found"}}</span></div>`;
             } else if (response.status === "danger") {
-                html = `<div class="flex items-center space-x-2"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-red-500 dark:text-red-400"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"></path></svg><p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "The website is flagged for threats:"}}</p></div><ul class="list-disc list-inside text-sm text-red-500 dark:text-red-300">`;
+                html = `<div class="op-alert is-danger">{{template "op_icon" "alert"}}<span>{{.T.Get "The website is flagged for threats:"}}</span></div><ul class="op-wp-threats is-danger">`;
                 response.threats.forEach(function(threat) {
                     html += `<li>${escHTML(threat.threatType)} on ${escHTML(threat.platformType)}</li>`;
                 });
                 html += '</ul>';
             } else if (response.error) {
-                html = `<div class="flex items-center space-x-2">⚠️<p class="text-sm font-medium text-gray-900 dark:text-gray-50">${escHTML(response.error)}</p></div>`;
+                html = `<div class="op-alert is-warning">{{template "op_icon" "alert"}}<span>${escHTML(response.error)}</span></div>`;
             }
             resultsContainer.innerHTML = html;
         })
         .catch(function(error) {
-            resultsContainer.innerHTML = {{toJSON (printf "<div class=\"flex items-center space-x-2\"><p class=\"text-sm font-medium text-gray-900 dark:text-gray-50\">%s</p></div>" (.T.Get "Failed to check the website"))}};
+            resultsContainer.innerHTML = {{toJSON (printf "<div class=\"op-alert is-warning\"><span>%s</span></div>" (.T.Get "Failed to check the website"))}};
         });
 
     });
 </script>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+</section>
 <!-- END templates/partials/googlesafebrowsing.html -->
 {{end}}

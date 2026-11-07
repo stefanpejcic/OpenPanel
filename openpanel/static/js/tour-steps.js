@@ -13,6 +13,9 @@ window.TOUR_HOOKS = {
         var menu = document.getElementById('popup-menu');
         if (btn && menu && !menu.classList.contains('hidden')) btn.click();
     },
+    showClassicDashboard: function () {
+        window.dispatchEvent(new CustomEvent('dashboard-view', { detail: 'classic' }));
+    },
     openSearchBox: function () {
         var btn = document.getElementById('openSearchBtn');
         if (btn && btn.offsetParent !== null) btn.click();
@@ -26,7 +29,8 @@ window.TOUR_STEPS = [
         title: 'Your Shortcuts',
         description: 'Quick-access icons for every feature you have access to, grouped into sections like Files, Domains, MySQL and more.',
         side: 'top',
-        align: 'start'
+        align: 'start',
+        beforeShow: 'showClassicDashboard'
     },
     {
         path: '/dashboard',

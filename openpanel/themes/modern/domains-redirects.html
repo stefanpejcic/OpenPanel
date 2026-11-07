@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Redirects - OpenPanel Modern</title>
+<script>(function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('color-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark');})();</script>
+<link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="dist/app.css">
+<style>[x-cloak]{display:none!important}
+.rd-grid{display:grid;gap:16px;align-items:start}
+@media (width >= 80rem){.rd-grid{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}}
+@media (width >= 48rem){.rd-src{min-width:210px}}
+.rd-src b{white-space:normal;overflow-wrap:anywhere}
+.rd-to{display:inline-flex;align-items:flex-start;gap:6px;min-width:0;color:var(--color-accent-text);text-decoration:none;font:400 12px/18px var(--font-mono);overflow-wrap:anywhere;word-break:break-all}
+.rd-to:hover{text-decoration:underline}
+.rd-to svg{width:13px;height:13px;flex:none;margin-top:3px}
+.rd-acts{display:inline-flex;gap:2px}
+.rd-acts .op-icon-btn{width:32px;height:32px}
+.rd-acts .op-icon-btn svg{width:16px;height:16px}
+.rd-dl{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);margin:0;font-size:13px;line-height:18px}
+.rd-dl dt,.rd-dl dd{padding:9px 0;box-shadow:inset 0 -1px 0 var(--color-raised)}
+.rd-dl dt{color:var(--color-muted);padding-right:16px}
+.rd-dl dd{margin:0;color:var(--color-heading);text-align:right;overflow-wrap:anywhere}
+.rd-dl > :nth-last-child(-n+2){box-shadow:none}
+.rd-flow{display:grid;gap:6px;margin:0;padding:12px;border-radius:var(--radius-sm);background:var(--color-inset);font:400 12px/18px var(--font-mono);color:var(--color-heading)}
+.rd-flow span{overflow-wrap:anywhere;word-break:break-all}
+.rd-flow i{font-style:normal;color:var(--color-muted)}
+.rd-flow .rd-arrow{display:flex;align-items:center;gap:6px;color:var(--color-muted);font-family:var(--font-sans)}
+.rd-flow .rd-arrow svg{width:14px;height:14px}
+</style>
+<script>
+window.RD = {"domains":["shared.tests.openpanel.org","wp.tests.openpanel.org","waf.tests.openpanel.org","capitalize.tests.openpanel.org","wordpress.tests.openpanel.org","php.tests.openpanel.org","files.tests.openpanel.org","website-builder.tests.openpanel.org","drupal.tests.openpanel.org","joomla.tests.openpanel.org","opencart.tests.openpanel.org","nextcloud.tests.openpanel.org","prestashop.tests.openpanel.org","moodle.tests.openpanel.org","mediawiki.tests.openpanel.org","matomo.tests.openpanel.org","java.tests.openpanel.org","ruby.tests.openpanel.org","n8n.tests.openpanel.org","nodejs.tests.openpanel.org","python.tests.openpanel.org","domains.tests.openpanel.org","redirect.tests.openpanel.org"],"redirects":[{"domain":"redirect.tests.openpanel.org","to":"https://openpanel.com/"},{"domain":"capitalize.tests.openpanel.org","to":"https://wordpress.tests.openpanel.org/"}]};
+function opRedirects() {
+  const URLRE = /^https?:\/\/\S+$/;
+  const bare = h => h.toLowerCase().replace(/^www\./, '').replace(/\.$/, '');
+  return {
+    rows: [], q: '', sheet: '', mode: 'new', cur: null, f: { domain: '', to: '' }, tried: false, toast: '',
+    init() { if (!new URLSearchParams(location.search).has('empty')) this.rows = RD.redirects.map(r => ({ ...r })); },
+    flash(m) { this.toast = m; clearTimeout(this._t); this._t = setTimeout(() => this.toast = '', 3000); },
+    shown() { const q = this.q.toLowerCase(); return this.rows.filter(r => !q || (r.domain + ' ' + r.to).toLowerCase().includes(q)); },
+    free() { return RD.domains.filter(d => !this.rows.some(r => r.domain === d)); },
+    wb(s) { return s.replace(/\./g, '.​'); },
+    host(u) { try { return new URL(u).hostname; } catch (e) { return ''; } },
+    toErr() {
+      const to = this.f.to.trim(), d = this.f.domain;
+      if (!to) return 'Enter the URL visitors should go to.';
+      if (!URLRE.test(to)) return 'Start with http:// or https:// and leave out spaces.';
+      const h = this.host(to);
+      if (!h) return 'That doesn’t look like a full URL.';
+      if (bare(h) === d) return 'This points back at ' + d + ', so visitors would loop forever.';
+      const back = this.rows.find(r => r.domain === bare(h) && r.domain !== d && bare(this.host(r.to)) === d);
+      if (back) return back.domain + ' already redirects to ' + d + '. Saving this would send visitors in a circle.';
+      return '';
+    },
+    openNew() {
+      const free = this.free(); if (!free.length) { this.flash('Every domain already has a redirect.'); return; }
+      this.mode = 'new'; this.cur = null; this.f = { domain: free[0], to: '' }; this.tried = false; this.sheet = 'form';
+      this.$nextTick(() => this.$refs.to && this.$refs.to.focus());
+    },
+    openEdit(r) { this.mode = 'edit'; this.cur = r; this.f = { domain: r.domain, to: r.to }; this.tried = false; this.sheet = 'form'; this.$nextTick(() => this.$refs.to && this.$refs.to.select()); },
+    save() {
+      this.tried = true; if (this.toErr()) return;
+      const to = this.f.to.trim();
+      if (this.mode === 'edit') this.cur.to = to; else this.rows.push({ domain: this.f.domain, to });
+      this.sheet = ''; this.flash('Successfully created redirect from domain ' + this.f.domain + ' to ' + to);
+    },
+    openDelete(r) { this.cur = r; this.sheet = 'delete'; },
+    remove() { const r = this.cur; this.rows = this.rows.filter(x => x !== r); this.sheet = ''; this.flash('Successfully deleted the redirect link ' + r.to + ' for domain ' + r.domain); },
+    copy(text) { try { navigator.clipboard.writeText(text).catch(() => {}); } catch (e) {} this.flash('Copied target URL.'); },
+  };
+}
+</script>
+<script src="shell.js"></script>
+<script defer src="vendor/alpine.min.js"></script>
+</head>
+<body>
+<div class="op-app" x-data="{ nav: false }" :data-nav-open="nav || null" @keydown.escape.window="nav = false">
+  <aside class="op-sidebar" aria-label="Sidebar" x-data="{ navq: '', userMenu: false, menuStyle: 'classic' }" x-effect="opFilterNav($el, navq)" @keydown.window="if ($event.key === '/' && !$event.ctrlKey && !$event.target.closest('input, textarea, select')) { $event.preventDefault(); nav = true; $refs.navq.focus() }" @focus-nav-search.window="nav = true; $nextTick(() => $refs.navq.focus())">
+    <a class="op-brand" href="index.html"><svg viewBox="0 0 213 215" aria-hidden="true"><g transform="translate(0,215) scale(0.1,-0.1)" fill="currentColor"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"/></g></svg> OpenPanel</a>
+    <label class="op-sidesearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg><input type="search" x-ref="navq" x-model="navq" placeholder="Search menu" aria-label="Search the menu" autocomplete="off" @keydown.escape="navq = ''; $el.blur()" @keydown.enter.prevent="opFirstNavHit($el.closest('aside'))"><kbd x-show="!navq">/</kbd></label>
+    <div class="op-sidebar-scroll">
+    <nav class="op-nav" aria-label="Main"><a class="op-nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1"/><path d="M5 16h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1"/><path d="M15 12h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1"/><path d="M15 4h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1"/></svg> Dashboard</a><a class="op-nav-item" href="websites.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 6h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"></path><path d="M17 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path></svg> Websites</a><a class="op-nav-item" href="domains.html" aria-current="page"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19.5 7a9 9 0 0 0 -7.5 -4a8.991 8.991 0 0 0 -7.484 4"></path><path d="M11.5 3a16.989 16.989 0 0 0 -1.826 4"></path><path d="M12.5 3a16.989 16.989 0 0 1 1.828 4"></path><path d="M19.5 17a9 9 0 0 1 -7.5 4a8.991 8.991 0 0 1 -7.484 -4"></path><path d="M11.5 21a16.989 16.989 0 0 1 -1.826 -4"></path><path d="M12.5 21a16.989 16.989 0 0 0 1.828 -4"></path><path d="M2 10l1 4l1.5 -4l1.5 4l1 -4"></path><path d="M17 10l1 4l1.5 -4l1.5 4l1 -4"></path><path d="M9.5 10l1 4l1.5 -4l1.5 4l1 -4"></path></svg> Domains</a><a class="op-nav-item" href="email.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"></path><path d="M3 7l9 6l9 -6"></path></svg> Email</a><a class="op-nav-item" href="files.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"/></svg> Files</a><a class="op-nav-item" href="backups.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/><path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10"/><path d="M10 12l4 0"/></svg> Backups</a></nav>
+    <nav class="op-nav" aria-label="Databases"><div class="op-nav-label">Databases</div><a class="op-nav-item" href="mysql.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"/><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"/><path d="M7 8l0 .01"/><path d="M7 16l0 .01"/><path d="M11 8h6"/><path d="M11 16h6"/></svg> MySQL</a><a class="op-nav-item" href="postgresql.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6a8 3 0 1 0 16 0a8 3 0 1 0 -16 0"/><path d="M4 6v6a8 3 0 0 0 16 0v-6"/><path d="M4 12v6a8 3 0 0 0 16 0v-6"/></svg> PostgreSQL</a></nav>
+    <nav class="op-nav" aria-label="Configure"><div class="op-nav-label">Configure</div><a class="op-nav-item" href="php.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M2 12a10 9 0 1 0 20 0a10 9 0 1 0 -20 0"></path><path d="M5.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M15.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M12 7.5l-1 5.5"></path><path d="M11.6 10h2.4l-.5 3"></path></svg> PHP</a><a class="op-nav-item" href="cron.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 7v5l3 3"/></svg> Cron Jobs</a><a class="op-nav-item" href="cache.html"><svg aria-hidden="true" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="currentColor" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5.636 19.364a9 9 0 1 1 12.728 0" /><path d="M16 9l-4 4" /></svg> Cache & Search</a><a class="op-nav-item" href="webserver.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 6l8 0"/><path d="M16 6l4 0"/><path d="M8 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 12l2 0"/><path d="M10 12l10 0"/><path d="M17 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 18l11 0"/><path d="M19 18l1 0"/></svg> Web Server Config</a><a class="op-nav-item" href="containers.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5"/><path d="M12 12l8 -4.5"/><path d="M12 12l0 9"/><path d="M12 12l-8 -4.5"/></svg> Containers</a></nav>
+    <nav class="op-nav" aria-label="Monitor"><div class="op-nav-label">Monitor</div><a class="op-nav-item" href="statistics.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 20h14"/></svg> Statistics</a><a class="op-nav-item" href="services.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l3 3l-3 3"/><path d="M13 15l3 0"/><path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/></svg> Processes & Services</a></nav>
+    <nav class="op-nav" aria-label="Account"><div class="op-nav-label">Account</div><a class="op-nav-item" href="account.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 10a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855"/></svg> Account</a><a class="op-nav-item" href="security.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/></svg> Security</a><a class="op-nav-item" href="server-info.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></svg> Server Info</a><a class="op-nav-item" href="components.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M14 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M14 7l6 0"/><path d="M17 4l0 6"/></svg> Components</a></nav>
+    <p class="op-nav-empty" hidden>No matching pages</p>
+    </div>
+    <div class="op-user-wrap" @click.outside="userMenu = false" @keydown.escape="userMenu = false">
+      <div class="op-menu op-user-menu" role="menu" x-show="userMenu" x-cloak x-transition.opacity>
+        <div class="op-menu-note">OpenPanel 1.6.4</div>
+        <hr>
+        <div class="op-menu-row" role="group"><span>Theme</span><button type="button" class="op-icon-btn" aria-label="Switch theme" @click="let d=document.documentElement.classList.toggle('dark');localStorage.setItem('color-theme', d ? 'dark' : 'light')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg></button></div>
+        <div class="op-menu-row" role="group"><span>Menu style</span><span class="op-seg"><button type="button" title="Classic" @click="menuStyle = 'classic'" :aria-pressed="(menuStyle === 'classic').toString()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 5h8"/><path d="M13 9h5"/><path d="M13 15h8"/><path d="M13 19h5"/><path d="M3 4h6v6h-6z"/><path d="M3 14h6v6h-6z"/></svg></button><button type="button" title="Modern" @click="menuStyle = 'modern'" :aria-pressed="(menuStyle === 'modern').toString()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"/><path d="M9 4v16"/></svg></button></span></div>
+        <hr>
+        <a role="menuitem" href="https://openpanel.com/docs/changelog/" target="_blank" rel="noopener">Changelog<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <a role="menuitem" href="https://openpanel.com/docs/panel/intro/" target="_blank" rel="noopener">Documentation<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <a role="menuitem" href="https://community.openpanel.org/" target="_blank" rel="noopener">Community Forums<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <hr>
+        <button type="button" role="menuitem" @click="userMenu = false">Take the tour</button>
+        <a role="menuitem" href="index.html">Sign out</a>
+      </div>
+      <button type="button" class="op-user" @click="userMenu = !userMenu" aria-haspopup="menu" :aria-expanded="userMenu.toString()"><span class="op-avatar">T</span><span class="op-user-text"><b>testinguser</b><span>Developer plus</span></span><svg class="op-user-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></button>
+    </div>
+  </aside>
+  <div class="op-scrim" x-show="nav" x-cloak @click="nav = false"></div>
+  <div class="op-main">
+    <header class="op-topbar">
+      <button class="op-icon-btn op-menu-btn" type="button" aria-label="Open menu" @click="nav = true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6l16 0"/><path d="M4 12l16 0"/><path d="M4 18l16 0"/></svg></button>
+      <div class="op-crumb"><span>Domains</span> <span style="color:var(--color-faint)">/</span> <b>Redirects</b></div>
+      <span class="op-stat"><i>LOAD</i>1.14</span><span class="op-stat"><i>RAM</i>68.8%</span><span class="op-stat"><i>CPU</i>6.9%</span><span class="op-stat"><i>DISK</i>54.7%</span>
+      <button class="op-ai" type="button" aria-label="AI assistant">AI</button>
+      <div class="op-toolsearch" x-data="opToolSearch()" @keydown.window.ctrl.k.prevent="show()" @keydown.window.meta.k.prevent="show()" @click.outside="hide()" @keydown.escape="hide()"><button class="op-icon-btn" type="button" aria-label="Search tools" title="Search tools (Ctrl K)" x-show="!open" @click="show()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg></button><div class="op-toolsearch-box" x-show="open" x-cloak><label class="op-sidesearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg><input type="search" x-ref="q" x-model="q" placeholder="Search tools" aria-label="Search tools" autocomplete="off" @input="active = 0" @keydown.down.prevent="move(1)" @keydown.up.prevent="move(-1)" @keydown.enter.prevent="go()"><kbd>Esc</kbd></label><div class="op-menu op-toolsearch-list" x-show="q" role="listbox"><template x-for="(t, i) in results" :key="t[0]"><a :href="t[1]" role="option" :aria-selected="(i === active).toString()" @mouseenter="active = i"><span x-text="t[0]"></span><small x-text="t[2]"></small></a></template><p class="op-nav-empty" x-show="!results.length">No tools match</p></div></div></div>
+      <button class="op-icon-btn" type="button" aria-label="Switch theme" x-data @click="let d=document.documentElement.classList.toggle('dark');localStorage.setItem('color-theme', d ? 'dark' : 'light')"><span class="dark:hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg></span><span class="hidden dark:inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg></span></button>
+    </header>
+    <nav class="op-tabs" aria-label="Domains"><a href="domains.html">Domains</a><a href="dns.html">DNS Zone Editor</a><a href="domains-dynamic-dns.html">Dynamic DNS</a><a href="ssl.html">SSL Certificates</a><a href="domains-redirects.html" aria-current="page">Redirects</a></nav>
+    <main class="op-content" x-data="opRedirects()">
+      <div class="op-page-head"><div><div class="op-eyebrow" x-text="rows.length + ' of ' + RD.domains.length + ' domains redirected'"></div><h1 class="op-title">Redirects</h1><p class="op-meta">Send every visitor of a domain to another URL. Email and the domain's other services keep working.</p></div><div class="op-actions"><button class="op-btn op-btn-primary" type="button" @click="openNew()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14"/><path d="M5 12l14 0"/></svg> New Redirect</button></div></div>
+
+      <div class="rd-grid">
+        <section class="op-card" aria-label="Redirects">
+          <template x-if="rows.length"><div>
+            <div class="op-toolbar"><label class="op-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg><input class="op-input" type="search" placeholder="Search redirects" x-model="q" aria-label="Search redirects"></label></div>
+            <div class="op-table-wrap"><table class="op-table">
+              <thead><tr><th>Domain</th><th>Redirects to</th><th>Code</th><th class="is-shrink"><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody>
+                <template x-for="r in shown()" :key="r.domain"><tr>
+                  <td class="op-cell-title"><div class="op-row-title rd-src"><span class="op-file-ico" style="--hue:var(--color-hue-purple)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 15l6 -6"/><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/></svg></span><div><b x-text="wb(r.domain)"></b><span class="op-sub" style="overflow-wrap:anywhere" x-text="'and ' + wb('www.' + r.domain)"></span></div></div></td>
+                  <td data-label="Redirects to"><a class="rd-to" :href="r.to" target="_blank" rel="noopener"><span x-text="r.to"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></a></td>
+                  <td data-label="Code"><span class="op-tag" title="Temporary redirect">302 Temporary</span></td>
+                  <td class="is-shrink op-cell-menu"><span class="rd-acts"><button class="op-icon-btn" type="button" :aria-label="'Copy target of ' + r.domain" title="Copy target URL" @click="copy(r.to)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/></svg></button><button class="op-icon-btn" type="button" :aria-label="'Edit redirect for ' + r.domain" title="Edit" @click="openEdit(r)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"/><path d="M13.5 6.5l4 4"/></svg></button><button class="op-icon-btn is-danger" type="button" :aria-label="'Delete redirect for ' + r.domain" title="Delete" @click="openDelete(r)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0"/><path d="M10 11l0 6"/><path d="M14 11l0 6"/><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"/><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/></svg></button></span></td>
+                </tr></template>
+              </tbody>
+            </table></div>
+            <div class="op-empty" x-show="q && !shown().length" x-cloak><b>Nothing matches</b><span class="op-hint">Try another search.</span></div>
+            <div class="op-tfoot"><span x-text="rows.length + (rows.length === 1 ? ' redirect' : ' redirects')"></span><span class="op-hint" x-text="free().length + ' domains have no redirect'"></span></div>
+          </div></template>
+          <div class="op-empty" x-show="!rows.length" x-cloak><span class="op-ico-tile" style="--hue:var(--color-hue-purple)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 15l6 -6"/><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"/><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"/></svg></span><b>No redirects</b><span class="op-hint" style="max-width:420px">All your domains serve their own websites. Add a redirect to send a domain's visitors somewhere else, like an old domain to your new one.</span><button class="op-btn op-btn-primary op-btn-sm" type="button" style="margin-top:8px" @click="openNew()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14"/><path d="M5 12l14 0"/></svg> Add a redirect</button></div>
+        </section>
+
+        <section class="op-card" aria-label="How redirects work">
+          <div class="op-card-head"><h2>How redirects work</h2></div>
+          <dl class="rd-dl">
+            <dt>Status code</dt><dd>302, temporary</dd>
+            <dt>Covers</dt><dd>The domain and www, on HTTP and HTTPS</dd>
+            <dt>Path</dt><dd>Not kept, every page goes to the exact URL</dd>
+            <dt>Per domain</dt><dd>One redirect</dd>
+            <dt>Email, DNS, FTP</dt><dd>Keep working</dd>
+            <dt>Takes effect</dt><dd>Right away</dd>
+          </dl>
+        </section>
+      </div>
+      <p style="margin:0;font-size:13px;color:var(--color-muted)">Preview: the test account has no redirects right now, so the two rows are placeholders on its real domains. <a href="?empty" style="color:var(--color-accent-text)">?empty</a> shows the empty state.</p>
+
+      <div class="op-scrim" x-show="sheet" x-cloak @click="sheet = ''"></div>
+      <div class="op-sheet" role="dialog" :aria-label="mode === 'edit' ? 'Edit redirect' : 'New redirect'" x-show="sheet === 'form'" x-cloak @keydown.escape.window="sheet = ''"><h2 x-text="mode === 'edit' ? 'Edit redirect' : 'New redirect'"></h2><p class="op-meta">The website on this domain stops being reachable while the redirect is on.</p>
+        <div class="op-col" style="gap:14px;margin:16px 0 20px">
+          <label class="op-field"><span class="op-label">Domain</span>
+            <template x-if="mode === 'new'"><select class="op-select" @change="f.domain = $event.target.value"><template x-for="d in free()" :key="d"><option :value="d" :selected="f.domain === d" x-text="d"></option></template></select></template>
+            <template x-if="mode === 'edit'"><input class="op-input op-mono" :value="f.domain" readonly></template>
+            <span class="op-hint" x-show="mode === 'new'">Only domains without a redirect are listed.</span></label>
+          <label class="op-field"><span class="op-label">Redirect to</span><input class="op-input op-mono" type="url" x-ref="to" x-model="f.to" placeholder="https://" autocomplete="off" spellcheck="false" :class="tried && toErr() ? 'is-invalid' : ''" @keydown.enter="save()"><span class="op-hint" :class="tried && toErr() ? 'is-invalid' : ''" x-text="tried && toErr() ? toErr() : 'A full URL starting with http:// or https://.'"></span></label>
+          <div><span class="op-label" style="display:block;margin-bottom:6px">What visitors get</span>
+            <div class="rd-flow"><span><i>http(s)://</i><span x-text="f.domain"></span><i>/any/page</i></span><span><i>http(s)://www.</i><span x-text="f.domain"></span><i>/any/page</i></span><span class="rd-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14"/><path d="M18 13l-6 6"/><path d="M6 13l6 6"/></svg> 302 Temporary</span><span x-text="f.to.trim() || 'https://…'" :style="{ color: f.to.trim() ? 'var(--color-accent-text)' : 'var(--color-muted)' }"></span></div></div>
+        </div>
+        <div class="op-actions"><button class="op-btn op-btn-secondary" type="button" @click="sheet = ''">Cancel</button><button class="op-btn op-btn-primary" type="button" style="flex:1" @click="save()">Save Redirect</button></div></div>
+
+      <div class="op-sheet" role="dialog" aria-label="Delete redirect" x-show="sheet === 'delete'" x-cloak @keydown.escape.window="sheet = ''"><template x-if="cur"><div><h2>Delete this redirect?</h2><p class="op-meta" style="overflow-wrap:anywhere"><b style="color:var(--color-heading)" x-text="cur.domain"></b> stops sending visitors to <span class="op-mono" x-text="cur.to"></span> and serves its own website again.</p>
+        <div class="op-actions" style="margin-top:20px"><button class="op-btn op-btn-secondary" type="button" @click="sheet = ''">Cancel</button><button class="op-btn op-btn-danger" type="button" style="flex:1" @click="remove()">Delete Redirect</button></div></div></template></div>
+
+      <div class="op-toast" x-show="toast" x-cloak x-transition role="status" x-text="toast"></div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

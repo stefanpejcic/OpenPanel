@@ -20,6 +20,7 @@ import (
 type DatabaseRow struct {
 	Database    string
 	SizeDisplay string
+	SizeBytes   int64 `json:"-"`
 	IsSystem    bool
 }
 
@@ -62,7 +63,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				status.Health = "healthy"
 			}
 			for _, d := range dbs {
-				databaseInfo = append(databaseInfo, DatabaseRow{Database: d.Name, SizeDisplay: formatSize(d.SizeBytes), IsSystem: mongomanager.IsSystemDatabase(d.Name)})
+				databaseInfo = append(databaseInfo, DatabaseRow{Database: d.Name, SizeDisplay: formatSize(d.SizeBytes), SizeBytes: d.SizeBytes, IsSystem: mongomanager.IsSystemDatabase(d.Name)})
 			}
 		}
 	}
@@ -102,17 +103,14 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
-		databaseName := r.Form.Get("database_name")
-		if databaseName == "" {
-			web.FlashRedirect(a, w, r, "error", "Database name is required.", "/mongodb/new")
-			return
+		databaseName := strings.TrimSpace(r.Form.Get("database_name"))
+		// errors keep the typed name in the form instead of bouncing to an empty one
+		fail := func(message string) {
+			web.Flash(a, w, r, "error", message)
+			renderNewDatabasePage(a, w, r, databaseName)
 		}
-		if !validators.IsValidIdentifier(databaseName) {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/mongodb/new")
-			return
-		}
-		if isRestrictedDatabase(databaseName) {
-			web.FlashRedirect(a, w, r, "error", "This is a system database that can not be used.", "/mongodb/new")
+		if msg := checkNewDatabase(databaseName, loadNames(ctx, userContext)); msg != "" {
+			fail(web.Tr(a, r, msg))
 			return
 		}
 
@@ -134,12 +132,12 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		if dbUsage >= dbLimit {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "You have reached the maximum number of databases allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()), "/mongodb/new")
+			fail(web.Tr(a, r, "You have reached the maximum number of databases allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()))
 			return
 		}
 
 		if createErr := mongomanager.CreateDatabase(ctx, userContext, databaseName); createErr != nil {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to create database: %(error)s", "error", createErr.Error()), "/mongodb/new")
+			fail(web.Tr(a, r, "Failed to create database: %(error)s", "error", createErr.Error()))
 			return
 		}
 
@@ -149,7 +147,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderNewDatabasePage(a, w, r)
+	renderNewDatabasePage(a, w, r, "")
 }
 
 // handleDeleteDatabase drops a MongoDB database.

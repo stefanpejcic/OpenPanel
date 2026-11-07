@@ -1,0 +1,36 @@
+{{define "customsection"}}{{if .CustomSectionItems}}
+<div x-data='{
+    open: (function() {
+        const s = localStorage.getItem("section_custom");
+        return s === null ? true : s === "true";
+    })(),
+    toggleOpen() {
+        this.open = !this.open;
+        localStorage.setItem("section_custom", this.open);
+    }
+    }'
+    class="flex flex-col space-y-2 justify-center overflow-hidden rounded bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-800 xl:col-span-3 mb-4">
+    <div class="flex items-center justify-between gap-4 relative m-0 p-2 border-b border-gray-200  dark:border-gray-800">
+        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+        <h2 class="pl-4 font-semibold text-gray-900 dark:text-gray-50">{{if .CustomSectionTitle}}{{.T.Get .CustomSectionTitle}}{{else}}{{.T.Get "Custom"}}{{end}}</h2>
+        <button type="button" @click="toggleOpen" class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-gray-100 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-gray-800 dark:hover:text-black dark:active:bg-slate-700/50" :aria-expanded="open" :aria-controls="'section-icons-custom'">
+            <!-- Minus icon (show when open) -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="open" x-cloak><rect x="4" y="9" width="12" height="2" rx="1" ry="1" /></svg>
+            <!-- Plus icon (show when closed) -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline-block size-5" x-show="!open" x-cloak><rect x="9" y="4" width="2" height="12" rx="1" ry="1" /><rect x="4" y="9" width="12" height="2" rx="1" ry="1" /></svg>
+            <span x-text="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" class="sr-only"></span>
+        </button>
+    </div>
+
+    <div :id="'section-icons-custom'" class="flex flex-wrap lg:w-full md:w-5/6 xl:shadow-small-blue transition-all duration-300" x-show="open" x-collapse>
+        {{range .CustomSectionItems}}
+        <a href="{{.URL}}" {{if hasPrefix .URL "http"}}target="_blank"{{end}} class="block w-1/2 py-1 text-center lg:w-1/4 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+            <div :class="view === 'icon' ? 'py-2 text-center' : 'p-2 px-4 flex gap-2'">
+                <button type="button" class="size-9 items-center justify-center rounded-xl bg-slate-700 text-white hover:bg-slate-600 active:bg-slate-700 ring-4 ring-slate-400/50 dark:ring-slate-600/50 cursor-pointer"><i class="{{.Icon}}"></i></button>
+                <p class="pt-2 text-sm font-medium font-body md:text-base md:pt-2 font-medium text-slate-500 dark:text-slate-400">{{$.T.Get .Label}}</p>
+            </div>
+        </a>
+        {{end}}
+    </div>
+</div>
+{{end}}{{end}}

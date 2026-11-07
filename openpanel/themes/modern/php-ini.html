@@ -1,0 +1,1919 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>php.ini Editor - OpenPanel Modern</title>
+<script>(function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('color-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark');})();</script>
+<link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="dist/app.css">
+<style>[x-cloak]{display:none!important}</style>
+<script src="shell.js"></script>
+<script defer src="vendor/alpine.min.js"></script>
+</head>
+<body>
+<div class="op-app" x-data="{ nav: false }" :data-nav-open="nav || null" @keydown.escape.window="nav = false">
+  <aside class="op-sidebar" aria-label="Sidebar" x-data="{ navq: '', userMenu: false, menuStyle: 'classic' }" x-effect="opFilterNav($el, navq)" @keydown.window="if ($event.key === '/' && !$event.ctrlKey && !$event.target.closest('input, textarea, select')) { $event.preventDefault(); nav = true; $refs.navq.focus() }" @focus-nav-search.window="nav = true; $nextTick(() => $refs.navq.focus())">
+    <a class="op-brand" href="index.html"><svg viewBox="0 0 213 215" aria-hidden="true"><g transform="translate(0,215) scale(0.1,-0.1)" fill="currentColor"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"/></g></svg> OpenPanel</a>
+    <label class="op-sidesearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg><input type="search" x-ref="navq" x-model="navq" placeholder="Search menu" aria-label="Search the menu" autocomplete="off" @keydown.escape="navq = ''; $el.blur()" @keydown.enter.prevent="opFirstNavHit($el.closest('aside'))"><kbd x-show="!navq">/</kbd></label>
+    <div class="op-sidebar-scroll">
+    <nav class="op-nav" aria-label="Main"><a class="op-nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1"/><path d="M5 16h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1"/><path d="M15 12h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1"/><path d="M15 4h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1"/></svg> Dashboard</a><a class="op-nav-item" href="websites.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 6h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"></path><path d="M17 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path></svg> Websites</a><a class="op-nav-item" href="domains.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19.5 7a9 9 0 0 0 -7.5 -4a8.991 8.991 0 0 0 -7.484 4"></path><path d="M11.5 3a16.989 16.989 0 0 0 -1.826 4"></path><path d="M12.5 3a16.989 16.989 0 0 1 1.828 4"></path><path d="M19.5 17a9 9 0 0 1 -7.5 4a8.991 8.991 0 0 1 -7.484 -4"></path><path d="M11.5 21a16.989 16.989 0 0 1 -1.826 -4"></path><path d="M12.5 21a16.989 16.989 0 0 0 1.828 -4"></path><path d="M2 10l1 4l1.5 -4l1.5 4l1 -4"></path><path d="M17 10l1 4l1.5 -4l1.5 4l1 -4"></path><path d="M9.5 10l1 4l1.5 -4l1.5 4l1 -4"></path></svg> Domains</a><a class="op-nav-item" href="email.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"></path><path d="M3 7l9 6l9 -6"></path></svg> Email</a><a class="op-nav-item" href="files.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"/></svg> Files</a><a class="op-nav-item" href="backups.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/><path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10"/><path d="M10 12l4 0"/></svg> Backups</a></nav>
+    <nav class="op-nav" aria-label="Databases"><div class="op-nav-label">Databases</div><a class="op-nav-item" href="mysql.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"/><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"/><path d="M7 8l0 .01"/><path d="M7 16l0 .01"/><path d="M11 8h6"/><path d="M11 16h6"/></svg> MySQL</a><a class="op-nav-item" href="postgresql.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6a8 3 0 1 0 16 0a8 3 0 1 0 -16 0"/><path d="M4 6v6a8 3 0 0 0 16 0v-6"/><path d="M4 12v6a8 3 0 0 0 16 0v-6"/></svg> PostgreSQL</a></nav>
+    <nav class="op-nav" aria-label="Configure"><div class="op-nav-label">Configure</div><a class="op-nav-item" href="php.html" aria-current="page"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M2 12a10 9 0 1 0 20 0a10 9 0 1 0 -20 0"></path><path d="M5.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M15.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M12 7.5l-1 5.5"></path><path d="M11.6 10h2.4l-.5 3"></path></svg> PHP</a><a class="op-nav-item" href="cron.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 7v5l3 3"/></svg> Cron Jobs</a><a class="op-nav-item" href="cache.html"><svg aria-hidden="true" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="currentColor" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5.636 19.364a9 9 0 1 1 12.728 0" /><path d="M16 9l-4 4" /></svg> Cache & Search</a><a class="op-nav-item" href="webserver.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 6l8 0"/><path d="M16 6l4 0"/><path d="M8 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 12l2 0"/><path d="M10 12l10 0"/><path d="M17 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 18l11 0"/><path d="M19 18l1 0"/></svg> Web Server Config</a><a class="op-nav-item" href="containers.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5"/><path d="M12 12l8 -4.5"/><path d="M12 12l0 9"/><path d="M12 12l-8 -4.5"/></svg> Containers</a></nav>
+    <nav class="op-nav" aria-label="Monitor"><div class="op-nav-label">Monitor</div><a class="op-nav-item" href="statistics.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 20h14"/></svg> Statistics</a><a class="op-nav-item" href="services.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l3 3l-3 3"/><path d="M13 15l3 0"/><path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/></svg> Processes & Services</a></nav>
+    <nav class="op-nav" aria-label="Account"><div class="op-nav-label">Account</div><a class="op-nav-item" href="account.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 10a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855"/></svg> Account</a><a class="op-nav-item" href="security.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/></svg> Security</a><a class="op-nav-item" href="server-info.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></svg> Server Info</a><a class="op-nav-item" href="components.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M14 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M14 7l6 0"/><path d="M17 4l0 6"/></svg> Components</a></nav>
+    <p class="op-nav-empty" hidden>No matching pages</p>
+    </div>
+    <div class="op-user-wrap" @click.outside="userMenu = false" @keydown.escape="userMenu = false">
+      <div class="op-menu op-user-menu" role="menu" x-show="userMenu" x-cloak x-transition.opacity>
+        <div class="op-menu-note">OpenPanel 1.6.4</div>
+        <hr>
+        <div class="op-menu-row" role="group"><span>Theme</span><button type="button" class="op-icon-btn" aria-label="Switch theme" @click="let d=document.documentElement.classList.toggle('dark');localStorage.setItem('color-theme', d ? 'dark' : 'light')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg></button></div>
+        <div class="op-menu-row" role="group"><span>Menu style</span><span class="op-seg"><button type="button" title="Classic" @click="menuStyle = 'classic'" :aria-pressed="(menuStyle === 'classic').toString()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 5h8"/><path d="M13 9h5"/><path d="M13 15h8"/><path d="M13 19h5"/><path d="M3 4h6v6h-6z"/><path d="M3 14h6v6h-6z"/></svg></button><button type="button" title="Modern" @click="menuStyle = 'modern'" :aria-pressed="(menuStyle === 'modern').toString()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"/><path d="M9 4v16"/></svg></button></span></div>
+        <hr>
+        <a role="menuitem" href="https://openpanel.com/docs/changelog/" target="_blank" rel="noopener">Changelog<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <a role="menuitem" href="https://openpanel.com/docs/panel/intro/" target="_blank" rel="noopener">Documentation<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <a role="menuitem" href="https://community.openpanel.org/" target="_blank" rel="noopener">Community Forums<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <hr>
+        <button type="button" role="menuitem" @click="userMenu = false">Take the tour</button>
+        <a role="menuitem" href="index.html">Sign out</a>
+      </div>
+      <button type="button" class="op-user" @click="userMenu = !userMenu" aria-haspopup="menu" :aria-expanded="userMenu.toString()"><span class="op-avatar">T</span><span class="op-user-text"><b>testinguser</b><span>Developer plus</span></span><svg class="op-user-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></button>
+    </div>
+  </aside>
+  <div class="op-scrim" x-show="nav" x-cloak @click="nav = false"></div>
+  <div class="op-main">
+    <header class="op-topbar">
+      <button class="op-icon-btn op-menu-btn" type="button" aria-label="Open menu" @click="nav = true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6l16 0"/><path d="M4 12l16 0"/><path d="M4 18l16 0"/></svg></button>
+      <div class="op-crumb"><span>PHP</span> <span style="color:var(--color-faint)">/</span> <b>php.ini Editor</b></div>
+      <span class="op-stat"><i>LOAD</i>1.14</span><span class="op-stat"><i>RAM</i>68.8%</span><span class="op-stat"><i>CPU</i>6.9%</span><span class="op-stat"><i>DISK</i>54.7%</span>
+      <button class="op-ai" type="button" aria-label="AI assistant">AI</button>
+      <div class="op-toolsearch" x-data="opToolSearch()" @keydown.window.ctrl.k.prevent="show()" @keydown.window.meta.k.prevent="show()" @click.outside="hide()" @keydown.escape="hide()"><button class="op-icon-btn" type="button" aria-label="Search tools" title="Search tools (Ctrl K)" x-show="!open" @click="show()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg></button><div class="op-toolsearch-box" x-show="open" x-cloak><label class="op-sidesearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg><input type="search" x-ref="q" x-model="q" placeholder="Search tools" aria-label="Search tools" autocomplete="off" @input="active = 0" @keydown.down.prevent="move(1)" @keydown.up.prevent="move(-1)" @keydown.enter.prevent="go()"><kbd>Esc</kbd></label><div class="op-menu op-toolsearch-list" x-show="q" role="listbox"><template x-for="(t, i) in results" :key="t[0]"><a :href="t[1]" role="option" :aria-selected="(i === active).toString()" @mouseenter="active = i"><span x-text="t[0]"></span><small x-text="t[2]"></small></a></template><p class="op-nav-empty" x-show="!results.length">No tools match</p></div></div></div>
+      <button class="op-icon-btn" type="button" aria-label="Switch theme" x-data @click="let d=document.documentElement.classList.toggle('dark');localStorage.setItem('color-theme', d ? 'dark' : 'light')"><span class="dark:hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg></span><span class="hidden dark:inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg></span></button>
+    </header>
+    <nav class="op-tabs" aria-label="PHP"><a href="php-wizard.html">PHP Wizard</a><a href="php.html">Version per Domain</a><a href="php-default.html">Default Version</a><a href="php-options.html">Options</a><a href="php-extensions.html">Extensions</a><a href="php-ini.html" aria-current="page">php.ini Editor</a></nav>
+    <main class="op-content">
+      <div class="op-page-head"><div><div class="op-eyebrow">php-fpm-8.5 · Apache</div><h1 class="op-title">PHP 8.5 INI Editor</h1><p class="op-meta">Mounted as <span class="op-mono">/etc/php/8.5/fpm/php.ini</span>, saved in <span class="op-mono">/home/testinguser/php.ini/8.5.ini</span></p></div><div class="op-actions"><select class="op-select" style="width:auto" aria-label="PHP version"><option value="8.5" selected>PHP 8.5</option><option value="8.4">PHP 8.4</option><option value="8.3">PHP 8.3</option><option value="8.2">PHP 8.2</option><option value="8.1">PHP 8.1</option><option value="8.0">PHP 8.0</option><option value="7.4">PHP 7.4</option><option value="7.3">PHP 7.3</option><option value="7.2">PHP 7.2</option><option value="7.1">PHP 7.1</option><option value="7.0">PHP 7.0</option><option value="5.6">PHP 5.6</option></select><button class="op-btn op-btn-primary" type="button">Save Changes</button></div></div>
+      <div class="op-alert" role="status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></svg><span>For the common settings, <a href="php-options.html">Options</a> is safer: it checks values before saving. A syntax error here stops PHP-FPM 8.5 from starting.</span></div>
+      <section class="op-card" aria-label="php.ini">
+        <div class="op-editor"><div class="op-gutter"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div><div>21</div><div>22</div><div>23</div><div>24</div><div>25</div><div>26</div><div>27</div><div>28</div><div>29</div><div>30</div><div>31</div><div>32</div><div>33</div><div>34</div><div>35</div><div>36</div><div>37</div><div>38</div><div>39</div><div>40</div><div>41</div><div>42</div><div>43</div><div>44</div><div>45</div><div>46</div><div>47</div><div>48</div><div>49</div><div>50</div><div>51</div><div>52</div><div>53</div><div>54</div><div>55</div><div>56</div><div>57</div><div>58</div><div>59</div><div>60</div><div>61</div><div>62</div><div>63</div><div>64</div><div>65</div><div>66</div><div>67</div><div>68</div><div>69</div><div>70</div><div>71</div><div>72</div><div>73</div><div>74</div><div>75</div><div>76</div><div>77</div><div>78</div><div>79</div><div>80</div><div>81</div><div>82</div><div>83</div><div>84</div><div>85</div><div>86</div><div>87</div><div>88</div><div>89</div><div>90</div><div>91</div><div>92</div><div>93</div><div>94</div><div>95</div><div>96</div><div>97</div><div>98</div><div>99</div><div>100</div><div>101</div><div>102</div><div>103</div><div>104</div><div>105</div><div>106</div><div>107</div><div>108</div><div>109</div><div>110</div><div>111</div><div>112</div><div>113</div><div>114</div><div>115</div><div>116</div><div>117</div><div>118</div><div>119</div><div>120</div><div>121</div><div>122</div><div>123</div><div>124</div><div>125</div><div>126</div><div>127</div><div>128</div><div>129</div><div>130</div><div>131</div><div>132</div><div>133</div><div>134</div><div>135</div><div>136</div><div>137</div><div>138</div><div>139</div><div>140</div><div>141</div><div>142</div><div>143</div><div>144</div><div>145</div><div>146</div><div>147</div><div>148</div><div>149</div><div>150</div><div>151</div><div>152</div><div>153</div><div>154</div><div>155</div><div>156</div><div>157</div><div>158</div><div>159</div><div>160</div><div>161</div><div>162</div><div>163</div><div>164</div><div>165</div><div>166</div><div>167</div><div>168</div><div>169</div><div>170</div><div>171</div><div>172</div><div>173</div><div>174</div><div>175</div><div>176</div><div>177</div><div>178</div><div>179</div><div>180</div><div>181</div><div>182</div><div>183</div><div>184</div><div>185</div><div>186</div><div>187</div><div>188</div><div>189</div><div>190</div><div>191</div><div>192</div><div>193</div><div>194</div><div>195</div><div>196</div><div>197</div><div>198</div><div>199</div><div>200</div><div>201</div><div>202</div><div>203</div><div>204</div><div>205</div><div>206</div><div>207</div><div>208</div><div>209</div><div>210</div><div>211</div><div>212</div><div>213</div><div>214</div><div>215</div><div>216</div><div>217</div><div>218</div><div>219</div><div>220</div><div>221</div><div>222</div><div>223</div><div>224</div><div>225</div><div>226</div><div>227</div><div>228</div><div>229</div><div>230</div><div>231</div><div>232</div><div>233</div><div>234</div><div>235</div><div>236</div><div>237</div><div>238</div><div>239</div><div>240</div><div>241</div><div>242</div><div>243</div><div>244</div><div>245</div><div>246</div><div>247</div><div>248</div><div>249</div><div>250</div><div>251</div><div>252</div><div>253</div><div>254</div><div>255</div><div>256</div><div>257</div><div>258</div><div>259</div><div>260</div><div>261</div><div>262</div><div>263</div><div>264</div><div>265</div><div>266</div><div>267</div><div>268</div><div>269</div><div>270</div><div>271</div><div>272</div><div>273</div><div>274</div><div>275</div><div>276</div><div>277</div><div>278</div><div>279</div><div>280</div><div>281</div><div>282</div><div>283</div><div>284</div><div>285</div><div>286</div><div>287</div><div>288</div><div>289</div><div>290</div><div>291</div><div>292</div><div>293</div><div>294</div><div>295</div><div>296</div><div>297</div><div>298</div><div>299</div><div>300</div><div>301</div><div>302</div><div>303</div><div>304</div><div>305</div><div>306</div><div>307</div><div>308</div><div>309</div><div>310</div><div>311</div><div>312</div><div>313</div><div>314</div><div>315</div><div>316</div><div>317</div><div>318</div><div>319</div><div>320</div><div>321</div><div>322</div><div>323</div><div>324</div><div>325</div><div>326</div><div>327</div><div>328</div><div>329</div><div>330</div><div>331</div><div>332</div><div>333</div><div>334</div><div>335</div><div>336</div><div>337</div><div>338</div><div>339</div><div>340</div><div>341</div><div>342</div><div>343</div><div>344</div><div>345</div><div>346</div><div>347</div><div>348</div><div>349</div><div>350</div><div>351</div><div>352</div><div>353</div><div>354</div><div>355</div><div>356</div><div>357</div><div>358</div><div>359</div><div>360</div><div>361</div><div>362</div><div>363</div><div>364</div><div>365</div><div>366</div><div>367</div><div>368</div><div>369</div><div>370</div><div>371</div><div>372</div><div>373</div><div>374</div><div>375</div><div>376</div><div>377</div><div>378</div><div>379</div><div>380</div><div>381</div><div>382</div><div>383</div><div>384</div><div>385</div><div>386</div><div>387</div><div>388</div><div>389</div><div>390</div><div>391</div><div>392</div><div>393</div><div>394</div><div>395</div><div>396</div><div>397</div><div>398</div><div>399</div><div>400</div><div>401</div><div>402</div><div>403</div><div>404</div><div>405</div><div>406</div><div>407</div><div>408</div><div>409</div><div>410</div><div>411</div><div>412</div><div>413</div><div>414</div><div>415</div><div>416</div><div>417</div><div>418</div><div>419</div><div>420</div><div>421</div><div>422</div><div>423</div><div>424</div><div>425</div><div>426</div><div>427</div><div>428</div><div>429</div><div>430</div><div>431</div><div>432</div><div>433</div><div>434</div><div>435</div><div>436</div><div>437</div><div>438</div><div>439</div><div>440</div><div>441</div><div>442</div><div>443</div><div>444</div><div>445</div><div>446</div><div>447</div><div>448</div><div>449</div><div>450</div><div>451</div><div>452</div><div>453</div><div>454</div><div>455</div><div>456</div><div>457</div><div>458</div><div>459</div><div>460</div><div>461</div><div>462</div><div>463</div><div>464</div><div>465</div><div>466</div><div>467</div><div>468</div><div>469</div><div>470</div><div>471</div><div>472</div><div>473</div><div>474</div><div>475</div><div>476</div><div>477</div><div>478</div><div>479</div><div>480</div><div>481</div><div>482</div><div>483</div><div>484</div><div>485</div><div>486</div><div>487</div><div>488</div><div>489</div><div>490</div><div>491</div><div>492</div><div>493</div><div>494</div><div>495</div><div>496</div><div>497</div><div>498</div><div>499</div><div>500</div><div>501</div><div>502</div><div>503</div><div>504</div><div>505</div><div>506</div><div>507</div><div>508</div><div>509</div><div>510</div><div>511</div><div>512</div><div>513</div><div>514</div><div>515</div><div>516</div><div>517</div><div>518</div><div>519</div><div>520</div><div>521</div><div>522</div><div>523</div><div>524</div><div>525</div><div>526</div><div>527</div><div>528</div><div>529</div><div>530</div><div>531</div><div>532</div><div>533</div><div>534</div><div>535</div><div>536</div><div>537</div><div>538</div><div>539</div><div>540</div><div>541</div><div>542</div><div>543</div><div>544</div><div>545</div><div>546</div><div>547</div><div>548</div><div>549</div><div>550</div><div>551</div><div>552</div><div>553</div><div>554</div><div>555</div><div>556</div><div>557</div><div>558</div><div>559</div><div>560</div><div>561</div><div>562</div><div>563</div><div>564</div><div>565</div><div>566</div><div>567</div><div>568</div><div>569</div><div>570</div><div>571</div><div>572</div><div>573</div><div>574</div><div>575</div><div>576</div><div>577</div><div>578</div><div>579</div><div>580</div><div>581</div><div>582</div><div>583</div><div>584</div><div>585</div><div>586</div><div>587</div><div>588</div><div>589</div><div>590</div><div>591</div><div>592</div><div>593</div><div>594</div><div>595</div><div>596</div><div>597</div><div>598</div><div>599</div><div>600</div><div>601</div><div>602</div><div>603</div><div>604</div><div>605</div><div>606</div><div>607</div><div>608</div><div>609</div><div>610</div><div>611</div><div>612</div><div>613</div><div>614</div><div>615</div><div>616</div><div>617</div><div>618</div><div>619</div><div>620</div><div>621</div><div>622</div><div>623</div><div>624</div><div>625</div><div>626</div><div>627</div><div>628</div><div>629</div><div>630</div><div>631</div><div>632</div><div>633</div><div>634</div><div>635</div><div>636</div><div>637</div><div>638</div><div>639</div><div>640</div><div>641</div><div>642</div><div>643</div><div>644</div><div>645</div><div>646</div><div>647</div><div>648</div><div>649</div><div>650</div><div>651</div><div>652</div><div>653</div><div>654</div><div>655</div><div>656</div><div>657</div><div>658</div><div>659</div><div>660</div><div>661</div><div>662</div><div>663</div><div>664</div><div>665</div><div>666</div><div>667</div><div>668</div><div>669</div><div>670</div><div>671</div><div>672</div><div>673</div><div>674</div><div>675</div><div>676</div><div>677</div><div>678</div><div>679</div><div>680</div><div>681</div><div>682</div><div>683</div><div>684</div><div>685</div><div>686</div><div>687</div><div>688</div><div>689</div><div>690</div><div>691</div><div>692</div><div>693</div><div>694</div><div>695</div><div>696</div><div>697</div><div>698</div><div>699</div><div>700</div><div>701</div><div>702</div><div>703</div><div>704</div><div>705</div><div>706</div><div>707</div><div>708</div><div>709</div><div>710</div><div>711</div><div>712</div><div>713</div><div>714</div><div>715</div><div>716</div><div>717</div><div>718</div><div>719</div><div>720</div><div>721</div><div>722</div><div>723</div><div>724</div><div>725</div><div>726</div><div>727</div><div>728</div><div>729</div><div>730</div><div>731</div><div>732</div><div>733</div><div>734</div><div>735</div><div>736</div><div>737</div><div>738</div><div>739</div><div>740</div><div>741</div><div>742</div><div>743</div><div>744</div><div>745</div><div>746</div><div>747</div><div>748</div><div>749</div><div>750</div><div>751</div><div>752</div><div>753</div><div>754</div><div>755</div><div>756</div><div>757</div><div>758</div><div>759</div><div>760</div><div>761</div><div>762</div><div>763</div><div>764</div><div>765</div><div>766</div><div>767</div><div>768</div><div>769</div><div>770</div><div>771</div><div>772</div><div>773</div><div>774</div><div>775</div><div>776</div><div>777</div><div>778</div><div>779</div><div>780</div><div>781</div><div>782</div><div>783</div><div>784</div><div>785</div><div>786</div><div>787</div><div>788</div><div>789</div><div>790</div><div>791</div><div>792</div><div>793</div><div>794</div><div>795</div><div>796</div><div>797</div><div>798</div><div>799</div><div>800</div><div>801</div><div>802</div><div>803</div><div>804</div><div>805</div><div>806</div><div>807</div><div>808</div><div>809</div><div>810</div><div>811</div><div>812</div><div>813</div><div>814</div><div>815</div><div>816</div><div>817</div><div>818</div><div>819</div><div>820</div><div>821</div><div>822</div><div>823</div><div>824</div><div>825</div><div>826</div><div>827</div><div>828</div><div>829</div><div>830</div><div>831</div><div>832</div><div>833</div><div>834</div><div>835</div><div>836</div><div>837</div><div>838</div><div>839</div><div>840</div><div>841</div><div>842</div><div>843</div><div>844</div><div>845</div><div>846</div><div>847</div><div>848</div><div>849</div><div>850</div><div>851</div><div>852</div><div>853</div><div>854</div><div>855</div><div>856</div><div>857</div><div>858</div><div>859</div><div>860</div><div>861</div><div>862</div><div>863</div><div>864</div><div>865</div><div>866</div><div>867</div><div>868</div><div>869</div><div>870</div><div>871</div><div>872</div><div>873</div><div>874</div><div>875</div><div>876</div><div>877</div><div>878</div><div>879</div><div>880</div><div>881</div><div>882</div><div>883</div><div>884</div><div>885</div><div>886</div><div>887</div><div>888</div><div>889</div><div>890</div><div>891</div><div>892</div><div>893</div><div>894</div><div>895</div><div>896</div><div>897</div><div>898</div><div>899</div><div>900</div><div>901</div><div>902</div><div>903</div><div>904</div><div>905</div><div>906</div><div>907</div><div>908</div><div>909</div><div>910</div><div>911</div><div>912</div><div>913</div><div>914</div><div>915</div><div>916</div><div>917</div><div>918</div><div>919</div><div>920</div><div>921</div><div>922</div><div>923</div><div>924</div><div>925</div><div>926</div><div>927</div><div>928</div><div>929</div><div>930</div><div>931</div><div>932</div><div>933</div><div>934</div><div>935</div><div>936</div><div>937</div><div>938</div><div>939</div><div>940</div><div>941</div><div>942</div><div>943</div><div>944</div><div>945</div><div>946</div><div>947</div><div>948</div><div>949</div><div>950</div><div>951</div><div>952</div><div>953</div><div>954</div><div>955</div><div>956</div><div>957</div><div>958</div><div>959</div><div>960</div><div>961</div><div>962</div><div>963</div><div>964</div><div>965</div><div>966</div><div>967</div><div>968</div><div>969</div><div>970</div><div>971</div><div>972</div><div>973</div><div>974</div><div>975</div><div>976</div><div>977</div><div>978</div><div>979</div><div>980</div><div>981</div><div>982</div><div>983</div><div>984</div><div>985</div><div>986</div><div>987</div><div>988</div><div>989</div><div>990</div><div>991</div><div>992</div><div>993</div><div>994</div><div>995</div><div>996</div><div>997</div><div>998</div><div>999</div><div>1000</div><div>1001</div><div>1002</div><div>1003</div><div>1004</div><div>1005</div><div>1006</div><div>1007</div><div>1008</div><div>1009</div><div>1010</div><div>1011</div><div>1012</div><div>1013</div><div>1014</div><div>1015</div><div>1016</div><div>1017</div><div>1018</div><div>1019</div><div>1020</div><div>1021</div><div>1022</div><div>1023</div><div>1024</div><div>1025</div><div>1026</div><div>1027</div><div>1028</div><div>1029</div><div>1030</div><div>1031</div><div>1032</div><div>1033</div><div>1034</div><div>1035</div><div>1036</div><div>1037</div><div>1038</div><div>1039</div><div>1040</div><div>1041</div><div>1042</div><div>1043</div><div>1044</div><div>1045</div><div>1046</div><div>1047</div><div>1048</div><div>1049</div><div>1050</div><div>1051</div><div>1052</div><div>1053</div><div>1054</div><div>1055</div><div>1056</div><div>1057</div><div>1058</div><div>1059</div><div>1060</div><div>1061</div><div>1062</div><div>1063</div><div>1064</div><div>1065</div><div>1066</div><div>1067</div><div>1068</div><div>1069</div><div>1070</div><div>1071</div><div>1072</div><div>1073</div><div>1074</div><div>1075</div><div>1076</div><div>1077</div><div>1078</div><div>1079</div><div>1080</div><div>1081</div><div>1082</div><div>1083</div><div>1084</div><div>1085</div><div>1086</div><div>1087</div><div>1088</div><div>1089</div><div>1090</div><div>1091</div><div>1092</div><div>1093</div><div>1094</div><div>1095</div><div>1096</div><div>1097</div><div>1098</div><div>1099</div><div>1100</div><div>1101</div><div>1102</div><div>1103</div><div>1104</div><div>1105</div><div>1106</div><div>1107</div><div>1108</div><div>1109</div><div>1110</div><div>1111</div><div>1112</div><div>1113</div><div>1114</div><div>1115</div><div>1116</div><div>1117</div><div>1118</div><div>1119</div><div>1120</div><div>1121</div><div>1122</div><div>1123</div><div>1124</div><div>1125</div><div>1126</div><div>1127</div><div>1128</div><div>1129</div><div>1130</div><div>1131</div><div>1132</div><div>1133</div><div>1134</div><div>1135</div><div>1136</div><div>1137</div><div>1138</div><div>1139</div><div>1140</div><div>1141</div><div>1142</div><div>1143</div><div>1144</div><div>1145</div><div>1146</div><div>1147</div><div>1148</div><div>1149</div><div>1150</div><div>1151</div><div>1152</div><div>1153</div><div>1154</div><div>1155</div><div>1156</div><div>1157</div><div>1158</div><div>1159</div><div>1160</div><div>1161</div><div>1162</div><div>1163</div><div>1164</div><div>1165</div><div>1166</div><div>1167</div><div>1168</div><div>1169</div><div>1170</div><div>1171</div><div>1172</div><div>1173</div><div>1174</div><div>1175</div><div>1176</div><div>1177</div><div>1178</div><div>1179</div><div>1180</div><div>1181</div><div>1182</div><div>1183</div><div>1184</div><div>1185</div><div>1186</div><div>1187</div><div>1188</div><div>1189</div><div>1190</div><div>1191</div><div>1192</div><div>1193</div><div>1194</div><div>1195</div><div>1196</div><div>1197</div><div>1198</div><div>1199</div><div>1200</div><div>1201</div><div>1202</div><div>1203</div><div>1204</div><div>1205</div><div>1206</div><div>1207</div><div>1208</div><div>1209</div><div>1210</div><div>1211</div><div>1212</div><div>1213</div><div>1214</div><div>1215</div><div>1216</div><div>1217</div><div>1218</div><div>1219</div><div>1220</div><div>1221</div><div>1222</div><div>1223</div><div>1224</div><div>1225</div><div>1226</div><div>1227</div><div>1228</div><div>1229</div><div>1230</div><div>1231</div><div>1232</div><div>1233</div><div>1234</div><div>1235</div><div>1236</div><div>1237</div><div>1238</div><div>1239</div><div>1240</div><div>1241</div><div>1242</div><div>1243</div><div>1244</div><div>1245</div><div>1246</div><div>1247</div><div>1248</div><div>1249</div><div>1250</div><div>1251</div><div>1252</div><div>1253</div><div>1254</div><div>1255</div><div>1256</div><div>1257</div><div>1258</div><div>1259</div><div>1260</div><div>1261</div><div>1262</div><div>1263</div><div>1264</div><div>1265</div><div>1266</div><div>1267</div><div>1268</div><div>1269</div><div>1270</div><div>1271</div><div>1272</div><div>1273</div><div>1274</div><div>1275</div><div>1276</div><div>1277</div><div>1278</div><div>1279</div><div>1280</div><div>1281</div><div>1282</div><div>1283</div><div>1284</div><div>1285</div><div>1286</div><div>1287</div><div>1288</div><div>1289</div><div>1290</div><div>1291</div><div>1292</div><div>1293</div><div>1294</div><div>1295</div><div>1296</div><div>1297</div><div>1298</div><div>1299</div><div>1300</div><div>1301</div><div>1302</div><div>1303</div><div>1304</div><div>1305</div><div>1306</div><div>1307</div><div>1308</div><div>1309</div><div>1310</div><div>1311</div><div>1312</div><div>1313</div><div>1314</div><div>1315</div><div>1316</div><div>1317</div><div>1318</div><div>1319</div><div>1320</div><div>1321</div><div>1322</div><div>1323</div><div>1324</div><div>1325</div><div>1326</div><div>1327</div><div>1328</div><div>1329</div><div>1330</div><div>1331</div><div>1332</div><div>1333</div><div>1334</div><div>1335</div><div>1336</div><div>1337</div><div>1338</div><div>1339</div><div>1340</div><div>1341</div><div>1342</div><div>1343</div><div>1344</div><div>1345</div><div>1346</div><div>1347</div><div>1348</div><div>1349</div><div>1350</div><div>1351</div><div>1352</div><div>1353</div><div>1354</div><div>1355</div><div>1356</div><div>1357</div><div>1358</div><div>1359</div><div>1360</div><div>1361</div><div>1362</div><div>1363</div><div>1364</div><div>1365</div><div>1366</div><div>1367</div><div>1368</div><div>1369</div><div>1370</div><div>1371</div><div>1372</div><div>1373</div><div>1374</div><div>1375</div><div>1376</div><div>1377</div><div>1378</div><div>1379</div><div>1380</div><div>1381</div><div>1382</div><div>1383</div><div>1384</div><div>1385</div><div>1386</div><div>1387</div><div>1388</div><div>1389</div><div>1390</div><div>1391</div><div>1392</div><div>1393</div><div>1394</div><div>1395</div><div>1396</div><div>1397</div><div>1398</div><div>1399</div><div>1400</div><div>1401</div><div>1402</div><div>1403</div><div>1404</div><div>1405</div><div>1406</div><div>1407</div><div>1408</div><div>1409</div><div>1410</div><div>1411</div><div>1412</div><div>1413</div><div>1414</div><div>1415</div><div>1416</div><div>1417</div><div>1418</div><div>1419</div><div>1420</div><div>1421</div><div>1422</div><div>1423</div><div>1424</div><div>1425</div><div>1426</div><div>1427</div><div>1428</div><div>1429</div><div>1430</div><div>1431</div><div>1432</div><div>1433</div><div>1434</div><div>1435</div><div>1436</div><div>1437</div><div>1438</div><div>1439</div><div>1440</div><div>1441</div><div>1442</div><div>1443</div><div>1444</div><div>1445</div><div>1446</div><div>1447</div><div>1448</div><div>1449</div><div>1450</div><div>1451</div><div>1452</div><div>1453</div><div>1454</div><div>1455</div><div>1456</div><div>1457</div><div>1458</div><div>1459</div><div>1460</div><div>1461</div><div>1462</div><div>1463</div><div>1464</div><div>1465</div><div>1466</div><div>1467</div><div>1468</div><div>1469</div><div>1470</div><div>1471</div><div>1472</div><div>1473</div><div>1474</div><div>1475</div><div>1476</div><div>1477</div><div>1478</div><div>1479</div><div>1480</div><div>1481</div><div>1482</div><div>1483</div><div>1484</div><div>1485</div><div>1486</div><div>1487</div><div>1488</div><div>1489</div><div>1490</div><div>1491</div><div>1492</div><div>1493</div><div>1494</div><div>1495</div><div>1496</div><div>1497</div><div>1498</div><div>1499</div><div>1500</div><div>1501</div><div>1502</div><div>1503</div><div>1504</div><div>1505</div><div>1506</div><div>1507</div><div>1508</div><div>1509</div><div>1510</div><div>1511</div><div>1512</div><div>1513</div><div>1514</div><div>1515</div><div>1516</div><div>1517</div><div>1518</div><div>1519</div><div>1520</div><div>1521</div><div>1522</div><div>1523</div><div>1524</div><div>1525</div><div>1526</div><div>1527</div><div>1528</div><div>1529</div><div>1530</div><div>1531</div><div>1532</div><div>1533</div><div>1534</div><div>1535</div><div>1536</div><div>1537</div><div>1538</div><div>1539</div><div>1540</div><div>1541</div><div>1542</div><div>1543</div><div>1544</div><div>1545</div><div>1546</div><div>1547</div><div>1548</div><div>1549</div><div>1550</div><div>1551</div><div>1552</div><div>1553</div><div>1554</div><div>1555</div><div>1556</div><div>1557</div><div>1558</div><div>1559</div><div>1560</div><div>1561</div><div>1562</div><div>1563</div><div>1564</div><div>1565</div><div>1566</div><div>1567</div><div>1568</div><div>1569</div><div>1570</div><div>1571</div><div>1572</div><div>1573</div><div>1574</div><div>1575</div><div>1576</div><div>1577</div><div>1578</div><div>1579</div><div>1580</div><div>1581</div><div>1582</div><div>1583</div><div>1584</div><div>1585</div><div>1586</div><div>1587</div><div>1588</div><div>1589</div><div>1590</div><div>1591</div><div>1592</div><div>1593</div><div>1594</div><div>1595</div><div>1596</div><div>1597</div><div>1598</div><div>1599</div><div>1600</div><div>1601</div><div>1602</div><div>1603</div><div>1604</div><div>1605</div><div>1606</div><div>1607</div><div>1608</div><div>1609</div><div>1610</div><div>1611</div><div>1612</div><div>1613</div><div>1614</div><div>1615</div><div>1616</div><div>1617</div><div>1618</div><div>1619</div><div>1620</div><div>1621</div><div>1622</div><div>1623</div><div>1624</div><div>1625</div><div>1626</div><div>1627</div><div>1628</div><div>1629</div><div>1630</div><div>1631</div><div>1632</div><div>1633</div><div>1634</div><div>1635</div><div>1636</div><div>1637</div><div>1638</div><div>1639</div><div>1640</div><div>1641</div><div>1642</div><div>1643</div><div>1644</div><div>1645</div><div>1646</div><div>1647</div><div>1648</div><div>1649</div><div>1650</div><div>1651</div><div>1652</div><div>1653</div><div>1654</div><div>1655</div><div>1656</div><div>1657</div><div>1658</div><div>1659</div><div>1660</div><div>1661</div><div>1662</div><div>1663</div><div>1664</div><div>1665</div><div>1666</div><div>1667</div><div>1668</div><div>1669</div><div>1670</div><div>1671</div><div>1672</div><div>1673</div><div>1674</div><div>1675</div><div>1676</div><div>1677</div><div>1678</div><div>1679</div><div>1680</div><div>1681</div><div>1682</div><div>1683</div><div>1684</div><div>1685</div><div>1686</div><div>1687</div><div>1688</div><div>1689</div><div>1690</div><div>1691</div><div>1692</div><div>1693</div><div>1694</div><div>1695</div><div>1696</div><div>1697</div><div>1698</div><div>1699</div><div>1700</div><div>1701</div><div>1702</div><div>1703</div><div>1704</div><div>1705</div><div>1706</div><div>1707</div><div>1708</div><div>1709</div><div>1710</div><div>1711</div><div>1712</div><div>1713</div><div>1714</div><div>1715</div><div>1716</div><div>1717</div><div>1718</div><div>1719</div><div>1720</div><div>1721</div><div>1722</div><div>1723</div><div>1724</div><div>1725</div><div>1726</div><div>1727</div><div>1728</div><div>1729</div><div>1730</div><div>1731</div><div>1732</div><div>1733</div><div>1734</div><div>1735</div><div>1736</div><div>1737</div><div>1738</div><div>1739</div><div>1740</div><div>1741</div><div>1742</div><div>1743</div><div>1744</div><div>1745</div><div>1746</div><div>1747</div><div>1748</div><div>1749</div><div>1750</div><div>1751</div><div>1752</div><div>1753</div><div>1754</div><div>1755</div><div>1756</div><div>1757</div><div>1758</div><div>1759</div><div>1760</div><div>1761</div><div>1762</div><div>1763</div><div>1764</div><div>1765</div><div>1766</div><div>1767</div><div>1768</div><div>1769</div><div>1770</div><div>1771</div><div>1772</div><div>1773</div><div>1774</div><div>1775</div><div>1776</div><div>1777</div><div>1778</div><div>1779</div><div>1780</div><div>1781</div><div>1782</div><div>1783</div><div>1784</div><div>1785</div><div>1786</div><div>1787</div><div>1788</div><div>1789</div><div>1790</div><div>1791</div><div>1792</div><div>1793</div><div>1794</div><div>1795</div><div>1796</div><div>1797</div><div>1798</div><div>1799</div><div>1800</div><div>1801</div><div>1802</div><div>1803</div><div>1804</div><div>1805</div><div>1806</div><div>1807</div><div>1808</div><div>1809</div><div>1810</div><div>1811</div><div>1812</div><div>1813</div><div>1814</div><div>1815</div><div>1816</div><div>1817</div><div>1818</div><div>1819</div><div>1820</div><div>1821</div><div>1822</div><div>1823</div><div>1824</div><div>1825</div><div>1826</div><div>1827</div><div>1828</div><div>1829</div><div>1830</div><div>1831</div><div>1832</div><div>1833</div><div>1834</div><div>1835</div><div>1836</div><div>1837</div><div>1838</div><div>1839</div><div>1840</div><div>1841</div><div>1842</div><div>1843</div><div>1844</div><div>1845</div><div>1846</div><div>1847</div><div>1848</div><div>1849</div><div>1850</div><div>1851</div><div>1852</div><div>1853</div><div>1854</div></div><pre contenteditable="plaintext-only" spellcheck="false" aria-label="php.ini for PHP 8.5"><span class="k">[PHP]</span>
+
+<span class="c">;;;;;;;;;;;;;;;;;;;</span>
+<span class="c">; About php.ini   ;</span>
+<span class="c">;;;;;;;;;;;;;;;;;;;</span>
+<span class="c">; PHP's initialization file, generally called php.ini, is responsible for</span>
+<span class="c">; configuring many of the aspects of PHP's behavior.</span>
+
+<span class="c">; PHP attempts to find and load this configuration from a number of locations.</span>
+<span class="c">; The following is a summary of its search order:</span>
+<span class="c">; 1. SAPI module specific location.</span>
+<span class="c">; 2. The PHPRC environment variable.</span>
+<span class="c">; 3. A number of predefined registry keys on Windows</span>
+<span class="c">; 4. Current working directory (except CLI)</span>
+<span class="c">; 5. The web server's directory (for SAPI modules), or directory of PHP</span>
+<span class="c">; (otherwise in Windows)</span>
+<span class="c">; 6. The directory from the --with-config-file-path compile time option, or the</span>
+<span class="c">; Windows directory (usually C:\windows)</span>
+<span class="c">; See the PHP docs for more specific information.</span>
+<span class="c">; https://php.net/configuration.file</span>
+
+<span class="c">; The syntax of the file is extremely simple.  Whitespace and lines</span>
+<span class="c">; beginning with a semicolon are silently ignored (as you probably guessed).</span>
+<span class="c">; Section headers (e.g. [Foo]) are also silently ignored, even though</span>
+<span class="c">; they might mean something in the future.</span>
+
+<span class="c">; Directives following the section heading [PATH=/www/mysite] only</span>
+<span class="c">; apply to PHP files in the /www/mysite directory.  Directives</span>
+<span class="c">; following the section heading [HOST=www.example.com] only apply to</span>
+<span class="c">; PHP files served from www.example.com.  Directives set in these</span>
+<span class="c">; special sections cannot be overridden by user-defined INI files or</span>
+<span class="c">; at runtime. Currently, [PATH=] and [HOST=] sections only work under</span>
+<span class="c">; CGI/FastCGI.</span>
+<span class="c">; https://php.net/ini.sections</span>
+
+<span class="c">; Directives are specified using the following syntax:</span>
+<span class="c">; directive = value</span>
+<span class="c">; Directive names are *case sensitive* - foo=bar is different from FOO=bar.</span>
+<span class="c">; Directives are variables used to configure PHP or PHP extensions.</span>
+<span class="c">; There is no name validation.  If PHP can't find an expected</span>
+<span class="c">; directive because it is not set or is mistyped, a default value will be used.</span>
+
+<span class="c">; The value can be a string, a number, a PHP constant (e.g. E_ALL or M_PI), one</span>
+<span class="c">; of the INI constants (On, Off, True, False, Yes, No and None) or an expression</span>
+<span class="c">; (e.g. E_ALL &amp; ~E_NOTICE), a quoted string ("bar"), or a reference to a</span>
+<span class="c">; previously set variable or directive (e.g. ${foo})</span>
+
+<span class="c">; Expressions in the INI file are limited to bitwise operators and parentheses:</span>
+<span class="c">; |  bitwise OR</span>
+<span class="c">; ^  bitwise XOR</span>
+<span class="c">; &amp;  bitwise AND</span>
+<span class="c">; ~  bitwise NOT</span>
+<span class="c">; !  boolean NOT</span>
+
+<span class="c">; Boolean flags can be turned on using the values 1, On, True or Yes.</span>
+<span class="c">; They can be turned off using the values 0, Off, False or No.</span>
+
+<span class="c">; An empty string can be denoted by simply not writing anything after the equal</span>
+<span class="c">; sign, or by using the None keyword:</span>
+
+<span class="c">; foo =         ; sets foo to an empty string</span>
+<span class="c">; foo = None    ; sets foo to an empty string</span>
+<span class="c">; foo = "None"  ; sets foo to the string 'None'</span>
+
+<span class="c">; If you use constants in your value, and these constants belong to a</span>
+<span class="c">; dynamically loaded extension (either a PHP extension or a Zend extension),</span>
+<span class="c">; you may only use these constants *after* the line that loads the extension.</span>
+
+<span class="c">;;;;;;;;;;;;;;;;;;;</span>
+<span class="c">; About this file ;</span>
+<span class="c">;;;;;;;;;;;;;;;;;;;</span>
+<span class="c">; PHP comes packaged with two INI files. One that is recommended to be used</span>
+<span class="c">; in production environments and one that is recommended to be used in</span>
+<span class="c">; development environments.</span>
+
+<span class="c">; php.ini-production contains settings which hold security, performance and</span>
+<span class="c">; best practices at its core. But please be aware, these settings may break</span>
+<span class="c">; compatibility with older or less security-conscious applications. We</span>
+<span class="c">; recommending using the production ini in production and testing environments.</span>
+
+<span class="c">; php.ini-development is very similar to its production variant, except it is</span>
+<span class="c">; much more verbose when it comes to errors. We recommend using the</span>
+<span class="c">; development version only in development environments, as errors shown to</span>
+<span class="c">; application users can inadvertently leak otherwise secure information.</span>
+
+<span class="c">; This is the php.ini-production INI file.</span>
+
+<span class="c">;;;;;;;;;;;;;;;;;;;</span>
+<span class="c">; Quick Reference ;</span>
+<span class="c">;;;;;;;;;;;;;;;;;;;</span>
+
+<span class="c">; The following are all the settings which are different in either the production</span>
+<span class="c">; or development versions of the INIs with respect to PHP's default behavior.</span>
+<span class="c">; Please see the actual settings later in the document for more details as to why</span>
+<span class="c">; we recommend these changes in PHP's behavior.</span>
+
+<span class="c">; display_errors</span>
+<span class="c">;   Default Value: On</span>
+<span class="c">;   Development Value: On</span>
+<span class="c">;   Production Value: Off</span>
+
+<span class="c">; display_startup_errors</span>
+<span class="c">;   Default Value: On</span>
+<span class="c">;   Development Value: On</span>
+<span class="c">;   Production Value: Off</span>
+
+<span class="c">; error_reporting</span>
+<span class="c">;   Default Value: E_ALL</span>
+<span class="c">;   Development Value: E_ALL</span>
+<span class="c">;   Production Value: E_ALL &amp; ~E_DEPRECATED</span>
+
+<span class="c">; log_errors</span>
+<span class="c">;   Default Value: Off</span>
+<span class="c">;   Development Value: On</span>
+<span class="c">;   Production Value: On</span>
+
+<span class="c">; max_input_time</span>
+<span class="c">;   Default Value: -1 (Unlimited)</span>
+<span class="c">;   Development Value: 60 (60 seconds)</span>
+<span class="c">;   Production Value: 60 (60 seconds)</span>
+
+<span class="c">; output_buffering</span>
+<span class="c">;   Default Value: Off</span>
+<span class="c">;   Development Value: 4096</span>
+<span class="c">;   Production Value: 4096</span>
+
+<span class="c">; register_argc_argv</span>
+<span class="c">;   Default Value: On</span>
+<span class="c">;   Development Value: Off</span>
+<span class="c">;   Production Value: Off</span>
+
+<span class="c">; request_order</span>
+<span class="c">;   Default Value: None</span>
+<span class="c">;   Development Value: "GP"</span>
+<span class="c">;   Production Value: "GP"</span>
+
+<span class="c">; session.gc_divisor</span>
+<span class="c">;   Default Value: 100</span>
+<span class="c">;   Development Value: 1000</span>
+<span class="c">;   Production Value: 1000</span>
+
+<span class="c">; short_open_tag</span>
+<span class="c">;   Default Value: On</span>
+<span class="c">;   Development Value: Off</span>
+<span class="c">;   Production Value: Off</span>
+
+<span class="c">; variables_order</span>
+<span class="c">;   Default Value: "EGPCS"</span>
+<span class="c">;   Development Value: "GPCS"</span>
+<span class="c">;   Production Value: "GPCS"</span>
+
+<span class="c">; zend.assertions</span>
+<span class="c">;   Default Value: 1</span>
+<span class="c">;   Development Value: 1</span>
+<span class="c">;   Production Value: -1</span>
+
+<span class="c">; zend.exception_ignore_args</span>
+<span class="c">;   Default Value: Off</span>
+<span class="c">;   Development Value: Off</span>
+<span class="c">;   Production Value: On</span>
+
+<span class="c">; zend.exception_string_param_max_len</span>
+<span class="c">;   Default Value: 15</span>
+<span class="c">;   Development Value: 15</span>
+<span class="c">;   Production Value: 0</span>
+
+<span class="c">;;;;;;;;;;;;;;;;;;;;</span>
+<span class="c">; php.ini Options  ;</span>
+<span class="c">;;;;;;;;;;;;;;;;;;;;</span>
+<span class="c">; Name for user-defined php.ini (.htaccess) files. Default is ".user.ini"</span>
+<span class="c">;user_ini.filename = ".user.ini"</span>
+
+<span class="c">; To disable this feature set this option to an empty value</span>
+<span class="c">;user_ini.filename =</span>
+
+<span class="c">; TTL for user-defined php.ini files (time-to-live) in seconds. Default is 300 seconds (5 minutes)</span>
+<span class="c">;user_ini.cache_ttl = 300</span>
+
+<span class="c">;;;;;;;;;;;;;;;;;;;;</span>
+<span class="c">; Language Options ;</span>
+<span class="c">;;;;;;;;;;;;;;;;;;;;</span>
+
+<span class="c">; Enable the PHP scripting language engine under Apache.</span>
+<span class="c">; https://php.net/engine</span>
+<span class="k">engine</span> = On
+
+<span class="c">; This directive determines whether or not PHP will recognize code between</span>
+<span class="c">; &lt;? and ?&gt; tags as PHP source which should be processed as such. It is</span>
+<span class="c">; generally recommended that &lt;?php and ?&gt; should be used and that this feature</span>
+<span class="c">; should be disabled, as enabling it may result in issues when generating XML</span>
+<span class="c">; documents, however this remains supported for backward compatibility reasons.</span>
+<span class="c">; Note that this directive does not control the &lt;?= shorthand tag, which can be</span>
+<span class="c">; used regardless of this directive.</span>
+<span class="c">; Default Value: On</span>
+<span class="c">; Development Value: Off</span>
+<span class="c">; Production Value: Off</span>
+<span class="c">; https://php.net/short-open-tag</span>
+<span class="k">short_open_tag</span> = Off
+
+<span class="c">; The number of significant digits displayed in floating point numbers.</span>
+<span class="c">; https://php.net/precision</span>
+<span class="k">precision</span> = 14
+
+<span class="c">; Output buffering is a mechanism for controlling how much output data</span>
+<span class="c">; (excluding headers and cookies) PHP should keep internally before pushing that</span>
+<span class="c">; data to the client. If your application's output exceeds this setting, PHP</span>
+<span class="c">; will send that data in chunks of roughly the size you specify.</span>
+<span class="c">; Turning on this setting and managing its maximum buffer size can yield some</span>
+<span class="c">; interesting side-effects depending on your application and web server.</span>
+<span class="c">; You may be able to send headers and cookies after you've already sent output</span>
+<span class="c">; through print or echo. You also may see performance benefits if your server is</span>
+<span class="c">; emitting less packets due to buffered output versus PHP streaming the output</span>
+<span class="c">; as it gets it. On production servers, 4096 bytes is a good setting for performance</span>
+<span class="c">; reasons.</span>
+<span class="c">; Note: Output buffering can also be controlled via Output Buffering Control</span>
+<span class="c">;   functions.</span>
+<span class="c">; Possible Values:</span>
+<span class="c">;   On = Enabled and buffer is unlimited. (Use with caution)</span>
+<span class="c">;   Off = Disabled</span>
+<span class="c">;   Integer = Enables the buffer and sets its maximum size in bytes.</span>
+<span class="c">; Note: This directive is hardcoded to Off for the CLI SAPI</span>
+<span class="c">; Default Value: Off</span>
+<span class="c">; Development Value: 4096</span>
+<span class="c">; Production Value: 4096</span>
+<span class="c">; https://php.net/output-buffering</span>
+<span class="k">output_buffering</span> = 4096
+
+<span class="c">; You can redirect all of the output of your scripts to a function.  For</span>
+<span class="c">; example, if you set output_handler to "mb_output_handler", character</span>
+<span class="c">; encoding will be transparently converted to the specified encoding.</span>
+<span class="c">; Setting any output handler automatically turns on output buffering.</span>
+<span class="c">; Note: People who wrote portable scripts should not depend on this ini</span>
+<span class="c">;   directive. Instead, explicitly set the output handler using ob_start().</span>
+<span class="c">;   Using this ini directive may cause problems unless you know what script</span>
+<span class="c">;   is doing.</span>
+<span class="c">; Note: You cannot use both "mb_output_handler" with "ob_iconv_handler"</span>
+<span class="c">;   and you cannot use both "ob_gzhandler" and "zlib.output_compression".</span>
+<span class="c">; Note: output_handler must be empty if this is set 'On' !!!!</span>
+<span class="c">;   Instead you must use zlib.output_handler.</span>
+<span class="c">; https://php.net/output-handler</span>
+<span class="c">;output_handler =</span>
+
+<span class="c">; URL rewriter function rewrites URL on the fly by using</span>
+<span class="c">; output buffer. You can set target tags by this configuration.</span>
+<span class="c">; "form" tag is special tag. It will add hidden input tag to pass values.</span>
+<span class="c">; Refer to session.trans_sid_tags for usage.</span>
+<span class="c">; Default Value: "form="</span>
+<span class="c">; Development Value: "form="</span>
+<span class="c">; Production Value: "form="</span>
+<span class="c">;url_rewriter.tags</span>
+
+<span class="c">; URL rewriter will not rewrite absolute URL nor form by default. To enable</span>
+<span class="c">; absolute URL rewrite, allowed hosts must be defined at RUNTIME.</span>
+<span class="c">; Refer to session.trans_sid_hosts for more details.</span>
+<span class="c">; Default Value: ""</span>
+<span class="c">; Development Value: ""</span>
+<span class="c">; Production Value: ""</span>
+<span class="c">;url_rewriter.hosts</span>
+
+<span class="c">; Transparent output compression using the zlib library</span>
+<span class="c">; Valid values for this option are 'off', 'on', or a specific buffer size</span>
+<span class="c">; to be used for compression (default is 4KB)</span>
+<span class="c">; Note: Resulting chunk size may vary due to nature of compression. PHP</span>
+<span class="c">;   outputs chunks that are few hundreds bytes each as a result of</span>
+<span class="c">;   compression. If you prefer a larger chunk size for better</span>
+<span class="c">;   performance, enable output_buffering in addition.</span>
+<span class="c">; Note: You need to use zlib.output_handler instead of the standard</span>
+<span class="c">;   output_handler, or otherwise the output will be corrupted.</span>
+<span class="c">; https://php.net/zlib.output-compression</span>
+<span class="k">zlib.output_compression</span> = Off
+
+<span class="c">; https://php.net/zlib.output-compression-level</span>
+<span class="c">;zlib.output_compression_level = -1</span>
+
+<span class="c">; You cannot specify additional output handlers if zlib.output_compression</span>
+<span class="c">; is activated here. This setting does the same as output_handler but in</span>
+<span class="c">; a different order.</span>
+<span class="c">; https://php.net/zlib.output-handler</span>
+<span class="c">;zlib.output_handler =</span>
+
+<span class="c">; Implicit flush tells PHP to tell the output layer to flush itself</span>
+<span class="c">; automatically after every output block.  This is equivalent to calling the</span>
+<span class="c">; PHP function flush() after each and every call to print() or echo() and each</span>
+<span class="c">; and every HTML block.  Turning this option on has serious performance</span>
+<span class="c">; implications and is generally recommended for debugging purposes only.</span>
+<span class="c">; https://php.net/implicit-flush</span>
+<span class="c">; Note: This directive is hardcoded to On for the CLI SAPI</span>
+<span class="k">implicit_flush</span> = Off
+
+<span class="c">; The unserialize callback function will be called (with the undefined class'</span>
+<span class="c">; name as parameter), if the unserializer finds an undefined class</span>
+<span class="c">; which should be instantiated. A warning appears if the specified function is</span>
+<span class="c">; not defined, or if the function doesn't include/implement the missing class.</span>
+<span class="c">; So only set this entry, if you really want to implement such a</span>
+<span class="c">; callback-function.</span>
+<span class="k">unserialize_callback_func</span> =
+
+<span class="c">; The unserialize_max_depth specifies the default depth limit for unserialized</span>
+<span class="c">; structures. Setting the depth limit too high may result in stack overflows</span>
+<span class="c">; during unserialization. The unserialize_max_depth ini setting can be</span>
+<span class="c">; overridden by the max_depth option on individual unserialize() calls.</span>
+<span class="c">; A value of 0 disables the depth limit.</span>
+<span class="c">;unserialize_max_depth = 4096</span>
+
+<span class="c">; When floats &amp; doubles are serialized, store serialize_precision significant</span>
+<span class="c">; digits after the floating point. The default value ensures that when floats</span>
+<span class="c">; are decoded with unserialize, the data will remain the same.</span>
+<span class="c">; The value is also used for json_encode when encoding double values.</span>
+<span class="c">; If -1 is used, then dtoa mode 0 is used which automatically select the best</span>
+<span class="c">; precision.</span>
+<span class="k">serialize_precision</span> = -1
+
+<span class="c">; open_basedir, if set, limits all file operations to the defined directory</span>
+<span class="c">; and below.  This directive makes most sense if used in a per-directory</span>
+<span class="c">; or per-virtualhost web server configuration file.</span>
+<span class="c">; Note: disables the realpath cache</span>
+<span class="c">; https://php.net/open-basedir</span>
+<span class="c">;open_basedir =</span>
+
+<span class="c">; This directive allows you to disable certain functions.</span>
+<span class="c">; It receives a comma-delimited list of function names.</span>
+<span class="c">; https://php.net/disable-functions</span>
+<span class="k">disable_functions</span> =
+
+<span class="c">; This directive allows you to disable certain classes.</span>
+<span class="c">; It receives a comma-delimited list of class names.</span>
+<span class="c">; https://php.net/disable-classes</span>
+<span class="k">disable_classes</span> =
+
+<span class="c">; Colors for Syntax Highlighting mode.  Anything that's acceptable in</span>
+<span class="c">; &lt;span style="color: ???????"&gt; would work.</span>
+<span class="c">; https://php.net/syntax-highlighting</span>
+<span class="c">;highlight.string  = #DD0000</span>
+<span class="c">;highlight.comment = #FF9900</span>
+<span class="c">;highlight.keyword = #007700</span>
+<span class="c">;highlight.default = #0000BB</span>
+<span class="c">;highlight.html    = #000000</span>
+
+<span class="c">; If enabled, the request will be allowed to complete even if the user aborts</span>
+<span class="c">; the request. Consider enabling it if executing long requests, which may end up</span>
+<span class="c">; being interrupted by the user or a browser timing out. PHP's default behavior</span>
+<span class="c">; is to disable this feature.</span>
+<span class="c">; https://php.net/ignore-user-abort</span>
+<span class="c">;ignore_user_abort = On</span>
+
+<span class="c">; Determines the size of the realpath cache to be used by PHP. This value should</span>
+<span class="c">; be increased on systems where PHP opens many files to reflect the quantity of</span>
+<span class="c">; the file operations performed.</span>
+<span class="c">; Note: if open_basedir is set, the cache is disabled</span>
+<span class="c">; https://php.net/realpath-cache-size</span>
+<span class="k">realpath_cache_size</span> = 16384k
+
+<span class="c">; Duration of time, in seconds for which to cache realpath information for a given</span>
+<span class="c">; file or directory. For systems with rarely changing files, consider increasing this</span>
+<span class="c">; value.</span>
+<span class="c">; https://php.net/realpath-cache-ttl</span>
+<span class="k">realpath_cache_ttl</span> = 600
+
+<span class="c">; Enables or disables the circular reference collector.</span>
+<span class="c">; https://php.net/zend.enable-gc</span>
+<span class="k">zend.enable_gc</span> = On
+
+<span class="c">; If enabled, scripts may be written in encodings that are incompatible with</span>
+<span class="c">; the scanner.  CP936, Big5, CP949 and Shift_JIS are the examples of such</span>
+<span class="c">; encodings.  To use this feature, mbstring extension must be enabled.</span>
+<span class="c">;zend.multibyte = Off</span>
+
+<span class="c">; Allows to set the default encoding for the scripts.  This value will be used</span>
+<span class="c">; unless "declare(encoding=...)" directive appears at the top of the script.</span>
+<span class="c">; Only affects if zend.multibyte is set.</span>
+<span class="c">;zend.script_encoding =</span>
+
+<span class="c">; Allows to include or exclude arguments from stack traces generated for exceptions.</span>
+<span class="c">; In production, it is recommended to turn this setting on to prohibit the output</span>
+<span class="c">; of sensitive information in stack traces</span>
+<span class="c">; Default Value: Off</span>
+<span class="c">; Development Value: Off</span>
+<span class="c">; Production Value: On</span>
+<span class="k">zend.exception_ignore_args</span> = On
+
+<span class="c">; Allows setting the maximum string length in an argument of a stringified stack trace</span>
+<span class="c">; to a value between 0 and 1000000.</span>
+<span class="c">; This has no effect when zend.exception_ignore_args is enabled.</span>
+<span class="c">; Default Value: 15</span>
+<span class="c">; Development Value: 15</span>
+<span class="c">; Production Value: 0</span>
+<span class="c">; In production, it is recommended to set this to 0 to reduce the output</span>
+<span class="c">; of sensitive information in stack traces.</span>
+<span class="k">zend.exception_string_param_max_len</span> = 0
+
+<span class="c">;;;;;;;;;;;;;;;;;</span>
+<span class="c">; Miscellaneous ;</span>
+<span class="c">;;;;;;;;;;;;;;;;;</span>
+
+<span class="c">; Decides whether PHP may expose the fact that it is installed on the server</span>
+<span class="c">; (e.g. by adding its signature to the Web server header).  It is no security</span>
+<span class="c">; threat in any way, but it makes it possible to determine whether you use PHP</span>
+<span class="c">; on your server or not.</span>
+<span class="c">; https://php.net/expose-php</span>
+<span class="k">expose_php</span> = On
+
+<span class="c">;;;;;;;;;;;;;;;;;;;</span>
+<span class="c">; Resource Limits ;</span>
+<span class="c">;;;;;;;;;;;;;;;;;;;</span>
+
+<span class="c">; Maximum execution time of each script, in seconds</span>
+<span class="c">; https://php.net/max-execution-time</span>
+<span class="c">; Note: This directive is hardcoded to 0 for the CLI SAPI</span>
+<span class="k">max_execution_time</span> = 300
+
+<span class="c">; Maximum amount of time each script may spend parsing request data. It's a good</span>
+<span class="c">; idea to limit this time on productions servers in order to eliminate unexpectedly</span>
+<span class="c">; long running scripts.</span>
+<span class="c">; Note: This directive is hardcoded to -1 for the CLI SAPI</span>
+<span class="c">; Default Value: -1 (Unlimited)</span>
+<span class="c">; Development Value: 60 (60 seconds)</span>
+<span class="c">; Production Value: 60 (60 seconds)</span>
+<span class="c">; https://php.net/max-input-time</span>
+<span class="k">max_input_time</span> = 300
+
+<span class="c">; Maximum input variable nesting level</span>
+<span class="c">; https://php.net/max-input-nesting-level</span>
+<span class="c">;max_input_nesting_level = 64</span>
+
+<span class="c">; How many GET/POST/COOKIE input variables may be accepted</span>
+<span class="k">max_input_vars</span> = 10000
+
+<span class="c">; How many multipart body parts (combined input variable and file uploads) may</span>
+<span class="c">; be accepted.</span>
+<span class="c">; Default Value: -1 (Sum of max_input_vars and max_file_uploads)</span>
+<span class="c">;max_multipart_body_parts = 1500</span>
+
+<span class="c">; Maximum amount of memory a script may consume</span>
+<span class="c">; https://php.net/memory-limit</span>
+<span class="k">memory_limit</span> = 512M
+
+<span class="c">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span class="c">; Error handling and logging ;</span>
+<span class="c">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span class="c">; This directive informs PHP of which errors, warnings and notices you would like</span>
+<span class="c">; it to take action for. The recommended way of setting values for this</span>
+<span class="c">; directive is through the use of the error level constants and bitwise</span>
+<span class="c">; operators. The error level constants are below here for convenience as well as</span>
+<span class="c">; some common settings and their meanings.</span>
+<span class="c">; By default, PHP is set to take action on all errors, notices and warnings EXCEPT</span>
+<span class="c">; those related to E_NOTICE, which together cover best practices and</span>
+<span class="c">; recommended coding standards in PHP. For performance reasons, this is the</span>
+<span class="c">; recommend error reporting setting. Your production server shouldn't be wasting</span>
+<span class="c">; resources complaining about best practices and coding standards. That's what</span>
+<span class="c">; development servers and development settings are for.</span>
+<span class="c">; Note: The php.ini-development file has this setting as E_ALL. This</span>
+<span class="c">; means it pretty much reports everything which is exactly what you want during</span>
+<span class="c">; development and early testing.</span>
+<span class="c">;</span>
+<span class="c">; Error Level Constants:</span>
+<span class="c">; E_ALL             - All errors and warnings</span>
+<span class="c">; E_ERROR           - fatal run-time errors</span>
+<span class="c">; E_RECOVERABLE_ERROR  - almost fatal run-time errors</span>
+<span class="c">; E_WARNING         - run-time warnings (non-fatal errors)</span>
+<span class="c">; E_PARSE           - compile-time parse errors</span>
+<span class="c">; E_NOTICE          - run-time notices (these are warnings which often result</span>
+<span class="c">;                     from a bug in your code, but it's possible that it was</span>
+<span class="c">;                     intentional (e.g., using an uninitialized variable and</span>
+<span class="c">;                     relying on the fact it is automatically initialized to an</span>
+<span class="c">;                     empty string)</span>
+<span class="c">; E_CORE_ERROR      - fatal errors that occur during PHP's initial startup</span>
+<span class="c">; E_CORE_WARNING    - warnings (non-fatal errors) that occur during PHP's</span>
+<span class="c">;                     initial startup</span>
+<span class="c">; E_COMPILE_ERROR   - fatal compile-time errors</span>
+<span class="c">; E_COMPILE_WARNING - compile-time warnings (non-fatal errors)</span>
+<span class="c">; E_USER_ERROR      - user-generated error message</span>
+<span class="c">; E_USER_WARNING    - user-generated warning message</span>
+<span class="c">; E_USER_NOTICE     - user-generated notice message</span>
+<span class="c">; E_DEPRECATED      - warn about code that will not work in future versions</span>
+<span class="c">;                     of PHP</span>
+<span class="c">; E_USER_DEPRECATED - user-generated deprecation warnings</span>
+<span class="c">;</span>
+<span class="c">; Common Values:</span>
+<span class="c">;   E_ALL (Show all errors, warnings and notices including coding standards.)</span>
+<span class="c">;   E_ALL &amp; ~E_NOTICE  (Show all errors, except for notices)</span>
+<span class="c">;   E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR  (Show only errors)</span>
+<span class="c">; Default Value: E_ALL</span>
+<span class="c">; Development Value: E_ALL</span>
+<span class="c">; Production Value: E_ALL &amp; ~E_DEPRECATED</span>
+<span class="c">; https://php.net/error-reporting</span>
+<span class="k">error_reporting</span> = E_ALL &amp; ~E_DEPRECATED
+
+<span class="c">; This directive controls whether or not and where PHP will output errors,</span>
+<span class="c">; notices and warnings too. Error output is very useful during development, but</span>
+<span class="c">; it could be very dangerous in production environments. Depending on the code</span>
+<span class="c">; which is triggering the error, sensitive information could potentially leak</span>
+<span class="c">; out of your application such as database usernames and passwords or worse.</span>
+<span class="c">; For production environments, we recommend logging errors rather than</span>
+<span class="c">; sending them to STDOUT.</span>
+<span class="c">; Possible Values:</span>
+<span class="c">;   Off = Do not display any errors</span>
+<span class="c">;   stderr = Display errors to STDERR (affects only CGI/CLI binaries!)</span>
+<span class="c">;   On or stdout = Display errors to STDOUT</span>
+<span class="c">; Default Value: On</span>
+<span class="c">; Development Value: On</span>
+<span class="c">; Production Value: Off</span>
+<span class="c">; https://php.net/display-errors</span>
+<span class="k">display_errors</span> = Off
+
+<span class="c">; The display of errors which occur during PHP's startup sequence are handled</span>
+<span class="c">; separately from display_errors. We strongly recommend you set this to 'off'</span>
+<span class="c">; for production servers to avoid leaking configuration details.</span>
+<span class="c">; Default Value: On</span>
+<span class="c">; Development Value: On</span>
+<span class="c">; Production Value: Off</span>
+<span class="c">; https://php.net/display-startup-errors</span>
+<span class="k">display_startup_errors</span> = Off
+
+<span class="c">; Besides displaying errors, PHP can also log errors to locations such as a</span>
+<span class="c">; server-specific log, STDERR, or a location specified by the error_log</span>
+<span class="c">; directive found below. While errors should not be displayed on productions</span>
+<span class="c">; servers they should still be monitored and logging is a great way to do that.</span>
+<span class="c">; Default Value: Off</span>
+<span class="c">; Development Value: On</span>
+<span class="c">; Production Value: On</span>
+<span class="c">; https://php.net/log-errors</span>
+<span class="k">log_errors</span> = On
+
+<span class="c">; Do not log repeated messages. Repeated errors must occur in same file on same</span>
+<span class="c">; line unless ignore_repeated_source is set true.</span>
+<span class="c">; https://php.net/ignore-repeated-errors</span>
+<span class="k">ignore_repeated_errors</span> = Off
+
+<span class="c">; Ignore source of message when ignoring repeated messages. When this setting</span>
+<span class="c">; is On you will not log errors with repeated messages from different files or</span>
+<span class="c">; source lines.</span>
+<span class="c">; https://php.net/ignore-repeated-source</span>
+<span class="k">ignore_repeated_source</span> = Off
+
+<span class="c">; If this parameter is set to Off, then memory leaks will not be shown (on</span>
+<span class="c">; stdout or in the log). This is only effective in a debug compile, and if</span>
+<span class="c">; error reporting includes E_WARNING in the allowed list</span>
+<span class="c">; https://php.net/report-memleaks</span>
+<span class="k">report_memleaks</span> = On
+
+<span class="c">; This setting is off by default.</span>
+<span class="c">;report_zend_debug = 0</span>
+
+<span class="c">; Turn off normal error reporting and emit XML-RPC error XML</span>
+<span class="c">; https://php.net/xmlrpc-errors</span>
+<span class="c">;xmlrpc_errors = 0</span>
+
+<span class="c">; An XML-RPC faultCode</span>
+<span class="c">;xmlrpc_error_number = 0</span>
+
+<span class="c">; When PHP displays or logs an error, it has the capability of formatting the</span>
+<span class="c">; error message as HTML for easier reading. This directive controls whether</span>
+<span class="c">; the error message is formatted as HTML or not.</span>
+<span class="c">; Note: This directive is hardcoded to Off for the CLI SAPI</span>
+<span class="c">; https://php.net/html-errors</span>
+<span class="c">;html_errors = On</span>
+
+<span class="c">; If html_errors is set to On *and* docref_root is not empty, then PHP</span>
+<span class="c">; produces clickable error messages that direct to a page describing the error</span>
+<span class="c">; or function causing the error in detail.</span>
+<span class="c">; You can download a copy of the PHP manual from https://php.net/docs</span>
+<span class="c">; and change docref_root to the base URL of your local copy including the</span>
+<span class="c">; leading '/'. You must also specify the file extension being used including</span>
+<span class="c">; the dot. PHP's default behavior is to leave these settings empty, in which</span>
+<span class="c">; case no links to documentation are generated.</span>
+<span class="c">; Note: Never use this feature for production boxes.</span>
+<span class="c">; https://php.net/docref-root</span>
+<span class="c">; Examples</span>
+<span class="c">;docref_root = "/phpmanual/"</span>
+
+<span class="c">; https://php.net/docref-ext</span>
+<span class="c">;docref_ext = .html</span>
+
+<span class="c">; String to output before an error message. PHP's default behavior is to leave</span>
+<span class="c">; this setting blank.</span>
+<span class="c">; https://php.net/error-prepend-string</span>
+<span class="c">; Example:</span>
+<span class="c">;error_prepend_string = "&lt;span style='color: #ff0000'&gt;"</span>
+
+<span class="c">; String to output after an error message. PHP's default behavior is to leave</span>
+<span class="c">; this setting blank.</span>
+<span class="c">; https://php.net/error-append-string</span>
+<span class="c">; Example:</span>
+<span class="c">;error_append_string = "&lt;/span&gt;"</span>
+
+<span class="c">; Log errors to specified file. PHP's default behavior is to leave this value</span>
+<span class="c">; empty.</span>
+<span class="c">; https://php.net/error-log</span>
+<span class="c">; Example:</span>
+<span class="c">;error_log = php_errors.log</span>
+<span class="c">; Log errors to syslog (Event Log on Windows).</span>
+<span class="c">;error_log = syslog</span>
+
+<span class="c">; The syslog ident is a string which is prepended to every message logged</span>
+<span class="c">; to syslog. Only used when error_log is set to syslog.</span>
+<span class="c">;syslog.ident = php</span>
+
+<span class="c">; The syslog facility is used to specify what type of program is logging</span>
+<span class="c">; the message. Only used when error_log is set to syslog.</span>
+<span class="c">;syslog.facility = user</span>
+
+<span class="c">; Set this to disable filtering control characters (the default).</span>
+<span class="c">; Some loggers only accept NVT-ASCII, others accept anything that's not</span>
+<span class="c">; control characters. If your logger accepts everything, then no filtering</span>
+<span class="c">; is needed at all.</span>
+<span class="c">; Allowed values are:</span>
+<span class="c">;   ascii (all printable ASCII characters and NL)</span>
+<span class="c">;   no-ctrl (all characters except control characters)</span>
+<span class="c">;   all (all characters)</span>
+<span class="c">;   raw (like "all", but messages are not split at newlines)</span>
+<span class="c">; https://php.net/syslog.filter</span>
+<span class="c">;syslog.filter = ascii</span>
+
+<span class="c">;windows.show_crt_warning</span>
+<span class="c">; Default value: 0</span>
+<span class="c">; Development value: 0</span>
+<span class="c">; Production value: 0</span>
+
+<span class="c">;;;;;;;;;;;;;;;;;</span>
+<span class="c">; Data Handling ;</span>
+<span class="c">;;;;;;;;;;;;;;;;;</span>
+
+<span class="c">; The separator used in PHP generated URLs to separate arguments.</span>
+<span class="c">; PHP's default setting is "&amp;".</span>
+<span class="c">; https://php.net/arg-separator.output</span>
+<span class="c">; Example:</span>
+<span class="c">;arg_separator.output = "&amp;amp;"</span>
+
+<span class="c">; List of separator(s) used by PHP to parse input URLs into variables.</span>
+<span class="c">; PHP's default setting is "&amp;".</span>
+<span class="c">; NOTE: Every character in this directive is considered as separator!</span>
+<span class="c">; https://php.net/arg-separator.input</span>
+<span class="c">; Example:</span>
+<span class="c">;arg_separator.input = ";&amp;"</span>
+
+<span class="c">; This directive determines which super global arrays are registered when PHP</span>
+<span class="c">; starts up. G,P,C,E &amp; S are abbreviations for the following respective super</span>
+<span class="c">; globals: GET, POST, COOKIE, ENV and SERVER. There is a performance penalty</span>
+<span class="c">; paid for the registration of these arrays and because ENV is not as commonly</span>
+<span class="c">; used as the others, ENV is not recommended on productions servers. You</span>
+<span class="c">; can still get access to the environment variables through getenv() should you</span>
+<span class="c">; need to.</span>
+<span class="c">; Default Value: "EGPCS"</span>
+<span class="c">; Development Value: "GPCS"</span>
+<span class="c">; Production Value: "GPCS";</span>
+<span class="c">; https://php.net/variables-order</span>
+<span class="k">variables_order</span> = <span class="s">"GPCS"</span>
+
+<span class="c">; This directive determines which super global data (G,P &amp; C) should be</span>
+<span class="c">; registered into the super global array REQUEST. If so, it also determines</span>
+<span class="c">; the order in which that data is registered. The values for this directive</span>
+<span class="c">; are specified in the same manner as the variables_order directive,</span>
+<span class="c">; EXCEPT one. Leaving this value empty will cause PHP to use the value set</span>
+<span class="c">; in the variables_order directive. It does not mean it will leave the super</span>
+<span class="c">; globals array REQUEST empty.</span>
+<span class="c">; Default Value: None</span>
+<span class="c">; Development Value: "GP"</span>
+<span class="c">; Production Value: "GP"</span>
+<span class="c">; https://php.net/request-order</span>
+<span class="k">request_order</span> = <span class="s">"GP"</span>
+
+<span class="c">; This directive determines whether PHP registers $argv &amp; $argc each time it</span>
+<span class="c">; runs. $argv contains an array of all the arguments passed to PHP when a script</span>
+<span class="c">; is invoked. $argc contains an integer representing the number of arguments</span>
+<span class="c">; that were passed when the script was invoked. These arrays are extremely</span>
+<span class="c">; useful when running scripts from the command line. When this directive is</span>
+<span class="c">; enabled, registering these variables consumes CPU cycles and memory each time</span>
+<span class="c">; a script is executed. For performance reasons, this feature should be disabled</span>
+<span class="c">; on production servers.</span>
+<span class="c">; Note: This directive is hardcoded to On for the CLI SAPI</span>
+<span class="c">; Default Value: On</span>
+<span class="c">; Development Value: Off</span>
+<span class="c">; Production Value: Off</span>
+<span class="c">; https://php.net/register-argc-argv</span>
+<span class="k">register_argc_argv</span> = Off
+
+<span class="c">; When enabled, the ENV, REQUEST and SERVER variables are created when they're</span>
+<span class="c">; first used (Just In Time) instead of when the script starts. If these</span>
+<span class="c">; variables are not used within a script, having this directive on will result</span>
+<span class="c">; in a performance gain. The PHP directive register_argc_argv must be disabled</span>
+<span class="c">; for this directive to have any effect.</span>
+<span class="c">; https://php.net/auto-globals-jit</span>
+<span class="k">auto_globals_jit</span> = On
+
+<span class="c">; Whether PHP will read the POST data.</span>
+<span class="c">; This option is enabled by default.</span>
+<span class="c">; Most likely, you won't want to disable this option globally. It causes $_POST</span>
+<span class="c">; and $_FILES to always be empty; the only way you will be able to read the</span>
+<span class="c">; POST data will be through the php://input stream wrapper. This can be useful</span>
+<span class="c">; to proxy requests or to process the POST data in a memory efficient fashion.</span>
+<span class="c">; https://php.net/enable-post-data-reading</span>
+<span class="c">;enable_post_data_reading = Off</span>
+
+<span class="c">; Maximum size of POST data that PHP will accept.</span>
+<span class="c">; Its value may be 0 to disable the limit. It is ignored if POST data reading</span>
+<span class="c">; is disabled through enable_post_data_reading.</span>
+<span class="c">; https://php.net/post-max-size</span>
+<span class="k">post_max_size</span> = 256M
+
+<span class="c">; Automatically add files before PHP document.</span>
+<span class="c">; https://php.net/auto-prepend-file</span>
+<span class="k">auto_prepend_file</span> =
+
+<span class="c">; Automatically add files after PHP document.</span>
+<span class="c">; https://php.net/auto-append-file</span>
+<span class="k">auto_append_file</span> =
+
+<span class="c">; By default, PHP will output a media type using the Content-Type header. To</span>
+<span class="c">; disable this, simply set it to be empty.</span>
+<span class="c">;</span>
+<span class="c">; PHP's built-in default media type is set to text/html.</span>
+<span class="c">; https://php.net/default-mimetype</span>
+<span class="k">default_mimetype</span> = <span class="s">"text/html"</span>
+
+<span class="c">; PHP's default character set is set to UTF-8.</span>
+<span class="c">; https://php.net/default-charset</span>
+<span class="k">default_charset</span> = <span class="s">"UTF-8"</span>
+
+<span class="c">; PHP internal character encoding is set to empty.</span>
+<span class="c">; If empty, default_charset is used.</span>
+<span class="c">; https://php.net/internal-encoding</span>
+<span class="c">;internal_encoding =</span>
+
+<span class="c">; PHP input character encoding is set to empty.</span>
+<span class="c">; If empty, default_charset is used.</span>
+<span class="c">; https://php.net/input-encoding</span>
+<span class="c">;input_encoding =</span>
+
+<span class="c">; PHP output character encoding is set to empty.</span>
+<span class="c">; If empty, default_charset is used.</span>
+<span class="c">; See also output_buffer.</span>
+<span class="c">; https://php.net/output-encoding</span>
+<span class="c">;output_encoding =</span>
+
+<span class="c">;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+<span class="c">; Paths and Directories ;</span>
+<span class="c">;;;;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span class="c">; UNIX: "/path1:/path2"</span>
+<span class="c">;include_path = ".:/php/includes"</span>
+<span class="c">;</span>
+<span class="c">; Windows: "\path1;\path2"</span>
+<span class="c">;include_path = ".;c:\php\includes"</span>
+<span class="c">;</span>
+<span class="c">; PHP's default setting for include_path is ".;/path/to/php/pear"</span>
+<span class="c">; https://php.net/include-path</span>
+
+<span class="c">; The root of the PHP pages, used only if nonempty.</span>
+<span class="c">; if PHP was not compiled with FORCE_REDIRECT, you SHOULD set doc_root</span>
+<span class="c">; if you are running php as a CGI under any web server (other than IIS)</span>
+<span class="c">; see documentation for security issues.  The alternate is to use the</span>
+<span class="c">; cgi.force_redirect configuration below</span>
+<span class="c">; https://php.net/doc-root</span>
+<span class="k">doc_root</span> =
+
+<span class="c">; The directory under which PHP opens the script using /~username used only</span>
+<span class="c">; if nonempty.</span>
+<span class="c">; https://php.net/user-dir</span>
+<span class="k">user_dir</span> =
+
+<span class="c">; Directory in which the loadable extensions (modules) reside.</span>
+<span class="c">; https://php.net/extension-dir</span>
+<span class="c">;extension_dir = "./"</span>
+<span class="c">; On windows:</span>
+<span class="c">;extension_dir = "ext"</span>
+
+<span class="c">; Directory where the temporary files should be placed.</span>
+<span class="c">; Defaults to the system default (see sys_get_temp_dir)</span>
+<span class="c">;sys_temp_dir = "/tmp"</span>
+
+<span class="c">; Whether or not to enable the dl() function.  The dl() function does NOT work</span>
+<span class="c">; properly in multithreaded servers, such as IIS or Zeus, and is automatically</span>
+<span class="c">; disabled on them.</span>
+<span class="c">; https://php.net/enable-dl</span>
+<span class="k">enable_dl</span> = Off
+
+<span class="c">; cgi.force_redirect is necessary to provide security running PHP as a CGI under</span>
+<span class="c">; most web servers.  Left undefined, PHP turns this on by default.  You can</span>
+<span class="c">; turn it off here AT YOUR OWN RISK</span>
+<span class="c">; **You CAN safely turn this off for IIS, in fact, you MUST.**</span>
+<span class="c">; https://php.net/cgi.force-redirect</span>
+<span class="c">;cgi.force_redirect = 1</span>
+
+<span class="c">; if cgi.nph is enabled it will force cgi to always sent Status: 200 with</span>
+<span class="c">; every request. PHP's default behavior is to disable this feature.</span>
+<span class="c">;cgi.nph = 1</span>
+
+<span class="c">; if cgi.force_redirect is turned on, and you are not running under Apache or Netscape</span>
+<span class="c">; (iPlanet) web servers, you MAY need to set an environment variable name that PHP</span>
+<span class="c">; will look for to know it is OK to continue execution.  Setting this variable MAY</span>
+<span class="c">; cause security issues, KNOW WHAT YOU ARE DOING FIRST.</span>
+<span class="c">; https://php.net/cgi.redirect-status-env</span>
+<span class="c">;cgi.redirect_status_env =</span>
+
+<span class="c">; cgi.fix_pathinfo provides *real* PATH_INFO/PATH_TRANSLATED support for CGI.  PHP's</span>
+<span class="c">; previous behaviour was to set PATH_TRANSLATED to SCRIPT_FILENAME, and to not grok</span>
+<span class="c">; what PATH_INFO is.  For more information on PATH_INFO, see the cgi specs.  Setting</span>
+<span class="c">; this to 1 will cause PHP CGI to fix its paths to conform to the spec.  A setting</span>
+<span class="c">; of zero causes PHP to behave as before.  Default is 1.  You should fix your scripts</span>
+<span class="c">; to use SCRIPT_FILENAME rather than PATH_TRANSLATED.</span>
+<span class="c">; https://php.net/cgi.fix-pathinfo</span>
+<span class="c">;cgi.fix_pathinfo=1</span>
+
+<span class="c">; if cgi.discard_path is enabled, the PHP CGI binary can safely be placed outside</span>
+<span class="c">; of the web tree and people will not be able to circumvent .htaccess security.</span>
+<span class="c">;cgi.discard_path=1</span>
+
+<span class="c">; FastCGI under IIS supports the ability to impersonate</span>
+<span class="c">; security tokens of the calling client.  This allows IIS to define the</span>
+<span class="c">; security context that the request runs under.  mod_fastcgi under Apache</span>
+<span class="c">; does not currently support this feature (03/17/2002)</span>
+<span class="c">; Set to 1 if running under IIS.  Default is zero.</span>
+<span class="c">; https://php.net/fastcgi.impersonate</span>
+<span class="c">;fastcgi.impersonate = 1</span>
+
+<span class="c">; Disable logging through FastCGI connection. PHP's default behavior is to enable</span>
+<span class="c">; this feature.</span>
+<span class="c">;fastcgi.logging = 0</span>
+
+<span class="c">; cgi.rfc2616_headers configuration option tells PHP what type of headers to</span>
+<span class="c">; use when sending HTTP response code. If set to 0, PHP sends Status: header that</span>
+<span class="c">; is supported by Apache. When this option is set to 1, PHP will send</span>
+<span class="c">; RFC2616 compliant header.</span>
+<span class="c">; Default is zero.</span>
+<span class="c">; https://php.net/cgi.rfc2616-headers</span>
+<span class="c">;cgi.rfc2616_headers = 0</span>
+
+<span class="c">; cgi.check_shebang_line controls whether CGI PHP checks for line starting with #!</span>
+<span class="c">; (shebang) at the top of the running script. This line might be needed if the</span>
+<span class="c">; script support running both as stand-alone script and via PHP CGI&lt;. PHP in CGI</span>
+<span class="c">; mode skips this line and ignores its content if this directive is turned on.</span>
+<span class="c">; https://php.net/cgi.check-shebang-line</span>
+<span class="c">;cgi.check_shebang_line=1</span>
+
+<span class="c">;;;;;;;;;;;;;;;;</span>
+<span class="c">; File Uploads ;</span>
+<span class="c">;;;;;;;;;;;;;;;;</span>
+
+<span class="c">; Whether to allow HTTP file uploads.</span>
+<span class="c">; https://php.net/file-uploads</span>
+<span class="k">file_uploads</span> = On
+
+<span class="c">; Temporary directory for HTTP uploaded files (will use system default if not</span>
+<span class="c">; specified).</span>
+<span class="c">; https://php.net/upload-tmp-dir</span>
+<span class="c">;upload_tmp_dir =</span>
+
+<span class="c">; Maximum allowed size for uploaded files.</span>
+<span class="c">; https://php.net/upload-max-filesize</span>
+<span class="k">upload_max_filesize</span> = 256M
+
+<span class="c">; Maximum number of files that can be uploaded via a single request</span>
+<span class="k">max_file_uploads</span> = 20
+
+<span class="c">;;;;;;;;;;;;;;;;;;</span>
+<span class="c">; Fopen wrappers ;</span>
+<span class="c">;;;;;;;;;;;;;;;;;;</span>
+
+<span class="c">; Whether to allow the treatment of URLs (like http:// or ftp://) as files.</span>
+<span class="c">; https://php.net/allow-url-fopen</span>
+<span class="k">allow_url_fopen</span> = On
+
+<span class="c">; Whether to allow include/require to open URLs (like https:// or ftp://) as files.</span>
+<span class="c">; https://php.net/allow-url-include</span>
+<span class="k">allow_url_include</span> = Off
+
+<span class="c">; Define the anonymous ftp password (your email address). PHP's default setting</span>
+<span class="c">; for this is empty.</span>
+<span class="c">; https://php.net/from</span>
+<span class="c">;from="john@doe.com"</span>
+
+<span class="c">; Define the User-Agent string. PHP's default setting for this is empty.</span>
+<span class="c">; https://php.net/user-agent</span>
+<span class="c">;user_agent="PHP"</span>
+
+<span class="c">; Default timeout for socket based streams (seconds)</span>
+<span class="c">; https://php.net/default-socket-timeout</span>
+<span class="k">default_socket_timeout</span> = 60
+
+<span class="c">; If your scripts have to deal with files from Macintosh systems,</span>
+<span class="c">; or you are running on a Mac and need to deal with files from</span>
+<span class="c">; unix or win32 systems, setting this flag will cause PHP to</span>
+<span class="c">; automatically detect the EOL character in those files so that</span>
+<span class="c">; fgets() and file() will work regardless of the source of the file.</span>
+<span class="c">; https://php.net/auto-detect-line-endings</span>
+<span class="c">;auto_detect_line_endings = Off</span>
+
+<span class="c">;;;;;;;;;;;;;;;;;;;;;;</span>
+<span class="c">; Dynamic Extensions ;</span>
+<span class="c">;;;;;;;;;;;;;;;;;;;;;;</span>
+
+<span class="c">; If you wish to have an extension loaded automatically, use the following</span>
+<span class="c">; syntax:</span>
+<span class="c">;</span>
+<span class="c">;   extension=modulename</span>
+<span class="c">;</span>
+<span class="c">; For example:</span>
+<span class="c">;</span>
+<span class="c">;   extension=mysqli</span>
+<span class="c">;</span>
+<span class="c">; When the extension library to load is not located in the default extension</span>
+<span class="c">; directory, You may specify an absolute path to the library file:</span>
+<span class="c">;</span>
+<span class="c">;   extension=/path/to/extension/mysqli.so</span>
+<span class="c">;</span>
+<span class="c">; Note : The syntax used in previous PHP versions ('extension=&lt;ext&gt;.so' and</span>
+<span class="c">; 'extension='php_&lt;ext&gt;.dll') is supported for legacy reasons and may be</span>
+<span class="c">; deprecated in a future PHP major version. So, when it is possible, please</span>
+<span class="c">; move to the new ('extension=&lt;ext&gt;) syntax.</span>
+<span class="c">;</span>
+<span class="c">; Notes for Windows environments :</span>
+<span class="c">;</span>
+<span class="c">; - Many DLL files are located in the ext/</span>
+<span class="c">;   extension folders as well as the separate PECL DLL download.</span>
+<span class="c">;   Be sure to appropriately set the extension_dir directive.</span>
+<span class="c">;</span>
+<span class="c">;extension=bz2</span>
+<span class="c">;extension=curl</span>
+<span class="c">;extension=ffi</span>
+<span class="c">;extension=ftp</span>
+<span class="c">;extension=fileinfo</span>
+<span class="c">;extension=gd</span>
+<span class="c">;extension=gettext</span>
+<span class="c">;extension=gmp</span>
+<span class="c">;extension=intl</span>
+<span class="c">;extension=ldap</span>
+<span class="c">;extension=mbstring</span>
+<span class="c">;extension=exif      ; Must be after mbstring as it depends on it</span>
+<span class="c">;extension=mysqli</span>
+<span class="c">;extension=odbc</span>
+<span class="c">;extension=openssl</span>
+<span class="c">;extension=pdo_firebird</span>
+<span class="c">;extension=pdo_mysql</span>
+<span class="c">;extension=pdo_odbc</span>
+<span class="c">;extension=pdo_pgsql</span>
+<span class="c">;extension=pdo_sqlite</span>
+<span class="c">;extension=pgsql</span>
+<span class="c">;extension=shmop</span>
+
+<span class="c">; The MIBS data available in the PHP distribution must be installed.</span>
+<span class="c">; See https://www.php.net/manual/en/snmp.installation.php</span>
+<span class="c">;extension=snmp</span>
+
+<span class="c">;extension=soap</span>
+<span class="c">;extension=sockets</span>
+<span class="c">;extension=sodium</span>
+<span class="c">;extension=sqlite3</span>
+<span class="c">;extension=tidy</span>
+<span class="c">;extension=xsl</span>
+<span class="c">;extension=zip</span>
+
+<span class="c">;zend_extension=opcache</span>
+
+<span class="c">;;;;;;;;;;;;;;;;;;;</span>
+<span class="c">; Module Settings ;</span>
+<span class="c">;;;;;;;;;;;;;;;;;;;</span>
+
+<span class="k">[CLI Server]</span>
+<span class="c">; Whether the CLI web server uses ANSI color coding in its terminal output.</span>
+<span class="k">cli_server.color</span> = On
+
+<span class="k">[Date]</span>
+<span class="c">; Defines the default timezone used by the date functions</span>
+<span class="c">; https://php.net/date.timezone</span>
+<span class="c">;date.timezone =</span>
+
+<span class="c">; https://php.net/date.default-latitude</span>
+<span class="c">;date.default_latitude = 31.7667</span>
+
+<span class="c">; https://php.net/date.default-longitude</span>
+<span class="c">;date.default_longitude = 35.2333</span>
+
+<span class="c">; https://php.net/date.sunrise-zenith</span>
+<span class="c">;date.sunrise_zenith = 90.833333</span>
+
+<span class="c">; https://php.net/date.sunset-zenith</span>
+<span class="c">;date.sunset_zenith = 90.833333</span>
+
+<span class="k">[filter]</span>
+<span class="c">; https://php.net/filter.default</span>
+<span class="c">;filter.default = unsafe_raw</span>
+
+<span class="c">; https://php.net/filter.default-flags</span>
+<span class="c">;filter.default_flags =</span>
+
+<span class="k">[iconv]</span>
+<span class="c">; Use of this INI entry is deprecated, use global input_encoding instead.</span>
+<span class="c">; If empty, default_charset or input_encoding or iconv.input_encoding is used.</span>
+<span class="c">; The precedence is: default_charset &lt; input_encoding &lt; iconv.input_encoding</span>
+<span class="c">;iconv.input_encoding =</span>
+
+<span class="c">; Use of this INI entry is deprecated, use global internal_encoding instead.</span>
+<span class="c">; If empty, default_charset or internal_encoding or iconv.internal_encoding is used.</span>
+<span class="c">; The precedence is: default_charset &lt; internal_encoding &lt; iconv.internal_encoding</span>
+<span class="c">;iconv.internal_encoding =</span>
+
+<span class="c">; Use of this INI entry is deprecated, use global output_encoding instead.</span>
+<span class="c">; If empty, default_charset or output_encoding or iconv.output_encoding is used.</span>
+<span class="c">; The precedence is: default_charset &lt; output_encoding &lt; iconv.output_encoding</span>
+<span class="c">; To use an output encoding conversion, iconv's output handler must be set</span>
+<span class="c">; otherwise output encoding conversion cannot be performed.</span>
+<span class="c">;iconv.output_encoding =</span>
+
+<span class="k">[intl]</span>
+<span class="c">;intl.default_locale =</span>
+<span class="c">; This directive allows you to produce PHP errors when some error</span>
+<span class="c">; happens within intl functions. The value is the level of the error produced.</span>
+<span class="c">; Default is 0, which does not produce any errors.</span>
+<span class="c">;intl.error_level = E_WARNING</span>
+<span class="c">;intl.use_exceptions = 0</span>
+
+<span class="k">[sqlite3]</span>
+<span class="c">; Directory pointing to SQLite3 extensions</span>
+<span class="c">; https://php.net/sqlite3.extension-dir</span>
+<span class="c">;sqlite3.extension_dir =</span>
+
+<span class="c">; SQLite defensive mode flag (only available from SQLite 3.26+)</span>
+<span class="c">; When the defensive flag is enabled, language features that allow ordinary</span>
+<span class="c">; SQL to deliberately corrupt the database file are disabled. This forbids</span>
+<span class="c">; writing directly to the schema, shadow tables (eg. FTS data tables), or</span>
+<span class="c">; the sqlite_dbpage virtual table.</span>
+<span class="c">; https://www.sqlite.org/c3ref/c_dbconfig_defensive.html</span>
+<span class="c">; (for older SQLite versions, this flag has no use)</span>
+<span class="c">;sqlite3.defensive = 1</span>
+
+<span class="k">[Pcre]</span>
+<span class="c">; PCRE library backtracking limit.</span>
+<span class="c">; https://php.net/pcre.backtrack-limit</span>
+<span class="c">;pcre.backtrack_limit=100000</span>
+
+<span class="c">; PCRE library recursion limit.</span>
+<span class="c">; Please note that if you set this value to a high number you may consume all</span>
+<span class="c">; the available process stack and eventually crash PHP (due to reaching the</span>
+<span class="c">; stack size limit imposed by the Operating System).</span>
+<span class="c">; https://php.net/pcre.recursion-limit</span>
+<span class="c">;pcre.recursion_limit=100000</span>
+
+<span class="c">; Enables or disables JIT compilation of patterns. This requires the PCRE</span>
+<span class="c">; library to be compiled with JIT support.</span>
+<span class="k">pcre.jit</span>=1
+
+<span class="k">[Pdo]</span>
+<span class="c">; Whether to pool ODBC connections. Can be one of "strict", "relaxed" or "off"</span>
+<span class="c">; https://php.net/pdo-odbc.connection-pooling</span>
+<span class="c">;pdo_odbc.connection_pooling=strict</span>
+
+<span class="k">[Pdo_mysql]</span>
+<span class="c">; Default socket name for local MySQL connects.  If empty, uses the built-in</span>
+<span class="c">; MySQL defaults.</span>
+<span class="k">pdo_mysql.default_socket</span> = /var/run/mysqld/mysqld.sock
+
+<span class="k">[Phar]</span>
+<span class="c">; https://php.net/phar.readonly</span>
+<span class="c">;phar.readonly = On</span>
+
+<span class="c">; https://php.net/phar.require-hash</span>
+<span class="c">;phar.require_hash = On</span>
+
+<span class="c">;phar.cache_list =</span>
+
+<span class="k">[mail function]</span>
+<span class="c">; For Win32 only.</span>
+<span class="c">; https://php.net/smtp</span>
+<span class="k">SMTP</span> = localhost
+<span class="c">; https://php.net/smtp-port</span>
+<span class="k">smtp_port</span> = 25
+
+<span class="c">; For Win32 only.</span>
+<span class="c">; https://php.net/sendmail-from</span>
+<span class="c">;sendmail_from = me@example.com</span>
+
+<span class="c">; For Unix only.  You may supply arguments as well (default: "sendmail -t -i").</span>
+<span class="c">; https://php.net/sendmail-path</span>
+<span class="c">;sendmail_path =</span>
+
+<span class="c">; Force the addition of the specified parameters to be passed as extra parameters</span>
+<span class="c">; to the sendmail binary. These parameters will always replace the value of</span>
+<span class="c">; the 5th parameter to mail().</span>
+<span class="c">;mail.force_extra_parameters =</span>
+
+<span class="c">; Add X-PHP-Originating-Script: that will include uid of the script followed by the filename</span>
+<span class="k">mail.add_x_header</span> = Off
+
+<span class="c">; Use mixed LF and CRLF line separators to keep compatibility with some</span>
+<span class="c">; RFC 2822 non conformant MTA.</span>
+<span class="k">mail.mixed_lf_and_crlf</span> = Off
+
+<span class="c">; The path to a log file that will log all mail() calls. Log entries include</span>
+<span class="c">; the full path of the script, line number, To address and headers.</span>
+<span class="c">;mail.log =</span>
+<span class="c">; Log mail to syslog (Event Log on Windows).</span>
+<span class="c">;mail.log = syslog</span>
+
+<span class="k">[ODBC]</span>
+<span class="c">; https://php.net/odbc.default-db</span>
+<span class="c">;odbc.default_db    =  Not yet implemented</span>
+
+<span class="c">; https://php.net/odbc.default-user</span>
+<span class="c">;odbc.default_user  =  Not yet implemented</span>
+
+<span class="c">; https://php.net/odbc.default-pw</span>
+<span class="c">;odbc.default_pw    =  Not yet implemented</span>
+
+<span class="c">; Controls the ODBC cursor model.</span>
+<span class="c">; Default: SQL_CURSOR_STATIC (default).</span>
+<span class="c">;odbc.default_cursortype</span>
+
+<span class="c">; Allow or prevent persistent links.</span>
+<span class="c">; https://php.net/odbc.allow-persistent</span>
+<span class="k">odbc.allow_persistent</span> = On
+
+<span class="c">; Check that a connection is still valid before reuse.</span>
+<span class="c">; https://php.net/odbc.check-persistent</span>
+<span class="k">odbc.check_persistent</span> = On
+
+<span class="c">; Maximum number of persistent links.  -1 means no limit.</span>
+<span class="c">; https://php.net/odbc.max-persistent</span>
+<span class="k">odbc.max_persistent</span> = -1
+
+<span class="c">; Maximum number of links (persistent + non-persistent).  -1 means no limit.</span>
+<span class="c">; https://php.net/odbc.max-links</span>
+<span class="k">odbc.max_links</span> = -1
+
+<span class="c">; Handling of LONG fields.  Returns number of bytes to variables.  0 means</span>
+<span class="c">; passthru.</span>
+<span class="c">; https://php.net/odbc.defaultlrl</span>
+<span class="k">odbc.defaultlrl</span> = 4096
+
+<span class="c">; Handling of binary data.  0 means passthru, 1 return as is, 2 convert to char.</span>
+<span class="c">; See the documentation on odbc_binmode and odbc_longreadlen for an explanation</span>
+<span class="c">; of odbc.defaultlrl and odbc.defaultbinmode</span>
+<span class="c">; https://php.net/odbc.defaultbinmode</span>
+<span class="k">odbc.defaultbinmode</span> = 1
+
+<span class="k">[MySQLi]</span>
+
+<span class="c">; Maximum number of persistent links.  -1 means no limit.</span>
+<span class="c">; https://php.net/mysqli.max-persistent</span>
+<span class="k">mysqli.max_persistent</span> = -1
+
+<span class="c">; Allow accessing, from PHP's perspective, local files with LOAD DATA statements</span>
+<span class="c">; https://php.net/mysqli.allow_local_infile</span>
+<span class="c">;mysqli.allow_local_infile = On</span>
+
+<span class="c">; It allows the user to specify a folder where files that can be sent via LOAD DATA</span>
+<span class="c">; LOCAL can exist. It is ignored if mysqli.allow_local_infile is enabled.</span>
+<span class="c">;mysqli.local_infile_directory =</span>
+
+<span class="c">; Allow or prevent persistent links.</span>
+<span class="c">; https://php.net/mysqli.allow-persistent</span>
+<span class="k">mysqli.allow_persistent</span> = On
+
+<span class="c">; Maximum number of links.  -1 means no limit.</span>
+<span class="c">; https://php.net/mysqli.max-links</span>
+<span class="k">mysqli.max_links</span> = -1
+
+<span class="c">; Default port number for mysqli_connect().  If unset, mysqli_connect() will use</span>
+<span class="c">; the $MYSQL_TCP_PORT or the mysql-tcp entry in /etc/services or the</span>
+<span class="c">; compile-time value defined MYSQL_PORT (in that order).  Win32 will only look</span>
+<span class="c">; at MYSQL_PORT.</span>
+<span class="c">; https://php.net/mysqli.default-port</span>
+<span class="k">mysqli.default_port</span> = 3306
+
+<span class="c">; Default socket name for local MySQL connects.  If empty, uses the built-in</span>
+<span class="c">; MySQL defaults.</span>
+<span class="c">; https://php.net/mysqli.default-socket</span>
+<span class="k">mysqli.default_socket</span> = /var/run/mysqld/mysqld.sock
+
+<span class="c">; Default host for mysqli_connect() (doesn't apply in safe mode).</span>
+<span class="c">; https://php.net/mysqli.default-host</span>
+<span class="k">mysqli.default_host</span> =
+
+<span class="c">; Default user for mysqli_connect() (doesn't apply in safe mode).</span>
+<span class="c">; https://php.net/mysqli.default-user</span>
+<span class="k">mysqli.default_user</span> =
+
+<span class="c">; Default password for mysqli_connect() (doesn't apply in safe mode).</span>
+<span class="c">; Note that this is generally a *bad* idea to store passwords in this file.</span>
+<span class="c">; *Any* user with PHP access can run 'echo get_cfg_var("mysqli.default_pw")</span>
+<span class="c">; and reveal this password!  And of course, any users with read access to this</span>
+<span class="c">; file will be able to reveal the password as well.</span>
+<span class="c">; https://php.net/mysqli.default-pw</span>
+<span class="k">mysqli.default_pw</span> =
+
+<span class="c">; If this option is enabled, closing a persistent connection will rollback</span>
+<span class="c">; any pending transactions of this connection, before it is put back</span>
+<span class="c">; into the persistent connection pool.</span>
+<span class="c">;mysqli.rollback_on_cached_plink = Off</span>
+
+<span class="k">[mysqlnd]</span>
+<span class="c">; Enable / Disable collection of general statistics by mysqlnd which can be</span>
+<span class="c">; used to tune and monitor MySQL operations.</span>
+<span class="k">mysqlnd.collect_statistics</span> = On
+
+<span class="c">; Enable / Disable collection of memory usage statistics by mysqlnd which can be</span>
+<span class="c">; used to tune and monitor MySQL operations.</span>
+<span class="k">mysqlnd.collect_memory_statistics</span> = Off
+
+<span class="c">; Records communication from all extensions using mysqlnd to the specified log</span>
+<span class="c">; file.</span>
+<span class="c">; https://php.net/mysqlnd.debug</span>
+<span class="c">;mysqlnd.debug =</span>
+
+<span class="c">; Defines which queries will be logged.</span>
+<span class="c">;mysqlnd.log_mask = 0</span>
+
+<span class="c">; Default size of the mysqlnd memory pool, which is used by result sets.</span>
+<span class="c">;mysqlnd.mempool_default_size = 16000</span>
+
+<span class="c">; Size of a pre-allocated buffer used when sending commands to MySQL in bytes.</span>
+<span class="c">;mysqlnd.net_cmd_buffer_size = 2048</span>
+
+<span class="c">; Size of a pre-allocated buffer used for reading data sent by the server in</span>
+<span class="c">; bytes.</span>
+<span class="c">;mysqlnd.net_read_buffer_size = 32768</span>
+
+<span class="c">; Timeout for network requests in seconds.</span>
+<span class="c">;mysqlnd.net_read_timeout = 31536000</span>
+
+<span class="c">; SHA-256 Authentication Plugin related. File with the MySQL server public RSA</span>
+<span class="c">; key.</span>
+<span class="c">;mysqlnd.sha256_server_public_key =</span>
+
+<span class="k">[PostgreSQL]</span>
+<span class="c">; Allow or prevent persistent links.</span>
+<span class="c">; https://php.net/pgsql.allow-persistent</span>
+<span class="k">pgsql.allow_persistent</span> = On
+
+<span class="c">; Detect broken persistent links always with pg_pconnect().</span>
+<span class="c">; Auto reset feature requires a little overheads.</span>
+<span class="c">; https://php.net/pgsql.auto-reset-persistent</span>
+<span class="k">pgsql.auto_reset_persistent</span> = Off
+
+<span class="c">; Maximum number of persistent links.  -1 means no limit.</span>
+<span class="c">; https://php.net/pgsql.max-persistent</span>
+<span class="k">pgsql.max_persistent</span> = -1
+
+<span class="c">; Maximum number of links (persistent+non persistent).  -1 means no limit.</span>
+<span class="c">; https://php.net/pgsql.max-links</span>
+<span class="k">pgsql.max_links</span> = -1
+
+<span class="c">; Ignore PostgreSQL backends Notice message or not.</span>
+<span class="c">; Notice message logging require a little overheads.</span>
+<span class="c">; https://php.net/pgsql.ignore-notice</span>
+<span class="k">pgsql.ignore_notice</span> = 0
+
+<span class="c">; Log PostgreSQL backends Notice message or not.</span>
+<span class="c">; Unless pgsql.ignore_notice=0, module cannot log notice message.</span>
+<span class="c">; https://php.net/pgsql.log-notice</span>
+<span class="k">pgsql.log_notice</span> = 0
+
+<span class="k">[bcmath]</span>
+<span class="c">; Number of decimal digits for all bcmath functions.</span>
+<span class="c">; https://php.net/bcmath.scale</span>
+<span class="k">bcmath.scale</span> = 0
+
+<span class="k">[browscap]</span>
+<span class="c">; https://php.net/browscap</span>
+<span class="c">;browscap = extra/browscap.ini</span>
+
+<span class="k">[Session]</span>
+<span class="c">; Handler used to store/retrieve data.</span>
+<span class="c">; https://php.net/session.save-handler</span>
+<span class="k">session.save_handler</span> = files
+
+<span class="c">; Argument passed to save_handler.  In the case of files, this is the path</span>
+<span class="c">; where data files are stored. Note: Windows users have to change this</span>
+<span class="c">; variable in order to use PHP's session functions.</span>
+<span class="c">;</span>
+<span class="c">; The path can be defined as:</span>
+<span class="c">;</span>
+<span class="c">;     session.save_path = "N;/path"</span>
+<span class="c">;</span>
+<span class="c">; where N is an integer.  Instead of storing all the session files in</span>
+<span class="c">; /path, what this will do is use subdirectories N-levels deep, and</span>
+<span class="c">; store the session data in those directories.  This is useful if</span>
+<span class="c">; your OS has problems with many files in one directory, and is</span>
+<span class="c">; a more efficient layout for servers that handle many sessions.</span>
+<span class="c">;</span>
+<span class="c">; NOTE 1: PHP will not create this directory structure automatically.</span>
+<span class="c">;         You can use the script in the ext/session dir for that purpose.</span>
+<span class="c">; NOTE 2: See the section on garbage collection below if you choose to</span>
+<span class="c">;         use subdirectories for session storage</span>
+<span class="c">;</span>
+<span class="c">; The file storage module creates files using mode 600 by default.</span>
+<span class="c">; You can change that by using</span>
+<span class="c">;</span>
+<span class="c">;     session.save_path = "N;MODE;/path"</span>
+<span class="c">;</span>
+<span class="c">; where MODE is the octal representation of the mode. Note that this</span>
+<span class="c">; does not overwrite the process's umask.</span>
+<span class="c">; https://php.net/session.save-path</span>
+<span class="c">;session.save_path = "/tmp"</span>
+
+<span class="c">; Whether to use strict session mode.</span>
+<span class="c">; Strict session mode does not accept an uninitialized session ID, and</span>
+<span class="c">; regenerates the session ID if the browser sends an uninitialized session ID.</span>
+<span class="c">; Strict mode protects applications from session fixation via a session adoption</span>
+<span class="c">; vulnerability. It is disabled by default for maximum compatibility, but</span>
+<span class="c">; enabling it is encouraged.</span>
+<span class="c">; https://wiki.php.net/rfc/strict_sessions</span>
+<span class="k">session.use_strict_mode</span> = 0
+
+<span class="c">; Whether to use cookies.</span>
+<span class="c">; https://php.net/session.use-cookies</span>
+<span class="k">session.use_cookies</span> = 1
+
+<span class="c">; https://php.net/session.cookie-secure</span>
+<span class="c">;session.cookie_secure =</span>
+
+<span class="c">; This option forces PHP to fetch and use a cookie for storing and maintaining</span>
+<span class="c">; the session id. We encourage this operation as it's very helpful in combating</span>
+<span class="c">; session hijacking when not specifying and managing your own session id. It is</span>
+<span class="c">; not the be-all and end-all of session hijacking defense, but it's a good start.</span>
+<span class="c">; https://php.net/session.use-only-cookies</span>
+<span class="k">session.use_only_cookies</span> = 1
+
+<span class="c">; Name of the session (used as cookie name).</span>
+<span class="c">; https://php.net/session.name</span>
+<span class="k">session.name</span> = PHPSESSID
+
+<span class="c">; Initialize session on request startup.</span>
+<span class="c">; https://php.net/session.auto-start</span>
+<span class="k">session.auto_start</span> = 0
+
+<span class="c">; Lifetime in seconds of cookie or, if 0, until browser is restarted.</span>
+<span class="c">; https://php.net/session.cookie-lifetime</span>
+<span class="k">session.cookie_lifetime</span> = 0
+
+<span class="c">; The path for which the cookie is valid.</span>
+<span class="c">; https://php.net/session.cookie-path</span>
+<span class="k">session.cookie_path</span> = /
+
+<span class="c">; The domain for which the cookie is valid.</span>
+<span class="c">; https://php.net/session.cookie-domain</span>
+<span class="k">session.cookie_domain</span> =
+
+<span class="c">; Whether or not to add the httpOnly flag to the cookie, which makes it</span>
+<span class="c">; inaccessible to browser scripting languages such as JavaScript.</span>
+<span class="c">; https://php.net/session.cookie-httponly</span>
+<span class="k">session.cookie_httponly</span> =
+
+<span class="c">; Add SameSite attribute to cookie to help mitigate Cross-Site Request Forgery (CSRF/XSRF)</span>
+<span class="c">; Current valid values are "Strict", "Lax" or "None". When using "None",</span>
+<span class="c">; make sure to include the quotes, as `none` is interpreted like `false` in ini files.</span>
+<span class="c">; https://tools.ietf.org/html/draft-west-first-party-cookies-07</span>
+<span class="k">session.cookie_samesite</span> =
+
+<span class="c">; Handler used to serialize data. php is the standard serializer of PHP.</span>
+<span class="c">; https://php.net/session.serialize-handler</span>
+<span class="k">session.serialize_handler</span> = php
+
+<span class="c">; Defines the probability that the 'garbage collection' process is started on every</span>
+<span class="c">; session initialization. The probability is calculated by using gc_probability/gc_divisor,</span>
+<span class="c">; e.g. 1/100 means there is a 1% chance that the GC process starts on each request.</span>
+<span class="c">; Default Value: 1</span>
+<span class="c">; Development Value: 1</span>
+<span class="c">; Production Value: 1</span>
+<span class="c">; https://php.net/session.gc-probability</span>
+<span class="k">session.gc_probability</span> = 1
+
+<span class="c">; Defines the probability that the 'garbage collection' process is started on every</span>
+<span class="c">; session initialization. The probability is calculated by using gc_probability/gc_divisor,</span>
+<span class="c">; e.g. 1/100 means there is a 1% chance that the GC process starts on each request.</span>
+<span class="c">; For high volume production servers, using a value of 1000 is a more efficient approach.</span>
+<span class="c">; Default Value: 100</span>
+<span class="c">; Development Value: 1000</span>
+<span class="c">; Production Value: 1000</span>
+<span class="c">; https://php.net/session.gc-divisor</span>
+<span class="k">session.gc_divisor</span> = 1000
+
+<span class="c">; After this number of seconds, stored data will be seen as 'garbage' and</span>
+<span class="c">; cleaned up by the garbage collection process.</span>
+<span class="c">; https://php.net/session.gc-maxlifetime</span>
+<span class="k">session.gc_maxlifetime</span> = 1440
+
+<span class="c">; NOTE: If you are using the subdirectory option for storing session files</span>
+<span class="c">;       (see session.save_path above), then garbage collection does *not*</span>
+<span class="c">;       happen automatically.  You will need to do your own garbage</span>
+<span class="c">;       collection through a shell script, cron entry, or some other method.</span>
+<span class="c">;       For example, the following script is the equivalent of setting</span>
+<span class="c">;       session.gc_maxlifetime to 1440 (1440 seconds = 24 minutes):</span>
+<span class="c">;          find /path/to/sessions -cmin +24 -type f | xargs rm</span>
+
+<span class="c">; Check HTTP Referer to invalidate externally stored URLs containing ids.</span>
+<span class="c">; HTTP_REFERER has to contain this substring for the session to be</span>
+<span class="c">; considered as valid.</span>
+<span class="c">; https://php.net/session.referer-check</span>
+<span class="k">session.referer_check</span> =
+
+<span class="c">; Set to {nocache,private,public,} to determine HTTP caching aspects</span>
+<span class="c">; or leave this empty to avoid sending anti-caching headers.</span>
+<span class="c">; https://php.net/session.cache-limiter</span>
+<span class="k">session.cache_limiter</span> = nocache
+
+<span class="c">; Document expires after n minutes.</span>
+<span class="c">; https://php.net/session.cache-expire</span>
+<span class="k">session.cache_expire</span> = 180
+
+<span class="c">; trans sid support is disabled by default.</span>
+<span class="c">; Use of trans sid may risk your users' security.</span>
+<span class="c">; Use this option with caution.</span>
+<span class="c">; - User may send URL contains active session ID</span>
+<span class="c">;   to other person via. email/irc/etc.</span>
+<span class="c">; - URL that contains active session ID may be stored</span>
+<span class="c">;   in publicly accessible computer.</span>
+<span class="c">; - User may access your site with the same session ID</span>
+<span class="c">;   always using URL stored in browser's history or bookmarks.</span>
+<span class="c">; https://php.net/session.use-trans-sid</span>
+<span class="k">session.use_trans_sid</span> = 0
+
+<span class="c">; The URL rewriter will look for URLs in a defined set of HTML tags.</span>
+<span class="c">; &lt;form&gt; is special; if you include them here, the rewriter will</span>
+<span class="c">; add a hidden &lt;input&gt; field with the info which is otherwise appended</span>
+<span class="c">; to URLs. &lt;form&gt; tag's action attribute URL will not be modified</span>
+<span class="c">; unless it is specified.</span>
+<span class="c">; Note that all valid entries require a "=", even if no value follows.</span>
+<span class="c">; Default Value: "a=href,area=href,frame=src,form="</span>
+<span class="c">; Development Value: "a=href,area=href,frame=src,form="</span>
+<span class="c">; Production Value: "a=href,area=href,frame=src,form="</span>
+<span class="c">; https://php.net/url-rewriter.tags</span>
+<span class="k">session.trans_sid_tags</span> = <span class="s">"a=href,area=href,frame=src,form="</span>
+
+<span class="c">; URL rewriter does not rewrite absolute URLs by default.</span>
+<span class="c">; To enable rewrites for absolute paths, target hosts must be specified</span>
+<span class="c">; at RUNTIME. i.e. use ini_set()</span>
+<span class="c">; &lt;form&gt; tags is special. PHP will check action attribute's URL regardless</span>
+<span class="c">; of session.trans_sid_tags setting.</span>
+<span class="c">; If no host is defined, HTTP_HOST will be used for allowed host.</span>
+<span class="c">; Example value: php.net,www.php.net,wiki.php.net</span>
+<span class="c">; Use "," for multiple hosts. No spaces are allowed.</span>
+<span class="c">; Default Value: ""</span>
+<span class="c">; Development Value: ""</span>
+<span class="c">; Production Value: ""</span>
+<span class="c">;session.trans_sid_hosts=""</span>
+
+<span class="c">; Enable upload progress tracking in $_SESSION</span>
+<span class="c">; Default Value: On</span>
+<span class="c">; Development Value: On</span>
+<span class="c">; Production Value: On</span>
+<span class="c">; https://php.net/session.upload-progress.enabled</span>
+<span class="c">;session.upload_progress.enabled = On</span>
+
+<span class="c">; Cleanup the progress information as soon as all POST data has been read</span>
+<span class="c">; (i.e. upload completed).</span>
+<span class="c">; Default Value: On</span>
+<span class="c">; Development Value: On</span>
+<span class="c">; Production Value: On</span>
+<span class="c">; https://php.net/session.upload-progress.cleanup</span>
+<span class="c">;session.upload_progress.cleanup = On</span>
+
+<span class="c">; A prefix used for the upload progress key in $_SESSION</span>
+<span class="c">; Default Value: "upload_progress_"</span>
+<span class="c">; Development Value: "upload_progress_"</span>
+<span class="c">; Production Value: "upload_progress_"</span>
+<span class="c">; https://php.net/session.upload-progress.prefix</span>
+<span class="c">;session.upload_progress.prefix = "upload_progress_"</span>
+
+<span class="c">; The index name (concatenated with the prefix) in $_SESSION</span>
+<span class="c">; containing the upload progress information</span>
+<span class="c">; Default Value: "PHP_SESSION_UPLOAD_PROGRESS"</span>
+<span class="c">; Development Value: "PHP_SESSION_UPLOAD_PROGRESS"</span>
+<span class="c">; Production Value: "PHP_SESSION_UPLOAD_PROGRESS"</span>
+<span class="c">; https://php.net/session.upload-progress.name</span>
+<span class="c">;session.upload_progress.name = "PHP_SESSION_UPLOAD_PROGRESS"</span>
+
+<span class="c">; How frequently the upload progress should be updated.</span>
+<span class="c">; Given either in percentages (per-file), or in bytes</span>
+<span class="c">; Default Value: "1%"</span>
+<span class="c">; Development Value: "1%"</span>
+<span class="c">; Production Value: "1%"</span>
+<span class="c">; https://php.net/session.upload-progress.freq</span>
+<span class="c">;session.upload_progress.freq =  "1%"</span>
+
+<span class="c">; The minimum delay between updates, in seconds</span>
+<span class="c">; Default Value: 1</span>
+<span class="c">; Development Value: 1</span>
+<span class="c">; Production Value: 1</span>
+<span class="c">; https://php.net/session.upload-progress.min-freq</span>
+<span class="c">;session.upload_progress.min_freq = "1"</span>
+
+<span class="c">; Only write session data when session data is changed. Enabled by default.</span>
+<span class="c">; https://php.net/session.lazy-write</span>
+<span class="c">;session.lazy_write = On</span>
+
+<span class="k">[Assertion]</span>
+<span class="c">; Switch whether to compile assertions at all (to have no overhead at run-time)</span>
+<span class="c">; -1: Do not compile at all</span>
+<span class="c">;  0: Jump over assertion at run-time</span>
+<span class="c">;  1: Execute assertions</span>
+<span class="c">; Changing from or to a negative value is only possible in php.ini!</span>
+<span class="c">; (For turning assertions on and off at run-time, toggle zend.assertions between the values 1 and 0)</span>
+<span class="c">; Default Value: 1</span>
+<span class="c">; Development Value: 1</span>
+<span class="c">; Production Value: -1</span>
+<span class="c">; https://php.net/zend.assertions</span>
+<span class="k">zend.assertions</span> = -1
+
+<span class="k">[COM]</span>
+<span class="c">; path to a file containing GUIDs, IIDs or filenames of files with TypeLibs</span>
+<span class="c">; https://php.net/com.typelib-file</span>
+<span class="c">;com.typelib_file =</span>
+
+<span class="c">; allow Distributed-COM calls</span>
+<span class="c">; https://php.net/com.allow-dcom</span>
+<span class="c">;com.allow_dcom = true</span>
+
+<span class="c">; autoregister constants of a component's typelib on com_load()</span>
+<span class="c">; https://php.net/com.autoregister-typelib</span>
+<span class="c">;com.autoregister_typelib = true</span>
+
+<span class="c">; register constants casesensitive</span>
+<span class="c">; https://php.net/com.autoregister-casesensitive</span>
+<span class="c">;com.autoregister_casesensitive = false</span>
+
+<span class="c">; show warnings on duplicate constant registrations</span>
+<span class="c">; https://php.net/com.autoregister-verbose</span>
+<span class="c">;com.autoregister_verbose = true</span>
+
+<span class="c">; The default character set code-page to use when passing strings to and from COM objects.</span>
+<span class="c">; Default: system ANSI code page</span>
+<span class="c">;com.code_page=</span>
+
+<span class="c">; The version of the .NET framework to use. The value of the setting are the first three parts</span>
+<span class="c">; of the framework's version number, separated by dots, and prefixed with "v", e.g. "v4.0.30319".</span>
+<span class="c">;com.dotnet_version=</span>
+
+<span class="k">[mbstring]</span>
+<span class="c">; language for internal character representation.</span>
+<span class="c">; This affects mb_send_mail() and mbstring.detect_order.</span>
+<span class="c">; https://php.net/mbstring.language</span>
+<span class="c">;mbstring.language = Japanese</span>
+
+<span class="c">; Use of this INI entry is deprecated, use global internal_encoding instead.</span>
+<span class="c">; internal/script encoding.</span>
+<span class="c">; Some encoding cannot work as internal encoding. (e.g. SJIS, BIG5, ISO-2022-*)</span>
+<span class="c">; If empty, default_charset or internal_encoding or iconv.internal_encoding is used.</span>
+<span class="c">; The precedence is: default_charset &lt; internal_encoding &lt; iconv.internal_encoding</span>
+<span class="c">;mbstring.internal_encoding =</span>
+
+<span class="c">; Use of this INI entry is deprecated, use global input_encoding instead.</span>
+<span class="c">; http input encoding.</span>
+<span class="c">; mbstring.encoding_translation = On is needed to use this setting.</span>
+<span class="c">; If empty, default_charset or input_encoding or mbstring.input is used.</span>
+<span class="c">; The precedence is: default_charset &lt; input_encoding &lt; mbstring.http_input</span>
+<span class="c">; https://php.net/mbstring.http-input</span>
+<span class="c">;mbstring.http_input =</span>
+
+<span class="c">; Use of this INI entry is deprecated, use global output_encoding instead.</span>
+<span class="c">; http output encoding.</span>
+<span class="c">; mb_output_handler must be registered as output buffer to function.</span>
+<span class="c">; If empty, default_charset or output_encoding or mbstring.http_output is used.</span>
+<span class="c">; The precedence is: default_charset &lt; output_encoding &lt; mbstring.http_output</span>
+<span class="c">; To use an output encoding conversion, mbstring's output handler must be set</span>
+<span class="c">; otherwise output encoding conversion cannot be performed.</span>
+<span class="c">; https://php.net/mbstring.http-output</span>
+<span class="c">;mbstring.http_output =</span>
+
+<span class="c">; enable automatic encoding translation according to</span>
+<span class="c">; mbstring.internal_encoding setting. Input chars are</span>
+<span class="c">; converted to internal encoding by setting this to On.</span>
+<span class="c">; Note: Do _not_ use automatic encoding translation for</span>
+<span class="c">;       portable libs/applications.</span>
+<span class="c">; https://php.net/mbstring.encoding-translation</span>
+<span class="c">;mbstring.encoding_translation = Off</span>
+
+<span class="c">; automatic encoding detection order.</span>
+<span class="c">; "auto" detect order is changed according to mbstring.language</span>
+<span class="c">; https://php.net/mbstring.detect-order</span>
+<span class="c">;mbstring.detect_order = auto</span>
+
+<span class="c">; substitute_character used when character cannot be converted</span>
+<span class="c">; one from another</span>
+<span class="c">; https://php.net/mbstring.substitute-character</span>
+<span class="c">;mbstring.substitute_character = none</span>
+
+<span class="c">; Enable strict encoding detection.</span>
+<span class="c">;mbstring.strict_detection = Off</span>
+
+<span class="c">; This directive specifies the regex pattern of content types for which mb_output_handler()</span>
+<span class="c">; is activated.</span>
+<span class="c">; Default: mbstring.http_output_conv_mimetypes=^(text/|application/xhtml\+xml)</span>
+<span class="c">;mbstring.http_output_conv_mimetypes=</span>
+
+<span class="c">; This directive specifies maximum stack depth for mbstring regular expressions. It is similar</span>
+<span class="c">; to the pcre.recursion_limit for PCRE.</span>
+<span class="c">;mbstring.regex_stack_limit=100000</span>
+
+<span class="c">; This directive specifies maximum retry count for mbstring regular expressions. It is similar</span>
+<span class="c">; to the pcre.backtrack_limit for PCRE.</span>
+<span class="c">;mbstring.regex_retry_limit=1000000</span>
+
+<span class="k">[gd]</span>
+<span class="c">; Tell the jpeg decode to ignore warnings and try to create</span>
+<span class="c">; a gd image. The warning will then be displayed as notices</span>
+<span class="c">; disabled by default</span>
+<span class="c">; https://php.net/gd.jpeg-ignore-warning</span>
+<span class="c">;gd.jpeg_ignore_warning = 1</span>
+
+<span class="k">[exif]</span>
+<span class="c">; Exif UNICODE user comments are handled as UCS-2BE/UCS-2LE and JIS as JIS.</span>
+<span class="c">; With mbstring support this will automatically be converted into the encoding</span>
+<span class="c">; given by corresponding encode setting. When empty mbstring.internal_encoding</span>
+<span class="c">; is used. For the decode settings you can distinguish between motorola and</span>
+<span class="c">; intel byte order. A decode setting must not be empty.</span>
+<span class="c">; https://php.net/exif.encode-unicode</span>
+<span class="c">;exif.encode_unicode = ISO-8859-15</span>
+
+<span class="c">; https://php.net/exif.decode-unicode-motorola</span>
+<span class="c">;exif.decode_unicode_motorola = UCS-2BE</span>
+
+<span class="c">; https://php.net/exif.decode-unicode-intel</span>
+<span class="c">;exif.decode_unicode_intel    = UCS-2LE</span>
+
+<span class="c">; https://php.net/exif.encode-jis</span>
+<span class="c">;exif.encode_jis =</span>
+
+<span class="c">; https://php.net/exif.decode-jis-motorola</span>
+<span class="c">;exif.decode_jis_motorola = JIS</span>
+
+<span class="c">; https://php.net/exif.decode-jis-intel</span>
+<span class="c">;exif.decode_jis_intel    = JIS</span>
+
+<span class="k">[Tidy]</span>
+<span class="c">; The path to a default tidy configuration file to use when using tidy</span>
+<span class="c">; https://php.net/tidy.default-config</span>
+<span class="c">;tidy.default_config = /usr/local/lib/php/default.tcfg</span>
+
+<span class="c">; Should tidy clean and repair output automatically?</span>
+<span class="c">; WARNING: Do not use this option if you are generating non-html content</span>
+<span class="c">; such as dynamic images</span>
+<span class="c">; https://php.net/tidy.clean-output</span>
+<span class="k">tidy.clean_output</span> = Off
+
+<span class="k">[soap]</span>
+<span class="c">; Enables or disables WSDL caching feature.</span>
+<span class="c">; https://php.net/soap.wsdl-cache-enabled</span>
+<span class="k">soap.wsdl_cache_enabled</span>=1
+
+<span class="c">; Sets the directory name where SOAP extension will put cache files.</span>
+<span class="c">; https://php.net/soap.wsdl-cache-dir</span>
+<span class="k">soap.wsdl_cache_dir</span>=<span class="s">"/tmp"</span>
+
+<span class="c">; (time to live) Sets the number of second while cached file will be used</span>
+<span class="c">; instead of original one.</span>
+<span class="c">; https://php.net/soap.wsdl-cache-ttl</span>
+<span class="k">soap.wsdl_cache_ttl</span>=86400
+
+<span class="c">; Sets the size of the cache limit. (Max. number of WSDL files to cache)</span>
+<span class="k">soap.wsdl_cache_limit</span> = 5
+
+<span class="k">[sysvshm]</span>
+<span class="c">; A default size of the shared memory segment</span>
+<span class="c">;sysvshm.init_mem = 10000</span>
+
+<span class="k">[ldap]</span>
+<span class="c">; Sets the maximum number of open links or -1 for unlimited.</span>
+<span class="k">ldap.max_links</span> = -1
+
+<span class="k">[dba]</span>
+<span class="c">;dba.default_handler=</span>
+
+<span class="k">[opcache]</span>
+<span class="c">; Determines if Zend OPCache is enabled</span>
+<span class="k">opcache.enable</span>=1
+
+<span class="c">; JIT (tracing) enabled for CPU-heavy workloads; requires opcache.enable=1</span>
+<span class="k">opcache.jit_buffer_size</span>=100M
+<span class="k">opcache.jit</span>=tracing
+
+<span class="c">; Determines if Zend OPCache is enabled for the CLI version of PHP</span>
+<span class="c">;opcache.enable_cli=0</span>
+
+<span class="c">; The OPcache shared memory storage size.</span>
+<span class="k">opcache.memory_consumption</span>=256
+
+<span class="c">; The amount of memory for interned strings in Mbytes.</span>
+<span class="k">opcache.interned_strings_buffer</span>=16
+
+<span class="c">; The maximum number of keys (scripts) in the OPcache hash table.</span>
+<span class="c">; Only numbers between 200 and 1000000 are allowed.</span>
+<span class="k">opcache.max_accelerated_files</span>=20000
+
+<span class="c">; The maximum percentage of "wasted" memory until a restart is scheduled.</span>
+<span class="k">opcache.max_wasted_percentage</span>=10
+
+<span class="c">; When this directive is enabled, the OPcache appends the current working</span>
+<span class="c">; directory to the script key, thus eliminating possible collisions between</span>
+<span class="c">; files with the same name (basename). Disabling the directive improves</span>
+<span class="c">; performance, but may break existing applications.</span>
+<span class="c">;opcache.use_cwd=1</span>
+
+<span class="c">; When disabled, you must reset the OPcache manually or restart the</span>
+<span class="c">; webserver for changes to the filesystem to take effect.</span>
+<span class="k">opcache.validate_timestamps</span>=1
+
+<span class="c">; How often (in seconds) to check file timestamps for changes to the shared</span>
+<span class="c">; memory storage allocation. ("1" means validate once per second, but only</span>
+<span class="c">; once per request. "0" means always validate)</span>
+<span class="k">opcache.revalidate_freq</span>=60
+
+<span class="c">; Enables or disables file search in include_path optimization</span>
+<span class="c">;opcache.revalidate_path=0</span>
+
+<span class="c">; If disabled, all PHPDoc comments are dropped from the code to reduce the</span>
+<span class="c">; size of the optimized code.</span>
+<span class="k">opcache.save_comments</span>=1
+
+<span class="c">; If enabled, compilation warnings (including notices and deprecations) will</span>
+<span class="c">; be recorded and replayed each time a file is included. Otherwise, compilation</span>
+<span class="c">; warnings will only be emitted when the file is first cached.</span>
+<span class="c">;opcache.record_warnings=0</span>
+
+<span class="c">; Allow file existence override (file_exists, etc.) performance feature.</span>
+<span class="c">;opcache.enable_file_override=0</span>
+
+<span class="c">; A bitmask, where each bit enables or disables the appropriate OPcache</span>
+<span class="c">; passes</span>
+<span class="c">;opcache.optimization_level=0x7FFFBFFF</span>
+
+<span class="c">;opcache.dups_fix=0</span>
+
+<span class="c">; The location of the OPcache blacklist file (wildcards allowed).</span>
+<span class="c">; Each OPcache blacklist file is a text file that holds the names of files</span>
+<span class="c">; that should not be accelerated. The file format is to add each filename</span>
+<span class="c">; to a new line. The filename may be a full path or just a file prefix</span>
+<span class="c">; (i.e., /var/www/x  blacklists all the files and directories in /var/www</span>
+<span class="c">; that start with 'x'). Line starting with a ; are ignored (comments).</span>
+<span class="c">;opcache.blacklist_filename=</span>
+
+<span class="c">; Allows exclusion of large files from being cached. By default all files</span>
+<span class="c">; are cached.</span>
+<span class="c">;opcache.max_file_size=0</span>
+
+<span class="c">; How long to wait (in seconds) for a scheduled restart to begin if the cache</span>
+<span class="c">; is not being accessed.</span>
+<span class="c">;opcache.force_restart_timeout=180</span>
+
+<span class="c">; OPcache error_log file name. Empty string assumes "stderr".</span>
+<span class="c">;opcache.error_log=</span>
+
+<span class="c">; All OPcache errors go to the Web server log.</span>
+<span class="c">; By default, only fatal errors (level 0) or errors (level 1) are logged.</span>
+<span class="c">; You can also enable warnings (level 2), info messages (level 3) or</span>
+<span class="c">; debug messages (level 4).</span>
+<span class="c">;opcache.log_verbosity_level=1</span>
+
+<span class="c">; Preferred Shared Memory back-end. Leave empty and let the system decide.</span>
+<span class="c">;opcache.preferred_memory_model=</span>
+
+<span class="c">; Protect the shared memory from unexpected writing during script execution.</span>
+<span class="c">; Useful for internal debugging only.</span>
+<span class="c">;opcache.protect_memory=0</span>
+
+<span class="c">; Allows calling OPcache API functions only from PHP scripts which path is</span>
+<span class="c">; started from specified string. The default "" means no restriction</span>
+<span class="c">;opcache.restrict_api=</span>
+
+<span class="c">; Mapping base of shared memory segments (for Windows only). All the PHP</span>
+<span class="c">; processes have to map shared memory into the same address space. This</span>
+<span class="c">; directive allows to manually fix the "Unable to reattach to base address"</span>
+<span class="c">; errors.</span>
+<span class="c">;opcache.mmap_base=</span>
+
+<span class="c">; Facilitates multiple OPcache instances per user (for Windows only). All PHP</span>
+<span class="c">; processes with the same cache ID and user share an OPcache instance.</span>
+<span class="c">;opcache.cache_id=</span>
+
+<span class="c">; Enables and sets the second level cache directory.</span>
+<span class="c">; It should improve performance when SHM memory is full, at server restart or</span>
+<span class="c">; SHM reset. The default "" disables file based caching.</span>
+<span class="c">;opcache.file_cache=</span>
+
+<span class="c">; Enables or disables opcode caching in shared memory.</span>
+<span class="c">;opcache.file_cache_only=0</span>
+
+<span class="c">; Enables or disables checksum validation when script loaded from file cache.</span>
+<span class="c">;opcache.file_cache_consistency_checks=1</span>
+
+<span class="c">; Implies opcache.file_cache_only=1 for a certain process that failed to</span>
+<span class="c">; reattach to the shared memory (for Windows only). Explicitly enabled file</span>
+<span class="c">; cache is required.</span>
+<span class="c">;opcache.file_cache_fallback=1</span>
+
+<span class="c">; Enables or disables copying of PHP code (text segment) into HUGE PAGES.</span>
+<span class="c">; Under certain circumstances (if only a single global PHP process is</span>
+<span class="c">; started from which all others fork), this can increase performance</span>
+<span class="c">; by a tiny amount because TLB misses are reduced.  On the other hand, this</span>
+<span class="c">; delays PHP startup, increases memory usage and degrades performance</span>
+<span class="c">; under memory pressure - use with care.</span>
+<span class="c">; Requires appropriate OS configuration.</span>
+<span class="c">;opcache.huge_code_pages=0</span>
+
+<span class="c">; Validate cached file permissions.</span>
+<span class="c">;opcache.validate_permission=0</span>
+
+<span class="c">; Prevent name collisions in chroot'ed environment.</span>
+<span class="c">;opcache.validate_root=0</span>
+
+<span class="c">; If specified, it produces opcode dumps for debugging different stages of</span>
+<span class="c">; optimizations.</span>
+<span class="c">;opcache.opt_debug_level=0</span>
+
+<span class="c">; Specifies a PHP script that is going to be compiled and executed at server</span>
+<span class="c">; start-up.</span>
+<span class="c">; https://php.net/opcache.preload</span>
+<span class="c">;opcache.preload=</span>
+
+<span class="c">; Preloading code as root is not allowed for security reasons. This directive</span>
+<span class="c">; facilitates to let the preloading to be run as another user.</span>
+<span class="c">; https://php.net/opcache.preload_user</span>
+<span class="c">;opcache.preload_user=</span>
+
+<span class="c">; Prevents caching files that are less than this number of seconds old. It</span>
+<span class="c">; protects from caching of incompletely updated files. In case all file updates</span>
+<span class="c">; on your site are atomic, you may increase performance by setting it to "0".</span>
+<span class="c">;opcache.file_update_protection=2</span>
+
+<span class="c">; Absolute path used to store shared lockfiles (for *nix only).</span>
+<span class="c">;opcache.lockfile_path=/tmp</span>
+
+<span class="k">[curl]</span>
+<span class="c">; A default value for the CURLOPT_CAINFO option. This is required to be an</span>
+<span class="c">; absolute path.</span>
+<span class="c">;curl.cainfo =</span>
+
+<span class="k">[openssl]</span>
+<span class="c">; The location of a Certificate Authority (CA) file on the local filesystem</span>
+<span class="c">; to use when verifying the identity of SSL/TLS peers. Most users should</span>
+<span class="c">; not specify a value for this directive as PHP will attempt to use the</span>
+<span class="c">; OS-managed cert stores in its absence. If specified, this value may still</span>
+<span class="c">; be overridden on a per-stream basis via the "cafile" SSL stream context</span>
+<span class="c">; option.</span>
+<span class="c">;openssl.cafile=</span>
+
+<span class="c">; If openssl.cafile is not specified or if the CA file is not found, the</span>
+<span class="c">; directory pointed to by openssl.capath is searched for a suitable</span>
+<span class="c">; certificate. This value must be a correctly hashed certificate directory.</span>
+<span class="c">; Most users should not specify a value for this directive as PHP will</span>
+<span class="c">; attempt to use the OS-managed cert stores in its absence. If specified,</span>
+<span class="c">; this value may still be overridden on a per-stream basis via the "capath"</span>
+<span class="c">; SSL stream context option.</span>
+<span class="c">;openssl.capath=</span>
+
+<span class="k">[ffi]</span>
+<span class="c">; FFI API restriction. Possible values:</span>
+<span class="c">; "preload" - enabled in CLI scripts and preloaded files (default)</span>
+<span class="c">; "false"   - always disabled</span>
+<span class="c">; "true"    - always enabled</span>
+<span class="c">;ffi.enable=preload</span>
+
+<span class="c">; List of headers files to preload, wildcard patterns allowed.</span>
+<span class="c">;ffi.preload=</span></pre></div>
+        <div class="op-editor-bar"><span>INI · UTF-8 · 1,854 lines</span><span>PHP-FPM 8.5 restarts when you save</span></div>
+      </section>
+    </main>
+  </div>
+</div>
+</body>
+</html>

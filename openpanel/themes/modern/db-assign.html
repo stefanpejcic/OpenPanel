@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Assign User to Database - OpenPanel Modern</title>
+<script>(function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('color-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark');})();</script>
+<link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="dist/app.css">
+<style>[x-cloak]{display:none!important}</style>
+<script src="shell.js"></script>
+<link rel="stylesheet" href="db-create.css">
+<script>window.DBP_DEFAULT = "mysql";</script>
+<script src="db-create.js"></script>
+<script>
+// mirrors the panel's assign pages: MySQL picks privileges, PostgreSQL grants a fixed set, MongoDB picks a role
+function opAssign() {
+  const E = DBP.engine;
+  const q = new URLSearchParams(location.search);
+  const all = DBP.privGroups.flatMap((g) => g.privs);
+  return {
+    E, all, user: q.get('db_user') || '', db: q.get('database_name') || '', privs: ['ALL PRIVILEGES'], role: 'readWrite', busy: false, toast: '',
+    assigned: E.assigned.map((a) => ({ ...a })),
+    current() {
+      if (!this.user || !this.db) return null;
+      const row = this.assigned.find((a) => a.database === this.db);
+      return row && row.users.split(',').map((s) => s.trim()).includes(this.user) ? 'ALL PRIVILEGES' : '';
+    },
+    isAll() { return this.privs.includes('ALL PRIVILEGES'); },
+    has(p) { return this.isAll() || this.privs.includes(p); },
+    toggleAll(on) { this.privs = on ? ['ALL PRIVILEGES'] : []; },
+    toggle(p, on) {
+      let list = this.isAll() ? all.slice() : this.privs.slice();
+      list = on ? [...new Set([...list, p])] : list.filter((x) => x !== p);
+      this.privs = list.length === all.length ? ['ALL PRIVILEGES'] : list;
+    },
+    privSQL() { return this.isAll() ? 'ALL PRIVILEGES' : all.filter((p) => this.privs.includes(p)).join(', '); },
+    preview() { const d = this.db || '[database]', u = this.user || '[user]'; return E.id === 'mysql' ? E.grant(d, u, this.privSQL() || '[privileges]') : E.id === 'mongodb' ? E.grant(d, u, this.role) : E.grant(d, u); },
+    step3() { return E.id !== 'mysql' || this.privs.length > 0; },
+    ready() { return this.user && this.db && this.step3(); },
+    pick(u, d) { this.user = u; this.db = d; this.privs = ['ALL PRIVILEGES']; },
+    save() {
+      if (!this.ready()) return;
+      this.busy = true;
+      setTimeout(() => {
+        this.busy = false;
+        const row = this.assigned.find((a) => a.database === this.db);
+        if (!row) this.assigned.push({ database: this.db, users: this.user });
+        else if (!row.users.split(', ').includes(this.user)) row.users += ', ' + this.user;
+        this.toast = E.id === 'mysql' ? "Privileges granted for user '" + this.user + "' on database '" + this.db + "'." : 'Assigned ' + this.user + ' to ' + this.db + '.';
+        setTimeout(() => this.toast = '', 3000);
+      }, 600);
+    },
+    copy(text, what) { navigator.clipboard && navigator.clipboard.writeText(text); this.toast = 'Copied ' + what + '.'; setTimeout(() => this.toast = '', 2000); },
+  };
+}
+</script>
+<script defer src="vendor/alpine.min.js"></script>
+</head>
+<body>
+<div class="op-app" x-data="{ nav: false }" :data-nav-open="nav || null" @keydown.escape.window="nav = false">
+  <aside class="op-sidebar" aria-label="Sidebar" x-data="{ navq: '', userMenu: false, menuStyle: 'classic' }" x-effect="opFilterNav($el, navq)" @keydown.window="if ($event.key === '/' && !$event.ctrlKey && !$event.target.closest('input, textarea, select')) { $event.preventDefault(); nav = true; $refs.navq.focus() }" @focus-nav-search.window="nav = true; $nextTick(() => $refs.navq.focus())">
+    <a class="op-brand" href="index.html"><svg viewBox="0 0 213 215" aria-hidden="true"><g transform="translate(0,215) scale(0.1,-0.1)" fill="currentColor"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"/></g></svg> OpenPanel</a>
+    <label class="op-sidesearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg><input type="search" x-ref="navq" x-model="navq" placeholder="Search menu" aria-label="Search the menu" autocomplete="off" @keydown.escape="navq = ''; $el.blur()" @keydown.enter.prevent="opFirstNavHit($el.closest('aside'))"><kbd x-show="!navq">/</kbd></label>
+    <div class="op-sidebar-scroll">
+    <nav class="op-nav" aria-label="Main"><a class="op-nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1"/><path d="M5 16h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1"/><path d="M15 12h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1"/><path d="M15 4h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1"/></svg> Dashboard</a><a class="op-nav-item" href="websites.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 6h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"></path><path d="M17 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path></svg> Websites</a><a class="op-nav-item" href="domains.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19.5 7a9 9 0 0 0 -7.5 -4a8.991 8.991 0 0 0 -7.484 4"></path><path d="M11.5 3a16.989 16.989 0 0 0 -1.826 4"></path><path d="M12.5 3a16.989 16.989 0 0 1 1.828 4"></path><path d="M19.5 17a9 9 0 0 1 -7.5 4a8.991 8.991 0 0 1 -7.484 -4"></path><path d="M11.5 21a16.989 16.989 0 0 1 -1.826 -4"></path><path d="M12.5 21a16.989 16.989 0 0 0 1.828 -4"></path><path d="M2 10l1 4l1.5 -4l1.5 4l1 -4"></path><path d="M17 10l1 4l1.5 -4l1.5 4l1 -4"></path><path d="M9.5 10l1 4l1.5 -4l1.5 4l1 -4"></path></svg> Domains</a><a class="op-nav-item" href="email.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"></path><path d="M3 7l9 6l9 -6"></path></svg> Email</a><a class="op-nav-item" href="files.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"/></svg> Files</a><a class="op-nav-item" href="backups.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/><path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10"/><path d="M10 12l4 0"/></svg> Backups</a></nav>
+    <nav class="op-nav" aria-label="Databases"><div class="op-nav-label">Databases</div><a class="op-nav-item" href="mysql.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"/><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"/><path d="M7 8l0 .01"/><path d="M7 16l0 .01"/><path d="M11 8h6"/><path d="M11 16h6"/></svg> MySQL</a><a class="op-nav-item" href="postgresql.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6a8 3 0 1 0 16 0a8 3 0 1 0 -16 0"/><path d="M4 6v6a8 3 0 0 0 16 0v-6"/><path d="M4 12v6a8 3 0 0 0 16 0v-6"/></svg> PostgreSQL</a></nav>
+    <nav class="op-nav" aria-label="Configure"><div class="op-nav-label">Configure</div><a class="op-nav-item" href="php.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M2 12a10 9 0 1 0 20 0a10 9 0 1 0 -20 0"></path><path d="M5.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M15.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M12 7.5l-1 5.5"></path><path d="M11.6 10h2.4l-.5 3"></path></svg> PHP</a><a class="op-nav-item" href="cron.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 7v5l3 3"/></svg> Cron Jobs</a><a class="op-nav-item" href="cache.html"><svg aria-hidden="true" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="currentColor" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5.636 19.364a9 9 0 1 1 12.728 0" /><path d="M16 9l-4 4" /></svg> Cache & Search</a><a class="op-nav-item" href="webserver.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 6l8 0"/><path d="M16 6l4 0"/><path d="M8 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 12l2 0"/><path d="M10 12l10 0"/><path d="M17 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 18l11 0"/><path d="M19 18l1 0"/></svg> Web Server Config</a><a class="op-nav-item" href="containers.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5"/><path d="M12 12l8 -4.5"/><path d="M12 12l0 9"/><path d="M12 12l-8 -4.5"/></svg> Containers</a></nav>
+    <nav class="op-nav" aria-label="Monitor"><div class="op-nav-label">Monitor</div><a class="op-nav-item" href="statistics.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 20h14"/></svg> Statistics</a><a class="op-nav-item" href="services.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l3 3l-3 3"/><path d="M13 15l3 0"/><path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/></svg> Processes & Services</a></nav>
+    <nav class="op-nav" aria-label="Account"><div class="op-nav-label">Account</div><a class="op-nav-item" href="account.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 10a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855"/></svg> Account</a><a class="op-nav-item" href="security.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/></svg> Security</a><a class="op-nav-item" href="server-info.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></svg> Server Info</a><a class="op-nav-item" href="components.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M14 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M14 7l6 0"/><path d="M17 4l0 6"/></svg> Components</a></nav>
+    <p class="op-nav-empty" hidden>No matching pages</p>
+    </div>
+    <div class="op-user-wrap" @click.outside="userMenu = false" @keydown.escape="userMenu = false">
+      <div class="op-menu op-user-menu" role="menu" x-show="userMenu" x-cloak x-transition.opacity>
+        <div class="op-menu-note">OpenPanel 1.6.4</div>
+        <hr>
+        <div class="op-menu-row" role="group"><span>Theme</span><button type="button" class="op-icon-btn" aria-label="Switch theme" @click="let d=document.documentElement.classList.toggle('dark');localStorage.setItem('color-theme', d ? 'dark' : 'light')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg></button></div>
+        <div class="op-menu-row" role="group"><span>Menu style</span><span class="op-seg"><button type="button" title="Classic" @click="menuStyle = 'classic'" :aria-pressed="(menuStyle === 'classic').toString()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 5h8"/><path d="M13 9h5"/><path d="M13 15h8"/><path d="M13 19h5"/><path d="M3 4h6v6h-6z"/><path d="M3 14h6v6h-6z"/></svg></button><button type="button" title="Modern" @click="menuStyle = 'modern'" :aria-pressed="(menuStyle === 'modern').toString()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"/><path d="M9 4v16"/></svg></button></span></div>
+        <hr>
+        <a role="menuitem" href="https://openpanel.com/docs/changelog/" target="_blank" rel="noopener">Changelog<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <a role="menuitem" href="https://openpanel.com/docs/panel/intro/" target="_blank" rel="noopener">Documentation<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <a role="menuitem" href="https://community.openpanel.org/" target="_blank" rel="noopener">Community Forums<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <hr>
+        <button type="button" role="menuitem" @click="userMenu = false">Take the tour</button>
+        <a role="menuitem" href="index.html">Sign out</a>
+      </div>
+      <button type="button" class="op-user" @click="userMenu = !userMenu" aria-haspopup="menu" :aria-expanded="userMenu.toString()"><span class="op-avatar">T</span><span class="op-user-text"><b>testinguser</b><span>Developer plus</span></span><svg class="op-user-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></button>
+    </div>
+  </aside>
+  <div class="op-scrim" x-show="nav" x-cloak @click="nav = false"></div>
+  <div class="op-main">
+    <header class="op-topbar">
+      <button class="op-icon-btn op-menu-btn" type="button" aria-label="Open menu" @click="nav = true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6l16 0"/><path d="M4 12l16 0"/><path d="M4 18l16 0"/></svg></button>
+      <div class="op-crumb"><span data-engine-name>MySQL</span> <span style="color:var(--color-faint)">/</span> <b>Assign User to Database</b></div>
+      <span class="op-stat"><i>LOAD</i>1.14</span><span class="op-stat"><i>RAM</i>68.8%</span><span class="op-stat"><i>CPU</i>6.9%</span><span class="op-stat"><i>DISK</i>54.7%</span>
+      <button class="op-ai" type="button" aria-label="AI assistant">AI</button>
+      <div class="op-toolsearch" x-data="opToolSearch()" @keydown.window.ctrl.k.prevent="show()" @keydown.window.meta.k.prevent="show()" @click.outside="hide()" @keydown.escape="hide()"><button class="op-icon-btn" type="button" aria-label="Search tools" title="Search tools (Ctrl K)" x-show="!open" @click="show()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg></button><div class="op-toolsearch-box" x-show="open" x-cloak><label class="op-sidesearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg><input type="search" x-ref="q" x-model="q" placeholder="Search tools" aria-label="Search tools" autocomplete="off" @input="active = 0" @keydown.down.prevent="move(1)" @keydown.up.prevent="move(-1)" @keydown.enter.prevent="go()"><kbd>Esc</kbd></label><div class="op-menu op-toolsearch-list" x-show="q" role="listbox"><template x-for="(t, i) in results" :key="t[0]"><a :href="t[1]" role="option" :aria-selected="(i === active).toString()" @mouseenter="active = i"><span x-text="t[0]"></span><small x-text="t[2]"></small></a></template><p class="op-nav-empty" x-show="!results.length">No tools match</p></div></div></div>
+      <button class="op-icon-btn" type="button" aria-label="Switch theme" x-data @click="let d=document.documentElement.classList.toggle('dark');localStorage.setItem('color-theme', d ? 'dark' : 'light')"><span class="dark:hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg></span><span class="hidden dark:inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg></span></button>
+    </header>
+    <nav class="op-tabs" id="op-engine-tabs" data-tab="Users" aria-label="Databases"></nav>
+    <main class="op-content">
+<div x-data="opAssign()" class="op-col">
+      <div class="op-page-head"><div><div class="op-eyebrow"><a :href="E.users" style="color:var(--color-accent-text)">Users</a></div><h1 class="op-title">Assign User to Database</h1><p class="op-meta">Give a user access to one database. It can't touch any other database.</p></div><div class="op-actions"><a class="op-btn op-btn-secondary" href="#">Remove User from Database</a></div></div>
+      <div class="op-wiz-grid">
+        <section class="op-card" aria-label="Assign user to database">
+          <form @submit.prevent="save()" novalidate>
+          <ol class="op-wiz-steps">
+            <li class="op-section">
+              <span class="op-step-mark" :class="user &amp;&amp; 'is-ok'"><span x-show="!user">1</span><span x-show="user" x-cloak style="display:inline-flex"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></svg></span></span>
+              <div class="op-col" style="gap:12px;min-width:0">
+                <div><h3>Pick a user</h3><p class="op-meta">The user that gets access.</p></div>
+                <div class="op-field" x-show="E.usersList.length">
+                  <label class="op-label" for="a-user">User <span style="color:var(--color-danger)">*</span></label>
+                  <div class="op-inico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"/><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"/></svg><select class="op-select op-mono" id="a-user" @change="user = $event.target.value"><option value="" :selected="!user">Select a user</option><template x-for="u in E.usersList" :key="u"><option :value="u" :selected="u === user" x-text="u"></option></template></select></div>
+                </div>
+                <p class="op-wiz-none" x-show="!E.usersList.length" x-cloak>No users yet. <a :href="'db-user-new.html?engine=' + E.id" style="color:var(--color-accent-text)">Create a user</a> first.</p>
+              </div>
+            </li>
+            <li class="op-section">
+              <span class="op-step-mark" :class="db &amp;&amp; 'is-ok'"><span x-show="!db">2</span><span x-show="db" x-cloak style="display:inline-flex"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></svg></span></span>
+              <div class="op-col" style="gap:12px;min-width:0">
+                <div><h3>Pick a database</h3><p class="op-meta">Access is limited to this one database.</p></div>
+                <div class="op-field" x-show="E.dbs.length">
+                  <label class="op-label" for="a-db">Database <span style="color:var(--color-danger)">*</span></label>
+                  <div class="op-inico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6a8 3 0 1 0 16 0a8 3 0 1 0 -16 0"/><path d="M4 6v6a8 3 0 0 0 16 0v-6"/><path d="M4 12v6a8 3 0 0 0 16 0v-6"/></svg><select class="op-select op-mono" id="a-db" @change="db = $event.target.value"><option value="" :selected="!db">Select a database</option><template x-for="d in E.dbs" :key="d"><option :value="d" :selected="d === db" x-text="d"></option></template></select></div>
+                  <span class="op-hint" x-show="E.id === 'mysql' &amp;&amp; current() !== null" x-cloak x-text="current() ? 'Has ' + current() + ' on this database now. Saving replaces it.' : 'No privileges on this database yet.'"></span>
+                </div>
+                <p class="op-wiz-none" x-show="!E.dbs.length" x-cloak>No databases yet. <a :href="'db-new.html?engine=' + E.id" style="color:var(--color-accent-text)">Create a database</a> first.</p>
+              </div>
+            </li>
+            <li class="op-section">
+              <span class="op-step-mark" :class="ready() &amp;&amp; 'is-ok'"><span x-show="!ready()">3</span><span x-show="ready()" x-cloak style="display:inline-flex"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></svg></span></span>
+              <div class="op-col" style="gap:12px;min-width:0">
+                <template x-if="E.id === 'mysql'"><div class="op-col" style="gap:12px;min-width:0">
+                  <div class="op-priv-head"><div><h3>Choose privileges</h3><p class="op-meta">Most apps need all of them.</p></div><label class="op-check-label" style="font-family:var(--font-sans);font-size:13px;font-weight:500;color:var(--color-heading)"><input type="checkbox" class="op-check" :checked="isAll()" @change="toggleAll($event.target.checked)"> All privileges</label></div>
+                  <div class="op-priv-groups">
+                    <template x-for="g in DBP.privGroups" :key="g.label"><div class="op-priv-group" role="group" :aria-label="g.label"><b x-text="g.label"></b><template x-for="p in g.privs" :key="p"><label class="op-check-label"><input type="checkbox" class="op-check" :checked="has(p)" @change="toggle(p, $event.target.checked)"><span x-text="p"></span></label></template></div></template>
+                  </div>
+                  <span class="op-hint is-danger" x-show="!privs.length" x-cloak>At least one privilege must be selected.</span>
+                </div></template>
+                <template x-if="E.id === 'postgresql'"><div><h3>Access</h3><p class="op-meta">PostgreSQL users get full access to the database and can create tables in its public schema.</p></div></template>
+                <template x-if="E.id === 'mongodb'"><div class="op-col" style="gap:12px;min-width:0">
+                  <div><h3>Choose a role</h3><p class="op-meta">The role applies to this database only.</p></div>
+                  <div class="op-role-opts" role="radiogroup" aria-label="Role"><template x-for="r in DBP.roles" :key="r.id"><label class="op-option"><input type="radio" name="role" :value="r.id" :checked="role === r.id" @change="role = r.id"><div><b x-text="r.id"></b><span x-text="r.text"></span></div></label></template></div>
+                </div></template>
+                <div class="op-field"><span class="op-label">Runs as</span><div class="op-copybox"><span class="op-mono" x-text="preview()"></span><button class="op-icon-btn" type="button" @click="copy(preview(), 'statement')" aria-label="Copy statement" title="Copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/></svg></button></div></div>
+              </div>
+            </li>
+          </ol>
+          <div class="op-form-foot"><a class="op-btn op-btn-secondary" :href="E.users"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l14 0"/><path d="M5 12l6 6"/><path d="M5 12l6 -6"/></svg> Back to Users</a><button class="op-btn op-btn-primary" type="submit" :disabled="!ready() || busy" x-text="busy ? 'Saving...' : (E.id === 'mysql' ? 'Save Privileges' : 'Assign')">Save Privileges</button></div>
+          </form>
+        </section>
+        <aside class="op-col" style="gap:16px">
+          <section class="op-card" x-show="E.id !== 'mongodb'"><div class="op-card-head"><h2>Who has access now</h2></div>
+            <div class="op-wiz-list" x-show="assigned.length"><template x-for="a in assigned" :key="a.database"><div class="op-col" style="gap:4px;min-width:0"><span class="op-mono" style="font-size:13px;color:var(--color-heading);overflow-wrap:anywhere" x-text="a.database"></span><span style="display:flex;flex-wrap:wrap;gap:4px"><template x-for="u in a.users.split(', ')" :key="u"><button type="button" class="op-tag op-mono" style="cursor:pointer;border:0" @click="pick(u, a.database)" :title="'Edit ' + u + ' on ' + a.database" x-text="u"></button></template></span></div></template></div>
+            <p class="op-wiz-none" x-show="!assigned.length" x-cloak>No user has access to a database yet.</p>
+          </section>
+          <section class="op-card" x-show="E.id === 'mongodb'" x-cloak><div class="op-card-head"><h2>Who has access now</h2></div>
+            <p class="op-wiz-none">Each user's roles are listed on the <a :href="E.users" style="color:var(--color-accent-text)">Users</a> page.</p>
+          </section>
+          <section class="op-card"><div class="op-card-head"><h2>Starting from scratch?</h2></div>
+            <p class="op-hint" style="margin:0">The <a :href="E.wizard" style="color:var(--color-accent-text)">Database Wizard</a> creates a database, a user and this grant in one go.</p>
+          </section>
+        </aside>
+      </div>
+      <p style="margin:0;font-size:13px;color:var(--color-muted)">Preview: pick a user and a database, or click a user under Who has access now to edit it. Engine: <a href="?engine=mysql" style="color:var(--color-accent-text)">MySQL</a> · <a href="?engine=postgresql" style="color:var(--color-accent-text)">PostgreSQL</a> · <a href="?engine=mongodb" style="color:var(--color-accent-text)">MongoDB</a> (the test account has no PostgreSQL or MongoDB users or databases yet). Nothing is changed.</p>
+      <div class="op-toast" x-show="toast" x-cloak x-transition role="status" x-text="toast"></div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

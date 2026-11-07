@@ -1,4 +1,6 @@
 {{define "alpine_plugins"}}{{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
 {{define "flowbite_js"}}
 <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
@@ -10,7 +12,7 @@
         {{template "cms_block_3" .}}
 {{template "cms_script" .}}
 {{template "cms_block_5" .}}
-    <div class="flex flex-col space-y-4 rounded xl:col-span-3">
+    <div class="op-wp-main">
 
         {{template "cms_block_6" .}}
             {{template "cms_tabbtn_dashboard" .}}
@@ -21,9 +23,9 @@
             {{template "cms_tabbtn_backups" .}}
             {{template "cms_tab_security" .}}
         {{template "cms_tab_dashboard" .}}
-            <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
-                <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
-                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded xl:col-span-3">
+            <div class="op-wp-overview">
+                <div class="op-wp-shot">
+                    <div class="op-wp-shot-frame">
                         {{template "cms_block_10" .}}
                 {{template "cms_block_13" .}}
                 {{template "cms_block_14" .}}
@@ -35,27 +37,27 @@
                     }
                 </script>
 {{template "cms_block_20" .}}
-        <div class="hidden p-4 rounded" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+        <div class="hidden op-wp-panel" id="logs" role="tabpanel" aria-labelledby="logs-tab">
 
             {{template "cms_block_27" .}}
                 {{template "cms_block_22" .}}
             {{template "cms_script_7" .}}
         </div>
 
-        <div class="hidden p-4 rounded" id="maintenance" role="tabpanel" aria-labelledby="maintenance-tab">
-            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+        <div class="hidden op-wp-panel" id="maintenance" role="tabpanel" aria-labelledby="maintenance-tab">
+            <div class="op-section">
                 <div>
-                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Maintenance Mode"}}</h2>
-                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Show visitors a maintenance page while you make changes."}}</p>
+                    <h2 class="op-h">{{.T.Get "Maintenance Mode"}}</h2>
+                    <p class="op-meta">{{.T.Get "Show visitors a maintenance page while you make changes."}}</p>
                 </div>
-                <div class="sm:max-w-3xl md:col-span-2">
-                    <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                        <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Status:"}}</span>
+                <div class="op-section-body">
+                    <div class="op-setting-row">
+                        <span class="op-setting-label">{{.T.Get "Status:"}}</span>
                         <span class="font-medium" id="joomla-maintenance-status">{{.T.Get "Checking..."}}</span>
                     </div>
                     <div class="mt-4">
                         <button type="button" id="joomla-maintenance-toggle" onclick="toggleJoomlaMaintenance()"
-                            class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 gap-x-0.5 whitespace-nowrap w-100">
+                            class="op-btn op-btn-secondary">
                             {{.T.Get "Loading..."}}
                         </button>
                     </div>
@@ -122,20 +124,20 @@
             </script>
         </div>
 
-        <div class="hidden p-4 rounded" id="update" role="tabpanel" aria-labelledby="update-tab">
-            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+        <div class="hidden op-wp-panel" id="update" role="tabpanel" aria-labelledby="update-tab">
+            <div class="op-section">
                 <div>
-                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Version"}}</h2>
-                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Check whether a newer Joomla version is available."}}</p>
+                    <h2 class="op-h">{{.T.Get "Version"}}</h2>
+                    <p class="op-meta">{{.T.Get "Check whether a newer Joomla version is available."}}</p>
                 </div>
-                <div class="sm:max-w-3xl md:col-span-2">
+                <div class="op-section-body">
                     <div class="grid grid-cols-1 gap-2">
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Installed version:"}}</span>
+                        <div class="op-setting-row">
+                            <span class="op-setting-label">{{.T.Get "Installed version:"}}</span>
                             <span class="font-medium">{{if .Version}}{{.Version}}{{else}}{{.T.Get "Unknown"}}{{end}}</span>
                         </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Latest version:"}}</span>
+                        <div class="op-setting-row">
+                            <span class="op-setting-label">{{.T.Get "Latest version:"}}</span>
                             <span class="font-medium" id="joomla-latest-version">{{.T.Get "Checking..."}}</span>
                         </div>
                     </div>
@@ -246,7 +248,7 @@
                 {{template "cms_block_19" .}}
             {{template "cms_script_4" .}}
 {{template "cms_block_21" .}}
-        <div class="hidden p-4 rounded" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+        <div class="hidden op-wp-panel" id="backups" role="tabpanel" aria-labelledby="backups-tab">
 
             {{template "cms_block_29" .}}
             {{template "cms_block_30" .}}
@@ -254,7 +256,7 @@
         </div>
 
         {{template "cms_tab_remove_2" .}}
-    <div class="flex flex-col space-y-4 rounded xl:col-span-1">
+    <div class="op-wp-side">
 
         {{template "pagespeed_panel" .}}
 
@@ -311,17 +313,17 @@ function confirmDetachJoomla() {
 
 {{define "joomla_cache"}}
 <!-- START joomla_cache widget -->
-<div x-data="joomlaCacheComponent()" class="flex flex-col justify-center overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+<div x-data="joomlaCacheComponent()" class="op-card">
   {{template "cms_block_32" .}}
     <div class="grid grid-cols-1 gap-2">
-        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Rebuild Joomla cache:"}}</span>
+        <div class="op-setting-row">
+            <span class="op-setting-label">{{.T.Get "Rebuild Joomla cache:"}}</span>
             <span class="font-medium">
 
         <button
         @click="rebuildCache"
         data-tooltip-target="tooltip-joomla_rebuild_cache-link" data-tooltip-placement="left"
-        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50 cursor-pointer"
+        class="op-btn op-btn-sm op-btn-secondary"
         type="button"
         aria-label="{{.T.Get "Rebuild Joomla Cache"}}"
         >

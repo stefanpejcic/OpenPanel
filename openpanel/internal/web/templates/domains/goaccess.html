@@ -1,27 +1,85 @@
-{{define "flowbite_js"}}
-    <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
-{{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
 {{define "content"}}
 <!-- START templates/domains/goaccess.html -->
-
-<section aria-label="{{.T.Get "Select Domain Log Header"}}">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<div class="op-content">
+    <div class="op-page-head">
         <div>
-            <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Visitor Statistics"}}</h1></div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "View html reports generated from domain access logs."}}</p>
+            <div class="op-eyebrow">GoAccess{{with .Summary}}{{if not .Updated.IsZero}} · {{$.T.Get "updated"}} {{.Updated.Format "2 Jan 2006, 15:04"}} UTC{{end}}{{end}}</div>
+            <h1 class="op-title">{{.T.Get "Visitor Statistics"}}</h1>
+            <p class="op-meta">{{.T.Get "Built from your web server logs, so no tracking script is needed."}}</p>
         </div>
-        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        {{if .Domains}}
+        <div class="op-actions">
+            <label class="op-field" style="min-width:200px"><span class="sr-only">{{.T.Get "Domain"}}</span>
+                <select class="op-select" aria-label="{{.T.Get "Domain"}}" onchange="location.href = '/domains/stats?domain=' + encodeURIComponent(this.value)">
+                    {{range .Domains}}<option value="{{.DomainURL}}"{{if eq .DomainURL $.Selected}} selected{{end}}>{{.DomainURL}}</option>{{end}}
+                </select>
+            </label>
+            {{if .Summary}}<a class="op-btn op-btn-ghost" href="/domains/stats/{{.Selected}}" target="_blank" rel="noopener">{{template "op_icon" "out"}} {{.T.Get "Full Report"}}</a>{{end}}
         </div>
+        {{end}}
     </div>
 
-    {{if .Domains}}
-        {{template "domain_selector" (dict "T" .T "Domains" .Domains "RedirectBase" "/domains/stats/")}}
-    {{else}}
-        {{template "no_domain" .}}
+{{if not .Domains}}
+    {{template "op_no_domain" .}}
+{{else if not .Summary}}
+    <section class="op-card"><div class="op-empty">
+        <span class="op-ico-tile">{{template "op_icon" "chart"}}</span>
+        <b>{{.T.Get "No report for"}} {{.Selected}} {{.T.Get "yet"}}</b>
+        <span class="op-hint">{{.T.Get "Reports are built from the access log once every 24 hours, so a new domain shows up after its first visitors and the next run."}}</span>
+    </div></section>
+{{else}}
+{{with .Summary}}
+    <section class="op-kpis" aria-label="{{$.T.Get "Summary"}}">
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "user"}} {{$.T.Get "Unique visitors"}}</div><div class="op-kpi-value">{{.Visitors}}</div><div class="op-kpi-note">{{if .Period}}{{.Period}}{{else}}&nbsp;{{end}}</div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "file"}} {{$.T.Get "Page views"}}</div><div class="op-kpi-value">{{.Requests}}</div><div class="op-kpi-note">{{if .PerVisitor}}{{.PerVisitor}} {{$.T.Get "per visitor"}}{{else}}&nbsp;{{end}}</div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "arrowright"}} {{$.T.Get "Bandwidth"}}</div><div class="op-kpi-value">{{.Bandwidth}} <small>{{.BandwidthUnit}}</small></div><div class="op-kpi-note">{{$.T.Get "Sent to visitors"}}</div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "info"}} {{$.T.Get "Failed requests"}}</div><div class="op-kpi-value">{{.Failed}}</div><div class="op-kpi-note{{if .Failed}} is-warning{{end}}">{{if .FailedPct}}{{.FailedPct}} {{$.T.Get "of all requests"}}{{else}}&nbsp;{{end}}</div></div>
+    </section>
+
+    <section class="op-card">
+        <div class="op-card-head"><h2>{{$.T.Get "Visitors per day"}}</h2><span class="op-hint">{{.Days}} {{if eq .Days 1}}{{$.T.Get "day"}}{{else}}{{$.T.Get "days"}}{{end}} {{$.T.Get "in the report"}}</span></div>
+        <div class="op-legend"><span><i></i>{{$.T.Get "Visitors"}}</span><span><i class="is-alt"></i>{{$.T.Get "Page views"}}</span></div>
+        {{if .ChartVisitors}}
+        <div style="margin-top:12px"><div class="op-chart">
+            <svg viewBox="0 0 600 200" preserveAspectRatio="none" role="img" aria-label="{{$.T.Get "Visitors and page views per day"}}"><line class="gl" x1="0" x2="600" y1="50" y2="50"/><line class="gl" x1="0" x2="600" y1="100" y2="100"/><line class="gl" x1="0" x2="600" y1="150" y2="150"/><path class="area" d="{{.ChartArea}}"/><path class="line" d="{{.ChartVisitors}}"/><path class="line is-alt" d="{{.ChartHits}}"/></svg>
+            <div class="op-chart-axis">{{range .AxisLabels}}<span>{{.}}</span>{{end}}</div>
+        </div></div>
+        {{end}}
+    </section>
+
+    <div class="op-cols-2">
+        {{template "ga_bars" (dict "T" $.T "Title" ($.T.Get "Top pages") "Rows" .TopPages "Empty" ($.T.Get "No page views yet."))}}
+        {{template "ga_bars" (dict "T" $.T "Title" ($.T.Get "Referrers") "Rows" .Referrers "Empty" ($.T.Get "Every visit so far came in directly."))}}
+    </div>
+    <div class="op-cols-2">
+        {{if .Countries}}{{template "ga_bars" (dict "T" $.T "Title" ($.T.Get "Countries") "Rows" .Countries "Empty" "")}}{{end}}
+        {{template "ga_bars" (dict "T" $.T "Title" ($.T.Get "Browsers") "Rows" .Browsers "Empty" ($.T.Get "No browsers seen yet."))}}
+        {{if not .Countries}}
+        <section class="op-card"><div class="op-card-head"><h2>{{$.T.Get "Status codes"}}</h2></div>
+            {{if .Statuses}}<div class="op-chips">{{range .Statuses}}<span class="op-chip"><span class="op-status {{.Tone}}">{{.Class}}</span> {{.Count}}</span>{{end}}</div>{{else}}<p class="op-meta" style="margin:0">{{$.T.Get "No requests yet."}}</p>{{end}}
+        </section>
+        {{end}}
+    </div>
+    {{if .Countries}}
+    <section class="op-card"><div class="op-card-head"><h2>{{$.T.Get "Status codes"}}</h2></div>
+        {{if .Statuses}}<div class="op-chips">{{range .Statuses}}<span class="op-chip"><span class="op-status {{.Tone}}">{{.Class}}</span> {{.Count}}</span>{{end}}</div>{{else}}<p class="op-meta" style="margin:0">{{$.T.Get "No requests yet."}}</p>{{end}}
+    </section>
     {{end}}
-
-</section>
-
+{{end}}
+{{end}}
+</div>
 <!-- END templates/domains/goaccess.html -->
+{{end}}
+
+{{define "ga_bars"}}
+<section class="op-card"><div class="op-card-head"><h2>{{.Title}}</h2></div>
+    {{if .Rows}}
+    <div class="op-bars">{{range .Rows}}<div class="op-bar-row"><span class="op-ga-label" title="{{.Label}}">{{.Label}}</span><b>{{.Count}}</b><div class="op-progress"><span style="width:{{.Pct}}%"></span></div></div>{{end}}</div>
+    {{else}}
+    <p class="op-meta" style="margin:0">{{.Empty}}</p>
+    {{end}}
+</section>
 {{end}}

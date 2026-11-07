@@ -1,30 +1,30 @@
 {{define "header"}}<!-- START templates/partials/_header.html -->
-    <header id="main_header" class="justify-between sticky top-0 z-40 flex h-16 shrink-0 items-center gap-2 border-b border-gray-200 bg-white px-4 dark:border-gray-800 dark:bg-gray-950" :style="sidebarOpen ? 'margin-left: var(--sidebar-width)' : 'margin-left: 0'">
+    <header id="main_header" class="op-topbar op-panel-topbar">
 
 
                   <!-- Left Section -->
-                  <div class="flex items-center justify-center gap-2">
-                    <button id="sidebar_toggle_button" onclick="toggleSidebar()" class="group inline-flex rounded p-1.5 hover:bg-gray-200/50 hover:dark:bg-gray-900 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-left size-[18px] shrink-0 text-gray-700 dark:text-gray-300" aria-hidden="true">
+                  <div class="op-topbar-left">
+                    <button id="sidebar_toggle_button" type="button" onclick="toggleSidebar()" class="op-icon-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-left" aria-hidden="true">
                         <rect width="18" height="18" x="3" y="3" rx="2"></rect>
                         <path d="M9 3v18"></path>
                     </svg>
-                    <span class="sr-only">{{.T.Get "Toggle Sidebar"}}</span>
+                    <span class="op-sr">{{.T.Get "Toggle Sidebar"}}</span>
                     </button>
-                    <div class="mr-2 h-4 w-px bg-gray-200 dark:bg-gray-800"></div>
+                    <span class="op-topbar-sep" aria-hidden="true"></span>
                     {{if eq .MenuStyle "modern"}}
-                    <nav aria-label="{{.T.Get "Breadcrumb"}}" class="ml-2">
+                    <nav aria-label="{{.T.Get "Breadcrumb"}}" class="op-crumbs">
                         {{if .NavTrail}}
-                        <ol role="list" class="flex items-center gap-3 text-sm">
+                        <ol role="list">
                             {{$last := sub (len .NavTrail) 1}}
                             {{range $i, $c := .NavTrail}}
                             {{/* on phones only the current page fits */}}
-                            <li class="{{if lt $i $last}}hidden sm:flex{{else}}flex{{end}} items-center gap-3">
-                                {{if $i}}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4 shrink-0 text-gray-600 dark:text-gray-400" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>{{end}}
+                            <li{{if lt $i $last}} class="op-crumb-parent"{{end}}>
+                                {{if $i}}<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>{{end}}
                                 {{if $c.Href}}
-                                <a href="{{$c.Href}}" class="text-gray-500 transition hover:text-gray-700 dark:text-gray-400 hover:dark:text-gray-300">{{$.T.Get $c.Label}}</a>
+                                <a href="{{$c.Href}}">{{$.T.Get $c.Label}}</a>
                                 {{else}}
-                                <span aria-current="page" class="text-gray-900 dark:text-gray-50">{{$.T.Get $c.Label}}</span>
+                                <span aria-current="page">{{$.T.Get $c.Label}}</span>
                                 {{end}}
                             </li>
                             {{end}}
@@ -32,14 +32,14 @@
                         {{end}}
                     </nav>
                     {{else}}
-                    <nav aria-label="{{.T.Get "Breadcrumb"}}" class="ml-2">
-                        <ol role="list" class="flex items-center space-x-3 text-sm" x-data="navMenu('{{.RequestPath}}')">
+                    <nav aria-label="{{.T.Get "Breadcrumb"}}" class="op-crumbs">
+                        <ol role="list" x-data="navMenu('{{.RequestPath}}')">
 
                         <ul>
                             <template x-for="item in items" :key="item.label">
-                                <li class="flex" x-show="item.show">
-                                    <a x-show="item.href !== '#'" :href="item.href" class="text-gray-500 transition hover:text-gray-700 dark:text-gray-400 hover:dark:text-gray-300" x-text="item.label"></a>
-                                    <span x-show="item.href === '#'" class="text-gray-500 dark:text-gray-400" x-text="item.label"></span>
+                                <li x-show="item.show">
+                                    <a x-show="item.href !== '#'" :href="item.href" x-text="item.label"></a>
+                                    <span x-show="item.href === '#'" x-text="item.label"></span>
                                 </li>
                             </template>
                         </ul>
@@ -158,10 +158,10 @@
 {{if ne .RequestPath "/"}}
                             {{if .Title}}
                             <template x-if="!isSectionRoot() && items.some(i => i.show)">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4 shrink-0 text-gray-600 dark:text-gray-400" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
                             </template>
                             <template x-if="!isSectionRoot()">
-                            <li class="flex"><div class="flex items-center"><a class="text-gray-900 dark:text-gray-50" href="{{.RequestPath}}">{{.Title}}</a></div></li>
+                            <li><a aria-current="page" href="{{.RequestPath}}">{{.Title}}</a></li>
                             </template>
                             {{end}}
 {{end}}
@@ -172,140 +172,63 @@
                   <!-- END Left Section -->
 
                   <!-- Right Section -->
-                  <div class="flex items-center gap-2">
+                  <div class="op-topbar-right">
 
                     {{if and .UserAllowed.services (not (hasPrefix .RequestPath "/services"))}}
                         {{template "service" .}}
                     {{end}}
 
-                    {{template "search" .}}
+                    {{if .UserAllowed.favorites}}
+                    <!-- Favorites: one click pins the page to the sidebar, another click takes it off -->
+                    <button type="button" class="op-icon-btn op-fav-btn" id="addFavoriteBtn" aria-pressed="false" title="{{.T.Get "Add to favorites"}}" aria-label="{{.T.Get "Add to favorites"}}">{{template "op_icon" "star"}}</button>
+                    <script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const btn = document.getElementById('addFavoriteBtn');
+                        if (!btn) return;
+                        const here = window.location.pathname + window.location.search + window.location.hash;
+                        const isFav = () => (window.userFavorites || []).some(f => '/' + f.link === here);
+                        const paint = () => {
+                            const on = isFav();
+                            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                            btn.dataset.isFavorite = on;
+                            btn.title = on ? "{{.T.Get "Remove from favorites"}}" : "{{.T.Get "Add to favorites"}}";
+                            btn.setAttribute('aria-label', btn.title);
+                        };
+                        window.addEventListener('favorites-loaded', paint);
+                        paint();
+                        // right-click only removes, like the classic star
+                        btn.addEventListener('contextmenu', e => { if (isFav()) { e.preventDefault(); btn.click(); } });
+                        btn.addEventListener('click', () => {
+                            const on = isFav();
+                            const body = on ? { link: here } : { link: here, title: document.title.split(' - ')[0] };
+                            fetch('/json/favorites', {
+                                method: on ? 'DELETE' : 'PUT',
+                                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf_token },
+                                body: JSON.stringify(body)
+                            })
+                            .then(r => r.json())
+                            .then(d => {
+                                if (d && d.error) { showToast(d.error, 'error'); return; }
+                                showToast(on ? "{{.T.Get "Successfully removed from favorites!"}}" : "{{.T.Get "Successfully added to favorites!"}}", 'success');
+                                loadFavorites();
+                            })
+                            .catch(() => showToast(on ? "{{.T.Get "Failed to remove favorite."}}" : "{{.T.Get "Failed to add favorite."}}", 'error'));
+                        });
+                    });
+                    </script>
+                    {{end}}
 
                     {{if .UserAllowed.ai_assistant}}
                         {{template "ai_assistant" .}}
                     {{end}}
 
-                     {{if .UserAllowed.favorites}}
-                     <!-- Favorites -->
-                     <div class="dark:text-white">
-                        <span aria-hidden="true">
-                           <div>
-                              <button data-toggle="tooltip" data-placement="bottom" title="{{.T.Get "Left-click to add to Favorites"}}" class="flex items-center justify-center w-8 h-8 rounded text-gray-400 dark:text-gray-600 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" id="addFavoriteBtn">
-                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-star"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path></svg>
-                              </button>
-                           </div>
-                        </span>
-                     </div>
+                    {{template "search" .}}
 
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const favoriteButton = document.getElementById('addFavoriteBtn');
-    if (!favoriteButton) return;
-
-    const currentPath = window.location.pathname + window.location.search + window.location.hash;
-
-    // Initialize favorite button state
-    if (window.userFavorites) {
-        const isFavorite = window.userFavorites.some(fav => '/' + fav.link === currentPath);
-        favoriteButton.dataset.isFavorite = isFavorite ? 'true' : 'false';
-
-        if (isFavorite) {
-            favoriteButton.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" class="icon icon-tabler icons-tabler-filled icon-tabler-star">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path fill="orange" d="M8.243 7.34l-6.38 .925l-.113 .023a1 1 0 0 0 -.44 1.684l4.622 4.499l-1.09 6.355l-.013 .11a1 1 0 0 0 1.464 .944l5.706 -3l5.693 3l.1 .046a1 1 0 0 0 1.352 -1.1l-1.091 -6.355l4.624 -4.5l.078 -.085a1 1 0 0 0 -.633 -1.62l-6.38 -.926l-2.852 -5.78a1 1 0 0 0 -1.794 0l-2.853 5.78z" />
-                </svg>
-            `;
-            favoriteButton.title = "{{.T.Get "Right-click to remove from Favorites"}}";
-        }
-    }
-
-    // Right-click (remove favorite)
-    favoriteButton.addEventListener("contextmenu", function(event) {
-        event.preventDefault();
-
-        if (favoriteButton.dataset.isFavorite === 'false') {
-            showToast("{{.T.Get "This page is not in your favorites! Left-click to add it."}}", 'warning');
-            return;
-        }
-
-        const data = { link: currentPath };
-
-        fetch('/json/favorites', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrf_token
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            showToast("{{.T.Get "Successfully removed from favorites!"}}", 'success');
-            favoriteButton.dataset.isFavorite = 'false';
-            favoriteButton.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-star">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
-                </svg>
-            `;
-            favoriteButton.title = "{{.T.Get "Left-click to add to Favorites"}}";
-            loadFavorites();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast("{{.T.Get "Failed to remove favorite."}}", 'error');
-        });
-    });
-
-    // Left-click (add favorite)
-    favoriteButton.addEventListener("click", function() {
-        if (favoriteButton.dataset.isFavorite === 'true') {
-            showToast("{{.T.Get "This page is already in your favorites! Right-click to remove it."}}", 'warning');
-            return;
-        }
-
-        let currentPageTitle = document.title.split(" - ")[0];
-
-        const data = {
-            link: currentPath,
-            title: currentPageTitle
-        };
-
-        fetch('/json/favorites', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrf_token
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                showToast(data.error, 'error');
-            } else {
-                showToast("{{.T.Get "Successfully added to favorites!"}}", 'success');
-                favoriteButton.dataset.isFavorite = 'true';
-                favoriteButton.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" class="icon icon-tabler icons-tabler-filled icon-tabler-star">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path fill="orange" d="M8.243 7.34l-6.38 .925l-.113 .023a1 1 0 0 0 -.44 1.684l4.622 4.499l-1.09 6.355l-.013 .11a1 1 0 0 0 1.464 .944l5.706 -3l5.693 3l.1 .046a1 1 0 0 0 1.352 -1.1l-1.091 -6.355l4.624 -4.5l.078 -.085a1 1 0 0 0 -.633 -1.62l-6.38 -.926l-2.852 -5.78a1 1 0 0 0 -1.794 0l-2.853 5.78z" />
-                    </svg>
-                `;
-                favoriteButton.title = "{{.T.Get "Right-click to remove from Favorites"}}";
-                loadFavorites();
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToast("{{.T.Get "Failed to add favorite."}}", 'error');
-        });
-    });
-});
-</script>
-
-                     <!-- END Favorites -->
-                     {{end}}
+                    <!-- light/dark switch, same as the Theme row in the user menu -->
+                    <button type="button" class="op-icon-btn op-theme-btn" aria-label="{{.T.Get "Switch theme"}}" title="{{.T.Get "Switch theme"}}"
+                        onclick="var t = document.getElementById('theme-toggle'); if (t) { t.click(); } else { var d = document.documentElement.classList.toggle('dark'); localStorage.setItem('color-theme', d ? 'dark' : 'light'); }">
+                        <span class="op-theme-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg></span><span class="op-theme-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg></span>
+                    </button>
                   </div>
                   <!-- END Right Section -->
 

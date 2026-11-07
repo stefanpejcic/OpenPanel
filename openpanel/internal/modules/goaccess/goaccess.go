@@ -18,7 +18,8 @@ func handleDomainStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	domainName := r.PathValue("domain_name")
 	if domainName == "" {
 		domainsList, _ := a.AllDomainsForUser(ctx, userID)
-		renderGoaccessSelectPage(a, w, r, domainsList)
+		selected, summary := pickSummary(a, r, domainsList)
+		renderGoaccessSelectPage(a, w, r, domainsList, selected, summary)
 		return
 	}
 
@@ -43,4 +44,39 @@ func handleDomainStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	// goaccess_single.html has no {% extends %} - the report is a complete standalone HTML document, not wrapped in the panel's own layout, so this writes the file's bytes directly rather than going through a web.Page
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	_, _ = w.Write(content)
+}
+
+// pickSummary reads ?domain= or, without one, the first domain that already has a report
+func pickSummary(a *appctx.App, r *http.Request, domains []appctx.Domain) (string, *StatsSummary) {
+	if len(domains) == 0 {
+		return "", nil
+	}
+	_, currentUsername, _, err := auth.Injected(a, r)
+	if err != nil {
+		return "", nil
+	}
+	read := func(d string) *StatsSummary {
+		content, err := tenantfs.ReadFile("/var/log/caddy/stats/" + currentUsername + "/" + d + ".html")
+		if err != nil {
+			return nil
+		}
+		s, err := parseReport(content)
+		if err != nil {
+			return nil
+		}
+		return s
+	}
+	if want := r.URL.Query().Get("domain"); want != "" {
+		for _, d := range domains {
+			if d.DomainURL == want {
+				return want, read(want)
+			}
+		}
+	}
+	for _, d := range domains {
+		if s := read(d.DomainURL); s != nil {
+			return d.DomainURL, s
+		}
+	}
+	return domains[0].DomainURL, nil
 }

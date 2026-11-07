@@ -1,3 +1,5 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 {{define "flowbite_js"}}{{end}}
 
@@ -15,6 +17,7 @@
         z-index: 9999; background-color: #1e1e1e;
     }
     .editor-header { display: flex; padding: 0px 10px; justify-content: space-between; align-items: center; }
+    #editor-container .op-page-head { background: var(--color-panel); }
     #editor-container.fullscreen h3 { display: none; }
     #fullscreenButton { margin-left: 10px; }
 
@@ -80,33 +83,33 @@
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
     <section aria-label="{{.T.Get "File Editor Header"}}" id="editor-container" x-data="{ isFullscreen: true }" :class="{ 'fullscreen': isFullscreen }">
-        <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between"
+        <div class="op-page-head op-cms-head"
              :class="{ 'sm:p-6 lg:p-8': !isFullscreen }">
             <div>
 
                 {{if eq .FilePath "wpcli_themes.txt"}}
-                    <div class="flex items-center gap-x-3">
-                        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit WordPress Themes Set"}}</h1>
+                    <div class="op-wp-title">
+                        <h1 class="op-title">{{.T.Get "Edit WordPress Themes Set"}}</h1>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Themes listed here will be automatically installed to new WordPress websites."}} <a href="https://openpanel.com/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel#themes-set" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">{{.T.Get "View Examples"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a></p>
+                    <p class="op-meta">{{.T.Get "Themes listed here will be automatically installed to new WordPress websites."}} <a href="https://openpanel.com/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel#themes-set" target="_blank" class="op-link">{{.T.Get "View Examples"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a></p>
                 {{else if eq .FilePath "wpcli_plugins.txt"}}
-                    <div class="flex items-center gap-x-3">
-                        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit WordPress Plugins Set"}}</h1>
+                    <div class="op-wp-title">
+                        <h1 class="op-title">{{.T.Get "Edit WordPress Plugins Set"}}</h1>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Plugins listed here will be automatically installed to new WordPress websites."}} <a href="https://openpanel.com/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel#plugins-set" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">{{.T.Get "View Examples"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a></p>
+                    <p class="op-meta">{{.T.Get "Plugins listed here will be automatically installed to new WordPress websites."}} <a href="https://openpanel.com/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel#plugins-set" target="_blank" class="op-link">{{.T.Get "View Examples"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a></p>
                 {{else if eq .FilePath "pagespeed_api_key.txt"}}
-                    <div class="flex items-center gap-x-3">
-                        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit Google PageSpeed API key"}}</h1>
+                    <div class="op-wp-title">
+                        <h1 class="op-title">{{.T.Get "Edit Google PageSpeed API key"}}</h1>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Set API key to be used on Site Manager for your websites."}} <a href="https://openpanel.com/docs/articles/websites/google-pagespeed-insights-api-key" target="_blank" class="inline-flex items-center gap-1 text-indigo-600 hover:underline hover:underline-offset-4 dark:text-indigo-400">{{.T.Get "Documentation"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a></p>
+                    <p class="op-meta">{{.T.Get "Set API key to be used on Site Manager for your websites."}} <a href="https://openpanel.com/docs/articles/websites/google-pagespeed-insights-api-key" target="_blank" class="op-link">{{.T.Get "Documentation"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M10 6V8H5V19H16V14H18V20C18 20.5523 17.5523 21 17 21H4C3.44772 21 3 20.5523 3 20V7C3 6.44772 3.44772 6 4 6H10ZM21 3V11H19L18.9999 6.413L11.2071 14.2071L9.79289 12.7929L17.5849 5H13V3H21Z"></path></svg></a></p>
                 {{else}}
-                    <div class="flex items-center gap-x-3">
-                        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit File"}}</h1>
+                    <div class="op-wp-title">
+                        <h1 class="op-title">{{.T.Get "Edit File"}}</h1>
                     </div>
 
       <!-- START breadcrumbs -->
-      <p class="text-sm text-gray-500 dark:text-gray-500 flex">
-<a href="/files" title="{{.T.Get "Open in File Manager"}}" class="text-gray-500 transition hover:text-gray-700 dark:text-gray-400 hover:dark:text-gray-300">/var/www/html/</a>{{range .Breadcrumbs}}{{if .Last}}{{.Name}}{{else}}<a href="/files/{{.Path}}" title="{{$.T.Get "Open in File Manager"}}">{{.Name}}</a>{{end}}{{if not .Last}}/{{end}}{{end}}</p>
+      <p class="text-sm flex op-muted">
+<a href="/files" title="{{.T.Get "Open in File Manager"}}" class="transition op-muted">/var/www/html/</a>{{range .Breadcrumbs}}{{if .Last}}{{.Name}}{{else}}<a href="/files/{{.Path}}" title="{{$.T.Get "Open in File Manager"}}">{{.Name}}</a>{{end}}{{if not .Last}}/{{end}}{{end}}</p>
       <!-- END breadcrumbs -->
 
                 {{end}}
@@ -118,7 +121,7 @@
                 <div class="relative" x-data="{ open: false }">
                     <button type="button"
                             @click="open = !open"
-                            class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 w-full gap-x-1.5 whitespace-nowrap sm:w-fit">
+                            class="op-btn op-btn-secondary">
                         <i class="bi bi-code-slash"></i>
                         <span class="ml-1">{{.EditorLabel}}</span>
                         <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -126,7 +129,7 @@
                     <div x-show="open"
                          @click.outside="open = false"
                          x-cloak
-                         class="absolute right-0 z-50 mt-1 w-40 rounded border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
+                         class="absolute right-0 z-50 mt-1 w-40 op-surface">
                         {{range .EditorOptions}}
                             <a href="?editor={{.Value}}{{$.FullscreenQS}}"
                                class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 {{if .Selected}}font-semibold text-indigo-600 dark:text-indigo-400{{end}}">
@@ -137,8 +140,8 @@
                     </div>
                 </div>
 
-                <button type="submit" id="editorcontentvalue" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Save"}}</button>
-                <button type="button" @click="isFullscreen = !isFullscreen" id="fullscreenButton" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit"><i class="bi bi-arrows-fullscreen"></i></button>
+                <button type="submit" id="editorcontentvalue" class="op-btn op-btn-primary">{{.T.Get "Save"}}</button>
+                <button type="button" @click="isFullscreen = !isFullscreen" id="fullscreenButton" class="op-btn op-btn-secondary"><i class="bi bi-arrows-fullscreen"></i></button>
             </div>
         </div>
 

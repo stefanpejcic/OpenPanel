@@ -1,9 +1,7 @@
 package errorlogs
 
 import (
-	"fmt"
 	"net/http/httptest"
-	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -24,15 +22,13 @@ func testLayout(mgr *i18n.Manager) web.LayoutData {
 
 func TestRenderErrorLogsPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
-	q := Query{Level: "error", Domain: "a.com", FromDay: "2026-10-01", ToDay: "2026-10-03", Limit: 1}
+	q := Query{Domain: "a.com", Service: "php-fpm-8.2", Search: "fatal", Exact: true, FromDay: "2026-10-01", ToDay: "2026-10-03", Limit: 1}
 	res := Result{
 		Total: 2, Truncated: true,
-		Entries: []Entry{{Time: time.Unix(1792085165, 0), Service: "php-fpm-8.2", Domain: "a.com", Level: "critical", Message: "Fatal error: <script>x</script>"}},
+		Entries: []Entry{{Time: time.Unix(1792085165, 0), Source: "php", Service: "php-fpm-8.2", Domain: "a.com", Level: "critical", Message: "Fatal error: </script><script>alert(1)</script>\nStack trace:"}},
 		Sources: []Source{{Name: "php-fpm-8.2", Label: "PHP 8.2"}, {Name: "caddy", Label: "HTTP 5xx responses"}},
 	}
-	layout := testLayout(mgr)
-	layout.BulkActions = errorLogsBulkActions(layout.T)
-	data := buildPageData(layout, q, res, []Target{{Value: "a.com"}, {Value: "a.com/blog", Sub: true}, {Value: "b.com"}}, "", nil)
+	data := buildPageData(testLayout(mgr), q, res, []Target{{Value: "a.com"}, {Value: "a.com/blog", Sub: true}, {Value: "b.com"}}, "")
 
 	w := httptest.NewRecorder()
 	if err := errorLogsPage.Render(w, 200, data); err != nil {
@@ -40,61 +36,45 @@ func TestRenderErrorLogsPage(t *testing.T) {
 	}
 	body := w.Body.String()
 	for _, want := range []string{
-		"Error Logs", `value="a.com" class="punycode" selected`, `value="a.com/blog" class="punycode" >&nbsp;&nbsp;↳ a.com/blog`, `value="php-fpm-8.2"`, "PHP 8.2",
-		"Critical", "Showing 1 out of 2 rows", "&lt;script&gt;x&lt;/script&gt;",
-		"[critical] [php-fpm-8.2] [a.com] Fatal error",
-		`id="bulk-actions-bar"`, "bulkClient(", `data-row="0"`, "bi-clipboard", "bi-download",
-		`data-sort-key="severity"`, `data-sort-col="time"`, "js/table-sort.js", `<option value="error" selected>`,
-		`border-gray-200 dark:border-gray-800">`,
+		"Error Logs", `x-data="opErrorLogs()"`, `value="a.com/blog" class="punycode"`, "&nbsp;&nbsp;↳ a.com/blog", `value="php-fpm-8.2"`, "PHP 8.2",
+		`window.EL_ROWS = [[1792085165000,"critical","php-fpm-8.2","php","a.com","Fatal error: `,
+		`domain: "a.com", exact: true, service: "php-fpm-8.2"`, `q: "fatal", from: "2026-10-01", to: "2026-10-03"`,
+		"Download .txt", "opBusy.show(", "format: 'json'", "Grouped", `class="op-bulkbar"`, `class="op-th-sort"`, "sortBy('rank')",
+		"Only this website", "Only this service", "Copy line", "Quick date range", "Last 7 days",
+		"newest 1 of 2 entries loaded",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("rendered page missing %q", want)
 		}
 	}
-	if strings.Contains(body, "<script>x</script>") {
+	if strings.Contains(body, "<script>alert(1)") {
 		t.Error("log message rendered unescaped")
 	}
 }
 
 func TestRenderErrorLogsEmpty(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
-	data := buildPageData(testLayout(mgr), Query{}, Result{Entries: []Entry{}}, nil, "", nil)
-	w := httptest.NewRecorder()
-	if err := errorLogsPage.Render(w, 200, data); err != nil {
-		t.Fatalf("Render: %v", err)
-	}
-	if !strings.Contains(w.Body.String(), "No errors found for these filters.") {
-		t.Error("empty state missing")
-	}
-}
-
-func TestErrorLogsPages(t *testing.T) {
-	mgr := i18n.NewManager(t.TempDir(), nil)
-	entries := make([]Entry, 250)
-	for i := range entries {
-		entries[i] = Entry{Time: time.Unix(1792085165, 0), Service: "caddy", Level: "error", Message: fmt.Sprintf("msg-%03d", i)}
-	}
-	res := Result{Total: 250, Entries: entries}
-
-	data := buildPageData(testLayout(mgr), Query{}, res, nil, "", url.Values{"level": {"error"}, "page": {"2"}})
-	if data.Page != 2 || data.TotalPages != 3 || len(data.Rows) != 100 || data.Rows[0].Message != "msg-100" {
-		t.Fatalf("page 2: page=%d pages=%d rows=%d", data.Page, data.TotalPages, len(data.Rows))
-	}
-	if data.PrevURL != "/error-logs?level=error&page=1" || data.NextURL != "/error-logs?level=error&page=3" {
-		t.Errorf("pager links %q %q", data.PrevURL, data.NextURL)
-	}
-
-	last := buildPageData(testLayout(mgr), Query{}, res, nil, "", url.Values{"page": {"99"}})
-	if last.Page != 3 || len(last.Rows) != 50 || last.NextURL != "" {
-		t.Errorf("past the end: page=%d rows=%d next=%q", last.Page, len(last.Rows), last.NextURL)
-	}
-
+	data := buildPageData(testLayout(mgr), Query{}, Result{Entries: []Entry{}}, nil, "")
 	w := httptest.NewRecorder()
 	if err := errorLogsPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)
 	}
 	body := w.Body.String()
-	if !strings.Contains(body, "Page 2 of 3") || strings.Contains(body, "msg-099") || !strings.Contains(body, "msg-199") {
-		t.Error("page 2 didn't render just its own rows and the pager")
+	for _, want := range []string{"window.EL_ROWS = []", "window.EL_TARGETS = []", "No errors logged", "No errors found for these filters."} {
+		if !strings.Contains(body, want) {
+			t.Errorf("empty page missing %q", want)
+		}
+	}
+}
+
+func TestRenderErrorLogsForbidden(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	data := buildPageData(testLayout(mgr), Query{Domain: "x.com"}, Result{}, nil, "You do not own this domain.")
+	w := httptest.NewRecorder()
+	if err := errorLogsPage.Render(w, 403, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	if body := w.Body.String(); !strings.Contains(body, `class="op-alert is-danger"`) || !strings.Contains(body, "You do not own this domain.") {
+		t.Error("error alert missing")
 	}
 }

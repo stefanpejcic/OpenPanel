@@ -77,7 +77,10 @@ type humanValue struct {
 	Human string  `json:"human"`
 }
 
+// humanOnly is a size with its human form, the bandwidth limit comes in bits instead of bytes
 type humanOnly struct {
+	Bytes int64  `json:"bytes"`
+	Bits  int64  `json:"bits"`
 	Human string `json:"human"`
 }
 
@@ -99,5 +102,10 @@ type ResourceUsageLine struct {
 		Limit     humanOnly `json:"limit"`
 		UsagePct  float64   `json:"usage_pct"`
 	} `json:"bandwidth"`
+	Tasks struct {
+		Current  int     `json:"current"`
+		Limit    int     `json:"limit"`
+		UsagePct float64 `json:"usage_pct"`
+	} `json:"tasks"`
 	Warning string `json:"warning"`
 }

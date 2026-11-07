@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"sort"
 	"sync"
 	"time"
 
@@ -30,6 +31,16 @@ var systemDatabases = map[string]bool{"admin": true, "local": true, "config": tr
 
 func IsSystemDatabase(name string) bool {
 	return systemDatabases[name]
+}
+
+// SystemDatabases lists systemDatabases in order
+func SystemDatabases() []string {
+	out := make([]string, 0, len(systemDatabases))
+	for name := range systemDatabases {
+		out = append(out, name)
+	}
+	sort.Strings(out)
+	return out
 }
 
 // creds reads MONGODB_ROOT_USER (default "admin") and MONGODB_ROOT_PASSWORD from /home/<context>/.env

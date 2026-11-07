@@ -118,7 +118,14 @@ func handleEditDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	serialNumber := readSerialNumber(strings.Split(zoneContent, "\n"))
 	entries := parseZoneWithLineNumbers(zoneContent)
 	rows := buildZoneRows(entries)
-	renderDNSTablePage(a, w, r, domainParam, rows, serialNumber, dnsZoneIssues)
+	// the zone switcher lists every domain that has a zone file
+	var zoneDomains []appctx.Domain
+	for _, d := range domainData {
+		if fileExists(zoneFilePath(d.DomainURL)) {
+			zoneDomains = append(zoneDomains, appctx.Domain{DomainURL: d.DomainURL})
+		}
+	}
+	renderDNSTablePage(a, w, r, domainParam, rows, serialNumber, dnsZoneIssues, zoneDomains)
 }
 
 func fileExists(path string) bool {

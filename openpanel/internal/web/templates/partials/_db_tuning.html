@@ -3,102 +3,56 @@
 {{/* db_tuning_banner takes a dict with T, Title, Intro and Checking */}}
 {{define "db_tuning_banner"}}
     <!-- recommendations banner -->
-    <div id="db-tuning" class="border-b border-gray-200 dark:border-gray-800 px-6 py-4 text-sm">
-        <div x-show="loading" class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-            <i class="bi bi-arrow-repeat animate-spin"></i> {{.T.Get .Checking}}
+    <section id="db-tuning" class="op-card" x-show="loading || error || recs.length || insights.length || facts.server">
+        <div class="op-card-head">
+            <div><h2>{{.T.Get .Title}}</h2><p class="op-meta">{{.T.Get .Intro}}</p></div>
+            <button type="button" class="op-btn op-btn-secondary" x-show="!loading && main.length > 0" x-cloak @click="review()">{{template "op_icon" "bolt"}} <span x-text="{{toJSON (.T.Get "Review")}} + ' ' + main.length + ' ' + (main.length === 1 ? {{toJSON (.T.Get "optimization")}} : {{toJSON (.T.Get "optimizations")}})"></span></button>
         </div>
-        <div x-show="!loading && error" x-cloak class="text-gray-500 dark:text-gray-400">
-            <i class="bi bi-exclamation-circle"></i> {{.T.Get "Optimization suggestions are not available right now:"}} <span x-text="error"></span>
-        </div>
-        <div x-show="!loading && !error && recs.length > 0" x-cloak class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div class="flex items-start gap-3">
-                <i class="bi bi-lightning-charge-fill text-lg text-yellow-500"></i>
-                <div>
-                    <p class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get .Title}}</p>
-                    <p class="text-gray-500 dark:text-gray-400">{{.T.Get .Intro}}</p>
-                </div>
-            </div>
-            <button type="button" x-show="main.length > 0" @click="review()" class="relative inline-flex items-center justify-center gap-x-1.5 whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">
-                <i class="bi bi-lightning-charge"></i> <span x-text="{{toJSON (.T.Get "Review all")}} + ' (' + main.length + ')'"></span>
-            </button>
-        </div>
-        <div x-show="!loading && !error && recs.length === 0" x-cloak class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-            <i class="bi bi-check-circle text-green-500 dark:text-green-400"></i> {{.T.Get "No optimizations found, your settings look good for the current usage."}}
-        </div>
-        <div x-show="!loading && !error" x-cloak class="mt-2 flex flex-wrap gap-x-4 text-xs text-gray-500 dark:text-gray-400">
-            <span x-show="facts.server" x-text="facts.server"></span>
-            <span x-show="facts.memory_limit">{{.T.Get "Memory limit:"}} <span x-text="facts.memory_limit"></span><span x-show="facts.memory_used"> (<span x-text="facts.memory_used"></span> {{.T.Get "in use"}})</span></span>
-            <span x-show="facts.databases">{{.T.Get "Databases:"}} <span x-text="facts.databases"></span></span>
-            <span x-show="facts.data_size">{{.T.Get "Data:"}} <span x-text="facts.data_size"></span></span>
-            <span x-show="facts.domains">{{.T.Get "Domains:"}} <span x-text="facts.domains"></span></span>
-            <span x-show="facts.wordpress">WordPress: <span x-text="facts.wordpress"></span></span>
-            <span x-show="facts.workers">{{.T.Get "PHP workers:"}} <span x-text="facts.workers"></span></span>
-            <span x-show="facts.innodb_data">InnoDB: <span x-text="facts.innodb_data"></span></span>
-            <span x-show="facts.myisam_data">MyISAM: <span x-text="facts.myisam_data"></span></span>
-            <span x-show="facts.uptime">{{.T.Get "Uptime:"}} <span x-text="facts.uptime"></span></span>
+        <p x-show="loading" class="op-hint" style="display:flex;align-items:center;gap:8px"><span class="op-spin">{{template "op_icon" "refresh"}}</span> {{.T.Get .Checking}}</p>
+        <p x-show="!loading && error" x-cloak class="op-hint">{{.T.Get "Optimization suggestions are not available right now:"}} <span x-text="error"></span></p>
+        <p x-show="!loading && !error && recs.length === 0" x-cloak class="op-hint" style="display:flex;align-items:center;gap:8px"><span class="is-success" style="display:inline-flex">{{template "op_icon" "check"}}</span> {{.T.Get "No optimizations found, your settings look good for the current usage."}}</p>
+        <div x-show="!loading && !error" x-cloak class="op-chips" style="gap:6px">
+            <span class="op-tag" x-show="facts.memory_limit"><span class="op-hint">{{.T.Get "Memory limit:"}}</span> <span class="op-mono"><span x-text="facts.memory_limit"></span><span x-show="facts.memory_used"> (<span x-text="facts.memory_used"></span> {{.T.Get "in use"}})</span></span></span>
+            <span class="op-tag" x-show="facts.databases"><span class="op-hint">{{.T.Get "Databases:"}}</span> <span class="op-mono" x-text="facts.databases"></span></span>
+            <span class="op-tag" x-show="facts.data_size"><span class="op-hint">{{.T.Get "Data:"}}</span> <span class="op-mono" x-text="facts.data_size"></span></span>
+            <span class="op-tag" x-show="facts.domains"><span class="op-hint">{{.T.Get "Domains:"}}</span> <span class="op-mono" x-text="facts.domains"></span></span>
+            <span class="op-tag" x-show="facts.wordpress"><span class="op-hint">WordPress:</span> <span class="op-mono" x-text="facts.wordpress"></span></span>
+            <span class="op-tag" x-show="facts.workers"><span class="op-hint">{{.T.Get "PHP workers:"}}</span> <span class="op-mono" x-text="facts.workers"></span></span>
+            <span class="op-tag" x-show="facts.innodb_data"><span class="op-hint">InnoDB:</span> <span class="op-mono" x-text="facts.innodb_data"></span></span>
+            <span class="op-tag" x-show="facts.myisam_data"><span class="op-hint">MyISAM:</span> <span class="op-mono" x-text="facts.myisam_data"></span></span>
+            <span class="op-tag" x-show="facts.uptime"><span class="op-hint">{{.T.Get "Uptime:"}}</span> <span class="op-mono" x-text="facts.uptime"></span></span>
+            <span class="op-tag" x-show="facts.server"><span class="op-hint">{{.T.Get "Server:"}}</span> <span class="op-mono" x-text="facts.server"></span></span>
         </div>
         <template x-for="note in notes">
-            <p x-show="!loading" class="mt-1 text-xs text-gray-500 dark:text-gray-400"><i class="bi bi-info-circle"></i> <span x-text="note"></span></p>
+            <p x-show="!loading" class="op-hint" x-text="note"></p>
         </template>
-        <div x-show="!loading && !error && insights.length > 0" x-cloak class="mt-3" x-data="{ showInsights: false }">
-            <button type="button" @click="showInsights = !showInsights" class="flex items-center gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-50">
-                <i class="bi bi-search"></i> <span x-text="{{toJSON (.T.Get "Other findings")}} + ' (' + insights.length + ')'"></span>
-                <i class="bi" :class="showInsights ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
-            </button>
-            <p x-show="!showInsights" class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Things a setting can't fix, your apps or tables need a change."}}</p>
-            <div x-show="showInsights" class="mt-2 space-y-2">
-                <template x-for="item in insights" :key="item.title">
-                    <div class="rounded border border-gray-200 dark:border-gray-800 p-3">
-                        <p class="font-semibold text-gray-900 dark:text-gray-50" x-text="item.title"></p>
-                        <p class="text-gray-600 dark:text-gray-400 text-wrap" x-text="item.detail"></p>
-                        <ul x-show="item.items && item.items.length" class="mt-1 list-disc pl-5 font-mono text-xs text-gray-500 dark:text-gray-400">
-                            <template x-for="name in (item.items || [])"><li x-text="name"></li></template>
-                        </ul>
-                    </div>
-                </template>
-            </div>
-        </div>
-    </div>
+        <div class="op-alert is-warning" role="status" style="margin-top:14px" x-show="!loading && !error && insights.length > 0" x-cloak x-data="{ showInsights: false }">{{template "op_icon" "alert"}}<span>
+            <b>{{.T.Get "Things a setting can't fix, your apps or tables need a change."}}</b>
+            <button type="button" class="op-linkbtn" @click="showInsights = !showInsights" x-text="showInsights ? {{toJSON (.T.Get "Hide")}} : {{toJSON (.T.Get "See optimization")}} + ' (' + insights.length + ')'"></button>
+            <template x-for="item in insights" :key="item.title"><span x-show="showInsights" style="display:block;margin-top:8px"><b x-text="item.title"></b><br><span x-text="item.detail"></span><br><template x-for="name in (item.items || [])"><span class="op-tag op-mono" x-text="name" style="margin:4px 4px 0 0"></span></template></span></template>
+        </span></div>
+    </section>
 {{end}}
 
 {{define "db_tuning_button"}}
-<button type="button" x-show="byKey({{toJSON .Key}})" x-cloak @click="review({{toJSON .Key}})" title="{{.T.Get "See optimization"}}" class="shrink-0 rounded border border-yellow-500 bg-yellow-50 px-2 py-1.5 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
-                          <i class="bi bi-lightning-charge-fill"></i>
-                        </button>
+<button type="button" x-show="byKey({{toJSON .Key}})" x-cloak @click="review({{toJSON .Key}})" title="{{.T.Get "See optimization"}}" aria-label="{{.T.Get "See optimization"}} {{.Key}}" class="op-icon-btn" style="color:var(--color-accent-text)">{{template "op_icon" "bolt"}}</button>
 {{end}}
 
 {{define "db_tuning_dialog"}}
     <!-- confirm changes dialog -->
-    <div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.5);" @keydown.escape.window="open = false">
-        <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl w-full max-w-xl mx-4 flex flex-col" style="max-height: 85vh;" @click.outside="open = false">
-            <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 class="text-base font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Confirm Changes"}}</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Confirm the following changes:"}}</p>
-            </div>
-            <div class="overflow-y-auto px-5 py-4 space-y-4">
-                <template x-for="rec in selected" :key="rec.key">
-                    <div class="rounded border border-gray-200 dark:border-gray-800 p-4 text-sm">
-                        <p class="font-semibold text-gray-900 dark:text-gray-50"><span x-text="rec.label || rec.key"></span> <span x-show="rec.optional" class="ml-1 rounded bg-yellow-100 px-1.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">{{.T.Get "Trade-off"}}</span></p>
-                        <p class="text-xs font-mono text-gray-500 dark:text-gray-400" x-text="rec.key"></p>
-                        <dl class="mt-2 grid grid-cols-2 gap-2">
-                            <div>
-                                <dt class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Previous Value"}}</dt>
-                                <dd class="font-mono text-gray-900 dark:text-gray-50" x-text="rec.current"></dd>
-                            </div>
-                            <div>
-                                <dt class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "New Value"}}</dt>
-                                <dd class="font-mono font-semibold text-green-700 dark:text-green-400" x-text="rec.recommended"></dd>
-                            </div>
-                        </dl>
-                        <p class="mt-2 text-gray-600 dark:text-gray-400 text-wrap" x-text="rec.reason"></p>
-                    </div>
-                </template>
-                <p class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Optimizations are general suggestions and may not result in increased database performance for all use cases."}}</p>
-            </div>
-            <div class="flex flex-col gap-2 px-5 py-4 border-t border-gray-200 dark:border-gray-700 sm:flex-row sm:justify-end">
-                <button type="button" @click="open = false" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Cancel"}}</button>
-                <button type="button" @click="save()" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-black bg-black text-white hover:bg-gray-800">{{.T.Get "Save Changes"}}</button>
-            </div>
-        </div>
+    <div class="op-scrim" x-show="open" x-cloak @click="open = false"></div>
+    <div class="op-sheet" role="dialog" aria-label="{{.T.Get "Confirm Changes"}}" x-show="open" x-cloak @keydown.escape.window="open = false">
+        <h2>{{.T.Get "Confirm Changes"}}</h2>
+        <p class="op-meta">{{.T.Get "Confirm the following changes:"}}</p>
+        <div class="op-table-wrap" style="margin:14px 0"><table class="op-table is-plain">
+            <thead><tr><th>{{.T.Get "Setting"}}</th><th>{{.T.Get "Previous Value"}}</th><th>{{.T.Get "New Value"}}</th></tr></thead>
+            <tbody><template x-for="rec in selected" :key="rec.key"><tr>
+                <td><span class="op-mono" x-text="rec.key"></span> <span x-show="rec.optional" class="op-badge is-warning">{{.T.Get "Trade-off"}}</span><span class="op-sub" x-text="rec.reason" style="display:block;max-width:280px;white-space:normal"></span></td>
+                <td data-label="{{.T.Get "Previous Value"}}"><span class="op-mono" x-text="rec.current"></span></td>
+                <td data-label="{{.T.Get "New Value"}}"><span class="op-mono" style="color:var(--color-accent-text)" x-text="rec.recommended"></span></td>
+            </tr></template></tbody>
+        </table></div>
+        <p class="op-hint">{{.T.Get "Optimizations are general suggestions and may not result in increased database performance for all use cases."}}</p>
+        <div class="op-actions" style="margin-top:16px"><button type="button" @click="open = false" class="op-btn op-btn-secondary">{{.T.Get "Cancel"}}</button><button type="button" @click="save()" class="op-btn op-btn-primary" style="flex:1">{{.T.Get "Save Changes"}}</button></div>
     </div>
 {{end}}

@@ -1,7 +1,6 @@
 // Shared client-side column sorting for admin tables.
 //
-// Usage: render headers with the `sort_header(label, key, type)` macro from
-// macros.html, and mark each row's sortable <td> with `data-sort-col="key"`
+// Usage: render each header as a `button.op-th-sort` with data-sort-key/data-sort-type calling opSortToggle, and mark each row's sortable <td> with `data-sort-col="key"`
 // (matching the header's key) plus an optional `data-sort-value="..."` when
 // the visible text isn't the raw sortable value (badges, truncation, nested
 // links). Rows are matched to columns by that key, not DOM position, so
@@ -74,10 +73,14 @@
         rows.forEach(row => tbody.appendChild(row));
     }
 
+    // the header button's th carries aria-sort, which draws the one arrow
     function updateSortIndicators(table, activeKey, activeDirection) {
-        table.querySelectorAll('a[data-sort-key]').forEach(function (link) {
-            const isActive = link.dataset.sortKey === activeKey && link.dataset.direction === activeDirection;
-            link.querySelector('svg').classList.toggle('opacity-30', !isActive);
+        table.querySelectorAll('.op-th-sort[data-sort-key]').forEach(function (btn) {
+            const th = btn.closest('th');
+            if (!th) return;
+            const active = btn.dataset.sortKey === activeKey;
+            th.setAttribute('aria-sort', active ? (activeDirection === 'asc' ? 'ascending' : 'descending') : 'none');
+            if (active) btn.dataset.direction = activeDirection;
         });
     }
 
@@ -121,9 +124,10 @@
         const direction = params.get('direction') === 'asc' ? 'asc' : 'desc';
         if (!sortKey) return;
 
-        const link = document.querySelector(
-            'a[data-sort-key="' + CSS.escape(sortKey) + '"][data-direction="' + direction + '"]'
-        );
-        if (link) applySort(link);
+        const btn = document.querySelector('.op-th-sort[data-sort-key="' + CSS.escape(sortKey) + '"]');
+        if (btn) {
+            btn.dataset.direction = direction;
+            applySort(btn);
+        }
     });
 })();

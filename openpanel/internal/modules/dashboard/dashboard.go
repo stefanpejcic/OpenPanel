@@ -134,6 +134,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	upsellURL, _ := injected["upsell_url"].(string)
 
 	currentUsername, _ := injected["current_username"].(string)
+	userContext, _ := injected["context"].(string)
 	sessionLocale, _ := sess.Values["locale"].(string)
 	userLocale := i18nUserLocale(injected)
 	locale := a.I18n.ResolveLocale(ctx, sessionLocale, userLocale, r.Header.Get("Accept-Language"))
@@ -169,6 +170,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		Title:             "Dashboard",
 		BrandName:         a.Config.Get("brand_name", ""),
 		Logo:              a.Config.Get("logo", ""),
+		LogoDark:          a.Config.Get("logo_dark", ""),
 		Favicon:           a.Config.Get("favicon", ""),
 		CSRFToken:         csrf.Token(r),
 		PanelDir:          panelDir,
@@ -222,6 +224,8 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		TwofaStatusMessage:    twofaStatusMessage(t, d.TwofaEnabled),
 		IPAddress:             d.IPAddress,
 		LastIP:                d.LastIP,
+		LastLoginAgo:          timeAgo(t, d.LastLoginTime, time.Now()),
+		LastLoginTime:         d.LastLoginTime,
 		IPCountyFlag:          d.IPCountyFlag,
 		NS1:                   d.NS1,
 		NS2:                   d.NS2,
@@ -231,6 +235,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		HowToTopics:           convertHowToTopics(d.HowToTopics),
 		KnowledgeBaseLink:     d.KnowledgeBaseLink,
 		UserWebsitesCount:     len(d.UserWebsites),
+		Websites:              dashboardSites(r.Context(), a, userContext, d.UserWebsites),
 		MainDomainsCount:      len(d.MainDomains),
 		DBUsage:               d.DBUsage,
 		EmailCount:            d.EmailCount,
@@ -406,6 +411,7 @@ type DashboardData struct {
 	CustomSectionItems    []map[string]any
 	CustomSectionPosition string
 	LastIP                string
+	LastLoginTime         string
 	NS1, NS2, NS3, NS4    string
 	Plan                  appctx.PlanDetails
 	CPULimit              int
@@ -431,8 +437,13 @@ type OnboardingSkip struct {
 }
 
 type UserWebsite struct {
-	SiteName string
-	Type     string
+	SiteName   string
+	Type       string
+	DomainURL  string
+	PHPVersion string
+	// compose service and port for apps in their own container
+	Container string
+	Ports     string
 }
 
 // buildDashboardData mirrors dashboard()'s full body, everything up through the render_template call
@@ -499,9 +510,9 @@ func buildDashboardData(a *appctx.App, ctx context.Context, userID int, injected
 		return DashboardData{}, err
 	}
 	if len(lastLogins) >= 2 {
-		d.LastIP = lastLogins[len(lastLogins)-2].IP
+		d.LastIP, d.LastLoginTime = lastLogins[len(lastLogins)-2].IP, lastLogins[len(lastLogins)-2].LoginTime
 	} else if len(lastLogins) == 1 {
-		d.LastIP = lastLogins[0].IP
+		d.LastIP, d.LastLoginTime = lastLogins[0].IP, lastLogins[0].LoginTime
 	}
 
 	d.HowToGuides = a.Config.Get("how_to_guides", "")
@@ -550,6 +561,45 @@ func buildDashboardData(a *appctx.App, ctx context.Context, userID int, injected
 	return d, nil
 }
 
+// PlanUsage counts what the account uses against its plan limits with the dashboard's own counters, keys are left out when the count isn't available
+func PlanUsage(a *appctx.App, ctx context.Context, userID int, injected map[string]any) map[string]int {
+	currentUsername, _ := injected["current_username"].(string)
+	userContext, _ := injected["context"].(string)
+	userAllowedSlice, _ := injected["user_allowed"].([]string)
+	userAllowed := map[string]bool{}
+	for _, m := range userAllowedSlice {
+		userAllowed[m] = true
+	}
+
+	usage := map[string]int{}
+	if sites, err := GetUserWebsites(a, ctx, userID); err == nil {
+		usage["websites"] = len(sites)
+	}
+	if userDomains, err := a.AllDomainsForUser(ctx, userID); err == nil {
+		main, _ := appctx.Categorize(userDomains)
+		usage["domains"] = len(main)
+		if userAllowed["emails"] {
+			domainSet := make(map[string]bool, len(userDomains))
+			for _, dm := range userDomains {
+				domainSet[dm.DomainURL] = true
+			}
+			usage["emails"] = emails.GetEmailCount(ctx, a, userID, currentUsername, domainSet)
+		}
+	}
+	if userAllowed["mysql"] {
+		usage["databases"] = getDatabaseCount(a, ctx, currentUsername, userContext)
+	}
+	if userAllowed["ftp"] {
+		usage["ftp"] = countFTPAccounts(a, ctx, userContext)
+	}
+	if disk, err := getDiskAndInodesForUser(a, ctx, currentUsername); err == nil && disk != nil {
+		// quota numbers are 1K blocks, the soft limits are what the plan set
+		usage["disk_used_kb"], usage["disk_soft_kb"] = int(disk.DiskUsed), int(disk.DiskSoft)
+		usage["inodes"], usage["inodes_soft"] = int(disk.InodesUsed), int(disk.InodesSoft)
+	}
+	return usage
+}
+
 // restrictedDatabasesSQL renders config's mysql_restricted_databases (space-separated, optionally quoted) as a SQL string list for `NOT IN (...)`
 func restrictedDatabasesSQL(cfg config.Config) string {
 	raw := stripQuotes(cfg.Get("mysql_restricted_databases",
@@ -595,8 +645,9 @@ func getDatabaseCount(a *appctx.App, ctx context.Context, username, userContext 
 func GetUserWebsites(a *appctx.App, ctx context.Context, userID int) ([]UserWebsite, error) {
 	return cache.Memoize(ctx, a.Cache, fmt.Sprintf("get_user_websites:%d", userID), 30*time.Second, func() ([]UserWebsite, error) {
 		rows, err := a.DB.QueryContext(ctx, `
-			SELECT site_name, type FROM sites
-			WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?) LIMIT 1000`, userID)
+			SELECT s.site_name, s.type, d.domain_url, d.php_version, s.container, s.ports FROM sites s
+			JOIN domains d ON d.domain_id = s.domain_id
+			WHERE d.user_id = ? ORDER BY s.id DESC LIMIT 1000`, userID)
 		if err != nil {
 			return nil, err
 		}
@@ -605,14 +656,19 @@ func GetUserWebsites(a *appctx.App, ctx context.Context, userID int) ([]UserWebs
 		var sites []UserWebsite
 		for rows.Next() {
 			var (
-				s        UserWebsite
-				siteName sql.NullString
-				siteType sql.NullString
+				s          UserWebsite
+				siteName   sql.NullString
+				siteType   sql.NullString
+				domainURL  sql.NullString
+				phpVersion sql.NullString
+				container  sql.NullString
+				ports      sql.NullString
 			)
-			if err := rows.Scan(&siteName, &siteType); err != nil {
+			if err := rows.Scan(&siteName, &siteType, &domainURL, &phpVersion, &container, &ports); err != nil {
 				return nil, err
 			}
-			s.SiteName, s.Type = siteName.String, siteType.String
+			s.SiteName, s.Type, s.DomainURL, s.PHPVersion = siteName.String, siteType.String, domainURL.String, phpVersion.String
+			s.Container, s.Ports = container.String, ports.String
 			sites = append(sites, s)
 		}
 		return sites, rows.Err()

@@ -1,0 +1,164 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+<script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+{{template "cms_block" .}}
+        {{template "cms_block_2" .}}
+        {{template "cms_block_4" .}}
+    <div class="flex flex-col space-y-4 rounded xl:col-span-3">
+
+        {{template "cms_block_9" .}}
+            {{template "cms_tabbtn_dashboard" .}}
+            {{template "cms_tabbtn_backups" .}}
+            {{template "cms_tab_security" .}}
+        {{template "cms_tab_dashboard" .}}
+            <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
+                <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
+                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded xl:col-span-3">
+                        {{template "cms_block_10" .}}
+                {{template "cms_block_11" .}}
+                {{template "cms_block_12" .}}
+                <div class="flex flex-col justify-top overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+                    <div class="mb-2 flex items-center justify-between gap-4 relative">
+                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
+                        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Setup"}}</h2>
+                    </div>
+                    <div class="grid grid-cols-1 gap-2">
+                        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "TinyFileManager is ready to use - log in with the admin credentials set at install time."}}</p>
+                        <a href="http://{{.CurrentDomain}}" target="_blank" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 w-fit">
+                            {{.T.Get "Open site"}}
+                        </a>
+                    </div>
+                </div>
+                <!-- END setup info -->
+
+            </dl>
+        </div>
+
+        <div class="hidden p-4 rounded" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+
+            {{template "cms_block_15" .}}
+            {{template "cms_block_16" .}}
+            {{template "cms_script_3" .}}
+        </div>
+
+        <div class="hidden p-4 rounded" id="remove" role="tabpanel" aria-labelledby="remove-tab">
+            <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Detach"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Remove the TinyFileManager wiki from Site Manager."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <button x-show="!open" @click="open = true" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                                    <i class="bi bi-x mr-2"></i> {{.T.Get "Detach TinyFileManager"}}
+                                </button>
+                                <div x-show="open">
+                                    <p class="text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Remove the TinyFileManager wiki from this manager without actually deleting any files."}}</p>
+                                    <p class="my-2 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "All website data such as files remains. Use Scan on Site Manager to re-add it later."}}</p>
+                                    <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:space-x-2 my-6">
+                                        <button onclick="confirmDetachTinyFileManager()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 w-100" type="button">
+                                        {{.T.Get "Confirm Detach"}}
+                                        </button>
+                                        <button @click="open = false" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100" type="button">
+                                        {{.T.Get "Cancel"}}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div class="whitespace-nowrap text-inherit">{{.T.Get "or"}}</div><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div></div></div>
+
+            <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Delete"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "Permanently removes this TinyFileManager wiki."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <button x-show="!open" @click="open = true" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 mt-2 gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 w-100">
+                                    <i class="bi bi-trash3 mr-2"></i> {{.T.Get "Delete Application"}}
+                                </button>
+                                <div x-show="open">
+                                    <p class="text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "This will delete every file in the docroot and remove it from Site Manager."}}</p>
+                                    <p class="my-2 text-sm/6 text-red-500 dark:text-red-400">{{.T.Get "This cannot be undone."}}</p>
+                                    <div class="flex flex-col-reverse sm:flex-row sm:justify-center sm:space-x-2 my-6">
+                                        <button onclick="confirmRemoveTinyFileManager()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 w-100" type="button">
+                                        {{.T.Get "Confirm delete"}}
+                                        </button>
+                                        <button @click="open = false" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-transparent text-white dark:text-white bg-gray-400 hover:bg-gray-500 w-100" type="button">
+                                        {{.T.Get "Cancel"}}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+        </div>
+
+    </div>
+
+    <div class="flex flex-col space-y-4 rounded xl:col-span-1">
+
+        {{template "pagespeed_panel" .}}
+
+        {{template "visitors" .}}
+
+        {{template "cms_block_26" .}}
+<script>
+const TINYPHOTOGALLERY_SITE_ID = {{toJSON .Container.ID}};
+
+function confirmRemoveTinyFileManager() {
+    showToast({{toJSON (.T.Get "TinyFileManager removal started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/tinyfilemanager/remove', true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            window.location.href = '/sites';
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(TINYPHOTOGALLERY_SITE_ID));
+}
+
+function confirmDetachTinyFileManager() {
+    showToast({{toJSON (.T.Get "TinyFileManager detach process started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/sites/detach', true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                window.location.href = '/sites';
+            } else {
+                showToast({{toJSON (.T.Get "An error occurred while detaching TinyFileManager. Please try again.")}}, 'error');
+            }
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(TINYPHOTOGALLERY_SITE_ID));
+}
+</script>
+
+{{template "cms_script_8" .}}
+
+<!-- END templates/manager/tinyfilemanager_app.html -->
+{{end}}

@@ -1,0 +1,61 @@
+2026-10-26T16:47:24.156657076Z [26-Oct-2026 16:47:24] NOTICE: PHP message: PHP Warning:  JIT is incompatible with third party extensions that setup user opcode handlers. JIT disabled. in Unknown on line 0
+2026-10-26T16:47:24.169601213Z [26-Oct-2026 16:47:24] NOTICE: fpm is running, pid 1
+2026-10-26T16:47:24.172542754Z [26-Oct-2026 16:47:24] NOTICE: ready to handle connections
+2026-10-26T21:56:23.699386990Z NOTICE: PHP message: PHP Warning:  require(/var/www/html/php.tests.openpanel.org/composerapp/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/html/php.tests.openpanel.org/composerapp/index.php on line 1
+2026-10-26T21:56:23.699386990Z NOTICE: PHP message: PHP Warning:  require(/var/www/html/php.tests.openpanel.org/composerapp/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/html/php.tests.openpanel.org/composerapp/index.php on line 1
+2026-10-26T21:56:23.699386990Z NOTICE: PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/html/php.tests.openpanel.org/composerapp/../vendor/autoload.php' (include_path='.:/usr/local/lib/php') in /var/www/html/php.tests.openpanel.org/composerapp/index.php:1
+2026-10-26T21:56:23.699386990Z Stack trace:
+2026-10-26T21:56:23.699386990Z #0 {main}
+2026-10-26T21:56:23.699386990Z   thrown in /var/www/html/php.tests.openpanel.org/composerapp/index.php on line 1
+2026-10-26T21:56:31.637456473Z NOTICE: PHP message: PHP Warning:  require(/var/www/html/php.tests.openpanel.org/composerapp/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/html/php.tests.openpanel.org/composerapp/index.php on line 1
+2026-10-26T21:56:31.637456473Z NOTICE: PHP message: PHP Warning:  require(/var/www/html/php.tests.openpanel.org/composerapp/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/html/php.tests.openpanel.org/composerapp/index.php on line 1
+2026-10-26T21:56:31.637456473Z NOTICE: PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/html/php.tests.openpanel.org/composerapp/../vendor/autoload.php' (include_path='.:/usr/local/lib/php') in /var/www/html/php.tests.openpanel.org/composerapp/index.php:1
+2026-10-26T21:56:31.637456473Z Stack trace:
+2026-10-26T21:56:31.637456473Z #0 {main}
+2026-10-26T21:56:31.637456473Z   thrown in /var/www/html/php.tests.openpanel.org/composerapp/index.php on line 1
+2026-10-26T21:56:40.261012748Z NOTICE: PHP message: PHP Warning:  require(/var/www/html/php.tests.openpanel.org/composerapp/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/html/php.tests.openpanel.org/composerapp/index.php on line 1
+2026-10-26T21:56:40.261012748Z NOTICE: PHP message: PHP Warning:  require(/var/www/html/php.tests.openpanel.org/composerapp/../vendor/autoload.php): Failed to open stream: No such file or directory in /var/www/html/php.tests.openpanel.org/composerapp/index.php on line 1
+2026-10-26T21:56:40.261012748Z NOTICE: PHP message: PHP Fatal error:  Uncaught Error: Failed opening required '/var/www/html/php.tests.openpanel.org/composerapp/../vendor/autoload.php' (include_path='.:/usr/local/lib/php') in /var/www/html/php.tests.openpanel.org/composerapp/index.php:1
+2026-10-26T21:56:40.261012748Z Stack trace:
+2026-10-26T21:56:40.261012748Z #0 {main}
+2026-10-26T21:56:40.261012748Z   thrown in /var/www/html/php.tests.openpanel.org/composerapp/index.php on line 1
+2026-10-29T11:34:14.818245532Z usermod: user root is currently used by process 1
+2026-10-29T11:34:14.832815222Z Updating file ownership: 33:33 → 0:1002
+2026-10-29T11:34:51.324227357Z PHP-FPM tuned for 1024MB: max_children=15
+2026-10-29T11:35:06.317321344Z 
+2026-10-29T11:35:06.317961707Z ░█▀▀░█░█░▀█▀░█▀█░█▀▀░█▀▀░█▀█░▀█▀░█▀▀░█▀▄░░░█░█▀█░█░█░█▀█
+2026-10-29T11:35:06.317961707Z ░▀▀█░█▀█░░█░░█░█░▀▀█░█▀▀░█░█░░█░░█▀▀░█▀▄░▄▀░░█▀▀░█▀█░█▀▀
+2026-10-29T11:35:06.317961707Z ░▀▀▀░▀░▀░▀▀▀░▀░▀░▀▀▀░▀▀▀░▀░▀░░▀░░▀▀▀░▀░▀░▀░░░▀░░░▀░▀░▀░░
+2026-10-29T11:35:06.317961707Z 
+2026-10-29T11:35:06.317961707Z If you find my Docker images useful, consider donating via PayPal:
+2026-10-29T11:35:06.317961707Z  -> https://www.paypal.me/shinsenter
+2026-10-29T11:35:06.317961707Z 
+2026-10-29T11:35:06.317961707Z (To edit this welcome message, add your text to /etc/welcome.txt)
+2026-10-29T11:35:06.317961707Z ---------------
+2026-10-29T11:35:06.317961707Z Docker Images by SHIN Company
+2026-10-29T11:35:06.317961707Z Copyright (C) 2026 Mai Nhut Tan <shin@shin.company>
+2026-10-29T11:35:06.317961707Z 
+2026-10-29T11:35:06.317961707Z This software is free under the GNU General Public License (GPL).
+2026-10-29T11:35:06.317961707Z You can redistribute and/or modify it under the terms of the GNU GPL.
+2026-10-29T11:35:06.317961707Z This program is provided with the hope that it will be useful,
+2026-10-29T11:35:06.317961707Z but it comes WITHOUT ANY WARRANTY. For more details, refer to the GNU GPL.
+2026-10-29T11:35:06.317961707Z 
+2026-10-29T11:35:06.317961707Z To get support, please contact: Mai Nhut Tan <shin@shin.company>
+2026-10-29T11:35:06.317961707Z Docker Hub:      https://hub.docker.com/u/shinsenter
+2026-10-29T11:35:06.317961707Z GitHub Packages: https://github.com/shinsenter?tab=packages
+2026-10-29T11:35:06.317961707Z 
+2026-10-29T11:35:06.317961707Z ---------------
+2026-10-29T11:35:06.317961707Z Container     : shinsenter/php (built: 2026-10-24T23:31:23+0000)
+2026-10-29T11:35:06.317961707Z Distro        : Debian GNU/Linux 13 (trixie) (arch: linux/amd64)
+2026-10-29T11:35:06.317961707Z Timezone      : UTC (GMT+0000)
+2026-10-29T11:35:06.317961707Z UID / GID     : root:root (0:1002)
+2026-10-29T11:35:06.317961707Z App Root      : /var/www/html
+2026-10-29T11:35:06.317961707Z Document Root : /var/www/html
+2026-10-29T11:35:06.317961707Z ---------------
+2026-10-29T11:35:06.317961707Z 
+2026-10-29T11:35:06.987144583Z [29-Oct-2026 11:35:06] NOTICE: PHP message: PHP Warning:  JIT is incompatible with third party extensions that setup user opcode handlers. JIT disabled. in Unknown on line 0
+2026-10-29T11:35:07.056255617Z PHP 8.5.12 (fpm-fcgi) (built: Oct 21 2026 15:49:51) (NTS)
+2026-10-29T11:35:07.056255617Z Copyright (c) The PHP Group
+2026-10-29T11:35:07.056255617Z Built by https://github.com/docker-library/php
+2026-10-29T11:35:07.056255617Z Zend Engine v4.5.12, Copyright (c) Zend Technologies
+2026-10-29T11:35:07.056255617Z     with the ionCube PHP Loader v15.5.1, Copyright (c) 2002-2026, by ionCube Ltd.

@@ -83,14 +83,14 @@ func TestSidebarSections(t *testing.T) {
 			sections[item.Section] = item.Label
 		}
 	}
-	if sections["Configure"] != "PHP" || sections["Monitor & Secure"] != "Statistics" {
+	if sections["Configure"] != "PHP" || sections["Monitor"] != "Statistics" {
 		t.Errorf("unexpected section starts: %v", sections)
 	}
 
 	// a section with no visible areas hands its heading to nobody, the next section still gets its own
 	items := BuildSidebarNav(map[string]bool{"domains": true, "info": true}, nil, "/domains")
-	if items[1].Label != "Server Info" || items[1].Section != "Monitor & Secure" {
-		t.Errorf("expected Server Info to carry the Monitor & Secure heading, got %+v", items)
+	if items[1].Label != "Server Info" || items[1].Section != "Account" {
+		t.Errorf("expected Server Info to carry the Account heading, got %+v", items)
 	}
 }
 
@@ -243,15 +243,15 @@ func TestBuildPageTabsServiceTabs(t *testing.T) {
 	}
 }
 
-func TestAccountIsSidebarItemBelowContainers(t *testing.T) {
+func TestAccountIsSidebarItemBelowStatistics(t *testing.T) {
 	allowed := map[string]bool{"docker": true, "locale": true, "favorites": true, "api": true, "mcp": true, "usage": true}
 	items := BuildSidebarNav(allowed, nil, "/account/favorites")
 	for i, item := range items {
 		if item.Label != "Account" {
 			continue
 		}
-		if i == 0 || items[i-1].Label != "Containers" {
-			t.Errorf("expected Account right below Containers, got %+v", items)
+		if i == 0 || items[i-1].Label != "Statistics" || item.Section != "Account" {
+			t.Errorf("expected Account under its own heading right below Statistics, got %+v", items)
 		}
 		if item.Href != "/account/language" || !item.Active {
 			t.Errorf("expected an active Account link to /account/language, got %+v", item)

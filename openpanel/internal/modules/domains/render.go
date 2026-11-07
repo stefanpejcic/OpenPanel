@@ -3,9 +3,13 @@ package domains
 import (
 	"log"
 	"net/http"
+	"net/url"
 	"sort"
+	"strconv"
+	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
@@ -23,7 +27,7 @@ var unsuspendPage = loadPage("domains/unsuspend.html")
 var docrootPage = loadPage("domains/docroot.html")
 var domainLogsPage = loadPage("domains/logs.html")
 var capitalizePage = loadPage("domains/capitalize.html")
-var vhostPage = loadPage("domains/vhost.html")
+var vhostPage = loadPage("partials/_conf_editor.html", "domains/vhost.html")
 var redirectPage = loadPage("domains/redirect.html")
 var sslPage = loadPage("domains/ssl.html")
 
@@ -36,10 +40,56 @@ type DomainsPageData struct {
 	StartLineNumber int
 	EndLineNumber   int
 	TotalDomains    int
-	PrevPage        int
-	NextPage        int
-	PageEntries     []PageEntry
-	Filters         []DomainFilter
+	// MainDomains is what counts toward DomainsLimit (subdomains don't), a limit of 0 is unlimited
+	MainDomains, DomainsLimit int
+	PrevPage                  int
+	NextPage                  int
+	PageEntries               []PageEntry
+	Filters                   []DomainFilter
+}
+
+// DomainsSummary feeds the tiles above the domains table, counted over the rows on this page
+type DomainsSummary struct {
+	Subdomains, SSLChecked, SSLValid, SSLExpiring, SSLBroken, WAFOn, Suspended int
+	FirstSuspended                                                             string
+	FirstSSLIssue                                                              string // the SSL note links here
+}
+
+func (d DomainsPageData) Summary() DomainsSummary {
+	var s DomainsSummary
+	for _, r := range d.Domains {
+		if r.IsSubdomain {
+			s.Subdomains++
+		}
+		if r.WAF == "On" || r.WAF == "DetectionOnly" {
+			s.WAFOn++
+		}
+		if r.Status == "Suspended" {
+			if s.Suspended == 0 {
+				s.FirstSuspended = r.DomainURL
+			}
+			s.Suspended++
+		}
+		if strings.HasSuffix(r.DomainURL, ".onion") {
+			continue
+		}
+		s.SSLChecked++
+		switch {
+		case r.HTTPS != "Automatic" && r.HTTPS != "Custom":
+			s.SSLBroken++
+		case r.SSL.Problem == "expiring":
+			s.SSLExpiring++
+		case r.SSL.Problem != "":
+			s.SSLBroken++
+		default:
+			s.SSLValid++
+			continue
+		}
+		if s.FirstSSLIssue == "" {
+			s.FirstSSLIssue = r.DomainURL
+		}
+	}
+	return s
 }
 
 // DomainFilter is one filter dropdown next to Show Columns on the domains list
@@ -103,7 +153,7 @@ func buildPageEntries(current, total int) []PageEntry {
 	return entries
 }
 
-func renderDomainsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, rows []DomainRow, totalPages, currentPage, startLine, endLine, totalDomains int) {
+func renderDomainsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, rows []DomainRow, totalPages, currentPage, startLine, endLine, totalDomains, mainDomains int) {
 	layout, injectedData, err := web.BuildLayoutData(a, w, r, "Domains")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -117,6 +167,12 @@ func renderDomainsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, ro
 		PrevPage: currentPage - 1, NextPage: currentPage + 1,
 		PageEntries: buildPageEntries(currentPage, totalPages),
 		Filters:     buildDomainFilters(layout.T, layout.UserAllowed, rows),
+		MainDomains: mainDomains,
+	}
+	if planID, _ := injectedData["hosting_plan"].(int); planID > 0 {
+		if plan, err := a.QueryPlanDetailsByID(r.Context(), planID); err == nil {
+			data.DomainsLimit = web.AtoiDefault(plan.DomainsLimit, 0)
+		}
 	}
 	if err := domainsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOMAINS - domains template render error: %v", err)
@@ -126,6 +182,7 @@ func renderDomainsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, ro
 // NewDomainPageData is new.html's template context (stateless besides layout, the form posts via fetch()/SSE, not a normal redirect-driven flow)
 type NewDomainPageData struct {
 	web.LayoutData
+	Sites []appctx.Domain // existing domains, so a new one can share a site's folder
 }
 
 func renderNewDomainPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -134,7 +191,9 @@ func renderNewDomainPage(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	if err := newDomainPage.Render(w, http.StatusOK, NewDomainPageData{LayoutData: layout}); err != nil {
+	userID, _ := auth.UserID(r)
+	sites, _ := a.AllDomainsForUser(r.Context(), userID)
+	if err := newDomainPage.Render(w, http.StatusOK, NewDomainPageData{LayoutData: layout, Sites: sites}); err != nil {
 		log.Printf("DOMAINS - new domain template render error: %v", err)
 	}
 }
@@ -230,14 +289,51 @@ func renderDocrootPage(a *appctx.App, w http.ResponseWriter, r *http.Request, do
 // DomainLogsPageData is logs.html's template context.
 type DomainLogsPageData struct {
 	web.LayoutData
-	DomainName                  string
-	JSONLogs                    []AccessLogEntry
+	DomainName string
+	// Missing is a domain whose access.log doesn't exist, the picker shows it as an alert
+	Missing                     string
+	Domains                     []DomainLogFile
+	Rows                        []AccessLogRow
+	Details                     []AccessLogDetail
+	Counts                      map[string]int
+	Status, Search, View        string
+	Matched                     int
 	ShowAll                     bool
 	CurrentPage, ItemsPerPage   int
 	TotalPages, TotalLines      int
 	TotalAllowedLinesForShowAll int
-	Domains                     []appctx.Domain
 	LogPageEntries              []PageEntry
+}
+
+// URL links to another page or status chip of the same log, keeping the search and view
+func (d DomainLogsPageData) URL(page int, status string) string {
+	v := url.Values{}
+	if d.Search != "" {
+		v.Set("q", d.Search)
+	}
+	if status != "" {
+		v.Set("status", status)
+	}
+	if d.View != "" {
+		v.Set("view", d.View)
+	}
+	if page > 1 {
+		v.Set("page", strconv.Itoa(page))
+	}
+	if d.ShowAll {
+		v.Set("show_all", "true")
+	}
+	u := "/domains/log/" + d.DomainName
+	if len(v) > 0 {
+		u += "?" + v.Encode()
+	}
+	return u
+}
+
+// ShowAllURL is the same filters on one page
+func (d DomainLogsPageData) ShowAllURL() string {
+	d.ShowAll = true
+	return d.URL(1, d.Status)
 }
 
 // buildLogPageEntries mirrors logs.html's own pagination window (distinct from domains.html's current±2 scheme): a fixed window of 2 pages around current, with page 1 and total_pages always shown, bridged by a single ellipsis each side when there's a gap
@@ -271,30 +367,29 @@ func buildLogPageEntries(current, total int) []PageEntry {
 	return entries
 }
 
-func renderDomainLogsSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainsList []appctx.Domain) {
+func renderDomainLogsSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, files []DomainLogFile, missing string) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Access Logs")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := DomainLogsPageData{LayoutData: layout, Domains: domainsList}
-	if err := domainLogsPage.Render(w, http.StatusOK, data); err != nil {
+	status := http.StatusOK
+	if missing != "" {
+		status = http.StatusNotFound
+	}
+	data := DomainLogsPageData{LayoutData: layout, Domains: files, Missing: missing}
+	if err := domainLogsPage.Render(w, status, data); err != nil {
 		log.Printf("DOMAINS - logs template render error: %v", err)
 	}
 }
 
-func renderDomainLogsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainName string, entries []AccessLogEntry, showAll bool, currentPage, itemsPerPage, totalPages, totalLines, totalAllowedForShowAll int) {
-	layout, _, err := web.BuildLayoutData(a, w, r, domainName+" Access Log")
+func renderDomainLogsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data DomainLogsPageData, files []DomainLogFile) {
+	layout, _, err := web.BuildLayoutData(a, w, r, data.DomainName+" Access Log")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := DomainLogsPageData{
-		LayoutData: layout, DomainName: domainName, JSONLogs: entries, ShowAll: showAll,
-		CurrentPage: currentPage, ItemsPerPage: itemsPerPage, TotalPages: totalPages,
-		TotalLines: totalLines, TotalAllowedLinesForShowAll: totalAllowedForShowAll,
-		LogPageEntries: buildLogPageEntries(currentPage, totalPages),
-	}
+	data.LayoutData, data.Domains = layout, files
 	if err := domainLogsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOMAINS - logs template render error: %v", err)
 	}
@@ -326,64 +421,80 @@ type VhostPageData struct {
 	WebServerPreference string
 	VhostContent        string
 	Domains             []appctx.Domain
+	VhostFiles          map[string]VhostFileInfo // keyed by domain, missing when the file can't be read
+	Domain              appctx.Domain            // edit page: docroot and PHP version for the summary tiles
+	File                VhostFileInfo            // edit page: ports read from the file
 }
 
-func renderVhostSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, webServerPreference string, domainsList []appctx.Domain) {
+func renderVhostSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, webServerPreference string, domainsList []appctx.Domain, vhostFiles map[string]VhostFileInfo) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Edit VirtualHosts File")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := VhostPageData{LayoutData: layout, WebServerPreference: webServerPreference, Domains: domainsList}
+	data := VhostPageData{LayoutData: layout, WebServerPreference: webServerPreference, Domains: domainsList, VhostFiles: vhostFiles}
 	if err := vhostPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOMAINS - vhost template render error: %v", err)
 	}
 }
 
-func renderVhostEditPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainName, webServerPreference, vhostContent string) {
+func renderVhostEditPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainName, webServerPreference, vhostContent string, domain appctx.Domain) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Edit VirtualHosts for "+domainName)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := VhostPageData{LayoutData: layout, DomainName: domainName, WebServerPreference: webServerPreference, VhostContent: vhostContent}
+	data := VhostPageData{LayoutData: layout, DomainName: domainName, WebServerPreference: webServerPreference, VhostContent: vhostContent, Domain: domain, File: parseVhostFile(vhostContent)}
 	if err := vhostPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOMAINS - vhost template render error: %v", err)
 	}
 }
 
+// RedirectRow is one redirected domain on the Redirects page
+type RedirectRow struct {
+	Domain    string `json:"domain"`
+	To        string `json:"to"`
+	Permanent bool   `json:"permanent"`
+	KeepPath  bool   `json:"keep_path"`
+	BareOnly  bool   `json:"bare_only"`
+}
+
 // RedirectPageData is redirect.html's template context.
 type RedirectPageData struct {
 	web.LayoutData
-	DomainName  string
-	RedirectURL string
-	Domains     []appctx.Domain
+	Rows []RedirectRow
+	// Free are the domains without a redirect, the new-redirect picker's options
+	Free []string
+	// DomainCount counts every domain that can take a redirect
+	DomainCount int
+	// Open is the domain whose form opens on load, from ?domain=
+	Open string
 }
 
-func renderRedirectSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainsList []appctx.Domain) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Redirect Domain to URL")
+// buildRedirectPageData splits the user's domains into redirected rows and free ones, .onion ones can't redirect
+func buildRedirectPageData(layout web.LayoutData, domainsList []appctx.Domain, existing map[string]redirectRule, open string) RedirectPageData {
+	data := RedirectPageData{LayoutData: layout, Open: open}
+	for _, d := range domainsList {
+		if strings.HasSuffix(d.DomainURL, ".onion") {
+			continue
+		}
+		data.DomainCount++
+		if rule := existing[d.DomainURL]; rule.To != "" {
+			data.Rows = append(data.Rows, RedirectRow{Domain: d.DomainURL, To: rule.To, Permanent: rule.Permanent, KeepPath: rule.KeepPath, BareOnly: rule.BareOnly})
+		} else {
+			data.Free = append(data.Free, d.DomainURL)
+		}
+	}
+	return data
+}
+
+func renderRedirectsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainsList []appctx.Domain, existing map[string]redirectRule, open string) {
+	layout, _, err := web.BuildLayoutData(a, w, r, "Redirects")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := RedirectPageData{LayoutData: layout, Domains: domainsList}
-	if err := redirectPage.Render(w, http.StatusOK, data); err != nil {
-		log.Printf("DOMAINS - redirect template render error: %v", err)
-	}
-}
-
-func renderRedirectEditPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainName, redirectURL string, domainsList []appctx.Domain) {
-	title := "Create Redirect for " + domainName
-	if redirectURL != "" {
-		title = "Edit Redirect for " + domainName
-	}
-	layout, _, err := web.BuildLayoutData(a, w, r, title)
-	if err != nil {
-		http.Error(w, "internal error", http.StatusInternalServerError)
-		return
-	}
-	data := RedirectPageData{LayoutData: layout, DomainName: domainName, RedirectURL: redirectURL, Domains: domainsList}
-	if err := redirectPage.Render(w, http.StatusOK, data); err != nil {
+	if err := redirectPage.Render(w, http.StatusOK, buildRedirectPageData(layout, domainsList, existing, open)); err != nil {
 		log.Printf("DOMAINS - redirect template render error: %v", err)
 	}
 }
@@ -395,9 +506,54 @@ type SSLPageData struct {
 	CurrentSetting string
 	Keys           string
 	Domains        []appctx.Domain
+	Certs          []SSLRow // landing page: every domain's certificate
+	Install        string   // ?install=domain opens the custom certificate sheet for it
 }
 
-func renderSSLPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainName, currentSetting, keys string, domainsList []appctx.Domain) {
+// SSLRow is one domain on the SSL overview
+type SSLRow struct {
+	Domain string
+	HTTPS  string // Automatic, Custom or anything else for none
+	SSL    SSLCertInfo
+}
+
+// SSLSummary feeds the tiles on the SSL overview
+type SSLSummary struct {
+	Valid, Expiring, Expired, Pending               int
+	FirstExpiring, FirstExpired, FirstPending, Next string
+}
+
+func (d SSLPageData) Summary() SSLSummary {
+	var s SSLSummary
+	soonest := -1
+	for _, c := range d.Certs {
+		switch {
+		case c.HTTPS != "Automatic" && c.HTTPS != "Custom", c.SSL.Problem == "missing":
+			if s.FirstPending == "" {
+				s.FirstPending = c.Domain
+			}
+			s.Pending++
+		case c.SSL.Problem == "expired" || c.SSL.Problem == "unreadable":
+			if s.FirstExpired == "" {
+				s.FirstExpired = c.Domain
+			}
+			s.Expired++
+		case c.SSL.Problem == "expiring":
+			if s.FirstExpiring == "" {
+				s.FirstExpiring = c.Domain
+			}
+			s.Expiring++
+		default:
+			s.Valid++
+			if soonest < 0 || c.SSL.Days < soonest {
+				soonest, s.Next = c.SSL.Days, c.SSL.Expires
+			}
+		}
+	}
+	return s
+}
+
+func renderSSLPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainName, currentSetting, keys string, domainsList []appctx.Domain, certs []SSLRow) {
 	title := "SSL"
 	if domainName != "" {
 		title = "SSL for " + domainName
@@ -407,7 +563,12 @@ func renderSSLPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domain
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := SSLPageData{LayoutData: layout, DomainName: domainName, CurrentSetting: currentSetting, Keys: keys, Domains: domainsList}
+	data := SSLPageData{LayoutData: layout, DomainName: domainName, CurrentSetting: currentSetting, Keys: keys, Domains: domainsList, Certs: certs}
+	for _, c := range certs {
+		if c.Domain == r.URL.Query().Get("install") {
+			data.Install = c.Domain
+		}
+	}
 	if err := sslPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOMAINS - ssl template render error: %v", err)
 	}

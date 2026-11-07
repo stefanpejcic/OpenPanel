@@ -8,6 +8,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
@@ -72,6 +73,7 @@ func TestRenderListPage(t *testing.T) {
 }
 
 func TestRenderInstallPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("with domains", func(t *testing.T) {
@@ -85,6 +87,13 @@ func TestRenderInstallPage(t *testing.T) {
 		if err := installPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
+		body := w.Body.String()
+		// the wizard posts the same field names wordpress/install.go reads
+		for _, want := range []string{`<div class="op-content">`, `x-data="opInstallWizard(window.opIWConfig)"`, `endpoint: '/wordpress/install'`, `"DomainURL":"example.com"`, `'website_name'`, `'site_description'`, `'wordpress_version'`, `name: 'db_prefix'`, `name="csrf_token"`, `js/install-wizard.js`, `adminPath: '/wp-admin/'`} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %s in the install page", want)
+			}
+		}
 	})
 
 	t.Run("no domains", func(t *testing.T) {
@@ -92,6 +101,9 @@ func TestRenderInstallPage(t *testing.T) {
 		w := httptest.NewRecorder()
 		if err := installPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
+		}
+		if body := w.Body.String(); !strings.Contains(body, "/domains/new") || strings.Contains(body, "opInstallWizard(") {
+			t.Error("expected the no-domains card instead of the wizard")
 		}
 	})
 
@@ -105,7 +117,7 @@ func TestRenderInstallPage(t *testing.T) {
 		if err := installPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "john_") {
+		if !strings.Contains(w.Body.String(), `mysqlPrefix: "john_"`) {
 			t.Error("expected the john_ prefix next to the db fields")
 		}
 	})

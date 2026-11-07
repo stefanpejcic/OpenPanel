@@ -5,8 +5,10 @@ import (
 	"strings"
 	"testing"
 
+	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
@@ -18,6 +20,7 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 		NavGroups: web.BuildClassicSidebarNav(userAllowed, nil, path), UserAllowed: userAllowed,
 		UserAllowedJSON: web.UserAllowedList(userAllowed), CurrentUsername: "testuser",
 		RequestPath: path, AdminPort: "2087", PasswordStrength: 50, T: mgr.Translator("en"),
+		PageTabs: web.BuildPageTabs(userAllowed, nil, path, web.TabContext{}),
 	}
 }
 
@@ -28,21 +31,42 @@ func TestSitesPageParses(t *testing.T) {
 }
 
 func TestRenderSitesPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("with grouped sites", func(t *testing.T) {
 		groups := []SiteGroup{
 			{Type: "wordpress", Sites: []SiteRow{
-				{SiteName: "example.com", DomainID: 1, AdminEmail: "admin@example.com", Version: "6.5", CreatedDate: "2026-01-01", Type: "WordPress", Container: "", Ports: ""},
+				{SiteName: "example.com", DomainID: 1, AdminEmail: "admin@example.com", Version: "6.5", CreatedDate: "2026-01-01", Type: "WordPress", Container: "", Ports: "", PHPVersion: "8.3"},
+				{SiteName: "blog.example.com", DomainID: 3, AdminEmail: "editor@example.com", Version: "6.6.1", CreatedDate: "2026-03-14", Type: "WordPress"},
+			}},
+			{Type: "nodejs", Sites: []SiteRow{
+				{SiteName: "app.example.com", DomainID: 4, CreatedDate: "2026-05-20", Type: "nodejs", Container: "nodeapp", Ports: "3000"},
+			}},
+			{Type: "php", Sites: []SiteRow{
+				{SiteName: "shared.example.com", DomainID: 5, CreatedDate: "2026-06-01", Type: "php", Version: "8.5", PHPVersion: "8.5"},
 			}},
 			{Type: "static", Sites: []SiteRow{
 				{SiteName: "static.example.com", DomainID: 2, AdminEmail: "", Version: "", CreatedDate: "2026-01-02", Type: "static", IsStatic: true},
 			}},
 		}
-		data := SitesPageData{LayoutData: baseLayout(mgr, "/sites"), Groups: groups, ViewMode: "table"}
+		data := SitesPageData{LayoutData: baseLayout(mgr, "/sites"), Groups: groups, ViewMode: "table", SiteCount: 5, ContainerCount: 1, WebsitesLimit: 40, WebsitesPct: 12,
+			FreeDomains: []string{"waf.example.com", "shop.example.org"}}
 		w := httptest.NewRecorder()
 		if err := sitesPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
+		}
+		// no key: every speed cell links to the key editor and nothing asks PageSpeed
+		if body := w.Body.String(); strings.Contains(body, `class="speed_data"`) || !strings.Contains(body, "/file-manager/edit-file/pagespeed_api_key.txt?new=true") {
+			t.Error("without a PageSpeed key the speed column should link to the key editor")
+		}
+		data.HasPagespeedKey = true
+		w = httptest.NewRecorder()
+		if err := sitesPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render with key: %v", err)
+		}
+		if body := w.Body.String(); !strings.Contains(body, `class="speed_data"`) || strings.Contains(body, "op-speed-setup") {
+			t.Error("with a PageSpeed key the speed column should load scores")
 		}
 	})
 
@@ -136,14 +160,15 @@ func TestSiteManagerGitTab(t *testing.T) {
 			if hasTab != gitOn {
 				t.Errorf("%s: git tab shown = %v, want %v", name, hasTab, gitOn)
 			}
-			if !strings.Contains(body, "data-tab-overflow") {
+			// the vertical section rail has room for every tab, only the horizontal bar folds into More
+			if !strings.Contains(body, "op-mgr-rail") && !strings.Contains(body, "data-tab-overflow") {
 				t.Errorf("%s: tab bar is missing data-tab-overflow", name)
 			}
 		}
 	}
 }
 
-// the WordPress debugging tab shows the site's latest errors only when error_logs is allowed
+// the WordPress debugging tab shows the site's latest errors only when error_logs is allowed, below the debug.log card
 func TestWPDebuggingErrorLogs(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	for _, on := range []bool{true, false} {
@@ -159,8 +184,30 @@ func TestWPDebuggingErrorLogs(t *testing.T) {
 		if shown != on {
 			t.Errorf("error logs block shown = %v, want %v", shown, on)
 		}
-		if on && strings.Index(body, "exact: 1, limit: 10") > strings.Index(body, `id="updateDebugForm"`) {
-			t.Error("error logs block should come before the debugging settings")
+		if on && strings.Index(body, "exact: 1, limit: 10") < strings.Index(body, `x-data="wpDebugLog()"`) {
+			t.Error("error logs block should come after the debug.log card")
+		}
+	}
+}
+
+func TestRenderWebsiteBuilderInstallPage(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	for _, domains := range [][]appctx.Domain{
+		{{DomainID: 1, DomainURL: "example.com", Docroot: "/var/www/html/example.com"}, {DomainID: 2, DomainURL: "landing.example.com", Docroot: "/var/www/html/landing.example.com"}},
+		nil,
+	} {
+		data := WebsiteBuilderInstallPageData{LayoutData: baseLayout(mgr, "/website-builder/install"), Domains: domains}
+		w := httptest.NewRecorder()
+		if err := websiteBuilderInstallPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if domains != nil && (!strings.Contains(body, `<div class="op-content">`) || !strings.Contains(body, `endpoint: '/website-builder/install'`) || !strings.Contains(body, `"DomainURL":"landing.example.com"`) || !strings.Contains(body, "/website-builder/edit?domain=")) {
+			t.Error("expected the wizard posting to /website-builder/install and opening the builder when done")
+		}
+		if domains == nil && !strings.Contains(body, "/domains/new") {
+			t.Error("expected the no-domains card")
 		}
 	}
 }

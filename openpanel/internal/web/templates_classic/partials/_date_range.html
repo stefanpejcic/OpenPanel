@@ -1,0 +1,127 @@
+{{/* shared date range picker, dict "T", "From" and "To" as YYYY-MM-DD, "Tz" true to also send the browser's UTC offset in minutes as tz */}}
+{{define "date_range"}}
+<script src="{{static "js/date-range.js"}}"></script>
+{{template "date_range_style"}}
+<div class="dr" x-data="dateRange({{toJSON .From}}, {{toJSON .To}}, {{toJSON .T.Locale}}, {{template "date_range_labels" .}}, { tz: {{if .Tz}}true{{else}}false{{end}} })" @keydown.escape.window="close()" @click.outside="close()">
+    <div class="dr-quick" role="group" aria-label="{{.T.Get "Quick date range"}}">
+        <template x-for="p in quickPresets" :key="p.key">
+            <button type="button" class="dr-quick-btn" :class="{ 'is-active': isCurrent(p) }" :aria-pressed="isCurrent(p)" :title="rangeLabel(p.from, p.to)" @click="go(p.from, p.to)" x-text="p.short"></button>
+        </template>
+    </div>
+
+    <div class="dr-anchor">
+        <button type="button" class="dr-trigger" :class="{ 'is-set': from }" @click="toggle()" aria-haspopup="dialog" :aria-expanded="open">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/><path d="M16 3v4"/><path d="M8 3v4"/><path d="M4 11h16"/></svg>
+            <span class="dr-trigger-label">{{.T.Get "Date"}}</span>
+            <span class="dr-trigger-sep" x-show="from" x-cloak aria-hidden="true"></span>
+            <span class="dr-trigger-value" x-show="from" x-cloak x-text="rangeLabel(from, to)"></span>
+        </button>
+        <button type="button" class="dr-clear" x-show="from" x-cloak @click="go('', '')" aria-label="{{.T.Get "Clear date range"}}" title="{{.T.Get "Clear date range"}}"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg></button>
+
+        <div class="dr-pop" :style="popShift ? { left: -popShift + 'px' } : {}" x-ref="pop" x-show="open" x-cloak x-transition.opacity.duration.100ms role="dialog" aria-label="{{.T.Get "Select date range"}}">
+            <div class="dr-pop-body">
+                <ul class="dr-presets">
+                    <template x-for="p in presets" :key="p.key">
+                        <li><button type="button" class="dr-preset" :class="{ 'is-active': draftFrom === p.from && draftTo === p.to }" @click="pickPreset(p)" x-text="p.label"></button></li>
+                    </template>
+                </ul>
+                <div class="dr-cal">
+                    <div class="dr-cal-nav">
+                        <button type="button" class="dr-nav-btn" @click="shift(-1)" aria-label="{{.T.Get "Previous month"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6l6 6"/></svg></button>
+                        <button type="button" class="dr-nav-btn" @click="shift(1)" :disabled="!canGoNext()" aria-label="{{.T.Get "Next month"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6l-6 6"/></svg></button>
+                    </div>
+                    <div class="dr-months">
+                        <template x-for="(m, mi) in months()" :key="m.key">
+                            <div class="dr-month" :class="{ 'dr-month--second': mi === 1 }">
+                                <div class="dr-month-title" x-text="m.title"></div>
+                                <div class="dr-grid" role="grid">
+                                    <template x-for="w in weekdays" :key="w"><div class="dr-weekday" x-text="w"></div></template>
+                                    <template x-for="c in m.cells" :key="c.key">
+                                        <div class="dr-cell" :class="cellClass(c)">
+                                            <button type="button" class="dr-day" x-show="c.date" :disabled="c.date > today" @click="pickDay(c.date)" @mouseenter="hover = c.date" @mouseleave="hover = ''" :aria-label="c.date && longLabel(c.date)" :aria-pressed="c.date === draftFrom || c.date === draftTo" x-text="c.day"></button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            <div class="dr-pop-foot">
+                <span class="dr-pop-summary" x-text="draftFrom ? rangeLabel(draftFrom, draftTo || draftFrom) : {{toJSON (.T.Get "Any time")}}"></span>
+                <div class="dr-pop-actions">
+                    <button type="button" class="dr-btn" @click="close()">{{.T.Get "Cancel"}}</button>
+                    <button type="button" class="dr-btn dr-btn--primary" @click="apply()">{{.T.Get "Apply"}}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
+
+{{define "date_range_labels"}}{{toJSON (dict "todayShort" (.T.Get "Today") "today" (.T.Get "Today") "last7" (.T.Get "Last 7 days") "last30" (.T.Get "Last 30 days") "last3m" (.T.Get "Last 3 months") "last6m" (.T.Get "Last 6 months") "ytd" (.T.Get "Year to date"))}}{{end}}
+
+{{define "date_range_style"}}
+<style>
+.dr { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-size: 0.875rem; --dr-border: #e5e7eb; --dr-bg: #fff; --dr-bg-hover: #f9fafb; --dr-text: #111827; --dr-muted: #6b7280; --dr-accent: #2563eb; --dr-accent-text: #fff; --dr-range: #eff6ff; --dr-range-text: #1d4ed8; --dr-shadow: 0 1px 2px rgb(0 0 0 / 0.05); --dr-pop-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.25), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+.dark .dr { --dr-border: #1f2937; --dr-bg: #030712; --dr-bg-hover: #111827; --dr-text: #f9fafb; --dr-muted: #9ca3af; --dr-accent: #3b82f6; --dr-accent-text: #fff; --dr-range: rgb(59 130 246 / 0.15); --dr-range-text: #93c5fd; --dr-shadow: none; --dr-pop-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.8); }
+.dr button { font: inherit; cursor: pointer; }
+.dr button:focus-visible { outline: 2px solid var(--dr-accent); outline-offset: 2px; }
+.dr-quick { display: inline-flex; border-radius: 0.375rem; box-shadow: var(--dr-shadow); }
+.dr-quick-btn { padding: 0.375rem 0.75rem; border: 1px solid var(--dr-border); background: var(--dr-bg); color: var(--dr-text); font-weight: 500; font-variant-numeric: tabular-nums; }
+.dr-quick-btn + .dr-quick-btn { margin-left: -1px; }
+.dr-quick-btn:first-child { border-radius: 0.375rem 0 0 0.375rem; }
+.dr-quick-btn:last-child { border-radius: 0 0.375rem 0.375rem 0; }
+.dr-quick-btn:hover { background: var(--dr-bg-hover); }
+.dr-quick-btn.is-active { background: var(--dr-bg-hover); color: var(--dr-accent); position: relative; z-index: 1; border-color: var(--dr-accent); }
+.dr-anchor { position: relative; display: inline-flex; align-items: center; }
+.dr-trigger { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.75rem; border: 1px dashed var(--dr-border); border-radius: 0.375rem; background: var(--dr-bg); color: var(--dr-muted); white-space: nowrap; }
+.dr-trigger:hover { background: var(--dr-bg-hover); color: var(--dr-text); }
+.dr-trigger.is-set { border-style: solid; color: var(--dr-text); box-shadow: var(--dr-shadow); padding-right: 2rem; }
+.dr-trigger-label { font-weight: 500; }
+.dr-trigger-sep { width: 1px; height: 1rem; background: var(--dr-border); }
+.dr-trigger-value { color: var(--dr-accent); font-weight: 500; font-variant-numeric: tabular-nums; }
+.dr-clear { position: absolute; right: 0.375rem; display: inline-flex; padding: 0.2rem; border: 0; border-radius: 0.25rem; background: transparent; color: var(--dr-muted); }
+.dr-clear:hover { background: var(--dr-border); color: var(--dr-text); }
+.dr-pop { position: absolute; top: calc(100% + 0.5rem); left: 0; right: auto; z-index: 40; width: max-content; max-width: calc(100vw - 2rem); border: 1px solid var(--dr-border); border-radius: 0.5rem; background: var(--dr-bg); color: var(--dr-text); box-shadow: var(--dr-pop-shadow); }
+.dr-pop-body { display: flex; }
+.dr-presets { list-style: none; margin: 0; padding: 0.5rem; border-right: 1px solid var(--dr-border); min-width: 9.5rem; }
+.dr-preset { display: block; width: 100%; padding: 0.4rem 0.625rem; border: 0; border-radius: 0.375rem; background: transparent; color: var(--dr-text); text-align: left; white-space: nowrap; }
+.dr-preset:hover { background: var(--dr-bg-hover); }
+.dr-preset.is-active { background: var(--dr-range); color: var(--dr-range-text); font-weight: 500; }
+.dr-cal { position: relative; padding: 0.75rem 1rem 0.5rem; }
+.dr-cal-nav { position: absolute; top: 0.625rem; left: 0.75rem; right: 0.75rem; display: flex; justify-content: space-between; pointer-events: none; }
+.dr-nav-btn { pointer-events: auto; display: inline-flex; padding: 0.3rem; border: 1px solid var(--dr-border); border-radius: 0.375rem; background: var(--dr-bg); color: var(--dr-text); }
+.dr-nav-btn:hover:not(:disabled) { background: var(--dr-bg-hover); }
+.dr-nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.dr-months { display: flex; gap: 1.5rem; }
+.dr-month-title { text-align: center; font-weight: 600; line-height: 1.75rem; margin-bottom: 0.5rem; text-transform: capitalize; }
+.dr-grid { display: grid; grid-template-columns: repeat(7, 2.25rem); row-gap: 2px; }
+.dr-weekday { height: 2rem; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--dr-muted); text-transform: capitalize; }
+.dr-cell { height: 2.25rem; display: flex; align-items: center; justify-content: center; }
+.dr-cell.is-in-range { background: var(--dr-range); }
+.dr-cell.is-start:not(.is-single) { background: linear-gradient(to right, transparent 50%, var(--dr-range) 50%); }
+.dr-cell.is-end:not(.is-single) { background: linear-gradient(to left, transparent 50%, var(--dr-range) 50%); }
+.dr-day { width: 2.25rem; height: 2.25rem; border: 0; border-radius: 0.375rem; background: transparent; color: var(--dr-text); font-variant-numeric: tabular-nums; }
+.dr-day:hover:not(:disabled) { background: var(--dr-bg-hover); outline: 1px solid var(--dr-border); }
+.dr-day:disabled { color: var(--dr-muted); opacity: 0.4; cursor: not-allowed; }
+.dr-cell.is-in-range .dr-day { color: var(--dr-range-text); }
+.dr-cell.is-start .dr-day, .dr-cell.is-end .dr-day { background: var(--dr-accent); color: var(--dr-accent-text); font-weight: 600; outline: none; }
+.dr-cell.is-today:not(.is-start):not(.is-end) .dr-day { font-weight: 700; color: var(--dr-accent); }
+.dr-pop-foot { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.75rem 1rem; border-top: 1px solid var(--dr-border); }
+.dr-pop-summary { color: var(--dr-muted); font-variant-numeric: tabular-nums; }
+.dr-pop-actions { display: flex; gap: 0.5rem; }
+.dr-btn { padding: 0.375rem 0.875rem; border: 1px solid var(--dr-border); border-radius: 0.375rem; background: var(--dr-bg); color: var(--dr-text); font-weight: 500; box-shadow: var(--dr-shadow); }
+.dr-btn:hover { background: var(--dr-bg-hover); }
+.dr-btn--primary { background: var(--dr-accent); border-color: var(--dr-accent); color: var(--dr-accent-text); }
+.dr-btn--primary:hover { background: var(--dr-accent); filter: brightness(1.08); }
+@media (max-width: 767px) {
+    .dr-month--second { display: none; }
+    .dr-pop { position: fixed; top: auto; bottom: 1rem; left: 1rem; right: 1rem; width: auto; max-width: none; }
+    .dr-pop-body { flex-direction: column; }
+    .dr-presets { display: flex; gap: 0.25rem; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--dr-border); min-width: 0; }
+    .dr-cal { display: flex; justify-content: center; }
+    .dr-grid { grid-template-columns: repeat(7, minmax(2.25rem, 1fr)); }
+}
+</style>
+{{end}}

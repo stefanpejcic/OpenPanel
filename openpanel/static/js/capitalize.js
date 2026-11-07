@@ -1,10 +1,12 @@
 document.addEventListener('DOMContentLoaded', function () {
     fetch('/domains/capitalize')
-        .then(response => response.json())
+        // no capitalization rules is a normal answer, not an error
+        .then(response => response.ok ? response.json() : { error: response.status })
         .then(data => {
             if (!data.error) {
                 const excludedElements = [
                     document.getElementById('filemanager_table'),
+                    document.getElementById('dns-records-table'),
                     document.getElementById('editor-container'),
                     document.getElementById('editor'),
                     document.getElementById('zone_content'),

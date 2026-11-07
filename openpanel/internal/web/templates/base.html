@@ -26,9 +26,9 @@
     <!-- SIDEBAR CLOSE / OPEN -->
     <style>[x-cloak] { display: none !important;}</style>
     <style>@media (max-width:639px){#toast-container{left:50%;bottom:1rem;transform:translateX(-50%);width:calc(100% - 2rem);max-width:28rem}}</style>
-    <script>(function(){const sidebarState=sessionStorage.getItem('sidebarOpen');const isMobile=window.innerWidth<768;let isOpen=sidebarState===null?!isMobile:sidebarState==='true';if(isOpen){document.documentElement.classList.add('sidebar-open');}else{document.documentElement.classList.remove('sidebar-open');}})();</script>
+    <script>(function(){const sidebarState=sessionStorage.getItem('sidebarOpen');const isMobile=window.innerWidth<1024;let isOpen=sidebarState===null?!isMobile:sidebarState==='true';if(isOpen){document.documentElement.classList.add('sidebar-open');}else{document.documentElement.classList.remove('sidebar-open');}})();</script>
     <style>@font-face{font-family:'Inter';font-style:normal;font-weight:700;font-display:swap;src:url('{{static "vendor/fonts/inter/inter-700-latin.woff2"}}') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}</style>
-    <style>#sidebar{display:none;width:16rem}#main_header,#no_margin_for_iframe{margin-left:0;transition:margin .2s ease-in-out}.sidebar-open #sidebar{display:block}.sidebar-open #main_header,.sidebar-open #no_margin_for_iframe{margin-left:16rem} html.sidebar-open button[onclick="toggleSidebar()"] {cursor: w-resize;} html:not(.sidebar-open) button[onclick="toggleSidebar()"] {cursor: e-resize;}</style>
+    <style>#sidebar{display:none}.sidebar-open #sidebar{display:flex}@media (min-width:1024px){#main_header,#no_margin_for_iframe{transition:margin .2s ease-in-out}.sidebar-open #main_header,.sidebar-open #no_margin_for_iframe{margin-left:248px}}html.sidebar-open button[onclick="toggleSidebar()"]{cursor:w-resize}html:not(.sidebar-open) button[onclick="toggleSidebar()"]{cursor:e-resize}</style>
 
     <!-- form-submission loading indicator, shared by any page with a #toAddActive .CrawlerStatusCard -->
     <style>
@@ -58,6 +58,8 @@
 
     <link rel="stylesheet" href="{{static "vendor/bootstrap-icons/bootstrap-icons.css"}}">
     <link rel="stylesheet" href="{{static "dist/output.css"}}">
+    <link rel="stylesheet" href="{{static "css/op.css"}}">
+    <script src="{{static "js/op-kit.js"}}"></script>
     <link rel="stylesheet" href="{{static "vendor/driverjs/driver.min.css"}}">
     <script>
         window.ToastI18n = {
@@ -166,6 +168,8 @@
             window.location.reload();
         }
     </script>
+    <!-- toasts asked for before showtoasts.js has loaded wait in a queue instead of throwing -->
+    <script>window.showToast=window.showToast||function(){(window._toastQueue=window._toastQueue||[]).push(arguments);};</script>
     <script defer src="{{static "js/showtoasts.js"}}"></script>
     <script defer src="{{static "js/health-toast.js"}}"></script>
     <script defer src="{{static "js/relative-date.js"}}"></script>
@@ -177,6 +181,17 @@
     {{template "alpine_plugins" .}}
     <script defer src="{{static "vendor/alpinejs/alpinejs3xx.min.js"}}"></script>
     {{template "flowbite_js" .}}
+    <script>
+        // Flowbite dropdowns sit inside table scroll boxes that clip them, so Popper places them fixed instead
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!window.Dropdown) return;
+            var fixed = function (p) { p.setOptions(function (o) { return Object.assign({}, o, { strategy: 'fixed' }); }); return p; };
+            var make = Dropdown.prototype._createPopperInstance;
+            Dropdown.prototype._createPopperInstance = function () { return fixed(make.call(this)); };
+            var all = window.FlowbiteInstances && FlowbiteInstances.getInstances('Dropdown');
+            Object.values(all || {}).forEach(function (d) { if (d._popperInstance) fixed(d._popperInstance); });
+        });
+    </script>
     <script defer>
         // The page's title as the server rendered it ("{{.Title}} - Brand"),
         // captured before any tab-switching JS below touches document.title -
@@ -306,7 +321,7 @@
 
 </head>
 
-<body class="bg-white-50 h-full antialiased dark:bg-gray-950">
+<body class="op-body h-full antialiased">
 
 <script>
 // https://github.com/stefanpejcic/OpenPanel/issues/900#issuecomment-4177000991
@@ -388,207 +403,114 @@ document.addEventListener('submit', (e) => {
 </script>
 
 
-<div class="flex min-h-svh w-full">
-    <div x-show="sidebarOpen"
-         :class="{'hidden': !sidebarOpen}"
-         @click.away="isMobile && (sidebarOpen = false)"
-         class="group peer md:block"
-         data-state="expanded"
-         data-collapsible="false">
+<div class="op-shell">
+    <div class="op-scrim op-sidebar-scrim" onclick="toggleSidebar()" aria-hidden="true"></div>
+    <aside id="sidebar" class="op-panel-sidebar" aria-label="{{.T.Get "Main menu"}}">
 
-        <div class="relative h-svh max-w-[16rem] bg-transparent transition-[width] duration-150 ease-in-out will-change-transform group-data-[collapsible=true]:w-0"></div>
-        <div id="sidebar" class="fixed inset-y-0 z-50 h-svh max-w-[16rem] transition-[left,right,width] duration-150 ease-in-out will-change-transform md:flex left-0 group-data-[collapsible=true]:left-[calc(16rem*-1)] bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800">
-
-            <div data-sidebar="sidebar" class="flex h-full w-full flex-col" style="max-width: 16em;">
-
-                <div data-sidebar="header" class="truncate flex flex-col gap-2 p-2 px-3 py-4 min-h-16 h-auto" id="logo_section">
-
-                     {{if .Logo}}
-                     <!-- logo -->
-                     <div class="flex items-center justify-center gap-3">
-                         <a href="/dashboard" class="group flex text-slate-500 hover:text-slate-700 dark:hover:text-slate-400">
-                            <img src="{{.Logo}}" class="h-auto w-full" id="logo_image"></img>
-                         </a>
-                     </div>
-                     <!-- END logo -->
-                     {{else}}
-                     <!-- text logo -->
-                     <div class="flex items-center gap-2">
-                        <span id="logo_openpanel_icon" class="flex shrink-0 text-gray-900 dark:text-gray-50"><svg version="1.0" class="size-9 shrink-0" style="vertical-align:middle;" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 213.000000 215.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,215.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"></path></g></svg></span>
-                        <div id="logo_brand_name" class="min-w-0"><span class="block truncate leading-none font-bold text-gray-900 dark:text-gray-50" style="font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; font-size: 22px;">
-                          <a href="/" id="hostname" style="text-decoration:none;">{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}</a>
-</span></div>
-                    </div>
-                     <!-- END text logo -->
-                     {{end}}
-                </div>
-
-                <div><div class="mx-auto flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 my-0 py-0"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div></div>
-
-                <div data-sidebar="content" class="max-h-100 flex flex-1 flex-col gap-2 overflow-y-auto  [&::-webkit-scrollbar]:w-2  [&::-webkit-scrollbar-track]:bg-gray-100  [&::-webkit-scrollbar-thumb]:bg-gray-300  dark:[&::-webkit-scrollbar-track]:bg-neutral-700  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
-
-      {{if .UserAllowed.favorites}}
-
-                    <div data-sidebar="group" class="relative flex w-full min-w-0 flex-col p-2">
-                        <div data-sidebar="group-content" class="w-full text-sm">
-                            <ul data-sidebar="menu" class="flex w-full min-w-0 flex-col">
-
-
-                                <li x-cloak x-data="{ open: true, active: false }" class="relative">
-                                <button @click="open = !open" class="flex w-full items-center justify-between gap-x-2.5 rounded p-2 text-base text-gray-900 transition hover:bg-gray-200/50 sm:text-sm dark:text-gray-400 hover:dark:bg-gray-900 hover:dark:text-gray-50 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500"><div class="flex items-center gap-2.5"><svg  xmlns="http://www.w3.org/2000/svg"  width="18"  height="18"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-star"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" /></svg> {{.T.Get "Favorites"}} </div><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon rotate-0 size-5 shrink-0 transform text-gray-400 transition-transform duration-150 ease-in-out dark:text-gray-600 rotate-180" :class="{ 'rotate-180': open }"><path d="M12 16L6 10H18L12 16Z"></path></svg></button>
-                                    <ul x-show="open || active" x-transition class="relative space-y-1 border-l border-transparent">
-                                        <div id="favorites-list" class="relative z-50 overflow-hidden min-w-48 text-gray-900 will-change-[transform,opacity] data-[state=closed]:animate-hide data-[side=bottom]:animate-slideDownAndFade data-[side=left]:animate-slideLeftAndFade data-[side=right]:animate-slideRightAndFade data-[side=top]:animate-slideUpAndFade"></div>
-                                    </ul>
-                                </li>
-
-
-
-                                <script>
-                                function loadFavorites() {
-                                    fetch('/json/favorites')
-                                        .then(response => response.json())
-                                        .then(favorites => {
-                                            const favoritesList = document.getElementById('favorites-list');
-                                            favoritesList.innerHTML = '';
-
-                                            const bannerItem = document.createElement('span');
-                                            bannerItem.className = `absolute inset-y-0 left-4 w-px bg-gray-300 dark:bg-gray-800`.trim();
-                                            favoritesList.appendChild(bannerItem);
-
-                                            favorites.forEach(favorite => {
-                                                const { link, title } = favorite;
-
-                                                const listItem = document.createElement('li');
-
-                                                const linkItem = document.createElement('a');
-                                                linkItem.href = '/' + link;
-                                                linkItem.setAttribute('data-active', 'false');
-                                                listItem.className = `relative flex gap-2 rounded py-1.5 pl-9 pr-3 text-base transition sm:text-sm text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50 data-[active=true]:rounded data-[active=true]:bg-white data-[active=true]:text-blue-600 data-[active=true]:shadow data-[active=true]:ring-1 data-[active=true]:ring-gray-200 data-[active=true]:dark:bg-gray-900 data-[active=true]:dark:text-blue-500 data-[active=true]:dark:ring-gray-800 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500`.trim();
-
-                                                linkItem.textContent = title;
-
-                                                listItem.appendChild(linkItem);
-                                                favoritesList.appendChild(listItem);
-                                            });
-
-                                            // global variable so otemplates/partials/_header.html can access it later
-                                            window.userFavorites = favorites;
-                                        })
-                                        .catch(error => {
-                                            console.error('Error fetching favorites for user:', error);
-                                        });
-                                }
-
-                                // Load favorites immediately
-                                loadFavorites();
-                                </script>
-
-
-
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div><div class="mx-auto flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 my-0 py-0"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div></div>
-      {{end}}
-
-<div id="tour-main-menu" data-sidebar="group" class="relative flex w-full min-w-0 flex-col p-2">
-    <div data-sidebar="group-content" class="w-full text-sm">
-        {{if eq .MenuStyle "modern"}}
-        <ul data-sidebar="menu" class="flex w-full min-w-0 flex-col gap-1">
-
-        {{range .NavItems}}
-        {{if .Section}}
-        <li class="px-2 pt-3 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-500">{{$.T.Get .Section}}</li>
-        {{end}}
-        <li class="relative">
-            {{if .Disabled}}
-            <a data-active="false" title="{{if $.UpsellPlanName}}{{$.T.Get "Upgrade to"}} {{$.UpsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
-               class="flex w-full items-center gap-x-2.5 rounded p-2 text-base sm:text-sm text-gray-400 dark:text-gray-600 cursor-not-allowed"
-               {{if $.UpsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}>
-                {{.Icon}}
-                {{$.T.Get .Label}}
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" class="shrink-0"><path d="M12 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm6-9h-1V6a5 5 0 0 0-10 0v2H6a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9a1 1 0 0 0-1-1ZM9 6a3 3 0 0 1 6 0v2H9V6Z"></path></svg>
-            </a>
+        <div id="logo_section" class="op-logo">
+            {{if .Logo}}
+            <a href="/dashboard"><img src="{{if .LogoDark}}{{.LogoDark}}{{else}}{{.Logo}}{{end}}" id="logo_image" alt="{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}"></a>
             {{else}}
-            <a id="{{.MenuID}}" data-active="{{if .Active}}true{{else}}false{{end}}" href="{{.Href}}" {{if .Target}}target="{{.Target}}"{{end}}
-               class="flex w-full items-center gap-x-2.5 rounded p-2 text-base text-gray-900 transition hover:bg-gray-200/50 sm:text-sm dark:text-gray-400 hover:dark:bg-gray-900 hover:dark:text-gray-50 data-[active=true]:bg-white data-[active=true]:text-blue-600 data-[active=true]:shadow data-[active=true]:ring-1 data-[active=true]:ring-gray-200 data-[active=true]:dark:bg-gray-900 data-[active=true]:dark:text-blue-500 data-[active=true]:dark:ring-gray-800 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500">
-                {{.Icon}}
-                {{$.T.Get .Label}}
-            </a>
+            <span class="op-brand">
+                <span id="logo_openpanel_icon"><svg viewBox="0 0 213 215" aria-hidden="true"><g transform="translate(0,215) scale(0.1,-0.1)" fill="currentColor"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"></path></g></svg></span>
+                <span id="logo_brand_name"><a href="/" id="hostname">{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}</a></span>
+            </span>
             {{end}}
-        </li>
-        {{end}}
-
-        </ul>
-        {{else}}
-        <ul data-sidebar="menu" class="flex w-full min-w-0 flex-col gap-1 space-y-2">
-
-        {{range .NavGroups}}
-        <li x-cloak x-data="{
-                open: {{if .Open}}true{{else}}false{{end}},
-                active: {{if .Active}}true{{else}}false{{end}}
-            }"
-            @sidebar-toggle-all.window="open = $event.detail.open"
-            class="relative">
-            <button @click="open = !open"
-                    class="flex w-full items-center justify-between gap-x-2.5 rounded p-2 text-base text-gray-900 transition hover:bg-gray-200/50 sm:text-sm dark:text-gray-400 hover:dark:bg-gray-900 hover:dark:text-gray-50 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500">
-                <div class="flex items-center gap-2.5">
-                    {{.Icon}}
-                    {{$.T.Get .Label}}
-                </div>
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true"
-                    class="remixicon rotate-0 size-5 shrink-0 transform text-gray-400 transition-transform duration-150 ease-in-out dark:text-gray-600"
-                    :class="{ 'rotate-180': open }">
-                    <path d="M12 16L6 10H18L12 16Z"></path>
-                </svg>
-            </button>
-            <ul id="{{.MenuID}}" x-show="open || active" x-transition class="relative space-y-1 border-l border-transparent">
-                <div class="absolute inset-y-0 left-4 w-px bg-gray-300 dark:bg-gray-800"></div>
-                {{range .Links}}
-                <li class="relative">
-                    {{if .Disabled}}
-                    <a data-active="false" title="{{if $.UpsellPlanName}}{{$.T.Get "Upgrade to"}} {{$.UpsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
-                       class="relative flex items-center gap-1.5 rounded py-1.5 pl-9 pr-3 text-base transition sm:text-sm text-gray-400 dark:text-gray-600 cursor-not-allowed"
-                       {{if $.UpsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}>
-                        {{$.T.Get .Label}}
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true" class="shrink-0"><path d="M12 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm6-9h-1V6a5 5 0 0 0-10 0v2H6a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9a1 1 0 0 0-1-1ZM9 6a3 3 0 0 1 6 0v2H9V6Z"></path></svg>
-                    </a>
-                    {{else}}
-                    <a data-active="{{if .Active}}true{{else}}false{{end}}"
-                       class="relative flex gap-2 rounded py-1.5 pl-9 pr-3 text-base transition sm:text-sm text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50 data-[active=true]:rounded data-[active=true]:bg-white data-[active=true]:text-blue-600 data-[active=true]:shadow data-[active=true]:ring-1 data-[active=true]:ring-gray-200 data-[active=true]:dark:bg-gray-900 data-[active=true]:dark:text-blue-500 data-[active=true]:dark:ring-gray-800 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500"
-                       href="{{.Href}}" {{if .Target}}target="{{.Target}}"{{end}}>
-                        {{$.T.Get .Label}}
-                    </a>
-                    {{end}}
-                </li>
-                {{end}}
-            </ul>
-        </li>
-        {{end}}
-
-        </ul>
-        {{end}}
-        {{if and .IsEnterprise .UpsellPlanName .UpsellURL}}
-        <div id="tour-upgrade" class="px-2 pt-3">
-            <span class="text-xs font-medium leading-6 text-gray-500">{{.T.Get "Upgrade"}}</span>
-            <ul aria-label="{{.T.Get "Upgrade"}}" role="list">
-                <li>
-                    <a href="/dashboard/upgrade" data-active="{{if eq .RequestPath "/dashboard/upgrade"}}true{{else}}false{{end}}" class="data-[active=true]:text-blue-600 data-[active=true]:dark:text-blue-500 text-gray-700 hover:text-gray-900 dark:text-gray-400 hover:dark:text-gray-50 flex items-center gap-x-2.5 rounded-md px-2 py-1.5 text-sm font-medium transition hover:bg-gray-100 hover:dark:bg-gray-900 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M17.6567 14.8284L16.2425 13.4142L17.6567 12C19.2188 10.4379 19.2188 7.90524 17.6567 6.34314C16.0946 4.78105 13.5619 4.78105 11.9998 6.34314L10.5856 7.75736L9.17139 6.34314L10.5856 4.92893C12.9287 2.58578 16.7277 2.58578 19.0709 4.92893C21.414 7.27208 21.414 11.0711 19.0709 13.4142L17.6567 14.8284ZM14.8282 17.6569L13.414 19.0711C11.0709 21.4142 7.27189 21.4142 4.92875 19.0711C2.5856 16.7279 2.5856 12.9289 4.92875 10.5858L6.34296 9.17157L7.75717 10.5858L6.34296 12C4.78086 13.5621 4.78086 16.0948 6.34296 17.6569C7.90506 19.2189 10.4377 19.2189 11.9998 17.6569L13.414 16.2426L14.8282 17.6569ZM14.8282 7.75736L16.2425 9.17157L9.17139 16.2426L7.75717 14.8284L14.8282 7.75736Z"></path></svg>{{.UpsellPlanName}}</a>
-                </li>
-            </ul>
         </div>
-        {{end}}
-    </div>
-</div>
 
+        <label class="op-sidesearch" x-data="{ q: '' }" @keydown.window="if ($event.key === '/' && !$event.ctrlKey && !$event.metaKey && !$event.target.closest('input, textarea, select, [contenteditable]')) { $event.preventDefault(); $refs.q.focus() }">
+            {{template "op_icon" "search"}}
+            <input type="search" x-ref="q" x-model="q" @input="opNavFilter(q)" @keydown.escape="q = ''; opNavFilter(''); $el.blur()" @keydown.enter.prevent="opNavFirst()" placeholder="{{.T.Get "Search menu"}}" aria-label="{{.T.Get "Search the menu"}}" autocomplete="off">
+            <kbd x-show="!q">/</kbd>
+        </label>
 
-                </div>
-                {{template "footer" .}}
+        <nav class="op-sidebar-nav" aria-label="{{.T.Get "Main menu"}}">
+            <p id="op-nav-empty" class="op-nav-empty" hidden>{{.T.Get "No matching pages"}}</p>
+{{if .UserAllowed.favorites}}
+            <div class="op-nav-block op-nav-favs" x-data="{ folded: (function () { try { return localStorage.getItem('op-favorites-folded') === 'true' } catch (e) { return false } })() }" :data-collapsed="folded ? '' : null">
+                <button type="button" class="op-nav-label op-nav-toggle" @click="folded = !folded; try { localStorage.setItem('op-favorites-folded', folded) } catch (e) {}" :aria-expanded="(!folded).toString()">{{template "op_icon" "star"}} {{.T.Get "Favorites"}} <span class="op-nav-chev">{{template "op_icon" "chev"}}</span></button>
+                <div id="favorites-list" class="op-nav-favs-list" data-empty="{{.T.Get "Use the star in the top bar to pin a page here."}}"></div>
             </div>
-        </div>
-    </div>
-    <div class="w-full">
+            <script>
+            function loadFavorites() {
+                fetch('/json/favorites')
+                    .then(response => response.ok ? response.json() : [])
+                    .then(favorites => {
+                        const favoritesList = document.getElementById('favorites-list');
+                        favoritesList.innerHTML = '';
+                        favorites.forEach(({ link, title }) => {
+                            const linkItem = document.createElement('a');
+                            linkItem.className = 'op-nav-item';
+                            linkItem.href = '/' + link;
+                            linkItem.textContent = title;
+                            if ('/' + link === location.pathname + location.search) linkItem.setAttribute('aria-current', 'page');
+                            favoritesList.appendChild(linkItem);
+                        });
+                        if (!favorites.length) {
+                            const empty = document.createElement('p');
+                            empty.className = 'op-nav-favs-empty';
+                            empty.textContent = favoritesList.dataset.empty;
+                            favoritesList.appendChild(empty);
+                        }
+                        // the header's favorite button reads this
+                        window.userFavorites = favorites;
+                        window.dispatchEvent(new CustomEvent('favorites-loaded'));
+                    })
+                    .catch(error => {
+                        console.error('Error fetching favorites for user:', error);
+                    });
+            }
+            loadFavorites();
+            </script>
+{{end}}
+
+            <div id="tour-main-menu" class="op-nav-block">
+{{if eq .MenuStyle "modern"}}
+                <ul class="op-nav">
+                {{if .UserAllowed.dashboard}}<li><a id="dashboard-menu" class="op-nav-item" data-active="{{if eq .RequestPath "/dashboard"}}true{{else}}false{{end}}" {{if eq .RequestPath "/dashboard"}}aria-current="page"{{end}} href="/dashboard">{{template "op_icon" "dash"}} {{.T.Get "Dashboard"}}</a></li>{{end}}
+                {{range .NavItems}}
+                    {{if .Section}}<li class="op-nav-label">{{$.T.Get .Section}}</li>{{end}}
+                    <li>
+                    {{if .Disabled}}
+                        <a class="op-nav-item is-locked" data-active="false" title="{{if $.UpsellPlanName}}{{$.T.Get "Upgrade to"}} {{$.UpsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}" {{if $.UpsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}>{{.Icon}} {{$.T.Get .Label}} {{template "op_icon" "lock"}}</a>
+                    {{else}}
+                        <a id="{{.MenuID}}" class="op-nav-item" data-active="{{if .Active}}true{{else}}false{{end}}" {{if .Active}}aria-current="page"{{end}} href="{{.Href}}" {{if .Target}}target="{{.Target}}"{{end}}>{{.Icon}} {{$.T.Get .Label}}</a>
+                    {{end}}
+                    </li>
+                {{end}}
+                </ul>
+{{else}}
+                <ul class="op-nav">
+                {{range .NavGroups}}
+                    <li x-cloak x-data="{ open: {{if .Open}}true{{else}}false{{end}}, active: {{if .Active}}true{{else}}false{{end}} }" @sidebar-toggle-all.window="open = $event.detail.open">
+                        <button type="button" class="op-nav-item op-nav-group" :class="active && 'is-active'" @click="open = !open" :aria-expanded="(open || active).toString()">{{.Icon}} <span>{{$.T.Get .Label}}</span> {{template "op_icon" "chev"}}</button>
+                        <ul id="{{.MenuID}}" class="op-nav-subs" x-show="open || active">
+                        {{range .Links}}
+                            <li>
+                            {{if .Disabled}}
+                                <a class="op-nav-sub is-locked" data-active="false" title="{{if $.UpsellPlanName}}{{$.T.Get "Upgrade to"}} {{$.UpsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}" {{if $.UpsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}>{{$.T.Get .Label}} {{template "op_icon" "lock"}}</a>
+                            {{else}}
+                                <a class="op-nav-sub" data-active="{{if .Active}}true{{else}}false{{end}}" {{if .Active}}aria-current="page"{{end}} href="{{.Href}}" {{if .Target}}target="{{.Target}}"{{end}}>{{$.T.Get .Label}}</a>
+                            {{end}}
+                            </li>
+                        {{end}}
+                        </ul>
+                    </li>
+                {{end}}
+                </ul>
+{{end}}
+{{if and .IsEnterprise .UpsellPlanName .UpsellURL}}
+                <div id="tour-upgrade">
+                    <div class="op-nav-label">{{.T.Get "Upgrade"}}</div>
+                    <a href="/dashboard/upgrade" class="op-nav-item" data-active="{{if eq .RequestPath "/dashboard/upgrade"}}true{{else}}false{{end}}" {{if eq .RequestPath "/dashboard/upgrade"}}aria-current="page"{{end}}>{{template "op_icon" "arrowright"}} {{.UpsellPlanName}}</a>
+                </div>
+{{end}}
+            </div>
+        </nav>
+
+        {{template "footer" .}}
+    </aside>
+    <div class="op-shell-main">
 
         {{template "header" .}}
 
@@ -596,7 +518,7 @@ document.addEventListener('submit', (e) => {
         <div id="toast-container" class="fixed sm:bottom-10 sm:right-10 flex flex-col space-y-2 z-50 overflow-y-none"></div>
         <!-- END Flowbite toasts -->
 
-    <main id="no_margin_for_iframe" class="x-cloak bg-white-50 antialiased dark:bg-gray-950 text-gray-800 dark:text-white min-h-[90vh]">
+    <main id="no_margin_for_iframe" class="x-cloak antialiased min-h-[90vh] {{block "main_class" .}}bg-white-50 dark:bg-gray-950 text-gray-800 dark:text-white{{end}}">
 
 
     {{template "impersonate" .}}
@@ -648,6 +570,7 @@ document.addEventListener('submit', (e) => {
 {{end}}
 <!-- END flash messages -->
 
+{{block "page_tabs" .}}
 {{if .PageTabs}}
 <nav id="page-tabs" aria-label="{{.T.Get "Page sections"}}" class="border-b border-gray-200 bg-white px-4 dark:border-gray-800 dark:bg-gray-950 sm:px-6 lg:px-8">
     <ul class="-mb-px flex gap-x-6 overflow-x-auto text-sm">
@@ -664,12 +587,13 @@ document.addEventListener('submit', (e) => {
     </ul>
 </nav>
 {{end}}
+{{end}}
 
 <!-- START individual template file -->
 {{template "content" .}}
 <!-- END individual template file -->
     </main>
-    <script>function toggleSidebar(){const root=document.documentElement;const isOpen=root.classList.toggle('sidebar-open');sessionStorage.setItem('sidebarOpen',isOpen);}window.addEventListener('resize',()=>{if(window.innerWidth<768){document.documentElement.classList.remove('sidebar-open');}});</script>
+    <script>function toggleSidebar(){const root=document.documentElement;const isOpen=root.classList.toggle('sidebar-open');sessionStorage.setItem('sidebarOpen',isOpen);}window.addEventListener('resize',()=>{if(window.innerWidth<1024){document.documentElement.classList.remove('sidebar-open');}});</script>
     <script>
     document.addEventListener('keydown', (e) => {
         if (!((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b')) return;
@@ -809,3 +733,18 @@ document.addEventListener('submit', (e) => {
 {{end}}
 
 {{define "flowbite_js"}}{{end}}
+
+{{/* migrated pages: {{define "main_class"}}op-scope{{end}} {{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}} */}}
+{{define "op_page_tabs"}}
+{{if .PageTabs}}
+<nav id="page-tabs" class="op-tabs" aria-label="{{.T.Get "Page sections"}}">
+    {{range .PageTabs}}
+    {{if .Disabled}}
+    <a aria-disabled="true" title="{{if $.UpsellPlanName}}{{$.T.Get "Upgrade to"}} {{$.UpsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}" {{if $.UpsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}>{{$.T.Get .Label}}</a>
+    {{else}}
+    <a href="{{.Href}}" {{if .Target}}target="{{.Target}}"{{end}} {{if .Active}}aria-current="page"{{end}}>{{$.T.Get .Label}}{{if eq .Target "_blank"}} <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="{{$.T.Get "Opens in a new tab"}}"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>{{end}}</a>
+    {{end}}
+    {{end}}
+</nav>
+{{end}}
+{{end}}
