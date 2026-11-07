@@ -32,7 +32,9 @@ func GetEnvFileValue(userContext, key string) string {
 }
 
 type configTest struct {
-	cmd            string
+	cmd string
+	// shown instead of cmd when cmd carries setup around the actual test
+	display        string
 	successPattern *regexp.Regexp
 	// used instead of successPattern by a test that has no success line, it passes unless this matches
 	failPattern *regexp.Regexp
@@ -51,13 +53,22 @@ var webserverConfigTests = map[string]configTest{
 	"openresty": {cmd: "nginx -t", successPattern: regexp.MustCompile(`successful`)},
 	"apache":    {cmd: "apachectl configtest", successPattern: regexp.MustCompile(`Syntax OK`)},
 	// -t exits 1 on plain warnings, writes nothing without /tmp/lshttpd (only a running server makes it) and leaves its log behind for the next run when a config won't load at all
-	"openlitespeed": {cmd: "mkdir -p /tmp/lshttpd && rm -f /tmp/lshttpd/testconf && exec /usr/local/lsws/bin/openlitespeed -t", failPattern: regexp.MustCompile(`\[ERROR\]`)},
+	"openlitespeed": {cmd: "mkdir -p /tmp/lshttpd && rm -f /tmp/lshttpd/testconf && exec /usr/local/lsws/bin/openlitespeed -t", display: "openlitespeed -t", failPattern: regexp.MustCompile(`\[ERROR\]`)},
 }
 
 // HasConfigTest reports whether serviceName has a built-in syntax-check command, LiteSpeed Enterprise and anything else don't
 func HasConfigTest(serviceName string) bool {
 	_, ok := webserverConfigTests[serviceName]
 	return ok
+}
+
+// ConfigTestCommand is the syntax-check command for serviceName as shown to the user, "" when it has none
+func ConfigTestCommand(serviceName string) string {
+	test := webserverConfigTests[serviceName]
+	if test.display != "" {
+		return test.display
+	}
+	return test.cmd
 }
 
 // lookupFailed is nginx -t failing on a container name that aardvark-dns can't resolve yet

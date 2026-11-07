@@ -52,28 +52,26 @@ func handleContainersChangeImage(a *appctx.App, w http.ResponseWriter, r *http.R
 			return
 		}
 
-		envVar, defaultTag := imageTagVar(userContext, service)
-		currentVersion, _ := GetEnvValue(userContext, envVar)
-		if currentVersion == "" {
-			currentVersion = defaultTag
-		}
-
 		if r.URL.Query().Get("output") == "json" {
+			envVar, defaultTag := imageTagVar(userContext, service)
+			currentVersion, _ := GetEnvValue(userContext, envVar)
+			if currentVersion == "" {
+				currentVersion = defaultTag
+			}
 			writeJSON(w, []any{service, currentVersion})
 			return
 		}
-		renderChangeImagePage(a, w, r, service, currentVersion, dockerHubPage(userContext, service))
+		renderChangeImagePage(a, w, r, userContext, service)
 		return
-	}
-
-	composeData, err := podmanmanager.LoadComposeConfig(ctx, userContext)
-	if err != nil {
-		composeData = map[string]any{"error": "Failed to fetch container data", "details": err.Error()}
 	}
 
 	if r.URL.Query().Get("output") == "json" {
+		composeData, err := podmanmanager.LoadComposeConfig(ctx, userContext)
+		if err != nil {
+			composeData = map[string]any{"error": "Failed to fetch container data", "details": err.Error()}
+		}
 		writeJSON(w, composeData)
 		return
 	}
-	renderChangeImageSelectPage(a, w, r, composeData)
+	renderChangeImagePage(a, w, r, userContext, "")
 }

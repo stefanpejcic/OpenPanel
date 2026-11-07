@@ -2,6 +2,7 @@ package postgresql
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/lib/pq"
 
@@ -80,37 +81,30 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
-		dbUser := r.Form.Get("db_user")
+		dbUser := strings.TrimSpace(r.Form.Get("db_user"))
 		password := r.Form.Get("password")
 
-		switch {
-		case dbUser == "":
-			web.FlashRedirect(a, w, r, "error", "User name is required.", "/postgresql/user")
-			return
-		case !validators.IsValidIdentifier(dbUser):
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "db_user", dbUser), "/postgresql/user")
-			return
-		case isRestrictedUser(dbUser):
-			web.FlashRedirect(a, w, r, "error", "This username is not allowed.", "/postgresql/user")
-			return
-		case !validators.IsPasswordStrongEnough(password, validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)):
-			web.FlashRedirect(a, w, r, "error", "Password does not meet the required strength.", "/postgresql/user")
+		threshold := validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)
+		if msg := checkNewUser(dbUser, password, threshold, loadNames(ctx, userContext)); msg != "" {
+			web.Flash(a, w, r, "error", web.Tr(a, r, msg))
+			renderCreateUserPage(a, w, r, dbUser, "", "")
 			return
 		}
 
 		if _, execErr := postgresmanager.Exec(ctx, userContext, `CREATE USER "`+dbUser+`" WITH PASSWORD `+pq.QuoteLiteral(password), "postgres"); execErr != nil {
 			web.Flash(a, w, r, "error", web.Tr(a, r, "Failed to create user: %(error)s", "error", execErr.Error()))
-		} else {
-			ipAddress := reqip.ClientIP(r)
-			_ = logger.RecordUserAction(a.Config, currentUsername, "created a PostgreSQL user "+dbUser, ipAddress)
-			web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created a PostgreSQL user %(db_user)s", "db_user", dbUser))
+			renderCreateUserPage(a, w, r, dbUser, "", "")
+			return
 		}
-
-		http.Redirect(w, r, "/postgresql/user", http.StatusFound)
+		ipAddress := reqip.ClientIP(r)
+		_ = logger.RecordUserAction(a.Config, currentUsername, "created a PostgreSQL user "+dbUser, ipAddress)
+		web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created a PostgreSQL user %(db_user)s", "db_user", dbUser))
+		// the password is shown this once, like the wizard does
+		renderCreateUserPage(a, w, r, "", dbUser, password)
 		return
 	}
 
-	renderCreateUserPage(a, w, r)
+	renderCreateUserPage(a, w, r, "", "", "")
 }
 
 // handleDatabasesPassword renders the change-password form for one existing user

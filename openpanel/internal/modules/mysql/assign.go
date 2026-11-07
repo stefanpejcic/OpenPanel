@@ -58,6 +58,9 @@ func handleDatabasesAssign(a *appctx.App, w http.ResponseWriter, r *http.Request
 		case isRestrictedDatabase(databaseName):
 			web.FlashRedirect(a, w, r, "error", "This is a system database that can not be used.", "/mysql")
 			return
+		case isRestrictedUser(dbUser):
+			web.FlashRedirect(a, w, r, "error", "This is a system username that can not be edited.", "/mysql/assign")
+			return
 		case !validators.IsValidHost(dbHost):
 			web.FlashRedirect(a, w, r, "error", "Invalid host format.", "/mysql")
 			return
@@ -90,10 +93,19 @@ func handleDatabasesAssign(a *appctx.App, w http.ResponseWriter, r *http.Request
 			return
 		}
 
+		invalidateDatabasesInfo(ctx, a, userContext)
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername,
 			"assigned privileges "+privilegesSQL+" to MySQL user "+dbUser+" on database "+databaseName, ipAddress)
 		web.Flash(a, w, r, "success", web.Tr(a, r, "Privileges granted successfully for user '%(db_user)s' on database '%(database_name)s'", "db_user", dbUser, "database_name", databaseName))
+	} else {
+		// links from the users list preselect the user
+		if u := r.URL.Query().Get("db_user"); validators.IsValidIdentifier(u) {
+			dbUser = u
+		}
+		if d := r.URL.Query().Get("database_name"); validators.IsValidIdentifier(d) {
+			databaseName = d
+		}
 	}
 
 	renderAssignPage(a, w, r, dbUser, databaseName)

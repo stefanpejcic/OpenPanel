@@ -52,32 +52,18 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 			renderWizardForm(a, w, r, mysqlVersion, typedDB, typedUser)
 		}
 
-		switch {
-		case databaseName == "":
-			flashAndRerender("error", "Database name is required.")
+		// taken names are refused here, CREATE USER would otherwise fail halfway through
+		names := loadNames(ctx, userContext)
+		threshold := validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)
+		if msg := checkNewDatabase(databaseName, names); msg != "" {
+			flashAndRerender("error", web.Tr(a, r, msg))
 			return
-		case !validators.IsValidIdentifier(databaseName):
-			flashAndRerender("error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "database_name", databaseName))
+		}
+		if msg := checkNewUser(dbUser, dbHost, password, threshold, names); msg != "" {
+			flashAndRerender("error", web.Tr(a, r, msg))
 			return
-		case isRestrictedDatabase(databaseName):
-			flashAndRerender("error", "This is a system database that can not be used.")
-			return
-		case len(databaseName) > 64:
-			flashAndRerender("error", "Database name is too long. MySQL identifiers are limited to 64 characters.")
-			return
-		case dbUser == "":
-			flashAndRerender("error", "User name is required.")
-			return
-		case len(dbUser) > maxUserLen:
-			flashAndRerender("error", "User name is too long. MySQL user names are limited to 32 characters.")
-			return
-		case !validators.IsValidIdentifier(dbUser):
-			flashAndRerender("error", web.Tr(a, r, "Name %(db_user)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+", "db_user", dbUser))
-			return
-		case !validators.IsValidHost(dbHost):
-			flashAndRerender("error", "Invalid host format.")
-			return
-		case len(selectedPrivs) == 0:
+		}
+		if len(selectedPrivs) == 0 {
 			flashAndRerender("error", "At least one privilege must be selected.")
 			return
 		}
@@ -103,8 +89,8 @@ func handleDatabasesWizard(a *appctx.App, w http.ResponseWriter, r *http.Request
 		docker.StartComposeServiceIfNotRunning(ctx, userContext, "sql")
 
 		queries := []string{
-			"CREATE DATABASE IF NOT EXISTS `" + databaseName + "`",
-			"CREATE USER IF NOT EXISTS '" + dbUser + "'@'" + dbHost + "' IDENTIFIED BY '" + escapedPassword + "'",
+			"CREATE DATABASE `" + databaseName + "`",
+			"CREATE USER '" + dbUser + "'@'" + dbHost + "' IDENTIFIED BY '" + escapedPassword + "'",
 			"GRANT " + privilegesSQL + " ON `" + databaseName + "`.* TO '" + dbUser + "'@'" + dbHost + "'",
 			"FLUSH PRIVILEGES",
 		}

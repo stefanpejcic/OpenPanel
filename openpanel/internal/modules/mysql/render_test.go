@@ -112,7 +112,7 @@ func TestRenderNewDatabasePage(t *testing.T) {
 
 func TestRenderCreateUserPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
-	data := CreateUserPageData{LayoutData: baseLayout(mgr, "/mysql/user"), Service: "mysql"}
+	data := CreateUserPageData{LayoutData: baseLayout(mgr, "/mysql/user"), Service: "mysql", Engine: web.MySQLEngine}
 	w := httptest.NewRecorder()
 	if err := createUserPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)
@@ -135,7 +135,7 @@ func TestRenderWizardPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("form", func(t *testing.T) {
-		data := WizardPageData{LayoutData: baseLayout(mgr, "/mysql/wizard"), Service: "mysql"}
+		data := WizardPageData{LayoutData: baseLayout(mgr, "/mysql/wizard"), Service: "mysql", Engine: web.MySQLEngine}
 		w := httptest.NewRecorder()
 		if err := wizardPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
@@ -147,7 +147,7 @@ func TestRenderWizardPage(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		data := WizardPageData{
-			LayoutData: baseLayout(mgr, "/mysql/wizard"), Service: "mysql", Success: true,
+			LayoutData: baseLayout(mgr, "/mysql/wizard"), Service: "mysql", Engine: web.MySQLEngine, Success: true,
 			CreatedDB: "wiz_db", CreatedUser: "wiz_user", CreatedPassword: "s3cr3t", CreatedHost: "mysql",
 		}
 		w := httptest.NewRecorder()
@@ -167,7 +167,7 @@ func TestRenderWizardPage(t *testing.T) {
 func TestRenderAssignPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := AssignPageData{
-		LayoutData: baseLayout(mgr, "/mysql/assign"), DBUser: "appuser", DatabaseName: "app_db",
+		LayoutData: baseLayout(mgr, "/mysql/assign"), Engine: web.MySQLEngine, DBUser: "appuser", DatabaseName: "app_db",
 		Privileges: mysqlPrivileges,
 	}
 	w := httptest.NewRecorder()
@@ -307,10 +307,10 @@ func TestRenderEnforcedPrefix(t *testing.T) {
 			return newDatabasePage.Render(w, 200, NewDatabasePageData{LayoutData: layout("/mysql/new"), Service: "mysql", Engine: web.MySQLEngine})
 		},
 		"new user": func(w *httptest.ResponseRecorder) error {
-			return createUserPage.Render(w, 200, CreateUserPageData{LayoutData: layout("/mysql/user"), Service: "mysql"})
+			return createUserPage.Render(w, 200, CreateUserPageData{LayoutData: layout("/mysql/user"), Service: "mysql", Engine: web.MySQLEngine})
 		},
 		"wizard": func(w *httptest.ResponseRecorder) error {
-			return wizardPage.Render(w, 200, WizardPageData{LayoutData: layout("/mysql/wizard"), Service: "mysql"})
+			return wizardPage.Render(w, 200, WizardPageData{LayoutData: layout("/mysql/wizard"), Service: "mysql", Engine: web.MySQLEngine})
 		},
 		"remote access": func(w *httptest.ResponseRecorder) error {
 			return remoteMySQLPage.Render(w, 200, RemoteMySQLPageData{LayoutData: layout("/mysql/remote-mysql"), Service: "mysql", RemoteMySQLDisplay: "ON"})

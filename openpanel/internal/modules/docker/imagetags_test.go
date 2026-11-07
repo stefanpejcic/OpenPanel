@@ -101,3 +101,28 @@ func TestImageChangeable(t *testing.T) {
 		}
 	}
 }
+
+func TestImageRows(t *testing.T) {
+	compose := map[string]any{"services": map[string]any{
+		"redis":   map[string]any{"image": "redis:${REDIS_VERSION:-8.6.2-alpine}"},
+		"mariadb": map[string]any{"image": "mariadb:${MYSQL_VERSION:-11.8}"},
+		"testapp": map[string]any{"image": "nginx:latest"},
+		"cron":    map[string]any{"image": "mcuadros/ofelia:${CRON_VERSION:-latest}"},
+	}}
+	rows := imageRows("u", compose, map[string]string{"MYSQL_VERSION": `"latest"`})
+	if len(rows) != 3 {
+		t.Fatalf("expected cron left out, got %+v", rows)
+	}
+	want := []ImageRow{
+		{Service: "mariadb", Repo: "mariadb", Tag: "latest", HubURL: "https://hub.docker.com/_/mariadb/tags", Floating: true, Data: true},
+		{Service: "redis", Repo: "redis", Tag: "8.6.2-alpine", HubURL: "https://hub.docker.com/_/redis/tags", Data: true},
+		{Service: "testapp", Repo: "nginx", Tag: "latest", HubURL: "https://hub.docker.com/_/nginx/tags", Floating: true, Pinned: true},
+	}
+	for i, w := range want {
+		got := rows[i]
+		got.Icon, got.Hue = "", ""
+		if got != w {
+			t.Errorf("row %d = %+v, want %+v", i, got, w)
+		}
+	}
+}

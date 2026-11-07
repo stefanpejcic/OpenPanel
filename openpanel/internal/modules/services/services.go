@@ -4,6 +4,7 @@ package services
 import (
 	"encoding/json"
 	"net/http"
+	"sync"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -25,6 +26,9 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	}))
 	mux.Handle("/services/{service}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
 		handleManageService(a, w, r)
+	}))
+	mux.Handle("POST /services/bulk", requireLogin(func(w http.ResponseWriter, r *http.Request) {
+		handleServicesBulk(a, w, r)
 	}))
 	// the services page's log widget (_service_log.html) hard-depends on this route, so it's registered here rather than with the other JSON helper endpoints
 	mux.Handle("GET /json/containers/log/{service_name}", requireLogin(func(w http.ResponseWriter, r *http.Request) {
@@ -75,7 +79,24 @@ func handleManageService(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	allowedServices := FilterServices(allServices, webserver, mysqlType)
 
 	if service == "" {
-		renderServicesListPage(a, w, r, allowedServices)
+		// the list posts row actions here with the service named in the form
+		if r.Method == http.MethodPost {
+			_ = r.ParseForm()
+			if target := r.Form.Get("service"); containsString(allowedServices, target) {
+				HandleServiceAction(a, r, r.Form.Get("action"), target, userContext, username)
+			}
+		}
+		statuses := make([]docker.ContainerStatus, len(allowedServices))
+		var wg sync.WaitGroup
+		for i, s := range allowedServices {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				statuses[i] = docker.GetContainerStatus(ctx, userContext, s)
+			}()
+		}
+		wg.Wait()
+		renderServicesListPage(a, w, r, allowedServices, statuses, webserver, mysqlType)
 		return
 	}
 
