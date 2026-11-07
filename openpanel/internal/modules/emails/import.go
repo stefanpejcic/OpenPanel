@@ -224,13 +224,8 @@ func handleConfirmEmailImport(a *appctx.App, w http.ResponseWriter, r *http.Requ
 
 		out, cmdErr := exec.CommandContext(ctx, "opencli", "email-setup", "email", "add", email, password, "--wait").CombinedOutput()
 		if cmdErr != nil {
-			errorMessage := strings.TrimSpace(string(out))
-			if strings.Contains(errorMessage, "Supplied non-number argument") || strings.Contains(errorMessage, "User doesn't exist") {
-				writeLine("%s\n", errorMessage)
-			} else {
-				writeLine("Failed to add email %s: %s\n", email, errorMessage)
-				continue
-			}
+			writeLine("Failed to add email %s: %s\n", email, strings.TrimSpace(string(out)))
+			continue
 		}
 		added++
 		if strings.TrimSpace(quota) == "" {

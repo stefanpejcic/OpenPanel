@@ -13,9 +13,9 @@ import (
 
 var (
 	databasesPage     = web.LoadPage("mysql/databases.html")
-	newDatabasePage   = web.LoadPage("db/new.html")
+	newDatabasePage   = web.LoadPage("db/new.html", "partials/_db_created.html")
 	usersPage         = web.LoadPage("mysql/users.html")
-	createUserPage    = web.LoadPage("mysql/mysql_user.html")
+	createUserPage    = web.LoadPage("mysql/mysql_user.html", "partials/_db_created.html")
 	passwordPage      = web.LoadPage("mysql/password.html")
 	wizardPage        = web.LoadPage("mysql/wizard.html")
 	assignPage        = web.LoadPage("mysql/assign.html")
@@ -81,6 +81,7 @@ type NewDatabasePageData struct {
 	web.LayoutData
 	Service string
 	Engine  web.DBEngine
+	Created web.DBCreated
 }
 
 func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request, mysqlVersion string) {
@@ -89,7 +90,7 @@ func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := NewDatabasePageData{LayoutData: layout, Service: mysqlVersion, Engine: web.MySQLEngine}
+	data := NewDatabasePageData{LayoutData: layout, Service: mysqlVersion, Engine: web.MySQLEngine, Created: web.CreatedDBFromRequest(r, layout, "mysql", "mysql_import")}
 	if err := newDatabasePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MYSQL - new database template render error: %v", err)
 	}
@@ -127,6 +128,7 @@ func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, stat
 type CreateUserPageData struct {
 	web.LayoutData
 	Service string
+	Created web.DBCreated
 }
 
 func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request, mysqlVersion string) {
@@ -135,7 +137,7 @@ func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request,
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := CreateUserPageData{LayoutData: layout, Service: mysqlVersion}
+	data := CreateUserPageData{LayoutData: layout, Service: mysqlVersion, Created: web.CreatedDBFromRequest(r, layout, "mysql", "")}
 	if err := createUserPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("MYSQL - create user template render error: %v", err)
 	}

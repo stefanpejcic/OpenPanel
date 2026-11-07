@@ -602,6 +602,7 @@ const TableTabs = ({ activeTab, setActiveTab }) => {
                         )}
                     >
                         Community edition
+                        <span className={clsx("block", "text-left", "text-xs landing-sm:text-sm", "font-normal", "dark:text-gray-400 text-gray-500")}>forever free</span>
                     </div>
                 </div>
                 <div
@@ -645,6 +646,7 @@ const TableTabs = ({ activeTab, setActiveTab }) => {
                         )}
                     >
                         Enterprise edition
+                        <span className={clsx("block", "text-left", "text-xs landing-sm:text-sm", "font-normal", "dark:text-gray-400 text-gray-500")}>14.95€ / month</span>
                     </div>
                 </div>
             </div>

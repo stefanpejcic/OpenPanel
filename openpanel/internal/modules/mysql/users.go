@@ -111,7 +111,8 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			invalidateDatabasesInfo(ctx, a, userContext)
 			ipAddress := reqip.ClientIP(r)
 			_ = logger.RecordUserAction(a.Config, currentUsername, "created a MySQL database user "+dbUser, ipAddress)
-			web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created a database user %(db_user)s", "db_user", dbUser))
+			http.Redirect(w, r, web.CreatedDBUserURL("mysql", dbUser), http.StatusFound)
+			return
 		}
 	}
 

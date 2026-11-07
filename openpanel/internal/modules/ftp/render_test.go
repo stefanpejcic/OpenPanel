@@ -172,3 +172,27 @@ func TestLoadAccounts(t *testing.T) {
 		t.Errorf("unexpected second account: %+v", accounts[1])
 	}
 }
+
+func TestRenderFTPAccountsPageCreated(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	accounts := []Account{{Username: "bob@demo.rs", Path: "/var/www/html/demo.rs"}}
+
+	render := func(query string) string {
+		r := httptest.NewRequest("GET", "/ftp?"+query, nil)
+		w := httptest.NewRecorder()
+		data := FTPAccountsPageData{LayoutData: baseLayout(mgr, "/ftp"), FTPHost: "1.2.3.4", FTPPort: "21", Accounts: accounts, Created: createdAccount(r, accounts)}
+		if err := ftpAccountsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		return w.Body.String()
+	}
+
+	if body := render("created=bob%40demo.rs"); !strings.Contains(body, `id="ftpCreated"`) {
+		t.Error("expected connect section for own account")
+	}
+	for _, query := range []string{"", "created=", "created=alice%40other.rs"} {
+		if strings.Contains(render(query), `id="ftpCreated"`) {
+			t.Errorf("%q: section shown for an account that isn't theirs", query)
+		}
+	}
+}

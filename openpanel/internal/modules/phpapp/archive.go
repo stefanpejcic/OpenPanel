@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
@@ -26,31 +27,30 @@ func isSafeMember(destinationPath, memberName string) bool {
 	return rel == "." || (rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)))
 }
 
-// validateArchiveMembers pre-checks every entry in the archive before shelling out to unzip/tar, so a malicious archive can't write outside destinationPath - duplicated from filemanager's validateArchiveMembers, minus the bare .gz branch since initial_project archives are always multi-file projects
-func validateArchiveMembers(archivePath, ext, destinationPath string) error {
+// archiveMemberNames lists the entry names of the archive at archivePath, tar global headers aren't real files so they're left out
+func archiveMemberNames(archivePath, ext string) ([]string, error) {
+	var names []string
 	switch ext {
 	case "zip":
 		zr, err := zip.OpenReader(archivePath)
 		if err != nil {
-			return fmt.Errorf("invalid zip archive: %w", err)
+			return nil, fmt.Errorf("invalid zip archive: %w", err)
 		}
 		defer zr.Close()
 		for _, f := range zr.File {
-			if !isSafeMember(destinationPath, f.Name) {
-				return fmt.Errorf("unsafe file path in archive: %s", f.Name)
-			}
+			names = append(names, f.Name)
 		}
 	case "tar.gz", "tgz", "tar":
 		f, err := tenantfs.Open(archivePath)
 		if err != nil {
-			return fmt.Errorf("invalid archive: %w", err)
+			return nil, fmt.Errorf("invalid archive: %w", err)
 		}
 		defer f.Close()
 		var reader io.Reader = f
 		if ext == "tar.gz" || ext == "tgz" {
 			gz, gzErr := gzip.NewReader(f)
 			if gzErr != nil {
-				return fmt.Errorf("invalid gzip archive: %w", gzErr)
+				return nil, fmt.Errorf("invalid gzip archive: %w", gzErr)
 			}
 			defer gz.Close()
 			reader = gz
@@ -62,14 +62,65 @@ func validateArchiveMembers(archivePath, ext, destinationPath string) error {
 				break
 			}
 			if err != nil {
-				return fmt.Errorf("invalid tar archive: %w", err)
+				return nil, fmt.Errorf("invalid tar archive: %w", err)
 			}
-			if !isSafeMember(destinationPath, hdr.Name) {
-				return fmt.Errorf("unsafe file path in archive: %s", hdr.Name)
+			if hdr.Typeflag != tar.TypeXGlobalHeader {
+				names = append(names, hdr.Name)
 			}
 		}
 	}
+	return names, nil
+}
+
+// validateArchiveMembers pre-checks every entry before extracting, so a malicious archive can't write outside destinationPath
+func validateArchiveMembers(names []string, destinationPath string) error {
+	for _, name := range names {
+		if !isSafeMember(destinationPath, name) {
+			return fmt.Errorf("unsafe file path in archive: %s", name)
+		}
+	}
 	return nil
+}
+
+// wrapperStrip returns 1 when everything sits inside one top folder, like GitHub's project-1.0.0/ wrapper, so the project lands right in the install path
+func wrapperStrip(names []string) int {
+	top, nested := "", false
+	for _, name := range names {
+		clean, ok := paths.MemberName(name)
+		if !ok {
+			return 0
+		}
+		if clean == "" {
+			continue
+		}
+		first, rest, _ := strings.Cut(clean, "/")
+		if top != "" && first != top {
+			return 0
+		}
+		top = first
+		nested = nested || rest != ""
+	}
+	if nested {
+		return 1
+	}
+	return 0
+}
+
+// firstMissingDir walks up from p to the topmost folder that doesn't exist yet, or p itself when it's already there
+func firstMissingDir(p string) string {
+	if _, err := tenantfs.Stat(p); err == nil {
+		return p
+	}
+	for {
+		parent := filepath.Dir(p)
+		if parent == p {
+			return p
+		}
+		if _, err := tenantfs.Stat(parent); err == nil {
+			return p
+		}
+		p = parent
+	}
 }
 
 // downloadFile fetches url into a new temp file under dir, returning its path - capped at 200MB to keep a misbehaving/huge remote file from filling disk
@@ -130,9 +181,14 @@ func downloadAndExtractInitialProject(ctx context.Context, url, hostDestPath str
 	}
 	defer tenantfs.Remove(archivePath)
 
-	if err := validateArchiveMembers(archivePath, ext, hostDestPath); err != nil {
+	names, err := archiveMemberNames(archivePath, ext)
+	if err != nil {
 		return err
 	}
+	if err := validateArchiveMembers(names, hostDestPath); err != nil {
+		return err
+	}
+	strip := wrapperStrip(names)
 
 	extractCtx, cancel := context.WithTimeout(ctx, 5*time.Minute)
 	defer cancel()
@@ -140,9 +196,9 @@ func downloadAndExtractInitialProject(ctx context.Context, url, hostDestPath str
 	var extractErr error
 	switch ext {
 	case "zip":
-		extractErr = tenantfs.ExtractZip(extractCtx, archivePath, hostDestPath, 0)
+		extractErr = tenantfs.ExtractZip(extractCtx, archivePath, hostDestPath, strip)
 	case "tar.gz", "tgz", "tar":
-		extractErr = tenantfs.ExtractTar(extractCtx, archivePath, hostDestPath, 0)
+		extractErr = tenantfs.ExtractTar(extractCtx, archivePath, hostDestPath, strip)
 	}
 	if extractErr != nil {
 		return fmt.Errorf("extraction failed: %w", extractErr)

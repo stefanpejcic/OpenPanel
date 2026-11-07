@@ -26,6 +26,8 @@ or fight that.
         if (!el.matches || !el.matches('input, textarea')) return false;
         if (el.hasAttribute('data-no-live-validate')) return false;
         if (el.disabled || el.readOnly) return false;
+        // hidden fields have no real layout to measure, x-show forms blur as they close
+        if (el.getClientRects().length === 0) return false;
         const type = (el.type || 'text').toLowerCase();
         if (['hidden', 'submit', 'button', 'reset', 'checkbox', 'radio', 'file', 'image', 'range', 'color'].includes(type)) return false;
         if (type === 'password') return false;
@@ -60,14 +62,16 @@ or fight that.
         return el.title || t('invalidFormat', 'Invalid format.');
     }
 
+    function isRowLayout(node) {
+        const style = getComputedStyle(node);
+        return style.display.includes('flex') && !style.flexDirection.startsWith('column');
+    }
+
     function hintHost(el) {
-        // Joined/flex input groups (input + suffix buttons, etc.) need the
-        // hint below the whole row, not squeezed between flex items.
+        // a hint inside a flex row sits beside the input, so climb out of any row layout
         let insertAfter = el;
-        const parent = el.parentElement;
-        if (parent && parent.classList.contains('flex')) {
-            const realSiblings = Array.from(parent.children).filter((c) => !c.classList.contains('iv-hint-host'));
-            if (realSiblings.length > 1) insertAfter = parent;
+        while (insertAfter.parentElement && isRowLayout(insertAfter.parentElement)) {
+            insertAfter = insertAfter.parentElement;
         }
 
         let host = insertAfter.nextElementSibling;

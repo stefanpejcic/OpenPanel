@@ -145,8 +145,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created a MongoDB database "+databaseName, ipAddress)
-		web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created a MongoDB database %(database_name)s", "database_name", databaseName))
-		http.Redirect(w, r, "/mongodb", http.StatusFound)
+		http.Redirect(w, r, web.CreatedDBURL("mongodb", databaseName), http.StatusFound)
 		return
 	}
 

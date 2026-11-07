@@ -19,6 +19,8 @@
     </div>
 </div>
 
+{{if .Created.Username}}{{template "ftp_created" .}}{{end}}
+
 <script src="{{static "js/data-table.js"}}"></script>
 <section aria-label="{{.T.Get "Records Table"}}" x-data="createTableController({
         storageKey: 'ftpColumnsVisibility',

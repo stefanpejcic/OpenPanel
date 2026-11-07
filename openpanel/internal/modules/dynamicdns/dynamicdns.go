@@ -121,7 +121,7 @@ func buildZoneLine(subdomain, recordType, ip, token, updated string) string {
 
 // writeZoneLines writes lines back to domain's zone file under an exclusive flock, guarding against concurrent writers since this route and the public update webcall both write the same file
 func writeZoneLines(domain string, lines []string) error {
-	content := strings.Join(lines, "\n")
+	content := dns.NormalizeZoneLineEndings(strings.Join(lines, "\n"))
 	if msg := dns.ZoneDirectiveError(content); msg != "" {
 		return errors.New(msg)
 	}

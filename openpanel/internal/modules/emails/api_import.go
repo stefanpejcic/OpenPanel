@@ -169,13 +169,8 @@ func apiEmailImportConfirm(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 		out, cmdErr := exec.CommandContext(ctx, "opencli", "email-setup", "email", "add", email, password, "--wait").CombinedOutput()
 		if cmdErr != nil {
-			errorMessage := strings.TrimSpace(string(out))
-			if strings.Contains(errorMessage, "Supplied non-number argument") || strings.Contains(errorMessage, "User doesn't exist") {
-				// Benign quirk of the underlying CLI; account was still created.
-			} else {
-				results = append(results, apiImportResult{Email: email, Status: "error", Detail: "Failed to add email: " + errorMessage})
-				continue
-			}
+			results = append(results, apiImportResult{Email: email, Status: "error", Detail: "Failed to add email: " + strings.TrimSpace(string(out))})
+			continue
 		}
 		created++
 		detail := ""

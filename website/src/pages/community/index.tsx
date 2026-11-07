@@ -73,7 +73,7 @@ const Enterprise: React.FC = () => {
                                 <LandingHeroShowcaseOpenPanelCommunity />
                             </div>
                         </div>
-                        <div className={clsx("w-full", "overflow-hidden")}>
+                        <div className={clsx("w-full", "overflow-x-clip")}>
                             <EnterpriseTable
                                 className={clsx(sectionWidth, sectionPadding)}
                             />

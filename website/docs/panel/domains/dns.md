@@ -16,6 +16,8 @@ On the main _DNS Zone Editor_ page, you can choose a domain name to view and mod
 
 To modify an existing record, click on the 'Edit' button next to it. This will make the row editable, allowing you to save changes by clicking the 'Save' button or discard them by selecting the 'Cancel' button.
 
+Records of a type your administrator hasn't [allowed](/docs/admin/settings/openpanel/#dns-record-types) have no 'Edit' button. They keep working and you can still delete them.
+
 ![A DNS record row in edit mode with editable fields and the Save and Cancel buttons](/img/openpanel-screenshots/domains/dns_sections-edit.png#gh-light-mode-only)
 ![A DNS record row in edit mode with editable fields and the Save and Cancel buttons](/img/openpanel-screenshots/domains/dns_sections-edit_dark.png#gh-dark-mode-only)
 
@@ -28,7 +30,18 @@ This will add a new row at the top of the table where you can enter the record.
 ![New Record row added at the top of the DNS table with the record type, name, TTL and value fields](/img/openpanel-screenshots/domains/dns_sections-create.png#gh-light-mode-only)
 ![New Record row added at the top of the DNS table with the record type, name, TTL and value fields](/img/openpanel-screenshots/domains/dns_sections-create_dark.png#gh-dark-mode-only)
 
-Supported DNS types: `A`, `AAAA`, `CAA`, `CNAME`, `MX`, `SRV`, `TLSA`, `TXT`
+The _Type_ list shows the record types your server administrator allows, set in [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#dns-record-types). By default these are `A`, `AAAA`, `CAA`, `CNAME`, `MX`, `SRV`, `TLSA` and `TXT`. An administrator can also allow `HTTPS`, `SVCB`, `NS`, `SSHFP`, `URI` and a `DMARC` helper.
+
+| Type | Value example | Note |
+|---|---|---|
+| `HTTPS` | `1 . alpn="h2,h3"` | |
+| `SVCB` | `1 svc.example.com. port=8443` | |
+| `NS` | `ns1.example.net` | For a subdomain only, not for the domain itself. |
+| `SSHFP` | `4 2 <fingerprint>` | Algorithm, fingerprint type, then the fingerprint. |
+| `URI` | `10 1 https://example.com/` | |
+| `DMARC` | Filled in for you | Pick a policy and an optional email for reports. It's saved as a `TXT` record on `_dmarc`, and a name can only have one. |
+
+A record the DNS server can't load is refused with the reason, and the zone stays as it was.
 
 ## Delete record
 

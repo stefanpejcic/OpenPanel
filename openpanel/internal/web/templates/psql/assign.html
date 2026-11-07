@@ -60,11 +60,14 @@ function refreshData() {
         .then(data => {
             var userSelect = document.querySelector("select[name='db_user']");
             var databaseSelect = document.querySelector("select[name='database_name']");
+            var preSelectedDatabase = new URLSearchParams(window.location.search).get('database_name');
+            var preSelectedUser = new URLSearchParams(window.location.search).get('database_user');
 
             data.users.forEach(function(user) {
                 var opt = document.createElement('option');
                 opt.value = user;
                 opt.text = user;
+                opt.selected = user === preSelectedUser;
                 userSelect.appendChild(opt);
             });
 
@@ -72,6 +75,7 @@ function refreshData() {
                 var opt = document.createElement('option');
                 opt.value = database.database;
                 opt.text = database.database;
+                opt.selected = database.database === preSelectedDatabase;
                 databaseSelect.appendChild(opt);
             });
         })

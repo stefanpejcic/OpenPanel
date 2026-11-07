@@ -1733,6 +1733,40 @@ Updated applications_dashboard_items to websites wordpress nextcloud docker
 ```
 </details>
 
+### `dns_record_types`
+
+Record types users can add and edit in the [DNS Zone Editor](/docs/panel/domains/dns/), separated by spaces or commas. Available: `A`, `AAAA`, `CAA`, `CNAME`, `MX`, `SRV`, `TLSA`, `TXT`, `HTTPS`, `SVCB`, `NS`, `SSHFP`, `URI`, `DMARC`. See [what each one does](/docs/admin/settings/openpanel/#dns-record-types).
+
+A value with no valid types falls back to the default. Restart OpenPanel after changing it.
+
+**Check current value**:
+```bash
+opencli config get dns_record_types
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config get dns_record_types
+A AAAA CAA CNAME MX SRV TLSA TXT
+```
+</details>
+
+**Set new value**:
+```bash
+opencli config update dns_record_types 'A AAAA CAA CNAME MX SRV TLSA TXT HTTPS SVCB NS SSHFP URI DMARC'
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config update dns_record_types 'A AAAA CAA CNAME MX SRV TLSA TXT HTTPS SVCB NS SSHFP URI DMARC'
+Updated dns_record_types to A AAAA CAA CNAME MX SRV TLSA TXT HTTPS SVCB NS SSHFP URI DMARC
+```
+</details>
+
 ### `filemanager_edit_size`
 Maximum file size (in MB) allowed for editing files using the File Manager.
 

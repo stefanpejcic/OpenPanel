@@ -11,9 +11,9 @@ import (
 
 var (
 	databasesPage      = web.LoadPage("psql/databases.html")
-	newDatabasePage    = web.LoadPage("db/new.html")
+	newDatabasePage    = web.LoadPage("db/new.html", "partials/_db_created.html")
 	usersPage          = web.LoadPage("psql/users.html")
-	createUserPage     = web.LoadPage("psql/psql_user.html")
+	createUserPage     = web.LoadPage("psql/psql_user.html", "partials/_db_created.html")
 	passwordPage       = web.LoadPage("psql/password.html")
 	wizardPage         = web.LoadPage("psql/wizard.html")
 	assignPage         = web.LoadPage("psql/assign.html")
@@ -72,8 +72,9 @@ func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request
 	layout.Service = "postgres"
 	data := struct {
 		web.LayoutData
-		Engine web.DBEngine
-	}{layout, web.PostgreSQLEngine}
+		Engine  web.DBEngine
+		Created web.DBCreated
+	}{layout, web.PostgreSQLEngine, web.CreatedDBFromRequest(r, layout, "postgresql", "postgresql_import")}
 	if err := newDatabasePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - new database template render error: %v", err)
 	}
@@ -122,7 +123,11 @@ func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		return
 	}
 	layout.Service = "postgres"
-	if err := createUserPage.Render(w, http.StatusOK, struct{ web.LayoutData }{layout}); err != nil {
+	data := struct {
+		web.LayoutData
+		Created web.DBCreated
+	}{layout, web.CreatedDBFromRequest(r, layout, "postgresql", "")}
+	if err := createUserPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - create user template render error: %v", err)
 	}
 }

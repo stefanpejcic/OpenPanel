@@ -12,6 +12,9 @@
 
 <script src="{{static "js/generator.js"}}"></script>
 
+{{if .Created.Name}}
+{{template "db_user_created" .}}
+{{else}}
 <!-- form -->
 <div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
     <form class="mt-8" method="POST">
@@ -133,6 +136,7 @@
         }
     });
 </script>
+{{end}}
 
 <!-- END templates/mysql/mysql_user.html -->
 {{end}}
