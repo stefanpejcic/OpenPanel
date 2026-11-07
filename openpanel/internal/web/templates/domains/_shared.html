@@ -17,7 +17,7 @@
 <!-- quick jump and search; #domains is the picker the upstream pages had, choosing one opens it -->
 <div class="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
     <label for="domains" class="sr-only">{{if .FirstLabel}}{{$T.Get .FirstLabel}}{{else}}{{$T.Get "Domain"}}{{end}}</label>
-    <select id="domains" data-base="{{$base}}" onchange="if (this.value) window.location.href = this.dataset.base + this.value" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-2.5 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-64 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
+    <select id="domains" data-base="{{$base}}" onchange="if (this.value) window.location.href = this.dataset.base + this.value" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-64 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
         <option value="" selected>{{if .FirstLabel}}{{$T.Get "Go to an address"}}{{else}}{{$T.Get "Go to a domain"}}{{end}}</option>
         {{range .Rows}}<option value="{{.Domain}}"{{if .Disabled}} disabled{{end}}>{{.Domain}}</option>{{end}}
     </select>

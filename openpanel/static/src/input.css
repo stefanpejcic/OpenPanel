@@ -94,12 +94,38 @@
   input[type="checkbox"]:not([role="switch"]):not(.peer):not(.sr-only):disabled,
   input[type="radio"]:not(.peer):not(.sr-only):disabled {
     cursor: not-allowed;
-    opacity: 0.5;
+    box-shadow: none;
+  }
+  input[type="checkbox"]:not([role="switch"]):not(.peer):not(.sr-only):disabled:not(:checked):not(:indeterminate),
+  input[type="radio"]:not(.peer):not(.sr-only):disabled:not(:checked) {
+    border-color: var(--color-gray-300);
+    background-color: var(--color-gray-100);
+  }
+  input[type="checkbox"]:not([role="switch"]):not(.peer):not(.sr-only):disabled:checked,
+  input[type="checkbox"]:not([role="switch"]):not(.peer):not(.sr-only):disabled:indeterminate {
+    border-color: var(--color-blue-200);
+    background-color: var(--color-blue-200);
+  }
+  input[type="radio"]:not(.peer):not(.sr-only):disabled:checked {
+    border-color: var(--color-blue-200);
   }
   .dark input[type="checkbox"]:not([role="switch"]):not(.peer):not(.sr-only):not(:checked):not(:indeterminate),
   .dark input[type="radio"]:not(.peer):not(.sr-only):not(:checked) {
-    border-color: var(--color-gray-700);
+    border-color: var(--color-gray-800);
     background-color: var(--color-gray-950);
+  }
+  .dark input[type="checkbox"]:not([role="switch"]):not(.peer):not(.sr-only):disabled:not(:checked):not(:indeterminate),
+  .dark input[type="radio"]:not(.peer):not(.sr-only):disabled:not(:checked) {
+    border-color: var(--color-gray-700);
+    background-color: var(--color-gray-800);
+  }
+  .dark input[type="checkbox"]:not([role="switch"]):not(.peer):not(.sr-only):disabled:checked,
+  .dark input[type="checkbox"]:not([role="switch"]):not(.peer):not(.sr-only):disabled:indeterminate {
+    border-color: var(--color-blue-900);
+    background-color: var(--color-blue-900);
+  }
+  .dark input[type="radio"]:not(.peer):not(.sr-only):disabled:checked {
+    border-color: var(--color-blue-900);
   }
   /* a checkbox with role=switch is drawn as the brandbook switch, the form still posts it like a checkbox */
   input[type="checkbox"][role="switch"]:not(.peer):not(.sr-only) {
@@ -115,6 +141,7 @@
     border: 0;
     border-radius: 9999px;
     background-color: var(--color-gray-200);
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.05), inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
     transition: background-color 150ms var(--ease-snappy);
   }
   input[type="checkbox"][role="switch"]:not(.peer):not(.sr-only)::before {
@@ -126,7 +153,7 @@
     height: 1rem;
     border-radius: 9999px;
     background-color: var(--color-white);
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.15);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     transition: translate 150ms var(--ease-snappy);
   }
   input[type="checkbox"][role="switch"]:not(.peer):not(.sr-only):checked {
@@ -141,12 +168,45 @@
   }
   input[type="checkbox"][role="switch"]:not(.peer):not(.sr-only):disabled {
     cursor: not-allowed;
-    opacity: 0.5;
+    background-color: var(--color-gray-100);
+    box-shadow: inset 0 0 0 1px var(--color-gray-300);
   }
-  /* in dark mode an off switch stays dim so the blue on state reads at a glance */
+  input[type="checkbox"][role="switch"]:not(.peer):not(.sr-only):disabled:checked {
+    background-color: var(--color-blue-200);
+    box-shadow: none;
+  }
+  input[type="checkbox"][role="switch"]:not(.peer):not(.sr-only):disabled::before {
+    box-shadow: none;
+  }
   .dark input[type="checkbox"][role="switch"]:not(.peer):not(.sr-only):not(:checked) {
+    background-color: var(--color-gray-950);
+    box-shadow: inset 0 0 0 1px var(--color-gray-800);
+  }
+  .dark input[type="checkbox"][role="switch"]:not(.peer):not(.sr-only)::before {
+    background-color: var(--color-gray-50);
+  }
+  .dark input[type="checkbox"][role="switch"]:not(.peer):not(.sr-only):disabled:not(:checked) {
     background-color: var(--color-gray-800);
     box-shadow: inset 0 0 0 1px var(--color-gray-700);
+  }
+  .dark input[type="checkbox"][role="switch"]:not(.peer):not(.sr-only):disabled:checked {
+    background-color: var(--color-blue-900);
+    box-shadow: inset 0 0 0 1px var(--color-gray-900);
+  }
+  .dark input[type="checkbox"][role="switch"]:not(.peer):not(.sr-only):disabled::before {
+    background-color: var(--color-gray-500);
+  }
+  /* small switch for table rows and dense settings */
+  input[type="checkbox"][role="switch"]:not(.peer):not(.sr-only).switch-sm {
+    width: 1.75rem;
+    height: 1rem;
+  }
+  input[type="checkbox"][role="switch"]:not(.peer):not(.sr-only).switch-sm::before {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+  input[type="checkbox"][role="switch"]:not(.peer):not(.sr-only).switch-sm:checked::before {
+    translate: 0.75rem 0;
   }
   .dark input[type="checkbox"][role="switch"]:not(.peer):not(.sr-only):not(:checked)::before {
     background-color: var(--color-gray-500);

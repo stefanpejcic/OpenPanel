@@ -206,7 +206,7 @@ function sendDataToPreview(event) {
         <span class="flex items-center gap-x-1.5 text-sm text-gray-500">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0 text-gray-400"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM13 12H17V14H11V7H13V12Z"></path></svg>
             <label for="visitor_seconds">{{.T.Get "Last"}}</label>
-            <select id="visitor_seconds" class="cursor-pointer appearance-none rounded-md border border-gray-300 bg-white py-1 pl-2 pr-7 text-xs text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
+            <select id="visitor_seconds" class="cursor-pointer appearance-none rounded-md border border-gray-300 bg-white py-1 pl-2 pr-7 text-xs text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
                 <option value="60" selected>{{.T.Get "1 minute"}}</option>
                 <option value="300">{{.T.Get "5 minutes"}}</option>
                 <option value="1800">{{.T.Get "30 minutes"}}</option>
@@ -970,7 +970,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             <div><label for="git-branch" class="{{$lbl}}">{{.T.Get "Branch"}}</label><input type="text" name="branch" id="git-branch" :placeholder="source === 'remote' ? {{toJSON (.T.Get "default branch")}} : 'main'" class="{{$in}}"></div>
             <div><label for="git-target_dir" class="{{$lbl}}">{{.T.Get "Deploy to directory"}}</label><input type="text" name="target_dir" id="git-target_dir" :value="docroot" class="{{$in}}"></div>
             <div><label for="git-deploy_mode" class="{{$lbl}}">{{.T.Get "Deployment mode"}}</label>
-                <select name="deploy_mode" id="git-deploy_mode" class="{{$in}}">
+                <select name="deploy_mode" id="git-deploy_mode" class="{{$in}} pl-3 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
                     <option value="automatic">{{.T.Get "Automatic"}}</option>
                     <option value="manual">{{.T.Get "Manual"}}</option>
                     <option value="none">{{.T.Get "No deployment"}}</option>
@@ -981,7 +981,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             <label class="inline-flex items-center gap-2 text-sm text-gray-900 dark:text-gray-50 cursor-pointer"><input type="checkbox" name="actions_enabled" value="1" x-model="on"> {{.T.Get "Enable additional deploy actions"}}</label>
             <div x-show="on" x-cloak class="mt-3 grid grid-cols-1 lg:grid-cols-4 gap-4">
                 <div><label for="git-actions_container" class="{{$lbl}}">{{.T.Get "Run in container"}}</label>
-                    <select name="actions_container" id="git-actions_container" class="{{$in}}"><template x-for="c in containers" :key="c"><option :value="c" x-text="c"></option></template></select>
+                    <select name="actions_container" id="git-actions_container" class="{{$in}} pl-3 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]"><template x-for="c in containers" :key="c"><option :value="c" x-text="c"></option></template></select>
                 </div>
                 <div class="lg:col-span-3"><label for="git-actions" class="{{$lbl}}">{{.T.Get "Commands (run after each deployment, from the deploy directory)"}}</label>
                     <textarea name="actions" id="git-actions" rows="3" class="{{$in}} font-mono text-xs"></textarea>

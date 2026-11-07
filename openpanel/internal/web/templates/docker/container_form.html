@@ -110,7 +110,7 @@
                 <div class="inline-flex rounded-md bg-gray-100 p-1 dark:bg-gray-900" role="group" aria-label="{{.T.Get "Resources"}}">
                     <template x-for="(p, i) in presets" :key="p.name">
                         <button type="button" @click="applyPreset(p)" x-text="p.label" :aria-pressed="isPreset(p) ? 'true' : 'false'"
-                                class="rounded px-3 py-1 text-sm font-medium text-gray-500 outline outline-0 outline-offset-2 outline-blue-500 hover:text-gray-700 focus-visible:outline-2 dark:hover:text-gray-300 aria-pressed:bg-white aria-pressed:text-gray-900 aria-pressed:shadow-xs aria-pressed:ring-1 aria-pressed:ring-gray-200 dark:aria-pressed:bg-gray-950 dark:aria-pressed:text-gray-50 dark:aria-pressed:ring-gray-800"></button>
+                                class="rounded px-3 py-1 text-sm font-medium text-gray-500 outline outline-0 outline-offset-2 outline-blue-500 hover:text-gray-700 focus-visible:outline-2 dark:hover:text-gray-300 aria-pressed:bg-white aria-pressed:text-gray-900 aria-pressed:shadow-sm dark:aria-pressed:bg-gray-950 dark:aria-pressed:text-gray-50"></button>
                     </template>
                 </div>
             </div>
@@ -255,7 +255,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="sm:col-span-2">
                     <label class="{{$label}}" for="domain"><span>{{.T.Get "Domain"}}</span></label>
-                    <select id="domain" name="domain" x-model="domain" class="{{$sel}}">
+                    <select id="domain" name="domain" x-model="domain" class="{{$sel}} pl-3 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
                         <option value="">{{.T.Get "None, only reachable by other containers"}}</option>
                         {{range .Domains}}<option value="{{.}}">{{.}}</option>{{end}}
                     </select>

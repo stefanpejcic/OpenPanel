@@ -140,7 +140,7 @@ func allSections() []Section {
 			{"mongodb_import", "/mongodb/import", "ri-database-2-line", "Import", "", false},
 			{"mongodb", "/mongodb/processlist", "ri-database-2-line", "Running queries", "", false},
 		}},
-		{Key: "php", Title: "PHP", Icon: "ri-code-s-slash-line", Items: []SectionItem{
+		{Key: "php", Title: "PHP", Icon: "ri-php-line", Items: []SectionItem{
 			{"php", "/php/domains", "ri-code-box-line", "Version per domain", "", false},
 			{"php", "/php/default", "ri-code-s-slash-line", "Default version", "", false},
 			{"php_options", "/php/options", "ri-toggle-line", "Options", "", false},

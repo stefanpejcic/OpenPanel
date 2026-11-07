@@ -15,19 +15,19 @@
 
     <form method="GET" action="/error-logs" id="errorLogsFilters" class="grid grid-cols-1 gap-3 px-4 pb-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-6 lg:px-8">
         <label class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Website"}}
-            <select name="domain" class="{{$field}} mt-2 font-normal">
+            <select name="domain" class="{{$field}} mt-2 font-normal pl-3 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
                 <option value="">{{.T.Get "All websites"}}</option>
                 {{range .Targets}}<option value="{{.Value}}" class="punycode" {{if eq .Value $.Query.Domain}}selected{{end}}>{{if .Sub}}&nbsp;&nbsp;↳ {{end}}{{.Value}}</option>{{end}}
             </select>
         </label>
         <label class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Service"}}
-            <select name="service" class="{{$field}} mt-2 font-normal">
+            <select name="service" class="{{$field}} mt-2 font-normal pl-3 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
                 <option value="">{{.T.Get "All services"}}</option>
                 {{range .Sources}}<option value="{{.Name}}" {{if eq .Name $.Query.Service}}selected{{end}}>{{$.T.Get .Label}}</option>{{end}}
             </select>
         </label>
         <label class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Severity"}}
-            <select name="level" class="{{$field}} mt-2 font-normal">
+            <select name="level" class="{{$field}} mt-2 font-normal pl-3 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
                 <option value="" {{if eq .Query.Level ""}}selected{{end}}>{{.T.Get "All"}}</option>
                 <option value="warning" {{if eq .Query.Level "warning"}}selected{{end}}>{{.T.Get "Warnings and errors"}}</option>
                 <option value="error" {{if eq .Query.Level "error"}}selected{{end}}>{{.T.Get "Errors only"}}</option>

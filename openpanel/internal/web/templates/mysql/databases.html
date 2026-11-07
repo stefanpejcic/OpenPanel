@@ -40,7 +40,7 @@
                     {{.T.Get "Show database sizes"}}
                 </label>
                 <span id="size-unit-wrapper" style="display:none !important;">
-                    <select id="display-size" aria-label="{{.T.Get "Size unit"}}" class="block appearance-none rounded-md border border-gray-300 bg-white py-1 pr-8 pl-2.5 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
+                    <select id="display-size" aria-label="{{.T.Get "Size unit"}}" class="block appearance-none rounded-md border border-gray-300 bg-white py-1 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
                         <option value="bytes" {{if eq .Unit "bytes"}}selected{{end}}>B</option>
                         <option value="kb" {{if eq .Unit "kb"}}selected{{end}}>KB</option>
                         <option value="mb" {{if eq .Unit "mb"}}selected{{end}}>MB</option>
@@ -216,7 +216,7 @@ window.addEventListener('load', () => {
     <!-- optimize / repair modal -->
 <template x-teleport="body">
     <div x-show="open" x-cloak
-         class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
          @keydown.escape.window="if (!running) open = false">
 
         <div class="flex w-full max-w-xl flex-col rounded-md border border-gray-200 bg-white text-left shadow-lg dark:border-gray-900 dark:bg-raised"
@@ -301,7 +301,7 @@ window.addEventListener('load', () => {
             </button>
 
             <!-- stays in the row: the mysql spec finds .export-section inside it -->
-            <div x-cloak x-show="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 export-section" @keydown.escape.window="open = false">
+            <div x-cloak x-show="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 export-section" @keydown.escape.window="open = false">
                 <div @click.outside="open = false" role="dialog" aria-modal="true" :aria-label="{{toJSON ($.T.Get "Export")}} + ' ' + database" class="w-full max-w-sm rounded-md border border-gray-200 bg-white text-left shadow-lg dark:border-gray-900 dark:bg-raised">
                     <form method="POST" action="/mysql/export" @submit="handleSubmit">
                         <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
@@ -319,14 +319,14 @@ window.addEventListener('load', () => {
                                 <div class="mt-2 grid grid-cols-2 rounded-md bg-gray-100 p-1 dark:bg-gray-900">
                                     <label class="cursor-pointer">
                                         <input type="radio" name="export_format" value="sql" x-model="format" class="peer sr-only">
-                                        <div :class="format === 'sql' ? 'bg-white text-gray-900 shadow-xs ring-1 ring-gray-200 dark:bg-gray-950 dark:text-gray-50 dark:ring-gray-800' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+                                        <div :class="format === 'sql' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
                                             class="flex items-center justify-center rounded px-3 py-1 text-sm font-medium transition-all peer-focus-visible:outline-2 peer-focus-visible:outline-blue-500">
                                             SQL (.sql)
                                         </div>
                                     </label>
                                     <label class="cursor-pointer">
                                         <input type="radio" name="export_format" value="gzip" x-model="format" class="peer sr-only">
-                                        <div :class="format === 'gzip' ? 'bg-white text-gray-900 shadow-xs ring-1 ring-gray-200 dark:bg-gray-950 dark:text-gray-50 dark:ring-gray-800' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+                                        <div :class="format === 'gzip' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
                                             class="flex items-center justify-center rounded px-3 py-1 text-sm font-medium transition-all peer-focus-visible:outline-2 peer-focus-visible:outline-blue-500">
                                             GZIP (.sql.gz)
                                         </div>
@@ -339,14 +339,14 @@ window.addEventListener('load', () => {
                                 <div class="mt-2 grid grid-cols-2 rounded-md bg-gray-100 p-1 dark:bg-gray-900">
                                     <label class="cursor-pointer">
                                         <input type="radio" name="export_destination" value="browser" x-model="mode" class="peer sr-only">
-                                        <div :class="mode === 'browser' ? 'bg-white text-gray-900 shadow-xs ring-1 ring-gray-200 dark:bg-gray-950 dark:text-gray-50 dark:ring-gray-800' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+                                        <div :class="mode === 'browser' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
                                             class="flex items-center justify-center rounded px-3 py-1 text-sm font-medium transition-all peer-focus-visible:outline-2 peer-focus-visible:outline-blue-500">
                                             {{$.T.Get "Browser"}}
                                         </div>
                                     </label>
                                     <label class="cursor-pointer">
                                         <input type="radio" name="export_destination" value="files" x-model="mode" class="peer sr-only">
-                                        <div :class="mode === 'files' ? 'bg-white text-gray-900 shadow-xs ring-1 ring-gray-200 dark:bg-gray-950 dark:text-gray-50 dark:ring-gray-800' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+                                        <div :class="mode === 'files' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
                                             class="flex items-center justify-center rounded px-3 py-1 text-sm font-medium transition-all peer-focus-visible:outline-2 peer-focus-visible:outline-blue-500">
                                             {{$.T.Get "Files"}}
                                         </div>

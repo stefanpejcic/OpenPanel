@@ -6,7 +6,7 @@
 <!-- quick jump, the same #php_version / #submit_version the upstream selector had -->
 <form method="GET" id="php_version_form" class="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8" data-suffix="{{$suffix}}">
     <label for="php_version" class="sr-only">{{$T.Get "PHP version"}}</label>
-    <select id="php_version" onchange="phpPickVersion(this)" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-2.5 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-56 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
+    <select id="php_version" onchange="phpPickVersion(this)" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-56 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
         <option value="" disabled selected>{{$T.Get "Select PHP version"}}</option>
         {{range .Versions}}<option value="{{.Version}}">PHP {{.Version}}</option>{{end}}
     </select>

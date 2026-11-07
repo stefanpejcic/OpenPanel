@@ -11,7 +11,7 @@ const (
 	mongodbIcon        template.HTML = `<i class="ri-leaf-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`
 	dockerIcon         template.HTML = `<i class="ri-stack-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`
 	cacheIcon          template.HTML = `<i class="ri-flashlight-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`
-	phpIcon            template.HTML = `<i class="ri-code-s-slash-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`
+	phpIcon            template.HTML = `<i class="ri-php-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`
 	domainsIcon        template.HTML = `<i class="ri-global-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`
 	emailIcon          template.HTML = `<i class="ri-mail-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`
 	backupsIcon        template.HTML = `<i class="ri-cloud-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`

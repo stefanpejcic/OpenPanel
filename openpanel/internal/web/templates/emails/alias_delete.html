@@ -80,7 +80,7 @@ function deleteAlias(email) {
         <label for="alias-select" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Alias"}}</label>
         <select
             id="alias-select"
-            class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30"
+            class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]"
             onchange="redirectToAlias(this)"
         >
             <option value="" disabled selected>{{.T.Get "Select alias"}}</option>

@@ -82,9 +82,9 @@
 
             <div class="mt-5 border-b border-gray-200 dark:border-gray-800">
                 <div class="-mb-px flex gap-x-6 overflow-x-auto text-sm" role="tablist" :aria-label="'PHP ' + open">
-                    {{if $canExt}}<button type="button" role="tab" @click="tab = 'extensions'" :aria-selected="(tab === 'extensions').toString()" :class="tab === 'extensions' ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'" class="inline-flex shrink-0 items-center gap-1.5 border-b-2 py-2.5 font-medium">{{.T.Get "Extensions"}} <span x-show="cur().length" class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="cur().filter(e => e.state === 'active').length + ' ' + i18n.on"></span></button>{{end}}
-                    {{if $canOpts}}<button type="button" role="tab" @click="tab = 'options'" :aria-selected="(tab === 'options').toString()" :class="tab === 'options' ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'" class="inline-flex shrink-0 items-center gap-1.5 border-b-2 py-2.5 font-medium">{{.T.Get "Options"}}</button>{{end}}
-                    {{if not .IsLitespeed}}<button type="button" role="tab" @click="tab = 'domains'" :aria-selected="(tab === 'domains').toString()" :class="tab === 'domains' ? 'border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'" class="inline-flex shrink-0 items-center gap-1.5 border-b-2 py-2.5 font-medium">{{.T.Get "Domains"}} <span class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="on(open).length"></span></button>{{end}}
+                    {{if $canExt}}<button type="button" role="tab" @click="tab = 'extensions'" :aria-selected="(tab === 'extensions').toString()" :class="tab === 'extensions' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'" class="inline-flex shrink-0 items-center gap-1.5 border-b-2 py-2.5 font-medium">{{.T.Get "Extensions"}} <span x-show="cur().length" class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="cur().filter(e => e.state === 'active').length + ' ' + i18n.on"></span></button>{{end}}
+                    {{if $canOpts}}<button type="button" role="tab" @click="tab = 'options'" :aria-selected="(tab === 'options').toString()" :class="tab === 'options' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'" class="inline-flex shrink-0 items-center gap-1.5 border-b-2 py-2.5 font-medium">{{.T.Get "Options"}}</button>{{end}}
+                    {{if not .IsLitespeed}}<button type="button" role="tab" @click="tab = 'domains'" :aria-selected="(tab === 'domains').toString()" :class="tab === 'domains' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'" class="inline-flex shrink-0 items-center gap-1.5 border-b-2 py-2.5 font-medium">{{.T.Get "Domains"}} <span class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="on(open).length"></span></button>{{end}}
                 </div>
             </div>
 
@@ -163,7 +163,7 @@
                                 </label>
                                 <div class="sm:col-span-2">
                                     <div class="flex flex-wrap items-center gap-2">
-                                        <select :aria-label="p.key" @change="pickPreset(p, $event.target.value)" class="{{$input}} w-40 pr-8 font-mono">
+                                        <select :aria-label="p.key" @change="pickPreset(p, $event.target.value)" class="{{$input}} w-40 pr-8 font-mono pl-3 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
                                             <template x-for="v in p.presets" :key="v"><option :value="v" :selected="!isCustom(p) && opts[open].edit[p.key] === v" x-text="v"></option></template>
                                             <option value="__custom" :selected="isCustom(p)">{{.T.Get "Custom…"}}</option>
                                         </select>
@@ -201,7 +201,7 @@
                 <div x-show="on(open).length">
                     <div x-show="on(open).length > 1 && others().length" class="flex flex-wrap items-center justify-end gap-2 pb-3">
                         <label for="phpw-move-all" class="text-sm text-gray-500">{{.T.Get "Move all to"}}</label>
-                        <select id="phpw-move-all" x-ref="moveTo" class="{{$input}} w-28 py-1.5 pr-8">
+                        <select id="phpw-move-all" x-ref="moveTo" class="{{$input}} w-28 py-1.5 pr-8 pl-3 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
                             <template x-for="v in others()" :key="v.v"><option :value="v.v" x-text="v.v"></option></template>
                         </select>
                         <button type="button" @click="moveAll($refs.moveTo.value)" :disabled="saving" class="{{$btn}} py-1.5" x-text="saving ? i18n.moving : i18n.move"></button>
@@ -224,7 +224,7 @@
                                             <input type="hidden" name="domain_url" :value="d.d">
                                             <input type="hidden" name="old_php_version" :value="d.v">
                                             <input type="hidden" name="redirect_to" :value="'/php/wizard?v=' + open + '&tab=domains'">
-                                            <select name="new_php_version" :aria-label="i18n.versionFor + ' ' + d.d" class="block w-24 appearance-none rounded-l-md border border-gray-300 bg-white py-1.5 pl-2.5 pr-8 text-sm text-gray-900 shadow-xs outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50">
+                                            <select name="new_php_version" :aria-label="i18n.versionFor + ' ' + d.d" class="block w-24 appearance-none rounded-l-md border border-gray-300 bg-white py-1.5 pl-3 pr-8 text-sm text-gray-900 shadow-xs outline-hidden focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
                                                 <template x-for="v in others()" :key="v.v"><option :value="v.v" x-text="v.v"></option></template>
                                             </select>
                                             <button type="submit" :disabled="!others().length" class="-ml-px rounded-r-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium whitespace-nowrap text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Move"}}</button>

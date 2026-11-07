@@ -15,7 +15,7 @@ window.opConfirm = function (message, opts) {
     return new Promise(function (resolve) {
         const prev = document.activeElement;
         const wrap = document.createElement('div');
-        wrap.className = 'fixed inset-0 z-[60] flex items-center justify-center bg-black/30 p-4';
+        wrap.className = 'fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4';
         wrap.setAttribute('role', danger ? 'alertdialog' : 'dialog');
         wrap.setAttribute('aria-modal', 'true');
         wrap.setAttribute('aria-labelledby', 'op-confirm-title');

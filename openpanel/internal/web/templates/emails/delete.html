@@ -74,7 +74,7 @@ function deleteEmail(address) {
     <form class="max-w-2xl" method="GET">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
         <label for="domains" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Email address"}}</label>
-        <select id="domains" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30" name="domain_name" onchange="redirectToSelectedVersion(this)">
+        <select id="domains" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]" name="domain_name" onchange="redirectToSelectedVersion(this)">
             <option value="" disabled selected>{{.T.Get "Select address"}}</option>
             {{range .Addresses}}
             <option class="punycode" value="{{.}}">{{.}}</option>

@@ -859,7 +859,7 @@
 
     <!-- File picker: folder browser for website files, same listing as the /files folder picker -->
     <div x-show="picker.open" x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
         @keydown.escape.window="picker.open = false" @click.self="picker.open = false">
         <div class="flex w-full max-w-xl flex-col rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-900 dark:bg-raised">
             <div class="flex items-center justify-between border-b border-gray-200 px-4 py-4 dark:border-gray-800">
@@ -937,7 +937,7 @@
 
     <!-- Restore summary modal -->
     <div x-show="summaryOpen" x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
         @keydown.escape.window="closeSummary()" @click.self="closeSummary()">
         <div class="w-full max-w-xl rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-900 dark:bg-raised">
             <div class="flex items-center justify-between border-b border-gray-200 px-4 py-4 dark:border-gray-800">
@@ -1004,7 +1004,7 @@
 
     <!-- Download modal -->
     <div x-show="downloadOpen" x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
         @keydown.escape.window="if (!downloading) downloadOpen = false" @click.self="if (!downloading) downloadOpen = false">
         <div class="w-full max-w-xl rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-900 dark:bg-raised">
             <div class="border-b border-gray-200 px-4 py-4 dark:border-gray-800">

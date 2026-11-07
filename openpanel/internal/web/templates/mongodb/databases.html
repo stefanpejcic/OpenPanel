@@ -71,7 +71,7 @@
                                     <div x-data="{ ...exportModal({{toJSON $db.Database}}) }" @keydown.escape.window="open = false">
                                         <button type="button" @click="open = true" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" title="{{$.T.Get "Export"}}" aria-label="{{$.T.Get "Export"}} {{$db.Database}}"><i class="ri-download-line text-base" aria-hidden="true"></i></button>
 
-                                        <div x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 export-section">
+                                        <div x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 export-section">
                                             <div @click.outside="open = false" class="w-full max-w-sm rounded-md border border-gray-200 bg-white text-left whitespace-normal shadow-lg dark:border-gray-900 dark:bg-raised" role="dialog" aria-modal="true" aria-labelledby="export-title-{{$db.Database}}">
                                                 <form method="POST" action="/mongodb/export" @submit="handleSubmit">
                                                     <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
@@ -85,10 +85,10 @@
                                                         <fieldset>
                                                             <legend class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{$.T.Get "Format:"}}</legend>
                                                             <div class="grid grid-cols-2 rounded-md bg-gray-100 p-1 dark:bg-gray-900 mt-2">
-                                                                <label class="flex cursor-pointer items-center justify-center rounded px-3 py-1 text-sm font-medium transition" :class="format === 'archive' ? 'bg-white text-gray-900 shadow-xs ring-1 ring-gray-200 dark:bg-gray-950 dark:text-gray-50 dark:ring-gray-800' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'">
+                                                                <label class="flex cursor-pointer items-center justify-center rounded px-3 py-1 text-sm font-medium transition" :class="format === 'archive' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'">
                                                                     <input type="radio" name="export_format" value="archive" x-model="format" class="sr-only">{{$.T.Get "Archive"}} (.archive)
                                                                 </label>
-                                                                <label class="flex cursor-pointer items-center justify-center rounded px-3 py-1 text-sm font-medium transition" :class="format === 'gzip' ? 'bg-white text-gray-900 shadow-xs ring-1 ring-gray-200 dark:bg-gray-950 dark:text-gray-50 dark:ring-gray-800' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'">
+                                                                <label class="flex cursor-pointer items-center justify-center rounded px-3 py-1 text-sm font-medium transition" :class="format === 'gzip' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'">
                                                                     <input type="radio" name="export_format" value="gzip" x-model="format" class="sr-only">GZIP (.archive.gz)
                                                                 </label>
                                                             </div>
@@ -97,10 +97,10 @@
                                                         <fieldset>
                                                             <legend class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{$.T.Get "Destination:"}}</legend>
                                                             <div class="grid grid-cols-2 rounded-md bg-gray-100 p-1 dark:bg-gray-900 mt-2">
-                                                                <label class="flex cursor-pointer items-center justify-center rounded px-3 py-1 text-sm font-medium transition" :class="mode === 'browser' ? 'bg-white text-gray-900 shadow-xs ring-1 ring-gray-200 dark:bg-gray-950 dark:text-gray-50 dark:ring-gray-800' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'">
+                                                                <label class="flex cursor-pointer items-center justify-center rounded px-3 py-1 text-sm font-medium transition" :class="mode === 'browser' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'">
                                                                     <input type="radio" name="export_destination" value="browser" x-model="mode" class="sr-only">{{$.T.Get "Browser"}}
                                                                 </label>
-                                                                <label class="flex cursor-pointer items-center justify-center rounded px-3 py-1 text-sm font-medium transition" :class="mode === 'files' ? 'bg-white text-gray-900 shadow-xs ring-1 ring-gray-200 dark:bg-gray-950 dark:text-gray-50 dark:ring-gray-800' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'">
+                                                                <label class="flex cursor-pointer items-center justify-center rounded px-3 py-1 text-sm font-medium transition" :class="mode === 'files' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'">
                                                                     <input type="radio" name="export_destination" value="files" x-model="mode" class="sr-only">{{$.T.Get "Files"}}
                                                                 </label>
                                                             </div>

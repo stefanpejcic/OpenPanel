@@ -122,7 +122,7 @@
 {{end}}
 
 <!-- new / edit redirect dialog -->
-<div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4" @keydown.escape.window="open = false" @click.self="open = false">
+<div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" @keydown.escape.window="open = false" @click.self="open = false">
     <form method="POST" action="/domains/redirect" role="dialog" aria-modal="true" aria-labelledby="redirect-dialog-title" class="w-full max-w-lg rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-900 dark:bg-raised">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
         <input type="hidden" name="next" value="redirects">
@@ -134,7 +134,7 @@
         <div class="space-y-5 px-6 py-5">
             <div>
                 <label for="redirect-domain" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Domain"}}</label>
-                <select id="redirect-domain" x-show="mode === 'new'" x-model="domain" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
+                <select id="redirect-domain" x-show="mode === 'new'" x-model="domain" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
                     {{range .Free}}<option value="{{.}}">{{.}}</option>{{end}}
                 </select>
                 <p x-show="mode === 'edit'" class="mt-2 rounded-md bg-gray-50 px-2.5 py-2 text-sm text-gray-900 dark:bg-gray-900 dark:text-gray-50" x-text="domain"></p>

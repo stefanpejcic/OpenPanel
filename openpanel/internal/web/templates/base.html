@@ -176,6 +176,8 @@
     <script defer src="{{static "js/password-strength.js"}}"></script>
     <script defer src="{{static "js/clipboard.js"}}"></script>
     <script defer src="{{static "js/tab-overflow.js"}}"></script>
+    <script defer src="{{static "js/row-menu.js"}}"></script>
+    <script defer src="{{static "js/sidebar-search.js"}}"></script>
     {{template "alpine_plugins" .}}
     <script defer src="{{static "vendor/alpinejs/alpinejs3xx.min.js"}}"></script>
     {{template "flowbite_js" .}}
@@ -427,7 +429,18 @@ document.addEventListener('submit', (e) => {
 
                 <div><div class="mx-auto flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 my-0 py-0"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div></div>
 
+                {{/* "/" focuses the menu search unless the page has its own find box showing */}}
+                <div class="px-3 pt-3" x-data="{ q: '' }" @keydown.window="if ($event.key === '/' && !$event.ctrlKey && !$event.metaKey && !$event.altKey && !$event.target.closest('input, textarea, select, [contenteditable]') && !document.querySelector('[data-page-find]')?.offsetParent) { $event.preventDefault(); $refs.q.focus() }">
+                    <label class="relative block">
+                        <span class="sr-only">{{.T.Get "Filter the menu"}}</span>
+                        <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
+                        <input type="search" id="sidebar-search" x-ref="q" x-model="q" @input="sidebarSearch.filter(q)" @keydown.escape="q = ''; sidebarSearch.filter(''); $el.blur()" @keydown.enter.prevent="sidebarSearch.first()" placeholder="{{.T.Get "Search menu"}}" autocomplete="off" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 [&::-webkit-search-cancel-button]:hidden">
+                        <kbd x-show="!q" class="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 rounded border border-gray-200 px-1.5 font-mono text-xs text-gray-400 dark:border-gray-800">/</kbd>
+                    </label>
+                </div>
+
                 <div data-sidebar="content" class="min-h-0 flex flex-1 flex-col gap-2 overflow-y-auto  [&::-webkit-scrollbar]:w-2  [&::-webkit-scrollbar-track]:bg-gray-100  [&::-webkit-scrollbar-thumb]:bg-gray-300  dark:[&::-webkit-scrollbar-track]:bg-neutral-700  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
+                    <p id="sidebar-search-empty" class="px-5 pt-3 text-sm text-gray-500" hidden>{{.T.Get "No matching pages"}}</p>
 
       {{if .UserAllowed.favorites}}
 
@@ -436,9 +449,9 @@ document.addEventListener('submit', (e) => {
                             <ul data-sidebar="menu" class="flex w-full min-w-0 flex-col">
 
 
-                                <li x-cloak x-data="{ open: true, active: false }" class="relative">
+                                <li x-cloak x-data="{ open: true, active: false, q: '' }" @sidebar-search.window="q = $event.detail" class="relative">
                                 <button @click="open = !open" class="flex w-full items-center justify-between gap-x-2.5 rounded p-2 text-base text-gray-900 transition hover:bg-gray-200/50 sm:text-sm dark:text-gray-400 hover:dark:bg-gray-900 hover:dark:text-gray-50 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500"><div class="flex items-center gap-2.5"><i class="ri-star-line text-lg leading-none" aria-hidden="true"></i> {{.T.Get "Favorites"}} </div><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon rotate-0 size-5 shrink-0 transform text-gray-400 transition-transform duration-150 ease-in-out dark:text-gray-600 rotate-180" :class="{ 'rotate-180': open }"><path d="M12 16L6 10H18L12 16Z"></path></svg></button>
-                                    <ul x-show="open || active" x-transition class="relative space-y-1 border-l border-transparent">
+                                    <ul x-show="open || active || q" x-transition class="relative space-y-1 border-l border-transparent">
                                         <div id="favorites-list" class="relative z-50 overflow-hidden min-w-48 text-gray-900 will-change-[transform,opacity] data-[state=closed]:animate-hide data-[side=bottom]:animate-slideDownAndFade data-[side=left]:animate-slideLeftAndFade data-[side=right]:animate-slideRightAndFade data-[side=top]:animate-slideUpAndFade"></div>
                                     </ul>
                                 </li>
@@ -501,9 +514,9 @@ document.addEventListener('submit', (e) => {
 
         {{range .NavItems}}
         {{if .Section}}
-        <li class="px-2 pt-3 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-500">{{$.T.Get .Section}}</li>
+        <li data-nav-label class="px-2 pt-3 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-500">{{$.T.Get .Section}}</li>
         {{end}}
-        <li class="relative">
+        <li data-nav-item class="relative">
             {{if .Disabled}}
             <a data-active="false" title="{{if $.UpsellPlanName}}{{$.T.Get "Upgrade to"}} {{$.UpsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
                class="flex w-full items-center gap-x-2.5 rounded p-2 text-base sm:text-sm text-gray-400 dark:text-gray-600 cursor-not-allowed"
@@ -527,11 +540,13 @@ document.addEventListener('submit', (e) => {
         <ul data-sidebar="menu" class="flex w-full min-w-0 flex-col gap-1 space-y-2">
 
         {{range .NavGroups}}
-        <li x-cloak x-data="{
+        <li x-cloak data-nav-group x-data="{
                 open: {{if .Open}}true{{else}}false{{end}},
-                active: {{if .Active}}true{{else}}false{{end}}
+                active: {{if .Active}}true{{else}}false{{end}},
+                q: ''
             }"
             @sidebar-toggle-all.window="open = $event.detail.open"
+            @sidebar-search.window="q = $event.detail"
             class="relative">
             <button @click="open = !open"
                     class="flex w-full items-center justify-between gap-x-2.5 rounded p-2 text-base text-gray-900 transition hover:bg-gray-200/50 sm:text-sm dark:text-gray-400 hover:dark:bg-gray-900 hover:dark:text-gray-50 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500">
@@ -545,7 +560,7 @@ document.addEventListener('submit', (e) => {
                     <path d="M12 16L6 10H18L12 16Z"></path>
                 </svg>
             </button>
-            <ul id="{{.MenuID}}" x-show="open || active" x-transition class="relative space-y-1 border-l border-transparent">
+            <ul id="{{.MenuID}}" x-show="open || active || q" x-transition class="relative space-y-1 border-l border-transparent">
                 <div class="absolute inset-y-0 left-4 w-px bg-gray-300 dark:bg-gray-800"></div>
                 {{range .Links}}
                 <li class="relative">
@@ -656,10 +671,10 @@ document.addEventListener('submit', (e) => {
         {{range .PageTabs}}
         <li class="shrink-0">
             {{if .Disabled}}
-            <a class="inline-flex items-center gap-1 border-b-2 border-transparent py-3 text-gray-400 dark:text-gray-600 cursor-not-allowed" title="{{if $.UpsellPlanName}}{{$.T.Get "Upgrade to"}} {{$.UpsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}" {{if $.UpsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}>{{$.T.Get .Label}}</a>
+            <a class="inline-flex items-center gap-1 border-b-2 border-transparent py-3 font-medium text-gray-300 dark:text-gray-700 cursor-not-allowed" title="{{if $.UpsellPlanName}}{{$.T.Get "Upgrade to"}} {{$.UpsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}" {{if $.UpsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}>{{$.T.Get .Label}}</a>
             {{else}}
             <a href="{{.Href}}" {{if .Target}}target="{{.Target}}"{{end}} {{if .Active}}aria-current="page"{{end}}
-               class="inline-flex items-center gap-1 border-b-2 py-3 font-medium transition {{if .Active}}border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-500{{else}}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300{{end}}">{{$.T.Get .Label}}{{if eq .Target "_blank"}}<i class="ri-arrow-right-up-line shrink-0 text-xs leading-none" aria-label="{{$.T.Get "></i>{{end}}</a>
+               class="inline-flex items-center gap-1 border-b-2 py-3 font-medium transition {{if .Active}}border-blue-500 text-blue-500{{else}}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300{{end}}">{{$.T.Get .Label}}{{if eq .Target "_blank"}}<i class="ri-arrow-right-up-line shrink-0 text-xs leading-none" aria-label="{{$.T.Get "Opens in a new tab"}}"></i>{{end}}</a>
             {{end}}
         </li>
         {{end}}
@@ -684,7 +699,7 @@ document.addEventListener('submit', (e) => {
     </script>
 
     <!-- Keyboard shortcuts help -->
-    <div id="shortcuts-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/30 p-4" role="dialog" aria-modal="true" aria-labelledby="shortcuts-modal-label">
+    <div id="shortcuts-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="shortcuts-modal-label">
         <div class="relative mx-auto w-full max-w-md rounded-md border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-900 dark:bg-raised">
             <div class="flex items-start justify-between gap-x-4 border-b border-gray-200 pb-4 dark:border-gray-900">
                 <h2 id="shortcuts-modal-label" class="text-base font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Keyboard shortcuts"}}</h2>
