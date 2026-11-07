@@ -2,156 +2,396 @@
 
 {{define "content"}}
 <!-- START templates/system/error_logs.html -->
+{{$field := "block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30"}}
+{{$select := "block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition hover:bg-gray-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-950/50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:[color-scheme:dark]"}}
+{{$btn := "relative inline-flex cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"}}
+{{$btnSm := "relative inline-flex cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-xs font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"}}
+{{$ghost := "inline-flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"}}
+{{$th := "border-b border-gray-200 px-4 py-1 text-left whitespace-nowrap dark:border-gray-800"}}
+{{$sort := "group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-medium text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-900 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"}}
+{{$chip := "inline-flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-md border px-2 py-1.5 text-xs font-medium outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"}}
 
-{{$field := "block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"}}
-
+<div x-data="errorLogs()">
 <section aria-label="{{.T.Get "Error logs"}}">
     <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-        <div>
+        <div class="min-w-0">
             <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Error logs"}}</h1>
             <p class="mt-1 text-sm text-gray-500">{{.T.Get "PHP, web server, database and HTTP 5xx errors for all your websites in one place."}}</p>
         </div>
+        <div class="flex flex-wrap items-center gap-2">
+            <a :href="exportURL('json')" href="/error-logs?format=json" target="_blank" rel="noopener" class="{{$ghost}} text-sm"><i class="ri-braces-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "Open as JSON"}}</a>
+            <button type="button" class="{{$btn}}" @click="exportAll()" :disabled="!list.length || busy"><i class="text-base leading-none" :class="busy ? 'ri-loader-4-line animate-spin' : 'ri-download-line'" aria-hidden="true"></i>{{.T.Get "Download .txt"}}</button>
+        </div>
     </div>
 
-    <form method="GET" action="/error-logs" id="errorLogsFilters" class="grid grid-cols-1 gap-3 px-4 pb-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-6 lg:px-8">
+    {{if .Error}}
+    <div role="alert"><div class="mx-4 mb-4 flex items-start gap-3 rounded-md bg-red-50 p-4 text-sm text-red-900 sm:mx-6 lg:mx-8 dark:bg-red-950/70 dark:text-red-500"><i class="ri-error-warning-line text-base leading-none" aria-hidden="true"></i><span>{{.T.Get .Error}}</span></div></div>
+    {{end}}
+
+    <!-- filters, the date range reloads the page, the rest filter in the browser -->
+    <div class="grid grid-cols-1 gap-4 px-4 pb-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
         <label class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Website"}}
-            <select name="domain" class="{{$field}} mt-2 font-normal pl-3 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+            <select name="domain" x-model="domain" @change="exact = false; reset()" class="{{$select}} mt-2 font-normal">
                 <option value="">{{.T.Get "All websites"}}</option>
                 {{range .Targets}}<option value="{{.Value}}" class="punycode" {{if eq .Value $.Query.Domain}}selected{{end}}>{{if .Sub}}&nbsp;&nbsp;↳ {{end}}{{.Value}}</option>{{end}}
             </select>
         </label>
         <label class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Service"}}
-            <select name="service" class="{{$field}} mt-2 font-normal pl-3 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+            <select name="service" x-model="service" @change="reset()" class="{{$select}} mt-2 font-normal">
                 <option value="">{{.T.Get "All services"}}</option>
                 {{range .Sources}}<option value="{{.Name}}" {{if eq .Name $.Query.Service}}selected{{end}}>{{$.T.Get .Label}}</option>{{end}}
             </select>
         </label>
-        <label class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Severity"}}
-            <select name="level" class="{{$field}} mt-2 font-normal pl-3 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
-                <option value="" {{if eq .Query.Level ""}}selected{{end}}>{{.T.Get "All"}}</option>
-                <option value="warning" {{if eq .Query.Level "warning"}}selected{{end}}>{{.T.Get "Warnings and errors"}}</option>
-                <option value="error" {{if eq .Query.Level "error"}}selected{{end}}>{{.T.Get "Errors only"}}</option>
+        <label class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Level"}}
+            <select name="level" x-model="min" @change="sev = ''; reset()" class="{{$select}} mt-2 font-normal">
+                <option value="">{{.T.Get "All levels"}}</option>
+                <option value="warning">{{.T.Get "Warnings and up"}}</option>
+                <option value="error">{{.T.Get "Errors and up"}}</option>
             </select>
         </label>
-        <label class="text-sm font-medium text-gray-900 lg:col-span-3 dark:text-gray-50">{{.T.Get "Search"}}
-            <input type="search" name="q" value="{{.Query.Search}}" placeholder="{{.T.Get "e.g. Fatal error, wp-content, 502"}}" class="{{$field}} mt-2 font-normal">
+        <label class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Search"}}
+            <span class="relative mt-2 block">
+                <input type="search" name="q" x-model.debounce.200ms="q" @input="reset()" placeholder="{{.T.Get "e.g. Fatal error, wp-content, 502"}}" aria-label="{{.T.Get "Search messages"}}" class="{{$field}} pl-8 font-normal [&::-webkit-search-decoration]:hidden">
+                <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+            </span>
         </label>
-        {{if .Query.Exact}}<input type="hidden" name="exact" value="1">{{end}}
-        {{if or .Query.FromDay .Query.ToDay}}
-        <input type="hidden" name="from" value="{{.Query.FromDay}}">
-        <input type="hidden" name="to" value="{{.Query.ToDay}}">
-        <input type="hidden" name="tz" value="{{.Query.TZ}}">
-        {{end}}
-        <div class="flex flex-wrap items-center justify-between gap-2 sm:col-span-2 lg:col-span-6">
+        <div class="sm:col-span-2 lg:col-span-4">
             {{template "date_range" (dict "T" .T "From" .Query.FromDay "To" .Query.ToDay "Tz" true)}}
-            <div class="flex items-center gap-2">
-            <a href="/error-logs" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent shadow-none bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80">{{.T.Get "Reset"}}</a>
-            <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">{{.T.Get "Apply"}}</button>
-            </div>
         </div>
-    </form>
-
-    {{if .Error}}
-    <div class="mx-4 mb-4 sm:mx-6 lg:mx-8 flex gap-3 rounded-md p-4 text-sm bg-red-50 text-red-900 dark:bg-red-950/70 dark:text-red-500" role="alert"><i class="ri-error-warning-line text-base" aria-hidden="true"></i><p>{{.T.Get .Error}}</p></div>
-    {{end}}
-
-    <div class="flex flex-col gap-1 px-4 pb-3 text-sm text-gray-500 tabular-nums sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-        <span>{{if .Truncated}}{{.T.Get "Showing"}} {{.Matched}} {{.T.Get "out of"}} {{.Total}} {{.T.Get "rows"}}{{else}}{{.Total}} {{.T.Get "rows"}}{{end}}</span>
     </div>
 
-    {{if .Rows}}
-    {{template "bulk_open" (dict "T" .T "Table" "#errorLogsTable" "Endpoint" "")}}
-    <div class="overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-        <table id="errorLogsTable" class="w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8 text-left">
+    <!-- severity chips and view switch -->
+    <div class="flex flex-col gap-3 px-4 pb-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+        <div class="flex flex-wrap items-center gap-2" role="group" aria-label="{{.T.Get "Filter by severity"}}">
+            <button type="button" class="{{$chip}}" :aria-pressed="(sev === '').toString()" :class="sev === '' ? 'border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-500 dark:bg-blue-500/10 dark:text-blue-400' : 'border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-900'" @click="sev = ''; reset()">{{.T.Get "All"}} <span class="tabular-nums text-gray-500" x-text="counts.all">0</span></button>
+            <template x-for="l in levels" :key="l[0]">
+                <button type="button" class="{{$chip}}" x-show="counts[l[0]] || sev === l[0]" :aria-pressed="(sev === l[0]).toString()" :class="sev === l[0] ? 'border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-500 dark:bg-blue-500/10 dark:text-blue-400' : 'border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-900'" @click="sev = sev === l[0] ? '' : l[0]; reset()"><span class="size-1.5 rounded-full" :class="dot(l[0])" aria-hidden="true"></span><span x-text="l[1]"></span> <span class="tabular-nums text-gray-500" x-text="counts[l[0]] || 0"></span></button>
+            </template>
+        </div>
+        <div class="inline-flex w-fit rounded-md border border-gray-300 p-0.5 dark:border-gray-700" role="group" aria-label="{{.T.Get "View"}}">
+            <button type="button" @click="setView('list')" :aria-pressed="(view === 'list').toString()" :class="view === 'list' ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50'" class="inline-flex cursor-pointer items-center gap-1.5 rounded px-2 py-1 text-xs font-medium outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"><i class="ri-list-check text-sm leading-none" aria-hidden="true"></i>{{.T.Get "List"}}</button>
+            <button type="button" @click="group = ''; setView('grouped')" :aria-pressed="(view === 'grouped').toString()" :class="view === 'grouped' ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50'" class="inline-flex cursor-pointer items-center gap-1.5 rounded px-2 py-1 text-xs font-medium outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"><i class="ri-stack-line text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Grouped"}}</button>
+        </div>
+    </div>
+
+    <!-- active group/exact filters -->
+    <div class="flex flex-wrap items-center gap-2 px-4 pb-4 sm:px-6 lg:px-8" x-show="group || (exact && domain) || anyFilter()" x-cloak>
+        <span class="inline-flex max-w-full items-center gap-1.5 rounded-md bg-gray-100 py-1 pr-1 pl-2 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-300" x-show="group"><span class="truncate">{{.T.Get "Same message as:"}} <span class="font-mono" x-text="groupText"></span></span><button type="button" class="inline-flex size-5 shrink-0 cursor-pointer items-center justify-center rounded text-gray-500 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-50" aria-label="{{.T.Get "Show all messages"}}" @click="group = ''; reset()"><i class="ri-close-line text-sm leading-none" aria-hidden="true"></i></button></span>
+        <span class="inline-flex max-w-full items-center gap-1.5 rounded-md bg-gray-100 py-1 pr-1 pl-2 text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-300" x-show="exact && domain"><span class="truncate">{{.T.Get "Only"}} <span class="font-mono punycode" x-text="domain"></span>, {{.T.Get "not its subfolder sites"}}</span><button type="button" class="inline-flex size-5 shrink-0 cursor-pointer items-center justify-center rounded text-gray-500 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-gray-50" aria-label="{{.T.Get "Include subfolder sites"}}" @click="exact = false; reset()"><i class="ri-close-line text-sm leading-none" aria-hidden="true"></i></button></span>
+        <button type="button" class="cursor-pointer text-xs font-medium text-blue-500 hover:underline hover:underline-offset-4" x-show="anyFilter()" @click="clearAll()">{{.T.Get "Clear filters"}}</button>
+    </div>
+
+    <!-- list view -->
+    <div x-show="view === 'list' && list.length" x-cloak class="overflow-x-auto">
+        <table id="errorLogsTable" class="w-full border-t border-gray-200 text-sm dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
             <thead>
                 <tr>
-                    {{template "bulk_head_checkbox" .}}
-                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1">{{template "sort_header" (dict "Label" (.T.Get "Time") "Key" "time" "Type" "number")}}</th>
-                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1">{{template "sort_header" (dict "Label" (.T.Get "Severity") "Key" "severity" "Type" "number")}}</th>
-                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1">{{template "sort_header" (dict "Label" (.T.Get "Service") "Key" "service" "Type" "string")}}</th>
-                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1">{{template "sort_header" (dict "Label" (.T.Get "Website") "Key" "website" "Type" "string")}}</th>
-                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 w-full py-1">{{template "sort_header" (dict "Label" (.T.Get "Message") "Key" "message" "Type" "string")}}</th>
+                    <th scope="col" class="w-10 border-b border-gray-200 py-2.5 pr-2 pl-4 text-left dark:border-gray-800"><input type="checkbox" aria-label="{{.T.Get "Select all on this page"}}" :checked="allOnPage()" x-effect="$el.indeterminate = !allOnPage() && pageIds().some(i => sel.includes(i))" @change="toggleAll()"></th>
+                    <th scope="col" class="{{$th}}" :aria-sort="ariaSort('ts')"><button type="button" class="{{$sort}}" @click="sortBy('ts')">{{.T.Get "Time"}}<i class="text-sm leading-none text-gray-400 dark:text-gray-600" :class="sortIcon('ts')" aria-hidden="true"></i></button></th>
+                    <th scope="col" class="{{$th}}" :aria-sort="ariaSort('rank')"><button type="button" class="{{$sort}}" @click="sortBy('rank')">{{.T.Get "Severity"}}<i class="text-sm leading-none text-gray-400 dark:text-gray-600" :class="sortIcon('rank')" aria-hidden="true"></i></button></th>
+                    <th scope="col" class="{{$th}} hidden sm:table-cell" :aria-sort="ariaSort('service')"><button type="button" class="{{$sort}}" @click="sortBy('service')">{{.T.Get "Service"}}<i class="text-sm leading-none text-gray-400 dark:text-gray-600" :class="sortIcon('service')" aria-hidden="true"></i></button></th>
+                    <th scope="col" class="{{$th}} hidden md:table-cell" :aria-sort="ariaSort('website')"><button type="button" class="{{$sort}}" @click="sortBy('website')">{{.T.Get "Website"}}<i class="text-sm leading-none text-gray-400 dark:text-gray-600" :class="sortIcon('website')" aria-hidden="true"></i></button></th>
+                    <th scope="col" class="{{$th}} w-full" :aria-sort="ariaSort('message')"><button type="button" class="{{$sort}}" @click="sortBy('message')">{{.T.Get "Message"}}<i class="text-sm leading-none text-gray-400 dark:text-gray-600" :class="sortIcon('message')" aria-hidden="true"></i></button></th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 dark:border-gray-800"><span class="sr-only">{{.T.Get "Details"}}</span></th>
                 </tr>
             </thead>
+            <template x-for="r in shown()" :key="r.i">
             <tbody>
-                {{range $i, $row := .Rows}}
-                <tr x-data="{ open: false }" @click="if ($event.target.type !== 'checkbox') open = !open" data-row="{{$i}}" data-line="{{.Line}}" class="cursor-pointer align-top hover:bg-gray-50 dark:hover:bg-gray-900/60">
-                    {{template "bulk_row_checkbox" (dict "T" $.T "Key" (toString $i) "Label" (.Time.UTC.Format "2006-01-02 15:04:05"))}}
-                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 log-time tabular-nums" data-ts="{{.Unix}}" data-sort-col="time" data-sort-value="{{.Unix}}">{{.Time.UTC.Format "2006-01-02 15:04:05"}} UTC</td>
-                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400" data-sort-col="severity" data-sort-value="{{.Rank}}">{{template "level_badge" (dict "T" $.T "Level" .Level)}}</td>
-                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400" data-sort-col="service">{{.Service}}</td>
-                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400" data-sort-col="website" data-sort-value="{{.Domain}}">{{if .Domain}}<span class="punycode">{{.Domain}}</span>{{else}}<span class="text-gray-400">—</span>{{end}}</td>
-                    <td class="border-b border-gray-200 px-4 py-2.5 text-gray-900 dark:border-gray-800 dark:text-gray-50" data-sort-col="message" data-sort-value="{{.Message}}">
-                        <div x-show="!open" class="max-w-sm truncate font-mono text-xs xl:max-w-xl 2xl:max-w-3xl">{{.Message}}</div>
-                        <pre x-show="open" x-cloak class="max-w-sm font-mono text-xs break-all whitespace-pre-wrap xl:max-w-xl 2xl:max-w-3xl">{{.Message}}</pre>
+                <tr class="cursor-pointer align-top hover:bg-gray-50 dark:hover:bg-gray-900/60 [&>td]:border-b [&>td]:border-gray-200 dark:[&>td]:border-gray-800" :class="(openRow === r.i || sel.includes(r.i)) && 'bg-gray-50 dark:bg-gray-900/40'" @click="if (!$event.target.closest('a, button, input, label') && !String(getSelection())) openRow = openRow === r.i ? null : r.i">
+                    <td class="w-10 py-2.5 pr-2 pl-4 align-middle"><input type="checkbox" class="bulk-select-box" :aria-label="T.select + ' ' + stamp(r.ts)" :checked="sel.includes(r.i)" @change="toggle(r.i)"></td>
+                    <td class="px-4 py-2.5 whitespace-nowrap tabular-nums" :title="stamp(r.ts)"><span class="text-gray-500" x-text="day(r.ts)"></span> <span class="font-mono text-xs text-gray-900 dark:text-gray-50" x-text="clock(r.ts)"></span></td>
+                    <td class="px-4 py-2.5 whitespace-nowrap"><span class="inline-flex items-center gap-x-1.5 whitespace-nowrap rounded-md px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset" :class="badge(r.level)"><span class="size-1.5 rounded-full" :class="dot(r.level)" aria-hidden="true"></span><span x-text="name(r.level)"></span></span></td>
+                    <td class="hidden px-4 py-2.5 whitespace-nowrap font-mono text-xs text-gray-600 sm:table-cell dark:text-gray-400" x-text="r.service"></td>
+                    <td class="hidden px-4 py-2.5 whitespace-nowrap font-mono text-xs md:table-cell"><span class="punycode" :class="r.domain ? 'text-gray-600 dark:text-gray-400' : 'text-gray-400 dark:text-gray-600'" x-text="r.domain || '–'"></span></td>
+                    <td class="max-w-0 px-4 py-2.5">
+                        <div class="flex min-w-0 items-center gap-2">
+                            <span class="truncate font-mono text-xs text-gray-900 dark:text-gray-50" x-text="r.first"></span>
+                            <span class="shrink-0 rounded bg-gray-100 px-1.5 py-0.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-show="r.lines > 1" x-text="'+' + (r.lines - 1) + ' ' + T.lines"></span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-2.5 text-right whitespace-nowrap"><button type="button" class="inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800/80 dark:hover:text-gray-50" :aria-expanded="(openRow === r.i).toString()" :aria-label="openRow === r.i ? T.hide : T.show" @click="openRow = openRow === r.i ? null : r.i"><i class="ri-arrow-down-s-line text-base leading-none transition-transform" :class="openRow === r.i && 'rotate-180'" aria-hidden="true"></i></button></td>
+                </tr>
+                <tr x-show="openRow === r.i" x-cloak class="bg-gray-50 dark:bg-gray-900/40 [&>td]:border-b [&>td]:border-gray-200 dark:[&>td]:border-gray-800">
+                    <td colspan="7" class="px-4 py-4">
+                        <pre class="max-h-96 overflow-auto whitespace-pre-wrap break-all rounded-md bg-gray-950 p-3 font-mono text-xs text-gray-50 dark:ring-1 dark:ring-gray-800" x-text="r.msg"></pre>
+                        <dl class="mt-4 grid grid-cols-1 gap-x-8 gap-y-3 text-xs sm:grid-cols-2 lg:grid-cols-4">
+                            <div><dt class="text-gray-500">{{.T.Get "Time"}}</dt><dd class="mt-0.5 font-mono tabular-nums text-gray-900 dark:text-gray-50" x-text="stamp(r.ts)"></dd></div>
+                            <div><dt class="text-gray-500">{{.T.Get "Source"}}</dt><dd class="mt-0.5 text-gray-900 dark:text-gray-50" x-text="KIND[r.source] || r.source"></dd></div>
+                            <div><dt class="text-gray-500">{{.T.Get "Service"}}</dt><dd class="mt-0.5 text-gray-900 dark:text-gray-50"><span x-text="label[r.service] || r.service"></span> <span class="font-mono text-gray-500" x-text="'(' + r.service + ')'"></span></dd></div>
+                            <div class="min-w-0"><dt class="text-gray-500">{{.T.Get "Website"}}</dt><dd class="mt-0.5 break-all punycode" :class="r.domain ? 'font-mono text-gray-900 dark:text-gray-50' : 'text-gray-400 dark:text-gray-600'" x-text="r.domain || T.noSite"></dd></div>
+                        </dl>
+                        <div class="mt-4 flex flex-wrap items-center gap-2">
+                            <button type="button" class="{{$btnSm}}" @click="copy(line(r), T.lineCopied)"><i class="ri-file-copy-line text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Copy line"}}</button>
+                            <button type="button" class="{{$ghost}}" x-show="r.domain && domain !== r.domain" @click="domain = r.domain; exact = false; reset()"><i class="ri-global-line text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Only this website"}}</button>
+                            <button type="button" class="{{$ghost}}" x-show="service !== r.service" @click="service = r.service; reset()"><i class="ri-server-line text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Only this service"}}</button>
+                        </div>
                     </td>
                 </tr>
-                {{end}}
             </tbody>
+            </template>
         </table>
     </div>
-    {{template "bulk_bar" .}}
-    {{if gt .TotalPages 1}}
-    <div class="flex items-center justify-between px-4 py-4 text-sm text-gray-500 sm:px-6 lg:px-8">
-        <span>{{.T.Get "Page"}} {{.Page}} {{.T.Get "of"}} {{.TotalPages}}</span>
-        <div class="flex gap-2">
-            {{if .PrevURL}}<a href="{{.PrevURL}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Previous"}}</a>{{end}}
-            {{if .NextURL}}<a href="{{.NextURL}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Next"}}</a>{{end}}
-        </div>
+
+    <!-- grouped view, repeats of one message folded together -->
+    <div x-show="view === 'grouped' && list.length" x-cloak class="flex flex-col gap-6 px-4 sm:px-6 lg:px-8">
+        <template x-for="s in groups()" :key="s.level">
+            <section :aria-label="s.name">
+                <h2 class="mb-2 flex flex-wrap items-center gap-2 text-sm text-gray-500"><span class="inline-flex items-center gap-x-1.5 rounded-md px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset" :class="badge(s.level)"><span class="size-1.5 rounded-full" :class="dot(s.level)" aria-hidden="true"></span><span x-text="s.name"></span></span><span class="tabular-nums" x-text="s.total + ' ' + T.entries"></span><span class="tabular-nums text-gray-400 dark:text-gray-600" x-text="'· ' + s.items.length + ' ' + (s.items.length === 1 ? T.message : T.messages)"></span></h2>
+                <ul class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+                    <template x-for="g in s.items" :key="g.key">
+                        <li>
+                            <button type="button" class="flex w-full cursor-pointer items-start gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-900/60 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2" :aria-expanded="(gopen === g.key).toString()" @click="gopen = gopen === g.key ? null : g.key">
+                                <span class="w-12 shrink-0 font-mono text-xs font-medium tabular-nums text-gray-900 dark:text-gray-50" x-text="'×' + g.n"></span>
+                                <span class="min-w-0 flex-1">
+                                    <span class="block truncate font-mono text-xs text-gray-900 dark:text-gray-50" x-text="g.latest.first"></span>
+                                    <span class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500">
+                                        <span x-text="label[g.service] || g.service"></span>
+                                        <span x-show="g.sites.size === 1" class="font-mono punycode" x-text="[...g.sites][0]"></span>
+                                        <span x-show="g.sites.size > 1" class="tabular-nums" x-text="g.sites.size + ' ' + T.websites"></span>
+                                        <span class="tabular-nums" x-text="T.last + ' ' + day(g.latest.ts) + ', ' + clock(g.latest.ts)"></span>
+                                    </span>
+                                </span>
+                                <i class="ri-arrow-down-s-line shrink-0 text-base leading-none text-gray-500 transition-transform" :class="gopen === g.key && 'rotate-180'" aria-hidden="true"></i>
+                            </button>
+                            <div x-show="gopen === g.key" x-cloak class="border-t border-gray-200 bg-gray-50 px-4 py-4 dark:border-gray-800 dark:bg-gray-900/40">
+                                <pre class="max-h-96 overflow-auto whitespace-pre-wrap break-all rounded-md bg-gray-950 p-3 font-mono text-xs text-gray-50 dark:ring-1 dark:ring-gray-800" x-text="g.latest.msg"></pre>
+                                <p class="mt-3 text-xs tabular-nums text-gray-500" x-text="g.n === 1 ? T.once + ' ' + stamp(g.latest.ts) + '.' : T.first + ' ' + stamp(g.oldest.ts) + ', ' + T.last + ' ' + stamp(g.latest.ts) + '.'"></p>
+                                <div class="mt-3 flex flex-wrap gap-1.5" x-show="g.sites.size > 1"><template x-for="d in [...g.sites].sort()" :key="d"><span class="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-700 punycode dark:bg-gray-800 dark:text-gray-300" x-text="d"></span></template></div>
+                                <div class="mt-4 flex flex-wrap items-center gap-2">
+                                    <button type="button" class="{{$btnSm}}" @click="showGroup(g)"><i class="ri-list-check text-sm leading-none" aria-hidden="true"></i><span x-text="g.n === 1 ? T.showOne : T.showAll + ' ' + g.n + ' ' + T.inList"></span></button>
+                                    <button type="button" class="{{$ghost}}" @click="copy(line(g.latest), T.lineCopied)"><i class="ri-file-copy-line text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Copy latest"}}</button>
+                                </div>
+                            </div>
+                        </li>
+                    </template>
+                </ul>
+            </section>
+        </template>
     </div>
-    {{end}}
+
+    <!-- empty state -->
+    <div x-show="!list.length" {{if .Rows}}x-cloak{{end}} class="flex flex-col items-center justify-center gap-2 border-t border-gray-200 px-4 py-12 text-center dark:border-gray-800">
+        <i class="text-2xl leading-none text-gray-400 dark:text-gray-600" :class="anyFilter() ? 'ri-search-line' : 'ri-checkbox-circle-line'" aria-hidden="true"></i>
+        <p class="text-sm font-medium text-gray-900 dark:text-gray-50" x-text="anyFilter() ? T.noneFound : T.noneLogged">{{.T.Get "No errors logged"}}</p>
+        <p class="text-sm text-gray-500" x-text="anyFilter() ? T.tryOther : T.allQuiet"></p>
+        <button type="button" class="mt-1 cursor-pointer text-sm font-medium text-blue-500 hover:underline hover:underline-offset-4" x-show="anyFilter()" x-cloak @click="clearAll()">{{.T.Get "Clear filters"}}</button>
     </div>
-    {{else if not .Error}}
-    <div class="border-t border-gray-200 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-800">
-        {{.T.Get "No errors found for these filters."}}
+
+    <!-- counts and paging -->
+    <div class="flex flex-col gap-3 px-4 pt-3 pb-6 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <p class="text-xs text-gray-500 tabular-nums"><span x-show="list.length" x-cloak x-text="view === 'list' ? T.showing + ' ' + ((page - 1) * per + 1) + ' - ' + Math.min(page * per, list.length) + ' ' + T.outOf + ' ' + list.length + ' ' + T.rows : list.length + ' ' + T.rowsIn + ' ' + groups().reduce((n, s) => n + s.items.length, 0) + ' ' + T.messages"></span>{{if .Truncated}}<span class="block text-yellow-700 dark:text-yellow-500">{{.T.Get "Only the"}} {{.T.Get "newest"}} {{len .Rows}} {{.T.Get "of"}} {{.Total}} {{.T.Get "entries loaded, pick a shorter date range for older ones."}}</span>{{end}}</p>
+        <nav x-show="view === 'list' && pages() > 1" x-cloak aria-label="{{.T.Get "Pagination"}}" class="flex items-center gap-1 text-sm">
+            <button type="button" class="inline-flex h-8 cursor-pointer items-center gap-1 rounded-md px-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 disabled:pointer-events-none disabled:opacity-40 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50" :disabled="page === 1" @click="page--; openRow = null"><i class="ri-arrow-left-s-line text-base leading-none rtl:rotate-180" aria-hidden="true"></i>{{.T.Get "Previous"}}</button>
+            <span class="px-2 text-xs text-gray-500 tabular-nums" x-text="T.page + ' ' + page + ' ' + T.of + ' ' + pages()"></span>
+            <button type="button" class="inline-flex h-8 cursor-pointer items-center gap-1 rounded-md px-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 disabled:pointer-events-none disabled:opacity-40 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50" :disabled="page === pages()" @click="page++; openRow = null">{{.T.Get "Next"}}<i class="ri-arrow-right-s-line text-base leading-none rtl:rotate-180" aria-hidden="true"></i></button>
+        </nav>
     </div>
-    {{end}}
 </section>
 
+<!-- selection bar, ids and data-bulk-action are what the upstream spec clicks -->
+<div x-show="sel.length" class="h-20" aria-hidden="true"></div>
+<div id="bulk-actions-bar" x-show="sel.length" x-cloak>
+    <div :style="barStyle" class="fixed inset-x-0 bottom-0 z-40 flex flex-col gap-3 border-t border-gray-200 bg-white px-4 py-3 shadow-lg sm:flex-row sm:items-center sm:justify-between sm:px-6 dark:border-gray-800 dark:bg-gray-950">
+        <div class="text-sm font-medium text-gray-900 dark:text-gray-50"><span class="tabular-nums" x-text="sel.length + ' ' + T.selected"></span><button type="button" class="ms-2 cursor-pointer text-xs text-blue-500 hover:underline hover:underline-offset-4" @click="sel = []">{{.T.Get "Clear"}}</button></div>
+        <div class="flex flex-wrap items-center gap-2">
+            <button type="button" class="{{$btnSm}}" data-bulk-action="copy" @click="copy(picked().map(r => line(r)).join('\n') + '\n', sel.length === 1 ? T.copied : sel.length + ' ' + T.linesCopied)"><i class="ri-file-copy-line text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Copy"}}</button>
+            <button type="button" class="{{$btnSm}}" data-bulk-action="download" @click="save(picked(), stampName()); say(T.saved + ' ' + sel.length + ' ' + (sel.length === 1 ? T.line : T.linesWord) + '.')"><i class="ri-download-line text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Download"}}</button>
+        </div>
+    </div>
+</div>
+</div>
+
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const pad = n => String(n).padStart(2, '0');
-
-    document.querySelectorAll('.log-time').forEach(function (el) {
-        const d = new Date(parseInt(el.dataset.ts, 10) * 1000);
-        if (!isNaN(d.getTime())) {
-            el.textContent = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
-            el.title = d.toISOString();
-        }
-    });
-
-    document.getElementById('errorLogsFilters').addEventListener('submit', function () {
-        Array.from(this.elements).forEach(function (el) { if (el.name && !el.value) el.disabled = true; });
-    });
-
-    // the selected rows' export lines, in table order
-    const pickedLines = items => items.map(Number).sort((a, b) => a - b)
-        .map(i => document.querySelector('#errorLogsTable tr[data-row="' + i + '"]').dataset.line).join('\n') + '\n';
-
-    window.addEventListener('bulk-copy', function (e) {
-        navigator.clipboard.writeText(pickedLines(e.detail.items))
-            .then(() => showToast('{{.T.Get "Copied to clipboard."}}', 'success'))
-            .catch(() => showToast('{{.T.Get "Could not copy, your browser blocked clipboard access."}}', 'error'));
-    });
-
-    window.addEventListener('bulk-download', function (e) {
-        const stamp = new Date().toISOString().slice(0, 19).replace(/[-:]/g, '').replace('T', '-');
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob([pickedLines(e.detail.items)], { type: 'text/plain' }));
-        a.download = 'error-logs-' + stamp + '.txt';
-        a.click();
-        URL.revokeObjectURL(a.href);
-    });
-});
+window.EL_ROWS = {{toJSON .Rows}} || [];
+window.EL_SOURCES = {{toJSON .Sources}} || [];
+window.EL_TARGETS = {{toJSON .Targets}} || [];
+function errorLogs() {
+    const T = {
+        select: {{toJSON (.T.Get "Select entry from")}}, lines: {{toJSON (.T.Get "lines")}}, show: {{toJSON (.T.Get "Show details")}}, hide: {{toJSON (.T.Get "Hide details")}},
+        noSite: {{toJSON (.T.Get "Not tied to a website")}}, entries: {{toJSON (.T.Get "entries")}}, message: {{toJSON (.T.Get "message")}}, messages: {{toJSON (.T.Get "messages")}},
+        websites: {{toJSON (.T.Get "websites")}}, last: {{toJSON (.T.Get "last")}}, first: {{toJSON (.T.Get "First")}}, once: {{toJSON (.T.Get "Logged once,")}},
+        showOne: {{toJSON (.T.Get "Show in the list")}}, showAll: {{toJSON (.T.Get "Show all")}}, inList: {{toJSON (.T.Get "in the list")}},
+        noneFound: {{toJSON (.T.Get "No errors found for these filters.")}}, noneLogged: {{toJSON (.T.Get "No errors logged")}},
+        tryOther: {{toJSON (.T.Get "Try another website, service or date range.")}}, allQuiet: {{toJSON (.T.Get "PHP, the web server, your databases and apps have nothing to report.")}},
+        showing: {{toJSON (.T.Get "Showing")}}, outOf: {{toJSON (.T.Get "out of")}}, rows: {{toJSON (.T.Get "rows")}}, rowsIn: {{toJSON (.T.Get "rows in")}},
+        page: {{toJSON (.T.Get "Page")}}, of: {{toJSON (.T.Get "of")}}, selected: {{toJSON (.T.Get "selected")}},
+        lineCopied: {{toJSON (.T.Get "Line copied.")}}, linesCopied: {{toJSON (.T.Get "lines copied.")}}, copied: {{toJSON (.T.Get "Copied to clipboard.")}},
+        blocked: {{toJSON (.T.Get "Could not copy, your browser blocked clipboard access.")}}, saved: {{toJSON (.T.Get "Saved")}}, line: {{toJSON (.T.Get "line")}}, linesWord: {{toJSON (.T.Get "lines")}},
+        busyTitle: {{toJSON (.T.Get "Preparing error-logs.txt")}}, busyText: {{toJSON (.T.Get "entries with the current filters")}},
+        busySteps: [{{toJSON (.T.Get "Read PHP, web server and database container logs")}}, {{toJSON (.T.Get "Read each domain's access log for 5xx responses")}}, {{toJSON (.T.Get "Merge, filter and sort newest first")}}],
+        busyNote: {{toJSON (.T.Get "Keep this page open, the download starts by itself.")}}, busyFail: {{toJSON (.T.Get "Could not collect the error logs:")}},
+        crit: {{toJSON (.T.Get "Critical")}}, err: {{toJSON (.T.Get "Error")}}, warn: {{toJSON (.T.Get "Warning")}}, notice: {{toJSON (.T.Get "Notice")}}, info: {{toJSON (.T.Get "Info")}},
+    };
+    const KIND = { php: 'PHP', webserver: {{toJSON (.T.Get "Web server")}}, database: {{toJSON (.T.Get "Database")}}, http: 'HTTP 5xx', app: {{toJSON (.T.Get "App")}} };
+    const RANK = { info: 0, notice: 1, warning: 2, error: 3, critical: 4 };
+    const label = Object.fromEntries(EL_SOURCES.map(s => [s.name, s.label]));
+    // repeats of one message share a key: same level and service, digits and the website's own name blanked out
+    const keyOf = (level, service, domain, first) => level + '|' + service + '|' + (domain ? first.split(domain).join('{site}') : first).replace(/\d+/g, '#');
+    const toRow = (e, i) => {
+        const [ts, level, service, source, domain, msg] = e;
+        const first = msg.split('\n')[0];
+        return { i, ts, level, rank: RANK[level] || 0, service, source, domain: domain || '', msg, first, lines: msg.split('\n').length, key: keyOf(level, service, domain, first) };
+    };
+    const rows = EL_ROWS.map(toRow);
+    const qs = new URLSearchParams(location.search);
+    const pad = (n) => String(n).padStart(2, '0');
+    return {
+        T, KIND, label, rows,
+        domain: {{toJSON .Query.Domain}}, exact: {{toJSON .Query.Exact}}, service: {{toJSON .Query.Service}},
+        min: {{toJSON .Query.Level}}, sev: {{toJSON .Query.Severity}},
+        q: {{toJSON .Query.Search}}, from: {{toJSON .Query.FromDay}}, to: {{toJSON .Query.ToDay}},
+        view: qs.get('view') === 'grouped' ? 'grouped' : 'list',
+        group: '', groupText: '', openRow: null, gopen: null, sel: [], page: 1, per: 100, busy: false, barStyle: {},
+        sort: 'ts', dir: 'descending',
+        list: [], counts: { all: 0 }, _groups: null,
+        levels: [['critical', T.crit], ['error', T.err], ['warning', T.warn], ['notice', T.notice], ['info', T.info]],
+        init() {
+            this.recompute();
+            this.placeBar();
+            this.$watch(() => [this.domain, this.exact, this.service, this.min, this.sev, this.q, this.group, this.sort, this.dir].join('\u0000'), () => { this.recompute(); this.syncURL(); });
+        },
+        // everything but the severity chips, so the chip counts stay meaningful
+        inBase(r, q) {
+            return (!this.domain || r.domain === this.domain || (!this.exact && r.domain.startsWith(this.domain + '/')))
+                && (!this.service || r.service === this.service)
+                && (!this.min || r.rank >= RANK[this.min])
+                && (!q || r.msg.toLowerCase().includes(q))
+                && (!this.group || r.key === this.group);
+        },
+        recompute() {
+            const q = this.q.trim().toLowerCase();
+            const counts = { all: 0 }, out = [];
+            for (const r of this.rows) {
+                if (!this.inBase(r, q)) continue;
+                counts.all++;
+                counts[r.level] = (counts[r.level] || 0) + 1;
+                if (!this.sev || r.level === this.sev) out.push(r);
+            }
+            const k = this.sort, m = this.dir === 'ascending' ? 1 : -1;
+            const val = (r) => k === 'website' ? r.domain : k === 'message' ? r.first : k === 'service' ? r.service : r[k];
+            out.sort((a, b) => { const x = val(a), y = val(b); const c = typeof x === 'number' ? x - y : String(x).localeCompare(String(y)); return (c || b.ts - a.ts) * m; });
+            this.counts = counts;
+            this.list = out;
+            this._groups = null;
+            if (this.page > this.pages()) this.page = 1;
+        },
+        params(u) {
+            const set = (k, v) => v ? u.searchParams.set(k, v) : u.searchParams.delete(k);
+            set('domain', this.domain); set('exact', this.exact && this.domain ? '1' : ''); set('service', this.service);
+            set('level', this.min); set('severity', this.sev); set('q', this.q.trim());
+            return set;
+        },
+        syncURL() {
+            const u = new URL(location.href);
+            this.params(u)('view', this.view === 'grouped' ? 'grouped' : '');
+            u.searchParams.delete('page');
+            history.replaceState(null, '', u);
+        },
+        exportURL(format) {
+            const u = new URL(location.href);
+            this.params(u)('view', '');
+            u.searchParams.set('format', format);
+            return u.pathname + u.search;
+        },
+        // the bar stays as wide as main so it doesn't cover the sidebar
+        placeBar() {
+            const main = this.$root.closest('main') || document.querySelector('main');
+            if (!main) return;
+            const place = () => { const r = main.getBoundingClientRect(); this.barStyle = { left: r.left + 'px', right: Math.max(0, window.innerWidth - r.right) + 'px' }; };
+            place();
+            if (window.ResizeObserver) new ResizeObserver(place).observe(main);
+        },
+        setView(v) { this.view = v; this.openRow = null; this.syncURL(); },
+        pages() { return Math.max(1, Math.ceil(this.list.length / this.per)); },
+        shown() { return this.list.slice((this.page - 1) * this.per, this.page * this.per); },
+        groups() {
+            if (this._groups) return this._groups;
+            const by = new Map();
+            for (const r of this.list) {
+                let g = by.get(r.key);
+                if (!g) by.set(r.key, g = { key: r.key, level: r.level, rank: r.rank, service: r.service, latest: r, oldest: r, n: 0, sites: new Set() });
+                g.n++;
+                if (r.ts > g.latest.ts) g.latest = r;
+                if (r.ts < g.oldest.ts) g.oldest = r;
+                if (r.domain) g.sites.add(r.domain);
+            }
+            const all = [...by.values()].sort((a, b) => b.rank - a.rank || b.n - a.n || b.latest.ts - a.latest.ts);
+            this._groups = this.levels.map(([l, name]) => { const items = all.filter(g => g.level === l); return { level: l, name, items, total: items.reduce((n, g) => n + g.n, 0) }; }).filter(s => s.items.length);
+            return this._groups;
+        },
+        ariaSort(k) { return this.sort === k ? this.dir : 'none'; },
+        sortIcon(k) { return this.sort !== k ? 'ri-arrow-up-down-line' : this.dir === 'ascending' ? 'ri-arrow-up-line' : 'ri-arrow-down-line'; },
+        sortBy(k) {
+            if (this.sort === k) this.dir = this.dir === 'descending' ? 'ascending' : 'descending';
+            else { this.sort = k; this.dir = k === 'ts' || k === 'rank' ? 'descending' : 'ascending'; }
+            this.page = 1;
+        },
+        anyFilter() { return !!(this.domain || this.service || this.min || this.sev || this.q.trim() || this.from || this.to || this.group); },
+        clearAll() {
+            this.domain = ''; this.exact = false; this.service = ''; this.min = ''; this.sev = ''; this.q = ''; this.group = ''; this.reset();
+            if (this.from || this.to) {
+                const u = new URL(location.href);
+                ['from', 'to', 'tz', 'domain', 'exact', 'service', 'level', 'severity', 'q'].forEach(k => u.searchParams.delete(k));
+                location.href = u.pathname + u.search;
+            }
+        },
+        reset() { this.page = 1; this.sel = []; this.openRow = null; },
+        showGroup(g) { this.group = g.key; this.groupText = g.latest.first; this.sev = ''; this.reset(); this.setView('list'); },
+        badge(l) {
+            if (['critical', 'error', 'alert', 'emergency'].includes(l)) return 'bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20';
+            if (l === 'warning') return 'bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20';
+            if (l === 'notice' || l === 'info') return 'bg-slate-50 text-slate-900 ring-slate-500/30 dark:bg-slate-400/10 dark:text-slate-300 dark:ring-slate-400/20';
+            return 'bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20';
+        },
+        dot(l) { return l === 'critical' ? 'bg-red-600 dark:bg-red-500' : ['error', 'alert', 'emergency'].includes(l) ? 'bg-red-500' : l === 'warning' ? 'bg-yellow-500' : l === 'notice' ? 'bg-slate-500 dark:bg-slate-400' : l === 'info' ? 'bg-slate-400 dark:bg-slate-500' : 'bg-gray-400 dark:bg-gray-600'; },
+        name(l) { return { critical: T.crit, error: T.err, warning: T.warn, notice: T.notice, info: T.info }[l] || l; },
+        // the date picker sends the browser's offset, so times show in local time too
+        day(ts) { return new Date(ts).toLocaleDateString(document.documentElement.lang || 'en', { month: 'short', day: 'numeric' }); },
+        clock(ts) { const d = new Date(ts); return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()); },
+        stamp(ts) { return new Date(ts).toISOString().replace('T', ' ').slice(0, 19) + ' UTC'; },
+        line(r) { return this.stamp(r.ts) + ' [' + r.level + '] [' + r.service + '] [' + (r.domain || '-') + '] ' + r.msg; },
+        say(msg, ok = true) { if (window.showToast) showToast(msg, ok ? 'success' : 'error'); },
+        copy(text, what) { Promise.resolve(window.copyToClipboard(text)).then(() => this.say(what || T.copied), () => this.say(T.blocked, false)); },
+        save(list, name) {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([list.map(r => this.line(r)).join('\n') + '\n'], { type: 'text/plain' }));
+            a.download = name;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        },
+        stampName() { return 'error-logs-' + new Date().toISOString().slice(0, 19).replace(/[-:]/g, '').replace('T', '-') + '.txt'; },
+        // re-runs the collection on the server with the current filters, so the file has the newest lines too
+        async exportAll() {
+            const name = this.stampName();
+            this.busy = true;
+            if (window.opBusy) opBusy.show({ title: T.busyTitle, text: this.list.length + ' ' + T.busyText, steps: T.busySteps, note: T.busyNote, leave: false });
+            const p = new URLSearchParams({ format: 'json', limit: '5000' });
+            const add = (k, v) => { if (v) p.set(k, v); };
+            add('domain', this.domain); add('exact', this.exact && this.domain ? '1' : ''); add('service', this.service);
+            add('level', this.min); add('severity', this.sev); add('q', this.q.trim()); add('from', this.from); add('to', this.to);
+            if (this.from || this.to) add('tz', qs.get('tz') || '0');
+            const done = (msg, ok) => { this.busy = false; if (window.opBusy) opBusy.done(msg, ok); else this.say(msg, ok); };
+            try {
+                const res = await fetch('/error-logs?' + p, { headers: { Accept: 'application/json' } });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || res.status);
+                let got = (data.entries || []).map((e, i) => toRow([Date.parse(e.time), e.level, e.service, e.source, e.domain || '', e.message], i));
+                if (this.group) got = got.filter(r => r.key === this.group);
+                this.save(got, name);
+                done(T.saved + ' ' + name + '.', true);
+            } catch (err) {
+                done(T.busyFail + ' ' + (err.message || err), false);
+            }
+        },
+        picked() { return this.list.filter(r => this.sel.includes(r.i)); },
+        pageIds() { return this.shown().map(r => r.i); },
+        allOnPage() { const ids = this.pageIds(); return ids.length > 0 && ids.every(i => this.sel.includes(i)); },
+        toggleAll() { const ids = this.pageIds(); this.sel = this.allOnPage() ? this.sel.filter(i => !ids.includes(i)) : [...new Set([...this.sel, ...ids])]; },
+        toggle(i) { this.sel = this.sel.includes(i) ? this.sel.filter(x => x !== i) : [...this.sel, i]; },
+    };
+}
 </script>
-
-<script src="{{static "js/table-sort.js"}}"></script>
-
 <!-- END templates/system/error_logs.html -->
-{{end}}
-
-{{define "level_badge"}}{{if eq .Level "critical"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20"><i class="ri-alarm-warning-line" aria-hidden="true"></i>{{.T.Get "Critical"}}</span>{{else if eq .Level "error"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.T.Get "Error"}}</span>{{else if eq .Level "warning"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">{{.T.Get "Warning"}}</span>{{else if eq .Level "notice"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-blue-50 text-blue-900 ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">{{.T.Get "Notice"}}</span>{{else}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{.T.Get "Info"}}</span>{{end}}{{end}}
-
-{{define "sort_header"}}
-<button type="button" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.Label}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
 {{end}}

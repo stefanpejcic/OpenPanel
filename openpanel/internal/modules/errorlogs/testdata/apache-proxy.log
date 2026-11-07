@@ -1,0 +1,7 @@
+2026-10-26T21:53:48.701282642Z [Mon Oct 26 21:53:48.699558 2026] [proxy:error] [pid 227:tid 247] (113)Host is unreachable: AH00957: http: attempt to connect to 10.89.0.10:3000 (nodeapp:3000) failed
+2026-10-26T21:53:49.124446062Z [Mon Oct 26 21:53:49.124250 2026] [proxy_http:error] [pid 227:tid 247] [client 127.0.0.1:0] AH01114: HTTP: failed to make connection to backend: nodeapp
+2026-10-26T21:54:03.933254200Z [Mon Oct 26 21:54:03.932035 2026] [proxy:error] [pid 227:tid 248] (113)Host is unreachable: AH00957: http: attempt to connect to 10.89.0.10:3000 (nodeapp:3000) failed
+2026-10-26T21:54:03.934557780Z [Mon Oct 26 21:54:03.934486 2026] [proxy:error] [pid 227:tid 248] (111)Connection refused: AH00957: http: attempt to connect to 10.89.0.76:3000 (nodeapp:3000) failed
+2026-10-26T21:54:03.934636411Z [Mon Oct 26 21:54:03.934551 2026] [proxy_http:error] [pid 227:tid 248] [client 127.0.0.1:0] AH01114: HTTP: failed to make connection to backend: nodeapp
+2026-10-26T21:55:41.596383324Z [Mon Oct 26 21:55:41.596078 2026] [proxy:error] [pid 283:tid 292] (113)Host is unreachable: AH00957: http: attempt to connect to 10.89.0.80:3001 (pyap:3001) failed
+2026-10-26T21:55:42.020651623Z [Mon Oct 26 21:55:42.020212 2026] [proxy_http:error] [pid 283:tid 292] [client 127.0.0.1:0] AH01114: HTTP: failed to make connection to backend: pyap

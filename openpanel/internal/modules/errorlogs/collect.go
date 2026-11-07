@@ -38,10 +38,12 @@ type Source struct {
 // Query is the parsed filter set shared by the page, the txt export and the API
 type Query struct {
 	Domain, Service, Level, Search string
-	FromDay, ToDay                 string
-	From, To                       time.Time
-	TZ, Limit                      int
-	Exact                          bool
+	// Severity keeps one exact level, Level is "this level and up"
+	Severity       string
+	FromDay, ToDay string
+	From, To       time.Time
+	TZ, Limit      int
+	Exact          bool
 }
 
 // Result is what a Query returns after merging and filtering every source
@@ -209,7 +211,9 @@ func Collect(ctx context.Context, a *appctx.App, userContext string, domains []a
 	}
 	wg.Wait()
 
-	res := filterEntries(all, newDomainMatcher(siteDocroots(domains, sites)), q)
+	matcher := newDomainMatcher(siteDocroots(domains, sites))
+	matcher.backends = appBackends(sources)
+	res := filterEntries(all, matcher, q)
 	res.Sources = sources
 	return res
 }
@@ -226,7 +230,7 @@ func filterEntries(all []Entry, matcher domainMatcher, q Query) Result {
 		if q.Exact && e.Domain != q.Domain || !q.Exact && !inTarget(e.Domain, q.Domain) {
 			continue
 		}
-		if levelRank[e.Level] < minRank {
+		if levelRank[e.Level] < minRank || q.Severity != "" && e.Level != q.Severity {
 			continue
 		}
 		if search != "" && !strings.Contains(strings.ToLower(e.Message), search) {
@@ -244,4 +248,15 @@ func filterEntries(all []Entry, matcher domainMatcher, q Query) Result {
 		res.Entries = []Entry{}
 	}
 	return res
+}
+
+// appBackends maps each app container to its site so proxy errors naming the container land on that site
+func appBackends(sources []Source) map[string]string {
+	out := map[string]string{}
+	for _, s := range sources {
+		if s.kind == "app" && s.Site != "" {
+			out[strings.ToLower(s.Name)] = s.Site
+		}
+	}
+	return out
 }
