@@ -618,12 +618,31 @@ function initActionButtons() {
         }
     });
 
+    // the editor and viewer open in their own centered window like cPanel's, one window per file so reopening focuses it
+    function openFileWindow(url, key) {
+        const sw = screen.availWidth || 1280, sh = screen.availHeight || 900;
+        // a real window on top of the panel, not a near full-screen one
+        const w = Math.round(Math.min(1100, Math.max(760, sw * 0.7))), h = Math.round(Math.min(720, Math.max(520, sh * 0.75)));
+        const left = Math.max(0, Math.round((sw - w) / 2 + (screen.availLeft || 0)));
+        const top = Math.max(0, Math.round((sh - h) / 2 + (screen.availTop || 0)));
+        let hash = 0;
+        for (const c of key) hash = (hash * 31 + c.charCodeAt(0)) | 0;
+        const win = window.open(url, 'opfile' + (hash >>> 0).toString(36), `popup=yes,width=${w},height=${h},left=${left},top=${top}`);
+        if (win) win.focus();
+        else window.open(url, '_blank'); // popups blocked, fall back to a tab
+    }
+
+    // the editor window tells us after a save so sizes and dates in the list are current
+    window.addEventListener('message', (e) => {
+        if (e.origin === location.origin && e.data && e.data.type === 'op-file-saved') location.reload();
+    });
+
     // VIEW FILE
     document.getElementById('viewButton').addEventListener('click', () => {
         const row = document.querySelector('#filemanager_table tbody tr.selected-row');
         let name = row.dataset.file;
         if (name === 'wp-config.php') name = 'wp_temp_openpanel-config.php';
-        window.open(`/file-manager/view-file/${encodeURIComponent(FM.pathParam + '/')}${encodeURIComponent(name)}`, '_blank');
+        openFileWindow(`/file-manager/view-file/${encodeURIComponent(FM.pathParam + '/')}${encodeURIComponent(name)}`, 'view:' + FM.pathParam + '/' + name);
     });
 
     // EDIT FILE
@@ -631,7 +650,7 @@ function initActionButtons() {
         const row = document.querySelector('#filemanager_table tbody tr.selected-row');
         let name = row.dataset.file;
         if (name === 'wp-config.php') name = 'wp_temp_openpanel-config.php';
-        window.open(`/file-manager/edit-file/${encodeURIComponent(FM.pathParam + '/')}${encodeURIComponent(name)}`, '_blank');
+        openFileWindow(`/file-manager/edit-file/${encodeURIComponent(FM.pathParam + '/')}${encodeURIComponent(name)}?fullscreen=true`, 'edit:' + FM.pathParam + '/' + name);
     });
 
     // RENAME (inline in the name cell)
