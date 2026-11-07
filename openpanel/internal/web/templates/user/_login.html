@@ -23,7 +23,22 @@
   </head>
 
   <body class="mx-auto min-h-svh bg-gray-50 antialiased dark:bg-gray-950">
-<section>
+<section{{if eq .LoginLayout "split"}} class="lg:flex"{{end}}>
+{{if eq .LoginLayout "split"}}
+<!-- split layout: a brand panel beside the form on wide screens -->
+<aside class="hidden shrink-0 flex-col justify-between gap-10 border-r border-gray-800 bg-gray-950 p-10 text-gray-50 lg:flex lg:w-1/2 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-50">
+  {{if .Logo}}<a href="." class="flex items-center"><img src="{{.Logo}}" alt="{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}" class="h-12"></a>{{else if .BrandName}}<a href="." class="text-lg font-semibold tracking-tight">{{.BrandName}}</a>{{else}}<a href="https://openpanel.com?utm=2083_login_page" target="_blank" class="text-lg font-semibold tracking-tight">OpenPanel</a>{{end}}
+  <div>
+    <h2 class="text-lg font-semibold">{{.T.Get "Every site, inbox and database in one place."}}</h2>
+    <p class="mt-2 max-w-md text-sm text-gray-400 dark:text-gray-400">{{.T.Get "Each service runs in its own container, with its own CPU, memory and versions you pick."}}</p>
+  </div>
+  <ul class="space-y-3 text-sm text-gray-400 dark:text-gray-400">
+    <li class="flex items-center gap-3"><i class="ri-global-line text-base text-gray-500 dark:text-gray-500" aria-hidden="true"></i>{{.T.Get "Websites, WordPress and Node.js, Python or PHP apps"}}</li>
+    <li class="flex items-center gap-3"><i class="ri-mail-line text-base text-gray-500 dark:text-gray-500" aria-hidden="true"></i>{{.T.Get "Email accounts, DNS zones and SSL"}}</li>
+    <li class="flex items-center gap-3"><i class="ri-archive-line text-base text-gray-500 dark:text-gray-500" aria-hidden="true"></i>{{.T.Get "Backups you can restore file by file"}}</li>
+  </ul>
+</aside>
+{{end}}
   <div class="mx-auto flex min-h-svh w-full max-w-sm flex-col justify-center px-4 py-10">
 
 <!-- brand: the admin's logo or name when set, the OpenPanel mark otherwise -->

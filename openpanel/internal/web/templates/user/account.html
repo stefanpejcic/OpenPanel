@@ -48,6 +48,37 @@
     <form method="POST" class="max-w-5xl divide-y divide-gray-200 border-t border-gray-200 dark:divide-gray-800 dark:border-gray-800">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
+    <section aria-labelledby="account-info-title" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
+        <div>
+            <h2 id="account-info-title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Account"}}</h2>
+            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Where this session signs in from and how the account is protected."}}</p>
+        </div>
+        <dl class="grid grid-cols-1 gap-x-8 gap-y-5 text-sm sm:grid-cols-2 md:col-span-2">
+            {{if .ThisIP}}
+            <div>
+                <dt class="text-gray-500">{{.T.Get "This session's IP"}}</dt>
+                <dd class="mt-1 font-mono text-gray-900 dark:text-gray-50">{{.ThisIP}}</dd>
+            </div>
+            {{end}}
+            <div>
+                <dt class="text-gray-500">{{.T.Get "Last login"}}</dt>
+                <dd class="mt-1 text-gray-900 dark:text-gray-50">{{if .LastIP}}<span class="font-mono">{{.LastIP}}</span>{{with .LastLoginTime}} <span class="text-gray-500 tabular-nums">· {{.}}</span>{{end}}{{else}}<span class="text-gray-500">–</span>{{end}}</dd>
+            </div>
+            {{with .MemberSinceLabel}}
+            <div>
+                <dt class="text-gray-500">{{$.T.Get "Member since"}}</dt>
+                <dd class="mt-1 tabular-nums text-gray-900 dark:text-gray-50">{{.}}</dd>
+            </div>
+            {{end}}
+            {{if and .UserAllowed.passkeys (ge .PasskeyCount 0)}}
+            <div>
+                <dt class="text-gray-500">{{.T.Get "Passkeys"}}</dt>
+                <dd class="mt-1 flex items-center gap-2"><span class="tabular-nums text-gray-900 dark:text-gray-50">{{if .PasskeyCount}}{{.PasskeyCount}}{{else}}{{.T.Get "None"}}{{end}}</span><a href="/account/passkeys" class="text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Manage passkeys"}}</a></dd>
+            </div>
+            {{end}}
+        </dl>
+    </section>
+
     <section aria-labelledby="account-email-title" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
         <div>
             <h2 id="account-email-title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Contact email"}}</h2>

@@ -4,104 +4,179 @@
 {{define "content"}}
 <!-- START templates/docker/change_images.html -->
 
-{{if .Service}}
-
-<section aria-label="{{.T.Get "Select image"}}">
+<section aria-label="{{.T.Get "Software versions"}}" x-data="imageVersions({{toJSON .Rows}}, {{toJSON .Service}}, {{toJSON .CurrentVersion}}, {{toJSON .HubURL}})">
     <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div>
-            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Change image tag for"}} {{.Service}}</h1>
-            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Select docker image tag from"}} <a href="{{if .HubURL}}{{.HubURL}}{{else}}https://hub.docker.com/{{end}}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4">Docker Hub <i class="ri-arrow-right-up-line" aria-hidden="true"></i></a></p>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Software versions"}}</h1>
+            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Each service runs a Docker image. Pick another tag to move it to a different version: the service stops, and starts on the new image the next time it runs."}}</p>
         </div>
     </div>
 
+    {{if .Error}}
+    <div class="px-4 pb-4 sm:px-6 lg:px-8">
+        <div class="flex items-start gap-3 rounded-md p-4 text-sm bg-red-50 text-red-900 dark:bg-red-950/70 dark:text-red-500" role="alert"><i class="ri-error-warning-line" aria-hidden="true"></i><span>{{.Error}}</span></div>
+    </div>
+    {{end}}
+
+    {{if .Rows}}
+    <div class="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+        <div class="relative w-full sm:w-64">
+            <input x-model="q" type="search" aria-label="{{.T.Get "Search services"}}" placeholder="{{.T.Get "Search services or images"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"/>
+            <div class="pointer-events-none absolute inset-y-0 left-2 flex items-center text-gray-400 dark:text-gray-600"><i class="ri-search-line text-base" aria-hidden="true"></i></div>
+        </div>
+        <button type="button" @click="floatingOnly = !floatingOnly" :aria-pressed="floatingOnly.toString()" title="{{.T.Get "Tags like latest or alpine that move to a new version on the next pull"}}" :class="floatingOnly ? 'border-blue-500 bg-blue-50 text-blue-600 dark:border-blue-500 dark:bg-blue-500/10 dark:text-blue-400' : 'border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60'" class="inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-sm font-medium shadow-xs transition outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-fit">{{.T.Get "Floating tags only"}}</button>
+    </div>
+
+    <div class="overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+        <table id="versions-table" class="w-full text-sm [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+            <thead>
+                <tr>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 sm:pl-6 lg:pl-8 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Service"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Image"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Tag"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Status"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
+                </tr>
+            </thead>
+            <tbody>
+            {{range .Rows}}
+                <tr data-service="{{.Service}}" x-show="show({{toJSON .Service}})" class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                    <td class="border-b border-gray-200 px-4 py-2.5 align-top whitespace-nowrap sm:pl-6 lg:pl-8 dark:border-gray-800">
+                        <span class="font-medium text-gray-900 dark:text-gray-50">{{.Service}}</span>
+                        {{if .Data}}<p class="mt-0.5 text-xs whitespace-normal text-gray-500">{{$.T.Get "Keeps data files, a major upgrade rewrites them."}}</p>{{end}}
+                    </td>
+                    <td class="border-b border-gray-200 px-4 py-2.5 align-top whitespace-nowrap dark:border-gray-800">
+                        {{if .HubURL}}<a href="{{.HubURL}}" target="_blank" rel="noopener" title="{{$.T.Get "Tags on Docker Hub"}}" class="inline-flex items-center gap-1 font-mono text-xs text-gray-900 hover:text-blue-500 hover:underline hover:underline-offset-4 dark:text-gray-50 dark:hover:text-blue-400">{{.Repo}} <i class="ri-arrow-right-up-line text-gray-400 dark:text-gray-600" aria-hidden="true"></i></a>{{else}}<span class="font-mono text-xs text-gray-900 dark:text-gray-50">{{.Repo}}</span>{{end}}
+                    </td>
+                    <td class="border-b border-gray-200 px-4 py-2.5 align-top whitespace-nowrap dark:border-gray-800">
+                        <span class="inline-flex items-center rounded-md bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-900 ring-1 ring-inset ring-gray-200 dark:bg-gray-900 dark:text-gray-50 dark:ring-gray-800">{{if .Tag}}{{.Tag}}{{else}}—{{end}}</span>
+                        {{if .Floating}}<span class="ml-1 text-xs text-gray-500" title="{{$.T.Get "Moves to a new version on the next pull"}}">{{$.T.Get "floating"}}</span>{{end}}
+                    </td>
+                    <td class="border-b border-gray-200 px-4 py-2.5 align-top whitespace-nowrap dark:border-gray-800">
+                        <span class="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400" data-version-status><span class="size-2 shrink-0 rounded-full bg-gray-400 dark:bg-gray-600" aria-hidden="true"></span><span data-version-label>…</span></span>
+                    </td>
+                    <td class="border-b border-gray-200 px-4 py-2.5 text-right align-top whitespace-nowrap dark:border-gray-800">
+                        {{if .Pinned}}
+                        <span class="text-xs text-gray-500" title="{{$.T.Get "The tag is written in docker-compose.yml, change it there"}}">{{$.T.Get "Set in compose file"}}</span>
+                        {{else}}
+                        <button type="button" @click="openFor({{toJSON .Service}})" class="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-gray-300 bg-white px-2.5 py-1 text-sm font-medium text-gray-900 shadow-xs transition hover:bg-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{$.T.Get "Change"}}</button>
+                        {{end}}
+                    </td>
+                </tr>
+            {{end}}
+            </tbody>
+        </table>
+    </div>
+    <p class="px-4 py-12 text-center text-sm text-gray-500" x-show="!anyShown()" x-cloak>{{.T.Get "Nothing matches. Try another search."}}</p>
+    <p class="px-4 py-4 text-xs text-gray-500 sm:px-6 lg:px-8">{{.T.Get "PHP versions are set per domain under PHP. backup, cron and docker-proxy are kept up to date by OpenPanel."}}</p>
+
+    {{else if .SelectableServices}}
     <div class="max-w-2xl px-4 pb-8 sm:px-6 lg:px-8" id="toAddActive">
-        <form method="POST">
-            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-            <input type="hidden" id="service" name="service" value="{{.Service}}" required/>
+        <label for="domains" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Select service"}}</label>
+        <select id="domains" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]" name="version" onchange="if (this.value) window.location.href = '/containers/image/change/' + encodeURIComponent(this.value)">
+            <option value="" disabled selected>{{.T.Get "Select service"}}</option>
+            {{range .SelectableServices}}
+            <option value="{{.}}">{{.}}</option>
+            {{end}}
+        </select>
+    </div>
 
-            <div x-data="imageTags({{toJSON .Service}}, {{toJSON .CurrentVersion}})" x-init="load()" @click.outside="open = false" @keydown.escape.window="open = false" class="relative">
-                <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="tag_button">{{.T.Get "New image tag:"}}<span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
+    {{else if not .Service}}
+    <div class="border-t border-gray-200 px-4 py-12 text-center dark:border-gray-800">
+        <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No services to change"}}</p>
+        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Add a service under Containers first."}}</p>
+    </div>
+    {{end}}
 
-                <button type="button" id="tag_button" @click="toggle()" :aria-expanded="open ? 'true' : 'false'" aria-haspopup="listbox" aria-describedby="tag-help" class="mt-2 flex w-full items-center gap-2 rounded-md border border-gray-300 bg-white px-2.5 py-2 text-left text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
-                    <span class="font-mono" x-text="selected || '{{.T.Get "Choose a tag"}}'"></span>
-                    <span x-show="selected && selected === current" class="text-xs text-gray-500">({{.T.Get "current"}})</span>
-                    <span x-show="loading" class="text-xs text-gray-500">{{.T.Get "Loading tags from Docker Hub..."}}</span>
-                    <i class="ri-arrow-down-s-line ml-auto text-gray-400" aria-hidden="true"></i>
-                </button>
-                <p id="tag-help" class="mt-2 text-xs text-gray-500" x-show="repo" x-cloak>{{.T.Get "Tags of"}} <span class="font-mono" x-text="repo"></span> {{.T.Get "on Docker Hub, most recently updated first."}}</p>
+    {{/* change sheet, server-filled when a service is open so it works before Alpine loads */}}
+    <div x-show="cur" {{if not .Service}}x-cloak{{end}} class="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center">
+        <div class="absolute inset-0 bg-black/30" @click="close()"></div>
+        <div class="relative w-full max-w-lg rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-900 dark:bg-raised" role="dialog" aria-modal="true" aria-labelledby="version-sheet-title" @keydown.escape.window="close()">
+            <form method="POST" action="/containers/image/change/{{.Service}}" :action="'/containers/image/change/' + encodeURIComponent(cur ? cur.service : '')" @submit="if (!selected || (cur && selected === cur.tag)) $event.preventDefault()">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input type="hidden" id="service" name="service" value="{{.Service}}" :value="cur ? cur.service : ''" required/>
 
-                <div x-show="open" x-cloak x-transition class="absolute z-50 mt-1 w-full rounded-md border border-gray-200 bg-white p-1 shadow-xl dark:border-gray-800 dark:bg-gray-950">
-                    <div class="border-b border-gray-200 p-1 pb-2 dark:border-gray-800">
-                        <input type="search" x-ref="search" x-model="query" @keydown.enter.prevent="pickFirst()" autocomplete="off" aria-label="{{.T.Get "Search or type a tag"}}" placeholder="{{.T.Get "Search or type a tag"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 py-1.5 font-mono"/>
-                    </div>
-                    <ul class="max-h-64 overflow-y-auto pt-1" role="listbox">
-                        <template x-if="customCandidate">
-                            <li @click="pick(customCandidate)" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 cursor-pointer">{{.T.Get "Use"}} <span class="font-mono font-medium" x-text="customCandidate"></span></li>
-                        </template>
-                        <template x-for="tag in visibleTags" :key="tag">
-                            <li @click="pick(tag)" role="option" :aria-selected="tag === selected ? 'true' : 'false'" :class="tag === selected ? 'bg-gray-100 dark:bg-gray-900' : ''" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 cursor-pointer font-mono">
-                                <span x-text="tag"></span>
-                                <span x-show="tag === current" class="font-sans text-xs text-gray-500">({{.T.Get "current"}})</span>
-                            </li>
-                        </template>
-                        <li x-show="!loading && !customCandidate && visibleTags.length === 0" class="px-2 py-1.5 text-sm text-gray-500" x-text="error || '{{.T.Get "No matching tags. Type a full tag to use it."}}'"></li>
-                    </ul>
+                <div class="px-6 py-4">
+                    <h2 id="version-sheet-title" class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Change image tag for"}} <span x-text="cur ? cur.service : ''">{{.Service}}</span></h2>
+                    <p class="mt-1 text-sm text-gray-500">{{.T.Get "Select docker image tag from"}} <a href="{{if .HubURL}}{{.HubURL}}{{else}}https://hub.docker.com/{{end}}" :href="(cur && cur.hub) || 'https://hub.docker.com/'" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4">Docker Hub <i class="ri-arrow-right-up-line" aria-hidden="true"></i></a></p>
                 </div>
 
-                <input type="hidden" id="new_tag" name="new_tag" :value="selected" value="{{.CurrentVersion}}" required/>
-            </div>
+                <div class="space-y-4 border-t border-gray-200 px-6 py-4 dark:border-gray-900">
+                    <div @click.outside="open = false" class="relative">
+                        <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="tag_button">{{.T.Get "New image tag:"}}<span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
 
-            <div class="mt-6 flex flex-col-reverse gap-2 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end dark:border-gray-800">
-                <a href="/containers/image/change" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Back to images"}}</a>
-                <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">{{.T.Get "Change tag"}}</button>
-            </div>
-        </form>
-    </div>
-</section>
+                        <button type="button" id="tag_button" @click="toggle()" :aria-expanded="open ? 'true' : 'false'" aria-haspopup="listbox" aria-describedby="tag-help" class="mt-2 flex w-full items-center gap-2 rounded-md border border-gray-300 bg-white px-2.5 py-2 text-left text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
+                            <span class="font-mono" x-text="selected || '{{.T.Get "Choose a tag"}}'">{{.CurrentVersion}}</span>
+                            <span x-show="selected && cur && selected === cur.tag" class="text-xs text-gray-500">({{.T.Get "current"}})</span>
+                            <span x-show="loading" class="text-xs text-gray-500">{{.T.Get "Loading tags from Docker Hub..."}}</span>
+                            <i class="ri-arrow-down-s-line ml-auto text-gray-400" aria-hidden="true"></i>
+                        </button>
+                        <p id="tag-help" class="mt-2 text-xs text-gray-500" x-show="repo" x-cloak>{{.T.Get "Tags of"}} <span class="font-mono" x-text="repo"></span> {{.T.Get "on Docker Hub, most recently updated first."}}</p>
 
-{{else}}
+                        <div x-show="open" x-cloak x-transition class="absolute z-50 mt-1 w-full rounded-md border border-gray-200 bg-white p-1 shadow-xl dark:border-gray-800 dark:bg-gray-950">
+                            <div class="border-b border-gray-200 p-1 pb-2 dark:border-gray-800">
+                                <input type="search" x-ref="search" x-model="query" @keydown.enter.prevent="pickFirst()" autocomplete="off" aria-label="{{.T.Get "Search or type a tag"}}" placeholder="{{.T.Get "Search or type a tag"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-1.5 font-mono text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30"/>
+                            </div>
+                            <ul class="max-h-64 overflow-y-auto pt-1" role="listbox">
+                                <template x-if="customCandidate">
+                                    <li @click="pick(customCandidate)" class="flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900">{{.T.Get "Use"}} <span class="font-mono font-medium" x-text="customCandidate"></span></li>
+                                </template>
+                                <template x-for="tag in visibleTags" :key="tag">
+                                    <li @click="pick(tag)" role="option" :aria-selected="tag === selected ? 'true' : 'false'" :class="tag === selected ? 'bg-gray-100 dark:bg-gray-900' : ''" class="flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 font-mono text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900">
+                                        <span x-text="tag"></span>
+                                        <span x-show="cur && tag === cur.tag" class="font-sans text-xs text-gray-500">({{.T.Get "current"}})</span>
+                                    </li>
+                                </template>
+                                <li x-show="!loading && !customCandidate && visibleTags.length === 0" class="px-2 py-1.5 text-sm text-gray-500" x-text="error || '{{.T.Get "No matching tags. Type a full tag to use it."}}'"></li>
+                            </ul>
+                        </div>
 
-<section aria-label="{{.T.Get "Change Docker image tag"}}">
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-        <div>
-            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Change Docker image tag"}}</h1>
-            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Pick a service and the image tag it should run, to use a specific version of it."}}</p>
+                        <input type="hidden" id="new_tag" name="new_tag" :value="selected" value="{{.CurrentVersion}}" required/>
+                    </div>
+
+                    <div class="flex items-start gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500" x-show="cur && cur.data && selected !== cur.tag" x-cloak><i class="ri-alert-line" aria-hidden="true"></i><span>{{.T.Get "Back up the databases first. A newer major version upgrades the data files, and switching back to the old tag won't undo that."}}</span></div>
+                    <div class="flex items-start gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500" x-show="cur && !cur.data && floating(selected) && selected !== cur.tag" x-cloak><i class="ri-alert-line" aria-hidden="true"></i><span>{{.T.Get "This is a floating tag: the service moves to whatever version it points to on the next pull. Pick a version number to stay put."}}</span></div>
+                </div>
+
+                <div class="flex flex-col-reverse gap-2 border-t border-gray-200 px-6 py-4 sm:flex-row sm:justify-end dark:border-gray-900">
+                    <a href="/containers/image/change" @click.prevent="close()" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Cancel"}}</a>
+                    <button type="submit" :disabled="!selected || (cur && selected === cur.tag)" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">{{.T.Get "Change tag"}}</button>
+                </div>
+            </form>
         </div>
     </div>
-
-    <div class="max-w-2xl px-4 pb-8 sm:px-6 lg:px-8" id="toAddActive">
-        <form method="GET">
-            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-            <label for="domains" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Select service"}}</label>
-            <select id="domains" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]" name="version" onchange="redirectToSelectedVersion(this)">
-                <option value="" disabled selected>{{.T.Get "Select service"}}</option>
-                {{range .SelectableServices}}
-                <option value="{{.}}">{{.}}</option>
-                {{end}}
-            </select>
-            <script>
-                function redirectToSelectedVersion(selectElement) {
-                    var selectedVersion = selectElement.value;
-                    if (selectedVersion) {
-                        window.location.href = `/containers/image/change/${selectedVersion}`;
-                    }
-                }
-            </script>
-        </form>
-    </div>
 </section>
 
-{{end}}
-
 <script>
-function imageTags(service, current) {
+function imageVersions(rows, openService, openTag, openHub) {
     const tagRE = /^[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}$/;
+    const byName = Object.fromEntries((rows || []).map(r => [r.service, r]));
+    const cache = {};
     return {
-        service: service, current: current, selected: current,
-        tags: [], repo: '', error: '', query: '', open: false, loading: true,
+        q: '', floatingOnly: false, cur: null,
+        selected: '', tags: [], repo: '', error: '', query: '', open: false, loading: false,
+        init() {
+            // a service from the url opens straight away, even one the table doesn't list
+            if (openService) this.openFor(openService, { service: openService, tag: openTag || '', hub: openHub || '', repo: '', data: false });
+            this.loadStatus();
+        },
+        floating(t) { return !!t && !/\d/.test(t); },
+        show(name) {
+            const r = byName[name], q = this.q.trim().toLowerCase();
+            return (!this.floatingOnly || r.floating) && (!q || (r.service + ' ' + r.repo + ':' + r.tag).toLowerCase().includes(q));
+        },
+        anyShown() { return Object.keys(byName).length === 0 || Object.keys(byName).some(n => this.show(n)); },
+        openFor(name, fallback) {
+            this.cur = byName[name] || fallback;
+            if (!this.cur) return;
+            this.selected = this.cur.tag; this.query = ''; this.open = false;
+            this.load(name);
+        },
+        close() { this.cur = null; this.open = false; },
         // the current tag first, then Docker Hub's list, narrowed by what's typed
         get visibleTags() {
-            const all = this.current ? [this.current, ...this.tags.filter(t => t !== this.current)] : this.tags;
+            const current = this.cur ? this.cur.tag : '';
+            const all = current ? [current, ...this.tags.filter(t => t !== current)] : this.tags;
             const q = this.query.trim().toLowerCase();
             return (q ? all.filter(t => t.toLowerCase().includes(q)) : all).slice(0, 200);
         },
@@ -109,7 +184,7 @@ function imageTags(service, current) {
         get customCandidate() {
             const q = this.query.trim();
             if (!q || !tagRE.test(q)) return '';
-            return this.tags.includes(q) || q === this.current ? '' : q;
+            return this.tags.includes(q) || q === (this.cur && this.cur.tag) ? '' : q;
         },
         toggle() {
             this.open = !this.open;
@@ -120,20 +195,43 @@ function imageTags(service, current) {
             const first = this.customCandidate || this.visibleTags[0];
             if (first) this.pick(first);
         },
-        async load() {
+        apply(name) {
+            if (!this.cur || this.cur.service !== name) return;
+            const c = cache[name];
+            this.tags = c.tags; this.repo = c.repo; this.error = c.error; this.loading = false;
+            if (!this.cur.tag && !this.selected && this.tags.length) this.selected = this.tags[0];
+        },
+        async load(name) {
+            if (cache[name]) { this.apply(name); return; }
+            this.tags = []; this.repo = ''; this.error = ''; this.loading = true;
             try {
-                const res = await fetch('/containers/image/tags/' + encodeURIComponent(this.service));
-                const data = await res.json();
-                this.tags = data.tags || [];
-                this.repo = data.repo || '';
-                this.error = data.error || '';
-                if (!this.current && this.tags.length) this.selected = this.tags[0];
+                const data = await (await fetch('/containers/image/tags/' + encodeURIComponent(name))).json();
+                cache[name] = { tags: data.tags || [], repo: data.repo || '', error: data.error || '' };
             } catch (e) {
-                this.error = {{toJSON (.T.Get "Could not load tags from Docker Hub.")}};
-            } finally {
-                this.loading = false;
+                cache[name] = { tags: [], repo: '', error: {{toJSON (.T.Get "Could not load tags from Docker Hub.")}} };
             }
-        }
+            this.apply(name);
+        },
+        // running state comes from the same stats call the Containers page uses
+        loadStatus() {
+            const cells = document.querySelectorAll('#versions-table tr[data-service]');
+            if (!cells.length) return;
+            const set = (tr, on, text) => {
+                const dot = tr.querySelector('[data-version-status] > span');
+                dot.className = 'size-2 shrink-0 rounded-full ' + (on ? 'bg-emerald-500' : 'bg-gray-400 dark:bg-gray-600');
+                tr.querySelector('[data-version-label]').textContent = text;
+            };
+            fetch('/json/services', { headers: { 'X-CSRF-TOKEN': typeof csrf_token !== 'undefined' ? csrf_token : '' } })
+                .then(r => r.json())
+                .then(res => {
+                    const running = new Set((res.container_stats || []).map(c => c.Name));
+                    cells.forEach(tr => {
+                        const on = running.has(tr.dataset.service);
+                        set(tr, on, on ? {{toJSON (.T.Get "Running")}} : {{toJSON (.T.Get "Not running")}});
+                    });
+                })
+                .catch(() => cells.forEach(tr => set(tr, false, '—')));
+        },
     };
 }
 </script>

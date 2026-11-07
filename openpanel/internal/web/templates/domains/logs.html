@@ -1,283 +1,355 @@
-{{define "flowbite_js"}}
-    <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
-{{end}}
-
 {{define "content"}}
 <!-- START templates/domains/logs.html -->
+<div x-data="accessLogs()">
 
-{{if .Rows}}
 <!-- page header -->
 <section aria-label="{{.T.Get "Select Domain Log Header"}}">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Domain Logs for"}} <span class="punycode">{{.DomainName}}</span></h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Showing"}} {{add (mul .ItemsPerPage (sub .CurrentPage 1)) 1}} - {{if gt (mul .ItemsPerPage .CurrentPage) .TotalLines}}{{.TotalLines}}{{else}}{{mul .ItemsPerPage .CurrentPage}}{{end}} {{.T.Get "out of"}} {{.TotalLines}} {{.T.Get "rows"}}</p>
-    </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-
-    <p class="text-sm text-gray-500 dark:text-gray-500">
-        {{if lt .TotalLines .TotalAllowedLinesForShowAll}}
-        <input class="form-check-input" type="checkbox" role="switch" id="showAllCheckbox" {{if .ShowAll}}checked{{end}}>
-        <label class="form-check-label text-secondary fs-sm" for="showAllCheckbox">{{.T.Get "Show all"}} {{.TotalLines}} {{.T.Get "rows"}}</label>
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div class="min-w-0">
+        {{if .DomainName}}
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Access logs for"}} <span class="punycode">{{.DomainName}}</span></h1>
+        <p class="mt-1 truncate font-mono text-xs text-gray-500">/var/log/caddy/domlogs/{{.DomainName}}/access.log</p>
+        {{else}}
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Access logs"}}</h1>
+        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Every request the web server handled for a domain, newest first."}}</p>
         {{end}}
-    </p>
-
-
-
-<script>
-    const showAllCheckbox = document.getElementById('showAllCheckbox');
-
-    showAllCheckbox.addEventListener('change', () => {
-        const urlSearchParams = new URLSearchParams(window.location.search);
-        if (showAllCheckbox.checked)
-        {
-            urlSearchParams.set('show_all', 'true');
-            urlSearchParams.delete('page');
-        }
-        else
-        {
-            urlSearchParams.delete('show_all');
-        }
-        window.location.search = urlSearchParams.toString();
-    });
-
-
-</script>
-
     </div>
+    {{if .DomainName}}
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+        {{if .Domains}}
+        <label for="domains" class="sr-only">{{.T.Get "Domain"}}</label>
+        <select id="domains" onchange="window.location.href = '/domains/log' + (this.value ? '/' + encodeURIComponent(this.value) : '')" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-56 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+            <option value="">{{.T.Get "All domains"}}</option>
+            {{range .Domains}}<option class="punycode" value="{{.Domain}}"{{if eq .Domain $.DomainName}} selected{{end}}{{if or (not .Exists) (hasSuffix .Domain ".onion")}} disabled{{end}}>{{.Domain}}</option>{{end}}
+        </select>
+        {{end}}
+        {{if .TotalLines}}
+        <a href="/domains/log/{{.DomainName}}/raw" download="{{.DomainName}}-access.log" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-download-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "Download raw"}}</a>
+        {{end}}
+    </div>
+    {{end}}
 </div>
-<!-- END page header -->
-
-
-<section aria-label="{{.T.Get "Records Table"}}" x-data="{
-    searchQuery: '',
-    columns: {
-        timestamp: true,
-        level: false,
-        logger: false,
-        message: false,
-        client_ip: true,
-        method: true,
-        uri: true,
-        status: true,
-        size: false,
-        duration: false
-    },
-    init() {
-        const savedColumns = sessionStorage.getItem('columns');
-        if (savedColumns) {
-            this.columns = JSON.parse(savedColumns);
-        }
-    },
-    saveColumns() {
-        sessionStorage.setItem('columns', JSON.stringify(this.columns));
-    }
-}">
-    <div class="flex flex-col justify-between gap-2 p-4 px-6 sm:flex-row sm:items-center">
-        <div class="relative w-full sm:w-64 [&>input]:py-1.5">
-            <input
-                x-model="searchQuery"
-                class="relative block w-full appearance-none rounded border px-2.5 py-2 shadow-sm outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:dark:border-gray-700 disabled:dark:bg-gray-800 disabled:dark:text-gray-500 file:-my-2 file:-ml-2.5 file:cursor-pointer file:rounded-l-[5px] file:rounded-r-none file:border-0 file:px-3 file:py-2 file:outline-none focus:outline-none disabled:pointer-events-none file:disabled:pointer-events-none file:border-solid file:border-gray-300 file:bg-gray-50 file:text-gray-500 file:hover:bg-gray-100 file:dark:border-gray-800 file:dark:bg-gray-950 file:hover:dark:bg-gray-900/20 file:disabled:dark:border-gray-700 file:disabled:bg-gray-100 file:disabled:text-gray-500 file:disabled:dark:bg-gray-800 focus:ring-2 focus:ring-blue-200 focus:dark:ring-blue-700/30 focus:border-blue-500 focus:dark:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden pl-8"
-                placeholder="{{.T.Get "Search"}}"
-                type="search"
-            />
-            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
-                    <path
-                        d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"
-                    ></path>
-                </svg>
-            </div>
-        </div>
-
-        <!-- Dropdown for Column Visibility -->
-        <div class="relative">
-            <button id="dropdownToggleButton" data-dropdown-toggle="dropdownToggle" type="button" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
-                {{.T.Get "Show Columns"}}
-                <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
-                </svg>
-            </button>
-
-            <!-- Dropdown menu -->
-            <div id="dropdownToggle" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-72 dark:bg-gray-700 dark:divide-gray-600">
-                <ul class="p-3 space-y-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownToggleButton">
-                    {{template "log_column_toggle" (dict "T" .T "Key" "timestamp" "Label" (.T.Get "Timestamp"))}}
-                    {{template "log_column_toggle" (dict "T" .T "Key" "level" "Label" (.T.Get "Level"))}}
-                    {{template "log_column_toggle" (dict "T" .T "Key" "logger" "Label" (.T.Get "Logger"))}}
-                    {{template "log_column_toggle" (dict "T" .T "Key" "message" "Label" (.T.Get "Message"))}}
-                    {{template "log_column_toggle" (dict "T" .T "Key" "client_ip" "Label" (.T.Get "Client IP"))}}
-                    {{template "log_column_toggle" (dict "T" .T "Key" "method" "Label" (.T.Get "Method"))}}
-                    {{template "log_column_toggle" (dict "T" .T "Key" "uri" "Label" (.T.Get "URI"))}}
-                    {{template "log_column_toggle" (dict "T" .T "Key" "status" "Label" (.T.Get "Status"))}}
-                    {{template "log_column_toggle" (dict "T" .T "Key" "size" "Label" (.T.Get "Size"))}}
-                    {{template "log_column_toggle" (dict "T" .T "Key" "duration" "Label" (.T.Get "Duration"))}}
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div class="overflow-x-auto">
-        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
-            <table id="logs-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
-                <thead class="">
-                    <tr class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800 bg-gray-50 py-3 pl-4 sm:pl-6 dark:bg-gray-900">
-                        <th x-show="columns.timestamp" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Timestamp"}}</th>
-                        <th x-show="columns.level" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Level"}}</th>
-                        <th x-show="columns.logger" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Logger"}}</th>
-                        <th x-show="columns.message" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Message"}}</th>
-                        <th x-show="columns.client_ip" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Client IP"}}</th>
-                        <th x-show="columns.method" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Method"}}</th>
-                        <th x-show="columns.uri" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "URI"}}</th>
-                        <th x-show="columns.status" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Status"}}</th>
-                        <th x-show="columns.size" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Size"}}</th>
-                        <th x-show="columns.duration" scope="col" class="whitespace-nowrap border-b px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">{{.T.Get "Duration"}}</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-                    {{$domainName := .DomainName}}
-                    {{range .Rows}}
-                    <tr x-show="searchQuery === '' || '{{.Level}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Logger}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Msg}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Request.ClientIP}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Request.Method}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Request.URI}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6 hover:bg-white dark:hover:bg-gray-900">
-                        <td x-show="columns.timestamp" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400 timestamp" data-ts="{{.TS}}">{{.TS}}</td>
-                        <td x-show="columns.level" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Level}}</td>
-                        <td x-show="columns.logger" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Logger}}</td>
-                        <td x-show="columns.message" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Msg}}</td>
-                        <td x-show="columns.client_ip" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Request.ClientIP}}</td>
-                        <td x-show="columns.method" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Request.Method}}</td>
-                        <td x-show="columns.uri" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400"><a href="http://{{$domainName}}{{.Request.URI}}" target="_blank" class="hover:underline">{{.Request.URI}}</a></td>
-                        <td x-show="columns.status" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-                            {{if hasPrefix (toString .Status) "1"}}
-                            <span class="bg-purple-100 text-purple-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-purple-900 dark:text-purple-300">{{.Status}}</span>
-                            {{else if hasPrefix (toString .Status) "2"}}
-                            <span class="bg-green-100 text-green-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-green-900 dark:text-green-300">{{.Status}}</span>
-                            {{else if hasPrefix (toString .Status) "3"}}
-                            <span class="bg-yellow-100 text-yellow-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-yellow-900 dark:text-yellow-300">{{.Status}}</span>
-                            {{else if hasPrefix (toString .Status) "4"}}
-                            <span class="bg-red-100 text-red-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-red-900 dark:text-red-300">{{.Status}}</span>
-                            {{else if hasPrefix (toString .Status) "5"}}
-                            <span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-blue-900 dark:text-blue-300">{{.Status}}</span>
-                            {{else}}
-                            <span class="bg-gray-100 text-gray-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-gray-700 dark:text-gray-300">{{.Status}}</span>
-                            {{end}}
-                        </td>
-                        <td x-show="columns.size" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Size}}</td>
-                        <td x-show="columns.duration" class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Duration}}</td>
-                    </tr>
-                    {{end}}
-                </tbody>
-            </table>
-        </div>
-    </div>
 </section>
-
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const timestampElements = document.querySelectorAll('.timestamp');
-
-        timestampElements.forEach(function(element) {
-            const timestamp = parseFloat(element.getAttribute('data-ts'));
-
-            if (!isNaN(timestamp)) {
-                const date = new Date(timestamp * 1000);
-
-                if (!isNaN(date.getTime())) {
-                    const formattedDate = date.toISOString().slice(0, 19).replace('T', ' ');
-                    element.innerText = formattedDate;
-                } else {
-                    element.innerText = '{{.T.Get "Invalid Date"}}';
-                }
-            } else {
-                element.innerText = '{{.T.Get "Invalid Timestamp"}}';
-            }
-        });
-    });
-</script>
-
-
-
-<!-- pagination -->
-<div class="m-6 flex justify-center">
-    <nav aria-label="{{.T.Get "Pagination"}}">
-        <ul class="inline-flex -space-x-px text-sm">
-            {{if gt .CurrentPage 1}}
-                <li>
-                    <a href="/domains/log/{{.DomainName}}?page={{sub .CurrentPage 1}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Previous"}}</a>
-                </li>
-            {{end}}
-
-            {{range .LogPageEntries}}
-                {{if .IsEllipsis}}
-                    <li><span class="px-3 py-2 text-gray-500 dark:text-gray-400">&hellip;</span></li>
-                {{else}}
-                    <li>
-                        <a href="/domains/log/{{$.DomainName}}?page={{.Number}}" class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 {{if eq .Number $.CurrentPage}}bg-gray-200 dark:bg-gray-700{{end}}">{{.Number}}</a>
-                    </li>
-                {{end}}
-            {{end}}
-
-            {{if lt .CurrentPage .TotalPages}}
-                <li>
-                    <a href="/domains/log/{{.DomainName}}?page={{add .CurrentPage 1}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Next"}}</a>
-                </li>
-            {{end}}
-        </ul>
-    </nav>
-</div>
-<!-- END pagination -->
-
-
-
-{{else}}
-
-<!-- page header -->
-<section
-    aria-label="{{.T.Get "Select Domain Log Header"}}"
->
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Domain Logs"}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "View webserver raw access logs for domains."}}</p>
-    </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-    </div>
-</div>
 <!-- END page header -->
 
-
-{{if .Domains}}
-    {{/* classic compat: Domains is now []DomainLogFile, so the shared selector gets the names via .Domain */}}
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6">
-    <div class="mt-8 grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-        <div class="col-span-full">
-            <select id="domains" name="version" onchange="if (this.value) window.location.href = '/domains/log/' + this.value" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                <option value="" disabled selected>{{.T.Get "Select domain"}}</option>
-                {{range .Domains}}
-                    <option class="punycode" value="{{.Domain}}" {{if hasSuffix .Domain ".onion"}}disabled{{end}}>{{.Domain}}</option>
-                {{end}}
-            </select>
-        </div>
-    </div>
+{{if .Missing}}
+<div class="mx-4 mb-4 flex items-start gap-3 rounded-md p-4 text-sm bg-red-50 text-red-900 sm:mx-6 lg:mx-8 dark:bg-red-950/70 dark:text-red-500" role="alert">
+    <i class="ri-error-warning-line text-base leading-none" aria-hidden="true"></i>
+    <span>{{.T.Get "Log file not found for domain"}} <b class="font-mono font-medium punycode">{{.Missing}}</b>. {{.T.Get "Pick one of your domains below."}}</span>
 </div>
+{{end}}
+
+{{if not .DomainName}}
+{{if .Domains}}
+<!-- domain picker, #domains is the select the upstream page had -->
+<section aria-label="{{.T.Get "Domains"}}" x-data="{ q: '' }">
+    <div class="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+        <label for="domains" class="sr-only">{{.T.Get "Domain"}}</label>
+        <select id="domains" onchange="if (this.value) window.location.href = '/domains/log/' + this.value" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-64 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+            <option value="" selected>{{.T.Get "Select domain"}}</option>
+            {{range .Domains}}<option class="punycode" value="{{.Domain}}"{{if or (not .Exists) (hasSuffix .Domain ".onion")}} disabled{{end}}>{{.Domain}}</option>{{end}}
+        </select>
+        {{if gt (len .Domains) 5}}
+        <div class="relative w-full sm:w-64">
+            <label for="log-domain-search" class="sr-only">{{.T.Get "Search"}}</label>
+            <input id="log-domain-search" x-model="q" type="search" placeholder="{{.T.Get "Search"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden">
+            <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+        </div>
+        {{end}}
+    </div>
+    <div class="overflow-x-auto">
+    <table class="w-full border-t border-gray-200 text-sm dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+        <thead>
+            <tr>
+                <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{.T.Get "Domain"}}</th>
+                <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{.T.Get "Log size"}}</th>
+                <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Domains}}
+            {{$open := and .Exists (not (hasSuffix .Domain ".onion"))}}
+            <tr x-show="q === '' || $el.dataset.search.includes(q.toLowerCase())" data-search="{{lower .Domain}}" class="hover:bg-gray-50 dark:hover:bg-gray-900/60 [&>td]:border-b [&>td]:border-gray-200 dark:[&>td]:border-gray-800">
+                <td class="px-4 py-2.5 whitespace-nowrap font-medium text-gray-900 dark:text-gray-50">
+                    {{if $open}}<a href="/domains/log/{{.Domain}}" class="hover:underline hover:underline-offset-4"><span class="punycode">{{.Domain}}</span></a>{{else}}<span class="punycode">{{.Domain}}</span>{{end}}
+                </td>
+                <td class="px-4 py-2.5 text-right whitespace-nowrap tabular-nums text-gray-600 dark:text-gray-400">
+                    {{if not .Exists}}<span class="text-gray-400 dark:text-gray-600">{{$.T.Get "No log"}}</span>{{else if not .Size}}<span class="text-gray-400 dark:text-gray-600">{{$.T.Get "Empty"}}</span>{{else}}<span data-bytes="{{.Size}}">{{.Size}} B</span>{{end}}
+                </td>
+                <td class="px-4 py-2.5 whitespace-nowrap">
+                    <div class="flex h-8 items-center justify-end">
+                    {{if $open}}
+                    <a href="/domains/log/{{.Domain}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border h-8 px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-file-list-3-line text-base leading-none" aria-hidden="true"></i>{{$.T.Get "View log"}}</a>
+                    {{else if hasSuffix .Domain ".onion"}}
+                    <span class="text-xs text-gray-500">{{$.T.Get "Not available on .onion"}}</span>
+                    {{else}}
+                    <span class="text-xs text-gray-500">{{$.T.Get "No requests logged yet"}}</span>
+                    {{end}}
+                    </div>
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    </div>
+    <p class="px-4 pt-3 pb-6 text-xs text-gray-500 sm:px-6 lg:px-8"><span class="tabular-nums">{{len .Domains}}</span> {{if eq (len .Domains) 1}}{{.T.Get "domain"}}{{else}}{{.T.Get "domains"}}{{end}}</p>
+</section>
 {{else}}
     {{template "no_domain" .}}
 {{end}}
 
+{{else if not .TotalLines}}
+<div class="mx-4 mb-6 flex h-48 flex-col items-center justify-center gap-3 rounded-md border border-dashed border-gray-300 text-center sm:mx-6 lg:mx-8 dark:border-gray-800">
+    <p class="text-sm text-gray-500">{{.T.Get "No requests logged yet. Lines show up here as soon as someone visits"}} <span class="font-mono punycode">{{.DomainName}}</span>.</p>
+    <a href="http://{{.DomainName}}" target="_blank" rel="noopener" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-external-link-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "Open the site"}}</a>
+</div>
+
+{{else}}
+<section aria-label="{{.T.Get "Records Table"}}">
+    <!-- toolbar: search, status chips, view switch -->
+    <div class="flex flex-col gap-3 px-4 pb-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+        <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <form method="get" action="/domains/log/{{.DomainName}}" role="search" class="relative w-full sm:w-72">
+                <label for="log-search" class="sr-only">{{.T.Get "Search the log"}}</label>
+                <input id="log-search" type="search" name="q" value="{{.Search}}" placeholder="{{.T.Get "Search IP, path, status, user agent"}}" @search="if (!$el.value && {{toJSON .Search}}) $el.form.submit()" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden">
+                <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+                {{if .Status}}<input type="hidden" name="status" value="{{.Status}}">{{end}}
+                <input type="hidden" name="view" value="raw" :disabled="view !== 'raw'" {{if ne .View "raw"}}disabled{{end}}>
+            </form>
+            <div class="flex flex-wrap items-center gap-2" role="group" aria-label="{{.T.Get "Filter by status"}}">
+                <a href="{{.URL 1 ""}}" data-keep-view {{if not .Status}}aria-current="true"{{end}} class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border px-2 py-1.5 text-xs font-medium outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 {{if not .Status}}border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-500 dark:bg-blue-500/10 dark:text-blue-400{{else}}border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-900{{end}}">{{.T.Get "All"}} <span class="tabular-nums text-gray-500">{{index .Counts ""}}</span></a>
+                {{range $c := (split "2 3 4 5" " ")}}
+                {{$n := index $.Counts $c}}
+                {{$on := eq $.Status $c}}
+                {{if or $n $on}}
+                <a href="{{if $on}}{{$.URL 1 ""}}{{else}}{{$.URL 1 $c}}{{end}}" data-keep-view title="{{template "al_class_name" (dict "T" $.T "C" $c)}}" {{if $on}}aria-current="true"{{end}} class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-md border px-2 py-1.5 text-xs font-medium outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 {{if $on}}border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-500 dark:bg-blue-500/10 dark:text-blue-400{{else}}border-gray-300 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-900{{end}}"><span class="size-1.5 rounded-full {{template "al_dot" $c}}" aria-hidden="true"></span>{{$c}}xx <span class="tabular-nums text-gray-500">{{$n}}</span></a>
+                {{else}}
+                <span title="{{template "al_class_name" (dict "T" $.T "C" $c)}}" aria-disabled="true" class="inline-flex cursor-not-allowed items-center gap-1.5 whitespace-nowrap rounded-md border border-dashed border-gray-200 px-2 py-1.5 text-xs font-medium text-gray-400 dark:border-gray-800 dark:text-gray-600"><span class="size-1.5 rounded-full bg-gray-300 dark:bg-gray-700" aria-hidden="true"></span>{{$c}}xx <span class="tabular-nums">0</span></span>
+                {{end}}
+                {{end}}
+            </div>
+        </div>
+        <div class="inline-flex w-fit rounded-md border border-gray-300 p-0.5 dark:border-gray-700" role="group" aria-label="{{.T.Get "View"}}">
+            <button type="button" @click="setView('formatted')" :aria-pressed="(view === 'formatted').toString()" :class="view === 'formatted' ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50'" class="inline-flex cursor-pointer items-center gap-1.5 rounded px-2 py-1 text-xs font-medium outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"><i class="ri-list-check text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Formatted"}}</button>
+            <button type="button" @click="setView('raw')" :aria-pressed="(view === 'raw').toString()" :class="view === 'raw' ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50' : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50'" class="inline-flex cursor-pointer items-center gap-1.5 rounded px-2 py-1 text-xs font-medium outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"><i class="ri-code-line text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Raw"}}</button>
+        </div>
+    </div>
+
+    {{if .Rows}}
+    <div x-show="view === 'formatted'" {{if eq .View "raw"}}x-cloak{{end}} class="overflow-x-auto">
+        <table id="logs-table" class="w-full border-t border-gray-200 text-sm dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+            <thead @click.capture="close()">
+                <tr>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-1 text-left whitespace-nowrap dark:border-gray-800">{{template "al_sort" (dict "Label" (.T.Get "Time (UTC)") "Key" "ts")}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{.T.Get "Client IP"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{.T.Get "Request"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-1 text-left whitespace-nowrap dark:border-gray-800">{{template "al_sort" (dict "Label" (.T.Get "Status") "Key" "status")}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-1 text-right whitespace-nowrap dark:border-gray-800">{{template "al_sort" (dict "Label" (.T.Get "Size") "Key" "size")}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-1 text-right whitespace-nowrap dark:border-gray-800">{{template "al_sort" (dict "Label" (.T.Get "Duration") "Key" "dur")}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 dark:border-gray-800"><span class="sr-only">{{.T.Get "Details"}}</span></th>
+                </tr>
+            </thead>
+            <tbody @click="toggle($event)">
+                {{range .Rows}}
+                <tr class="al-row cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900/60 [&>td]:border-b [&>td]:border-gray-200 dark:[&>td]:border-gray-800" data-i="{{.Index}}">
+                    <td class="px-4 py-2.5 whitespace-nowrap tabular-nums" data-sort-col="ts" data-sort-value="{{.SortTS}}"><span class="text-gray-500">{{.Day}}</span> <span class="font-mono text-xs text-gray-900 dark:text-gray-50">{{.Clock}}</span></td>
+                    <td class="px-4 py-2.5 whitespace-nowrap font-mono text-xs text-gray-600 dark:text-gray-400">{{.Request.ClientIP}}</td>
+                    <td class="max-w-md px-4 py-2.5">
+                        <div class="flex min-w-0 items-center gap-2">
+                            <span class="shrink-0 rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">{{.Request.Method}}</span>
+                            <span class="truncate font-mono text-xs text-gray-900 dark:text-gray-50" title="{{.Path}}">{{.Path}}</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-2.5 whitespace-nowrap" data-sort-col="status" data-sort-value="{{.Status}}"><span class="inline-flex items-center rounded-md px-1.5 py-0.5 font-mono text-xs font-medium tabular-nums ring-1 ring-inset {{template "al_badge" .Tone}}">{{.Status}}</span></td>
+                    <td class="px-4 py-2.5 text-right whitespace-nowrap font-mono text-xs tabular-nums text-gray-600 dark:text-gray-400" data-sort-col="size" data-sort-value="{{.Size}}">{{.SizeText}}</td>
+                    <td class="px-4 py-2.5 text-right whitespace-nowrap font-mono text-xs tabular-nums" data-sort-col="dur" data-sort-value="{{.Duration}}">
+                        {{if .Slow}}<span class="inline-flex items-center gap-1 font-medium text-red-600 dark:text-red-500" title="{{$.T.Get "Slow request, took 5 seconds or more"}}"><i class="ri-timer-flash-line text-sm leading-none" aria-hidden="true"></i>{{.DurText}}<span class="sr-only"> ({{$.T.Get "slow"}})</span></span>{{else}}<span class="text-gray-600 dark:text-gray-400">{{.DurText}}</span>{{end}}
+                    </td>
+                    <td class="px-4 py-2.5 text-right whitespace-nowrap">
+                        <button type="button" class="al-chev inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800/80 dark:hover:text-gray-50" aria-expanded="false" aria-label="{{$.T.Get "Show details"}}"><i class="ri-arrow-down-s-line text-base leading-none transition-transform" aria-hidden="true"></i></button>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- raw lines, same mono box as the WordPress debug.log viewer -->
+    <div x-show="view === 'raw'" {{if ne .View "raw"}}x-cloak{{end}} class="px-4 sm:px-6 lg:px-8">
+        <div class="mb-2 flex items-center justify-between gap-4 text-xs text-gray-500">
+            <span><span class="tabular-nums">{{len .Rows}}</span> {{if eq (len .Rows) 1}}{{.T.Get "line"}}{{else}}{{.T.Get "lines"}}{{end}}{{if or .Search .Status}} {{.T.Get "match"}}{{end}}, <span x-text="rawOrder"></span></span>
+            <button type="button" @click="copyRaw()" class="inline-flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50"><i class="ri-file-copy-line text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Copy"}}</button>
+        </div>
+        <div class="flex max-h-[32rem] overflow-auto rounded-md bg-gray-950 font-mono text-xs dark:ring-1 dark:ring-gray-800" role="log" tabindex="0" aria-label="{{.T.Get "Raw log lines"}}">
+            <div class="select-none border-r border-gray-800 px-2 py-2 text-right text-gray-500" aria-hidden="true"><template x-for="(l, n) in raw" :key="n"><div x-text="n + 1"></div></template></div>
+            <pre class="flex-1 px-3 py-2 text-gray-50" x-text="raw.join('\n')"></pre>
+        </div>
+    </div>
+    {{else}}
+    <div class="flex flex-col items-center justify-center gap-3 border-t border-gray-200 py-12 text-center dark:border-gray-800">
+        <p class="text-sm text-gray-500">{{if .Status}}{{.T.Get "Nothing with a"}} {{.Status}}xx {{.T.Get "status"}}{{if .Search}} {{.T.Get "contains"}} “{{.Search}}”{{end}}.{{else}}{{.T.Get "Nothing contains"}} “{{.Search}}”.{{end}}</p>
+        <a href="/domains/log/{{.DomainName}}" data-keep-view class="text-sm font-medium text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Clear filters"}}</a>
+    </div>
+    {{end}}
+
+    <!-- paging and show all -->
+    <div class="flex flex-col gap-3 px-4 pt-3 pb-6 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-500">
+            {{if .Rows}}<span class="tabular-nums">{{.T.Get "Showing"}} {{add (mul .ItemsPerPage (sub .CurrentPage 1)) 1}} - {{add (mul .ItemsPerPage (sub .CurrentPage 1)) (len .Rows)}} {{.T.Get "out of"}} {{.Matched}} {{.T.Get "rows"}}{{if or .Search .Status}} ({{.TotalLines}} {{.T.Get "in the log"}}){{end}}</span>{{end}}
+            {{if or .ShowAll (and (gt .TotalPages 1) (le .Matched .TotalAllowedLinesForShowAll))}}
+            <label for="showAllCheckbox" class="inline-flex cursor-pointer items-center gap-2 text-gray-600 dark:text-gray-400">
+                <input type="checkbox" role="switch" id="showAllCheckbox" {{if .ShowAll}}checked{{end}} @change="showAll($el.checked)">
+                <span>{{.T.Get "Show all"}} <span class="tabular-nums">{{.Matched}}</span> {{.T.Get "rows"}}</span>
+            </label>
+            {{end}}
+        </div>
+        {{if gt .TotalPages 1}}
+        <nav aria-label="{{.T.Get "Pagination"}}">
+            <ul class="flex items-center gap-1 text-sm">
+                {{if gt .CurrentPage 1}}<li><a href="{{.URL (sub .CurrentPage 1) .Status}}" data-keep-view class="inline-flex h-8 items-center gap-1 rounded-md px-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50"><i class="ri-arrow-left-s-line text-base leading-none rtl:rotate-180" aria-hidden="true"></i>{{.T.Get "Previous"}}</a></li>{{end}}
+                {{range .LogPageEntries}}
+                {{if .IsEllipsis}}<li><span class="inline-flex h-8 min-w-8 items-center justify-center text-gray-400 dark:text-gray-600">&hellip;</span></li>
+                {{else}}<li><a href="{{$.URL .Number $.Status}}" data-keep-view {{if eq .Number $.CurrentPage}}aria-current="page"{{end}} class="inline-flex h-8 min-w-8 items-center justify-center rounded-md px-2 tabular-nums {{if eq .Number $.CurrentPage}}bg-blue-50 font-medium text-blue-700 dark:bg-blue-500/10 dark:text-blue-400{{else}}text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50{{end}}">{{.Number}}</a></li>{{end}}
+                {{end}}
+                {{if lt .CurrentPage .TotalPages}}<li><a href="{{.URL (add .CurrentPage 1) .Status}}" data-keep-view class="inline-flex h-8 items-center gap-1 rounded-md px-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50">{{.T.Get "Next"}}<i class="ri-arrow-right-s-line text-base leading-none rtl:rotate-180" aria-hidden="true"></i></a></li>{{end}}
+            </ul>
+        </nav>
+        {{end}}
+    </div>
 </section>
 {{end}}
 
+{{if .Rows}}
+<template id="al-detail-tpl"><tr class="al-detail bg-gray-50 dark:bg-gray-900/40 [&>td]:border-b [&>td]:border-gray-200 dark:[&>td]:border-gray-800"><td colspan="7" class="px-4 py-4">
+    <dl class="grid grid-cols-1 gap-x-8 gap-y-3 text-xs sm:grid-cols-2 lg:grid-cols-4">
+        <div class="min-w-0 sm:col-span-2 lg:col-span-4"><dt class="text-gray-500">{{.T.Get "URL"}}</dt><dd class="mt-0.5 flex items-center gap-2"><a class="truncate font-mono text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50" data-f="url" target="_blank" rel="noopener"></a><button type="button" data-f="copyurl" data-copied="{{.T.Get "URL copied."}}" aria-label="{{.T.Get "Copy URL"}}" class="inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md text-gray-500 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-50"><i class="ri-file-copy-line text-sm leading-none" aria-hidden="true"></i></button></dd></div>
+        <div class="min-w-0 sm:col-span-2 lg:col-span-4"><dt class="text-gray-500">{{.T.Get "User agent"}}</dt><dd class="mt-0.5 break-all font-mono text-gray-900 dark:text-gray-50" data-f="ua"></dd></div>
+        <div class="min-w-0 sm:col-span-2 lg:col-span-4"><dt class="text-gray-500">{{.T.Get "Referrer"}}</dt><dd class="mt-0.5 break-all font-mono text-gray-900 dark:text-gray-50" data-f="ref"></dd></div>
+        <div><dt class="text-gray-500">{{.T.Get "Client IP"}}</dt><dd class="mt-0.5 font-mono text-gray-900 dark:text-gray-50" data-f="ip"></dd></div>
+        <div><dt class="text-gray-500">{{.T.Get "Time"}}</dt><dd class="mt-0.5 font-mono tabular-nums text-gray-900 dark:text-gray-50" data-f="stamp"></dd></div>
+        <div><dt class="text-gray-500">{{.T.Get "Protocol"}}</dt><dd class="mt-0.5 font-mono text-gray-900 dark:text-gray-50" data-f="proto"></dd></div>
+        <div><dt class="text-gray-500">TLS</dt><dd class="mt-0.5 font-mono text-gray-900 dark:text-gray-50" data-f="tls"></dd></div>
+        <div><dt class="text-gray-500">{{.T.Get "Response"}}</dt><dd class="mt-0.5 font-mono tabular-nums text-gray-900 dark:text-gray-50" data-f="resp"></dd></div>
+        <div><dt class="text-gray-500">{{.T.Get "Content type"}}</dt><dd class="mt-0.5 font-mono text-gray-900 dark:text-gray-50" data-f="ctype"></dd></div>
+        <div><dt class="text-gray-500">{{.T.Get "Served by"}}</dt><dd class="mt-0.5 font-mono text-gray-900 dark:text-gray-50" data-f="server"></dd></div>
+        <div><dt class="text-gray-500">{{.T.Get "Log level"}}</dt><dd class="mt-0.5 font-mono text-gray-900 dark:text-gray-50" data-f="level"></dd></div>
+    </dl>
+    <div class="mt-4">
+        <div class="mb-1 flex items-center justify-between gap-4 text-xs text-gray-500"><span>{{.T.Get "Raw line"}}</span><button type="button" data-f="copyraw" data-copied="{{.T.Get "Line copied."}}" class="inline-flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50"><i class="ri-file-copy-line text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Copy line"}}</button></div>
+        <pre class="overflow-x-auto whitespace-pre-wrap break-all rounded-md bg-gray-950 p-3 font-mono text-xs text-gray-50 dark:ring-1 dark:ring-gray-800" data-f="raw"></pre>
+    </div>
+</td></tr></template>
+{{end}}
+
+</div>
+
+<script>
+window.AL_ROWS = {{toJSON .Details}};
+function accessLogs() {
+    const t = {
+        none: {{toJSON (.T.Get "none sent")}}, noneType: {{toJSON (.T.Get "none")}}, unknown: {{toJSON (.T.Get "unknown")}},
+        show: {{toJSON (.T.Get "Show details")}}, hide: {{toJSON (.T.Get "Hide details")}},
+        newest: {{toJSON (.T.Get "newest first")}}, table: {{toJSON (.T.Get "in table order")}},
+        copied: {{toJSON (.T.Get "Copied to clipboard.")}}, blocked: {{toJSON (.T.Get "Could not copy, your browser blocked clipboard access.")}},
+    };
+    return {
+        view: {{toJSON .View}} === 'raw' ? 'raw' : 'formatted',
+        raw: [], rawOrder: t.newest,
+        init() {
+            document.querySelectorAll('[data-bytes]').forEach((el) => { el.textContent = this.bytes(+el.dataset.bytes); });
+            this.$el.addEventListener('click', (e) => {
+                const b = e.target.closest('[data-copy]');
+                if (b) this.copy(b.dataset.copy, b.dataset.copied);
+            });
+            if (this.view === 'raw') this.fillRaw();
+        },
+        bytes(n) { return n < 1000 ? n + ' B' : n < 1e6 ? (n / 1e3).toFixed(1) + ' KB' : (n / 1e6).toFixed(1) + ' MB'; },
+        table() { return document.getElementById('logs-table'); },
+        rows() { const tb = this.table(); return tb ? [...tb.tBodies[0].querySelectorAll('tr.al-row')] : []; },
+        // raw view follows the table's current sort
+        fillRaw() {
+            const rows = this.rows();
+            this.raw = rows.length ? rows.map((r) => (AL_ROWS[+r.dataset.i] || {}).raw || '') : (AL_ROWS || []).map((d) => d.raw);
+            this.rawOrder = this.table() && this.table().querySelector('th[aria-sort]') ? t.table : t.newest;
+        },
+        setView(v) {
+            this.view = v;
+            if (v === 'raw') { this.close(); this.fillRaw(); }
+            const u = new URL(location.href);
+            if (v === 'raw') u.searchParams.set('view', 'raw'); else u.searchParams.delete('view');
+            history.replaceState(null, '', u);
+            document.querySelectorAll('a[data-keep-view]').forEach((a) => {
+                const l = new URL(a.getAttribute('href'), location.origin);
+                if (v === 'raw') l.searchParams.set('view', 'raw'); else l.searchParams.delete('view');
+                a.setAttribute('href', l.pathname + l.search);
+            });
+        },
+        showAll(on) {
+            const u = new URL(location.href);
+            if (on) { u.searchParams.set('show_all', 'true'); u.searchParams.delete('page'); } else u.searchParams.delete('show_all');
+            location.search = u.searchParams.toString();
+        },
+        close() {
+            const tb = this.table();
+            if (!tb) return;
+            tb.querySelectorAll('tr.al-detail').forEach((d) => d.remove());
+            tb.querySelectorAll('tr.al-row[data-open]').forEach((r) => this.mark(r, false));
+        },
+        mark(row, open) {
+            const b = row.querySelector('.al-chev');
+            if (open) row.dataset.open = '1'; else delete row.dataset.open;
+            row.classList.toggle('bg-gray-50', open);
+            row.classList.toggle('dark:bg-gray-900/40', open);
+            b.setAttribute('aria-expanded', open ? 'true' : 'false');
+            b.setAttribute('aria-label', open ? t.hide : t.show);
+            b.querySelector('i').classList.toggle('rotate-180', open);
+        },
+        toggle(e) {
+            const row = e.target.closest('tr.al-row');
+            if (!row || (e.target.closest('a, button') && !e.target.closest('.al-chev')) || String(getSelection())) return;
+            const was = row.hasAttribute('data-open');
+            this.close();
+            if (!was) this.openRow(row);
+        },
+        openRow(row) {
+            const d = AL_ROWS[+row.dataset.i];
+            if (!d) return;
+            const tr = document.getElementById('al-detail-tpl').content.firstElementChild.cloneNode(true);
+            const f = (k) => tr.querySelector('[data-f="' + k + '"]');
+            const dim = (el, v, empty) => { el.textContent = v || empty; if (!v) el.classList.replace('text-gray-900', 'text-gray-400'); };
+            f('url').href = d.url;
+            f('url').textContent = d.shown;
+            f('copyurl').dataset.copy = d.url;
+            dim(f('ua'), d.ua, t.none);
+            dim(f('ref'), d.ref, t.none);
+            f('ip').textContent = d.ip;
+            f('stamp').textContent = d.stamp;
+            dim(f('proto'), d.proto, t.unknown);
+            f('tls').textContent = d.tls;
+            f('resp').textContent = d.resp;
+            dim(f('ctype'), d.ctype, t.noneType);
+            dim(f('server'), d.server, t.unknown);
+            f('level').textContent = d.level;
+            f('raw').textContent = d.raw;
+            f('copyraw').dataset.copy = d.raw;
+            row.after(tr);
+            this.mark(row, true);
+        },
+        copy(text, msg) {
+            window.copyToClipboard(text).then(() => window.showToast && showToast(msg || t.copied, 'success'), () => window.showToast && showToast(t.blocked, 'error'));
+        },
+        copyRaw() { this.copy(this.raw.join('\n') + '\n'); },
+    };
+}
+</script>
+<script src="{{static "js/table-sort.js"}}"></script>
 <!-- END templates/domains/logs.html -->
 {{end}}
 
-{{define "log_column_toggle"}}
-<li>
-    <div class="flex p-2 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
-        <label class="inline-flex items-center w-full cursor-pointer">
-            <input type="checkbox" x-model="columns.{{.Key}}" x-on:change="saveColumns" class="sr-only peer">
-            <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
-            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{.Label}}</span>
-        </label>
-    </div>
-</li>
-{{end}}
+{{define "al_sort"}}<button type="button" data-sort-key="{{.Key}}" data-sort-type="number" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-medium text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-900 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.Label}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>{{end}}
+
+{{define "al_dot"}}{{if eq . "2"}}bg-emerald-500{{else if eq . "5"}}bg-red-500{{else}}bg-yellow-500{{end}}{{end}}
+
+{{define "al_badge"}}{{if eq . "is-success"}}bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20{{else if eq . "is-danger"}}bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20{{else if or (eq . "is-warning") (eq . "is-accent")}}bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20{{else}}bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20{{end}}{{end}}
+
+{{define "al_class_name"}}{{if eq .C "2"}}{{.T.Get "Success"}}{{else if eq .C "3"}}{{.T.Get "Redirect"}}{{else if eq .C "4"}}{{.T.Get "Client error"}}{{else}}{{.T.Get "Server error"}}{{end}}{{end}}

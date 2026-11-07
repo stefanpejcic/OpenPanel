@@ -31,6 +31,32 @@
         </div>
     </div>
 
+    <!-- summary, same layout as the dashboard's plan usage -->
+    <dl aria-label="{{.T.Get "MongoDB summary"}}" class="grid grid-cols-2 gap-x-8 gap-y-5 px-4 pb-6 sm:grid-cols-4 sm:px-6 lg:flex lg:flex-wrap lg:gap-x-12 lg:px-8">
+        <div>
+            <dt class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Databases"}}</dt>
+            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.UserDatabaseCount}}</dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Users"}}</dt>
+            <dd class="mt-1">{{if .HasUsers}}<a href="/mongodb/users" class="text-lg font-semibold text-gray-900 tabular-nums transition hover:opacity-75 dark:text-gray-50">{{.UserCount}}</a>{{else}}<span class="text-lg font-semibold text-gray-400 dark:text-gray-600">—</span>{{end}}</dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Total size"}}</dt>
+            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{if .UserDatabaseCount}}{{.TotalSize}}{{else}}<span class="text-gray-400 dark:text-gray-600">—</span>{{end}}</dd>
+        </div>
+        {{with .LargestDatabase}}
+        <div>
+            <dt class="text-sm text-gray-500 dark:text-gray-500">{{$.T.Get "Largest"}}</dt>
+            <dd class="mt-1 truncate font-mono text-lg font-semibold text-gray-900 dark:text-gray-50" title="{{.}}">{{.}}</dd>
+        </div>
+        {{end}}
+    </dl>
+
+    {{if and .HasUsers (eq .UserCount 0) .UserDatabaseCount}}
+    <div class="mx-4 mb-4 flex items-start gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 sm:mx-6 lg:mx-8 dark:bg-yellow-950/70 dark:text-yellow-500"><i class="ri-error-warning-line" aria-hidden="true"></i><span>{{.T.Get "No database users yet, so apps can't sign in to these databases."}} <a href="/mongodb/user" class="font-medium underline underline-offset-4">{{.T.Get "Create a user"}}</a> {{.T.Get "and assign it a role."}}</span></div>
+    {{end}}
+
     <div class="flex flex-col gap-3 px-4 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div class="relative w-full sm:w-64">
             <input x-model="searchQuery" type="search" aria-label="{{.T.Get "Search"}}" placeholder="{{.T.Get "Search"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 py-1.5 pl-8"/>
@@ -46,7 +72,7 @@
                 <tr>
 {{template "bulk_head_checkbox" .}}
                     <th scope="col" class="border-b border-gray-200 px-4 py-1 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Database name") "Key" "database" "Type" "string")}}</th>
-                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Size"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-1 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Size") "Key" "size" "Type" "number")}}</th>
                     <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 w-10 text-right"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
                 </tr>
             </thead>
@@ -59,7 +85,7 @@
                     <tr x-show="searchQuery === '' || {{toJSON $db.Database}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row hover:bg-gray-50 dark:hover:bg-gray-900/60">
 {{$skip := ""}}{{if $db.IsSystem}}{{$skip = "*"}}{{end}}{{template "bulk_row_checkbox" (dict "T" $.T "Key" $db.Database "Label" $db.Database "Skip" $skip)}}
                         <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap font-medium text-gray-900 dark:border-gray-800 dark:text-gray-50" data-sort-col="database">{{$db.Database}}</td>
-                        <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-center tabular-nums">{{$db.SizeDisplay}}</td>
+                        <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums" data-sort-col="size" data-sort-value="{{$db.SizeBytes}}"><div class="flex items-center gap-3"><span class="w-20 shrink-0">{{if $db.SizeDisplay}}{{$db.SizeDisplay}}{{else}}—{{end}}</span><span class="hidden h-1.5 w-24 overflow-hidden rounded-full bg-gray-200 sm:block dark:bg-gray-800" aria-hidden="true"><span class="block h-full rounded-full bg-gray-400 dark:bg-gray-600" data-size-bytes="{{$db.SizeBytes}}" style="width:0%"></span></span></div></td>
                         <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
                             <div class="flex items-center justify-end gap-1">
                                 {{if $db.IsSystem}}
@@ -199,6 +225,15 @@ function exportModal(dbName) {
         }
     }
 }
+</script>
+
+<script>
+// size bars are relative to the biggest database on the page
+(function () {
+    const bars = document.querySelectorAll('[data-size-bytes]');
+    const max = Math.max(0, ...Array.from(bars, b => Number(b.dataset.sizeBytes) || 0));
+    if (max > 0) bars.forEach(b => { b.style.width = Math.max(2, (Number(b.dataset.sizeBytes) || 0) / max * 100) + '%'; });
+})();
 </script>
 
 <script src="{{static "js/table-sort.js"}}"></script>

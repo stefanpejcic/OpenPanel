@@ -1,7 +1,3 @@
-{{define "flowbite_js"}}
-    <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
-{{end}}
-
 {{define "content"}}
 <!-- START templates/domains/goaccess.html -->
 
@@ -13,7 +9,111 @@
         </div>
     </div>
 
+    {{if .Selected}}
+    <!-- summary of one domain's report, ?domain= picks which -->
+    <div class="mx-4 mb-8 rounded-md border border-gray-200 sm:mx-6 lg:mx-8 dark:border-gray-800">
+        <div class="flex flex-col gap-3 border-b border-gray-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800">
+            <div class="min-w-0">
+                <h2 class="truncate text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Summary for"}} <span class="punycode">{{.Selected}}</span></h2>
+                {{with .Summary}}<p class="mt-0.5 text-xs text-gray-500 tabular-nums">{{if .Period}}{{.Period}}{{end}}{{if not .Updated.IsZero}}{{if .Period}} · {{end}}{{$.T.Get "updated"}} {{.Updated.Format "2 Jan 2006, 15:04"}} UTC{{end}}</p>{{end}}
+            </div>
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                {{if gt (len .Domains) 1}}
+                <label for="stats-summary-domain" class="sr-only">{{.T.Get "Domain"}}</label>
+                <select id="stats-summary-domain" onchange="window.location.href = '/domains/stats?domain=' + encodeURIComponent(this.value)" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-56 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+                    {{range .Domains}}<option class="punycode" value="{{.Domain}}"{{if eq .Domain $.Selected}} selected{{end}}>{{.Domain}}</option>{{end}}
+                </select>
+                {{end}}
+                {{if .Summary}}
+                <a href="/domains/stats/{{.Selected}}" target="_blank" rel="noopener" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-external-link-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "Full Report"}}</a>
+                {{end}}
+            </div>
+        </div>
+
+        {{if .NoReport}}
+        <p class="px-4 py-10 text-center text-sm text-gray-500">{{.T.Get "No report for this domain yet. Reports are made from the access log every 24 hours."}}</p>
+        {{else}}
+        {{with .Summary}}
+        <div class="space-y-8 p-4">
+            <dl aria-label="{{$.T.Get "Summary"}}" class="grid grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-4">
+                <div>
+                    <dt class="text-sm text-gray-500">{{$.T.Get "Unique visitors"}}</dt>
+                    <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.Visitors}}</dd>
+                    <dd class="text-xs text-gray-500">{{if .Period}}{{.Period}}{{else}}&nbsp;{{end}}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm text-gray-500">{{$.T.Get "Page views"}}</dt>
+                    <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.Requests}}</dd>
+                    <dd class="text-xs text-gray-500 tabular-nums">{{if .PerVisitor}}{{.PerVisitor}} {{$.T.Get "per visitor"}}{{else}}&nbsp;{{end}}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm text-gray-500">{{$.T.Get "Bandwidth"}}</dt>
+                    <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.Bandwidth}}<span class="font-medium text-gray-400 dark:text-gray-600"> {{.BandwidthUnit}}</span></dd>
+                    <dd class="text-xs text-gray-500">{{$.T.Get "Sent to visitors"}}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm text-gray-500">{{$.T.Get "Failed requests"}}</dt>
+                    <dd class="mt-1 flex items-center gap-2 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{if .Failed}}<span class="size-2 rounded-full bg-yellow-500" aria-hidden="true"></span>{{end}}{{.Failed}}</dd>
+                    <dd class="text-xs text-gray-500 tabular-nums">{{if .FailedPct}}{{.FailedPct}} {{$.T.Get "of all requests"}}{{else}}&nbsp;{{end}}</dd>
+                </div>
+            </dl>
+
+            <section aria-labelledby="ga-chart">
+                <div class="flex flex-wrap items-baseline justify-between gap-2">
+                    <h3 id="ga-chart" class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Visitors per day"}}</h3>
+                    <div class="flex items-center gap-4 text-xs text-gray-500">
+                        <span class="inline-flex items-center gap-1.5"><span class="h-0.5 w-3 rounded-full bg-blue-500" aria-hidden="true"></span>{{$.T.Get "Visitors"}}</span>
+                        <span class="inline-flex items-center gap-1.5"><span class="h-0.5 w-3 rounded-full bg-gray-400 dark:bg-gray-500" aria-hidden="true"></span>{{$.T.Get "Page views"}}</span>
+                        <span class="tabular-nums">{{.Days}} {{if eq .Days 1}}{{$.T.Get "day"}}{{else}}{{$.T.Get "days"}}{{end}} {{$.T.Get "in the report"}}</span>
+                    </div>
+                </div>
+                {{if .ChartVisitors}}
+                <div class="mt-3">
+                    <svg viewBox="0 0 600 200" preserveAspectRatio="none" role="img" aria-label="{{$.T.Get "Visitors and page views per day"}}" class="h-48 w-full overflow-visible">
+                        <line x1="0" x2="600" y1="50" y2="50" class="stroke-gray-200 dark:stroke-gray-800" stroke-width="1" vector-effect="non-scaling-stroke"/>
+                        <line x1="0" x2="600" y1="100" y2="100" class="stroke-gray-200 dark:stroke-gray-800" stroke-width="1" vector-effect="non-scaling-stroke"/>
+                        <line x1="0" x2="600" y1="150" y2="150" class="stroke-gray-200 dark:stroke-gray-800" stroke-width="1" vector-effect="non-scaling-stroke"/>
+                        <line x1="0" x2="600" y1="200" y2="200" class="stroke-gray-300 dark:stroke-gray-700" stroke-width="1" vector-effect="non-scaling-stroke"/>
+                        <path d="{{.ChartArea}}" class="fill-blue-500/10 dark:fill-blue-500/20"/>
+                        <path d="{{.ChartHits}}" fill="none" class="stroke-gray-400 dark:stroke-gray-500" stroke-width="1.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+                        <path d="{{.ChartVisitors}}" fill="none" class="stroke-blue-500" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+                    </svg>
+                    <div class="mt-2 flex text-xs text-gray-500 tabular-nums {{if eq (len .AxisLabels) 1}}justify-center{{else}}justify-between{{end}}">{{range .AxisLabels}}<span>{{.}}</span>{{end}}</div>
+                </div>
+                {{else}}
+                <p class="py-10 text-center text-sm text-gray-500">{{$.T.Get "No visits in this report yet."}}</p>
+                {{end}}
+            </section>
+
+            <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+                {{template "ga_bars" (dict "T" $.T "Title" ($.T.Get "Top pages") "Rows" .TopPages "Empty" ($.T.Get "No page views yet.") "Mono" true)}}
+                {{template "ga_bars" (dict "T" $.T "Title" ($.T.Get "Referrers") "Rows" .Referrers "Empty" ($.T.Get "Every visit so far came in directly.") "Mono" true)}}
+                {{if .Countries}}{{template "ga_bars" (dict "T" $.T "Title" ($.T.Get "Countries") "Rows" .Countries "Empty" "" "Mono" false)}}{{end}}
+                {{template "ga_bars" (dict "T" $.T "Title" ($.T.Get "Browsers") "Rows" .Browsers "Empty" ($.T.Get "No browsers seen yet.") "Mono" false)}}
+                <section aria-labelledby="ga-statuses">
+                    <h3 id="ga-statuses" class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Status codes"}}</h3>
+                    {{if .Statuses}}
+                    <ul class="mt-3 divide-y divide-gray-200 border-y border-gray-200 text-sm dark:divide-gray-800 dark:border-gray-800">
+                        {{range .Statuses}}
+                        <li class="flex h-8 items-center justify-between gap-4">
+                            <span class="inline-flex items-center gap-2 font-mono text-xs text-gray-900 dark:text-gray-50"><span class="size-2 rounded-full {{if hasPrefix .Class "2"}}bg-emerald-500{{else if hasPrefix .Class "5"}}bg-red-500{{else if or (hasPrefix .Class "3") (hasPrefix .Class "4")}}bg-yellow-500{{else}}bg-gray-400{{end}}" aria-hidden="true"></span>{{.Class}}</span>
+                            <span class="tabular-nums text-gray-600 dark:text-gray-400">{{.Count}}</span>
+                        </li>
+                        {{end}}
+                    </ul>
+                    {{else}}
+                    <p class="py-6 text-center text-sm text-gray-500">{{$.T.Get "No requests yet."}}</p>
+                    {{end}}
+                </section>
+            </div>
+        </div>
+        {{end}}
+        {{end}}
+    </div>
+    {{end}}
+
     {{if .Domains}}
+        {{if .Selected}}<h2 class="px-4 pb-3 text-sm font-semibold text-gray-900 sm:px-6 lg:px-8 dark:text-gray-50">{{.T.Get "All reports"}}</h2>{{end}}
         {{template "domain_list" (dict "T" .T "Rows" .Domains "Base" "/domains/stats/" "Action" "View report" "Icon" "ri-bar-chart-box-line" "DetailLabel" "Last updated")}}
     {{else}}
         {{template "no_domain" .}}
@@ -22,4 +122,26 @@
 </section>
 
 <!-- END templates/domains/goaccess.html -->
+{{end}}
+
+{{define "ga_bars"}}
+<section>
+    <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h3>
+    {{if .Rows}}
+    <ul class="mt-3 space-y-1.5">
+        {{$mono := .Mono}}
+        {{range .Rows}}
+        <li class="flex items-center gap-4">
+            <div class="relative h-8 min-w-0 flex-1">
+                <div class="absolute inset-y-0 left-0 rounded-sm bg-blue-200 dark:bg-blue-900" style="width: {{.Pct}}%" aria-hidden="true"></div>
+                <span class="absolute inset-y-0 left-2 right-2 flex items-center truncate text-sm text-gray-900 dark:text-gray-50{{if $mono}} font-mono text-xs{{end}}" title="{{.Label}}"><span class="truncate">{{.Label}}</span></span>
+            </div>
+            <span class="w-12 shrink-0 text-right text-sm text-gray-600 tabular-nums dark:text-gray-400">{{.Count}}</span>
+        </li>
+        {{end}}
+    </ul>
+    {{else}}
+    <p class="py-6 text-center text-sm text-gray-500">{{.Empty}}</p>
+    {{end}}
+</section>
 {{end}}

@@ -358,6 +358,27 @@
         {{end}}
     </tbody>
 </table>
+{{/* top-level entries of the app folder */}}
+<div class="mt-4">
+    {{if .Files}}
+    <ul class="divide-y divide-gray-200 rounded-md border border-gray-200 text-sm dark:divide-gray-800 dark:border-gray-800" id="app-files-list">
+        {{range .Files}}
+        <li class="flex items-center gap-3 px-3 py-2">
+            <i class="{{if .Dir}}ri-folder-line{{else}}ri-file-line{{end}} text-base text-gray-400" aria-hidden="true"></i>
+            <span class="min-w-0 flex-1 truncate font-mono text-gray-900 dark:text-gray-50">{{.Name}}</span>
+            <span class="shrink-0 font-mono tabular-nums text-xs text-gray-500">{{.Size}}</span>
+            <span class="hidden shrink-0 tabular-nums text-xs text-gray-500 sm:inline">{{.Modified}}</span>
+        </li>
+        {{end}}
+    </ul>
+    {{else}}
+    <p class="py-4 text-center text-sm text-gray-500">{{.T.Get "This folder is empty."}}</p>
+    {{end}}
+    <div class="mt-2 flex items-center justify-between gap-4 text-xs text-gray-500">
+        <span>{{if .HiddenFiles}}{{.T.Get "and %(n)s hidden" "n" (toString .HiddenFiles)}}{{end}}</span>
+        {{if .UserAllowed.filemanager}}<a href="/files/{{replace .Docroot "/var/www/html/" ""}}" target="_blank" class="inline-flex items-center gap-1 font-medium text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Open in file manager"}}<i class="ri-arrow-right-up-line" aria-hidden="true"></i></a>{{end}}
+    </div>
+</div>
 </div>
         </div>
 
@@ -374,6 +395,28 @@
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
             <p class="flex items-center gap-2 font-mono text-sm text-gray-900 dark:text-gray-50"><i class="ri-box-3-line text-gray-400" aria-hidden="true"></i>{{.Service}}{{if .Container.Port}}:{{.Container.Port}}{{end}}</p>
         </div>
+    </div>
+    </div>
+
+    <div class="my-8 h-px w-full bg-gray-200 dark:bg-gray-800"></div>
+
+    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+    <div>
+        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Start command"}}</h2>
+        <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "The command the container runs, read from docker-compose.yml, and the web server in front of it."}}</p>
+    </div>
+    <div class="sm:max-w-3xl md:col-span-2">
+        <div class="flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 dark:border-gray-800 dark:bg-gray-900">
+            <span class="font-mono text-sm text-gray-400 select-none" aria-hidden="true">$</span>
+            <code id="start-command" class="min-w-0 flex-1 break-all font-mono text-sm text-gray-900 dark:text-gray-50">{{if .StartCommand}}{{.StartCommand}}{{else if .CustomCmd}}{{.CustomCmd}}{{else if .StartupFile}}{{.StartupFile}}{{else}}{{.T.Get "No start command set"}}{{end}}</code>
+            <button type="button" title="{{.T.Get "Copy start command"}}" aria-label="{{.T.Get "Copy start command"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" onclick="copyToClipboard(document.getElementById('start-command').textContent.trim()).then(() => showToast({{toJSON (.T.Get "Copied start command.")}}, 'success')).catch(() => showToast({{toJSON (.T.Get "Failed to copy start command.")}}, 'warning'))"><i class="ri-file-copy-line text-base" aria-hidden="true"></i></button>
+        </div>
+        <dl class="mt-4 text-sm">
+            <div class="flex items-center justify-between gap-4 py-1.5">
+                <dt class="text-gray-500">{{.T.Get "Web server"}}</dt>
+                <dd class="font-medium text-gray-900 dark:text-gray-50">{{if .WebServer}}{{title .WebServer}}{{else}}{{.T.Get "Unknown"}}{{end}}</dd>
+            </div>
+        </dl>
     </div>
     </div>
 
@@ -701,6 +744,48 @@
 
 
                 <div class="hidden p-4 sm:p-6" id="pip" role="tabpanel" aria-labelledby="pip-tab">
+
+                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Dependencies"}}</h2>
+                        <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Packages listed in the app's manifest, with the installed version when a lock file is present."}}</p>
+                        <p class="mt-2 font-mono text-xs text-gray-500">{{.Manifest.File}}</p>
+                    </div>
+                    <div class="sm:max-w-3xl md:col-span-2 space-y-6" id="manifest-groups">
+                        {{if not .Manifest.Found}}
+                        <p class="py-4 text-center text-sm text-gray-500">{{.T.Get "%(file)s was not found in the app folder." "file" .Manifest.File}}</p>
+                        {{else}}
+                        {{range .Manifest.Groups}}
+                        <div>
+                            <h3 class="mb-2 text-sm font-medium text-gray-900 dark:text-gray-50">{{$.T.Get .Title}}</h3>
+                            <div class="overflow-x-auto rounded-md border border-gray-200 dark:border-gray-800">
+                                <table class="w-full text-sm">
+                                    <thead><tr>
+                                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{$.T.Get "Package"}}</th>
+                                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{$.T.Get .ValueLabel}}</th>
+                                        {{if .HasInstalled}}<th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{$.T.Get "Installed"}}</th>{{end}}
+                                    </tr></thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                                        {{$inst := .HasInstalled}}
+                                        {{range .Rows}}
+                                        <tr>
+                                            <td class="px-4 py-2.5 font-mono text-gray-900 dark:text-gray-50">{{.Name}}</td>
+                                            <td class="px-4 py-2.5 font-mono text-gray-600 dark:text-gray-400">{{.Value}}</td>
+                                            {{if $inst}}<td class="px-4 py-2.5 font-mono text-gray-600 dark:text-gray-400">{{if .Installed}}{{.Installed}}{{else}}<span class="font-sans text-gray-500">{{$.T.Get "not installed"}}</span>{{end}}</td>{{end}}
+                                        </tr>
+                                        {{end}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {{else}}
+                        <p class="py-4 text-center text-sm text-gray-500">{{.T.Get "No packages listed in this file."}}</p>
+                        {{end}}
+                        {{end}}
+                    </div>
+                </div>
+
+                <div class="my-8 h-px w-full bg-gray-200 dark:bg-gray-800"></div>
 
                 <h3 class="font-semibold text-gray-900 dark:text-gray-50 mb-4">
                     {{if eq .Type "nodejs"}}{{.T.Get "package.json"}}

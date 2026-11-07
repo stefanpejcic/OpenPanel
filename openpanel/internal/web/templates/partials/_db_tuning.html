@@ -29,6 +29,7 @@
             <span x-show="facts.server" x-text="facts.server"></span>
             <span x-show="facts.memory_limit">{{.T.Get "Memory limit:"}} <span x-text="facts.memory_limit"></span><span x-show="facts.memory_used"> (<span x-text="facts.memory_used"></span> {{.T.Get "in use"}})</span></span>
             <span x-show="facts.databases">{{.T.Get "Databases:"}} <span x-text="facts.databases"></span></span>
+            <span x-show="facts.connections">{{.T.Get "Connections:"}} <span x-text="facts.connections"></span></span>
             <span x-show="facts.data_size">{{.T.Get "Data:"}} <span x-text="facts.data_size"></span></span>
             <span x-show="facts.domains">{{.T.Get "Domains:"}} <span x-text="facts.domains"></span></span>
             <span x-show="facts.wordpress">WordPress: <span x-text="facts.wordpress"></span></span>

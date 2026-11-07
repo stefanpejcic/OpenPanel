@@ -181,6 +181,17 @@
     {{template "alpine_plugins" .}}
     <script defer src="{{static "vendor/alpinejs/alpinejs3xx.min.js"}}"></script>
     {{template "flowbite_js" .}}
+    <script>
+        // Flowbite dropdowns sit inside table scroll boxes that clip them, so Popper places them fixed instead
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!window.Dropdown) return;
+            var fixed = function (p) { p.setOptions(function (o) { return Object.assign({}, o, { strategy: 'fixed' }); }); return p; };
+            var make = Dropdown.prototype._createPopperInstance;
+            Dropdown.prototype._createPopperInstance = function () { return fixed(make.call(this)); };
+            var all = window.FlowbiteInstances && FlowbiteInstances.getInstances('Dropdown');
+            Object.values(all || {}).forEach(function (d) { if (d._popperInstance) fixed(d._popperInstance); });
+        });
+    </script>
     <script defer>
         // The page's title as the server rendered it ("{{.Title}} - Brand"),
         // captured before any tab-switching JS below touches document.title -

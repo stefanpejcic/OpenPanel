@@ -24,6 +24,48 @@
 </section>
 <!-- END page header -->
 
+{{with .KPIs}}{{if or .Disk .Inodes .LargestFolder .Trash}}
+<div class="px-4 pb-5 sm:px-6 lg:px-8">
+    <dl aria-label="{{$.T.Get "Disk usage summary"}}" class="grid grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-4 lg:flex lg:flex-wrap lg:gap-x-12">
+        {{with .Disk}}
+        <div>
+            <dt class="text-sm text-gray-500">{{$.T.Get "Disk"}}</dt>
+            <dd class="mt-1 flex items-center gap-2">
+                {{if .Limit}}{{template "du_bars" .Pct}}{{end}}
+                <span class="text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.Value}} {{.Unit}}<span class="font-medium text-gray-400 dark:text-gray-600"> / {{if .Limit}}{{.Limit}}{{else}}∞{{end}}</span></span>
+            </dd>
+            {{if .FromListing}}<dd class="mt-0.5 text-sm text-gray-500">{{$.T.Get "Home folder total"}}</dd>{{end}}
+        </div>
+        {{end}}
+        {{with .Inodes}}
+        <div>
+            <dt class="text-sm text-gray-500">{{$.T.Get "Inodes"}}</dt>
+            <dd class="mt-1 flex items-center gap-2">
+                {{if .Limit}}{{template "du_bars" .Pct}}{{end}}
+                <span class="text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.Value}}<span class="font-medium text-gray-400 dark:text-gray-600"> / {{if .Limit}}{{.Limit}}{{else}}∞{{end}}</span></span>
+            </dd>
+        </div>
+        {{end}}
+        {{with .LargestFolder}}
+        <div class="min-w-0">
+            <dt class="text-sm text-gray-500">{{$.T.Get "Largest folder"}}</dt>
+            <dd class="mt-1 flex min-w-0 items-baseline gap-2">
+                <a href="{{.Href}}" title="{{.Directory}}" class="max-w-xs truncate font-mono text-lg font-semibold text-gray-900 transition hover:opacity-75 dark:text-gray-50">{{.Directory}}</a>
+                <span class="shrink-0 text-sm text-gray-400 tabular-nums dark:text-gray-600">{{$.KPIs.LargestSize}}</span>
+            </dd>
+        </div>
+        {{end}}
+        {{with .Trash}}
+        <div>
+            <dt class="text-sm text-gray-500">{{$.T.Get "Trash"}}</dt>
+            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.Value}} {{.Unit}}</dd>
+            <dd class="mt-0.5 text-sm">{{if $.KPIs.TrashBytes}}{{if $.KPIs.TrashHref}}<a href="{{$.KPIs.TrashHref}}" class="text-blue-500 hover:underline hover:underline-offset-4">{{$.T.Get "Empty it to free space"}}</a>{{else}}<span class="text-gray-500">{{$.T.Get "Empty it to free space"}}</span>{{end}}{{else}}<span class="text-gray-500">{{$.T.Get "Trash is empty"}}</span>{{end}}</dd>
+        </div>
+        {{end}}
+    </dl>
+</div>
+{{end}}{{end}}
+
 <div class="px-4 pb-4 sm:px-6 lg:px-8">
     <nav aria-label="{{.T.Get "Breadcrumb"}}" class="rounded-md bg-gray-50 px-3 py-2 dark:bg-gray-900">
         <ol role="list" class="flex flex-wrap items-center gap-1 text-sm">
@@ -219,3 +261,5 @@
 
 <!-- END templates/files/disk_usage.html -->
 {{end}}
+
+{{define "du_bars"}}<span class="flex gap-0.5" title="{{.}}%" aria-hidden="true">{{if ge . 90}}<i class="h-3.5 w-1 rounded-sm bg-red-500"></i><i class="h-3.5 w-1 rounded-sm bg-red-500"></i><i class="h-3.5 w-1 rounded-sm bg-red-500"></i>{{else if ge . 70}}<i class="h-3.5 w-1 rounded-sm bg-orange-500"></i><i class="h-3.5 w-1 rounded-sm bg-orange-500"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i>{{else}}<i class="h-3.5 w-1 rounded-sm bg-emerald-500"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i>{{end}}</span>{{end}}

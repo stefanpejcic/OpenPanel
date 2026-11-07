@@ -248,13 +248,143 @@ document.addEventListener('DOMContentLoaded', function () {
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "SSL certificates"}}</h1>
         <p class="mt-1 text-sm text-gray-500">{{.T.Get "View and change SSL settings for a domain."}}</p>
     </div>
+    {{if .Certs}}<button type="button" onclick="window.dispatchEvent(new CustomEvent('ssl-install', { detail: '' }))" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 cursor-pointer"><i class="ri-upload-2-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "Install custom certificate"}}</button>{{end}}
 </div>
 
-    {{if .Domains}}
-        {{template "domain_list" (dict "T" .T "Rows" .Picks "Base" "/domains/ssl?domain_name=" "Action" "Manage" "Icon" "ri-lock-line" "DetailLabel" "Issuer" "BadgeLabel" "Certificate")}}
-    {{else}}
-        {{template "no_domain" .}}
+{{if .Certs}}
+{{$s := .Summary}}
+<dl aria-label="{{.T.Get "Certificate summary"}}" class="grid grid-cols-2 gap-x-8 gap-y-5 px-4 pb-6 sm:grid-cols-4 sm:px-6 lg:flex lg:flex-wrap lg:gap-x-12 lg:px-8">
+    <div>
+        <dt class="text-sm text-gray-500">{{.T.Get "Valid"}}</dt>
+        <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{$s.Valid}}<span class="font-medium text-gray-400 dark:text-gray-600"> / {{len .Certs}}</span></dd>
+        <dd class="mt-0.5 text-xs text-gray-500">{{if $s.Next}}{{.T.Get "Next expiry"}} <span class="tabular-nums">{{$s.Next}}</span>{{else}}{{.T.Get "None valid yet"}}{{end}}</dd>
+    </div>
+    <div>
+        <dt class="text-sm text-gray-500">{{.T.Get "Expiring soon"}}</dt>
+        <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{$s.Expiring}}</dd>
+        <dd class="mt-0.5 text-xs {{if $s.Expiring}}text-yellow-700 dark:text-yellow-500{{else}}text-gray-500{{end}}">{{if $s.FirstExpiring}}<a href="/domains/ssl?domain_name={{$s.FirstExpiring}}" class="punycode font-mono hover:underline hover:underline-offset-4">{{$s.FirstExpiring}}</a>{{else}}{{.T.Get "Nothing in the next 14 days"}}{{end}}</dd>
+    </div>
+    <div>
+        <dt class="text-sm text-gray-500">{{.T.Get "Expired"}}</dt>
+        <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{$s.Expired}}</dd>
+        <dd class="mt-0.5 text-xs {{if $s.Expired}}text-red-600 dark:text-red-500{{else}}text-gray-500{{end}}">{{if $s.FirstExpired}}<a href="/domains/ssl?domain_name={{$s.FirstExpired}}" class="punycode font-mono hover:underline hover:underline-offset-4">{{$s.FirstExpired}}</a>{{else}}{{.T.Get "None"}}{{end}}</dd>
+    </div>
+    <div>
+        <dt class="text-sm text-gray-500">{{.T.Get "Pending"}}</dt>
+        <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{$s.Pending}}</dd>
+        <dd class="mt-0.5 text-xs text-gray-500">{{if $s.FirstPending}}<a href="/domains/ssl?domain_name={{$s.FirstPending}}" class="punycode font-mono hover:underline hover:underline-offset-4">{{$s.FirstPending}}</a>{{else}}{{.T.Get "None"}}{{end}}</dd>
+    </div>
+</dl>
+
+<section aria-label="{{.T.Get "Certificates"}}" x-data="{ q: '' }">
+<!-- #domains is the picker the old landing page had, choosing one opens it -->
+<div class="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+    <label for="domains" class="sr-only">{{.T.Get "Domain"}}</label>
+    <select id="domains" onchange="if (this.value) window.location.href = '/domains/ssl?domain_name=' + this.value" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-64 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+        <option value="" selected>{{.T.Get "Go to a domain"}}</option>
+        {{range .Certs}}<option value="{{.Domain}}">{{.Domain}}</option>{{end}}
+    </select>
+    {{if gt (len .Certs) 5}}
+    <div class="relative w-full sm:w-64">
+        <label for="ssl-search" class="sr-only">{{.T.Get "Search"}}</label>
+        <input id="ssl-search" x-model="q" type="search" placeholder="{{.T.Get "Search"}}"
+            class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden">
+        <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+    </div>
     {{end}}
+</div>
+<div class="overflow-x-auto">
+<table class="w-full border-t border-gray-200 text-sm dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+    <thead>
+        <tr class="border-b border-gray-200 dark:border-gray-800">
+            <th scope="col" class="px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500">{{.T.Get "Domain"}}</th>
+            <th scope="col" class="px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500">{{.T.Get "Issuer"}}</th>
+            <th scope="col" class="px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500">{{.T.Get "Expires"}}</th>
+            <th scope="col" class="px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500">{{.T.Get "Days left"}}</th>
+            <th scope="col" class="px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500">{{.T.Get "Type"}}</th>
+            <th scope="col" class="px-4 py-2.5 text-right text-xs font-medium whitespace-nowrap text-gray-500"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
+        </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+        {{range .Certs}}
+        {{$noSSL := and (ne .HTTPS "Automatic") (ne .HTTPS "Custom")}}
+        {{$bad := or $noSSL (not .SSL.Expires) (lt .SSL.Days 0) (eq .SSL.Problem "missing") (eq .SSL.Problem "expired") (eq .SSL.Problem "unreadable")}}
+        {{/* Auto SSL that Caddy hasn't issued yet is pending, not broken, same as the pending count above */}}
+        {{$pending := and (not $noSSL) (not .SSL.Expires) (ne .SSL.Problem "unreadable")}}
+        <tr x-show="q === '' || $el.dataset.search.includes(q.toLowerCase())" data-search="{{lower .Domain}}" class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
+            <td class="px-4 py-2.5 whitespace-nowrap font-medium text-gray-900 dark:text-gray-50"><a href="/domains/ssl?domain_name={{.Domain}}" class="hover:underline hover:underline-offset-4"><span class="punycode">{{.Domain}}</span></a></td>
+            <td class="px-4 py-2.5 whitespace-nowrap text-gray-600 dark:text-gray-400">{{if .SSL.Issuer}}{{.SSL.Issuer}}{{else}}<span class="text-gray-400 dark:text-gray-600">—</span>{{end}}</td>
+            <td class="px-4 py-2.5 whitespace-nowrap text-gray-600 tabular-nums dark:text-gray-400">{{if .SSL.Expires}}{{.SSL.Expires}}{{else}}<span class="text-gray-400 dark:text-gray-600">—</span>{{end}}</td>
+            <td class="px-4 py-2.5 whitespace-nowrap">
+                <span class="inline-flex items-center gap-2 tabular-nums {{if $pending}}text-yellow-700 dark:text-yellow-500{{else if $bad}}text-red-600 dark:text-red-500{{else if le .SSL.Days 30}}text-yellow-700 dark:text-yellow-500{{else}}text-gray-900 dark:text-gray-50{{end}}">
+                    <span class="size-2 shrink-0 rounded-full {{if $pending}}bg-yellow-500{{else if $bad}}bg-red-500{{else if le .SSL.Days 30}}bg-yellow-500{{else}}bg-emerald-500{{end}}" aria-hidden="true"></span>
+                    {{if $noSSL}}{{$.T.Get "No SSL"}}{{else if eq .SSL.Problem "unreadable"}}{{$.T.Get "Unreadable"}}{{else if not .SSL.Expires}}{{$.T.Get "Not issued yet"}}{{else if lt .SSL.Days 0}}{{$.T.Get "Expired"}}{{else}}{{.SSL.Days}} {{$.T.Get "days left"}}{{end}}
+                </span>
+            </td>
+            <td class="px-4 py-2.5 whitespace-nowrap text-gray-600 dark:text-gray-400">{{if eq .HTTPS "Automatic"}}{{$.T.Get "Auto SSL"}}{{else if eq .HTTPS "Custom"}}{{$.T.Get "Custom SSL"}}{{else}}<span class="text-gray-400 dark:text-gray-600">—</span>{{end}}</td>
+            <td class="px-4 py-2.5 text-right whitespace-nowrap">
+                <div class="relative inline-block text-left" x-data="rowMenu" @click.outside="close()" @keydown.escape="close()">
+                    <button type="button" x-ref="btn" class="inline-flex size-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer" aria-label="{{$.T.Get "Actions for"}} {{.Domain}}" :aria-expanded="open.toString()" @click="toggle()"><i class="ri-more-2-line text-base leading-none" aria-hidden="true"></i></button>
+                    <div x-show="open" x-cloak x-ref="menu" :style="pos" class="absolute right-0 z-50 mt-1 w-56 rounded-md border border-gray-200 bg-white p-1 shadow-xl dark:border-gray-800 dark:bg-gray-950">
+                        <a href="/domains/ssl?domain_name={{.Domain}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-eye-line" aria-hidden="true"></i>{{$.T.Get "View certificate"}}</a>
+                        <a href="/domains/ssl?install={{.Domain}}" @click.prevent="close(); $dispatch('ssl-install', {{toJSON .Domain}})" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-upload-2-line" aria-hidden="true"></i>{{$.T.Get "Install custom certificate"}}</a>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+</div>
+<p class="border-t border-gray-200 px-4 pt-3 pb-6 text-xs text-gray-500 sm:px-6 lg:px-8 dark:border-gray-800"><span class="tabular-nums">{{len .Certs}}</span> {{if eq (len .Certs) 1}}{{.T.Get "domain"}}{{else}}{{.T.Get "domains"}}{{end}}</p>
+</section>
+
+<!-- custom certificate form from the domain page, ?install= opens it on load -->
+<div x-data="{ open: {{if .Install}}true{{else}}false{{end}}, domain: {{if .Install}}{{toJSON .Install}}{{else}}{{toJSON (index .Certs 0).Domain}}{{end}} }" @ssl-install.window="if ($event.detail) domain = $event.detail; open = true; $nextTick(() => $refs.cert.focus())" @keydown.escape.window="open = false">
+<div x-show="open" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" @click.self="open = false" role="dialog" aria-modal="true" aria-labelledby="ssl-install-title">
+    <form method="POST" action="/domains/ssl" class="flex max-h-full w-full max-w-2xl flex-col rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-800 dark:bg-gray-950">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+        <input type="hidden" name="action" value="custom">
+        <input type="hidden" name="return_to" value="list">
+        <div class="px-6 pt-6 pb-4">
+            <h2 id="ssl-install-title" class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Configure custom SSL"}}</h2>
+            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Insert certificate files to be used for this domain."}}</p>
+        </div>
+        <div class="min-h-0 space-y-6 overflow-y-auto border-t border-gray-200 px-6 py-4 dark:border-gray-800">
+            <div>
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="install_domain">{{.T.Get "Domain"}}</label>
+                <select id="install_domain" name="domain_name" x-model="domain" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:[color-scheme:dark]">
+                    {{range .Certs}}<option value="{{.Domain}}">{{.Domain}}</option>{{end}}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="install_certificate">{{.T.Get "Certificate"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
+                <textarea id="install_certificate" x-ref="cert" name="certificate" rows="8" spellcheck="false" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 min-h-24 font-mono text-xs"
+                    placeholder="-----BEGIN CERTIFICATE-----
+...
+-----END CERTIFICATE-----" required></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="install_private_key">{{.T.Get "Private key"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
+                <textarea id="install_private_key" name="private_key" rows="8" spellcheck="false" autocomplete="off" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 min-h-24 font-mono text-xs"
+                    placeholder="-----BEGIN PRIVATE KEY-----
+...
+-----END PRIVATE KEY-----" required></textarea>
+            </div>
+        </div>
+        <div class="flex flex-col-reverse gap-2 border-t border-gray-200 px-6 py-4 sm:flex-row sm:justify-end dark:border-gray-800">
+            <button type="button" @click="open = false" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 cursor-pointer">{{.T.Get "Cancel"}}</button>
+            <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 cursor-pointer">{{.T.Get "Configure custom certificate"}}</button>
+        </div>
+    </form>
+</div>
+</div>
+
+{{else if .Domains}}
+    {{template "domain_list" (dict "T" .T "Rows" .Picks "Base" "/domains/ssl?domain_name=" "Action" "Manage" "Icon" "ri-lock-line" "DetailLabel" "Issuer" "BadgeLabel" "Certificate")}}
+{{else}}
+    {{template "no_domain" .}}
+{{end}}
 
 {{end}}
 

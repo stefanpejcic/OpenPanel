@@ -10,18 +10,66 @@
     </header>
 </div>
 
+{{if .Created}}
+<!-- done state, the password shows this once -->
+<div class="max-w-2xl px-4 pb-8 sm:px-6 lg:px-8" id="dbUserCreated">
+    <div class="flex items-start gap-3 rounded-md p-4 text-sm bg-emerald-50 text-emerald-900 dark:bg-emerald-400/10 dark:text-emerald-400" role="status"><i class="ri-checkbox-circle-line text-base" aria-hidden="true"></i><span><span class="font-medium">{{.T.Get "Database user created"}}</span><br>{{.T.Get "Your new user is ready. Assign it to a database to give it access."}}</span></div>
+
+    <div class="mt-6 rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
+        <dl class="divide-y divide-gray-200 text-sm dark:divide-gray-800">
+            <div class="flex items-center justify-between gap-4 px-4 py-3">
+                <dt class="w-24 shrink-0 text-gray-500 dark:text-gray-500">{{.T.Get "Username"}}</dt>
+                <dd class="flex min-w-0 flex-1 items-center justify-between gap-2"><span id="dbCreatedName" class="font-mono text-gray-900 break-all dark:text-gray-50">{{.Created}}</span>{{template "mongo_copy_btn" (dict "T" .T "Value" .Created "Label" (.T.Get "Copy username"))}}</dd>
+            </div>
+            {{if .CreatedPassword}}
+            <div class="flex items-center justify-between gap-4 px-4 py-3">
+                <dt class="w-24 shrink-0 text-gray-500 dark:text-gray-500">{{.T.Get "Password"}}</dt>
+                <dd class="flex min-w-0 flex-1 items-center justify-between gap-2"><span class="font-mono text-gray-900 break-all dark:text-gray-50">{{.CreatedPassword}}</span>{{template "mongo_copy_btn" (dict "T" .T "Value" .CreatedPassword "Label" (.T.Get "Copy password"))}}</dd>
+            </div>
+            {{end}}
+            <div class="flex items-center justify-between gap-4 px-4 py-3">
+                <dt class="w-24 shrink-0 text-gray-500 dark:text-gray-500">{{.T.Get "Server"}}</dt>
+                <dd class="flex min-w-0 flex-1 items-center justify-between gap-2"><span class="font-mono text-gray-900 dark:text-gray-50">{{.Engine.Host}}</span>{{template "mongo_copy_btn" (dict "T" .T "Value" .Engine.Host "Label" (.T.Get "Copy server"))}}</dd>
+            </div>
+            <div class="flex items-center justify-between gap-4 px-4 py-3">
+                <dt class="w-24 shrink-0 text-gray-500 dark:text-gray-500">{{.T.Get "Port"}}</dt>
+                <dd class="flex-1 font-mono text-gray-900 tabular-nums dark:text-gray-50">{{.Engine.Port}}</dd>
+            </div>
+        </dl>
+    </div>
+    {{if .CreatedPassword}}<p class="mt-2 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Save the password now, it is not shown again."}}</p>{{end}}
+
+    <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <a href="/mongodb/assign?database_user={{.Created}}" class="block rounded-md border border-gray-200 bg-white p-3 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60"><span class="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-50"><i class="ri-links-line" aria-hidden="true"></i>{{.T.Get "Assign to a database"}}</span><span class="mt-1 block text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Give this user access to an existing database."}}</span></a>
+        <a href="/mongodb/new" class="block rounded-md border border-gray-200 bg-white p-3 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60"><span class="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-50"><i class="ri-database-2-line" aria-hidden="true"></i>{{.T.Get "Create a database"}}</span><span class="mt-1 block text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Make a new database first, then assign this user."}}</span></a>
+        <a href="/mongodb/password/{{.Created}}" class="block rounded-md border border-gray-200 bg-white p-3 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60"><span class="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-50"><i class="ri-key-2-line" aria-hidden="true"></i>{{.T.Get "Change password"}}</span><span class="mt-1 block text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Set a different password for this user."}}</span></a>
+    </div>
+
+    <div class="my-8 border-t border-gray-200 dark:border-gray-800"></div>
+    <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <a href="/mongodb/users" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "View users"}}</a>
+        <a href="/mongodb/user" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600"><i class="ri-add-line text-base" aria-hidden="true"></i>{{.T.Get "Create another"}}</a>
+    </div>
+</div>
+
+{{else}}
 <script src="{{static "js/generator.js"}}"></script>
 
 <!-- form -->
-<div class="max-w-2xl px-4 pb-8 sm:px-6 lg:px-8">
-<div id="toAddActive" class="CrawlerStatusCard rounded-md border border-gray-200 bg-white dark:border-gray-900 dark:bg-raised">
-    <form method="POST">
+<div class="grid grid-cols-1 gap-6 px-4 pb-8 sm:px-6 lg:grid-cols-3 lg:px-8" x-data="mongoUserForm()">
+<div id="toAddActive" class="CrawlerStatusCard rounded-md border border-gray-200 bg-white lg:col-span-2 dark:border-gray-900 dark:bg-raised">
+    <form method="POST" @submit="if (!ready()) { $event.preventDefault(); return } busy = true">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
     <div class="space-y-6 p-4 sm:p-6">
         <div>
             <label for="username" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Username"}}<span class="text-red-600 dark:text-red-500">*</span></label>
-            <input type="text" name="db_user" id="username" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 mt-2" pattern="[a-zA-Z0-9_]+" minlength="1" maxlength="31" title="{{.T.Get "Only letters, numbers, and underscores are allowed (1-31 characters)."}}" placeholder="{{.T.Get "Username"}}" required>
+            <div class="mt-2 flex">
+                <input type="text" name="db_user" id="username" x-ref="user" x-model.trim="user" value="{{.FormName}}" :aria-invalid="(!!userErr()).toString()" aria-describedby="username-help" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 font-mono text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:font-sans placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 rounded-r-none" pattern="[a-zA-Z0-9_]+" minlength="1" maxlength="31" title="{{.T.Get "Only letters, numbers, and underscores are allowed (1-31 characters)."}}" placeholder="{{.T.Get "Username"}}" autocomplete="off" spellcheck="false" required>
+                <button type="button" @click="user = generateString(12)" class="inline-flex shrink-0 items-center rounded-r-md border border-l-0 border-gray-300 bg-white px-3 text-gray-500 shadow-xs transition hover:bg-gray-50 hover:text-gray-900 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400 dark:hover:bg-gray-900/60 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" title="{{.T.Get "Generate a random name"}}" aria-label="{{.T.Get "Generate a random name"}}"><i class="ri-shuffle-line text-base" aria-hidden="true"></i></button>
+            </div>
+            <p id="username-help" class="mt-2 text-sm text-gray-500 dark:text-gray-500" x-show="!userErr()">{{.T.Get "Letters, numbers and underscores, up to 31 characters."}}</p>
+            <p class="mt-2 text-sm text-red-600 dark:text-red-500" x-show="userErr()" x-cloak x-text="userErr()" role="alert"></p>
         </div>
 
         <div
@@ -32,6 +80,7 @@
             tooWeak: {{toJSON (.T.Get "Password does not meet the required strength.")}}
           }, {{.PasswordStrength}})"
           x-init="checkStrength()"
+          x-effect="pwOK = password.length >= 8 && passwordStrengthScore(password) >= threshold"
         >
           <label for="password" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Password"}}<span class="text-red-600 dark:text-red-500">*</span></label>
           <div class="flex mt-2">
@@ -43,7 +92,9 @@
               minlength="8"
               placeholder="{{.T.Get "Password"}}"
               aria-describedby="password-strength"
-              class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 rounded-r-none"
+              autocomplete="new-password"
+              spellcheck="false"
+              class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 font-mono text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:font-sans placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 rounded-r-none"
               x-model="password"
               x-ref="input"
               @input="checkStrength()"
@@ -58,35 +109,82 @@
               :style="{ width: strength === 'Weak' ? '33%' : strength === 'Medium' ? '66%' : strength === 'Strong' ? '100%' : '0%' }"
             ></div>
           </div>
-          <p id="password-strength" class="mt-2 text-xs font-medium" :class="{ 'text-red-600 dark:text-red-500': strength === 'Weak', 'text-yellow-700 dark:text-yellow-500': strength === 'Medium', 'text-emerald-700 dark:text-emerald-500': strength === 'Strong' }">
-            <span x-text="strengthMessage"></span>
+          <p id="password-strength" class="mt-2 text-sm" :class="{ 'text-gray-500 dark:text-gray-500': !password, 'text-red-600 dark:text-red-500': password && !pwOK, 'text-yellow-700 dark:text-yellow-500': pwOK && strength === 'Medium', 'text-emerald-700 dark:text-emerald-500': pwOK && strength === 'Strong' }">
+            <span x-show="!password">{{.T.Get "Use the generate button for a strong password."}}</span>
+            <span x-show="password" x-cloak x-text="password.length < 8 ? {{toJSON (.T.Get "At least 8 characters.")}} : (pwOK ? strengthMessage : {{toJSON (.T.Get "Password does not meet the required strength.")}})"></span>
           </p>
+        </div>
+
+        <div>
+            <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Runs as"}}</span>
+            <pre x-text="preview()" class="mt-2 overflow-x-auto rounded-md bg-gray-50 p-4 font-mono text-xs text-gray-900 dark:bg-gray-900 dark:text-gray-50"></pre>
         </div>
     </div>
 
-    <div class="flex flex-col-reverse gap-2 border-t border-gray-200 px-4 py-4 sm:flex-row sm:justify-end sm:px-6 dark:border-gray-800">
+    <div class="flex flex-col-reverse gap-2 border-t border-gray-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-end sm:px-6 dark:border-gray-800">
+        <p class="text-sm text-gray-500 sm:mr-auto dark:text-gray-500" x-show="!ready() && !busy" x-text="blocker()"></p>
         <a href="/mongodb/users" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Back to users"}}</a>
-        <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">{{.T.Get "Create user"}}</button>
+        <button type="submit" :disabled="!ready() || busy" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400"><span x-text="busy ? {{toJSON (.T.Get "Creating...")}} : {{toJSON (.T.Get "Create user")}}">{{.T.Get "Create user"}}</span></button>
     </div>
 
     </form>
 </div>
+
+<aside class="space-y-6">
+    <div class="rounded-md border border-gray-200 bg-white p-4 text-sm dark:border-gray-800 dark:bg-gray-950">
+        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "You'll connect with"}}</h2>
+        <dl class="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">
+            <dt class="text-gray-500 dark:text-gray-500">{{.T.Get "Server"}}</dt><dd class="font-mono text-gray-900 dark:text-gray-50">{{.Engine.Host}}</dd>
+            <dt class="text-gray-500 dark:text-gray-500">{{.T.Get "Port"}}</dt><dd class="font-mono text-gray-900 tabular-nums dark:text-gray-50">{{.Engine.Port}}</dd>
+            <dt class="text-gray-500 dark:text-gray-500">{{.T.Get "User"}}</dt><dd class="font-mono text-gray-900 break-all dark:text-gray-50" x-text="user || '–'"></dd>
+        </dl>
+        <p class="mt-3 text-gray-500 dark:text-gray-500">{{.T.Get "Inside your account, connect to"}} <span class="font-mono">{{.Engine.Host}}</span>, {{.T.Get "not localhost."}}</p>
+    </div>
+    <div class="rounded-md border border-gray-200 bg-white p-4 text-sm dark:border-gray-800 dark:bg-gray-950">
+        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Already on this account"}}</h2>
+        <ul class="mt-3 space-y-1" x-show="users.length">
+            <template x-for="u in users" :key="u"><li class="flex items-center justify-between gap-2"><span class="font-mono text-gray-900 break-all dark:text-gray-50" x-text="u"></span><span class="text-xs text-gray-500 dark:text-gray-500">{{.T.Get "user"}}</span></li></template>
+        </ul>
+        <p class="mt-3 text-gray-500 dark:text-gray-500" x-show="!users.length" x-cloak>{{.T.Get "No users yet."}}</p>
+    </div>
+</aside>
 </div>
 <!-- END form -->
 
 <script>
+    function mongoUserForm() {
+        return {
+            user: {{toJSON .FormName}},
+            pwOK: false,
+            busy: false,
+            users: {{toJSON .Names.Users}} || [],
+            rusers: {{toJSON .Names.ReservedUsers}} || [],
+            userErr() {
+                if (!this.user) return '';
+                if (!/^[a-zA-Z0-9_]+$/.test(this.user) || this.user.length > 31) return {{toJSON (.T.Get "Only letters, numbers, and underscores are allowed (1-31 characters).")}};
+                if (this.rusers.includes(this.user.toLowerCase())) return {{toJSON (.T.Get "This username is not allowed.")}};
+                if (this.users.includes(this.user)) return {{toJSON (.T.Get "A user with this name already exists.")}};
+                return '';
+            },
+            ready() { return !!this.user && !this.userErr() && this.pwOK; },
+            blocker() {
+                if (!this.user) return {{toJSON (.T.Get "Enter a username.")}};
+                if (this.userErr()) return {{toJSON (.T.Get "Fix the username to continue.")}};
+                return {{toJSON (.T.Get "Set a strong enough password to continue.")}};
+            },
+            preview() { return 'db.getSiblingDB("admin").createUser({ user: "' + (this.user || '[user]') + '", pwd: "********", roles: [] })'; }
+        };
+    }
+
     document.getElementById("generatePassword").addEventListener("click", function () {
-        const generatedPassword = generateString(12);
         const passwordField = document.getElementById("password");
-
-        passwordField.value = generatedPassword;
+        passwordField.value = generateString(16);
         passwordField.dispatchEvent(new Event('input', { bubbles: true }));
-
-        if (passwordField.type === "password") {
-            passwordField.type = "text";
-        }
     });
 </script>
+{{end}}
 
 <!-- END templates/mongodb/mongodb_user.html -->
 {{end}}
+
+{{define "mongo_copy_btn"}}<button type="button" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" title="{{.Label}}" aria-label="{{.Label}}" data-copy="{{.Value}}" onclick="copyToClipboard(this.dataset.copy).then(() => showToast({{toJSON (.T.Get "Copied to clipboard")}}, 'success'))"><i class="ri-file-copy-line text-base" aria-hidden="true"></i></button>{{end}}

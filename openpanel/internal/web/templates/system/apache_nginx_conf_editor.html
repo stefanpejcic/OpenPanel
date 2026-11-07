@@ -83,6 +83,67 @@ function litespeedLicense() {
         </div>
     </div>
 
+    {{with .Summary}}{{if .State}}
+    <div class="flex flex-col gap-6 border-t border-gray-200 px-4 py-4 sm:px-6 lg:px-8 dark:border-gray-800">
+        <dl aria-label="{{$.T.Get "Web server"}}" class="flex flex-wrap gap-x-12 gap-y-4">
+            <div class="min-w-0">
+                <dt class="text-sm text-gray-500">{{$.T.Get "Web server"}}</dt>
+                <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-50">{{if .Version}}{{.Version}}{{else}}{{title $.Service}}{{end}}</dd>
+                {{with .Image}}<dd class="font-mono text-xs text-gray-500">{{.}}</dd>{{end}}
+            </div>
+            <div>
+                <dt class="text-sm text-gray-500">{{$.T.Get "Container"}}</dt>
+                <dd class="mt-1 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
+                    <span class="size-2 rounded-full {{if .Running}}bg-emerald-500{{else if eq .State "not_found"}}bg-gray-400 dark:bg-gray-600{{else}}bg-red-500{{end}}" aria-hidden="true"></span>
+                    {{if .Running}}{{$.T.Get "Running"}}{{else if eq .State "not_found"}}{{$.T.Get "Not created"}}{{else}}{{$.T.Get "Stopped"}}{{end}}
+                </dd>
+                <dd class="text-xs text-gray-500"><span class="font-mono">{{$.Service}}</span>{{if .Uptime}} · {{$.T.Get "up"}} <span class="tabular-nums">{{.Uptime}}</span>{{end}}</dd>
+            </div>
+            <div>
+                <dt class="text-sm text-gray-500">{{$.T.Get "Limits"}}</dt>
+                <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{if or .CPU .RAM}}{{with .CPU}}{{.}} <span class="text-sm font-medium text-gray-500">CPU</span>{{end}}{{if and .CPU .RAM}} · {{end}}{{.RAM}}{{else}}<span class="text-gray-400 dark:text-gray-600">—</span>{{end}}</dd>
+                <dd class="text-xs text-gray-500">{{with .PIDs}}<span class="tabular-nums">{{.}}</span> {{$.T.Get "processes max"}} · {{end}}<a href="/containers/edit/{{$.Service}}" class="text-blue-500 hover:underline hover:underline-offset-4">{{$.T.Get "Change"}}</a></dd>
+            </div>
+        </dl>
+
+        <!-- tests the saved file, the save handler runs the same test and keeps the old file when it fails -->
+        <div class="min-w-0 space-y-3" x-data="wsConfigTest()">
+            {{if .TestCommand}}
+            <div class="flex flex-wrap items-center gap-3">
+                <button type="button" @click="run()" :disabled="state === 'busy'" {{if not .Running}}disabled title="{{$.T.Get "The container is not running."}}"{{end}} class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"><i class="ri-play-line text-base leading-none" aria-hidden="true"></i><span x-text="state === 'busy' ? i18n.busy : (state === '' ? i18n.test : i18n.again)">{{$.T.Get "Test config"}}</span></button>
+                <span x-show="state === 'ok'" x-cloak role="status" class="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-500"><i class="ri-checkbox-circle-line" aria-hidden="true"></i>{{$.T.Get "Syntax OK"}}</span>
+                <span x-show="state === 'fail'" x-cloak role="alert" class="inline-flex items-center gap-1.5 text-sm font-medium text-red-600 dark:text-red-500"><i class="ri-error-warning-line" aria-hidden="true"></i>{{$.T.Get "Config test failed"}}</span>
+            </div>
+            <p class="text-xs text-gray-500">{{$.T.Get "Checks the saved file with"}} <code class="rounded bg-gray-100 px-1 py-0.5 font-mono text-gray-900 dark:bg-gray-800 dark:text-gray-50" x-text="command || {{toJSON .TestCommand}}">{{.TestCommand}}</code>. {{$.T.Get "Saving runs the same test and keeps the old file if it fails."}}</p>
+            <pre x-show="state === 'fail' && output" x-cloak class="max-h-48 overflow-auto rounded-md bg-red-50 p-3 font-mono text-xs whitespace-pre-wrap text-red-900 dark:bg-red-950/70 dark:text-red-400" x-text="output"></pre>
+            {{else}}
+            <p class="text-sm text-gray-500">{{$.T.Get "This web server has no syntax check."}}</p>
+            {{end}}
+        </div>
+    </div>
+    <script>
+    function wsConfigTest() {
+        return {
+            state: '', output: '', command: '',
+            i18n: { test: {{toJSON ($.T.Get "Test config")}}, again: {{toJSON ($.T.Get "Run again")}}, busy: {{toJSON ($.T.Get "Testing...")}}, unreachable: {{toJSON ($.T.Get "Could not reach the server.")}} },
+            async run() {
+                this.state = 'busy';
+                try {
+                    const res = await fetch('/server/webserver_conf/test', { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } });
+                    const data = await res.json();
+                    this.output = data.output || '';
+                    if (data.command) this.command = data.command;
+                    this.state = data.ok ? 'ok' : 'fail';
+                } catch (e) {
+                    this.output = this.i18n.unreachable;
+                    this.state = 'fail';
+                }
+            },
+        };
+    }
+    </script>
+    {{end}}{{end}}
+
     {{with .TestFailure}}
     <div class="mx-4 mb-4 sm:mx-6 lg:mx-8 flex gap-3 rounded-md p-4 text-sm bg-red-50 text-red-900 dark:bg-red-950/70 dark:text-red-500" role="alert">
         <i class="ri-error-warning-line text-base" aria-hidden="true"></i>

@@ -21,6 +21,34 @@
         </div>
     </div>
 
+    <dl aria-label="{{.T.Get "Server summary"}}" class="grid grid-cols-2 gap-x-8 gap-y-5 px-4 pb-6 sm:grid-cols-4 sm:px-6 lg:flex lg:flex-wrap lg:gap-x-12 lg:px-8">
+        <div>
+            <dt class="text-sm text-gray-500">{{.T.Get "Databases"}}</dt>
+            <dd class="mt-1 flex items-center gap-2">
+                {{$pct := .DBQuotaPct}}
+                <span class="flex gap-0.5" title="{{if .DBLimit}}{{$pct}}%{{else}}{{.T.Get "Unlimited"}}{{end}}" aria-hidden="true">
+                    {{if ge $pct 90}}<i class="h-3.5 w-1 rounded-sm bg-red-500"></i><i class="h-3.5 w-1 rounded-sm bg-red-500"></i><i class="h-3.5 w-1 rounded-sm bg-red-500"></i>
+                    {{else if ge $pct 70}}<i class="h-3.5 w-1 rounded-sm bg-orange-500"></i><i class="h-3.5 w-1 rounded-sm bg-orange-500"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i>
+                    {{else}}<i class="h-3.5 w-1 rounded-sm bg-emerald-500"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i>{{end}}
+                </span>
+                <span class="text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.UserDatabaseCount}}<span class="font-medium text-gray-400 dark:text-gray-600"> / {{if .DBLimit}}{{.DBLimit}}{{else}}∞{{end}}</span></span>
+            </dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500">{{.T.Get "Users with access"}}</dt>
+            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.UserCount}}</dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500">{{.T.Get "Server version"}}</dt>
+            <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-50">{{if eq .Service "mariadb"}}MariaDB{{else}}MySQL{{end}}{{with .ServerVersion}} <span class="font-mono tabular-nums">{{.}}</span>{{end}}</dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500">{{.T.Get "Uptime"}}</dt>
+            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{with .Uptime}}{{.}}{{else}}<span class="text-gray-400 dark:text-gray-600">–</span>{{end}}</dd>
+        </div>
+    </dl>
+    {{if .FromDisk}}<p class="px-4 pb-6 text-xs text-gray-500 sm:px-6 lg:px-8">{{.T.Get "Listed from disk while the service doesn't answer, so the version is unknown."}}</p>{{end}}
+
     <div class="flex flex-col gap-3 px-4 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div class="relative w-full sm:w-64">
             <input x-model="searchQuery" aria-label="{{.T.Get "Search"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30" placeholder="{{.T.Get "Search"}}" type="search"/>

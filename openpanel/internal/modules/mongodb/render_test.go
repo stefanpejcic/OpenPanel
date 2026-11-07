@@ -82,7 +82,7 @@ func TestRenderAllPages(t *testing.T) {
 	})
 	t.Run("create user", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		if err := createUserPage.Render(w, 200, struct{ web.LayoutData }{layout}); err != nil {
+		if err := createUserPage.Render(w, 200, CreatePageData{LayoutData: layout, Engine: web.MongoDBEngine, Roles: mongoRoles}); err != nil {
 			t.Fatalf("create user: %v", err)
 		}
 	})
@@ -100,7 +100,7 @@ func TestRenderAllPages(t *testing.T) {
 	})
 	t.Run("assign", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		if err := assignPage.Render(w, 200, AssignPageData{LayoutData: layout, Roles: mongoRoles}); err != nil {
+		if err := assignPage.Render(w, 200, CreatePageData{LayoutData: layout, Engine: web.MongoDBEngine, Roles: mongoRoles}); err != nil {
 			t.Fatalf("assign: %v", err)
 		}
 	})

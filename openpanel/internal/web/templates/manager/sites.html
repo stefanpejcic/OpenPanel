@@ -11,6 +11,34 @@
 </div>
 
 {{if .Groups}}
+<!-- summary: sites vs plan, containers, domains still free for a site -->
+<dl aria-label="{{.T.Get "Summary"}}" class="grid grid-cols-2 gap-x-8 gap-y-5 px-4 pb-6 sm:flex sm:flex-wrap sm:gap-x-12 sm:px-6 lg:px-8">
+    <div>
+        <dt class="text-sm text-gray-500">{{.T.Get "Websites"}}</dt>
+        <dd class="mt-1 flex items-center gap-2">
+            {{if .WebsitesLimit}}
+            <span class="flex gap-0.5" title="{{.WebsitesPct}}%" aria-hidden="true">
+                {{if ge .WebsitesPct 90}}<i class="h-3.5 w-1 rounded-sm bg-red-500"></i><i class="h-3.5 w-1 rounded-sm bg-red-500"></i><i class="h-3.5 w-1 rounded-sm bg-red-500"></i>
+                {{else if ge .WebsitesPct 70}}<i class="h-3.5 w-1 rounded-sm bg-orange-500"></i><i class="h-3.5 w-1 rounded-sm bg-orange-500"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i>
+                {{else}}<i class="h-3.5 w-1 rounded-sm bg-emerald-500"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i>{{end}}
+            </span>
+            {{end}}
+            <span class="text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.SiteCount}}<span class="font-medium text-gray-400 dark:text-gray-600"> / {{if .WebsitesLimit}}{{.WebsitesLimit}}{{else}}∞{{end}}</span></span>
+        </dd>
+    </div>
+    <div>
+        <dt class="text-sm text-gray-500">{{.T.Get "App containers"}}</dt>
+        <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.ContainerCount}}</dd>
+    </div>
+    <div>
+        <dt class="text-sm text-gray-500">{{.T.Get "Domains without a site"}}</dt>
+        <dd class="mt-1 flex items-baseline gap-2">
+            <span class="text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{len .FreeDomains}}</span>
+            {{if .FreeDomains}}{{if .UserAllowed.autoinstaller}}<a href="/auto-installer{{if eq (len .FreeDomains) 1}}?domain={{index .FreeDomains 0}}{{end}}" title="{{range $i, $d := .FreeDomains}}{{if $i}}, {{end}}{{$d}}{{end}}" class="text-sm text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Install a site"}} &rarr;</a>{{end}}{{end}}
+        </dd>
+    </div>
+</dl>
+
 <section aria-label="{{.T.Get "Websites Table"}}" x-data="{
     searchQuery: '',
     selected: {},
@@ -395,7 +423,8 @@ c6.183-2.355,12.954,0.883,15.31,7.066c7.066,19.138,10.6,39.453,10.6,60.063C653.7
                             <span id="update-badge-{{replace $site.SiteName "." "_"}}"></span>
                         </td>
                         <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-center">
-                            <div class="speed_data" data-site-name="{{$site.SiteName}}" id="speed_data_{{replace $site.SiteName "." "_"}}"></div>
+                            {{if $.HasPagespeedKey}}<div class="speed_data" data-site-name="{{$site.SiteName}}" id="speed_data_{{replace $site.SiteName "." "_"}}"></div>
+                            {{else}}<a href="/file-manager/edit-file/pagespeed_api_key.txt?new=true" title="{{$.T.Get "Add a Google PageSpeed API key to see speed scores"}}" aria-label="{{$.T.Get "Add a Google PageSpeed API key to see speed scores"}}" class="inline-flex items-center text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"><i class="ri-dashboard-3-line text-base" aria-hidden="true"></i></a>{{end}}
                         </td>
                         <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-right">
                             {{$isCMS := or (eq $typeLower "wordpress") (eq $typeLower "joomla") (eq $typeLower "opencart") (eq $typeLower "nextcloud") (eq $typeLower "prestashop") (eq $typeLower "drupal") (eq $typeLower "matomo") (eq $typeLower "moodle") (eq $typeLower "mediawiki") (eq $typeLower "flarum") (eq $typeLower "sofawiki") (eq $typeLower "dokuwiki") (eq $typeLower "phpbb") (eq $typeLower "ojs")}}

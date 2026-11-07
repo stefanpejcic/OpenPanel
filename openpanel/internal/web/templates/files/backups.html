@@ -23,6 +23,43 @@
     </div>
     </div>
 
+{{if or .Target .AdminManaged}}
+{{with .Summary}}
+<div class="px-4 pb-5 sm:px-6 lg:px-8">
+    <dl aria-label="{{$.T.Get "Summary"}}" class="grid grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-4 lg:flex lg:flex-wrap lg:gap-x-12">
+        <div>
+            <dt class="text-sm text-gray-500">{{$.T.Get "Stored"}}</dt>
+            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{if .TotalSize}}{{.TotalSize}}{{else}}&ndash;{{end}}<span class="font-medium text-gray-400 dark:text-gray-600"> · {{.Count}} {{$.T.Get "archives"}}</span></dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500">{{$.T.Get "Latest backup"}}</dt>
+            {{if .Latest}}
+            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{if .Latest.Day}}{{.Latest.Day}}<span class="font-medium text-gray-400 dark:text-gray-600"> {{.Latest.Clock}}</span>{{else}}<span class="font-mono text-sm">{{.Latest.File}}</span>{{end}}</dd>
+            {{else}}
+            <dd class="mt-1 text-lg font-semibold text-gray-400 dark:text-gray-600">&ndash;</dd>
+            {{end}}
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500">{{$.T.Get "Retention"}}</dt>
+            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{if or (eq .Retention "") (eq .Retention "-1") (eq .Retention "0")}}{{$.T.Get "Keeps every copy"}}{{else}}{{.Retention}} {{$.T.Get "days"}}{{end}}</dd>
+        </div>
+        <div class="col-span-2 min-w-0 sm:col-span-1">
+            <dt class="text-sm text-gray-500">{{$.T.Get "Destination"}}</dt>
+            <dd class="mt-1 flex min-w-0 items-baseline gap-2">{{with $.Target}}<span class="text-lg font-semibold uppercase text-gray-900 dark:text-gray-50">{{.}}</span>{{end}}{{if .Destination}}<span class="max-w-xs truncate font-mono text-sm text-gray-500" title="{{.Destination}}">{{.Destination}}</span>{{else if not $.Target}}<span class="text-lg font-semibold text-gray-400 dark:text-gray-600">&ndash;</span>{{end}}</dd>
+        </div>
+    </dl>
+</div>
+{{if .IndexError}}
+<div class="mx-4 mb-5 max-w-3xl sm:mx-6 lg:mx-8 flex items-start gap-3 rounded-md p-4 text-sm bg-red-50 text-red-900 dark:bg-red-950/70 dark:text-red-500" role="alert">
+    <i class="ri-error-warning-line shrink-0 text-lg leading-5 text-red-500 dark:text-red-500" aria-hidden="true"></i>
+    <div>
+        <p class="font-semibold">{{$.T.Get "Couldn't read the backup index"}}</p>
+        <p class="mt-1 break-all">{{.IndexError}}</p>
+    </div>
+</div>
+{{end}}
+{{end}}
+{{end}}
 
 </section>
 
@@ -189,6 +226,33 @@
 </ul>
 {{end}}
 <!-- END form -->
+
+{{if or .Target .AdminManaged}}
+{{with .Summary}}{{if .Recent}}
+<section aria-labelledby="backups-recent-title" class="mx-4 mb-8 max-w-3xl sm:mx-6 lg:mx-8">
+    <div class="mb-3 flex items-baseline justify-between gap-4">
+        <h2 id="backups-recent-title" class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Recent backups"}}</h2>
+        <a href="/backups/list" class="text-sm text-blue-500 hover:underline hover:underline-offset-4">{{$.T.Get "Open Restore & Download"}}</a>
+    </div>
+    <ul role="list" class="divide-y divide-gray-200 rounded-md border border-gray-200 bg-white dark:divide-gray-800 dark:border-gray-800 dark:bg-raised">
+        {{range $i, $b := .Recent}}
+        <li class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div class="min-w-0">
+                <p class="flex items-center gap-2 text-sm font-medium text-gray-900 tabular-nums dark:text-gray-50">{{if $b.When}}{{$b.When}}{{else}}{{$b.File}}{{end}}{{if eq $i 0}}<span class="rounded-md bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-950/70 dark:text-blue-400">{{$.T.Get "Latest"}}</span>{{end}}</p>
+                <p class="mt-0.5 truncate font-mono text-xs text-gray-500" title="{{$b.File}}">{{$b.File}}</p>
+            </div>
+            <div class="flex shrink-0 flex-wrap items-center gap-1.5">
+                {{range $b.Types}}<span class="rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">{{if eq . "html"}}{{$.T.Get "Files"}}{{else if eq . "mail"}}{{$.T.Get "Email"}}{{else if eq . "crons"}}{{$.T.Get "Cron"}}{{else if eq . "vhosts"}}{{$.T.Get "Domains"}}{{else if eq . "dns"}}DNS{{else if eq . "mysql"}}MySQL{{else if eq . "postgres"}}PostgreSQL{{else}}{{.}}{{end}}</span>{{end}}
+                <span class="ml-1 w-16 text-right font-mono text-xs text-gray-500 tabular-nums">{{if $b.SizeText}}{{$b.SizeText}}{{else}}&ndash;{{end}}</span>
+            </div>
+        </li>
+        {{end}}
+    </ul>
+</section>
+{{else if not .IndexError}}
+<p class="mx-4 mb-8 max-w-3xl py-8 text-center text-sm text-gray-500 sm:mx-6 lg:mx-8">{{$.T.Get "No backups found. Once the first backup runs, it shows up here."}}</p>
+{{end}}{{end}}
+{{end}}
 
 
 

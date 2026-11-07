@@ -62,10 +62,7 @@ func TestRenderAllPages(t *testing.T) {
 	})
 	t.Run("new", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		if err := newDatabasePage.Render(w, 200, struct {
-			web.LayoutData
-			Engine web.DBEngine
-		}{layout, web.PostgreSQLEngine}); err != nil {
+		if err := newDatabasePage.Render(w, 200, CreatePageData{LayoutData: layout, Engine: web.PostgreSQLEngine}); err != nil {
 			t.Fatalf("new: %v", err)
 		}
 	})
@@ -86,7 +83,7 @@ func TestRenderAllPages(t *testing.T) {
 	})
 	t.Run("create user", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		if err := createUserPage.Render(w, 200, struct{ web.LayoutData }{layout}); err != nil {
+		if err := createUserPage.Render(w, 200, CreatePageData{LayoutData: layout, Engine: web.PostgreSQLEngine}); err != nil {
 			t.Fatalf("create user: %v", err)
 		}
 	})
@@ -98,13 +95,13 @@ func TestRenderAllPages(t *testing.T) {
 	})
 	t.Run("wizard", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		if err := wizardPage.Render(w, 200, struct{ web.LayoutData }{layout}); err != nil {
+		if err := wizardPage.Render(w, 200, CreatePageData{LayoutData: layout, Engine: web.PostgreSQLEngine}); err != nil {
 			t.Fatalf("wizard: %v", err)
 		}
 	})
 	t.Run("assign", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		if err := assignPage.Render(w, 200, struct{ web.LayoutData }{layout}); err != nil {
+		if err := assignPage.Render(w, 200, CreatePageData{LayoutData: layout, Engine: web.PostgreSQLEngine}); err != nil {
 			t.Fatalf("assign: %v", err)
 		}
 	})

@@ -11,16 +11,39 @@
     <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div>
             <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Containers"}}</h1>
-            <p class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
-                <span>{{.T.Get "Running containers:"}} <span class="font-medium text-gray-900 tabular-nums dark:text-gray-50"><span id="total_records_count">0/</span>{{len .Rows}}</span></span>
-                <span>{{.T.Get "Total CPU:"}} <span class="font-medium text-gray-900 tabular-nums dark:text-gray-50">{{.TotalCPU}}</span> {{.T.Get "cores"}}</span>
-                <span>{{.T.Get "Total memory:"}} <span class="font-medium text-gray-900 tabular-nums dark:text-gray-50">{{.TotalRAM}}</span> GB</span>
-            </p>
+            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Every service on your account runs in its own container. Restart, open a shell or read logs here."}}</p>
         </div>
-        <a href="/containers/new" id="login_button" class="relative inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-transparent bg-blue-500 px-3 py-2 text-center text-sm font-medium text-white shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 hover:bg-blue-600 focus-visible:outline-2 sm:w-auto">
-            <i class="ri-add-line text-base" aria-hidden="true"></i> {{.T.Get "New service"}}
-        </a>
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+            {{if .UserAllowed.change_image}}
+            <a href="/containers/image/change" class="relative inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-gray-300 bg-white px-3 py-2 text-center text-sm font-medium text-gray-900 shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 hover:bg-gray-50 focus-visible:outline-2 sm:w-auto dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
+                <i class="ri-stack-line text-base" aria-hidden="true"></i> {{.T.Get "Software versions"}}
+            </a>
+            {{end}}
+            <a href="/containers/new" id="login_button" class="relative inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-transparent bg-blue-500 px-3 py-2 text-center text-sm font-medium text-white shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 hover:bg-blue-600 focus-visible:outline-2 sm:w-auto">
+                <i class="ri-add-line text-base" aria-hidden="true"></i> {{.T.Get "New service"}}
+            </a>
+        </div>
     </div>
+
+    <dl aria-label="{{.T.Get "Summary"}}" class="grid grid-cols-2 gap-x-8 gap-y-5 px-4 pb-6 sm:grid-cols-4 sm:px-6 lg:flex lg:flex-wrap lg:gap-x-12 lg:px-8">
+        <div>
+            <dt class="text-sm text-gray-500">{{.T.Get "Running containers:"}}</dt>
+            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50"><span id="total_records_count">0/</span><span class="font-medium text-gray-400 dark:text-gray-600">{{len .Rows}}</span></dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500">{{.T.Get "Total CPU:"}}</dt>
+            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{if .TotalCPU}}{{.TotalCPU}}{{else}}∞{{end}} <span class="text-sm font-medium text-gray-500">{{.T.Get "cores"}}</span></dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500">{{.T.Get "Total memory:"}}</dt>
+            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{if .TotalRAM}}{{.TotalRAM}}{{else}}∞{{end}} <span class="text-sm font-medium text-gray-500">GB</span></dd>
+        </div>
+        <div x-data="containerImages()">
+            <dt class="text-sm text-gray-500">{{.T.Get "Images"}}</dt>
+            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50"><span x-text="value">…</span> <span class="text-sm font-medium text-gray-500" x-text="unit"></span></dd>
+            <dd class="mt-0.5 text-xs text-gray-500 tabular-nums" x-text="note">&nbsp;</dd>
+        </div>
+    </dl>
 
 
 <script src="{{static "js/data-table.js"}}"></script>
@@ -31,6 +54,7 @@
             name: true,
             cpu: true,
             ram: true,
+            ports: true,
             blockio: false,
             netio: false,
             pids: true,
@@ -59,6 +83,7 @@
                     {{template "column_toggle" (dict "Key" "name" "T" .T "Label" (.T.Get "Name"))}}
                     {{template "column_toggle" (dict "Key" "cpu" "T" .T "Label" (.T.Get "CPU usage"))}}
                     {{template "column_toggle" (dict "Key" "ram" "T" .T "Label" (.T.Get "Memory usage"))}}
+                    {{template "column_toggle" (dict "Key" "ports" "T" .T "Label" (.T.Get "Ports"))}}
                     {{template "column_toggle" (dict "Key" "blockio" "T" .T "Label" (.T.Get "Block I/O"))}}
                     {{template "column_toggle" (dict "Key" "netio" "T" .T "Label" (.T.Get "Net I/O"))}}
                     {{template "column_toggle" (dict "Key" "pids" "T" .T "Label" (.T.Get "PIDs"))}}
@@ -77,6 +102,7 @@
                         <th x-show="columns.name" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Name"}}</th>
                         <th x-show="columns.cpu" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "CPU usage"}}</th>
                         <th x-show="columns.ram" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Memory usage"}}</th>
+                        <th x-show="columns.ports" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Ports"}}</th>
                         <th x-show="columns.blockio" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Block I/O"}}</th>
                         <th x-show="columns.netio" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Net I/O"}}</th>
                         <th x-show="columns.pids" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "PIDs"}}</th>
@@ -86,7 +112,7 @@
                 </thead>
         <tbody>
         {{range .Rows}}
-        {{template "container_row" (dict "Row" . "T" $.T "TotalCPU" $.TotalCPU "TotalRAM" $.TotalRAM "CSRFToken" $.CSRFToken)}}
+        {{template "container_row" (dict "Row" . "T" $.T "TotalCPU" $.TotalCPU "TotalRAM" $.TotalRAM "CSRFToken" $.CSRFToken "CanChangeImage" $.UserAllowed.change_image)}}
         {{end}}
         </tbody>
             </table>
@@ -258,6 +284,26 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- END JS for stats -->
 
 <script>
+// Images tile, one call on load
+function containerImages() {
+    return {
+        value: '…', unit: '', note: '',
+        init() {
+            fetch('/json/containers/images')
+                .then(r => r.ok ? r.json() : Promise.reject(r.status))
+                .then(d => {
+                    const [n, u] = String(d.size || '0 B').split(' ');
+                    this.value = n;
+                    this.unit = u || '';
+                    this.note = d.count + ' ' + {{toJSON (.T.Get "images")}} + (d.unused ? ', ' + d.unused + ' ' + {{toJSON (.T.Get "unused")}} : '');
+                })
+                .catch(() => { this.value = '—'; this.note = {{toJSON (.T.Get "Not available")}}; });
+        },
+    };
+}
+</script>
+
+<script>
 // search table based on ?s= in the url
 document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
@@ -397,6 +443,9 @@ class="group relative border-b border-gray-200 px-4 py-2.5 whitespace-nowrap tex
     </div>
 </td>
 
+    <td x-show="columns.ports" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
+        {{if $row.Ports}}<span class="font-mono text-xs text-gray-900 tabular-nums dark:text-gray-50" title="{{$row.PortsTitle}}">{{$row.Ports}}</span>{{if $row.PortsTitle}}<span class="sr-only"> ({{$row.PortsTitle}})</span>{{end}}{{else}}<span class="text-gray-400 dark:text-gray-600">—</span>{{end}}
+    </td>
     <td x-show="columns.blockio" id="blockio-{{$row.Service}}" class="text-center border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums">--</td>
     <td x-show="columns.netio" id="netio-{{$row.Service}}" class="text-center border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums">--</td>
     <td x-show="columns.pids"
@@ -426,9 +475,10 @@ class="group relative border-b border-gray-200 px-4 py-2.5 whitespace-nowrap tex
     </td>
 
     <td x-show="columns.actions" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-right">
-        <button id="dropdownHoverButton-{{$row.Service}}" data-dropdown-toggle="dropdownHover-{{$row.Service}}" type="button" aria-label="{{$t.Get "Actions"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50"><i class="ri-more-2-line text-base" aria-hidden="true"></i></button>
+        <div class="relative inline-block text-left" x-data="rowMenu" @click.outside="close()" @keydown.escape="close()">
+        <button id="dropdownHoverButton-{{$row.Service}}" x-ref="btn" @click="toggle()" :aria-expanded="open.toString()" type="button" aria-label="{{$t.Get "Actions"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50"><i class="ri-more-2-line text-base" aria-hidden="true"></i></button>
 
-        <div id="dropdownHover-{{$row.Service}}" class="z-10 hidden w-44 rounded-md border border-gray-200 bg-white p-1 text-left shadow-xl dark:border-gray-800 dark:bg-gray-950">
+        <div id="dropdownHover-{{$row.Service}}" x-show="open" x-cloak x-ref="menu" :style="pos" class="absolute right-0 z-50 mt-1 w-48 rounded-md border border-gray-200 bg-white p-1 text-left shadow-xl dark:border-gray-800 dark:bg-gray-950">
             <ul class="text-sm" aria-labelledby="dropdownHoverButton-{{$row.Service}}">
                 <li id="start-item-{{$row.Service}}">
                     <form method="POST" action="/containers/start/{{$row.DisplayName}}">
@@ -447,11 +497,15 @@ class="group relative border-b border-gray-200 px-4 py-2.5 whitespace-nowrap tex
 {{end}}
                 <li><a href="/containers/terminal/{{$row.Service}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-terminal-box-line text-gray-500" aria-hidden="true"></i> {{$t.Get "Terminal"}}</a></li>
                 <li><a href="/containers/logs?container={{$row.Service}}&lines=20" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-file-text-line text-gray-500" aria-hidden="true"></i> {{$t.Get "Logs"}}</a></li>
+{{if and .CanChangeImage $row.ImageChangeable}}
+                <li><a href="/containers/image/change/{{$row.Service}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-arrow-up-circle-line text-gray-500" aria-hidden="true"></i> {{$t.Get "Change version"}}</a></li>
+{{end}}
 {{if $row.ShowManage}}
                 <li class="my-1 border-t border-gray-200 dark:border-gray-800" role="separator"></li>
                 <li><a href="/containers/delete/{{$row.Service}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-red-600 hover:bg-gray-100 dark:text-red-500 dark:hover:bg-gray-900"><i class="ri-delete-bin-line" aria-hidden="true"></i> {{$t.Get "Delete"}}</a></li>
 {{end}}
             </ul>
+        </div>
         </div>
     </td>
 </tr>

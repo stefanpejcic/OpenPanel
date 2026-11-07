@@ -26,6 +26,22 @@
 
     <input type="hidden" name="domain_name" value="{{.DomainName}}">
 
+    <dl aria-label="{{.T.Get "VirtualHosts file summary"}}" class="grid grid-cols-1 gap-x-8 gap-y-5 px-4 pb-6 sm:grid-cols-3 sm:px-6 lg:flex lg:flex-wrap lg:gap-x-12 lg:px-8">
+        <div class="min-w-0">
+            <dt class="text-sm text-gray-500">{{.T.Get "Document root"}}</dt>
+            <dd class="mt-1 flex min-w-0 items-center gap-2">{{if .Domain.Docroot}}<span class="min-w-0 truncate font-mono text-sm font-medium text-gray-900 dark:text-gray-50" title="{{.Domain.Docroot}}">{{.Domain.Docroot}}</span><button type="button" onclick="copyToClipboard(this.dataset.v).then(() => showToast(this.dataset.done, 'success'))" data-v="{{.Domain.Docroot}}" data-done="{{.T.Get "Copied to clipboard"}}" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer" aria-label="{{.T.Get "Copy"}} {{.Domain.Docroot}}" title="{{.T.Get "Copy"}}"><i class="ri-file-copy-line text-base leading-none" aria-hidden="true"></i></button>{{else}}<span class="text-sm text-gray-400 dark:text-gray-600">—</span>{{end}}</dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500">{{.T.Get "PHP version"}}</dt>
+            <dd class="mt-1 text-sm font-medium text-gray-900 tabular-nums dark:text-gray-50">{{if .Domain.PHPVersion}}PHP {{.Domain.PHPVersion}}{{else}}<span class="text-gray-400 dark:text-gray-600">—</span>{{end}}</dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500">{{.T.Get "Ports"}}</dt>
+            <dd class="mt-1 font-mono text-sm font-medium text-gray-900 tabular-nums dark:text-gray-50">{{if .File.Ports}}{{join .File.Ports ", "}}{{else}}<span class="font-sans text-gray-400 dark:text-gray-600">—</span>{{end}}</dd>
+            {{if .File.Lines}}<dd class="mt-0.5 text-xs text-gray-500"><span class="tabular-nums">{{.File.Lines}}</span> {{.T.Get "lines"}}</dd>{{end}}
+        </div>
+    </dl>
+
     <div class="px-4 pb-6 sm:px-6 lg:px-8">
         <div id="editor-container" class="overflow-auto rounded-md border border-gray-200 dark:border-gray-800">
             <label for="editor" class="sr-only">{{.T.Get "VirtualHosts file"}}</label>
@@ -204,7 +220,55 @@ function validateVhostConfig(content, serverType) {
                 </div>
             </div>
         </div>
-        {{template "domain_list" (dict "T" .T "Rows" .Picks "Base" "/domains/vhosts?domain=" "Action" "Edit vhost" "Icon" "ri-code-s-slash-line" "DetailLabel" "Document root" "LongDetail" true)}}
+        {{$T := .T}}
+        <div x-data="{ q: '' }">
+        <!-- #domains is the picker the upstream page had, choosing one opens its file -->
+        <div class="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+            <label for="domains" class="sr-only">{{$T.Get "Domain"}}</label>
+            <select id="domains" onchange="if (this.value) window.location.href = '/domains/vhosts?domain=' + this.value" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-64 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+                <option value="" selected>{{$T.Get "Go to a domain"}}</option>
+                {{range .Domains}}<option value="{{.DomainURL}}">{{.DomainURL}}</option>{{end}}
+            </select>
+            {{if gt (len .Domains) 5}}
+            <div class="relative w-full sm:w-64">
+                <label for="domain-list-search" class="sr-only">{{$T.Get "Search"}}</label>
+                <input id="domain-list-search" x-model="q" type="search" placeholder="{{$T.Get "Search"}}"
+                    class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden">
+                <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+            </div>
+            {{end}}
+        </div>
+        <div class="overflow-x-auto">
+        <table class="w-full border-t border-gray-200 text-sm dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+            <thead>
+                <tr class="border-b border-gray-200 dark:border-gray-800">
+                    <th scope="col" class="px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500">{{$T.Get "Domain"}}</th>
+                    <th scope="col" class="px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500">{{$T.Get "Document root"}}</th>
+                    <th scope="col" class="px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500">{{$T.Get "Ports"}}</th>
+                    <th scope="col" class="px-4 py-2.5 text-right text-xs font-medium whitespace-nowrap text-gray-500">{{$T.Get "Lines"}}</th>
+                    <th scope="col" class="px-4 py-2.5 text-right text-xs font-medium whitespace-nowrap text-gray-500"><span class="sr-only">{{$T.Get "Actions"}}</span></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                {{range .Domains}}
+                {{$vf := index $.VhostFiles .DomainURL}}
+                <tr x-show="q === '' || $el.dataset.search.includes(q.toLowerCase())" data-search="{{lower .DomainURL}} {{lower .Docroot}}" class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                    <td class="px-4 py-2.5 whitespace-nowrap font-medium text-gray-900 dark:text-gray-50"><a href="/domains/vhosts?domain={{.DomainURL}}" class="hover:underline hover:underline-offset-4"><span class="punycode">{{.DomainURL}}</span></a></td>
+                    <td class="px-4 py-2.5 whitespace-nowrap font-mono text-xs text-gray-600 dark:text-gray-400">{{if .Docroot}}{{.Docroot}}{{else}}<span class="font-sans text-gray-400 dark:text-gray-600">—</span>{{end}}</td>
+                    <td class="px-4 py-2.5 whitespace-nowrap">{{if $vf.Ports}}<div class="flex flex-wrap gap-1">{{range $vf.Ports}}<span class="inline-flex items-center whitespace-nowrap rounded-md px-1.5 py-0.5 font-mono text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-700 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{.}}</span>{{end}}</div>{{else}}<span class="text-gray-400 dark:text-gray-600">—</span>{{end}}</td>
+                    <td class="px-4 py-2.5 whitespace-nowrap text-right text-gray-600 tabular-nums dark:text-gray-400">{{if $vf.Lines}}{{$vf.Lines}}{{else}}<span class="text-gray-400 dark:text-gray-600">—</span>{{end}}</td>
+                    <td class="px-4 py-2.5 whitespace-nowrap">
+                        <div class="flex h-8 items-center justify-end">
+                        <a href="/domains/vhosts?domain={{.DomainURL}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border h-8 px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-code-s-slash-line text-base leading-none" aria-hidden="true"></i>{{$T.Get "Edit vhost"}}</a>
+                        </div>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        </div>
+        <p class="border-t border-gray-200 px-4 pt-3 pb-6 text-xs text-gray-500 sm:px-6 lg:px-8 dark:border-gray-800"><span class="tabular-nums">{{len .Domains}}</span> {{if eq (len .Domains) 1}}{{$T.Get "domain"}}{{else}}{{$T.Get "domains"}}{{end}}</p>
+        </div>
     {{else}}
         {{template "no_domain" .}}
     {{end}}

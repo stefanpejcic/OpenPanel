@@ -75,16 +75,23 @@
 {{end}}
 
         <!-- START errors -->
-        {{$message := .ErrorMessage}}
-        {{with .FirstFlash}}{{$message = $.T.Get .Text}}{{end}}
+        {{$message := .ErrorMessage}}{{$tone := .ErrorTone}}
+        {{with .FirstFlash}}{{$message = $.T.Get .Text}}{{$tone = .Category}}{{end}}
 
         {{if $message}}
+        {{if eq $tone "warning"}}
+        <div class="mt-5 flex items-start gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500" role="alert">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 shrink-0 text-yellow-500 dark:text-yellow-500"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"></path></svg>
+        <p>{{$message}}</p>
+        </div>
+        {{else}}
         <div class="mt-5 flex gap-3 rounded-md p-4 text-sm bg-red-50 text-red-900 dark:bg-red-950/70 dark:text-red-500" role="alert">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-red-500 dark:text-red-500"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"></path></svg>
         <p>
             {{$message}}
         </p>
         </div>
+        {{end}}
         {{end}}
         <!-- END errors -->
 

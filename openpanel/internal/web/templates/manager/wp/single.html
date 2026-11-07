@@ -1172,9 +1172,9 @@
                                 <td class="border-b border-gray-200 px-4 py-2.5 text-gray-600 dark:border-gray-800 dark:text-gray-400 text-center tabular-nums"><span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20" x-show="it.has_update" x-text="it.update_version"></span><span class="text-gray-500" x-show="!it.has_update">{{.T.Get "Up to date"}}</span></td>
                                 <td class="border-b border-gray-200 px-4 py-2.5 text-gray-600 dark:border-gray-800 dark:text-gray-400 text-center"><input type="checkbox" role="switch" x-show="it.manageable" :checked="it.auto_update" :disabled="busy" @change="setAuto(it, $event.target.checked)" :aria-label="{{toJSON (.T.Get "Auto update")}} + ' ' + it.title"><span x-show="!it.manageable" class="text-gray-500">-</span></td>
                                 <td class="border-b border-gray-200 px-4 py-2.5 text-gray-600 dark:border-gray-800 dark:text-gray-400 text-right whitespace-nowrap">
-                                    <div class="relative inline-block" x-data="{ open: false }" @click.outside="open = false" @keydown.escape="open = false">
-                                        <button class="inline-flex size-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer" type="button" :aria-label="{{toJSON (.T.Get "Actions for")}} + ' ' + it.title" :aria-expanded="open.toString()" @click="open = !open" :disabled="!it.manageable" :title="it.manageable ? '' : {{toJSON (.T.Get "Must-use plugins and drop-ins are managed by files, not wp-admin.")}}"><i class="ri-more-2-line text-base leading-none" aria-hidden="true"></i></button>
-                                        <div class="absolute right-0 z-20 mt-1 w-56 rounded-md border border-gray-200 bg-white p-1 text-left shadow-xl dark:border-gray-800 dark:bg-gray-950" x-show="open" x-cloak>
+                                    <div class="relative inline-block" x-data="rowMenu" @click.outside="close()" @keydown.escape="close()">
+                                        <button x-ref="btn" class="inline-flex size-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer" type="button" :aria-label="{{toJSON (.T.Get "Actions for")}} + ' ' + it.title" :aria-expanded="open.toString()" @click="toggle()" :disabled="!it.manageable" :title="it.manageable ? '' : {{toJSON (.T.Get "Must-use plugins and drop-ins are managed by files, not wp-admin.")}}"><i class="ri-more-2-line text-base leading-none" aria-hidden="true"></i></button>
+                                        <div x-ref="menu" :style="pos" class="absolute right-0 z-50 mt-1 w-56 rounded-md border border-gray-200 bg-white p-1 text-left shadow-xl dark:border-gray-800 dark:bg-gray-950" x-show="open" x-cloak>
                                             <button type="button" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" x-show="it.has_update" @click="open = false; askItem(it)"><i class="ri-refresh-line" aria-hidden="true"></i>{{.T.Get "Update now"}}</button>
                                             <button type="button" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" @click="open = false; setAuto(it, !it.auto_update)"><i class="ri-time-line" aria-hidden="true"></i><span x-text="it.auto_update ? {{toJSON (.T.Get "Turn off auto-updates")}} : {{toJSON (.T.Get "Turn on auto-updates")}}"></span></button>
                                             <a class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" :href="'https://wordpress.org/' + it.kind + 's/' + encodeURIComponent(it.name) + '/'" target="_blank" rel="noopener" @click="open = false"><i class="ri-external-link-line" aria-hidden="true"></i>{{.T.Get "View on wordpress.org"}}</a>
@@ -1472,64 +1472,6 @@
                 });
             </script>
 
-            {{if .UserAllowed.error_logs}}
-            <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-3"
-                x-data="{
-                    loading: false, loaded: false, failed: false, entries: [], total: 0,
-                    labels: { critical: {{toJSON (.T.Get "Critical")}}, error: {{toJSON (.T.Get "Error")}}, warning: {{toJSON (.T.Get "Warning")}}, notice: {{toJSON (.T.Get "Notice")}}, info: {{toJSON (.T.Get "Info")}} },
-                    load() {
-                        this.loading = true; this.failed = false;
-                        fetch('/error-logs?' + new URLSearchParams({ domain: {{toJSON .CurrentDomain}}, exact: 1, limit: 10, format: 'json' }))
-                            .then(r => r.ok ? r.json() : Promise.reject(r.status))
-                            .then(d => { this.entries = d.entries || []; this.total = d.total || 0; })
-                            .catch(() => { this.failed = true; })
-                            .finally(() => { this.loading = false; this.loaded = true; });
-                    },
-                    when(t) {
-                        const d = new Date(t), p = n => String(n).padStart(2, '0');
-                        return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
-                    }
-                }"
-                x-effect="if (activeTab === 'debugging' && !loaded && !loading) load()">
-                <div>
-                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Error logs"}}</h2>
-                    <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Latest PHP, web server and HTTP 5xx errors for this website."}}</p>
-                    <div class="mt-3 flex items-center gap-3 text-sm">
-                        <a href="/error-logs?domain={{.CurrentDomain}}&exact=1" class="text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "View logs"}}</a>
-                        <button type="button" @click="load()" :disabled="loading" class="text-gray-500 hover:text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-400 dark:hover:text-gray-50">{{.T.Get "Refresh"}}</button>
-                    </div>
-                </div>
-                <div class="sm:max-w-3xl md:col-span-2 min-w-0">
-                    <p x-show="loading" class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Loading..."}}</p>
-                    <p x-show="!loading && failed" x-cloak class="text-sm text-red-600 dark:text-red-500">{{.T.Get "Error"}}</p>
-                    <p x-show="!loading && !failed && loaded && entries.length === 0" x-cloak class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No errors found for these filters."}}</p>
-                    <ul x-show="!loading && entries.length > 0" x-cloak class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
-                        <template x-for="(e, i) in entries" :key="i">
-                            <li x-data="{ open: false }" @click="open = !open" class="cursor-pointer px-4 py-2.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-900/60">
-                                <div class="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                                    <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset"
-                                        :class="{
-                                            'bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20': e.level === 'critical' || e.level === 'error',
-                                            'bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20': e.level === 'warning',
-                                            'bg-blue-50 text-blue-900 ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30': e.level === 'notice',
-                                            'bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20': e.level === 'info'
-                                        }" x-text="labels[e.level] || e.level"></span>
-                                    <span x-text="when(e.time)"></span>
-                                    <span x-text="e.service"></span>
-                                </div>
-                                <div x-show="!open" class="mt-1 truncate font-mono text-xs text-gray-900 dark:text-gray-50" x-text="e.message"></div>
-                                <pre x-show="open" x-cloak class="mt-1 whitespace-pre-wrap break-all font-mono text-xs text-gray-900 dark:text-gray-50" x-text="e.message"></pre>
-                            </li>
-                        </template>
-                    </ul>
-                    <p x-show="!loading && total > entries.length" x-cloak class="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                        {{.T.Get "Showing"}} <span x-text="entries.length"></span> {{.T.Get "out of"}} <span x-text="total"></span> {{.T.Get "rows"}} &middot;
-                        <a href="/error-logs?domain={{.CurrentDomain}}&exact=1" class="text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "View logs"}}</a>
-                    </p>
-                </div>
-            </div>
-            <div class="my-8 border-t border-gray-200 dark:border-gray-800"></div>
-            {{end}}
 
             <form id="updateDebugForm">
                 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
@@ -1614,6 +1556,65 @@
                 </div>
             </div>
 
+            {{if .UserAllowed.error_logs}}
+            <div class="my-8 border-t border-gray-200 dark:border-gray-800"></div>
+            <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-3"
+                x-data="{
+                    loading: false, loaded: false, failed: false, entries: [], total: 0,
+                    labels: { critical: {{toJSON (.T.Get "Critical")}}, error: {{toJSON (.T.Get "Error")}}, warning: {{toJSON (.T.Get "Warning")}}, notice: {{toJSON (.T.Get "Notice")}}, info: {{toJSON (.T.Get "Info")}} },
+                    load() {
+                        this.loading = true; this.failed = false;
+                        fetch('/error-logs?' + new URLSearchParams({ domain: {{toJSON .CurrentDomain}}, exact: 1, limit: 10, format: 'json' }))
+                            .then(r => r.ok ? r.json() : Promise.reject(r.status))
+                            .then(d => { this.entries = d.entries || []; this.total = d.total || 0; })
+                            .catch(() => { this.failed = true; })
+                            .finally(() => { this.loading = false; this.loaded = true; });
+                    },
+                    when(t) {
+                        const d = new Date(t), p = n => String(n).padStart(2, '0');
+                        return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
+                    }
+                }"
+                x-effect="if (activeTab === 'debugging' && !loaded && !loading) load()">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Error logs"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Latest PHP, web server and HTTP 5xx errors for this website."}}</p>
+                    <div class="mt-3 flex items-center gap-3 text-sm">
+                        <a href="/error-logs?domain={{.CurrentDomain}}&exact=1" class="text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "View logs"}}</a>
+                        <button type="button" @click="load()" :disabled="loading" class="text-gray-500 hover:text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-400 dark:hover:text-gray-50">{{.T.Get "Refresh"}}</button>
+                    </div>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2 min-w-0">
+                    <p x-show="loading" class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Loading..."}}</p>
+                    <p x-show="!loading && failed" x-cloak class="text-sm text-red-600 dark:text-red-500">{{.T.Get "Error"}}</p>
+                    <p x-show="!loading && !failed && loaded && entries.length === 0" x-cloak class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "No errors found for these filters."}}</p>
+                    <ul x-show="!loading && entries.length > 0" x-cloak class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+                        <template x-for="(e, i) in entries" :key="i">
+                            <li x-data="{ open: false }" @click="open = !open" class="cursor-pointer px-4 py-2.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                                <div class="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                    <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset"
+                                        :class="{
+                                            'bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20': e.level === 'critical' || e.level === 'error',
+                                            'bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20': e.level === 'warning',
+                                            'bg-blue-50 text-blue-900 ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30': e.level === 'notice',
+                                            'bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20': e.level === 'info'
+                                        }" x-text="labels[e.level] || e.level"></span>
+                                    <span x-text="when(e.time)"></span>
+                                    <span x-text="e.service"></span>
+                                </div>
+                                <div x-show="!open" class="mt-1 truncate font-mono text-xs text-gray-900 dark:text-gray-50" x-text="e.message"></div>
+                                <pre x-show="open" x-cloak class="mt-1 whitespace-pre-wrap break-all font-mono text-xs text-gray-900 dark:text-gray-50" x-text="e.message"></pre>
+                            </li>
+                        </template>
+                    </ul>
+                    <p x-show="!loading && total > entries.length" x-cloak class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                        {{.T.Get "Showing"}} <span x-text="entries.length"></span> {{.T.Get "out of"}} <span x-text="total"></span> {{.T.Get "rows"}} &middot;
+                        <a href="/error-logs?domain={{.CurrentDomain}}&exact=1" class="text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "View logs"}}</a>
+                    </p>
+                </div>
+            </div>
+            {{end}}
+
             <script>
                 document.getElementById('saveSettingsBtn').addEventListener('click', function() {
                     var formData = new URLSearchParams(new FormData(document.getElementById('updateDebugForm'))).toString();
@@ -1645,7 +1646,27 @@
         <!-- CLONE -->
         <div class="hidden max-w-5xl px-4 py-6 sm:px-6 lg:px-8" id="clone" role="tabpanel" aria-labelledby="clone-tab">
 
-            <form id="CloneForm">
+            <script>
+                // the clone target can't be a site that already exists on the account
+                window.wpCloneTarget = function () {
+                    var taken = {{toJSON .TakenSites}} || {};
+                    var self = {{toJSON .CurrentDomain}};
+                    return {
+                        target: '', sub: '',
+                        name() { var sub = this.sub.replace(/^\/+|\/+$/g, ''); return this.target + (sub ? '/' + sub : ''); },
+                        takenBy() { return this.target ? (this.name() === self ? 'self' : (taken[this.name()] || '')) : ''; },
+                        takenText() {
+                            var t = this.takenBy();
+                            if (!t) return '';
+                            // the sites table stores lower case types, show the product name
+                            var names = { wordpress: 'WordPress', nodejs: 'Node.js', python: 'Python', ruby: 'Ruby', java: 'Java', php: 'PHP', n8n: 'n8n', drupal: 'Drupal', joomla: 'Joomla', nextcloud: 'Nextcloud', prestashop: 'PrestaShop', opencart: 'OpenCart', moodle: 'Moodle', matomo: 'Matomo', mediawiki: 'MediaWiki', phpbb: 'phpBB', dokuwiki: 'DokuWiki', flarum: 'Flarum', website_builder: 'Website Builder' };
+                            var app = names[String(t).toLowerCase()] || t;
+                            return t === 'self' ? {{toJSON (.T.Get "That's this site. Pick another domain or a new subfolder.")}} : {{toJSON (.T.Get "{target} already has a {app} site. Pick another domain or a new subfolder.")}}.replace('{target}', this.name()).replace('{app}', app);
+                        }
+                    };
+                };
+            </script>
+            <form id="CloneForm" x-data="wpCloneTarget()">
                 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
                 <input type="hidden" name="source_domain" value="{{.CurrentDomain}}">
                 <input type="hidden" name="source_folder" value="{{.Docroot}}">
@@ -1669,16 +1690,17 @@
                                 <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="target_domain">{{.T.Get "Target"}}<span class="text-red-600 dark:text-red-500">*</span></label>
                                 <div class="relative w-full mt-2">
                                     <div class="flex">
-                                        <select class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 min-w-0 rounded-r-none" name="target_domain" id="target_domain">
+                                        <select class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 min-w-0 rounded-r-none" name="target_domain" id="target_domain" x-model="target">
                                             <option selected disabled value="">{{.T.Get "Select a domain"}}</option>
-                                            {{range .Domains}}
-                                                <option class="punycode" docroot="{{.Docroot}}" value="{{.DomainURL}}">{{.DomainURL}}</option>
+                                            {{range .Domains}}{{$taken := index $.TakenSites .DomainURL}}
+                                                <option class="punycode" docroot="{{.Docroot}}" value="{{.DomainURL}}"{{if $taken}} data-taken="{{$taken}}"{{end}}>{{.DomainURL}}{{if $taken}} &middot; {{$.T.Get "has a site"}}{{end}}</option>
                                             {{end}}
                                         </select>
                                         <div class="flex w-36 shrink-0">
-                                            <input type="text" name="subdirectory" id="subdirectory" placeholder="{{$.T.Get "subfolder"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 w-full rounded-l-none border-l-0">
+                                            <input type="text" name="subdirectory" id="subdirectory" x-model.trim="sub" placeholder="{{$.T.Get "subfolder"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 w-full rounded-l-none border-l-0">
                                         </div>
                                     </div>
+                                    <div class="mt-3 flex items-start gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500" x-show="takenBy()" x-cloak role="status"><i class="ri-error-warning-line" aria-hidden="true"></i><span x-text="takenText()"></span></div>
                                     <p class="mt-2 text-xs text-gray-500">{{.T.Get "Make sure that the domain or the subdomain selected as a target is not being used by an existing website. During cloning, website data that exists on the destination may be overwritten and irrevocably lost."}}</p>
                                 </div>
                             </div>
@@ -1722,7 +1744,7 @@
                 <div class="my-8 border-t border-gray-200 dark:border-gray-800"></div>
 
                 <div class="flex items-center justify-end space-x-4">
-                    <button type="button" id="startCloneBtn" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 sm:w-fit mt-2 sm:mt-0">{{.T.Get "Clone website"}}</button>
+                    <button type="button" id="startCloneBtn" :disabled="!!takenBy()" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 sm:w-fit mt-2 sm:mt-0">{{.T.Get "Clone website"}}</button>
                 </div>
             </form>
 
@@ -1779,9 +1801,9 @@
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
                         <label class="relative block"><span class="sr-only">{{.T.Get "Search backups"}}</span><i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-gray-400" aria-hidden="true"></i><input class="block w-full rounded-md border border-gray-300 bg-white py-1.5 pl-8 pr-2.5 text-sm text-gray-900 shadow-xs outline-hidden placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-64 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30" type="search" placeholder="{{.T.Get "Search backups"}}" x-model="q" data-no-live-validate></label>
-                        <div class="relative" x-data="{ open: false }" @click.outside="open = false" @keydown.escape="open = false">
-                            <button type="button" id="runBackup" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400" :aria-expanded="open.toString()" aria-haspopup="menu" :disabled="running" @click="open = !open"><i class="ri-upload-cloud-2-line" aria-hidden="true"></i><span x-text="running ? {{toJSON (.T.Get "Backing up...")}} : {{toJSON (.T.Get "Back up now")}}"></span><i class="ri-arrow-down-s-line" aria-hidden="true"></i></button>
-                            <div class="absolute right-0 z-20 mt-1 w-56 rounded-md border border-gray-200 bg-white p-1 text-left shadow-xl dark:border-gray-800 dark:bg-gray-950" x-show="open" x-cloak role="menu">
+                        <div class="relative" x-data="rowMenu" @click.outside="close()" @keydown.escape="close()">
+                            <button x-ref="btn" type="button" id="runBackup" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400" :aria-expanded="open.toString()" aria-haspopup="menu" :disabled="running" @click="toggle()"><i class="ri-upload-cloud-2-line" aria-hidden="true"></i><span x-text="running ? {{toJSON (.T.Get "Backing up...")}} : {{toJSON (.T.Get "Back up now")}}"></span><i class="ri-arrow-down-s-line" aria-hidden="true"></i></button>
+                            <div x-ref="menu" :style="pos" class="absolute right-0 z-50 mt-1 w-56 rounded-md border border-gray-200 bg-white p-1 text-left shadow-xl dark:border-gray-800 dark:bg-gray-950" x-show="open" x-cloak role="menu">
                                 <button type="button" role="menuitem" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" @click="open = false; backupNow(true, true)"><i class="ri-archive-line" aria-hidden="true"></i>{{.T.Get "Files and database"}}</button>
                                 <button type="button" role="menuitem" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" @click="open = false; backupNow(true, false)"><i class="ri-database-2-line" aria-hidden="true"></i><span class="flex-1">{{.T.Get "Database only"}}</span><small id="db-size-for-backup" class="text-gray-500"></small></button>
                                 <button type="button" role="menuitem" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" @click="open = false; backupNow(false, true)"><i class="ri-folder-line" aria-hidden="true"></i><span class="flex-1">{{.T.Get "Files only"}}</span><small id="files-size-for-backup" class="text-gray-500"></small></button>
@@ -1806,9 +1828,9 @@
                                 <td class="border-b border-gray-200 px-4 py-2.5 text-gray-600 dark:border-gray-800 dark:text-gray-400 text-center text-gray-600 dark:text-gray-400" x-text="getBackupTypeLabel(b.hasDbBackup, b.hasFilesBackup)"></td>
                                 <td class="border-b border-gray-200 px-4 py-2.5 text-gray-600 dark:border-gray-800 dark:text-gray-400 text-center tabular-nums text-gray-900 dark:text-gray-50" x-text="size(b.size)"></td>
                                 <td class="border-b border-gray-200 px-4 py-2.5 text-gray-600 dark:border-gray-800 dark:text-gray-400 text-right whitespace-nowrap">
-                                    <div class="relative inline-block" x-data="{ open: false }" @click.outside="open = false" @keydown.escape="open = false">
-                                        <button class="inline-flex size-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer" type="button" :aria-label="{{toJSON (.T.Get "Actions for")}} + ' ' + when(b.date)" :aria-expanded="open.toString()" @click="open = !open"><i class="ri-more-2-line text-base leading-none" aria-hidden="true"></i></button>
-                                        <div class="absolute right-0 z-20 mt-1 w-56 rounded-md border border-gray-200 bg-white p-1 text-left shadow-xl dark:border-gray-800 dark:bg-gray-950" x-show="open" x-cloak>
+                                    <div class="relative inline-block" x-data="rowMenu" @click.outside="close()" @keydown.escape="close()">
+                                        <button x-ref="btn" class="inline-flex size-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-40 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer" type="button" :aria-label="{{toJSON (.T.Get "Actions for")}} + ' ' + when(b.date)" :aria-expanded="open.toString()" @click="toggle()"><i class="ri-more-2-line text-base leading-none" aria-hidden="true"></i></button>
+                                        <div x-ref="menu" :style="pos" class="absolute right-0 z-50 mt-1 w-56 rounded-md border border-gray-200 bg-white p-1 text-left shadow-xl dark:border-gray-800 dark:bg-gray-950" x-show="open" x-cloak>
                                             <button type="button" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" @click="open = false; ask('restore', b)"><i class="ri-history-line" aria-hidden="true"></i>{{.T.Get "Restore"}}</button>
                                             <a class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" x-show="b.hasFilesBackup" :href="downloadURL(b, 'files')" @click="open = false"><i class="ri-download-2-line" aria-hidden="true"></i>{{.T.Get "Download files"}}</a>
                                             <a class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" x-show="b.hasDbBackup" :href="downloadURL(b, 'database')" @click="open = false"><i class="ri-download-2-line" aria-hidden="true"></i>{{.T.Get "Download database"}}</a>

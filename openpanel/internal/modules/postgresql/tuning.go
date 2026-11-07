@@ -158,6 +158,7 @@ func BuildPgRecommendations(s PgTuningStats) dbtuning.Report {
 		report.Facts["memory_used"] = dbtuning.HumanSize(s.MemUsage)
 	}
 	report.Facts["databases"] = strconv.Itoa(s.Databases)
+	report.Facts["connections"] = strconv.Itoa(s.Connections)
 	report.Facts["data_size"] = dbtuning.HumanSize(s.DataSize)
 	report.Facts["uptime"] = dbtuning.FormatUptime(s.UptimeSecs)
 	if ram <= 0 {
