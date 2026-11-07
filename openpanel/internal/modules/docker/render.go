@@ -27,6 +27,7 @@ var containersPage = web.MustLoadPage(
 	"partials/punnycode.html",
 	"partials/theme_switcher.html",
 	"docker/containers.html",
+	"partials/_account_created.html",
 )
 
 // coreServices mirrors containers.html's core_services set: services that never show Edit/Delete (built-in, not user-added)
@@ -72,6 +73,30 @@ type ContainersPageData struct {
 	TotalCPU int
 	TotalRAM int
 	Rows     []ContainerRow
+	Created  CreatedContainer
+}
+
+// CreatedContainer fills the section above the table, a blank Service hides it
+type CreatedContainer struct {
+	ContainerRow
+	Domain  string
+	Port    int
+	Running bool
+}
+
+// createdContainerFor finds ?created= among the rows shown to this user, so system services and other accounts' names show nothing
+func createdContainerFor(created string, rows []ContainerRow, services map[string]any) CreatedContainer {
+	if created == "" {
+		return CreatedContainer{}
+	}
+	for _, row := range rows {
+		if row.Service == created {
+			details, _ := services[created].(map[string]any)
+			domain, port := serviceDomain(details)
+			return CreatedContainer{ContainerRow: row, Domain: domain, Port: port}
+		}
+	}
+	return CreatedContainer{}
 }
 
 // serviceIcon picks the row's kit icon and tile hue from the service name
@@ -236,7 +261,7 @@ func buildContainerRows(services map[string]any) []ContainerRow {
 
 // renderContainersPage renders the containers list page. mysqlType/webserver aren't referenced by containers.html itself - they were only used earlier to filter dockerData's services - but are kept as parameters so the caller's intent is visible at the call site.
 func renderContainersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, totalCPU, totalRAM int, mysqlType, webserver string, dockerData map[string]any) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Containers")
+	layout, injected, err := web.BuildLayoutData(a, w, r, "Containers")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -246,6 +271,11 @@ func renderContainersPage(a *appctx.App, w http.ResponseWriter, r *http.Request,
 	data := ContainersPageData{LayoutData: layout, TotalCPU: totalCPU, TotalRAM: totalRAM}
 	if services, ok := dockerData["services"].(map[string]any); ok {
 		data.Rows = buildContainerRows(services)
+		data.Created = createdContainerFor(r.URL.Query().Get("created"), data.Rows, services)
+		if data.Created.Service != "" {
+			userContext, _ := injected["context"].(string)
+			data.Created.Running = GetContainerStatus(r.Context(), userContext, data.Created.DisplayName).State == "running"
+		}
 	}
 
 	if err := containersPage.Render(w, http.StatusOK, data); err != nil {

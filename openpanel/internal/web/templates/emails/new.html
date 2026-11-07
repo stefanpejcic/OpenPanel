@@ -178,6 +178,11 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   quotaInput.addEventListener('input', limitQuotaInput);
   unitSelect.addEventListener('change', limitQuotaInput);
+  // 0 means unlimited, which a capped plan refuses, so start at the plan's cap
+  if (maxQuotaNumeric !== 0 && parseFloat(quotaInput.value) === 0) {
+    quotaInput.value = maxQuotaNumeric;
+    unitSelect.value = maxUnit === 'K' ? 'k' : maxUnit;
+  }
   limitUnits();
   limitQuotaInput();
 })();

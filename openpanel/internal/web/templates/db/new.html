@@ -120,6 +120,7 @@
 <script>
   function dbNewForm() {
     return {
+      init() { keepFilled(this) },
       name: {{toJSON .FormName}},
       busy: false,
       prefix: {{toJSON $prefix}},

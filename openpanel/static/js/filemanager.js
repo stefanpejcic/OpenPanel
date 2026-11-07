@@ -676,12 +676,58 @@ function initActionButtons() {
         input.setSelectionRange(0, dot > 0 ? dot : name.length);
     });
 
-    // PERMISSIONS (dialog, one mode for every selected item)
+    // PERMISSIONS: the toolbar button edits inline like upstream, clicking a mode in the table opens the dialog
     const openForSelection = () => {
         const rows = Array.from(document.querySelectorAll('#filemanager_table tbody tr.selected-row'));
         if (rows.length) openPermDialog(getSelectedItems(), rows);
     };
-    document.getElementById('permButton').addEventListener('click', openForSelection);
+    document.getElementById('permButton').addEventListener('click', () => {
+        const items = getSelectedItems();
+        const rows = Array.from(document.querySelectorAll('#filemanager_table tbody tr.selected-row'));
+        if (!rows.length) return;
+
+        const current = rows.map(r => symbolicToOctal(r.dataset.permissions));
+        const shared = current.every(v => v === current[0]) ? current[0] : '';
+        const hasDirectory = items.some(({ itemType }) => itemType === 'directory');
+
+        // the other selected rows preview what's typed in place of their permissions cell
+        const previews = rows.slice(1).map((r, i) => {
+            const cell = r.querySelector('td.permissions-cell');
+            if (!cell) return null;
+            const td = document.createElement('td');
+            td.className = cell.className + ' font-medium text-blue-500';
+            td.textContent = shared || current[i + 1];
+            cell.style.display = 'none';
+            cell.insertAdjacentElement('afterend', td);
+            return { cell, td, original: current[i + 1] };
+        }).filter(Boolean);
+
+        const input = inlineEdit(rows[0].querySelector('td.permissions-cell'), `
+            <input type="text" inputmode="numeric" maxlength="3" pattern="[0-7]{3}" required data-no-live-hint aria-label="${FM.i18n.permissions || 'Permissions'}" class="fm-inline-input select-text block w-16 appearance-none rounded-md border border-gray-300 bg-white px-2 py-1 text-center font-mono text-xs text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
+        `, (input, editor) => {
+            const value = input.value.trim();
+            if (!/^[0-7]{3}$/.test(value)) return false;
+            if (current.every(v => v === value) && !editor.querySelector('.fm-inline-recursive')?.checked) return true;
+
+            const fields = [['path_param', FM.pathParam], ['permissions', value]];
+            items.forEach(({ fileName }) => fields.push(['filename', fileName]));
+            if (editor.querySelector('.fm-inline-recursive')?.checked) fields.push(['recursive', 'on']);
+            postForm('/file-manager/permissions', fields);
+        }, {
+            buttonsBefore: true,
+            extra: hasDirectory ? `<label class="inline-flex cursor-pointer items-center gap-1.5 text-xs text-gray-700 dark:text-gray-300"><input type="checkbox" class="fm-inline-recursive"> ${FM.i18n.recursive}</label>` : '',
+            onClose: () => previews.forEach(({ cell, td }) => { td.remove(); cell.style.display = ''; }),
+        });
+
+        input.value = shared;
+        input.addEventListener('input', () => {
+            // octal only, so drop letters and 8/9 as they're typed
+            const clean = input.value.replace(/[^0-7]/g, '').slice(0, 3);
+            if (clean !== input.value) input.value = clean;
+            previews.forEach(p => { p.td.textContent = clean || p.original; });
+        });
+        input.select();
+    });
     document.getElementById('filemanager_table')?.addEventListener('click', event => {
         if (event.target.closest('[data-perm-open]')) openForSelection();
     });

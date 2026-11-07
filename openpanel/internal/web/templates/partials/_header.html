@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isFavorite) {
             favoriteButton.innerHTML = `
-                <i class="ri-star-fill text-lg leading-none text-yellow-500" aria-hidden="true"></i>
+                <svg viewBox="0 0 24 24" class="size-4.5" aria-hidden="true"><path fill="orange" class="fill-yellow-500" d="M12.0006 18.26L4.94715 22.2082L6.52248 14.2799L0.587891 8.7918L8.61493 7.84006L12.0006 0.5L15.3862 7.84006L23.4132 8.7918L17.4787 14.2799L19.054 22.2082L12.0006 18.26Z"></path></svg>
             `;
             favoriteButton.title = "{{.T.Get "Right-click to remove from favorites"}}";
         }
@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast("{{.T.Get "Successfully added to favorites!"}}", 'success');
                 favoriteButton.dataset.isFavorite = 'true';
                 favoriteButton.innerHTML = `
-                    <i class="ri-star-fill text-lg leading-none text-yellow-500" aria-hidden="true"></i>
+                    <svg viewBox="0 0 24 24" class="size-4.5" aria-hidden="true"><path fill="orange" class="fill-yellow-500" d="M12.0006 18.26L4.94715 22.2082L6.52248 14.2799L0.587891 8.7918L8.61493 7.84006L12.0006 0.5L15.3862 7.84006L23.4132 8.7918L17.4787 14.2799L19.054 22.2082L12.0006 18.26Z"></path></svg>
                 `;
                 favoriteButton.title = "{{.T.Get "Right-click to remove from favorites"}}";
                 loadFavorites();

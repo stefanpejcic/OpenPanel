@@ -473,8 +473,7 @@ function containerForm(init) {
                         if (msg.done) {
                             this.steps.forEach(s => s.state = 'done');
                             this.phase = 'done';
-                            if (window.showToast) showToast(msg.status, 'success');
-                            setTimeout(() => { window.location.href = '/containers'; }, 1500);
+                            setTimeout(() => { window.location.href = '/containers?created=' + encodeURIComponent(msg.service); }, 1500);
                             return;
                         }
                     }

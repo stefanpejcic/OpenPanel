@@ -88,7 +88,7 @@
                         </td>
 
                         <td class="border-b border-gray-200 px-4 py-2.5 text-right whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
-                            <form action="/account/sessions/terminate/{{.SessionToken}}" method="post" data-confirm="{{$root.T.Get "Terminate this session?"}}">
+                            <form action="/account/sessions/terminate/{{.SessionToken}}" method="post">
                                 <input type="hidden" name="csrf_token" value="{{$root.CSRFToken}}"/>
                                 <button type="submit" class="inline-flex items-center rounded-md px-2 py-1 text-sm font-medium text-red-600 transition hover:bg-red-50 dark:text-red-500 dark:hover:bg-red-400/10 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{$root.T.Get "Terminate"}}</button>
                             </form>

@@ -154,6 +154,7 @@
 <script>
     function mongoUserForm() {
         return {
+            init() { keepFilled(this) },
             user: {{toJSON .FormName}},
             pwOK: false,
             busy: false,

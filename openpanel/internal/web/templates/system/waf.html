@@ -177,11 +177,11 @@ function wafAllToggle(el) {
 
                         <td class="px-4 text-center whitespace-nowrap text-gray-600 dark:text-gray-400" data-sort-col="status" data-sort-value="{{$status}}">
                             <span id="previous_value_for_domain" style="display:none;">{{$status}}</span>
-                            <form action="/server/waf" method="post" class="flex items-center justify-center gap-2" x-data="{ busy: false }">
+                            <form action="/server/waf" method="post" class="flex items-center justify-center gap-2" x-data="{ busy: false, on: {{if $on}}true{{else}}false{{end}} }" @submit="if (busy) { $event.preventDefault(); return; } busy = true; on = !on">
                                 <input type="hidden" name="csrf_token" value="{{$csrf}}"/>
                                 <input type="hidden" name="modsec_action" value="{{if $on}}Off{{else}}On{{end}}">
                                 <input type="hidden" name="domain_name" value="{{.DomainURL}}">
-                                <input type="checkbox" role="switch" {{if $on}}checked{{end}} :disabled="busy" aria-label="{{$.T.Get "WAF"}} {{.DomainURL}}" @change="busy = true; $el.form.submit()">
+                                <button type="submit" role="switch" aria-checked="{{if $on}}true{{else}}false{{end}}" :aria-checked="on.toString()" aria-label="{{$.T.Get "WAF"}} {{.DomainURL}}" :class="on ? 'bg-blue-500' : 'bg-gray-200 dark:bg-gray-950 dark:ring-gray-800'" class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full p-0.5 shadow-inner ring-1 ring-inset ring-black/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 {{if $on}}bg-blue-500{{else}}bg-gray-200 dark:bg-gray-950 dark:ring-gray-800{{end}}"><span :class="on ? 'translate-x-4' : 'translate-x-0'" class="pointer-events-none inline-block size-4 rounded-full bg-white shadow-lg transition-transform dark:bg-gray-50 {{if $on}}translate-x-4{{end}}"></span></button>
                                 {{if eq $status "DetectionOnly"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20" title="{{$.T.Get "Requests are checked and logged, but nothing is blocked."}}">{{$.T.Get "Monitor only"}}</span>{{end}}
                             </form>
                         </td>

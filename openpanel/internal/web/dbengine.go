@@ -1,9 +1,31 @@
 package web
 
 import (
+	"net/http"
+	"net/url"
 	"slices"
 	"sort"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/validators"
 )
+
+// CreatedDBURL is where the create form lands, so a refresh can't resubmit the POST
+func CreatedDBURL(slug, name string) string {
+	return "/" + slug + "/new?created=" + url.QueryEscape(name)
+}
+
+// CreatedDBUserURL is the same thing for the create user form
+func CreatedDBUserURL(slug, name string) string {
+	return "/" + slug + "/user?created=" + url.QueryEscape(name)
+}
+
+// CreatedDBName reads ?created= back, anything that isn't a valid name shows the form
+func CreatedDBName(r *http.Request) string {
+	if name := r.URL.Query().Get("created"); validators.IsValidIdentifier(name) {
+		return name
+	}
+	return ""
+}
 
 // DBEngine is what the shared db/*.html pages need to know about the database engine they're for
 type DBEngine struct {

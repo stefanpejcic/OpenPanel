@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"regexp"
 	"sort"
 	"strconv"
@@ -332,7 +333,7 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	_ = logger.RecordUserAction(a.Config, username, "added container "+serviceName, reqip.ClientIP(r))
 	if !stream {
-		web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Container %(service_name)s created successfully!", "service_name", serviceName), "/containers")
+		http.Redirect(w, r, "/containers?created="+url.QueryEscape(serviceName), http.StatusFound)
 		return
 	}
 
@@ -357,7 +358,7 @@ func handleAddContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		registerContainerSite(ctx, a, userID, domain, serviceName, image, port)
 		_ = logger.RecordUserAction(a.Config, username, "pointed domain "+domain+" to container "+serviceName, reqip.ClientIP(r))
 	}
-	emit(map[string]any{"done": true, "status": fmt.Sprintf("Container %s created successfully!", serviceName)})
+	emit(map[string]any{"done": true, "service": serviceName, "status": fmt.Sprintf("Container %s created successfully!", serviceName)})
 }
 
 // handleEditContainer shows the edit-service form prefilled from the existing compose definition and, on POST, saves the updated service

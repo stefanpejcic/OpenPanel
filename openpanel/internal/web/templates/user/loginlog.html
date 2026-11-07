@@ -60,7 +60,7 @@
                     <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400" data-sort-col="ip" data-sort-value="{{.IP}}">
                         <div class="flex items-center gap-3">
                             <img src="/static/flags/{{lower .CountryCode}}.png" alt="{{.CountryCode}}" title="{{.CountryCode}}" class="h-4 w-6 shrink-0 rounded-xs">
-                            <span class="font-mono text-sm font-medium text-gray-900 dark:text-gray-50">{{.IP}}</span>
+                            <span class="text-base font-semibold"><span class="font-mono text-sm font-medium text-gray-900 dark:text-gray-50">{{.IP}}</span></span>
                             <button type="button" class="hidden sm:inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" data-ip="{{.IP}}" title="{{$root.T.Get "Click to copy IP"}}" aria-label="{{$root.T.Get "Click to copy IP"}}" onclick="copyIPToClipboard(this.querySelector('i'))"><i class="ri-clipboard-line copy-ip-icon" data-ip="{{.IP}}" aria-hidden="true"></i></button>
                         </div>
                     </td>
@@ -94,7 +94,7 @@
             textarea.setSelectionRange(0, 99999);
             document.execCommand('copy');
             document.body.removeChild(textarea);
-            icon.className = 'ri-check-line';
+            icon.className = 'ri-check-line bi-clipboard-check-fill';
 
             setTimeout(() => {
                 icon.className = originalIconClass;

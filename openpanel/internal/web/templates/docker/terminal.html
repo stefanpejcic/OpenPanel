@@ -11,12 +11,12 @@
   <script src="{{static "vendor/xterm/xterm-addon-fit.min.js"}}"></script>
   <script src="{{static "vendor/xterm/xterm-addon-web-links.min.js"}}"></script>
 
-  <section aria-label="{{.T.Get "Container terminal"}}">
+  <section aria-label="{{.T.Get "Container Terminal"}}">
 
     <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
       <div>
         <div class="flex items-center gap-2">
-          <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container terminal"}}</h1>
+          <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container Terminal"}}</h1>
           <span x-data="{ tooltip: false }" @mouseenter="tooltip = true" @mouseleave="tooltip = false" @focusin="tooltip = true" @focusout="tooltip = false" class="relative">
             <button type="button" class="inline-flex text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" aria-label="{{.T.Get "Info"}}" aria-describedby="term-tip"><i class="ri-information-line text-base" aria-hidden="true"></i></button>
             <div x-show="tooltip" x-cloak x-transition id="term-tip" role="tooltip"
@@ -197,7 +197,7 @@
   <section aria-label="{{.T.Get "Select container"}}">
     <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
       <div>
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container terminal"}}</h1>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container Terminal"}}</h1>
         <p class="mt-1 text-sm text-gray-500">{{.T.Get "Select active service to open web terminal."}}</p>
       </div>
     </div>

@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	accountsPage             = web.LoadPage("emails/accounts.html")
+	accountsPage             = web.LoadPage("emails/accounts.html", "partials/_account_created.html")
 	newEmailPage             = web.LoadPage("emails/new.html")
 	singleAccountPage        = web.LoadPage("emails/single_account.html")
 	deletePage               = web.LoadPage("emails/delete.html")
@@ -68,6 +68,7 @@ type AccountsConnect struct {
 	Welcome bool
 	Host    string
 	Secure  bool
+	Conn    MailConnection
 }
 
 // fillAccountsSummary works out the numbers for the stat tiles above the table

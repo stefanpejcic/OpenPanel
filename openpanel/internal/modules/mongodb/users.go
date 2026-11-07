@@ -88,13 +88,11 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		}
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created a MongoDB user "+dbUser, ipAddress)
-		web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created a MongoDB user %(db_user)s", "db_user", dbUser))
-		// the password is shown this once, like the wizard does
-		renderCreateUserPage(a, w, r, "", dbUser, password)
+		http.Redirect(w, r, web.CreatedDBUserURL("mongodb", dbUser), http.StatusFound)
 		return
 	}
 
-	renderCreateUserPage(a, w, r, "", "", "")
+	renderCreateUserPage(a, w, r, "", web.CreatedDBName(r), "")
 }
 
 // handleDatabasesPassword renders the change-password form for one existing user

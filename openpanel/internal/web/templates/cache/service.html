@@ -79,7 +79,7 @@
         <dl x-data="varnishStats()" x-init="fetchStats()" class="grid max-w-3xl grid-cols-1 overflow-hidden rounded-md border border-gray-200 sm:grid-cols-2 md:col-span-2 dark:border-gray-800">
             <template x-for="[label, value] in Object.entries(stats)" :key="label">
                 <div class="-mb-px flex items-center justify-between gap-4 border-b border-gray-200 px-4 py-2.5 sm:odd:border-r dark:border-gray-800">
-                    <dt class="text-sm text-gray-500" x-text="statLabels[label] || label"></dt>
+                    <dt><span class="text-sm text-gray-500" x-text="statLabels[label] || label"></span></dt>
                     <dd class="text-sm font-medium text-gray-900 tabular-nums dark:text-gray-50" x-text="value"></dd>
                 </div>
             </template>
@@ -89,7 +89,7 @@
     <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('varnishStats', () => ({
-            statLabels: { 'Hit Ratio': '{{.T.Get "Hit ratio"}}', 'Hits': '{{.T.Get "Hits"}}', 'Misses': '{{.T.Get "Misses"}}', 'Pass': '{{.T.Get "Pass"}}', 'Requests': '{{.T.Get "Requests"}}', 'Backend Requests': '{{.T.Get "Backend requests"}}', 'Backend Failures': '{{.T.Get "Backend failures"}}', 'Efficiency Score': '{{.T.Get "Efficiency score"}}' },
+            statLabels: { 'Hit Ratio': '{{.T.Get "Hit Ratio"}}', 'Hits': '{{.T.Get "Hits"}}', 'Misses': '{{.T.Get "Misses"}}', 'Pass': '{{.T.Get "Pass"}}', 'Requests': '{{.T.Get "Requests"}}', 'Backend Requests': '{{.T.Get "Backend Requests"}}', 'Backend Failures': '{{.T.Get "Backend Failures"}}', 'Efficiency Score': '{{.T.Get "Efficiency score"}}' },
             stats: {
                 'Hit Ratio': '--',
                 'Hits': '--',
@@ -163,7 +163,7 @@
                                         <input type="hidden" name="action" value="domain">
                                         <input type="hidden" name="domain_name" value="{{.DomainURL}}">
                                         <input type="hidden" name="varnish_action" :value="enabled ? 'Off' : 'On'">
-                                        <input type="checkbox" role="switch" :checked="enabled" {{if eq .Status "On"}}checked{{end}} aria-label="{{$.T.Get "Varnish cache for"}} {{.DomainURL}}" @change="$el.form.submit()">
+                                        <button type="submit" role="switch" aria-checked="{{if eq .Status "On"}}true{{else}}false{{end}}" :aria-checked="enabled.toString()" aria-label="{{$.T.Get "Varnish cache for"}} {{.DomainURL}}" :class="enabled ? 'bg-blue-500' : 'bg-gray-200 dark:bg-gray-950 dark:ring-gray-800'" class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full p-0.5 shadow-inner ring-1 ring-inset ring-black/5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 {{if eq .Status "On"}}bg-blue-500{{else}}bg-gray-200 dark:bg-gray-950 dark:ring-gray-800{{end}}"><span :class="enabled ? 'translate-x-4' : 'translate-x-0'" class="pointer-events-none inline-block size-4 rounded-full bg-white shadow-lg transition-transform dark:bg-gray-50 {{if eq .Status "On"}}translate-x-4{{end}}"></span></button>
                                     </form>
                                 </td>
                             </tr>

@@ -25,6 +25,8 @@
         </div>
     </div>
 
+{{if .Created.Service}}{{template "container_created" .}}{{end}}
+
     <dl aria-label="{{.T.Get "Summary"}}" class="grid grid-cols-2 gap-x-8 gap-y-5 px-4 pb-6 sm:grid-cols-4 sm:px-6 lg:flex lg:flex-wrap lg:gap-x-12 lg:px-8">
         <div>
             <dt class="text-sm text-gray-500">{{.T.Get "Running containers:"}}</dt>

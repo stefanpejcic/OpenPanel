@@ -50,7 +50,7 @@
         <div class="min-w-0">
             <dt class="text-sm text-gray-500">{{$.T.Get "Largest folder"}}</dt>
             <dd class="mt-1 flex min-w-0 items-baseline gap-2">
-                <a href="{{.Href}}" title="{{.Directory}}" class="max-w-xs truncate font-mono text-lg font-semibold text-gray-900 transition hover:opacity-75 dark:text-gray-50">{{.Directory}}</a>
+                <span title="{{.Directory}}" class="max-w-xs truncate font-mono text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Directory}}</span>
                 <span class="shrink-0 text-sm text-gray-400 tabular-nums dark:text-gray-600">{{$.KPIs.LargestSize}}</span>
             </dd>
         </div>

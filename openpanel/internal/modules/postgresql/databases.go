@@ -174,12 +174,11 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created a PostgreSQL database "+databaseName, ipAddress)
-		web.Flash(a, w, r, "success", web.Tr(a, r, "Successfully created a PostgreSQL database %(database_name)s", "database_name", databaseName))
-		renderNewDatabasePage(a, w, r, "", databaseName)
+		http.Redirect(w, r, web.CreatedDBURL("postgresql", databaseName), http.StatusFound)
 		return
 	}
 
-	renderNewDatabasePage(a, w, r, "", "")
+	renderNewDatabasePage(a, w, r, "", web.CreatedDBName(r))
 }
 
 // handleDeleteDatabase drops a PostgreSQL database.

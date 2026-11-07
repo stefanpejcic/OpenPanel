@@ -86,6 +86,7 @@ function mongoAssign() {
         preview() { return 'db.getSiblingDB("admin").grantRolesToUser("' + (this.user || '[user]') + '", [{ role: "' + this.role + '", db: "' + (this.db || '[database]') + '" }])'; },
         // adds anything /mongodb/info knows that the server-side list missed
         init() {
+            keepFilled(this);
             fetch('/mongodb/info', { headers: { 'X-CSRF-TOKEN': csrf_token } })
                 .then(res => res.json())
                 .then(data => {

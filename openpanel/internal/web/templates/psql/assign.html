@@ -81,6 +81,7 @@ function psqlAssign() {
     const users = {{toJSON .Names.Users}} || [], dbs = {{toJSON .Names.Databases}} || [];
     const pre = (v, list) => list.includes(v) ? v : '';
     return {
+        init() { keepFilled(this) },
         users, dbs,
         assigned: {{toJSON .Names.Assigned}} || [],
         user: pre({{toJSON .DBUser}} || q.get('db_user') || q.get('database_user') || '', users),
