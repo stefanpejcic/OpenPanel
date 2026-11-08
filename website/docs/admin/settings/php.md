@@ -2,18 +2,18 @@
 sidebar_position: 6
 ---
 
-# PHP Settings
+# PHP settings
 
 Manage the default PHP version and configuration files for new user accounts.
 
-### Default Version
+### Default version
 
 The default PHP version used for new user accounts is not set on this page — it is configurable from the [Edit User Defaults](/docs/admin/settings/defaults/) page.
 
 ![Default version section linking to the User Defaults page](/img/openadmin-screenshots/settings/php-default.png#gh-light-mode-only)
 ![Default version section linking to the User Defaults page](/img/openadmin-screenshots/settings/php-default_dark.png#gh-dark-mode-only)
 
-### Available Options
+### Available options
 
 These options determine which PHP settings users can modify from their **OpenPanel > PHP > Options** page.
 
@@ -42,7 +42,7 @@ upload_max_filesize
 zlib.output_compression
 ```
 
-### Default PHP.INI Files
+### Default php.ini files
 
 Here you can edit the PHP.INI configuration files that will be applied to new user accounts.
 
@@ -56,4 +56,4 @@ Select a PHP version to open its php.ini file for editing. After making changes,
 ![Default PHP.INI Files section with the PHP 8.5 INI file expanded in an editable text area](/img/openadmin-screenshots/settings/php-ini-open.png#gh-light-mode-only)
 ![Default PHP.INI Files section with the PHP 8.5 INI file expanded in an editable text area](/img/openadmin-screenshots/settings/php-ini-open_dark.png#gh-dark-mode-only)
 
-To revert to the original PHP.INI settings, click **Restore Default**, then click **Save**.
+To revert to the original PHP.INI settings, click **Restore default**, then click **Save**.

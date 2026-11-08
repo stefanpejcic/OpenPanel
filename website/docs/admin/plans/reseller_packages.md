@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# Reseller Packages
+# Reseller packages
 
 Reseller packages are limit templates for [reseller accounts](/docs/admin/accounts/resellers), the same way [User Packages](/docs/admin/plans/hosting_plans) are for users. Pick a package when creating a reseller, or let your billing system create resellers on a package through the API, and its limits are applied automatically.
 
@@ -16,9 +16,9 @@ Each package sets:
 |---|---|
 | **Name** | Used to pick the package in OpenAdmin, OpenCLI, the API and billing systems. Letters, numbers, `-` and `_` only, up to 64 characters. |
 | **Description** | Optional note, for example `10 accounts, 50 GB`. |
-| **Max Accounts** | How many user accounts resellers on this package can have. `0` means unlimited. |
-| **Max Disk Usage** | Total disk space for all accounts of the reseller, in GB. `0` means unlimited. |
-| **User Packages** | Which [User Packages](/docs/admin/plans/hosting_plans) resellers on this package can assign to their users. |
+| **Max accounts** | How many user accounts resellers on this package can have. `0` means unlimited. |
+| **Max disk usage** | Total disk space for all accounts of the reseller, in GB. `0` means unlimited. |
+| **User packages** | Which [User Packages](/docs/admin/plans/hosting_plans) resellers on this package can assign to their users. |
 
 Resellers created without a package get the default limits from `/etc/openpanel/openadmin/config/reseller_template.json`.
 
@@ -27,7 +27,7 @@ Resellers created without a package get the default limits from `/etc/openpanel/
 <Tabs>
   <TabItem value="openadmin-reseller-package-list" label="With OpenAdmin" default>
 
-Navigate to **OpenAdmin > Hosting Plans > Reseller Packages**. The table shows each package's name and description, Max Accounts, Max Disk, the number of User Packages it allows and how many resellers are on it (hover the number to see who). Click the arrows next to a column name to sort the table by that column, unlimited (`0`) sorts as the largest value.
+Navigate to **OpenAdmin > Hosting plans > Reseller packages**. The table shows each package's name and description, Max Accounts, Max Disk, the number of User Packages it allows and how many resellers are on it (hover the number to see who). Click the arrows next to a column name to sort the table by that column, unlimited (`0`) sorts as the largest value.
 
 ![Reseller Packages page listing packages with their max accounts, max disk, number of user packages and resellers on each](/img/openadmin-screenshots/plans/reseller_packages-list.png#gh-light-mode-only)
 ![Reseller Packages page listing packages with their max accounts, max disk, number of user packages and resellers on each](/img/openadmin-screenshots/plans/reseller_packages-list_dark.png#gh-dark-mode-only)
@@ -62,7 +62,7 @@ Example output:
 <Tabs>
   <TabItem value="openadmin-reseller-package-new" label="With OpenAdmin" default>
 
-On **OpenAdmin > Hosting Plans > Reseller Packages** click **Create New**, fill in the name, description, Max Accounts and Max Disk Usage, tick the User Packages resellers on it can assign, and click **Create**.
+On **OpenAdmin > Hosting plans > Reseller packages** click **Create New**, fill in the name, description, Max Accounts and Max Disk Usage, tick the User Packages resellers on it can assign, and click **Create**.
 
 ![Create New reseller package form with name, description, max accounts, max disk usage and the user packages resellers can assign](/img/openadmin-screenshots/plans/reseller_packages-new.png#gh-light-mode-only)
 ![Create New reseller package form with name, description, max accounts, max disk usage and the user packages resellers can assign](/img/openadmin-screenshots/plans/reseller_packages-new_dark.png#gh-dark-mode-only)
@@ -162,7 +162,7 @@ Use this to upgrade or downgrade a reseller. Moving to a package with fewer acco
 <Tabs>
   <TabItem value="openadmin-reseller-change-package" label="With OpenAdmin" default>
 
-On **Accounts > Resellers** open **Edit Plans & Limits** for the reseller, pick the package under **Reseller Package** and click **Apply Package**.
+On **Accounts > Resellers** open **Edit plans & limits** for the reseller, pick the package under **Reseller Package** and click **Apply package**.
 
 ![Edit Plans & Limits page of a reseller with the Reseller Package picker and the Apply Package button above the custom limits](/img/openadmin-screenshots/accounts/resellers-package.png#gh-light-mode-only)
 ![Edit Plans & Limits page of a reseller with the Reseller Package picker and the Apply Package button above the custom limits](/img/openadmin-screenshots/accounts/resellers-package_dark.png#gh-dark-mode-only)
@@ -186,10 +186,10 @@ curl -X POST https://SERVER:2087/api/settings/resellers \
   </TabItem>
 </Tabs>
 
-Limits changed by hand on **Edit Plans & Limits** stay until the reseller's package is edited or another package is applied, then they're replaced by the package's limits.
+Limits changed by hand on **Edit plans & limits** stay until the reseller's package is edited or another package is applied, then they're replaced by the package's limits.
 
 ## How limits are enforced
 
-- **Max Accounts** - the reseller can't create a new user, and no user can be moved to them, once they have this many accounts.
-- **User Packages** - users of the reseller can only be created on, or changed to, the allowed packages. This also applies when an administrator does it for the reseller.
-- **Max Disk Usage** - a soft limit. Once the reseller's users together reach it, the reseller can't create new users, users can't be moved to them, and their users can't be changed to a package with more disk space. Existing accounts keep working. Disk usage is recalculated by the [files-calculate_resellers_storage](/docs/articles/server/openadmin-system-crons/#files-calculate_resellers_storage) cron job, so it can take a while to catch up.
+- **Max accounts** - the reseller can't create a new user, and no user can be moved to them, once they have this many accounts.
+- **User packages** - users of the reseller can only be created on, or changed to, the allowed packages. This also applies when an administrator does it for the reseller.
+- **Max disk usage** - a soft limit. Once the reseller's users together reach it, the reseller can't create new users, users can't be moved to them, and their users can't be changed to a package with more disk space. Existing accounts keep working. Disk usage is recalculated by the [files-calculate_resellers_storage](/docs/articles/server/openadmin-system-crons/#files-calculate_resellers_storage) cron job, so it can take a while to catch up.

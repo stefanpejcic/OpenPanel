@@ -8,7 +8,7 @@ View and manage mail that's queued but not yet delivered by the mailserver (Post
 
 Use **OpenAdmin > Emails > Queue** to access it.
 
-## Queue Table
+## Queue table
 
 Each row shows one queued message, including its queue ID, sender, recipient(s), size, and the reason delivery is being retried.
 

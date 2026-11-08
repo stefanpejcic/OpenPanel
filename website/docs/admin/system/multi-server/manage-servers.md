@@ -2,9 +2,13 @@
 sidebar_position: 6
 ---
 
-# Manage Servers
+# Manage servers
 
-The **Servers** table on **System > Multi-Server** lists the master and every slave with its users, load, RAM, disk and OpenPanel version.
+The **Servers** table on **System > Multi-server** lists the master and every slave with its users, load, RAM, disk and OpenPanel version.
+
+A strip above the table sums up the cluster: the number of **Servers** (and how many are offline or paused), **Users** on all servers, **Settings** changed since the last sync, and **Updates**, how many servers are behind the latest version, or **All up to date**.
+
+When a server is offline, has a service down, or has disk or RAM over 90%, a box above the table lists those servers and what's wrong. Paused servers are left out. Offline servers have no actions in the table, and can't be selected for a sync.
 
 ![Servers table with Open, Make master, Pause and Remove for each slave](/img/openadmin-screenshots/multi-server/servers-table.png#gh-light-mode-only)
 ![Servers table with Open, Make master, Pause and Remove for each slave](/img/openadmin-screenshots/multi-server/servers-table_dark.png#gh-dark-mode-only)

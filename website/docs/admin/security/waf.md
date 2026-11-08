@@ -2,9 +2,9 @@
 sidebar_position: 2
 ---
 
-# Web Firewall (Coraza)
+# Web firewall (Coraza)
 
-The **Security > Web Firewall (Coraza)** page manages CorazaWAF, the Web Application Firewall built into OpenPanel. It inspects every request to your users' websites and blocks common attacks such as SQL injection, cross-site scripting (XSS) and access to restricted files, using the [OWASP Core Rule Set](https://coreruleset.org/) (CRS).
+The **Security > Web firewall (Coraza)** page manages CorazaWAF, the Web Application Firewall built into OpenPanel. It inspects every request to your users' websites and blocks common attacks such as SQL injection, cross-site scripting (XSS) and access to restricted files, using the [OWASP Core Rule Set](https://coreruleset.org/) (CRS).
 
 The page has four tabs:
 
@@ -36,7 +36,7 @@ Pick **Enabled** or **Disabled** and click **Save** next to the dropdown.
 
 While **Disabled** is selected, a recommendation to enable it is shown, since the WAF blocks common attacks like SQL injection and XSS before they reach user sites.
 
-### OWASP Core Rule Set
+### OWASP core rule set
 
 Shows the installed CRS version. OpenAdmin checks GitHub for new rules in the background every few hours, and **Check for updates** checks right away.
 
@@ -78,7 +78,7 @@ The Rules tab manages the rule sets from the OWASP Core Rule Set and the rules t
 Each rule set is a file of rules for one kind of attack, like `REQUEST-942-APPLICATION-ATTACK-SQLI`. The table shows:
 
 - **Name** – the rule set name, hover it to see the file path.
-- **Number of Rules** – the number of lines in the rule set.
+- **Number of rules** – the number of lines in the rule set.
 - **Status** – **Enabled** or **Disabled**.
 - **Actions** – **View** opens the rule set's contents, and **Enable** or **Disable** toggles it.
 
@@ -89,7 +89,7 @@ Each rule set is a file of rules for one kind of attack, like `REQUEST-942-APPLI
 
 Click a column header to sort the table, and use the search box to find a rule set by name. Restart Caddy after enabling or disabling rule sets to apply the changes.
 
-### Bulk Actions
+### Bulk actions
 
 Tick the checkbox of one or more rule sets, or the checkbox in the table header to select all rule sets shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 

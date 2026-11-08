@@ -2,11 +2,11 @@
 sidebar_position: 6
 ---
 
-# Email Deliverability
+# Email deliverability
 
 Email Deliverability shows which domains need DNS changes so their emails don't end up in spam.
 
-Use **OpenAdmin > Emails > Email Deliverability** to access it.
+Use **OpenAdmin > Emails > Email deliverability** to access it.
 
 ![Email Deliverability page with the number of domains that need DNS changes and the DKIM, SPF, DMARC and overall status of every domain](/img/openadmin-screenshots/emails/deliverability-list.png#gh-light-mode-only)
 ![Email Deliverability page with the number of domains that need DNS changes and the DKIM, SPF, DMARC and overall status of every domain](/img/openadmin-screenshots/emails/deliverability-list_dark.png#gh-dark-mode-only)
@@ -25,7 +25,7 @@ Use the search box to filter by domain or owner, and click a column name to sort
 
 The records are looked up in DNS a few domains at a time and the results are kept for 5 minutes. Click **Check again** to look them up right away, for example after changing a DNS zone.
 
-## Domain Details
+## Domain details
 
 Click a domain to see the record that is published now and the one it should be, ready to copy into the DNS zone.
 

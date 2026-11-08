@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# User Backups
+# User backups
 
 *OpenAdmin > Backups > Users* controls how hosting users' own account backups (websites, databases, etc. — via each user's `docker-volume-backup` service) run. It's only available to Administrators and Users, not Resellers. It has three tabs: **Settings**, **Configuration**, and **Runs**.
 
@@ -39,7 +39,7 @@ touch /etc/openpanel/openpanel/core/users/<username>/admin.backups
 
 Edits `/etc/openpanel/backups/backup.env` — the default `docker-volume-backup` settings (destination, retention, notifications, etc.) every **new** user account is provisioned with. This does not change any existing user's own backup settings, only what future accounts start with.
 
-A **Restore Default** button fetches OpenPanel's shipped default `backup.env` from GitHub into the field (client-side, no server round trip) — click **Save** afterward to actually apply it.
+A **Restore default** button fetches OpenPanel's shipped default `backup.env` from GitHub into the field (client-side, no server round trip) — click **Save** afterward to actually apply it.
 
 ![User Backups Configuration tab with the default backup.env editor and the Restore Default button](/img/openadmin-screenshots/backups/user-configuration.png#gh-light-mode-only)
 ![User Backups Configuration tab with the default backup.env editor and the Restore Default button](/img/openadmin-screenshots/backups/user-configuration_dark.png#gh-dark-mode-only)
@@ -51,4 +51,4 @@ Raw log of every `opencli docker-backup` run (`/var/log/openpanel/admin/docker-b
 ![User Backups Runs tab with the log of past backup runs](/img/openadmin-screenshots/backups/user-runs.png#gh-light-mode-only)
 ![User Backups Runs tab with the log of past backup runs](/img/openadmin-screenshots/backups/user-runs_dark.png#gh-dark-mode-only)
 
-**Run Backup Now** triggers `opencli docker-backup` immediately for every account the Administrator manages. It's only available in **Admin Configured** mode — in Disabled mode there's no central schedule for it to act on, since each user's own settings apply instead.
+**Run backup now** triggers `opencli docker-backup` immediately for every account the Administrator manages. It's only available in **Admin Configured** mode — in Disabled mode there's no central schedule for it to act on, since each user's own settings apply instead.

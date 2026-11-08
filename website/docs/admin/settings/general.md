@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# General Settings
+# General settings
 
 From this page Administrators can configure the domain to access both OpenPanel and OpenAdmin interfaces, as well as ports for those services.
 
@@ -61,7 +61,7 @@ By default, when users add a domain, the addition of "/openpanel" to the domain 
 
 To change the "/openpanel" to something else, simply set the value in the "/openpanel" field and click on save. Changes take effect instantly without service interruption.
 
-## Debugging (Dev Mode)
+## Debugging (dev mode)
 
 Toggle **Dev mode** to enable verbose/detailed logging for OpenPanel and OpenAdmin, useful for error diagnostics. Logs can be viewed under *OpenAdmin > Services > Log Files*.
 

@@ -2,14 +2,14 @@
 sidebar_position: 9
 ---
 
-# Locales (Languages)
+# Locales (languages)
 
 Manage the languages available to OpenPanel users.
 
 ![Languages page listing locales with their provider, install status, default and Set as Default buttons](/img/openadmin-screenshots/settings/locales-list.png#gh-light-mode-only)
 ![Languages page listing locales with their provider, install status, default and Set as Default buttons](/img/openadmin-screenshots/settings/locales-list_dark.png#gh-dark-mode-only)
 
-## Bulk Actions
+## Bulk actions
 
 Tick the checkbox of one or more locales, or the checkbox in the table header to select all locales shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 
@@ -24,7 +24,7 @@ Tick the checkbox of one or more locales, or the checkbox in the table header to
 
 Click an action, confirm it, and it runs on the selected locales one after another. When it's done the page reloads with a notice listing the locales it worked for, or which ones failed and why.
 
-## Install Locale
+## Install locale
 
 By default, only the **EN** locale is installed. To enable other locales, they must be installed first.
 
@@ -35,7 +35,7 @@ OpenAdmin also recommends locales to install, based on the country of each user'
 
 To install a locale, go to **OpenAdmin > Settings > Locales** and click the **Install** button next to the desired locale.
 
-To install every available locale at once, click **Install All** at the top of the page. This downloads all locales from GitHub (about 11 MB in total) and re-downloads ones that are already installed, so it also updates them. Once finished, a notification lists which locales were installed and which failed.
+To install every available locale at once, click **Install all** at the top of the page. This downloads all locales from GitHub (about 11 MB in total) and re-downloads ones that are already installed, so it also updates them. Once finished, a notification lists which locales were installed and which failed.
 
   </TabItem>
   <TabItem value="API-install-locale" label="With API">
@@ -100,14 +100,14 @@ opencli locale $(curl -s "https://api.github.com/repos/stefanpejcic/openpanel-tr
 </Tabs>
 
 
-## Update Locale
+## Update locale
 
 Each time the **Locales** page is opened, OpenAdmin compares every installed locale file with the latest version on GitHub. If a newer version exists, a notification lists the locales with updates, the locale shows an **Update available** badge, and an **Update** button appears in its **Actions** column.
 
 <Tabs>
   <TabItem value="openadmin-update-locale" label="With OpenAdmin" default>
 
-Click **Update** next to a locale to download its latest version, or click **Update All** at the top of the page to update every outdated locale at once. **Update All** is only shown when at least one update is available.
+Click **Update** next to a locale to download its latest version, or click **Update all** at the top of the page to update every outdated locale at once. **Update all** is only shown when at least one update is available.
 
   </TabItem>
   <TabItem value="API-update-locale" label="With API">
@@ -144,7 +144,7 @@ opencli locale tr-tr
   </TabItem>
 </Tabs>
 
-## Delete Locale
+## Delete locale
 
 <Tabs>
   <TabItem value="openadmin-delete-locale" label="With OpenAdmin" default>
@@ -177,13 +177,13 @@ rm -rf /etc/openpanel/openpanel/translations/tr
 Users who had selected a deleted locale will see untranslated (English) text instead.
 :::
 
-## Default Locale
+## Default locale
 
 
 <Tabs>
   <TabItem value="openadmin-default-locale" label="With OpenAdmin" default>
 
-To make a specific locale the default, go to **OpenAdmin > Settings > Locales** and click the **Set as Default** button next to the desired locale.
+To make a specific locale the default, go to **OpenAdmin > Settings > Locales** and click the **Set as default** button next to the desired locale.
 
   </TabItem>
   <TabItem value="CLI-default-locale" label="From Terminal">
@@ -208,11 +208,11 @@ Changing the default will **not** automatically update existing users’ setting
 For more details, see [How-to Guides > Setting the Default Locale](/docs/articles/accounts/default-user-locales/#setting-the-default-locale).
 :::
 
-## Edit Locale
+## Edit locale
 
 To edit a locale, click the GitHub icon next to it in the table. This opens the source on GitHub, where you can fork the repository and edit the translation file.
 
-## Create a Locale
+## Create a locale
 
 To create a new locale:
 

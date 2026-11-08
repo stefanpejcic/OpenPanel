@@ -2,7 +2,7 @@
 sidebar_position: 4
 ---
 
-# Basic Auth
+# Basic auth
 
 Enable [Basic Access Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) as an additional security layer for the OpenAdmin interface.
 

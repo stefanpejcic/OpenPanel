@@ -2,9 +2,9 @@
 sidebar_position: 3
 ---
 
-# Daily Summary
+# Daily summary
 
-The **Daily Summary** tab, next to **Dashboard**, **Notifications** and **License**, adds up the [daily summaries](/docs/panel/statistics/daily_summary/) of all OpenPanel accounts for the most recent day that has them, up to 7 days back. On a [multi-server](/docs/admin/system/multi-server/) master it covers the accounts of every server. Resellers see only their own accounts.
+The **Daily summary** tab, next to **Dashboard**, **Notifications** and **License**, adds up the [daily summaries](/docs/panel/statistics/daily_summary/) of all OpenPanel accounts for the most recent day that has them, up to 7 days back. On a [multi-server](/docs/admin/system/multi-server/) master it covers the accounts of every server. Resellers see only their own accounts.
 
 An orange exclamation mark on the tab means something needs attention. It goes away once you open the tab, until the summary of a newer day needs attention again.
 

@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Service Status
+# Service status
 
 The Service Status section allows you to view and control the status of system services and containers running on your server.
 
@@ -20,7 +20,7 @@ This table provides key details for each service:
 * **Monitoring** – Shows whether the service is actively being monitored and logged.
 * **Action** – Options to start, stop, or restart the service.
 
-## Bulk Actions
+## Bulk actions
 
 Tick the checkbox of one or more services, or the checkbox in the table header to select all services shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 
@@ -37,9 +37,9 @@ OpenAdmin itself (`admin`) can only be started from here, stopping or restarting
 
 Click an action, confirm it, and it runs on the selected services one after another. When it's done the page reloads with a notice listing the services it worked for, or which ones failed and why.
 
-## Edit Services
+## Edit services
 
-You can customize which services appear and are manageable from this section by clicking the **Edit Services** button.
+You can customize which services appear and are manageable from this section by clicking the **Edit services** button.
 
 ![Edit Services page for changing which services are shown and monitored](/img/openadmin-screenshots/services/status-edit.png#gh-light-mode-only)
 ![Edit Services page for changing which services are shown and monitored](/img/openadmin-screenshots/services/status-edit_dark.png#gh-dark-mode-only)

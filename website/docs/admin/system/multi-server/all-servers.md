@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# Work With All Servers
+# Work with all servers
 
 ## Switch servers
 

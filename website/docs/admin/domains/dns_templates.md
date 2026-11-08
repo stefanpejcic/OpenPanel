@@ -2,7 +2,7 @@
 sidebar_position: 5
 ---
 
-# Edit Zone Templates
+# Edit zone templates
 
 This interface allows you to edit the DNS zone file templates that OpenPanel uses when creating zones for new domains.  
 It is useful if you require custom DNS configurations.
@@ -14,12 +14,12 @@ Edit Zone Templates is only shown in the **Domains** sidebar group when the **dn
 ![Edit Zone Templates page with the IPv4 and IPv6 zone templates and the Restore Default and Save Files buttons](/img/openadmin-screenshots/domains/dns_templates-page.png#gh-light-mode-only)
 ![Edit Zone Templates page with the IPv4 and IPv6 zone templates and the Restore Default and Save Files buttons](/img/openadmin-screenshots/domains/dns_templates-page_dark.png#gh-dark-mode-only)
 
-- **IPv4 Template** – Used for new domains assigned IPv4 addresses.
-- **IPv6 Template** – Used for new domains assigned IPv6 addresses.
+- **IPv4 template** – Used for new domains assigned IPv4 addresses.
+- **IPv6 template** – Used for new domains assigned IPv6 addresses.
 
 ---
 
-## Available Template Variables
+## Available template variables
 
 You can include the following variables in your DNS zone templates:
 
@@ -37,11 +37,11 @@ You can include the following variables in your DNS zone templates:
 
 ---
 
-## Restore Defaults
+## Restore defaults
 
 To reset a template to its default version:
 
-1. Click **Restore Default** for the corresponding section.
-2. Then click **Save Files** to apply the changes.
+1. Click **Restore default** for the corresponding section.
+2. Then click **Save files** to apply the changes.
 
 > ⚠️ Defaults are pulled from the official GitHub repository. Always review before saving.
