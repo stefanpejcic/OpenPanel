@@ -6,6 +6,9 @@ sed -i 's/^# LITESPEED (tag is <release>-lsphpXX, the php version comes with the
 #Update account.sh
 cd /usr/local/mail/openmail/openpanel && git pull
 
+#Updated pma.php
+
+curl -fsSL -o /etc/openpanel/mysql/phpmyadmin/pma.php https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/a52301106063aea957aee9f1de19aa0c536e6dea/mysql/phpmyadmin/pma.php
 
 # multi-server pins the OpenAdmin cert key and shortlived IP certs get a new key every few days, so caddy keeps the key on renewal now
 CADDYFILE=/etc/openpanel/caddy/Caddyfile
