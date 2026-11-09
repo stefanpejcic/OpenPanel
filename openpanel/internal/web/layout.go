@@ -47,15 +47,16 @@ type LayoutData struct {
 	CustomCSS     bool
 	CustomJS      bool
 
-	MenuStyle       string     // "classic" or "modern", see ReadMenuStyle
-	NavItems        []NavItem  // modern sidebar
-	NavGroups       []NavGroup // classic sidebar
-	PageTabs        []NavLink  // tab bar rendered above the page content, nil when the page's area has no siblings
-	NavTrail        []NavLink  // header trail, the last one is the current page and has no Href
-	ServiceTool     string     // "terminal" or "logs" when that page was opened from a service's own tabs (?ctx=service), so it can drop its own service picker
-	UserAllowed     map[string]bool
-	UserAllowedJSON template.JS
-	IsEnterprise    bool
+	MenuStyle        string     // "classic" or "modern", see ReadMenuStyle
+	NavItems         []NavItem  // modern sidebar
+	NavGroups        []NavGroup // classic sidebar
+	PageTabs         []NavLink  // tab bar rendered above the page content, nil when the page's area has no siblings
+	NavTrail         []NavLink  // header trail, the last one is the current page and has no Href
+	ServiceTool      string     // "terminal" or "logs" when that page was opened from a service's own tabs (?ctx=service), so it can drop its own service picker
+	UserAllowed      map[string]bool
+	UserAllowedJSON  template.JS
+	SidebarFavorites []Favorite // sidebar favorites, rendered server-side so the section doesn't pop in after an ajax load
+	IsEnterprise     bool
 
 	// UpsellAllowed lists modules the current plan doesn't grant but the configured upsell plan does - the sidebar/dashboard show these greyed-out with an upgrade prompt instead of hiding them. UpsellPlanName/UpsellURL are blank when no upsell plan is configured.
 	UpsellAllowed  map[string]bool

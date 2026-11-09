@@ -163,6 +163,7 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 		ServiceTool:       serviceTool,
 		UserAllowed:       userAllowed,
 		UserAllowedJSON:   UserAllowedList(userAllowed),
+		SidebarFavorites:  SidebarFavorites(r.Context(), a, userAllowed, currentUsername),
 		UpsellAllowed:     upsellAllowed,
 		UpsellPlanName:    upsellPlanName,
 		UpsellURL:         upsellURL,
