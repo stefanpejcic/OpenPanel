@@ -90,6 +90,8 @@ func apiPsqlListDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	// the UI pages start PostgreSQL too, sentinel stops an idle one and every read would fail until something else started it
+	docker.StartComposeServiceIfNotRunning(r.Context(), userContext, "postgres")
 
 	dbRows, execErr := postgresmanager.Exec(ctx, userContext, `
 		SELECT datname FROM pg_database
@@ -340,6 +342,8 @@ func apiPsqlListUsers(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	// the UI pages start PostgreSQL too, sentinel stops an idle one and every read would fail until something else started it
+	docker.StartComposeServiceIfNotRunning(r.Context(), userContext, "postgres")
 	rows, execErr := postgresmanager.Exec(ctx, userContext, "SELECT rolname FROM pg_roles WHERE rolname NOT IN ("+filteredRolesSQL()+") ORDER BY rolname", "postgres")
 	if execErr != nil {
 		writeAPIPsqlJSON(w, http.StatusInternalServerError, map[string]string{"error": execErr.Error()})
@@ -570,6 +574,8 @@ func apiPsqlInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	// the UI pages start PostgreSQL too, sentinel stops an idle one and every read would fail until something else started it
+	docker.StartComposeServiceIfNotRunning(r.Context(), userContext, "postgres")
 
 	dbRows, execErr := postgresmanager.Exec(ctx, userContext, `
 		SELECT datname FROM pg_database
@@ -631,6 +637,8 @@ func apiPsqlProcesslist(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	// the UI pages start PostgreSQL too, sentinel stops an idle one and every read would fail until something else started it
+	docker.StartComposeServiceIfNotRunning(r.Context(), userContext, "postgres")
 	rows, execErr := postgresmanager.Exec(ctx, userContext, `
 		SELECT pid, usename, application_name, client_addr, state,
 		       wait_event_type, wait_event, query, backend_type,
@@ -752,6 +760,8 @@ func apiPsqlGetConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	// the UI pages start PostgreSQL too, sentinel stops an idle one and every read would fail until something else started it
+	docker.StartComposeServiceIfNotRunning(r.Context(), userContext, "postgres")
 	if !docker.IsServiceRunning(ctx, userContext, "postgres") {
 		writeAPIPsqlJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "PostgreSQL container is not running."})
 		return

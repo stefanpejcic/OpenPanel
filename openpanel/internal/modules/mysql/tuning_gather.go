@@ -163,6 +163,8 @@ func handleMySQLConfigRecommendations(a *appctx.App, w http.ResponseWriter, r *h
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	// the UI pages start MySQL too, sentinel stops an idle one and every read would fail until something else started it
+	docker.StartComposeServiceIfNotRunning(r.Context(), userContext, "sql")
 	stats, err := gatherTuningStats(r.Context(), a, userContext)
 	if err != nil {
 		web.WriteJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "Could not read the database status: " + err.Error()})

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os/exec"
 	"strconv"
+	"strings"
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -51,6 +52,10 @@ func runPodmanLogs(ctx context.Context, userContext string, args ...string) (str
 	out, err := podmanmanager.Command(cmdCtx, userContext, argv).CombinedOutput()
 	if err != nil {
 		if _, ok := err.(*exec.ExitError); ok {
+			// an unknown service is the caller's mistake, not a server error
+			if strings.Contains(string(out), "no such container") {
+				return "Error: " + string(out), http.StatusNotFound
+			}
 			return "Error: " + string(out), http.StatusInternalServerError
 		}
 		return "Unhandled error: " + err.Error(), http.StatusInternalServerError
