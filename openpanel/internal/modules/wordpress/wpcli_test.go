@@ -82,10 +82,10 @@ func TestGetWPConfigDBInfoRejectsSQL(t *testing.T) {
 		}
 		return dir
 	}
-	if db, prefix, err := getWPConfigDBInfo(write(t, "acct_wp1", "wp_")); err != nil || db != "acct_wp1" || prefix != "wp_" {
+	if db, prefix, err := getWPConfigDBInfo(t.TempDir(), write(t, "acct_wp1", "wp_")); err != nil || db != "acct_wp1" || prefix != "wp_" {
 		t.Fatalf("normal config = %q, %q, %v", db, prefix, err)
 	}
-	if _, _, err := getWPConfigDBInfo(write(t, "my-site.db", "x7_")); err != nil {
+	if _, _, err := getWPConfigDBInfo(t.TempDir(), write(t, "my-site.db", "x7_")); err != nil {
 		t.Errorf("dots and dashes in DB_NAME should still work: %v", err)
 	}
 	bad := [][2]string{
@@ -95,7 +95,7 @@ func TestGetWPConfigDBInfoRejectsSQL(t *testing.T) {
 		{"acct_wp1", "wp-"},
 	}
 	for _, c := range bad {
-		if db, prefix, err := getWPConfigDBInfo(write(t, c[0], c[1])); err == nil {
+		if db, prefix, err := getWPConfigDBInfo(t.TempDir(), write(t, c[0], c[1])); err == nil {
 			t.Errorf("DB_NAME %q / prefix %q should be refused, got %q, %q", c[0], c[1], db, prefix)
 		}
 	}
