@@ -695,6 +695,17 @@ setup_compose() {
 
     sed -i "s/^VERSION=.*$/VERSION=\"$PANEL_VERSION\"/" /root/.env
 
+    # FTP passive mode address, so the FTP container doesn't have to look it up on every start (sentinel rewrites it on boot if the IP changes)
+    # a private IP (NAT, or the interface fallback in get_server_ipv4) is left out and the container detects the public one itself
+    if [[ "$SERVER_IPV4_ADDRESS" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] \
+       && ! [[ "$SERVER_IPV4_ADDRESS" =~ ^(10\.|127\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.|100\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\.) ]]; then
+        if grep -q '^FTP_PASV_ADDRESS=' /root/.env; then
+            sed -i "s/^FTP_PASV_ADDRESS=.*/FTP_PASV_ADDRESS=\"$SERVER_IPV4_ADDRESS\"/" /root/.env
+        else
+            echo "FTP_PASV_ADDRESS=\"$SERVER_IPV4_ADDRESS\"" >> /root/.env
+        fi
+    fi
+
     [[ "$USER_PORT" != 2083 ]] && {
         sed -i "s/^PORT=\"[^\"]*\"/PORT=\"$USER_PORT\"/" /root/.env
         sed -i "/redir @openpanel/s/:[0-9]\+/:$USER_PORT/g" "${ETC_DIR}caddy/redirects.conf"
