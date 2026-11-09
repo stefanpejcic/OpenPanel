@@ -6,8 +6,10 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -160,10 +162,32 @@ func wpCLIParams(r *http.Request) map[string]string {
 	return out
 }
 
+func wpHTMLVolume(userContext string) string {
+	return filepath.Join("/home", userContext, "docker-data", "volumes", userContext+"_html_data", "_data")
+}
+
+// findWPConfig looks where wp-load.php does, one level up only if that folder isn't its own WordPress install (#1298)
+func findWPConfig(htmlVolume, realPath string) string {
+	config := filepath.Join(realPath, "wp-config.php")
+	if _, err := tenantfs.Stat(config); err == nil {
+		return config
+	}
+	parent := filepath.Dir(realPath)
+	if parent != htmlVolume && !strings.HasPrefix(parent, htmlVolume+string(filepath.Separator)) {
+		return config
+	}
+	if _, err := tenantfs.Stat(filepath.Join(parent, "wp-settings.php")); !errors.Is(err, fs.ErrNotExist) {
+		return config
+	}
+	if _, err := tenantfs.Stat(filepath.Join(parent, "wp-config.php")); err != nil {
+		return config
+	}
+	return filepath.Join(parent, "wp-config.php")
+}
+
 // getWPConfigDBInfo mirrors get_wp_config_db_info().
-func getWPConfigDBInfo(realPath string) (dbName, tablePrefix string, err error) {
-	wpConfigFile := filepath.Join(realPath, "wp-config.php")
-	content, readErr := tenantfs.ReadFile(wpConfigFile)
+func getWPConfigDBInfo(htmlVolume, realPath string) (dbName, tablePrefix string, err error) {
+	content, readErr := tenantfs.ReadFile(findWPConfig(htmlVolume, realPath))
 	if readErr != nil {
 		return "", "", fmt.Errorf("wp-config.php not found")
 	}
@@ -189,7 +213,7 @@ type wpUser struct {
 
 // getWPUsers mirrors get_wp_users(): reads users/usermeta directly, no wp-cli round trip.
 func getWPUsers(ctx context.Context, userContext, realPath, roleFilter string) ([]wpUser, error) {
-	dbName, tablePrefix, err := getWPConfigDBInfo(realPath)
+	dbName, tablePrefix, err := getWPConfigDBInfo(wpHTMLVolume(userContext), realPath)
 	if err != nil {
 		return nil, err
 	}
@@ -393,7 +417,7 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	htmlVolume := filepath.Join("/home", userContext, "docker-data", "volumes", userContext+"_html_data", "_data")
+	htmlVolume := wpHTMLVolume(userContext)
 	realPath, ok := wpCLIRealPath(htmlVolume, domainDirectory)
 	if !ok {
 		http.Error(w, "Invalid document root.", http.StatusBadRequest)
@@ -643,7 +667,7 @@ func handleWPCLILogin(a *appctx.App, w http.ResponseWriter, r *http.Request, cur
 		return
 	}
 
-	dbName, tablePrefix, dbErr := getWPConfigDBInfo(realPath)
+	dbName, tablePrefix, dbErr := getWPConfigDBInfo(wpHTMLVolume(userContext), realPath)
 	if dbErr != nil {
 		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unable to create login link", "details": dbErr.Error()})
 		return
