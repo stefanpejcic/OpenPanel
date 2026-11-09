@@ -148,6 +148,10 @@ For full installation options and configuration flags: [https://openpanel.com/in
 
 Special thanks to all [contributors](https://github.com/stefanpejcic/OpenPanel/graphs/contributors) for extending and improving _OpenPanel_.
 
+## Version
+
+Latest OpenPanel version is: **2.0.22** - [View Changelog](https://openpanel.com/docs/changelog/2.0.22/)
+
 ## Contribute
 
 Check out [CONTRIBUTING.md](https://github.com/stefanpejcic/OpenPanel/blob/main/CONTRIBUTING.md) for more information on how to help with _openpanel_.
