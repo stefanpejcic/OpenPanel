@@ -98,6 +98,15 @@ type GitPageData struct {
 	BulkActions []web.BulkAction
 }
 
+// RepoNames are the taken names, the add form flags a duplicate before posting
+func (d GitPageData) RepoNames() []string {
+	names := make([]string, 0, len(d.Repos))
+	for _, r := range d.Repos {
+		names = append(names, r.Name)
+	}
+	return names
+}
+
 func renderGitPage(a *appctx.App, w http.ResponseWriter, r *http.Request, userID int, username, userContext string, extras pageExtras) {
 	ctx := r.Context()
 	layout, _, err := web.BuildLayoutData(a, w, r, "Git")
