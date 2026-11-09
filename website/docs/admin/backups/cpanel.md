@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# Import cPanel Account
+# Import cPanel account
 
 Use **OpenAdmin > Backups > Import Account** to create an OpenPanel account from a cPanel, CyberPanel, or OpenPanel backup. On the import page, select the backup file and choose the backup type (**OpenPanel**, **cPanel**, or **CyberPanel**) before starting the import.
 
@@ -10,7 +10,7 @@ Use **OpenAdmin > Backups > Import Account** to create an OpenPanel account from
 ![Account Imports page with the import logs and the Import Account button](/img/openadmin-screenshots/advanced/cpanel-page_dark.png#gh-dark-mode-only)
 
 :::info
-This menu item is only available with an **Enterprise** license. A **View Logs** button on the same page links to the account import history.
+This menu item is only available with an **Enterprise** license. A **View logs** button on the same page links to the account import history.
 :::
 
 Instead of picking a backup that's already on the server you can upload one: choose the `.tar.gz` file under **Backup file**, click **Upload** and it's selected once the upload finishes. Uploads are saved to `/home/reseller_imports/<your username>/`.

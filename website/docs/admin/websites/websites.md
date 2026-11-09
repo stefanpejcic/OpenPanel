@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Manage Websites
+# Manage websites
 
 Websites page lists every website in Site Manager across all users on the server: WordPress and other CMS installs, Website Builder sites and Node.js, Python, Ruby or Java apps.
 
@@ -28,7 +28,7 @@ The table shows these columns:
 | **Created**         | When the website was added to Site Manager.                                 |
 | **Actions**         | Menu with the [website actions](#website-actions).                          |
 
-Click **Show Columns** to show or hide any column except Site and Actions. All columns are shown by default and your choice is remembered for your browser.
+Click **Show columns** to show or hide any column except Site and Actions. All columns are shown by default and your choice is remembered for your browser.
 
 Use the search box (**Search sites, owners, domains...**) to filter the list by site address, owner, domain, admin email or type. When more than one type of website exists, buttons above the table (**All**, **WordPress**, **Website Builder**...) filter the list by type.
 
@@ -53,7 +53,7 @@ Websites installed by users outside of Site Manager, for example uploaded over F
 <Tabs>
   <TabItem value="openadmin-websites-scan" label="With OpenAdmin" default>
 
-Click **Scan for Websites**, enter a username or leave the field empty to scan all users, and click **Start Scan**. The scan runs in the background and new sites show up in the list once it finishes.
+Click **Scan for websites**, enter a username or leave the field empty to scan all users, and click **Start scan**. The scan runs in the background and new sites show up in the list once it finishes.
 
   </TabItem>
   <TabItem value="CLI-websites-scan" label="With OpenCLI">
@@ -83,7 +83,7 @@ Click the **⋯** button at the end of a row to open the actions menu:
 | **Log in to wp-admin**       | Logs you in to the WordPress dashboard as an administrator. WordPress only. |
 | **Manage as owner**          | Logs in to OpenPanel as the owner and opens this website in Site Manager.  |
 | **Owner account**            | Opens the owner's account page in OpenAdmin.                                |
-| **Edit Virtual Host**        | Opens the web server configuration of the website's domain.                 |
+| **Edit virtual host**        | Opens the web server configuration of the website's domain.                 |
 | **Check PageSpeed**          | Runs a [Google PageSpeed check](#check-pagespeed).                          |
 | **Scan with ImunifyAV**      | Queues an [ImunifyAV scan](#scan-with-imunifyav) of the owner's files. Shown only when ImunifyAV is installed. |
 | **Scan for vulnerabilities** | Runs a [vulnerability scan](#scan-for-vulnerabilities). WordPress only.     |

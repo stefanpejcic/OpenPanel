@@ -48,7 +48,7 @@ func TestRenderAccountsPage(t *testing.T) {
 	if !strings.Contains(body, "info@demo.rs") {
 		t.Error("expected address in body")
 	}
-	for _, want := range []string{"4 of 50", "1.7 GB / 2 GB", "12 MB / 1 GB", `data-href="/emails/edit/info@demo.rs"`} {
+	for _, want := range []string{"4 of 50", "1.7 GB / 2.0 GB", "12 MB / 1.0 GB", `data-href="/emails/edit/info@demo.rs"`} {
 		if !strings.Contains(body, want) {
 			t.Errorf("expected %q in body", want)
 		}

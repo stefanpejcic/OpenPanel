@@ -2,7 +2,7 @@
 sidebar_position: 4
 ---
 
-# Email Settings
+# Email settings
 
 The Email Settings section allows you to configure various parameters for the MailServer stack to ensure efficient and secure email management. 
 
@@ -12,7 +12,7 @@ Emails are only available on [OpenPanel Enterprise edition](/enterprise)
 :::
 
 
-## MailServer Status
+## MailServer status
 
 The status of the Mail Server service is displayed at the top of the page, where administrators can start, stop, or restart the service as needed.
 
@@ -46,21 +46,21 @@ If webmail isn't running but email accounts exist, a warning links to [Service S
 Configure where email data (mailboxes) is stored on disk.
 
 - **Email storage location** – Choose between:
-  - **docker volume (legacy)** – emails are stored in each user's home directory, e.g. `/home/<username>/docket-data/volumes/<username>_mail_data/_data/<domain>/<email>/`. This is **not recommended**, since adding or removing a domain will require the mail server to restart.
-  - **custom path** – store all mailboxes under a single custom path on the host, e.g. `/var/mail/`.
+  - **Docker volume (legacy)** – emails are stored in each user's home directory, e.g. `/home/<username>/docket-data/volumes/<username>_mail_data/_data/<domain>/<email>/`. This is **not recommended**, since adding or removing a domain will require the mail server to restart.
+  - **Custom path** – store all mailboxes under a single custom path on the host, e.g. `/var/mail/`.
 - **Custom path** – Only shown when *custom path* is selected. Example values: `/var/mail/`, `/email`, `/storage`.
 
-The storage location is locked (cannot be changed) once email accounts already exist. Click **Save Storage** to apply the change.
+The storage location is locked (cannot be changed) once email accounts already exist. Click **Save storage** to apply the change.
 
 ![Storage section with the email storage location](/img/openadmin-screenshots/emails/settings-storage.png#gh-light-mode-only)
 ![Storage section with the email storage location](/img/openadmin-screenshots/emails/settings-storage_dark.png#gh-dark-mode-only)
 
-## Enable Services
+## Services {#enable-services}
 
 Administrators can set and configure different services based on their needs.
 
-![Enable Services section with toggles for the mail server services](/img/openadmin-screenshots/emails/settings-services.png#gh-light-mode-only)
-![Enable Services section with toggles for the mail server services](/img/openadmin-screenshots/emails/settings-services_dark.png#gh-dark-mode-only)
+![Services section with toggles for the mail server services](/img/openadmin-screenshots/emails/settings-services.png#gh-light-mode-only)
+![Services section with toggles for the mail server services](/img/openadmin-screenshots/emails/settings-services_dark.png#gh-dark-mode-only)
 
 Configure services for the MailServer stack:
 
@@ -90,9 +90,9 @@ A warning is shown as you toggle the services:
 - **Only SMTP** on: receiving email won't work, since IMAP and POP3 are disabled.
 - **Rspamd**, **Amavis** and **ClamAV** all off: incoming mail isn't checked for spam or viruses, so enabling at least one of them is recommended.
 
-## Relay Hosts
+## Relay hosts
 
-The **Relay Hosts** feature allows you to configure an SMTP relay service (also known as a relay host or smarthost) for relaying (forwarding) outbound email on behalf of third parties. This service does not manage mail domains but helps in routing emails through an external SMTP server.
+The **Relay hosts** feature allows you to configure an SMTP relay service (also known as a relay host or smarthost) for relaying (forwarding) outbound email on behalf of third parties. This service does not manage mail domains but helps in routing emails through an external SMTP server.
 
 ![Relay Hosts section for sending mail through an external relay](/img/openadmin-screenshots/emails/settings-relay.png#gh-light-mode-only)
 ![Relay Hosts section for sending mail through an external relay](/img/openadmin-screenshots/emails/settings-relay_dark.png#gh-dark-mode-only)
@@ -123,6 +123,6 @@ The following parameters are used to configure the relay host settings:
 
 When both **RELAY_USER** and **RELAY_PASSWORD** are configured, all outbound mail traffic will require a secure connection and the credentials will be mandatory.
 
-Once configured, click the **Save Relay** button to apply the settings and begin routing outbound emails through the specified relay host.
+Once configured, click the **Save relay** button to apply the settings and begin routing outbound emails through the specified relay host.
 
 See also: [Port 25 blocked? Use an SMTP relay](/docs/articles/email/port-25-blocked-smtp-relay/) · [Why emails go to spam](/docs/articles/email/why-emails-go-to-spam/)

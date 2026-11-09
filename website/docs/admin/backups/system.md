@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# System Backups
+# System backups
 
 *OpenAdmin > Backups > System* backs up the server's own **configuration** — not website files, databases, or mailbox contents. It's for disaster recovery of the panel and its services, and is only available to Administrators and Users, not Resellers. It has three tabs: **Backups**, **Runs**, and **Settings**.
 
@@ -16,12 +16,12 @@ Lists every archive in the configured destination directory, with:
 - **Restore** — extracts the archive back over the live paths it came from. Affected services may need a restart afterward to pick up the restored config.
 - **Delete** — removes the archive file. Confirms first; cannot be undone.
 
-**Run Backup Now** creates a new backup immediately (in the background, with a progress toast).
+**Run backup now** creates a new backup immediately (in the background, with a progress toast).
 
 ![System Backups page on the Backups tab with the Run Backup Now button and the list of backup archives](/img/openadmin-screenshots/backups/system-backups.png#gh-light-mode-only)
 ![System Backups page on the Backups tab with the Run Backup Now button and the list of backup archives](/img/openadmin-screenshots/backups/system-backups_dark.png#gh-dark-mode-only)
 
-#### Bulk Actions
+#### Bulk actions
 
 Tick the checkbox of one or more backups, or the checkbox in the table header to select all backups shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 

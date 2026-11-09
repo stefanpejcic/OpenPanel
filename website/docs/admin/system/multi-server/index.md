@@ -2,13 +2,13 @@
 sidebar_position: 1
 ---
 
-# Multi-Server
+# Multi-server
 
 Manage several OpenPanel servers from one OpenAdmin. This is an Enterprise feature.
 
 Every server stays a complete OpenPanel install with its own users, domains, mail and DNS. One of them is the **master**, the others are **slaves**. The master shows the admin panel of every slave, so you work with all servers from one login. If the master is unavailable the slaves keep running and you can still log in on them directly.
 
-All of this is under **System > Multi-Server** on the master.
+All of this is under **System > Multi-server** on the master.
 
 ![System > Multi-Server on the master with the Servers table and the Add server form](/img/openadmin-screenshots/multi-server/cluster-page.png#gh-light-mode-only)
 ![System > Multi-Server on the master with the Servers table and the Add server form](/img/openadmin-screenshots/multi-server/cluster-page_dark.png#gh-dark-mode-only)

@@ -137,7 +137,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		// errors keep the typed name in the form instead of bouncing to an empty one
 		fail := func(message string) {
 			web.Flash(a, w, r, "error", message)
-			renderNewDatabasePage(a, w, r, databaseName)
+			renderNewDatabasePage(a, w, r, databaseName, "")
 		}
 		if msg := checkNewDatabase(databaseName, loadNames(ctx, userContext)); msg != "" {
 			fail(web.Tr(a, r, msg))
@@ -178,7 +178,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderNewDatabasePage(a, w, r, "")
+	renderNewDatabasePage(a, w, r, "", web.CreatedDBName(r))
 }
 
 // handleDeleteDatabase drops a PostgreSQL database.

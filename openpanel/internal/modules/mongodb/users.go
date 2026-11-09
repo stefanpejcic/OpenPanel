@@ -77,13 +77,13 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		threshold := validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)
 		if msg := checkNewUser(dbUser, password, threshold, loadNames(ctx, userContext)); msg != "" {
 			web.Flash(a, w, r, "error", web.Tr(a, r, msg))
-			renderCreateUserPage(a, w, r, dbUser)
+			renderCreateUserPage(a, w, r, dbUser, "", "")
 			return
 		}
 
 		if createErr := mongomanager.CreateUser(ctx, userContext, dbUser, password); createErr != nil {
 			web.Flash(a, w, r, "error", web.Tr(a, r, "Failed to create user: %(error)s", "error", createErr.Error()))
-			renderCreateUserPage(a, w, r, dbUser)
+			renderCreateUserPage(a, w, r, dbUser, "", "")
 			return
 		}
 		ipAddress := reqip.ClientIP(r)
@@ -92,7 +92,7 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	renderCreateUserPage(a, w, r, "")
+	renderCreateUserPage(a, w, r, "", web.CreatedDBName(r), "")
 }
 
 // handleDatabasesPassword renders the change-password form for one existing user

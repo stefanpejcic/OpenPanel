@@ -26,6 +26,14 @@ func CreatedDBUserURL(slug, name string) string {
 	return "/" + slug + "/user?created=" + url.QueryEscape(name)
 }
 
+// CreatedDBName reads ?created= back, anything that isn't a valid name shows the form
+func CreatedDBName(r *http.Request) string {
+	if name := r.URL.Query().Get("created"); validators.IsValidIdentifier(name) {
+		return name
+	}
+	return ""
+}
+
 // CreatedDBFromRequest reads the ?created= name set by the URLs above, users pass "" for importFeature
 func CreatedDBFromRequest(r *http.Request, layout LayoutData, slug, importFeature string) DBCreated {
 	name := r.URL.Query().Get("created")

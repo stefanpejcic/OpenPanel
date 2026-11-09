@@ -2,7 +2,7 @@
 sidebar_position: 7
 ---
 
-# Demo Mode
+# Demo mode
 
 Enable Demo Mode to lock both the OpenPanel and OpenAdmin interfaces in read-only mode.
 

@@ -179,21 +179,26 @@ func (p *Page) parse(classic bool) (*template.Template, error) {
 }
 
 // template returns the parsed set, parsing it now if it isn't cached
-func (p *Page) template() *template.Template {
+func (p *Page) template() (*template.Template, error) {
 	p.used.Store(pageClock.Add(1))
 	classic := p.usesClassic()
 	p.mu.Lock()
 	t := p.tmpl
 	fresh := t == nil || p.tmplClassic != classic
 	if fresh {
-		t = template.Must(p.parse(classic))
+		var err error
+		if t, err = p.parse(classic); err != nil {
+			// leave tmpl as it was and unlock, a panic here used to keep the page locked forever
+			p.mu.Unlock()
+			return nil, err
+		}
 		p.tmpl, p.tmplClassic = t, classic
 	}
 	p.mu.Unlock()
 	if fresh {
 		trackLoadedPage(p)
 	}
-	return t
+	return t, nil
 }
 
 // trackLoadedPage remembers p as parsed and drops the least recently used page once there are too many
@@ -258,13 +263,18 @@ func LoadPage(files ...string) *Page {
 }
 
 func (p *Page) Render(w http.ResponseWriter, status int, data any) error {
+	t, err := p.template()
+	if err != nil {
+		http.Error(w, "page template failed to load", http.StatusInternalServerError)
+		return err
+	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(status)
 	if !galleryEnabled {
-		return p.template().ExecuteTemplate(w, "layout", data)
+		return t.ExecuteTemplate(w, "layout", data)
 	}
 	var buf strings.Builder
-	err := p.template().ExecuteTemplate(io.MultiWriter(w, &buf), "layout", data)
+	err = t.ExecuteTemplate(io.MultiWriter(w, &buf), "layout", data)
 	if err == nil {
 		captureGallery(p.paths, data, buf.String())
 	}

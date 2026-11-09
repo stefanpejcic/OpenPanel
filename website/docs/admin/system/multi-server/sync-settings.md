@@ -2,7 +2,7 @@
 sidebar_position: 4
 ---
 
-# Sync Settings
+# Sync settings
 
 Settings saved with **Apply on all servers** already reach every server. Sync is for a server that missed changes, like a newly added one or one that was edited directly.
 
@@ -22,7 +22,7 @@ License, ports, domains and SSL never sync.
 
 ## On a slave
 
-**System > Multi-Server** on a slave shows the master and the sync settings for that slave:
+**System > Multi-server** on a slave shows the master and the sync settings for that slave:
 
 - **Sync from master** pulls the master's settings now.
 - **Undo last sync** restores the settings from before the last sync. Each sync keeps a backup, the last 10 are kept.

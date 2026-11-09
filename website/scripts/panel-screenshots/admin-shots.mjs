@@ -71,6 +71,9 @@ const DEMO_NAMES = {
   'demo.openpanel.com': 'server.example.com',
 };
 
+// leftover test resellers on the test server, shown under friendly names
+const RESELLERS = { tstreseller95420: 'webagency', tstreseller53770: 'hostpro', tstreseller62586: 'designstudio' };
+
 // the dashboard fills news, system info and the chart over ajax after load
 const dashboardLoaded = async page => {
   await page.waitForFunction(() => {
@@ -168,13 +171,24 @@ const deliverabilityRows = async page => {
   await page.waitForTimeout(500);
 };
 
-export const globalPrepare = all(rename(DEMO_NAMES, 'body'), maskIPs('main'), hideNotices, maskSecrets);
+// avatar letter follows the renamed username, and the autofocused sidebar search shouldn't show its focus ring
+const tidyShell = async page => {
+  await page.evaluate(() => {
+    const name = document.querySelector('#user-btn-info .select-text');
+    const avatar = document.querySelector('#user-btn-info [aria-hidden="true"]');
+    if (name && avatar && avatar.textContent.trim().length === 1) avatar.textContent = name.textContent.trim().charAt(0).toUpperCase();
+    const el = document.activeElement;
+    if (el && el.matches('aside input, nav input') && !el.value) el.blur();
+  });
+};
+
+export const globalPrepare = all(rename(DEMO_NAMES, 'body'), maskIPs('main'), hideNotices, maskSecrets, tidyShell);
 
 export const pages = {
   'accounts/users': {
     url: '/users',
     shots: [
-      { name: 'list', alt: 'Users page listing OpenPanel accounts with their status, plan, memory, CPU, disk and inodes usage and the Impersonate button', crop: 'content' },
+      { name: 'list', alt: 'Users page listing OpenPanel accounts with their status, plan, memory, CPU, disk and inodes usage and the Impersonate button', viewportWidth: 1440, crop: 'content' },
       {
         name: 'columns',
         alt: 'Show Columns menu of the Users table with a toggle for each column, including 2FA and Passkeys',
@@ -182,24 +196,20 @@ export const pages = {
         crop: { from: '#dropdownToggleButton', to: '#dropdownToggle', pad: 12 },
       },
       { name: 'new', url: '/user/new', alt: 'Create New user form with username, email, password, webserver, database type and hosting plan', prepare: fillVisible(['john', 'john@example.com']), crop: 'content' },
-      { name: 'stats', url: '/users/testinguser#stats', alt: 'Overview tab of a user with gauges for storage, inodes, CPU and memory usage and the View Past Usage button', prepare: async page => { await page.waitForTimeout(2500); }, crop: { from: 'main', to: '#get_docker_history_usage', fromTop: true, pad: 24 } },
+      { name: 'stats', url: '/users/testinguser#stats', alt: 'Overview tab of a user with gauges for storage, inodes, CPU and memory usage and the View history link', prepare: async page => { await page.waitForTimeout(2500); }, crop: { from: 'main', to: 'main a[href="#usage"]:text("View history")', fromTop: true, pad: 24 } },
       {
         name: 'history',
-        url: '/users/testinguser',
-        alt: 'Past resource usage table of a user with the date, CPU and memory usage and the number of tasks',
-        prepare: async page => {
-          await page.waitForTimeout(1500);
-          await page.locator('#get_docker_history_usage').click();
-          await page.waitForTimeout(2500);
-        },
-        crop: { from: 'main h4:text-is("Last updated:")', to: '#docker_stats_history tbody tr:nth-of-type(6)', pad: 16, right: true },
+        url: '/users/testinguser#usage',
+        alt: 'Resource usage tab of a user with the past CPU, memory and tasks, and the View raw and Download buttons',
+        prepare: async page => { await page.waitForTimeout(3000); },
+        crop: { content: 'main', maxHeight: 760 },
       },
       {
         name: 'info',
         url: '/users/testinguser',
         alt: 'User details on the Overview tab: username, email, plan, locale, 2FA status, IP address, location, server, docker context and setup time',
         prepare: async page => { await page.waitForTimeout(2000); },
-        crop: { from: 'main span:text-is("Username:")', to: 'main span:text-is("Setup time:")', pad: 16, right: true },
+        crop: { from: 'main span:text-is("Username")', to: 'main span:text-is("Setup time")', pad: 16, right: true },
       },
       {
         name: 'transfer',
@@ -217,7 +227,7 @@ export const pages = {
       { name: 'permissions', url: '/users/testinguser#permissions', alt: 'Permissions tab where the enabled OpenPanel features follow the plan or are set per user', prepare: async page => { await page.waitForTimeout(2500); }, crop: { from: 'main', to: `main [x-show="activeTab === 'permissions'"] table tbody tr:nth-of-type(6)`, fromTop: true } },
       { name: 'activity', url: '/users/testinguser#activity', alt: 'Activity Log tab with the date and the action performed', prepare: async page => { await page.waitForTimeout(2500); }, crop: { from: 'main', to: `main [x-show="activeTab === 'activity'"] table tbody tr:nth-of-type(8)`, fromTop: true } },
       { name: 'logins', url: '/users/testinguser#logins', alt: 'Login Log tab with the date, country and IP address of each login', prepare: async page => { await page.waitForTimeout(2500); }, crop: { from: 'main', to: `main [x-show="activeTab === 'logins'"] table tbody tr:nth-of-type(8)`, fromTop: true } },
-      { name: 'edit', url: '/users/testinguser#edit', alt: 'Edit tab with the username, email, password, IP address, reseller and hosting package fields', prepare: async page => { await page.waitForTimeout(2500); }, crop: { from: 'main', to: `main [x-show="activeTab === 'edit'"] a[href="/users"]`, fromTop: true, pad: 24 } },
+      { name: 'edit', url: '/users/testinguser#edit', alt: 'Edit tab with the username, email, password, IP address, reseller and hosting package fields', prepare: async page => { await page.waitForTimeout(2500); }, crop: { from: 'main', to: `main [x-show="activeTab === 'edit'"]`, fromTop: true } },
       { name: 'export', url: '/users/testinguser#export', alt: 'Export tab with the Generate full account backup option and the list of existing backups', prepare: async page => { await page.waitForTimeout(2500); }, crop: 'content' },
       { name: 'suspend', url: '/users/testinguser#suspend', alt: 'Suspend tab asking to type the username before suspending the account', prepare: all(async page => { await page.waitForTimeout(2500); }, fillVisible(['testinguser'])), crop: 'content' },
       { name: 'delete', url: '/users/testinguser#delete', alt: 'Delete tab asking to type the username before deleting the account permanently', prepare: all(async page => { await page.waitForTimeout(2500); }, fillVisible(['testinguser'])), crop: 'content' },
@@ -234,23 +244,6 @@ export const pages = {
       { name: 'sysinfo', alt: 'System Information widget with hostname, IPv4 address, OS, OpenPanel version, server time, kernel, CPU, uptime, processes and package updates', crop: { from: '#tour-system-info', pad: 12 } },
       { name: 'usage', alt: 'Resource Usage widget with a chart of CPU and RAM usage over the last hour and the View history link', prepare: async page => { await page.waitForTimeout(7000); }, viewportHeight: 1600, crop: { from: '#tour-usage-graphs', pad: 12 } },
       { name: 'tasks', alt: 'Tasks widget with the currently running background tasks and the View all link', crop: { from: '#tour-tasks', pad: 12 } },
-      // needs a multi-server master, shot on the test server with ADMIN_URL
-      {
-        name: 'cluster',
-        alt: 'Cluster widget listing the master and two servers with their health bars, users, domains, version and last sync',
-        prepare: all(async page => { await page.waitForSelector('#cluster-health-list li', { timeout: 20000 }).catch(() => {}); await page.waitForTimeout(1500); }, rename({ lazar: 'server3.example.com' }, '#cluster-health-widget'), async page => {
-          // the list scrolls inside a fixed-height grid cell, let it grow so every server is in the shot
-          await page.evaluate(() => {
-            const w = document.getElementById('cluster-health-widget');
-            w.querySelector('#cluster-health-list').parentElement.style.overflow = 'visible';
-            w.querySelector('#cluster-health-list').parentElement.style.maxHeight = 'none';
-            document.querySelectorAll('#dashboard-widgets > [data-widget]').forEach(o => { if (o !== w) o.style.visibility = 'hidden'; });
-          });
-          await page.waitForTimeout(300);
-        }),
-        viewportHeight: 1600,
-        crop: { from: '#cluster-health-widget', to: '#cluster-health-list', clamp: false, pad: 12 },
-      },
       {
         name: 'logout',
         alt: 'Account menu opened from the username in the bottom-left corner of the sidebar, with the Sign out option',
@@ -291,7 +284,7 @@ export const pages = {
           await page.waitForTimeout(700);
         },
         viewportHeight: 700,
-        crop: { from: 'header a[role=tab] >> nth=0', to: '#tooltip-sse_load', clamp: false, pad: 12, right: true },
+        crop: { from: '#tour-resource-usage', to: '#tooltip-sse_load', clamp: false, pad: 12, right: true },
       },
       {
         name: 'search',
@@ -304,6 +297,32 @@ export const pages = {
         crop: { from: '#sidebar', clamp: false, height: 620 },
       },
       { name: 'menu', alt: 'OpenAdmin sidebar menu with the Accounts, Hosting Plans, Domains, Emails, Services, Security, Settings and Advanced sections', viewportHeight: 900, crop: { from: '#sidebar', clamp: false } },
+    ],
+  },
+  // the cluster widget only shows on a multi-server master, so it's shot on the test server
+  '001_dashboard-cluster_server': {
+    as: '001_dashboard',
+    url: '/dashboard',
+    prepare: dashboardLoaded,
+    shots: [
+      {
+        name: 'cluster',
+        alt: 'Cluster widget with a problem notice, the master with its users, domains, version and notifications, a paused server and an offline one',
+        prepare: all(async page => { await page.waitForSelector('#cluster-health-list li', { timeout: 20000 }).catch(() => {}); await page.waitForTimeout(1500); }, rename({ lazar: 'server3.example.com' }, '#cluster-health-widget'), async page => {
+          // the list scrolls inside a fixed-height grid cell, let it grow so every server is in the shot
+          await page.evaluate(() => {
+            const w = document.getElementById('cluster-health-widget');
+            w.querySelector('#cluster-health-list').parentElement.style.overflow = 'visible';
+            w.querySelector('#cluster-health-list').parentElement.style.maxHeight = 'none';
+            document.querySelectorAll('#dashboard-widgets > [data-widget]').forEach(o => { if (o !== w) o.style.visibility = 'hidden'; });
+            // the test cluster's offline slave reports a raw join error, keep it to a plain Offline
+            w.querySelectorAll('*').forEach(e => { if (!e.children.length && /this server is not a cluster member/.test(e.textContent)) e.textContent = e.id === 'cluster-health-warning-text' ? 'server3.example.com: offline.' : 'Offline'; });
+          });
+          await page.waitForTimeout(300);
+        }),
+        viewportHeight: 1600,
+        crop: { from: '#cluster-health-widget', to: '#cluster-health-list', clamp: false, pad: 12 },
+      },
     ],
   },
   '001_dashboard_dark': {
@@ -342,8 +361,8 @@ export const pages = {
       {
         name: 'menu',
         alt: 'Edit menu of an administrator with the Rename and Change Password options',
-        prepare: click('main button#administrator', 600),
-        crop: { from: 'main table thead', to: '#dropdown-administrator', pad: 12 },
+        prepare: click('main button[aria-label="Actions for administrator"]', 600),
+        crop: { from: 'main table thead', to: '[role="menu"]:visible', pad: 12 },
       },
       { name: 'new', alt: 'Create New administrator form with the username and password fields', prepare: all(click('#tour-create-admin-btn', 600), fillVisible(['support_admin'])), crop: 'content' },
       { name: 'rename', url: '/administrators/rename/administrator', alt: 'Rename administrator form with the new username field and the Change Username button', crop: 'content' },
@@ -358,7 +377,7 @@ export const pages = {
     url: '/plans',
     shots: [
       { name: 'list', alt: 'User Packages page listing hosting plans with their memory, CPU, disk, inodes, port speed and other limits', crop: { from: 'main', to: 'main table tbody tr:last-of-type', fromTop: true, pad: 24 } },
-      { name: 'menu', alt: 'Row menu of a hosting plan that is in use, with the Edit option', prepare: click('main button#\\31', 600), crop: { from: 'main table thead', to: '#dropdown-1', pad: 12, right: true } },
+      { name: 'menu', alt: 'Row menu of a hosting plan that is in use, with the Edit option', prepare: async page => { await page.locator('main button.plan-menu-btn[data-plan-id="1"]').evaluate(el => el.click()); await page.waitForTimeout(600); }, crop: { from: 'main table thead', to: '#plan-menu', pad: 12, right: true } },
       { name: 'new', url: '/plans/new', alt: 'New Package form with name, description, disk, inodes, CPU, memory, port speed, domains, websites, databases, email, FTP and feature set fields', prepare: fill({ 'input[name=name]': 'Business plan', 'input[name=description]': 'For small business sites', 'input[name=disk_limit]': '20', 'input[name=inodes_limit]': '500000', 'input[name=cpu]': '2', 'input[name=ram]': '4', 'input[name=bandwidth]': '200', 'input[name=domains_limit]': '5', 'input[name=websites_limit]': '10', 'input[name=db_limit]': '10', 'input[name=email_limit]': '50', 'input[name=max_email_quota]': '5G', 'input[name=max_hourly_email]': '200', 'input[name=ftp_limit]': '10' }), crop: 'content' },
       { name: 'edit', url: '/plans/1', alt: 'Edit plan page with the limits of an existing hosting package', crop: 'content' },
       { name: 'usage', url: '/users?plan=Standard%20plan', alt: 'Users page filtered to the users on one hosting plan', crop: 'content' },
@@ -383,29 +402,29 @@ export const pages = {
       },
       {
         name: 'actions',
-        alt: 'Actions menu of a domain with Edit DNS Zone, Manage SSL, Edit Virtual Host, Edit Apache Config, Edit Caddyfile, Suspend domain and Delete domain',
+        alt: 'Actions menu of a domain with Edit DNS zone, Manage SSL, Edit virtual host, Edit Apache config, Edit Caddyfile, Restrict to Cloudflare, Suspend domain and Delete domain',
         prepare: async page => {
           await page.evaluate(() => document.querySelectorAll('main .overflow-x-auto, main .overflow-auto').forEach(e => (e.scrollLeft = e.scrollWidth)));
-          await page.locator('main tbody button[data-dropdown-toggle]').first().click();
+          // a DOM click, the menu closes on any scroll and a real click scrolls first
+          await page.locator('main tbody button.domain-menu-btn').first().evaluate(el => el.click());
           await page.waitForTimeout(600);
         },
-        crop: { from: 'main table thead', to: 'main [id^="dropdown-"]:visible >> nth=0', pad: 12, right: true },
+        crop: { from: 'main table thead', to: '#domain-menu', pad: 12, right: true },
       },
       {
         name: 'suspend',
         alt: 'Suspend Domain dialog with the Reason dropdown, an optional comment for the user and the Suspend button',
         prepare: async page => {
           await page.evaluate(() => document.querySelectorAll('main .overflow-x-auto, main .overflow-auto').forEach(e => (e.scrollLeft = e.scrollWidth)));
-          await page.locator('main tbody tr:has(button:has-text("Suspend domain")) button[data-dropdown-toggle]').first().click();
+          await page.locator('main tbody button.domain-menu-btn[data-status="active"]').first().evaluate(el => el.click());
           await page.waitForTimeout(400);
-          await page.locator('main button:has-text("Suspend domain") >> visible=true').first().click();
+          await page.locator('#domain-menu button[data-action="suspend"]').evaluate(el => el.click());
           await page.waitForTimeout(600);
-          await page.evaluate(() => document.querySelectorAll('main [id^="dropdown-"]').forEach(d => d.classList.add('hidden')));
           await page.selectOption('#suspend_template', 'dmca');
           await page.fill('#suspend_comment', 'Complaint #4821 from the copyright holder');
         },
         viewportHeight: 820,
-        crop: { from: 'main h3:has-text("Suspend Domain")', to: 'main [x-show="showSuspendModal"] button[type=submit]', clamp: false, pad: 10 },
+        crop: { from: '[x-show="showSuspendModal"] h3', to: '[x-show="showSuspendModal"] button[type=submit]', clamp: false, pad: 10 },
       },
       {
         // ADMIN_URL=https://host:2087 node shoot.mjs --admin domains/domains, with php.tests.openpanel.org suspended by admin
@@ -419,22 +438,21 @@ export const pages = {
         alt: 'Delete domain confirmation asking to type the domain name before deleting it permanently',
         prepare: async page => {
           await page.evaluate(() => document.querySelectorAll('main .overflow-x-auto, main .overflow-auto').forEach(e => (e.scrollLeft = e.scrollWidth)));
-          await page.locator('main tbody button[data-dropdown-toggle]').first().click();
+          await page.locator('main tbody button.domain-menu-btn').first().evaluate(el => el.click());
           await page.waitForTimeout(400);
-          await page.locator('main button:has-text("Delete domain") >> visible=true').first().click();
+          await page.locator('#domain-menu button[data-action="delete"]').evaluate(el => el.click());
           await page.waitForTimeout(600);
-          await page.evaluate(() => document.querySelectorAll('main [id^="dropdown-"]').forEach(d => d.classList.add('hidden')));
         },
         viewportHeight: 820,
-        crop: { from: 'main h3:has-text("Delete Domain"), main h2:has-text("Delete Domain")', to: 'main [x-show="showDeleteModal"] input:visible', clamp: false, pad: 10 },
+        crop: { from: '[x-show="showDeleteModal"] h3', to: '[x-show="showDeleteModal"] input:visible', clamp: false, pad: 10 },
       },
     ],
   },
   'domains/dns': {
     url: '/domains/dns',
     shots: [
-      { name: 'select', alt: 'DNS Zone Editor with the domain dropdown', crop: 'content' },
-      { name: 'edit', url: '/domains/dns/wp.tests.openpanel.org', alt: 'DNS Zone Editor showing the zone file of a domain with the Save button', crop: { content: 'main', maxHeight: 820 } },
+      { name: 'list', alt: 'DNS zone editor listing the domains with their owner, zone file, record count and last change', crop: { content: 'main', maxHeight: 820 } },
+      { name: 'edit', url: '/domains/dns/wp.tests.openpanel.org', alt: 'DNS zone editor showing the zone file of a domain with the Save button', crop: { content: 'main', maxHeight: 820 } },
     ],
   },
   'domains/dns_templates': {
@@ -466,7 +484,7 @@ export const pages = {
       { name: 'nginx', alt: 'Nginx VirtualHost template editor', prepare: markSection('Nginx VirtualHost'), crop: { from: '[data-shot=section]', pad: 16 } },
       { name: 'openresty', alt: 'OpenResty VirtualHost template editor', prepare: markSection('OpenResty VirtualHost'), crop: { from: '[data-shot=section]', pad: 16 } },
       { name: 'varnish', alt: 'Varnish template editor', prepare: markSection('Varnish Template'), crop: { from: '[data-shot=section]', pad: 16 } },
-      { name: 'caddy', alt: 'Caddy VHosts template editor', prepare: markSection('Caddy VHosts'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'caddy', alt: 'Caddy VirtualHost template editor', prepare: markSection('Caddy VirtualHost'), crop: { from: '[data-shot=section]', pad: 16 } },
     ],
   },
   'domains/dns-cluster': {
@@ -743,12 +761,13 @@ export const pages = {
       { name: 'list', alt: 'Emails page listing email accounts with their quota usage, webmail button and actions menu', crop: 'content' },
       {
         name: 'menu',
-        alt: 'Actions menu of an email account with Change Password, Set Quota, Restrictions and Delete Account',
+        alt: 'Actions menu of an email account with Change password, Set quota, Restrictions and Delete account',
         prepare: async page => {
-          await page.locator('main tbody td div[x-data] > button').first().click();
+          // a DOM click, the menu closes when the window scrolls
+          await page.locator('main tbody button[aria-haspopup="menu"]').first().evaluate(el => el.click());
           await page.waitForTimeout(600);
         },
-        crop: { from: 'main table thead', to: 'main tbody div[x-show="open"]:visible >> nth=0', pad: 12, right: true },
+        crop: { from: 'main table thead', to: 'main [aria-label="Account actions"]', pad: 12, right: true },
       },
     ],
   },
@@ -763,7 +782,7 @@ export const pages = {
       { name: 'accounts', alt: 'Accounts section with the total number of email accounts on the server', prepare: markSection('Accounts'), crop: { from: '[data-shot=section]', pad: 16 } },
       { name: 'webmail', alt: 'Webmail section with the webmail status, client dropdown and webmail domain', prepare: markSection('Webmail'), crop: { from: '[data-shot=section]', pad: 16 } },
       { name: 'storage', alt: 'Storage section with the email storage location', prepare: markSection('Storage'), crop: { from: '[data-shot=section]', pad: 16 } },
-      { name: 'services', alt: 'Enable Services section with toggles for the mail server services', prepare: markSection('Enable Services'), crop: { from: '[data-shot=section]', pad: 16 } },
+      { name: 'services', alt: 'Services section with toggles for the mail server services', prepare: markSection('Services'), crop: { from: '[data-shot=section]', pad: 16 } },
       { name: 'relay', alt: 'Relay Hosts section for sending mail through an external relay', prepare: markSection('Relay Hosts'), crop: { from: '[data-shot=section]', pad: 16 } },
     ],
   },
@@ -824,11 +843,11 @@ export const pages = {
   },
   // bulk actions are new in 2.0.12, until the demo has them these retake the table shots on a test server:
   // ADMIN_URL=https://host:2087 node shoot.mjs --admin accounts/users_server ...
-  'accounts/users_server': {
+  'accounts/users-bulk': {
     as: 'accounts/users',
     url: '/users',
     shots: [
-      { name: 'list', alt: 'Users page listing OpenPanel accounts with their status, plan, memory, CPU, disk and inodes usage and the Impersonate button', crop: 'content' },
+      { name: 'list', alt: 'Users page listing OpenPanel accounts with their status, plan, memory, CPU, disk and inodes usage and the Impersonate button', viewportWidth: 1440, crop: 'content' },
       {
         name: 'columns',
         alt: 'Show Columns menu of the Users table with a toggle for each column, including 2FA and Passkeys',
@@ -841,27 +860,28 @@ export const pages = {
         prepare: click('#planFilterButton', 600),
         crop: { from: 'main input[type=search], main input[placeholder^="Search"]', to: '#planFilter', pad: 16, right: true },
       },
-      bulkShot('#exiting_users', ['testinguser', 'bulkuser'], 'Two users selected with the bulk actions bar offering Suspend, Unsuspend, Change plan, Change password, Change email, Change IP, Disable 2FA, Delete Passkeys, Generate backup and Delete'),
-      bulkShot('#exiting_users', ['testinguser', 'bulkuser'], 'Change plan step of the bulk actions bar with a dropdown of hosting plans for two selected users', { name: 'bulk-plan', action: 'plan' }),
+      { ...bulkShot('#exiting_users', ['testinguser', 'anotheruser'], 'Two users selected with the bulk actions bar offering Suspend, Unsuspend, Plan, Password, Email, IP, Disable 2FA, Delete Passkeys, Generate backup, Delete and Transfer'), viewportWidth: 1440 },
+      { ...bulkShot('#exiting_users', ['testinguser', 'anotheruser'], 'Plan step of the bulk actions bar with a dropdown of hosting plans for two selected users', { name: 'bulk-plan', action: 'plan' }), viewportWidth: 1440 },
       { name: 'services', url: '/users/testinguser#services', alt: 'Services tab listing the user containers with their CPU and memory usage, PIDs and actions', prepare: async page => { await page.waitForTimeout(2500); }, crop: { from: 'main', to: `main [x-show="activeTab === 'services'"] table tbody tr:nth-of-type(6)`, fromTop: true } },
       { ...bulkShot('#user_services_table', ['apache', 'cron'], 'Two services of a user selected with the bulk actions bar offering Start, Stop, Restart, Edit CPU, Edit RAM and Edit PIDs', { name: 'services-bulk', rows: 6, wait: 2500 }), url: '/users/testinguser#services' },
     ],
   },
-  'accounts/administrators_server': {
+  'accounts/administrators-bulk': {
     as: 'accounts/administrators',
     url: '/administrators',
     shots: [
       { name: 'list', alt: 'Administrators page listing OpenAdmin users with their status, role, 2FA, passkeys and last login', crop: 'content' },
-      bulkShot('#exiting_users', ['bulkadmin1', 'bulkadmin2'], 'Two administrators selected with the bulk actions bar offering Suspend, Unsuspend and Delete'),
+      bulkShot('#exiting_users', ['administrator'], 'An administrator selected with the bulk actions bar offering Suspend, Unsuspend and Delete'),
     ],
   },
   'accounts/resellers_server': {
     as: 'accounts/resellers',
     url: '/resellers',
     shots: [
-      { name: 'list', alt: 'Resellers page listing reseller accounts with their status, plans, limits and actions', crop: 'content' },
-      bulkShot('#exiting_users', ['bulkres1', 'bulkres2'], 'Two resellers selected with the bulk actions bar offering Suspend, Unsuspend and Delete'),
-      { name: 'package', url: '/resellers/update/tstreseller29428', alt: 'Edit Plans & Limits page of a reseller with the Reseller Package picker and the Apply Package button above the custom limits', crop: { from: 'main', to: '#max_disk_blocks ~ small', fromTop: true, pad: 24 } },
+      // the test server has a long list of leftover test resellers, show three of them under friendly names
+      { name: 'list', alt: 'Resellers page listing reseller accounts with their status, plans, limits and actions', prepare: all(firstRows('#exiting_users', 3), rename(RESELLERS, 'main')), crop: 'content' },
+      { ...bulkShot('#exiting_users', ['tstreseller95420', 'tstreseller53770'], 'Two resellers selected with the bulk actions bar offering Suspend, Unsuspend and Delete', { rows: 3 }), prepare: all(firstRows('#exiting_users', 3), bulkSelect(['tstreseller95420', 'tstreseller53770']), rename(RESELLERS, 'main'), fitBulkBar()) },
+      { name: 'package', url: '/resellers/update/tstreseller95420', prepare: rename(RESELLERS, 'main'), alt: 'Edit Plans & Limits page of a reseller with the Reseller Package picker and the Apply Package button above the custom limits', crop: { from: 'main', to: '#max_disk_blocks ~ small', fromTop: true, pad: 24 } },
     ],
   },
   // reseller packages are new in 2.0.16, the test server has reseller_starter and reseller_business with one reseller on reseller_starter
@@ -876,27 +896,27 @@ export const pages = {
       { name: 'edit', url: '/plans/resellers/reseller_starter', alt: 'Edit page of a reseller package listing the resellers on it, with its limits and allowed user packages', crop: 'content' },
     ],
   },
-  'plans/hosting_plans_server': {
+  'plans/hosting_plans-bulk': {
     as: 'plans/hosting_plans',
     url: '/plans',
     shots: [
       { name: 'list', alt: 'User Packages page listing hosting plans with their memory, CPU, disk, inodes, port speed and other limits', crop: { from: 'main', to: 'main table tbody tr:last-of-type', fromTop: true, pad: 24 } },
-      bulkShot('#exiting_users', ['bulkplan1', 'bulkplan2'], 'Two hosting plans selected with the bulk actions bar offering Update and Delete'),
-      bulkShot('#exiting_users', ['bulkplan1', 'bulkplan2'], 'Update step of the bulk actions bar with the limit to change set to CPU (cores) and the new value', { name: 'bulk-update', action: 'update', field: 'cpu', value: '2' }),
+      bulkShot('#exiting_users', ['Standard plan', 'Developer plus'], 'Two hosting plans selected with the bulk actions bar offering Update and Delete'),
+      bulkShot('#exiting_users', ['Standard plan', 'Developer plus'], 'Update step of the bulk actions bar with the limit to change set to CPU (cores) and the new value', { name: 'bulk-update', action: 'update', field: 'cpu', value: '2' }),
     ],
   },
-  'domains/domains_server': {
+  'domains/domains-bulk': {
     as: 'domains/domains',
     url: '/domains',
     shots: [
       { name: 'list', alt: 'Domains page listing all domains with their status, PHP version, webserver, SSL, WAF and owner', crop: { from: 'main', to: 'main table tbody tr:last-of-type', fromTop: true, pad: 24 } },
-      bulkShot('#domains_table', ['example.test.rs', 'ols.test.rs'], 'Two domains selected with the bulk actions bar offering Change PHP version, HSTS, WAF, Rate limit, Cloudflare, Suspend, Unsuspend and Delete'),
-      bulkShot('#domains_table', ['example.test.rs', 'ols.test.rs'], 'Change PHP version step of the bulk actions bar with a dropdown of the installed PHP versions', { name: 'bulk-php', action: 'php' }),
+      bulkShot('#domains_table', ['anotheruser.com', 'dorotea.rs'], 'Two domains selected with the bulk actions bar offering Change PHP version, HSTS, WAF, Rate limit, Cloudflare, Suspend, Unsuspend and Delete'),
+      bulkShot('#domains_table', ['anotheruser.com', 'dorotea.rs'], 'Change PHP version step of the bulk actions bar with a dropdown of the installed PHP versions', { name: 'bulk-php', action: 'php' }),
     ],
   },
-  // Rate Limiting and Domain Limits (new in 2.0.16) aren't on the demo yet, the test server has a 300/6000 default and custom limits on one domain
+  // shot on the demo, which has Rate limiting, Domain limits and FTP accounts with owners and quotas
   // ADMIN_URL=https://host:2087 node shoot.mjs --admin domains/ratelimit_server emails/domain-limits_server
-  'domains/ratelimit_server': {
+  'domains/ratelimit-demo': {
     as: 'domains/ratelimit',
     url: '/domains/ratelimit',
     shots: [
@@ -904,36 +924,35 @@ export const pages = {
       {
         name: 'default',
         alt: 'Server Default form open with the requests per minute per visitor IP and per domain and the Save default button',
-        prepare: all(rlUsage, click('main a:has-text("Server Default")', 500)),
+        prepare: all(rlUsage, click('main button:has-text("Server Default")', 500)),
         crop: { from: 'main', to: 'main form[action="/domains/ratelimit"] p', fromTop: true, pad: 20 },
       },
       {
         name: 'edit',
         alt: 'Rate limit window of a domain with Server default, Custom limits and No limits, its usage over the last 24 hours and the most blocked IP addresses',
         prepare: all(rlUsage, async page => {
-          await page.locator('#ratelimit_table tbody tr:has-text("example.test.rs") button:has-text("Edit")').click();
+          await page.locator('#ratelimit_table tbody tr:has-text("anotheruser.com") button:has-text("Edit")').click();
           await page.waitForTimeout(500);
         }, rename({ '127.0.0.1': '198.51.100.23' }, 'body')),
         viewportHeight: 820,
         crop: { from: 'div[x-show="edit"] form h3', to: 'div[x-show="edit"] form button[type=submit]', clamp: false, pad: 10 },
       },
-      { ...bulkShot('#ratelimit_table', ['example.test.rs', 'ols.test.rs'], 'Two domains selected with the bulk actions bar offering Use server default, Custom limits and No limits'), prepare: all(rlUsage, bulkShot('#ratelimit_table', ['example.test.rs', 'ols.test.rs'], '').prepare), viewportWidth: 1440 },
-      { ...bulkShot('#ratelimit_table', ['example.test.rs', 'ols.test.rs'], 'Custom limits step of the bulk actions bar with 600 requests per minute per IP and 20000 per domain entered', { name: 'bulk-custom', action: 'custom', value: '600/20000' }), prepare: all(rlUsage, bulkShot('#ratelimit_table', ['example.test.rs', 'ols.test.rs'], '', { action: 'custom', value: '600/20000' }).prepare), viewportWidth: 1440 },
+      { ...bulkShot('#ratelimit_table', ['anotheruser.com', 'dorotea.ba'], 'Two domains selected with the bulk actions bar offering Use server default, Custom limits and No limits'), prepare: all(rlUsage, bulkShot('#ratelimit_table', ['anotheruser.com', 'dorotea.ba'], '').prepare), viewportWidth: 1440 },
+      { ...bulkShot('#ratelimit_table', ['anotheruser.com', 'dorotea.ba'], 'Custom limits step of the bulk actions bar with 600 requests per minute per IP and 20000 per domain entered', { name: 'bulk-custom', action: 'custom', value: '600/20000' }), prepare: all(rlUsage, bulkShot('#ratelimit_table', ['anotheruser.com', 'dorotea.ba'], '', { action: 'custom', value: '600/20000' }).prepare), viewportWidth: 1440 },
     ],
   },
-  'emails/domain-limits_server': {
+  'emails/domain-limits-demo': {
     as: 'emails/domain-limits',
     url: '/emails/domain-limits',
     shots: [
       { name: 'list', alt: 'Domain Limits page with the emails sent this hour against the hourly limit of each domain, its owner and Postfwd rule', prepare: dlRows, crop: { from: 'main', to: 'main p:has-text("Showing")', fromTop: true, pad: 16 } },
-      { name: 'restore', alt: 'Restore from plan section with All users or one user to restore the hourly limits for', prepare: all(dlRows, click('main a:has-text("Restore from plan")', 500)), crop: { from: 'main', to: 'main p:has-text("custom limits set here are replaced")', fromTop: true, pad: 20 } },
-      { name: 'remove', alt: 'Remove rules section with All users or one user and the Remove button', prepare: all(dlRows, click('main a:has-text("Remove rules")', 500)), crop: { from: 'main', to: 'main p:has-text("until the rules are restored")', fromTop: true, pad: 20 } },
-      { ...bulkShot('#domain_limits_table', ['example.test.rs', 'ols.test.rs'], 'Two domains selected with the bulk actions bar offering Set limit, Restore from plan and Remove rules'), prepare: all(dlRows, bulkShot('#domain_limits_table', ['example.test.rs', 'ols.test.rs'], '').prepare) },
-      { ...bulkShot('#domain_limits_table', ['example.test.rs', 'ols.test.rs'], 'Set limit step of the bulk actions bar with 250 emails per hour entered for two selected domains', { name: 'bulk-limit', action: 'limit', value: '250' }), prepare: all(dlRows, bulkShot('#domain_limits_table', ['example.test.rs', 'ols.test.rs'], '', { action: 'limit', value: '250' }).prepare) },
+      { name: 'restore', alt: 'Restore from plan section with All users or one user to restore the hourly limits for', prepare: all(dlRows, click('main button[aria-controls="limits-panel-restore"]', 500)), crop: { from: 'main', to: 'main p:has-text("custom limits set here are replaced")', fromTop: true, pad: 20 } },
+      { name: 'remove', alt: 'Remove rules section with All users or one user and the Remove button', prepare: all(dlRows, click('main button[aria-controls="limits-panel-remove"]', 500)), crop: { from: 'main', to: 'main p:has-text("until the rules are restored")', fromTop: true, pad: 20 } },
+      { ...bulkShot('#domain_limits_table', ['wp.tests.openpanel.org', 'php.tests.openpanel.org'], 'Two domains selected with the bulk actions bar offering Set limit, Restore from plan and Remove rules'), prepare: all(dlRows, bulkShot('#domain_limits_table', ['wp.tests.openpanel.org', 'php.tests.openpanel.org'], '').prepare) },
+      { ...bulkShot('#domain_limits_table', ['wp.tests.openpanel.org', 'php.tests.openpanel.org'], 'Set limit step of the bulk actions bar with 250 emails per hour entered for two selected domains', { name: 'bulk-limit', action: 'limit', value: '250' }), prepare: all(dlRows, bulkShot('#domain_limits_table', ['wp.tests.openpanel.org', 'php.tests.openpanel.org'], '', { action: 'limit', value: '250' }).prepare) },
     ],
   },
-  // FTP owners and quotas (new in 2.0.15) aren't on the demo yet
-  'services/ftp_server': {
+  'services/ftp-demo': {
     as: 'services/ftp',
     url: '/services/ftp',
     shots: [
@@ -947,7 +966,7 @@ export const pages = {
         },
         crop: { from: '#ftp_accounts_table thead', to: '#ftp_accounts_table tbody tr:last-of-type', pad: 8 },
       },
-      bulkShot('#ftp_accounts_table', ['backup@example.test.rs', 'designer@example.test.rs'], 'Two FTP accounts selected with the bulk actions bar offering Set quota and Remove quota'),
+      bulkShot('#ftp_accounts_table', ['stefan@wp.tests.openpanel.org', 'testing@wp.tests.openpanel.org'], 'Two FTP accounts selected with the bulk actions bar offering Set quota and Remove quota'),
     ],
   },
   'services/status_server': {
@@ -966,7 +985,7 @@ export const pages = {
       bulkShot('#processes_table', 2, 'Two processes selected with the bulk actions bar offering Kill', { rows: 6 }),
     ],
   },
-  '002_notifications_server': {
+  '002_notifications-demo': {
     as: '002_notifications',
     url: '/notifications',
     shots: [
@@ -1001,16 +1020,22 @@ export const pages = {
         prepare: fill({ '#global_rules': '920350 942100', '#global_tags': 'attack-xss' }),
         crop: { from: 'main section:has(#server-wide)', pad: 16 },
       },
-      { name: 'domains', url: '/security/waf/domains', alt: 'WAF Domains tab listing every domain with its user, mode, protection level and number of disabled rules, with the user filter and Manage and Logs actions', crop: { from: 'main', to: 'main table tbody tr:nth-of-type(10)', fromTop: true } },
       { name: 'domain', url: '/security/waf/rules/drupal.tests.openpanel.org', alt: 'WAF settings of a single domain with its mode, level, app profiles and the disabled rule IDs and tags', crop: 'content' },
-      { name: 'user', url: '/security/waf/rules/testinguser', alt: 'WAF settings for all domains of a user with the mode for all domains, the rule ID to disable or enable on all of them and the table of the user domains', crop: { from: 'main', to: 'main table tbody tr:nth-of-type(6)', fromTop: true } },
       { name: 'logs', url: '/security/waf/logs', alt: 'WAF Logs tab with the user filter, the blocked, would block and flagged totals and the domains hit the most', crop: { from: 'main', to: '#waf-domains tbody tr:nth-of-type(6)', fromTop: true, pad: 16 } },
       { name: 'logs-rules', url: '/security/waf/logs', viewportWidth: 1500, alt: 'Rules triggered table with the reason, hits, blocked requests, domains, paths and the Disable server-wide action', crop: { from: '#waf-rules > div', to: '#waf-rules tbody tr:nth-of-type(6)', pad: 8, right: true } },
       { name: 'logs-ips', url: '/security/waf/logs', alt: 'Top IP addresses table with the hits and blocked requests of each address', crop: { from: '#waf-ips > h2', to: '#waf-ips tbody tr:nth-of-type(5)', pad: 8, right: true } },
       { name: 'logs-requests', url: '/security/waf/logs', viewportWidth: 1500, alt: 'Latest requests table with the time, domain, IP address, request, status, result and the rules that matched', crop: { from: '#waf-events > h2', to: '#waf-events tbody tr:nth-of-type(8)', pad: 8, right: true } },
       { name: 'logs-domain', url: '/security/waf/logs/drupal.tests.openpanel.org', alt: 'WAF logs of a single domain with the Manage rules and Clear logs buttons and the rules triggered with Disable for domain and Disable server-wide actions', crop: { from: 'main', to: '#waf-rules tbody tr:last-of-type', fromTop: true, pad: 8 } },
     ],
+  },  // the domains and per-user WAF tabs need real domains, the demo has them
+  'security/waf-demo': {
+    as: 'security/waf',
+    shots: [
+      { name: 'domains', url: '/security/waf/domains', alt: 'WAF Domains tab listing every domain with its user, mode, protection level and number of disabled rules, with the user filter and Manage and Logs actions', crop: { from: 'main', to: 'main table tbody tr:nth-of-type(10)', fromTop: true } },
+      { name: 'user', url: '/security/waf/rules/testinguser', alt: 'WAF settings for all domains of a user with the mode for all domains, the rule ID to disable or enable on all of them and the table of the user domains', crop: { from: 'main', to: 'main table tbody tr:nth-of-type(6)', fromTop: true } },
+    ],
   },
+
   'settings/locales_server': {
     as: 'settings/locales',
     url: '/settings/locales',
@@ -1025,17 +1050,17 @@ export const pages = {
     as: 'databases/mysql',
     url: '/databases',
     shots: [
-      { name: 'list', alt: 'Databases page on the MySQL tab listing every database with its owner, MySQL or MariaDB type, number of tables, size and the Terminal, phpMyAdmin, Export and Import actions', prepare: dbRows, crop: { from: 'main', to: '#databases_table tbody tr:last-of-type', fromTop: true, pad: 16 } },
+      { name: 'list', alt: 'Databases page on the MySQL tab listing every database with its owner, MySQL or MariaDB type, number of tables, size, the phpMyAdmin link and the row menu', prepare: dbRows, crop: { from: 'main', to: '#databases_table tbody tr:last-of-type', fromTop: true, pad: 16 } },
       {
         name: 'export',
-        alt: 'Export menu of a database with SQL and Gzip downloads',
-        prepare: all(dbRows, click('#databases_table tbody tr:first-of-type button:has-text("Export")', 300)),
-        crop: { from: '#databases_table thead', to: '#databases_table form[action="/databases/export"]:visible', pad: 12, right: true },
+        alt: 'Row menu of a database with Terminal, Export as .sql, Export as .sql.gz and Import',
+        prepare: all(dbRows, click('#databases_table tbody tr:first-of-type button[aria-label^="More actions"]', 300)),
+        crop: { from: '#databases_table thead', to: '[role="menu"]:visible', pad: 12, right: true },
       },
       {
         name: 'import',
         alt: 'Import dialog of a database with the file picker for a .sql or .sql.gz dump and the Import button',
-        prepare: all(dbRows, click('#databases_table tbody tr:first-of-type button:has-text("Import")', 300), rename({ sdffdsd: 'wp_blog' }, 'body')),
+        prepare: all(dbRows, click('#databases_table tbody tr:first-of-type button[aria-label^="More actions"]', 300), click('[role="menu"]:visible button:has-text("Import")', 300), rename({ sdffdsd: 'wp_blog' }, 'body')),
         viewportHeight: 900,
         crop: { from: 'div[x-show="imp.open"] > div', pad: 16, clamp: false },
       },
@@ -1064,16 +1089,16 @@ export const pages = {
       },
     ],
   },
-  'emails/emails_server': {
+  'emails/emails-demo': {
     as: 'emails/emails',
     url: '/emails/accounts',
     shots: [
       { name: 'list', alt: 'Emails page listing email accounts with their quota usage, webmail button and actions menu', prepare: async page => { await page.waitForTimeout(1500); }, crop: 'content' },
-      bulkShot('#email_accounts_table', ['info@example.test.rs', 'sales@example.test.rs'], 'Two email accounts selected with the bulk actions bar offering Change password, Set quota, Remove quota, Restrict sending, Restrict receiving, Allow sending, Allow receiving and Delete', { wait: 1500 }),
+      bulkShot('#email_accounts_table', ['info@wp.tests.openpanel.org', 'test1@wp.tests.openpanel.org'], 'Two email accounts selected with the bulk actions bar offering Change password, Set quota, Remove quota, Restrict sending, Restrict receiving, Allow sending, Allow receiving and Delete', { wait: 1500 }),
       {
         name: 'add',
         alt: 'Add Email form with the username, a domain picked from the existing domains, its owner, the password with Generate and Show, the storage quota and Send welcome email',
-        prepare: all(click('main a:has-text("Add Email")', 400), async page => { await page.locator('main form[action="/emails/new"] select[name=domain]').selectOption({ index: 1 }); }, fill({ '#new_email_username': 'info', '#new_email_password': 'Xk7pQ2vLm9TzR4wd' }), click('main form[action="/emails/new"] button:has-text("Show")', 200)),
+        prepare: all(click('main a:has-text("Add email"), main button:has-text("Add email")', 400), async page => { await page.locator('main form[action="/emails/new"] select[name=domain]').selectOption({ index: 1 }); }, fill({ '#new_email_username': 'info', '#new_email_password': 'Xk7pQ2vLm9TzR4wd' }), click('main form[action="/emails/new"] button[aria-label="Show password"]', 200)),
         crop: { from: 'main', to: 'main form[action="/emails/new"] button[type=submit]', fromTop: true, pad: 20 },
       },
     ],

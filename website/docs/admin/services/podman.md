@@ -35,14 +35,14 @@ Three bulk actions sit above the table:
 
 All of these (per-image and bulk) run in the background with a progress toast, since a pull can take a while for a large image.
 
-### Volumes / Networks
+### Volumes / networks
 
 Read-only listings of `podman volume ls` / `podman network ls` for the local context.
 
 ![Podman Volumes tab listing volumes](/img/openadmin-screenshots/services/podman-volumes.png#gh-light-mode-only)
 ![Podman Volumes tab listing volumes](/img/openadmin-screenshots/services/podman-volumes_dark.png#gh-dark-mode-only)
 
-### Disk Usage
+### Disk usage
 
 `podman system df` output — Images reflects the whole shared store (every hosting user's images), while Containers and Volumes are root's own local Podman only, not aggregated across hosting users.
 

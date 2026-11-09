@@ -1336,8 +1336,8 @@ paths:
     get:
       summary: Lists hosting plans. Admins see every plan; a reseller only sees the plans in their allowed_plans,
         same as the Plans page.
-      description: '**Access:** Administrator/user role, or a reseller limited to the plans assigned to
-        them.'
+      description: '**Access:** Administrator/user role, or a reseller limited to their own accounts and
+        assigned plans.'
       operationId: get_plans
       tags:
       - Plans
@@ -1444,8 +1444,8 @@ paths:
       summary: Creates a new hosting plan by invoking 'opencli plan-create' with the given fields (all
         default to 0/'1'/'default' when omitted). If the acting token belongs to a reseller, the plan
         is created scoped to that reseller.
-      description: '**Access:** Administrator/user role, or a reseller limited to the plans assigned to
-        them.'
+      description: '**Access:** Administrator/user role, or a reseller limited to their own accounts and
+        assigned plans.'
       operationId: post_plans
       tags:
       - Plans
@@ -1670,8 +1670,8 @@ paths:
         reach this handler and are reported as a plain 404. A reseller gets 404 for a plan outside their
         allowed_plans, and 403 when trying to change or delete a plan that also has other owners' accounts
         on it.
-      description: '**Access:** Administrator/user role, or a reseller limited to the plans assigned to
-        them.'
+      description: '**Access:** Administrator/user role, or a reseller limited to their own accounts and
+        assigned plans.'
       operationId: get_plans_plan_id
       tags:
       - Plans
@@ -1770,8 +1770,8 @@ paths:
         numeric fields default to '0'/'1'/'100'/'default'. A reseller gets 404 for a plan outside their
         allowed_plans, and 403 when trying to change or delete a plan that also has other owners' accounts
         on it.
-      description: '**Access:** Administrator/user role, or a reseller limited to the plans assigned to
-        them.'
+      description: '**Access:** Administrator/user role, or a reseller limited to their own accounts and
+        assigned plans.'
       operationId: put_plans_plan_id
       tags:
       - Plans
@@ -1834,8 +1834,8 @@ paths:
       summary: Same handler as PUT /api/plans/{plan_id} -- partially or fully edits an existing plan via
         'opencli plan-edit'. A reseller gets 404 for a plan outside their allowed_plans, and 403 when
         trying to change or delete a plan that also has other owners' accounts on it.
-      description: '**Access:** Administrator/user role, or a reseller limited to the plans assigned to
-        them.'
+      description: '**Access:** Administrator/user role, or a reseller limited to their own accounts and
+        assigned plans.'
       operationId: patch_plans_plan_id
       tags:
       - Plans
@@ -1882,8 +1882,8 @@ paths:
       summary: Deletes a plan by numeric ID via 'opencli plan-delete <plan name> --json'. A reseller gets
         404 for a plan outside their allowed_plans, and 403 when trying to change or delete a plan that
         also has other owners' accounts on it.
-      description: '**Access:** Administrator/user role, or a reseller limited to the plans assigned to
-        them.'
+      description: '**Access:** Administrator/user role, or a reseller limited to their own accounts and
+        assigned plans.'
       operationId: delete_plans_plan_id
       tags:
       - Plans
@@ -3798,8 +3798,9 @@ paths:
     get:
       summary: Returns per-user disk and inode quota usage, keyed by username, read from the quota report
         file (generated on demand via 'opencli user-quota' if missing). Bandwidth fields are always hardcoded
-        to 0.
-      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+        to 0. A reseller only gets the accounts they own.
+      description: '**Access:** Administrator/user role, or a reseller limited to their own accounts and
+        assigned plans.'
       operationId: usage_disk
       tags:
       - System
@@ -4471,87 +4472,6 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
-  /api/server/node:
-    get:
-      summary: Returns the clustering default-node configuration (default_node host and default_ssh_key_path)
-        along with whether an SSH connection to that node currently validates successfully.
-      description: '**Access:** Administrator or user role (the reseller role is blocked).'
-      operationId: get_server_node
-      tags:
-      - Server
-      responses:
-        '200':
-          description: Success.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  default_node:
-                    type: string
-                    example: node2.example.com
-                  default_ssh_key_path:
-                    type: string
-                    example: /root/.ssh/id_cluster
-                  ssh_valid:
-                    type: boolean
-                    example: true
-                  ssh_error:
-                    type: string
-                    example: ''
-                example:
-                  default_node: node2.example.com
-                  default_ssh_key_path: /root/.ssh/id_cluster
-                  ssh_valid: true
-                  ssh_error: ''
-        default:
-          $ref: '#/components/responses/Error'
-      security:
-      - bearerAuth: []
-    post:
-      summary: Updates the clustering default_node and/or default_ssh_key_path config values; if both
-        are supplied together, validates the SSH connection to the node before saving.
-      description: '**Access:** Administrator or user role (the reseller role is blocked).'
-      operationId: post_server_node
-      tags:
-      - Server
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                default_node:
-                  type: string
-                  example: node2.example.com
-                default_ssh_key_path:
-                  type: string
-                  example: /root/.ssh/id_cluster
-              example:
-                default_node: node2.example.com
-                default_ssh_key_path: /root/.ssh/id_cluster
-      responses:
-        '200':
-          description: Success.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: Default node edited successfully.
-                example:
-                  success: true
-                  message: Default node edited successfully.
-        default:
-          $ref: '#/components/responses/Error'
-      security:
-      - bearerAuth: []
   /api/server/processes:
     get:
       summary: 'Lists all running system processes parsed from /proc (PID, name, CPU%, memory%, priority,
@@ -4911,8 +4831,10 @@ paths:
       - bearerAuth: []
     post:
       summary: Runs one reseller-account action (create/reset_password/rename_user/update/change_plan/update_branding/suspend/unsuspend/delete/disable_2fa/disable_passkeys);
-        create and change_plan accept a reseller plan name in plan; a caller with the reseller role can
-        only ever reset their own password through this endpoint regardless of the submitted action/username.
+        create and change_plan accept a reseller plan name in plan; delete moves the reseller's accounts
+        to admin, or deletes them too when with_users is true; suspend also suspends the reseller's active
+        accounts and unsuspend wakes only those; a caller with the reseller role can only ever reset their
+        own password through this endpoint regardless of the submitted action/username.
       description: '**Access:** Any authenticated user.'
       operationId: post_settings_resellers
       tags:
@@ -4962,6 +4884,138 @@ paths:
                 example:
                   success: true
                   message: OK
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/settings/resellers/{username}:
+    get:
+      summary: Returns one reseller account with its package, limits and usage (same fields as the list),
+        404 if the user doesn't exist or isn't a reseller.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: settings_resellers_username
+      tags:
+      - Settings - Resellers
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                    example: reseller1
+                  is_active:
+                    type: boolean
+                    example: true
+                  role:
+                    type: string
+                    example: reseller
+                  last_ip:
+                    type: string
+                    example: 203.0.113.9
+                  last_login:
+                    type: string
+                    example: '2026-08-09 14:02:11'
+                  totp_enabled:
+                    type: boolean
+                    example: false
+                  passkeys_enabled:
+                    type: boolean
+                    example: false
+                  max_accounts:
+                    type: integer
+                    example: 50
+                  current_accounts:
+                    type: integer
+                    example: 12
+                  current_disk_blocks:
+                    type: integer
+                    example: 204800
+                  max_disk_blocks:
+                    type: integer
+                    example: 1048576
+                  allowed_plans:
+                    type: array
+                    items:
+                      type: integer
+                      example: 1
+                    example:
+                    - 1
+                    - 2
+                    - 3
+                  logo_url:
+                    type: string
+                    example: ''
+                  reseller_plan:
+                    type: string
+                    example: reseller_basic
+                example:
+                  username: reseller1
+                  is_active: true
+                  role: reseller
+                  last_ip: 203.0.113.9
+                  last_login: '2026-08-09 14:02:11'
+                  totp_enabled: false
+                  passkeys_enabled: false
+                  max_accounts: 50
+                  current_accounts: 12
+                  current_disk_blocks: 204800
+                  max_disk_blocks: 1048576
+                  allowed_plans:
+                  - 1
+                  - 2
+                  - 3
+                  logo_url: ''
+                  reseller_plan: reseller_basic
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/settings/resellers/{username}/login:
+    post:
+      summary: Issues a one-time OpenAdmin login link for a reseller without their password, for billing
+        integrations; open login_path on the panel within expires_in seconds. 404 if not a reseller, 403
+        if suspended.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: settings_resellers_username_login
+      tags:
+      - Settings - Resellers
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: 3f9c...
+                  login_path:
+                    type: string
+                    example: /login/sso/3f9c...
+                  expires_in:
+                    type: integer
+                    example: 120
+                example:
+                  token: 3f9c...
+                  login_path: /login/sso/3f9c...
+                  expires_in: 120
         default:
           $ref: '#/components/responses/Error'
       security:

@@ -16,7 +16,7 @@ Resellers are managed from **Accounts > Resellers**. Reseller logins do not see 
 
 ---
 
-## Reseller Management Interface
+## Reseller management interface
 
 The interface displays a table of existing reseller users with the following columns:
 
@@ -41,24 +41,24 @@ The interface displays a table of existing reseller users with the following col
 - **Storage**  
   A progress bar showing how much of the reseller's disk usage allowance is currently used.
 
-- **Hosting Plans**  
+- **Hosting plans**  
   The number of hosting plans available to the reseller for assigning to their users.
 
 Click the arrows next to a column name to sort the table by that column.
 
 Each row also has an Edit menu with the available actions:
 
-- **Edit Plans & Limits** - move the reseller to another [Reseller Package](/docs/admin/plans/reseller_packages) with **Apply Package**, or set their Max Accounts, Max Disk Usage (in blocks), and the hosting plans they're allowed to assign to their users by hand. Limits set by hand are replaced when the reseller's package is edited or another package is applied.
+- **Edit plans & limits** - move the reseller to another [Reseller Package](/docs/admin/plans/reseller_packages) with **Apply package**, or set their Max Accounts, Max Disk Usage (in blocks), and the hosting plans they're allowed to assign to their users by hand. Limits set by hand are replaced when the reseller's package is edited or another package is applied.
 - **Rename** - change the reseller's username.
-- **Change Password** - set a new password for the reseller.
+- **Change password** - set a new password for the reseller.
 - **Activity Log** - open the reseller's [Activity Log](/docs/admin/accounts/activity).
-- **Disable 2FA** / **Disable Passkeys** - shown only when enabled for that reseller; lets the Super Admin remove it.
+- **Disable 2FA** / **Disable passkeys** - shown only when enabled for that reseller; lets the Super Admin remove it.
 - **Suspend** / **Unsuspend** - temporarily disable the reseller's access.
 - **Delete** - permanently remove the reseller account.
 
 To create a new reseller, click **Create New**, set a username and password, optionally pick a **Reseller Package**, and click **Create**. The package's limits are applied to the new reseller. Without a package, or before any packages exist, the reseller gets the default limits from `/etc/openpanel/openadmin/config/reseller_template.json`.
 
-Resellers can be turned off for the whole server with the **Disable Resellers** button next to **Create New**, and turned back on with **Enable Resellers**. While reseller accounts exist the **Disable Resellers** button is greyed out, hover it to see how many reseller accounts have to be deleted first.
+Resellers can be turned off for the whole server with the **Disable resellers** button next to **Create New**, and turned back on with **Enable resellers**. While reseller accounts exist the **Disable resellers** button is greyed out, hover it to see how many reseller accounts have to be deleted first.
 
 ---
 
@@ -66,7 +66,7 @@ Reseller users have access only to the features and account management tools ass
 
 ---
 
-## Bulk Actions
+## Bulk actions
 
 Tick the checkbox of one or more resellers, or the checkbox in the table header to select all resellers shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 
@@ -81,18 +81,18 @@ Tick the checkbox of one or more resellers, or the checkbox in the table header 
 
 Click an action, confirm it, and it runs on the selected resellers one after another. When it's done the page reloads with a notice listing the resellers it worked for, or which ones failed and why.
 
-## Reseller Account
+## Reseller account
 
 When a Reseller logs in, they see a **Reseller Account** page (`/account`) instead of the full Accounts section, where they can:
 
-- **Change Password** – Set a new password for their own login.
+- **Change password** – Set a new password for their own login.
 - **Branding** – Set a custom **Logo URL** shown instead of the default OpenPanel logo on every account they own (does not apply to the login page).
-- **My Activity Log** – The button in the top right opens their own [Activity Log](/docs/admin/accounts/activity). Resellers can only see their own log, not the logs of other resellers or administrators.
+- **My activity log** – The button in the top right opens their own [Activity Log](/docs/admin/accounts/activity). Resellers can only see their own log, not the logs of other resellers or administrators.
 
 ![Reseller Account page with the My Activity Log button, Change Password and Branding](/img/openadmin-screenshots/accounts/resellers-account.png#gh-light-mode-only)
 ![Reseller Account page with the My Activity Log button, Change Password and Branding](/img/openadmin-screenshots/accounts/resellers-account_dark.png#gh-dark-mode-only)
 
-Resellers also have their own **Two-Factor Authentication** and **Passkeys** pages under Security, scoped to their own login only.
+Resellers also have their own **Two-factor authentication** and **Passkeys** pages under Security, scoped to their own login only.
 
 ## Pages resellers can use
 
@@ -102,17 +102,17 @@ Besides their users, [User Packages](/docs/admin/plans/hosting_plans), the Featu
 |---|---|
 | **Domains > Domains** | List, add, suspend, unsuspend and delete their users' domains, change PHP version, WAF, HSTS, Cloudflare and DNS for them, and use the bulk actions. The SSL, VirtualHost, Caddy and config file editors stay with administrators. |
 | **Domains > DNS Zone Editor** | Edit the DNS zones of their users' domains. |
-| **Domains > Rate Limiting** | Set default, custom or no rate limits for their users' domains. The server default can only be changed by administrators. |
+| **Domains > Rate limiting** | Set default, custom or no rate limits for their users' domains. The server default can only be changed by administrators. |
 | **Databases** | See the MySQL, MariaDB, PostgreSQL and MongoDB databases of their users, and export, import or open them in phpMyAdmin. See [MySQL Databases](/docs/admin/databases/mysql). |
 | **Emails > Accounts** | Add email accounts on their users' domains, change their password, quota and send/receive restrictions, delete them and open webmail. |
 | **Emails > Queue** | See queued messages sent from their users' domains or sent only to their users, and retry or delete them. Retry all and Delete all only act on those messages. |
-| **Emails > Email Deliverability** | See the DKIM, SPF and DMARC status of their users' domains. See [Email Deliverability](/docs/admin/emails/deliverability). |
+| **Emails > Email deliverability** | See the DKIM, SPF and DMARC status of their users' domains. See [Email Deliverability](/docs/admin/emails/deliverability). |
 | **Backups > Import Account** | Upload and restore OpenPanel backups as their own users, within their limits, and see the logs of their own imports. See [Imports by resellers](/docs/admin/backups/cpanel#imports-by-resellers). |
 | **Services > FTP** | See FTP accounts on their users' domains and set their quota. The Configuration tab isn't shown. |
-| **Security > Web Firewall (Coraza)** | The Domains and Logs tabs for their users' domains, including per domain and per user WAF rules. The overview and server wide rules stay with administrators. |
+| **Security > Web firewall (Coraza)** | The Domains and Logs tabs for their users' domains, including per domain and per user WAF rules. The overview and server wide rules stay with administrators. |
 | **Security > ImunifyAV** | A list of their users with the last scan and infected files. **Scan** queues a scan of the user's files and **Open** opens ImunifyAV logged in as that user, so only that user's files are shown. Installing ImunifyAV is up to the administrator. |
-| **Server > Resource Usage** | View server load, memory, CPU, disk and network usage, without the links to the process manager or the Drop Cache buttons. |
-| **Server > Scheduled Actions** | View the system jobs and their schedule, read only. |
+| **Server > Resource usage** | View server load, memory, CPU, disk and network usage, without the links to the process manager or the Drop Cache buttons. |
+| **Server > Scheduled actions** | View the system jobs and their schedule, read only. |
 | **Settings > Locales** | Install and update locales. Setting the default locale and deleting locales stays with administrators. |
 
 The same rules apply to the API endpoints behind these pages when they're called with a reseller's token, see the [OpenAdmin API](/docs/articles/dev-experience/openadmin-api/).

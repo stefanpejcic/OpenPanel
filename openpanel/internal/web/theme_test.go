@@ -1,6 +1,7 @@
 package web
 
 import (
+	"html/template"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -42,20 +43,27 @@ func TestPageReparsesOnThemeSwitch(t *testing.T) {
 	if p.classic == nil {
 		t.Fatal("base.html has no classic copy")
 	}
-	modern := p.template()
+	parsed := func() *template.Template {
+		tmpl, err := p.template()
+		if err != nil {
+			t.Fatal(err)
+		}
+		return tmpl
+	}
+	modern := parsed()
 	if p.tmplClassic {
 		t.Fatal("modern theme parsed the classic copy")
 	}
 	SetTheme(ThemeClassic)
-	classic := p.template()
+	classic := parsed()
 	if classic == modern || !p.tmplClassic {
 		t.Fatal("theme switch didn't parse the classic copy")
 	}
-	if p.template() != classic {
+	if parsed() != classic {
 		t.Fatal("classic page wasn't cached")
 	}
 	SetTheme(ThemeModern)
-	if p.template() == classic || p.tmplClassic {
+	if parsed() == classic || p.tmplClassic {
 		t.Fatal("switching back kept the classic template")
 	}
 }

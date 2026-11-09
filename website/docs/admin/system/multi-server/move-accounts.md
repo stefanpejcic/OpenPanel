@@ -2,7 +2,7 @@
 sidebar_position: 5
 ---
 
-# Move Accounts
+# Move accounts
 
 Move an account from one server to another under **Move account** on the master, or from the **Transfer** tab of the account. The master handles the SSH keys between the two servers for the move and removes them when it's done.
 

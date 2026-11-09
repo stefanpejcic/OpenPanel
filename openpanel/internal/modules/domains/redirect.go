@@ -124,7 +124,8 @@ func handleSetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			web.FlashRedirect(a, w, r, "error", "Domain name not provided.", redirectBack(r, "", true))
 			return
 		}
-		if !a.CheckExactDomainBelongsToUser(ctx, userID, domainURL) {
+		// the ownership check stops at the first slash, the conf path doesn't
+		if strings.ContainsAny(domainURL, "/\\") || !a.CheckExactDomainBelongsToUser(ctx, userID, domainURL) {
 			http.Error(w, "You do not own this domain.", http.StatusForbidden)
 			return
 		}
@@ -274,7 +275,7 @@ func redirectTargetProblem(domain, target string, existing map[string]string) (m
 	if target == "" {
 		return "Enter the URL visitors should go to.", ""
 	}
-	// caddy expands {placeholders} in redir targets and quotes would break the conf, checked first so this gets its own message
+	// caddy expands {placeholders} and quotes break the conf, checked first for the clearer message
 	if strings.ContainsAny(target, "{}\"`\\") {
 		return "The URL can't contain { } \" ` or \\ characters.", ""
 	}

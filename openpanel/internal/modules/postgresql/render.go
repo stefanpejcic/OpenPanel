@@ -107,9 +107,9 @@ type CreatePageData struct {
 	DBLimit  int // plan limit, 0 is unlimited
 	DBUsage  int
 	FormName string        // what was typed, kept after a failed submit
-	Created  web.DBCreated // set by the ?created= redirect, shows the done state
+	Created  web.DBCreated // the database or user just created, a blank Name shows the form
 
-	CreatedPassword  string // the wizard's new user password, shown once
+	CreatedPassword  string // a new user's password, shown once
 	Success          bool   // wizard done
 	FormDatabaseName string
 	FormDBUser       string
@@ -137,14 +137,12 @@ func createPage(a *appctx.App, w http.ResponseWriter, r *http.Request, title str
 	return data, true
 }
 
-func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request, formName string) {
-	created := web.CreatedDBFromRequest(r, web.LayoutData{}, "postgresql", "")
-	data, ok := createPage(a, w, r, "Create Database", created.Name != "")
+func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request, formName, created string) {
+	data, ok := createPage(a, w, r, "Create Database", created != "")
 	if !ok {
 		return
 	}
-	data.FormName = formName
-	data.Created = web.CreatedDBFromRequest(r, data.LayoutData, "postgresql", "postgresql_import")
+	data.FormName, data.Created = formName, web.DBCreated{Name: created, Slug: "postgresql", CanImport: data.UserAllowed["postgresql_import"]}
 	if err := newDatabasePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - new database template render error: %v", err)
 	}
@@ -186,13 +184,12 @@ func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, stat
 	}
 }
 
-func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request, formName string) {
-	created := web.CreatedDBFromRequest(r, web.LayoutData{}, "postgresql", "")
-	data, ok := createPage(a, w, r, "Create User", created.Name != "")
+func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request, formName, created, password string) {
+	data, ok := createPage(a, w, r, "Create User", created != "")
 	if !ok {
 		return
 	}
-	data.FormName, data.Created = formName, created
+	data.FormName, data.Created, data.CreatedPassword = formName, web.DBCreated{Name: created, Slug: "postgresql"}, password
 	if err := createUserPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - create user template render error: %v", err)
 	}

@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# User Packages
+# User packages
 
 Hosting plans set limits for users. 
 
@@ -12,7 +12,7 @@ Hosting plans set limits for users.
   <TabItem value="openadmin-plan-list" label="With OpenAdmin" default>
 
 
-To list existing plans navigate to **OpenAdmin > Hosting Plans > User Packages**:
+To list existing plans navigate to **OpenAdmin > Hosting plans > User packages**:
 
 
 | Field              | Description                                                               |
@@ -23,7 +23,7 @@ To list existing plans navigate to **OpenAdmin > Hosting Plans > User Packages**
 | **CPU**            | Number of CPU cores dedicated to the user on this hosting plan.             |
 | **Disk**     | Disk space in GB allocated for all user files.           |
 | **Inodes**   | Limits the total number of files allowed for the user.   |
-| **Port Speed**            | Maximum bandwidth (port speed) for the user, in mbit/s.     |
+| **Port speed**            | Maximum bandwidth (port speed) for the user, in mbit/s.     |
 | **Domains**  | Total number of domain names allowed per user on the plan.                  |
 | **Websites** | Total number of websites (WordPress, Website Builder, NodeJS, Python) per user on the plan.   |
 | **Databases** | Total number of MySQL and PostgreSQL databases allowed per user on the plan. The limit applies separately to each database engine.              |
@@ -31,7 +31,7 @@ To list existing plans navigate to **OpenAdmin > Hosting Plans > User Packages**
 | **Mailbox quota** | Max mailbox size for email accounts that user can set on this plan.              |
 | **Max hourly emails** | Max number of emails that all addresses under this account can send within one hour.              |
 | **FTP accounts** | Total number of ftp accounts that user can create on the plan.             |
-| **Feature Set** | [Feature Sets](/docs/admin/plans/feature-manager) determine which pages users can access from the OpenPanel interface.               |
+| **Feature set** | [Feature Sets](/docs/admin/plans/feature-manager) determine which pages users can access from the OpenPanel interface.               |
 | **Used by** | Number of users currently on this plan. Click the number to view those users. |
 
 ![User Packages page listing hosting plans with their memory, CPU, disk, inodes, port speed and other limits](/img/openadmin-screenshots/plans/hosting_plans-list.png#gh-light-mode-only)
@@ -69,7 +69,7 @@ opencli plan-list --json
   </TabItem>
 </Tabs>
 
-## Bulk Actions
+## Bulk actions
 
 Tick the checkbox of one or more plans, or the checkbox in the table header to select all plans shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 
@@ -102,14 +102,14 @@ To create a new hosting package, click the **'Create New'** button and configure
 * **Inodes** – Total number of files to allow the user on this plan. Use `0` for unlimited.
 * **CPU cores** – Limits the total CPU (cores) used by all of the user's running services combined. Set to `0` for unlimited, the user can then use all cores but 2.
 * **Memory** – Limits the total memory (in GB) used by all of the user's running services combined, swap isn't used. Set to `0` for unlimited, the user is then slowed down above 80% of the server's RAM and stopped at 90%. The process limit follows the memory limit.
-* **Port Speed** – Bandwidth (port speed) limit, in Mbit/s, for the user's services.
+* **Port speed** – Bandwidth (port speed) limit, in Mbit/s, for the user's services.
 * **Domains** – Total number of domains: primary, addons, aliases. Subdomains are excluded.
 * **Websites** – Max number of websites the user can install/manage on this plan. Includes WordPress, NodeJS, Python and Website Builder. Use `0` for unlimited.
 * **Databases** – Max number of MySQL and PostgreSQL databases the user can have on this plan. The limit applies separately to each engine (e.g. a value of `10` allows up to 10 MySQL databases *and* up to 10 PostgreSQL databases). Use `0` for unlimited.
 * **Email Accounts** – Max number of email accounts the user can create and manage on this plan. Use `0` for unlimited.
 * **Mailbox quota** – Max mailbox size for email accounts that user can set on this plan. Examples: `100k`, `250M`, `3G`, `1T`, or `0` for unlimited.
 * **Max hourly emails** – Max number of emails that all addresses under this account can send within one hour. Use `0` for unlimited. The limit of each domain can be changed in [Emails > Domain Limits](/docs/admin/emails/domain-limits).
-* **FTP Accounts** – Max number of FTP accounts the user can create and manage on this plan. Use `0` for unlimited.
+* **FTP accounts** – Max number of FTP accounts the user can create and manage on this plan. Use `0` for unlimited.
 * **Feature set** – Feature set that determines which features users on this plan have access to.
 
 ![New Package form with name, description, disk, inodes, CPU, memory, port speed, domains, websites, databases, email, FTP and feature set fields](/img/openadmin-screenshots/plans/hosting_plans-new.png#gh-light-mode-only)
@@ -135,7 +135,7 @@ opencli plan-create name="New Plan" description="This is a new plan" emails=100 
 
 ## Modify plan
 
-To change plan limits, go to **OpenAdmin > Hosting Plans > User Packages**, click the **...** (kebab) menu at the end of the plan's row, choose **Edit**, and set the new limits.
+To change plan limits, go to **OpenAdmin > Hosting plans > User packages**, click the **...** (kebab) menu at the end of the plan's row, choose **Edit**, and set the new limits.
 
 ![Row menu of a hosting plan that is in use, with the Edit option](/img/openadmin-screenshots/plans/hosting_plans-menu.png#gh-light-mode-only)
 ![Row menu of a hosting plan that is in use, with the Edit option](/img/openadmin-screenshots/plans/hosting_plans-menu_dark.png#gh-dark-mode-only)
@@ -146,7 +146,7 @@ To change plan limits, go to **OpenAdmin > Hosting Plans > User Packages**, clic
 
 The new limits will be applied immediately to all accounts using the package.
 
-## List Users on Plan
+## List users on plan
 
 <Tabs>
   <TabItem value="openadmin-plan-usage" label="With OpenAdmin" default>
@@ -185,7 +185,7 @@ opencli plan-usage --json
   </TabItem>
 </Tabs>
 
-## Delete Plan
+## Delete plan
 
 <Tabs>
   <TabItem value="openadmin-plan-delete" label="With OpenAdmin" default>

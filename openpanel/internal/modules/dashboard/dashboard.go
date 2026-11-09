@@ -185,6 +185,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		NavTrail:          navTrail,
 		UserAllowed:       userAllowed,
 		UserAllowedJSON:   web.UserAllowedList(userAllowed),
+		SidebarFavorites:  web.SidebarFavorites(r.Context(), a, userAllowed, currentUsername),
 		UpsellAllowed:     upsellAllowed,
 		UpsellPlanName:    upsellPlanName,
 		UpsellURL:         upsellURL,

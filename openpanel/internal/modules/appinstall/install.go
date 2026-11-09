@@ -154,7 +154,7 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	pidsLimit := getValidatedInt(r.FormValue("pids_limit"), "500")
 
 	var appPort int
-	if portStr := strings.TrimSpace(r.FormValue("port")); portStr != "" {
+	if portStr := strings.TrimSpace(r.FormValue("port")); portStr != "" && kind.AppType != "n8n" {
 		p, perr := strconv.Atoi(portStr)
 		if perr != nil || p < 1 || p > 65535 {
 			emit(map[string]any{"error": "Invalid port, use a number from 1 to 65535."})
@@ -225,6 +225,26 @@ func HandleInstall(kind Kind, a *appctx.App, w http.ResponseWriter, r *http.Requ
 	if !isValidGitURL(gitRepoURL) {
 		emit(map[string]any{"error": "Invalid git repository URL. Only https:// URLs are supported."})
 		return
+	}
+
+	var ownerEmail, ownerFirstName, ownerLastName, ownerPassword string
+	if kind.AppType == "n8n" {
+		ownerEmail = strings.TrimSpace(r.FormValue("owner_email"))
+		ownerFirstName = strings.TrimSpace(r.FormValue("owner_first_name"))
+		ownerLastName = strings.TrimSpace(r.FormValue("owner_last_name"))
+		ownerPassword = r.FormValue("owner_password")
+		if ownerEmail == "" || ownerFirstName == "" || ownerLastName == "" || ownerPassword == "" {
+			emit(map[string]any{"error": "Owner account first name, last name, email and password are all required."})
+			return
+		}
+		if len(ownerPassword) < 8 || len(ownerPassword) > 64 {
+			emit(map[string]any{"error": "Owner password must be 8 to 64 characters long."})
+			return
+		}
+		if !cmsapp.ValidEmail(ownerEmail) {
+			emit(map[string]any{"error": "Invalid owner email address."})
+			return
+		}
 	}
 
 	// a root-level install gets a catch-all `ProxyPass /` in the vhost, which Apache matches before any other path (mod_proxy matches by file order, not specificity) - so a root app would silently break every subdirectory site on the domain, and the reverse breaks too (a subdirectory app behind an existing root app is unreachable). Neither can be fixed by reordering, so both cases are blocked outright.

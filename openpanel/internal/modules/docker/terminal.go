@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"net/url"
 	"os/exec"
 	"sort"
 	"strconv"
@@ -64,23 +63,7 @@ func handleDockerTerminal(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		renderTerminalPage(a, w, r, terminalTimeout, "Container Terminal", containerName, activeServiceNames)
 		return
 	}
-	// open on a running container instead of an empty picker, PHP first since that's where most commands go
-	if len(activeServiceNames) > 0 {
-		sort.Strings(activeServiceNames)
-		pick := activeServiceNames[0]
-		for _, n := range activeServiceNames {
-			if strings.HasPrefix(n, "php-fpm") {
-				pick = n
-				break
-			}
-		}
-		target := "/containers/terminal/" + url.PathEscape(pick)
-		if r.URL.RawQuery != "" {
-			target += "?" + r.URL.RawQuery
-		}
-		http.Redirect(w, r, target, http.StatusFound)
-		return
-	}
+	sort.Strings(activeServiceNames)
 	renderTerminalPage(a, w, r, terminalTimeout, "Select Container", "", activeServiceNames)
 }
 

@@ -18,7 +18,7 @@ The admin panel has three user roles:
 | **Reseller**       | Has restricted privileges, manages only the users assigned to them. Reseller users are managed from the separate [Resellers](/docs/admin/accounts/resellers) page and are not listed on the Administrators page. |
 
 
-## Manage Admin users
+## Manage admin users
 
 
 <Tabs>
@@ -54,12 +54,12 @@ opencli admin list
   </TabItem>
 </Tabs>
 
-## Bulk Actions
+## Bulk actions
 
 Tick the checkbox of one or more administrators, or the checkbox in the table header to select all administrators shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 
-![Two administrators selected with the bulk actions bar offering Suspend, Unsuspend and Delete](/img/openadmin-screenshots/accounts/administrators-bulk.png#gh-light-mode-only)
-![Two administrators selected with the bulk actions bar offering Suspend, Unsuspend and Delete](/img/openadmin-screenshots/accounts/administrators-bulk_dark.png#gh-dark-mode-only)
+![An administrator selected with the bulk actions bar offering Suspend, Unsuspend and Delete](/img/openadmin-screenshots/accounts/administrators-bulk.png#gh-light-mode-only)
+![An administrator selected with the bulk actions bar offering Suspend, Unsuspend and Delete](/img/openadmin-screenshots/accounts/administrators-bulk_dark.png#gh-dark-mode-only)
 
 | Action | What it does |
 |---|---|
@@ -71,20 +71,20 @@ Super Admins and your own account have no checkbox, they can't be suspended or d
 
 Click an action, confirm it, and it runs on the selected administrators one after another. When it's done the page reloads with a notice listing the administrators it worked for, or which ones failed and why.
 
-## Activity Log
+## Activity log
 
 Every change an administrator makes in OpenAdmin is recorded in their own activity log. Open it from the **Activity** column or from **Activity Log** in the Edit menu, see [Activity Log](/docs/admin/accounts/activity) for what is recorded.
 
 ![Activity Log page of an administrator with the date, IP address and action of each change](/img/openadmin-screenshots/accounts/administrators-activity.png#gh-light-mode-only)
 ![Activity Log page of an administrator with the date, IP address and action of each change](/img/openadmin-screenshots/accounts/administrators-activity_dark.png#gh-dark-mode-only)
 
-## Reset Admin Password
+## Reset admin password
 
 
 <Tabs>
   <TabItem value="openadmin-admin-reset" label="With OpenAdmin" default>
 
-To reset an admin's password, open the Edit menu for that user on the **Accounts > Administrators** page, select **Change Password**, then set the new password and click **Change Password**.
+To reset an admin's password, open the Edit menu for that user on the **Accounts > Administrators** page, select **Change password**, then set the new password and click **Change password**.
 
 ![Edit menu of an administrator with the Rename, Change Password, Activity Log, Suspend and Delete options](/img/openadmin-screenshots/accounts/administrators-menu.png#gh-light-mode-only)
 ![Edit menu of an administrator with the Rename, Change Password, Activity Log, Suspend and Delete options](/img/openadmin-screenshots/accounts/administrators-menu_dark.png#gh-dark-mode-only)
@@ -110,7 +110,7 @@ opencli admin password admin Pyl7_L2M1
 </Tabs>
 
 
-## Create new Admin
+## Create new admin
 
 <Tabs>
   <TabItem value="openadmin-admin-new" label="With OpenAdmin" default>
@@ -145,12 +145,12 @@ opencli admin new filip Pyl7_L2M1
 
 
 
-## Rename Admin user
+## Rename admin user
 
 <Tabs>
   <TabItem value="openadmin-admin-rename" label="With OpenAdmin" default>
 
-To rename an Admin user, open the Edit menu for that user on the **Accounts > Administrators** page, select **Rename**, set the new username and click **Change Username**.
+To rename an Admin user, open the Edit menu for that user on the **Accounts > Administrators** page, select **Rename**, set the new username and click **Change username**.
 
 ![Rename administrator form with the new username field and the Change Username button](/img/openadmin-screenshots/accounts/administrators-rename.png#gh-light-mode-only)
 ![Rename administrator form with the new username field and the Change Username button](/img/openadmin-screenshots/accounts/administrators-rename_dark.png#gh-dark-mode-only)
@@ -173,7 +173,7 @@ opencli admin rename filip filip2
 </Tabs>
 
 
-## Suspend Admin user
+## Suspend admin user
 
 <Tabs>
   <TabItem value="openadmin-admin-suspend" label="With OpenAdmin" default>
@@ -211,7 +211,7 @@ opencli admin unsuspend filip
 </Tabs>
 
 
-## Delete Admin user
+## Delete admin user
 
 <Tabs>
   <TabItem value="openadmin-admin-delete" label="With OpenAdmin" default>
@@ -242,12 +242,12 @@ The Super Admin user can not be deleted.
 :::
 
 
-## Disable Two-Factor Authentication or Passkeys
+## Disable two-factor authentication or passkeys
 
 <Tabs>
   <TabItem value="openadmin-admin-2fa" label="With OpenAdmin" default>
 
-If an admin user has Two-Factor Authentication or a Passkey enabled (shown in the **2FA** and **Passkeys** columns on the **Accounts > Administrators** page), the Super Admin can open that user's Edit menu and select **Disable 2FA** or **Disable Passkeys** to remove it, for example if the user is locked out of their authenticator or security key. Only the Super Admin can perform this action, and it cannot be used on the Super Admin's own account.
+If an admin user has Two-Factor Authentication or a Passkey enabled (shown in the **2FA** and **Passkeys** columns on the **Accounts > Administrators** page), the Super Admin can open that user's Edit menu and select **Disable 2FA** or **Disable passkeys** to remove it, for example if the user is locked out of their authenticator or security key. Only the Super Admin can perform this action, and it cannot be used on the Super Admin's own account.
 
   </TabItem>
 </Tabs>

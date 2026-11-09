@@ -435,10 +435,10 @@ document.addEventListener('submit', (e) => {
                             <ul data-sidebar="menu" class="flex w-full min-w-0 flex-col">
 
 
-                                <li x-cloak x-data="{ open: true, active: false }" class="relative">
+                                <li x-data="{ open: true, active: false }" class="relative">
                                 <button @click="open = !open" class="flex w-full items-center justify-between gap-x-2.5 rounded p-2 text-base text-gray-900 transition hover:bg-gray-200/50 sm:text-sm dark:text-gray-400 hover:dark:bg-gray-900 hover:dark:text-gray-50 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500"><div class="flex items-center gap-2.5"><svg  xmlns="http://www.w3.org/2000/svg"  width="18"  height="18"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-star"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" /></svg> {{.T.Get "Favorites"}} </div><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon rotate-0 size-5 shrink-0 transform text-gray-400 transition-transform duration-150 ease-in-out dark:text-gray-600 rotate-180" :class="{ 'rotate-180': open }"><path d="M12 16L6 10H18L12 16Z"></path></svg></button>
                                     <ul x-show="open || active" x-transition class="relative space-y-1 border-l border-transparent">
-                                        <div id="favorites-list" class="relative z-50 overflow-hidden min-w-48 text-gray-900 will-change-[transform,opacity] data-[state=closed]:animate-hide data-[side=bottom]:animate-slideDownAndFade data-[side=left]:animate-slideLeftAndFade data-[side=right]:animate-slideRightAndFade data-[side=top]:animate-slideUpAndFade"></div>
+                                        <div id="favorites-list" class="relative z-50 overflow-hidden min-w-48 text-gray-900 will-change-[transform,opacity] data-[state=closed]:animate-hide data-[side=bottom]:animate-slideDownAndFade data-[side=left]:animate-slideLeftAndFade data-[side=right]:animate-slideRightAndFade data-[side=top]:animate-slideUpAndFade"><span class="absolute inset-y-0 left-4 w-px bg-gray-300 dark:bg-gray-800"></span>{{range .SidebarFavorites}}<li class="relative flex gap-2 rounded py-1.5 pl-9 pr-3 text-base transition sm:text-sm text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50 data-[active=true]:rounded data-[active=true]:bg-white data-[active=true]:text-blue-600 data-[active=true]:shadow data-[active=true]:ring-1 data-[active=true]:ring-gray-200 data-[active=true]:dark:bg-gray-900 data-[active=true]:dark:text-blue-500 data-[active=true]:dark:ring-gray-800 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500"><a href="/{{.Link}}" data-active="false">{{.Title}}</a></li>{{end}}</div>
                                     </ul>
                                 </li>
 
@@ -480,8 +480,8 @@ document.addEventListener('submit', (e) => {
                                         });
                                 }
 
-                                // Load favorites immediately
-                                loadFavorites();
+                                // list is server-rendered, this just seeds the header button state
+                                window.userFavorites = {{if .SidebarFavorites}}{{.SidebarFavorites}}{{else}}[]{{end}};
                                 </script>
 
 

@@ -88,14 +88,14 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		threshold := validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)
 		if msg := checkNewUser(dbUser, dbHost, password, threshold, loadNames(ctx, userContext)); msg != "" {
 			web.Flash(a, w, r, "error", web.Tr(a, r, msg))
-			renderCreateUserPage(a, w, r, mysqlVersion, typed)
+			renderCreateUserPage(a, w, r, mysqlVersion, typed, "", "")
 			return
 		}
 
 		escapedPassword := escapeMySQLString(password)
 		if _, execErr := mysqlmanager.Exec(ctx, userContext, "CREATE USER '"+dbUser+"'@'"+dbHost+"' IDENTIFIED BY '"+escapedPassword+"'", ""); execErr != nil {
 			web.Flash(a, w, r, "error", execErr.Error())
-			renderCreateUserPage(a, w, r, mysqlVersion, typed)
+			renderCreateUserPage(a, w, r, mysqlVersion, typed, "", "")
 			return
 		}
 		invalidateDatabasesInfo(ctx, a, userContext)
@@ -105,7 +105,7 @@ func handleDatabasesUser(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	renderCreateUserPage(a, w, r, mysqlVersion, "")
+	renderCreateUserPage(a, w, r, mysqlVersion, "", web.CreatedDBName(r), "")
 }
 
 // handleDatabasesPassword renders the change-password form for one existing user.

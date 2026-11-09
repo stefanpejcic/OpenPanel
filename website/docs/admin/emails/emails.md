@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Email Accounts
+# Email accounts
 
 The Emails > Accounts page provides an overview of all email accounts managed through OpenPanel.
 
@@ -17,19 +17,19 @@ The table includes the following information:
 - **Quota** – The storage limit assigned to the account, together with a usage progress bar.
 - **Webmail** – A quick-access button to log in directly to the webmail interface for that account.
 - **Actions** – A per-row menu with:
-  - **Change Password** – set a new password for the mailbox.
-  - **Set Quota** – set or remove the mailbox storage quota.
+  - **Change password** – set a new password for the mailbox.
+  - **Set quota** – set or remove the mailbox storage quota.
   - **Restrictions** – restrict the account from sending and/or receiving mail.
-  - **Delete Account** – permanently remove the mailbox.
+  - **Delete account** – permanently remove the mailbox.
 
-![Actions menu of an email account with Change Password, Set Quota, Restrictions and Delete Account](/img/openadmin-screenshots/emails/emails-menu.png#gh-light-mode-only)
-![Actions menu of an email account with Change Password, Set Quota, Restrictions and Delete Account](/img/openadmin-screenshots/emails/emails-menu_dark.png#gh-dark-mode-only)
+![Actions menu of an email account with Change password, Set quota, Restrictions and Delete account](/img/openadmin-screenshots/emails/emails-menu.png#gh-light-mode-only)
+![Actions menu of an email account with Change password, Set quota, Restrictions and Delete account](/img/openadmin-screenshots/emails/emails-menu_dark.png#gh-dark-mode-only)
 
 A search box is also available to filter the list by email address.
 
-## Add an Email Account
+## Add an email account
 
-Click **Add Email** in the top right to open the form:
+Click **Add email** in the top right to open the form:
 
 - **Email**: the part before the @, and the domain picked from the domains on the server. The domain's owner is shown below it.
 - **Password**: type one, or click **Generate** for a random one and **Show** to see it.
@@ -39,9 +39,9 @@ Click **Add Email** in the top right to open the form:
 ![Add Email form with the username, a domain picked from the existing domains, its owner, the password with Generate and Show, the storage quota and Send welcome email](/img/openadmin-screenshots/emails/emails-add.png#gh-light-mode-only)
 ![Add Email form with the username, a domain picked from the existing domains, its owner, the password with Generate and Show, the storage quota and Send welcome email](/img/openadmin-screenshots/emails/emails-add_dark.png#gh-dark-mode-only)
 
-Click **Add Email** to create it. The account is created the same way as when the user adds it in OpenPanel, with `opencli email-setup email add`, and the quota is set right after. The mail server has to be running.
+Click **Add email** to create it. The account is created the same way as when the user adds it in OpenPanel, with `opencli email-setup email add`, and the quota is set right after. The mail server has to be running.
 
-## Bulk Actions
+## Bulk actions
 
 Tick the checkbox of one or more email accounts, or the checkbox in the table header to select all email accounts shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 

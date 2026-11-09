@@ -85,6 +85,14 @@ func apiDynamicDNSCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "domain and subdomain are required"})
 		return
 	}
+	if !validateSubdomain(subdomain) {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid subdomain"})
+		return
+	}
+	if !validateIPv4(ip) {
+		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid IP address"})
+		return
+	}
 	if !a.CheckExactDomainBelongsToUser(ctx, userID, domain) {
 		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return

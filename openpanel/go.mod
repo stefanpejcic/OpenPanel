@@ -1,6 +1,6 @@
 module gist.github.com/stefanpejcic/openpanel
 
-go 1.26.0
+go 1.26.10
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.8.0
@@ -22,7 +22,7 @@ require (
 	github.com/pquerna/otp v1.5.0
 	github.com/redis/go-redis/v9 v9.7.3
 	go.mongodb.org/mongo-driver/v2 v2.9.1
-	golang.org/x/crypto v0.58.0
+	golang.org/x/crypto v0.58.1-0.20261009181718-2f1f834330b2
 	golang.org/x/net v0.62.0
 	gopkg.in/yaml.v3 v3.0.1
 )

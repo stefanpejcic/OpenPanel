@@ -8,11 +8,9 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
-	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
@@ -20,19 +18,11 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-// Favorite is one entry of a user's favorites.json.
-type Favorite struct {
-	Link  string `json:"link"`
-	Title string `json:"title"`
-}
+type Favorite = web.Favorite
 
-func favoritesPath(username string) string {
-	return "/etc/openpanel/openpanel/core/users/" + username + "/favorites.json"
-}
+func favoritesPath(username string) string { return web.FavoritesPath(username) }
 
-func favoritesCacheKey(username string) string {
-	return "favorites:" + username
-}
+func favoritesCacheKey(username string) string { return web.FavoritesCacheKey(username) }
 
 func favoritesMax(a *appctx.App) int {
 	n, err := strconv.Atoi(a.Config.Get("favorites_items", "10"))
@@ -52,23 +42,11 @@ func ensureFavoritesFile(path string) error {
 	return nil
 }
 
-func readFavoritesFile(path string) ([]Favorite, error) {
-	content, err := tenantfs.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-	var favs []Favorite
-	if err := json.Unmarshal(content, &favs); err != nil {
-		return nil, err
-	}
-	return favs, nil
-}
+func readFavoritesFile(path string) ([]Favorite, error) { return web.ReadFavoritesFile(path) }
 
 // readFavoritesCached reads a user's favorites file, cached 300s.
-func readFavoritesCached(ctx context.Context, a *appctx.App, path, username string) ([]Favorite, error) {
-	return cache.Memoize(ctx, a.Cache, favoritesCacheKey(username), 300*time.Second, func() ([]Favorite, error) {
-		return readFavoritesFile(path)
-	})
+func readFavoritesCached(ctx context.Context, a *appctx.App, _ string, username string) ([]Favorite, error) {
+	return web.ReadFavoritesCached(ctx, a, username)
 }
 
 // favoriteErr pairs an error message with the HTTP status to report it with.

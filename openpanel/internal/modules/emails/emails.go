@@ -372,10 +372,8 @@ func addressTaken(lines []string, email string) bool {
 
 // mailConnectHost is the server name and TLS mode mail apps get, same as the Connect Devices page, falling back to the server IP when no panel domain is set
 func mailConnectHost(ctx context.Context, a *appctx.App, username string) (string, bool) {
-	if a.ForceDomain != "" {
-		return a.ForceDomain, sysinfo.HasSSL(ctx, a.Cache, a.ForceDomain)
-	}
-	return a.GetCachedIPForUserOrPublicIPv4(ctx, username), false
+	c := currentMailConnection(ctx, a, username)
+	return c.Host, c.SSL
 }
 
 // docker-mailserver colors its errors even without a terminal
@@ -508,7 +506,7 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if welcome {
 			next.Set("welcome", "1")
 		}
-		web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Email %(email)s added successfully.", "email", email), "/emails?"+next.Encode())
+		http.Redirect(w, r, "/emails?"+next.Encode(), http.StatusFound)
 		return
 	}
 
@@ -540,16 +538,17 @@ func isAllDigits(s string) bool {
 type EmailListRow struct {
 	Address      string
 	QuotaDisplay string
-	PercentVal   int
-	CappedVal    int
-	BarColor     string
-	Suspended    bool
-	HasFilter    bool
-	NearQuota    bool
-	Used         string
-	Limit        string
-	UsedBytes    float64
-	IsNew        bool // the mailbox the create form just made
+	// Used and Limit are the readable sizes ("28 MB", "2.0 GB"), empty when the line has no quota
+	Used       string
+	Limit      string
+	UsedBytes  float64
+	PercentVal int
+	CappedVal  int
+	BarColor   string
+	Suspended  bool
+	HasFilter  bool
+	NearQuota  bool
+	IsNew      bool // the mailbox the create form just made
 }
 
 // parseEmailListRow mirrors accounts.html's per-row quota parsing.
@@ -591,13 +590,26 @@ func parseEmailListRow(entry string) EmailListRow {
 		barColor = "bg-red-500"
 	}
 
-	row := EmailListRow{Address: address, QuotaDisplay: quota, PercentVal: percentVal, CappedVal: cappedVal, BarColor: barColor, NearQuota: percentVal > 80}
-	// quota looks like "( 1.7G / 2.0G ) [86%]"
-	if used, limit, ok := strings.Cut(strings.Trim(strings.Split(quota, "[")[0], "() "), "/"); ok {
-		row.Used, row.UsedBytes = humanQuota(strings.TrimSpace(used))
-		row.Limit, _ = humanQuota(strings.TrimSpace(limit))
-	}
+	_, used, limit := ParseMailboxQuota(entry)
+	row := EmailListRow{Address: address, QuotaDisplay: quota, Used: readableQuotaSize(used), Limit: readableQuotaSize(limit), PercentVal: percentVal, CappedVal: cappedVal, BarColor: barColor, NearQuota: percentVal > 80}
+	_, row.UsedBytes = humanQuota(used)
 	return row
+}
+
+// readableQuotaSize turns docker-mailserver's "28M" / "2.0G" / "0" / "~" into "28 MB" / "2.0 GB" / "0 B" / "no limit"
+func readableQuotaSize(v string) string {
+	switch {
+	case v == "":
+		return ""
+	case v == "~":
+		return "no limit"
+	case v == "0":
+		return "0 B"
+	}
+	if u := v[len(v)-1]; u == 'K' || u == 'M' || u == 'G' || u == 'T' {
+		return v[:len(v)-1] + " " + string(u) + "B"
+	}
+	return v
 }
 
 // ParseMailboxQuota splits one `opencli email-setup email list` line ("* info@demo.rs ( 28M / 2.0G ) [1%]") into the address and docker-mailserver's "( used / limit )", "~" being no limit; used and limit are empty when the line shows no quota
@@ -661,6 +673,9 @@ type SingleEmailQuota struct {
 	CappedVal      int
 	AllocatedQuota string
 	AllocatedValue string
+	// Used and Limit are the readable sizes the accounts list shows, empty when the line has no quota
+	Used  string
+	Limit string
 }
 
 // parseSingleEmailQuota mirrors single_account.html's inline parsing.
@@ -697,9 +712,11 @@ func parseSingleEmailQuota(entry string) SingleEmailQuota {
 		}
 	}
 
+	_, used, limit := ParseMailboxQuota(entry)
 	return SingleEmailQuota{
 		Address: address, QuotaDisplay: quota, PercentVal: percentVal, CappedVal: cappedVal,
 		AllocatedQuota: allocatedQuota, AllocatedValue: allocatedValue,
+		Used: readableQuotaSize(used), Limit: readableQuotaSize(limit),
 	}
 }
 
@@ -1014,7 +1031,7 @@ func handleEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 	userID, _ := auth.UserID(r)
-	if _, accountDomain, _ := strings.Cut(account, "@"); !a.CheckDomainBelongsToUser(ctx, userID, accountDomain) {
+	if _, accountDomain, _ := strings.Cut(account, "@"); !a.CheckExactDomainBelongsToUser(ctx, userID, accountDomain) {
 		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
