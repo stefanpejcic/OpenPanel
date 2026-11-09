@@ -79,3 +79,25 @@ EOF
         fi
     fi
 fi
+
+# phpMyAdmin autologin: since opencli#242 new accounts get .env as 600, pma.php runs as www-data (33) in the shared phpmyadmin
+# container and can't read MYSQL_ROOT_PASSWORD from it, so it loops between pma.php and index.php (ERR_TOO_MANY_REDIRECTS).
+# .env becomes 640 with group 33, still not readable by other accounts. Opened with O_NOFOLLOW and changed through the fd,
+# so a symlink an account put in place of its .env can't make root chgrp/chmod another file.
+python3 - <<'PYEOF'
+import glob, os, stat
+for path in glob.glob('/home/*/.env'):
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    except OSError:
+        continue
+    try:
+        st = os.fstat(fd)
+        if not stat.S_ISREG(st.st_mode) or st.st_nlink != 1 or stat.S_IMODE(st.st_mode) != 0o600:
+            continue
+        os.fchown(fd, -1, 33)
+        os.fchmod(fd, 0o640)
+        print(f"{path}: 600 -> 640, group www-data, for phpMyAdmin autologin")
+    finally:
+        os.close(fd)
+PYEOF
