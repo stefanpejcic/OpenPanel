@@ -14,12 +14,14 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 	userAllowed := map[string]bool{
 		"dashboard": true, "domains": true, "docroot": true, "redirects": true, "ssl": true,
 		"edit_vhost": true, "domain_suspend": true, "capitalize_domains": true, "filemanager": true,
+		"dns": true, "waf": true, "php": true,
 	}
 	return web.LayoutData{
 		Title: "Test", BrandName: "Test Panel", CSRFToken: "test-csrf-token", PanelDir: "ltr",
 		NavGroups: web.BuildClassicSidebarNav(userAllowed, nil, path), UserAllowed: userAllowed,
 		UserAllowedJSON: web.UserAllowedList(userAllowed), CurrentUsername: "testuser",
 		RequestPath: path, AdminPort: "2087", T: mgr.Translator("en"),
+		PageTabs: web.BuildPageTabs(userAllowed, nil, path, web.TabContext{}),
 	}
 }
 
@@ -59,7 +61,7 @@ func TestRenderDomainsPage(t *testing.T) {
 
 func TestRenderNewDomainPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
-	data := NewDomainPageData{LayoutData: baseLayout(mgr, "/domains/new")}
+	data := NewDomainPageData{LayoutData: baseLayout(mgr, "/domains/new"), Sites: []appctx.Domain{{DomainURL: "example.com", Docroot: "/var/www/html/example.com"}}}
 	w := httptest.NewRecorder()
 	if err := newDomainPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)
@@ -151,7 +153,7 @@ func TestRenderDomainLogsPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("selector", func(t *testing.T) {
-		data := DomainLogsPageData{LayoutData: baseLayout(mgr, "/domains/log"), Domains: []appctx.Domain{{DomainURL: "example.com"}}}
+		data := DomainLogsPageData{LayoutData: baseLayout(mgr, "/domains/log"), Domains: []DomainLogFile{{Domain: "example.com", Exists: true}}}
 		w := httptest.NewRecorder()
 		if err := domainLogsPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
@@ -162,10 +164,10 @@ func TestRenderDomainLogsPage(t *testing.T) {
 	})
 
 	t.Run("with entries", func(t *testing.T) {
-		entries := []AccessLogEntry{{TS: 1700000000, Status: 200, Request: AccessLogRequest{ClientIP: "1.2.3.4", Method: "GET", URI: "/index.html"}}}
+		entry := AccessLogEntry{TS: 1700000000, Status: 200, Request: AccessLogRequest{ClientIP: "1.2.3.4", Method: "GET", URI: "/index.html"}}
 		data := DomainLogsPageData{
 			LayoutData: baseLayout(mgr, "/domains/log/example.com"), DomainName: "example.com",
-			JSONLogs: entries, CurrentPage: 1, TotalPages: 1, TotalLines: 1, ItemsPerPage: 1000,
+			Rows: []AccessLogRow{{AccessLogEntry: entry, Path: "/index.html"}}, CurrentPage: 1, TotalPages: 1, TotalLines: 1, ItemsPerPage: 1000,
 		}
 		w := httptest.NewRecorder()
 		if err := domainLogsPage.Render(w, 200, data); err != nil {
@@ -218,9 +220,10 @@ func TestRenderVhostPages(t *testing.T) {
 
 func TestRenderRedirectPages(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
+	domains := []appctx.Domain{{DomainURL: "example.com"}}
 
 	t.Run("create", func(t *testing.T) {
-		data := RedirectPageData{LayoutData: baseLayout(mgr, "/domains/redirect"), DomainName: "example.com"}
+		data := buildRedirectPageData(baseLayout(mgr, "/domains/redirect"), domains, nil, "example.com")
 		w := httptest.NewRecorder()
 		if err := redirectPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
@@ -231,7 +234,8 @@ func TestRenderRedirectPages(t *testing.T) {
 	})
 
 	t.Run("edit", func(t *testing.T) {
-		data := RedirectPageData{LayoutData: baseLayout(mgr, "/domains/redirect"), DomainName: "example.com", RedirectURL: "https://target.example"}
+		existing := map[string]redirectRule{"example.com": {To: "https://target.example"}}
+		data := buildRedirectPageData(baseLayout(mgr, "/domains/redirect"), domains, existing, "example.com")
 		w := httptest.NewRecorder()
 		if err := redirectPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)

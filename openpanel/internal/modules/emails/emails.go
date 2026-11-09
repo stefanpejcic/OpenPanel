@@ -308,6 +308,87 @@ var publicIPCache struct {
 
 // NEW EMAIL
 
+var quotaNumberRE = regexp.MustCompile(`^\d+(\.\d+)?$`)
+
+// planMaxQuotaBytes turns the plan's max_email_quota into bytes, 0 means no cap
+func planMaxQuotaBytes(maxEmailQuota string) float64 {
+	if maxEmailQuota == "0" || maxEmailQuota == "" {
+		return 0
+	}
+	n, unit := parseMaxQuota(maxEmailQuota)
+	if unit == "P" {
+		return n * quotaUnitMultipliers['T'] * 1024
+	}
+	return n * quotaUnitMultipliers[unit[0]]
+}
+
+// newEmailQuotaError checks the quota picked on the create form before the mailbox is made, "" means fine
+func newEmailQuotaError(gb, format string, maxBytes float64) string {
+	if gb == "" {
+		return ""
+	}
+	if !quotaNumberRE.MatchString(gb) {
+		return "Enter a number."
+	}
+	n, _ := strconv.ParseFloat(gb, 64)
+	if n == 0 {
+		if maxBytes > 0 {
+			return "0 means unlimited, which your plan doesn't allow. Pick a size up to %(max)s."
+		}
+		return ""
+	}
+	if format != "B" && format != "k" && format != "M" && format != "G" && format != "T" {
+		return "ERROR: Invalid quota format. e.g. (B (byte), k (kibibyte), M (mebibyte), G (gibibyte) or T (tebibyte))"
+	}
+	if maxBytes > 0 && n*quotaUnitMultipliers[strings.ToUpper(format)[0]] > maxBytes {
+		return "Your plan allows up to %(max)s per mailbox."
+	}
+	return ""
+}
+
+// newEmailFieldError checks username and password the same way the create form does, "" means fine
+func newEmailFieldError(username, password string, threshold int) string {
+	switch {
+	case len(username) > 60:
+		return "Username can be at most 60 characters."
+	case !validators.IsValidEmailUsername(username):
+		return "Username can only contain letters, numbers, and . _ % + - (no @)."
+	case len(password) < 8 || len(password) > 30:
+		return "Password must be between 8 and 30 characters."
+	case !validators.IsPasswordStrongEnough(password, threshold):
+		return "Password does not meet the required strength."
+	}
+	return ""
+}
+
+// addFailureReason picks what to show when opencli email add fails, some errors (no license, no mailserver) only go to stdout
+func addFailureReason(stderr, stdout string) string {
+	if s := strings.TrimSpace(stderr); s != "" {
+		return s
+	}
+	for _, line := range strings.Split(stdout, "\n") {
+		if line = strings.TrimSpace(line); line != "" {
+			return strings.TrimPrefix(line, "Error: ")
+		}
+	}
+	return "command failed"
+}
+
+func addressTaken(lines []string, email string) bool {
+	for _, addr := range addressesOf(lines) {
+		if strings.EqualFold(addr, email) {
+			return true
+		}
+	}
+	return false
+}
+
+// mailConnectHost is the server name and TLS mode mail apps get, same as the Connect Devices page, falling back to the server IP when no panel domain is set
+func mailConnectHost(ctx context.Context, a *appctx.App, username string) (string, bool) {
+	c := currentMailConnection(ctx, a, username)
+	return c.Host, c.SSL
+}
+
 // docker-mailserver colors its errors even without a terminal
 var emailAnsiRE = regexp.MustCompile(`\x1b\[[0-9;]*m`)
 
@@ -345,13 +426,15 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	planID, _ := injectedData["hosting_plan"].(int)
 	emailLimitStr, maxEmailQuota, _ := a.QueryPlanEmailMailboxLimits(ctx, planID)
 	maxEmailQuotaNumeric, allocatedUnit := parseMaxQuota(maxEmailQuota)
+	maxBytes := planMaxQuotaBytes(maxEmailQuota)
+	emailLimit, _ := strconv.Atoi(emailLimitStr)
 
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
 		domain := r.Form.Get("domain")
 		username := r.Form.Get("username")
 		password := r.Form.Get("password")
-		gb := r.Form.Get("gb")
+		gb := strings.TrimSpace(r.Form.Get("gb"))
 		format := r.Form.Get("format")
 
 		var missing []string
@@ -379,29 +462,36 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if !validators.IsValidEmailUsername(username) {
-			web.FlashRedirect(a, w, r, "error", "Username can only contain letters, numbers, and . _ % + - (no @).", "/emails/new")
-			return
-		}
+		// keep domain and username on the form after a rejected submit
+		back := "/emails/new?" + url.Values{"domain": {domain}, "username": {username}}.Encode()
+		email := username + "@" + domain
 
 		threshold := validators.ClampPasswordStrength(a.Config.Get("password_strength", ""), 50)
-		if !validators.IsPasswordStrongEnough(password, threshold) {
-			web.FlashRedirect(a, w, r, "error", "Password does not meet the required strength.", "/emails/new")
+		if msg := newEmailFieldError(username, password, threshold); msg != "" {
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, msg), back)
+			return
+		}
+		if msg := newEmailQuotaError(gb, format, maxBytes); msg != "" {
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, msg, "max", formatBytes(maxBytes)), back)
 			return
 		}
 
-		emailLimit, _ := strconv.Atoi(emailLimitStr)
-		if emailLimit != 0 && GetEmailCount(ctx, a, userID, currentUsername, userDomains) >= emailLimit {
+		existing := GetEmailList(ctx, a, userID, currentUsername, userDomains)
+		if emailLimit != 0 && len(existing) >= emailLimit {
 			web.FlashRedirect(a, w, r, "error", "Error: reached max number of email accounts on the hosting plan.", "/emails/new")
 			return
 		}
+		if addressTaken(existing, email) {
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "%(email)s already exists. Pick another username or domain.", "email", email), back)
+			return
+		}
 
-		email := username + "@" + domain
 		args := []string{"email-setup", "email", "add", email, password}
 		if maxEmailQuota != "0" {
 			args = append(args, "--wait")
 		}
-		if r.Form.Get("send_welcome") != "" {
+		welcome := r.Form.Get("send_welcome") != ""
+		if welcome {
 			args = append(args, "--send-welcome")
 		}
 
@@ -410,17 +500,12 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		cmd.Stderr = &stderrBuf
 		stdout, cmdErr := cmd.Output()
 		if msg, failed := emailAddFailure(cmdErr, string(stdout), stderrBuf.String()); failed {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to add email %(email)s: %(msg)s", "email", email, "msg", msg), "/emails/new")
+			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to add email %(email)s: %(msg)s", "email", email, "msg", msg), back)
 			return
 		}
 
 		if gb != "" {
-			msg, ok := emailSetQuota(email, gb, format, maxEmailQuota, maxEmailQuotaNumeric, allocatedUnit)
-			if !ok {
-				http.Error(w, "ERROR: Invalid quota format. e.g. (B (byte), k (kibibyte), M (mebibyte), G (gibibyte) or T (tebibyte))", http.StatusBadRequest)
-				return
-			}
-			_ = msg
+			_, _ = emailSetQuota(email, gb, format, maxEmailQuota, maxEmailQuotaNumeric, allocatedUnit)
 		} else if maxEmailQuota != "0" {
 			_ = exec.CommandContext(ctx, "opencli", "email-setup", "quota", "set", email, fmt.Sprintf("%s%s", trimFloat(maxEmailQuotaNumeric), allocatedUnit)).Run()
 		}
@@ -428,15 +513,22 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		ipAddress := reqip.ClientIP(r)
 		_ = logger.RecordUserAction(a.Config, currentUsername, "created email "+email, ipAddress)
 		InvalidateEmailCache(ctx, a, userID, currentUsername)
-		target := "/emails?created=" + url.QueryEscape(email)
-		if r.Form.Get("send_welcome") != "" {
-			target += "&welcome=1"
+		next := url.Values{"created": {email}}
+		if welcome {
+			next.Set("welcome", "1")
 		}
-		http.Redirect(w, r, target, http.StatusFound)
+		http.Redirect(w, r, "/emails?"+next.Encode(), http.StatusFound)
 		return
 	}
 
-	renderNewEmailPage(a, w, r, domains, maxEmailQuotaNumeric, allocatedUnit)
+	existing := GetEmailList(ctx, a, userID, currentUsername, userDomains)
+	host, secure := mailConnectHost(ctx, a, currentUsername)
+	renderNewEmailPage(a, w, r, NewEmailPageData{
+		Domains: domains, MaxEmailQuotaNumeric: maxEmailQuotaNumeric, AllocatedUnit: allocatedUnit,
+		MaxQuotaBytes: maxBytes, EmailLimit: emailLimit, EmailCount: len(existing), Taken: addressesOf(existing),
+		Domain: r.URL.Query().Get("domain"), Username: r.URL.Query().Get("username"),
+		MailHost: host, MailSecure: secure, Wait: maxEmailQuota != "0",
+	})
 }
 
 // quota-line parsing (mirrors accounts.html's and single_account.html's inline Jinja parsing of one `opencli email-setup email list` line, e.g. "* info@demo.rs ( 0 / 2.0G ) [0%]")
@@ -457,12 +549,17 @@ func isAllDigits(s string) bool {
 type EmailListRow struct {
 	Address      string
 	QuotaDisplay string
-	PercentVal   int
-	CappedVal    int
-	BarColor     string
-	Suspended    bool
-	HasFilter    bool
-	NearQuota    bool
+	// Used and Limit are the readable sizes ("28 MB", "2.0 GB"), empty when the line has no quota
+	Used       string
+	Limit      string
+	UsedBytes  float64
+	PercentVal int
+	CappedVal  int
+	BarColor   string
+	Suspended  bool
+	HasFilter  bool
+	NearQuota  bool
+	IsNew      bool // the mailbox the create form just made
 }
 
 // parseEmailListRow mirrors accounts.html's per-row quota parsing.
@@ -504,7 +601,26 @@ func parseEmailListRow(entry string) EmailListRow {
 		barColor = "bg-red-500"
 	}
 
-	return EmailListRow{Address: address, QuotaDisplay: quota, PercentVal: percentVal, CappedVal: cappedVal, BarColor: barColor, NearQuota: percentVal > 80}
+	_, used, limit := ParseMailboxQuota(entry)
+	row := EmailListRow{Address: address, QuotaDisplay: quota, Used: readableQuotaSize(used), Limit: readableQuotaSize(limit), PercentVal: percentVal, CappedVal: cappedVal, BarColor: barColor, NearQuota: percentVal > 80}
+	_, row.UsedBytes = humanQuota(used)
+	return row
+}
+
+// readableQuotaSize turns docker-mailserver's "28M" / "2.0G" / "0" / "~" into "28 MB" / "2.0 GB" / "0 B" / "no limit"
+func readableQuotaSize(v string) string {
+	switch {
+	case v == "":
+		return ""
+	case v == "~":
+		return "no limit"
+	case v == "0":
+		return "0 B"
+	}
+	if u := v[len(v)-1]; u == 'K' || u == 'M' || u == 'G' || u == 'T' {
+		return v[:len(v)-1] + " " + string(u) + "B"
+	}
+	return v
 }
 
 // ParseMailboxQuota splits one `opencli email-setup email list` line ("* info@demo.rs ( 28M / 2.0G ) [1%]") into the address and docker-mailserver's "( used / limit )", "~" being no limit; used and limit are empty when the line shows no quota
@@ -568,6 +684,9 @@ type SingleEmailQuota struct {
 	CappedVal      int
 	AllocatedQuota string
 	AllocatedValue string
+	// Used and Limit are the readable sizes the accounts list shows, empty when the line has no quota
+	Used  string
+	Limit string
 }
 
 // parseSingleEmailQuota mirrors single_account.html's inline parsing.
@@ -604,9 +723,11 @@ func parseSingleEmailQuota(entry string) SingleEmailQuota {
 		}
 	}
 
+	_, used, limit := ParseMailboxQuota(entry)
 	return SingleEmailQuota{
 		Address: address, QuotaDisplay: quota, PercentVal: percentVal, CappedVal: cappedVal,
 		AllocatedQuota: allocatedQuota, AllocatedValue: allocatedValue,
+		Used: readableQuotaSize(used), Limit: readableQuotaSize(limit),
 	}
 }
 
@@ -633,12 +754,15 @@ func handleEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	currentEmailsList := GetEmailList(ctx, a, userID, currentUsername, userDomains)
 	injectedData, _ := a.InjectData(ctx, userID)
 	planID, _ := injectedData["hosting_plan"].(int)
-	_, maxEmailQuota, _ := a.QueryPlanEmailMailboxLimits(ctx, planID)
+	emailLimitStr, maxEmailQuota, _ := a.QueryPlanEmailMailboxLimits(ctx, planID)
+	emailLimit, _ := strconv.Atoi(emailLimitStr)
+	aliases := func() []AliasEntry { return GetAliasList(ctx, a, userID, currentUsername, userDomains) }
+	// ?created= comes from the create form's redirect and opens the mail app settings for that mailbox
 	created := createdMailboxFromRequest(r, userDomains)
 	if created.Address != "" {
 		created.Conn = currentMailConnection(ctx, a, currentUsername)
 	}
-	renderAccountsPage(a, w, r, currentEmailsList, domains, maxEmailQuota, created)
+	renderAccountsPage(a, w, r, currentEmailsList, domains, maxEmailQuota, emailLimit, aliases, created)
 }
 
 // createdMailboxFromRequest reads ?created=&welcome=, ignoring addresses on domains this account doesn't own
@@ -907,6 +1031,11 @@ func handleEmailConfiguration(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	account := r.PathValue("account")
 	if !isValidEmail(account) {
 		http.Error(w, "Invalid email format", http.StatusBadRequest)
+		return
+	}
+	userID, _ := auth.UserID(r)
+	if _, accountDomain, _ := strings.Cut(account, "@"); !a.CheckExactDomainBelongsToUser(ctx, userID, accountDomain) {
+		http.Error(w, "You do not own this domain.", http.StatusForbidden)
 		return
 	}
 

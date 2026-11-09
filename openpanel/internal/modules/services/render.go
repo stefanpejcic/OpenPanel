@@ -5,6 +5,10 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"sort"
+	"strconv"
+	"strings"
+	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
@@ -30,6 +34,10 @@ type ServicesPageData struct {
 	web.LayoutData
 
 	Services []string
+	Rows     []ServiceRow
+	Running  int
+	Stopped  int
+	Stack    string
 
 	Service       string
 	UserContext   string
@@ -41,6 +49,9 @@ type ServicesPageData struct {
 
 	ActionValue string
 	ActionLabel string
+	Kind        string
+	StatusTone  string
+	Uptime      string
 }
 
 // statusEntry pairs a Tailwind color class with the (untranslated) message-catalog key for its label
@@ -97,13 +108,103 @@ func StatusMapJSON(t i18n.Translator) template.JS {
 	return template.JS(b) //nolint:gosec // server-computed status labels/colors, not user input
 }
 
-func renderServicesListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, allowedServices []string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Choose Service")
+// ServiceRow is one line of the services list
+type ServiceRow struct {
+	Name        string
+	Kind        string
+	Icon        string
+	Hue         string
+	StatusLabel string
+	StatusTone  string
+	Running     bool
+	Uptime      string
+}
+
+// serviceKind describes a compose service by its name, for the list's icon and subtitle
+func serviceKind(name string) (kind, icon, hue string) {
+	switch {
+	case webserverServices[name]:
+		return "Web server", "globe", "cyan"
+	case mysqlServices[name], name == "postgres", name == "postgresql", name == "mongodb", name == "mongo":
+		return "Database", "db", "indigo"
+	case name == "phpmyadmin", name == "pgadmin", name == "mongo-express":
+		return "Database admin", "browser", "blue"
+	case strings.HasPrefix(name, "php-fpm"):
+		return "PHP " + strings.TrimPrefix(strings.TrimPrefix(name, "php-fpm"), "-"), "code", "purple"
+	case name == "redis", name == "memcached":
+		return "Object cache", "refresh", "red"
+	case name == "varnish":
+		return "HTTP cache", "cloud", "orange"
+	case name == "elasticsearch", name == "opensearch", name == "sphinx", name == "solr", name == "meilisearch":
+		return "Search engine", "search", "yellow"
+	case strings.Contains(name, "mail") || name == "roundcube":
+		return "Mail", "mail", "green"
+	}
+	return "Service", "apps", "blue"
+}
+
+// uptimeLabel says how long a container has been up, in its largest whole unit
+func uptimeLabel(t i18n.Translator, d time.Duration) string {
+	switch {
+	case d < time.Minute:
+		return t.Get("Just started")
+	case d < time.Hour:
+		return t.Get("%(n)s minutes", "n", strconv.Itoa(int(d/time.Minute)))
+	case d < 48*time.Hour:
+		return t.Get("%(n)s hours", "n", strconv.Itoa(int(d/time.Hour)))
+	}
+	return t.Get("%(n)s days", "n", strconv.Itoa(int(d/(24*time.Hour))))
+}
+
+// statusTone picks the kit colour for a status key: green when up, amber while changing, red when broken, plain when off
+func statusTone(key string) string {
+	switch key {
+	case "running", "healthy":
+		return "is-success"
+	case "unhealthy", "dead":
+		return "is-danger"
+	case "exited", "not_found":
+		return "is-muted"
+	}
+	return "is-warning"
+}
+
+// servicesListData builds the list page's rows and summary from each service's container status
+func servicesListData(layout web.LayoutData, allowedServices []string, statuses []docker.ContainerStatus, webserver, mysqlType string) ServicesPageData {
+	data := ServicesPageData{LayoutData: layout, Services: allowedServices}
+	for i, name := range allowedServices {
+		key := StatusKeyFor(statuses[i].State, statuses[i].Health)
+		_, label := StatusColorLabel(layout.T, key)
+		kind, icon, hue := serviceKind(name)
+		row := ServiceRow{Name: name, Kind: kind, Icon: icon, Hue: hue, StatusLabel: label, StatusTone: statusTone(key), Running: statuses[i].State == "running"}
+		if row.Running && !statuses[i].Started.IsZero() {
+			row.Uptime = uptimeLabel(layout.T, time.Since(statuses[i].Started))
+		}
+		if row.Running {
+			data.Running++
+		}
+		data.Rows = append(data.Rows, row)
+	}
+	// compose order isn't stable, so running services come first, then by name
+	sort.SliceStable(data.Rows, func(i, j int) bool {
+		if data.Rows[i].Running != data.Rows[j].Running {
+			return data.Rows[i].Running
+		}
+		return data.Rows[i].Name < data.Rows[j].Name
+	})
+	data.Stopped = len(data.Rows) - data.Running
+	data.Stack = strings.Trim(webserver+" · "+mysqlType, " ·")
+	return data
+}
+
+func renderServicesListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, allowedServices []string, statuses []docker.ContainerStatus, webserver, mysqlType string) {
+	layout, _, err := web.BuildLayoutData(a, w, r, "Services")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := ServicesPageData{LayoutData: layout, Services: allowedServices}
+	layout.BulkActions = servicesBulkActions(layout.T)
+	data := servicesListData(layout, allowedServices, statuses, webserver, mysqlType)
 	if err := servicesPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("SERVICES - list template render error: %v", err)
 	}
@@ -130,6 +231,11 @@ func renderServiceDetailPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		StatusKey: statusKey, StatusColor: color, StatusLabel: label,
 		StatusMapJSON: StatusMapJSON(layout.T),
 		ActionValue:   actionValue, ActionLabel: actionLabel,
+		StatusTone: statusTone(statusKey),
+	}
+	data.Kind, _, _ = serviceKind(service)
+	if data.IsRunning && !status.Started.IsZero() {
+		data.Uptime = uptimeLabel(layout.T, time.Since(status.Started))
 	}
 	if err := servicesPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("SERVICES - detail template render error: %v", err)

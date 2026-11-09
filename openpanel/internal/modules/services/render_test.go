@@ -10,7 +10,7 @@ import (
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
-	userAllowed := map[string]bool{"dashboard": true, "services": true, "docker": true}
+	userAllowed := map[string]bool{"dashboard": true, "services": true, "docker": true, "process_manager": true}
 	return web.LayoutData{
 		Title: "Test", BrandName: "Test Panel", CSRFToken: "test-csrf-token", PanelDir: "ltr",
 		NavGroups: web.BuildClassicSidebarNav(userAllowed, nil, path), UserAllowed: userAllowed,
@@ -42,6 +42,7 @@ func TestRenderServiceDetailPage(t *testing.T) {
 			IsRunning: true, StatusKey: "running", StatusColor: "emerald-500", StatusLabel: "Running",
 			StatusMapJSON: StatusMapJSON(mgr.Translator("en")),
 			ActionValue:   "disable", ActionLabel: "Click to Disable",
+			Kind: "Web server", StatusTone: "is-success", Uptime: "2 days",
 		}
 		if err := servicesPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)

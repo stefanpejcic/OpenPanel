@@ -1,6 +1,9 @@
 package web
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestPageCacheDropsLeastRecentlyUsed(t *testing.T) {
 	pages := make([]*Page, pageCacheSize+3)
@@ -20,7 +23,24 @@ func TestPageCacheDropsLeastRecentlyUsed(t *testing.T) {
 	if pages[len(pages)-1].tmpl == nil {
 		t.Error("newest page not cached")
 	}
-	if pages[0].template() == nil {
+	if tmpl, err := pages[0].template(); err != nil || tmpl == nil {
 		t.Error("dropped page didn't parse again")
+	}
+}
+
+// a page that fails to parse has to keep answering, it used to leave its lock held and hang every later request
+func TestBrokenPageDoesNotLock(t *testing.T) {
+	p := MustLoadPage("does/not/exist.html")
+	for i := 0; i < 2; i++ {
+		done := make(chan error, 1)
+		go func() { _, err := p.template(); done <- err }()
+		select {
+		case err := <-done:
+			if err == nil {
+				t.Fatal("expected a parse error")
+			}
+		case <-time.After(2 * time.Second):
+			t.Fatalf("call %d hung on the page lock", i+1)
+		}
 	}
 }

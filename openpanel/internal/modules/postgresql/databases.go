@@ -40,6 +40,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	status := docker.GetContainerStatus(ctx, userContext, "postgres")
 	var databaseInfo []DatabaseRow
+	var info ServerInfo
 
 	switch {
 	case status.State == "not_found":
@@ -94,6 +95,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 					Database: dbName, AssignedUsers: assignedLookup[dbName], IsSystem: isSystemDatabase(dbName),
 				})
 			}
+			info = fetchServerInfo(ctx, userContext)
 		}
 	}
 
@@ -105,7 +107,7 @@ func handleDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderDatabasesPage(a, w, r, status, databaseInfo, unit, showAll)
+	renderDatabasesPage(a, w, r, status, databaseInfo, unit, showAll, info)
 }
 
 // handleDatabasesNew creates a new PostgreSQL database, enforcing the plan's database limit first
@@ -131,13 +133,14 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodPost {
 		_ = r.ParseForm()
-		databaseName := r.Form.Get("database_name")
-		if databaseName == "" {
-			web.FlashRedirect(a, w, r, "error", "Database name is required.", "/postgresql/new")
-			return
+		databaseName := strings.TrimSpace(r.Form.Get("database_name"))
+		// errors keep the typed name in the form instead of bouncing to an empty one
+		fail := func(message string) {
+			web.Flash(a, w, r, "error", message)
+			renderNewDatabasePage(a, w, r, databaseName, "")
 		}
-		if !validators.IsValidIdentifier(databaseName) {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Name %(database_name)s is not allowed. Please use alphanumeric characters and '_' - [a-zA-Z0-9_]+ ", "database_name", databaseName), "/postgresql/new")
+		if msg := checkNewDatabase(databaseName, loadNames(ctx, userContext)); msg != "" {
+			fail(web.Tr(a, r, msg))
 			return
 		}
 
@@ -160,12 +163,12 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		if dbUsage >= dbLimit {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "You have reached the maximum number of databases allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()), "/postgresql/new")
+			fail(web.Tr(a, r, "You have reached the maximum number of databases allowed.%(upgrade_message)s", "upgrade_message", plan.UpgradeMessage()))
 			return
 		}
 
 		if _, execErr := postgresmanager.Exec(ctx, userContext, `CREATE DATABASE "`+databaseName+`"`, "postgres"); execErr != nil {
-			web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Failed to create database: %(error)s", "error", execErr.Error()), "/postgresql/new")
+			fail(web.Tr(a, r, "Failed to create database: %(error)s", "error", execErr.Error()))
 			return
 		}
 
@@ -175,7 +178,7 @@ func handleDatabasesNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderNewDatabasePage(a, w, r)
+	renderNewDatabasePage(a, w, r, "", web.CreatedDBName(r))
 }
 
 // handleDeleteDatabase drops a PostgreSQL database.

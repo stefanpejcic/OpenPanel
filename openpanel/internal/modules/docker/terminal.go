@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os/exec"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -34,14 +35,13 @@ func handleDockerTerminal(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	containerName := r.PathValue("container_name")
 	terminalTimeout := terminalCommandTimeout(a)
 
-	if containerName != "" {
-		renderTerminalPage(a, w, r, terminalTimeout, "Container Terminal", containerName, nil)
-		return
-	}
-
 	userID, _ := auth.UserID(r)
 	injected, err := a.InjectData(ctx, userID)
 	if err != nil {
+		if containerName != "" {
+			renderTerminalPage(a, w, r, terminalTimeout, "Container Terminal", containerName, nil)
+			return
+		}
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
@@ -58,6 +58,12 @@ func handleDockerTerminal(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		}
 	}
 
+	// the terminal page lists the running services too, so its container picker can switch
+	if containerName != "" {
+		renderTerminalPage(a, w, r, terminalTimeout, "Container Terminal", containerName, activeServiceNames)
+		return
+	}
+	sort.Strings(activeServiceNames)
 	renderTerminalPage(a, w, r, terminalTimeout, "Select Container", "", activeServiceNames)
 }
 

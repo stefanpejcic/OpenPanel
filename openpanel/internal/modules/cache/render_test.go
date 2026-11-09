@@ -108,3 +108,30 @@ func TestRenderVarnishPage_NotRunning(t *testing.T) {
 		t.Error("should not fetch varnish stats when the container isn't running")
 	}
 }
+
+func TestCacheConnectHelpers(t *testing.T) {
+	cases := []struct {
+		def        serviceDef
+		addr, ping string
+	}{
+		{redisDef, "tcp://redis:6379", "redis-cli -h redis -p 6379 ping"},
+		{valkeyDef, "tcp://valkey:6379", "valkey-cli -h valkey -p 6379 ping"},
+		{memcachedDef, "memcached:11211", "echo stats | nc memcached 11211"},
+		{elasticsearchDef, "http://elasticsearch:9200", "curl -s http://elasticsearch:9200"},
+		{opensearchDef, "http://opensearch:9200", "curl -s http://opensearch:9200"},
+	}
+	for _, c := range cases {
+		d := CachePageData{Service: c.def.Name, Port: c.def.Port}
+		if got := d.ConnectAddress(); got != c.addr {
+			t.Errorf("%s ConnectAddress = %q, want %q", c.def.Name, got, c.addr)
+		}
+		if got := d.PingCommand(); got != c.ping {
+			t.Errorf("%s PingCommand = %q, want %q", c.def.Name, got, c.ping)
+		}
+	}
+	for key, want := range map[string]string{"running": "is-success", "healthy": "is-success", "exited": "is-danger", "not_found": "is-muted", "starting": "is-warning"} {
+		if got := (CachePageData{StatusKey: key}).StatusTone(); got != want {
+			t.Errorf("StatusTone(%s) = %q, want %q", key, got, want)
+		}
+	}
+}

@@ -58,7 +58,9 @@ func TestRenderWebserverConfPageRejectedSave(t *testing.T) {
 		t.Fatalf("Render: %v", err)
 	}
 	body := w.Body.String()
-	for _, want := range []string{"http { broken", "nginx.conf, line 2: unexpected end of file", "php-fpm-8.4 could not be found.", "/domains/vhosts?domain=a.com", "editor.addLineClass( 2  - 1", "Go to line 2"} {
+	wants := []string{"http { broken", "nginx.conf, line 2: unexpected end of file", "php-fpm-8.4 could not be found.", "/domains/vhosts?domain=a.com", "Go to line 2"}
+	wants = append(wants, "editor.addLineClass( 2  - 1")
+	for _, want := range wants {
 		if !strings.Contains(body, want) {
 			t.Errorf("expected %q in body", want)
 		}

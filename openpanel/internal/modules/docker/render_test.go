@@ -96,13 +96,15 @@ func TestRenderContainerFormPage(t *testing.T) {
 		w := httptest.NewRecorder()
 		data := ContainerFormPageData{
 			LayoutData: baseLayout(mgr, "/containers/new"), Title: "Add service",
-			AvailableNetworks: []string{"db", "web"}, Networks: []string{"db"}, CPU: "0.5", RAM: "1G",
+			AvailableNetworks: []string{"db", "web"}, Networks: []string{"db"}, CPU: "0.5", RAM: "1G", PIDs: "500",
+			AvailableVolumes: []string{"html_data", "mysql_data"}, Domains: []string{"example.com", "shop.example.com"},
+			ExistingServicesJSON: toJSONStrings([]string{"mysql", "nginx", "redis"}),
 		}
 		if err := containerFormPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		for _, want := range []string{`cpu: &#34;0.5&#34;`, `networks: [&#34;db&#34;]`, `existing: []`, `name="network" value="db"`, `name="network" value="web"`, "Create container"} {
+		for _, want := range []string{`cpu: &#34;0.5&#34;`, `networks: [&#34;db&#34;]`, `existing: [&#34;mysql&#34;,&#34;nginx&#34;,&#34;redis&#34;]`, `name="network" value="db"`, `name="network" value="web"`, "Create container"} {
 			if !strings.Contains(body, want) {
 				t.Errorf("expected %q in rendered form", want)
 			}
@@ -129,7 +131,9 @@ func TestRenderContainerFormPage(t *testing.T) {
 			LayoutData: baseLayout(mgr, "/containers/edit/myapp"), Title: "Edit service myapp",
 			Editing: true, ServiceName: "myapp", ServiceNameReadonly: true, Image: "custom/myapp:v1",
 			CPU: "1.5", RAM: "2G", Environment: "TZ: Europe/Belgrade", Networks: []string{"www", "db"},
-			VolumeEntries: []VolumeEntry{{Name: "data", Mount: "/data", ReadOnly: true}},
+			VolumeEntries:     []VolumeEntry{{Name: "data", Mount: "/data", ReadOnly: true}},
+			AvailableNetworks: []string{"db", "default", "www"}, AvailableVolumes: []string{"data", "html_data"}, PIDs: "500",
+			ExistingServicesJSON: toJSONStrings([]string{"myapp", "mysql", "nginx"}),
 		}
 		if err := containerFormPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
@@ -327,6 +331,25 @@ func TestRenderChangeImagePage(t *testing.T) {
 	})
 }
 
+// both themes render from the same data, classic reads Service, CurrentVersion and SelectableServices
+func TestRenderChangeImagePageAnyTheme(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	rows := []ImageRow{{Service: "mariadb", Repo: "mariadb", Tag: "11.8", Data: true, Icon: "db", Hue: "purple"}}
+	for _, open := range []string{"", "mariadb"} {
+		w := httptest.NewRecorder()
+		data := ChangeImagePageData{LayoutData: baseLayout(mgr, "/containers/image/change"), Rows: rows, Open: open, SelectableServices: []string{"mariadb"}}
+		if open != "" {
+			data.Service, data.CurrentVersion = open, "11.8"
+		}
+		if err := changeImagePage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render (open %q): %v", open, err)
+		}
+		if !strings.Contains(w.Body.String(), "mariadb") {
+			t.Errorf("expected the service in the page (open %q)", open)
+		}
+	}
+}
+
 func TestRenderLogsPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	w := httptest.NewRecorder()
@@ -371,6 +394,19 @@ func TestRenderTerminalPage(t *testing.T) {
 			t.Error("expected active services in rendered picker")
 		}
 	})
+}
+
+func TestBuildContainerRowsPorts(t *testing.T) {
+	rows := buildContainerRows(map[string]any{
+		"nginx": map[string]any{"ports": []any{"8080:80/tcp", map[string]any{"target": float64(443), "published": "8443"}}},
+		"cron":  map[string]any{},
+	})
+	if rows[1].Ports != "80, 443" || rows[1].PortsTitle != "8080:80/tcp, 8443:443" || rows[1].Icon != "browser" {
+		t.Errorf("nginx row = %+v", rows[1])
+	}
+	if rows[0].Ports != "" || rows[0].ImageChangeable {
+		t.Errorf("cron row = %+v", rows[0])
+	}
 }
 
 // guards against nondeterministic row order (Go map iteration) leaking into the rendered table

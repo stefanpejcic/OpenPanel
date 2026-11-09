@@ -144,7 +144,7 @@ func TestRenderBackupRestorePage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("empty, not reindexing", func(t *testing.T) {
-		data := BackupRestorePageData{LayoutData: baseLayout(mgr, "/backups/list")}
+		data := BackupRestorePageData{LayoutData: baseLayout(mgr, "/backups/list"), PageJSON: jsonJS([]any{})}
 		w := httptest.NewRecorder()
 		if err := backupRestorePage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
@@ -177,7 +177,7 @@ func TestRenderBackupRestorePage(t *testing.T) {
 	})
 
 	t.Run("reindex error", func(t *testing.T) {
-		data := BackupRestorePageData{LayoutData: baseLayout(mgr, "/backups/list"), ReindexError: "connection refused"}
+		data := BackupRestorePageData{LayoutData: baseLayout(mgr, "/backups/list"), PageJSON: jsonJS([]any{}), ReindexError: "connection refused"}
 		w := httptest.NewRecorder()
 		if err := backupRestorePage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)

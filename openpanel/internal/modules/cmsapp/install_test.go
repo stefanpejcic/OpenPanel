@@ -31,3 +31,23 @@ func TestRenderInstallPageEnforcedPrefix(t *testing.T) {
 		t.Error("expected the john_ prefix next to the db fields")
 	}
 }
+
+func TestRenderInstallPageNoDomains(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	app := New(App{Slug: "nextcloud", Name: "Nextcloud"})
+	allowed := map[string]bool{"dashboard": true, "nextcloud": true}
+	data := InstallPageData{
+		LayoutData: web.LayoutData{
+			Title: "Test", CSRFToken: "t", PanelDir: "ltr", UserAllowed: allowed, UserAllowedJSON: web.UserAllowedList(allowed),
+			NavGroups: web.BuildClassicSidebarNav(allowed, nil, "/nextcloud/install"), RequestPath: "/nextcloud/install", T: mgr.Translator("en"),
+		},
+		App: web.AppNames{Slug: "nextcloud", Name: "Nextcloud"},
+	}
+	w := httptest.NewRecorder()
+	if err := app.installPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	if body := w.Body.String(); !strings.Contains(body, "/domains/new") || strings.Contains(body, "opInstallWizard(") {
+		t.Error("expected the no-domains card instead of the wizard")
+	}
+}

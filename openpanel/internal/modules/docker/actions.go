@@ -176,17 +176,26 @@ func setContainerEnvLimit(userContext, envVar, value string) string {
 	return ""
 }
 
+// restartCommand builds the down/up commands, swapped in tests
+var restartCommand = podmanmanager.Command
+
+// restartTimeout bounds one down+up now that a restart no longer stops when the request does
+const restartTimeout = 5 * time.Minute
+
 // RestartContainer stops and re-starts a single compose service via `podman-compose down`/`up -d --no-deps`
 func RestartContainer(ctx context.Context, userContext, containerName string) StartStopResult {
+	// detached from the request: a client that leaves between down and up would otherwise leave the service stopped
+	ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), restartTimeout)
+	defer cancel()
 	downArgv, dir, _ := podmanmanager.BuildComposeUpDownCommand(userContext, containerName, "deactivate")
-	down := podmanmanager.Command(ctx, userContext, downArgv)
+	down := restartCommand(ctx, userContext, downArgv)
 	down.Dir = dir
 	if err := down.Run(); err != nil {
 		return StartStopResult{Success: false, Message: "Command failed with error. Please try again."}
 	}
 
 	upArgv, _, _ := podmanmanager.BuildComposeUpDownCommand(userContext, containerName, "activate")
-	up := podmanmanager.Command(ctx, userContext, upArgv)
+	up := restartCommand(ctx, userContext, upArgv)
 	up.Dir = dir
 	if err := up.Run(); err != nil {
 		return StartStopResult{Success: false, Message: "Command failed with error. Please try again."}

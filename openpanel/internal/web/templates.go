@@ -157,20 +157,25 @@ func (p *Page) parse() (*template.Template, error) {
 }
 
 // template returns the parsed set, parsing it now if it isn't cached
-func (p *Page) template() *template.Template {
+func (p *Page) template() (*template.Template, error) {
 	p.used.Store(pageClock.Add(1))
 	p.mu.Lock()
 	t := p.tmpl
 	fresh := t == nil
 	if fresh {
-		t = template.Must(p.parse())
+		var err error
+		if t, err = p.parse(); err != nil {
+			// leave tmpl nil and unlock, a panic here used to keep the page locked forever
+			p.mu.Unlock()
+			return nil, err
+		}
 		p.tmpl = t
 	}
 	p.mu.Unlock()
 	if fresh {
 		trackLoadedPage(p)
 	}
-	return t
+	return t, nil
 }
 
 // trackLoadedPage remembers p as parsed and drops the least recently used page once there are too many
@@ -235,9 +240,14 @@ func LoadPage(files ...string) *Page {
 }
 
 func (p *Page) Render(w http.ResponseWriter, status int, data any) error {
+	t, err := p.template()
+	if err != nil {
+		http.Error(w, "page template failed to load", http.StatusInternalServerError)
+		return err
+	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(status)
-	return p.template().ExecuteTemplate(w, "layout", data)
+	return t.ExecuteTemplate(w, "layout", data)
 }
 
 // MustLoadFragment parses files the same way MustLoadPage does (same FuncMap, same embedded FS), but without a "layout" wrapper to execute - for standalone fragments like an email body that get rendered to a buffer via ExecuteTemplate(name, ...) rather than served as a page.

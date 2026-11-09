@@ -18,6 +18,7 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 		NavGroups: web.BuildClassicSidebarNav(userAllowed, nil, path), UserAllowed: userAllowed,
 		UserAllowedJSON: web.UserAllowedList(userAllowed), CurrentUsername: "testuser",
 		RequestPath: path, AdminPort: "2087", PasswordStrength: 50, T: mgr.Translator("en"),
+		PageTabs: web.BuildPageTabs(userAllowed, nil, path, web.TabContext{}),
 	}
 }
 
@@ -39,6 +40,14 @@ func TestRenderAccountsPage(t *testing.T) {
 	}
 }
 
+func TestHumanQuota(t *testing.T) {
+	for in, want := range map[string]string{"0": "0 MB", "12M": "12 MB", "1.7G": "1.7 GB", "2.0G": "2 GB", "512K": "512 KB", "~": "~"} {
+		if got, _ := humanQuota(in); got != want {
+			t.Errorf("humanQuota(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
 func TestRenderAccountsPageEmpty(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := AccountsPageData{LayoutData: baseLayout(mgr, "/emails")}
@@ -49,6 +58,19 @@ func TestRenderAccountsPageEmpty(t *testing.T) {
 	if !strings.Contains(w.Body.String(), "No emails yet.") {
 		t.Error("expected empty state text")
 	}
+}
+
+func newEmailData(mgr *i18n.Manager, maxGB float64, count, limit int) NewEmailPageData {
+	data := NewEmailPageData{
+		LayoutData:           baseLayout(mgr, "/emails/new"),
+		Domains:              []appctx.Domain{{DomainURL: "example.com"}, {DomainURL: "shop.example.org"}},
+		MaxEmailQuotaNumeric: maxGB, AllocatedUnit: "G", MaxQuotaBytes: maxGB * (1 << 30),
+		EmailCount: count, EmailLimit: limit, Taken: []string{"Info@example.com"},
+		MailHost: "panel.example.com", MailSecure: true, Wait: maxGB > 0,
+	}
+	data.HostingPlanName = "Developer plus"
+	data.fill()
+	return data
 }
 
 func TestRenderNewEmailPage(t *testing.T) {
@@ -126,7 +148,11 @@ func TestRenderAliasesPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := AliasesPageData{
 		LayoutData: baseLayout(mgr, "/emails/aliases"),
-		AliasList:  []AliasEntry{{Source: "alias@b.com", Targets: []string{"real@b.com"}}},
+		AliasList: []AliasEntry{
+			{Source: "alias@b.com", Targets: []string{"real@b.com"}},
+			{Source: "team@b.com", Targets: []string{"ana@b.com", "marko@b.com", "real@b.com"}},
+			{Source: "hello@b.com", Targets: []string{"info@demo.rs"}},
+		},
 	}
 	w := httptest.NewRecorder()
 	if err := aliasesPage.Render(w, 200, data); err != nil {
@@ -134,6 +160,18 @@ func TestRenderAliasesPage(t *testing.T) {
 	}
 	if !strings.Contains(w.Body.String(), "alias@b.com") || !strings.Contains(w.Body.String(), "real@b.com") {
 		t.Error("expected alias row in body")
+	}
+}
+
+func TestRenderAliasNewPage(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	data := AliasNewPageData{LayoutData: baseLayout(mgr, "/emails/aliases/new"), Domains: []appctx.Domain{{DomainURL: "example.com"}}}
+	w := httptest.NewRecorder()
+	if err := aliasNewPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	if !strings.Contains(w.Body.String(), "example.com") {
+		t.Error("expected domain option in body")
 	}
 }
 
@@ -162,18 +200,6 @@ func TestRenderAliasDetailPage(t *testing.T) {
 			t.Error("expected empty state")
 		}
 	})
-}
-
-func TestRenderAliasNewPage(t *testing.T) {
-	mgr := i18n.NewManager(t.TempDir(), nil)
-	data := AliasNewPageData{LayoutData: baseLayout(mgr, "/emails/aliases/new"), Domains: []appctx.Domain{{DomainURL: "example.com"}}}
-	w := httptest.NewRecorder()
-	if err := aliasNewPage.Render(w, 200, data); err != nil {
-		t.Fatalf("Render: %v", err)
-	}
-	if !strings.Contains(w.Body.String(), "example.com") {
-		t.Error("expected domain option in body")
-	}
 }
 
 func TestRenderAliasDeletePage(t *testing.T) {

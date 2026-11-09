@@ -36,6 +36,9 @@ func handleDatabasesAssign(a *appctx.App, w http.ResponseWriter, r *http.Request
 		case isRestrictedDatabase(databaseName):
 			web.FlashRedirect(a, w, r, "error", "This is a system database that cannot be used.", "/postgresql")
 			return
+		case isRestrictedUser(dbUser):
+			web.FlashRedirect(a, w, r, "error", "This is a system username that can not be edited.", "/postgresql/assign")
+			return
 		}
 
 		grantSQL := `GRANT ALL PRIVILEGES ON DATABASE "` + databaseName + `" TO "` + dbUser + `"; ` +
@@ -54,7 +57,15 @@ func handleDatabasesAssign(a *appctx.App, w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	renderAssignPage(a, w, r)
+	// links from the users and databases lists preselect one side
+	dbUser, databaseName := r.URL.Query().Get("db_user"), r.URL.Query().Get("database_name")
+	if !validators.IsValidIdentifier(dbUser) {
+		dbUser = ""
+	}
+	if !validators.IsValidIdentifier(databaseName) {
+		databaseName = ""
+	}
+	renderAssignPage(a, w, r, dbUser, databaseName)
 }
 
 // handleDatabasesRemove renders the page for revoking a user's access to a PostgreSQL database

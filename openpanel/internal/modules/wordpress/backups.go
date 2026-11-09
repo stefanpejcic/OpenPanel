@@ -1,11 +1,14 @@
 package wordpress
 
 import (
+	"context"
+	"errors"
 	"net/http"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -38,6 +41,8 @@ type backupDateInfo struct {
 	Date           string `json:"date"`
 	HasDbBackup    bool   `json:"hasDbBackup"`
 	HasFilesBackup bool   `json:"hasFilesBackup"`
+	Size           int64  `json:"size"`
+	Auto           bool   `json:"auto"`
 }
 
 // handleGetBackupDates mirrors get_backup_dates().
@@ -82,11 +87,17 @@ func handleGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		files, _ := tenantfs.ReadDir(folderPath)
 		info := backupDateInfo{Date: entry.Name()}
 		for _, f := range files {
+			if fi, infoErr := f.Info(); infoErr == nil && fi.Mode().IsRegular() {
+				info.Size += fi.Size()
+			}
 			if strings.HasSuffix(f.Name(), ".sql") {
 				info.HasDbBackup = true
 			}
 			if strings.HasSuffix(f.Name(), ".tar.gz") {
 				info.HasFilesBackup = true
+			}
+			if f.Name() == autoUpdateMarker {
+				info.Auto = true
 			}
 		}
 		dates = append(dates, info)
@@ -313,111 +324,9 @@ func handleRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	htmlVolume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
-	mysqlDumpVolume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_mysql_dumps/_data/"
-	_ = tenantfs.MkdirAll(htmlVolume, 0o755)
-	_ = tenantfs.MkdirAll(mysqlDumpVolume, 0o755)
-	appkit.ProtectBackupsDir(htmlVolume)
-
-	uid, uidErr := podmanmanager.GetUID(userContext)
-	if uidErr == nil {
-		_ = tenantfs.Lchown(htmlVolume, uid, uid)
-		_ = tenantfs.Lchown(mysqlDumpVolume, uid, uid)
-	}
-
-	timestamp := time.Now().Format("2006-01-02_15-04-05")
-	backupDirectory := filepath.Join(htmlVolume, "backups", selectedDomain, timestamp)
-	inPHPBackupDirectory := filepath.Join("/var/www/html/backups", selectedDomain, timestamp)
-	if mkErr := tenantfs.MkdirAll(backupDirectory, 0o755); mkErr != nil {
-		web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": mkErr.Error()})
+	if _, runErr := runWPBackup(ctx, a, userContext, selectedDomain, docroot, backupDatabase, backupFiles); runErr != nil {
+		web.WriteJSON(w, backupErrStatus(runErr), map[string]string{"error": runErr.Error()})
 		return
-	}
-	if uidErr == nil {
-		_ = tenantfs.Lchown(backupDirectory, uid, uid)
-	}
-
-	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
-	isLitespeed := strings.Contains(strings.ToLower(webServer), "litespeed")
-	phpContainer := webServer
-	if !isLitespeed {
-		domainOnly := strings.Split(selectedDomain, "/")[0]
-		phpVersion := php.GetPHPVForDomain(ctx, a, userContext, domainOnly)
-		phpContainer = "php-fpm-" + phpVersion
-	}
-
-	if backupDatabase {
-		wpBase := podmanmanager.BuildWPCLIBaseCommand(userContext, phpContainer)
-
-		prefixArgv := append(append([]string{}, wpBase...), "config", "get", "table_prefix", "--path="+docroot, "--skip-themes", "--allow-root")
-		prefixOut, prefixErr := podmanmanager.Command(ctx, userContext, prefixArgv).Output()
-		tablePrefix := strings.TrimSpace(string(prefixOut))
-		if prefixErr != nil || tablePrefix == "" {
-			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to retrieve table prefix."})
-			return
-		}
-
-		dbNameArgv := append(append([]string{}, wpBase...), "config", "get", "DB_NAME", "--path="+docroot, "--skip-themes", "--allow-root")
-		dbNameOut, dbNameErr := podmanmanager.Command(ctx, userContext, dbNameArgv).Output()
-		dbName := strings.TrimSpace(string(dbNameOut))
-		if dbNameErr != nil || dbName == "" {
-			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to retrieve db_name from wp-cli."})
-			return
-		}
-		if !validWPConfigName(dbName) || !tablePrefixSafeRE.MatchString(tablePrefix) {
-			web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "wp-config.php has an unsupported DB_NAME or table prefix."})
-			return
-		}
-
-		mysqlVersion := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
-		var dumpCmd string
-		switch mysqlVersion {
-		case "mysql":
-			dumpCmd = "mysqldump"
-		case "mariadb":
-			dumpCmd = "mariadb-dump"
-		default:
-			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "Unsupported MYSQL_TYPE: " + mysqlVersion})
-			return
-		}
-
-		rows, execErr := mysqlmanager.Exec(ctx, userContext, "SHOW TABLES IN `"+dbName+"` LIKE '"+tablePrefix+"%'", "")
-		if execErr != nil {
-			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": execErr.Error()})
-			return
-		}
-		var tables []string
-		for _, row := range rows {
-			tables = append(tables, mysqlmanager.ToString(row[0]))
-		}
-		if len(tables) == 0 {
-			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "No matching tables found"})
-			return
-		}
-
-		dumpArgv := podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, dumpCmd, "-u", "root", "--single-transaction", dbName)
-		dumpArgv = append(dumpArgv, tables...)
-		dumpArgv = append(dumpArgv, "--result-file=/tmp/dumps/database.sql")
-		if _, runErr := podmanmanager.Command(ctx, userContext, dumpArgv).Output(); runErr != nil {
-			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": dumpCmd + " failed: " + runErr.Error()})
-			return
-		}
-
-		mysqlDumpPath := filepath.Join(mysqlDumpVolume, "database.sql")
-		if renameErr := tenantfs.Rename(mysqlDumpPath, filepath.Join(backupDirectory, "database.sql")); renameErr != nil {
-			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": renameErr.Error()})
-			return
-		}
-		if uidErr == nil {
-			_ = tenantfs.Lchown(backupDirectory, uid, uid)
-		}
-	}
-
-	if backupFiles {
-		tarArgv := filesBackupArgv(userContext, phpContainer, docroot, inPHPBackupDirectory)
-		if runErr := podmanmanager.Command(ctx, userContext, tarArgv).Run(); runErr != nil {
-			web.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": runErr.Error()})
-			return
-		}
 	}
 
 	var logAction string
@@ -431,4 +340,151 @@ func handleRunBackup(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	_ = logger.RecordUserAction(a.Config, currentUsername, logAction, reqip.ClientIP(r))
 	_, _ = w.Write([]byte("Backup completed successfully!"))
+}
+
+// wpBackupError keeps the status code handleRunBackup has always answered a failed step with
+type wpBackupError struct {
+	status int
+	msg    string
+}
+
+func (e *wpBackupError) Error() string { return e.msg }
+
+func backupFail(status int, msg string) error { return &wpBackupError{status: status, msg: msg} }
+
+func backupErrStatus(err error) int {
+	var be *wpBackupError
+	if errors.As(err, &be) {
+		return be.status
+	}
+	return http.StatusInternalServerError
+}
+
+// wpBackupSlots allows one backup per account at a time, every dump goes through the same /tmp/dumps/database.sql
+var wpBackupSlots sync.Map
+
+func lockWPBackups(ctx context.Context, userContext string) (func(), error) {
+	v, _ := wpBackupSlots.LoadOrStore(userContext, make(chan struct{}, 1))
+	slot := v.(chan struct{})
+	select {
+	case slot <- struct{}{}:
+		return func() { <-slot }, nil
+	case <-ctx.Done():
+		return nil, backupFail(http.StatusServiceUnavailable, "Another backup is still running, try again in a moment.")
+	}
+}
+
+// wpBackupsRoot is the host folder that holds site's dated backups
+func wpBackupsRoot(userContext, site string) string {
+	return filepath.Join("/home", userContext, "docker-data", "volumes", userContext+"_html_data", "_data", "backups", site)
+}
+
+// runWPBackup backs up site's database and/or files into backups/<site>/<timestamp> and returns that folder's host path, also when a later step failed after it was made
+func runWPBackup(ctx context.Context, a *appctx.App, userContext, site, docroot string, backupDatabase, backupFiles bool) (string, error) {
+	if !backupDatabase && !backupFiles {
+		return "", backupFail(http.StatusBadRequest, "No backup options selected.")
+	}
+	unlock, lockErr := lockWPBackups(ctx, userContext)
+	if lockErr != nil {
+		return "", lockErr
+	}
+	defer unlock()
+
+	htmlVolume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
+	mysqlDumpVolume := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_mysql_dumps/_data/"
+	_ = tenantfs.MkdirAll(htmlVolume, 0o755)
+	_ = tenantfs.MkdirAll(mysqlDumpVolume, 0o755)
+	appkit.ProtectBackupsDir(htmlVolume)
+
+	uid, uidErr := podmanmanager.GetUID(userContext)
+	if uidErr == nil {
+		_ = tenantfs.Lchown(htmlVolume, uid, uid)
+		_ = tenantfs.Lchown(mysqlDumpVolume, uid, uid)
+	}
+
+	timestamp := time.Now().Format("2006-01-02_15-04-05")
+	backupDirectory := filepath.Join(htmlVolume, "backups", site, timestamp)
+	inPHPBackupDirectory := filepath.Join("/var/www/html/backups", site, timestamp)
+	if mkErr := tenantfs.MkdirAll(backupDirectory, 0o755); mkErr != nil {
+		return "", backupFail(http.StatusInternalServerError, mkErr.Error())
+	}
+	if uidErr == nil {
+		_ = tenantfs.Lchown(backupDirectory, uid, uid)
+	}
+
+	webServer := webserver.GetEnvFileValue(userContext, "WEB_SERVER")
+	isLitespeed := strings.Contains(strings.ToLower(webServer), "litespeed")
+	phpContainer := webServer
+	if !isLitespeed {
+		domainOnly := strings.Split(site, "/")[0]
+		phpVersion := php.GetPHPVForDomain(ctx, a, userContext, domainOnly)
+		phpContainer = "php-fpm-" + phpVersion
+	}
+
+	if backupDatabase {
+		wpBase := podmanmanager.BuildWPCLIBaseCommand(userContext, phpContainer)
+
+		prefixArgv := append(append([]string{}, wpBase...), "config", "get", "table_prefix", "--path="+docroot, "--skip-themes", "--allow-root")
+		prefixOut, prefixErr := podmanmanager.Command(ctx, userContext, prefixArgv).Output()
+		tablePrefix := strings.TrimSpace(string(prefixOut))
+		if prefixErr != nil || tablePrefix == "" {
+			return backupDirectory, backupFail(http.StatusInternalServerError, "Failed to retrieve table prefix.")
+		}
+
+		dbNameArgv := append(append([]string{}, wpBase...), "config", "get", "DB_NAME", "--path="+docroot, "--skip-themes", "--allow-root")
+		dbNameOut, dbNameErr := podmanmanager.Command(ctx, userContext, dbNameArgv).Output()
+		dbName := strings.TrimSpace(string(dbNameOut))
+		if dbNameErr != nil || dbName == "" {
+			return backupDirectory, backupFail(http.StatusInternalServerError, "Failed to retrieve db_name from wp-cli.")
+		}
+		if !validWPConfigName(dbName) || !tablePrefixSafeRE.MatchString(tablePrefix) {
+			return backupDirectory, backupFail(http.StatusBadRequest, "wp-config.php has an unsupported DB_NAME or table prefix.")
+		}
+
+		mysqlVersion := webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
+		var dumpCmd string
+		switch mysqlVersion {
+		case "mysql":
+			dumpCmd = "mysqldump"
+		case "mariadb":
+			dumpCmd = "mariadb-dump"
+		default:
+			return backupDirectory, backupFail(http.StatusInternalServerError, "Unsupported MYSQL_TYPE: "+mysqlVersion)
+		}
+
+		rows, execErr := mysqlmanager.Exec(ctx, userContext, "SHOW TABLES IN `"+dbName+"` LIKE '"+tablePrefix+"%'", "")
+		if execErr != nil {
+			return backupDirectory, backupFail(http.StatusInternalServerError, execErr.Error())
+		}
+		var tables []string
+		for _, row := range rows {
+			tables = append(tables, mysqlmanager.ToString(row[0]))
+		}
+		if len(tables) == 0 {
+			return backupDirectory, backupFail(http.StatusInternalServerError, "No matching tables found")
+		}
+
+		dumpArgv := podmanmanager.PodmanArgv(userContext, "exec", mysqlVersion, dumpCmd, "-u", "root", "--single-transaction", dbName)
+		dumpArgv = append(dumpArgv, tables...)
+		dumpArgv = append(dumpArgv, "--result-file=/tmp/dumps/database.sql")
+		if _, runErr := podmanmanager.Command(ctx, userContext, dumpArgv).Output(); runErr != nil {
+			return backupDirectory, backupFail(http.StatusInternalServerError, dumpCmd+" failed: "+runErr.Error())
+		}
+
+		mysqlDumpPath := filepath.Join(mysqlDumpVolume, "database.sql")
+		if renameErr := tenantfs.Rename(mysqlDumpPath, filepath.Join(backupDirectory, "database.sql")); renameErr != nil {
+			return backupDirectory, backupFail(http.StatusInternalServerError, renameErr.Error())
+		}
+		if uidErr == nil {
+			_ = tenantfs.Lchown(backupDirectory, uid, uid)
+		}
+	}
+
+	if backupFiles {
+		tarArgv := filesBackupArgv(userContext, phpContainer, docroot, inPHPBackupDirectory)
+		if runErr := podmanmanager.Command(ctx, userContext, tarArgv).Run(); runErr != nil {
+			return backupDirectory, backupFail(http.StatusInternalServerError, runErr.Error())
+		}
+	}
+	return backupDirectory, nil
 }

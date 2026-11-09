@@ -216,7 +216,7 @@ function gitRepos() {
   domains.forEach(d => docroots[d.DomainURL] = d.Docroot);
   const first = domains.length ? domains[0].DomainURL : '';
   return Object.assign(table, {
-    panel: null,
+    panel: new URLSearchParams(location.search).get('new') === '1' ? 'create' : null,
     removing: null,
     matches(...fields) { const q = this.searchQuery.trim().toLowerCase(); return q === '' || fields.some(f => (f || '').toLowerCase().includes(q)); },
     open: location.hash.startsWith('#repo-') ? decodeURIComponent(location.hash.slice(6)) : null,

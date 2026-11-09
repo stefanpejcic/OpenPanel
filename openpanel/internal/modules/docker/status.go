@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,14 +16,15 @@ import (
 
 // ContainerStatus holds a container's (state, health) pair. State is one of: created, restarting, running, removing, paused, exited, dead, or "not_found" if inspect failed (container doesn't exist, socket unreachable, etc.)
 type ContainerStatus struct {
-	State  string
-	Health string
+	State   string
+	Health  string
+	Started time.Time
 }
 
 // GetContainerStatus inspects a container and returns its state and health.
 func GetContainerStatus(ctx context.Context, userContext, serviceName string) ContainerStatus {
 	argv := podmanmanager.PodmanArgv(userContext, "inspect",
-		"--format", "{{.State.Status}} {{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}",
+		"--format", "{{.State.Status}} {{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}} {{.State.StartedAt.Unix}}",
 		serviceName)
 
 	cmd := podmanmanager.Command(ctx, userContext, argv)
@@ -40,7 +42,13 @@ func GetContainerStatus(ctx context.Context, userContext, serviceName string) Co
 	if len(parts) > 1 && parts[0] == "running" {
 		health = parts[1]
 	}
-	return ContainerStatus{State: parts[0], Health: health}
+	st := ContainerStatus{State: parts[0], Health: health}
+	if len(parts) > 2 && parts[0] == "running" {
+		if sec, err := strconv.ParseInt(parts[2], 10, 64); err == nil && sec > 0 {
+			st.Started = time.Unix(sec, 0)
+		}
+	}
+	return st
 }
 
 // IsServiceRunning reports whether a container by that name is currently running
