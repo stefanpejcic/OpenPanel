@@ -140,7 +140,9 @@ export const tab = name => async page => {
     document.querySelectorAll('[data-shot]').forEach(e => e.removeAttribute('data-shot'));
     let el = a.parentElement;
     while (el && !(/\brounded/.test(el.className) && /\bborder\b/.test(el.className) && el.getBoundingClientRect().height > 150)) el = el.parentElement;
-    if (el) el.setAttribute('data-shot', 'tabs');
+    // redesigned pages have no card around the tabs, take the first tall wrapper instead
+    if (!el) { el = a.parentElement; while (el && el.tagName !== 'MAIN' && el.getBoundingClientRect().height <= 150) el = el.parentElement; }
+    if (el && el.tagName !== 'MAIN') el.setAttribute('data-shot', 'tabs');
   }, name);
   await page.waitForTimeout(1200);
 };

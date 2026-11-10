@@ -1441,8 +1441,8 @@ export const pages = {
         url: '/containers?s=redis',
         crop: 'content',
       },
-      { name: 'status', alt: 'Redis Status row with the Click to Enable or Click to Disable button', crop: { from: 'main', to: 'main .m-6 > div:first-child', fromTop: true, pad: 24 } },
-      { name: 'log-button', alt: 'Logs section of the Redis page with the View container log button', crop: { from: 'main .m-6 > section', pad: 16 } },
+      { name: 'status', alt: 'Redis Status row with the Click to Enable or Click to Disable button', crop: { from: 'main', to: '#service-page-status', fromTop: true, pad: 24 } },
+      { name: 'log-button', alt: 'Logs section of the Redis page with the View container log button', crop: { from: 'section:has(#service-log)', pad: 16 } },
     ],
   },
   'caching/memcached': {
@@ -1455,15 +1455,15 @@ export const pages = {
         url: '/containers?s=memcached',
         crop: 'content',
       },
-      { name: 'status', alt: 'Memcached Status row with the Click to Enable or Click to Disable button', crop: { from: 'main', to: 'main .m-6 > div:first-child', fromTop: true, pad: 24 } },
-      { name: 'log-button', alt: 'Logs section of the Memcached page with the View container log button', crop: { from: 'main .m-6 > section', pad: 16 } },
+      { name: 'status', alt: 'Memcached Status row with the Click to Enable or Click to Disable button', crop: { from: 'main', to: '#service-page-status', fromTop: true, pad: 24 } },
+      { name: 'log-button', alt: 'Logs section of the Memcached page with the View container log button', crop: { from: 'section:has(#service-log)', pad: 16 } },
     ],
   },
   'caching/valkey': {
     url: '/cache/valkey',
     shots: [
       { name: 'page', alt: 'Valkey page with the service status, TCP server and port', crop: 'content' },
-      { name: 'status', alt: 'Valkey Status row with the Click to Enable or Click to Disable button', crop: { from: 'main', to: 'main .m-6 > div:first-child', fromTop: true, pad: 24 } },
+      { name: 'status', alt: 'Valkey Status row with the Click to Enable or Click to Disable button', crop: { from: 'main', to: '#service-page-status', fromTop: true, pad: 24 } },
     ],
   },
   'caching/elasticsearch': {
@@ -2015,10 +2015,10 @@ export const pages = {
     shots: [
       { name: 'site', alt: 'WordPress site manager with the screenshot, versions, files and database details', viewportHeight: 900, crop: { content: 'main', maxHeight: 900 } },
       { name: 'header', alt: 'Site header with the Live Preview and Login as Admin buttons', crop: { from: 'main', to: 'main a:has-text("Live Preview")', fromTop: true, pad: 24 } },
-      { name: 'versions', alt: 'WordPress, PHP and MariaDB version cards and the creation date', crop: { from: 'main :text-is("WordPress:")', to: 'main :text-is("Created:")', pad: 64, right: true } },
+      { name: 'versions', alt: 'WordPress, PHP and MySQL versions and the creation date', prepare: async page => { await page.evaluate(() => { const dt = [...document.querySelectorAll('main dt')].find(e => e.textContent.trim() === 'Created'); dt?.closest('dl')?.setAttribute('data-shot', 'versions'); }); }, crop: { from: '[data-shot=versions]', pad: 16 } },
       { name: 'speed', alt: 'Speed card with desktop and mobile PageSpeed scores and First Contentful Paint, Speed Index and Time to Interactive', prepare: markCard('Speed'), crop: { from: '[data-shot=card]', pad: 12 } },
       { name: 'firewall', alt: 'Firewall card showing the firewall as active with denied and challenged request counts', prepare: markCard('Firewall'), crop: { from: '[data-shot=card]', pad: 12 } },
-      { name: 'cache', alt: 'Cache card with the cache type and the Clear Cache button', prepare: markCard('Cache'), crop: { from: '[data-shot=card]', pad: 12 } },
+      { name: 'cache', alt: 'Cache tab with the page and object cache options', prepare: tab('Cache'), crop: { from: 'main', to: '[data-shot=tabs]', fromTop: true, pad: 16 } },
       { name: 'options', alt: 'Options tab with the site URL, site name, email, registration, SEO visibility and pingback settings', prepare: tab('Options'), crop: { from: 'main', to: '[data-shot=tabs]', fromTop: true, pad: 16 } },
       {
         name: 'files-database',
@@ -2029,7 +2029,8 @@ export const pages = {
               const h = [...document.querySelectorAll('main h2, main h3, main p, main span')].find(e => e.childElementCount === 0 && e.textContent.trim() === title && e.offsetParent);
               let el = h;
               while (el && !(/\brounded/.test(el.className) && /\bborder\b/.test(el.className) && el.getBoundingClientRect().height > 100)) el = el.parentElement;
-              return el;
+              // no card border in the redesign, the heading's section is the block
+              return el || h?.closest('section') || h?.parentElement?.parentElement;
             };
             card('Files')?.setAttribute('data-shot', 'files');
             card('Database')?.setAttribute('data-shot', 'database');
@@ -2046,7 +2047,7 @@ export const pages = {
       {
         name: 'safe-browsing',
         alt: 'Google Safe Browsing section of the Security tab with the result of the check against the Google Safe Browsing list',
-        prepare: all(tab('Security'), async page => { await page.waitForTimeout(2500); }, markSection('Google Safe Browsing')),
+        prepare: all(tab('Security'), async page => { await page.waitForTimeout(2500); }, growToPage, markSection('Google Safe Browsing')),
         crop: { from: '[data-shot=section]', pad: 16 },
       },
       { name: 'maintenance', alt: 'Maintenance tab with the maintenance mode toggle', prepare: tab('Maintenance'), crop: { from: 'main', to: '[data-shot=tabs]', fromTop: true, pad: 16 } },
