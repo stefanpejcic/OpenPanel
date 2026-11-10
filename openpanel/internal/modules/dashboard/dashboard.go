@@ -202,6 +202,11 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		T:                 t,
 	}
 
+	// classic keeps a Dashboard tab without an upsell, its bar also holds the Overview/Tools switch
+	if web.Theme() == web.ThemeClassic {
+		layout.PageTabs = dashboardTabs(r.URL.Path, upsellPlanName != "" && upsellURL != "")
+	}
+
 	limitReached := anyPlanLimitReached(d)
 	var upgradePlanName, upgradeURL string
 	if limitReached && upsellImprovesReachedLimit(d) {
@@ -876,4 +881,12 @@ func atoiDefault(s string, def int) int {
 		return def
 	}
 	return n
+}
+
+// dashboardTabs keeps the Dashboard tab even without an Upgrade tab, the bar also holds the Overview/Tools switch
+func dashboardTabs(path string, upsell bool) []web.NavLink {
+	if tabs := web.DashboardTabs(path, upsell); tabs != nil {
+		return tabs
+	}
+	return []web.NavLink{{Href: "/dashboard", Label: "Dashboard", Active: path == "/dashboard"}}
 }
