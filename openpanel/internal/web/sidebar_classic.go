@@ -238,7 +238,7 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 	}
 
 	// Advanced group
-	if has("crons", "services", "ssh", "usage", "error_logs", "summary", "process_manager", "webserver_conf", "timezone", "waf", "ip_blocker", "info") {
+	if has("crons", "services", "ssh", "usage", "error_logs", "summary", "process_manager", "webserver_conf", "timezone", "waf", "imunifyav", "ip_blocker", "info") {
 		var links []NavLink
 		links = add(links, "services", "/services", "Services", strings.HasPrefix(path, "/services"), "")
 		links = add(links, "crons", "/cronjobs", "Cron Jobs", strings.HasPrefix(path, "/cronjobs"), "")
@@ -246,12 +246,13 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 		links = add(links, "process_manager", "/process-manager", "Process Manager", path == "/process-manager", "")
 		links = add(links, "webserver_conf", "/server/webserver_conf", "WebServer Settings", path == "/server/webserver_conf", "")
 		links = add(links, "waf", "/server/waf", "WAF", strings.HasPrefix(path, "/server/waf"), "")
+		links = add(links, "imunifyav", "/imunifyav", "ImunifyAV", strings.HasPrefix(path, "/imunifyav"), "")
 		links = add(links, "usage", "/server/usage", "Resource Usage", strings.HasPrefix(path, "/server/usage"), "")
 		links = add(links, "error_logs", "/error-logs", "Error Logs", strings.HasPrefix(path, "/error-logs"), "")
 		links = add(links, "summary", "/summary", "Daily Summary", strings.HasPrefix(path, "/summary"), "")
 		links = add(links, "info", "/server/info", "Server Information", path == "/server/info", "")
-		open := hasAnyPrefix(path, "/cronjobs", "/services/", "/server", "/process-manager", "/server/usage", "/security/ip-blocker", "/error-logs", "/summary")
-		active := hasAnyPrefix(path, "/cronjobs", "/server", "/process-manager", "/server/usage", "/security/ip-blocker", "/error-logs", "/summary")
+		open := hasAnyPrefix(path, "/cronjobs", "/services/", "/server", "/process-manager", "/server/usage", "/security/ip-blocker", "/imunifyav", "/error-logs", "/summary")
+		active := hasAnyPrefix(path, "/cronjobs", "/server", "/process-manager", "/server/usage", "/security/ip-blocker", "/imunifyav", "/error-logs", "/summary")
 		groups = append(groups, NavGroup{"Advanced", advancedIcon, "advanced-menu", links, open, active})
 	}
 

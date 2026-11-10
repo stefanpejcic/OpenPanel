@@ -199,11 +199,11 @@ func frameGuard(next http.Handler) http.Handler {
 	})
 }
 
-// exemptAPIFromCSRF skips CSRF for /api/*, /mcp and git push/webhook URLs since those bring their own credentials instead of the session cookie
+// exemptAPIFromCSRF skips CSRF for /api/*, /mcp, git push/webhook URLs and the embedded ImunifyAV UI since those bring their own credentials instead of the session cookie
 func exemptAPIFromCSRF(csrfMiddleware func(http.Handler) http.Handler, next http.Handler) http.Handler {
 	protected := csrfMiddleware(next)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, "/api/") || r.URL.Path == "/mcp" || git.IsPublicPath(r.URL.Path) {
+		if strings.HasPrefix(r.URL.Path, "/api/") || r.URL.Path == "/mcp" || git.IsPublicPath(r.URL.Path) || strings.HasPrefix(r.URL.Path, "/imav/") {
 			next.ServeHTTP(w, r)
 			return
 		}

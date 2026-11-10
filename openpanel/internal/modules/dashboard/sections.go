@@ -197,6 +197,7 @@ func allSections() []Section {
 			{"waf", "/server/waf/log", "bi-shield-exclamation", "Web Firewall Logs", "", false},
 			{"ip_blocker", "/security/ip-blocker", "bi-ban", "IP Blocker", "", false},
 			{"malware_scan", "/malware-scanner", "bi-upc-scan", "Malware Scanner", "", false},
+			{"imunifyav", "/imunifyav", "bi-shield-check", "ImunifyAV", "", false},
 			{"twofa", "/account/2fa", "bi-fingerprint", "Two-Factor Auth", "", false},
 			{"passkeys", "/account/passkeys", "bi-key", "Passkeys", "", false},
 			{"sessions", "/account/sessions", "bi-people", "Active Sessions", "", false},
@@ -318,6 +319,7 @@ func classicSections() []Section {
 			{"webserver_conf", "/server/webserver_conf", "bi-hdd-network", "Webserver Configuration", "", false},
 			{"waf", "/server/waf", "bi-shield-lock", "WAF Settings", "", false},
 			{"waf", "/server/waf/log", "bi-shield-exclamation", "WAF Logs", "", false},
+			{"imunifyav", "/imunifyav", "bi-shield-check", "ImunifyAV", "", false},
 			{"info", "/server/info", "bi-info-square", "Server Information", "", false},
 		}},
 		{Key: "account", Title: "Account", Items: []SectionItem{

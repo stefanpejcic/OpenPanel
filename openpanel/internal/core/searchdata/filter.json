@@ -558,6 +558,12 @@
       "name": "ClamAV Malware Scanner"
     },
     {
+      "description": "See malware ImunifyAV found in your files and scan them.", 
+      "link": "/imunifyav", 
+      "module": "imunifyav",
+      "name": "ImunifyAV"
+    },
+    {
       "description": "Elasticsearch full-text search engine.", 
       "link": "/cache/elasticsearch", 
       "module": "elasticsearch",

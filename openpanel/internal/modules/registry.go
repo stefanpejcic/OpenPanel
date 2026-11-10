@@ -31,6 +31,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/ftp"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/git"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/goaccess"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/imunifyav"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/inodes"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/ipblocker"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/java"
@@ -124,6 +125,7 @@ var configured = map[string]Registrar{
 		fixpermissions.RegisterAPI(mux, a)
 	},
 	"malware_scan": func(mux *http.ServeMux, a *appctx.App) { malwarescan.Register(mux, a); malwarescan.RegisterAPI(mux, a) },
+	"imunifyav":    imunifyav.Register,
 	"trash":        func(mux *http.ServeMux, a *appctx.App) { trash.Register(mux, a); trash.RegisterAPI(mux, a) },
 	"ftp":          func(mux *http.ServeMux, a *appctx.App) { ftp.Register(mux, a); ftp.RegisterAPI(mux, a) },
 	"backup_wizard": func(mux *http.ServeMux, a *appctx.App) {

@@ -1,0 +1,127 @@
+{{define "alpine_plugins"}}{{end}}
+{{define "flowbite_js"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/files/imunifyav.html -->
+
+<!-- page header -->
+<div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">ImunifyAV</h1></div>
+        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Malware ImunifyAV found in your files, and the scans of your account."}}</p>
+    </div>
+    {{if not .NotRunning}}{{if not .Error}}
+    <form method="post" action="/imunifyav/scan" class="mt-2 flex flex-col gap-2 sm:mt-0 sm:flex-row sm:items-center">
+        {{if .GUIReady}}<a href="/imunifyav" id="imunifyav-open-gui" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 w-full sm:w-auto whitespace-nowrap">{{.T.Get "Open full ImunifyAV"}}</a>{{end}}
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+        <button type="submit" id="imunifyav-scan" {{if .Scanning}}disabled{{end}} class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
+            {{if .Scanning}}{{.T.Get "Scan running…"}}{{else}}{{.T.Get "Scan my files"}}{{end}}
+        </button>
+    </form>
+    {{end}}{{end}}
+</div>
+<!-- END page header -->
+
+{{if .NotRunning}}
+<div id="imunifyav-not-running" class="m-6 rounded-lg bg-gray-50 p-6 ring-1 ring-inset ring-gray-200 dark:bg-gray-400/10 dark:ring-gray-800">
+    <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "ImunifyAV isn't available right now"}}</h4>
+    <p class="mt-1 max-w-2xl text-sm leading-6 text-gray-500">{{.T.Get "It isn't installed or running on this server. Contact your hosting provider if you expected it here."}}</p>
+</div>
+{{else if .Error}}
+<div class="m-6 rounded-lg bg-red-50 p-6 ring-1 ring-inset ring-red-200 dark:bg-red-400/10 dark:ring-red-900">
+    <p class="text-sm text-red-700 dark:text-red-400">{{.Error}}</p>
+</div>
+{{else}}
+
+<!-- summary -->
+<div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-3 sm:p-6">
+    <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
+        <p class="text-xs font-medium uppercase tracking-wide text-gray-500">{{.T.Get "Status"}}</p>
+        <p id="imunifyav-status" class="mt-1 text-sm font-semibold {{if and .Infected (not .Scanning)}}text-red-700 dark:text-red-400{{else}}text-gray-900 dark:text-gray-50{{end}}">
+            {{if .Scanning}}{{.T.Get "Scanning"}}{{else if .Infected}}{{.Infected}} {{.T.Get "infected"}}{{else if .LastScan}}{{.T.Get "Clean"}}{{else}}{{.T.Get "Not scanned yet"}}{{end}}
+        </p>
+    </div>
+    <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
+        <p class="text-xs font-medium uppercase tracking-wide text-gray-500">{{.T.Get "Last scan"}}</p>
+        <p class="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-50">{{if .LastScan}}{{.LastScan}}{{else}}{{.T.Get "Never"}}{{end}}</p>
+    </div>
+    <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
+        <p class="text-xs font-medium uppercase tracking-wide text-gray-500">{{.T.Get "What to do"}}</p>
+        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{if .Infected}}{{.T.Get "Remove or replace the files below, then scan again. Contact your hosting provider if you need help cleaning them."}}{{else}}{{.T.Get "ImunifyAV also scans the server on its own schedule."}}{{end}}</p>
+    </div>
+</div>
+
+<!-- infected files -->
+<section aria-label="{{.T.Get "Infected files"}}">
+    <h2 class="px-4 pb-2 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:px-6">{{.T.Get "Infected files"}}</h2>
+    {{if not .Hits}}
+    <p id="imunifyav-no-hits" class="px-4 pb-6 text-sm text-gray-500 sm:px-6">{{.T.Get "No malware found."}}</p>
+    {{else}}
+    <div class="overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+        <table id="imunifyav-hits" class="w-full border-b border-gray-200 dark:border-gray-800">
+            <thead>
+                <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_th:last-child]:pr-6 sm:[&_th:first-child]:pl-6">
+                    <th scope="col" class="border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "File"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Signature"}}</th>
+                    <th scope="col" class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Detected"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Status"}}</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                {{range .Hits}}
+                <tr class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6">
+                    <td style="word-break: break-all;" class="p-4 font-mono text-xs text-gray-900 dark:text-gray-50">{{.Path}}</td>
+                    <td style="word-break: break-all;" class="p-4 text-xs text-gray-600 dark:text-gray-400">{{.Signature}}</td>
+                    <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Detected}}</td>
+                    <td class="whitespace-nowrap p-4 text-sm">
+                        {{if .Found}}<span class="inline-flex items-center rounded bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/40 dark:text-red-400">{{$.T.Get "Found"}}</span>
+                        {{else}}<span class="inline-flex items-center rounded bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">{{.Status}}</span>{{end}}
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+    {{end}}
+</section>
+
+<!-- scan history -->
+<section aria-label="{{.T.Get "Scans"}}" class="mt-6">
+    <h2 class="px-4 pb-2 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:px-6">{{.T.Get "Scans"}}</h2>
+    {{if not .Scans}}
+    <p class="px-4 pb-6 text-sm text-gray-500 sm:px-6">{{.T.Get "Scans you start and scheduled scans of your account show up here."}}</p>
+    {{else}}
+    <div class="overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+        <table id="imunifyav-scans" class="w-full border-b border-gray-200 dark:border-gray-800">
+            <thead>
+                <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_th:last-child]:pr-6 sm:[&_th:first-child]:pl-6">
+                    <th scope="col" class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Started"}}</th>
+                    <th scope="col" class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Files"}}</th>
+                    <th scope="col" class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Result"}}</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                {{range .Scans}}
+                <tr class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6">
+                    <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Started}}{{with .Duration}}<span class="block text-xs text-gray-400 dark:text-gray-600">{{$.T.Get "took"}} {{.}}</span>{{end}}</td>
+                    <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Files}}</td>
+                    <td class="p-4 text-sm">
+                        {{if eq .Status "running"}}<span class="inline-flex items-center rounded bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300">{{$.T.Get "Running"}}</span>
+                        {{else if eq .Status "failed"}}<span class="inline-flex items-center rounded bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/40 dark:text-red-400">{{$.T.Get "Failed"}}</span>{{with .Message}}<span class="ml-1 text-xs text-gray-500">{{.}}</span>{{end}}
+                        {{else if eq .Status "aborted"}}<span class="inline-flex items-center rounded bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">{{$.T.Get "Stopped early"}}</span>
+                        {{else if .Found}}<span class="inline-flex items-center rounded bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/40 dark:text-red-400">{{.Found}} {{$.T.Get "infected"}}</span>
+                        {{else}}<span class="inline-flex items-center rounded bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-400">{{$.T.Get "Clean"}}</span>{{end}}
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+    {{end}}
+</section>
+
+{{if .Scanning}}<script>setTimeout(function () { location.reload(); }, 15000);</script>{{end}}
+{{end}}
+
+<!-- END templates/files/imunifyav.html -->
+{{end}}
