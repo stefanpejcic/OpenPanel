@@ -19,6 +19,7 @@ import (
 )
 
 // isoLayout is the timestamp format for "created_at"/"last_active" in the Redis session hash - must match what internal/modules/account/login.go writes
+// Always write these in UTC: time.Parse reads a zone-less string as UTC, so local time made sessions look hours old on hosts west of UTC (CST -6h > 5h max lifetime = instant logout)
 const isoLayout = "2006-01-02T15:04:05.999999"
 
 // RequireLogin is middleware that enforces an authenticated session (existence, max lifetime, IP binding, 2FA, demo-mode writes) and gates access by feature - granted if the caller has any one of featureNames, so a route shared by two modules passes both
@@ -140,7 +141,7 @@ func refreshLastActive(ctx context.Context, a *appctx.App, sessionKey, lastActiv
 	}
 
 	pipe := a.Cache.Raw().Pipeline()
-	pipe.HSet(ctx, sessionKey, "last_active", time.Now().Format(isoLayout))
+	pipe.HSet(ctx, sessionKey, "last_active", time.Now().UTC().Format(isoLayout))
 	pipe.Expire(ctx, sessionKey, a.SessionDuration)
 	_, _ = pipe.Exec(ctx)
 }
