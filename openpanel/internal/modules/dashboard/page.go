@@ -314,7 +314,7 @@ func (d DashboardPageData) PlanTiles() []PlanTile {
 // QuickActions is a fixed pick of common tools for the Overview, or the first usable item of each section when the plan has few of them
 func (d DashboardPageData) QuickActions() []SectionItem {
 	var out []SectionItem
-	for _, href := range []string{"/files", "/phpmyadmin", "/domains/edit-dns-zone", "/domains/ssl", "/cronjobs", "/backups"} {
+	for _, href := range []string{"/files", "/phpmyadmin", "/domains/edit-dns-zone", "/domains/ssl", "/cronjobs", "/backups", "/webmail/"} {
 	find:
 		for _, s := range d.Sections {
 			for _, it := range s.Items {

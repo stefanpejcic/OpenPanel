@@ -358,6 +358,15 @@ html.dark .bg-blue-50.text-blue-500 { background-color: rgb(71 235 235 / 0.1); c
 /* links and active tabs: cyan instead of blue in dark mode */
 html.dark a:is(.text-blue-500, .text-blue-600, .dark\:text-blue-500, .dark\:text-blue-400), html.dark button:is(.text-blue-500, .text-blue-600), html.dark [role="tab"].text-blue-500 { color: #47ebeb; }
 html.dark :is(a, [role="tab"]).border-blue-500 { border-color: #47ebeb; }
+/* AI button and panel in dark mode follow PR 1281: cyan pill, solid while the panel is open */
+html.dark #ai-assistant-btn { height: 28px; min-width: 34px; border-radius: 9999px; background-color: rgb(71 235 235 / 0.1); color: #47ebeb; font-size: 11px; font-weight: 700; }
+html.dark #ai-assistant-btn:hover { background-color: color-mix(in srgb, #47ebeb 18%, transparent); color: #47ebeb; }
+html.dark #ai-assistant-btn[aria-expanded="true"] { background-color: #47ebeb; color: #14141f; }
+html.dark .ai-drawer { background-color: #1d1e30; }
+html.dark .ai-badge, html.dark .ai-form button, html.dark .ai-msg-user { background-color: #47ebeb; color: #14141f; }
+html.dark .ai-form textarea:focus { border-color: #47ebeb; box-shadow: 0 0 0 2px rgb(71 235 235 / 0.2); }
+html.dark .ai-msg-assistant a { color: #47ebeb; }
+html.dark .ai-suggestions button:hover { border-color: #47ebeb; color: #47ebeb; }
 html.dark #dashboard_twofa[data-off] { position: relative; overflow: hidden; }
 html.dark #dashboard_twofa[data-off]::before { content: ""; position: absolute; right: -240px; top: -280px; width: 480px; height: 480px; border-radius: 50%; pointer-events: none; background: radial-gradient(closest-side, color-mix(in srgb, #47ebeb 14%, transparent), transparent); }
 html.dark #dashboard_twofa[data-off] > * { position: relative; }
