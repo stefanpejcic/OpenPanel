@@ -33,7 +33,7 @@
 
           <div
             id="section-icons-{{.Section.Key}}"
-            class="grid grid-cols-1 gap-1 p-2 sm:grid-cols-2 lg:grid-cols-3"
+            class="grid grid-cols-[repeat(auto-fill,minmax(88px,1fr))] gap-1 p-2 lg:grid-flow-col lg:grid-cols-none lg:auto-cols-[96px] lg:overflow-x-auto lg:overscroll-x-contain"
             x-show="open || find"
             x-collapse
           >
@@ -43,18 +43,18 @@
               {{if .Disabled}}
                 <a data-label="{{lower .Label}}" x-show="!find || $el.dataset.label.includes(find.toLowerCase())" title="{{if $upsellPlanName}}{{$.T.Get "Upgrade to"}} {{$upsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
                    {{if $upsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}
-                   class="flex min-h-10 min-w-0 items-center gap-2.5 rounded-md px-2 py-1 text-left opacity-55 cursor-not-allowed">
-                    <span class="inline-flex size-7 shrink-0 items-center justify-center text-[22px] leading-none text-gray-900 dark:text-gray-50" aria-hidden="true">
+                   class="flex min-w-0 flex-col items-center gap-2 rounded-md px-1 pt-3 pb-2.5 text-center opacity-55 cursor-not-allowed">
+                    <span class="inline-flex size-7 shrink-0 items-center justify-center text-[28px] leading-none text-gray-900 dark:text-gray-50" aria-hidden="true">
                       <i class="{{.Icon}}"></i>
                     </span>
-                    <span class="text-[13px] leading-4 text-gray-600 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-gray-50">{{.Label}}</span>
+                    <span class="text-[13px] leading-4 text-gray-600 group-hover:text-gray-900 lg:min-h-8 dark:text-gray-400 dark:group-hover:text-gray-50">{{.Label}}</span>
                 </a>
               {{else}}
-                <a href="{{.Href}}" target="{{if .Target}}{{.Target}}{{else}}_self{{end}}" data-label="{{lower .Label}}" x-show="!find || $el.dataset.label.includes(find.toLowerCase())" class="group flex min-h-10 min-w-0 items-center gap-2.5 rounded-md px-2 py-1 text-left hover:bg-gray-100 dark:hover:bg-gray-900/60 cursor-pointer outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
-                    <span class="inline-flex size-7 shrink-0 items-center justify-center text-[22px] leading-none text-gray-900 dark:text-gray-50" aria-hidden="true">
+                <a href="{{.Href}}" target="{{if .Target}}{{.Target}}{{else}}_self{{end}}" data-label="{{lower .Label}}" x-show="!find || $el.dataset.label.includes(find.toLowerCase())" class="group flex min-w-0 flex-col items-center gap-2 rounded-md px-1 pt-3 pb-2.5 text-center hover:bg-gray-100 dark:hover:bg-gray-900/60 cursor-pointer outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                    <span class="inline-flex size-7 shrink-0 items-center justify-center text-[28px] leading-none text-gray-900 dark:text-gray-50" aria-hidden="true">
                       <i class="{{.Icon}}"></i>
                     </span>
-                    <span class="text-[13px] leading-4 text-gray-600 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-gray-50">{{.Label}}</span>
+                    <span class="text-[13px] leading-4 text-gray-600 group-hover:text-gray-900 lg:min-h-8 dark:text-gray-400 dark:group-hover:text-gray-50">{{.Label}}</span>
                 </a>
               {{end}}
             {{end}}
@@ -117,7 +117,7 @@
 
 {{define "page_tabs_right"}}
 <!-- Overview / Tools switch, sits on the right of the tabs bar -->
-  <div class="my-1.5 inline-flex shrink-0 rounded-md bg-gray-100 p-1 dark:bg-gray-900" x-data="{ view: {{toJSON .View}} }" role="group" aria-label="{{.T.Get "Dashboard view"}}">
+  <div id="tour-dashboard-view" class="my-1.5 inline-flex shrink-0 rounded-md bg-gray-100 p-1 dark:bg-gray-900" x-data="{ view: {{toJSON .View}} }" role="group" aria-label="{{.T.Get "Dashboard view"}}">
     <button type="button" class="inline-flex items-center gap-1.5 rounded px-3 py-1 text-sm font-medium text-gray-500 hover:text-gray-900 aria-pressed:bg-white aria-pressed:text-gray-900 aria-pressed:shadow-sm dark:hover:text-gray-50 dark:aria-pressed:bg-gray-950 dark:aria-pressed:text-gray-50 cursor-pointer" aria-pressed="{{if eq .View "overview"}}true{{else}}false{{end}}" :aria-pressed="(view === 'overview').toString()" @click="view = 'overview'; $dispatch('dashboard-view', 'overview')"><i class="ri-dashboard-line" aria-hidden="true"></i>{{.T.Get "Overview"}}</button>
     <button type="button" class="inline-flex items-center gap-1.5 rounded px-3 py-1 text-sm font-medium text-gray-500 hover:text-gray-900 aria-pressed:bg-white aria-pressed:text-gray-900 aria-pressed:shadow-sm dark:hover:text-gray-50 dark:aria-pressed:bg-gray-950 dark:aria-pressed:text-gray-50 cursor-pointer" aria-pressed="{{if eq .View "tools"}}true{{else}}false{{end}}" :aria-pressed="(view === 'tools').toString()" @click="view = 'tools'; $dispatch('dashboard-view', 'tools')"><i class="ri-apps-2-line" aria-hidden="true"></i>{{.T.Get "Tools"}}</button>
   </div>
@@ -149,7 +149,7 @@
     <div class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-3">
   {{if or .HostingPlanName .IPAddress}}<p class="text-sm text-gray-500">{{.HostingPlanName}}{{if and .HostingPlanName .IPAddress}} · {{end}}{{.IPAddress}}</p>{{end}}
   {{if or .UserAllowed.domains .UserAllowed.autoinstaller}}
-    <div class="flex shrink-0 flex-wrap gap-2">
+    <div id="tour-add-buttons" class="flex shrink-0 flex-wrap gap-2">
       {{if .UserAllowed.domains}}{{if .DomainsFull}}<span role="link" aria-disabled="true" tabindex="0" title="{{.T.Get "You have used all %(n)s domains on your plan." "n" (print .DomainsLimit)}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600"><i class="ri-global-line" aria-hidden="true"></i>{{.T.Get "Add domain"}}</span>{{else}}<a href="/domains/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-global-line" aria-hidden="true"></i>{{.T.Get "Add domain"}}</a>{{end}}{{end}}
       {{if .UserAllowed.autoinstaller}}{{if .SitesFull}}<span role="link" aria-disabled="true" tabindex="0" title="{{.T.Get "You have used all %(n)s websites on your plan." "n" (print .WebsitesLimit)}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600"><i class="ri-add-line" aria-hidden="true"></i>{{.T.Get "New website"}}</span>{{else}}<a href="/auto-installer" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-add-line" aria-hidden="true"></i>{{.T.Get "New website"}}</a>{{end}}{{end}}
     </div>
@@ -159,7 +159,7 @@
   <div class="min-w-0" x-show="view === 'overview'"{{if ne .View "overview"}} style="display: none"{{end}}>
   {{with .PlanTiles}}
   {{/* Planner KPI row, the used number turns yellow from 90% of the limit and red once it's reached */}}
-  <dl aria-label="{{$.T.Get "Plan usage"}}" class="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3 lg:flex lg:flex-wrap lg:justify-end lg:gap-x-10">
+  <dl id="tour-plan-usage" aria-label="{{$.T.Get "Plan usage"}}" class="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3 lg:flex lg:flex-wrap lg:justify-end lg:gap-x-10">
     {{range .}}
     <div>
       <dt class="text-sm text-gray-500">{{.Label}}</dt>
@@ -172,7 +172,7 @@
   {{end}}
   </div>
   <div class="min-w-0 lg:pt-1" x-show="view === 'tools'"{{if ne .View "tools"}} style="display: none"{{end}}>
-  <label class="relative block w-full lg:w-96" data-page-find>
+  <label id="tour-tool-finder" class="relative block w-full lg:w-96" data-page-find>
     <span class="sr-only">{{.T.Get "Find a tool"}}</span>
     <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
     <input type="search" x-model="find" x-ref="find"{{if eq .View "tools"}} autofocus{{end}} placeholder="{{.T.Get "Find a tool: DNS, PHP version, backups..."}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-2 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
@@ -199,7 +199,7 @@
       <div class="flex flex-col bg-white dark:bg-gray-950 lg:col-span-2 [&>[data-widget]+[data-widget]]:border-t [&>[data-widget]+[data-widget]]:border-gray-200 dark:[&>[data-widget]+[data-widget]]:border-gray-800">
       <!-- plans without sites get their first other feature here: emails, databases, FTP, then containers -->
       {{if $root.ShowSites}}
-      <div class="flex flex-col bg-white dark:bg-gray-950" data-widget="sites" x-init="$nextTick(() => { const t = document.getElementById('dash-right-top'); const set = () => { $el.style.minHeight = (open && t && innerWidth >= 1024) ? t.offsetHeight + 'px' : '' }; window.ResizeObserver && t && new ResizeObserver(set).observe(t); $watch('open', set); addEventListener('resize', set); set() })"
+      <div id="dashboard_sites" class="flex flex-col bg-white dark:bg-gray-950" data-widget="sites" x-init="$nextTick(() => { const t = document.getElementById('dash-right-top'); const set = () => { $el.style.minHeight = (open && t && innerWidth >= 1024) ? t.offsetHeight + 'px' : '' }; window.ResizeObserver && t && new ResizeObserver(set).observe(t); $watch('open', set); addEventListener('resize', set); set() })"
            x-data="{ open: (function () { try { return localStorage.getItem('dash_widget_sites') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('dash_widget_sites', this.open ? 'open' : 'closed') } catch (e) {} } }">
         <div class="flex items-center justify-between gap-4 px-6 py-4" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
           <div class="min-w-0">
@@ -266,7 +266,7 @@
         </div>
       </div>
       {{else}}{{with $root.AltList}}
-      <div class="flex flex-col bg-white dark:bg-gray-950" data-widget="sites" x-init="$nextTick(() => { const t = document.getElementById('dash-right-top'); const set = () => { $el.style.minHeight = (open && t && innerWidth >= 1024) ? t.offsetHeight + 'px' : '' }; window.ResizeObserver && t && new ResizeObserver(set).observe(t); $watch('open', set); addEventListener('resize', set); set() })"
+      <div id="dashboard_sites" class="flex flex-col bg-white dark:bg-gray-950" data-widget="sites" x-init="$nextTick(() => { const t = document.getElementById('dash-right-top'); const set = () => { $el.style.minHeight = (open && t && innerWidth >= 1024) ? t.offsetHeight + 'px' : '' }; window.ResizeObserver && t && new ResizeObserver(set).observe(t); $watch('open', set); addEventListener('resize', set); set() })"
            x-data="{ open: (function () { try { return localStorage.getItem('dash_widget_sites') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('dash_widget_sites', this.open ? 'open' : 'closed') } catch (e) {} } }">
         <div class="flex items-center justify-between gap-4 px-6 py-4" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
           <div class="min-w-0">
@@ -316,7 +316,7 @@
         </div>
       </div>
       {{end}}{{end}}
-      <div class="flex flex-col bg-white dark:bg-gray-950" data-widget="usage" x-init="$nextTick(() => { const h = document.getElementById('dash-right-howto'); const set = () => { const q = document.querySelector('[data-widget=quick]'); $el.style.minHeight = (open && h && innerWidth >= 1024) ? Math.max(0, h.offsetHeight - (q ? q.offsetHeight : 0)) + 'px' : '' }; window.ResizeObserver && h && new ResizeObserver(set).observe(h); $watch('open', set); addEventListener('resize', set); set() })"
+      <div id="dashboard_usage" class="flex flex-col bg-white dark:bg-gray-950" data-widget="usage" x-init="$nextTick(() => { const h = document.getElementById('dash-right-howto'); const set = () => { const q = document.querySelector('[data-widget=quick]'); $el.style.minHeight = (open && h && innerWidth >= 1024) ? Math.max(0, h.offsetHeight - (q ? q.offsetHeight : 0)) + 'px' : '' }; window.ResizeObserver && h && new ResizeObserver(set).observe(h); $watch('open', set); addEventListener('resize', set); set() })"
            x-data="{ open: (function () { try { return localStorage.getItem('dash_widget_usage') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('dash_widget_usage', this.open ? 'open' : 'closed') } catch (e) {} } }">
         <div class="flex items-center justify-between gap-4 px-6 py-4" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
           <div class="min-w-0">
@@ -385,7 +385,7 @@
         </div>
       </div>
       {{with $root.QuickActions}}
-      <div class="flex flex-col bg-white dark:bg-gray-950" data-widget="quick"
+      <div id="dashboard_quick" class="flex flex-col bg-white dark:bg-gray-950" data-widget="quick"
            x-data="{ open: (function () { try { return localStorage.getItem('dash_widget_quick') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('dash_widget_quick', this.open ? 'open' : 'closed') } catch (e) {} } }">
         <div class="flex items-center justify-between gap-4 px-6 py-4" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
           <div class="min-w-0">
@@ -421,7 +421,7 @@
 
     <!-- tools: the sortable, collapsible sections with a find box over them -->
     <div class="space-y-4" x-show="view === 'tools'"{{if ne .View "tools"}} style="display: none"{{end}} @keydown.slash.window="if (view === 'tools' && !$event.target.closest('input, textarea, select, [contenteditable]')) { $event.preventDefault(); $refs.find.focus() }">
-      <div id="dashboard-sortable-area" class="flex flex-col space-y-4">
+      <div id="dashboard-sortable-area" class="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
         {{range .Sections}}
         <div id="wrapper-{{.Key}}" data-id="{{.Key}}" data-labels="{{range .Items}}{{lower .Label}}|{{end}}" x-show="!find || $el.dataset.labels.includes(find.toLowerCase())">
           {{if eq $root.CustomSectionPosition (printf "before_%s" .Key)}}

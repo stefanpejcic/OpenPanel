@@ -213,6 +213,17 @@ var WebsiteAppKeys = []string{"wordpress", "drupal", "joomla", "opencart", "next
 
 // sidebarAreas is the sidebar in display order
 var sidebarAreas = []navArea{
+	// mautic/flarum are excluded, legacy code slated for removal entirely, not ported here per user decision
+	{label: "Websites", icon: websitesIcon, menuID: "websites-menu", match: isWebsitesPath,
+		keys: WebsiteAppKeys,
+		tabs: func(g navGate, path string, _ TabContext) []NavLink {
+			tabs := []NavLink{{Href: "/sites", Label: "Sites", Active: isWebsitesPath(path) && !strings.HasPrefix(path, "/wordpress") && !isAppInstallPath(path) && !isGitPath(path)}}
+			tabs = g.add(tabs, "wordpress", "/wordpress", "WordPress", strings.HasPrefix(path, "/wordpress"), "")
+			tabs = g.add(tabs, "autoinstaller", "/auto-installer", "Install app", isAppInstallPath(path), "")
+			tabs = g.add(tabs, "git", "/git", "Git", isGitPath(path), "")
+			return tabs
+		}},
+
 	{label: "Domains", icon: domainsIcon, menuID: "domains-menu", keys: []string{"domains"}, match: isDomainsPath,
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
 			if !g.allowed["domains"] {
@@ -224,17 +235,6 @@ var sidebarAreas = []navArea{
 			tabs = g.add(tabs, "dynamic_dns", "/domains/dynamic-dns", "Dynamic DNS", strings.HasPrefix(path, "/domains/dynamic-dns"), "")
 			tabs = g.add(tabs, "ssl", "/domains/ssl", "SSL certificates", strings.HasPrefix(path, "/domains/ssl"), "")
 			tabs = g.add(tabs, "redirects", "/domains/redirect", "Redirects", strings.HasPrefix(path, "/domains/redirect"), "")
-			return tabs
-		}},
-
-	// mautic/flarum are excluded, legacy code slated for removal entirely, not ported here per user decision
-	{label: "Websites", icon: websitesIcon, menuID: "websites-menu", match: isWebsitesPath,
-		keys: WebsiteAppKeys,
-		tabs: func(g navGate, path string, _ TabContext) []NavLink {
-			tabs := []NavLink{{Href: "/sites", Label: "Sites", Active: isWebsitesPath(path) && !strings.HasPrefix(path, "/wordpress") && !isAppInstallPath(path) && !isGitPath(path)}}
-			tabs = g.add(tabs, "wordpress", "/wordpress", "WordPress", strings.HasPrefix(path, "/wordpress"), "")
-			tabs = g.add(tabs, "autoinstaller", "/auto-installer", "Install app", isAppInstallPath(path), "")
-			tabs = g.add(tabs, "git", "/git", "Git", isGitPath(path), "")
 			return tabs
 		}},
 

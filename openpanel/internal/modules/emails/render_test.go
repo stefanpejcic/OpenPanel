@@ -134,13 +134,18 @@ func TestRenderDeletePage(t *testing.T) {
 
 func TestRenderInfoPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
-	data := InfoPageData{LayoutData: baseLayout(mgr, "/emails/info/a@b.com"), Address: "a@b.com", Scheme: "https", Hostname: "mail.example.com"}
+	data := InfoPageData{LayoutData: baseLayout(mgr, "/emails/info/a@b.com"), Address: "a@b.com", Scheme: "https", Hostname: "mail.example.com",
+		Created: CreatedMailbox{Address: "a@b.com", Info: true, Conn: mailConnectionFor(true, "mail.example.com")}}
 	w := httptest.NewRecorder()
 	if err := infoPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)
 	}
-	if !strings.Contains(w.Body.String(), "mail.example.com") {
+	body := w.Body.String()
+	if !strings.Contains(body, "mail.example.com") {
 		t.Error("expected hostname in body")
+	}
+	if strings.Contains(body, "Your mailbox is ready") {
+		t.Error("the info page shouldn't say the mailbox was just created")
 	}
 }
 

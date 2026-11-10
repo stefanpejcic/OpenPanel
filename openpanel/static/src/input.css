@@ -313,8 +313,8 @@ html .driver-popover-footer button {
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 html .driver-popover-footer button:hover { background-color: var(--color-gray-50); }
-html .driver-popover-footer .driver-popover-next-btn { border-color: transparent; background-color: var(--color-blue-500); color: var(--color-white); }
-html .driver-popover-footer .driver-popover-next-btn:hover { background-color: var(--color-blue-600); }
+html .driver-popover-footer .driver-popover-next-btn { border-color: var(--color-black); background-color: var(--color-black); color: var(--color-white); }
+html .driver-popover-footer .driver-popover-next-btn:hover { background-color: var(--color-gray-800); }
 html .driver-popover-close-btn { color: var(--color-gray-400); border-radius: var(--radius-sm); }
 html .driver-popover-close-btn:hover { color: var(--color-gray-900); }
 html .driver-popover-arrow-side-left { border-left-color: var(--color-white); }
@@ -326,12 +326,41 @@ html.dark .driver-popover-title { color: var(--color-gray-50); }
 html.dark .driver-popover-description { color: var(--color-gray-400); }
 html.dark .driver-popover-footer button { border-color: var(--color-gray-800); background-color: var(--color-gray-950); color: var(--color-gray-50); }
 html.dark .driver-popover-footer button:hover { background-color: var(--color-gray-900); }
-html.dark .driver-popover-footer .driver-popover-next-btn { border-color: transparent; background-color: var(--color-blue-500); color: var(--color-white); }
+html.dark .driver-popover-footer .driver-popover-next-btn { border-color: var(--color-gray-700); background-color: var(--color-gray-50); color: var(--color-gray-950); }
+html.dark .driver-popover-footer .driver-popover-next-btn:hover { background-color: var(--color-white); }
 html.dark .driver-popover-close-btn:hover { color: var(--color-gray-50); }
 html.dark .driver-popover-arrow-side-left { border-left-color: var(--color-raised); }
 html.dark .driver-popover-arrow-side-right { border-right-color: var(--color-raised); }
 html.dark .driver-popover-arrow-side-top { border-top-color: var(--color-raised); }
 html.dark .driver-popover-arrow-side-bottom { border-bottom-color: var(--color-raised); }
+
+/* dark mode surfaces in PR 1281's palette: page, sidebar and flush areas on #14141f, cards on #1d1e30 */
+html.dark {
+  --color-gray-950: #14141f;
+  --color-gray-925: #191a2b;
+  --color-gray-900: #1d1e30;
+  --color-gray-800: #2b2e47;
+  --color-gray-700: #3a3e5c;
+  --color-raised: #1d1e30;
+}
+html.dark .rounded-md.border.bg-white { background-color: #1d1e30; }
+/* on the dashboard only the 2FA card keeps the card colour, info and how-to sit flush like the other widgets */
+html.dark :is(#dashboard_info, #dashboard_howto) { background-color: var(--color-gray-950); }
+
+/* dark mode buttons and the 2FA nudge take PR 1281's colours: cyan primary, cyan-tinted ghost secondary */
+html.dark :is(a, button, span[role="link"]).bg-black:not(:disabled):not([aria-disabled="true"]) { background-color: #47ebeb; border-color: #47ebeb; color: #14141f; }
+html.dark :is(a, button).bg-black:not(:disabled):not([aria-disabled="true"]):hover { background-color: #47ebeb; filter: brightness(1.08); }
+html.dark :is(a, button).bg-white.border-gray-300:not(:disabled):not([aria-disabled="true"]) { background-color: rgb(71 235 235 / 0.1); border-color: transparent; color: #47ebeb; }
+html.dark :is(a, button).bg-white.border-gray-300:not(:disabled):not([aria-disabled="true"]):hover { background-color: color-mix(in srgb, #47ebeb 18%, transparent); }
+html.dark #sidebar a[data-active="true"] { background-color: rgb(71 235 235 / 0.1); color: #47ebeb; box-shadow: none; --tw-ring-color: transparent; }
+html.dark #sidebar a[data-active="true"] i { color: #47ebeb; }
+html.dark .bg-blue-50.text-blue-500 { background-color: rgb(71 235 235 / 0.1); color: #47ebeb; }
+/* links and active tabs: cyan instead of blue in dark mode */
+html.dark a:is(.text-blue-500, .text-blue-600, .dark\:text-blue-500, .dark\:text-blue-400), html.dark button:is(.text-blue-500, .text-blue-600), html.dark [role="tab"].text-blue-500 { color: #47ebeb; }
+html.dark :is(a, [role="tab"]).border-blue-500 { border-color: #47ebeb; }
+html.dark #dashboard_twofa[data-off] { position: relative; overflow: hidden; }
+html.dark #dashboard_twofa[data-off]::before { content: ""; position: absolute; right: -240px; top: -280px; width: 480px; height: 480px; border-radius: 50%; pointer-events: none; background: radial-gradient(closest-side, color-mix(in srgb, #47ebeb 14%, transparent), transparent); }
+html.dark #dashboard_twofa[data-off] > * { position: relative; }
 
 /* outside the layers on purpose: beats the line-height text-base puts on an icon, so an icon never makes its button taller */
 .inline-flex > i[class^="ri-"], .inline-flex > i[class*=" ri-"] { line-height: 1; }
