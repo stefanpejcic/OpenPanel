@@ -1703,7 +1703,7 @@ Updated menu_style to modern
 
 ### `applications_dashboard_items`
 
-Items shown in the **Websites** section of the OpenPanel dashboard, in this order, separated by spaces or commas. Available: `websites`, `wordpress`, `autoinstaller`, `git`, and the apps `joomla`, `drupal`, `website_builder`, `prestashop`, `opencart`, `phpbb`, `flarum`, `mediawiki`, `dokuwiki`, `sofawiki`, `matomo`, `nextcloud`, `tinyphotogallery`, `tinyfilemanager`, `moodle`, `ojs`, `nodejs`, `python`, `ruby`, `java`, `n8n`, `php`, `docker`. Unknown items are ignored and users still only see items for features on their plan. Empty shows the default items. Default is `websites wordpress autoinstaller`.
+Items shown in the **Websites** section of the OpenPanel dashboard, in this order, separated by spaces or commas. Available: `websites`, `wordpress`, `autoinstaller`, `git`, and the apps `joomla`, `drupal`, `website_builder`, `prestashop`, `opencart`, `phpbb`, `flarum`, `mediawiki`, `dokuwiki`, `sofawiki`, `matomo`, `nextcloud`, `tinyphotogallery`, `tinyfilemanager`, `moodle`, `ojs`, `nodejs`, `python`, `ruby`, `java`, `php`, `docker`. Unknown items are ignored and users still only see items for features on their plan. Empty shows the default items. Default is `websites wordpress autoinstaller`.
 
 **Check current value**:
 ```bash

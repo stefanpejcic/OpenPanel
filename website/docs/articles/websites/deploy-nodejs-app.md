@@ -141,6 +141,5 @@ More: [Node.js applications](/docs/panel/applications/nodejs/).
 
 ## Related
 
-- [Self-host n8n](/docs/articles/apps/install-n8n/)
 - [Deploy a Flask app](/docs/articles/websites/deploy-flask-app/)
 - [Deploy a Ruby app](/docs/articles/websites/deploy-ruby-app/)

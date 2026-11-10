@@ -166,7 +166,7 @@ When a domain is chosen in the **Domain** step of the form, OpenPanel wires it u
 - A reverse proxy from the domain to `name:port` is added to the domain's Apache, Nginx, OpenResty or OpenLiteSpeed configuration, with WebSocket support, and the web server is restarted.
 - The domain is added to [Site Manager](/docs/panel/applications/sites/) as a **Docker containers** site. Its **Manage** button opens the container's **Edit** page, and **Delete** deletes the container.
 
-All requests to the domain go to the container, so any website files on that domain are no longer served. A domain can't be used if it already points to another container, has a NodeJS, Python, Ruby, Java or n8n application at its root, or has sites in subfolders.
+All requests to the domain go to the container, so any website files on that domain are no longer served. A domain can't be used if it already points to another container, has a NodeJS, Python, Ruby or Java application at its root, or has sites in subfolders.
 
 The **Edit** page of the container shows which domain and port it's reachable on. A domain can only be set when the container is created.
 

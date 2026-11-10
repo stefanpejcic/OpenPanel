@@ -91,5 +91,4 @@ More: [Matomo in OpenPanel](/docs/panel/applications/matomo/).
 ## Related
 
 - [View visitor statistics (GoAccess)](/docs/panel/statistics/goaccess/)
-- [Self-host n8n](/docs/articles/apps/install-n8n/)
 - [All installable apps](/docs/panel/applications/autoinstaller/)

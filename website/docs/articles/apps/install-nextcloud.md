@@ -124,6 +124,5 @@ More: [Nextcloud in OpenPanel](/docs/panel/applications/nextcloud/).
 
 ## Related
 
-- [Self-host n8n](/docs/articles/apps/install-n8n/)
 - [Configure backups](/docs/panel/backups/backups/)
 - [All installable apps](/docs/panel/applications/autoinstaller/)

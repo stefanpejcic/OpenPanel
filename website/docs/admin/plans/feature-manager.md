@@ -102,7 +102,6 @@ Use the search box to filter features by name or description, and **Enable all**
 | Ruby Applications | `/ruby` | Enterprise | Containerized Ruby applications can be setup from the Autoinstaller. |
 | Java Applications | `/java` | Enterprise | Containerized Java applications can be setup from the Autoinstaller. |
 | AutoInstaller | `/auto-installer` | Community | Users can use the Auto-Installer page to manage websites and install applications. |
-| n8n | `/n8n` | Enterprise | n8n can be set up from the Autoinstaller. |
 | Disk Usage Explorer | `/disk-usage` | Enterprise | Users can access the Disk Usage page to browse current disk usage per directory. |
 | Inodes Explorer | `/inodes-explorer` | Enterprise | Users can access the Inodes Usage page to browse current inode usage per directory. |
 | Resources Usage | `/server/usage` | Community | Docker stats are collected for containers and users can browse the data on the Resource Usage page. |

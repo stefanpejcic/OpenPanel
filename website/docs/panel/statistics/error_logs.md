@@ -18,7 +18,7 @@ Errors are collected from:
 * **PHP**: warnings, notices, deprecations, fatal errors with their stack trace, and messages written with `error_log()`, from every PHP version you use.
 * **Web server**: errors and warnings from Apache, Nginx, OpenResty, OpenLiteSpeed or LiteSpeed. With OpenLiteSpeed or LiteSpeed, PHP runs inside the web server, so PHP errors are listed under that service instead of a PHP version.
 * **Database**: errors and warnings from MySQL, MariaDB or PostgreSQL. Startup messages are left out.
-* **Applications**: errors from Node.js, Python, Ruby, Java and n8n applications, and from containers connected to a domain, with their stack traces. Applications print all their output, so only lines that look like errors or warnings are shown.
+* **Applications**: errors from Node.js, Python, Ruby and Java applications, and from containers connected to a domain, with their stack traces. Applications print all their output, so only lines that look like errors or warnings are shown.
 * **HTTP 5xx responses**: requests to your domains that ended with a 500, 502, 503 or 504 error.
 
 Each row shows the time in your browser's timezone, the severity, the service it came from, the website it belongs to and the message. Click a row to see the whole message with its stack trace. Click a column name to sort by it, severity sorts from Critical down to Info.

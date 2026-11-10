@@ -790,7 +790,7 @@ When disabled:
 
 
 ## AutoInstaller
-The **`autoinstaller`** module allows users to open the *Install App* page. Each application on it (WordPress, Website Builder, Drupal, NodeJS, Python, n8n, etc.) is shown only when its own module is enabled.
+The **`autoinstaller`** module allows users to open the *Install App* page. Each application on it (WordPress, Website Builder, Drupal, NodeJS, Python, etc.) is shown only when its own module is enabled.
 
 When enabled:
 * Users can access the [**Websites > Install App** page](/docs/panel/applications/autoinstaller/).
@@ -1013,22 +1013,6 @@ When enabled:
 When disabled:
 * phpBB is not available on the Autoinstaller page.
 * phpBB forums can not be managed via Openpanel.
-
-## n8n
-
-The **`n8n`** module allows users to install [n8n](https://n8n.io/) workflow automation in its own container on one of their domains.
-
-When enabled:
-* n8n is available on the Autoinstaller page.
-* Users can [install n8n using Auto Installer](/docs/panel/applications/autoinstaller/) as a container.
-* Users can manage n8n applications using Site Manager.
-
-When disabled:
-* n8n is not available on the Autoinstaller page.
-
-How-to guides:
-* To **self-host n8n step by step** refer to [*How-to Guides > How to Self-Host n8n*](/docs/articles/apps/install-n8n/).
-
 
 ## php.ini editor
 The **`php_ini`** module allows users to edit the PHP.INI files using a text editor.

@@ -42,7 +42,7 @@ Example output:
 ```
 187.40% 912MB / 2GB     john/php-fpm-8.3
  64.10% 1.1GB / 2GB     john/mariadb
-  3.29% 327MB / 1GB     shop/n8n
+  3.29% 327MB / 1GB     shop/nodejsapp
 ```
 
 Here, account `john` is the culprit - its PHP and database containers.
@@ -63,7 +63,7 @@ The container name tells you what's busy:
 | `mysql` / `mariadb` | Slow or unindexed queries, a huge table, a WooCommerce search |
 | `apache` / `nginx` / `openresty` / `openlitespeed` | Lots of requests - traffic spike or bots |
 | `cron` | A cron job that runs too often or never finishes |
-| Node.js / Python / n8n app | The app itself - check its logs |
+| Node.js / Python app | The app itself - check its logs |
 
 Look inside the container:
 

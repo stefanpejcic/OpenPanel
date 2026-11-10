@@ -932,7 +932,7 @@ const tableData = [
             {
                 description: "AutoInstaller Apps",
                 community: <TableText>NextCloud, Matomo, phpBB, DokuWiki, TinyFileManager, TinyPhotoGallery</TableText>,
-                enterprise: <TableText>All Community apps + Joomla, Drupal, Moodle, MediaWiki, OpenCart, PrestaShop, Flarum, SofaWiki, OJS, n8n</TableText>,
+                enterprise: <TableText>All Community apps + Joomla, Drupal, Moodle, MediaWiki, OpenCart, PrestaShop, Flarum, SofaWiki, OJS</TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
