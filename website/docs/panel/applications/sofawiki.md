@@ -10,7 +10,7 @@ Install and manage [SofaWiki](https://github.com/bellenuit/sofawiki) sites in an
 
 ## Install SofaWiki
 
-Navigate to **OpenPanel > Websites > Install App** and click **Install SofaWiki**.
+Navigate to **OpenPanel > Websites > Install app** and click **Install SofaWiki**.
 
 ![Install SofaWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/sofawiki-form.png#gh-light-mode-only)
 ![Install SofaWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/sofawiki-form_dark.png#gh-dark-mode-only)
@@ -26,7 +26,7 @@ Installs are blocked on domains configured for PHP 8.0 or newer: SofaWiki's own 
 
 ## Manage a SofaWiki site
 
-Every SofaWiki install shows up on the general **Site Manager** page (`/sites`) alongside your other websites. Click **Manage** on a SofaWiki site to open its overview page:
+Every SofaWiki install shows up on the general **Site manager** page (`/sites`) alongside your other websites. Click **Manage** on a SofaWiki site to open its overview page:
 
 * **Screenshot** and **SofaWiki / PHP / Created** status cards. SofaWiki always reports as "master" since there is no real versioning upstream.
 * **Files** – Docroot path, a File Manager shortcut, and live folder size.
@@ -44,5 +44,5 @@ The **Backups** tab generates and restores files-only backups (there is no datab
 
 ### Remove
 
-The **Remove** tab offers both **Detach** (removes the site from Site Manager without touching any files — use Scan to re-add it later) and **Delete Application** (deletes every file in the docroot and removes it from Site Manager). Deletion cannot be undone.
+The **Remove** tab offers both **Detach** (removes the site from Site Manager without touching any files — use Scan to re-add it later) and **Delete application** (deletes every file in the docroot and removes it from Site Manager). Deletion cannot be undone.
 

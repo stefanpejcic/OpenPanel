@@ -21,8 +21,8 @@ On **Account > AI Assistant (MCP)** page in the UI, you can generate and manage 
 
 ## 1. Generate a token
 
-1. Go to **Account → MCP** (`/account/mcp`).
-2. Give the token a name (e.g. `Laptop - Claude Desktop`) and click **Generate new token**.
+1. Go to **Account > AI Assistant (MCP)** (`/account/mcp`).
+2. Click **Generate token**, give the token a name (e.g. `Laptop - Claude Desktop`) and click **Generate new token**.
 3. Copy the token immediately: it's only shown once, right after creation.
 
 When generating a token you can also set:

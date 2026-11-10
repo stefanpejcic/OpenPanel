@@ -71,5 +71,5 @@ The button turns into **Confirm** with a 5-second countdown. Click it again befo
 :::
 
 :::info
-The **New Database** and **Database Wizard** actions are only available while the PostgreSQL service is running.
+The **New database** and **Database wizard** actions are only available while the PostgreSQL service is running.
 :::

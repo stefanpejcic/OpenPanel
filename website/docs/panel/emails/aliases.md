@@ -14,7 +14,7 @@ Aliases are managed via Postfix. Each alias has one source address and one or mo
 ## Creating an Alias
 
 1. Go to **OpenPanel > Email > Aliases**.
-2. Click **New Alias**.
+2. Click **New alias**.
 3. Fill in the form:
 
    | Field | Description |
@@ -23,7 +23,7 @@ Aliases are managed via Postfix. Each alias has one source address and one or mo
    | **Alias address** | The local part of the alias (e.g. `info` → `info@yourdomain.com`) |
    | **Destination address** | The address that mail will be forwarded to |
 
-4. Click **Create Alias**.
+4. Click **Create alias**.
 
 ![Create an Alias form with the domain, alias address and destination address fields](/img/openpanel-screenshots/emails/aliases_new-form.png#gh-light-mode-only)
 ![Create an Alias form with the domain, alias address and destination address fields](/img/openpanel-screenshots/emails/aliases_new-form_dark.png#gh-dark-mode-only)
@@ -34,7 +34,7 @@ The destination can be any valid email address, either on this server or externa
 
 Click **Manage** next to any alias to open its detail page. From there you can:
 
-- **Add a destination**: enter an email address and click **Add Destination**. A single alias can forward to multiple addresses simultaneously.
+- **Add a destination**: enter an email address and click **Add destination**. A single alias can forward to multiple addresses simultaneously.
 - **Remove a destination**: click **Remove** next to any destination. If all destinations are removed the alias stops delivering mail.
 - **Delete the alias**: permanently removes the alias address and all its destinations. This cannot be undone.
 

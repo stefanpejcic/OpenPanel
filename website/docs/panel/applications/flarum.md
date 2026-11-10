@@ -10,7 +10,7 @@ Install and manage [Flarum](https://flarum.org/) forums in an existing domain, v
 
 ## Install Flarum
 
-Navigate to **OpenPanel > Websites > Install App** and click **Install Flarum**.
+Navigate to **OpenPanel > Websites > Install app** and click **Install Flarum**.
 
 ![Install Flarum form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/flarum-form.png#gh-light-mode-only)
 ![Install Flarum form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/flarum-form_dark.png#gh-dark-mode-only)
@@ -26,7 +26,7 @@ Behind the scenes, this runs `composer create-project flarum/flarum` into the do
 
 ## Manage a Flarum forum
 
-Every Flarum install shows up on the general **Site Manager** page (`/sites`) alongside your other websites. Click **Manage** on a Flarum site to open its overview page:
+Every Flarum install shows up on the general **Site manager** page (`/sites`) alongside your other websites. Click **Manage** on a Flarum site to open its overview page:
 
 * **Screenshot** and **Flarum / PHP / MariaDB / Created** status cards, matching the other CMS managers.
 * **Files** – Docroot path, a File Manager shortcut, and live folder size.
@@ -55,5 +55,5 @@ The **Backups** tab generates on-demand backups (database, files, or both) into 
 
 ### Remove
 
-The **Remove** tab's **Delete Application** button fully uninstalls the site: drops the database and database user, deletes every file in the docroot, and removes it from Site Manager. This cannot be undone.
+The **Remove** tab's **Delete application** button fully uninstalls the site: drops the database and database user, deletes every file in the docroot, and removes it from Site Manager. This cannot be undone.
 

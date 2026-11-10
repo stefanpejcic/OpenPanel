@@ -61,7 +61,7 @@ To delete a PostgreSQL user, click the **Delete** button next to the user in the
 :::
 
 :::info
-Built-in PostgreSQL roles (such as `postgres` and the predefined `pg_*` roles) are marked as **System User** and cannot be edited or deleted.
+Built-in PostgreSQL roles (such as `postgres` and the predefined `pg_*` roles) are marked as **System user** and cannot be edited or deleted.
 :::
 
 ## Bulk Actions

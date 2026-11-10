@@ -12,7 +12,7 @@ Step-by-step guide: [Deploy a Laravel app (Composer, scheduler and queue workers
 
 ## Install a PHP Application
 
-Navigate to **OpenPanel > Websites > Install App** and click **Install PHP Application**.
+Navigate to **OpenPanel > Websites > Install app** and click **Install PHP application**.
 
 ![Install PHP Application form with the domain and folder, and an optional Composer project to create](/img/openpanel-screenshots/applications/php_install-form.png#gh-light-mode-only)
 ![Install PHP Application form with the domain and folder, and an optional Composer project to create](/img/openpanel-screenshots/applications/php_install-form_dark.png#gh-dark-mode-only)
@@ -32,7 +32,7 @@ Behind the scenes, this starts the domain's `php-fpm-<version>` container if it 
 
 ## Manage a PHP Application
 
-Every PHP application shows up on the general **Site Manager** page (`/sites`) alongside your other websites. Click it to open its manage page, which has four tabs. All actions run against the domain's *current* PHP-FPM container, following whatever version PHP Selector currently has set.
+Every PHP application shows up on the general **Site manager** page (`/sites`) alongside your other websites. Click it to open its manage page, which has four tabs. All actions run against the domain's *current* PHP-FPM container, following whatever version PHP Selector currently has set.
 
 ### Overview
 
@@ -55,5 +55,5 @@ The full history of every Composer install/update run for the application, each 
 
 ### Remove
 
-**Delete Application** removes the application from Site Manager and clears its stored `.env` settings. Docroot files and any database are left untouched (the same "all website data remains" behavior the Node.js/Python installers use), so you can still access them manually or add the app again later. Click **Confirm delete** to proceed.
+**Delete application** removes the application from Site Manager and clears its stored `.env` settings. Docroot files and any database are left untouched (the same "all website data remains" behavior the Node.js/Python installers use), so you can still access them manually or add the app again later. Click **Confirm delete** to proceed.
 

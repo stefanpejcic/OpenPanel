@@ -11,7 +11,7 @@ This interface displays all currently active PostgreSQL queries (connections) fr
 
 Checking the currently running queries is useful for identifying slow queries that slow down your application.
 
-Use the search box to filter by database, user or query. Click **Refresh Processes** to reload the list.
+Use the search box to filter by database, user or query. Click **Refresh processes** to reload the list.
 
 ## Kill a query
 

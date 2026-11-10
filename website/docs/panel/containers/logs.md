@@ -16,7 +16,7 @@ To access this feature:
 ## Accessing Logs
 
 1. In the OpenPanel menu, go to **Containers > Logs**.
-2. Click on **Select Container** to display a list of all available services.
+2. Click on **Select container** to display a list of all available services.
 3. Select the service you want to view logs for.
 4. The log output for the selected container will appear below.
 
@@ -29,5 +29,5 @@ You can optionally adjust the number of log lines shown using the dropdown menu 
 
 
 :::tip
-Pages that manage a single service, like **MySQL**, **Redis** or **Web Server Config**, also have **Terminal** and **Logs** tabs that open that service's logs directly, without leaving the page's section.
+Pages that manage a single service, like **MySQL**, **Redis** or **Web server config**, also have **Terminal** and **Logs** tabs that open that service's logs directly, without leaving the page's section.
 :::

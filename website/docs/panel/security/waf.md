@@ -46,7 +46,7 @@ Click an action, confirm it, and it runs on the selected domains one after anoth
 
 ## Manage domain
 
-Clicking the **Manage Rules** button next to a domain opens the firewall page for that domain. It has five parts: protection status, protection level, recent blocked requests, app profiles and advanced rule exceptions.
+Clicking the **Manage rules** button next to a domain opens the firewall page for that domain. It has five parts: protection status, protection level, recent blocked requests, app profiles and advanced rule exceptions.
 
 ![WAF page for a domain with protection status, protection level, recent blocked requests, app profiles and advanced rule exceptions](/img/openpanel-screenshots/advanced/waf_domain-page.png#gh-light-mode-only)
 ![WAF page for a domain with protection status, protection level, recent blocked requests, app profiles and advanced rule exceptions](/img/openpanel-screenshots/advanced/waf_domain-page_dark.png#gh-dark-mode-only)
@@ -120,7 +120,7 @@ Rules can also be disabled manually by ID, in the **Disabled IDs** field (`SecRu
 ![Disabled IDs field of the WAF settings with rule IDs 942100 and 920350](/img/openpanel-screenshots/advanced/waf_domain-ids.png#gh-light-mode-only)
 ![Disabled IDs field of the WAF settings with rule IDs 942100 and 920350](/img/openpanel-screenshots/advanced/waf_domain-ids_dark.png#gh-dark-mode-only)
 
-Or by tag name, in the **Disabled Tags** field (`SecRuleRemoveByTag`):
+Or by tag name, in the **Disabled tags** field (`SecRuleRemoveByTag`):
 
 ![Disabled Tags field of the WAF settings with the attack-sqli tag](/img/openpanel-screenshots/advanced/waf_domain-tags.png#gh-light-mode-only)
 ![Disabled Tags field of the WAF settings with the attack-sqli tag](/img/openpanel-screenshots/advanced/waf_domain-tags_dark.png#gh-dark-mode-only)
@@ -132,7 +132,7 @@ The OWASP Core Rule Set is enabled by default for all newly added domains.
 
 ## WAF Logs
 
-WAF logs can be viewed by clicking the **View Logs** button for domain.
+WAF logs can be viewed by clicking the **View logs** button for domain.
 
 ![WAF Logs page with the dropdown to choose the domain whose firewall log to view](/img/openpanel-screenshots/advanced/waf_logs-page.png#gh-light-mode-only)
 ![WAF Logs page with the dropdown to choose the domain whose firewall log to view](/img/openpanel-screenshots/advanced/waf_logs-page_dark.png#gh-dark-mode-only)

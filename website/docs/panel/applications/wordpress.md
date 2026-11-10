@@ -46,7 +46,7 @@ Then fill in the form:
 - WordPress version
 
 
-Click **Start Installation** and you’re done.
+Click **Start installation** and you’re done.
 
 ![Install WordPress form with site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/wp_install-form.png#gh-light-mode-only)
 ![Install WordPress form with site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/wp_install-form_dark.png#gh-dark-mode-only)
@@ -101,13 +101,13 @@ Tick the checkbox of one or more sites, or the checkbox in the table header to s
 | **Detach** | Removes the selected sites from WordPress Manager, their files and databases are kept. |
 | **Uninstall** | Permanently deletes the selected sites, including their files and databases. |
 
-Bulk actions are in the **Table view**, click **Switch to Table view** if the sites are shown as cards.
+Bulk actions are in the **Table view**, click **Switch to table view** if the sites are shown as cards.
 
 Click an action, confirm it, and it runs on the selected sites one after another. When it's done the page reloads with a notice listing the sites it worked for, or which ones failed and why.
 
 ### Refresh Website Data
 
-If you’ve made manual changes to your site (like updating WordPress core or changing the admin email), click **Refresh Data** to sync everything with WP Manager.
+If you’ve made manual changes to your site (like updating WordPress core or changing the admin email), click **Refresh data** to sync everything with WP Manager.
 
 ![Refresh Data button on the WordPress Manager page](/img/openpanel-screenshots/applications/wp_manager-refresh.png#gh-light-mode-only)
 ![Refresh Data button on the WordPress Manager page](/img/openpanel-screenshots/applications/wp_manager-refresh_dark.png#gh-dark-mode-only)
@@ -130,7 +130,7 @@ Switch views anytime using a button.
 
 ### Auto Login to wp-admin
 
-Use **Login as Admin** for one-click secure access to your WordPress dashboard — no password needed.
+Use **Login as admin** for one-click secure access to your WordPress dashboard — no password needed.
 
 ![Site header with the Live Preview and Login as Admin buttons](/img/openpanel-screenshots/applications/wordpress-header.png#gh-light-mode-only)
 ![Site header with the Live Preview and Login as Admin buttons](/img/openpanel-screenshots/applications/wordpress-header_dark.png#gh-dark-mode-only)
@@ -140,7 +140,7 @@ Use **Login as Admin** for one-click secure access to your WordPress dashboard �
 Preview your site even before your domain is connected or SSL is ready.
 Temporary links last 15 minutes.
 
-Click **Live Preview** to generate one:
+Click **Live preview** to generate one:
 
 
 ### Screenshot
@@ -150,8 +150,8 @@ Need it sooner? Click the refresh icon over the screenshot.
 
 ### Versions
 
-* **WordPress Version** – The WordPress version is retrieved from the database and verified via an AJAX request to the website itself, ensuring the displayed version is accurate. If an update is available, a badge will appear next to the version number.
-* **PHP Version** – The PHP version is read from the domain’s VirtualHost configuration file, guaranteeing that the version shown matches the one actually configured for the domain.
+* **WordPress version** – The WordPress version is retrieved from the database and verified via an AJAX request to the website itself, ensuring the displayed version is accurate. If an update is available, a badge will appear next to the version number.
+* **PHP version** – The PHP version is read from the domain’s VirtualHost configuration file, guaranteeing that the version shown matches the one actually configured for the domain.
 * **MySQL/MariaDB Version** – Displays whether the site uses MySQL or MariaDB, along with the version number obtained directly from the terminal.
 * **Created** – Indicates the date and time when the website was first added to WP Manager.
 
@@ -308,7 +308,7 @@ For details, check [Debugging in WordPress](https://wordpress.org/documentation/
 ![Debugging tab with the latest errors of the site at the top, then the toggles for WP_DEBUG, WP_DEBUG_LOG, WP_DEBUG_DISPLAY, SCRIPT_DEBUG and SAVEQUERIES](/img/openpanel-screenshots/applications/wordpress-debugging.png#gh-light-mode-only)
 ![Debugging tab with the latest errors of the site at the top, then the toggles for WP_DEBUG, WP_DEBUG_LOG, WP_DEBUG_DISPLAY, SCRIPT_DEBUG and SAVEQUERIES](/img/openpanel-screenshots/applications/wordpress-debugging_dark.png#gh-dark-mode-only)
 
-When your hosting plan includes [Error Logs](/docs/panel/statistics/error_logs/), the tab starts with the site's 10 newest errors: PHP, web server and HTTP 5xx errors of this site only, not of other sites in its subfolders. Click an error to see the whole message, **Refresh** to load them again, and **View Logs** to open the Error Logs page filtered to this site.
+When your hosting plan includes [Error Logs](/docs/panel/statistics/error_logs/), the tab starts with the site's 10 newest errors: PHP, web server and HTTP 5xx errors of this site only, not of other sites in its subfolders. Click an error to see the whole message, **Refresh** to load them again, and **View logs** to open the Error Logs page filtered to this site.
 
 ![Error Logs section of the Debugging tab listing the site's latest errors with their severity, time and service, with View Logs and Refresh links](/img/openpanel-screenshots/applications/wordpress-debugging-errors.png#gh-light-mode-only)
 ![Error Logs section of the Debugging tab listing the site's latest errors with their severity, time and service, with View Logs and Refresh links](/img/openpanel-screenshots/applications/wordpress-debugging-errors_dark.png#gh-dark-mode-only)
@@ -319,7 +319,7 @@ Create and restore backups anytime — files, database, or both.
 
 Create a Backup:
 - Choose what to back up (files, database, or both).
-- Click **Generate Backup**.
+- Click **Generate backup**.
 
 ![Backups tab with the Create a Backup and Restore from Backups sections](/img/openpanel-screenshots/applications/wordpress-backups.png#gh-light-mode-only)
 ![Backups tab with the Create a Backup and Restore from Backups sections](/img/openpanel-screenshots/applications/wordpress-backups_dark.png#gh-dark-mode-only)
@@ -333,7 +333,7 @@ Create a clone (copy files and database tables, replace links in database, fluch
 
 Create a clone:
 - Under 'Target' select the desired domain and optionally 'Database' to be used.
-- Click **Clone Website**.
+- Click **Clone website**.
 
 ![Clone tab with the destination location and database for the copy](/img/openpanel-screenshots/applications/wordpress-clone.png#gh-light-mode-only)
 ![Clone tab with the destination location and database for the copy](/img/openpanel-screenshots/applications/wordpress-clone_dark.png#gh-dark-mode-only)

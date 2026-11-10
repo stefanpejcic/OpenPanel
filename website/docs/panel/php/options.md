@@ -9,7 +9,7 @@ The PHP Options page allows you to modify PHP settings stored in the `php.ini` f
 ![PHP 8.5 Options page with editable values such as memory_limit, max_execution_time and upload limits](/img/openpanel-screenshots/php/options-page.png#gh-light-mode-only)
 ![PHP 8.5 Options page with editable values such as memory_limit, max_execution_time and upload limits](/img/openpanel-screenshots/php/options-page_dark.png#gh-dark-mode-only)
 
-For more advanced users, the [**PHP.INI Editor**](/docs/panel/php/php_ini_editor/) can be used - if available.
+For more advanced users, the [**php.ini Editor**](/docs/panel/php/php_ini_editor/) can be used - if available.
 
 ---
 
@@ -18,7 +18,7 @@ For more advanced users, the [**PHP.INI Editor**](/docs/panel/php/php_ini_editor
 1. Open **OpenPanel** and navigate to **PHP > Options**.
 2. Select the desired **PHP version** from the dropdown.
 3. Modify the options you want to change.
-4. Click **Save Changes** to apply changes. Unticking an On/Off option saves it as `Off` (or `0`).
+4. Click **Save changes** to apply changes. Unticking an On/Off option saves it as `Off` (or `0`).
 
 Settings will be saved to the `php.ini` file for the selected PHP version, and the PHP container will restart to apply changes immediately. These settings apply to **all domains** using that PHP version.
 
@@ -31,8 +31,8 @@ When you open the options of a PHP version, OpenPanel checks that version in the
 If it finds something to improve, an **Optimize PHP** banner shows at the top of the page and an optimize icon (⚡) shows next to each option that has a suggestion.
 
 1. Click the optimize icon next to an option, or **Review all** in the banner.
-2. The **Confirm Changes** dialog shows the previous value, the new value and why it's suggested for each option.
-3. Click **Save Changes** to apply them and restart the PHP service, or **Cancel** to close the dialog without changing anything.
+2. The **Confirm changes** dialog shows the previous value, the new value and why it's suggested for each option.
+3. Click **Save changes** to apply them and restart the PHP service, or **Cancel** to close the dialog without changing anything.
 
 The banner also shows what the suggestions are based on: the PHP version, the memory limit and current memory use of the PHP service, how many of your domains use this version, how many of them run WordPress and how many PHP workers the service can run at once.
 

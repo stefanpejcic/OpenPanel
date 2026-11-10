@@ -27,7 +27,7 @@ Every repository is stored on the server outside of your websites, so the `.git`
 
 ## Add a repository
 
-Click **Add Repository** and choose where the repository comes from.
+Click **Add repository** and choose where the repository comes from.
 
 ![Add Repository form with the remote and local source options, repository URL, name, branch, website, deploy directory, deployment mode and deploy actions](/img/openpanel-screenshots/applications/git-add.png#gh-light-mode-only)
 ![Add Repository form with the remote and local source options, repository URL, name, branch, website, deploy directory, deployment mode and deploy actions](/img/openpanel-screenshots/applications/git-add_dark.png#gh-dark-mode-only)
@@ -91,11 +91,11 @@ Every remote repository has a **Webhook URL** in its **Settings**. Add it as a p
 ![Show Columns menu with switches for each column of the repositories table](/img/openpanel-screenshots/applications/git-columns.png#gh-light-mode-only)
 ![Show Columns menu with switches for each column of the repositories table](/img/openpanel-screenshots/applications/git-columns_dark.png#gh-dark-mode-only)
 
-Use the search box to filter repositories by name, domain or URL, **Show Columns** to pick the columns (the *Branch* column is hidden by default), and the arrows next to a column name to sort the table.
+Use the search box to filter repositories by name, domain or URL, **Show columns** to pick the columns (the *Branch* column is hidden by default), and the arrows next to a column name to sort the table.
 
 The icons in the **Actions** column are:
 
-- **Pull Updates** (remote repositories): fetches all branches from the remote.
+- **Pull updates** (remote repositories): fetches all branches from the remote.
 - **Deploy**: deploys the latest commit of the selected branch.
 - **Commit log**: opens the [commit log](#commit-log).
 - **Settings**: opens the [settings](#settings) under the row.
@@ -120,7 +120,7 @@ The commit log lists the last 100 commits of the selected branch with their auth
 ![Repositories selected with the bulk actions bar showing Pull Updates, Deploy, Change deployment mode and Remove](/img/openpanel-screenshots/applications/git-bulk.png#gh-light-mode-only)
 ![Repositories selected with the bulk actions bar showing Pull Updates, Deploy, Change deployment mode and Remove](/img/openpanel-screenshots/applications/git-bulk_dark.png#gh-dark-mode-only)
 
-Select repositories with the checkboxes to **Pull Updates**, **Deploy**, **Change deployment mode** or **Remove** them all at once. Repositories that don't support an action (pulling a local repository, deploying one with *No deployment*) are skipped.
+Select repositories with the checkboxes to **Pull updates**, **Deploy**, **Change deployment mode** or **Remove** them all at once. Repositories that don't support an action (pulling a local repository, deploying one with *No deployment*) are skipped.
 
 ### Remove
 

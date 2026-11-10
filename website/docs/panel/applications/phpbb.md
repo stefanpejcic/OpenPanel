@@ -10,7 +10,7 @@ Install and manage [phpBB](https://www.phpbb.com/) forums in an existing domain,
 
 ## Install phpBB
 
-Navigate to **OpenPanel > Websites > Install App** and click **Install phpBB**.
+Navigate to **OpenPanel > Websites > Install app** and click **Install phpBB**.
 
 ![Install phpBB form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/phpbb-form.png#gh-light-mode-only)
 ![Install phpBB form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/phpbb-form_dark.png#gh-dark-mode-only)
@@ -26,7 +26,7 @@ Behind the scenes, this downloads the matching `phpBB-<version>.tar.bz2` release
 
 ## Manage a phpBB forum
 
-Every phpBB install shows up on the general **Site Manager** page (`/sites`) alongside your other websites. Click **Manage** on a phpBB site to open its overview page:
+Every phpBB install shows up on the general **Site manager** page (`/sites`) alongside your other websites. Click **Manage** on a phpBB site to open its overview page:
 
 * **Screenshot** and **phpBB / PHP / MariaDB / Created** status cards, matching the other CMS managers.
 * **Files** – Docroot path, a File Manager shortcut, and live folder size.
@@ -35,7 +35,7 @@ Every phpBB install shows up on the general **Site Manager** page (`/sites`) alo
 
 ### Update
 
-phpBB has no safe unattended CLI updater, so the Update tab shows the currently installed version and an **Open Admin Control Panel** button linking to `/adm/index.php?i=acp_help`. Updating is done from phpBB's own ACP > System > Update using its Automatic Update Package, following phpBB's documented procedure — a backup beforehand is recommended.
+phpBB has no safe unattended CLI updater, so the Update tab shows the currently installed version and an **Open admin control panel** button linking to `/adm/index.php?i=acp_help`. Updating is done from phpBB's own ACP > System > Update using its Automatic Update Package, following phpBB's documented procedure — a backup beforehand is recommended.
 
 ### Clone
 
@@ -47,5 +47,5 @@ The **Backups** tab generates on-demand backups (database, files, or both) into 
 
 ### Remove
 
-The **Remove** tab's **Delete Application** button fully uninstalls the site: drops the database, deletes every file in the docroot, and removes it from Site Manager. This cannot be undone.
+The **Remove** tab's **Delete application** button fully uninstalls the site: drops the database, deletes every file in the docroot, and removes it from Site Manager. This cannot be undone.
 

@@ -10,7 +10,7 @@ Install and manage [DokuWiki](https://www.dokuwiki.org/) wikis in an existing do
 
 ## Install DokuWiki
 
-Navigate to **OpenPanel > Websites > Install App** and click **Install DokuWiki**.
+Navigate to **OpenPanel > Websites > Install app** and click **Install DokuWiki**.
 
 ![Install DokuWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/dokuwiki-form.png#gh-light-mode-only)
 ![Install DokuWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/dokuwiki-form_dark.png#gh-dark-mode-only)
@@ -25,7 +25,7 @@ There is no version picker — DokuWiki has no versioned releases API to pick fr
 
 ## Manage a wiki
 
-Every DokuWiki install shows up on the general **Site Manager** page (`/sites`) alongside your other websites. Click **Manage** on a DokuWiki site to open its overview page:
+Every DokuWiki install shows up on the general **Site manager** page (`/sites`) alongside your other websites. Click **Manage** on a DokuWiki site to open its overview page:
 
 * **Screenshot** and **DokuWiki / PHP / Created** status cards, matching the other CMS managers (no database card — DokuWiki has none).
 * **Files** – Docroot path, a File Manager shortcut, and live folder size.
@@ -45,5 +45,5 @@ The **Backups** tab generates on-demand files-only backups (a `tar.gz` of the do
 
 ### Remove
 
-The **Remove** tab's **Delete Application** button fully uninstalls the site: deletes every file in the docroot and removes it from Site Manager. This cannot be undone.
+The **Remove** tab's **Delete application** button fully uninstalls the site: deletes every file in the docroot and removes it from Site Manager. This cannot be undone.
 

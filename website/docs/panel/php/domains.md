@@ -16,7 +16,7 @@ Only the PHP versions your hosting provider offers are listed. If a version your
 ![PHP version for domains page listing each domain with its current PHP version and a dropdown to change it](/img/openpanel-screenshots/php/domains-list_dark.png#gh-dark-mode-only)
 
 :::info
-If you are using OpenLitespeed or Litespeed as webserver, PHP version can not be set per-domain — only a single PHP version is used for all domains. Use the [**Default PHP Version**](/docs/panel/php/default/) page instead to change it for all domains at once.
+If you are using OpenLitespeed or Litespeed as webserver, PHP version can not be set per-domain — only a single PHP version is used for all domains. Use the [**Default PHP version**](/docs/panel/php/default/) page instead to change it for all domains at once.
 :::
 
 Step-by-step guide: [How to change the PHP version per domain](/docs/articles/websites/change-php-version-per-domain/)

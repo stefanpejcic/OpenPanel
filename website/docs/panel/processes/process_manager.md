@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Process Manager
 
-The **Process Manager** interface allows you to monitor all currently running processes on your server. You can search, view detailed command information, and terminate (kill) individual processes directly from the OpenPanel interface.
+The **Process manager** interface allows you to monitor all currently running processes on your server. You can search, view detailed command information, and terminate (kill) individual processes directly from the OpenPanel interface.
 
 Processes are listed sorted by PID by default, and every column (including CPU %) can be sorted by clicking its header - making it easy to identify and act on resource-intensive tasks.
 
@@ -84,7 +84,7 @@ When you click **Terminate**, the following happens:
 ## Tips
 
 - For suspicious or high CPU usage processes, inspect the **full command** before taking action.
-- Use the **Refresh Processes** button to reload the process list at any time.
+- Use the **Refresh processes** button to reload the process list at any time.
 - Killing a parent process (PPID) may also terminate its child processes.
 
 ---

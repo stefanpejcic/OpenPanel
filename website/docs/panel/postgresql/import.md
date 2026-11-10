@@ -8,14 +8,14 @@ Import tables into a PostgreSQL database using a `.sql` or gzip compressed `.sql
 
 To import tables into a database, navigate to **PostgreSQL > Import**:
 
-1. **Select a Database**
+1. **Select a database**
    Choose the target database into which you want to import the tables.
 
 2. **Select a File**
    Click the **Select** button to choose a `.sql` or `.sql.gz` export file from your device.
 
 3. **Upload**
-   Click the **Upload & Import** button and wait for the import process to complete.
+   Click the **Upload & import** button and wait for the import process to complete.
 
 ![Import into PostgreSQL Database form with a database dropdown and a file picker](/img/openpanel-screenshots/postgresql/import-form.png#gh-light-mode-only)
 ![Import into PostgreSQL Database form with a database dropdown and a file picker](/img/openpanel-screenshots/postgresql/import-form_dark.png#gh-dark-mode-only)

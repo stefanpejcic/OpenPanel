@@ -12,7 +12,7 @@ The catch-all starts working once the domain has at least one email account or a
 
 ## Setting a Catch-all
 
-1. Go to **OpenPanel > Email > Catch-all Address**.
+1. Go to **OpenPanel > Email > Catch-all address**.
 2. Select the domain to configure.
 3. Enter the **Destination address**: an email account or alias on this server, or an outside address. A destination on a domain hosted here must be an existing email account or alias: until it is, the catch-all does nothing.
 4. Click **Save**.
@@ -26,6 +26,6 @@ Most mail sent to made-up addresses is spam. The best destination is an email ac
 
 ## Removing a Catch-all
 
-If a catch-all is already set, a **Remove Catch-all** button appears in the danger zone. Clicking it deletes the rule and unmatched emails for that domain will be rejected.
+If a catch-all is already set, a **Remove catch-all** button appears in the danger zone. Clicking it deletes the rule and unmatched emails for that domain will be rejected.
 
 Alternatively, clear the destination field and click **Save** to achieve the same result.

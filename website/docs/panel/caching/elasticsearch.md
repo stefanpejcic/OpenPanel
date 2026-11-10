@@ -13,7 +13,7 @@ sidebar_position: 7
 ![ElasticSearch page with the service status, TCP server and port](/img/openpanel-screenshots/caching/elasticsearch-page.png#gh-light-mode-only)
 ![ElasticSearch page with the service status, TCP server and port](/img/openpanel-screenshots/caching/elasticsearch-page_dark.png#gh-dark-mode-only)
 
-Use **OpenPanel > Cache & Search > Elasticsearch** to manage the Elasticsearch service, enabling fast and scalable search functionality across your applications and systems.
+Use **OpenPanel > Cache & search > Elasticsearch** to manage the Elasticsearch service, enabling fast and scalable search functionality across your applications and systems.
 
 ---
 
@@ -22,7 +22,7 @@ Use **OpenPanel > Cache & Search > Elasticsearch** to manage the Elasticsearch s
 Enable or disable the Elasticsearch service.
 
 - The current status is displayed.  
-- Use the toggle option to **enable** or **disable** the service as needed.
+- Click **Click to enable** or **Click to disable**. Disabling asks you to confirm first, since it stops and removes the service until you enable it again.
 
 ---
 
@@ -47,4 +47,4 @@ While the service is running, real-time resource usage (CPU, memory, network and
 
 Monitor service activity and debug issues by viewing ElasticSearch logs.
 
-- Click **View service log** to open the service log file and inspect output in real time.
+- Click **View container log** to see the latest output of the service.

@@ -9,7 +9,7 @@ Import tables into a MySQL database using a `.sql` export file, for example one 
 
 To import tables into a database, navigate to **OpenPanel > MySQL > Import**:
 
-1. **Select a Database**  
+1. **Select a database**  
    Choose the target database into which you want to import the tables.
 
 2. **Select a File**  

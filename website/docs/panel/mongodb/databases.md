@@ -17,7 +17,7 @@ The page provides a table containing the user's databases, along with options re
 
 Available options on the Databases page are:
 
-- **View Databases**
+- **View databases**
 - **Create a new database**
 - **Import or export a database**
 - **Delete a MongoDB Database**
@@ -73,5 +73,5 @@ The button turns into **Confirm** with a 5-second countdown. Click it again befo
 :::
 
 :::info
-The **New Database** and **Database Wizard** actions are only available while the MongoDB service is running.
+The **New database** and **Database wizard** actions are only available while the MongoDB service is running.
 :::
