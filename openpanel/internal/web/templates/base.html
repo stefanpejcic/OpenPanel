@@ -663,9 +663,9 @@ document.addEventListener('submit', (e) => {
 {{end}}
 <!-- END flash messages -->
 
-{{if .PageTabs}}
-<nav id="page-tabs" aria-label="{{.T.Get "Page sections"}}" class="border-b border-gray-200 bg-white px-4 dark:border-gray-800 dark:bg-gray-950 sm:px-6 lg:px-8">
-    <ul class="-mb-px flex gap-x-6 overflow-x-auto text-sm">
+{{if or .PageTabs (eq .RequestPath "/dashboard")}}
+<nav id="page-tabs" aria-label="{{.T.Get "Page sections"}}" class="flex items-center justify-between gap-4 border-b border-gray-200 bg-white px-4 dark:border-gray-800 dark:bg-gray-950 sm:px-6 lg:px-8">
+    <ul class="-mb-px flex min-h-11 gap-x-6 overflow-x-auto text-sm">
         {{range .PageTabs}}
         <li class="shrink-0">
             {{if .Disabled}}
@@ -677,6 +677,7 @@ document.addEventListener('submit', (e) => {
         </li>
         {{end}}
     </ul>
+    {{block "page_tabs_right" .}}{{end}}
 </nav>
 {{end}}
 

@@ -1098,11 +1098,11 @@ function siteGit(domain, docroot) {
 <!-- END site_git_panel -->
 {{end}}{{end}}
 
-{{/* site_backups is the WordPress backups table for other site types, dict T, Title, Intro, and either Domain+Docroot (website builder, files only) or Service (apps, restore only) */}}
+{{/* site_backups is the WordPress backups table for other site types, dict T, Intro, Empty, and either Domain+Docroot (Base is the app's route prefix, /wordpress by default, DB adds the database) or Service (apps, restore only) */}}
 {{define "site_backups"}}
 <!-- START site_backups -->
 {{$btn := "relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"}}
-<section x-data="siteBackups({ domain: {{toJSON .Domain}}, docroot: {{toJSON .Docroot}}, service: {{toJSON .Service}} })" aria-labelledby="site-backups-title">
+<section x-data="siteBackups({ domain: {{toJSON .Domain}}, docroot: {{toJSON .Docroot}}, service: {{toJSON .Service}}, base: {{toJSON .Base}}, db: {{if .DB}}true{{else}}false{{end}} })" aria-labelledby="site-backups-title">
     <div class="flex flex-wrap items-end justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <div>
             <h2 id="site-backups-title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Backups"}}</h2>
@@ -1139,7 +1139,8 @@ function siteGit(domain, docroot) {
                                 <button type="button" role="menuitem" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" @click="open = false; ask('restore', b)"><i class="ri-history-line" aria-hidden="true"></i>{{.T.Get "Restore"}}</button>
                                 <template x-if="cfg.domain">
                                     <div>
-                                        <a role="menuitem" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" :href="downloadURL(b)" @click="open = false"><i class="ri-download-2-line" aria-hidden="true"></i>{{.T.Get "Download files"}}</a>
+                                        <a role="menuitem" x-show="b.hasFilesBackup !== false" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" :href="downloadURL(b, 'files')" @click="open = false"><i class="ri-download-2-line" aria-hidden="true"></i>{{.T.Get "Download files"}}</a>
+                                        <a role="menuitem" x-show="b.hasDbBackup" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" :href="downloadURL(b, 'database')" @click="open = false"><i class="ri-download-2-line" aria-hidden="true"></i>{{.T.Get "Download database"}}</a>
                                         <div class="my-1 border-t border-gray-200 dark:border-gray-800"></div>
                                         <button type="button" role="menuitem" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-red-600 hover:bg-red-50 dark:text-red-500 dark:hover:bg-red-400/10" @click="open = false; ask('delete', b)"><i class="ri-delete-bin-line" aria-hidden="true"></i>{{.T.Get "Delete"}}</button>
                                     </div>
@@ -1175,19 +1176,19 @@ window.siteBackups = window.siteBackups || function (cfg) {
     };
     const enc = encodeURIComponent;
     return {
-        cfg, list: [], q: '', loading: false, error: '', running: false, busy: false, pending: null, sized: !!cfg.domain,
+        cfg, list: [], q: '', loading: false, error: '', running: false, busy: false, pending: null, sized: false, base: cfg.base || '/wordpress',
         init() {
             const panel = this.$el.closest('[role=tabpanel]');
             const go = () => { if (!this.loaded) { this.loaded = true; this.load(); } };
             if (panel && panel.classList.contains('hidden')) new MutationObserver((m, o) => { if (!panel.classList.contains('hidden')) { o.disconnect(); go(); } }).observe(panel, { attributes: true, attributeFilter: ['class'] });
             else go();
         },
-        listURL() { return cfg.domain ? '/wordpress/backup/get_dates/' + cfg.domain + '?docroot=' + enc(cfg.docroot) : '/pm2/backups/' + cfg.service; },
+        listURL() { return cfg.domain ? this.base + '/backup/get_dates/' + cfg.domain + '?docroot=' + enc(cfg.docroot) : '/pm2/backups/' + cfg.service; },
         load() {
             this.loading = true; this.error = '';
             return fetch(this.listURL(), { headers: { 'X-CSRF-Token': csrf_token } })
                 .then(async r => { const t = await r.text(); if (!r.ok) throw new Error(t || r.status); return JSON.parse(t); })
-                .then(d => { this.list = (Array.isArray(d) ? d : []).map(b => typeof b === 'string' ? { date: b } : b).sort((a, b) => b.date.localeCompare(a.date)); })
+                .then(d => { this.list = (Array.isArray(d) ? d : []).map(b => typeof b === 'string' ? { date: b } : b).sort((a, b) => b.date.localeCompare(a.date)); this.sized = this.list.some(b => b.size != null); })
                 .catch(e => { this.error = e.message || T.failed; })
                 .finally(() => { this.loading = false; });
         },
@@ -1204,7 +1205,8 @@ window.siteBackups = window.siteBackups || function (cfg) {
             const u = ['KB', 'MB', 'GB', 'TB']; let i = -1; do { n /= 1024; i++; } while (n >= 1024 && i < u.length - 1);
             return (n < 10 ? n.toFixed(1).replace(/\.0$/, '') : Math.round(n)) + ' ' + u[i];
         },
-        downloadURL(b) { return '/wordpress/backup/download/' + cfg.domain + '?backup_date=' + enc(b.date) + '&part=files'; },
+        // download and delete go through the WordPress routes, every site's backups sit in the same backups/<domain> folder
+        downloadURL(b, part) { return '/wordpress/backup/download/' + cfg.domain + '?backup_date=' + enc(b.date) + '&part=' + part; },
         ask(action, b) { this.pending = { action, date: b.date }; },
         pendingText() { return this.pending ? (this.pending.action === 'delete' ? T.deleteQ : T.restoreQ).replace('{date}', this.when(this.pending.date)) : ''; },
         async post(url) {
@@ -1222,7 +1224,7 @@ window.siteBackups = window.siteBackups || function (cfg) {
                 if (p.action === 'delete') showToast(await this.post('/wordpress/backup/delete/' + cfg.domain + '?backup_date=' + date) || T.done, 'success');
                 else {
                     showToast(T.restoring, 'loading');
-                    const url = cfg.domain ? '/wordpress/backup/restore/' + cfg.domain + '?docroot=' + enc(cfg.docroot) + '&backup_date=' + date : '/pm2/restore/' + cfg.service + '?backup_date=' + date;
+                    const url = cfg.domain ? this.base + '/backup/restore/' + cfg.domain + '?docroot=' + enc(cfg.docroot) + '&backup_date=' + date : '/pm2/restore/' + cfg.service + '?backup_date=' + date;
                     showToast(await this.post(url) || T.restored, 'success');
                 }
             } catch (e) { showToast(e.message, 'error'); }
@@ -1232,7 +1234,7 @@ window.siteBackups = window.siteBackups || function (cfg) {
             this.running = true;
             showToast(T.backingUp, 'loading');
             try {
-                const url = cfg.domain ? '/wordpress/backup/run/' + cfg.domain + '?docroot=' + enc(cfg.docroot) + '&backup_files=true' : '/pm2/backup/' + cfg.service;
+                const url = cfg.domain ? this.base + '/backup/run/' + cfg.domain + '?docroot=' + enc(cfg.docroot) + '&backup_files=true' + (cfg.db ? '&backup_database=true' : '') : '/pm2/backup/' + cfg.service;
                 const msg = await this.post(url);
                 showToast(typeof msg === 'string' && msg ? msg : T.done, 'success');
             } catch (e) { showToast(e.message, 'error'); }

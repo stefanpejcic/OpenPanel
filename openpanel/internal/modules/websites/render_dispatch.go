@@ -41,6 +41,7 @@ type PHPAppPageData struct {
 	Files                      []SiteEntry
 	HiddenFiles                int
 	WebServer                  string
+	SSLState, SSLExpires       string // see sslState
 }
 
 func renderPHPAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data PHPAppPageData) {
@@ -289,13 +290,7 @@ type CMSAppPageData struct {
 	AvailablePHPVersions []string
 	HasPhotos            bool
 	App                  web.AppNames
-	Switch               []SiteOption
-}
-
-// SiteOption is one entry in a manager's site switcher
-type SiteOption struct {
-	Name string
-	App  string
+	SSLState, SSLExpires string // see sslState
 }
 
 // cmsPage is how the /website dispatcher reads one CMS type, dbInfo is nil for apps without a database

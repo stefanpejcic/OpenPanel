@@ -149,7 +149,8 @@
                 hidden = items.slice(fit);
                 hidden.forEach(li => { li.style.display = 'none'; });
             }
-            items.forEach(li => { if (li.style.display !== 'none') li.style.flex = '1 1 auto'; });
+            // equal widths, so a short label like Git gets the same slot as the rest
+            items.forEach(li => { if (li.style.display !== 'none') li.style.flex = '1 1 0%'; });
             // rebuilding the menu every pass swaps its buttons out from under a click
             const key = hidden.map(li => items.indexOf(li)).join(',');
             if (key !== lastKey) {

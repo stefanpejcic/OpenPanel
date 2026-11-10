@@ -1,18 +1,24 @@
 {{define "cms_block"}}<!-- START templates/manager/{{$.App.Slug}}_app.html -->
 
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 dark:border-gray-800">
-    <div class="min-w-0">{{end}}
+<!-- top area, same as the WordPress and app pages -->
+<div class="flex flex-col gap-5 px-4 pt-6 pb-6 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8 border-b border-gray-200 dark:border-gray-800">
+    <div class="flex min-w-0 items-center gap-4">{{end}}
 
-{{define "cms_block_2"}}<div class="flex items-center gap-x-2">
-            <img alt="{{.CurrentDomain}} Favicon" loading="lazy" width="5" height="5" decoding="async" class="size-4 shrink-0 rounded-sm object-cover" style="color:transparent" src="/json/favicon/{{.CurrentDomain}}">
-            <h1 class="truncate text-lg font-semibold text-gray-900 dark:text-gray-50">{{.CurrentDomain}}</h1>
+{{define "cms_block_2"}}<div class="hidden h-20 w-32 shrink-0 overflow-hidden rounded-md sm:block [&_.screenshot]:h-full [&_.h-72]:h-20 [&_.h-72_p]:hidden [&_.h-72_i]:text-xl [&_.h-72_svg]:size-4 [&_img]:h-20">{{template "screenshot" .}}</div>
+        <div class="min-w-0">
+            <p class="text-sm text-gray-500">{{.App.Name}}{{with .Version}}{{if ne . "Unknown"}} {{.}}{{end}}{{end}}</p>
+            <h1 class="mt-0.5 truncate text-lg font-semibold text-gray-900 dark:text-gray-50">{{.CurrentDomain}}</h1>
+            <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-gray-700 dark:text-gray-300">
+                {{with .CurrentPHPVersion}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">PHP {{.}}</span>{{end}}
+                {{if eq .SSLState "valid"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20"{{with .SSLExpires}} title="{{$.T.Get "Expires"}} {{.}}"{{end}}>{{.T.Get "SSL valid"}}</span>{{else if eq .SSLState "expiring"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">{{.T.Get "SSL expiring"}}</span>{{else if eq .SSLState "expired"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.T.Get "SSL expired"}}</span>{{else if eq .SSLState "pending"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{.T.Get "SSL pending"}}</span>{{else if eq .SSLState "missing"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.T.Get "SSL missing"}}</span>{{end}}
+                <a href="http://{{.CurrentDomain}}" class="domain_link inline-flex min-w-0 items-center gap-1 text-gray-500 hover:text-gray-900 hover:underline hover:underline-offset-4 dark:hover:text-gray-50" target="_blank"><span class="truncate">https://{{.CurrentDomain}}</span><i class="ri-external-link-line" aria-hidden="true"></i></a>
+            </div>
         </div>
-        <p class="mt-1 truncate text-sm text-gray-500 max-w-3xl"><a href="http://{{.CurrentDomain}}" class="inline-flex items-center gap-1 hover:underline hover:underline-offset-4" target="_blank">https://{{.CurrentDomain}}<i class="ri-external-link-line" aria-hidden="true"></i></a></p>
     </div>
 
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">{{end}}
+    <div class="relative flex flex-col gap-2 sm:flex-row sm:items-center">{{end}}
 
-{{define "cms_block_3"}}{{template "cms_switch" .}}{{template "temp_link" .}}
+{{define "cms_block_3"}}{{template "temp_link" .}}
         <button type="button" id="{{$.App.Slug}}_login_button"
             class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 w-full sm:w-auto border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
             <span id="{{$.App.Slug}}_login_button_text" class="flex items-center gap-1.5">{{.T.Get "Login as admin"}}</span>
@@ -21,17 +27,11 @@
 </div>
 {{end}}
 
-{{/* jumps to another site's manager, only worth showing with more than one site */}}
-{{define "cms_switch"}}{{if gt (len .Switch) 1}}<select id="cms-site-switch" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 truncate hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark] sm:w-auto sm:max-w-64" aria-label="{{.T.Get "Switch site"}}" onchange="location.href = '/website?domain=' + encodeURIComponent(this.value)">
-            {{range .Switch}}<option value="{{.Name}}"{{if eq .Name $.CurrentDomain}} selected{{end}}>{{.App}} · {{.Name}}</option>{{end}}
-        </select>
-        {{end}}{{end}}
-
-{{define "cms_block_4"}}{{template "cms_switch" .}}{{template "temp_link" .}}
+{{define "cms_block_4"}}{{template "temp_link" .}}
     </div>
 </div>
 
-<div class="grid gap-4 px-4 pb-6 sm:px-6 lg:px-8 xl:grid-cols-4">
+<div class="border-b border-gray-200 dark:border-gray-800">
 {{end}}
 
 {{define "cms_script"}}<script>
@@ -125,28 +125,28 @@
 </script>{{end}}
 
 {{define "cms_block_5"}}
-<div class="grid gap-4 px-4 pb-6 sm:px-6 lg:px-8 xl:grid-cols-4">
+<div class="border-b border-gray-200 dark:border-gray-800">
 {{end}}
 
-{{define "cms_block_6"}}<div class="flex flex-col justify-center rounded-md border border-gray-200 bg-white dark:border-gray-900 dark:bg-raised xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
+{{define "cms_block_6"}}<div class="flex flex-col" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
 
-    <div class="border-b border-gray-200 px-2 dark:border-gray-900">
-        <ul id="{{$.App.Slug}}-tab" data-tabs-toggle="#{{$.App.Slug}}-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="grid {{if .UserAllowed.malware_scan}}grid-cols-8{{else}}grid-cols-7{{end}} w-full items-center justify-between">{{end}}
+    <div class="border-b border-gray-200 px-4 sm:px-6 lg:px-8 dark:border-gray-800">
+        <ul id="{{$.App.Slug}}-tab" data-tabs-toggle="#{{$.App.Slug}}-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="flex w-full items-center gap-1 [&>li]:flex-1 [&>li]:min-w-0 [&>li>a]:w-full [&>li>a]:justify-center">{{end}}
 
-{{define "cms_block_7"}}<div class="flex flex-col justify-center rounded-md border border-gray-200 bg-white dark:border-gray-900 dark:bg-raised xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
+{{define "cms_block_7"}}<div class="flex flex-col" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
 
-    <div class="border-b border-gray-200 px-2 dark:border-gray-900">
-        <ul id="{{$.App.Slug}}-tab" data-tabs-toggle="#{{$.App.Slug}}-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="grid {{if .UserAllowed.malware_scan}}grid-cols-7{{else}}grid-cols-6{{end}} w-full items-center justify-between">{{end}}
+    <div class="border-b border-gray-200 px-4 sm:px-6 lg:px-8 dark:border-gray-800">
+        <ul id="{{$.App.Slug}}-tab" data-tabs-toggle="#{{$.App.Slug}}-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="flex w-full items-center gap-1 [&>li]:flex-1 [&>li]:min-w-0 [&>li>a]:w-full [&>li>a]:justify-center">{{end}}
 
-{{define "cms_block_8"}}<div class="flex flex-col justify-center rounded-md border border-gray-200 bg-white dark:border-gray-900 dark:bg-raised xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
+{{define "cms_block_8"}}<div class="flex flex-col" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
 
-    <div class="border-b border-gray-200 px-2 dark:border-gray-900">
-        <ul id="{{$.App.Slug}}-tab" data-tabs-toggle="#{{$.App.Slug}}-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="grid {{if .UserAllowed.malware_scan}}grid-cols-6{{else}}grid-cols-5{{end}} w-full items-center justify-between">{{end}}
+    <div class="border-b border-gray-200 px-4 sm:px-6 lg:px-8 dark:border-gray-800">
+        <ul id="{{$.App.Slug}}-tab" data-tabs-toggle="#{{$.App.Slug}}-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="flex w-full items-center gap-1 [&>li]:flex-1 [&>li]:min-w-0 [&>li>a]:w-full [&>li>a]:justify-center">{{end}}
 
-{{define "cms_block_9"}}<div class="flex flex-col justify-center rounded-md border border-gray-200 bg-white dark:border-gray-900 dark:bg-raised xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
+{{define "cms_block_9"}}<div class="flex flex-col" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
 
-    <div class="border-b border-gray-200 px-2 dark:border-gray-900">
-        <ul id="{{$.App.Slug}}-tab" data-tabs-toggle="#{{$.App.Slug}}-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="grid {{if .UserAllowed.malware_scan}}grid-cols-4{{else}}grid-cols-3{{end}} w-full items-center justify-between">{{end}}
+    <div class="border-b border-gray-200 px-4 sm:px-6 lg:px-8 dark:border-gray-800">
+        <ul id="{{$.App.Slug}}-tab" data-tabs-toggle="#{{$.App.Slug}}-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="flex w-full items-center gap-1 [&>li]:flex-1 [&>li]:min-w-0 [&>li>a]:w-full [&>li>a]:justify-center">{{end}}
 
 {{define "cms_tabbtn_dashboard"}}<li role="presentation">
                 <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
@@ -223,7 +223,7 @@
             <li role="presentation">
                 <a href="#" id="remove-tab" data-tabs-target="#remove" role="tab" aria-controls="remove" aria-selected="false"
                    @click="activeTab = 'remove'"
-                   :class="activeTab === 'remove' ? 'border-red-500 text-red-600 dark:text-red-400' : 'border-transparent text-gray-500 hover:text-red-600 dark:hover:text-red-400'"
+                   :class="activeTab === 'remove' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
                    class="-mb-px inline-flex w-full items-center justify-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
                     <i class="ri-delete-bin-line text-base" aria-hidden="true"></i>
                     <span>{{.T.Get "Remove"}}</span>
@@ -242,11 +242,11 @@
         {{template "site_git_panel" .}}
 {{end}}
 
-{{define "cms_tab_dashboard"}}<div class="hidden p-4 sm:p-6" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+{{define "cms_tab_dashboard"}}<div class="hidden" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
 
             <!-- screenshot -->{{end}}
 
-{{define "cms_block_10"}}{{template "screenshot" .}}
+{{define "cms_block_10"}}
                     </div>
                 </div>{{end}}
 
@@ -254,7 +254,7 @@
             <li role="presentation">
                 <a href="#" id="remove-tab" data-tabs-target="#remove" role="tab" aria-controls="remove" aria-selected="false"
                    @click="activeTab = 'remove'"
-                   :class="activeTab === 'remove' ? 'border-red-500 text-red-600 dark:text-red-400' : 'border-transparent text-gray-500 hover:text-red-600 dark:hover:text-red-400'"
+                   :class="activeTab === 'remove' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
                    class="-mb-px inline-flex w-full items-center justify-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
                     <i class="ri-delete-bin-line text-base" aria-hidden="true"></i>
                     <span>{{.T.Get "Remove"}}</span>
@@ -274,19 +274,19 @@
 
 {{end}}
 
-{{define "cms_block_11"}}<div class="grid h-full grid-cols-2 gap-2 xl:grid-cols-1">
-                    <div class="flex flex-col flex-grow justify-center rounded-md border border-gray-200 px-4 py-3 dark:border-gray-800">
+{{define "cms_block_11"}}<div class="grid grid-cols-2 gap-x-8 gap-y-5 px-4 py-6 sm:grid-cols-4 sm:px-6 lg:px-8">
+                    <div class="min-w-0">
                         <div class="mb-1 flex items-center justify-between gap-4 relative">
                             <h2 class="text-sm text-gray-500">{{$.App.Name}}</h2>
                         </div>
                         <h3 class="text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-50">main</h3>
                     </div>
 
-                    <div class="flex flex-col flex-grow justify-center rounded-md border border-gray-200 px-4 py-3 dark:border-gray-800" x-data="{ phpEditOpen: false }">
-                        <div class="mb-1 flex items-center justify-between gap-4 relative">
+                    <div class="min-w-0" x-data="{ phpEditOpen: false }">
+                        <div class="mb-1 flex h-5 items-center gap-1.5 relative">
                             <h2 class="text-sm text-gray-500">{{.T.Get "PHP"}}</h2>
                             {{if and .UserAllowed.php (not .IsSubdirectory)}}
-                            <button type="button" @click="phpEditOpen = !phpEditOpen" data-tooltip-target="tooltip-{{$.App.Slug}}-php-link" data-tooltip-placement="left" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" aria-label="{{.T.Get "Click to change"}}">
+                            <button type="button" @click="phpEditOpen = !phpEditOpen" data-tooltip-target="tooltip-{{$.App.Slug}}-php-link" data-tooltip-placement="left" class="inline-flex size-6 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" aria-label="{{.T.Get "Click to change"}}">
                                 <i class="ri-equalizer-line text-base" aria-hidden="true"></i>
                             </button>
                             <div id="tooltip-{{$.App.Slug}}-php-link" role="tooltip" class="absolute z-10 invisible inline-block rounded-md bg-gray-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-xs opacity-0 tooltip dark:bg-gray-800">
@@ -322,7 +322,7 @@
                         {{end}}
                     </div>
 
-                    <div class="flex flex-col flex-grow justify-center rounded-md border border-gray-200 px-4 py-3 dark:border-gray-800">
+                    <div class="min-w-0">
                         <div class="mb-1 flex items-center justify-between gap-4 relative">
                             <h2 class="text-sm text-gray-500">{{.T.Get "Created"}}</h2>
                         </div>
@@ -332,29 +332,16 @@
             </div>
             <!-- END screenshot -->
 
-            <dl class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="grid grid-cols-1 gap-px border-t border-gray-200 bg-gray-200 lg:grid-cols-3 dark:border-gray-800 dark:bg-gray-800"><div class="min-w-0 bg-white lg:col-span-2 dark:bg-gray-950"><dl class="grid grid-cols-1 gap-px bg-gray-200 sm:grid-cols-2 sm:grid-rows-[auto_1fr] dark:bg-gray-800">
 
                 <!-- files info -->{{end}}
 
-{{define "cms_block_12"}}<div class="flex flex-col rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
-                    <div class="mb-1 flex items-center justify-between gap-4 relative">
-                        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Files"}}</h2>
-                        <a
-                            type="button"
-                            {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}}
-                            target="_blank"
-                            data-tooltip-target="tooltip-filemanager-link" data-tooltip-placement="left"
-                            class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"
-                         aria-label="{{.T.Get "Open folder in file manager"}}">
-                            <i class="ri-folder-open-line text-base" aria-hidden="true"></i>
-                        </a>
-                        <div id="tooltip-filemanager-link" role="tooltip" class="absolute z-10 invisible inline-block rounded-md bg-gray-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-xs opacity-0 tooltip dark:bg-gray-800">
-                        {{.T.Get "Open folder in file manager"}}
-                        <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
+{{define "cms_block_12"}}<div class="flex flex-col bg-white px-6 py-5 min-w-0 sm:row-span-2 sm:grid sm:grid-cols-1 sm:grid-rows-subgrid sm:gap-y-0 sm:[&>*:last-child]:self-start dark:bg-gray-950">
+                    <div class="relative -mx-6 -mt-5 mb-4 flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+                        <div class="min-w-0"><h2 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Files"}}</h2>{{if .UserAllowed.filemanager}}<a href="/files/{{replace .Docroot "/var/www/html/" ""}}" target="_blank" class="ml-2 text-sm font-normal text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Open in file manager"}} &rarr;</a>{{end}}<p class="text-sm/6 text-gray-500">{{.T.Get "Where the site lives and how much space it takes."}}</p></div>
                     </div>
 
-                    <div class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+                    <div class="divide-y divide-gray-200 dark:divide-gray-800 [&>div]:px-0">
                         <div class="flex items-center justify-between gap-4 px-4 py-2.5">
                             <span class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Folder"}}</span>
                             <span class="min-w-0 truncate text-sm font-medium text-gray-900 dark:text-gray-50"><a class="domain_link relative font-medium hover:underline hover:underline-offset-4" {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}}>{{.Docroot}}</a></span>
@@ -426,19 +413,19 @@
 
                 <!-- setup info -->{{end}}
 
-{{define "cms_block_13"}}<div class="grid h-full grid-cols-2 gap-2 xl:grid-cols-1">
-                    <div class="flex flex-col flex-grow justify-center rounded-md border border-gray-200 px-4 py-3 dark:border-gray-800">
+{{define "cms_block_13"}}<div class="grid grid-cols-2 gap-x-8 gap-y-5 px-4 py-6 sm:grid-cols-4 sm:px-6 lg:px-8">
+                    <div class="min-w-0">
                         <div class="mb-1 flex items-center justify-between gap-4 relative">
                             <h2 class="text-sm text-gray-500">{{$.App.Name}}</h2>
                         </div>
                         <h3 class="text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-50">{{if .Version}}{{.Version}}{{else}}{{.T.Get "Unknown"}}{{end}}</h3>
                     </div>
 
-                    <div class="flex flex-col flex-grow justify-center rounded-md border border-gray-200 px-4 py-3 dark:border-gray-800" x-data="{ phpEditOpen: false }">
-                        <div class="mb-1 flex items-center justify-between gap-4 relative">
+                    <div class="min-w-0" x-data="{ phpEditOpen: false }">
+                        <div class="mb-1 flex h-5 items-center gap-1.5 relative">
                             <h2 class="text-sm text-gray-500">{{.T.Get "PHP"}}</h2>
                             {{if and .UserAllowed.php (not .IsSubdirectory)}}
-                            <button type="button" @click="phpEditOpen = !phpEditOpen" data-tooltip-target="tooltip-{{$.App.Slug}}-php-link" data-tooltip-placement="left" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" aria-label="{{.T.Get "Click to change"}}">
+                            <button type="button" @click="phpEditOpen = !phpEditOpen" data-tooltip-target="tooltip-{{$.App.Slug}}-php-link" data-tooltip-placement="left" class="inline-flex size-6 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" aria-label="{{.T.Get "Click to change"}}">
                                 <i class="ri-equalizer-line text-base" aria-hidden="true"></i>
                             </button>
                             <div id="tooltip-{{$.App.Slug}}-php-link" role="tooltip" class="absolute z-10 invisible inline-block rounded-md bg-gray-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-xs opacity-0 tooltip dark:bg-gray-800">
@@ -474,14 +461,14 @@
                         {{end}}
                     </div>
 
-                    <div class="flex flex-col flex-grow justify-center rounded-md border border-gray-200 px-4 py-3 dark:border-gray-800">
+                    <div class="min-w-0">
                         <div class="mb-1 flex items-center justify-between gap-4 relative">
                             <h2 class="text-sm text-gray-500">{{if eq (lower .MySQLType) "mysql"}}{{.T.Get "MySQL"}}{{else}}{{.T.Get "MariaDB"}}{{end}}</h2>
                         </div>
                         <h3 class="text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-50">{{.MySQLVersion}}</h3>
                     </div>
 
-                    <div class="flex flex-col flex-grow justify-center rounded-md border border-gray-200 px-4 py-3 dark:border-gray-800">
+                    <div class="min-w-0">
                         <div class="mb-1 flex items-center justify-between gap-4 relative">
                             <h2 class="text-sm text-gray-500">{{.T.Get "Created"}}</h2>
                         </div>
@@ -491,29 +478,16 @@
             </div>
             <!-- END screenshot -->
 
-            <dl class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="grid grid-cols-1 gap-px border-t border-gray-200 bg-gray-200 lg:grid-cols-3 dark:border-gray-800 dark:bg-gray-800"><div class="min-w-0 bg-white lg:col-span-2 dark:bg-gray-950"><dl class="grid grid-cols-1 gap-px bg-gray-200 sm:grid-cols-2 sm:grid-rows-[auto_1fr] dark:bg-gray-800">
 
                 <!-- files info -->{{end}}
 
-{{define "cms_block_14"}}<div class="flex flex-col rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
-                    <div class="mb-1 flex items-center justify-between gap-4 relative">
-                        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Files"}}</h2>
-                        <a
-                            type="button"
-                            {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}}
-                            target="_blank"
-                            data-tooltip-target="tooltip-filemanager-link" data-tooltip-placement="left"
-                            class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"
-                         aria-label="{{.T.Get "Open folder in file manager"}}">
-                            <i class="ri-folder-open-line text-base" aria-hidden="true"></i>
-                        </a>
-                        <div id="tooltip-filemanager-link" role="tooltip" class="absolute z-10 invisible inline-block rounded-md bg-gray-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-xs opacity-0 tooltip dark:bg-gray-800">
-                        {{.T.Get "Open folder in file manager"}}
-                        <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
+{{define "cms_block_14"}}<div class="flex flex-col bg-white px-6 py-5 min-w-0 sm:row-span-2 sm:grid sm:grid-cols-1 sm:grid-rows-subgrid sm:gap-y-0 sm:[&>*:last-child]:self-start dark:bg-gray-950">
+                    <div class="relative -mx-6 -mt-5 mb-4 flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+                        <div class="min-w-0"><h2 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Files"}}</h2>{{if .UserAllowed.filemanager}}<a href="/files/{{replace .Docroot "/var/www/html/" ""}}" target="_blank" class="ml-2 text-sm font-normal text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Open in file manager"}} &rarr;</a>{{end}}<p class="text-sm/6 text-gray-500">{{.T.Get "Where the site lives and how much space it takes."}}</p></div>
                     </div>
 
-                    <div class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+                    <div class="divide-y divide-gray-200 dark:divide-gray-800 [&>div]:px-0">
                         <div class="flex items-center justify-between gap-4 px-4 py-2.5">
                             <span class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Folder"}}</span>
                             <span class="min-w-0 truncate text-sm font-medium text-gray-900 dark:text-gray-50"><a class="domain_link relative font-medium hover:underline hover:underline-offset-4" {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}}>{{.Docroot}}</a></span>
@@ -762,25 +736,9 @@
                 })();
             </script>{{end}}
 
-{{define "cms_block_18"}}<div class="flex flex-col rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
-                    <div class="mb-1 flex items-center justify-between gap-4 relative">
-                        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>
-                        {{if .UserAllowed.mysql}}
-                        <a
-                            type="button"
-                            id="db-link"
-                            href="/mysql"
-                            target="_blank"
-                            data-tooltip-target="tooltip-db-link" data-tooltip-placement="left"
-                            class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"
-                         aria-label="{{.T.Get "Manage MySQL databases"}}">
-                            <i class="ri-arrow-right-up-line text-base" aria-hidden="true"></i>
-                        </a>
-                        <div id="tooltip-db-link" role="tooltip" class="absolute z-10 invisible inline-block rounded-md bg-gray-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-xs opacity-0 tooltip dark:bg-gray-800">
-                            {{.T.Get "Manage MySQL databases"}}
-                            <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
-                        {{end}}
+{{define "cms_block_18"}}<div class="flex flex-col bg-white px-6 py-5 min-w-0 sm:row-span-2 sm:grid sm:grid-cols-1 sm:grid-rows-subgrid sm:gap-y-0 sm:[&>*:last-child]:self-start dark:bg-gray-950">
+                    <div class="relative -mx-6 -mt-5 mb-4 flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+                        <div class="min-w-0"><h2 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>{{if .UserAllowed.mysql}}<a href="/mysql" target="_blank" class="ml-2 text-sm font-normal text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Manage"}} &rarr;</a>{{end}}<p class="text-sm/6 text-gray-500">{{.T.Get "The database the site uses."}}</p></div>
                     </div>
 
                     {{if .DBInfo.error}}
@@ -788,7 +746,7 @@
                         <span class="text-sm text-gray-500">{{.DBInfo.error}}</span>
                     </div>
                     {{else}}
-                    <div class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+                    <div class="divide-y divide-gray-200 dark:divide-gray-800 [&>div]:px-0">
                         <div class="flex items-center justify-between gap-4 px-4 py-2.5" id="database-size-row">
                             <span class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Database size"}}</span>
                             <span class="text-sm font-medium text-gray-900 dark:text-gray-50" id="databaseSize">{{.T.Get "Calculating.."}}</span>
@@ -974,12 +932,7 @@
                     {{.T.Get "Loading %(name)s log.." "name" (print $.App.Name)}}
                 </h3>{{end}}
 
-{{define "cms_block_26"}}{{template "waf_panel" .}}
-
-    </div>
-
-</div>
-{{end}}
+{{define "cms_block_26"}}{{template "waf_panel" .}}{{end}}
 
 {{define "cms_block_27"}}<div class="flex items-center justify-between mb-4">
                 <h3 id="{{$.App.Slug}}-log-title" class="font-semibold text-gray-900 dark:text-gray-50">

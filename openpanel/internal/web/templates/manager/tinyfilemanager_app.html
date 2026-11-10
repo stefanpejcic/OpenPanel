@@ -8,40 +8,48 @@
 {{template "cms_block" .}}
         {{template "cms_block_2" .}}
         {{template "cms_block_4" .}}
-    <div class="flex flex-col space-y-4 rounded-md xl:col-span-3">
+    <div class="flex min-w-0 flex-col bg-white dark:bg-gray-950">
 
         {{template "cms_block_9" .}}
             {{template "cms_tabbtn_dashboard" .}}
             {{template "cms_tabbtn_backups" .}}
             {{template "cms_tab_security" .}}
         {{template "cms_tab_dashboard" .}}
-            <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
-                <div class="flex flex-col space-y-4 overflow-hidden rounded-md xl:col-span-3">
+            <div>
+                <div class="hidden">
                     <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded-md xl:col-span-3">
                         {{template "cms_block_10" .}}
                 {{template "cms_block_11" .}}
                 {{template "cms_block_12" .}}
-                <div class="flex flex-col justify-start overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
-                    <div class="mb-3 flex items-center justify-between gap-4">
-                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Setup"}}</h2>
+                <div class="flex flex-col bg-white px-6 py-5 min-w-0 sm:row-span-2 sm:grid sm:grid-cols-1 sm:grid-rows-subgrid sm:gap-y-0 sm:[&>*:last-child]:self-start dark:bg-gray-950">
+                    <div class="relative -mx-6 -mt-5 mb-4 flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+                        <div class="min-w-0"><h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Setup"}}</h2><p class="text-sm/6 text-gray-500">{{.T.Get "What to do after the install."}}</p></div>
                     </div>
-                    <div class="grid grid-cols-1 gap-2">
+                    <div class="flex flex-col items-start gap-3">
                         <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "TinyFileManager is ready to use - log in with the admin credentials set at install time."}}</p>
                         <a href="http://{{.CurrentDomain}}" target="_blank" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 mt-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
-                            {{.T.Get "Open site"}}
+                            <i class="ri-external-link-line" aria-hidden="true"></i>{{.T.Get "Open site"}}
                         </a>
                     </div>
                 </div>
                 <!-- END setup info -->
 
             </dl>
+            </div>
+            <div class="divide-y divide-gray-200 bg-white dark:divide-gray-800 dark:bg-gray-950 [&>div]:rounded-none [&>div]:border-x-0 [&>div]:border-t-0 [&>div:last-child]:border-b-0 [&>div]:bg-transparent [&>div]:px-6 [&>div]:py-5 dark:[&>div]:bg-transparent [&_[data-panel-head]]:-mx-6 [&_[data-panel-head]]:-mt-5 [&_[data-panel-head]]:mb-4 [&_[data-panel-head]]:border-b [&_[data-panel-head]]:border-gray-200 [&_[data-panel-head]]:px-6 [&_[data-panel-head]]:py-4 dark:[&_[data-panel-head]]:border-gray-800">
+
+        {{template "pagespeed_panel" .}}
+
+        {{template "visitors" .}}
+
+        {{template "cms_block_26" .}}
+
+    </div>
+            </div>
         </div>
 
-        <div class="hidden p-4 rounded-md" id="backups" role="tabpanel" aria-labelledby="backups-tab">
-
-            {{template "cms_block_15" .}}
-            {{template "cms_block_16" .}}
-            {{template "cms_script_3" .}}
+        <div class="hidden py-6" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+            {{template "site_backups" (dict "T" .T "Domain" .CurrentDomain "Docroot" .Docroot "Base" (print "/" .App.Slug) "DB" .DBInfo "Intro" "Copies of this site's files and database. Restore, download or delete them here." "Empty" "Back up now saves this site.")}}
         </div>
 
         <div class="hidden p-4 rounded-md" id="remove" role="tabpanel" aria-labelledby="remove-tab">
@@ -82,13 +90,9 @@
 
     </div>
 
-    <div class="flex flex-col space-y-4 rounded-md xl:col-span-1">
+    
 
-        {{template "pagespeed_panel" .}}
-
-        {{template "visitors" .}}
-
-        {{template "cms_block_26" .}}
+</div>
 <script>
 const TINYPHOTOGALLERY_SITE_ID = {{toJSON .Container.ID}};
 

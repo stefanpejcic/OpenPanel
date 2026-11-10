@@ -10,7 +10,7 @@
         {{template "cms_block_3" .}}
 {{template "cms_script" .}}
 {{template "cms_block_5" .}}
-    <div class="flex flex-col space-y-4 rounded-md xl:col-span-3">
+    <div class="flex min-w-0 flex-col bg-white dark:bg-gray-950">
 
         {{template "cms_block_6" .}}
             {{template "cms_tabbtn_dashboard" .}}
@@ -21,31 +21,15 @@
             {{template "cms_tabbtn_backups" .}}
             {{template "cms_tab_security_2" .}}
         {{template "cms_tab_dashboard" .}}
-            <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
-                <div class="flex flex-col space-y-4 overflow-hidden rounded-md xl:col-span-3">
+            <div>
+                <div class="hidden">
                     <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded-md xl:col-span-3">
                         {{template "cms_block_10" .}}
                 {{template "cms_block_13" .}}
                 {{template "cms_block_14" .}}
-                <div class="flex flex-col justify-start overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
-                    <div class="mb-3 flex items-center justify-between gap-4">
-                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>
-                        {{if .UserAllowed.mysql}}
-                        <a
-                            type="button"
-                            id="db-link"
-                            href="/mysql"
-                            target="_blank"
-                            data-tooltip-target="tooltip-db-link" data-tooltip-placement="left"
-                            class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"
-                        >
-                            <i class="ri-arrow-right-up-line text-lg leading-none" aria-hidden="true"></i>
-                        </a>
-                        <div id="tooltip-db-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-md shadow-xs opacity-0 tooltip dark:bg-gray-700">
-                            {{.T.Get "Manage MySQL databases"}}
-                            <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
-                        {{end}}
+                <div class="flex flex-col bg-white px-6 py-5 min-w-0 sm:row-span-2 sm:grid sm:grid-cols-1 sm:grid-rows-subgrid sm:gap-y-0 sm:[&>*:last-child]:self-start dark:bg-gray-950">
+                    <div class="relative -mx-6 -mt-5 mb-4 flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+                        <div class="min-w-0"><h2 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>{{if .UserAllowed.mysql}}<a href="/mysql" target="_blank" class="ml-2 text-sm font-normal text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Manage"}} &rarr;</a>{{end}}<p class="text-sm/6 text-gray-500">{{.T.Get "The database the site uses."}}</p></div>
                     </div>
 
                     {{if .DBInfo.error}}
@@ -53,7 +37,7 @@
                         <span class="text-sm text-gray-500 dark:text-gray-500">{{.DBInfo.error}}</span>
                     </div>
                     {{else}}
-                    <div class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+                    <div class="divide-y divide-gray-200 dark:divide-gray-800 [&>div]:px-0">
                         <div class="flex items-center justify-between gap-4 px-4 py-3" id="database-size-row">
                             <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Database size"}}</span>
                             <span class="text-sm font-medium text-gray-900 dark:text-gray-50" id="databaseSize">{{.T.Get "Calculating.."}}</span>
@@ -131,7 +115,22 @@
                         passwordSpan.style.filter = passwordSpan.style.filter === "blur(5px)" ? "none" : "blur(5px)";
                     }
                 </script>
-{{template "cms_block_20" .}}
+</dl>
+            </div>
+            <div class="divide-y divide-gray-200 bg-white dark:divide-gray-800 dark:bg-gray-950 [&>div]:rounded-none [&>div]:border-x-0 [&>div]:border-t-0 [&>div:last-child]:border-b-0 [&>div]:bg-transparent [&>div]:px-6 [&>div]:py-5 dark:[&>div]:bg-transparent [&_[data-panel-head]]:-mx-6 [&_[data-panel-head]]:-mt-5 [&_[data-panel-head]]:mb-4 [&_[data-panel-head]]:border-b [&_[data-panel-head]]:border-gray-200 [&_[data-panel-head]]:px-6 [&_[data-panel-head]]:py-4 dark:[&_[data-panel-head]]:border-gray-800">
+
+        {{template "pagespeed_panel" .}}
+
+        {{template "visitors" .}}
+
+        {{template "waf_panel" .}}
+
+        {{template "drupal_cache" .}}
+
+    </div>
+            </div>
+        </div>
+
         <div class="hidden p-4 rounded-md" id="logs" role="tabpanel" aria-labelledby="logs-tab">
 
             {{template "cms_block_27" .}}
@@ -349,25 +348,12 @@
                 {{template "cms_block_19" .}}
             {{template "cms_script_4" .}}
 {{template "cms_block_21" .}}
-        <div class="hidden p-4 rounded-md" id="backups" role="tabpanel" aria-labelledby="backups-tab">
-
-            {{template "cms_block_29" .}}
-            {{template "cms_block_30" .}}
-            {{template "cms_script_10" .}}
+        <div class="hidden py-6" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+            {{template "site_backups" (dict "T" .T "Domain" .CurrentDomain "Docroot" .Docroot "Base" (print "/" .App.Slug) "DB" .DBInfo "Intro" "Copies of this site's files and database. Restore, download or delete them here." "Empty" "Back up now saves this site.")}}
         </div>
 
         {{template "cms_tab_remove_2" .}}
-    <div class="flex flex-col space-y-4 rounded-md xl:col-span-1">
-
-        {{template "pagespeed_panel" .}}
-
-        {{template "visitors" .}}
-
-        {{template "waf_panel" .}}
-
-        {{template "drupal_cache" .}}
-
-    </div>
+    
 
 </div>
 

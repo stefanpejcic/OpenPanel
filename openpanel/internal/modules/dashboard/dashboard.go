@@ -241,7 +241,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		HowToTopics:           convertHowToTopics(d.HowToTopics),
 		KnowledgeBaseLink:     d.KnowledgeBaseLink,
 		UserWebsitesCount:     len(d.UserWebsites),
-		Websites:              dashboardSites(r.Context(), a, userContext, d.UserWebsites),
+		Websites:              dashboardSites(r.Context(), a, currentUsername, userContext, d.UserWebsites),
 		ShowSites:             showSites,
 		AltList:               altList,
 		MainDomainsCount:      len(d.MainDomains),

@@ -112,3 +112,52 @@ func TestRenderAddButtonsAtLimit(t *testing.T) {
 		t.Error("New website should stay a link below the limit")
 	}
 }
+
+func TestEmailRowsSortedByUsage(t *testing.T) {
+	rows := emailRows([]string{
+		"* small@a.tld ( 7.0K / 10G ) [0%]",
+		"* big@a.tld ( 28M / 2.0G ) [1%]",
+		"* empty@b.tld ( 0 / 1.0G ) [0%]",
+	})
+	if len(rows) != 3 || rows[0].Name != "big@a.tld" || rows[0].Meta != "28M" || rows[0].Sub != "a.tld" || rows[2].Name != "empty@b.tld" {
+		t.Errorf("rows = %+v", rows)
+	}
+}
+
+func TestByTraffic(t *testing.T) {
+	sites := []UserWebsite{{SiteName: "new.tld"}, {SiteName: "busy.tld"}, {SiteName: "old.tld"}}
+	got := byTraffic(sites, map[string]int{"busy.tld": 900, "old.tld": 10})
+	if got[0].SiteName != "busy.tld" || got[1].SiteName != "old.tld" || got[2].SiteName != "new.tld" {
+		t.Errorf("order = %s %s %s", got[0].SiteName, got[1].SiteName, got[2].SiteName)
+	}
+}
+
+func TestContainerRowsRunningFirst(t *testing.T) {
+	rows := parseContainerRows("a|exited|x\nb|running|y\n")
+	if rows[0].Name != "b" {
+		t.Errorf("running container should come first, got %s", rows[0].Name)
+	}
+}
+
+func TestRenderDatabaseTypes(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	allowed := map[string]bool{"dashboard": true, "mysql": true, "postgresql": true}
+	data := DashboardPageData{
+		LayoutData: web.LayoutData{Title: "Dashboard", CSRFToken: "x", PanelDir: "ltr", MenuStyle: "modern",
+			NavItems: web.BuildSidebarNav(allowed, nil, "/dashboard"), UserAllowed: allowed,
+			UserAllowedJSON: web.UserAllowedList(allowed), CurrentUsername: "u", RequestPath: "/dashboard", T: mgr.Translator("en")},
+		View: "overview",
+		AltList: &DashboardList{Kind: "databases", Title: "Databases", Href: "/mysql", Icon: "ri-database-2-line", NameLabel: "Database", MetaLabel: "Size", HasType: true,
+			Rows: []DashboardListRow{dbRow("shop", "mariadb", "/mysql", 5<<20), dbRow("analytics", "postgresql", "/postgresql", 1<<20)}},
+	}
+	w := httptest.NewRecorder()
+	if err := dashboardPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	for _, want := range []string{">Type<", `aria-label="MariaDB"`, "PostgreSQL", "5 MB", "analytics"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("databases card missing %q", want)
+		}
+	}
+}

@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/domains"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/summary"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -150,8 +152,9 @@ func (s DashboardSite) StateLabel() string {
 	return "Stopped"
 }
 
-// dashboardSites keeps the newest six sites and marks the ones whose domain is suspended
-func dashboardSites(ctx context.Context, a *appctx.App, userContext string, sites []UserWebsite) []DashboardSite {
+// dashboardSites keeps the six busiest sites by the latest daily summary, newest first on a tie, and marks the ones whose domain is suspended
+func dashboardSites(ctx context.Context, a *appctx.App, username, userContext string, sites []UserWebsite) []DashboardSite {
+	sites = byTraffic(sites, siteRequests(username))
 	if len(sites) > 6 {
 		sites = sites[:6]
 	}
@@ -348,4 +351,29 @@ func (d DashboardPageData) DomainsFull() bool {
 // SitesFull is true when the plan's website limit is used up, 0 means unlimited
 func (d DashboardPageData) SitesFull() bool {
 	return d.WebsitesLimit > 0 && d.UserWebsitesCount >= d.WebsitesLimit
+}
+
+// siteRequests is each site's request count from the newest saved daily summary, empty when there's none yet
+func siteRequests(username string) map[string]int {
+	out := map[string]int{}
+	if username == "" {
+		return out
+	}
+	dates := summary.Dates(username)
+	if len(dates) == 0 {
+		return out
+	}
+	if s, ok := summary.Load(username, dates[0]); ok {
+		for _, w := range s.Websites {
+			out[w.Name] = w.Requests
+		}
+	}
+	return out
+}
+
+// byTraffic sorts sites by requests, the input order (newest first) breaks ties
+func byTraffic(sites []UserWebsite, req map[string]int) []UserWebsite {
+	out := append([]UserWebsite(nil), sites...)
+	sort.SliceStable(out, func(i, j int) bool { return req[out[i].SiteName] > req[out[j].SiteName] })
+	return out
 }
