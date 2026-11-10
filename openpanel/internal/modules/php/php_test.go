@@ -133,3 +133,11 @@ func TestContainsString(t *testing.T) {
 		t.Error("expected false")
 	}
 }
+
+func TestStatusLabelText(t *testing.T) {
+	for in, want := range map[string]string{"Security-Fixes Only": "Security fixes only", "Latest": "Latest", "": ""} {
+		if got := statusLabelText(in); got != want {
+			t.Errorf("statusLabelText(%q) = %q, want %q", in, got, want)
+		}
+	}
+}

@@ -167,38 +167,37 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	}
 
 	layout := web.LayoutData{
-		Title:             "Dashboard",
-		BrandName:         a.Config.Get("brand_name", ""),
-		Logo:              a.Config.Get("logo", ""),
-		Favicon:           a.Config.Get("favicon", ""),
-		CSRFToken:         csrf.Token(r),
-		PanelDir:          panelDir,
-		FoundABugLink:     a.Config.Get("found_a_bug_link", ""),
-		PanelVersion:      panelVersion,
-		CustomCSS:         a.CustomCSS,
-		CustomJS:          true, // matches base.html's always-true url_for() guard - not tied to a.CustomJS on purpose
-		MenuStyle:         menuStyle,
-		NavItems:          navItems,
-		NavGroups:         navGroups,
-		PageTabs:          web.DashboardTabs(r.URL.Path, upsellPlanName != "" && upsellURL != ""),
-		NavTrail:          navTrail,
-		UserAllowed:       userAllowed,
-		UserAllowedJSON:   web.UserAllowedList(userAllowed),
-		SidebarFavorites:  web.SidebarFavorites(r.Context(), a, userAllowed, currentUsername),
-		UpsellAllowed:     upsellAllowed,
-		UpsellPlanName:    upsellPlanName,
-		UpsellURL:         upsellURL,
-		IsEnterprise:      isEnterprise,
-		CurrentUsername:   currentUsername,
-		HostingPlanName:   hostingPlanName,
-		AvatarType:        avatarType,
-		GravatarURL:       gravatarURL,
-		RequestPath:       r.URL.Path,
-		Flashes:           web.BuildFlashDisplay(flash.Pop(a.Sessions, w, r, sess)),
-		Impersonating:     impersonating,
-		AdminPort:         adminPort,
-		DashboardIconView: web.ReadDashboardIconView(r),
-		T:                 t,
+		Title:            "Dashboard",
+		BrandName:        a.Config.Get("brand_name", ""),
+		Logo:             a.Config.Get("logo", ""),
+		Favicon:          a.Config.Get("favicon", ""),
+		CSRFToken:        csrf.Token(r),
+		PanelDir:         panelDir,
+		FoundABugLink:    a.Config.Get("found_a_bug_link", ""),
+		PanelVersion:     panelVersion,
+		CustomCSS:        a.CustomCSS,
+		CustomJS:         true, // matches base.html's always-true url_for() guard - not tied to a.CustomJS on purpose
+		MenuStyle:        menuStyle,
+		NavItems:         navItems,
+		NavGroups:        navGroups,
+		PageTabs:         web.DashboardTabs(r.URL.Path, upsellPlanName != "" && upsellURL != ""),
+		NavTrail:         navTrail,
+		UserAllowed:      userAllowed,
+		UserAllowedJSON:  web.UserAllowedList(userAllowed),
+		SidebarFavorites: web.SidebarFavorites(r.Context(), a, userAllowed, currentUsername),
+		UpsellAllowed:    upsellAllowed,
+		UpsellPlanName:   upsellPlanName,
+		UpsellURL:        upsellURL,
+		IsEnterprise:     isEnterprise,
+		CurrentUsername:  currentUsername,
+		HostingPlanName:  hostingPlanName,
+		AvatarType:       avatarType,
+		GravatarURL:      gravatarURL,
+		RequestPath:      r.URL.Path,
+		Flashes:          web.BuildFlashDisplay(flash.Pop(a.Sessions, w, r, sess)),
+		Impersonating:    impersonating,
+		AdminPort:        adminPort,
+		T:                t,
 	}
 
 	limitReached := anyPlanLimitReached(d)
@@ -208,8 +207,15 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		upgradeURL = d.Plan.UpsellURL
 	}
 
+	showSites := sitesAllowed(userAllowed)
+	var altList *DashboardList
+	if !showSites {
+		uid, _ := auth.UserID(r)
+		altList = dashboardAltList(r.Context(), a, uid, currentUsername, userContext, userAllowed, d.Domains)
+	}
 	return DashboardPageData{
 		LayoutData:            layout,
+		View:                  dashboardView(r),
 		Sections:              buildDashboardSections(t, userAllowed, upsellAllowed, menuStyle, dashboardAppKeys),
 		TourShow:              d.TourShow,
 		OnboardingShow:        d.OnboardingShow,
@@ -235,7 +241,9 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		HowToTopics:           convertHowToTopics(d.HowToTopics),
 		KnowledgeBaseLink:     d.KnowledgeBaseLink,
 		UserWebsitesCount:     len(d.UserWebsites),
-		Websites:              dashboardSites(r.Context(), a, userContext, d.UserWebsites),
+		Websites:              dashboardSites(r.Context(), a, currentUsername, userContext, d.UserWebsites),
+		ShowSites:             showSites,
+		AltList:               altList,
 		MainDomainsCount:      len(d.MainDomains),
 		DBUsage:               d.DBUsage,
 		EmailCount:            d.EmailCount,

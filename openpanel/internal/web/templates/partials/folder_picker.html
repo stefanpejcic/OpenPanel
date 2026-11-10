@@ -1,32 +1,34 @@
 {{define "folder_picker"}}
 <!-- START templates/partials/folder_picker.html -->
-<div class="col-span-full mb-5">
-    <div class="flex items-center justify-between gap-2 mb-2">
-        <label for="directory-select" class="block text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Choose a directory:"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-        <button type="button" id="folderPickerToggle" class="shrink-0 inline-flex items-center gap-1 rounded-md border border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 px-2 py-1 text-xs font-medium text-gray-900 dark:text-gray-50 hover:bg-gray-100 dark:hover:bg-gray-900 cursor-pointer">{{.T.Get "Change path"}}</button>
+{{/* folder list over /json/folders, #directory-select holds the path the page reads; the folder you are in is the one picked, the circle picks a subfolder without opening it */}}
+<div class="col-span-full">
+    <div class="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-2 rounded-md bg-gray-50 px-3 py-2 dark:bg-gray-900">
+        <span class="text-sm text-gray-500">{{.T.Get "Path"}}</span>
+        <b id="folderPickerSelected" class="min-w-0 truncate font-mono text-sm font-medium text-gray-900 dark:text-gray-50">/var/www/html/</b>
+        <span id="folderPickerManual" class="min-w-0 flex-1" style="display:none"><input type="text" id="directory-select" class="block w-full min-w-0 appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-1.5 font-mono text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 read-only:bg-gray-100 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30" value="/var/www/html/" placeholder="/var/www/html/" spellcheck="false" aria-label="{{.T.Get "Path"}}"></span>
+        <button type="button" id="folderPickerToggle" class="ml-auto inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer">{{.T.Get "Type a path"}}</button>
     </div>
 
-    <div id="folderPicker">
-        <nav id="folderPickerCrumbs" class="flex flex-wrap items-center gap-1 text-sm min-w-0 mb-1"></nav>
-        <ul id="folderPickerList" class="overflow-y-auto divide-y divide-gray-200 dark:divide-gray-800 rounded-md border border-gray-200 dark:border-gray-800 text-sm" style="height: 16rem;"></ul>
+    <div id="folderPicker" class="mt-3">
+        <div class="overflow-hidden rounded-md border border-gray-200 dark:border-gray-800">
+            <nav id="folderPickerCrumbs" class="flex min-w-0 flex-wrap items-center gap-1 border-b border-gray-200 bg-gray-50 px-3 py-2 font-mono text-xs dark:border-gray-800 dark:bg-gray-900" aria-label="{{.T.Get "Breadcrumb"}}"></nav>
+            <ul id="folderPickerList" class="overflow-y-auto divide-y divide-gray-200 text-sm dark:divide-gray-800" style="height: 16rem;"></ul>
+        </div>
     </div>
-
-    <div id="folderPickerManual" class="flex" style="display:none">
-        <input type="text" id="directory-select" class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 focus:z-10 disabled:opacity-50 disabled:pointer-events-none disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" value="/var/www/html/" placeholder="/var/www/html/">
-    </div>
-
-    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Path"}}: <span id="folderPickerSelected" class="font-mono text-gray-900 dark:text-gray-50">/var/www/html/</span></p>
 </div>
 
 <script>
 // folder list from the same /json/folders endpoint the file manager's move/copy modal uses, #directory-select stays the value pages read
 window.folderPicker = (function () {
     const root = '/var/www/html/';
-    const text = { loading: {{toJSON (.T.Get "Loading...")}}, empty: {{toJSON (.T.Get "No subfolders")}}, folders: {{toJSON (.T.Get "Folders")}}, change: {{toJSON (.T.Get "Change path")}} };
+    const text = {
+        loading: {{toJSON (.T.Get "Loading...")}}, empty: {{toJSON (.T.Get "No subfolders")}},
+        browse: {{toJSON (.T.Get "Browse folders")}}, type: {{toJSON (.T.Get "Type a path")}}, pick: {{toJSON (.T.Get "Pick")}},
+    };
     const $ = id => document.getElementById(id);
     const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const input = $('directory-select');
-    let manual = false, locked = false, available = true;
+    let manual = false, locked = false, available = true, cur = '';
 
     // folder path relative to root, null when the typed path is outside it
     function rel(full) {
@@ -39,10 +41,17 @@ window.folderPicker = (function () {
     function refresh() {
         $('folderPicker').style.display = manual || locked ? 'none' : '';
         $('folderPickerManual').style.display = manual ? '' : 'none';
+        $('folderPickerSelected').style.display = manual && !locked ? 'none' : '';
         $('folderPickerToggle').style.display = locked || !available ? 'none' : '';
-        $('folderPickerToggle').textContent = manual ? text.folders : text.change;
+        $('folderPickerToggle').textContent = manual ? text.browse : text.type;
         input.readOnly = locked;
         $('folderPickerSelected').textContent = input.value;
+        // the row whose circle is checked gets the selected-row gray
+        $('folderPickerList').querySelectorAll('li[data-pick]').forEach(li => {
+            const on = li.querySelector('input').checked;
+            li.classList.toggle('bg-gray-50', on);
+            li.classList.toggle('dark:bg-gray-900', on);
+        });
     }
 
     function select(path) {
@@ -50,15 +59,19 @@ window.folderPicker = (function () {
         refresh();
     }
 
+    let seq = 0;
     async function load(path) {
+        const my = ++seq;
         const list = $('folderPickerList');
+        // the clicked folder is picked right away, a toggle to manual before the list arrives keeps it
+        if (!manual && !locked) select(path);
         list.innerHTML = `<li class="px-3 py-2 text-gray-500 dark:text-gray-400">${text.loading}</li>`;
         let folders;
         try {
-            const res = await fetch('/json/folders/' + path.split('/').map(encodeURIComponent).join('/'));
+            const res = await fetch('/json/folders/' + path.split('/').filter(Boolean).map(encodeURIComponent).join('/'));
             if (!res.ok) throw new Error(res.status);
-            folders = (await res.json()).folders || [];
-            if (!path) folders = folders.filter(f => f.name !== '.quarantine');
+            // hidden folders, the quarantine among them, aren't scan or fix targets people look for
+            folders = ((await res.json()).folders || []).filter(f => !f.name.startsWith('.'));
         } catch (e) {
             if (path) return load('');
             // no file manager access, the input is all there is
@@ -66,18 +79,21 @@ window.folderPicker = (function () {
             setManual(true);
             return;
         }
-        // switched to manual while this was loading, keep what's typed
-        if (manual) return;
+        // switched to manual or opened another folder while this was loading
+        if (manual || my !== seq) return;
+        cur = path;
         select(path);
         const parts = path ? path.split('/') : [];
-        const crumbs = [`<button type="button" data-path="" class="text-gray-700 dark:text-gray-300 hover:underline cursor-pointer"><i class="bi bi-house"></i></button>`];
-        parts.forEach((part, i) => crumbs.push(`<span class="text-gray-400">/</span><button type="button" data-path="${esc(parts.slice(0, i + 1).join('/'))}" class="text-gray-700 dark:text-gray-300 hover:underline cursor-pointer truncate">${esc(part)}</button>`));
+        // the list's own header: where you are, each part clickable, the last one is the open folder
+        const last = parts.length - 1;
+        const crumbs = [`<button type="button" data-path="" class="${parts.length ? 'text-gray-600 hover:text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-400 dark:hover:text-gray-50 cursor-pointer' : 'font-medium text-gray-900 dark:text-gray-50'}">/var/www/html</button>`];
+        parts.forEach((part, i) => crumbs.push(`<span class="text-gray-400 dark:text-gray-600">/</span><button type="button" data-path="${esc(parts.slice(0, i + 1).join('/'))}" class="truncate ${i === last ? 'font-medium text-gray-900 dark:text-gray-50' : 'text-gray-600 hover:text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-400 dark:hover:text-gray-50 cursor-pointer'}">${esc(part)}</button>`));
         $('folderPickerCrumbs').innerHTML = crumbs.join('');
         const rows = [];
-        if (path) rows.push(`<li><button type="button" data-path="${esc(parts.slice(0, -1).join('/'))}" class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer"><i class="bi bi-arrow-up"></i> ..</button></li>`);
+        if (path) rows.push(`<li><button type="button" data-path="${esc(parts.slice(0, -1).join('/'))}" class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer"><i class="ri-arrow-up-line"></i> ..</button></li>`);
         folders.sort((x, y) => x.name.localeCompare(y.name)).forEach(f => {
             const p = (path ? path + '/' : '') + f.name;
-            rows.push(`<li><button type="button" data-path="${esc(p)}" class="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer"><i class="bi bi-folder-fill text-orange-500"></i><span class="truncate min-w-0">${esc(f.name)}</span>${f.has_subfolders ? '<i class="bi bi-chevron-right ml-auto text-gray-400"></i>' : ''}</button></li>`);
+            rows.push(`<li data-pick class="flex items-center gap-1 pl-3"><input type="radio" name="folder-picker" value="${esc(p)}" aria-label="${esc(text.pick + ' ' + f.name)}"><button type="button" data-path="${esc(p)}" class="flex min-w-0 flex-1 items-center gap-2 px-2 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer"><i class="ri-folder-line text-orange-500" aria-hidden="true"></i><span class="truncate min-w-0">${esc(f.name)}</span>${f.has_subfolders ? '<i class="ri-arrow-right-s-line ml-auto text-gray-400" aria-hidden="true"></i>' : ''}</button></li>`);
         });
         if (!folders.length) rows.push(`<li class="px-3 py-2 text-gray-500 dark:text-gray-400">${text.empty}</li>`);
         list.innerHTML = rows.join('');
@@ -101,11 +117,17 @@ window.folderPicker = (function () {
         const btn = e.target.closest('button[data-path]');
         if (btn && !locked) load(btn.dataset.path);
     };
+    $('folderPickerList').onchange = e => {
+        if (e.target.matches('input[type="radio"]')) { input.value = root + e.target.value + '/'; refresh(); }
+    };
     $('folderPickerToggle').onclick = () => setManual(!manual);
     input.addEventListener('input', refresh);
-    load('');
+    load(cur);
 
-    return { setManual, lock };
+    // pages can point the picker at a path, like a domain's document root
+    function open(full) { const r = rel(full); if (r === null) { input.value = full; setManual(true); } else { manual = false; load(r); } }
+
+    return { setManual, lock, open };
 })();
 </script>
 <!-- END templates/partials/folder_picker.html -->

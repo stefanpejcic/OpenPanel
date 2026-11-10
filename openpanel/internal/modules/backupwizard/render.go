@@ -32,15 +32,15 @@ type BackupWizardPageData struct {
 }
 
 func renderBackupWizardPage(a *appctx.App, w http.ResponseWriter, r *http.Request, inProgress bool, started, size string, backups []BackupFile) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Backup Wizard")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Backup wizard")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 	includes := []string{
-		layout.T.Get("The home directory"), layout.T.Get("Databases"), layout.T.Get("Domains"),
+		layout.T.Get("Home directory"), layout.T.Get("Databases"), layout.T.Get("Domains"),
 		layout.T.Get("Websites"), layout.T.Get("Email accounts, filters, aliases"), layout.T.Get("FTP accounts"),
-		layout.T.Get("DNS zones"), layout.T.Get("SSL certificates"), layout.T.Get("Cronjobs"),
+		layout.T.Get("DNS zones"), layout.T.Get("SSL certificates"), layout.T.Get("Cron jobs"),
 		layout.T.Get("Containers and images"),
 	}
 	data := BackupWizardPageData{

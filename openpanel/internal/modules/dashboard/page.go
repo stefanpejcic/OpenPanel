@@ -3,7 +3,9 @@ package dashboard
 import (
 	"context"
 	"html/template"
+	"net/http"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -13,6 +15,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/domains"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/summary"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -34,6 +37,7 @@ type DashboardPageData struct {
 	web.LayoutData
 
 	Sections       []Section
+	View           string // "overview" or "tools", rendered server-side so the page doesn't jump on load
 	TourShow       bool
 	OnboardingShow bool
 	OnboardingSkip OnboardingSkip
@@ -63,8 +67,11 @@ type DashboardPageData struct {
 
 	UserWebsitesCount int
 	MainDomainsCount  int
-	// Websites is the newest few sites for the Overview's Websites card
-	Websites   []DashboardSite
+	// Websites is the newest few sites for the Overview's websites card
+	Websites []DashboardSite
+	// ShowSites is false on plans without sites, AltList then fills that card
+	ShowSites  bool
+	AltList    *DashboardList
 	DBUsage    int
 	EmailCount int
 	FTPCount   int
@@ -91,7 +98,7 @@ func twofaStatusMessage(t i18n.Translator, enabled bool) template.HTML {
 	return template.HTML(strings.Replace(msg, "{status}", status, 1)) //nolint:gosec // msg is a translation-catalog string plus a translated status word, not user input
 }
 
-// DashboardSite is one row of the Overview's Websites card
+// DashboardSite is one row of the Overview's websites card
 type DashboardSite struct {
 	Name, Type, PHP, Href string
 	Suspended             bool
@@ -99,32 +106,26 @@ type DashboardSite struct {
 	Service, Port, State string
 }
 
-// Tile is the op_icon name and hue of the site's type tile
-func (s DashboardSite) Tile() (icon, hue string) {
+// TileIcon is the Remix icon for the site's type
+func (s DashboardSite) TileIcon() string {
 	switch s.Type {
 	case "WordPress":
-		return "wordpress", "green"
+		return "ri-wordpress-line"
 	case "Node.js":
-		return "terminal", "green"
-	case "Python":
-		return "terminal", "yellow"
-	case "Ruby":
-		return "terminal", "red"
+		return "ri-nodejs-line"
 	case "Java":
-		return "terminal", "orange"
+		return "ri-java-line"
+	case "Python", "Ruby":
+		return "ri-terminal-box-line"
 	case "PHP":
-		return "php", "purple"
+		return "ri-php-line"
 	case "n8n", "Docker":
-		return "box", "cyan"
+		return "ri-box-3-line"
 	case "Website Builder":
-		return "layout", "indigo"
+		return "ri-layout-line"
 	}
-	return "apps", "blue"
+	return "ri-global-line"
 }
-
-// TileIcon and TileHue split Tile for templates
-func (s DashboardSite) TileIcon() string { i, _ := s.Tile(); return i }
-func (s DashboardSite) TileHue() string  { _, h := s.Tile(); return h }
 
 // RunsOn is the PHP version, or the runtime for apps in their own container
 func (s DashboardSite) RunsOn() string {
@@ -140,8 +141,20 @@ func (s DashboardSite) RunsOn() string {
 	return s.Type
 }
 
-// dashboardSites keeps the newest six sites and marks the ones whose domain is suspended
-func dashboardSites(ctx context.Context, a *appctx.App, userContext string, sites []UserWebsite) []DashboardSite {
+// StateLabel is Running or Stopped for a container app, empty when the state is unknown
+func (s DashboardSite) StateLabel() string {
+	switch s.State {
+	case "":
+		return ""
+	case "running":
+		return "Running"
+	}
+	return "Stopped"
+}
+
+// dashboardSites keeps the six busiest sites by the latest daily summary, newest first on a tie, and marks the ones whose domain is suspended
+func dashboardSites(ctx context.Context, a *appctx.App, username, userContext string, sites []UserWebsite) []DashboardSite {
+	sites = byTraffic(sites, siteRequests(username))
 	if len(sites) > 6 {
 		sites = sites[:6]
 	}
@@ -204,17 +217,6 @@ func parseContainerStates(out string) map[string]string {
 	return states
 }
 
-// StateLabel is Running or Stopped for a container app, empty when the state is unknown
-func (s DashboardSite) StateLabel() string {
-	switch s.State {
-	case "":
-		return ""
-	case "running":
-		return "Running"
-	}
-	return "Stopped"
-}
-
 // timeAgo turns a "2006-01-02 15:04:05" login time into "2 hours ago" using the base.html relative-date strings
 func timeAgo(t i18n.Translator, stamp string, now time.Time) string {
 	then, err := time.ParseInLocation("2006-01-02 15:04:05", strings.TrimSpace(stamp), time.Local)
@@ -258,6 +260,18 @@ func siteTypeLabel(t string) string {
 	return strings.ToUpper(t[:1]) + t[1:]
 }
 
+// dashboardView picks the open view from ?view= or the dashboard_view cookie, tools by default
+func dashboardView(r *http.Request) string {
+	ok := func(v string) bool { return v == "overview" || v == "tools" }
+	if v := r.URL.Query().Get("view"); ok(v) {
+		return v
+	}
+	if c, err := r.Cookie("dashboard_view"); err == nil && ok(c.Value) {
+		return c.Value
+	}
+	return "tools"
+}
+
 // PlanTile is one usage tile on the Overview view
 type PlanTile struct {
 	Label, Href, Icon string
@@ -276,28 +290,30 @@ func (d DashboardPageData) PlanTiles() []PlanTile {
 	}
 	var tiles []PlanTile
 	if allowed["wordpress"] || allowed["website_builder"] || allowed["nodejs"] || allowed["python"] {
-		tiles = append(tiles, tile("Websites", "/sites", "browser", d.UserWebsitesCount, d.WebsitesLimit))
+		tiles = append(tiles, tile("Websites", "/sites", "ri-window-line", d.UserWebsitesCount, d.WebsitesLimit))
 	}
 	if allowed["domains"] {
-		tiles = append(tiles, tile("Domains", "/domains", "globe", d.MainDomainsCount, d.DomainsLimit))
+		tiles = append(tiles, tile("Domains", "/domains", "ri-global-line", d.MainDomainsCount, d.DomainsLimit))
 	}
 	if allowed["mysql"] || allowed["postgresql"] {
 		href := "/postgresql"
 		if allowed["mysql"] {
 			href = "/mysql"
 		}
-		tiles = append(tiles, tile("Databases", href, "db", d.DBUsage, d.DBLimit))
+		tiles = append(tiles, tile("Databases", href, "ri-database-2-line", d.DBUsage, d.DBLimit))
 	}
 	if allowed["emails"] {
-		tiles = append(tiles, tile("Email accounts", "/emails", "mail", d.EmailCount, d.EmailLimit))
+		tiles = append(tiles, tile("Email accounts", "/emails", "ri-mail-line", d.EmailCount, d.EmailLimit))
+	}
+	if allowed["ftp"] {
+		tiles = append(tiles, tile("FTP accounts", "/ftp", "ri-folder-shared-line", d.FTPCount, d.FTPLimit))
 	}
 	return tiles
 }
 
-// QuickActions is a fixed pick of common tools for the Overview chips, or the first usable item of each section when the plan has few of them
+// QuickActions is a fixed pick of common tools for the Overview, or the first usable item of each section when the plan has few of them
 func (d DashboardPageData) QuickActions() []SectionItem {
 	var out []SectionItem
-	// the Modern theme's picks, when the plan has them
 	for _, href := range []string{"/files", "/phpmyadmin", "/domains/edit-dns-zone", "/domains/ssl", "/cronjobs", "/backups"} {
 	find:
 		for _, s := range d.Sections {
@@ -324,5 +340,40 @@ func (d DashboardPageData) QuickActions() []SectionItem {
 			break
 		}
 	}
+	return out
+}
+
+// DomainsFull is true when the plan's domain limit is used up, 0 means unlimited
+func (d DashboardPageData) DomainsFull() bool {
+	return d.DomainsLimit > 0 && d.MainDomainsCount >= d.DomainsLimit
+}
+
+// SitesFull is true when the plan's website limit is used up, 0 means unlimited
+func (d DashboardPageData) SitesFull() bool {
+	return d.WebsitesLimit > 0 && d.UserWebsitesCount >= d.WebsitesLimit
+}
+
+// siteRequests is each site's request count from the newest saved daily summary, empty when there's none yet
+func siteRequests(username string) map[string]int {
+	out := map[string]int{}
+	if username == "" {
+		return out
+	}
+	dates := summary.Dates(username)
+	if len(dates) == 0 {
+		return out
+	}
+	if s, ok := summary.Load(username, dates[0]); ok {
+		for _, w := range s.Websites {
+			out[w.Name] = w.Requests
+		}
+	}
+	return out
+}
+
+// byTraffic sorts sites by requests, the input order (newest first) breaks ties
+func byTraffic(sites []UserWebsite, req map[string]int) []UserWebsite {
+	out := append([]UserWebsite(nil), sites...)
+	sort.SliceStable(out, func(i, j int) bool { return req[out[i].SiteName] > req[out[j].SiteName] })
 	return out
 }

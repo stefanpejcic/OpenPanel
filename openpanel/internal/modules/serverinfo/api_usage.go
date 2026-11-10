@@ -93,7 +93,7 @@ func apiUsageHistory(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		entries = append(entries, apiUsageEntry{
-			Timestamp: d.Timestamp, CPUPercent: d.CPU.Usage.Pct, MemPercent: d.Memory.UsagePct,
+			Timestamp: d.Timestamp, CPUPercent: float64(d.CPUPct()), MemPercent: d.Memory.UsagePct,
 			MemUsed: d.Memory.Used.Human, MemTotal: d.Memory.Total.Human,
 			BandwidthSent: d.Bandwidth.TotalSent.Human, BandwidthLimit: d.Bandwidth.Limit.Human,
 			BandwidthUsagePct: d.Bandwidth.UsagePct, Warning: d.Warning,

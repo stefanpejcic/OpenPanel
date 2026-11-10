@@ -34,6 +34,11 @@ function passwordStrength(translations, threshold) {
         translations,
         threshold: threshold || 50,
 
+        init() {
+            if (window.keepFilled) keepFilled(this);
+            if (this.password) this.checkStrength();
+        },
+
         checkStrength() {
             const val = this.password;
             const score = passwordStrengthScore(val);

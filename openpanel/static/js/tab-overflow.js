@@ -5,27 +5,27 @@
 .tab-overflow{display:flex!important;flex-wrap:nowrap;grid-template-columns:none!important}
 .tab-overflow>li{min-width:0}
 .tab-overflow-more{position:relative}
-.tab-overflow-btn{display:inline-flex;align-items:center;justify-content:center;gap:.25rem;width:100%;max-width:14rem;padding:.5rem .75rem;border-radius:.125rem;font-size:.875rem;line-height:1.25rem;font-weight:500;white-space:nowrap;color:#6b7280;background:transparent;cursor:pointer}
-.tab-overflow-btn:hover{color:#374151}
-.tab-overflow-btn.is-active{background:#fff;color:#3b82f6;box-shadow:0 1px 2px 0 rgb(0 0 0/.05)}
+.tab-overflow-btn{display:inline-flex;align-items:center;justify-content:center;gap:.25rem;width:100%;max-width:14rem;padding:.5rem .75rem;border-radius:.25rem;font-size:.875rem;line-height:1.25rem;font-weight:500;white-space:nowrap;color:var(--color-gray-500);background:transparent;cursor:pointer}
+.tab-overflow-btn:hover{color:var(--color-gray-700)}
+.tab-overflow-btn.is-active{background:var(--color-white);color:var(--color-blue-500);box-shadow:0 1px 2px 0 rgb(0 0 0/.05)}
 .tab-overflow-label{overflow:hidden;text-overflow:ellipsis}
-.tab-overflow-btn svg{flex-shrink:0}
-.dark .tab-overflow-btn{color:#9ca3af}
-.dark .tab-overflow-btn:hover{color:#e5e7eb}
-.dark .tab-overflow-btn.is-active{background:#111827;color:#3b82f6}
-.tab-overflow-menu{display:none;position:absolute;right:0;top:100%;z-index:30;min-width:12rem;padding:.25rem;margin-top:.25rem;background:#fff;border:1px solid #e5e7eb;border-radius:.375rem;box-shadow:0 10px 15px -3px rgb(0 0 0/.1),0 4px 6px -4px rgb(0 0 0/.1)}
+.tab-overflow-btn svg,.tab-overflow-btn i{flex-shrink:0}
+.dark .tab-overflow-btn{color:var(--color-gray-400)}
+.dark .tab-overflow-btn:hover{color:var(--color-gray-200)}
+.dark .tab-overflow-btn.is-active{background:var(--color-gray-900);color:var(--color-blue-500)}
+.tab-overflow-menu{display:none;position:absolute;right:0;top:100%;z-index:50;min-width:12rem;padding:.25rem;margin-top:.25rem;background:var(--color-white);border:1px solid var(--color-gray-200);border-radius:.375rem;box-shadow:0 10px 15px -3px rgb(0 0 0/.1),0 4px 6px -4px rgb(0 0 0/.1)}
 .tab-overflow-menu:before{content:"";position:absolute;left:0;right:0;top:-.5rem;height:.5rem}
 .tab-overflow-more.is-open .tab-overflow-menu{display:block}
-.dark .tab-overflow-menu{background:#030712;border-color:#1f2937}
-.tab-overflow-item{display:flex;align-items:center;gap:.5rem;width:100%;padding:.5rem .75rem;border-radius:.25rem;font-size:.875rem;line-height:1.25rem;color:#374151;text-align:left;white-space:nowrap;cursor:pointer;background:transparent}
-.tab-overflow-item:hover{background:#f3f4f6}
-.tab-overflow-item.is-active{color:#3b82f6;font-weight:500}
-.dark .tab-overflow-item{color:#d1d5db}
-.dark .tab-overflow-item:hover{background:#111827}
-.dark .tab-overflow-item.is-active{color:#3b82f6}
-.tab-overflow-item svg{flex-shrink:0;margin:0}
+.dark .tab-overflow-menu{background:var(--color-gray-950);border-color:var(--color-gray-800)}
+.tab-overflow-item{scroll-margin-top:5rem;display:flex;align-items:center;gap:.5rem;width:100%;padding:.5rem .75rem;border-radius:.25rem;font-size:.875rem;line-height:1.25rem;color:var(--color-gray-700);text-align:left;white-space:nowrap;cursor:pointer;background:transparent}
+.tab-overflow-item:hover{background:var(--color-gray-100)}
+.tab-overflow-item.is-active{color:var(--color-blue-500);font-weight:500}
+.dark .tab-overflow-item{color:var(--color-gray-300)}
+.dark .tab-overflow-item:hover{background:var(--color-gray-900)}
+.dark .tab-overflow-item.is-active{color:var(--color-blue-500)}
+.tab-overflow-item svg,.tab-overflow-item i{flex-shrink:0;margin:0}
 `;
-    const CHEVRON = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708"/></svg>';
+    const CHEVRON = '<i class="ri-arrow-down-s-line" aria-hidden="true"></i>';
 
     function ensureStyle() {
         if (document.getElementById('tab-overflow-style')) return;
@@ -46,10 +46,10 @@
         return (titled && titled.getAttribute('title')) || link.textContent.trim();
     }
 
-    // the tabs' own Alpine :class puts bg-white on the active one
+    // the tabs' own Alpine :class marks the active one: bg-white on pill tabs, border-blue-500 on underline tabs
     function isActive(li) {
         const link = tabLink(li);
-        return !!link && link.classList.contains('bg-white');
+        return !!link && (link.classList.contains('bg-white') || link.classList.contains('border-blue-500') || link.getAttribute('aria-selected') === 'true');
     }
 
     function init(ul) {
@@ -112,7 +112,7 @@
                 item.type = 'button';
                 item.className = 'tab-overflow-item';
                 item.setAttribute('role', 'menuitem');
-                const icon = link && link.querySelector('svg');
+                const icon = link && link.querySelector('svg, i[class*="ri-"]');
                 if (icon) item.appendChild(icon.cloneNode(true));
                 item.appendChild(document.createTextNode(tabText(li)));
                 item.addEventListener('click', e => {
@@ -149,14 +149,28 @@
                 hidden = items.slice(fit);
                 hidden.forEach(li => { li.style.display = 'none'; });
             }
-            items.forEach(li => { if (li.style.display !== 'none') li.style.flex = '1 1 auto'; });
-            renderMenu();
+            // equal widths, so a short label like Git gets the same slot as the rest
+            items.forEach(li => { if (li.style.display !== 'none') li.style.flex = '1 1 0%'; });
+            // rebuilding the menu every pass swaps its buttons out from under a click
+            const key = hidden.map(li => items.indexOf(li)).join(',');
+            if (key !== lastKey) {
+                lastKey = key;
+                renderMenu();
+            }
             refresh();
         }
 
         let frame = 0;
+        let lastKey = null;
+        let lastWidth = -1;
         const schedule = fn => { cancelAnimationFrame(frame); frame = requestAnimationFrame(fn); };
-        new ResizeObserver(() => schedule(layout)).observe(ul);
+        // only a width change needs a new layout, the height moves while tabs are shown and hidden
+        new ResizeObserver(entries => {
+            const w = Math.round(entries[0].contentRect.width);
+            if (w === lastWidth) return;
+            lastWidth = w;
+            schedule(layout);
+        }).observe(ul);
         // Alpine flips the active classes when a tab is picked, keep the More button in sync
         new MutationObserver(records => {
             if (records.some(r => !more.contains(r.target))) schedule(refresh);

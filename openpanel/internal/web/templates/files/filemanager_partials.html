@@ -1,20 +1,17 @@
 {{define "drag_and_drop"}}
 <!-- START templates/files/filemanager/drag_and_drop.html -->
-    <div class="hidden sm:mx-auto sm:max-w-2xl m-6 p-4 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 CrawlerStatusCard" id="upload_files_form">
+    <div class="hidden mx-4 mb-4 sm:mx-6 lg:mx-8 rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised CrawlerStatusCard" id="upload_files_form">
         <form action="/file-manager/upload?method=upload" id="uploadForm" enctype="multipart/form-data" method="POST">
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
             <label for="fileUpload" id="dropArea" style="min-height: 12rem;"
-                   class="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                <div id="uploadText" style="max-height: 18rem;" class="flex flex-col items-center justify-center w-full p-4 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-neutral-700 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
-                    <svg class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                    </svg>
+                   class="flex flex-col items-center justify-center w-full border border-dashed border-gray-300 dark:border-gray-700 rounded-md cursor-pointer bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800/80 transition-colors">
+                <div id="uploadText" style="max-height: 18rem;" class="flex flex-col items-center justify-center w-full p-4 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-track]:bg-gray-700 dark:[&::-webkit-scrollbar-thumb]:bg-gray-500">
+                    <i class="ri-upload-cloud-2-line mb-3 text-2xl text-gray-400" aria-hidden="true"></i>
                     <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
                         <span class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Click to upload"}}</span> {{.T.Get "or drag and drop"}}
                     </p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Any file type (Multiple files allowed)"}}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Any file type, multiple files allowed"}}</p>
                     {{if .FilemanagerUploadSize}}
                     <p class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Max size:"}} {{.FilemanagerUploadSize}} MB</p>
                     {{end}}
@@ -23,8 +20,8 @@
             </label>
 
             <div id="uploadConfirm" class="hidden mt-4 flex justify-end gap-2">
-                <button type="button" id="uploadCancelButton" class="inline-flex items-center gap-1 rounded-md border border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 px-3 py-2 text-sm font-medium text-gray-900 dark:text-gray-50 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-900 cursor-pointer"><i class="bi bi-x-lg"></i> {{.T.Get "Cancel"}}</button>
-                <button type="button" id="uploadConfirmButton" class="inline-flex items-center gap-1 rounded-md border border-transparent bg-blue-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 cursor-pointer"><i class="bi bi-upload"></i> {{.T.Get "Upload"}}</button>
+                <button type="button" id="uploadCancelButton" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"><i class="ri-close-line"></i> {{.T.Get "Cancel"}}</button>
+                <button type="button" id="uploadConfirmButton" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-upload-line"></i> {{.T.Get "Upload"}}</button>
             </div>
         </form>
 
@@ -76,15 +73,15 @@ document.addEventListener("DOMContentLoaded", function () {
         pending: '',
         queued: `<span class="text-gray-500 dark:text-gray-400">{{.T.Get "Queued"}}</span>`,
         uploading: `<span class="text-blue-500">{{.T.Get "Uploading"}}</span>`,
-        done: `<i class="bi bi-check-lg text-green-500 dark:text-green-400"></i>`,
-        error: `<i class="bi bi-x-lg text-red-600 dark:text-red-400"></i>`,
+        done: `<i class="ri-check-line text-emerald-500 dark:text-emerald-400"></i>`,
+        error: `<i class="ri-close-line text-red-600 dark:text-red-400"></i>`,
     };
 
     function renderList() {
         uploadText.innerHTML = `
             <p class="mb-2 text-sm font-medium text-gray-900 dark:text-gray-50">${items.length} {{.T.Get "file(s) selected"}}</p>
             <ul class="w-full divide-y divide-gray-200 dark:divide-gray-800 rounded-md border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 text-sm">
-                ${items.map(it => `<li class="flex items-center justify-between gap-2 px-3 py-1.5"><span class="flex items-center gap-2 min-w-0 text-gray-700 dark:text-gray-300"><i class="bi bi-file-earmark shrink-0"></i><span class="truncate">${esc(it.file.name)}</span></span><span class="flex items-center gap-2 shrink-0 text-xs text-gray-500 dark:text-gray-400 tabular-nums">${fmtSize(it.file.size)} ${statusLabel[it.status]}</span></li>`).join('')}
+                ${items.map(it => `<li class="flex items-center justify-between gap-2 px-3 py-1.5"><span class="flex items-center gap-2 min-w-0 text-gray-700 dark:text-gray-300"><i class="ri-file-line shrink-0"></i><span class="truncate">${esc(it.file.name)}</span></span><span class="flex items-center gap-2 shrink-0 text-xs text-gray-500 dark:text-gray-400 tabular-nums">${fmtSize(it.file.size)} ${statusLabel[it.status]}</span></li>`).join('')}
             </ul>
         `;
     }
@@ -157,10 +154,10 @@ document.addEventListener("DOMContentLoaded", function () {
         state = 'uploading';
         batch.forEach(it => it.status = 'uploading');
         renderList();
-        progress.className = 'mt-4 rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 p-4';
+        progress.className = 'mt-4 rounded-md bg-gray-50 p-4 dark:bg-gray-900';
         progress.innerHTML = `
-            <div class="flex items-center justify-between mb-2 text-sm text-gray-700 dark:text-gray-300"><span>{{.T.Get "Uploading..."}}</span><span id="uploadPercent" class="tabular-nums">0%</span></div>
-            <div class="w-full h-2 rounded-full bg-gray-200 dark:bg-gray-800"><div id="uploadBar" class="h-2 rounded-full bg-blue-600 transition-all" style="width:0%"></div></div>
+            <div class="flex items-center justify-between mb-2 text-xs text-gray-500"><span>{{.T.Get "Uploading..."}}</span><span id="uploadPercent" class="tabular-nums">0%</span></div>
+            <div class="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800"><div id="uploadBar" class="h-full rounded-full bg-blue-500 transition-all" style="width:0%"></div></div>
         `;
 
         const formData = new FormData();
@@ -215,16 +212,16 @@ document.addEventListener("DOMContentLoaded", function () {
         renderList();
         if (!errors.length) {
             state = 'idle';
-            progress.innerHTML = `<p class="text-sm text-green-500 dark:text-green-400">{{.T.Get "Upload complete."}}</p>`;
+            progress.innerHTML = `<p class="text-sm text-emerald-600 dark:text-emerald-500">{{.T.Get "Upload complete."}}</p>`;
             showToast("{{.T.Get "Upload successful!"}}", "success");
             setTimeout(() => window.location.reload(), 500);
             return;
         }
         state = 'error';
-        progress.className = 'mt-4 rounded-lg border border-gray-200 dark:border-gray-800 bg-red-50 dark:bg-red-400/10 p-4';
+        progress.className = 'mt-4 rounded-md bg-red-50 p-4 text-red-900 dark:bg-red-950/70 dark:text-red-500';
         progress.innerHTML = `
-            <p class="text-sm font-semibold text-red-600 dark:text-red-400 mb-1">{{.T.Get "Upload failed:"}}</p>
-            <ul class="text-sm text-red-600 dark:text-red-400 list-disc pl-5">${errors.map(e => `<li>${esc(e)}</li>`).join('')}</ul>
+            <p class="text-sm font-semibold mb-1">{{.T.Get "Upload failed:"}}</p>
+            <ul class="text-sm list-disc pl-5">${errors.map(e => `<li>${esc(e)}</li>`).join('')}</ul>
         `;
         showToast("{{.T.Get "Upload failed:"}} " + errors.join('; '), "error");
     }
@@ -279,7 +276,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function highlight(on) {
-        dropArea.style.borderColor = on ? '#3b82f6' : '';
+        dropArea.classList.toggle('border-blue-500', on);
         dropArea.classList.toggle('bg-blue-50', on);
         dropArea.classList.toggle('dark:bg-blue-500/10', on);
     }
@@ -296,10 +293,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
 {{define "empty_directory"}}
 <!-- START templates/files/filemanager/empty_directory.html -->
-<div class="row flex flex-col items-center text-center justify-center h-72">
-   <svg  xmlns="http://www.w3.org/2000/svg"  width="120"  height="120"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.25"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-folder-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M13.5 19h-8.5a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v4" /><path d="M22 22l-5 -5" /><path d="M17 22l5 -5" /></svg>
-   <div class="fs-1 fw-bolder text-dark mb-4">{{.T.Get "No items found."}}</div>
-   <div class="fs-6">{{.T.Get "Start creating new folders or uploading a new file!"}}</div>
+<div class="mx-4 mt-2 mb-8 flex h-64 flex-col items-center justify-center rounded-md border border-dashed border-gray-300 px-4 text-center sm:mx-6 lg:mx-8 dark:border-gray-800">
+   <i class="ri-folder-open-line text-2xl leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+   <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "This folder is empty"}}</p>
+   <p class="mt-1 text-sm text-gray-500">{{.T.Get "Drop files here, or create a file or folder."}}</p>
+   <div class="mt-4 flex flex-wrap justify-center gap-2">
+      <button type="button" onclick="fmOpenUpload()" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-upload-line text-base" aria-hidden="true"></i>{{.T.Get "Upload"}}</button>
+      <button type="button" onclick="fmShowNewRow('newfoDrawer')" class="fm-new-opener relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-folder-add-line text-base" aria-hidden="true"></i>{{.T.Get "New folder"}}</button>
+   </div>
 </div>
 <!-- END templates/files/filemanager/empty_directory.html -->
 {{end}}
@@ -308,69 +309,70 @@ document.addEventListener("DOMContentLoaded", function () {
 {{define "actions_buttons"}}
 <!-- START templates/files/filemanager/actions_buttons.html -->
 <style>
-/* all eleven labelled buttons only fit on wide screens, below that show icons */
-@media (min-width: 768px) and (max-width: 1439px) {
+/* all eleven labelled buttons need about 1120px of toolbar, below that show icons */
+#mainButtons { container-type: inline-size; }
+@container (max-width: 1119.98px) {
   #mainButtons [role="group"] > button > span.md\:inline { display: none; }
   #mainButtons [role="group"] > button > i.md\:hidden { display: inline-block; }
 }
 </style>
-<div class="flex justify-between sticky top-16 z-30 bg-white shadow-sm" id="mainButtons">
+<div class="sticky top-16 z-30 border-t border-gray-200 bg-white px-4 py-1.5 sm:px-6 lg:px-8 dark:border-gray-800 dark:bg-gray-950" id="mainButtons">
     <div class="w-full">
-        <div class="w-full inline-flex rounded-md shadow-sm" role="group">
+        <div class="flex w-full flex-wrap items-center gap-0.5" role="group">
 
-            <button title="{{.T.Get "Select all"}}" class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="SelectAll-button">
-                <span id="spanAll" class="hidden md:inline"><i class="bi bi-hand-index"></i> {{.T.Get "Select all"}}</span>
-                <i class="md:hidden bi bi-hand-index"></i>
+            <button title="{{.T.Get "Select all"}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80 disabled:text-gray-400 dark:disabled:text-gray-600" id="SelectAll-button">
+                <span id="spanAll" class="hidden md:inline"><i class="ri-cursor-line"></i> {{.T.Get "Select all"}}</span>
+                <i class="md:hidden ri-cursor-line"></i>
             </button>
 
-            <button title="{{.T.Get "View"}}" class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="viewButton" disabled>
-                <span class="hidden md:inline"><i class="bi bi-eye"></i> {{.T.Get "View"}}</span>
-                <i class="md:hidden bi bi-eye"></i>
+            <button title="{{.T.Get "View"}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80 disabled:text-gray-400 dark:disabled:text-gray-600" id="viewButton" disabled>
+                <span class="hidden md:inline"><i class="ri-eye-line"></i> {{.T.Get "View"}}</span>
+                <i class="md:hidden ri-eye-line"></i>
             </button>
 
-            <button title="{{.T.Get "Edit"}}" class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="editButton" disabled>
-                <span class="hidden md:inline"><i class="bi bi-pencil"></i> {{.T.Get "Edit"}}</span>
-                <i class="md:hidden bi bi-pencil"></i>
+            <button title="{{.T.Get "Edit"}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80 disabled:text-gray-400 dark:disabled:text-gray-600" id="editButton" disabled>
+                <span class="hidden md:inline"><i class="ri-pencil-line"></i> {{.T.Get "Edit"}}</span>
+                <i class="md:hidden ri-pencil-line"></i>
             </button>
 
-            <button title="{{.T.Get "Download"}}" class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 hidden sm:inline-flex" id="downloadButton" disabled>
-                <span class="hidden md:inline"><i class="bi bi-download"></i> {{.T.Get "Download"}}</span>
-                <i class="md:hidden bi bi-download"></i>
+            <button title="{{.T.Get "Download"}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80 disabled:text-gray-400 dark:disabled:text-gray-600" id="downloadButton" disabled>
+                <span class="hidden md:inline"><i class="ri-download-line"></i> {{.T.Get "Download"}}</span>
+                <i class="md:hidden ri-download-line"></i>
             </button>
 
-            <button title="{{.T.Get "Rename"}}" class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="renameButton" disabled>
-                <span class="hidden md:inline"><i class="bi bi-input-cursor-text"></i> {{.T.Get "Rename"}}</span>
-                <i class="md:hidden bi bi-input-cursor-text"></i>
+            <button title="{{.T.Get "Rename"}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80 disabled:text-gray-400 dark:disabled:text-gray-600" id="renameButton" disabled>
+                <span class="hidden md:inline"><i class="ri-input-cursor-move"></i> {{.T.Get "Rename"}}</span>
+                <i class="md:hidden ri-input-cursor-move"></i>
             </button>
 
-            <button title="{{.T.Get "Copy"}}" class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="copyButton" disabled>
-                <span class="hidden md:inline"><i class="bi bi-files"></i> {{.T.Get "Copy"}}</span>
-                <i class="md:hidden bi bi-files"></i>
+            <button title="{{.T.Get "Copy"}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80 disabled:text-gray-400 dark:disabled:text-gray-600" id="copyButton" disabled>
+                <span class="hidden md:inline"><i class="ri-file-copy-line"></i> {{.T.Get "Copy"}}</span>
+                <i class="md:hidden ri-file-copy-line"></i>
             </button>
 
-            <button title="{{.T.Get "Move"}}" class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="moveButton" disabled>
-                <span class="hidden md:inline"><i class="bi bi-arrows-move"></i> {{.T.Get "Move"}}</span>
-                <i class="md:hidden bi bi-arrows-move"></i>
+            <button title="{{.T.Get "Move"}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80 disabled:text-gray-400 dark:disabled:text-gray-600" id="moveButton" disabled>
+                <span class="hidden md:inline"><i class="ri-drag-move-line"></i> {{.T.Get "Move"}}</span>
+                <i class="md:hidden ri-drag-move-line"></i>
             </button>
 
-            <button title="{{.T.Get "Compress"}}" class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="compressButton" disabled>
-                <span class="hidden md:inline"><i class="bi bi-arrows-angle-contract"></i> {{.T.Get "Compress"}}</span>
-                <i class="md:hidden bi bi-arrows-angle-contract"></i>
+            <button title="{{.T.Get "Compress"}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80 disabled:text-gray-400 dark:disabled:text-gray-600" id="compressButton" disabled>
+                <span class="hidden md:inline"><i class="ri-collapse-diagonal-line"></i> {{.T.Get "Compress"}}</span>
+                <i class="md:hidden ri-collapse-diagonal-line"></i>
             </button>
 
-            <button title="{{.T.Get "Extract"}}" class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="extractButton" disabled>
-                <span class="hidden md:inline"><i class="bi bi-arrows-angle-expand"></i> {{.T.Get "Extract"}}</span>
-                <i class="md:hidden bi bi-arrows-angle-expand"></i>
+            <button title="{{.T.Get "Extract"}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80 disabled:text-gray-400 dark:disabled:text-gray-600" id="extractButton" disabled>
+                <span class="hidden md:inline"><i class="ri-expand-diagonal-line"></i> {{.T.Get "Extract"}}</span>
+                <i class="md:hidden ri-expand-diagonal-line"></i>
             </button>
 
-            <button title="{{.T.Get "Permissions"}}" class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="permButton" disabled>
-                <span class="hidden md:inline"><i class="bi bi-key"></i> {{.T.Get "Permissions"}}</span>
-                <i class="md:hidden bi bi-key"></i>
+            <button title="{{.T.Get "Permissions"}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80 disabled:text-gray-400 dark:disabled:text-gray-600" id="permButton" disabled>
+                <span class="hidden md:inline"><i class="ri-key-2-line"></i> {{.T.Get "Permissions"}}</span>
+                <i class="md:hidden ri-key-2-line"></i>
             </button>
 
-            <button title="{{.T.Get "Delete"}}" class="relative inline-flex items-center justify-center whitespace-nowrap mt-2 w-full sm:mt-0 border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 disabled:bg-red-300 disabled:text-white disabled:dark:bg-red-950 disabled:dark:text-red-400" id="deleteButton" disabled>
-                <span class="hidden md:inline"><i class="bi bi-trash2"></i> {{.T.Get "Delete"}}</span>
-                <i class="md:hidden bi bi-trash2"></i>
+            <button title="{{.T.Get "Delete"}}" class="ml-auto relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent shadow-none bg-transparent text-red-600 hover:bg-red-50 dark:text-red-500 dark:hover:bg-red-400/10 dark:hover:bg-gray-800/80 disabled:text-gray-400 dark:disabled:text-gray-600" id="deleteButton" disabled>
+                <span class="hidden md:inline"><i class="ri-delete-bin-line"></i> {{.T.Get "Delete"}}</span>
+                <i class="md:hidden ri-delete-bin-line"></i>
             </button>
 
         </div>
@@ -378,62 +380,62 @@ document.addEventListener("DOMContentLoaded", function () {
 </div>
 
 <!-- right-click menu, classic view only -->
-<ul id="fmContextMenu" class="hidden absolute z-50 min-w-44 rounded-md border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-800 dark:bg-gray-950"></ul>
+<ul id="fmContextMenu" class="hidden absolute z-50 min-w-44 rounded-md border border-gray-200 bg-white p-1 shadow-xl dark:border-gray-800 dark:bg-gray-950"></ul>
 <!-- END templates/files/filemanager/actions_buttons.html -->
 {{end}}
 
 
 {{define "new_actions_buttons"}}
 <!-- START templates/files/filemanager/new_actions_buttons.html -->
-<div id="selectedOptions" class="hidden fixed inset-x-0 bottom-8 mx-auto flex w-fit items-center space-x-3 rounded-full border border-gray-800 dark:border-gray-800 bg-black px-4 text-sm font-medium shadow-md ring-1 ring-gray-800">
+<div id="selectedOptions" class="hidden fixed inset-x-0 bottom-8 z-40 mx-auto flex w-fit max-w-[calc(100vw-2rem)] items-center rounded-md bg-gray-950 text-sm font-medium shadow-xl ring-1 ring-gray-800">
     <div data-side="top" data-align="center" data-state="open" role="dialog" class="z-50 data-[state=closed]:animate-hide data-[side=top]:animate-slideUpAndFade" tabindex="-1">
-        <div class="relative flex items-center rounded-lg bg-black px-1 shadow-lg shadow-black/30 dark:ring-1 dark:ring-white/10">
-            <div class="px-3 py-2.5 text-sm tabular-nums text-gray-300" id="selectedRows"></div>
+        <div class="relative flex items-center overflow-x-auto rounded-md px-1 py-1">
+            <div class="whitespace-nowrap border-r border-gray-800 px-3 py-1.5 text-sm tabular-nums text-gray-400" id="selectedRows"></div>
 
-      <div class="inline-flex" role="group">
-         <button class="flex items-center gap-x-2 rounded-md px-1 py-1 hover:bg-gray-800 focus-visible:bg-gray-800 focus-visible:hover:bg-gray-800 disabled:text-gray-500 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500" id="SelectAll-button">
-         <span id="spanAll" class="hidden md:inline"><i class="bi bi-hand-index"></i> {{.T.Get "Select all"}}</span>
-         <i class="md:hidden bi bi-hand-index"></i>
+      <div class="inline-flex gap-0.5 pl-1" role="group">
+         <button title="{{.T.Get "Select all"}}" class="flex items-center gap-x-1.5 rounded-md px-2 py-1 text-gray-50 hover:bg-gray-800 focus-visible:bg-gray-800 disabled:text-gray-500 disabled:hover:bg-transparent outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" id="SelectAll-button">
+         <span id="spanAll" class="hidden 2xl:inline"><i class="ri-cursor-line"></i> {{.T.Get "Select all"}}</span>
+         <i class="2xl:hidden ri-cursor-line"></i>
          </button>
-         <button class="flex items-center gap-x-2 rounded-md px-1 py-1 hover:bg-gray-800 focus-visible:bg-gray-800 focus-visible:hover:bg-gray-800 disabled:text-gray-500 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500" id="viewButton" href="#" target="_blank" disabled>
-         <span class="hidden md:inline"><i class="bi bi-eye"></i> {{.T.Get "View"}}</span>
-         <i class="md:hidden bi bi-eye"></i>
+         <button title="{{.T.Get "View"}}" class="flex items-center gap-x-1.5 rounded-md px-2 py-1 text-gray-50 hover:bg-gray-800 focus-visible:bg-gray-800 disabled:text-gray-500 disabled:hover:bg-transparent outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" id="viewButton" href="#" target="_blank" disabled>
+         <span class="hidden 2xl:inline"><i class="ri-eye-line"></i> {{.T.Get "View"}}</span>
+         <i class="2xl:hidden ri-eye-line"></i>
          </button>
-         <button class="flex items-center gap-x-2 rounded-md px-1 py-1 hover:bg-gray-800 focus-visible:bg-gray-800 focus-visible:hover:bg-gray-800 disabled:text-gray-500 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500" id="editButton" href="#" target="_blank" disabled>
-         <span class="hidden md:inline"><i class="bi bi-pencil"></i> {{.T.Get "Edit"}}</span>
-         <i class="md:hidden bi bi-pencil"></i>
+         <button title="{{.T.Get "Edit"}}" class="flex items-center gap-x-1.5 rounded-md px-2 py-1 text-gray-50 hover:bg-gray-800 focus-visible:bg-gray-800 disabled:text-gray-500 disabled:hover:bg-transparent outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" id="editButton" href="#" target="_blank" disabled>
+         <span class="hidden 2xl:inline"><i class="ri-pencil-line"></i> {{.T.Get "Edit"}}</span>
+         <i class="2xl:hidden ri-pencil-line"></i>
          </button>
-         <button class="flex items-center gap-x-2 rounded-md px-1 py-1 hover:bg-gray-800 focus-visible:bg-gray-800 focus-visible:hover:bg-gray-800 disabled:text-gray-500 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500" id="downloadButton" disabled>
-         <span  class="hidden md:inline"><i class="bi bi-download"></i> {{.T.Get "Download"}}</span>
-         <i class="md:hidden bi bi-download"></i>
+         <button title="{{.T.Get "Download"}}" class="flex items-center gap-x-1.5 rounded-md px-2 py-1 text-gray-50 hover:bg-gray-800 focus-visible:bg-gray-800 disabled:text-gray-500 disabled:hover:bg-transparent outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" id="downloadButton" disabled>
+         <span class="hidden 2xl:inline"><i class="ri-download-line"></i> {{.T.Get "Download"}}</span>
+         <i class="2xl:hidden ri-download-line"></i>
          </button>
-         <button class="flex items-center gap-x-2 rounded-md px-1 py-1 hover:bg-gray-800 focus-visible:bg-gray-800 focus-visible:hover:bg-gray-800 disabled:text-gray-500 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500" id="renameButton" disabled>
-         <span class="hidden md:inline"><i class="bi bi-input-cursor-text"></i> {{.T.Get "Rename"}}</span>
-         <i class="md:hidden bi bi-input-cursor-text"></i>
+         <button title="{{.T.Get "Rename"}}" class="flex items-center gap-x-1.5 rounded-md px-2 py-1 text-gray-50 hover:bg-gray-800 focus-visible:bg-gray-800 disabled:text-gray-500 disabled:hover:bg-transparent outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" id="renameButton" disabled>
+         <span class="hidden 2xl:inline"><i class="ri-input-cursor-move"></i> {{.T.Get "Rename"}}</span>
+         <i class="2xl:hidden ri-input-cursor-move"></i>
          </button>
-         <button class="flex items-center gap-x-2 rounded-md px-1 py-1 hover:bg-gray-800 focus-visible:bg-gray-800 focus-visible:hover:bg-gray-800 disabled:text-gray-500 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500" id="copyButton" disabled>
-         <span class="hidden md:inline"><i class="bi bi-files"></i> {{.T.Get "Copy"}}</span>
-         <i class="md:hidden bi bi-files"></i>
+         <button title="{{.T.Get "Copy"}}" class="flex items-center gap-x-1.5 rounded-md px-2 py-1 text-gray-50 hover:bg-gray-800 focus-visible:bg-gray-800 disabled:text-gray-500 disabled:hover:bg-transparent outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" id="copyButton" disabled>
+         <span class="hidden 2xl:inline"><i class="ri-file-copy-line"></i> {{.T.Get "Copy"}}</span>
+         <i class="2xl:hidden ri-file-copy-line"></i>
          </button>
-         <button class="flex items-center gap-x-2 rounded-md px-1 py-1 hover:bg-gray-800 focus-visible:bg-gray-800 focus-visible:hover:bg-gray-800 disabled:text-gray-500 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500" id="moveButton" disabled>
-         <span class="hidden md:inline"><i class="bi bi-arrows-move"></i> {{.T.Get "Move"}}</span>
-         <i class="md:hidden bi-arrows-move"></i>
+         <button title="{{.T.Get "Move"}}" class="flex items-center gap-x-1.5 rounded-md px-2 py-1 text-gray-50 hover:bg-gray-800 focus-visible:bg-gray-800 disabled:text-gray-500 disabled:hover:bg-transparent outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" id="moveButton" disabled>
+         <span class="hidden 2xl:inline"><i class="ri-drag-move-line"></i> {{.T.Get "Move"}}</span>
+         <i class="2xl:hidden ri-drag-move-line"></i>
          </button>
-         <button class="flex items-center gap-x-2 rounded-md px-1 py-1 hover:bg-gray-800 focus-visible:bg-gray-800 focus-visible:hover:bg-gray-800 disabled:text-gray-500 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500" id="compressButton" disabled>
-         <span  class="hidden md:inline"><i class="bi bi-arrows-angle-contract"></i> {{.T.Get "Compress"}}</span>
-         <i class="md:hidden bi bi-arrows-angle-contract"></i>
+         <button title="{{.T.Get "Compress"}}" class="flex items-center gap-x-1.5 rounded-md px-2 py-1 text-gray-50 hover:bg-gray-800 focus-visible:bg-gray-800 disabled:text-gray-500 disabled:hover:bg-transparent outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" id="compressButton" disabled>
+         <span class="hidden 2xl:inline"><i class="ri-collapse-diagonal-line"></i> {{.T.Get "Compress"}}</span>
+         <i class="2xl:hidden ri-collapse-diagonal-line"></i>
          </button>
-         <button class="flex items-center gap-x-2 rounded-md px-1 py-1 hover:bg-gray-800 focus-visible:bg-gray-800 focus-visible:hover:bg-gray-800 disabled:text-gray-500 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500" id="extractButton" disabled>
-         <span  class="hidden md:inline"><i class="bi bi-arrows-angle-expand"></i> {{.T.Get "Extract"}}</span>
-         <i class="md:hidden bi bi-arrows-angle-expand"></i>
+         <button title="{{.T.Get "Extract"}}" class="flex items-center gap-x-1.5 rounded-md px-2 py-1 text-gray-50 hover:bg-gray-800 focus-visible:bg-gray-800 disabled:text-gray-500 disabled:hover:bg-transparent outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" id="extractButton" disabled>
+         <span class="hidden 2xl:inline"><i class="ri-expand-diagonal-line"></i> {{.T.Get "Extract"}}</span>
+         <i class="2xl:hidden ri-expand-diagonal-line"></i>
          </button>
-         <button class="flex items-center gap-x-2 rounded-md px-1 py-1 hover:bg-gray-800 focus-visible:bg-gray-800 focus-visible:hover:bg-gray-800 disabled:text-gray-500 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500" id="permButton" disabled>
-         <span class="hidden md:inline"><i class="bi bi-key"></i> {{.T.Get "Permissions"}}</span>
-         <i class="md:hidden bi bi-key"></i>
+         <button title="{{.T.Get "Permissions"}}" class="flex items-center gap-x-1.5 rounded-md px-2 py-1 text-gray-50 hover:bg-gray-800 focus-visible:bg-gray-800 disabled:text-gray-500 disabled:hover:bg-transparent outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" id="permButton" disabled>
+         <span class="hidden 2xl:inline"><i class="ri-key-2-line"></i> {{.T.Get "Permissions"}}</span>
+         <i class="2xl:hidden ri-key-2-line"></i>
          </button>
-         <button class="flex items-center gap-x-2 rounded-md px-1 py-1 hover:bg-gray-800 focus-visible:bg-gray-800 focus-visible:hover:bg-gray-800 disabled:text-gray-500 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-indigo-500 dark:outline-indigo-500" id="deleteButton" disabled>
-         <span class="hidden md:inline"><i class="bi bi-trash2"></i> {{.T.Get "Delete"}}</span>
-         <i class="md:hidden bi bi-trash2"></i>
+         <button title="{{.T.Get "Delete"}}" class="flex items-center gap-x-1.5 rounded-md px-2 py-1 text-gray-50 hover:bg-gray-800 focus-visible:bg-gray-800 disabled:text-gray-500 disabled:hover:bg-transparent outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" id="deleteButton" disabled>
+         <span class="hidden 2xl:inline text-red-400"><i class="ri-delete-bin-line"></i> {{.T.Get "Delete"}}</span>
+         <i class="2xl:hidden ri-delete-bin-line text-red-400"></i>
          </button>
       </div>
         </div>
@@ -449,130 +451,122 @@ document.addEventListener("DOMContentLoaded", function () {
 /* names are only text-selectable while exactly one row is selected */
 #filemanager_table.fm-single-select tbody tr.selected-row td:first-child { user-select: text; -webkit-user-select: text; }
 </style>
-<div class="table-responsive" style="margin-top:0px;">
-   <table class="table-auto w-full mt-0 text-left select-none" id="filemanager_table">
-      <thead class="text-sm">
-         <tr class="border-b border-gray-200 dark:border-gray-800">
-            <th class="sortable px-4 py-1.5 cursor-pointer">{{.T.Get "Name"}}</th>
-            <th x-show="columns.size" class="sortable px-4 py-1.5 cursor-pointer">{{.T.Get "Size"}}</th>
-            <th x-show="columns.date" class="sortable px-4 py-1.5 cursor-pointer">
-               <span class="hidden md:inline">{{.T.Get "Last Modified"}}</span>
+<div class="table-responsive overflow-x-auto">
+   <table class="w-full text-sm border-t border-gray-200 dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8 table-auto text-left select-none" id="filemanager_table">
+      <thead>
+         <tr>
+            <th class="sortable cursor-pointer select-none hover:text-gray-600 dark:hover:text-gray-300 border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Name"}}</th>
+            <th x-show="columns.size" class="sortable cursor-pointer select-none hover:text-gray-600 dark:hover:text-gray-300 border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Size"}}</th>
+            <th x-show="columns.date" class="sortable cursor-pointer select-none hover:text-gray-600 dark:hover:text-gray-300 border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">
+               <span class="hidden md:inline">{{.T.Get "Last modified"}}</span>
                <span class="md:hidden">{{.T.Get "Date"}}</span>
             </th>
-            <th x-show="columns.owner" class="sortable px-4 py-1.5 cursor-pointer text-center">
+            <th x-show="columns.owner" class="sortable cursor-pointer select-none hover:text-gray-600 dark:hover:text-gray-300 border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">
                <span>{{.T.Get "Owner"}}</span>
             </th>
-            <th x-show="columns.group" class="sortable px-4 py-1.5 cursor-pointer text-center">
+            <th x-show="columns.group" class="sortable cursor-pointer select-none hover:text-gray-600 dark:hover:text-gray-300 border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">
                <span>{{.T.Get "Group"}}</span>
             </th>
 
-            <th x-show="columns.links" class="sortable px-4 py-1.5 cursor-pointer text-center">
+            <th x-show="columns.links" class="sortable cursor-pointer select-none hover:text-gray-600 dark:hover:text-gray-300 border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">
                <span>{{.T.Get "Links"}}</span>
             </th>
 
-            <th x-show="columns.link_target" class="sortable px-4 py-1.5 cursor-pointer text-center">
+            <th x-show="columns.link_target" class="sortable cursor-pointer select-none hover:text-gray-600 dark:hover:text-gray-300 border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">
                <span>{{.T.Get "Link target"}}</span>
             </th>
 
-            <th x-show="columns.type" class="sortable px-4 py-1.5 cursor-pointer">
+            <th x-show="columns.type" class="sortable cursor-pointer select-none hover:text-gray-600 dark:hover:text-gray-300 border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">
                <span>{{.T.Get "Type"}}</span>
             </th>
 
 
-            <th x-show="columns.permissions" class="sortable cursor-pointer" style="width:5%;">
+            <th x-show="columns.permissions" class="sortable cursor-pointer select-none hover:text-gray-600 dark:hover:text-gray-300 border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50" style="width:5%;">
                <span class="hidden md:inline">{{.T.Get "Permissions"}}</span>
-               <i class="md:hidden bi bi-key"></i>
+               <i class="md:hidden ri-key-2-line"></i>
             </th>
          </tr>
       </thead>
       <tbody>
          {{template "fm_new_rows" .}}
          {{if .ShowUpLink}}
-         <tr>
+         <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
             <!-- up link -->
-            <td class="px-4 py-1.5" colspan="4">
-               <a href="{{.UpLink}}">
-                  <div class="flex items-center">
-                     <div class="mr-2"><i class="bi bi-arrow-up"></i></div>
-                     <h6 class="text-sm mb-0">{{.T.Get "Go Up"}}</h6>
-                  </div>
+            <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400" colspan="9">
+               <a href="{{.UpLink}}" class="flex items-center gap-2 text-gray-500 hover:text-gray-900 dark:hover:text-gray-50">
+                  <i class="ri-corner-left-up-line"></i>
+                  <h6 class="text-sm">{{.T.Get "Go up"}}</h6>
                </a>
             </td>
             <!-- End of up link -->
          </tr>
          {{end}}
          {{range .Rows}}
-         <tr data-row-index="{{.Index}}" class="clickable-row" data-file="{{.Name}}" data-size="{{.Size}}" data-date="{{.Date}}" data-type="{{.Type}}" data-permissions="{{.Permissions}}">
+         <tr data-row-index="{{.Index}}" class="clickable-row cursor-default [&:not(.selected-row):hover]:bg-gray-50 dark:[&:not(.selected-row):hover]:bg-gray-900/60" data-file="{{.Name}}" data-size="{{.Size}}" data-date="{{.Date}}" data-type="{{.Type}}" data-permissions="{{.Permissions}}" data-mode="{{.Mode}}">
             <!-- First column (Name) -->
             {{if eq .Type "directory"}}
-            <td class="px-4 py-1.5">
-               <div class="flex items-center">
-                  <div class="text-orange-500 mr-2"><i class="bi bi-folder-fill"></i></div>
-                  <h6 class="text-dark dark_on_light_theme text-sm mb-0">
-                     <a href="{{.Href}}">
+            <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
+               <div class="flex items-center gap-2">
+                  <div><i class="ri-folder-fill text-orange-500"></i></div>
+                  <h6 class="text-sm font-medium text-gray-900 dark:text-gray-50">
+                     <a href="{{.Href}}" class="hover:underline hover:underline-offset-4">
                      {{.Name}}
                      </a>
                   </h6>
                </div>
             </td>
             {{else if eq .Type "file"}}
-            <td class="px-4 py-1.5" data-download-url="{{.DownloadURL}}" data-upload-folder="{{$.PathParam}}">
-               <div class="flex items-center">
-                  <div class="mr-2"><i class="bi bi-file-earmark"></i></div>
-                  <h6 class="text-sm mb-0">{{.Name}}</h6>
+            <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400" data-download-url="{{.DownloadURL}}" data-upload-folder="{{$.PathParam}}">
+               <div class="flex items-center gap-2">
+                  <div><i class="ri-file-line text-gray-400"></i></div>
+                  <h6 class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.Name}}</h6>
                </div>
             </td>
             {{else if eq .Type "symlink"}}
-            <td class="px-4 py-1.5">
-               <div class="flex items-center">
-                  <div class="mr-2"><i class="bi bi-link-45deg"></i></div>
-                  <h6 class="text-sm mb-0">{{.Name}} ({{.LinkTarget}})</h6>
+            <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
+               <div class="flex items-center gap-2">
+                  <div><i class="ri-link text-gray-400"></i></div>
+                  <h6 class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.Name}} ({{.LinkTarget}})</h6>
                </div>
             </td>
             {{end}}
             <!-- End of Name column -->
 
             <!-- Second column (Size) -->
-            <td  x-show="columns.size" class="px-4 py-1.5 text-sm">
+            <td  x-show="columns.size" class="text-center border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums">
                {{if eq .Type "directory"}}
-               <a class="get-folder-size-button cursor-pointer" data-folder="{{.Name}}">{{$.T.Get "Calculate"}}</a>
+               <a class="get-folder-size-button cursor-pointer text-blue-500 hover:underline hover:underline-offset-4" data-folder="{{.Name}}">{{$.T.Get "Calculate"}}</a>
                {{else}}
                <span class="file-size-bytes">{{.Size}}</span>
                {{end}}
             </td>
             <!-- End of Size column -->
 
-            <td x-show="columns.date" class="px-4 py-1.5 text-sm">{{.Date}}</td>
-            <td x-show="columns.owner" class="owner-cell px-4 py-1.5 text-center text-sm">{{.Owner}}</td>
-            <td x-show="columns.group" class="group-cell px-4 py-1.5 text-center text-sm">{{.Group}}</td>
-            <td x-show="columns.links" class="group-cell px-4 py-1.5 text-center text-sm">{{.Links}}</td>
-            <td x-show="columns.link_target" class="group-cell px-4 py-1.5 text-center text-sm">{{.LinkTarget}}</td>
-            <td x-show="columns.type" class="group-cell px-4 py-1.5 text-sm">{{.Type}}</td>
+            <td x-show="columns.date" class="text-center border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums">{{.Date}}</td>
+            <td x-show="columns.owner" class="text-center owner-cell border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-center">{{.Owner}}</td>
+            <td x-show="columns.group" class="text-center group-cell border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-center">{{.Group}}</td>
+            <td x-show="columns.links" class="text-center group-cell border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-center">{{.Links}}</td>
+            <td x-show="columns.link_target" class="group-cell border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-center">{{.LinkTarget}}</td>
+            <td x-show="columns.type" class="text-center group-cell border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">{{.Type}}</td>
 
-            <td  x-show="columns.permissions"
-               class="permissions-cell text-sm text-center"
-               x-data="permissionCell"
-               x-init="init($el.textContent.trim())"
-               @mouseenter="showNumeric"
-               @mouseleave="showSymbolic"
-               x-text="display"
-               >{{.Permissions}}</td>
+            <td x-show="columns.permissions" class="text-center permissions-cell border-b border-gray-200 px-4 py-2.5 whitespace-nowrap dark:border-gray-800">
+               {{if eq .Type "symlink"}}
+               <span class="font-mono text-xs text-gray-400 dark:text-gray-600" title="{{$.T.Get "A symlink uses the permissions of what it points to."}}">{{.Sym}}</span>
+               {{else}}
+               <button type="button" data-perm-open title="{{.Sym}}" aria-label="{{$.T.Get "Change permissions of"}} {{.Name}}" class="rounded px-1.5 py-0.5 font-mono text-xs tabular-nums transition hover:bg-gray-100 dark:hover:bg-gray-800/80 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 {{if .WorldWritable}}text-red-600 dark:text-red-500{{else}}text-gray-600 dark:text-gray-400{{end}}">{{if .Mode}}{{.Mode}}{{else}}{{.Permissions}}{{end}}</button>
+               {{end}}
+            </td>
          </tr>
          {{end}}
       </tbody>
    </table>
    {{if .HasReadme}}
-   <div class="readme-content flex flex-col space-y-2 justify-center overflow-hidden p-4 bg-gray-50/40 border-t border-gray-200 dark:border-gray-800 ring-inset ring-gray-200/50 dark:bg-gray-900/50 dark:ring-gray-800 xl:col-span-3">
-      <div class=" flex items-center justify-between gap-4 relative">
-         <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-         <h2 class="pl-4 text-lg font-semibold text-gray-900 dark:text-gray-50">README.md</h2>
-         <a type="button" href="/file-manager/edit-file/{{.PathParam}}/README.md" class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2  text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-800 dark:hover:text-white dark:active:bg-slate-700/50">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
-               <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
-            </svg>
-         </a>
+   <div class="readme-content mx-4 my-6 overflow-hidden rounded-md border border-gray-200 sm:mx-6 lg:mx-8 dark:border-gray-800">
+      <div class="flex items-center justify-between gap-4 border-b border-gray-200 px-4 py-2 dark:border-gray-800">
+         <h2 class="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-gray-50"><i class="ri-book-open-line text-gray-400"></i> README.md</h2>
+         <a href="/file-manager/edit-file/{{.PathParam}}/README.md" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" aria-label="{{.T.Get "Edit"}}" title="{{.T.Get "Edit"}}"><i class="ri-pencil-line"></i></a>
       </div>
-      <pre class="text-xs max-w-10">{{.ReadmeContent}}</pre>
+      <pre class="overflow-x-auto bg-gray-50 p-4 font-mono text-xs whitespace-pre-wrap text-gray-900 dark:bg-gray-900 dark:text-gray-50">{{.ReadmeContent}}</pre>
    </div>
    {{end}}
 </div>
@@ -601,6 +595,8 @@ const FM = {
         save:         '{{.T.Get "Save"}}',
         cancel:       '{{.T.Get "Cancel"}}',
         recursive:    '{{.T.Get "Recursive"}}',
+        permsChanged: '{{.T.Get "Permissions changed."}}',
+        permsFailed:  '{{.T.Get "Could not change permissions."}}',
         delete:       '{{.T.Get "Delete"}}',
         skipTrash:    '{{.T.Get "Skip the trash"}}',
         deleted:      '{{.T.Get "Deleted."}}',
@@ -625,13 +621,21 @@ const FM = {
         folderSizeError: '{{.T.Get "Error fetching folder size:"}}',
         deleteError:  '{{.T.Get "Error deleting"}}',
         downloadStarted: '{{.T.Get "Download for {file} started."}}',
+        rename:       '{{.T.Get "Rename"}}',
+        permissions:  '{{.T.Get "Permissions"}}',
+        newFolder:    '{{.T.Get "New folder"}}',
     },
-    btn: {
-        base:     'relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0',
-        baseFit:  'relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0',
-        red:      'relative inline-flex items-center justify-center whitespace-nowrap mt-2 w-full sm:mt-0 border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 text-white border-transparent bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 disabled:bg-red-300 disabled:text-white disabled:dark:bg-red-950 disabled:dark:text-red-400',
-        download: 'relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0 hidden sm:inline-flex',
-    }
+    btn: {{if eq .View "classic"}}{
+        base:     'relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80 disabled:text-gray-400 dark:disabled:text-gray-600',
+        baseFit:  'relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80 disabled:text-gray-400 dark:disabled:text-gray-600',
+        red:      'relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent shadow-none bg-transparent text-red-600 hover:bg-red-50 dark:text-red-500 dark:hover:bg-red-400/10 dark:hover:bg-gray-800/80 disabled:text-gray-400 dark:disabled:text-gray-600 ml-auto',
+        download: 'relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80 disabled:text-gray-400 dark:disabled:text-gray-600 hidden sm:inline-flex',
+    {{else}}{
+        base:     'flex items-center gap-x-1.5 rounded-md px-2 py-1 text-gray-50 hover:bg-gray-800 focus-visible:bg-gray-800 disabled:text-gray-500 disabled:hover:bg-transparent outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2',
+        baseFit:  'flex items-center gap-x-1.5 rounded-md px-2 py-1 text-gray-50 hover:bg-gray-800 focus-visible:bg-gray-800 disabled:text-gray-500 disabled:hover:bg-transparent outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2',
+        red:      'flex items-center gap-x-1.5 rounded-md px-2 py-1 text-gray-50 hover:bg-gray-800 focus-visible:bg-gray-800 disabled:text-gray-500 disabled:hover:bg-transparent outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2',
+        download: 'flex items-center gap-x-1.5 rounded-md px-2 py-1 text-gray-50 hover:bg-gray-800 focus-visible:bg-gray-800 disabled:text-gray-500 disabled:hover:bg-transparent outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2',
+    {{end}}    }
 };
 </script>
 <script src="{{static "js/filemanager.js"}}"></script>
@@ -641,22 +645,22 @@ const FM = {
 
 {{define "fm_picker_modal"}}
 <!-- START templates/files/filemanager/picker_modal.html -->
-<div id="fmPickerModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background: rgba(0,0,0,.5);" role="dialog" aria-modal="true" aria-labelledby="fmPickerTitle">
-   <div class="w-full rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 shadow-lg" style="max-width: 36rem;">
-      <div class="flex items-start justify-between gap-3 border-b border-gray-200 dark:border-gray-800 px-4 py-3">
+<div id="fmPickerModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="fmPickerTitle">
+   <div class="w-full max-w-lg rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-900 dark:bg-raised">
+      <div class="flex items-start justify-between gap-3 border-b border-gray-200 px-4 py-3 dark:border-gray-800">
          <div class="min-w-0">
             <h2 id="fmPickerTitle" class="text-base font-semibold text-gray-900 dark:text-gray-50"></h2>
             <p id="fmPickerItems" class="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate"></p>
          </div>
-         <button type="button" data-picker-close class="shrink-0 rounded-md p-1 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900 cursor-pointer" aria-label="{{.T.Get "Close"}}"><i class="bi bi-x-lg"></i></button>
+         <button type="button" data-picker-close class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" aria-label="{{.T.Get "Close"}}"><i class="ri-close-line"></i></button>
       </div>
 
       <div class="px-4 py-3 space-y-3">
          <div id="fmPickerNameRow" class="hidden">
-            <label for="fmPickerArchiveName" class="block mb-1 text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Archive name"}}</label>
-            <div class="flex">
-               <input type="text" id="fmPickerArchiveName" data-no-live-validate class="relative block w-full rounded-l appearance-none border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 select-text disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
-               <select id="fmPickerExt" class="rounded-r relative border border-l-0 px-2 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 h-10.5 sm:h-9.5">
+            <label for="fmPickerArchiveName" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Archive name"}}</label>
+            <div class="mt-2 flex">
+               <input type="text" id="fmPickerArchiveName" data-no-live-validate class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 rounded-r-none">
+               <select id="fmPickerExt" aria-label="{{.T.Get "Archive type"}}" class="block w-28 appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 -ml-px rounded-l-none hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
                   <option value="zip">.zip</option>
                   <option value="tar.gz">.tar.gz</option>
                   <option value="tar">.tar</option>
@@ -667,27 +671,180 @@ const FM = {
          <div>
             <div class="flex items-center justify-between gap-2 mb-1">
                <nav id="fmPickerCrumbs" class="flex flex-wrap items-center gap-1 text-sm min-w-0"></nav>
-               <button type="button" id="fmPickerNewFolder" class="shrink-0 inline-flex items-center gap-1 rounded-md border border-gray-300 dark:border-gray-800 bg-white dark:bg-gray-950 px-2 py-1 text-xs font-medium text-gray-900 dark:text-gray-50 hover:bg-gray-100 dark:hover:bg-gray-900 cursor-pointer"><i class="bi bi-folder-plus"></i> {{.T.Get "New Folder"}}</button>
+               <button type="button" id="fmPickerNewFolder" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2 py-1 text-center text-xs font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 shrink-0"><i class="ri-folder-add-line"></i> {{.T.Get "New folder"}}</button>
             </div>
-            <ul id="fmPickerList" class="overflow-y-auto divide-y divide-gray-200 dark:divide-gray-800 rounded-md border border-gray-200 dark:border-gray-800 text-sm" style="height: 16rem;"></ul>
+            <ul id="fmPickerList" class="h-64 overflow-y-auto divide-y divide-gray-200 rounded-md border border-gray-200 text-sm text-gray-900 dark:divide-gray-800 dark:border-gray-800 dark:text-gray-50"></ul>
          </div>
 
          <div>
-            <label for="fmPickerDest" class="block mb-1 text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Destination"}}</label>
-            <input type="text" id="fmPickerDest" data-no-live-validate class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 select-text disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
+            <label for="fmPickerDest" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Destination"}}</label>
+            <input type="text" id="fmPickerDest" data-no-live-validate class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 mt-2 font-mono">
          </div>
 
-         <label id="fmPickerSubfolderRow" class="hidden flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-            <input type="checkbox" id="fmPickerSubfolder" class="w-4 h-4 rounded border-gray-300 dark:border-gray-800">
+         <label id="fmPickerSubfolderRow" class="hidden flex items-center gap-2 text-sm text-gray-900 dark:text-gray-50 cursor-pointer">
+            <input type="checkbox" id="fmPickerSubfolder">
             <span>{{.T.Get "Extract into a new folder"}} <span id="fmPickerSubfolderName" class="font-medium text-gray-900 dark:text-gray-50"></span></span>
          </label>
 
-         <div id="fmPickerStatus" class="hidden rounded-md border border-gray-200 dark:border-gray-800 p-3 text-sm"></div>
+         <div id="fmPickerStatus" class="hidden"></div>
       </div>
 
-      <div class="flex justify-end gap-2 border-t border-gray-200 dark:border-gray-800 px-4 py-3">
-         <button type="button" data-picker-close id="fmPickerCancel" class="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-900 shadow-sm hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 cursor-pointer">{{.T.Get "Cancel"}}</button>
-         <button type="button" id="fmPickerConfirm" class="inline-flex items-center gap-1 rounded-md border border-black bg-black px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-800 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60 cursor-pointer disabled:opacity-50"></button>
+      <div class="flex flex-col-reverse gap-2 border-t border-gray-200 px-4 py-3 sm:flex-row sm:justify-end dark:border-gray-800">
+         <button type="button" data-picker-close id="fmPickerCancel" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Cancel"}}</button>
+         <button type="button" id="fmPickerConfirm" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"></button>
+      </div>
+   </div>
+</div>
+
+<!-- permissions dialog: one mode for every selected item, posts to /file-manager/permissions like the old inline field -->
+<div id="fmPermModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="fmPermTitle">
+   <div class="flex max-h-full w-full max-w-xl flex-col rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-900 dark:bg-raised">
+      <div class="flex items-start justify-between gap-3 border-b border-gray-200 px-4 py-3 dark:border-gray-800">
+         <div class="min-w-0">
+            <h2 id="fmPermTitle" class="text-base font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Change permissions"}}</h2>
+            <p id="fmPermItems" class="mt-1 truncate text-xs text-gray-500 dark:text-gray-400"></p>
+         </div>
+         <button type="button" data-perm-close aria-label="{{.T.Get "Close"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"><i class="ri-close-line text-base" aria-hidden="true"></i></button>
+      </div>
+
+      <div class="space-y-3 overflow-y-auto px-4 py-4">
+         <div class="space-y-4">
+            <div>
+               <label for="fmPermMode" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Mode"}}</label>
+               <div class="mt-2 flex items-center gap-3">
+                  <input type="text" id="fmPermMode" inputmode="numeric" maxlength="3" pattern="[0-7]{3}" required data-no-live-validate aria-describedby="fmPermModeHelp" class="block appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 mt-2 font-mono w-24 text-center font-mono">
+                  <span id="fmPermSymbolic" class="font-mono text-sm text-gray-500"></span>
+               </div>
+               <p id="fmPermModeHelp" class="mt-2 text-xs text-gray-500">{{.T.Get "Three digits: owner, group, others."}} <span id="fmPermWas" class="hidden">{{.T.Get "Currently"}} <span id="fmPermWasMode" class="font-mono text-gray-900 dark:text-gray-50"></span>.</span></p>
+            </div>
+            <div class="overflow-hidden rounded-md border border-gray-200 dark:border-gray-800">
+               <table class="w-full text-sm">
+                  <thead class="border-b border-gray-200 dark:border-gray-800">
+                     <tr>
+                        <th scope="col" class="px-3 py-2"><span class="sr-only">{{.T.Get "Who"}}</span></th>
+                        <th scope="col" class="px-3 py-2 text-center text-xs font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Read"}}</th>
+                        <th scope="col" class="px-3 py-2 text-center text-xs font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Write"}}</th>
+                        <th scope="col" class="px-3 py-2 text-center text-xs font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Execute"}}</th>
+                        <th scope="col" class="px-3 py-2"><span class="sr-only">{{.T.Get "Digit"}}</span></th>
+                     </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                     <tr>
+                        <th scope="row" class="px-3 py-2 text-left font-normal"><span class="block font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Owner"}}</span><span class="block text-xs text-gray-500">{{.T.Get "You"}}</span></th>
+                        <td class="px-3 py-2 text-center"><input type="checkbox" data-perm-bit="0" aria-label="{{.T.Get "Owner"}}: {{.T.Get "Read"}}"></td>
+                        <td class="px-3 py-2 text-center"><input type="checkbox" data-perm-bit="1" aria-label="{{.T.Get "Owner"}}: {{.T.Get "Write"}}"></td>
+                        <td class="px-3 py-2 text-center"><input type="checkbox" data-perm-bit="2" aria-label="{{.T.Get "Owner"}}: {{.T.Get "Execute"}}"></td>
+                        <td class="px-3 py-2 text-center font-mono text-sm tabular-nums text-gray-900 dark:text-gray-50" data-perm-digit="0">0</td>
+                     </tr>
+                     <tr>
+                        <th scope="row" class="px-3 py-2 text-left font-normal"><span class="block font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Group"}}</span><span class="block text-xs text-gray-500">{{.T.Get "Your group"}}</span></th>
+                        <td class="px-3 py-2 text-center"><input type="checkbox" data-perm-bit="3" aria-label="{{.T.Get "Group"}}: {{.T.Get "Read"}}"></td>
+                        <td class="px-3 py-2 text-center"><input type="checkbox" data-perm-bit="4" aria-label="{{.T.Get "Group"}}: {{.T.Get "Write"}}"></td>
+                        <td class="px-3 py-2 text-center"><input type="checkbox" data-perm-bit="5" aria-label="{{.T.Get "Group"}}: {{.T.Get "Execute"}}"></td>
+                        <td class="px-3 py-2 text-center font-mono text-sm tabular-nums text-gray-900 dark:text-gray-50" data-perm-digit="1">0</td>
+                     </tr>
+                     <tr>
+                        <th scope="row" class="px-3 py-2 text-left font-normal"><span class="block font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Others"}}</span><span class="block text-xs text-gray-500">{{.T.Get "Everyone else"}}</span></th>
+                        <td class="px-3 py-2 text-center"><input type="checkbox" data-perm-bit="6" aria-label="{{.T.Get "Others"}}: {{.T.Get "Read"}}"></td>
+                        <td class="px-3 py-2 text-center"><input type="checkbox" data-perm-bit="7" aria-label="{{.T.Get "Others"}}: {{.T.Get "Write"}}"></td>
+                        <td class="px-3 py-2 text-center"><input type="checkbox" data-perm-bit="8" aria-label="{{.T.Get "Others"}}: {{.T.Get "Execute"}}"></td>
+                        <td class="px-3 py-2 text-center font-mono text-sm tabular-nums text-gray-900 dark:text-gray-50" data-perm-digit="2">0</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </div>
+            <p class="text-xs text-gray-500">{{.T.Get "Execute on a folder lets it be opened. On a file it lets it run as a program."}}</p>
+         </div>
+
+         <details class="group rounded-md border border-gray-200 dark:border-gray-800">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 text-sm font-medium text-gray-900 dark:text-gray-50 [&::-webkit-details-marker]:hidden">
+               <span class="inline-flex items-center gap-2"><i class="ri-list-check-2 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>{{.T.Get "Common modes"}}</span>
+               <i class="ri-arrow-down-s-line text-base leading-none text-gray-400 transition group-open:rotate-180" aria-hidden="true"></i>
+            </summary>
+            <ul class="divide-y divide-gray-200 border-t border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+                  <li><button type="button" data-perm-preset="644" aria-pressed="false" class="flex w-full items-start gap-3 px-3 py-2.5 text-left transition hover:bg-gray-50 aria-pressed:bg-blue-50 dark:hover:bg-gray-900/60 dark:aria-pressed:bg-blue-400/10 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                     <span class="w-9 shrink-0 font-mono text-sm font-medium text-gray-900 dark:text-gray-50">644</span>
+                     <span class="min-w-0"><span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Files"}}</span><span class="block text-xs text-gray-500">{{.T.Get "You can edit it, everyone can read it."}}</span></span>
+                  </button></li>
+                  <li><button type="button" data-perm-preset="755" aria-pressed="false" class="flex w-full items-start gap-3 px-3 py-2.5 text-left transition hover:bg-gray-50 aria-pressed:bg-blue-50 dark:hover:bg-gray-900/60 dark:aria-pressed:bg-blue-400/10 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                     <span class="w-9 shrink-0 font-mono text-sm font-medium text-gray-900 dark:text-gray-50">755</span>
+                     <span class="min-w-0"><span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Folders and scripts"}}</span><span class="block text-xs text-gray-500">{{.T.Get "You can edit it, everyone can open or run it."}}</span></span>
+                  </button></li>
+                  <li><button type="button" data-perm-preset="775" aria-pressed="false" class="flex w-full items-start gap-3 px-3 py-2.5 text-left transition hover:bg-gray-50 aria-pressed:bg-blue-50 dark:hover:bg-gray-900/60 dark:aria-pressed:bg-blue-400/10 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                     <span class="w-9 shrink-0 font-mono text-sm font-medium text-gray-900 dark:text-gray-50">775</span>
+                     <span class="min-w-0"><span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Shared folders"}}</span><span class="block text-xs text-gray-500">{{.T.Get "Like 755, and your group can write too."}}</span></span>
+                  </button></li>
+                  <li><button type="button" data-perm-preset="640" aria-pressed="false" class="flex w-full items-start gap-3 px-3 py-2.5 text-left transition hover:bg-gray-50 aria-pressed:bg-blue-50 dark:hover:bg-gray-900/60 dark:aria-pressed:bg-blue-400/10 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                     <span class="w-9 shrink-0 font-mono text-sm font-medium text-gray-900 dark:text-gray-50">640</span>
+                     <span class="min-w-0"><span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Config files"}}</span><span class="block text-xs text-gray-500">{{.T.Get "Your group can read it, others get nothing."}}</span></span>
+                  </button></li>
+                  <li><button type="button" data-perm-preset="600" aria-pressed="false" class="flex w-full items-start gap-3 px-3 py-2.5 text-left transition hover:bg-gray-50 aria-pressed:bg-blue-50 dark:hover:bg-gray-900/60 dark:aria-pressed:bg-blue-400/10 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                     <span class="w-9 shrink-0 font-mono text-sm font-medium text-gray-900 dark:text-gray-50">600</span>
+                     <span class="min-w-0"><span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Private"}}</span><span class="block text-xs text-gray-500">{{.T.Get "Only you can read and write it."}}</span></span>
+                  </button></li>
+            </ul>
+         </details>
+
+         <details id="fmPermRecursiveRow" class="group hidden rounded-md border border-gray-200 dark:border-gray-800">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 text-sm font-medium text-gray-900 dark:text-gray-50 [&::-webkit-details-marker]:hidden">
+               <span class="inline-flex items-center gap-2"><i class="ri-node-tree text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>{{.T.Get "Apply to everything inside"}}</span>
+               <span class="inline-flex items-center gap-2"><span id="fmPermRecursiveState" class="hidden whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-blue-50 text-blue-900 ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">{{.T.Get "On"}}</span><i class="ri-arrow-down-s-line text-base leading-none text-gray-400 transition group-open:rotate-180" aria-hidden="true"></i></span>
+            </summary>
+            <div class="flex items-start justify-between gap-4 border-t border-gray-200 px-3 py-3 dark:border-gray-800">
+               <div>
+                  <label for="fmPermRecursive" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Also change everything inside the folder"}}</label>
+                  <p class="mt-1 text-xs text-gray-500">{{.T.Get "Every file and folder inside gets this same mode."}}</p>
+               </div>
+               <input type="checkbox" role="switch" id="fmPermRecursive">
+            </div>
+         </details>
+
+         <details id="fmPermFixInfo" class="group rounded-md border border-gray-200 dark:border-gray-800">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-2 rounded-md px-3 py-2.5 text-sm font-medium text-gray-900 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:text-gray-50 [&::-webkit-details-marker]:hidden">
+               <span class="inline-flex items-center gap-2"><i class="ri-tools-line text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>{{.T.Get "What Fix permissions does"}}</span>
+               <i class="ri-arrow-down-s-line text-base leading-none text-gray-400 transition group-open:rotate-180 dark:text-gray-600" aria-hidden="true"></i>
+            </summary>
+            <ul class="divide-y divide-gray-200 border-t border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+               <li class="flex items-start gap-3 px-3 py-2.5">
+                  <i class="ri-user-settings-line mt-0.5 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+                  <div class="min-w-0">
+                     <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Ownership"}}</p>
+                     <p class="mt-0.5 text-xs text-gray-500">{{.T.Get "Everything in the folder is given back to your user."}}</p>
+                  </div>
+               </li>
+               <li class="flex items-start gap-3 px-3 py-2.5">
+                  <i class="ri-file-line mt-0.5 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+                  <div class="min-w-0">
+                     <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Files"}}</p>
+                     <p class="mt-0.5 text-xs text-gray-500">{{.T.Get "Every file is set to"}} <code class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">644</code>. {{.T.Get "You can read and write them, everyone else can read them."}}</p>
+                  </div>
+               </li>
+               <li class="flex items-start gap-3 px-3 py-2.5">
+                  <i class="ri-folder-line mt-0.5 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+                  <div class="min-w-0">
+                     <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Folders"}}</p>
+                     <p class="mt-0.5 text-xs text-gray-500">{{.T.Get "Every folder is set to"}} <code class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">775</code>. {{.T.Get "You and your group can do anything in them, everyone else can open them and read them."}}</p>
+                  </div>
+               </li>
+               <li class="flex items-start gap-3 px-3 py-2.5">
+                  <i class="ri-upload-cloud-2-line mt-0.5 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+                  <div class="min-w-0">
+                     <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "FTP folders"}}</p>
+                     <p class="mt-0.5 text-xs text-gray-500">{{.T.Get "Folders your FTP accounts use get the same owner, and the folders above them are opened up so FTP can reach them."}}</p>
+                  </div>
+               </li>
+            </ul>
+            <div class="flex flex-col gap-2 border-t border-gray-200 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800">
+               <p class="text-xs text-gray-500">{{.T.Get "On LiteSpeed servers the group is"}} <code class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">nogroup</code> {{.T.Get "instead."}}</p>
+               {{if index .UserAllowed "fix_permissions"}}<a href="/fix-permissions" class="inline-flex shrink-0 items-center gap-1 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Open Fix permissions"}}<i class="ri-arrow-right-line text-sm leading-none" aria-hidden="true"></i></a>{{end}}
+            </div>
+         </details>
+      </div>
+
+      <p id="fmPermError" role="alert" class="hidden border-t border-gray-200 bg-red-50 px-4 py-2 text-sm text-red-900 dark:border-gray-800 dark:bg-red-950/70 dark:text-red-400"></p>
+      <div class="flex flex-col-reverse gap-2 border-t border-gray-200 px-4 py-3 sm:flex-row sm:justify-end dark:border-gray-800">
+         <button type="button" data-perm-close class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Cancel"}}</button>
+         <button type="button" id="fmPermApply" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Apply"}} <span id="fmPermApplyMode" class="font-mono"></span></button>
       </div>
    </div>
 </div>
@@ -755,17 +912,17 @@ document.addEventListener('keydown', function (e) {
     if (!input) return;
     input.addEventListener('invalid', function (e) {
         e.preventDefault();
-        input.style.borderColor = '#ef4444';
+        input.setAttribute('aria-invalid', 'true');
         input.focus();
     });
     input.addEventListener('input', function () {
-        input.style.borderColor = '';
+        input.removeAttribute('aria-invalid');
     });
 });
 
 // click anywhere outside the row (or the buttons that open it) cancels
 document.addEventListener('click', function (e) {
-    if (e.target.closest('#newfiDrawer, #newfoDrawer, #newFileButton, #newFolderButton')) return;
+    if (e.target.closest('#newfiDrawer, #newfoDrawer, #newFileButton, #newFolderButton, .fm-new-opener')) return;
     fmHideOpenNewRows();
 });
 </script>
@@ -775,29 +932,144 @@ document.addEventListener('click', function (e) {
 
 {{define "fm_new_rows"}}
 <!-- START templates/files/filemanager/new_rows.html -->
-<tr id="newfiDrawer" class="hidden border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900" onmousedown="event.stopPropagation()">
-   <td class="px-4 py-1.5" colspan="9">
+<tr id="newfiDrawer" class="hidden bg-gray-50 dark:bg-gray-900" onmousedown="event.stopPropagation()">
+   <td class="border-b border-gray-200 px-4 py-1.5 dark:border-gray-800" colspan="9">
       <div class="flex flex-wrap items-center gap-2">
-         <div class="w-4 text-center"><i class="bi bi-file-earmark"></i></div>
-         <input type="text" form="newFileForm" name="filename" id="filename" required pattern=".*\.[^.]+" placeholder="{{.T.Get "File Name"}}" aria-label="{{.T.Get "File Name"}}" class="relative block w-64 appearance-none rounded border px-2.5 py-1 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 select-text disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
-         <button type="submit" form="newFileForm" class="inline-flex items-center gap-1 rounded-md border border-black bg-black px-3 py-1 text-sm font-medium text-white shadow-sm hover:bg-gray-800 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60 cursor-pointer"><i class="bi bi-check-lg"></i> {{.T.Get "Create"}}</button>
-         <button type="button" onclick="fmHideNewRow('newfiDrawer')" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-3 py-1 text-sm font-medium text-gray-900 shadow-sm hover:bg-gray-100 dark:border-gray-800 dark:text-gray-50 dark:hover:bg-gray-900/60 cursor-pointer"><i class="bi bi-x-lg"></i> {{.T.Get "Cancel"}}</button>
-         <label class="inline-flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-            <input type="checkbox" form="newFileForm" role="switch" id="open" name="open" value="true" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-            {{.T.Get "Open in File Editor after creation"}}
+         <div class="w-4 text-center text-gray-400"><i class="ri-file-line"></i></div>
+         <input type="text" form="newFileForm" name="filename" id="filename" required pattern=".*\.[^.]+" placeholder="{{.T.Get "File name"}}" aria-label="{{.T.Get "File name"}}" class="block w-64 appearance-none rounded-md border border-gray-300 bg-white px-2 py-1 text-xs text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 select-text">
+         <button type="submit" form="newFileForm" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-xs font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-check-line"></i> {{.T.Get "Create"}}</button>
+         <button type="button" onclick="fmHideNewRow('newfiDrawer')" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-xs font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-transparent shadow-none text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80">{{.T.Get "Cancel"}}</button>
+         <label class="ml-1 inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
+            <input type="checkbox" form="newFileForm" role="switch" id="open" name="open" value="true">
+            {{.T.Get "Open in the file editor after creation"}}
          </label>
       </div>
    </td>
 </tr>
-<tr id="newfoDrawer" class="hidden border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900" onmousedown="event.stopPropagation()">
-   <td class="px-4 py-1.5" colspan="9">
+<tr id="newfoDrawer" class="hidden bg-gray-50 dark:bg-gray-900" onmousedown="event.stopPropagation()">
+   <td class="border-b border-gray-200 px-4 py-1.5 dark:border-gray-800" colspan="9">
       <div class="flex flex-wrap items-center gap-2">
-         <div class="w-4 text-center text-orange-500"><i class="bi bi-folder-fill"></i></div>
-         <input type="text" form="newFolderForm" name="foldername" id="foldername" required placeholder="{{.T.Get "Folder Name"}}" aria-label="{{.T.Get "Folder Name"}}" class="relative block w-64 appearance-none rounded border px-2.5 py-1 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 select-text disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
-         <button type="submit" form="newFolderForm" class="inline-flex items-center gap-1 rounded-md border border-black bg-black px-3 py-1 text-sm font-medium text-white shadow-sm hover:bg-gray-800 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60 cursor-pointer"><i class="bi bi-check-lg"></i> {{.T.Get "Create"}}</button>
-         <button type="button" onclick="fmHideNewRow('newfoDrawer')" class="inline-flex items-center gap-1 rounded-md border border-gray-300 px-3 py-1 text-sm font-medium text-gray-900 shadow-sm hover:bg-gray-100 dark:border-gray-800 dark:text-gray-50 dark:hover:bg-gray-900/60 cursor-pointer"><i class="bi bi-x-lg"></i> {{.T.Get "Cancel"}}</button>
+         <div class="w-4 text-center text-orange-500"><i class="ri-folder-fill"></i></div>
+         <input type="text" form="newFolderForm" name="foldername" id="foldername" required placeholder="{{.T.Get "Folder name"}}" aria-label="{{.T.Get "Folder name"}}" class="block w-64 appearance-none rounded-md border border-gray-300 bg-white px-2 py-1 text-xs text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 select-text">
+         <button type="submit" form="newFolderForm" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-xs font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-check-line"></i> {{.T.Get "Create"}}</button>
+         <button type="button" onclick="fmHideNewRow('newfoDrawer')" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-xs font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-transparent shadow-none text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80">{{.T.Get "Cancel"}}</button>
       </div>
    </td>
 </tr>
 <!-- END templates/files/filemanager/new_rows.html -->
+{{end}}
+
+{{define "fm_tree"}}
+<!-- START templates/files/filemanager/tree.html -->
+<aside id="fmTree" class="hidden w-64 shrink-0 self-stretch border-t border-r border-gray-200 lg:block dark:border-gray-800" aria-label="{{.T.Get "Folders"}}"
+       data-current="{{.PathParam}}" data-view="{{.View}}" data-error="{{.T.Get "Couldn't load folders"}}">
+   <div class="flex items-center justify-between gap-2 py-2 pr-2 pl-4 sm:pl-6 lg:pl-8">
+      <p class="text-xs font-medium text-gray-500">{{.T.Get "Folders"}}</p>
+      <button type="button" id="fmTreeCollapse" title="{{.T.Get "Collapse all"}}" aria-label="{{.T.Get "Collapse all"}}" class="inline-flex size-7 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-collapse-vertical-line text-base leading-none" aria-hidden="true"></i></button>
+   </div>
+   <div class="overflow-y-auto pb-4 text-sm lg:sticky lg:top-0 lg:max-h-[calc(100vh-4rem)]">
+      <ul id="fmTreeRoot" role="tree" class="pr-2 pl-2 sm:pl-4 lg:pl-6"></ul>
+   </div>
+</aside>
+<script>
+(function () {
+    const tree = document.getElementById('fmTree');
+    if (!tree) return;
+    const KEY = 'fm-tree';
+    const view = tree.dataset.view;
+    const current = (tree.dataset.current || '').replace(/^\/+|\/+$/g, '');
+    const esc = v => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const href = p => (p ? '/files/' + p.split('/').map(encodeURIComponent).join('/') : '/files') + (view ? '?view=' + encodeURIComponent(view) : '');
+
+    // shown unless the user switched it off in the column menu
+    let shown = true;
+    try { shown = localStorage.getItem(KEY) !== 'off'; } catch (e) {}
+    const toggle = document.getElementById('fmTreeToggle');
+    const apply = () => { tree.classList.toggle('lg:block', shown); if (toggle) toggle.checked = shown; };
+    apply();
+    toggle?.addEventListener('change', () => {
+        shown = toggle.checked;
+        try { localStorage.setItem(KEY, shown ? 'on' : 'off'); } catch (e) {}
+        apply();
+    });
+
+    function node(path, name, depth, hasChildren, icon) {
+        const li = document.createElement('li');
+        li.setAttribute('role', 'treeitem');
+        li.dataset.path = path;
+        const here = path === current;
+        if (here) li.setAttribute('aria-current', 'page');
+        li.innerHTML = `<div class="flex items-center gap-1 rounded-md pr-2 ${here ? 'bg-gray-100 font-medium text-gray-900 dark:bg-gray-800/70 dark:text-gray-50' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-900/60'}" style="padding-left:${depth * 14}px">
+            ${hasChildren
+                ? `<button type="button" data-toggle aria-label="${esc(name)}" class="inline-flex size-6 shrink-0 items-center justify-center rounded text-gray-400 hover:text-gray-900 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-right-s-line text-base leading-none transition-transform" aria-hidden="true"></i></button>`
+                : '<span class="size-6 shrink-0"></span>'}
+            <a href="${href(path)}" class="flex min-w-0 flex-1 items-center gap-2 py-1"><i class="${icon} shrink-0" aria-hidden="true"></i><span class="truncate">${esc(name)}</span></a>
+        </div><ul role="group" class="hidden"></ul>`;
+        return li;
+    }
+
+    async function expand(li) {
+        const group = li.querySelector(':scope > ul');
+        const chevron = li.querySelector(':scope > div [data-toggle] i');
+        if (!li.dataset.loaded) {
+            const path = li.dataset.path;
+            let folders = [];
+            try {
+                const res = await fetch('/json/folders/' + path.split('/').map(encodeURIComponent).join('/'));
+                if (!res.ok) throw new Error();
+                folders = (await res.json()).folders || [];
+            } catch (e) {
+                group.innerHTML = `<li class="py-1 text-xs text-gray-500" style="padding-left:${(+li.dataset.depth + 1) * 14 + 24}px">${esc(tree.dataset.error)}</li>`;
+            }
+            // the malware scanner's quarantine isn't somewhere to browse
+            if (!path) folders = folders.filter(f => f.name !== '.quarantine');
+            folders.sort((x, y) => x.name.localeCompare(y.name)).forEach(f => {
+                const child = node(path ? path + '/' + f.name : f.name, f.name, +li.dataset.depth + 1, f.has_subfolders, 'ri-folder-fill text-orange-500');
+                child.dataset.depth = +li.dataset.depth + 1;
+                group.appendChild(child);
+            });
+            li.dataset.loaded = '1';
+        }
+        group.classList.remove('hidden');
+        li.setAttribute('aria-expanded', 'true');
+        chevron?.classList.add('rotate-90');
+    }
+
+    function collapse(li) {
+        li.querySelector(':scope > ul').classList.add('hidden');
+        li.setAttribute('aria-expanded', 'false');
+        li.querySelector(':scope > div [data-toggle] i')?.classList.remove('rotate-90');
+    }
+
+    const rootList = document.getElementById('fmTreeRoot');
+    const root = node('', '/var/www/html', 0, true, 'ri-home-4-line text-gray-500');
+    root.dataset.depth = 0;
+    rootList.appendChild(root);
+
+    rootList.addEventListener('click', e => {
+        const btn = e.target.closest('[data-toggle]');
+        if (!btn) return;
+        const li = btn.closest('li[role="treeitem"]');
+        li.getAttribute('aria-expanded') === 'true' ? collapse(li) : expand(li);
+    });
+    document.getElementById('fmTreeCollapse').addEventListener('click', () => {
+        rootList.querySelectorAll('li[aria-expanded="true"]').forEach(li => { if (li !== root) collapse(li); });
+    });
+
+    // open the way down to the folder on screen
+    (async () => {
+        await expand(root);
+        let li = root;
+        const parts = current ? current.split('/') : [];
+        for (let i = 0; i < parts.length; i++) {
+            const path = parts.slice(0, i + 1).join('/');
+            li = [...li.querySelector(':scope > ul').children].find(c => c.dataset.path === path);
+            if (!li) return;
+            if (li.querySelector('[data-toggle]')) await expand(li);
+        }
+        li.scrollIntoView({ block: 'nearest' });
+    })();
+})();
+</script>
+<!-- END templates/files/filemanager/tree.html -->
 {{end}}

@@ -190,7 +190,7 @@ func TestRenderChangeMySQLPage(t *testing.T) {
 		{Value: "percona", Label: "Percona", Description: "d", Icon: "percona"},
 	}
 	w := httptest.NewRecorder()
-	data := ChangeMySQLPageData{LayoutData: baseLayout(mgr, "/containers/mysql"), Title: "Database Server", MySQLType: "mysql", Choices: choices}
+	data := ChangeMySQLPageData{LayoutData: baseLayout(mgr, "/containers/mysql"), Title: "Database server", MySQLType: "mysql", Choices: choices}
 	if err := changeMySQLPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)
 	}
@@ -205,7 +205,7 @@ func TestRenderChangeMySQLPage(t *testing.T) {
 	w = httptest.NewRecorder()
 	data.Blocked, data.DBCount = true, 3
 	_ = changeMySQLPage.Render(w, 200, data)
-	if body := w.Body.String(); strings.Contains(body, "Choose a database server") || !strings.Contains(body, "Go to Databases") || !strings.Contains(body, "<strong>3</strong>") {
+	if body := w.Body.String(); strings.Contains(body, "Choose a database server") || !strings.Contains(body, "Go to databases") || !strings.Contains(body, "<strong>3</strong>") {
 		t.Error("blocked page should show the notice instead of the button")
 	}
 }
@@ -280,7 +280,7 @@ func TestRenderChangeWebserverPage(t *testing.T) {
 		if strings.Contains(body, "Choose a webserver") {
 			t.Error("switch button should be hidden while domains still exist")
 		}
-		if !strings.Contains(body, "Go to Domains") || !strings.Contains(body, "<strong>2</strong>") {
+		if !strings.Contains(body, "Go to domains") || !strings.Contains(body, "<strong>2</strong>") {
 			t.Error("expected the remove domains notice with the count")
 		}
 	})

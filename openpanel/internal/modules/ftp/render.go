@@ -11,7 +11,7 @@ import (
 
 var ftpAccountsPage = web.LoadPage("files/ftp.html", "partials/_account_created.html")
 var ftpConnectionsPage = web.LoadPage("files/ftp_connections.html")
-var ftpNewPage = web.LoadPage("files/ftp_new.html")
+var ftpNewPage = web.LoadPage("files/ftp_new.html", "partials/folder_picker.html")
 var ftpPasswordPage = web.LoadPage("files/ftp_password.html")
 var ftpPathPage = web.LoadPage("files/ftp_path.html")
 var ftpQuotaPage = web.LoadPage("files/ftp_quota.html")
@@ -26,7 +26,7 @@ type FTPAccountsPageData struct {
 }
 
 func renderFTPAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, serverIP, dedicatedIP, ftpHost, ftpPort string, accounts []Account) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "FTP Accounts")
+	layout, _, err := web.BuildLayoutData(a, w, r, "FTP accounts")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -57,7 +57,7 @@ type FTPConnectionsPageData struct {
 }
 
 func renderFTPConnectionsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, output string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "FTP Connections")
+	layout, _, err := web.BuildLayoutData(a, w, r, "FTP connections")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -107,7 +107,7 @@ func newFTPForm(a *appctx.App, r *http.Request, currentUsername string, list []a
 }
 
 func renderNewFTPAccountPage(a *appctx.App, w http.ResponseWriter, r *http.Request, list []appctx.Domain, form FTPNewForm) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "New FTP Account")
+	layout, _, err := web.BuildLayoutData(a, w, r, "New FTP account")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -125,7 +125,7 @@ type FTPUsernamePageData struct {
 }
 
 func renderFTPPasswordPage(a *appctx.App, w http.ResponseWriter, r *http.Request, username string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Change FTP Password")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Change FTP password")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -137,7 +137,7 @@ func renderFTPPasswordPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 }
 
 func renderFTPPathPage(a *appctx.App, w http.ResponseWriter, r *http.Request, username string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Change FTP Path")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Change FTP path")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -156,7 +156,7 @@ type FTPQuotaPageData struct {
 }
 
 func renderFTPQuotaPage(a *appctx.App, w http.ResponseWriter, r *http.Request, account Account) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Change FTP Quota")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Change FTP quota")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

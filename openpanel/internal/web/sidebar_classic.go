@@ -42,13 +42,13 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 	// Websites group - mautic/flarum are excluded, legacy code slated for removal entirely, not ported here per user decision
 	if has(WebsiteAppKeys...) {
 		var links []NavLink
-		links = add(links, "autoinstaller", "/auto-installer", "Auto Installer",
+		links = add(links, "autoinstaller", "/auto-installer", "Auto installer",
 			hasAnyPrefix(path, "/auto-installer", "/pm2", "/nodejs", "/python", "/ruby", "/java", "/website-builder/install",
 				"/drupal/install", "/joomla/install", "/opencart/install", "/nextcloud/install",
 				"/prestashop/install", "/matomo/install", "/moodle/install", "/mediawiki/install"), "")
-		links = append(links, NavLink{Href: "/sites", Label: "Site Manager",
+		links = append(links, NavLink{Href: "/sites", Label: "Site manager",
 			Active: hasAnyPrefix(path, "/sites") || (strings.HasPrefix(path, "/website") && !strings.HasPrefix(path, "/website-builder"))})
-		links = add(links, "wordpress", "/wordpress", "WordPress Manager", strings.HasPrefix(path, "/wordpress"), "")
+		links = add(links, "wordpress", "/wordpress", "WordPress manager", strings.HasPrefix(path, "/wordpress"), "")
 		links = add(links, "git", "/git", "Git", isGitPath(path), "")
 		open := isGitPath(path) || hasAnyPrefix(path, "/auto-installer", "/sites", "/website", "/wordpress", "/drupal", "/joomla", "/opencart", "/nextcloud", "/prestashop", "/matomo", "/moodle", "/mediawiki", "/pm2", "/nodejs", "/python", "/ruby", "/java")
 		groups = append(groups, NavGroup{"Websites", websitesIcon, "websites-menu", links, open, open})
@@ -59,24 +59,24 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 		var links []NavLink
 		if allowed["filemanager"] {
 			links = append(links,
-				NavLink{Href: "/files", Label: "File Manager", Active: (strings.HasPrefix(path, "/files") && !strings.HasPrefix(path, "/files.trash")) || strings.HasPrefix(path, "/file-manager/view-file")},
+				NavLink{Href: "/files", Label: "File manager", Active: (strings.HasPrefix(path, "/files") && !strings.HasPrefix(path, "/files.trash")) || strings.HasPrefix(path, "/file-manager/view-file")},
 				NavLink{Href: "/file-manager/upload?method=upload", Label: "Upload from device", Active: strings.HasPrefix(path, "/file-manager/upload") && !strings.HasSuffix(path, "?method=download")},
 				NavLink{Href: "/file-manager/upload?method=download", Label: "Download from URL", Active: strings.HasPrefix(path, "/file-manager/upload") && strings.HasSuffix(path, "?method=download")},
 			)
 		} else if upsellAllowed["filemanager"] {
 			links = append(links,
-				NavLink{Href: "/files", Label: "File Manager", Disabled: true},
+				NavLink{Href: "/files", Label: "File manager", Disabled: true},
 				NavLink{Href: "/file-manager/upload?method=upload", Label: "Upload from device", Disabled: true},
 				NavLink{Href: "/file-manager/upload?method=download", Label: "Download from URL", Disabled: true},
 			)
 		}
-		links = add(links, "ftp", "/ftp", "FTP Accounts", strings.HasPrefix(path, "/ftp"), "")
+		links = add(links, "ftp", "/ftp", "FTP accounts", strings.HasPrefix(path, "/ftp"), "")
 		links = add(links, "backups", "/backups", "Backups", strings.HasPrefix(path, "/backups"), "")
-		links = add(links, "backup_wizard", "/backup-wizard", "Backup Wizard", strings.HasPrefix(path, "/backup-wizard"), "")
-		links = add(links, "malware_scan", "/malware-scanner", "ClamAV Scanner", strings.HasPrefix(path, "/malware-scanner"), "")
-		links = add(links, "disk_usage", "/disk-usage/", "Disk Usage", strings.HasPrefix(path, "/disk-usage"), "")
-		links = add(links, "inodes", "/inodes-explorer/", "Inodes Explorer", strings.HasPrefix(path, "/inodes-explorer"), "")
-		links = add(links, "fix_permissions", "/fix-permissions", "Fix Permissions", strings.HasPrefix(path, "/fix-permissions"), "")
+		links = add(links, "backup_wizard", "/backup-wizard", "Backup wizard", strings.HasPrefix(path, "/backup-wizard"), "")
+		links = add(links, "malware_scan", "/malware-scanner", "ClamAV scanner", strings.HasPrefix(path, "/malware-scanner"), "")
+		links = add(links, "disk_usage", "/disk-usage/", "Disk usage", strings.HasPrefix(path, "/disk-usage"), "")
+		links = add(links, "inodes", "/inodes-explorer/", "Inodes explorer", strings.HasPrefix(path, "/inodes-explorer"), "")
+		links = add(links, "fix_permissions", "/fix-permissions", "Fix permissions", strings.HasPrefix(path, "/fix-permissions"), "")
 		links = add(links, "trash", "/files.trash", "Trash", strings.HasPrefix(path, "/files.trash"), "")
 		open := hasAnyPrefix(path, "/files", "/file-manager/edit-file", "/file-manager/view-file", "/backups",
 			"/backup-wizard", "/disk-usage", "/inodes-explorer", "/malware-scanner", "/ftp", "/fix-permissions", "/file-manager/upload")
@@ -91,16 +91,16 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 		}
 		links = add(links, "phpmyadmin", "/mysql/phpmyadmin", "phpMyAdmin", path == "/mysql/phpmyadmin", "_blank")
 		links = append(links,
-			NavLink{Href: "/mysql/wizard", Label: "Database Wizard", Active: path == "/mysql/wizard"},
-			NavLink{Href: "/mysql/new", Label: "Create Database", Active: path == "/mysql/new"},
-			NavLink{Href: "/mysql/user", Label: "Create User", Active: path == "/mysql/user"},
-			NavLink{Href: "/mysql/assign", Label: "Assign User to DB", Active: path == "/mysql/assign"},
-			NavLink{Href: "/mysql/remove", Label: "Remove User from DB", Active: path == "/mysql/remove"},
+			NavLink{Href: "/mysql/wizard", Label: "Database wizard", Active: path == "/mysql/wizard"},
+			NavLink{Href: "/mysql/new", Label: "Create database", Active: path == "/mysql/new"},
+			NavLink{Href: "/mysql/user", Label: "Create user", Active: path == "/mysql/user"},
+			NavLink{Href: "/mysql/assign", Label: "Assign user to DB", Active: path == "/mysql/assign"},
+			NavLink{Href: "/mysql/remove", Label: "Remove user from DB", Active: path == "/mysql/remove"},
 		)
-		links = add(links, "mysql_import", "/mysql/import", "Import Database", strings.HasPrefix(path, "/mysql/import"), "")
-		links = append(links, NavLink{Href: "/mysql/remote-mysql", Label: "Remote Access", Active: path == "/mysql/remote-mysql"})
+		links = add(links, "mysql_import", "/mysql/import", "Import database", strings.HasPrefix(path, "/mysql/import"), "")
+		links = append(links, NavLink{Href: "/mysql/remote-mysql", Label: "Remote access", Active: path == "/mysql/remote-mysql"})
 		links = add(links, "mysql_root_password", "/mysql/root-password", "Change root password", path == "/mysql/root-password", "")
-		links = add(links, "mysql_processlist", "/mysql/processlist", "Show Processes", path == "/mysql/processlist", "")
+		links = add(links, "mysql_processlist", "/mysql/processlist", "Show processes", path == "/mysql/processlist", "")
 		links = add(links, "mysql_conf", "/mysql/configuration", "Configuration", path == "/mysql/configuration", "")
 		open := hasAnyPrefix(path, "/mysql", "/database")
 		groups = append(groups, NavGroup{"MySQL", dbIcon, "mysql-menu", links, open, open})
@@ -113,16 +113,16 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 			{Href: "/postgresql/users", Label: "Users", Active: path == "/postgresql/users"},
 		}
 		links = append(links,
-			NavLink{Href: "/postgresql/wizard", Label: "Database Wizard", Active: path == "/postgresql/wizard"},
-			NavLink{Href: "/postgresql/new", Label: "Create Database", Active: path == "/postgresql/new"},
-			NavLink{Href: "/postgresql/user", Label: "Create User", Active: path == "/postgresql/user"},
-			NavLink{Href: "/postgresql/assign", Label: "Assign User to DB", Active: path == "/postgresql/assign"},
-			NavLink{Href: "/postgresql/remove", Label: "Remove User from DB", Active: path == "/postgresql/remove"},
+			NavLink{Href: "/postgresql/wizard", Label: "Database wizard", Active: path == "/postgresql/wizard"},
+			NavLink{Href: "/postgresql/new", Label: "Create database", Active: path == "/postgresql/new"},
+			NavLink{Href: "/postgresql/user", Label: "Create user", Active: path == "/postgresql/user"},
+			NavLink{Href: "/postgresql/assign", Label: "Assign user to DB", Active: path == "/postgresql/assign"},
+			NavLink{Href: "/postgresql/remove", Label: "Remove user from DB", Active: path == "/postgresql/remove"},
 		)
-		links = add(links, "postgresql_import", "/postgresql/import", "Import Database", strings.HasPrefix(path, "/postgresql/import"), "")
+		links = add(links, "postgresql_import", "/postgresql/import", "Import database", strings.HasPrefix(path, "/postgresql/import"), "")
 		links = append(links,
-			NavLink{Href: "/postgresql/remote-postgresql", Label: "Remote Access", Active: path == "/postgresql/remote-postgresql"},
-			NavLink{Href: "/postgresql/processlist", Label: "Show Processes", Active: path == "/postgresql/processlist"},
+			NavLink{Href: "/postgresql/remote-postgresql", Label: "Remote access", Active: path == "/postgresql/remote-postgresql"},
+			NavLink{Href: "/postgresql/processlist", Label: "Show processes", Active: path == "/postgresql/processlist"},
 		)
 		links = add(links, "postgresql_conf", "/postgresql/configuration", "Configuration", path == "/postgresql/configuration", "")
 		open := hasAnyPrefix(path, "/postgresql", "/database")
@@ -136,14 +136,14 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 			{Href: "/mongodb/users", Label: "Users", Active: path == "/mongodb/users"},
 		}
 		links = append(links,
-			NavLink{Href: "/mongodb/wizard", Label: "Database Wizard", Active: path == "/mongodb/wizard"},
-			NavLink{Href: "/mongodb/new", Label: "Create Database", Active: path == "/mongodb/new"},
-			NavLink{Href: "/mongodb/user", Label: "Create User", Active: path == "/mongodb/user"},
-			NavLink{Href: "/mongodb/assign", Label: "Assign User to DB", Active: path == "/mongodb/assign"},
-			NavLink{Href: "/mongodb/remove", Label: "Remove User from DB", Active: path == "/mongodb/remove"},
+			NavLink{Href: "/mongodb/wizard", Label: "Database wizard", Active: path == "/mongodb/wizard"},
+			NavLink{Href: "/mongodb/new", Label: "Create database", Active: path == "/mongodb/new"},
+			NavLink{Href: "/mongodb/user", Label: "Create user", Active: path == "/mongodb/user"},
+			NavLink{Href: "/mongodb/assign", Label: "Assign user to DB", Active: path == "/mongodb/assign"},
+			NavLink{Href: "/mongodb/remove", Label: "Remove user from DB", Active: path == "/mongodb/remove"},
 		)
-		links = add(links, "mongodb_import", "/mongodb/import", "Import Database", strings.HasPrefix(path, "/mongodb/import"), "")
-		links = append(links, NavLink{Href: "/mongodb/processlist", Label: "Show Processes", Active: path == "/mongodb/processlist"})
+		links = add(links, "mongodb_import", "/mongodb/import", "Import database", strings.HasPrefix(path, "/mongodb/import"), "")
+		links = append(links, NavLink{Href: "/mongodb/processlist", Label: "Show processes", Active: path == "/mongodb/processlist"})
 		open := hasAnyPrefix(path, "/mongodb", "/database")
 		groups = append(groups, NavGroup{"MongoDB", mongodbIcon, "mongodb-menu", links, open, open})
 	}
@@ -153,33 +153,33 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 		var links []NavLink
 		if allowed["domains"] {
 			links = append(links,
-				NavLink{Href: "/domains", Label: "Domain Names", Active: path == "/domains"},
-				NavLink{Href: "/domains/new", Label: "Add New Domain", Active: path == "/domains/new"},
+				NavLink{Href: "/domains", Label: "Domain names", Active: path == "/domains"},
+				NavLink{Href: "/domains/new", Label: "Add new domain", Active: path == "/domains/new"},
 			)
 			links = add(links, "redirects", "/domains/redirect", "Redirects", path == "/domains/redirect", "")
-			links = add(links, "dns", "/domains/edit-dns-zone", "DNS Zone Editor", strings.HasPrefix(path, "/domains/edit-dns-zone"), "")
+			links = add(links, "dns", "/domains/edit-dns-zone", "DNS zone editor", strings.HasPrefix(path, "/domains/edit-dns-zone"), "")
 			links = add(links, "dynamic_dns", "/domains/dynamic-dns", "Dynamic DNS", strings.HasPrefix(path, "/domains/dynamic-dns"), "")
 			links = add(links, "ssl", "/domains/ssl", "SSL", path == "/domains/ssl", "")
-			links = add(links, "edit_vhost", "/domains/vhosts", "VHosts File Editor", path == "/domains/vhosts", "")
+			links = add(links, "edit_vhost", "/domains/vhosts", "VHosts file editor", path == "/domains/vhosts", "")
 			if allowed["domain_suspend"] {
 				links = append(links,
-					NavLink{Href: "/domains/suspend", Label: "Suspend a Domain", Active: path == "/domains/suspend"},
-					NavLink{Href: "/domains/unsuspend", Label: "Unsuspend a Domain", Active: path == "/domains/unsuspend"},
+					NavLink{Href: "/domains/suspend", Label: "Suspend a domain", Active: path == "/domains/suspend"},
+					NavLink{Href: "/domains/unsuspend", Label: "Unsuspend a domain", Active: path == "/domains/unsuspend"},
 				)
 			} else if upsellAllowed["domain_suspend"] {
 				links = append(links,
-					NavLink{Href: "/domains/suspend", Label: "Suspend a Domain", Disabled: true},
-					NavLink{Href: "/domains/unsuspend", Label: "Unsuspend a Domain", Disabled: true},
+					NavLink{Href: "/domains/suspend", Label: "Suspend a domain", Disabled: true},
+					NavLink{Href: "/domains/unsuspend", Label: "Unsuspend a domain", Disabled: true},
 				)
 			}
 			links = add(links, "docroot", "/domains/docroot", "Change docroot", path == "/domains/docroot", "")
-			links = add(links, "domain_logs", "/domains/log", "Raw Access Logs", strings.HasPrefix(path, "/domains/log"), "")
+			links = add(links, "domain_logs", "/domains/log", "Raw access logs", strings.HasPrefix(path, "/domains/log"), "")
 			links = add(links, "goaccess", "/domains/stats", "GoAccess", path == "/domains/stats", "")
 		} else {
 			// domains itself is only upsell-eligible - sub-features are moot without it, so just offer the two base links greyed out
 			links = append(links,
-				NavLink{Href: "/domains", Label: "Domain Names", Disabled: true},
-				NavLink{Href: "/domains/new", Label: "Add New Domain", Disabled: true},
+				NavLink{Href: "/domains", Label: "Domain names", Disabled: true},
+				NavLink{Href: "/domains/new", Label: "Add new domain", Disabled: true},
 			)
 		}
 		open := strings.HasPrefix(path, "/domains")
@@ -191,22 +191,22 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 		var links []NavLink
 		if allowed["emails"] {
 			links = append(links,
-				NavLink{Href: "/emails", Label: "Email Accounts", Active: path == "/emails" || strings.HasPrefix(path, "/emails/delete")},
-				NavLink{Href: "/emails/new", Label: "Create New Account", Active: strings.HasPrefix(path, "/emails/new")},
+				NavLink{Href: "/emails", Label: "Email accounts", Active: path == "/emails" || strings.HasPrefix(path, "/emails/delete")},
+				NavLink{Href: "/emails/new", Label: "Create new account", Active: strings.HasPrefix(path, "/emails/new")},
 			)
 		} else if upsellAllowed["emails"] {
 			links = append(links,
-				NavLink{Href: "/emails", Label: "Email Accounts", Disabled: true},
-				NavLink{Href: "/emails/new", Label: "Create New Account", Disabled: true},
+				NavLink{Href: "/emails", Label: "Email accounts", Disabled: true},
+				NavLink{Href: "/emails/new", Label: "Create new account", Disabled: true},
 			)
 		}
 		links = add(links, "webmail", "/webmail/", "Webmail", false, "_blank")
 		links = add(links, "email_filters", "/emails/filter", "Filters", strings.HasPrefix(path, "/emails/filter"), "")
 		links = add(links, "email_aliases", "/emails/aliases", "Aliases", strings.HasPrefix(path, "/emails/aliases"), "")
-		links = add(links, "email_default", "/emails/default", "Default Address", strings.HasPrefix(path, "/emails/default"), "")
-		links = add(links, "email_import", "/emails/import", "Address Importer", strings.HasPrefix(path, "/emails/import"), "")
-		links = add(links, "email_migrate", "/emails/migrate", "Migrate Emails", strings.HasPrefix(path, "/emails/migrate"), "")
-		links = add(links, "email_deliverability", "/emails/deliverability", "Email Deliverability", strings.HasPrefix(path, "/emails/deliverability"), "")
+		links = add(links, "email_default", "/emails/default", "Default address", strings.HasPrefix(path, "/emails/default"), "")
+		links = add(links, "email_import", "/emails/import", "Address importer", strings.HasPrefix(path, "/emails/import"), "")
+		links = add(links, "email_migrate", "/emails/migrate", "Migrate emails", strings.HasPrefix(path, "/emails/migrate"), "")
+		links = add(links, "email_deliverability", "/emails/deliverability", "Email deliverability", strings.HasPrefix(path, "/emails/deliverability"), "")
 		open := strings.HasPrefix(path, "/email")
 		groups = append(groups, NavGroup{"Emails", emailIcon, "emails-menu", links, open, open})
 	}
@@ -230,9 +230,9 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 			{Href: "/php/domains", Label: "Select PHP version", Active: path == "/php/domains"},
 			{Href: "/php/default", Label: "Default version", Active: path == "/php/default"},
 		}
-		links = add(links, "php_options", "/php/options", "PHP Options", strings.HasPrefix(path, "/php") && strings.Contains(path, "/options"), "")
-		links = add(links, "php_extensions", "/php/extensions", "PHP Extensions", strings.HasPrefix(path, "/php") && strings.Contains(path, "/extensions"), "")
-		links = add(links, "php_ini", "/php/php_ini_editor", "PHP.INI Editor", strings.HasPrefix(path, "/php") && strings.Contains(path, "/php_ini_editor"), "")
+		links = add(links, "php_options", "/php/options", "PHP options", strings.HasPrefix(path, "/php") && strings.Contains(path, "/options"), "")
+		links = add(links, "php_extensions", "/php/extensions", "PHP extensions", strings.HasPrefix(path, "/php") && strings.Contains(path, "/extensions"), "")
+		links = add(links, "php_ini", "/php/php_ini_editor", "PHP INI editor", strings.HasPrefix(path, "/php") && strings.Contains(path, "/php_ini_editor"), "")
 		open := strings.HasPrefix(path, "/php")
 		groups = append(groups, NavGroup{"PHP", phpIcon, "php-menu", links, open, open})
 	}
@@ -241,16 +241,16 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 	if has("crons", "services", "ssh", "usage", "error_logs", "summary", "process_manager", "webserver_conf", "timezone", "waf", "imunifyav", "ip_blocker", "info") {
 		var links []NavLink
 		links = add(links, "services", "/services", "Services", strings.HasPrefix(path, "/services"), "")
-		links = add(links, "crons", "/cronjobs", "Cron Jobs", strings.HasPrefix(path, "/cronjobs"), "")
-		links = add(links, "ip_blocker", "/security/ip-blocker", "IP Blocker", path == "/security/ip-blocker", "")
-		links = add(links, "process_manager", "/process-manager", "Process Manager", path == "/process-manager", "")
-		links = add(links, "webserver_conf", "/server/webserver_conf", "WebServer Settings", path == "/server/webserver_conf", "")
+		links = add(links, "crons", "/cronjobs", "Cron jobs", strings.HasPrefix(path, "/cronjobs"), "")
+		links = add(links, "ip_blocker", "/security/ip-blocker", "IP blocker", path == "/security/ip-blocker", "")
+		links = add(links, "process_manager", "/process-manager", "Process manager", path == "/process-manager", "")
+		links = add(links, "webserver_conf", "/server/webserver_conf", "Web server settings", path == "/server/webserver_conf", "")
 		links = add(links, "waf", "/server/waf", "WAF", strings.HasPrefix(path, "/server/waf"), "")
 		links = add(links, "imunifyav", "/imunifyav", "ImunifyAV", strings.HasPrefix(path, "/imunifyav"), "")
-		links = add(links, "usage", "/server/usage", "Resource Usage", strings.HasPrefix(path, "/server/usage"), "")
-		links = add(links, "error_logs", "/error-logs", "Error Logs", strings.HasPrefix(path, "/error-logs"), "")
-		links = add(links, "summary", "/summary", "Daily Summary", strings.HasPrefix(path, "/summary"), "")
-		links = add(links, "info", "/server/info", "Server Information", path == "/server/info", "")
+		links = add(links, "usage", "/server/usage", "Resource usage", strings.HasPrefix(path, "/server/usage"), "")
+		links = add(links, "error_logs", "/error-logs", "Error logs", strings.HasPrefix(path, "/error-logs"), "")
+		links = add(links, "summary", "/summary", "Daily summary", strings.HasPrefix(path, "/summary"), "")
+		links = add(links, "info", "/server/info", "Server information", path == "/server/info", "")
 		open := hasAnyPrefix(path, "/cronjobs", "/services/", "/server", "/process-manager", "/server/usage", "/security/ip-blocker", "/imunifyav", "/error-logs", "/summary")
 		active := hasAnyPrefix(path, "/cronjobs", "/server", "/process-manager", "/server/usage", "/security/ip-blocker", "/imunifyav", "/error-logs", "/summary")
 		groups = append(groups, NavGroup{"Advanced", advancedIcon, "advanced-menu", links, open, active})
@@ -263,8 +263,8 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 		links = add(links, "terminal", "/containers/terminal", "Terminal", strings.HasPrefix(path, "/containers/terminal"), "")
 		links = add(links, "docker", "/containers/logs", "Logs", strings.HasPrefix(path, "/containers/logs"), "")
 		links = add(links, "change_image", "/containers/image/change", "Change image tag", path == "/containers/image/change", "")
-		links = add(links, "change_ws", "/containers/webserver", "Switch WebServer", path == "/containers/webserver", "")
-		links = add(links, "change_db", "/containers/mysql", "Switch MySQL Type", path == "/containers/mysql", "")
+		links = add(links, "change_ws", "/containers/webserver", "Switch web server", path == "/containers/webserver", "")
+		links = add(links, "change_db", "/containers/mysql", "Switch MySQL type", path == "/containers/mysql", "")
 		open := strings.HasPrefix(path, "/containers")
 		groups = append(groups, NavGroup{"Containers", dockerIcon, "docker-menu", links, open, open})
 	}
@@ -272,16 +272,16 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 	// Account group
 	if has("account", "twofa", "passkeys", "favorites", "login_history", "notifications", "locale", "sessions", "activity", "mcp") {
 		var links []NavLink
-		links = add(links, "account", "/account", "Email & Password", path == "/account", "")
-		links = add(links, "locale", "/account/language", "Change Language", strings.HasPrefix(path, "/account/language"), "")
-		links = add(links, "notifications", "/account/notifications", "Email Notifications", strings.HasPrefix(path, "/account/notifications"), "")
+		links = add(links, "account", "/account", "Email & password", path == "/account", "")
+		links = add(links, "locale", "/account/language", "Change language", strings.HasPrefix(path, "/account/language"), "")
+		links = add(links, "notifications", "/account/notifications", "Email notifications", strings.HasPrefix(path, "/account/notifications"), "")
 		links = add(links, "twofa", "/account/2fa", "2FA", strings.HasPrefix(path, "/account/2fa"), "")
 		links = add(links, "passkeys", "/account/passkeys", "Passkeys", strings.HasPrefix(path, "/account/passkeys"), "")
-		links = add(links, "sessions", "/account/sessions", "Active Sessions", strings.HasPrefix(path, "/account/sessions"), "")
-		links = add(links, "favorites", "/account/favorites", "Favorite Pages", strings.HasPrefix(path, "/account/favorites"), "")
-		links = add(links, "activity", "/account/activity", "Account Activity", strings.HasPrefix(path, "/account/activity"), "")
-		links = add(links, "login_history", "/account/login-history", "Login History", strings.HasPrefix(path, "/account/login-history"), "")
-		links = add(links, "api", "/account/api", "API Reference", strings.HasPrefix(path, "/account/api"), "")
+		links = add(links, "sessions", "/account/sessions", "Active sessions", strings.HasPrefix(path, "/account/sessions"), "")
+		links = add(links, "favorites", "/account/favorites", "Favorite pages", strings.HasPrefix(path, "/account/favorites"), "")
+		links = add(links, "activity", "/account/activity", "Account activity", strings.HasPrefix(path, "/account/activity"), "")
+		links = add(links, "login_history", "/account/login-history", "Login history", strings.HasPrefix(path, "/account/login-history"), "")
+		links = add(links, "api", "/account/api", "API reference", strings.HasPrefix(path, "/account/api"), "")
 		links = add(links, "mcp", "/account/mcp", "MCP", strings.HasPrefix(path, "/account/mcp"), "")
 		open := strings.HasPrefix(path, "/account")
 		groups = append(groups, NavGroup{"Account", classicAccountIcon, "account-menu", links, open, open})

@@ -21,10 +21,10 @@ var (
 	aliasNewPage             = web.LoadPage("emails/alias_new.html")
 	aliasDetailPage          = web.LoadPage("emails/alias_detail.html")
 	aliasDeletePage          = web.LoadPage("emails/alias_delete.html")
-	defaultAddressPage       = web.LoadPage("emails/default_address.html")
+	defaultAddressPage       = web.LoadPage("domains/_shared.html", "emails/default_address.html")
 	deliverabilityPage       = web.LoadPage("emails/deliverability.html")
 	deliverabilityDomainPage = web.LoadPage("emails/deliverability_domain.html")
-	filterPage               = web.LoadPage("emails/filter.html")
+	filterPage               = web.LoadPage("domains/_shared.html", "emails/filter.html")
 	importPage               = web.LoadPage("emails/import.html")
 	confirmImportPage        = web.LoadPage("emails/confirm_import.html")
 	migratePage              = web.LoadPage("emails/migrate.html")
@@ -62,7 +62,7 @@ type AccountsPageData struct {
 	Created        CreatedMailbox
 }
 
-// CreatedMailbox fills the connect section above the table, a blank Address hides it
+// CreatedMailbox fills the "Connect a mail app" section above the table, a blank Address hides it
 type CreatedMailbox struct {
 	Address string
 	Welcome bool
@@ -282,7 +282,7 @@ func (d *NewEmailPageData) fill() {
 }
 
 func renderNewEmailPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data NewEmailPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Create Account")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Create an email")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -356,7 +356,7 @@ type InfoPageData struct {
 }
 
 func renderInfoPage(a *appctx.App, w http.ResponseWriter, r *http.Request, address, scheme, hostname string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Connect Devices")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Connect devices")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -427,7 +427,7 @@ type AliasNewPageData struct {
 }
 
 func renderAliasNewPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domains []appctx.Domain) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "New Alias")
+	layout, _, err := web.BuildLayoutData(a, w, r, "New alias")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -448,9 +448,9 @@ type AliasDeletePageData struct {
 }
 
 func renderAliasDeletePage(a *appctx.App, w http.ResponseWriter, r *http.Request, email string, aliasList []AliasEntry) {
-	title := "Select Alias"
+	title := "Select alias"
 	if email != "" {
-		title = "Delete Alias"
+		title = "Delete alias"
 	}
 	layout, _, err := web.BuildLayoutData(a, w, r, title)
 	if err != nil {
@@ -471,15 +471,21 @@ type DefaultAddressPageData struct {
 	Domain  string
 	Domains []appctx.Domain
 	Current string
+	Picks   []web.DomainPick
 }
 
 func renderDefaultAddressPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domain string, domains []appctx.Domain, current string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Default Email")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Default email")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 	data := DefaultAddressPageData{LayoutData: layout, Domain: domain, Domains: domains, Current: current}
+	if domain == "" {
+		for _, d := range domains {
+			data.Picks = append(data.Picks, web.DomainPick{Domain: d.DomainURL, Detail: checkCurrentDefaultAliasForDomain(d.DomainURL)})
+		}
+	}
 	if err := defaultAddressPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("EMAILS - default address template render error: %v", err)
 	}
@@ -494,7 +500,7 @@ type DeliverabilityPageData struct {
 }
 
 func renderDeliverabilityPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domains []appctx.Domain) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Email Deliverability")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Email deliverability")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -534,6 +540,7 @@ type FilterPageData struct {
 	RawContent    string
 	SieveFile     string
 	ViewMode      string
+	Picks         []web.DomainPick
 }
 
 func renderFilterPage(a *appctx.App, w http.ResponseWriter, r *http.Request, email string, currentEmailsList []string, parsedFilters []sieveparser.Filter, rawContent, sieveFile, viewMode string) {
@@ -545,6 +552,20 @@ func renderFilterPage(a *appctx.App, w http.ResponseWriter, r *http.Request, ema
 	data := FilterPageData{
 		LayoutData: layout, Email: email, Addresses: addressesOf(currentEmailsList),
 		ParsedFilters: parsedFilters, RawContent: rawContent, SieveFile: sieveFile, ViewMode: viewMode,
+	}
+	if email == "" {
+		rows := make([]EmailListRow, 0, len(data.Addresses))
+		for _, addr := range data.Addresses {
+			rows = append(rows, EmailListRow{Address: addr})
+		}
+		annotateEmailRows(rows)
+		for _, row := range rows {
+			p := web.DomainPick{Domain: row.Address}
+			if row.HasFilter {
+				p.Badge, p.Tone = "Active", "success"
+			}
+			data.Picks = append(data.Picks, p)
+		}
 	}
 	if err := filterPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("EMAILS - filter template render error: %v", err)
@@ -572,7 +593,7 @@ type ConfirmImportPageData struct {
 }
 
 func renderConfirmImportPage(a *appctx.App, w http.ResponseWriter, r *http.Request, validUsers, invalidUsers []ImportRow) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Import Emails")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Import emails")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -591,7 +612,7 @@ type MigratePageData struct {
 }
 
 func renderMigratePage(a *appctx.App, w http.ResponseWriter, r *http.Request, accounts []string, st MigrateStatus) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Migrate Emails")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Migrate emails")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

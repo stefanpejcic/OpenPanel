@@ -46,7 +46,7 @@ func TestRenderLoginPage(t *testing.T) {
 		`name="username"`,
 		`name="password"`,
 		`test-csrf-token`,
-		`Sign In`,
+		`Sign in`,
 		`data-value="en"`,
 		`data-value="de"`,
 		`id="locale-search"`,
@@ -154,13 +154,13 @@ func TestRenderLocalePage(t *testing.T) {
 		}
 		return body[i : i+strings.Index(body[i:], "</button>")]
 	}
-	if de := cardOf("de"); !strings.Contains(de, "border-indigo-500") || !strings.Contains(de, "bi-check-circle-fill") {
+	if de := cardOf("de"); !strings.Contains(de, "border-blue-500") || !strings.Contains(de, "ri-checkbox-circle-fill") {
 		t.Error("expected the current locale's card to be highlighted")
 	}
-	if en := cardOf("en"); strings.Contains(en, "border-indigo-500") || strings.Contains(en, "bi-check-circle-fill") {
+	if en := cardOf("en"); strings.Contains(en, "border-blue-500") || strings.Contains(en, "ri-checkbox-circle-fill") {
 		t.Error("only the current locale should be highlighted")
 	}
-	if !strings.Contains(body, `class="grid grid-cols-3 gap-3"`) || strings.Count(body, `name="locale"`) != 3 {
+	if !strings.Contains(body, `class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"`) || strings.Count(body, `name="locale"`) != 3 {
 		t.Error("expected one card per locale in a 3 column grid")
 	}
 }
@@ -201,7 +201,7 @@ func TestRenderTwofaPage(t *testing.T) {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		if !strings.Contains(body, "ABCDEFGHIJKLMNOP") || !strings.Contains(body, "Click to Cancel") {
+		if !strings.Contains(body, "ABCDEFGHIJKLMNOP") || !strings.Contains(body, "Cancel setup") {
 			t.Error("expected OTP secret and cancel button during setup")
 		}
 	})
@@ -227,7 +227,7 @@ func TestRenderPasskeysPage(t *testing.T) {
 		if err := passkeysPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "No passkeys registered yet.") {
+		if !strings.Contains(w.Body.String(), "No passkeys yet") {
 			t.Error("expected empty state text")
 		}
 	})
@@ -369,7 +369,7 @@ func TestRenderActivityPage(t *testing.T) {
 		if !strings.Contains(body, "Next") {
 			t.Error("expected a Next link when not on the last page")
 		}
-		if !strings.Contains(body, "activity-kind--security") || !strings.Contains(body, "activity-kind--danger") {
+		if !strings.Contains(body, `title="Security"`) || !strings.Contains(body, `title="Destructive"`) {
 			t.Error("expected kind icons for each row")
 		}
 	})
@@ -450,7 +450,7 @@ func TestRenderMCPPage(t *testing.T) {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		if !strings.Contains(body, "No MCP tokens yet.") {
+		if !strings.Contains(body, "No MCP tokens yet") {
 			t.Error("expected empty state text")
 		}
 		if !strings.Contains(body, "https://panel.example.com/mcp") {
@@ -511,7 +511,7 @@ func TestLoginLocaleButtonShowsCurrent(t *testing.T) {
 	data.T = mgr.Translator("xx")
 	w = httptest.NewRecorder()
 	_ = loginPage.Render(w, 200, data)
-	if !strings.Contains(w.Body.String(), "Change Language") {
+	if !strings.Contains(w.Body.String(), "Change language") {
 		t.Error("unknown current locale should fall back to the Change Language label")
 	}
 }

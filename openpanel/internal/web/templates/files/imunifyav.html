@@ -5,16 +5,16 @@
 <!-- START templates/files/imunifyav.html -->
 
 <!-- page header -->
-<div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
     <div>
         <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">ImunifyAV</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Malware ImunifyAV found in your files, and the scans of your account."}}</p>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Malware ImunifyAV found in your files, and the scans of your account."}}</p>
     </div>
     {{if not .NotRunning}}{{if not .Error}}
-    <form method="post" action="/imunifyav/scan" class="mt-2 flex flex-col gap-2 sm:mt-0 sm:flex-row sm:items-center">
-        {{if .GUIReady}}<a href="/imunifyav" id="imunifyav-open-gui" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 w-full sm:w-auto whitespace-nowrap">{{.T.Get "Open full ImunifyAV"}}</a>{{end}}
+    <form method="post" action="/imunifyav/scan" class="flex flex-wrap items-center gap-2">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-        <button type="submit" id="imunifyav-scan" {{if .Scanning}}disabled{{end}} class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
+        {{if .GUIReady}}<a href="/imunifyav" id="imunifyav-open-gui" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 mt-2 w-full sm:w-auto sm:mt-0">{{.T.Get "Open full ImunifyAV"}}</a>{{end}}
+        <button type="submit" id="imunifyav-scan" {{if .Scanning}}disabled{{end}} class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 mt-2 w-full sm:w-auto sm:mt-0 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
             {{if .Scanning}}{{.T.Get "Scan running…"}}{{else}}{{.T.Get "Scan my files"}}{{end}}
         </button>
     </form>
@@ -23,59 +23,62 @@
 <!-- END page header -->
 
 {{if .NotRunning}}
-<div id="imunifyav-not-running" class="m-6 rounded-lg bg-gray-50 p-6 ring-1 ring-inset ring-gray-200 dark:bg-gray-400/10 dark:ring-gray-800">
-    <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "ImunifyAV isn't available right now"}}</h4>
-    <p class="mt-1 max-w-2xl text-sm leading-6 text-gray-500">{{.T.Get "It isn't installed or running on this server. Contact your hosting provider if you expected it here."}}</p>
+<div id="imunifyav-not-running" class="border-t border-gray-200 px-4 py-6 sm:px-6 lg:px-8 dark:border-gray-800">
+    <div class="flex flex-col items-center justify-center rounded-md border border-dashed border-gray-300 px-4 py-10 text-center dark:border-gray-800">
+        <i class="ri-shield-check-line text-2xl leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+        <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "ImunifyAV isn't available right now"}}</p>
+        <p class="mt-1 text-sm text-gray-500">{{.T.Get "It isn't installed or running on this server. Contact your hosting provider if you expected it here."}}</p>
+    </div>
 </div>
 {{else if .Error}}
-<div class="m-6 rounded-lg bg-red-50 p-6 ring-1 ring-inset ring-red-200 dark:bg-red-400/10 dark:ring-red-900">
-    <p class="text-sm text-red-700 dark:text-red-400">{{.Error}}</p>
+<div class="border-t border-gray-200 px-4 py-6 sm:px-6 lg:px-8 dark:border-gray-800">
+    <p class="rounded-md bg-red-50 px-4 py-3 text-sm text-red-900 ring-1 ring-inset ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.Error}}</p>
 </div>
 {{else}}
 
 <!-- summary -->
-<div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-3 sm:p-6">
-    <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
-        <p class="text-xs font-medium uppercase tracking-wide text-gray-500">{{.T.Get "Status"}}</p>
-        <p id="imunifyav-status" class="mt-1 text-sm font-semibold {{if and .Infected (not .Scanning)}}text-red-700 dark:text-red-400{{else}}text-gray-900 dark:text-gray-50{{end}}">
+<div class="grid grid-cols-1 gap-4 border-t border-gray-200 px-4 py-6 sm:grid-cols-3 sm:px-6 lg:px-8 dark:border-gray-800">
+    <div class="rounded-md border border-gray-200 p-4 dark:border-gray-800">
+        <p class="text-xs font-medium text-gray-500">{{.T.Get "Status"}}</p>
+        <p id="imunifyav-status" class="mt-1 text-sm font-semibold {{if and .Infected (not .Scanning)}}text-red-600 dark:text-red-500{{else}}text-gray-900 dark:text-gray-50{{end}}">
             {{if .Scanning}}{{.T.Get "Scanning"}}{{else if .Infected}}{{.Infected}} {{.T.Get "infected"}}{{else if .LastScan}}{{.T.Get "Clean"}}{{else}}{{.T.Get "Not scanned yet"}}{{end}}
         </p>
     </div>
-    <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
-        <p class="text-xs font-medium uppercase tracking-wide text-gray-500">{{.T.Get "Last scan"}}</p>
+    <div class="rounded-md border border-gray-200 p-4 dark:border-gray-800">
+        <p class="text-xs font-medium text-gray-500">{{.T.Get "Last scan"}}</p>
         <p class="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-50">{{if .LastScan}}{{.LastScan}}{{else}}{{.T.Get "Never"}}{{end}}</p>
     </div>
-    <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
-        <p class="text-xs font-medium uppercase tracking-wide text-gray-500">{{.T.Get "What to do"}}</p>
+    <div class="rounded-md border border-gray-200 p-4 dark:border-gray-800">
+        <p class="text-xs font-medium text-gray-500">{{.T.Get "What to do"}}</p>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{if .Infected}}{{.T.Get "Remove or replace the files below, then scan again. Contact your hosting provider if you need help cleaning them."}}{{else}}{{.T.Get "ImunifyAV also scans the server on its own schedule."}}{{end}}</p>
     </div>
 </div>
 
 <!-- infected files -->
 <section aria-label="{{.T.Get "Infected files"}}">
-    <h2 class="px-4 pb-2 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:px-6">{{.T.Get "Infected files"}}</h2>
+    <h2 class="px-4 pb-2 text-sm font-semibold text-gray-900 sm:px-6 lg:px-8 dark:text-gray-50">{{.T.Get "Infected files"}}</h2>
     {{if not .Hits}}
-    <p id="imunifyav-no-hits" class="px-4 pb-6 text-sm text-gray-500 sm:px-6">{{.T.Get "No malware found."}}</p>
+    <p id="imunifyav-no-hits" class="px-4 pb-6 text-sm text-gray-500 sm:px-6 lg:px-8">{{.T.Get "No malware found."}}</p>
     {{else}}
-    <div class="overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-        <table id="imunifyav-hits" class="w-full border-b border-gray-200 dark:border-gray-800">
+    <div class="w-full overflow-auto">
+        <table id="imunifyav-hits" class="w-full text-sm border-t border-gray-200 dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
             <thead>
-                <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_th:last-child]:pr-6 sm:[&_th:first-child]:pl-6">
-                    <th scope="col" class="border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "File"}}</th>
-                    <th scope="col" class="border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Signature"}}</th>
-                    <th scope="col" class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Detected"}}</th>
-                    <th scope="col" class="border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Status"}}</th>
+                <tr>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "File"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Signature"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Detected"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Status"}}</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+            <tbody>
                 {{range .Hits}}
-                <tr class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6">
-                    <td style="word-break: break-all;" class="p-4 font-mono text-xs text-gray-900 dark:text-gray-50">{{.Path}}</td>
-                    <td style="word-break: break-all;" class="p-4 text-xs text-gray-600 dark:text-gray-400">{{.Signature}}</td>
-                    <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Detected}}</td>
-                    <td class="whitespace-nowrap p-4 text-sm">
-                        {{if .Found}}<span class="inline-flex items-center rounded bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/40 dark:text-red-400">{{$.T.Get "Found"}}</span>
-                        {{else}}<span class="inline-flex items-center rounded bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">{{.Status}}</span>{{end}}
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                    <td style="word-break: break-all;" class="border-b border-gray-200 px-4 py-2.5 font-mono text-xs text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.Path}}</td>
+                    <td style="word-break: break-all;" class="border-b border-gray-200 px-4 py-2.5 text-xs text-gray-600 dark:border-gray-800 dark:text-gray-400">{{.Signature}}</td>
+                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">{{.Detected}}</td>
+                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
+                        {{if .Found}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{$.T.Get "Found"}}</span>
+                        {{else}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{.Status}}</span>{{end}}
                     </td>
                 </tr>
                 {{end}}
@@ -87,30 +90,30 @@
 
 <!-- scan history -->
 <section aria-label="{{.T.Get "Scans"}}" class="mt-6">
-    <h2 class="px-4 pb-2 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:px-6">{{.T.Get "Scans"}}</h2>
+    <h2 class="px-4 pb-2 text-sm font-semibold text-gray-900 sm:px-6 lg:px-8 dark:text-gray-50">{{.T.Get "Scans"}}</h2>
     {{if not .Scans}}
-    <p class="px-4 pb-6 text-sm text-gray-500 sm:px-6">{{.T.Get "Scans you start and scheduled scans of your account show up here."}}</p>
+    <p class="px-4 pb-6 text-sm text-gray-500 sm:px-6 lg:px-8">{{.T.Get "Scans you start and scheduled scans of your account show up here."}}</p>
     {{else}}
-    <div class="overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-        <table id="imunifyav-scans" class="w-full border-b border-gray-200 dark:border-gray-800">
+    <div class="w-full overflow-auto">
+        <table id="imunifyav-scans" class="w-full text-sm border-t border-gray-200 dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
             <thead>
-                <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_th:last-child]:pr-6 sm:[&_th:first-child]:pl-6">
-                    <th scope="col" class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Started"}}</th>
-                    <th scope="col" class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Files"}}</th>
-                    <th scope="col" class="whitespace-nowrap border-b border-gray-200 px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Result"}}</th>
+                <tr>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Started"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Files"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Result"}}</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+            <tbody>
                 {{range .Scans}}
-                <tr class="sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6">
-                    <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Started}}{{with .Duration}}<span class="block text-xs text-gray-400 dark:text-gray-600">{{$.T.Get "took"}} {{.}}</span>{{end}}</td>
-                    <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">{{.Files}}</td>
-                    <td class="p-4 text-sm">
-                        {{if eq .Status "running"}}<span class="inline-flex items-center rounded bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300">{{$.T.Get "Running"}}</span>
-                        {{else if eq .Status "failed"}}<span class="inline-flex items-center rounded bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/40 dark:text-red-400">{{$.T.Get "Failed"}}</span>{{with .Message}}<span class="ml-1 text-xs text-gray-500">{{.}}</span>{{end}}
-                        {{else if eq .Status "aborted"}}<span class="inline-flex items-center rounded bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300">{{$.T.Get "Stopped early"}}</span>
-                        {{else if .Found}}<span class="inline-flex items-center rounded bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/40 dark:text-red-400">{{.Found}} {{$.T.Get "infected"}}</span>
-                        {{else}}<span class="inline-flex items-center rounded bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-400">{{$.T.Get "Clean"}}</span>{{end}}
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">{{.Started}}{{with .Duration}}<span class="block text-xs text-gray-500">{{$.T.Get "took"}} {{.}}</span>{{end}}</td>
+                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums">{{.Files}}</td>
+                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
+                        {{if eq .Status "running"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-blue-50 text-blue-900 ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">{{$.T.Get "Running"}}</span>
+                        {{else if eq .Status "failed"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{$.T.Get "Failed"}}</span>{{with .Message}}<span class="ml-1 text-xs text-gray-500">{{.}}</span>{{end}}
+                        {{else if eq .Status "aborted"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{$.T.Get "Stopped early"}}</span>
+                        {{else if .Found}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.Found}} {{$.T.Get "infected"}}</span>
+                        {{else}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20">{{$.T.Get "Clean"}}</span>{{end}}
                     </td>
                 </tr>
                 {{end}}

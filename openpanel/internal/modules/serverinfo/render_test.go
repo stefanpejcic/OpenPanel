@@ -27,10 +27,10 @@ func TestRenderServerInfoPage(t *testing.T) {
 		t.Fatalf("Render: %v", err)
 	}
 	body := w.Body.String()
-	if !strings.Contains(body, "Server Information") {
+	if !strings.Contains(body, "Server information") {
 		t.Error("expected page title in body")
 	}
-	for _, want := range []string{`<tbody data-tab="server" class`, `<tbody data-tab="plan" hidden`, `<tbody data-tab="panel" hidden`, "tabFor"} {
+	for _, want := range []string{`<tbody data-tab="server">`, `<tbody data-tab="plan" hidden`, `<tbody data-tab="panel" hidden`, "tabFor"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("expected %q in body", want)
 		}

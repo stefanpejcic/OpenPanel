@@ -39,13 +39,18 @@ func TestRenderDNSListPage(t *testing.T) {
 		data := DNSPageData{
 			LayoutData: baseLayout(mgr, "/domains/edit-dns-zone"),
 			Domains:    []appctx.Domain{{DomainURL: "example.com"}},
+			Picks:      []web.DomainPick{{Domain: "example.com", Detail: "9"}, {Domain: "blog.example.com", Disabled: true, Note: "Uses the main domain's zone"}},
 		}
 		w := httptest.NewRecorder()
 		if err := dnsPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "example.com") {
-			t.Error("expected domain option")
+		body := w.Body.String()
+		if !strings.Contains(body, `href="/domains/edit-dns-zone/example.com"`) {
+			t.Error("expected edit zone link")
+		}
+		if strings.Contains(body, `href="/domains/edit-dns-zone/blog.example.com"`) {
+			t.Error("expected no link for a domain without its own zone")
 		}
 	})
 }

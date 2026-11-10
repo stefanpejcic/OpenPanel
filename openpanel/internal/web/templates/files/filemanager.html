@@ -53,125 +53,106 @@
 
 
 <!-- START header -->
-<div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-   <div>
-      <div class="flex items-center gap-x-3">
-         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "File Manager"}}</h1>
-      </div>
-
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+   <div class="min-w-0">
+      <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "File manager"}}</h1>
 
       <!-- START breadcrumbs -->
-      <p class="text-sm text-gray-500 dark:text-gray-500">
-      <nav aria-label="{{.T.Get "FileManager Breadcrumbs"}}" id="tour-fm-breadcrumbs">
-         <ol role="list" class="flex items-center space-x-1 text-sm">
+      <nav aria-label="{{.T.Get "FileManager Breadcrumbs"}}" id="tour-fm-breadcrumbs" class="mt-1">
+         <ol role="list" class="flex flex-wrap items-center gap-1 text-sm text-gray-500">
             <li class="flex">
-               <a href="/files?view={{.View}}" class="text-gray-500 transition hover:text-gray-700 dark:text-gray-400 hover:dark:text-gray-300">/var/www/html/</a>
+               <a href="/files?view={{.View}}" class="text-gray-500 hover:text-gray-900 dark:hover:text-gray-50">/var/www/html/</a>
             </li>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4 shrink-0 text-gray-600 dark:text-gray-400" aria-hidden="true">
-               <path d="m9 18 6-6-6-6"></path>
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4 shrink-0 text-gray-400 dark:text-gray-600" aria-hidden="true"><path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path></svg>
             {{range $i, $part := .Breadcrumbs}}
             <li class="flex">
                {{if eq $i 2}}
-               <a href="/files?view={{$.View}}" class="text-gray-900 dark:text-gray-50">{{$part.Name}}</a>
+               <a href="/files?view={{$.View}}" class="text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50">{{$part.Name}}</a>
                {{else}}
-               <a href="/files/{{$part.Path}}?view={{$.View}}" class="text-gray-900 dark:text-gray-50">{{$part.Name}}</a>
+               <a href="/files/{{$part.Path}}?view={{$.View}}" class="text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50">{{$part.Name}}</a>
                {{end}}
             </li>
             {{if not $part.Last}}
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right size-4 shrink-0 text-gray-600 dark:text-gray-400" aria-hidden="true">
-               <path d="m9 18 6-6-6-6"></path>
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4 shrink-0 text-gray-400 dark:text-gray-600" aria-hidden="true"><path d="M13.1717 12.0007L8.22192 7.05093L9.63614 5.63672L16.0001 12.0007L9.63614 18.3646L8.22192 16.9504L13.1717 12.0007Z"></path></svg>
             {{end}}
             {{end}}
          </ol>
       </nav>
-      </p>
       <!-- END breadcrumbs -->
    </div>
    <!-- START new and upload buttons -->
-   <div class="flex gap-0 sm:mt-0">
+   <div class="flex flex-wrap items-center gap-2">
 
-    <input type="text" class="form-control search-bar relative block appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 file:-my-2 file:-ml-2.5 file:cursor-pointer file:rounded-l-[5px] focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" id="searchFilesInput" style="display: none;" placeholder="{{.T.Get "Search Files & Folders"}}">
+      <input type="search" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 search-bar sm:w-72" id="searchFilesInput" style="display: none;" placeholder="{{.T.Get "Search files and folders"}}" aria-label="{{.T.Get "Search files and folders"}}">
 
-
-      <button class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="newFileButton" title="{{.T.Get "New File"}}" type="button" onclick="fmShowNewRow('newfiDrawer')" aria-controls="newfiDrawer">
-      <i class="bi bi-plus-lg"></i> <span class="hidden sm:inline">{{.T.Get "New File"}}</span>
+      <button class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600" id="newFileButton" title="{{.T.Get "New file"}}" type="button" onclick="fmShowNewRow('newfiDrawer')" aria-controls="newfiDrawer">
+      <i class="ri-add-line"></i> <span class="hidden sm:inline">{{.T.Get "New file"}}</span>
       </button>
-      <button class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="newFolderButton" title="{{.T.Get "New Folder"}}" type="button" onclick="fmShowNewRow('newfoDrawer')" aria-controls="newfoDrawer">
-      <i class="bi bi-folder-plus"></i> <span class="hidden sm:inline">{{.T.Get "New Folder"}}</span>
+      <button class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600" id="newFolderButton" title="{{.T.Get "New folder"}}" type="button" onclick="fmShowNewRow('newfoDrawer')" aria-controls="newfoDrawer">
+      <i class="ri-folder-add-line"></i> <span class="hidden sm:inline">{{.T.Get "New folder"}}</span>
       </button>
-      <button class="relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="uploadButton" title="{{.T.Get "Upload"}}" type="button" onclick="fmOpenUpload()">
-      <i class="bi bi-upload"></i> <span class="hidden sm:inline">{{.T.Get "Upload"}}</span>
+      <button class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600" id="uploadButton" title="{{.T.Get "Upload"}}" type="button" onclick="fmOpenUpload()">
+      <i class="ri-upload-line"></i> <span class="hidden sm:inline">{{.T.Get "Upload"}}</span>
       </button>
-
-
 
         <!-- Dropdown for Column Visibility -->
-        <div class="relative mt-2 sm:mt-0" id="FilterButton">
-            <button id="dropdownToggleButton" data-dropdown-toggle="dropdownToggle" class="h-full relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800" type="button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4"><path d="M5 7C5 6.17157 5.67157 5.5 6.5 5.5C7.32843 5.5 8 6.17157 8 7C8 7.82843 7.32843 8.5 6.5 8.5C5.67157 8.5 5 7.82843 5 7ZM6.5 3.5C4.567 3.5 3 5.067 3 7C3 8.933 4.567 10.5 6.5 10.5C8.433 10.5 10 8.933 10 7C10 5.067 8.433 3.5 6.5 3.5ZM12 8H20V6H12V8ZM16 17C16 16.1716 16.6716 15.5 17.5 15.5C18.3284 15.5 19 16.1716 19 17C19 17.8284 18.3284 18.5 17.5 18.5C16.6716 18.5 16 17.8284 16 17ZM17.5 13.5C15.567 13.5 14 15.067 14 17C14 18.933 15.567 20.5 17.5 20.5C19.433 20.5 21 18.933 21 17C21 15.067 19.433 13.5 17.5 13.5ZM4 16V18H12V16H4Z"></path></svg></button>
+        <div class="relative" id="FilterButton">
+            <button id="dropdownToggleButton" data-dropdown-toggle="dropdownToggle" data-dropdown-placement="bottom-end" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600" type="button" aria-label="{{.T.Get "Columns"}}" title="{{.T.Get "Columns"}}"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" class="size-4"><path d="M5 7C5 6.17157 5.67157 5.5 6.5 5.5C7.32843 5.5 8 6.17157 8 7C8 7.82843 7.32843 8.5 6.5 8.5C5.67157 8.5 5 7.82843 5 7ZM6.5 3.5C4.567 3.5 3 5.067 3 7C3 8.933 4.567 10.5 6.5 10.5C8.433 10.5 10 8.933 10 7C10 5.067 8.433 3.5 6.5 3.5ZM12 8H20V6H12V8ZM16 17C16 16.1716 16.6716 15.5 17.5 15.5C18.3284 15.5 19 16.1716 19 17C19 17.8284 18.3284 18.5 17.5 18.5C16.6716 18.5 16 17.8284 16 17ZM17.5 13.5C15.567 13.5 14 15.067 14 17C14 18.933 15.567 20.5 17.5 20.5C19.433 20.5 21 18.933 21 17C21 15.067 19.433 13.5 17.5 13.5ZM4 16V18H12V16H4Z"></path></svg></button>
 
             <!-- Dropdown menu -->
-            <div id="dropdownToggle" class="z-50 text-sm shadow-md border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-gray-50 dark:bg-gray-950 divide-y divide-gray-100 rounded-lg shadow-sm w-42 dark:divide-gray-600 hidden">
-                <ul class="p-2 space-y-1" aria-labelledby="dropdownToggleButton">
+            <div id="dropdownToggle" class="z-50 hidden w-56 rounded-md border border-gray-200 bg-white p-1 text-sm text-gray-900 shadow-xl dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50">
+                <ul class="space-y-0.5" aria-labelledby="dropdownToggleButton">
                     {{template "column_toggle" (dict "Key" "date" "Label" (.T.Get "Date"))}}
                     {{template "column_toggle" (dict "Key" "owner" "Label" (.T.Get "Owner"))}}
                     {{template "column_toggle" (dict "Key" "group" "Label" (.T.Get "Group"))}}
                     {{template "column_toggle" (dict "Key" "links" "Label" (.T.Get "Links"))}}
-                    {{template "column_toggle" (dict "Key" "link_target" "Label" (.T.Get "Link Target"))}}
+                    {{template "column_toggle" (dict "Key" "link_target" "Label" (.T.Get "Link target"))}}
                     {{template "column_toggle" (dict "Key" "permissions" "Label" (.T.Get "Permissions"))}}
                     {{template "column_toggle" (dict "Key" "size" "Label" (.T.Get "Size"))}}
                     {{template "column_toggle" (dict "Key" "type" "Label" (.T.Get "Type"))}}
                 </ul>
+                <div class="my-1 hidden h-px bg-gray-200 lg:block dark:bg-gray-800"></div>
+                <label class="hidden items-center justify-between gap-2 rounded px-2 py-1.5 hover:bg-gray-100 lg:flex dark:hover:bg-gray-900 cursor-pointer">
+                    <span>{{.T.Get "Folder tree"}}</span>
+                    <input type="checkbox" role="switch" id="fmTreeToggle" checked>
+                </label>
             </div>
         </div>
 
-        <div class="relative mt-2 sm:mt-0" id="FilterSearchButton" style="display: none;">
-            <button id="dropdownSearchToggleButton" data-dropdown-toggle="dropdownSearchToggle" class="h-full relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800" type="button"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4"><path d="M5 7C5 6.17157 5.67157 5.5 6.5 5.5C7.32843 5.5 8 6.17157 8 7C8 7.82843 7.32843 8.5 6.5 8.5C5.67157 8.5 5 7.82843 5 7ZM6.5 3.5C4.567 3.5 3 5.067 3 7C3 8.933 4.567 10.5 6.5 10.5C8.433 10.5 10 8.933 10 7C10 5.067 8.433 3.5 6.5 3.5ZM12 8H20V6H12V8ZM16 17C16 16.1716 16.6716 15.5 17.5 15.5C18.3284 15.5 19 16.1716 19 17C19 17.8284 18.3284 18.5 17.5 18.5C16.6716 18.5 16 17.8284 16 17ZM17.5 13.5C15.567 13.5 14 15.067 14 17C14 18.933 15.567 20.5 17.5 20.5C19.433 20.5 21 18.933 21 17C21 15.067 19.433 13.5 17.5 13.5ZM4 16V18H12V16H4Z"></path></svg></button>
+        <div class="relative" id="FilterSearchButton" style="display: none;">
+            <button id="dropdownSearchToggleButton" data-dropdown-toggle="dropdownSearchToggle" data-dropdown-placement="bottom-end" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600" type="button" aria-label="{{.T.Get "Search filters"}}" title="{{.T.Get "Search filters"}}"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" class="size-4"><path d="M5 7C5 6.17157 5.67157 5.5 6.5 5.5C7.32843 5.5 8 6.17157 8 7C8 7.82843 7.32843 8.5 6.5 8.5C5.67157 8.5 5 7.82843 5 7ZM6.5 3.5C4.567 3.5 3 5.067 3 7C3 8.933 4.567 10.5 6.5 10.5C8.433 10.5 10 8.933 10 7C10 5.067 8.433 3.5 6.5 3.5ZM12 8H20V6H12V8ZM16 17C16 16.1716 16.6716 15.5 17.5 15.5C18.3284 15.5 19 16.1716 19 17C19 17.8284 18.3284 18.5 17.5 18.5C16.6716 18.5 16 17.8284 16 17ZM17.5 13.5C15.567 13.5 14 15.067 14 17C14 18.933 15.567 20.5 17.5 20.5C19.433 20.5 21 18.933 21 17C21 15.067 19.433 13.5 17.5 13.5ZM4 16V18H12V16H4Z"></path></svg></button>
 
             <!-- Dropdown menu -->
-            <div id="dropdownSearchToggle" class="z-50 text-sm shadow-md border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-gray-50 dark:bg-gray-950 divide-y divide-gray-100 rounded-lg shadow-sm w-42 dark:divide-gray-600 hidden">
-                <ul class="p-2 space-y-1" aria-labelledby="dropdownSearchToggleButton">
-
-                    <li>
-<div class="flex py-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600"><label class="flex items-center w-full cursor-pointer"><span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300 w-full">{{.T.Get "in:"}}</span><input id="searchFolder" type="text" class="relative block appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 file:-my-2 file:-ml-2.5 file:cursor-pointer file:rounded-l-[5px] focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" placeholder="{{.T.Get "all folders"}}"></label></div>
-                    </li>
-
-
-                    <li>
-                        <div class="flex py-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
-                            <label class="inline-flex items-center w-full cursor-pointer">
-                                <input id="toggleFiles" type="checkbox" checked class="sr-only peer">
-                                <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
-                                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Files"}}</span>
-                            </label>
-                        </div>
+            <div id="dropdownSearchToggle" class="z-50 hidden w-56 rounded-md border border-gray-200 bg-white p-1 text-sm text-gray-900 shadow-xl dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50">
+                <ul class="space-y-0.5" aria-labelledby="dropdownSearchToggleButton">
+                    <li class="px-2 py-1.5">
+                        <label for="searchFolder" class="block text-xs font-medium text-gray-500">{{.T.Get "in:"}}</label>
+                        <input id="searchFolder" type="text" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 mt-1" placeholder="{{.T.Get "all folders"}}">
                     </li>
                     <li>
-                        <div class="flex py-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
-                            <label class="inline-flex items-center w-full cursor-pointer">
-                                <input id="toggleFolders" type="checkbox" checked class="sr-only peer">
-                                <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
-                                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Folders"}}</span>
-                            </label>
-                        </div>
+                        <label class="flex items-center gap-2 rounded px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-900 justify-between cursor-pointer">
+                            <span>{{.T.Get "Files"}}</span>
+                            <input id="toggleFiles" type="checkbox" role="switch" checked>
+                        </label>
+                    </li>
+                    <li>
+                        <label class="flex items-center gap-2 rounded px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-900 justify-between cursor-pointer">
+                            <span>{{.T.Get "Folders"}}</span>
+                            <input id="toggleFolders" type="checkbox" role="switch" checked>
+                        </label>
                     </li>
                     <li class="hidden">
-                        <div class="py-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
-                            <label class="items-center w-full cursor-pointer">
-                                <input type="checkbox" x-on:change="searchFiles" class="sr-only peer">
-                                <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
-                                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{.T.Get "Specific extension"}}</span>
-                            </label>
-                        </div>
+                        <label class="flex items-center gap-2 rounded px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-900 justify-between cursor-pointer">
+                            <span>{{.T.Get "Specific extension"}}</span>
+                            <input type="checkbox" role="switch" x-on:change="searchFiles">
+                        </label>
                     </li>
-
                 </ul>
             </div>
         </div>
 
-      <button class="h-full relative inline-flex items-center justify-center border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0" id="searchIcon" onclick="toggleSearchBar()">
-      <i class="bi bi-search"></i>
+      <button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600" id="searchIcon" onclick="toggleSearchBar()" aria-label="{{.T.Get "Search"}}" title="{{.T.Get "Search"}}">
+      <i class="ri-search-line"></i>
       </button>
 
    </div>
@@ -181,14 +162,9 @@
 <!-- END header -->
 
 <!-- START files search results -->
-<!-- NOTE: this search box calls /json/search/files and /json/search/folders,
-     which don't exist anywhere in the Python backend either - dead,
-     never-functional UI in the source this was ported from. Kept as-is
-     rather than removed, to stay a faithful port; not worth implementing
-     server-side search that was never part of the original feature. -->
     <div class="text-sm" id="fileserachresults">
 
-        <ul class="flex w-full overflow-y-auto [&::-webkit-scrollbar]:w-2  [&::-webkit-scrollbar-track]:bg-gray-100  [&::-webkit-scrollbar-thumb]:bg-gray-300  dark:[&::-webkit-scrollbar-track]:bg-neutral-700  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500" aria-labelledby="searchFilesInput" id="filteredFilesDropdown">
+        <ul class="mx-4 mb-3 max-h-72 divide-y divide-gray-200 overflow-y-auto rounded-md border border-gray-200 bg-white text-gray-900 shadow-xs sm:mx-6 lg:mx-8 dark:divide-gray-800 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50" aria-labelledby="searchFilesInput" id="filteredFilesDropdown" style="display: none;">
         </ul>
     </div>
 
@@ -200,9 +176,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleFolders = document.getElementById('toggleFolders');
     const dropdown = document.getElementById('filteredFilesDropdown');
 
+    const esc = v => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const resultRow = (href, icon, name, path) => `
+                    <li>
+                        <a class="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-900" href="${esc(href)}">
+                            <i class="${icon} text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+                            <span class="truncate font-medium">${esc(name)}</span>
+                            <span class="ml-auto truncate text-xs text-gray-500">${esc(path)}</span>
+                        </a>
+                    </li>`;
+
     async function doSearch() {
         const searchText = searchInput.value.toLowerCase();
         const folderFilter = searchFolder.value.trim();
+
+        let dropdownItems = '';
 
         const searchFilesEnabled = toggleFiles.checked;
         const searchFoldersEnabled = toggleFolders.checked;
@@ -232,40 +220,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const [filesData, foldersData] = await Promise.all(requests);
 
-        const matches = data => data.filter(item => (item.name || '').toLowerCase().includes(searchText));
-        const items = [
-            ...matches(foldersData).map(item => searchResultItem(item, 'text-orange-500 mr-2', 'bi bi-folder-fill')),
-            ...matches(filesData).map(item => searchResultItem(item, 'mr-2', 'bi bi-file-earmark')),
-        ];
+        const currentQuery = window.location.search;
 
-        dropdown.replaceChildren(...items);
-        if (items.length) {
+        foldersData.forEach(item => {
+            const itemName = (item.name || '').toLowerCase();
+            const linkTarget = item.path || '';
+
+            if (itemName.includes(searchText)) {
+                const fullLink =
+                    `${window.location.protocol}//${window.location.host}/files/${linkTarget}${currentQuery}`;
+
+                dropdownItems += resultRow(fullLink, 'ri-folder-line', item.name, linkTarget);
+            }
+        });
+
+        filesData.forEach(item => {
+            const itemName = (item.name || '').toLowerCase();
+            const linkTarget = item.path || '';
+
+            if (itemName.includes(searchText)) {
+                const fullLink =
+                    `${window.location.protocol}//${window.location.host}/files/${linkTarget}${currentQuery}`;
+
+                dropdownItems += resultRow(fullLink, 'ri-file-line', item.name, linkTarget);
+            }
+        });
+
+        if (dropdownItems) {
+            dropdown.innerHTML = dropdownItems;
             dropdown.style.display = '';
-            dropdown.classList.add('p-1');
+            
         } else {
+            dropdown.innerHTML = '';
             dropdown.style.display = 'none';
-            dropdown.classList.remove('p-1');
+            
         }
-    }
-
-    // names come from the volume so anyone with FTP or site code can pick them, never build this from a html string
-    function searchResultItem(item, iconWrapClass, iconClass) {
-        const linkTarget = item.path || '';
-        const li = document.createElement('li');
-        li.className = 'p-1 border-r border-gray-200 dark:border-gray-800';
-        li.innerHTML = `
-            <h3 class="m-0">
-                <a class="flex">
-                    <span class="${iconWrapClass}"><i class="${iconClass}"></i></span>
-                    <span data-name></span>
-                    <br>
-                    <p class="dropdown-item-description" style="display:contents;font-size:0.7em;"></p>
-                </a>
-            </h3>`;
-        li.querySelector('a').href = '/files/' + linkTarget.split('/').map(encodeURIComponent).join('/') + window.location.search;
-        li.querySelector('[data-name]').textContent = item.name;
-        li.querySelector('p').textContent = linkTarget;
-        return li;
     }
 
     searchInput?.addEventListener('input', doSearch);
@@ -281,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ) {
             dropdown.innerHTML = '';
             dropdown.style.display = 'none';
-            dropdown.classList.remove('p-1');
+            
         }
     });
 });
@@ -289,6 +278,9 @@ document.addEventListener('DOMContentLoaded', () => {
 <!-- END files search results -->
 
 
+<div class="lg:flex lg:items-stretch">
+{{template "fm_tree" .}}
+<div class="min-w-0 flex-1">
 {{if eq (len .Directories) 0}}{{if eq (len .Files) 0}}
 
     {{template "drag_and_drop" .}}
@@ -308,51 +300,37 @@ document.addEventListener('DOMContentLoaded', () => {
     {{template "files_table" .}}
 
     {{if gt .TotalPages 1}}
-        <div class="container">
-            <div class="row">
-                <div class="col-sm">
-                    <p>
-                        {{.T.Get "Showing files"}} {{.StartLineNumber}} {{.T.Get "to"}} {{.EndLineNumber}}, {{.T.Get "from a total of"}} {{.TotalFiles}}.
-                    </p>
-                </div>
-                <div class="col-sm">
-
-    <nav aria-label="{{.T.Get "Page navigation"}}">
-        <ul class="pagination">
-            {{if gt .CurrentPage 1}}
-                <li class="page-item">
-                    <a class="page-link" href="/files/{{.PathParam}}?view={{.View}}&page={{.PrevPage}}" aria-label="{{.T.Get "Previous"}}">
-                        <span aria-hidden="true">&laquo; {{.T.Get "Previous"}}</span>
-                    </a>
-                </li>
-            {{end}}
-            {{range .PageEntries}}
-                {{if .IsEllipsis}}
-                    <li class="page-item disabled">
-                        <span class="page-link">...</span>
+        <div class="flex flex-col gap-3 px-4 py-4 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+            <p class="tabular-nums">
+                {{.T.Get "Showing files"}} {{.StartLineNumber}} {{.T.Get "to"}} {{.EndLineNumber}}, {{.T.Get "from a total of"}} {{.TotalFiles}}.
+            </p>
+            <nav aria-label="{{.T.Get "Page navigation"}}">
+                <ul class="flex flex-wrap items-center gap-1">
+                    {{if gt .CurrentPage 1}}
+                    <li>
+                        <a class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600" href="/files/{{.PathParam}}?view={{.View}}&page={{.PrevPage}}" aria-label="{{.T.Get "Previous"}}">
+                            <i class="ri-arrow-left-s-line" aria-hidden="true"></i> {{.T.Get "Previous"}}
+                        </a>
                     </li>
-                {{else if eq .Number $.CurrentPage}}
-                    <li class="page-item active">
-                        <span class="page-link">{{.Number}}</span>
+                    {{end}}
+                    {{range .PageEntries}}
+                        {{if .IsEllipsis}}
+                    <li><span class="px-2 text-gray-400">...</span></li>
+                        {{else if eq .Number $.CurrentPage}}
+                    <li><span aria-current="page" class="inline-flex min-w-8 items-center justify-center rounded-md bg-gray-100 px-2 py-1.5 font-medium text-gray-900 tabular-nums dark:bg-gray-800 dark:text-gray-50">{{.Number}}</span></li>
+                        {{else}}
+                    <li><a class="inline-flex min-w-8 items-center justify-center rounded-md px-2 py-1.5 text-gray-600 tabular-nums hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800/80" href="/files/{{$.PathParam}}?view={{$.View}}&page={{.Number}}">{{.Number}}</a></li>
+                        {{end}}
+                    {{end}}
+                    {{if lt .CurrentPage .TotalPages}}
+                    <li>
+                        <a class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600" href="/files/{{.PathParam}}?view={{.View}}&page={{.NextPage}}" aria-label="{{.T.Get "Next"}}">
+                            {{.T.Get "Next"}} <i class="ri-arrow-right-s-line" aria-hidden="true"></i>
+                        </a>
                     </li>
-                {{else}}
-                    <li class="page-item">
-                        <a class="page-link" href="/files/{{$.PathParam}}?view={{$.View}}&page={{.Number}}">{{.Number}}</a>
-                    </li>
-                {{end}}
-            {{end}}
-            {{if lt .CurrentPage .TotalPages}}
-                <li class="page-item">
-                    <a class="page-link" href="/files/{{.PathParam}}?view={{.View}}&page={{.NextPage}}" aria-label="{{.T.Get "Next"}}">
-                        <span aria-hidden="true">{{.T.Get "Next"}} &raquo;</span>
-                    </a>
-                </li>
-            {{end}}
-        </ul>
-    </nav>
-
-                </div>
-            </div>
+                    {{end}}
+                </ul>
+            </nav>
         </div>
     {{end}}
 
@@ -380,6 +358,8 @@ document.addEventListener('DOMContentLoaded', () => {
     {{template "fm_picker_modal" .}}
 
 {{end}}
+</div>
+</div>
 
 {{template "fm_new_file" .}}
 {{template "fm_new_folder" .}}
@@ -400,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (searchBar.style.display === 'none' || searchBar.style.display === '') {
       searchBar.style.display = 'block';
-      searchIcon.innerHTML = '<i class="bi bi-x-lg"></i>';
+      searchIcon.innerHTML = '<i class="ri-close-line"></i>';
 
       if (searchFilesInput) {
         searchFilesInput.style.display = 'block';
@@ -417,7 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
         filterSearchButton.style.display = 'block';
     } else {
       searchBar.style.display = 'none';
-      searchIcon.innerHTML = '<i class="bi bi-search"></i>';
+      searchIcon.innerHTML = '<i class="ri-search-line"></i>';
       if (toggleDarkModeIcon) {
         toggleDarkModeIcon.style.display = 'block';
       }
@@ -438,12 +418,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 {{define "column_toggle"}}
 <li>
-    <div class="flex py-1 rounded-sm hover:bg-gray-100 dark:hover:bg-gray-600">
-        <label class="inline-flex items-center w-full cursor-pointer">
-            <input type="checkbox" x-model="columns.{{.Key}}" x-on:change="saveColumns" class="sr-only peer">
-            <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:translate-x-[-100%] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
-            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{.Label}}</span>
-        </label>
-    </div>
+    <label class="flex items-center gap-2 rounded px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-900 justify-between cursor-pointer">
+        <span>{{.Label}}</span>
+        <input type="checkbox" role="switch" x-model="columns.{{.Key}}" x-on:change="saveColumns">
+    </label>
 </li>
 {{end}}

@@ -517,7 +517,7 @@ func handleEmailsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		if welcome {
 			next.Set("welcome", "1")
 		}
-		http.Redirect(w, r, "/emails?"+next.Encode(), http.StatusFound)
+		web.FlashRedirect(a, w, r, "success", web.Tr(a, r, "Email %(email)s added successfully.", "email", email), "/emails?"+next.Encode())
 		return
 	}
 
@@ -591,14 +591,12 @@ func parseEmailListRow(entry string) EmailListRow {
 		cappedVal = 100
 	}
 
-	barColor := "bg-green-500"
+	barColor := "bg-blue-500"
 	switch {
-	case percentVal <= 80:
-		barColor = "bg-green-500"
-	case percentVal <= 90:
-		barColor = "bg-orange-500"
-	default:
+	case percentVal >= 90:
 		barColor = "bg-red-500"
+	case percentVal >= 70:
+		barColor = "bg-yellow-500"
 	}
 
 	_, used, limit := ParseMailboxQuota(entry)

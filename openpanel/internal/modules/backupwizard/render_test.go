@@ -28,7 +28,7 @@ func TestRenderBackupWizardPage(t *testing.T) {
 		if err := backupWizardPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "No backups found") {
+		if !strings.Contains(w.Body.String(), "No backups yet") {
 			t.Error("expected empty-state message")
 		}
 	})

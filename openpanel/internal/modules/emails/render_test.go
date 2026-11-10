@@ -234,14 +234,19 @@ func TestRenderAliasDeletePage(t *testing.T) {
 func TestRenderDefaultAddressPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
-	t.Run("select domain", func(t *testing.T) {
-		data := DefaultAddressPageData{LayoutData: baseLayout(mgr, "/emails/default/"), Domains: []appctx.Domain{{DomainURL: "example.com"}}}
+	t.Run("domain list", func(t *testing.T) {
+		data := DefaultAddressPageData{
+			LayoutData: baseLayout(mgr, "/emails/default/"),
+			Domains:    []appctx.Domain{{DomainURL: "example.com"}},
+			Picks:      []web.DomainPick{{Domain: "example.com", Detail: "catchall@example.com"}},
+		}
 		w := httptest.NewRecorder()
 		if err := defaultAddressPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "example.com") {
-			t.Error("expected domain option in body")
+		body := w.Body.String()
+		if !strings.Contains(body, `href="/emails/default/example.com"`) || !strings.Contains(body, "catchall@example.com") {
+			t.Error("expected domain row with its catch-all target")
 		}
 	})
 
@@ -285,13 +290,14 @@ func TestRenderFilterPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("select address", func(t *testing.T) {
-		data := FilterPageData{LayoutData: baseLayout(mgr, "/emails/filter"), Addresses: []string{"a@b.com"}}
+		data := FilterPageData{LayoutData: baseLayout(mgr, "/emails/filter"), Addresses: []string{"a@b.com"}, Picks: []web.DomainPick{{Domain: "a@b.com", Badge: "Active", Tone: "success"}}}
 		w := httptest.NewRecorder()
 		if err := filterPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "a@b.com") {
-			t.Error("expected address option in body")
+		body := w.Body.String()
+		if !strings.Contains(body, `href="/emails/filter/a@b.com"`) || !strings.Contains(body, " address</p>") {
+			t.Error("expected address row with an edit link and the address count")
 		}
 	})
 

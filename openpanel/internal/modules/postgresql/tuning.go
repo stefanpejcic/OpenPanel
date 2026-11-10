@@ -18,18 +18,18 @@ const (
 
 // confLabels are the human names shown in the confirm dialog
 var confLabels = map[string]string{
-	"shared_buffers":               "Shared Buffers",
-	"effective_cache_size":         "Effective Cache Size",
-	"work_mem":                     "Work Memory",
-	"maintenance_work_mem":         "Maintenance Work Memory",
-	"max_connections":              "Max Connections",
-	"max_worker_processes":         "Max Worker Processes",
-	"max_parallel_workers":         "Max Parallel Workers",
-	"wal_level":                    "WAL Level",
-	"checkpoint_completion_target": "Checkpoint Completion Target",
-	"max_wal_size":                 "Max WAL Size",
-	"log_min_duration_statement":   "Log Min Duration Statement",
-	"log_statement":                "Log Statement",
+	"shared_buffers":               "Shared buffers",
+	"effective_cache_size":         "Effective cache size",
+	"work_mem":                     "Work memory",
+	"maintenance_work_mem":         "Maintenance work memory",
+	"max_connections":              "Max connections",
+	"max_worker_processes":         "Max worker processes",
+	"max_parallel_workers":         "Max parallel workers",
+	"wal_level":                    "WAL level",
+	"checkpoint_completion_target": "Checkpoint completion target",
+	"max_wal_size":                 "Max WAL size",
+	"log_min_duration_statement":   "Log min duration statement",
+	"log_statement":                "Log statement",
 	"autovacuum":                   "Autovacuum",
 }
 
@@ -158,6 +158,7 @@ func BuildPgRecommendations(s PgTuningStats) dbtuning.Report {
 		report.Facts["memory_used"] = dbtuning.HumanSize(s.MemUsage)
 	}
 	report.Facts["databases"] = strconv.Itoa(s.Databases)
+	report.Facts["connections"] = strconv.Itoa(s.Connections)
 	report.Facts["data_size"] = dbtuning.HumanSize(s.DataSize)
 	report.Facts["uptime"] = dbtuning.FormatUptime(s.UptimeSecs)
 	if ram <= 0 {

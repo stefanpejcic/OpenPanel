@@ -180,11 +180,11 @@ func mysqlTabs(g navGate, path string) []NavLink {
 	tabs = g.add(tabs, "mysql", "/mysql/users", "Users", path == "/mysql/users" || hasAnyPrefix(path, "/mysql/user", "/mysql/assign", "/mysql/remove", "/mysql/password"), "")
 	tabs = g.add(tabs, "mysql_import", "/mysql/import", "Import", strings.HasPrefix(path, "/mysql/import"), "")
 	tabs = g.add(tabs, "phpmyadmin", "/mysql/phpmyadmin", "phpMyAdmin", path == "/mysql/phpmyadmin", "_blank")
-	tabs = g.add(tabs, "remote_mysql", "/mysql/remote-mysql", "Remote Access", path == "/mysql/remote-mysql", "")
-	tabs = g.add(tabs, "mysql_processlist", "/mysql/processlist", "Running Queries", path == "/mysql/processlist", "")
+	tabs = g.add(tabs, "remote_mysql", "/mysql/remote-mysql", "Remote access", path == "/mysql/remote-mysql", "")
+	tabs = g.add(tabs, "mysql_processlist", "/mysql/processlist", "Running queries", path == "/mysql/processlist", "")
 	tabs = g.add(tabs, "mysql_conf", "/mysql/configuration", "Configuration", path == "/mysql/configuration", "")
-	tabs = g.add(tabs, "mysql_root_password", "/mysql/root-password", "Root Password", path == "/mysql/root-password", "")
-	tabs = g.add(tabs, "change_db", "/containers/mysql", "Server Type", path == "/containers/mysql", "")
+	tabs = g.add(tabs, "mysql_root_password", "/mysql/root-password", "Root password", path == "/mysql/root-password", "")
+	tabs = g.add(tabs, "change_db", "/containers/mysql", "Server type", path == "/containers/mysql", "")
 	return tabs
 }
 
@@ -193,8 +193,8 @@ func postgresqlTabs(g navGate, path string) []NavLink {
 	tabs = g.add(tabs, "postgresql", "/postgresql", "Databases", path == "/postgresql" || path == "/postgresql/new" || path == "/postgresql/wizard", "")
 	tabs = g.add(tabs, "postgresql", "/postgresql/users", "Users", path == "/postgresql/users" || hasAnyPrefix(path, "/postgresql/user", "/postgresql/assign", "/postgresql/remove", "/postgresql/password"), "")
 	tabs = g.add(tabs, "postgresql_import", "/postgresql/import", "Import", strings.HasPrefix(path, "/postgresql/import"), "")
-	tabs = g.add(tabs, "remote_postgresql", "/postgresql/remote-postgresql", "Remote Access", path == "/postgresql/remote-postgresql", "")
-	tabs = g.add(tabs, "postgresql", "/postgresql/processlist", "Running Queries", path == "/postgresql/processlist", "")
+	tabs = g.add(tabs, "remote_postgresql", "/postgresql/remote-postgresql", "Remote access", path == "/postgresql/remote-postgresql", "")
+	tabs = g.add(tabs, "postgresql", "/postgresql/processlist", "Running queries", path == "/postgresql/processlist", "")
 	tabs = g.add(tabs, "postgresql_conf", "/postgresql/configuration", "Configuration", path == "/postgresql/configuration", "")
 	return tabs
 }
@@ -204,7 +204,7 @@ func mongodbTabs(g navGate, path string) []NavLink {
 	tabs = g.add(tabs, "mongodb", "/mongodb", "Databases", path == "/mongodb" || path == "/mongodb/new" || path == "/mongodb/wizard", "")
 	tabs = g.add(tabs, "mongodb", "/mongodb/users", "Users", path == "/mongodb/users" || hasAnyPrefix(path, "/mongodb/user", "/mongodb/assign", "/mongodb/remove", "/mongodb/password"), "")
 	tabs = g.add(tabs, "mongodb_import", "/mongodb/import", "Import", strings.HasPrefix(path, "/mongodb/import"), "")
-	tabs = g.add(tabs, "mongodb", "/mongodb/processlist", "Running Queries", path == "/mongodb/processlist", "")
+	tabs = g.add(tabs, "mongodb", "/mongodb/processlist", "Running queries", path == "/mongodb/processlist", "")
 	return tabs
 }
 
@@ -220,9 +220,9 @@ var sidebarAreas = []navArea{
 				return g.add(nil, "domains", "/domains", "Domains", false, "")
 			}
 			tabs := []NavLink{{Href: "/domains", Label: "Domains", Active: isDomainsPath(path) && !hasAnyPrefix(path, "/domains/edit-dns-zone", "/domains/dynamic-dns", "/domains/ssl", "/domains/redirect")}}
-			tabs = g.add(tabs, "dns", "/domains/edit-dns-zone", "DNS Zone Editor", strings.HasPrefix(path, "/domains/edit-dns-zone"), "")
+			tabs = g.add(tabs, "dns", "/domains/edit-dns-zone", "DNS zone editor", strings.HasPrefix(path, "/domains/edit-dns-zone"), "")
 			tabs = g.add(tabs, "dynamic_dns", "/domains/dynamic-dns", "Dynamic DNS", strings.HasPrefix(path, "/domains/dynamic-dns"), "")
-			tabs = g.add(tabs, "ssl", "/domains/ssl", "SSL Certificates", strings.HasPrefix(path, "/domains/ssl"), "")
+			tabs = g.add(tabs, "ssl", "/domains/ssl", "SSL certificates", strings.HasPrefix(path, "/domains/ssl"), "")
 			tabs = g.add(tabs, "redirects", "/domains/redirect", "Redirects", strings.HasPrefix(path, "/domains/redirect"), "")
 			return tabs
 		}},
@@ -233,7 +233,7 @@ var sidebarAreas = []navArea{
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
 			tabs := []NavLink{{Href: "/sites", Label: "Sites", Active: isWebsitesPath(path) && !strings.HasPrefix(path, "/wordpress") && !isAppInstallPath(path) && !isGitPath(path)}}
 			tabs = g.add(tabs, "wordpress", "/wordpress", "WordPress", strings.HasPrefix(path, "/wordpress"), "")
-			tabs = g.add(tabs, "autoinstaller", "/auto-installer", "Install App", isAppInstallPath(path), "")
+			tabs = g.add(tabs, "autoinstaller", "/auto-installer", "Install app", isAppInstallPath(path), "")
 			tabs = g.add(tabs, "git", "/git", "Git", isGitPath(path), "")
 			return tabs
 		}},
@@ -243,7 +243,7 @@ var sidebarAreas = []navArea{
 			var tabs []NavLink
 			tabs = g.add(tabs, "emails", "/emails", "Accounts", isEmailPath(path) && !hasAnyPrefix(path, "/emails/aliases", "/emails/default", "/emails/filter", "/emails/deliverability", "/emails/import", "/emails/migrate"), "")
 			tabs = g.add(tabs, "email_aliases", "/emails/aliases", "Aliases", strings.HasPrefix(path, "/emails/aliases"), "")
-			tabs = g.add(tabs, "email_default", "/emails/default", "Catch-all Address", strings.HasPrefix(path, "/emails/default"), "")
+			tabs = g.add(tabs, "email_default", "/emails/default", "Catch-all address", strings.HasPrefix(path, "/emails/default"), "")
 			tabs = g.add(tabs, "email_filters", "/emails/filter", "Filters", strings.HasPrefix(path, "/emails/filter"), "")
 			tabs = g.add(tabs, "email_deliverability", "/emails/deliverability", "Deliverability", strings.HasPrefix(path, "/emails/deliverability"), "")
 			tabs = g.add(tabs, "email_import", "/emails/import", "Import", strings.HasPrefix(path, "/emails/import"), "")
@@ -257,11 +257,11 @@ var sidebarAreas = []navArea{
 			var tabs []NavLink
 			// uploads start from the File Manager toolbar now, so the upload page counts as File Manager
 			isUpload := strings.HasPrefix(path, "/file-manager/upload") && !strings.HasSuffix(path, "?method=download")
-			tabs = g.add(tabs, "filemanager", "/files", "File Manager", strings.HasPrefix(path, "/files") && !strings.HasPrefix(path, "/files.trash") || hasAnyPrefix(path, "/file-manager/view-file", "/file-manager/edit-file") || isUpload, "")
+			tabs = g.add(tabs, "filemanager", "/files", "File manager", strings.HasPrefix(path, "/files") && !strings.HasPrefix(path, "/files.trash") || hasAnyPrefix(path, "/file-manager/view-file", "/file-manager/edit-file") || isUpload, "")
 			tabs = g.add(tabs, "filemanager", "/file-manager/upload?method=download", "Download from URL", strings.HasPrefix(path, "/file-manager/upload") && strings.HasSuffix(path, "?method=download"), "")
 			tabs = g.add(tabs, "trash", "/files.trash", "Trash", strings.HasPrefix(path, "/files.trash"), "")
-			tabs = g.add(tabs, "ftp", "/ftp", "FTP Accounts", strings.HasPrefix(path, "/ftp"), "")
-			tabs = g.add(tabs, "fix_permissions", "/fix-permissions", "Fix Permissions", strings.HasPrefix(path, "/fix-permissions"), "")
+			tabs = g.add(tabs, "ftp", "/ftp", "FTP accounts", strings.HasPrefix(path, "/ftp"), "")
+			tabs = g.add(tabs, "fix_permissions", "/fix-permissions", "Fix permissions", strings.HasPrefix(path, "/fix-permissions"), "")
 			return tabs
 		}},
 
@@ -277,7 +277,7 @@ var sidebarAreas = []navArea{
 				tabs = g.add(tabs, "backups", "/backups/settings", "Configuration", strings.HasPrefix(path, "/backups/settings"), "")
 				tabs = g.add(tabs, "backups", "/backups/destination", "Destination", strings.HasPrefix(path, "/backups/destination"), "")
 			}
-			tabs = g.add(tabs, "backup_wizard", "/backup-wizard", "Backup Wizard", strings.HasPrefix(path, "/backup-wizard"), "")
+			tabs = g.add(tabs, "backup_wizard", "/backup-wizard", "Backup wizard", strings.HasPrefix(path, "/backup-wizard"), "")
 			return tabs
 		}},
 
@@ -293,22 +293,23 @@ var sidebarAreas = []navArea{
 	{label: "PHP", icon: phpIcon, menuID: "php-menu", section: "Configure", match: func(path string) bool { return strings.HasPrefix(path, "/php") },
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
 			var tabs []NavLink
-			tabs = g.add(tabs, "php", "/php/domains", "Version per Domain", path == "/php/domains", "")
-			tabs = g.add(tabs, "php", "/php/default", "Default Version", path == "/php/default", "")
+			tabs = g.add(tabs, "php", "/php/wizard", "PHP wizard", path == "/php/wizard", "")
+			tabs = g.add(tabs, "php", "/php/domains", "Version per domain", path == "/php/domains", "")
+			tabs = g.add(tabs, "php", "/php/default", "Default version", path == "/php/default", "")
 			tabs = g.add(tabs, "php_options", "/php/options", "Options", strings.Contains(path, "/options"), "")
 			tabs = g.add(tabs, "php_extensions", "/php/extensions", "Extensions", strings.Contains(path, "/extensions"), "")
 			tabs = g.add(tabs, "php_ini", "/php/php_ini_editor", "php.ini Editor", strings.Contains(path, "/php_ini_editor"), "")
 			return tabs
 		}},
 
-	{label: "Cron Jobs", icon: cronIcon, menuID: "crons-menu", match: func(path string) bool { return strings.HasPrefix(path, "/cronjobs") },
+	{label: "Cron jobs", icon: cronIcon, menuID: "crons-menu", match: func(path string) bool { return strings.HasPrefix(path, "/cronjobs") },
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
-			tabs := g.add(nil, "crons", "/cronjobs", "Cron Jobs", path == "/cronjobs" || path == "/cronjobs/new", "")
-			tabs = g.add(tabs, "crons", "/cronjobs/editor", "File Editor", path == "/cronjobs/editor", "")
+			tabs := g.add(nil, "crons", "/cronjobs", "Cron jobs", path == "/cronjobs" || path == "/cronjobs/new", "")
+			tabs = g.add(tabs, "crons", "/cronjobs/editor", "File editor", path == "/cronjobs/editor", "")
 			return g.add(tabs, "crons", "/cronjobs/logs", "Logs", path == "/cronjobs/logs", "")
 		}},
 
-	{label: "Cache & Search", icon: cacheIcon, menuID: "cache-menu", match: func(path string) bool { return strings.HasPrefix(path, "/cache") },
+	{label: "Cache & search", icon: cacheIcon, menuID: "cache-menu", match: func(path string) bool { return strings.HasPrefix(path, "/cache") },
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
 			var tabs []NavLink
 			for _, c := range [][2]string{{"redis", "Redis"}, {"valkey", "Valkey"}, {"memcached", "Memcached"}, {"varnish", "Varnish"}, {"opensearch", "OpenSearch"}, {"elasticsearch", "Elasticsearch"}} {
@@ -317,12 +318,12 @@ var sidebarAreas = []navArea{
 			return tabs
 		}},
 
-	{label: "Web Server Config", icon: webserverIcon, menuID: "webserver-menu", match: isWebServerConfPath,
+	{label: "Web server config", icon: webserverIcon, menuID: "webserver-menu", match: isWebServerConfPath,
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
 			var tabs []NavLink
-			tabs = g.add(tabs, "webserver_conf", "/server/webserver_conf", "Server Settings", path == "/server/webserver_conf", "")
+			tabs = g.add(tabs, "webserver_conf", "/server/webserver_conf", "Server settings", path == "/server/webserver_conf", "")
 			tabs = g.add(tabs, "edit_vhost", "/domains/vhosts", "Domain VHosts", strings.HasPrefix(path, "/domains/vhosts"), "")
-			tabs = g.add(tabs, "change_ws", "/containers/webserver", "Web Server Type", path == "/containers/webserver", "")
+			tabs = g.add(tabs, "change_ws", "/containers/webserver", "Web server type", path == "/containers/webserver", "")
 			return tabs
 		}},
 
@@ -332,14 +333,14 @@ var sidebarAreas = []navArea{
 			tabs = g.add(tabs, "docker", "/containers", "Containers", path == "/containers" || path == "/containers/new" || hasAnyPrefix(path, "/containers/edit", "/containers/delete"), "")
 			tabs = g.add(tabs, "terminal", "/containers/terminal", "Terminal", strings.HasPrefix(path, "/containers/terminal"), "")
 			tabs = g.add(tabs, "docker", "/containers/logs", "Logs", strings.HasPrefix(path, "/containers/logs"), "")
-			tabs = g.add(tabs, "change_image", "/containers/image/change", "Software Versions", strings.HasPrefix(path, "/containers/image"), "")
+			tabs = g.add(tabs, "change_image", "/containers/image/change", "Software versions", strings.HasPrefix(path, "/containers/image"), "")
 			return tabs
 		}},
 
 	{label: "Account", icon: accountIcon, menuID: "account-menu", match: isAccountPath,
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
 			var tabs []NavLink
-			tabs = g.add(tabs, "account", "/account", "Login Details", path == "/account", "")
+			tabs = g.add(tabs, "account", "/account", "Login details", path == "/account", "")
 			tabs = g.add(tabs, "locale", "/account/language", "Language", strings.HasPrefix(path, "/account/language"), "")
 			tabs = g.add(tabs, "notifications", "/account/notifications", "Notifications", strings.HasPrefix(path, "/account/notifications"), "")
 			tabs = g.add(tabs, "favorites", "/account/favorites", "Favorites", strings.HasPrefix(path, "/account/favorites"), "")
@@ -348,20 +349,20 @@ var sidebarAreas = []navArea{
 			return tabs
 		}},
 
-	{label: "Statistics", icon: statsIcon, menuID: "stats-menu", section: "Monitor & Secure", match: isStatsPath,
+	{label: "Statistics", icon: statsIcon, menuID: "stats-menu", section: "Monitor & secure", match: isStatsPath,
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
 			var tabs []NavLink
-			tabs = g.add(tabs, "usage", "/server/usage", "Resource Usage", strings.HasPrefix(path, "/server/usage"), "")
-			tabs = g.add(tabs, "disk_usage", "/disk-usage/", "Disk Usage", strings.HasPrefix(path, "/disk-usage"), "")
-			tabs = g.add(tabs, "inodes", "/inodes-explorer/", "Inode Usage", strings.HasPrefix(path, "/inodes-explorer"), "")
-			tabs = g.add(tabs, "summary", "/summary", "Daily Summary", strings.HasPrefix(path, "/summary"), "")
-			tabs = g.add(tabs, "goaccess", "/domains/stats", "Visitor Statistics", strings.HasPrefix(path, "/domains/stats"), "")
-			tabs = g.add(tabs, "domain_logs", "/domains/log", "Access Logs", strings.HasPrefix(path, "/domains/log"), "")
-			tabs = g.add(tabs, "error_logs", "/error-logs", "Error Logs", strings.HasPrefix(path, "/error-logs"), "")
+			tabs = g.add(tabs, "usage", "/server/usage", "Resource usage", strings.HasPrefix(path, "/server/usage"), "")
+			tabs = g.add(tabs, "disk_usage", "/disk-usage/", "Disk usage", strings.HasPrefix(path, "/disk-usage"), "")
+			tabs = g.add(tabs, "inodes", "/inodes-explorer/", "Inode usage", strings.HasPrefix(path, "/inodes-explorer"), "")
+			tabs = g.add(tabs, "summary", "/summary", "Daily summary", strings.HasPrefix(path, "/summary"), "")
+			tabs = g.add(tabs, "goaccess", "/domains/stats", "Visitor statistics", strings.HasPrefix(path, "/domains/stats"), "")
+			tabs = g.add(tabs, "domain_logs", "/domains/log", "Access logs", strings.HasPrefix(path, "/domains/log"), "")
+			tabs = g.add(tabs, "error_logs", "/error-logs", "Error logs", strings.HasPrefix(path, "/error-logs"), "")
 			return tabs
 		}},
 
-	{label: "Processes & Services", icon: processIcon, menuID: "processes-menu", match: isProcessesPath,
+	{label: "Processes & services", icon: processIcon, menuID: "processes-menu", match: isProcessesPath,
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
 			var tabs []NavLink
 			tabs = g.add(tabs, "services", "/services", "Services", strings.HasPrefix(path, "/services"), "")
@@ -372,23 +373,23 @@ var sidebarAreas = []navArea{
 	{label: "Security", icon: securityIcon, menuID: "security-menu", match: isSecurityPath,
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
 			var tabs []NavLink
-			tabs = g.add(tabs, "waf", "/server/waf", "Web Firewall", strings.HasPrefix(path, "/server/waf"), "")
-			tabs = g.add(tabs, "ip_blocker", "/security/ip-blocker", "IP Blocker", strings.HasPrefix(path, "/security/ip-blocker"), "")
-			tabs = g.add(tabs, "malware_scan", "/malware-scanner", "Malware Scanner", strings.HasPrefix(path, "/malware-scanner"), "")
+			tabs = g.add(tabs, "waf", "/server/waf", "Web firewall", strings.HasPrefix(path, "/server/waf"), "")
+			tabs = g.add(tabs, "ip_blocker", "/security/ip-blocker", "IP blocker", strings.HasPrefix(path, "/security/ip-blocker"), "")
+			tabs = g.add(tabs, "malware_scan", "/malware-scanner", "Malware scanner", strings.HasPrefix(path, "/malware-scanner"), "")
 			tabs = g.add(tabs, "imunifyav", "/imunifyav", "ImunifyAV", strings.HasPrefix(path, "/imunifyav"), "")
-			tabs = g.add(tabs, "twofa", "/account/2fa", "Two-Factor Auth", strings.HasPrefix(path, "/account/2fa"), "")
+			tabs = g.add(tabs, "twofa", "/account/2fa", "Two-factor auth", strings.HasPrefix(path, "/account/2fa"), "")
 			tabs = g.add(tabs, "passkeys", "/account/passkeys", "Passkeys", strings.HasPrefix(path, "/account/passkeys"), "")
-			tabs = g.add(tabs, "sessions", "/account/sessions", "Active Sessions", strings.HasPrefix(path, "/account/sessions"), "")
-			tabs = g.add(tabs, "activity", "/account/activity", "Activity Log", strings.HasPrefix(path, "/account/activity"), "")
-			tabs = g.add(tabs, "login_history", "/account/login-history", "Login History", strings.HasPrefix(path, "/account/login-history"), "")
+			tabs = g.add(tabs, "sessions", "/account/sessions", "Active sessions", strings.HasPrefix(path, "/account/sessions"), "")
+			tabs = g.add(tabs, "activity", "/account/activity", "Activity log", strings.HasPrefix(path, "/account/activity"), "")
+			tabs = g.add(tabs, "login_history", "/account/login-history", "Login history", strings.HasPrefix(path, "/account/login-history"), "")
 			return tabs
 		}},
 
-	{label: "Server Info", icon: infoIcon, menuID: "info-menu", match: func(path string) bool { return path == "/server/info" },
+	{label: "Server info", icon: infoIcon, menuID: "info-menu", match: func(path string) bool { return path == "/server/info" },
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
 			// one page switched by #hash, server_info.html marks the right tab active on load and hashchange
 			tabs := g.add(nil, "info", "/server/info#server", "Server", path == "/server/info", "")
-			tabs = g.add(tabs, "info", "/server/info#plan", "Hosting Plan", false, "")
+			tabs = g.add(tabs, "info", "/server/info#plan", "Hosting plan", false, "")
 			return g.add(tabs, "info", "/server/info#panel", "Panel", false, "")
 		}},
 }

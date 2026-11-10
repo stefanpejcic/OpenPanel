@@ -17,8 +17,6 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
-	"gist.github.com/stefanpejcic/openpanel/internal/modules/dashboard"
-	"gist.github.com/stefanpejcic/openpanel/internal/modules/trash"
 )
 
 const cacheTTL = 5 * time.Second
@@ -95,10 +93,7 @@ func handleDiskUsage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username, _ := injected["current_username"].(string)
-	quota, _ := dashboard.DiskAndInodesForUser(a, ctx, username)
-	trashBytes, trashOK := trash.SizeBytes(ctx, userContext)
-	renderDiskUsagePage(a, w, r, output, quota, trashBytes, trashOK)
+	renderDiskUsagePage(a, w, r, output)
 }
 
 // parseHumanSize converts a `du -sh` size like "4.0K", "132M" or "0" into a byte count, for sorting only - not for display

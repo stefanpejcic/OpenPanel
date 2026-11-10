@@ -166,3 +166,4 @@ func TestWPDebuggingErrorLogs(t *testing.T) {
 		}
 	}
 }
+

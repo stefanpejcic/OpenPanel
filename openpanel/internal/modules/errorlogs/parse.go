@@ -33,6 +33,13 @@ var (
 	mysqlLineRE    = regexp.MustCompile(`\[(ERROR|Warning|Note|System)\] (.*)$`)
 	postgresLineRE = regexp.MustCompile(`\b(PANIC|FATAL|ERROR|WARNING|NOTICE|LOG|DETAIL|HINT|STATEMENT|CONTEXT):\s+(.*)$`)
 	olsLineRE      = regexp.MustCompile(`^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d(?:\.\d+)?) \[(\w+)\] \[[^\]]*\] (?:\[[^\]#]*#([^\]]+)\] )?(.*)$`)
+	ansiRE         = regexp.MustCompile(`\x1b\[[0-9;?]*[A-Za-z]`)
+	// podman splits a long write into records and prints each record's stamp, so it lands mid-message; RFC3339Nano keeps 7-9 digits almost always
+	innerStampRE = regexp.MustCompile(`\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{7,9}Z `)
+	// php-fpm puts its own "[29-Oct-2026 11:35:06] " in front of NOTICE/WARNING lines when it isn't logging to a pipe
+	fpmStampRE = regexp.MustCompile(`^\[\d\d-[A-Za-z]{3}-\d{4} \d\d:\d\d:\d\d(?:\.\d+)?\] `)
+	// lines that carry on a PHP error: the stack trace, its "thrown in" line, chained exceptions and xdebug frames
+	phpContRE = regexp.MustCompile(`^(Stack trace:|PHP Stack trace:|#\d+ |\s+\S|Next [\w\\]+|PHP\s+\d+\. )`)
 )
 
 // parseOLS reads OpenLiteSpeed's own error.log, which has its own timestamps and carries lsphp output as [STDERR] lines
@@ -70,14 +77,25 @@ func parseOLS(service, content string, from, to time.Time) []Entry {
 	return entries
 }
 
-// splitPodmanTS peels the RFC3339 stamp `podman logs --timestamps` puts in front of every line
+// splitPodmanTS peels the RFC3339 stamp `podman logs --timestamps` puts in front of every line and cleans the rest
 func splitPodmanTS(line string) (time.Time, string) {
 	if i := strings.IndexByte(line, ' '); i > 0 {
 		if ts, err := time.Parse(time.RFC3339Nano, line[:i]); err == nil {
-			return ts, line[i+1:]
+			return ts, cleanText(line[i+1:])
 		}
 	}
-	return time.Time{}, line
+	return time.Time{}, cleanText(line)
+}
+
+// cleanText drops terminal colour codes and the podman stamps glued into the middle of a split line
+func cleanText(s string) string {
+	if strings.IndexByte(s, 0x1b) >= 0 {
+		s = ansiRE.ReplaceAllString(s, "")
+	}
+	if strings.Contains(s, "Z ") {
+		s = innerStampRE.ReplaceAllString(s, "")
+	}
+	return s
 }
 
 func phpLevel(label string) string {
@@ -113,6 +131,8 @@ func parseLines(kind, service, out string) []Entry {
 			entries[n-1].Message += "\n" + text
 		}
 	}
+	// open is true while the last php line was an entry or one of its continuation lines
+	open := false
 	for _, line := range strings.Split(out, "\n") {
 		ts, text := splitPodmanTS(strings.TrimRight(line, "\r"))
 		if strings.TrimSpace(text) == "" {
@@ -120,6 +140,7 @@ func parseLines(kind, service, out string) []Entry {
 		}
 		switch kind {
 		case "php":
+			text = fpmStampRE.ReplaceAllString(text, "")
 			fpmLevel := ""
 			if m := fpmPrefixRE.FindStringSubmatch(text); m != nil {
 				fpmLevel, text = m[1], text[len(m[0]):]
@@ -130,16 +151,23 @@ func parseLines(kind, service, out string) []Entry {
 					e.Level, e.Message = phpLevel(m[1]), m[1]+": "+m[2]
 				}
 				entries = append(entries, e)
+				open = true
 				continue
 			}
 			switch fpmLevel {
 			case "":
-				// stack traces and other multi-line output carry no prefix of their own
-				appendTo(text)
+				// only stack-trace style lines right after an entry belong to it, the image's start banner doesn't
+				if open && phpContRE.MatchString(text) {
+					appendTo(text)
+					continue
+				}
 			case "WARNING", "ERROR", "ALERT":
 				entries = append(entries, Entry{Time: ts, Source: "php", Service: service, Level: webserverLevel(fpmLevel), Message: text})
+				open = true
+				continue
 			}
 			// fpm NOTICE lines are start/stop chatter, skip them
+			open = false
 		case "nginx":
 			if m := nginxLineRE.FindStringSubmatch(text); m != nil {
 				entries = append(entries, Entry{Time: ts, Source: "webserver", Service: service, Level: webserverLevel(m[1]), Message: m[2]})
@@ -216,7 +244,12 @@ func parseCaddy5xx(domain, content string, from, to time.Time) []Entry {
 type domainMatcher struct {
 	docroots []appctx.Domain
 	names    []string
+	// backends maps an app container name to its site, for web server proxy errors that only name the upstream
+	backends map[string]string
 }
+
+// proxyBackendRE pulls the upstream name out of Apache's mod_proxy errors (AH01114, AH00957, AH00898)
+var proxyBackendRE = regexp.MustCompile(`(?:connection to backend: |attempt to connect to \S+ \(|DNS lookup failure for: )([A-Za-z0-9][\w.-]*)`)
 
 func newDomainMatcher(domains []appctx.Domain) domainMatcher {
 	m := domainMatcher{}
@@ -263,6 +296,11 @@ func (m domainMatcher) match(msg string) string {
 	for _, n := range m.names {
 		if containsBounded(msg, n, isHostChar) {
 			return n
+		}
+	}
+	if len(m.backends) > 0 {
+		if b := proxyBackendRE.FindStringSubmatch(msg); b != nil {
+			return m.backends[strings.ToLower(b[1])]
 		}
 	}
 	return ""

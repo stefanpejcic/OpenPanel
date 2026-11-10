@@ -20,11 +20,11 @@ type webserverConfEntry struct {
 }
 
 var webserverConfs = map[string]webserverConfEntry{
-	"nginx":         {"nginx.conf", "nginx", "Nginx Configuration Editor"},
-	"apache":        {"httpd.conf", "apache", "Apache Configuration Editor"},
-	"openresty":     {"openresty.conf", "openresty", "OpenResty Configuration Editor"},
-	"openlitespeed": {"openlitespeed.conf", "openlitespeed", "OpenLitespeed Configuration Editor"},
-	"litespeed":     {"litespeed.conf", "litespeed", "LiteSpeed Configuration Editor"},
+	"nginx":         {"nginx.conf", "nginx", "Nginx configuration editor"},
+	"apache":        {"httpd.conf", "apache", "Apache configuration editor"},
+	"openresty":     {"openresty.conf", "openresty", "OpenResty configuration editor"},
+	"openlitespeed": {"openlitespeed.conf", "openlitespeed", "OpenLiteSpeed configuration editor"},
+	"litespeed":     {"litespeed.conf", "litespeed", "LiteSpeed configuration editor"},
 }
 
 // lookupWebserverConf returns webServer's config entry, or a fallback with just a generic page title if webServer is unrecognized
@@ -32,7 +32,7 @@ func lookupWebserverConf(webServer string) webserverConfEntry {
 	if entry, ok := webserverConfs[webServer]; ok {
 		return entry
 	}
-	return webserverConfEntry{PageTitle: "Web Server Configuration Editor"}
+	return webserverConfEntry{PageTitle: "Web server configuration editor"}
 }
 
 func fileExists(path string) bool {

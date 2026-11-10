@@ -41,7 +41,7 @@ func TestRenderDatabasesPage(t *testing.T) {
 		if !strings.Contains(body, "app_db") || !strings.Contains(body, "app_user") {
 			t.Error("expected database row in body")
 		}
-		if !strings.Contains(body, "System Database") {
+		if !strings.Contains(body, "System database") {
 			t.Error("expected system database badge")
 		}
 	})
@@ -96,7 +96,7 @@ func TestRenderUsersPage(t *testing.T) {
 	if !strings.Contains(body, "appuser") {
 		t.Error("expected user row in body")
 	}
-	if !strings.Contains(body, "System User") {
+	if !strings.Contains(body, "System user") {
 		t.Error("expected system user badge for root")
 	}
 }
@@ -249,7 +249,7 @@ func TestRenderRemoteMySQLPage(t *testing.T) {
 		if !strings.Contains(body, "appuser") || !strings.Contains(body, "10.0.0.5") {
 			t.Error("expected user access row in body")
 		}
-		if !strings.Contains(body, "Click to Disable") {
+		if !strings.Contains(body, "Click to disable") {
 			t.Error("expected disable button when ON")
 		}
 	})
@@ -263,7 +263,7 @@ func TestRenderRemoteMySQLPage(t *testing.T) {
 		if err := remoteMySQLPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "Click to Enable") {
+		if !strings.Contains(w.Body.String(), "Click to enable") {
 			t.Error("expected enable button when OFF")
 		}
 	})
@@ -285,7 +285,7 @@ func TestRenderConfigurationPage(t *testing.T) {
 	if !strings.Contains(body, "max_connections") || !strings.Contains(body, "150") {
 		t.Error("expected config key/value in body")
 	}
-	for _, want := range []string{`id="db-tuning"`, "dbTuning('/mysql/configuration/recommendations')", "Confirm Changes", "js/db-tuning.js"} {
+	for _, want := range []string{`id="db-tuning"`, "dbTuning('/mysql/configuration/recommendations')", "Confirm changes", "js/db-tuning.js"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("expected %q in body", want)
 		}

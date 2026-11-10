@@ -24,7 +24,7 @@ var confLabels = map[string]string{
 	"innodb_log_buffer_size":         "InnoDB Log Buffer Size",
 	"max_heap_table_size":            "Max Heap Table Size",
 	"tmp_table_size":                 "Temporary Table Size",
-	"max_connections":                "Max Connections",
+	"max_connections":                "Max connections",
 	"thread_cache_size":              "Thread Cache Size",
 	"performance_schema":             "Performance Schema",
 	"wait_timeout":                   "Wait Timeout",

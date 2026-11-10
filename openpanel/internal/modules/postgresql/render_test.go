@@ -62,11 +62,7 @@ func TestRenderAllPages(t *testing.T) {
 	})
 	t.Run("new", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		if err := newDatabasePage.Render(w, 200, struct {
-			web.LayoutData
-			Engine  web.DBEngine
-			Created web.DBCreated
-		}{LayoutData: layout, Engine: web.PostgreSQLEngine}); err != nil {
+		if err := newDatabasePage.Render(w, 200, CreatePageData{LayoutData: layout, Engine: web.PostgreSQLEngine}); err != nil {
 			t.Fatalf("new: %v", err)
 		}
 	})
@@ -87,10 +83,7 @@ func TestRenderAllPages(t *testing.T) {
 	})
 	t.Run("create user", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		if err := createUserPage.Render(w, 200, struct {
-			web.LayoutData
-			Created web.DBCreated
-		}{LayoutData: layout}); err != nil {
+		if err := createUserPage.Render(w, 200, CreatePageData{LayoutData: layout, Engine: web.PostgreSQLEngine}); err != nil {
 			t.Fatalf("create user: %v", err)
 		}
 	})
@@ -102,13 +95,13 @@ func TestRenderAllPages(t *testing.T) {
 	})
 	t.Run("wizard", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		if err := wizardPage.Render(w, 200, struct{ web.LayoutData }{layout}); err != nil {
+		if err := wizardPage.Render(w, 200, CreatePageData{LayoutData: layout, Engine: web.PostgreSQLEngine}); err != nil {
 			t.Fatalf("wizard: %v", err)
 		}
 	})
 	t.Run("assign", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		if err := assignPage.Render(w, 200, struct{ web.LayoutData }{layout}); err != nil {
+		if err := assignPage.Render(w, 200, CreatePageData{LayoutData: layout, Engine: web.PostgreSQLEngine}); err != nil {
 			t.Fatalf("assign: %v", err)
 		}
 	})
@@ -161,7 +154,7 @@ func TestRenderAllPages(t *testing.T) {
 			t.Fatalf("configuration: %v", err)
 		}
 		body := w.Body.String()
-		for _, want := range []string{`id="db-tuning"`, "dbTuning('/postgresql/configuration/recommendations')", "Confirm Changes", `x-ref="form"`} {
+		for _, want := range []string{`id="db-tuning"`, "dbTuning('/postgresql/configuration/recommendations')", "Confirm changes", `x-ref="form"`} {
 			if !strings.Contains(body, want) {
 				t.Errorf("expected %q in body", want)
 			}
@@ -201,10 +194,7 @@ func TestRenderCreateUserCreated(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	layout := baseLayout(mgr, "/postgresql/user")
 	r := httptest.NewRequest("GET", "/postgresql/user?created=app_user", nil)
-	data := struct {
-		web.LayoutData
-		Created web.DBCreated
-	}{layout, web.CreatedDBFromRequest(r, layout, "postgresql", "")}
+	data := CreatePageData{LayoutData: layout, Created: web.CreatedDBFromRequest(r, layout, "postgresql", "")}
 	w := httptest.NewRecorder()
 	if err := createUserPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)

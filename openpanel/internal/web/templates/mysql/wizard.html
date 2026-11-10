@@ -3,12 +3,12 @@
 {{define "content"}}
 <!-- START templates/mysql/wizard.html -->
 
-<div class="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-950 sm:p-6 lg:p-8">
-    <header>
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Database Wizard"}}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Create a new MySQL database, set up a user with a secure password, and assign it to the database with all necessary privileges."}}</p>
-    </header>
-</div>
+<header class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Database wizard"}}</h1>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Create a new MySQL database, set up a user with a secure password, and assign it to the database with all necessary privileges."}}</p>
+    </div>
+</header>
 
 <!-- generateString() -->
 <script src="{{static "js/generator.js"}}"></script>
@@ -30,21 +30,19 @@
     a.download = filename;
     a.click();
   }
-}" class="sm:mx-auto sm:max-w-2xl p-6 m-6">
+}" class="max-w-2xl px-4 pb-8 sm:px-6 lg:px-8">
 
   <!-- Header -->
-  <div class="flex items-center gap-3 mb-4">
-    <div class="inline-flex size-8 items-center justify-center rounded-full bg-green-100">
-      <svg class="w-4 h-4 text-green-600 dark:text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-      </svg>
+  <div class="flex gap-3 rounded-md bg-emerald-50 p-4 text-sm text-emerald-900 dark:bg-emerald-950/70 dark:text-emerald-500">
+    <i class="ri-checkbox-circle-line size-5 shrink-0 text-lg leading-5" aria-hidden="true"></i>
+    <div>
+      <p class="font-semibold">{{.T.Get "Setup complete"}}</p>
+      <p class="mt-1">{{.T.Get "Save these credentials, the password cannot be retrieved later."}}</p>
     </div>
-    <h2 class="text-base font-semibold text-green-800">{{.T.Get "Setup complete"}}</h2>
   </div>
-  <p class="text-sm text-green-700 mb-5">{{.T.Get "Save these credentials, the password cannot be retrieved later."}}</p>
 
   <!-- Tabs -->
-  <div class="flex border-b border-gray-200 mt-4">
+  <div class="mt-6 flex overflow-x-auto border-b border-gray-200 dark:border-gray-800" role="tablist">
     <template x-for="t in [
       {id:'credentials', label:{{toJSON (.T.Get "Credentials")}}},
       {id:'wordpress',   label:'WordPress'},
@@ -54,11 +52,14 @@
       {id:'phppdo',      label:'PHP PDO'}
     ]" :key="t.id">
       <button
+        type="button"
+        role="tab"
         @click="tab = t.id"
+        :aria-selected="tab === t.id"
         :class="tab === t.id
-          ? 'border-b-2 border-gray-900 text-gray-900 dark:text-white font-medium'
-          : 'text-gray-500 hover:text-gray-700'"
-        class="px-4 py-2 text-sm whitespace-nowrap -mb-px"
+          ? 'border-blue-500 text-blue-500'
+          : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+        class="-mb-px border-b-2 px-3 py-2 text-sm font-medium whitespace-nowrap"
         x-text="t.label">
       </button>
     </template>
@@ -66,7 +67,7 @@
 
   <!-- Credentials tab -->
   <div x-show="tab === 'credentials'">
-    <div class="divide-y divide-gray-200 rounded border border-gray-200 overflow-hidden text-sm mt-2">
+    <div class="mt-4 divide-y divide-gray-200 overflow-hidden rounded-md border border-gray-200 text-sm dark:divide-gray-800 dark:border-gray-800">
       <template x-for="row in [
         {label:{{toJSON (.T.Get "Database")}}, key:'db',   val:{{toJSON .CreatedDB}}},
         {label:{{toJSON (.T.Get "Username")}}, key:'user', val:{{toJSON .CreatedUser}}},
@@ -74,17 +75,13 @@
         {label:{{toJSON (.T.Get "Server")}},   key:'host', val:'localhost'},
         {label:{{toJSON (.T.Get "Port")}}, key:'priv', val:'3306', nocopy: true}
       ]" :key="row.key">
-        <div :class="['db','pass','priv'].includes(row.key) ? 'bg-white' : 'bg-gray-50'" class="flex items-center">
-          <span class="w-20 shrink-0 px-4 py-3 font-medium text-gray-500" x-text="row.label"></span>
-          <span class="flex-1 px-4 py-3 font-mono text-gray-900 break-all truncate" x-text="row.val"></span>
-          <button x-show="!row.nocopy" @click="copy(row.val, row.key)" class="px-3 py-3 text-gray-400 hover:text-gray-700 transition-colors" title="{{.T.Get "Copy"}}">
-            <template x-if="copied === row.key">
-              <svg class="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            </template>
-            <template x-if="copied !== row.key">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-            </template>
+        <div class="flex items-center gap-2 py-1.5 pr-1.5 pl-4">
+          <span class="w-24 shrink-0 text-gray-500" x-text="row.label"></span>
+          <span class="min-w-0 flex-1 truncate font-mono text-xs text-gray-900 dark:text-gray-50" x-text="row.val"></span>
+          <button type="button" x-show="!row.nocopy" @click="copy(row.val, row.key)" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" title="{{.T.Get "Copy"}}" aria-label="{{.T.Get "Copy"}}">
+            <i :class="copied === row.key ? 'ri-check-line text-emerald-600 dark:text-emerald-500' : 'ri-file-copy-line'" aria-hidden="true"></i>
           </button>
+          <span x-show="row.nocopy" class="size-8 shrink-0" aria-hidden="true"></span>
         </div>
       </template>
     </div>
@@ -124,41 +121,37 @@
     }
   ]" :key="cfg.id">
     <div x-show="tab === cfg.id">
-      <div class="flex justify-between gap-2 items-center py-2">
-        <span class="text-xs text-gray-500 font-mono">{{.T.Get "Configuration Code"}}</span>
+      <div class="flex items-center justify-between gap-2 pt-4 pb-2">
+        <span class="text-xs text-gray-500">{{.T.Get "Configuration code"}}</span>
         <div class="flex gap-2">
           <button
+            type="button"
             @click="copy(cfg.code, cfg.id)"
-            class="inline-flex items-center gap-1.5 px-2 py-1 text-sm border border-gray-300 rounded bg-white text-gray-700 hover:bg-gray-50">
-            <template x-if="copied === cfg.id">
-              <svg class="w-3.5 h-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            </template>
-            <template x-if="copied !== cfg.id">
-              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-            </template>
+            class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
+            <i :class="copied === cfg.id ? 'ri-check-line text-emerald-600 dark:text-emerald-500' : 'ri-file-copy-line'" aria-hidden="true"></i>
             <span x-text="copied === cfg.id ? {{toJSON (.T.Get "Copied!")}} : {{toJSON (.T.Get "Copy")}}"></span>
           </button>
           <button
+            type="button"
             @click="download(cfg.code, cfg.filename)"
-            class="inline-flex items-center gap-1.5 px-2 py-1 text-sm rounded bg-black text-white hover:bg-gray-800">
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
+            <i class="ri-download-line" aria-hidden="true"></i>
             <span>{{.T.Get "Download snippet"}}</span>
           </button>
         </div>
       </div>
 
-      <pre class="bg-gray-50 dark:bg-black border border-gray-200 rounded text-xs font-mono p-4 overflow-x-auto leading-relaxed mb-3" x-text="cfg.code"></pre>
+      <pre class="overflow-x-auto rounded-md bg-gray-50 p-4 font-mono text-xs leading-relaxed text-gray-900 dark:bg-gray-900 dark:text-gray-50" x-text="cfg.code"></pre>
     </div>
   </template>
 
   <!-- Bottom actions -->
-  <div class="flex items-center justify-end gap-3 mt-6">
-    <a href="/mysql" class="inline-flex items-center justify-center rounded border px-3 py-2 text-sm font-medium border-gray-300 text-gray-900 bg-white hover:bg-gray-50">
-      {{.T.Get "View Databases"}}
+  <div class="mt-6 flex flex-col-reverse gap-2 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end dark:border-gray-800">
+    <a href="/mysql" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
+      {{.T.Get "View databases"}}
     </a>
-    <a href="/mysql/wizard" class="inline-flex items-center justify-center rounded border px-3 py-2 text-sm font-medium border-black bg-black text-white hover:bg-gray-800 gap-1.5">
-      {{.T.Get "Create Another"}}
-      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/></svg>
+    <a href="/mysql/wizard" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
+      {{.T.Get "Create another"}}
     </a>
   </div>
 
@@ -166,150 +159,136 @@
 
 
 {{else}}
-<div x-data="dbUserGrant()" x-init="updateGrantCommands()" @input="updateGrantCommands()"
-     class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
+<div class="max-w-2xl px-4 pb-8 sm:px-6 lg:px-8">
+<div x-data="dbUserGrant()" x-init="updateGrantCommands(); $watch('dbname', () => updateGrantCommands()); $watch('username', () => updateGrantCommands())" @input="updateGrantCommands()"
+     class="CrawlerStatusCard rounded-md border border-gray-200 bg-white dark:border-gray-900 dark:bg-raised" id="toAddActive">
 
-  <form class="mt-8" id="databaseWizardForm" method="POST" action="/mysql/wizard">
+  <form id="databaseWizardForm" method="POST" action="/mysql/wizard" @submit="if (!ready()) { $event.preventDefault(); $event.stopImmediatePropagation() }">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
     <input type="hidden" name="privileges" value="ALL PRIVILEGES"/>
 
-    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+    <ol class="divide-y divide-gray-200 dark:divide-gray-800">
 
       <!-- Step 1: Database name -->
-      <div class="col-span-full mb-2">
-        <div class="flex items-center space-x-3 pb-2">
-          <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">1</div>
-          <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="dbname">
-            {{.T.Get "Create a database"}}<span class="text-red-500 dark:text-red-500">*</span>
+      <li class="p-4 sm:p-6">
+        <div class="flex items-center gap-3">
+          <span class="inline-flex size-6 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-900 tabular-nums dark:bg-gray-800 dark:text-gray-50" aria-hidden="true">1</span>
+          <label class="text-sm font-medium text-gray-900 dark:text-gray-50" for="dbname">
+            {{.T.Get "Create a database"}}<span class="text-red-600 dark:text-red-500">*</span>
           </label>
         </div>
-        <div class="flex rounded-lg">
-          {{if .MySQLPrefix}}<span class="rounded-l inline-flex items-center px-2.5 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border border-r-0 border-gray-300 dark:border-gray-800 select-none">{{.MySQLPrefix}}</span>{{end}}
-          <input type="text" x-ref="dbname" x-model="dbname" name="database_name" id="dbname"
+        <div class="mt-3 flex">
+          {{if .MySQLPrefix}}<span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 font-mono text-sm text-gray-500 select-none dark:border-gray-800 dark:bg-gray-900">{{.MySQLPrefix}}</span>{{end}}
+          <input type="text" x-ref="dbname" x-model.trim="dbname" name="database_name" id="dbname" :aria-invalid="(!!dbTaken()).toString()" aria-describedby="dbname_err" autocomplete="off" spellcheck="false"
             minlength="1" maxlength="{{sub 63 (len .MySQLPrefix)}}" pattern="[a-zA-Z0-9_]+"
             title="{{.T.Get "Only letters, numbers, and underscores are allowed (1-63 characters)."}}"
             value="{{.FormDatabaseName}}"
-            class="relative block w-full {{if .MySQLPrefix}}rounded-none{{else}}rounded-l{{end}} border appearance-none px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-            placeholder=" {{.T.Get "Database Name"}}" required>
-          <div class="input-group-append flex">
-            <button type="button" @click="dbname = generateString(12); updateGrantCommands(); $nextTick(() => $refs.dbname.dispatchEvent(new Event('input', { bubbles: true })))"
-              class="rounded-r px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
-              <i class="bi bi-shuffle"></i>
-            </button>
-          </div>
+            class="block w-full min-w-0 appearance-none {{if .MySQLPrefix}}rounded-none{{else}}rounded-l-md{{end}} border border-gray-300 bg-white px-2.5 py-2 font-mono text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:aria-[invalid=true]:border-red-700 dark:aria-[invalid=true]:ring-red-700/30"
+            placeholder="{{.T.Get "Database name"}}" required>
+          <button type="button" aria-label="{{.T.Get "Generate"}}" title="{{.T.Get "Generate"}}" @click="dbname = generateString(12); updateGrantCommands(); $nextTick(() => $refs.dbname.dispatchEvent(new Event('input', { bubbles: true })))"
+            class="inline-flex shrink-0 items-center justify-center rounded-r-md border border-l-0 border-gray-300 bg-white px-3 text-gray-900 shadow-xs transition hover:bg-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
+            <i class="ri-shuffle-line" aria-hidden="true"></i>
+          </button>
         </div>
-      </div>
-
-      <div class="mx-auto my-2 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500">
-        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
-      </div>
+        <p id="dbname_err" class="mt-2 text-sm text-red-600 dark:text-red-500" x-show="dbTaken()" x-cloak x-text="dbTaken()" role="alert"></p>
+      </li>
 
       <!-- Step 2: Username -->
-      <div class="col-span-full">
-        <div class="flex items-center space-x-3 pb-2">
-          <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">2</div>
-          <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="username">
-            {{.T.Get "Create a user"}}<span class="text-red-500 dark:text-red-500">*</span>
+      <li class="p-4 sm:p-6">
+        <div class="flex items-center gap-3">
+          <span class="inline-flex size-6 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-900 tabular-nums dark:bg-gray-800 dark:text-gray-50" aria-hidden="true">2</span>
+          <label class="text-sm font-medium text-gray-900 dark:text-gray-50" for="username">
+            {{.T.Get "Create a user"}}<span class="text-red-600 dark:text-red-500">*</span>
           </label>
         </div>
-        <div class="flex rounded-lg">
-          {{if .MySQLPrefix}}<span class="rounded-l inline-flex items-center px-2.5 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border border-r-0 border-gray-300 dark:border-gray-800 select-none">{{.MySQLPrefix}}</span>{{end}}
-          <input type="text" x-ref="username" x-model="username" name="db_user" id="username"
+        <div class="mt-3 flex">
+          {{if .MySQLPrefix}}<span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 font-mono text-sm text-gray-500 select-none dark:border-gray-800 dark:bg-gray-900">{{.MySQLPrefix}}</span>{{end}}
+          <input type="text" x-ref="username" x-model.trim="username" name="db_user" id="username" :aria-invalid="(!!userTaken()).toString()" aria-describedby="username_err" autocomplete="off" spellcheck="false"
             pattern="[a-zA-Z0-9_]+" minlength="1" maxlength="{{sub 31 (len .MySQLPrefix)}}"
             title="{{.T.Get "Only letters, numbers, and underscores are allowed (1-31 characters)."}}"
             value="{{.FormDBUser}}"
-            class="relative block w-full {{if .MySQLPrefix}}rounded-none{{else}}rounded-l{{end}} border appearance-none px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-            placeholder=" {{.T.Get "Database User"}}" required>
-          <div class="input-group-append flex">
-            <button type="button" @click="username = generateString(12); updateGrantCommands(); $nextTick(() => $refs.username.dispatchEvent(new Event('input', { bubbles: true })))"
-              class="rounded-r px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
-              <i class="bi bi-shuffle"></i>
+            class="block w-full min-w-0 appearance-none {{if .MySQLPrefix}}rounded-none{{else}}rounded-l-md{{end}} border border-gray-300 bg-white px-2.5 py-2 font-mono text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:aria-[invalid=true]:border-red-700 dark:aria-[invalid=true]:ring-red-700/30"
+            placeholder="{{.T.Get "Database user"}}" required>
+          <button type="button" aria-label="{{.T.Get "Generate"}}" title="{{.T.Get "Generate"}}" @click="username = generateString(12); updateGrantCommands(); $nextTick(() => $refs.username.dispatchEvent(new Event('input', { bubbles: true })))"
+            class="inline-flex shrink-0 items-center justify-center rounded-r-md border border-l-0 border-gray-300 bg-white px-3 text-gray-900 shadow-xs transition hover:bg-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
+            <i class="ri-shuffle-line" aria-hidden="true"></i>
+          </button>
+        </div>
+        <p id="username_err" class="mt-2 text-sm text-red-600 dark:text-red-500" x-show="userTaken()" x-cloak x-text="userTaken()" role="alert"></p>
+
+        <!-- Password -->
+        <div class="mt-4"
+          x-data="passwordStrength({
+            weak: {{toJSON (.T.Get "Weak password")}},
+            medium: {{toJSON (.T.Get "Medium strength password")}},
+            strong: {{toJSON (.T.Get "Strong password")}},
+            tooWeak: {{toJSON (.T.Get "Password does not meet the required strength.")}}
+          }, {{.PasswordStrength}})"
+          x-init="checkStrength()"
+          x-effect="pwOK = password.length >= 8 && passwordStrengthScore(password) >= threshold">
+
+          <div class="flex">
+            <input type="text" name="password" id="password"
+              maxlength="30" minlength="8"
+              aria-label="{{.T.Get "Password"}}"
+              placeholder="{{.T.Get "Password"}}"
+              class="block w-full min-w-0 appearance-none rounded-l-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30"
+              x-model="password" x-ref="input" @input="checkStrength()" autocomplete="new-password" spellcheck="false" required>
+            <button type="button" id="generatePassword" aria-label="{{.T.Get "Generate password"}}" title="{{.T.Get "Generate password"}}"
+              class="inline-flex shrink-0 items-center justify-center rounded-r-md border border-l-0 border-gray-300 bg-white px-3 text-gray-900 shadow-xs transition hover:bg-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
+              <i class="ri-shuffle-line" aria-hidden="true"></i>
             </button>
           </div>
-        </div>
-      </div>
 
-      <!-- Password -->
-      <div class="col-span-full mb-2"
-        x-data="passwordStrength({
-          weak: {{toJSON (.T.Get "Weak password")}},
-          medium: {{toJSON (.T.Get "Medium strength password")}},
-          strong: {{toJSON (.T.Get "Strong password")}},
-          tooWeak: {{toJSON (.T.Get "Password does not meet the required strength.")}}
-        }, {{.PasswordStrength}})"
-        x-init="checkStrength()">
-
-        <div class="flex">
-          <input type="text" name="password" id="password"
-            maxlength="30" minlength="8"
-            placeholder=" {{.T.Get "Password"}}"
-            class="relative block w-full rounded-l border appearance-none px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-            x-model="password" x-ref="input" @input="checkStrength()" required>
-          <div class="input-group-append flex">
-            <button type="button" id="generatePassword"
-              class="rounded-r px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-l-0 border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
-              <i class="bi bi-shuffle"></i>
-            </button>
+          <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+            <div class="h-full rounded-full transition-all duration-300"
+              :class="{ 'bg-red-500': strength === 'Weak', 'bg-yellow-500': strength === 'Medium', 'bg-emerald-500': strength === 'Strong' }"
+              :style="{ width: strength === 'Weak' ? '33%' : strength === 'Medium' ? '66%' : strength === 'Strong' ? '100%' : '0%' }"></div>
           </div>
+          <p class="mt-1.5 text-xs font-medium"
+            :class="{ 'text-red-600 dark:text-red-500': strength === 'Weak', 'text-yellow-600 dark:text-yellow-500': strength === 'Medium', 'text-emerald-600 dark:text-emerald-500': strength === 'Strong' }">
+            <span x-text="strengthMessage"></span>
+          </p>
         </div>
-
-        <div class="mt-2 h-2 rounded bg-gray-200 dark:bg-gray-700 overflow-hidden">
-          <div class="h-full rounded transition-all duration-300"
-            :class="{
-              'bg-red-500':    strength === 'Weak',
-              'bg-orange-500': strength === 'Medium',
-              'bg-green-500':  strength === 'Strong'
-            }"
-            :style="{
-              width: strength === 'Weak' ? '33%' : strength === 'Medium' ? '66%' : strength === 'Strong' ? '100%' : '0%'
-            }"></div>
-        </div>
-        <p class="mt-1 text-sm font-semibold"
-          :class="{
-            'text-red-600 dark:text-red-400':       strength === 'Weak',
-            'text-yellow-600 dark:text-yellow-400': strength === 'Medium',
-            'text-green-600 dark:text-green-400':   strength === 'Strong'
-          }">
-          <span x-text="strengthMessage" class="text-xs"></span>
-        </p>
-      </div>
-
-      <div class="mx-auto my-2 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500">
-        <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
-      </div>
+      </li>
 
       <!-- Step 3: Grant preview -->
-      <div class="col-span-full mb-2">
-        <div class="flex items-center space-x-3 pb-2">
-          <div class="inline-flex size-8 items-center justify-center rounded bg-gray-100 text-sm text-gray-900 dark:bg-gray-800 dark:text-gray-50">3</div>
-          <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium">{{.T.Get "Assign user to database"}}</label>
+      <li class="p-4 sm:p-6">
+        <div class="flex items-center gap-3">
+          <span class="inline-flex size-6 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-900 tabular-nums dark:bg-gray-800 dark:text-gray-50" aria-hidden="true">3</span>
+          <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Assign user to database"}}</span>
         </div>
-        <div class="flex rounded-lg">
-          <pre x-text="grantText" class="text-sm overflow-x-auto"></pre>
+        <pre x-text="grantText" class="mt-3 overflow-x-auto rounded-md bg-gray-50 p-4 font-mono text-xs text-gray-900 dark:bg-gray-900 dark:text-gray-50"></pre>
+        <dl class="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-3">
+          <div><dt class="text-gray-500">{{.T.Get "Server"}}</dt><dd class="mt-0.5 font-mono text-gray-900 dark:text-gray-50">{{.Engine.Host}}</dd></div>
+          <div><dt class="text-gray-500">{{.T.Get "Port"}}</dt><dd class="mt-0.5 font-mono text-gray-900 tabular-nums dark:text-gray-50">{{.Engine.Port}}</dd></div>
+          {{with .RemotePort}}<div><dt class="text-gray-500">{{$.T.Get "Remote port"}}</dt><dd class="mt-0.5 font-mono text-gray-900 tabular-nums dark:text-gray-50">{{.}}</dd></div>{{end}}
+        </dl>
+        {{if .DBLimit}}<p class="mt-3 text-xs text-gray-500 tabular-nums">{{.T.Get "%(used)s of %(limit)s databases used" "used" (print .DBUsage) "limit" (print .DBLimit)}}{{with .HostingPlanName}} {{$.T.Get "on the %(plan)s plan" "plan" .}}{{end}}.</p>{{end}}
+        <div class="mt-4 flex items-start gap-3 rounded-md bg-yellow-50 p-4 text-sm text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500" x-show="quotaFull()" x-cloak role="alert">
+          <i class="ri-error-warning-line" aria-hidden="true"></i>
+          <span>{{.T.Get "You have reached the maximum number of databases allowed on your plan."}}</span>
         </div>
-      </div>
+      </li>
 
-    </div>
+    </ol>
 
-    <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500">
-      <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
-    </div>
-
-    <div class="md:flex items-center md:justify-end md:space-x-4">
+    <div class="flex flex-col gap-2 border-t border-gray-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-end sm:px-6 dark:border-gray-800">
+      <p class="text-sm text-gray-500 flex-1" x-show="(dbname || username) && !ready()" x-cloak x-text="blocked()"></p>
+      <div class="flex flex-col-reverse gap-2 sm:flex-row">
       <a href="/mysql"
-        class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 w-full gap-x-0.5 whitespace-nowrap sm:w-fit">
-        {{.T.Get "Back to Databases"}}
+        class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
+        {{.T.Get "Back to databases"}}
       </a>
-      <button type="submit" id="createAndAssign"
-        class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">
-        {{.T.Get "Create"}}
-        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-        </svg>
+      <button type="submit" id="createAndAssign" :disabled="!ready()"
+        class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
+        {{.T.Get "Create DB, user, and grant privileges"}}
       </button>
+      </div>
     </div>
 
   </form>
+</div>
 </div>
 
 <script>
@@ -318,7 +297,41 @@
       dbname:   {{toJSON .FormDatabaseName}},
       username: {{toJSON .FormDBUser}},
       grantText: '',
+      pwOK:     false,
       prefix:   {{toJSON .MySQLPrefix}},
+      dbs:      {{toJSON .Names.Databases}} || [],
+      rdbs:     {{toJSON .Names.ReservedDatabases}} || [],
+      users:    {{toJSON .Names.Users}} || [],
+      rusers:   {{toJSON .Names.ReservedUsers}} || [],
+      limit:    {{.DBLimit}},
+      used:     {{.DBUsage}},
+      quotaFull() { return this.limit > 0 && this.used >= this.limit; },
+      // format problems show through input-validation.js, these cover what only the server lists know
+      dbTaken() {
+        if (!this.dbname) return '';
+        const n = this.withPrefix(this.dbname);
+        if (n.length > 63) return {{toJSON (.T.Get "Only letters, numbers, and underscores are allowed (1-63 characters).")}};
+        if (this.rdbs.includes(n)) return {{toJSON (.T.Get "This is a system database that can not be used.")}};
+        if (this.dbs.includes(n)) return {{toJSON (.T.Get "A database with this name already exists.")}};
+        return '';
+      },
+      userTaken() {
+        if (!this.username) return '';
+        const n = this.withPrefix(this.username);
+        if (n.length > 31) return {{toJSON (.T.Get "Only letters, numbers, and underscores are allowed (1-31 characters).")}};
+        if (this.rusers.includes(n.toLowerCase())) return {{toJSON (.T.Get "This username is not allowed.")}};
+        if (this.users.includes(n)) return {{toJSON (.T.Get "A user with this name already exists.")}};
+        return '';
+      },
+      dbOK() { return /^[a-zA-Z0-9_]+$/.test(this.dbname) && !this.dbTaken(); },
+      userOK() { return /^[a-zA-Z0-9_]+$/.test(this.username) && !this.userTaken(); },
+      ready() { return this.dbOK() && this.userOK() && this.pwOK && !this.quotaFull(); },
+      blocked() {
+        if (this.quotaFull()) return {{toJSON (.T.Get "Your plan has no databases left.")}};
+        if (!this.dbOK()) return this.dbTaken() ? {{toJSON (.T.Get "Pick another database name to continue.")}} : {{toJSON (.T.Get "Enter a database name: letters, numbers and underscores.")}};
+        if (!this.userOK()) return this.userTaken() ? {{toJSON (.T.Get "Pick another username to continue.")}} : {{toJSON (.T.Get "Enter a username: letters, numbers and underscores.")}};
+        return {{toJSON (.T.Get "Set a password that passes the strength check.")}};
+      },
       withPrefix(name) {
         return !name || name.startsWith(this.prefix) ? name : this.prefix + name;
       },

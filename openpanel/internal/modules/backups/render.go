@@ -106,6 +106,7 @@ func renderBackupsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, ta
 type BackupSettingsPageData struct {
 	web.LayoutData
 	Error    string
+	NoTarget bool
 	Target   string
 	Values   []KV
 	Settings []KV
@@ -125,7 +126,7 @@ func renderBackupSettingsPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	if displayErr == "" {
 		displayErr = errMsg
 	}
-	data := BackupSettingsPageData{LayoutData: layout, Error: displayErr, Target: target, Values: values, Settings: settings}
+	data := BackupSettingsPageData{LayoutData: layout, Error: displayErr, NoTarget: errMsg == "no backup target configured", Target: target, Values: values, Settings: settings}
 	if err := backupSettingsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("BACKUPS - settings template render error: %v", err)
 	}
@@ -139,6 +140,13 @@ type DestinationCard struct {
 }
 
 var azureIcon = template.HTML(`<svg width="150" height="150" class="size-5" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="a" x1="-1032.172" x2="-1059.213" y1="145.312" y2="65.426" gradientTransform="matrix(1 0 0 -1 1075 158)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#114a8b"/><stop offset="1" stop-color="#0669bc"/></linearGradient><linearGradient id="b" x1="-1027.165" x2="-997.482" y1="147.642" y2="68.561" gradientTransform="matrix(1 0 0 -1 1075 158)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#3ccbf4"/><stop offset="1" stop-color="#2892df"/></linearGradient></defs><path fill="url(#a)" d="M33.338 6.544h26.038l-27.03 80.087a4.152 4.152 0 0 1-3.933 2.824H8.149a4.145 4.145 0 0 1-3.928-5.47L29.404 9.368a4.152 4.152 0 0 1 3.934-2.825z"/><path fill="url(#b)" d="M66.595 9.364a4.145 4.145 0 0 0-3.928-2.82H33.648a4.146 4.146 0 0 1 3.928 2.82l25.184 74.62a4.146 4.146 0 0 1-3.928 5.472h29.02a4.146 4.146 0 0 0 3.927-5.472z"/></svg>`) //nolint:gosec // static inline SVG, not user input
+
+// remix icons for the destinations that have no brand logo
+var (
+	s3Icon     = template.HTML(`<i class="ri-cloud-line text-xl leading-none text-gray-600 dark:text-gray-400" aria-hidden="true"></i>`)     //nolint:gosec // static markup
+	webdavIcon = template.HTML(`<i class="ri-global-line text-xl leading-none text-gray-600 dark:text-gray-400" aria-hidden="true"></i>`)    //nolint:gosec // static markup
+	sshIcon    = template.HTML(`<i class="ri-terminal-box-line text-xl leading-none text-gray-600 dark:text-gray-400" aria-hidden="true"></i>`) //nolint:gosec // static markup
+)
 
 var dropboxIcon = template.HTML(`<svg fill="none" viewBox="0 0 165 140" class="size-5" aria-hidden="true"><path fill="#0061FF" d="M82.256 26.215 41.133 52.43 82.256 78.646 41.133 104.861 0 78.498l41.133-26.215L0 26.215 41.133 0l41.123 26.215ZM40.912 113.286l41.133-26.215 41.123 26.215-41.123 26.215L40.912 113.286ZM82.246 78.498l41.133-26.215L82.246 26.215 123.168 0l41.133 26.215-41.133 26.215 41.133 26.215-41.133 26.215L82.246 78.498Z"></path></svg>`) //nolint:gosec // static inline SVG, not user input
 
@@ -164,15 +172,15 @@ func renderBackupDestinationsPage(a *appctx.App, w http.ResponseWriter, r *http.
 	meta := map[string]destinationMeta{
 		"s3": {
 			Title: layout.T.Get("S3-compatible"), Description: layout.T.Get("AWS S3, Filebase, Google Cloud Storage, MinIO, etc."),
-			DocLink: "https://openpanel.com/docs/panel/backups/#s3",
+			DocLink: "https://openpanel.com/docs/panel/backups/#s3", Icon: s3Icon,
 		},
 		"ssh": {
-			Title: layout.T.Get("SSH"), Description: layout.T.Get("Remote backups to another server using via SSH or SFTP."),
-			DocLink: "https://openpanel.com/docs/panel/backups/#sshsftp",
+			Title: layout.T.Get("SSH"), Description: layout.T.Get("Remote backups to another server over SSH or SFTP."),
+			DocLink: "https://openpanel.com/docs/panel/backups/#sshsftp", Icon: sshIcon,
 		},
 		"webdav": {
-			Title: layout.T.Get("WebDAV"), Description: layout.T.Get("Remote backups using WebDAV protocol."),
-			DocLink: "https://openpanel.com/docs/panel/backups/#webdav",
+			Title: layout.T.Get("WebDAV"), Description: layout.T.Get("Remote backups to any WebDAV server."),
+			DocLink: "https://openpanel.com/docs/panel/backups/#webdav", Icon: webdavIcon,
 		},
 		"azure": {
 			Title: layout.T.Get("Azure"), Description: layout.T.Get("Remote backups to Azure Blob Storage."),
@@ -320,9 +328,11 @@ type BackupRestorePageData struct {
 	PageJSON     template.JS
 	Reindexing   bool
 	ReindexError string
+	NoTarget     bool // no destination set up, so there's nothing to reindex
+	AdminManaged bool
 }
 
-func renderBackupRestorePage(a *appctx.App, w http.ResponseWriter, r *http.Request, backups []BackupInfo, reindexing bool, reindexError string) {
+func renderBackupRestorePage(a *appctx.App, w http.ResponseWriter, r *http.Request, backups []BackupInfo, reindexing bool, reindexError string, noTarget, adminManaged bool) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Restore")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -337,7 +347,7 @@ func renderBackupRestorePage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 		}
 	}
 	items := restoreItems(backups, userHome, domains)
-	data := BackupRestorePageData{LayoutData: layout, Backups: items, PageJSON: jsonJS(items), Reindexing: reindexing, ReindexError: reindexError}
+	data := BackupRestorePageData{LayoutData: layout, Backups: items, PageJSON: jsonJS(items), Reindexing: reindexing, ReindexError: reindexError, NoTarget: noTarget, AdminManaged: adminManaged}
 	if err := backupRestorePage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("BACKUPS - restore template render error: %v", err)
 	}

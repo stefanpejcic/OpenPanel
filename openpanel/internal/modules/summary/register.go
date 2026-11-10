@@ -126,7 +126,7 @@ func handlePage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	prev, hasPrev := Load(username, dayBefore(date))
 
-	layout, _, err := web.BuildLayoutData(a, w, r, "Daily Summary")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Daily summary")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

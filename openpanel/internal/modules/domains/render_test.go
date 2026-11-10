@@ -80,7 +80,7 @@ func TestRenderDeleteDomainPage(t *testing.T) {
 		if err := deleteDomainPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), `>Delete Domain <svg`) {
+		if !strings.Contains(w.Body.String(), `Delete domain</button>`) {
 			t.Error("expected delete button when no sites/subdomains block it")
 		}
 	})
@@ -94,7 +94,7 @@ func TestRenderDeleteDomainPage(t *testing.T) {
 		if err := deleteDomainPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if strings.Contains(w.Body.String(), `>Delete Domain <svg`) {
+		if strings.Contains(w.Body.String(), `Delete domain</button>`) {
 			t.Error("expected delete button hidden when sites exist")
 		}
 	})
@@ -104,13 +104,24 @@ func TestRenderSuspendUnsuspendPages(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("suspend selector", func(t *testing.T) {
-		data := DomainSelectorPageData{LayoutData: baseLayout(mgr, "/domains/suspend"), Domains: []appctx.Domain{{DomainURL: "example.com"}}}
+		data := DomainSelectorPageData{
+			LayoutData: baseLayout(mgr, "/domains/suspend"),
+			Domains:    []appctx.Domain{{DomainURL: "example.com"}, {DomainURL: "off.example"}},
+			Picks: []web.DomainPick{
+				{Domain: "example.com", Badge: "Active", Tone: "success"},
+				{Domain: "off.example", Badge: "Suspended", Tone: "error", Disabled: true},
+			},
+		}
 		w := httptest.NewRecorder()
 		if err := suspendPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "example.com") {
-			t.Error("expected domain selector option")
+		body := w.Body.String()
+		if !strings.Contains(body, `href="/domains/suspend?domain=example.com"`) {
+			t.Error("expected suspend link for an active domain")
+		}
+		if strings.Contains(body, `href="/domains/suspend?domain=off.example"`) {
+			t.Error("expected suspended domain to have no suspend link")
 		}
 	})
 
@@ -259,7 +270,7 @@ func TestRenderSSLPage(t *testing.T) {
 		if err := sslPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "No Certificate!") {
+		if !strings.Contains(w.Body.String(), "No certificate") {
 			t.Error("expected no-certificate state")
 		}
 	})
