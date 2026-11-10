@@ -309,15 +309,6 @@ export const pages = {
         crop: { from: 'main section > div:first-child', to: '#databases-table tbody tr:last-of-type' },
       },
       {
-        name: 'connection',
-        alt: 'MariaDB badge next to the Databases title hovered, with the tooltip showing the server name and port to connect with',
-        prepare: async page => {
-          await page.evaluate(() => { window.Alpine.$data(document.querySelector('main section [x-data*="tooltip"]')).tooltip = true; });
-          await page.waitForTimeout(500);
-        },
-        crop: { from: 'main section > div:first-child', to: '#databases-table tbody tr:last-of-type' },
-      },
-      {
         name: 'sizes',
         alt: 'Databases table with Show database sizes enabled and the size unit dropdown set to MB',
         async prepare(page) {
@@ -488,12 +479,8 @@ export const pages = {
     shots: [
       {
         name: 'button',
-        alt: 'phpMyAdmin button with its tooltip in the actions of a database row',
-        prepare: async page => {
-          await page.locator('#databases-table tbody tr:first-of-type a[href^="/phpmyadmin"]').hover();
-          await page.waitForTimeout(400);
-        },
-        crop: { from: '#databases-table thead', to: 'main div.absolute:has-text("phpMyAdmin") >> visible=true', pad: 12 },
+        alt: 'phpMyAdmin button in the actions of a database row',
+        crop: { from: '#databases-table thead', to: '#databases-table tbody tr:first-of-type', pad: 12 },
       },
     ],
   },
@@ -526,12 +513,12 @@ export const pages = {
       {
         name: 'status',
         alt: 'Remote access Status row showing Disabled with the Click to Enable button',
-        crop: { from: 'main .m-6 section:nth-of-type(1)', pad: 24 },
+        crop: { from: 'main div.divide-y > section:nth-of-type(1)', pad: 24 },
       },
       {
         name: 'connection',
         alt: 'Remote and Local connection details with the server address and port for each',
-        crop: { from: 'main .m-6 section:nth-of-type(2)', to: 'main .m-6 section:nth-of-type(3)', pad: 24 },
+        crop: { from: 'main div.divide-y > section:nth-of-type(2)', to: 'main div.divide-y > section:nth-of-type(3)', pad: 24 },
       },
     ],
   },
@@ -555,7 +542,7 @@ export const pages = {
       {
         name: 'page',
         alt: 'MySQL Configuration page with a table of settings, editable values and the Save Changes button',
-        crop: { from: 'main section > div:first-child', to: 'main table tbody tr:nth-of-type(9)' },
+        crop: { from: 'main form > div:first-of-type', to: 'main table tbody tr:nth-of-type(9)' },
       },
     ],
   },
@@ -648,11 +635,11 @@ export const pages = {
     prepare: rename(DEMO_IP),
     shots: [
       { name: 'page', alt: 'Remote PostgreSQL Access page showing remote access as Disabled with the Enable Remote PostgreSQL Access button', crop: 'content' },
-      { name: 'status', alt: 'Remote access Status row showing Disabled with the Click to Enable button', crop: { from: 'main .m-6 section:nth-of-type(1)', pad: 24 } },
+      { name: 'status', alt: 'Remote access Status row showing Disabled with the Click to Enable button', crop: { from: 'main div.divide-y > section:nth-of-type(1)', pad: 24 } },
       {
         name: 'connection',
         alt: 'Remote and Local PostgreSQL connection details with the server address and port for each',
-        crop: { from: 'main .m-6 section:nth-of-type(2)', to: 'main .m-6 section:nth-of-type(3)', pad: 24 },
+        crop: { from: 'main div.divide-y > section:nth-of-type(2)', to: 'main div.divide-y > section:nth-of-type(3)', pad: 24 },
       },
     ],
   },
@@ -662,7 +649,7 @@ export const pages = {
       {
         name: 'page',
         alt: 'PostgreSQL Configuration page with a table of settings, editable values and the Save Changes button',
-        crop: { from: 'main section > div:first-child', to: 'main table tbody tr:nth-of-type(9)' },
+        crop: { from: 'main form > div:first-of-type', to: 'main table tbody tr:nth-of-type(9)' },
       },
     ],
   },
@@ -766,16 +753,16 @@ export const pages = {
     },
     shots: [
       { name: 'page', alt: 'Error Logs page with the website, service, severity, search and date filters above a table of errors with their time, severity, service, website and message', crop: 'content' },
-      { name: 'filters', alt: 'Error Logs filters: website with subfolder sites, service, severity, search, the date range picker and the Apply and Reset buttons', crop: { from: '#errorLogsFilters', pad: 12 } },
+      { name: 'filters', alt: 'Error logs filters: search, website, service and severity', crop: { from: 'main div.grid:has(input[name=q])', pad: 12 } },
       bulkShot('#errorLogsTable', 2, 'Two errors selected with the bulk actions bar offering Copy and Download'),
     ],
   },
   'statistics/daily_summary': {
-    url: '/summary/2026-10-16',
+    url: '/summary/2026-11-09',
     shots: [
       { name: 'page', alt: 'Daily Summary with the day in one sentence, requests, unique IPs, bandwidth, error pages and firewall blocks, the problems found with a button to fix each one, and the All good list', crop: 'content', viewportHeight: 1000 },
-      { name: 'websites', alt: 'Websites card listing each website by requests with its unique IPs, bandwidth, 404s and firewall blocks', prepare: markCard('Websites'), crop: { from: '[data-shot=card]', pad: 12 } },
-      { name: 'usage', alt: 'Resource Usage card with disk space, files and folders, CPU and memory at the busiest hour as bars, next to the panel logins with country flags, then the changes made to the account', prepare: async page => { await page.evaluate(() => { const h = [...document.querySelectorAll('main h2')].find(e => e.textContent.trim() === 'Resource Usage'); h.parentElement.parentElement.setAttribute('data-shot', 'section'); }); }, crop: { from: '[data-shot=section]', pad: 12 } },
+      { name: 'websites', alt: 'Websites card listing each website by requests with its unique IPs, bandwidth, 404s and firewall blocks', crop: { from: 'section[x-data*="summaryWidget(\'sites\'"]', pad: 12 } },
+      { name: 'usage', alt: 'Resource Usage card with disk space, files and folders, CPU and memory at the busiest hour as bars, next to the panel logins with country flags, then the changes made to the account', prepare: async page => { await page.evaluate(() => { document.getElementById('summary-usage-title').parentElement.parentElement.setAttribute('data-shot', 'section'); }); }, crop: { from: '[data-shot=section]', pad: 12 } },
     ],
   },
   'statistics/daily_summary-toast': {
@@ -896,9 +883,9 @@ export const pages = {
   'domains/ssl': {
     url: '/domains/ssl?domain_name=wp.tests.openpanel.org',
     shots: [
-      { name: 'page', alt: 'SSL page for a domain with the AutoSSL status, the Generate now button, and the certificate details and files', crop: { from: 'main', to: 'main .m-6 section:nth-of-type(3)', fromTop: true, pad: 24 } },
-      { name: 'custom', alt: 'Configure custom SSL form with fields for the certificate and the private key', crop: { from: 'main .m-6 section:nth-of-type(4)', pad: 24 } },
-      { name: 'status', alt: 'SSL Status row showing Auto SSL with the Generate now button', crop: { from: 'main .m-6 section:nth-of-type(1)', pad: 24 } },
+      { name: 'page', alt: 'SSL page for a domain with the AutoSSL status, the Generate now button, and the certificate details and files', crop: { from: 'main', to: 'main div.divide-y > section:nth-of-type(3)', fromTop: true, pad: 24 } },
+      { name: 'custom', alt: 'Configure custom SSL form with fields for the certificate and the private key', crop: { from: 'main div.divide-y > section:nth-of-type(4)', pad: 24 } },
+      { name: 'status', alt: 'SSL Status row showing Auto SSL with the Generate now button', crop: { from: 'main div.divide-y > section:nth-of-type(1)', pad: 24 } },
     ],
   },
   'domains/redirects': {
@@ -934,7 +921,7 @@ export const pages = {
     shots: [{ name: 'list', alt: 'Dynamic DNS page listing entries with their subdomain, record type, IP, TTL and update URL', crop: 'content' }],
   },
   'domains/capitalize': {
-    url: '/domains/capitalize/to-be-removed.com',
+    url: '/domains/capitalize/example.test.rs',
     prepare: async page => {
       await page.evaluate(() => {
         const box = document.getElementById('letters-container');
@@ -970,7 +957,7 @@ export const pages = {
     shots: [{ name: 'report', alt: 'GoAccess report for a domain with request totals, unique visitors and a chart of daily visitors', crop: { from: '#overall', pad: 16, clamp: false, height: 760 } }],
   },
   'domains/delete': {
-    url: '/domains/delete?domain=to-be-removed.com',
+    url: '/domains/delete?domain=example.test.rs',
     shots: [{ name: 'form', alt: 'Delete domain confirmation page with the Delete Domain button', crop: 'content' }],
   },
   // bulk actions are new in 2.0.12, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs emails/emails
@@ -2097,21 +2084,21 @@ export const pages = {
     url: '/n8n/install',
     prepare: async page => {
       await page.fill('input[name=service_name]', 'n8n');
-      await page.selectOption('select[name=domain_id]', { label: 'to-be-removed.com' });
+      await page.selectOption('select[name=domain_id]', { label: 'example.test.rs' });
       await page.fill('input[name=owner_email]', 'admin@example.com');
       // the form pre-generates a real password, show a placeholder one instead
       await page.fill('input[name=owner_password]', 'your-strong-password');
       // option text is drawn from its label attribute, which rename() doesn't touch
-      await page.evaluate(() => document.querySelectorAll('select[name=domain_id] option').forEach(o => { if (o.label === 'to-be-removed.com') o.label = 'n8n.example.com'; }));
-      await rename({ 'to-be-removed.com': 'n8n.example.com' }, 'body')(page);
+      await page.evaluate(() => document.querySelectorAll('select[name=domain_id] option').forEach(o => { if (o.label === 'example.test.rs') o.label = 'n8n.example.com'; }));
+      await rename({ 'example.test.rs': 'n8n.example.com' }, 'body')(page);
     },
     shots: [{ name: 'form', alt: 'Install n8n form with the application name, fixed port 5678, version, domain, owner account and resource limits', crop: 'content' }],
   },
   'applications/n8n': {
-    url: '/website?domain=to-be-removed.com',
+    url: '/website?domain=example.test.rs',
     prepare: async page => {
       await page.waitForTimeout(2500);
-      await rename({ 'to-be-removed.com': 'n8n.example.com' }, 'body')(page);
+      await rename({ 'example.test.rs': 'n8n.example.com' }, 'body')(page);
     },
     shots: [
       {
@@ -2124,15 +2111,15 @@ export const pages = {
       { name: 'settings', alt: 'Container name and port, n8n version picker and CPU, memory and PIDs limits on the Overview tab', crop: { from: '#dashboard > div:nth-child(3)', to: '#dashboard > form', pad: 8 } },
       {
         name: 'envvars',
-        url: '/website?domain=to-be-removed.com&tab=envvars',
+        url: '/website?domain=example.test.rs&tab=envvars',
         alt: 'Env Vars tab with custom KEY=VALUE environment variables for the n8n container and the Save Environment Variables button',
         prepare: fill({ 'textarea[name=env_vars]': 'GENERIC_TIMEZONE=Europe/Berlin\nN8N_DEFAULT_BINARY_DATA_MODE=filesystem\nEXECUTIONS_DATA_MAX_AGE=168' }),
         crop: { from: '#n8n-tab', to: '#envvars', pad: 8 },
       },
-      { name: 'logs', url: '/website?domain=to-be-removed.com&tab=logs', alt: 'Logs tab showing the n8n container log', crop: { from: '#n8n-tab', to: '#logs', pad: 8 } },
+      { name: 'logs', url: '/website?domain=example.test.rs&tab=logs', alt: 'Logs tab showing the n8n container log', crop: { from: '#n8n-tab', to: '#logs', pad: 8 } },
       {
         name: 'remove',
-        url: '/website?domain=to-be-removed.com&tab=remove',
+        url: '/website?domain=example.test.rs&tab=remove',
         alt: 'Remove tab with the Confirm delete and Cancel buttons shown after clicking Delete Application',
         prepare: click('#remove button:has-text("Delete Application")', 400),
         crop: { from: '#n8n-tab', to: '#remove', pad: 8 },

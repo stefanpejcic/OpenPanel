@@ -179,7 +179,7 @@ export const bulkSelect = (keys, wait = 400) => async page => {
     // a DOM click, the fixed bar that appears after the first one covers the bottom rows
     for (let i = 0; i < keys; i++) await boxes.nth(i).evaluate(el => el.click());
   } else {
-    for (const k of keys) await page.locator(`input.bulk-select-box[value="${k}"]`).evaluate(el => el.click());
+    for (const k of keys) await page.locator(`input.bulk-select-box[value="${k}"]`).first().evaluate(el => el.click());
   }
   // check() scrolls rows into view, go back up so the crop starts at the table
   await page.evaluate(() => document.querySelectorAll('*').forEach(el => { if (el.scrollTop) el.scrollTop = 0; }));
