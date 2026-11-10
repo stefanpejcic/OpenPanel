@@ -76,7 +76,7 @@ func (d DatabasesPageData) UserCount() int {
 }
 
 func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, databases []DatabaseRow, unit string, showAll bool, info ServerInfo) {
-	layout, injectedData, err := web.BuildLayoutData(a, w, r, "PostgreSQL Databases")
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, "PostgreSQL databases")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -138,7 +138,7 @@ func createPage(a *appctx.App, w http.ResponseWriter, r *http.Request, title str
 }
 
 func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request, formName, created string) {
-	data, ok := createPage(a, w, r, "Create Database", created != "")
+	data, ok := createPage(a, w, r, "Create a database", created != "")
 	if !ok {
 		return
 	}
@@ -163,7 +163,7 @@ type UsersPageData struct {
 }
 
 func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, users []UserRow, showAll bool) {
-	layout, injectedData, err := web.BuildLayoutData(a, w, r, "PostgreSQL Users")
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, "PostgreSQL users")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -185,7 +185,7 @@ func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, stat
 }
 
 func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request, formName, created, password string) {
-	data, ok := createPage(a, w, r, "Create User", created != "")
+	data, ok := createPage(a, w, r, "Create user", created != "")
 	if !ok {
 		return
 	}
@@ -202,7 +202,7 @@ type PasswordPageData struct {
 }
 
 func renderChangePasswordPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dbUser string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Change Password")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Change password")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -215,7 +215,7 @@ func renderChangePasswordPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 }
 
 func renderWizardPage(a *appctx.App, w http.ResponseWriter, r *http.Request, formDB, formUser string) {
-	data, ok := createPage(a, w, r, "Database Wizard", false)
+	data, ok := createPage(a, w, r, "Database wizard", false)
 	if !ok {
 		return
 	}
@@ -226,7 +226,7 @@ func renderWizardPage(a *appctx.App, w http.ResponseWriter, r *http.Request, for
 }
 
 func renderWizardSuccess(a *appctx.App, w http.ResponseWriter, r *http.Request, createdDB, createdUser, password string) {
-	data, ok := createPage(a, w, r, "Database Wizard", true)
+	data, ok := createPage(a, w, r, "Database wizard", true)
 	if !ok {
 		return
 	}
@@ -237,7 +237,7 @@ func renderWizardSuccess(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 }
 
 func renderAssignPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dbUser, databaseName string) {
-	data, ok := createPage(a, w, r, "Assign User to Database", false)
+	data, ok := createPage(a, w, r, "Assign user to database", false)
 	if !ok {
 		return
 	}
@@ -248,7 +248,7 @@ func renderAssignPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dbU
 }
 
 func renderRemovePage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Remove User from Database")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Remove user from database")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -285,7 +285,7 @@ type ProcessListPageData struct {
 }
 
 func renderProcessListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, processList []ProcessRow) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Running Queries")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Running queries")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

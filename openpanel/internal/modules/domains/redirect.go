@@ -36,6 +36,14 @@ func domainConfPath(domainURL string) string {
 	return "/etc/openpanel/caddy/domains/" + domainURL + ".conf"
 }
 
+// redirectReturn sends forms posted from the redirects list back there, everything else to /domains
+func redirectReturn(r *http.Request) string {
+	if r.Form.Get("next") == "redirects" {
+		return "/domains/redirect"
+	}
+	return "/domains"
+}
+
 func reloadCaddyWebserver(r *http.Request) {
 	_ = exec.CommandContext(r.Context(), "podman", "exec", "caddy", "caddy", "reload", "--config", "/etc/caddy/Caddyfile").Run()
 }

@@ -354,6 +354,7 @@ func TestRenderAliasDeletePage(t *testing.T) {
 }
 
 func TestRenderDefaultAddressPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("select domain", func(t *testing.T) {
@@ -364,6 +365,38 @@ func TestRenderDefaultAddressPage(t *testing.T) {
 		}
 		if !strings.Contains(w.Body.String(), "example.com") {
 			t.Error("expected domain option in body")
+		}
+	})
+
+	t.Run("with current alias", func(t *testing.T) {
+		data := DefaultAddressPageData{LayoutData: baseLayout(mgr, "/emails/default/example.com"), Domain: "example.com", Current: "catchall@example.com"}
+		w := httptest.NewRecorder()
+		if err := defaultAddressPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "catchall@example.com") {
+			t.Error("expected current alias in body")
+		}
+	})
+}
+
+func TestRenderDefaultAddressPageClassic(t *testing.T) {
+	webtest.Classic(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+
+	t.Run("domain list", func(t *testing.T) {
+		data := DefaultAddressPageData{
+			LayoutData: baseLayout(mgr, "/emails/default/"),
+			Domains:    []appctx.Domain{{DomainURL: "example.com"}},
+			Picks:      []web.DomainPick{{Domain: "example.com", Detail: "catchall@example.com"}},
+		}
+		w := httptest.NewRecorder()
+		if err := defaultAddressPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, `href="/emails/default/example.com"`) || !strings.Contains(body, "catchall@example.com") {
+			t.Error("expected domain row with its catch-all target")
 		}
 	})
 
@@ -404,6 +437,7 @@ func TestRenderDeliverabilityDomainPage(t *testing.T) {
 }
 
 func TestRenderFilterPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("select address", func(t *testing.T) {
@@ -414,6 +448,51 @@ func TestRenderFilterPage(t *testing.T) {
 		}
 		if !strings.Contains(w.Body.String(), "a@b.com") {
 			t.Error("expected address option in body")
+		}
+	})
+
+	t.Run("gui mode with parsed filters", func(t *testing.T) {
+		data := FilterPageData{
+			LayoutData: baseLayout(mgr, "/emails/filter/a@b.com/gui"), Email: "a@b.com", ViewMode: "gui",
+			ParsedFilters: sieveparser.Parse(`if header :contains "Subject" "invoice" { fileinto "Finance"; }`),
+		}
+		w := httptest.NewRecorder()
+		if err := filterPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "filterPage()") {
+			t.Error("expected alpine filterPage() component in body")
+		}
+	})
+
+	t.Run("raw mode", func(t *testing.T) {
+		data := FilterPageData{
+			LayoutData: baseLayout(mgr, "/emails/filter/a@b.com/raw"), Email: "a@b.com", ViewMode: "raw",
+			RawContent: `if true { stop; }`, SieveFile: "/var/mail/b.com/a/home/.dovecot.sieve",
+		}
+		w := httptest.NewRecorder()
+		if err := filterPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "if true { stop; }") {
+			t.Error("expected raw content in body")
+		}
+	})
+}
+
+func TestRenderFilterPageClassic(t *testing.T) {
+	webtest.Classic(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+
+	t.Run("select address", func(t *testing.T) {
+		data := FilterPageData{LayoutData: baseLayout(mgr, "/emails/filter"), Addresses: []string{"a@b.com"}, Picks: []web.DomainPick{{Domain: "a@b.com", Badge: "Active", Tone: "success"}}}
+		w := httptest.NewRecorder()
+		if err := filterPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, `href="/emails/filter/a@b.com"`) || !strings.Contains(body, " address</p>") {
+			t.Error("expected address row with an edit link and the address count")
 		}
 	})
 

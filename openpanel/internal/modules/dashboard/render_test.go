@@ -87,7 +87,7 @@ func TestRenderDashboardPage(t *testing.T) {
 		"Pro Plan",
 		"test-csrf-token",
 		`id="dashboard-sortable-area"`,
-		`id="dashboard_usage"`,
+		`x-data="usageDashboard()"`,
 		`id="dashboard_info"`,
 		`id="dashboard_twofa"`,
 		"websites-menu",

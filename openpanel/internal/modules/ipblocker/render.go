@@ -17,7 +17,7 @@ type IPBlockerPageData struct {
 }
 
 func renderIPBlockerPage(a *appctx.App, w http.ResponseWriter, r *http.Request, ips []string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "IP Blocker")
+	layout, _, err := web.BuildLayoutData(a, w, r, "IP blocker")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

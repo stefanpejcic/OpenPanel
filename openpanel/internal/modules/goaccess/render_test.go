@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
@@ -26,7 +25,7 @@ func TestRenderGoaccessSelectPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("with domains", func(t *testing.T) {
-		data := GoaccessPageData{LayoutData: baseLayout(mgr, "/domains/stats"), Domains: []appctx.Domain{{DomainURL: "example.com"}, {DomainURL: "shop.example.com"}}}
+		data := GoaccessPageData{LayoutData: baseLayout(mgr, "/domains/stats"), Domains: []web.DomainPick{{Domain: "example.com"}, {Domain: "shop.example.com"}}}
 		w := httptest.NewRecorder()
 		if err := goaccessPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
@@ -94,7 +93,7 @@ func TestRenderGoaccessSummary(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	domains := []appctx.Domain{{DomainURL: "example.com"}, {DomainURL: "shop.example.com"}}
+	domains := []web.DomainPick{{Domain: "example.com"}, {Domain: "shop.example.com"}}
 
 	t.Run("report", func(t *testing.T) {
 		data := GoaccessPageData{LayoutData: baseLayout(mgr, "/domains/stats"), Domains: domains, Selected: "shop.example.com", Summary: sum}

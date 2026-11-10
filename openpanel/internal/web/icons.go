@@ -25,3 +25,37 @@ const (
 	advancedIcon       template.HTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-terminal-2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l3 3l-3 3"/><path d="M13 15l3 0"/><path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/></svg>`
 	classicAccountIcon template.HTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-text size-[18px] shrink-0" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"></path><path d="M8 11h8"></path><path d="M8 7h6"></path></svg>`
 )
+
+// plannerIcons are the classic theme's Remix versions of the icons above, keyed by the Modern one
+var plannerIcons = map[template.HTML]template.HTML{
+	websitesIcon:       `<i class="ri-window-2-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	filesIcon:          `<i class="ri-folder-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	dbIcon:             `<i class="ri-database-2-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	postgresqlIcon:     `<i class="ri-database-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	mongodbIcon:        `<i class="ri-leaf-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	dockerIcon:         `<i class="ri-stack-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	cacheIcon:          `<i class="ri-flashlight-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	phpIcon:            `<i class="ri-php-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	domainsIcon:        `<i class="ri-global-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	emailIcon:          `<i class="ri-mail-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	backupsIcon:        `<i class="ri-cloud-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	webserverIcon:      `<i class="ri-equalizer-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	cronIcon:           `<i class="ri-time-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	statsIcon:          `<i class="ri-bar-chart-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	processIcon:        `<i class="ri-cpu-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	securityIcon:       `<i class="ri-shield-keyhole-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	infoIcon:           `<i class="ri-information-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	accountIcon:        `<i class="ri-account-circle-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	advancedIcon:       `<i class="ri-terminal-box-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+	classicAccountIcon: `<i class="ri-book-open-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
+}
+
+// themedIcon swaps a sidebar icon for the classic theme's one when that theme is on
+func themedIcon(icon template.HTML) template.HTML {
+	if Theme() == ThemeClassic {
+		if c, ok := plannerIcons[icon]; ok {
+			return c
+		}
+	}
+	return icon
+}

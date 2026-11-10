@@ -2,17 +2,17 @@
 
 {{define "activity_kind_icon"}}
 {{- if eq .Kind "danger"}}
-<span class="activity-kind activity-kind--danger" title="{{.T.Get "Destructive"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l16 0"/><path d="M10 11l0 6"/><path d="M14 11l0 6"/><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"/><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/></svg></span>
+<span class="inline-flex size-7 shrink-0 items-center justify-center rounded-full  bg-red-50 text-red-600 dark:bg-red-400/10 dark:text-red-400" title="{{.T.Get "Destructive"}}"><i class="ri-delete-bin-line" aria-hidden="true"></i></span>
 {{- else if eq .Kind "create"}}
-<span class="activity-kind activity-kind--create" title="{{.T.Get "Created"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5l0 14"/><path d="M5 12l14 0"/></svg></span>
+<span class="inline-flex size-7 shrink-0 items-center justify-center rounded-full  bg-emerald-50 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-400" title="{{.T.Get "Created"}}"><i class="ri-add-line" aria-hidden="true"></i></span>
 {{- else if eq .Kind "edit"}}
-<span class="activity-kind activity-kind--edit" title="{{.T.Get "Changed"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"/><path d="M13.5 6.5l4 4"/></svg></span>
+<span class="inline-flex size-7 shrink-0 items-center justify-center rounded-full  bg-yellow-50 text-yellow-600 dark:bg-yellow-400/10 dark:text-yellow-500" title="{{.T.Get "Changed"}}"><i class="ri-pencil-line" aria-hidden="true"></i></span>
 {{- else if eq .Kind "security"}}
-<span class="activity-kind activity-kind--security" title="{{.T.Get "Security"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/><path d="M12 11m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M12 12l0 2.5"/></svg></span>
+<span class="inline-flex size-7 shrink-0 items-center justify-center rounded-full  bg-blue-50 text-blue-500 dark:bg-blue-400/10 dark:text-blue-400" title="{{.T.Get "Security"}}"><i class="ri-shield-keyhole-line" aria-hidden="true"></i></span>
 {{- else if eq .Kind "command"}}
-<span class="activity-kind activity-kind--command" title="{{.T.Get "Command"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 7l5 5l-5 5"/><path d="M12 19l7 0"/></svg></span>
+<span class="inline-flex size-7 shrink-0 items-center justify-center rounded-full  bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300" title="{{.T.Get "Command"}}"><i class="ri-terminal-line" aria-hidden="true"></i></span>
 {{- else}}
-<span class="activity-kind activity-kind--info" title="{{.T.Get "Info"}}"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></svg></span>
+<span class="inline-flex size-7 shrink-0 items-center justify-center rounded-full  bg-gray-50 text-gray-500 dark:bg-gray-400/10 dark:text-gray-400" title="{{.T.Get "Info"}}"><i class="ri-information-line" aria-hidden="true"></i></span>
 {{- end}}
 {{end}}
 
@@ -21,19 +21,29 @@
 
 <section aria-label="{{.T.Get "Domains Header"}}" x-data="{ searchActivityQuery: {{toJSON .SearchTerm}} }">
 
-    <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
         <div>
             <div class="flex items-center gap-x-3">
-                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Activity Log"}}</h1>
+                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Activity log"}}</h1>
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">
+            <p class="mt-1 text-sm text-gray-500 max-w-3xl">
                 {{if .SearchTerm}}
                 {{.T.Get "Search results for:"}} {{.SearchTerm}}
                 {{else}}
                 {{.T.Get "View recent user activity and system events."}}
                 {{end}}</p>
         </div>
-        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+        <!-- time range sits in the header so the type chips fit beside the search -->
+        <div class="flex flex-wrap items-center gap-2">
+            {{if or .Filter.Kind .Filter.From .Filter.To .Filter.Search}}
+            <a href="/account/activity" class="text-sm text-gray-500 underline underline-offset-4 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50">{{.T.Get "Clear filters"}}</a>
+            {{end}}
+            {{template "date_range" (dict "T" .T "From" .Filter.From "To" .Filter.To)}}
+        </div>
+        </div>
+    <div class="activity-toolbar flex flex-col gap-3 px-4 pb-4 sm:flex-row sm:flex-wrap sm:items-center sm:px-6 lg:px-8">
+        {{template "filter_chips_css"}}
+        <div class="flex flex-col gap-2 sm:flex-row">
             <div class="relative w-full sm:w-64">
                  <form id="activitySearchForm" action="/account/activity" method="get">
                     {{if .Filter.Kind}}<input type="hidden" name="type" value="{{.Filter.Kind}}">{{end}}
@@ -43,7 +53,8 @@
                         x-model="searchActivityQuery"
                         @keydown.enter.prevent="document.getElementById('activitySearchForm').submit()"
                         name="search"
-                        class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 pl-8 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
+                        aria-label="{{.T.Get "Search"}}"
+                        class="pl-8 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
                         placeholder="{{.T.Get "Search"}}"
                         type="search"
                     />
@@ -56,76 +67,43 @@
                 </div>
             </div>
             </div>
-        </div>
-
-<div class="activity-toolbar flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
-    {{template "filter_chips_css"}}
-    <nav class="flex flex-wrap items-center gap-2" aria-label="{{.T.Get "Filter by type"}}">
-        <a href="{{.AllURL}}" class="activity-chip{{if not .Filter.Kind}} is-active{{end}}"{{if not .Filter.Kind}} aria-current="true"{{end}}>
-            {{.T.Get "All"}} <span class="activity-chip-count">{{.AllCount}}</span>
-        </a>
-        {{range .KindTabs}}
-        <a href="{{.URL}}" class="activity-chip activity-chip--{{.Kind}}{{if .Active}} is-active{{end}}"{{if .Active}} aria-current="true"{{end}}>
-            <span class="activity-chip-dot" aria-hidden="true"></span>{{$.T.Get .Label}} <span class="activity-chip-count">{{.Count}}</span>
-        </a>
-        {{end}}
-    </nav>
-    <div class="flex flex-wrap items-center gap-2">
-        {{template "date_range" (dict "T" .T "From" .Filter.From "To" .Filter.To)}}
-        {{if or .Filter.Kind .Filter.From .Filter.To .Filter.Search}}
-        <a href="/account/activity" class="activity-clear">{{.T.Get "Clear filters"}}</a>
-        {{end}}
+        <nav class="flex flex-wrap items-center gap-2" aria-label="{{.T.Get "Filter by type"}}">
+            <a href="{{.AllURL}}" class="activity-chip{{if not .Filter.Kind}} is-active{{end}}"{{if not .Filter.Kind}} aria-current="true"{{end}}>
+                {{.T.Get "All"}} <span class="activity-chip-count">{{.AllCount}}</span>
+            </a>
+            {{range .KindTabs}}
+            <a href="{{.URL}}" class="activity-chip activity-chip--{{.Kind}}{{if .Active}} is-active{{end}}"{{if .Active}} aria-current="true"{{end}}>
+                <span class="activity-chip-dot" aria-hidden="true"></span>{{$.T.Get .Label}} <span class="activity-chip-count">{{.Count}}</span>
+            </a>
+            {{end}}
+        </nav>
     </div>
-</div>
+
 
 <div class="">
     <div class="activity-table-wrap w-full whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
-        <table id="activity-table" class="w-full caption-bottom border-b border-gray-200 dark:border-gray-800">
+        <table id="activity-table" class="caption-bottom w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
             <thead>
-                <tr class="bg-gray-50 dark:bg-gray-900 sm:[&amp;_td:last-child]:pr-6 sm:[&amp;_th:last-child]:pr-6 sm:[&amp;_td:first-child]:pl-6 sm:[&amp;_th:first-child]:pl-6">
+                <tr>
                     <th scope="col" class="hidden whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
-                        <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
-                            <span>{{.T.Get "User"}}</span>
-                            <div class="-space-y-2">
-                                <a href="#" data-sort-key="user" data-sort-type="string" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
-                                <a href="#" data-sort-key="user" data-sort-type="string" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
-                            </div>
-                        </div>
+                        <button type="button" data-sort-key="user" data-sort-type="string" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.T.Get "User"}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
                     </th>
-                    <th scope="col" class="whitespace-nowrap border-b px-4 sm:pl-6 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
-                        <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
-                            <span>{{.T.Get "Action"}}</span>
-                            <div class="-space-y-2">
-                                <a href="#" data-sort-key="action" data-sort-type="string" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
-                                <a href="#" data-sort-key="action" data-sort-type="string" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
-                            </div>
-                        </div>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-1.5 sm:pl-6 lg:pl-8 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">
+                        <button type="button" data-sort-key="action" data-sort-type="string" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.T.Get "Action"}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
                     </th>
-                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
-                        <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
-                            <span>{{.T.Get "IP Address"}}</span>
-                            <div class="-space-y-2">
-                                <a href="#" data-sort-key="ip" data-sort-type="string" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
-                                <a href="#" data-sort-key="ip" data-sort-type="string" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
-                            </div>
-                        </div>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-1.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">
+                        <button type="button" data-sort-key="ip" data-sort-type="string" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.T.Get "IP address"}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
                     </th>
-                    <th scope="col" class="whitespace-nowrap border-b px-4 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 border-gray-200 dark:border-gray-800">
-                        <div class="-mx-2 inline-flex cursor-pointer items-center gap-2 rounded px-2 py-2 hover:bg-gray-50 hover:dark:bg-gray-900">
-                            <span>{{.T.Get "Timestamp"}}</span>
-                            <div class="-space-y-2">
-                                <a href="#" data-sort-key="timestamp" data-sort-type="string" data-direction="desc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50"><path d="M11.9999 10.8284L7.0502 15.7782L5.63599 14.364L11.9999 8L18.3639 14.364L16.9497 15.7782L11.9999 10.8284Z"></path></svg></a>
-                                <a href="#" data-sort-key="timestamp" data-sort-type="string" data-direction="asc" onclick="sortTableColumn(event, this);"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="size-3.5 text-gray-900 dark:text-gray-50 opacity-30"><path d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"></path></svg></a>
-                            </div>
-                        </div>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-1.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">
+                        <button type="button" data-sort-key="timestamp" data-sort-type="string" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.T.Get "Timestamp"}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
                     </th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+            <tbody>
 
             {{if not .Rows}}
                     <tr>
-                        <td colspan="3" class="p-6 text-center">{{if or .Filter.Kind .Filter.From .Filter.To .Filter.Search}}{{.T.Get "No actions match these filters."}}{{else}}{{.T.Get "No logs yet."}}{{end}}</td>
+                        <td colspan="4" class="border-b border-gray-200 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-800">{{if or .Filter.Kind .Filter.From .Filter.To .Filter.Search}}{{.T.Get "No actions match these filters."}}{{else}}{{.T.Get "No logs yet."}}{{end}}</td>
                     </tr>
 
             {{else}}
@@ -142,30 +120,30 @@
         || action.toLowerCase().includes(searchActivityQuery.toLowerCase())
         || ip.toLowerCase().includes(searchActivityQuery.toLowerCase())
         || timestamp.toLowerCase().includes(searchActivityQuery.toLowerCase())'
-    class="hover:bg-gray-100 dark:hover:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_td:first-child]:pl-6"
+    class="hover:bg-gray-50 dark:hover:bg-gray-900/60"
 >
-              <td class="hidden px-4 py-3 items-center space-x-3" data-sort-col="user" data-sort-value="{{.User}}">
+              <td class="hidden border-b border-gray-200 px-4 py-2.5 items-center space-x-3 dark:border-gray-800" data-sort-col="user" data-sort-value="{{.User}}">
                     {{if $.GravatarURL}}
-                    <img class="rounded-full shadow-lg w-8 h-8" src="{{$.GravatarURL}}" alt="{{$.T.Get "Gravatar profile image"}}"/>
+                    <img class="size-8 rounded-full" src="{{$.GravatarURL}}" alt="{{$.T.Get "Gravatar profile image"}}"/>
                     {{end}}
                 <span>{{.User}}</span>
               </td>
-              <td class="activity-action-cell px-4 sm:pl-6 py-3" title="{{.Action}}" data-sort-col="action" data-sort-value="{{.Action}}">
+              <td class="activity-action-cell border-b border-gray-200 px-4 sm:pl-6 lg:pl-8 py-2 text-gray-900 dark:border-gray-800 dark:text-gray-50" title="{{.Action}}" data-sort-col="action" data-sort-value="{{.Action}}">
                 <div class="flex items-center gap-2.5 min-w-0">
                   {{template "activity_kind_icon" (dict "Kind" .Kind "T" $.T)}}
                   <span class="truncate">{{.Action}}</span>
                 </div>
               </td>
-              <td class="px-4 py-3" data-sort-col="ip">{{.IP}}</td>
-              <td class="px-4 py-3" data-sort-col="timestamp">{{.Timestamp}}</td>
+              <td class="font-mono text-xs border-b border-gray-200 px-4 py-2.5 text-center whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400" data-sort-col="ip">{{.IP}}</td>
+              <td class="tabular-nums border-b border-gray-200 px-4 py-2.5 text-center whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400" data-sort-col="timestamp">{{.Timestamp}}</td>
             </tr>
                 {{end}}
             {{end}}
             </tbody>
         </table>
 
-        <div class="mt-6 flex justify-between items-center mb-4">
-            <h5 class="section-title mb-0 text-sm pl-4">
+        <div class="flex flex-col items-center justify-between gap-3 px-4 py-4 sm:flex-row sm:px-6 lg:px-8">
+            <p class="text-sm text-gray-500 tabular-nums">
                 {{if .ShowAll}}
                     {{.T.Get "Showing"}} 1 - {{.TotalLines}} {{.T.Get "of"}} {{.TotalLines}} {{.T.Get "items"}}
                 {{else}}
@@ -177,36 +155,33 @@
                     {{end}}
                     {{.T.Get "out of"}} {{.TotalLines}} {{.T.Get "items"}}
                 {{end}}
-            </h5>
-        </div>
-
-        <div class="mt-6 flex justify-center">
+            </p>
             <nav aria-label="{{.T.Get "Pagination"}}">
-                <ul class="inline-flex -space-x-px text-sm">
+                <ul class="inline-flex text-sm">
 
                     {{if gt .Page 1}}
                         <li>
-                            <a href="{{.PageURL (sub .Page 1)}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Previous"}}</a>
+                            <a href="{{.PageURL (sub .Page 1)}}" class="rounded-l-md relative -ml-px inline-flex items-center border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60">{{.T.Get "Previous"}}</a>
                         </li>
                     {{end}}
                 {{range .PageEntries}}
                 {{if .IsEllipsis}}
                     <li class="page-item disabled">
-                        <span class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">...</span>
+                        <span class="relative -ml-px inline-flex items-center border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60">...</span>
                     </li>
                 {{else}}
                     <li class="page-item {{if eq .Number $.Page}}active{{end}}">
                         {{if eq .Number $.Page}}
-                        <span class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 bg-gray-200 dark:bg-gray-700">{{.Number}}</span>
+                        <span aria-current="page" class="relative z-10 -ml-px inline-flex items-center border border-blue-500 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-900 tabular-nums dark:bg-blue-400/10 dark:text-blue-400">{{.Number}}</span>
                         {{else}}
-                        <a class="px-3 py-2 leading-tight text-gray-500 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700" href="{{$.PageURL .Number}}">{{.Number}}</a>
+                        <a class="tabular-nums relative -ml-px inline-flex items-center border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60" href="{{$.PageURL .Number}}">{{.Number}}</a>
                         {{end}}
                     </li>
                 {{end}}
                 {{end}}
                     {{if lt .Page .TotalPages}}
                         <li>
-                            <a href="{{.PageURL (add .Page 1)}}" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700">{{.T.Get "Next"}}</a>
+                            <a href="{{.PageURL (add .Page 1)}}" class="rounded-r-md relative -ml-px inline-flex items-center border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60">{{.T.Get "Next"}}</a>
                         </li>
                     {{end}}
                 </ul>
@@ -252,35 +227,13 @@ document.addEventListener('DOMContentLoaded', function () {
 #activity-table { min-width: 40rem; }
 /* action column soaks up the spare width and truncates instead of pushing the table wider */
 .activity-action-cell { width: 100%; max-width: 0; }
-.activity-kind { display: inline-flex; width: 1.75rem; height: 1.75rem; flex-shrink: 0; align-items: center; justify-content: center; border-radius: 9999px; }
-.activity-kind--danger { background: #fef2f2; color: #dc2626; }
-.activity-kind--create { background: #ecfdf5; color: #059669; }
-.activity-kind--edit { background: #fffbeb; color: #d97706; }
-.activity-kind--security { background: #f5f3ff; color: #7c3aed; }
-.activity-kind--command { background: #f0f9ff; color: #0284c7; }
-.activity-kind--info { background: #f3f4f6; color: #6b7280; }
-.dark .activity-kind--danger { background: rgb(239 68 68 / 0.12); color: #f87171; }
-.dark .activity-kind--create { background: rgb(16 185 129 / 0.12); color: #34d399; }
-.dark .activity-kind--edit { background: rgb(245 158 11 / 0.12); color: #fbbf24; }
-.dark .activity-kind--security { background: rgb(139 92 246 / 0.14); color: #a78bfa; }
-.dark .activity-kind--command { background: rgb(14 165 233 / 0.12); color: #38bdf8; }
-.dark .activity-kind--info { background: rgb(107 114 128 / 0.18); color: #9ca3af; }
-.activity-chip--danger .activity-chip-dot { color: #dc2626; }
-.activity-chip--create .activity-chip-dot { color: #059669; }
-.activity-chip--edit .activity-chip-dot { color: #d97706; }
-.activity-chip--security .activity-chip-dot { color: #7c3aed; }
-.activity-chip--command .activity-chip-dot { color: #0284c7; }
-.activity-chip--info .activity-chip-dot { color: #9ca3af; }
-.activity-clear { color: #6b7280; text-decoration: underline; text-underline-offset: 2px; }
-.activity-clear:hover { color: #111827; }
-.dark .activity-chip--danger .activity-chip-dot { color: #f87171; }
-.dark .activity-chip--create .activity-chip-dot { color: #34d399; }
-.dark .activity-chip--edit .activity-chip-dot { color: #fbbf24; }
-.dark .activity-chip--security .activity-chip-dot { color: #a78bfa; }
-.dark .activity-chip--command .activity-chip-dot { color: #38bdf8; }
-.dark .activity-clear { color: #9ca3af; }
-.dark .activity-clear:hover { color: #f9fafb; }
-
+.activity-chip--danger .activity-chip-dot { color: var(--color-red-500); }
+.activity-chip--create .activity-chip-dot { color: var(--color-emerald-500); }
+.activity-chip--edit .activity-chip-dot { color: var(--color-yellow-500); }
+.activity-chip--security .activity-chip-dot { color: var(--color-blue-500); }
+.activity-chip--command .activity-chip-dot { color: var(--color-gray-700); }
+.activity-chip--info .activity-chip-dot { color: var(--color-gray-400); }
+.dark .activity-chip--command .activity-chip-dot { color: var(--color-gray-300); }
 </style>
 <script src="{{static "js/table-sort.js"}}"></script>
 

@@ -173,10 +173,10 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 
 	if cp, ok := cmsPages[cmsType]; ok {
 		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
-		domains, _ := a.AllDomainsForUser(ctx, userID)
+		userDoms, _ := a.AllDomainsForUser(ctx, userID)
 		data := CMSAppPageData{
 			pageData:             basePageData,
-			Domains:              domains,
+			Domains:              userDoms,
 			Container:            container,
 			IsSubdirectory:       folderParam != "",
 			MainDomain:           domain,
@@ -193,6 +193,8 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			data.MySQLType = webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
 		}
 		data.Switch = cmsSiteSwitch(r, a, userID)
+		_, cmsHTTPS, cmsCert := domains.SiteStatus(ctx, a, domainNameUsed)
+		data.SSLState, data.SSLExpires = sslState(cmsHTTPS, cmsCert), cmsCert.Expires
 		if cp.version != nil {
 			data.Version = cp.version(userContext, docroot)
 		}
@@ -266,6 +268,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 		currentPHPVersion := php.GetPHPVForDomain(ctx, a, userContext, domain)
 		settings := getPHPAppSettings(userContext, websiteParam)
 		phpFiles, phpHidden := listSiteDir(userContext, docroot, 20)
+		_, phpHTTPS, phpCert := domains.SiteStatus(ctx, a, domainNameUsed)
 		renderPHPAppPage(a, w, r, PHPAppPageData{
 			pageData:                   basePageData,
 			Container:                  container,
@@ -278,11 +281,14 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			Files:                      phpFiles,
 			HiddenFiles:                phpHidden,
 			WebServer:                  webserver.GetEnvFileValue(userContext, "WEB_SERVER"),
+			SSLState:                   sslState(phpHTTPS, phpCert),
+			SSLExpires:                 phpCert.Expires,
 		})
 
 	case "websitebuilder", "sitebuilder":
 		source, hasSource := loadSiteSource(userContext, docroot)
 		sbFiles, _ := listSiteDir(userContext, docroot, 12)
+		_, sbHTTPS, sbCert := domains.SiteStatus(ctx, a, domainNameUsed)
 		renderWebsiteBuilderPage(a, w, r, WebsiteBuilderPageData{
 			pageData:    basePageData,
 			Container:   container,
@@ -290,6 +296,8 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			HasSource:   hasSource,
 			BlankPage:   hasSource && blankPage(source),
 			Files:       sbFiles,
+			SSLState:    sslState(sbHTTPS, sbCert),
+			SSLExpires:  sbCert.Expires,
 		})
 
 	default:
@@ -303,26 +311,6 @@ type phpAppSettings struct {
 	initialProject             string
 	autorunComposerInstall     bool
 	composerOptimizeAutoloader bool
-}
-
-// cmsSiteSwitch lists the account's sites that open in a CMS manager, for the header switcher
-func cmsSiteSwitch(r *http.Request, a *appctx.App, userID int) []SiteOption {
-	rows, err := a.DB.QueryContext(r.Context(), "SELECT site_name, type FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?) ORDER BY site_name", userID)
-	if err != nil {
-		return nil
-	}
-	defer rows.Close()
-	var out []SiteOption
-	for rows.Next() {
-		var name, typ sql.NullString
-		if rows.Scan(&name, &typ) != nil || name.String == "" {
-			continue
-		}
-		if cp, ok := cmsPages[strings.ToLower(typ.String)]; ok {
-			out = append(out, SiteOption{Name: name.String, App: cp.name})
-		}
-	}
-	return out
 }
 
 // getPHPAppSettings reads a PHP app's settings from .env - there's no dedicated container to key them off (unlike NodeJS/Python's getPM2ForApplication keyed by container name), so php apps use a synthetic prefix derived from the site name instead (see internal/modules/phpapp/install.go's phpAppEnvPrefix, duplicated here).
@@ -380,4 +368,24 @@ func getCurrentEnvVars(userContext, containerName string) string {
 func userDomains(ctx context.Context, a *appctx.App, userID int) []appctx.Domain {
 	d, _ := a.AllDomainsForUser(ctx, userID)
 	return d
+}
+
+// cmsSiteSwitch lists the account's sites that open in a CMS manager, for the header switcher
+func cmsSiteSwitch(r *http.Request, a *appctx.App, userID int) []SiteOption {
+	rows, err := a.DB.QueryContext(r.Context(), "SELECT site_name, type FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?) ORDER BY site_name", userID)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	var out []SiteOption
+	for rows.Next() {
+		var name, typ sql.NullString
+		if rows.Scan(&name, &typ) != nil || name.String == "" {
+			continue
+		}
+		if cp, ok := cmsPages[strings.ToLower(typ.String)]; ok {
+			out = append(out, SiteOption{Name: name.String, App: cp.name})
+		}
+	}
+	return out
 }

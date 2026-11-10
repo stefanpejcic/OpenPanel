@@ -62,18 +62,18 @@ var serviceStatusMap = map[string]statusEntry{
 	"running":    {"emerald-500", "Running"},
 	"healthy":    {"emerald-500", "Running"},
 	"unhealthy":  {"red-500", "Unhealthy"},
-	"starting":   {"orange-500", "Starting"},
+	"starting":   {"yellow-500", "Starting"},
 	"not_found":  {"gray-400", "Disabled"},
 	"created":    {"blue-500", "Created"},
-	"restarting": {"orange-500", "Restarting"},
-	"paused":     {"orange-500", "Paused"},
+	"restarting": {"yellow-500", "Restarting"},
+	"paused":     {"yellow-500", "Paused"},
 	"exited":     {"red-500", "Stopped"},
-	"removing":   {"orange-500", "Removing"},
-	"stopping":   {"orange-500", "Stopping"},
-	"dead":       {"red-700", "Dead"},
+	"removing":   {"yellow-500", "Removing"},
+	"stopping":   {"yellow-500", "Stopping"},
+	"dead":       {"red-500", "Dead"},
 }
 
-var unknownStatus = statusEntry{"orange-500", "Unknown"}
+var unknownStatus = statusEntry{"yellow-500", "Unknown"}
 
 // StatusKeyFor derives the status-map key for a container from its state and health check status
 func StatusKeyFor(containerState, healthStatus string) string {
@@ -198,13 +198,16 @@ func servicesListData(layout web.LayoutData, allowedServices []string, statuses 
 }
 
 func renderServicesListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, allowedServices []string, statuses []docker.ContainerStatus, webserver, mysqlType string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Services")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Choose service")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 	layout.BulkActions = servicesBulkActions(layout.T)
 	data := servicesListData(layout, allowedServices, statuses, webserver, mysqlType)
+	// classic's list template walks Services, keep it alphabetical like the containers page
+	data.Services = append([]string(nil), allowedServices...)
+	sort.Strings(data.Services)
 	if err := servicesPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("SERVICES - list template render error: %v", err)
 	}
@@ -220,9 +223,9 @@ func renderServiceDetailPage(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	statusKey := StatusKeyFor(status.State, status.Health)
 	color, label := StatusColorLabel(layout.T, statusKey)
 
-	actionValue, actionLabel := "disable", layout.T.Get("Click to Disable")
+	actionValue, actionLabel := "disable", layout.T.Get("Click to disable")
 	if status.State == "not_found" {
-		actionValue, actionLabel = "enable", layout.T.Get("Click to Enable")
+		actionValue, actionLabel = "enable", layout.T.Get("Click to enable")
 	}
 
 	data := ServicesPageData{

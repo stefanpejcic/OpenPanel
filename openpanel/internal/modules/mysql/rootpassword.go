@@ -200,7 +200,7 @@ func rootPasswordPageData(ctx context.Context, a *appctx.App, userContext string
 }
 
 func renderRootPasswordPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data RootPasswordPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Change Root Password")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Change root password")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

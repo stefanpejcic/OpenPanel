@@ -1,6 +1,7 @@
 package php
 
 import (
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -10,11 +11,12 @@ import (
 
 // statuses as the test VM's api_versions.json has them
 var wizardAPI = map[string]VersionInfo{
-	"8.5": {StatusLabel: "Supported (Latest)", IsLatestVersion: true},
-	"8.4": {StatusLabel: "Supported", IsSecureVersion: true},
-	"8.3": {StatusLabel: "Security-Fixes Only", IsSecureVersion: true},
-	"8.1": {StatusLabel: "Unsupported", IsEOLVersion: true},
-	"7.4": {StatusLabel: "Unsupported", IsEOLVersion: true},
+	"8.5": {ReleaseDate: "2025-11-20", StatusLabel: "Supported (Latest)", IsLatestVersion: true},
+	"8.4": {ReleaseDate: "2024-11-21", StatusLabel: "Supported", IsSecureVersion: true},
+	"8.3": {ReleaseDate: "2023-11-23", StatusLabel: "Security-Fixes Only", IsSecureVersion: true},
+	"8.1": {ReleaseDate: "2021-11-25", StatusLabel: "Unsupported", IsEOLVersion: true},
+	"7.4": {ReleaseDate: "2019-11-28", StatusLabel: "Unsupported", IsEOLVersion: true},
+	"9.9": {StatusLabel: "Future Release", IsFutureVersion: true},
 }
 
 func TestWizardVersions(t *testing.T) {
@@ -64,6 +66,7 @@ func TestWizardOpen(t *testing.T) {
 }
 
 func TestRenderWizardPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	domains := []WizardDomain{{Domain: "a.example.com", Version: "8.5", Level: "good"}, {Domain: "old.example.com", Version: "7.4", Level: "unsupported"}}
 	data := PHPWizardPageData{

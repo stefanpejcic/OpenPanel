@@ -185,6 +185,7 @@ func TestRenderDeleteConfirmPage(t *testing.T) {
 }
 
 func TestRenderChangeMySQLPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	choices := []ServerChoice{
 		{Value: "mysql", Label: "MySQL", Description: "d", Icon: "mysql", Current: true},
@@ -208,6 +209,35 @@ func TestRenderChangeMySQLPage(t *testing.T) {
 	data.Blocked, data.DBCount = true, 3
 	_ = changeMySQLPage.Render(w, 200, data)
 	if body := w.Body.String(); strings.Contains(body, "Choose a database server") || !strings.Contains(body, "Go to Databases") || !strings.Contains(body, "<strong>3</strong>") {
+		t.Error("blocked page should show the notice instead of the button")
+	}
+}
+
+func TestRenderChangeMySQLPageClassic(t *testing.T) {
+	webtest.Classic(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	choices := []ServerChoice{
+		{Value: "mysql", Label: "MySQL", Description: "d", Icon: "mysql", Current: true},
+		{Value: "mariadb", Label: "MariaDB", Description: "d", Icon: "mariadb"},
+		{Value: "percona", Label: "Percona", Description: "d", Icon: "percona"},
+	}
+	w := httptest.NewRecorder()
+	data := ChangeMySQLPageData{LayoutData: baseLayout(mgr, "/containers/mysql"), Title: "Database server", MySQLType: "mysql", Choices: choices}
+	if err := changeMySQLPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, `name="new_sql" value="percona"`) || !strings.Contains(body, "/static/img/servers/percona.svg") {
+		t.Error("expected a percona card with its icon")
+	}
+	if !strings.Contains(body, `name="new_sql" value="mysql" checked disabled`) || !strings.Contains(body, "Choose a database server") {
+		t.Error("expected the current type locked and the switch button")
+	}
+
+	w = httptest.NewRecorder()
+	data.Blocked, data.DBCount = true, 3
+	_ = changeMySQLPage.Render(w, 200, data)
+	if body := w.Body.String(); strings.Contains(body, "Choose a database server") || !strings.Contains(body, "Go to databases") || !strings.Contains(body, "<strong>3</strong>") {
 		t.Error("blocked page should show the notice instead of the button")
 	}
 }
@@ -284,6 +314,49 @@ func TestRenderChangeWebserverPage(t *testing.T) {
 			t.Error("switch button should be disabled while domains still exist")
 		}
 		if !strings.Contains(body, "Go to Domains") || !strings.Contains(body, "<strong>2</strong>") {
+			t.Error("expected the remove domains notice with the count")
+		}
+	})
+}
+
+func TestRenderChangeWebserverPageClassic(t *testing.T) {
+	webtest.Classic(t)
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	choices := []ServerChoice{
+		{Value: "nginx", Label: "Nginx", Description: "d", Icon: "nginx", Current: true},
+		{Value: "apache", Label: "Apache", Description: "d", Icon: "apache"},
+	}
+
+	t.Run("no domains", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		data := ChangeWebserverPageData{LayoutData: baseLayout(mgr, "/containers/webserver"), Title: "Webserver", Webserver: "nginx", Choices: choices}
+		if err := changeWebserverPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, `name="new_ws" value="apache"`) || !strings.Contains(body, "/static/img/servers/apache.svg") {
+			t.Error("expected an apache card with its icon")
+		}
+		if !strings.Contains(body, `name="new_ws" value="nginx" checked disabled`) {
+			t.Error("the current webserver should be shown checked and not selectable")
+		}
+		if !strings.Contains(body, "Choose a webserver") {
+			t.Error("expected the switch button when there are no domains")
+		}
+	})
+
+	t.Run("has domains", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		data := ChangeWebserverPageData{LayoutData: baseLayout(mgr, "/containers/webserver"), Title: "Webserver", Webserver: "nginx", Choices: choices, DomainCount: 2}
+		if err := changeWebserverPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, `disabled class="op-btn op-btn-primary"`) {
+			t.Error("switch button should be disabled while domains still exist")
+		}
+		if !strings.Contains(body, "Go to domains") || !strings.Contains(body, "<strong>2</strong>") {
 			t.Error("expected the remove domains notice with the count")
 		}
 	})

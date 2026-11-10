@@ -1,256 +1,259 @@
 {{define "content"}}
-
-<div x-data="dynamicDns()">
-
-  <!-- page header -->
-  <section aria-label="{{.T.Get "Select DNS Zone Header"}}">
-    <div class="flex flex-col border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <div class="flex items-center gap-x-3">
-          <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Dynamic DNS"}}</h1>
-        </div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Keep DNS records in sync with changing IP addresses via a token URL."}}</p>
-      </div>
-      <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-        <button @click="panel === 'create' ? panel = null : openCreate()" :class="panel === 'create' ? 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700' : 'border-black bg-black text-white hover:bg-gray-800'" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap sm:mt-0">
-          <template x-if="panel !== 'create'">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon -ml-1 size-5 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>
-          </template>
-          <template x-if="panel === 'create'">
-            <svg class="-ml-1 size-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-          </template>
-          <span id="add-entry" x-text="panel === 'create' ? {{toJSON (.T.Get "Cancel")}} : {{toJSON (.T.Get "Add Entry")}}"></span>
-        </button>
-      </div>
-    </div>
-  </section>
-  <!-- END page header -->
-
-  <div x-show="panel !== null" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2" class="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 py-6" x-cloak>
-
-    <!-- CREATE -->
-    <div x-show="panel === 'create'" x-cloak>
-      <form method="POST" action="/domains/dynamic-dns" class="px-4 sm:px-6 lg:px-8 py-6">
-        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-        <input type="hidden" name="action" value="create">
-        <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">{{.T.Get "New entry"}}</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
-          <div>
-            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">{{.T.Get "Domain"}}</label>
-            <select name="domain" required class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 h-10.5 sm:h-9.5">
-              {{range .DomainNames}}
-              <option value="{{.}}">{{.}}</option>
-              {{end}}
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">{{.T.Get "Subdomain"}}</label>
-            <input type="text" name="subdomain" required placeholder="home" pattern="[a-zA-Z0-9\-]+" title="{{.T.Get "Only letters, numbers, and hyphens are allowed."}}" class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
-            <p class="text-xs text-gray-400 mt-1">{{.T.Get "Letters, numbers, hyphens only."}}</p>
-          </div>
-
-          <div>
-            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">{{.T.Get "Initial IP"}}</label>
-            <input type="text" name="ip" placeholder="0.0.0.0" value="0.0.0.0" class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
-            <p class="text-xs text-gray-400 ml-2">{{.T.Get "Will be updated automatically on first webcall."}}</p>
-          </div>
-
-          <div>
-          <p class="text-xs text-gray-400 ml-2">&nbsp; </p>
-          <div class="flex items-end gap-2">
-            <button type="button" @click="panel = null" class="flex-1 px-4 py-2 rounded border border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:border-gray-400 dark:hover:border-gray-500 transition-colors">{{.T.Get "Cancel"}}</button>
-            <button type="submit" class="flex-1 rounded border px-4 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 border-black bg-black text-white hover:bg-gray-800">{{.T.Get "Create"}}</button>
-          </div>
-          <p class="text-xs text-gray-400 ml-2">&nbsp; </p>
-          </div>
-
-        </div>
-      </form>
-    </div>
-
-    <!-- EDIT -->
-    <div x-show="panel === 'edit'" x-cloak>
-      <form method="POST" action="/domains/dynamic-dns" class="px-4 sm:px-6 lg:px-8 py-6">
-        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-        <input type="hidden" name="action" value="edit">
-        <input type="hidden" name="domain" :value="editEntry.domain">
-        <input type="hidden" name="line_number" :value="editEntry.line_number">
-        <input type="hidden" name="token" :value="editEntry.token">
-
-        <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">{{.T.Get "Edit entry"}}</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
-          <div>
-            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">{{.T.Get "Domain"}}</label>
-            <input type="text" :value="editEntry.domain" disabled class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700">
-          </div>
-
-          <div>
-            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">{{.T.Get "Subdomain"}}</label>
-            <input type="text" name="subdomain" :value="editEntry.subdomain" required pattern="[a-zA-Z0-9\-]+" title="{{.T.Get "Only letters, numbers, and hyphens are allowed."}}" class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
-          </div>
-
-          <div>
-            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">{{.T.Get "IP"}}</label>
-            <input type="text" name="ip" :value="editEntry.record" required class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
-          </div>
-
-          <div class="flex items-end gap-2">
-            <button type="submit" class="flex-1 rounded border px-4 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 border-black bg-black text-white hover:bg-gray-800">{{.T.Get "Save"}}</button>
-          </div>
-
-        </div>
-
-        <div class="mt-3">
-          <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">{{.T.Get "Update URL"}}</label>
-          <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded px-3 py-2 max-w-xl">
-            <code class="text-xs text-gray-500 dark:text-gray-400 truncate flex-1" x-text="`{{.BaseURL}}dynamic-dns/update?token=${editEntry.token}`"></code>
-            <button type="button" x-data="{ copied: false }" @click="copyToClipboard(`{{.BaseURL}}dynamic-dns/update?token=${editEntry.token}`); copied = true; setTimeout(() => copied = false, 1500)" class="shrink-0 text-gray-400 hover:text-indigo-500 transition-colors">
-              <svg x-show="!copied" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-              <svg x-show="copied" class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-            </button>
-          </div>
-        </div>
-
-      </form>
-    </div>
-
-    <!-- DELETE -->
-    <div x-show="panel === 'delete'" x-cloak>
-      <form method="POST" action="/domains/dynamic-dns" class="px-4 sm:px-6 lg:px-8 py-6">
-        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-        <input type="hidden" name="action" value="delete">
-        <input type="hidden" name="domain" :value="deleteDomain">
-        <input type="hidden" name="line_number" :value="deleteEntry.line_number">
-
-        <div class="flex items-start gap-4">
-          <div class="flex-1">
-            <p class="text-sm font-medium text-gray-900 dark:text-white" x-text="`{{.T.Get "Delete"}} ${deleteEntry.subdomain}.${deleteDomain}?`"></p>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{{.T.Get "This will remove the DNS record and invalidate the update token. This action cannot be undone."}}</p>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <button type="button" @click="panel = null" class="px-4 py-2 rounded border border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:border-gray-400 dark:hover:border-gray-500 transition-colors whitespace-nowrap">{{.T.Get "Cancel"}}</button>
-            <button type="submit" class="px-4 py-2 rounded bg-red-600 hover:bg-red-500 text-sm text-white font-medium transition-colors whitespace-nowrap">{{.T.Get "Delete"}}</button>
-          </div>
-        </div>
-
-      </form>
-    </div>
-
-  </div>
-
-  {{/* classic compat: the handler now sends a flat Hosts list, grouped by domain here */}}
-  {{if not .Hosts}}
-  <div class="flex flex-col items-center justify-center py-12 text-center">
-      <svg class="my-6 h-10 w-10 text-gray-400 dark:text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-      </svg>
-      <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No Dynamic DNS entries yet"}}</p>
-      <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Add an entry to get started."}}</p>
-  </div>
-  {{end}}
-
-  {{range $domainName := .DomainNames}}
-  {{$count := 0}}{{range $.Hosts}}{{if eq .Domain $domainName}}{{$count = add $count 1}}{{end}}{{end}}
-  {{if $count}}
-  <div class="mb-8 px-4 mb-4">
-    <div class="flex items-center gap-2 my-3">
-      <span class="py-1 font-medium text-gray-900 dark:text-gray-50 select-text">{{$domainName}}</span>
-      <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-white">{{$count}} {{$.T.Get "record"}}{{if ne $count 1}}s{{end}}</span>
-    </div>
-
-    <div class="rounded border-gray-200 dark:border-gray-800 overflow-hidden">
-      <table class="w-full text-sm border border-gray-200 dark:border-gray-800">
-        <thead>
-          <tr class="bg-gray-50 dark:bg-gray-900 sm:[&_td:last-child]:pr-6 sm:[&_th:last-child]:pr-6 sm:[&_td:first-child]:pl-6 sm:[&_th:first-child]:pl-6">
-            <th scope="col" class="whitespace-nowrap px-4 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Subdomain"}}</th>
-            <th scope="col" class="whitespace-nowrap px-4 py-3.5 text-sm text-left font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Type"}}</th>
-            <th scope="col" class="whitespace-nowrap px-4 py-3.5 text-sm text-left font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "IP"}}</th>
-            <th scope="col" class="whitespace-nowrap px-4 py-3.5 text-sm text-left font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "TTL"}}</th>
-            <th scope="col" class="whitespace-nowrap px-4 py-3.5 text-sm text-left font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Last Updated"}}</th>
-            <th scope="col" class="whitespace-nowrap px-4 py-3.5 text-sm text-left font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Update URL"}}</th>
-            <th scope="col" class="whitespace-nowrap px-4 py-3.5 text-sm text-end font-semibold text-gray-900 dark:text-gray-50"></th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-          {{range $index, $host := $.Hosts}}{{if eq $host.Domain $domainName}}
-          <tr :class="(panel === 'edit' && editEntry.line_number === {{.Line}}) || (panel === 'delete' && deleteEntry.line_number === {{.Line}}) ? 'bg-indigo-50/40 dark:bg-indigo-900/10' : 'hover:bg-white dark:hover:bg-gray-900'" class="transition-colors">
-            <td class="p-4 text-sm relative whitespace-nowrap font-medium text-gray-900 dark:text-gray-50 text-left select-text">{{.Sub}}</td>
-            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-              <span class="text-xs px-2 py-0.5 rounded bg-blue-900/40 text-blue-300 border border-blue-800/50">{{if contains .IP ":"}}AAAA{{else}}A{{end}}</span>
-            </td>
-            <td class="p-4 text-sm relative whitespace-nowrap font-medium text-gray-900 dark:text-gray-50 text-left select-text">{{.IP}}</td>
-            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">-</td>
-            <td class="whitespace-nowrap p-4 text-sm text-gray-600 dark:text-gray-400">
-              {{if .Updated}}
-                <span class="text-gray-900 dark:text-gray-50 font-medium" title="{{.Updated}}">{{replace (replace .Updated "T" " ") "Z" " UTC"}}</span>
-              {{else}}
-                <span class="text-gray-400 dark:text-gray-600 italic text-xs">{{$.T.Get "never"}}</span>
-              {{end}}
-            </td>
-            <td class="p-4 text-sm relative whitespace-nowrap font-medium text-gray-900 dark:text-gray-50 text-left select-text">
-              <div class="flex items-center gap-2">
-                <code class="text-xs text-gray-400 truncate block max-w-[220px]" title="{{$.BaseURL}}dynamic-dns/update?token={{.Token}}">/dynamic-dns/update?token={{truncate .Token 8}}…</code>
-                <button x-data="{ copied: false }" @click="copyToClipboard('{{$.BaseURL}}dynamic-dns/update?token={{.Token}}'); copied = true; setTimeout(() => copied = false, 1500)" class="shrink-0 text-gray-500 hover:text-indigo-400 transition-colors" :title="copied ? {{toJSON ($.T.Get "Copied!")}} : {{toJSON ($.T.Get "Copy URL")}}">
-                  <svg x-show="!copied" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                  <svg x-show="copied" class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                </button>
-              </div>
-            </td>
-            <td class="p-4 text-sm relative whitespace-nowrap py-1 font-medium text-gray-900 dark:text-gray-50 text-right">
-              <div class="flex items-center justify-end gap-2">
-                <button @click="openEdit({{$index}}, {{toJSON $domainName}})" :class="panel === 'edit' && editEntry.line_number === {{.Line}} ? 'text-indigo-400' : 'text-gray-400 hover:text-indigo-400'" class="transition-colors" title="{{$.T.Get "Edit"}}">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                </button>
-                <button @click="openDelete({{$index}}, {{toJSON $domainName}})" :class="panel === 'delete' && deleteEntry.line_number === {{.Line}} ? 'text-red-400' : 'text-gray-400 hover:text-red-400'" class="transition-colors" title="{{$.T.Get "Delete"}}">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                </button>
-              </div>
-            </td>
-          </tr>
-          {{end}}{{end}}
-        </tbody>
-      </table>
-    </div>
-  </div>
-  {{end}}
-  {{end}}
-
-</div>
+<!-- START templates/domains/dynamic_dns.html -->
+{{$btn := "relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"}}
+{{$primary := "border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"}}
+{{$secondary := "border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"}}
+{{$danger := "border-transparent bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 disabled:bg-red-300 dark:disabled:bg-red-950 dark:disabled:text-red-400"}}
+{{$input := "block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 read-only:bg-gray-50 read-only:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 dark:read-only:bg-gray-900 dark:read-only:text-gray-400"}}
+{{$select := "block w-full appearance-none rounded-md border border-gray-300 bg-white py-2 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:[color-scheme:dark]"}}
+{{$icon := "inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"}}
+{{$label := "block text-sm font-medium text-gray-900 dark:text-gray-50"}}
+{{$seg := "rounded px-2.5 py-1 text-xs font-medium text-gray-500 transition hover:text-gray-900 aria-pressed:bg-white aria-pressed:text-gray-900 aria-pressed:shadow-xs dark:text-gray-400 dark:hover:text-gray-50 dark:aria-pressed:bg-gray-950 dark:aria-pressed:text-gray-50"}}
 
 <script>
-function dynamicDns() {
-  const allEntries = ({{toJSON .Hosts}} || []).map(h => ({ line_number: h.line, subdomain: h.sub, record: h.ip, token: h.token, last_updated: h.updated }));
-
+// hosts table, connect card and the create/edit/delete panels; the server checks every post again
+function dynamicDns(base, hosts, sel, firstDomain, t) {
+  const blank = { domain: '', sub: '', fqdn: '', ip: '', token: '', line: '' };
   return {
-    panel: null,
-    editEntry: {},
-    deleteEntry: {},
-    deleteDomain: '',
-    entries: allEntries,
-
+    hosts: hosts || [], sel: sel || 0, panel: null, cur: blank, ed: { sub: '', ip: '' }, tab: 'curl', shown: false,
+    get host() { return this.hosts[this.sel] || null; },
+    url(h, mask) { return h ? base + 'dynamic-dns/update?token=' + (mask && !this.shown ? h.token.slice(0, 4) + '•'.repeat(12) : h.token) : ''; },
+    example(h, mask) {
+      const u = '"' + this.url(h, mask) + '"';
+      if (this.tab === 'wget') return 'wget -4 -qO- ' + u;
+      if (this.tab === 'cron') return '*/5 * * * * curl -4 -fsS ' + u + ' > /dev/null 2>&1';
+      return 'curl -4 -fsS ' + u;
+    },
+    reply(h) { return h ? JSON.stringify({ host: h.fqdn, ip: h.waiting ? '198.51.100.23' : h.ip, status: 'updated', updated: new Date().toISOString().slice(0, 19) + 'Z' }) : ''; },
+    copy(text, msg) { Promise.resolve(copyToClipboard(text)).then(() => showToast(msg, 'success')).catch(() => showToast(t.copyFailed, 'error')); },
     openCreate() {
       this.panel = 'create';
-      this.$nextTick(() => {
-        document.querySelector('[x-show="panel === \'create\'"] input[name="subdomain"]')?.focus();
-      });
+      this.$nextTick(() => this.$refs.newSub && this.$refs.newSub.focus());
     },
-    openEdit(idx, domain) {
-      this.editEntry = this.entries[idx];
-      this.editEntry.domain = domain;
-      this.panel = 'edit';
-      this.$nextTick(() => {
-        document.querySelector('[x-show="panel === \'edit\'"] input[name="subdomain"]')?.focus();
-      });
+    openEdit(i) {
+      this.cur = this.hosts[i]; this.ed = { sub: this.cur.sub, ip: this.cur.ip }; this.panel = 'edit';
+      this.$nextTick(() => this.$refs.editSub && this.$refs.editSub.focus());
     },
-    openDelete(idx, domain) {
-      this.deleteEntry = this.entries[idx];
-      this.deleteDomain = domain;
-      this.panel = 'delete';
-    }
-  }
+    openDelete(i) { this.cur = this.hosts[i]; this.panel = 'delete'; },
+    close() { this.panel = null; },
+  };
 }
 </script>
+
+<div x-data="dynamicDns({{toJSON .BaseURL}}, {{toJSON .Hosts}}, {{.Selected}}, {{toJSON .FirstDomain}}, { copyFailed: {{toJSON (.T.Get "Couldn't copy, select the text and copy it by hand.")}} })" @keydown.escape.window="close()">
+
+<!-- page header -->
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Dynamic DNS"}}</h1>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Point a hostname at a connection whose IP keeps changing, like a home router or a NAS. The device calls its update URL and the A record follows its public IP."}}</p>
+    </div>
+    {{if .DomainNames}}<button id="add-entry" type="button" @click="panel === 'create' ? close() : openCreate()" :aria-expanded="(panel === 'create').toString()" class="{{$btn}} {{$primary}}"><i class="ri-add-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "New host"}}</button>{{end}}
+</div>
+<!-- END page header -->
+
+{{if not .DomainNames}}
+    {{template "no_domain" .}}
+{{else}}
+
+<!-- CREATE -->
+<div x-show="panel === 'create'" x-cloak class="mx-4 mb-4 rounded-md border border-gray-200 p-4 sm:mx-6 lg:mx-8 dark:border-gray-800">
+    <form method="POST" action="/domains/dynamic-dns">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+        <input type="hidden" name="action" value="create">
+        <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "New Dynamic DNS host"}}</h2>
+        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Creates an A record you can update from any device with its own URL."}}</p>
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div>
+                <label for="ddns-new-domain" class="{{$label}}">{{.T.Get "Domain"}}</label>
+                <select id="ddns-new-domain" name="domain" required class="{{$select}} mt-2">
+                    {{range .DomainNames}}<option value="{{.}}">{{.}}</option>{{end}}
+                </select>
+            </div>
+            <div>
+                <label for="ddns-new-sub" class="{{$label}}">{{.T.Get "Subdomain"}}</label>
+                <input id="ddns-new-sub" type="text" name="subdomain" x-ref="newSub" required maxlength="63" placeholder="home" pattern="[a-zA-Z0-9\-]+" title="{{.T.Get "Only letters, numbers, and hyphens are allowed."}}" autocomplete="off" spellcheck="false" class="{{$input}} mt-2 font-mono">
+                <p class="mt-2 text-xs text-gray-500">{{.T.Get "Letters, numbers and hyphens only."}}</p>
+            </div>
+            <div>
+                <label for="ddns-new-ip" class="{{$label}}">{{.T.Get "Initial IP"}} <span class="font-normal text-gray-500">({{.T.Get "optional"}})</span></label>
+                <input id="ddns-new-ip" type="text" name="ip" placeholder="0.0.0.0" inputmode="decimal" autocomplete="off" class="{{$input}} mt-2 font-mono">
+                <p class="mt-2 text-xs text-gray-500">{{.T.Get "Left empty it starts as 0.0.0.0. The first call to the update URL replaces it."}}</p>
+            </div>
+        </div>
+        <div class="mt-4 flex flex-col-reverse gap-2 border-t border-gray-200 pt-4 sm:flex-row sm:justify-end dark:border-gray-800">
+            <button type="button" @click="close()" class="{{$btn}} {{$secondary}}">{{.T.Get "Cancel"}}</button>
+            <button type="submit" class="{{$btn}} {{$primary}}">{{.T.Get "Create host"}}</button>
+        </div>
+    </form>
+</div>
+
+<!-- EDIT -->
+<div x-show="panel === 'edit'" x-cloak class="mx-4 mb-4 rounded-md border border-gray-200 p-4 sm:mx-6 lg:mx-8 dark:border-gray-800">
+    <form method="POST" action="/domains/dynamic-dns">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+        <input type="hidden" name="action" value="edit">
+        <input type="hidden" name="domain" :value="cur.domain">
+        <input type="hidden" name="line_number" :value="cur.line">
+        <input type="hidden" name="token" :value="cur.token">
+        <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit host"}}</h2>
+        <p class="mt-1 text-sm text-gray-500">{{.T.Get "The update URL stays the same."}}</p>
+        <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div>
+                <label for="ddns-edit-domain" class="{{$label}}">{{.T.Get "Domain"}}</label>
+                <input id="ddns-edit-domain" type="text" :value="cur.domain" readonly class="{{$input}} mt-2 font-mono">
+            </div>
+            <div>
+                <label for="ddns-edit-sub" class="{{$label}}">{{.T.Get "Subdomain"}}</label>
+                <input id="ddns-edit-sub" type="text" name="subdomain" x-ref="editSub" x-model="ed.sub" required maxlength="63" pattern="[a-zA-Z0-9\-]+" title="{{.T.Get "Only letters, numbers, and hyphens are allowed."}}" autocomplete="off" spellcheck="false" class="{{$input}} mt-2 font-mono">
+            </div>
+            <div>
+                <label for="ddns-edit-ip" class="{{$label}}">{{.T.Get "IP"}}</label>
+                <input id="ddns-edit-ip" type="text" name="ip" x-model="ed.ip" required inputmode="decimal" autocomplete="off" class="{{$input}} mt-2 font-mono">
+                <p class="mt-2 text-xs text-gray-500">{{.T.Get "Set it by hand here, or let the device overwrite it on its next call."}}</p>
+            </div>
+        </div>
+        <div class="mt-4">
+            <p class="{{$label}}">{{.T.Get "Update URL"}}</p>
+            <div class="mt-2 flex max-w-2xl items-center gap-2 rounded-md border border-gray-200 bg-gray-50 py-1 pr-1 pl-3 dark:border-gray-800 dark:bg-gray-900">
+                <code class="min-w-0 flex-1 truncate font-mono text-xs text-gray-600 dark:text-gray-400" x-text="url(cur, true)"></code>
+                <button type="button" title="{{.T.Get "Copy URL"}}" aria-label="{{.T.Get "Copy update URL"}}" @click="copy(url(cur), {{toJSON (.T.Get "Copied update URL.")}})" class="{{$icon}}"><i class="ri-file-copy-line text-base leading-none" aria-hidden="true"></i></button>
+            </div>
+        </div>
+        <div class="mt-4 flex flex-col-reverse gap-2 border-t border-gray-200 pt-4 sm:flex-row sm:justify-end dark:border-gray-800">
+            <button type="button" @click="close()" class="{{$btn}} {{$secondary}}">{{.T.Get "Cancel"}}</button>
+            <button type="submit" class="{{$btn}} {{$primary}}">{{.T.Get "Save"}}</button>
+        </div>
+    </form>
+</div>
+
+<!-- DELETE -->
+<div x-show="panel === 'delete'" x-cloak class="mx-4 mb-4 rounded-md border border-red-200 bg-red-50/50 p-4 sm:mx-6 lg:mx-8 dark:border-red-900/60 dark:bg-red-400/5">
+    <form method="POST" action="/domains/dynamic-dns" class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+        <input type="hidden" name="action" value="delete">
+        <input type="hidden" name="domain" :value="cur.domain">
+        <input type="hidden" name="line_number" :value="cur.line">
+        <input type="hidden" name="token" :value="cur.token">
+        <div class="min-w-0">
+            <h2 class="text-sm font-semibold text-gray-900 [overflow-wrap:anywhere] dark:text-gray-50">{{.T.Get "Delete"}} <span class="font-mono" x-text="cur.fqdn"></span>?</h2>
+            <p class="mt-1 text-sm text-gray-500">{{.T.Get "This will remove the DNS record and invalidate the update token. This action cannot be undone."}}</p>
+        </div>
+        <div class="flex shrink-0 flex-col-reverse gap-2 sm:flex-row">
+            <button type="button" @click="close()" class="{{$btn}} {{$secondary}}">{{.T.Get "Cancel"}}</button>
+            <button type="submit" class="{{$btn}} {{$danger}}">{{.T.Get "Delete host"}}</button>
+        </div>
+    </form>
+</div>
+
+{{if .Hosts}}
+<div class="overflow-x-auto">
+<table class="w-full border-t border-gray-200 text-sm dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+    <thead>
+        <tr>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Host"}}</th>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Type"}}</th>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Current IP"}}</th>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Last update"}}</th>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Update URL"}}</th>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range $i, $h := .Hosts}}
+        <tr :class="cur.line === {{$h.Line}} && cur.domain === {{toJSON $h.Domain}} && panel ? 'bg-gray-50 dark:bg-gray-900/60' : 'hover:bg-gray-50 dark:hover:bg-gray-900/60'" class="[&>td]:border-b [&>td]:border-gray-200 dark:[&>td]:border-gray-800">
+            <td class="px-4 py-2.5 whitespace-nowrap font-mono text-xs font-medium text-gray-900 select-text dark:text-gray-50"><span class="punycode">{{$h.FQDN}}</span></td>
+            <td class="px-4 py-2.5 text-center whitespace-nowrap"><span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">A</span></td>
+            <td class="px-4 py-2.5 whitespace-nowrap font-mono text-xs select-text {{if $h.Waiting}}text-gray-400 dark:text-gray-500{{else}}text-gray-900 dark:text-gray-50{{end}}" {{if $h.Waiting}}title="{{$.T.Get "Not set yet"}}"{{end}}>{{$h.IP}}</td>
+            <td class="px-4 py-2.5 whitespace-nowrap">
+                {{if $h.Waiting}}
+                <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">{{$.T.Get "Waiting for first call"}}</span>
+                {{else if $h.Updated}}
+                <span class="text-gray-900 dark:text-gray-50" title="{{$h.UpdatedUTC}}">{{if lt $i (len $.Ago)}}{{index $.Ago $i}}{{else}}{{$h.UpdatedUTC}}{{end}}</span>
+                {{else}}
+                <span class="text-gray-400 dark:text-gray-500">{{$.T.Get "never"}}</span>
+                {{end}}
+            </td>
+            <td class="px-4 py-2.5 whitespace-nowrap">
+                <div class="flex items-center gap-1">
+                    <code class="font-mono text-xs text-gray-500" title="{{$.BaseURL}}dynamic-dns/update?token={{$h.Token}}">/dynamic-dns/update?token={{$h.TokenHint}}••••••••</code>
+                    <button type="button" title="{{$.T.Get "Copy URL"}}" aria-label="{{$.T.Get "Copy update URL for"}} {{$h.FQDN}}" @click="copy(url(hosts[{{$i}}]), {{toJSON ($.T.Get "Copied update URL.")}})" class="{{$icon}}"><i class="ri-file-copy-line text-base leading-none" aria-hidden="true"></i></button>
+                </div>
+            </td>
+            <td class="px-4 py-2.5 whitespace-nowrap">
+                <div class="flex h-8 items-center justify-end gap-1">
+                    <button type="button" title="{{$.T.Get "Set up a device"}}" aria-label="{{$.T.Get "Set up a device for"}} {{$h.FQDN}}" @click="sel = {{$i}}; $nextTick(() => document.getElementById('ddns-connect').scrollIntoView({ behavior: 'smooth', block: 'start' }))" class="{{$icon}}"><i class="ri-router-line text-base leading-none" aria-hidden="true"></i></button>
+                    <button type="button" title="{{$.T.Get "Edit"}}" aria-label="{{$.T.Get "Edit"}} {{$h.FQDN}}" @click="openEdit({{$i}})" class="{{$icon}}"><i class="ri-pencil-line text-base leading-none" aria-hidden="true"></i></button>
+                    <form method="POST" action="/domains/dynamic-dns" data-confirm="{{$.T.Get "Create a new update token for"}} {{$h.FQDN}}? {{$.T.Get "The current update URL stops working right away, put the new one on every device that updates this host."}}">
+                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+                        <input type="hidden" name="action" value="regenerate">
+                        <input type="hidden" name="domain" value="{{$h.Domain}}">
+                        <input type="hidden" name="line_number" value="{{$h.Line}}">
+                        <input type="hidden" name="token" value="{{$h.Token}}">
+                        <button type="submit" title="{{$.T.Get "New token"}}" aria-label="{{$.T.Get "New token for"}} {{$h.FQDN}}" class="{{$icon}}"><i class="ri-key-2-line text-base leading-none" aria-hidden="true"></i></button>
+                    </form>
+                    <button type="button" title="{{$.T.Get "Delete"}}" aria-label="{{$.T.Get "Delete"}} {{$h.FQDN}}" @click="openDelete({{$i}})" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-red-600 transition hover:bg-red-50 dark:text-red-500 dark:hover:bg-red-400/10 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"><i class="ri-delete-bin-line text-base leading-none" aria-hidden="true"></i></button>
+                </div>
+            </td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+</div>
+<p class="px-4 pt-3 pb-6 text-xs text-gray-500 sm:px-6 lg:px-8"><span class="tabular-nums">{{len .Hosts}}</span> {{if eq (len .Hosts) 1}}{{.T.Get "host"}}{{else}}{{.T.Get "hosts"}}{{end}} {{.T.Get "across"}} <span class="tabular-nums">{{.DomainCount}}</span> {{if eq .DomainCount 1}}{{.T.Get "domain"}}{{else}}{{.T.Get "domains"}}{{end}}</p>
+
+<section id="ddns-connect" aria-labelledby="ddns-connect-title" class="mx-4 mb-6 scroll-mt-4 rounded-md border border-gray-200 sm:mx-6 lg:mx-8 dark:border-gray-800">
+    <div class="flex flex-col gap-2 border-b border-gray-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800">
+        <h2 id="ddns-connect-title" class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Connect a device"}}</h2>
+        <label for="ddns-connect-host" class="sr-only">{{.T.Get "Host"}}</label>
+        <select id="ddns-connect-host" @change="sel = +$event.target.value" class="{{$select}} font-mono sm:w-72">
+            {{range $i, $h := .Hosts}}<option value="{{$i}}" :selected="sel === {{$i}}">{{$h.FQDN}}</option>{{end}}
+        </select>
+    </div>
+    <div class="space-y-6 p-4">
+        <div>
+            <p class="{{$label}}">{{.T.Get "Update URL"}}</p>
+            <div class="mt-2 flex items-center gap-1 rounded-md border border-gray-200 bg-gray-50 py-1 pr-1 pl-3 dark:border-gray-800 dark:bg-gray-900">
+                <span class="min-w-0 flex-1 truncate font-mono text-xs text-gray-900 dark:text-gray-50" x-text="url(host, true)"></span>
+                <button type="button" @click="shown = !shown" :title="shown ? {{toJSON (.T.Get "Hide token")}} : {{toJSON (.T.Get "Show token")}}" :aria-label="shown ? {{toJSON (.T.Get "Hide token")}} : {{toJSON (.T.Get "Show token")}}" class="{{$icon}}"><i class="text-base leading-none" :class="shown ? 'ri-eye-off-line' : 'ri-eye-line'" aria-hidden="true"></i></button>
+                <button type="button" title="{{.T.Get "Copy URL"}}" aria-label="{{.T.Get "Copy update URL"}}" @click="copy(url(host), {{toJSON (.T.Get "Copied update URL.")}})" class="{{$icon}}"><i class="ri-file-copy-line text-base leading-none" aria-hidden="true"></i></button>
+            </div>
+            <p class="mt-2 text-xs text-gray-500">{{.T.Get "The token is the only key. Anyone with this URL can move the hostname, so treat it like a password."}}</p>
+        </div>
+        <div>
+            <div class="inline-flex max-w-full flex-wrap gap-0.5 rounded-md border border-gray-200 bg-gray-50 p-0.5 dark:border-gray-800 dark:bg-gray-900" role="group" aria-label="{{.T.Get "Example"}}">
+                <button type="button" :aria-pressed="(tab === 'curl').toString()" @click="tab = 'curl'" class="{{$seg}}">curl</button>
+                <button type="button" :aria-pressed="(tab === 'wget').toString()" @click="tab = 'wget'" class="{{$seg}}">wget</button>
+                <button type="button" :aria-pressed="(tab === 'cron').toString()" @click="tab = 'cron'" class="{{$seg}}">{{.T.Get "Cron job"}}</button>
+                <button type="button" :aria-pressed="(tab === 'router').toString()" @click="tab = 'router'" class="{{$seg}}">{{.T.Get "Router / NAS"}}</button>
+            </div>
+            <div class="mt-3" x-show="tab !== 'router'">
+                <div class="flex items-start gap-1 rounded-md border border-gray-200 bg-gray-50 py-1 pr-1 pl-3 dark:border-gray-800 dark:bg-gray-900">
+                    <pre class="min-w-0 flex-1 overflow-x-auto py-1.5 font-mono text-xs text-gray-900 dark:text-gray-50" x-text="example(host, true)"></pre>
+                    <button type="button" title="{{.T.Get "Copy"}}" aria-label="{{.T.Get "Copy command"}}" @click="copy(example(host), {{toJSON (.T.Get "Copied command.")}})" class="{{$icon}}"><i class="ri-file-copy-line text-base leading-none" aria-hidden="true"></i></button>
+                </div>
+                <p class="mt-2 text-xs text-gray-500" x-show="tab === 'cron'">{{.T.Get "Runs every 5 minutes. Calling it when nothing changed is fine, the record is just rewritten with the same IP."}}</p>
+                <p class="mt-2 text-xs text-gray-500" x-show="tab !== 'cron'">{{.T.Get "Run it on a machine inside the network you want the hostname to follow."}} <span class="font-mono">-4</span> {{.T.Get "keeps the call on IPv4, since the host is an A record."}}</p>
+            </div>
+            <dl class="mt-3 divide-y divide-gray-200 rounded-md border border-gray-200 text-sm dark:divide-gray-800 dark:border-gray-800" x-show="tab === 'router'" x-cloak>
+                <div class="flex flex-col gap-1 px-4 py-2.5 sm:flex-row sm:gap-4"><dt class="shrink-0 text-gray-500 sm:w-44">{{.T.Get "Update URL"}}</dt><dd class="min-w-0 truncate font-mono text-xs text-gray-900 sm:pt-0.5 dark:text-gray-50" x-text="url(host, true)"></dd></div>
+                <div class="flex flex-col gap-1 px-4 py-2.5 sm:flex-row sm:gap-4"><dt class="shrink-0 text-gray-500 sm:w-44">{{.T.Get "Hostname / domain"}}</dt><dd class="min-w-0 font-mono text-xs text-gray-900 sm:pt-0.5 dark:text-gray-50" x-text="host ? host.fqdn : ''"></dd></div>
+                <div class="flex flex-col gap-1 px-4 py-2.5 sm:flex-row sm:gap-4"><dt class="shrink-0 text-gray-500 sm:w-44">{{.T.Get "Username and password"}}</dt><dd class="text-gray-900 dark:text-gray-50">{{.T.Get "Leave empty. If the form insists, any value works; only the token in the URL is checked."}}</dd></div>
+            </dl>
+        </div>
+        <div>
+            <p class="{{$label}}">{{.T.Get "What a successful call returns"}}</p>
+            <pre class="mt-2 overflow-x-auto rounded-md border border-gray-200 bg-gray-50 px-3 py-2.5 font-mono text-xs text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-50" x-text="reply(host)"></pre>
+            <p class="mt-2 text-xs text-gray-500">{{.T.Get "A missing token returns"}} <span class="font-mono">400 Missing token</span>, {{.T.Get "an unknown one"}} <span class="font-mono">404 Invalid token</span>, {{.T.Get "and a call over IPv6"}} <span class="font-mono">400 IPv4 address required</span>.</p>
+        </div>
+    </div>
+</section>
+{{else}}
+<p class="border-t border-gray-200 px-4 py-12 text-center text-sm text-gray-500 sm:px-6 lg:px-8 dark:border-gray-800">{{.T.Get "No Dynamic DNS entries yet"}}. {{.T.Get "Add a host like"}} <span class="font-mono">home.{{.FirstDomain}}</span>{{.T.Get ", then have your router or a small script call its update URL whenever the IP changes."}}</p>
+{{end}}
+
+
+{{end}}
+</div>
+<!-- END templates/domains/dynamic_dns.html -->
 {{end}}

@@ -23,7 +23,7 @@ type ErrorLogsPageData struct {
 }
 
 func renderErrorLogsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, q Query, res Result, targets []Target, status int, errMsg string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Error Logs")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Error logs")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

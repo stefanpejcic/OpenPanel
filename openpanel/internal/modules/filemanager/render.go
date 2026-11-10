@@ -250,7 +250,7 @@ type UploadPageData struct {
 }
 
 func renderUploadPage(a *appctx.App, w http.ResponseWriter, r *http.Request, pathParam string, uploadSizeMB int) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Upload Files")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Upload files")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

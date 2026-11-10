@@ -71,3 +71,11 @@ func classicStaticURL(rel string) string {
 	}
 	return StaticURL(rel)
 }
+
+// ByTheme picks the classic theme's value when that theme is on, for icons and other markup the two themes draw differently
+func ByTheme(modern, classic string) string {
+	if Theme() == ThemeClassic {
+		return classic
+	}
+	return modern
+}

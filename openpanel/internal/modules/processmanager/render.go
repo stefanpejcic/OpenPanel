@@ -57,7 +57,7 @@ func (d ProcessManagerPageData) ProgramName(cmd string) string {
 }
 
 func renderProcessManagerPage(a *appctx.App, w http.ResponseWriter, r *http.Request, processes []Process) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Process Manager")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Process manager")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

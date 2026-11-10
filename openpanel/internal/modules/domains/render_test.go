@@ -96,6 +96,7 @@ func TestRenderNewDomainPage(t *testing.T) {
 }
 
 func TestRenderDeleteDomainPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("no blockers", func(t *testing.T) {
@@ -124,7 +125,38 @@ func TestRenderDeleteDomainPage(t *testing.T) {
 	})
 }
 
+func TestRenderDeleteDomainPageClassic(t *testing.T) {
+	webtest.Classic(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+
+	t.Run("no blockers", func(t *testing.T) {
+		data := DeleteDomainPageData{LayoutData: baseLayout(mgr, "/domains/delete"), DomainURL: "example.com", Docroot: "/var/www/html/example.com"}
+		w := httptest.NewRecorder()
+		if err := deleteDomainPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), `Delete domain</button>`) {
+			t.Error("expected delete button when no sites/subdomains block it")
+		}
+	})
+
+	t.Run("blocked by sites", func(t *testing.T) {
+		data := DeleteDomainPageData{
+			LayoutData: baseLayout(mgr, "/domains/delete"), DomainURL: "example.com",
+			SiteCount: 1, Sites: []SiteRow{{SiteName: "example.com"}},
+		}
+		w := httptest.NewRecorder()
+		if err := deleteDomainPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if strings.Contains(w.Body.String(), `Delete domain</button>`) {
+			t.Error("expected delete button hidden when sites exist")
+		}
+	})
+}
+
 func TestRenderSuspendUnsuspendPages(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("suspend selector", func(t *testing.T) {
@@ -135,6 +167,55 @@ func TestRenderSuspendUnsuspendPages(t *testing.T) {
 		}
 		if !strings.Contains(w.Body.String(), "example.com") {
 			t.Error("expected domain selector option")
+		}
+	})
+
+	t.Run("suspend confirm", func(t *testing.T) {
+		data := DomainSelectorPageData{LayoutData: baseLayout(mgr, "/domains/suspend"), DomainName: "example.com"}
+		w := httptest.NewRecorder()
+		if err := suspendPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "confirm-suspend") {
+			t.Error("expected confirm button")
+		}
+	})
+
+	t.Run("unsuspend confirm", func(t *testing.T) {
+		data := DomainSelectorPageData{LayoutData: baseLayout(mgr, "/domains/unsuspend"), DomainName: "example.com"}
+		w := httptest.NewRecorder()
+		if err := unsuspendPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "confirm-unsuspend") {
+			t.Error("expected confirm button")
+		}
+	})
+}
+
+func TestRenderSuspendUnsuspendPagesClassic(t *testing.T) {
+	webtest.Classic(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+
+	t.Run("suspend selector", func(t *testing.T) {
+		data := DomainSelectorPageData{
+			LayoutData: baseLayout(mgr, "/domains/suspend"),
+			Domains:    []appctx.Domain{{DomainURL: "example.com"}, {DomainURL: "off.example"}},
+			Picks: []web.DomainPick{
+				{Domain: "example.com", Badge: "Active", Tone: "success"},
+				{Domain: "off.example", Badge: "Suspended", Tone: "error", Disabled: true},
+			},
+		}
+		w := httptest.NewRecorder()
+		if err := suspendPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, `href="/domains/suspend?domain=example.com"`) {
+			t.Error("expected suspend link for an active domain")
+		}
+		if strings.Contains(body, `href="/domains/suspend?domain=off.example"`) {
+			t.Error("expected suspended domain to have no suspend link")
 		}
 	})
 
@@ -374,6 +455,67 @@ func TestRenderSSLPage(t *testing.T) {
 			t.Fatalf("Render: %v", err)
 		}
 		if !strings.Contains(w.Body.String(), "No Certificate!") {
+			t.Error("expected no-certificate state")
+		}
+	})
+
+	t.Run("autossl", func(t *testing.T) {
+		data := SSLPageData{LayoutData: baseLayout(mgr, "/domains/ssl"), DomainName: "example.com", CurrentSetting: "autossl", Keys: "cert info here"}
+		w := httptest.NewRecorder()
+		if err := sslPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "Auto SSL") {
+			t.Error("expected Auto SSL status")
+		}
+	})
+
+	t.Run("overview", func(t *testing.T) {
+		data := SSLPageData{LayoutData: baseLayout(mgr, "/domains/ssl"), Domains: []appctx.Domain{{DomainURL: "example.com"}}, Certs: []SSLRow{
+			{Domain: "example.com", HTTPS: "Automatic", SSL: SSLCertInfo{Expires: "2027-01-14", Issuer: "Let's Encrypt", Days: 78}},
+			{Domain: "shop.example.com", HTTPS: "Automatic", SSL: SSLCertInfo{Problem: "expiring", Expires: "2026-11-04", Issuer: "Let's Encrypt", Days: 6}},
+			{Domain: "old-site.org", HTTPS: "Custom", SSL: SSLCertInfo{Problem: "expired", Expires: "2026-09-12", Issuer: "Sectigo", Days: -46}},
+			{Domain: "mystore.io", HTTPS: "Automatic", SSL: SSLCertInfo{Problem: "missing"}},
+			{Domain: "plain.example.org", HTTPS: "None"},
+		}}
+		w := httptest.NewRecorder()
+		if err := sslPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		for _, want := range []string{"78 days left", "Expiring soon", "Next expiry 2027-01-14", "Not issued yet", `name="action" value="generate"`, "No SSL",
+			`x-data="opInstallCert({`, `open: false`, `aria-labelledby="cert-install-title"`, `name="return_to" value="list"`, `name="certificate"`, `name="private_key"`, `/domains/ssl/check`, `href="/domains/ssl?install=shop.example.com"`} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q on the overview", want)
+			}
+		}
+	})
+
+	t.Run("overview with the install sheet open", func(t *testing.T) {
+		data := SSLPageData{LayoutData: baseLayout(mgr, "/domains/ssl"), Install: "shop.example.com", Certs: []SSLRow{{Domain: "example.com", HTTPS: "Automatic"}, {Domain: "shop.example.com", HTTPS: "Automatic"}}}
+		w := httptest.NewRecorder()
+		if err := sslPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, `open: true`) || !strings.Contains(body, `domain: &#34;shop.example.com&#34;`) {
+			t.Error("expected the sheet open for shop.example.com")
+		}
+	})
+}
+
+func TestRenderSSLPageClassic(t *testing.T) {
+	webtest.Classic(t)
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+
+	t.Run("no certificate", func(t *testing.T) {
+		data := SSLPageData{LayoutData: baseLayout(mgr, "/domains/ssl"), DomainName: "example.com"}
+		w := httptest.NewRecorder()
+		if err := sslPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "No certificate") {
 			t.Error("expected no-certificate state")
 		}
 	})

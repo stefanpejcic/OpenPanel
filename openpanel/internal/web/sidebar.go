@@ -425,7 +425,7 @@ func BuildSidebarNav(allowed, upsellAllowed map[string]bool, path string) []NavI
 		if !ok {
 			continue
 		}
-		items = append(items, NavItem{Label: a.label, Icon: a.icon, MenuID: a.menuID, Href: entry.Href,
+		items = append(items, NavItem{Label: a.label, Icon: themedIcon(a.icon), MenuID: a.menuID, Href: entry.Href,
 			Active: entry.Active, Disabled: entry.Disabled, Section: pendingSection})
 		pendingSection = ""
 	}

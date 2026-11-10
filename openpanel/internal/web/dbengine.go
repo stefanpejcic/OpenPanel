@@ -58,13 +58,13 @@ var (
 	MySQLEngine = DBEngine{
 		Slug: "mysql", Name: "MySQL", Host: "localhost", Port: "3306",
 		NewIntro:    "Create a new database to store and organize data, providing a foundational structure for applications to manage and retrieve information efficiently.",
-		ConfigTitle: "MySQL Configuration",
+		ConfigTitle: "MySQL configuration",
 		ConfigIntro: "View and modify the MySQL service configuration. Any changes will restart the service.",
 	}
 	PostgreSQLEngine = DBEngine{
 		Slug: "postgresql", Name: "PostgreSQL", Host: "postgres", Port: "5432",
 		NewIntro:    "Create a new PostgreSQL database to store and organize data, providing a foundational structure for applications to manage and retrieve information efficiently.",
-		ConfigTitle: "PostgreSQL Configuration",
+		ConfigTitle: "PostgreSQL configuration",
 		ConfigIntro: "View and modify the PostgreSQL service configuration. Any changes will restart the service.",
 	}
 	MongoDBEngine = DBEngine{

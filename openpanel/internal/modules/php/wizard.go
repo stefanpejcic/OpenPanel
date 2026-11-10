@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -94,8 +95,9 @@ func wizardVersions(installed []string, def string, domains []WizardDomain, isLi
 			}
 		}
 	} else {
-		for v := range api {
-			if !have[v] && phpVersionFormRE.MatchString(v) {
+		now := time.Now()
+		for v, info := range api {
+			if !have[v] && phpVersionFormRE.MatchString(v) && info.released(now) {
 				missing = append(missing, v)
 			}
 		}
@@ -160,6 +162,9 @@ func handlePHPWizard(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	versions := wizardVersions(FetchPHPVersions(ctx, a, userContext), def, domains, isLitespeed, api)
+	for i := range versions {
+		versions[i].Label = statusLabelText(versions[i].Label)
+	}
 
 	layout, _, err := web.BuildLayoutData(a, w, r, "PHP Wizard")
 	if err != nil {

@@ -25,7 +25,7 @@ func handlePHPInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	version := phpVersionFromSegment(r.PathValue("phpversion"))
-	title := "PHP INFO"
+	title := "PHP info"
 	var phpInfoContent string
 	installedVersions := FetchPHPVersions(ctx, a, userContext)
 	service := ""
@@ -42,7 +42,7 @@ func handlePHPInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		} else {
 			service = "php-fpm-" + version
 		}
-		title = "PHP " + version + " Info"
+		title = "PHP " + version + " info"
 
 		if !docker.IsServiceRunning(ctx, userContext, service) {
 			result := docker.StartOrStopContainer(ctx, userContext, service, "activate", "run")

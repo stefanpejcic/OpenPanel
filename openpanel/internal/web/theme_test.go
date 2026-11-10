@@ -31,8 +31,8 @@ func TestClassicPaths(t *testing.T) {
 	if strings.Join(got, ",") != strings.Join(want, ",") {
 		t.Fatalf("classicPaths = %v, want %v", got, want)
 	}
-	// php/wizard.html is new in the redesign, so the whole page stays modern
-	if got := classicPaths([]string{"templates/base.html", "templates/php/wizard.html"}); got != nil {
+	// a page file with no classic copy keeps the whole page modern
+	if got := classicPaths([]string{"templates/base.html", "templates/redesign-only-page.html"}); got != nil {
 		t.Fatalf("modern-only page got classic paths %v", got)
 	}
 }
@@ -70,7 +70,8 @@ func TestPageReparsesOnThemeSwitch(t *testing.T) {
 
 func TestModernOnlyPageIgnoresClassicTheme(t *testing.T) {
 	withTheme(t, ThemeClassic)
-	p := LoadPage("php/wizard.html")
+	// redesign-only-page.html has no classic copy, so the set stays on the modern files
+	p := &Page{paths: []string{"templates/base.html"}, classic: classicPaths([]string{"templates/base.html", "templates/redesign-only-page.html"})}
 	if p.usesClassic() {
 		t.Fatal("modern-only page claims a classic version")
 	}

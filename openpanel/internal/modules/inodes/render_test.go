@@ -7,6 +7,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
@@ -20,6 +21,7 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 }
 
 func TestRenderInodesPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := InodesPageData{
 		LayoutData:  baseLayout(mgr, "/inodes-explorer/"),
@@ -33,6 +35,27 @@ func TestRenderInodesPage(t *testing.T) {
 	}
 	body := w.Body.String()
 	for _, want := range []string{"dir1", "150", "dir2", "Up One Level"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("rendered inodes page missing %q", want)
+		}
+	}
+}
+
+func TestRenderInodesPageClassic(t *testing.T) {
+	webtest.Classic(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	data := InodesPageData{
+		LayoutData:  baseLayout(mgr, "/inodes-explorer/"),
+		Breadcrumbs: buildBreadcrumbs("inodes-explorer", "/inodes-explorer/sub/"),
+		Rows:        parseInodesOutput("150 dir1\n42 dir2", "/inodes-explorer/"),
+		ShowUpLink:  true, UpLink: "/inodes-explorer",
+	}
+	w := httptest.NewRecorder()
+	if err := inodesPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	for _, want := range []string{"dir1", "150", "dir2", "Up one level"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("rendered inodes page missing %q", want)
 		}

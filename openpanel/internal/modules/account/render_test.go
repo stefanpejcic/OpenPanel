@@ -63,6 +63,7 @@ func TestRenderLoginPage(t *testing.T) {
 }
 
 func TestRenderLoginPageDarkLogo(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	base := loginPageData{Title: "Login", CSRFToken: "x", Locales: localeOptions([]string{"en"}), T: mgr.Translator("en"), Logo: "/light.svg"}
 
@@ -255,6 +256,7 @@ func TestLocaleOptionsFlags(t *testing.T) {
 }
 
 func TestRenderTwofaPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("disabled, no setup started", func(t *testing.T) {
@@ -435,6 +437,7 @@ func TestRenderActiveSessionsPage(t *testing.T) {
 }
 
 func TestRenderActivityPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("no logs", func(t *testing.T) {
@@ -541,6 +544,7 @@ func TestRenderLoginHistoryPage(t *testing.T) {
 }
 
 func TestRenderMCPPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("no tokens", func(t *testing.T) {
@@ -593,6 +597,7 @@ func TestRenderMCPPage(t *testing.T) {
 }
 
 func TestLoginLocaleButtonShowsCurrent(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := loginPageData{Title: "Login", CSRFToken: "x", Locales: localeOptions([]string{"en", "de"}), T: mgr.Translator("de")}
 	w := httptest.NewRecorder()

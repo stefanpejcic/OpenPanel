@@ -153,6 +153,7 @@ func TestRenderUploadPage(t *testing.T) {
 }
 
 func TestRenderEditFilePage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("regular file", func(t *testing.T) {

@@ -74,6 +74,64 @@ func TestRenderDNSListPage(t *testing.T) {
 	})
 }
 
+func TestRenderDNSListPageClassic(t *testing.T) {
+	webtest.Classic(t)
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+
+	t.Run("no domains", func(t *testing.T) {
+		data := DNSPageData{LayoutData: baseLayout(mgr, "/domains/edit-dns-zone")}
+		w := httptest.NewRecorder()
+		if err := dnsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "No domains yet") {
+			t.Error("expected empty-state message")
+		}
+	})
+
+	t.Run("with zone-having domains", func(t *testing.T) {
+		data := DNSPageData{
+			LayoutData: baseLayout(mgr, "/domains/edit-dns-zone"),
+			Domains:    []appctx.Domain{{DomainURL: "example.com"}},
+			Picks:      []web.DomainPick{{Domain: "example.com", Detail: "9"}, {Domain: "blog.example.com", Disabled: true, Note: "Uses the main domain's zone"}},
+		}
+		w := httptest.NewRecorder()
+		if err := dnsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, `href="/domains/edit-dns-zone/example.com"`) {
+			t.Error("expected edit zone link")
+		}
+		if strings.Contains(body, `href="/domains/edit-dns-zone/blog.example.com"`) {
+			t.Error("expected no link for a domain without its own zone")
+		}
+	})
+
+	t.Run("zone list", func(t *testing.T) {
+		data := DNSPageData{
+			LayoutData: baseLayout(mgr, "/domains/edit-dns-zone"),
+			Domains:    []appctx.Domain{{DomainURL: "example.com"}, {DomainURL: "shop.example.com"}},
+			Zones: []ZoneSummary{
+				{Domain: "example.com", Records: 9, Types: []TypeCount{{"A", 3}, {"CNAME", 3}, {"MX", 1}, {"TXT", 2}}},
+				{Domain: "shop.example.com", Records: 4, Types: []TypeCount{{"A", 2}, {"TXT", 2}}},
+			},
+			ZoneRecords: 13,
+		}
+		w := httptest.NewRecorder()
+		if err := dnsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		for _, want := range []string{"2 zones", "13 records", `href="/domains/edit-dns-zone/shop.example.com"`, "CNAME 3", "/domains/export-dns-zone/example.com"} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q in zone list", want)
+			}
+		}
+	})
+}
+
 func TestSummarizeZone(t *testing.T) {
 	z := summarizeZone("example.com", `$TTL 14400
 @ IN SOA ns1.example.com. admin.example.com. ( 1 7200 3600 1209600 86400 )

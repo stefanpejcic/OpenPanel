@@ -42,7 +42,7 @@ func TestRenderDatabasesPage(t *testing.T) {
 		if !strings.Contains(body, "app_db") || !strings.Contains(body, "app_user") {
 			t.Error("expected database row in body")
 		}
-		if !strings.Contains(body, "System Database") {
+		if !strings.Contains(body, "System database") {
 			t.Error("expected system database badge")
 		}
 	})
@@ -82,6 +82,7 @@ func TestRenderDatabasesPage(t *testing.T) {
 }
 
 func TestRenderUsersPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := UsersPageData{
 		LayoutData:        baseLayout(mgr, "/mysql/users"),
@@ -98,6 +99,28 @@ func TestRenderUsersPage(t *testing.T) {
 		t.Error("expected user row in body")
 	}
 	if !strings.Contains(body, "System User") {
+		t.Error("expected system user badge for root")
+	}
+}
+
+func TestRenderUsersPageClassic(t *testing.T) {
+	webtest.Classic(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	data := UsersPageData{
+		LayoutData:        baseLayout(mgr, "/mysql/users"),
+		ServiceStatusData: ServiceStatusData{ContainerState: "running", HealthStatus: "healthy"},
+		Service:           "mysql",
+		Users:             []string{"appuser", "root"},
+	}
+	w := httptest.NewRecorder()
+	if err := usersPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, "appuser") {
+		t.Error("expected user row in body")
+	}
+	if !strings.Contains(body, "System user") {
 		t.Error("expected system user badge for root")
 	}
 }
@@ -234,6 +257,7 @@ func TestRenderRootPasswordPage(t *testing.T) {
 }
 
 func TestRenderRemoteMySQLPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("on with access rows", func(t *testing.T) {
@@ -270,7 +294,46 @@ func TestRenderRemoteMySQLPage(t *testing.T) {
 	})
 }
 
+func TestRenderRemoteMySQLPageClassic(t *testing.T) {
+	webtest.Classic(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+
+	t.Run("on with access rows", func(t *testing.T) {
+		data := RemoteMySQLPageData{
+			LayoutData: baseLayout(mgr, "/mysql/remote-mysql"), Service: "mysql",
+			ServerIP: "1.2.3.4", ContainerPort: "3306", RemoteMySQLDisplay: "ON", MySQLPort: 3306,
+			UserAccess: []RemoteUserAccess{{Username: "appuser", Hosts: []string{"%", "10.0.0.5"}}},
+		}
+		w := httptest.NewRecorder()
+		if err := remoteMySQLPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, "appuser") || !strings.Contains(body, "10.0.0.5") {
+			t.Error("expected user access row in body")
+		}
+		if !strings.Contains(body, "Click to disable") {
+			t.Error("expected disable button when ON")
+		}
+	})
+
+	t.Run("off hides access table", func(t *testing.T) {
+		data := RemoteMySQLPageData{
+			LayoutData: baseLayout(mgr, "/mysql/remote-mysql"), Service: "mysql",
+			ServerIP: "1.2.3.4", ContainerPort: "3306", RemoteMySQLDisplay: "OFF", MySQLPort: 3306,
+		}
+		w := httptest.NewRecorder()
+		if err := remoteMySQLPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "Click to enable") {
+			t.Error("expected enable button when OFF")
+		}
+	})
+}
+
 func TestRenderConfigurationPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := ConfigurationPageData{
 		LayoutData: baseLayout(mgr, "/mysql/configuration"), Service: "mysql",
@@ -287,6 +350,33 @@ func TestRenderConfigurationPage(t *testing.T) {
 		t.Error("expected config key/value in body")
 	}
 	for _, want := range []string{`id="db-tuning"`, "dbTuning('/mysql/configuration/recommendations')", "Confirm Changes", "js/db-tuning.js"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("expected %q in body", want)
+		}
+	}
+	if n := strings.Count(body, "review(&#34;"); n != 2 {
+		t.Errorf("expected an optimize button per key, got %d", n)
+	}
+}
+
+func TestRenderConfigurationPageClassic(t *testing.T) {
+	webtest.Classic(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	data := ConfigurationPageData{
+		LayoutData: baseLayout(mgr, "/mysql/configuration"), Service: "mysql",
+		CurrentConfig: map[string]string{"max_connections": "150"},
+		DefaultKeys:   []string{"max_connections", "wait_timeout"},
+		Engine:        web.MySQLEngine,
+	}
+	w := httptest.NewRecorder()
+	if err := configurationPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, "max_connections") || !strings.Contains(body, "150") {
+		t.Error("expected config key/value in body")
+	}
+	for _, want := range []string{`id="db-tuning"`, "dbTuning('/mysql/configuration/recommendations')", "Confirm changes", "js/db-tuning.js"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("expected %q in body", want)
 		}

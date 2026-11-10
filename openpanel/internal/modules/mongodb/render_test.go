@@ -177,10 +177,7 @@ func TestRenderCreateUserCreated(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	layout := baseLayout(mgr, "/mongodb/user")
 	r := httptest.NewRequest("GET", "/mongodb/user?created=app_user", nil)
-	data := struct {
-		web.LayoutData
-		Created web.DBCreated
-	}{layout, web.CreatedDBFromRequest(r, layout, "mongodb", "")}
+	data := CreatePageData{LayoutData: layout, Created: web.CreatedDBFromRequest(r, layout, "mongodb", "")}
 	w := httptest.NewRecorder()
 	if err := createUserPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)

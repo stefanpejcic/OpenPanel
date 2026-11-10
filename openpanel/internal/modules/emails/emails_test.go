@@ -43,14 +43,23 @@ func TestParseEmailListRow(t *testing.T) {
 	if row.QuotaDisplay != "( 0 / 2.0G ) [45%]" {
 		t.Errorf("QuotaDisplay = %q", row.QuotaDisplay)
 	}
+	if row.Used != "0 B" || row.Limit != "2.0 GB" {
+		t.Errorf("Used/Limit = %q/%q, want 0 B/2.0 GB", row.Used, row.Limit)
+	}
+	if got := readableQuotaSize("28M"); got != "28 MB" {
+		t.Errorf("readableQuotaSize(28M) = %q", got)
+	}
+	if got := readableQuotaSize("~"); got != "no limit" {
+		t.Errorf("readableQuotaSize(~) = %q", got)
+	}
 	if row.PercentVal != 45 {
 		t.Errorf("PercentVal = %d, want 45", row.PercentVal)
 	}
 	if row.CappedVal != 45 {
 		t.Errorf("CappedVal = %d, want 45", row.CappedVal)
 	}
-	if row.BarColor != "bg-green-500" {
-		t.Errorf("BarColor = %q, want bg-green-500", row.BarColor)
+	if row.BarColor != "bg-blue-500" {
+		t.Errorf("BarColor = %q, want bg-blue-500", row.BarColor)
 	}
 }
 
@@ -59,10 +68,10 @@ func TestParseEmailListRowBarColors(t *testing.T) {
 		percent int
 		color   string
 	}{
-		{80, "bg-green-500"},
-		{81, "bg-orange-500"},
-		{90, "bg-orange-500"},
-		{91, "bg-red-500"},
+		{69, "bg-blue-500"},
+		{70, "bg-yellow-500"},
+		{89, "bg-yellow-500"},
+		{90, "bg-red-500"},
 		{100, "bg-red-500"},
 	}
 	for _, c := range cases {

@@ -212,6 +212,7 @@ func renderPHPInfoPage(a *appctx.App, w http.ResponseWriter, r *http.Request, ve
 // PHPIniEditorPageData is php/ini_editor.html's template context.
 type PHPIniEditorPageData struct {
 	web.LayoutData
+	VersionPicks      []PHPVersionPick
 	Version           string
 	Service           string
 	FilePath          string
@@ -240,6 +241,9 @@ func renderPHPIniEditorPage(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		LayoutData: layout, Version: version, Service: service, FilePath: filePath,
 		FileContent: fileContent, InstalledVersions: installedVersions, Issues: issues,
 	}
+	if version == "" {
+		data.VersionPicks = versionPicks(r.Context(), installedVersions)
+	}
 	_, data.WebServer = envLabels(injectedData)
 	if userContext, _ := injectedData["context"].(string); userContext != "" && version != "" {
 		data.SavedPath = "/home/" + userContext + "/php.ini/" + version + ".ini"
@@ -252,6 +256,7 @@ func renderPHPIniEditorPage(a *appctx.App, w http.ResponseWriter, r *http.Reques
 // PHPOptionsPageData is php/options.html's template context (both the version-picker state and the per-version options-table state)
 type PHPOptionsPageData struct {
 	web.LayoutData
+	VersionPicks      []PHPVersionPick
 	Version           string
 	InstalledVersions []string
 	Fields            []OptionField
@@ -266,7 +271,7 @@ func renderPHPOptionsSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Re
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := PHPOptionsPageData{LayoutData: layout, InstalledVersions: installedVersions}
+	data := PHPOptionsPageData{LayoutData: layout, InstalledVersions: installedVersions, VersionPicks: versionPicks(r.Context(), installedVersions)}
 	if err := optionsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("PHP - options select template render error: %v", err)
 	}
@@ -288,6 +293,7 @@ func renderPHPOptionsPage(a *appctx.App, w http.ResponseWriter, r *http.Request,
 // PHPExtensionsPageData is php/extensions.html's template context (both the version-picker state and the per-version extensions-table state)
 type PHPExtensionsPageData struct {
 	web.LayoutData
+	VersionPicks      []PHPVersionPick
 	Version           string
 	InstalledVersions []string
 	Extensions        []ExtensionRow
@@ -296,19 +302,19 @@ type PHPExtensionsPageData struct {
 }
 
 func renderPHPExtensionsSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, installedVersions []string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "PHP Extensions")
+	layout, _, err := web.BuildLayoutData(a, w, r, "PHP extensions")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := PHPExtensionsPageData{LayoutData: layout, InstalledVersions: installedVersions}
+	data := PHPExtensionsPageData{LayoutData: layout, InstalledVersions: installedVersions, VersionPicks: versionPicks(r.Context(), installedVersions)}
 	if err := extensionsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("PHP - extensions select template render error: %v", err)
 	}
 }
 
 func renderPHPExtensionsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, version string, extensions []ExtensionRow, history, recentlyRemoved []string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "PHP "+version+" Extensions")
+	layout, _, err := web.BuildLayoutData(a, w, r, "PHP "+version+" extensions")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

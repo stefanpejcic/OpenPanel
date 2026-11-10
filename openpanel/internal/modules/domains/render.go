@@ -110,7 +110,7 @@ func buildDomainFilters(t i18n.Translator, allowed map[string]bool, rows []Domai
 		{Key: "status", Label: t.Get("Status"), Options: []FilterOption{all, {"active", t.Get("Active")}, {"suspended", t.Get("Suspended")}}},
 	}
 
-	php := DomainFilter{Key: "php", Label: t.Get("PHP Version"), Options: []FilterOption{all}}
+	php := DomainFilter{Key: "php", Label: t.Get("PHP version"), Options: []FilterOption{all}}
 	seen := map[string]bool{}
 	for _, r := range rows {
 		if r.PHPVersion != "" && !seen[r.PHPVersion] {
@@ -186,7 +186,7 @@ type NewDomainPageData struct {
 }
 
 func renderNewDomainPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Add Domain")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Add domain")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -228,6 +228,7 @@ type DomainSelectorPageData struct {
 	web.LayoutData
 	DomainName string
 	Domains    []appctx.Domain
+	Picks      []web.DomainPick
 }
 
 func renderSuspendPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainName string, domainsList []appctx.Domain) {
@@ -241,6 +242,9 @@ func renderSuspendPage(a *appctx.App, w http.ResponseWriter, r *http.Request, do
 		return
 	}
 	data := DomainSelectorPageData{LayoutData: layout, DomainName: domainName, Domains: domainsList}
+	if domainName == "" {
+		data.Picks = suspendPicks(r.Context(), a, domainsList, true)
+	}
 	if err := suspendPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOMAINS - suspend template render error: %v", err)
 	}
@@ -257,6 +261,9 @@ func renderUnsuspendPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		return
 	}
 	data := DomainSelectorPageData{LayoutData: layout, DomainName: domainName, Domains: domainsList}
+	if domainName == "" {
+		data.Picks = suspendPicks(r.Context(), a, domainsList, false)
+	}
 	if err := unsuspendPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOMAINS - unsuspend template render error: %v", err)
 	}
@@ -268,6 +275,7 @@ type DocrootPageData struct {
 	DomainName string
 	Docroot    string
 	Domains    []appctx.Domain
+	Picks      []web.DomainPick
 }
 
 func renderDocrootPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainName, docroot string, domainsList []appctx.Domain) {
@@ -281,6 +289,9 @@ func renderDocrootPage(a *appctx.App, w http.ResponseWriter, r *http.Request, do
 		return
 	}
 	data := DocrootPageData{LayoutData: layout, DomainName: domainName, Docroot: docroot, Domains: domainsList}
+	if domainName == "" {
+		data.Picks = docrootPicks(domainsList)
+	}
 	if err := docrootPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOMAINS - docroot template render error: %v", err)
 	}
@@ -368,7 +379,7 @@ func buildLogPageEntries(current, total int) []PageEntry {
 }
 
 func renderDomainLogsSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, files []DomainLogFile, missing string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Access Logs")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Access logs")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -384,7 +395,7 @@ func renderDomainLogsSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Re
 }
 
 func renderDomainLogsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data DomainLogsPageData, files []DomainLogFile) {
-	layout, _, err := web.BuildLayoutData(a, w, r, data.DomainName+" Access Log")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Access log for "+data.DomainName)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -421,18 +432,19 @@ type VhostPageData struct {
 	WebServerPreference string
 	VhostContent        string
 	Domains             []appctx.Domain
+	Picks               []web.DomainPick
 	VhostFiles          map[string]VhostFileInfo // keyed by domain, missing when the file can't be read
 	Domain              appctx.Domain            // edit page: docroot and PHP version for the summary tiles
 	File                VhostFileInfo            // edit page: ports read from the file
 }
 
 func renderVhostSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, webServerPreference string, domainsList []appctx.Domain, vhostFiles map[string]VhostFileInfo) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Edit VirtualHosts File")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Edit VirtualHosts file")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := VhostPageData{LayoutData: layout, WebServerPreference: webServerPreference, Domains: domainsList, VhostFiles: vhostFiles}
+	data := VhostPageData{LayoutData: layout, WebServerPreference: webServerPreference, Domains: domainsList, Picks: docrootPicks(domainsList), VhostFiles: vhostFiles}
 	if err := vhostPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("DOMAINS - vhost template render error: %v", err)
 	}
@@ -506,6 +518,7 @@ type SSLPageData struct {
 	CurrentSetting string
 	Keys           string
 	Domains        []appctx.Domain
+	Picks          []web.DomainPick
 	Certs          []SSLRow // landing page: every domain's certificate
 	Install        string   // ?install=domain opens the custom certificate sheet for it
 }
@@ -564,6 +577,9 @@ func renderSSLPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domain
 		return
 	}
 	data := SSLPageData{LayoutData: layout, DomainName: domainName, CurrentSetting: currentSetting, Keys: keys, Domains: domainsList, Certs: certs}
+	if domainName == "" {
+		data.Picks = sslPicks(r.Context(), a, domainsList)
+	}
 	for _, c := range certs {
 		if c.Domain == r.URL.Query().Get("install") {
 			data.Install = c.Domain

@@ -83,8 +83,8 @@ func handleImportEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	filename := strings.ToLower(header.Filename)
 	if !strings.HasSuffix(filename, ".csv") {
-		// .xls/.xlsx are intentionally unsupported (no Excel parsing dependency for one upload path), reported the same as any other unrecognized extension
-		web.FlashRedirect(a, w, r, "error", `Error: Unsupported file format, please upload a .csv or .xls file.`, "/emails/import")
+		// .xls/.xlsx are rejected like any other extension, there is no Excel parser
+		web.FlashRedirect(a, w, r, "error", "Error: Unsupported file format, please upload a .csv file.", "/emails/import")
 		return
 	}
 

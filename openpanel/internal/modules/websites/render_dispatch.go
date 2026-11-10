@@ -41,6 +41,7 @@ type PHPAppPageData struct {
 	Files                      []SiteEntry
 	HiddenFiles                int
 	WebServer                  string
+	SSLState, SSLExpires       string // see sslState
 }
 
 func renderPHPAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data PHPAppPageData) {
@@ -50,6 +51,10 @@ func renderPHPAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dat
 		return
 	}
 	data.LayoutData = layout
+	// the classic site page has its own tabs, so its area bar above the heading is left out
+	if web.Theme() == web.ThemeClassic {
+		data.PageTabs = nil
+	}
 	if err := phpAppPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WEBSITES - php_app template render error: %v", err)
 	}
@@ -65,6 +70,8 @@ type WebsiteBuilderPageData struct {
 	HasSource   bool
 	BlankPage   bool // index.html has an empty body, the editor hasn't added anything yet
 	Files       []SiteEntry
+	SSLState    string // see sslState
+	SSLExpires  string
 }
 
 func renderWebsiteBuilderPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data WebsiteBuilderPageData) {
@@ -74,6 +81,10 @@ func renderWebsiteBuilderPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 	data.LayoutData = layout
+	// the classic site page has its own tabs, so its area bar above the heading is left out
+	if web.Theme() == web.ThemeClassic {
+		data.PageTabs = nil
+	}
 	if err := websiteBuilderPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WEBSITES - websitebuilder template render error: %v", err)
 	}
@@ -87,7 +98,7 @@ type SecurityToggle struct {
 var wpSecurityToggles = []SecurityToggle{
 	{"wp_manager_disable_wp_admin", "Disable wp-admin",
 		"Returns a 401 error for requests to /wp-admin, completely blocking access to the WordPress dashboard. admin-ajax.php and admin-post.php stay reachable so forms and plugins on the site keep working. Turn it off again to log in to wp-admin."},
-	{"wp_manager_mitigate_spam_logins", "Mitigate Spam Logins and Comments",
+	{"wp_manager_mitigate_spam_logins", "Mitigate spam logins and comments",
 		"Drops POST requests to wp-login.php and wp-comments-post.php that don't come with a Referer from the same site, stopping bots that submit logins and comments directly."},
 	{"wp_manager_wp_config", "Block access to wp-config.php",
 		"Directly blocks any HTTP requests to the wp-config.php file, preventing exposure of database credentials even if PHP processing fails."},
@@ -95,19 +106,19 @@ var wpSecurityToggles = []SecurityToggle{
 		"Scans for any .php files within /wp-content/uploads/ and blocks them. Essential for preventing malicious shells from running after an unauthorized file upload."},
 	{"wp_manager_xmlrpc", "Block access to xmlrpc.php",
 		"Returns a 403 error for all xmlrpc.php requests. Disables XML-based remote publishing and Pingbacks to prevent DDoS and brute-force amplification."},
-	{"wp_manager_env_files", "Protect Environment Files",
+	{"wp_manager_env_files", "Protect environment files",
 		"Blocks public access to .env (including .env.local, .env.production and similar), .htaccess, and .htpasswd files in any folder, which often contain high-value secrets and server configurations."},
-	{"wp_manager_sensitive_files", "Protect Sensitive Files",
+	{"wp_manager_sensitive_files", "Protect sensitive files",
 		"Uses Regex to block access to backup files (.bak, .swp), readme/license files, and dangerous extensions like .log, .sh, or .exe."},
-	{"wp_manager_author_scan", "Block Author Enumeration",
+	{"wp_manager_author_scan", "Block author enumeration",
 		"Blocks requests containing the \"author=\" query parameter and the REST API users list (/wp-json/wp/v2/users), stopping bots from discovering valid administrative usernames. Logged in users can still use the users endpoint, so the block editor keeps working."},
-	{"wp_manager_bad_bots", "Block Malicious Bots",
+	{"wp_manager_bad_bots", "Block malicious bots",
 		"Uses a User-Agent filter to block aggressive scrapers and security scanners like AhrefsBot, SemrushBot, MJ12bot, and Nikto."},
 	{"wp_manager_wp_includes_php", "Restrict wp-includes PHP",
 		"Blocks all PHP execution in the wp-includes folder, with a specific exclusion for wp-tinymce.php to ensure the editor keeps working."},
-	{"wp_manager_cache_php", "Disable PHP in Cache",
+	{"wp_manager_cache_php", "Disable PHP in cache",
 		"Prevents the execution of PHP scripts stored within cache directories, stopping \"cache poisoning\" or \"file inclusion\" exploits."},
-	{"wp_manager_admin_script_concat", "Disable Script Concatenation",
+	{"wp_manager_admin_script_concat", "Disable script concatenation",
 		"Blocks access to load-scripts.php and load-styles.php. This prevents a common ReDoS vulnerability used to spike server CPU via the admin dashboard."},
 }
 
@@ -123,24 +134,25 @@ type WPSinglePageData struct {
 	AvailablePHPVersions []string
 	SecurityToggles      []SecurityToggle
 	Suspended            bool
-	SSLState             string            // valid, expiring, expired or missing, "" when the domain has no certificate set up
+	SSLState             string            // valid, expiring, expired, missing, pending or empty when unknown
 	SSLExpires           string            // 2006-01-02
 	RedisOn              bool              // the Redis Object Cache drop-in is in wp-content
 	TakenSites           map[string]string // every site on the account by name, the Clone tab won't copy onto one
 }
 
-// sslState folds a domain's https mode and certificate into the header badge
+// sslState turns the domain's HTTPS mode and certificate into the header badge
 func sslState(https string, cert domains.SSLCertInfo) string {
-	if https != "Automatic" && https != "Custom" {
+	switch {
+	case https == "Unknown":
 		return ""
-	}
-	switch cert.Problem {
-	case "":
-		return "valid"
-	case "unreadable":
+	case cert.Problem == "missing" && https == "Automatic":
+		return "pending"
+	case cert.Problem == "unreadable":
 		return "missing"
+	case cert.Problem != "":
+		return cert.Problem
 	}
-	return cert.Problem
+	return "valid"
 }
 
 // wpRedisDropinOn reads the site's object-cache.php drop-in like the Cache tab does, a file read so the header can show it without asking Redis
@@ -179,6 +191,10 @@ func renderWPSinglePage(a *appctx.App, w http.ResponseWriter, r *http.Request, d
 	// a WordPress site lives under /website, but it belongs to the WordPress tab
 	layout.ActivateTab("/wordpress")
 	data.LayoutData = layout
+	// the classic site page has its own tabs, so its area bar above the heading is left out
+	if web.Theme() == web.ThemeClassic {
+		data.PageTabs = nil
+	}
 	data.SecurityToggles = wpSecurityToggles
 	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
 	if err := wpSinglePage.Render(w, http.StatusOK, data); err != nil {
@@ -186,7 +202,7 @@ func renderWPSinglePage(a *appctx.App, w http.ResponseWriter, r *http.Request, d
 	}
 }
 
-var wpSinglePage = loadPage("manager/wp/single.html", "manager/wp/_shared.html", "manager/wp/_caching.html")
+var wpSinglePage = loadPage("manager/wp/single.html", "manager/wp/_shared.html", "manager/wp/_caching.html", "manager/wp/_tools.html")
 
 var pythonNodeAppsPage = loadPage("manager/python_node_apps.html")
 
@@ -218,6 +234,10 @@ func renderPythonNodeAppsPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 	data.LayoutData = layout
+	// the classic site page has its own tabs, so its area bar above the heading is left out
+	if web.Theme() == web.ThemeClassic {
+		data.PageTabs = nil
+	}
 
 	prefix := data.PM2Data["prefix"]
 	pm2val := func(key string) string {
@@ -284,6 +304,7 @@ type CMSAppPageData struct {
 	AvailablePHPVersions []string
 	HasPhotos            bool
 	App                  web.AppNames
+	SSLState, SSLExpires string // see sslState
 	Switch               []SiteOption
 }
 
@@ -326,6 +347,10 @@ func renderCMSAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, cms
 		return
 	}
 	data.LayoutData = layout
+	// the classic site page has its own tabs, so its area bar above the heading is left out
+	if web.Theme() == web.ThemeClassic {
+		data.PageTabs = nil
+	}
 	data.App = web.NewAppNames(cmsType, cmsPages[cmsType].name)
 	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
 	if err := cmsPages[cmsType].page.Render(w, http.StatusOK, data); err != nil {

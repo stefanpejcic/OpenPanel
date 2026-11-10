@@ -19,7 +19,7 @@ document.addEventListener('alpine:init', () => {
                     this.stats = {
                         ID: service.ID,
                         Name: service.Name,
-                        '{{.T.Get "CPU Usage"}}': service.CPUPerc,
+                        '{{.T.Get "CPU usage"}}': service.CPUPerc,
                         '{{.T.Get "RAM Usage"}}': service.MemUsage,
                         '{{.T.Get "Memory %"}}': service.MemPerc,
                         '{{.T.Get "Network I/O"}}': service.NetIO,

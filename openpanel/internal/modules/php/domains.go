@@ -31,7 +31,7 @@ type PHPDomainRow struct {
 	Level      string // "unset", "good", "secure", or "unsupported" - the 3-bar badge color settings.html renders
 }
 
-// PHPVersionCount is one entry of settings.html's summary counter row.
+// PHPVersionCount is how many domains use one PHP version, the API returns these
 type PHPVersionCount struct {
 	Version string
 	Count   int
@@ -51,6 +51,35 @@ func classifyPHPVersionLevel(version string, data map[string]VersionInfo) (level
 		return "secure", info.StatusLabel
 	}
 	return "unsupported", "Unsupported"
+}
+
+// statusLabelText turns the API's "Security-Fixes Only" into "Security fixes only" for display
+func statusLabelText(label string) string {
+	label = strings.ToLower(strings.ReplaceAll(label, "-", " "))
+	if label == "" {
+		return label
+	}
+	return strings.ToUpper(label[:1]) + label[1:]
+}
+
+// PHPVersionPick is one row of the version list on the options, extensions and php.ini pages
+type PHPVersionPick struct {
+	Version string
+	Level   string
+	Label   string
+}
+
+// versionPicks lists the installed versions newest first with their support level
+func versionPicks(ctx context.Context, installed []string) []PHPVersionPick {
+	data := fetchPHPVersionsAPI(ctx)
+	sorted := append([]string(nil), installed...)
+	sortVersionsDesc(sorted)
+	picks := make([]PHPVersionPick, 0, len(sorted))
+	for _, v := range sorted {
+		level, label := classifyPHPVersionLevel(v, data)
+		picks = append(picks, PHPVersionPick{Version: v, Level: level, Label: statusLabelText(label)})
+	}
+	return picks
 }
 
 // handlePHPDomains renders the per-domain PHP version table and handles the version-switch POST from it
@@ -219,7 +248,7 @@ func buildPHPDomainRows(userContext string, domainsList []appctx.Domain, phpVers
 	for i := range counts {
 		level, label := classifyPHPVersionLevel(counts[i].Version, phpVersionsData)
 		counts[i].Level = level
-		counts[i].Label = label
+		counts[i].Label = statusLabelText(label)
 		if level == "unsupported" {
 			outdatedDomains += counts[i].Count
 		}

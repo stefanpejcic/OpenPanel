@@ -5,50 +5,50 @@
 
 <!-- page header -->
 <section aria-label="{{.T.Get "FTP Quota Header"}}">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
         <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "FTP Quota"}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Change disk quota for FTP user"}} {{.Account.Username}}</p>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "FTP quota"}}</h1></div>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Change disk quota for FTP user"}} {{.Account.Username}}</p>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
+    <div class="flex flex-wrap items-center gap-2">
     </div>
 </div>
 <!-- END page header -->
 
 
 <!-- form -->
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard">
-    <form class="mt-8" method="POST">
+<div class="mx-4 mb-8 max-w-2xl sm:mx-6 lg:mx-8 rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised CrawlerStatusCard">
+    <form method="POST">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
     <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
 
   <div class="col-span-full">
-    <p class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Folder"}}: <b>{{.Account.Path}}</b></p>
-    <p class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Current quota"}}: <b>{{if .Account.HasQuota}}{{.Account.QuotaLabel}}{{else}}{{.T.Get "Unlimited"}}{{end}}</b>{{if .Account.HasUsage}} | {{.T.Get "Used"}}: <b>{{.Account.UsedLabel}}</b>{{end}}{{if .Account.OverQuota}} <span class="font-medium text-red-600 dark:text-red-400">{{.T.Get "Over quota"}}</span>{{end}}</p>
+    <dl class="divide-y divide-gray-200 rounded-md border border-gray-200 text-sm dark:divide-gray-800 dark:border-gray-800">
+    <div class="flex justify-between gap-4 px-4 py-2.5"><dt class="text-gray-500">{{.T.Get "Folder"}}</dt><dd class="font-mono text-xs text-gray-900 dark:text-gray-50">{{.Account.Path}}</dd></div>
+    <div class="flex justify-between gap-4 px-4 py-2.5"><dt class="text-gray-500">{{.T.Get "Current quota"}}</dt><dd class="text-gray-900 tabular-nums dark:text-gray-50"><b class="font-medium">{{if .Account.HasQuota}}{{.Account.QuotaLabel}}{{else}}{{.T.Get "Unlimited"}}{{end}}</b>{{if .Account.HasUsage}} <span class="text-gray-400">·</span> {{.T.Get "Used"}}: <b class="font-medium">{{.Account.UsedLabel}}</b>{{end}}{{if .Account.OverQuota}} <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.T.Get "Over quota"}}</span>{{end}}</dd></div>
+    </dl>
   </div>
 
-  <div class="col-span-full mb-5">
-    <label for="quota" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{.T.Get "Disk quota"}}</label>
+  <div class="col-span-full">
+    <label for="quota" class="block text-sm font-medium text-gray-900 dark:text-gray-50 mb-2">{{.T.Get "Disk quota"}}</label>
     <div class="flex">
-      <input type="number" min="0" step="1" name="quota" id="quota" value="{{.QuotaValue}}" placeholder="{{.T.Get "Unlimited"}}" class="relative block w-full rounded-l appearance-none border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 focus:z-10 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
-      <select name="quota_unit" id="quota_unit" aria-label="{{.T.Get "Unit"}}" class="relative block rounded-r w-24 border border-l-0 px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 focus:z-10 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 h-10.5 sm:h-9.5">
+      <input type="number" min="0" step="1" name="quota" id="quota" value="{{.QuotaValue}}" placeholder="{{.T.Get "Unlimited"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 rounded-r-none">
+      <select name="quota_unit" id="quota_unit" aria-label="{{.T.Get "Unit"}}" class="block w-24 appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 -ml-px rounded-l-none hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
         <option value="M"{{if eq .QuotaUnit "M"}} selected{{end}}>MB</option>
         <option value="G"{{if eq .QuotaUnit "G"}} selected{{end}}>GB</option>
       </select>
     </div>
-    <p class="mt-1 text-xs text-gray-500">{{.T.Get "Leave empty or set 0 for no limit. Uploads are blocked once the folder grows past the quota, files can still be deleted."}}</p>
+    <p class="mt-2 text-xs text-gray-500">{{.T.Get "Leave empty or set 0 for no limit. Uploads are blocked once the folder grows past the quota, files can still be deleted."}}</p>
   </div>
         </div>
 
-        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
 
-
-<div class="md:flex items-center md:justify-end md:space-x-4">
-    <a href="/ftp" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 w-full gap-x-0.5 whitespace-nowrap sm:w-fit">
-        {{.T.Get "Back to FTP Accounts"}}
+<div class="mt-6 flex flex-col-reverse gap-2 border-t border-gray-200 pt-4 sm:flex-row sm:justify-end dark:border-gray-800">
+    <a href="/ftp" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">
+        {{.T.Get "Back to FTP accounts"}}
     </a>
-    <button type="submit" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Update"}}<svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg></button>
+    <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Update"}}</button>
 </div>
 
     </form>

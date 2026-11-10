@@ -1,0 +1,734 @@
+{{define "wp_tools_js"}}
+<script>
+// Updates, Maintenance, Security, Debugging and Backups tab tools, ported from the Modern theme, they talk to /wordpress/tools/* and the backup routes
+var wpSite = {{toJSON .CurrentDomain}};
+var wpT = {
+    plugin: {{toJSON (.T.Get "Plugin")}}, theme: {{toJSON (.T.Get "Theme")}},
+    plugins: {{toJSON (.T.Get "Plugins")}}, themes: {{toJSON (.T.Get "Themes")}},
+    update1: {{toJSON (.T.Get "update available")}}, updatesN: {{toJSON (.T.Get "updates available")}},
+    upToDate: {{toJSON (.T.Get "Up to date")}}, cantRead: {{toJSON (.T.Get "Couldn't check")}},
+    lastChecked: {{toJSON (.T.Get "last checked")}}, updating: {{toJSON (.T.Get "Updating... Please wait.")}},
+    updated: {{toJSON (.T.Get "Updated.")}}, autoOn: {{toJSON (.T.Get "Auto-updates turned on for")}}, autoOff: {{toJSON (.T.Get "Auto-updates turned off for")}},
+    checking: {{toJSON (.T.Get "Checking...")}}, tables: {{toJSON (.T.Get "tables")}},
+    revisions: {{toJSON (.T.Get "post revisions")}}, expired: {{toJSON (.T.Get "expired transients")}},
+    countsFailed: {{toJSON (.T.Get "Couldn't count revisions and transients.")}}, working: {{toJSON (.T.Get "Working... Please wait.")}},
+    repl1: {{toJSON (.T.Get "replacement")}}, replN: {{toJSON (.T.Get "replacements")}}, toBeMade: {{toJSON (.T.Get "would be made")}},
+    inCols: {{toJSON (.T.Get "columns")}}, made: {{toJSON (.T.Get "made")}},
+    backupsFailed: {{toJSON (.T.Get "Couldn't load the backups.")}}, backingUp: {{toJSON (.T.Get "Generating website backup.. Please wait.")}},
+    restoring: {{toJSON (.T.Get "Restoring backup... Please wait.")}},
+    restoreQ: {{toJSON (.T.Get "Restore the backup from {date}? Files and database on the site get overwritten.")}},
+    deleteQ: {{toJSON (.T.Get "Delete the backup from {date}? This can't be undone.")}},
+    updateQ: {{toJSON (.T.Get "Update {name}?")}}, updateManyQ: {{toJSON (.T.Get "Update {n} items?")}},
+    coreName: {{toJSON (.T.Get "WordPress core")}}, coreWhat: {{toJSON (.T.Get "Installs the newest WordPress release with wp-cli and updates the database.")}},
+    itemWhat: {{toJSON (.T.Get "Installs the newest version with wp-cli.")}},
+    backingUpFirst: {{toJSON (.T.Get "Backing up...")}}, updatingNow: {{toJSON (.T.Get "Updating...")}},
+    backupTaken: {{toJSON (.T.Get "Backup taken at")}}, backupWord: {{toJSON (.T.Get "backup")}},
+    lastAuto: {{toJSON (.T.Get "Last automatic update:")}}, autoNever: {{toJSON (.T.Get "Hasn't run yet, the first run starts within the hour.")}},
+    autoRunning: {{toJSON (.T.Get "Running now: checking for updates, backing up and updating...")}}, autoUpdated: {{toJSON (.T.Get "updated")}},
+    autoNothing: {{toJSON (.T.Get "nothing to update")}}, autoOnMsg: {{toJSON (.T.Get "The panel now backs up and runs automatic updates for this site.")}},
+    autoOffMsg: {{toJSON (.T.Get "WordPress runs its own automatic updates again.")}}, autoStarted: {{toJSON (.T.Get "Automatic update started.")}},
+    plusDb: {{toJSON (.T.Get "plus {size} database")}}, filesOnly: {{toJSON (.T.Get "site files")}},
+    update1Short: {{toJSON (.T.Get "1 update")}}, updatesShort: {{toJSON (.T.Get "{n} updates")}},
+    speedMobile: {{toJSON (.T.Get "Mobile score, checked {when}")}}, speedNone: {{toJSON (.T.Get "No score yet")}}, speedQuota: {{toJSON (.T.Get "PageSpeed quota used up")}},
+    speedFailed: {{toJSON (.T.Get "Couldn't get a score")}}, speedWait: {{toJSON (.T.Get "Measuring, check back in a minute")}},
+    coreOff: {{toJSON (.T.Get "Off")}}, coreMinor: {{toJSON (.T.Get "Minor releases")}}, coreAll: {{toJSON (.T.Get "All releases")}},
+    andPlugins: {{toJSON (.T.Get "plugins")}}, andThemes: {{toJSON (.T.Get "themes")}}, panelRuns: {{toJSON (.T.Get "panel backs up first")}},
+    admins: {{toJSON (.T.Get "{n} admins")}}, size: {{toJSON (.T.Get "size")}},
+    takenBy: {{toJSON (.T.Get "{target} already has a {app} site. Pick another domain or a new subfolder.")}},
+    takenSelf: {{toJSON (.T.Get "That's this site. Pick another domain or a new subfolder.")}},
+    estMin: {{toJSON (.T.Get "Under a minute for {size}")}}, estMins: {{toJSON (.T.Get "About {n} minutes for {size}")}}, est1: {{toJSON (.T.Get "About a minute for {size}")}}
+};
+
+// 2026-10-29_16-39-37 -> local date and time
+function wpBackupTime(name) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})$/.exec(name || '');
+    if (!m) return name || '';
+    return new Date(+m[1], m[2] - 1, +m[3], +m[4], +m[5], +m[6]).toLocaleString(document.documentElement.lang || undefined, { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+function wpOpenBackups() {
+    var tab = document.getElementById('backups-tab');
+    if (tab) { tab.click(); tab.scrollIntoView({ block: 'nearest' }); }
+}
+
+// POSTs with stream=1 and reads the NDJSON phases, resolves with the last line
+async function wpToolStream(path, params, onPhase) {
+    var r = await fetch(path, {
+        method: 'POST',
+        headers: { 'X-CSRF-Token': csrf_token, 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(Object.assign({ site: wpSite, stream: '1' }, params || {})).toString()
+    });
+    if (!r.ok || !(r.headers.get('Content-Type') || '').includes('ndjson')) {
+        throw new Error(wpErrText(await r.text(), r.status));
+    }
+    var reader = r.body.getReader(), dec = new TextDecoder(), buf = '', last = null;
+    var take = function (line) {
+        if (!line.trim()) return;
+        var d = JSON.parse(line);
+        if (d.phase) onPhase(d.phase);
+        if (d.done) last = d;
+    };
+    for (;;) {
+        var chunk = await reader.read();
+        if (chunk.value) buf += dec.decode(chunk.value, { stream: !chunk.done });
+        var lines = buf.split('\n');
+        buf = lines.pop();
+        lines.forEach(take);
+        if (chunk.done) break;
+    }
+    take(buf);
+    if (!last) throw new Error(String(r.status));
+    return last;
+}
+
+function wpErrText(text, status) {
+    try { var d = JSON.parse(text); if (d && d.error) return d.error; } catch (e) {}
+    return (text || '').trim() || String(status);
+}
+
+async function wpToolFetch(path, opts) {
+    var r = await fetch(path, opts);
+    var text = await r.text();
+    var data = null;
+    try { data = JSON.parse(text); } catch (e) {}
+    if (!r.ok || !data) throw new Error(wpErrText(text, r.status));
+    return data;
+}
+
+function wpToolGet(path, params) {
+    var q = new URLSearchParams(Object.assign({ site: wpSite }, params || {}));
+    return wpToolFetch(path + '?' + q.toString(), { headers: { 'X-CSRF-Token': csrf_token } });
+}
+
+function wpToolPost(path, params) {
+    return wpToolFetch(path, {
+        method: 'POST',
+        headers: { 'X-CSRF-Token': csrf_token, 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(Object.assign({ site: wpSite }, params || {})).toString()
+    });
+}
+
+// runs fn when the tab is opened, and right away when the page was opened on it
+function wpOnTab(tab, fn) {
+    var el = document.getElementById(tab + '-tab');
+    var deepLinked = new URLSearchParams(window.location.search).get('tab') === tab;
+    // base.html replays a click on the deep-linked tab, that one already ran below
+    var skipReplay = deepLinked;
+    if (el) el.addEventListener('click', function (e) {
+        if (skipReplay && !e.isTrusted) { skipReplay = false; return; }
+        skipReplay = false;
+        fn();
+    });
+    if (deepLinked) fn();
+}
+
+function wpAgo(unix) {
+    var secs = Math.round(Date.now() / 1000 - unix);
+    var rtf = new Intl.RelativeTimeFormat(document.documentElement.lang || undefined, { numeric: 'auto' });
+    if (secs < 60) return rtf.format(0, 'second');
+    if (secs < 3600) return rtf.format(-Math.floor(secs / 60), 'minute');
+    if (secs < 86400) return rtf.format(-Math.floor(secs / 3600), 'hour');
+    return rtf.format(-Math.floor(secs / 86400), 'day');
+}
+
+function wpSize(bytes) {
+    if (!bytes) return '-';
+    var units = ['B', 'KB', 'MB', 'GB', 'TB'], i = 0, n = bytes;
+    while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
+    return (i === 0 ? n : n.toFixed(n < 10 ? 2 : 1)) + ' ' + units[i];
+}
+
+// one plugin/theme list shared by the Overview tiles and the Updates tab
+var wpUpdates = {
+    promise: null,
+    get: function (refresh) {
+        if (!this.promise || refresh) {
+            this.promise = wpToolGet('/wordpress/tools/updates', refresh ? { refresh: '1' } : {});
+            this.promise.then(function (d) { wpUpdateTiles(d, null); }, function (e) { wpUpdateTiles(null, e); });
+        }
+        return this.promise;
+    }
+};
+
+function wpUpdateTiles(d, err) {
+    var set = function (countId, noteId, items, n, itemErr) {
+        var count = document.getElementById(countId), note = document.getElementById(noteId);
+        if (!count || !note) return;
+        if (!d || itemErr) {
+            count.textContent = '-';
+            note.textContent = wpT.cantRead;
+            note.title = itemErr || (err && err.message) || '';
+            note.classList.add('is-warning');
+            return;
+        }
+        count.textContent = items.length;
+        note.textContent = n ? n + ' ' + (n === 1 ? wpT.update1 : wpT.updatesN) : wpT.upToDate;
+        note.title = '';
+        note.classList.toggle('is-warning', n > 0);
+    };
+    set('wp-plugin-count', 'wp-plugin-updates', d && d.plugins, d && d.plugin_updates, d && d.plugin_error);
+    set('wp-theme-count', 'wp-theme-updates', d && d.themes, d && d.theme_updates, d && d.theme_error);
+    wpCounts.items = d ? (d.plugin_updates || 0) + (d.theme_updates || 0) : 0;
+    wpHeroUpdates();
+}
+
+var wpCounts = { items: 0, core: false };
+function wpHeroUpdates() {
+    var el = document.getElementById('wp-hero-updates');
+    if (!el) return;
+    var n = wpCounts.items + (wpCounts.core ? 1 : 0);
+    el.hidden = n === 0;
+    el.textContent = n === 1 ? wpT.update1Short : wpT.updatesShort.replace('{n}', n);
+}
+
+
+window.wpUpdatesTable = function () {
+    return {
+        items: [], data: null, q: '', sel: [], loading: true, busy: false, loadError: '',
+        job: null, phase: '', result: null, backupFirst: true,
+        init() {
+            try { this.backupFirst = localStorage.getItem('wp-backup-before-update') !== '0'; } catch (e) {}
+            // wp-cli is slow, so the list only loads once the Updates tab is opened
+            var started = false;
+            wpOnTab('updates', () => { if (!started) { started = true; this.load(false); } });
+        },
+        load(refresh) {
+            this.loading = true;
+            this.loadError = '';
+            return wpUpdates.get(refresh)
+                .then(d => this.apply(d))
+                .catch(e => { this.loadError = e.message; })
+                .finally(() => { this.loading = false; });
+        },
+        apply(d) {
+            this.data = d;
+            var tag = kind => it => Object.assign({ kind: kind }, it);
+            this.items = (d.plugins || []).map(tag('plugin')).concat((d.themes || []).map(tag('theme')));
+            this.sel = this.sel.filter(k => this.items.some(it => this.key(it) === k && it.has_update));
+        },
+        key(it) { return it.kind + ':' + it.name; },
+        visible() {
+            var q = this.q.trim().toLowerCase();
+            return q ? this.items.filter(it => (it.title + ' ' + it.name + ' ' + it.kind).toLowerCase().includes(q)) : this.items;
+        },
+        updatable() { return this.items.filter(it => it.has_update); },
+        pick(it) {
+            var k = this.key(it);
+            this.sel = this.sel.includes(k) ? this.sel.filter(x => x !== k) : this.sel.concat([k]);
+        },
+        sub(it) { return (it.kind === 'plugin' ? wpT.plugin : wpT.theme) + (it.status ? ' · ' + it.status : ''); },
+        errors() {
+            var out = [];
+            if (this.loadError) out.push(this.loadError);
+            if (this.data && this.data.plugin_error) out.push(wpT.plugins + ': ' + this.data.plugin_error);
+            if (this.data && this.data.theme_error) out.push(wpT.themes + ': ' + this.data.theme_error);
+            return out;
+        },
+        footer() {
+            if (!this.data) return '';
+            var n = this.updatable().length;
+            return n + ' ' + (n === 1 ? wpT.update1 : wpT.updatesN) + ', ' + wpT.lastChecked + ' ' + wpAgo(this.data.checked_at) + '.';
+        },
+        running() { return this.phase === 'backup' || this.phase === 'update'; },
+        finished() { return this.phase === 'done' || this.phase === 'error'; },
+        openSheet(job) {
+            this.job = job;
+            this.phase = '';
+            this.result = null;
+        },
+        closeSheet() {
+            if (this.running()) return;
+            this.job = null;
+        },
+        openBackups() {
+            this.closeSheet();
+            wpOpenBackups();
+        },
+        askItem(it) {
+            var groups = {};
+            groups[it.kind] = [it.name];
+            this.openSheet({ title: wpT.updateQ.replace('{name}', it.title), what: wpT.itemWhat, groups: groups });
+        },
+        askSelected() {
+            var groups = { plugin: [], theme: [] };
+            this.sel.forEach(k => { var i = k.indexOf(':'); groups[k.slice(0, i)].push(k.slice(i + 1)); });
+            var n = groups.plugin.length + groups.theme.length;
+            if (!n) return;
+            var title = n === 1 ? wpT.updateQ.replace('{name}', (this.items.find(it => this.key(it) === this.sel[0]) || {}).title || '') : wpT.updateManyQ.replace('{n}', n);
+            this.openSheet({ title: title, what: wpT.itemWhat, groups: groups });
+        },
+        askCore() {
+            this.openSheet({ title: wpT.updateQ.replace('{name}', wpT.coreName), what: wpT.coreWhat, core: true });
+        },
+        // the backup, when ticked, rides on the first request only
+        async confirmUpdate() {
+            var job = this.job;
+            if (!job || this.running()) return;
+            try { localStorage.setItem('wp-backup-before-update', this.backupFirst ? '1' : '0'); } catch (e) {}
+            var steps = [];
+            if (job.core) {
+                steps.push({ path: '/wordpress/tools/core-update', params: {} });
+            } else {
+                ['plugin', 'theme'].forEach(kind => {
+                    if (job.groups[kind] && job.groups[kind].length) steps.push({ path: '/wordpress/tools/update', params: { kind: kind, name: job.groups[kind].join(',') } });
+                });
+            }
+            this.busy = true;
+            this.phase = this.backupFirst ? 'backup' : 'update';
+            var backup = '', msgs = [], err = '';
+            for (var i = 0; i < steps.length; i++) {
+                var params = Object.assign({ backup: this.backupFirst && i === 0 ? '1' : '0' }, steps[i].params);
+                try {
+                    var d = await wpToolStream(steps[i].path, params, p => { this.phase = p; });
+                    if (d.backup) backup = d.backup;
+                    if (d.error) { err = d.error; break; }
+                    if (d.message) msgs.push(d.message);
+                } catch (e) {
+                    err = e.message;
+                    break;
+                }
+            }
+            this.result = { message: err || msgs.join(' ') || wpT.updated, backup: backup };
+            this.phase = err ? 'error' : 'done';
+            this.busy = false;
+            this.sel = [];
+            if (job.core && !err) {
+                if (typeof GetWPSiteInfo === 'function') GetWPSiteInfo();
+                fetch('/wordpress/reload_data', { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } }).catch(function () {}).then(function () {
+                    if (typeof checkWordPressVersionStatus === 'function') checkWordPressVersionStatus();
+                });
+            }
+            await this.load(true);
+        },
+        async setAuto(it, on) {
+            this.busy = true;
+            try {
+                await wpToolPost('/wordpress/tools/auto-update', { kind: it.kind, name: it.name, state: on ? 'on' : 'off' });
+                it.auto_update = on;
+                wpUpdates.promise = null;
+                showToast((on ? wpT.autoOn : wpT.autoOff) + ' ' + it.title + '.', 'success');
+            } catch (e) {
+                showToast(e.message, 'error');
+            }
+            this.busy = false;
+        }
+    };
+};
+
+window.wpAutoBackup = function () {
+    return {
+        st: {}, loaded: false, busy: false, error: '', timer: null,
+        init() {
+            var started = false;
+            var go = () => { if (!started) { started = true; this.load(); } };
+            wpOnTab('updates', go);
+        },
+        async load() {
+            try {
+                this.st = await wpToolGet('/wordpress/tools/autoupdate');
+                this.error = '';
+                this.loaded = true;
+            } catch (e) {
+                this.error = e.message;
+            }
+            this.poll();
+        },
+        // checks back while a run is going, then refreshes the updates list
+        poll() {
+            clearTimeout(this.timer);
+            if (!this.st.running) return;
+            this.timer = setTimeout(async () => {
+                var was = this.st.running;
+                await this.load();
+                if (was && !this.st.running) {
+                    wpUpdates.promise = null;
+                    window.dispatchEvent(new CustomEvent('wp-updates-changed'));
+                }
+            }, 3000);
+        },
+        statusText() {
+            if (this.st.running) return wpT.autoRunning;
+            var r = this.st.last_result;
+            if (!r) return this.st.enabled ? wpT.autoNever : '';
+            var when = r.stamp ? wpBackupTime(r.stamp) : new Date(r.when * 1000).toLocaleString(document.documentElement.lang || undefined, { dateStyle: 'medium', timeStyle: 'short' });
+            var what = r.error ? r.error : (r.updated && r.updated.length ? wpT.autoUpdated + ' ' + r.updated.join(', ') : wpT.autoNothing);
+            return wpT.lastAuto + ' ' + when + ' \u2014 ' + what;
+        },
+        async toggle() {
+            this.busy = true;
+            var on = !this.st.enabled;
+            try {
+                this.st = await wpToolPost('/wordpress/tools/autoupdate-set', { state: on ? 'on' : 'off' });
+                this.error = '';
+                showToast(on ? wpT.autoOnMsg : wpT.autoOffMsg, 'success');
+            } catch (e) {
+                showToast(e.message, 'error');
+            }
+            this.busy = false;
+        },
+        async runNow() {
+            this.busy = true;
+            try {
+                this.st = await wpToolPost('/wordpress/tools/autoupdate-run', {});
+                showToast(wpT.autoStarted, 'success');
+            } catch (e) {
+                showToast(e.message, 'error');
+            }
+            this.busy = false;
+            this.poll();
+        }
+    };
+};
+
+function wpMaintOutput(r) {
+    var lines = [r.message];
+    if (r.summary) lines = lines.concat(r.summary.notes || [], r.summary.errors || []);
+    return lines.filter(Boolean).join('\n');
+}
+
+// maintenance.php editor: the form writes the page, Code edits it directly; pages made from the form keep their fields in a comment so they open in the form again
+window.wpMaintPage = function () {
+    const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const domain = {{toJSON .CurrentDomain}};
+    const backBy = {{toJSON (.T.Get "Back by")}};
+    const page = f => {
+        const dark = f.style === 'dark';
+        const fields = JSON.stringify({ heading: f.heading, message: f.message, back: f.back, style: f.style }).replace(/\?>/g, '?\\u003e');
+        return `<?php
+// made in the OpenPanel maintenance editor: ${fields}
+// shown while maintenance mode is on, 503 tells search engines to come back later
+http_response_code(503);
+header('Retry-After: 3600');
+?><!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(f.heading)} - ${esc(domain)}</title>
+<style>
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: ${dark ? '#14141f' : '#f5f6f8'}; color: ${dark ? '#cfd7e2' : '#3f4559'}; }
+  main { max-width: 520px; padding: 32px 24px; text-align: center; }
+  h1 { margin: 0 0 12px; font-size: 28px; line-height: 1.25; color: ${dark ? '#ffffff' : '#121521'}; }
+  p { margin: 0; font-size: 16px; line-height: 1.6; }
+  .back { margin-top: 20px; font-size: 14px; opacity: .75; }
+</style>
+</head>
+<body>
+<main>
+  <h1>${esc(f.heading)}</h1>
+  <p>${esc(f.message).replace(/\n/g, '<br>')}</p>${f.back.trim() ? `
+  <p class="back">${esc(backBy)} ${esc(f.back.trim())}</p>` : ''}
+</main>
+</body>
+</html>
+`;
+    };
+    const DEFAULT = { heading: {{toJSON (.T.Get "We'll be right back")}}, message: {{toJSON (.T.Get "We are making some changes and will be back in a few minutes.")}}, back: '', style: 'light' };
+    // fields of a page the form made, null when it was written or changed by hand
+    const fieldsOf = code => {
+        const m = /^\/\/ made in the OpenPanel maintenance editor: (\{.*\})$/m.exec(code || '');
+        if (!m) return null;
+        try {
+            const f = Object.assign({}, DEFAULT, JSON.parse(m[1]));
+            f.style = f.style === 'dark' ? 'dark' : 'light';
+            return page(f) === code ? f : null;
+        } catch (e) { return null; }
+    };
+    return {
+        edit: false, mode: 'content', device: 'desktop', custom: false, resetting: false,
+        loading: true, saving: false, loadError: '', saveError: '', exists: false, modified: 0,
+        f: Object.assign({}, DEFAULT), code: page(DEFAULT), stored: '',
+        init() { wpOnTab('maintenance', () => this.load()); },
+        load() {
+            this.loading = true;
+            return wpToolGet('/wordpress/tools/maintenance-page')
+                .then(d => { this.exists = d.exists; this.modified = d.modified; this.apply(d.exists ? d.code : ''); this.loadError = ''; })
+                .catch(e => { this.loadError = e.message; })
+                .finally(() => { this.loading = false; });
+        },
+        // a missing file starts from the default page, other code opens in Code unless the form made it
+        apply(code) {
+            const f = code ? fieldsOf(code) : Object.assign({}, DEFAULT);
+            this.code = code || page(DEFAULT);
+            this.stored = code ? code : '';
+            this.f = f || Object.assign({}, DEFAULT);
+            this.custom = !f;
+            this.mode = f ? 'content' : 'code';
+        },
+        fromForm() { this.code = page(this.f); this.custom = false; },
+        preview() { return this.code.replace(/<\?php[\s\S]*?(\?>|$)/g, ''); },
+        hasPHP() { return this.custom && /<\?php/.test(this.code.replace(/^<\?php[\s\S]*?\?>/, '')); },
+        dirty() { return this.code !== this.stored; },
+        savedText() {
+            if (this.loading) return {{toJSON (.T.Get "Checking...")}};
+            if (!this.exists) return {{toJSON (.T.Get "not created yet, WordPress shows its default notice")}};
+            return {{toJSON (.T.Get "saved")}} + ' ' + new Date(this.modified * 1000).toLocaleString();
+        },
+        open() { this.edit = true; this.saveError = ''; this.$nextTick(() => this.$refs.editor.scrollIntoView({ block: 'nearest', behavior: 'smooth' })); },
+        cancel() { this.apply(this.stored); this.edit = false; this.resetting = false; this.saveError = ''; },
+        reset() {
+            if (!this.resetting) { this.resetting = true; setTimeout(() => this.resetting = false, 3000); return; }
+            this.f = Object.assign({}, DEFAULT); this.fromForm(); this.mode = 'content'; this.resetting = false;
+        },
+        save() {
+            this.saving = true; this.saveError = '';
+            return wpToolPost('/wordpress/tools/maintenance-page-save', { code: this.code })
+                .then(d => { this.stored = this.code; this.exists = true; this.modified = d.modified; this.edit = false; showToast(d.message, 'success'); })
+                .catch(e => { this.saveError = e.message; })
+                .finally(() => { this.saving = false; });
+        },
+    };
+};
+
+window.wpDbTools = function () {
+    return {
+        stats: null, error: '', busy: false, output: '', confirming: false,
+        init() { wpOnTab('maintenance', () => this.load()); },
+        load() {
+            return wpToolGet('/wordpress/tools/database')
+                .then(d => { this.stats = d; this.error = ''; })
+                .catch(e => { this.error = e.message; });
+        },
+        summary() {
+            var s = this.stats;
+            if (!s) return wpT.checking;
+            var t = s.database + ', ' + s.tables + ' ' + wpT.tables + (typeof s.size_bytes === 'number' ? ', ' + wpBytes(s.size_bytes) : '') + '.';
+            if (s.revisions !== null && s.revisions !== undefined) {
+                t += ' ' + s.revisions + ' ' + wpT.revisions + ', ' + s.expired_transients + ' ' + wpT.expired + '.';
+            } else if (s.count_error) {
+                t += ' ' + wpT.countsFailed;
+            }
+            return t;
+        },
+        cleanable() { return !!this.stats && ((this.stats.revisions || 0) + (this.stats.expired_transients || 0)) > 0; },
+        async run(path) {
+            this.busy = true;
+            this.output = '';
+            showToast(wpT.working, 'loading');
+            try {
+                var r = await wpToolPost(path);
+                showToast(r.message, 'success');
+                this.output = wpMaintOutput(r);
+            } catch (e) {
+                showToast(e.message, 'error');
+                this.output = e.message;
+            }
+            this.busy = false;
+            this.load();
+        },
+        clean() {
+            if (!this.confirming) {
+                this.confirming = true;
+                setTimeout(() => { this.confirming = false; }, 5000);
+                return;
+            }
+            this.confirming = false;
+            return this.run('/wordpress/tools/db-clean?what=all');
+        }
+    };
+};
+
+window.wpSearchReplace = function () {
+    return {
+        from: '', to: '', dry: null, busy: false, error: '', confirming: false,
+        dryText() {
+            if (!this.dry) return '';
+            var d = this.dry;
+            return d.total + ' ' + (d.total === 1 ? wpT.repl1 : wpT.replN) + ' ' + wpT.toBeMade + (d.rows.length ? ', ' + d.rows.length + ' ' + wpT.inCols : '') + '.';
+        },
+        async dryRun() {
+            this.busy = true;
+            this.error = '';
+            this.confirming = false;
+            try {
+                this.dry = await wpToolPost('/wordpress/tools/search-replace', { from: this.from, to: this.to, dry_run: '1' });
+            } catch (e) {
+                this.dry = null;
+                this.error = e.message;
+            }
+            this.busy = false;
+        },
+        async run() {
+            if (!this.confirming) { this.confirming = true; return; }
+            this.confirming = false;
+            this.busy = true;
+            this.error = '';
+            try {
+                var r = await wpToolPost('/wordpress/tools/search-replace', { from: this.from, to: this.to, dry_run: '0' });
+                showToast(r.total + ' ' + (r.total === 1 ? wpT.repl1 : wpT.replN) + ' ' + wpT.made + '.', 'success');
+                this.dry = null;
+            } catch (e) {
+                this.error = e.message;
+            }
+            this.busy = false;
+        }
+    };
+};
+
+window.wpHardening = function () {
+    return {
+        d: {}, loaded: false, error: '', busy: false, review: 0,
+        init() { wpOnTab('security', () => this.load()); },
+        shown() { return Math.max(0, this.review - (this.d.xmlrpc_file && !this.d.xmlrpc_blocked ? 1 : 0)); },
+        load() {
+            return wpToolGet('/wordpress/tools/security')
+                .then(d => { this.d = d; this.review = d.review; this.loaded = true; this.error = ''; })
+                .catch(e => { this.error = e.message; });
+        },
+        async act(path, params) {
+            this.busy = true;
+            try {
+                var r = await wpToolPost(path, params);
+                showToast(r.message, 'success');
+            } catch (e) {
+                showToast(e.message, 'error');
+            }
+            this.busy = false;
+            this.load();
+        },
+        setConst(name, on) { return this.act('/wordpress/tools/config-set', { name: name, state: on ? 'on' : 'off' }); },
+        fixMode() { return this.act('/wordpress/tools/config-chmod'); },
+        // adds the xmlrpc rule to whatever is active now, so the other rules stay as they are
+        async blockXMLRPC() {
+            this.busy = true;
+            var url = '/wordpress/secure/' + wpSite;
+            try {
+                var active = await wpToolFetch(url, { headers: { 'X-CSRF-Token': csrf_token } });
+                var body = new URLSearchParams({ csrf_token: csrf_token });
+                active.concat(['wp_manager_xmlrpc']).forEach(rule => body.set(rule, rule));
+                var r = await fetch(url, { method: 'POST', headers: { 'X-CSRF-Token': csrf_token, 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() });
+                if (!r.ok) throw new Error(String(r.status));
+                var now = await wpToolFetch(url, { headers: { 'X-CSRF-Token': csrf_token } });
+                window.dispatchEvent(new CustomEvent('hardening-update', { detail: now }));
+            } catch (e) {
+                showToast(e.message, 'error');
+            }
+            this.busy = false;
+            this.load();
+        }
+    };
+};
+
+window.wpBackups = function () {
+    return {
+        list: [], q: '', loading: false, error: '', running: false, busy: false, pending: null,
+        init() {
+            wpOnTab('backups', () => this.load());
+            window.addEventListener('wp-backups-reload', () => this.load());
+        },
+        load() {
+            this.loading = true;
+            this.error = '';
+            return fetch('/wordpress/backup/get_dates/' + wpSite)
+                .then(async r => {
+                    var text = await r.text();
+                    if (!r.ok) throw new Error(wpErrText(text, r.status));
+                    var d = JSON.parse(text);
+                    return Array.isArray(d) ? d : [];
+                })
+                .then(d => { this.list = d.sort((a, b) => b.date.localeCompare(a.date)); })
+                .catch(e => { this.error = e.message || wpT.backupsFailed; })
+                .finally(() => { this.loading = false; });
+        },
+        visible() {
+            var q = this.q.trim().toLowerCase();
+            return q ? this.list.filter(b => (this.when(b.date) + ' ' + b.date + ' ' + getBackupTypeLabel(b.hasDbBackup, b.hasFilesBackup)).toLowerCase().includes(q)) : this.list;
+        },
+        when(date) {
+            var m = /^(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-(\d{2})$/.exec(date);
+            if (!m) return date;
+            var dt = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]);
+            return dt.toLocaleString(document.documentElement.lang || undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        },
+        size(bytes) { return wpSize(bytes); },
+        downloadURL(b, part) { return '/wordpress/backup/download/' + wpSite + '?backup_date=' + encodeURIComponent(b.date) + '&part=' + part; },
+        ask(action, b) { this.pending = { action: action, date: b.date }; },
+        pendingText() {
+            if (!this.pending) return '';
+            return (this.pending.action === 'delete' ? wpT.deleteQ : wpT.restoreQ).replace('{date}', this.when(this.pending.date));
+        },
+        async post(url) {
+            var r = await fetch(url, { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } });
+            var text = await r.text();
+            if (!r.ok) throw new Error(wpErrText(text, r.status));
+            try { var d = JSON.parse(text); if (d && d.message) return d.message; } catch (e) {}
+            return text;
+        },
+        async confirmPending() {
+            var p = this.pending;
+            if (!p) return;
+            this.busy = true;
+            var date = encodeURIComponent(p.date);
+            try {
+                if (p.action === 'delete') {
+                    showToast(await this.post('/wordpress/backup/delete/' + wpSite + '?backup_date=' + date), 'success');
+                } else {
+                    showToast(wpT.restoring, 'warning');
+                    showToast(await this.post('/wordpress/backup/restore/' + wpSite + '?docroot=' + encodeURIComponent(docroot) + '&backup_date=' + date), 'success');
+                }
+            } catch (e) {
+                showToast(e.message, 'error');
+            }
+            this.pending = null;
+            this.busy = false;
+            this.load();
+        },
+        async backupNow(db, files) {
+            if (db === undefined) db = files = true;
+            this.running = true;
+            showToast(wpT.backingUp, 'loading');
+            try {
+                showToast(await this.post('/wordpress/backup/run/' + wpSite + '?docroot=' + encodeURIComponent(docroot) + '&backup_database=' + !!db + '&backup_files=' + !!files), 'success');
+            } catch (e) {
+                showToast(e.message, 'error');
+            }
+            this.running = false;
+            this.load();
+        }
+    };
+};
+
+function wpBytes(bytes) {
+    if (bytes === null || bytes === undefined || isNaN(bytes)) return '-';
+    if (bytes < 1024) return Math.round(bytes) + ' B';
+    var units = ['KB', 'MB', 'GB', 'TB'], i = -1, n = bytes;
+    do { n /= 1024; i++; } while (n >= 1024 && i < units.length - 1);
+    return (n < 10 ? n.toFixed(1).replace(/\.0$/, '') : Math.round(n)) + ' ' + units[i];
+}
+
+// the end of debug.log, newest line at the bottom
+                window.wpDebugLog = function () {
+                    return {
+                        loaded: false, loading: false, busy: false, confirming: false, error: '',
+                        exists: false, path: 'wp-content/debug.log', size: 0, lines: [], more: false,
+                        load() {
+                            this.loading = true;
+                            this.error = '';
+                            this.confirming = false;
+                            return wpToolGet('/wordpress/tools/debug-log')
+                                .then(d => {
+                                    this.exists = !!d.exists; this.path = d.path || this.path; this.size = d.size || 0;
+                                    this.lines = d.lines || []; this.more = !!d.more;
+                                    this.$nextTick(() => requestAnimationFrame(() => { var b = this.$refs.box; if (b) b.scrollTop = b.scrollHeight; }));
+                                })
+                                .catch(e => { this.error = e.message; })
+                                .finally(() => { this.loading = false; this.loaded = true; });
+                        },
+                        clear() {
+                            if (this.busy) return;
+                            if (!this.confirming) {
+                                this.confirming = true;
+                                setTimeout(() => { this.confirming = false; }, 5000);
+                                return;
+                            }
+                            this.confirming = false;
+                            this.busy = true;
+                            wpToolPost('/wordpress/tools/debug-log-clear')
+                                .then(d => { showToast(d.message || {{toJSON (.T.Get "debug.log cleared.")}}, 'success'); return this.load(); })
+                                .catch(e => { showToast(e.message, 'error'); })
+                                .finally(() => { this.busy = false; });
+                        }
+                    };
+                };
+</script>
+{{end}}

@@ -182,7 +182,12 @@ func handleEditFile(a *appctx.App, w http.ResponseWriter, r *http.Request, fileP
 		}
 		_ = a.Sessions.Save(r, w, sess)
 
-		http.Redirect(w, r, "/file-manager/edit-file/"+escapeURLPath(filePath), http.StatusFound)
+		// keep ?editor= and ?fullscreen= so a save doesn't drop the editor window back to the normal page
+		back := "/file-manager/edit-file/" + escapeURLPath(filePath)
+		if q := r.URL.Query(); len(q) > 0 {
+			back += "?" + q.Encode()
+		}
+		http.Redirect(w, r, back, http.StatusFound)
 		return
 	}
 

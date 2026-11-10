@@ -83,17 +83,94 @@ func TestRenderBackupsPage(t *testing.T) {
 	})
 }
 
+func TestRenderBackupsPageClassic(t *testing.T) {
+	webtest.Classic(t)
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+
+	t.Run("no target", func(t *testing.T) {
+		data := BackupsPageData{LayoutData: baseLayout(mgr, "/backups")}
+		w := httptest.NewRecorder()
+		if err := backupsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "Connect a destination") {
+			t.Error("expected step 1 prompt")
+		}
+	})
+
+	t.Run("target with credentials, service inactive", func(t *testing.T) {
+		data := BackupsPageData{LayoutData: baseLayout(mgr, "/backups"), Target: "s3", HasCredentials: true, ServiceActive: false}
+		w := httptest.NewRecorder()
+		if err := backupsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, "Current destination") {
+			t.Error("expected destination-configured step")
+		}
+		if !strings.Contains(body, "Edit backup limits") {
+			t.Error("expected step 3 prompt when service inactive")
+		}
+	})
+
+	t.Run("with backups on the destination", func(t *testing.T) {
+		items := restoreItems([]BackupInfo{
+			{BackupFile: "testuser-2026-10-27T08-17-08.tar.gz", Types: []string{"crons", "html", "mail", "mysql", "vhosts", "dns"}, Databases: []string{"testuser_wp"}, HasFiles: true, Size: 6963},
+			{BackupFile: "testuser-2026-10-26T08-17-08.tar.gz", Types: []string{"html", "vhosts"}, HasFiles: true, Size: 6477},
+		}, "", nil)
+		sum := BackupsSummary{Count: len(items), Latest: &items[0], TotalSize: formatSize(13440), Recent: items, Schedule: "@daily", Retention: "-1", Destination: "bkdest@10.0.2.15:/home/bkdest/backups", CPU: "1.0", RAM: "1G"}
+		data := BackupsPageData{LayoutData: baseLayout(mgr, "/backups"), Target: "ssh", HasCredentials: true, ServiceActive: false, Summary: sum}
+		w := httptest.NewRecorder()
+		if err := backupsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		for _, want := range []string{"27 Oct 2026, 08:17", "keeps every copy", "2 of 3 done", "bkdest@10.0.2.15", "Latest"} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q in the overview", want)
+			}
+		}
+	})
+
+	t.Run("fully configured", func(t *testing.T) {
+		data := BackupsPageData{LayoutData: baseLayout(mgr, "/backups"), Target: "ssh", HasCredentials: true, ServiceActive: true}
+		w := httptest.NewRecorder()
+		if err := backupsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "Backup service is active") {
+			t.Error("expected step 3 done state")
+		}
+	})
+}
+
 func TestRenderBackupSettingsPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("error state", func(t *testing.T) {
-		data := BackupSettingsPageData{LayoutData: baseLayout(mgr, "/backups/settings"), Error: "no backup target configured"}
+		data := BackupSettingsPageData{LayoutData: baseLayout(mgr, "/backups/settings"), Error: "multiple backup targets configured"}
 		w := httptest.NewRecorder()
 		if err := backupSettingsPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "no backup target configured") {
+		if !strings.Contains(w.Body.String(), "multiple backup targets configured") {
 			t.Error("expected error message")
+		}
+	})
+
+	t.Run("no target points to destination", func(t *testing.T) {
+		data := BackupSettingsPageData{LayoutData: baseLayout(mgr, "/backups/settings"), Error: "No backup target is configured.", NoTarget: true}
+		w := httptest.NewRecorder()
+		if err := backupSettingsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, `href="/backups/destination"`) {
+			t.Error("expected a link to the destination tab")
+		}
+		if strings.Contains(body, "Save settings") {
+			t.Error("save button should be hidden without a target")
 		}
 	})
 

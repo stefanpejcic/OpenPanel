@@ -8,6 +8,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func testLayout(mgr *i18n.Manager) web.LayoutData {
@@ -21,6 +22,7 @@ func testLayout(mgr *i18n.Manager) web.LayoutData {
 }
 
 func TestRenderErrorLogsPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	q := Query{Domain: "a.com", Service: "php-fpm-8.2", Search: "fatal", Exact: true, FromDay: "2026-10-01", ToDay: "2026-10-03", Limit: 1}
 	res := Result{
@@ -68,6 +70,7 @@ func TestRenderErrorLogsEmpty(t *testing.T) {
 }
 
 func TestRenderErrorLogsForbidden(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := buildPageData(testLayout(mgr), Query{Domain: "x.com"}, Result{}, nil, "You do not own this domain.")
 	w := httptest.NewRecorder()

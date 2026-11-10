@@ -1,4 +1,4 @@
-// Package autoinstaller implements the "Auto Installer" hub page listing every one-click app type, each showing how many instances the user already has installed.
+// Package autoinstaller implements the "Auto installer" hub page listing every one-click app type, each showing how many instances the user already has installed.
 package autoinstaller
 
 import (

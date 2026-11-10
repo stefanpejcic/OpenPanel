@@ -52,7 +52,7 @@ func enabledFeatures(allowed map[string]bool) []Feature {
 }
 
 func renderServerInfoPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Server Information")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Server information")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

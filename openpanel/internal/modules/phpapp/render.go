@@ -17,7 +17,7 @@ type InstallPageData struct {
 }
 
 func renderInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domains []appctx.Domain) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Install PHP Application")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Install PHP application")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

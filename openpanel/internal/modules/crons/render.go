@@ -56,7 +56,7 @@ func (d CronjobsPageData) Row(j CronJob) CronRow {
 }
 
 func renderCronjobsCodePage(a *appctx.App, w http.ResponseWriter, r *http.Request, crontabContent string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "CronJobs File Editor")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Cron file editor")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -69,7 +69,7 @@ func renderCronjobsCodePage(a *appctx.App, w http.ResponseWriter, r *http.Reques
 
 // renderCronjobsLogsPage renders the Logs tab, job preselects the job filter
 func renderCronjobsLogsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, cronJobs []CronJob, job string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "CronJobs Logs")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Cron job logs")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -81,7 +81,7 @@ func renderCronjobsLogsPage(a *appctx.App, w http.ResponseWriter, r *http.Reques
 }
 
 func renderCronjobsTablePage(a *appctx.App, w http.ResponseWriter, r *http.Request, services []string, cronJobs []CronJob, scheduleIssues []ScheduleIssue, loc *time.Location) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "CronJobs")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Cron jobs")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -117,7 +117,7 @@ type CronjobsNewPageData struct {
 }
 
 func renderCronjobsNewPage(a *appctx.App, w http.ResponseWriter, r *http.Request, containers []string, phpContainer, dbContainer string, names []string, tz string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "New CronJob")
+	layout, _, err := web.BuildLayoutData(a, w, r, "New cron job")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

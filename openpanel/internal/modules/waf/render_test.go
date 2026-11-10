@@ -76,6 +76,7 @@ func TestRenderWAFDomainPage(t *testing.T) {
 }
 
 func TestRenderWAFLogSelectPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := WAFLogsPageData{LayoutData: baseLayout(mgr, "/server/waf/log"), Domains: []appctx.Domain{{DomainURL: "example.com"}}}
 	w := httptest.NewRecorder()
@@ -85,6 +86,24 @@ func TestRenderWAFLogSelectPage(t *testing.T) {
 	body := w.Body.String()
 	if !strings.Contains(body, "example.com") || !strings.Contains(body, "/server/waf/log/${selectedVersion}") {
 		t.Error("expected domain picker with plain domain-url redirect (no username prefix) in body")
+	}
+	if strings.Contains(body, "domain.username") {
+		t.Error("did not expect a reference to the nonexistent domain.username field")
+	}
+}
+
+func TestRenderWAFLogSelectPageClassic(t *testing.T) {
+	webtest.Classic(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	data := WAFLogsPageData{LayoutData: baseLayout(mgr, "/server/waf/log"), Domains: []appctx.Domain{{DomainURL: "example.com"}},
+		Picks: []web.DomainPick{{Domain: "example.com", Detail: "1.0 KB"}}}
+	w := httptest.NewRecorder()
+	if err := wafLogsPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, `href="/server/waf/log/example.com"`) || !strings.Contains(body, "1.0 KB") {
+		t.Error("expected the domain list linking to the plain domain-url log page (no username prefix) with its log size")
 	}
 	if strings.Contains(body, "domain.username") {
 		t.Error("did not expect a reference to the nonexistent domain.username field")

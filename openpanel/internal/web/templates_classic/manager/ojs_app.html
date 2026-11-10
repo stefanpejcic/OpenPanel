@@ -10,7 +10,7 @@
         {{template "cms_block_3" .}}
 {{template "cms_script_2" .}}
 {{template "cms_block_5" .}}
-    <div class="flex flex-col space-y-4 rounded xl:col-span-3">
+    <div class="flex min-w-0 flex-col bg-white dark:bg-gray-950">
 
         {{template "cms_block_7" .}}
             {{template "cms_tabbtn_dashboard" .}}
@@ -20,91 +20,70 @@
             {{template "cms_tabbtn_backups" .}}
             {{template "cms_tab_security" .}}
         {{template "cms_tab_dashboard" .}}
-            <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
-                <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
-                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded xl:col-span-3">
+            <div>
+                <div class="hidden">
+                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded-md xl:col-span-3">
                         {{template "cms_block_10" .}}
                 {{template "cms_block_13" .}}
                 {{template "cms_block_14" .}}
-                <div class="flex flex-col justify-top overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
-                    <div class="mb-2 flex items-center justify-between gap-4 relative">
-                        <div class="absolute -left-4 h-5 w-1 rounded-r-sm bg-blue-500"></div>
-                        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>
-                        {{if .UserAllowed.mysql}}
-                        <a
-                            type="button"
-                            id="db-link"
-                            href="/mysql"
-                            target="_blank"
-                            data-tooltip-target="tooltip-db-link" data-tooltip-placement="left"
-                            class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
-                                <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
-                            </svg>
-                        </a>
-                        <div id="tooltip-db-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
-                            {{.T.Get "Manage MySQL databases"}}
-                            <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
-                        {{end}}
+                <div class="flex flex-col bg-white px-6 py-5 min-w-0 sm:row-span-2 sm:grid sm:grid-cols-1 sm:grid-rows-subgrid sm:gap-y-0 sm:[&>*:last-child]:self-start dark:bg-gray-950">
+                    <div class="relative -mx-6 -mt-5 mb-4 flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+                        <div class="min-w-0"><h2 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>{{if .UserAllowed.mysql}}<a href="/mysql" target="_blank" class="ml-2 text-sm font-normal text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Manage"}} &rarr;</a>{{end}}<p class="text-sm/6 text-gray-500">{{.T.Get "The database the site uses."}}</p></div>
                     </div>
 
                     {{if .DBInfo.error}}
-                    <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
+                    <div class="flex items-center justify-between gap-4 rounded-md border border-gray-200 px-4 py-3 dark:border-gray-800">
                         <span class="text-sm text-gray-500 dark:text-gray-500">{{.DBInfo.error}}</span>
                     </div>
                     {{else}}
-                    <div class="grid grid-cols-1 gap-2">
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50" id="database-size-row">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Size:"}}</span>
-                            <span class="font-medium" id="databaseSize">{{.T.Get "Calculating.."}}</span>
+                    <div class="divide-y divide-gray-200 dark:divide-gray-800 [&>div]:px-0">
+                        <div class="flex items-center justify-between gap-4 px-4 py-3" id="database-size-row">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Database size"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50" id="databaseSize">{{.T.Get "Calculating.."}}</span>
                         </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Host:"}}</span>
-                            <span class="font-medium">{{.DBInfo.database_host}}</span>
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Database host"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.DBInfo.database_host}}</span>
                         </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database Name:"}}</span>
-                            <span class="font-medium">
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Database name"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">
                             {{if .UserAllowed.mysql}}
-                                <a href="/mysql" class="hover:underline">{{.DBInfo.database_name}}</a>
+                                <a href="/mysql" class="text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50">{{.DBInfo.database_name}}</a>
                             {{else}}
                                 {{.DBInfo.database_name}}
                             {{end}}
                             </span>
                         </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Database User:"}}</span>
-                            <span class="font-medium">
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Database user"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">
                             {{if .UserAllowed.mysql}}
-                                <a href="/mysql/users" class="hover:underline">{{.DBInfo.database_user}}</a>
+                                <a href="/mysql/users" class="text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50">{{.DBInfo.database_user}}</a>
                             {{else}}
                                 {{.DBInfo.database_user}}
                             {{end}}
                             </span>
                         </div>
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Password:"}}</span>
-                            <span class="font-medium" id="database-password" style="filter: blur(5px); cursor: pointer;" onclick="revealOJSDBPassword()">{{.DBInfo.database_password}}</span>
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Password"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50" id="database-password" style="filter: blur(5px); cursor: pointer;" onclick="revealOJSDBPassword()">{{.DBInfo.database_password}}</span>
                         </div>
 
                         {{if .UserAllowed.phpmyadmin}}
-                        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "phpMyAdmin:"}}</span>
-                            <span class="font-medium flex items-center gap-1.5"><a
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "phpMyAdmin"}}</span>
+                            <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-50"><a
                                         type="button"
                                         id="phpmyadmin-link"
                                         href="/phpmyadmin"
                                         target="_blank"
                                         data-tooltip-target="tooltip-phpmyadmin-link" data-tooltip-placement="left"
-                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                        class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-up-right inline-block size-5">
-                                            <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clip-rule="evenodd"></path>
-                                        </svg>
+                                        <i class="ri-arrow-right-up-line text-lg leading-none" aria-hidden="true"></i>
                                     </a>
-                                    <div id="tooltip-phpmyadmin-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                    <div id="tooltip-phpmyadmin-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-md shadow-xs opacity-0 tooltip dark:bg-gray-700">
                                         {{.T.Get "Open database in phpMyAdmin"}}
                                         <div class="tooltip-arrow" data-popper-arrow></div>
                                     </div>
@@ -114,14 +93,11 @@
                                         href="/phpmyadmin/link"
                                         target="_blank"
                                         data-tooltip-target="tooltip-phpmyadmin-link-manual" data-tooltip-placement="left"
-                                        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50"
+                                        class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="hi-mini hi-arrow-right-end-on-rectangle inline-block size-5">
-                                            <path fill-rule="evenodd" d="M6 3.75A2.75 2.75 0 0 1 8.75 1h4.5A2.75 2.75 0 0 1 16 3.75v12.5A2.75 2.75 0 0 1 13.25 19h-4.5A2.75 2.75 0 0 1 6 16.25v-1a.75.75 0 0 1 1.5 0v1c0 .69.56 1.25 1.25 1.25h4.5c.69 0 1.25-.56 1.25-1.25V3.75c0-.69-.56-1.25-1.25-1.25h-4.5c-.69 0-1.25.56-1.25 1.25v1a.75.75 0 0 1-1.5 0v-1Z" clip-rule="evenodd"></path>
-                                            <path fill-rule="evenodd" d="M1 10a.75.75 0 0 1 .75-.75h9.546l-1.048-.943a.75.75 0 1 1 1.004-1.114l2.5 2.25a.75.75 0 0 1 0 1.114l-2.5 2.25a.75.75 0 1 1-1.004-1.114l1.048-.943H1.75A.75.75 0 0 1 1 10Z" clip-rule="evenodd"></path>
-                                        </svg>
+                                        <i class="ri-login-box-line text-lg leading-none" aria-hidden="true"></i>
                                     </a>
-                                    <div id="tooltip-phpmyadmin-link-manual" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                    <div id="tooltip-phpmyadmin-link-manual" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-md shadow-xs opacity-0 tooltip dark:bg-gray-700">
                                         {{.T.Get "Open phpMyAdmin login form"}}
                                         <div class="tooltip-arrow" data-popper-arrow></div>
                                     </div></span>
@@ -138,15 +114,30 @@
                         passwordSpan.style.filter = passwordSpan.style.filter === "blur(5px)" ? "none" : "blur(5px)";
                     }
                 </script>
-{{template "cms_block_20" .}}
-        <div class="hidden p-4 rounded" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+</dl>
+            </div>
+            <div class="divide-y divide-gray-200 bg-white dark:divide-gray-800 dark:bg-gray-950 [&>div]:rounded-none [&>div]:border-x-0 [&>div]:border-t-0 [&>div:last-child]:border-b-0 [&>div]:bg-transparent [&>div]:px-6 [&>div]:py-5 dark:[&>div]:bg-transparent [&_[data-panel-head]]:-mx-6 [&_[data-panel-head]]:-mt-5 [&_[data-panel-head]]:mb-4 [&_[data-panel-head]]:border-b [&_[data-panel-head]]:border-gray-200 [&_[data-panel-head]]:px-6 [&_[data-panel-head]]:py-4 dark:[&_[data-panel-head]]:border-gray-800">
+
+        {{template "pagespeed_panel" .}}
+
+        {{template "visitors" .}}
+
+        {{template "waf_panel" .}}
+
+        {{template "ojs_cache" .}}
+
+    </div>
+            </div>
+        </div>
+
+        <div class="hidden p-4 rounded-md" id="logs" role="tabpanel" aria-labelledby="logs-tab">
 
             {{template "cms_block_23" .}}
                 {{template "cms_block_22" .}}
             {{template "cms_script_5" .}}
         </div>
 
-        <div class="hidden p-4 rounded" id="update" role="tabpanel" aria-labelledby="update-tab">
+        <div class="hidden p-4 rounded-md" id="update" role="tabpanel" aria-labelledby="update-tab">
             {{template "cms_block_28" .}}
             <script>
                 function compareOJSVersionsDesc(a, b) {
@@ -201,12 +192,12 @@
                     latestEl.textContent = latest || {{toJSON (.T.Get "Unknown")}};
                     const updateBtn = document.getElementById('ojs-update-btn');
                     if (latest && installed && isOJSVersionOlder(installed, latest)) {
-                        statusEl.innerHTML = '<span class="text-orange-500">' + {{toJSON (.T.Get "A newer version is available.")}} + '</span>';
+                        statusEl.innerHTML = '<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">' + {{toJSON (.T.Get "A newer version is available.")}} + '</span>';
                         updateBtn.classList.remove('hidden');
                         updateBtn.classList.add('inline-flex');
                         document.getElementById('ojs-update-hint').classList.remove('hidden');
                     } else if (latest && installed) {
-                        statusEl.innerHTML = '<span class="text-green-600">' + {{toJSON (.T.Get "You are running the latest version.")}} + '</span>';
+                        statusEl.innerHTML = '<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20">' + {{toJSON (.T.Get "You are running the latest version.")}} + '</span>';
                     }
                 }
 
@@ -253,7 +244,7 @@
                                                 log.textContent += 'Error: ' + data.error + '\n';
                                                 showToast(data.error, 'error');
                                                 btn.disabled = false;
-                                                btn.textContent = {{toJSON (.T.Get "Retry Update")}};
+                                                btn.textContent = {{toJSON (.T.Get "Retry update")}};
                                             }
                                         } catch (e) { /* non-JSON line, ignore */ }
                                     });
@@ -261,7 +252,7 @@
                                 }).catch(streamErr => {
                                     showToast({{toJSON (.T.Get "Connection lost during update.")}}, 'error');
                                     btn.disabled = false;
-                                    btn.textContent = {{toJSON (.T.Get "Retry Update")}};
+                                    btn.textContent = {{toJSON (.T.Get "Retry update")}};
                                     console.error('Stream read error:', streamErr);
                                 });
                             }
@@ -270,14 +261,14 @@
                         .catch(error => {
                             showToast({{toJSON (.T.Get "Fetch error. Please try again.")}}, 'error');
                             btn.disabled = false;
-                            btn.textContent = {{toJSON (.T.Get "Retry Update")}};
+                            btn.textContent = {{toJSON (.T.Get "Retry update")}};
                             console.error('Fetch error:', error);
                         });
                 });
             </script>
         </div>
 
-        <div class="hidden p-4 rounded" id="clone" role="tabpanel" aria-labelledby="clone-tab">
+        <div class="hidden p-4 rounded-md" id="clone" role="tabpanel" aria-labelledby="clone-tab">
 
             <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Clone an OJS instance with its database and files."}}</p>
 
@@ -294,25 +285,12 @@
                 {{template "cms_block_31" .}}
             {{template "cms_script_4" .}}
 {{template "cms_block_21" .}}
-        <div class="hidden p-4 rounded" id="backups" role="tabpanel" aria-labelledby="backups-tab">
-
-            {{template "cms_block_29" .}}
-            {{template "cms_block_30" .}}
-            {{template "cms_script_10" .}}
+        <div class="hidden py-6" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+            {{template "site_backups" (dict "T" .T "Domain" .CurrentDomain "Docroot" .Docroot "Base" (print "/" .App.Slug) "DB" .DBInfo "Intro" "Copies of this site's files and database. Restore, download or delete them here." "Empty" "Back up now saves this site.")}}
         </div>
 
         {{template "cms_tab_remove_3" .}}
-    <div class="flex flex-col space-y-4 rounded xl:col-span-1">
-
-        {{template "pagespeed_panel" .}}
-
-        {{template "visitors" .}}
-
-        {{template "waf_panel" .}}
-
-        {{template "ojs_cache" .}}
-
-    </div>
+    
 
 </div>
 
@@ -359,28 +337,23 @@ function confirmDetachOJS() {
 
 {{define "ojs_cache"}}
 <!-- START ojs_cache widget -->
-<div x-data="ojsCacheComponent()" class="flex flex-col justify-center overflow-hidden rounded p-4 border shadow-sm border-gray-200 dark:border-gray-900 xl:col-span-1">
+<div x-data="ojsCacheComponent()" class="flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
   {{template "cms_block_32" .}}
-    <div class="grid grid-cols-1 gap-2">
-        <div class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-            <span class="text-sm capitalize text-gray-600 dark:text-gray-400">{{.T.Get "Purge OJS caches:"}}</span>
-            <span class="font-medium">
-
+    <div class="flex flex-wrap items-center justify-between gap-3">
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Purge OJS caches"}}</p>
         <button
         @click="purgeCaches"
         data-tooltip-target="tooltip-ojs_purge_cache-link" data-tooltip-placement="left"
-        class="flex items-center justify-between gap-1.5 rounded-lg bg-slate-100 px-2 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/75 hover:text-slate-950 active:bg-slate-100 dark:bg-slate-700/50 dark:text-slate-100 dark:hover:bg-slate-700 dark:hover:text-white dark:active:bg-slate-700/50 cursor-pointer"
+        class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"
         type="button"
-        aria-label="{{.T.Get "Purge OJS Caches"}}"
+        aria-label="{{.T.Get "Purge OJS caches"}}"
         >
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash size-5 shrink-0"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-        {{.T.Get "Clear Cache"}}
+    <i class="ri-delete-bin-line text-base leading-none" aria-hidden="true"></i>
+        {{.T.Get "Clear cache"}}
         </button>
-            </span>
-        </div>
     </div>
 
-    <div id="tooltip-ojs_purge_cache-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-xs opacity-0 tooltip dark:bg-gray-700">
+    <div id="tooltip-ojs_purge_cache-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-md shadow-xs opacity-0 tooltip dark:bg-gray-700">
       {{.T.Get "Clears OJS's cache/ directory."}}
       <div class="tooltip-arrow" data-popper-arrow></div>
     </div>

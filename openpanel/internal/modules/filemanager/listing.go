@@ -122,7 +122,7 @@ func handleFiles(a *appctx.App, w http.ResponseWriter, r *http.Request, pathPara
 
 	title := pathParam
 	if title == "" {
-		title = "File Manager"
+		title = "File manager"
 	}
 
 	lsFlag := "-la"

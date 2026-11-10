@@ -10,7 +10,7 @@
         {{template "cms_block_3" .}}
 {{template "cms_script_2" .}}
 {{template "cms_block_5" .}}
-    <div class="flex flex-col space-y-4 rounded xl:col-span-3">
+    <div class="flex min-w-0 flex-col bg-white dark:bg-gray-950">
 
         {{template "cms_block_7" .}}
             {{template "cms_tabbtn_dashboard" .}}
@@ -20,9 +20,9 @@
             {{template "cms_tabbtn_backups" .}}
             {{template "cms_tab_security_2" .}}
         {{template "cms_tab_dashboard" .}}
-            <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
-                <div class="flex flex-col space-y-4 overflow-hidden rounded xl:col-span-3">
-                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded xl:col-span-3">
+            <div>
+                <div class="hidden">
+                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded-md xl:col-span-3">
                         {{template "cms_block_10" .}}
                 {{template "cms_block_13" .}}
                 {{template "cms_block_14" .}}
@@ -33,15 +33,28 @@
                         passwordSpan.style.filter = passwordSpan.style.filter === "blur(5px)" ? "none" : "blur(5px)";
                     }
                 </script>
-{{template "cms_block_20" .}}
-        <div class="hidden p-4 rounded" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+</dl>
+            </div>
+            <div class="divide-y divide-gray-200 bg-white dark:divide-gray-800 dark:bg-gray-950 [&>div]:rounded-none [&>div]:border-x-0 [&>div]:border-t-0 [&>div:last-child]:border-b-0 [&>div]:bg-transparent [&>div]:px-6 [&>div]:py-5 dark:[&>div]:bg-transparent [&_[data-panel-head]]:-mx-6 [&_[data-panel-head]]:-mt-5 [&_[data-panel-head]]:mb-4 [&_[data-panel-head]]:border-b [&_[data-panel-head]]:border-gray-200 [&_[data-panel-head]]:px-6 [&_[data-panel-head]]:py-4 dark:[&_[data-panel-head]]:border-gray-800">
+
+        {{template "pagespeed_panel" .}}
+
+        {{template "visitors" .}}
+
+        {{template "cms_block_26" .}}
+
+    </div>
+            </div>
+        </div>
+
+        <div class="hidden p-4 rounded-md" id="logs" role="tabpanel" aria-labelledby="logs-tab">
 
             {{template "cms_block_23" .}}
                 {{template "cms_block_22" .}}
             {{template "cms_script_5" .}}
         </div>
 
-        <div class="hidden p-4 rounded" id="update" role="tabpanel" aria-labelledby="update-tab">
+        <div class="hidden p-4 rounded-md" id="update" role="tabpanel" aria-labelledby="update-tab">
             {{template "cms_block_28" .}}
             {{template "cms_script_9" .}}
         </div>
@@ -52,21 +65,14 @@
                 {{template "cms_block_31" .}}
             {{template "cms_script_4" .}}
 {{template "cms_block_21" .}}
-        <div class="hidden p-4 rounded" id="backups" role="tabpanel" aria-labelledby="backups-tab">
-
-            {{template "cms_block_29" .}}
-            {{template "cms_block_30" .}}
-            {{template "cms_script_10" .}}
+        <div class="hidden py-6" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+            {{template "site_backups" (dict "T" .T "Domain" .CurrentDomain "Docroot" .Docroot "Base" (print "/" .App.Slug) "DB" .DBInfo "Intro" "Copies of this site's files and database. Restore, download or delete them here." "Empty" "Back up now saves this site.")}}
         </div>
 
         {{template "cms_tab_remove_3" .}}
-    <div class="flex flex-col space-y-4 rounded xl:col-span-1">
+    
 
-        {{template "pagespeed_panel" .}}
-
-        {{template "visitors" .}}
-
-        {{template "cms_block_26" .}}
+</div>
 <script>
 const MEDIAWIKI_SITE_ID = {{toJSON .Container.ID}};
 

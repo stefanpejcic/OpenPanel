@@ -82,6 +82,17 @@ func (u UsageBar) Level() string {
 	return "ok"
 }
 
+// BarClass is the page's meter fill: blue, yellow from 70%, red from 90%
+func (u UsageBar) BarClass() string {
+	switch {
+	case u.Percent >= 90:
+		return "bg-red-500"
+	case u.Percent >= 70:
+		return "bg-yellow-500"
+	}
+	return "bg-blue-500"
+}
+
 // Width keeps the bar inside its track
 func (u UsageBar) Width() int { return min(max(u.Percent, 0), 100) }
 

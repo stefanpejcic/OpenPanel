@@ -135,7 +135,7 @@ func pagePath(r *http.Request) string {
 }
 
 func renderDiskUsagePage(a *appctx.App, w http.ResponseWriter, r *http.Request, duOutput string, quota *dashboard.DiskInodes, trashBytes int64, trashOK bool) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Disk Usage")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Disk usage")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

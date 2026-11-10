@@ -17,15 +17,15 @@ var goaccessPage = loadPage("domains/goaccess.html")
 // GoaccessPageData is domains/goaccess.html's template context.
 type GoaccessPageData struct {
 	web.LayoutData
-	Domains  []appctx.Domain
+	Domains  []web.DomainPick
 	Selected string
 	Summary  *StatsSummary
 	// set when the selected domain has no report yet, or it couldn't be read
 	NoReport bool
 }
 
-func renderGoaccessSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domains []appctx.Domain, selected string, summary *StatsSummary) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Visitor Statistics")
+func renderGoaccessSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domains []web.DomainPick, selected string, summary *StatsSummary) {
+	layout, _, err := web.BuildLayoutData(a, w, r, "Visitor statistics")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

@@ -1,7 +1,7 @@
 {{define "service"}}{{if .Service}}
 <!-- START templates/partials/_service.html -->
 <div  x-data="serviceStatus()" x-init="fetchStatus()" id="service-status" class="relative p-4 hidden sm:inline">
-    <span class="inline-flex items-center gap-x-2.5 rounded-full bg-white px-2.5 py-1.5 text-xs  ring-1 ring-inset ring-gray-200 dark:bg-gray-950 dark:ring-gray-800">
+    <span class="inline-flex items-center gap-x-2.5 rounded-md bg-white px-2.5 py-1.5 text-xs ring-1 ring-inset ring-gray-200 dark:bg-gray-950 dark:ring-gray-800">
         <span class="inline-flex items-center gap-1.5 font-medium text-gray-900 dark:text-gray-50 relative whitespace-nowrap" x-on:mouseenter="showTooltip = true" x-on:mouseleave="showTooltip = false" style="cursor: help;">
         {{.Service}}
             <template x-if="status === 'checking'">
@@ -19,7 +19,7 @@
 
             <span x-text="label"></span>
 
-            <div x-cloak x-show="showTooltip" x-transition class="absolute right-0 top-6 z-10 w-72 px-3 py-2 text-xs text-white bg-gray-900 rounded-lg shadow-md dark:bg-gray-800">
+            <div x-cloak x-show="showTooltip" x-transition class="absolute right-0 top-6 z-10 w-72 px-3 py-2 text-xs text-white bg-gray-900 rounded-md shadow-md dark:bg-gray-800">
                 <template x-if="status === 'checking'">
                     <span>{{.T.Get "Loading service data..."}}</span>
                 </template>
