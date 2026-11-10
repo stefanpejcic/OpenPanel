@@ -41,7 +41,7 @@ For an application to appear on the Autoinstaller page, the corresponding module
 
 ## Docker Applications
 
-If your account has the **Docker** feature enabled, the Auto Installer also shows a **Docker Applications** section with ready-made templates for popular self-hosted apps:
+If your account has the **Docker** feature enabled, the Auto Installer also shows a **Docker applications** section with ready-made templates for popular self-hosted apps:
 
 | Application | Image | Port |
 |---|---|---|

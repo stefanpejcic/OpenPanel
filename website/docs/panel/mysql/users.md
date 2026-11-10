@@ -20,7 +20,7 @@ Available options on the Users page are:
 - **Delete a user**
 
 :::info
-The **Create User**, **Assign User to Database**, and **Remove User from Database** buttons are disabled while the database service is not running.
+The **Create user**, **Assign user to database**, and **Remove user from database** buttons are disabled while the database service is not running.
 :::
 
 ## Create a New Database User

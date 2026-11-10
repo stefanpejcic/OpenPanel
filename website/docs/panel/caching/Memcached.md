@@ -13,7 +13,7 @@ It is commonly used to reduce the load on a database server and improve the resp
 
 ## Enable / Disable
 
-You have the options to enable or disable the Memcached service as needed. Disabling it will promptly clear all existing Memcached data from memory.
+You have the options to enable or disable the Memcached service as needed. Disabling it will promptly clear all existing Memcached data from memory. Click **Click to disable** and confirm in the dialog to turn it off.
 
 Enabling the Memcached service will start the service using the default Memcached port, which is _11211_.
 

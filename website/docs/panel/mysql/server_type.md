@@ -4,7 +4,7 @@ sidebar_position: 14
 
 # Switch Database Server
 
-The **MySQL > Server Type** page lets you choose which database server runs your MySQL databases: **MySQL**, **MariaDB** or **Percona**.
+The **MySQL > Server type** page lets you choose which database server runs your MySQL databases: **MySQL**, **MariaDB** or **Percona**.
 
 ![Database Server page with cards for MySQL, MariaDB and Percona, the current one marked, and a notice to remove existing databases before switching](/img/openpanel-screenshots/containers/mysql-page.png#gh-light-mode-only)
 ![Database Server page with cards for MySQL, MariaDB and Percona, the current one marked, and a notice to remove existing databases before switching](/img/openpanel-screenshots/containers/mysql-page_dark.png#gh-dark-mode-only)
@@ -33,7 +33,7 @@ Switching the database server **deletes all databases and database users**. Expo
 ## Steps to Switch
 
 1. Export the databases you want to keep, then delete them from **MySQL > Databases**.
-2. Navigate to **MySQL > Server Type**.
+2. Navigate to **MySQL > Server type**.
 3. Click the card of the database server you want to use.
 4. Click **Switch to &lt;database server&gt;**.
 

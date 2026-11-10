@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Sites
 
-The **Site Manager** (`/sites`) lists every website on your account in one place — static sites, WordPress installs, Node.js/Python/Ruby/Java applications, domains pointed to a [Docker container](/docs/panel/containers/#pointing-a-domain-to-a-container), and sites created via other installers (Drupal, Joomla, OpenCart, etc.) — grouped by type.
+The **Site manager** (`/sites`) lists every website on your account in one place — static sites, WordPress installs, Node.js/Python/Ruby/Java applications, domains pointed to a [Docker container](/docs/panel/containers/#pointing-a-domain-to-a-container), and sites created via other installers (Drupal, Joomla, OpenCart, etc.) — grouped by type.
 
 To create a new site, click **+ New Website**, which opens the [Auto Installer](/docs/panel/applications/autoinstaller/).
 
@@ -13,19 +13,19 @@ To create a new site, click **+ New Website**, which opens the [Auto Installer](
 Each row shows:
 
 - **Type** – The site's application/framework (WordPress, static HTML, Node.js, Drupal, etc.).
-- **Site Name** – Domain (or subfolder) the site is installed on, with its favicon.
+- **Site name** – Domain (or subfolder) the site is installed on, with its favicon.
 - **Created** – Date the site was added to Site Manager.
 - **Version** – The installed application version, when applicable. If a newer version is available upstream, an **Update available** badge appears next to it (checked for WordPress, Drupal, Joomla, and OpenCart sites).
 - **Speed** – A link to check the site on Google PageSpeed Insights.
 - **Actions** – Per-row buttons, shown depending on the site type:
-  - **Login as Admin** – One-click login to the application's admin area (WordPress sites).
+  - **Login as admin** – One-click login to the application's admin area (WordPress sites).
   - **Manage** (files icon) – Opens the domain's files in [File Manager](/docs/panel/files/).
   - **Manage** (site icon) – Opens the site's management page (the deeper per-site tabs, e.g. the [WordPress Manager](/docs/panel/applications/wordpress/#site-manager) tabs for WordPress sites), or the [Website Builder](/docs/panel/applications/builder/) editor for builder sites.
   - **Clone** – Copies the site's files and database to another domain.
   - **Backups** – Jumps to the site's backup tab.
   - **Delete** – Removes the site.
 
-  For **Docker Containers** sites, **Manage** opens the container's **Edit** page and **Delete** deletes the container, which also removes its reverse proxy from the domain.
+  For **Docker containers** sites, **Manage** opens the container's **Edit** page and **Delete** deletes the container, which also removes its reverse proxy from the domain.
 
 ![Site Manager listing websites grouped by type with their version, creation date and PageSpeed scores](/img/openpanel-screenshots/applications/sites-list.png#gh-light-mode-only)
 ![Site Manager listing websites grouped by type with their version, creation date and PageSpeed scores](/img/openpanel-screenshots/applications/sites-list_dark.png#gh-dark-mode-only)

@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Switch Web Server
 
-The **Web Server Config > Web Server Type** page lets you choose which web server runs your websites: **Apache**, **Nginx**, **OpenLiteSpeed**, **LiteSpeed** or **OpenResty**.
+The **Web server config > Web server type** page lets you choose which web server runs your websites: **Apache**, **Nginx**, **OpenLiteSpeed**, **LiteSpeed** or **OpenResty**.
 
 ![Web Server Type page with a card for each available web server, the current one marked, and the Switch button](/img/openpanel-screenshots/containers/webserver-page.png#gh-light-mode-only)
 ![Web Server Type page with a card for each available web server, the current one marked, and the Switch button](/img/openpanel-screenshots/containers/webserver-page_dark.png#gh-dark-mode-only)
@@ -40,7 +40,7 @@ To avoid downtime, choose the web server **before adding any domains**. If you a
 
 ## Steps to Switch
 
-1. In the OpenPanel menu, navigate to **Web Server Config > Web Server Type**.
+1. In the OpenPanel menu, navigate to **Web server config > Web server type**.
 2. Click the card of the web server you want to use.
 3. Click **Switch to &lt;web server&gt;**.
 

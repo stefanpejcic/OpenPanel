@@ -4,7 +4,7 @@ sidebar_position: 7.5
 
 # Migrate Emails
 
-The **Migrate Emails** page copies all folders and messages from an email account on another server (cPanel, Plesk, DirectAdmin, Gmail, Outlook or any other IMAP server) into one of your email accounts on OpenPanel.
+The **Migrate emails** page copies all folders and messages from an email account on another server (cPanel, Plesk, DirectAdmin, Gmail, Outlook or any other IMAP server) into one of your email accounts on OpenPanel.
 
 The migration runs in the background with [imapsync](https://imapsync.lamiral.info/), so you can close the page while it works. Nothing is deleted on the old server, and messages that were already copied are skipped, so you can run the same migration again, for example right before you switch the domain's MX records.
 

@@ -12,7 +12,7 @@ Step-by-step guide: [Deploy a Java / Spring Boot app](/docs/articles/websites/de
 
 ## Create an Application
 
-To create a new Java application, navigate to **OpenPanel > Websites > Install App** and click **Setup Java Application**.
+To create a new Java application, navigate to **OpenPanel > Websites > Install app** and click **Setup Java Application**.
 
 ![Install Java Application form with the application details, domain, startup command and the Small, Medium and Large resource presets](/img/openpanel-screenshots/applications/java_install-form.png#gh-light-mode-only)
 ![Install Java Application form with the application details, domain, startup command and the Small, Medium and Large resource presets](/img/openpanel-screenshots/applications/java_install-form_dark.png#gh-dark-mode-only)
@@ -22,17 +22,17 @@ On the next page, you can configure the following settings:
 * **Name** – The name of the application and container as displayed in OpenPanel.
 * **Port** – Set a custom port if your app uses one. Otherwise, port 80 is used by default.
 * **Domain Name / Subfolder** – The domain (and optional subfolder) where the application will be publicly accessible.
-* **Startup File** – The file executed at startup with the `java` command. Defaults to `Main.java`.
-* **Custom Startup Command** – Use a custom startup command instead of the default `java` (for example `java -jar target/app.jar` for a Maven build).
+* **Startup file** – The file executed at startup with the `java` command. Defaults to `Main.java`.
+* **Custom startup command** – Use a custom startup command instead of the default `java` (for example `java -jar target/app.jar` for a Maven build).
 * **Type** – Fixed to Java.
 * **Version** – Select a JDK version from Docker Hub's official `eclipse-temurin` LTS tags.
 * **Run Install** – Run `mvn install` using the project's `pom.xml` before starting the application. Skip this for a single-file app or one that's already built.
 * **Resource presets** – **Small** (0.25 CPU, 0.25 GB, 100 processes), **Medium** (0.5 CPU, 1 GB, 500 processes) or **Large** (1 CPU, 2 GB, 1000 processes) fill in the three limits below in one click. Medium is the default.
-* **CPU Cores** – Number of CPU cores allocated to the application.
+* **CPU cores** – Number of CPU cores allocated to the application.
 * **Memory** – Amount of memory (in GB) allocated to the application.
 * **Max processes** – The most processes the application's container can run at once.
 
-After completing the form, click **Start Installation**.
+After completing the form, click **Start installation**.
 The installation process will be displayed below the form. Once complete, you’ll be redirected to the management page where you can view all your applications.
 
 :::info
@@ -78,8 +78,8 @@ On this page, you can view important details such as:
 * **Screenshot** – Preview of the application’s domain.
 * **Status** – Current container status.
 * **Version** – JDK version in use.
-* **CPU Limit** – Configured CPU allocation.
-* **Memory Limit** – Configured memory allocation.
+* **CPU limit** – Configured CPU allocation.
+* **Memory limit** – Configured memory allocation.
 * **Speed** – Google PageSpeed Insights data for the website.
 * **Files** – Current folder path and size.
 * **Firewall** – WAF (Web Application Firewall) status for the domain (if enabled).
@@ -88,6 +88,6 @@ You also have several management options:
 
 * **Actions** – Start, stop, or restart the container.
 * **Overview** – Modify startup file or command, working directory, package installation settings (Maven), version, and resource limits (CPU, Memory, PIDs).
-* **Install Packages** – View and manage the `pom.xml`, and run `mvn install`.
+* **Install packages** – View and manage the `pom.xml`, and run `mvn install`.
 * **Logs** – View container logs for troubleshooting.
 * **Remove** – Delete the application.

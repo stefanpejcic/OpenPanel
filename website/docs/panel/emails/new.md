@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Create New Account
 
-To create a new email account, go to **OpenPanel > Email > Accounts > New Email**.
+To create a new email account, go to **OpenPanel > Email > Accounts > New email**.
 
 ![Create an Email form with the domain, username, password and storage quota fields](/img/openpanel-screenshots/emails/new-form.png#gh-light-mode-only)
 ![Create an Email form with the domain, username, password and storage quota fields](/img/openpanel-screenshots/emails/new-form_dark.png#gh-dark-mode-only)
@@ -18,7 +18,7 @@ Fill in the form:
 | **Password** | A password is auto-generated on page load. Use the shuffle icon to generate a new one, or type your own. The strength indicator shows if the password is weak, medium, or strong |
 | **Storage quota** | Maximum mailbox size. Set to `0` for unlimited. Unit can be KiB, MiB, GiB, or TiB |
 
-Click **Create Email** when done.
+Click **Create email** when done.
 
 Notes:
 - Username cannot contain spaces.

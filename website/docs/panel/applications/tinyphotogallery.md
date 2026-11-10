@@ -10,7 +10,7 @@ Install and manage [TinyPhotoGallery](https://github.com/stefanpejcic/tinyphotog
 
 ## Install TinyPhotoGallery
 
-Navigate to **OpenPanel > Websites > Install App** and click **Install TinyPhotoGallery**.
+Navigate to **OpenPanel > Websites > Install app** and click **Install TinyPhotoGallery**.
 
 ![Install TinyPhotoGallery form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/tinyphotogallery-form.png#gh-light-mode-only)
 ![Install TinyPhotoGallery form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/tinyphotogallery-form_dark.png#gh-dark-mode-only)
@@ -23,7 +23,7 @@ Behind the scenes, this downloads `index.php` from the project's main branch (th
 
 ## Manage a TinyPhotoGallery site
 
-Every TinyPhotoGallery install shows up on the general **Site Manager** page (`/sites`) alongside your other websites. Click **Manage** on a TinyPhotoGallery site to open its overview page:
+Every TinyPhotoGallery install shows up on the general **Site manager** page (`/sites`) alongside your other websites. Click **Manage** on a TinyPhotoGallery site to open its overview page:
 
 * **Screenshot** and **TinyPhotoGallery / PHP / Created** status cards. TinyPhotoGallery always reports as "main" since there is no real versioning upstream.
 * **Files** – Docroot path, a File Manager shortcut, and live folder size. There is no Database card — TinyPhotoGallery has no database.
@@ -36,5 +36,5 @@ The **Backups** tab generates and restores files-only backups (there is no datab
 
 ### Remove
 
-The **Remove** tab's **Delete Application** button fully uninstalls the site: deletes `index.php` and the `photos/` folder, and removes it from Site Manager. This cannot be undone.
+The **Remove** tab's **Delete application** button fully uninstalls the site: deletes `index.php` and the `photos/` folder, and removes it from Site Manager. This cannot be undone.
 

@@ -6,16 +6,16 @@ sidebar_position: 2
 
 Easily create a new PostgreSQL database in just a few clicks. Databases are essential for storing, organizing, and retrieving data for your applications.
 
-Navigate to **PostgreSQL > Databases > New Database**:
+Navigate to **PostgreSQL > Databases > New database**:
 
 1. **Enter a Database Name**
    Type your desired name into the input field. Only letters, numbers, and underscores are allowed, and the name must be between 1 and 63 characters long.
 
-2. **Generate a Random Name** *(Optional)*
+2. **Generate a random name** *(Optional)*
    If you're unsure about a name, click the button next to the input field to automatically generate a secure and unique database name.
 
 3. **Click 'Create Database'**
-   Once the name is entered or generated, click the **Create Database** button to initialize your new PostgreSQL database.
+   Once the name is entered or generated, click the **Create database** button to initialize your new PostgreSQL database.
 
 ![Create PostgreSQL Database form with the database name field](/img/openpanel-screenshots/postgresql/new_db-form.png#gh-light-mode-only)
 ![Create PostgreSQL Database form with the database name field](/img/openpanel-screenshots/postgresql/new_db-form_dark.png#gh-dark-mode-only)

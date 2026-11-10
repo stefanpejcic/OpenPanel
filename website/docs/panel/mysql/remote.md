@@ -104,9 +104,9 @@ define('DB_HOST', 'IP_ADDRESS:PORT');
 
 ## Per-User Access
 
-While remote access is enabled, the page also shows a **Per-User Access** table that lets you control which hosts each MySQL user is allowed to connect from:
+While remote access is enabled, the page also shows a **Per-user access** table that lets you control which hosts each MySQL user is allowed to connect from:
 
-- **Add Access** – Click the "Add Access" button and fill in a **Username** (existing or new), an **Allowed Host** (e.g. `%` for any host, `localhost`, or a specific IP such as `192.168.1.10`), and a **Password**. If the username already exists, the new host automatically inherits that user's existing database privileges. Click **Grant Access** to save.
+- **Add access** – Click the "Add Access" button and fill in a **Username** (existing or new), an **Allowed host** (e.g. `%` for any host, `localhost`, or a specific IP such as `192.168.1.10`), and a **Password**. If the username already exists, the new host automatically inherits that user's existing database privileges. Click **Grant access** to save.
 - **Edit** – Click **Edit** next to a host entry to change which host it applies to, then click **Save**.
 - **Delete** – Click **Delete** next to a host entry and confirm within a few seconds to revoke access from that host.
 
@@ -125,7 +125,7 @@ Tick the checkbox of one or more hosts, or the checkbox in the table header to s
 |---|---|
 | **Remove access** | Removes remote access for the selected user and host pairs. |
 
-Each allowed host of a user has its own checkbox, the checkbox in the **Allowed From** header selects all of them.
+Each allowed host of a user has its own checkbox, the checkbox in the **Allowed from** header selects all of them.
 
 Click an action, confirm it, and it runs on the selected hosts one after another. When it's done the page reloads with a notice listing the hosts it worked for, or which ones failed and why.
 

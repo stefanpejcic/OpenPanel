@@ -6,7 +6,7 @@ sidebar_position: 5
 
 ![OpenPanel dashboard in dark mode](/img/openpanel-screenshots/dashboard/dark-mode-window.png#screenshot)
 
-OpenPanel theme offers a built-in Dark Mode, which can be activated with a single click using the options located at the bottom left of the sidebar:
+OpenPanel has a built-in Dark Mode. To turn it on or off, click your profile at the bottom of the sidebar and click the moon or sun icon next to **Theme**:
 
 ![Dark mode switch](/img/panel/v2/darkmodes.gif)
 

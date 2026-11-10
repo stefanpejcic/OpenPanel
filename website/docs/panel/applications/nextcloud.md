@@ -10,7 +10,7 @@ Install and manage [Nextcloud](https://nextcloud.com/) sites in an existing doma
 
 ## Install Nextcloud
 
-Navigate to **OpenPanel > Websites > Install App** and click **Install Nextcloud**.
+Navigate to **OpenPanel > Websites > Install app** and click **Install Nextcloud**.
 
 ![Install Nextcloud form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/nextcloud-form.png#gh-light-mode-only)
 ![Install Nextcloud form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/nextcloud-form_dark.png#gh-dark-mode-only)
@@ -25,7 +25,7 @@ Behind the scenes, this downloads the matching `nextcloud-<version>.zip` release
 
 ## Manage a Nextcloud site
 
-Every Nextcloud install shows up on the general **Site Manager** page (`/sites`) alongside your other websites. Click **Manage** on a Nextcloud site to open its overview page:
+Every Nextcloud install shows up on the general **Site manager** page (`/sites`) alongside your other websites. Click **Manage** on a Nextcloud site to open its overview page:
 
 * **Screenshot** and **Nextcloud / PHP / MariaDB / Created** status cards, matching the other CMS managers.
 * **Files** – Docroot path, a File Manager shortcut, and live folder size.
@@ -34,7 +34,7 @@ Every Nextcloud install shows up on the general **Site Manager** page (`/sites`)
 
 ### Login as Admin
 
-The **Login as Admin** button generates a one-time login link and opens the Nextcloud dashboard already authenticated, without needing the admin password. Nextcloud core has no built-in CLI command for this, so OpenPanel deploys a small login helper file into the docroot at install time that authenticates through Nextcloud's own public `IUserSession::completeLogin()` API; each click issues a fresh token valid for 10 minutes and usable once.
+The **Login as admin** button generates a one-time login link and opens the Nextcloud dashboard already authenticated, without needing the admin password. Nextcloud core has no built-in CLI command for this, so OpenPanel deploys a small login helper file into the docroot at install time that authenticates through Nextcloud's own public `IUserSession::completeLogin()` API; each click issues a fresh token valid for 10 minutes and usable once.
 
 ### Cache
 
@@ -46,5 +46,5 @@ The **Logs** tab shows the tail of `data/nextcloud.log` — Nextcloud's default 
 
 ### Remove
 
-The **Remove** tab's **Delete Application** button fully uninstalls the site: drops the database and database user, deletes every file in the docroot, and removes it from Site Manager. This cannot be undone.
+The **Remove** tab's **Delete application** button fully uninstalls the site: drops the database and database user, deletes every file in the docroot, and removes it from Site Manager. This cannot be undone.
 

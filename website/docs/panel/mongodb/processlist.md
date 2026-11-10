@@ -22,7 +22,7 @@ Each row shows:
 - **Time**: how many seconds the operation has been running.
 - **Command**: the command that was sent. Long commands are shortened, hover over one to see more.
 
-Use the search box to filter by user, namespace, operation or command. Click **Refresh Processes** to reload the list.
+Use the search box to filter by user, namespace, operation or command. Click **Refresh processes** to reload the list.
 
 ## Kill a query
 

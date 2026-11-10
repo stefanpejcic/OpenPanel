@@ -10,7 +10,7 @@ Install and manage [Matomo](https://matomo.org/) — self-hosted, privacy-focuse
 
 ## Install Matomo
 
-Navigate to **OpenPanel > Websites > Install App** and click **Install Matomo**.
+Navigate to **OpenPanel > Websites > Install app** and click **Install Matomo**.
 
 ![Install Matomo form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/matomo-form.png#gh-light-mode-only)
 ![Install Matomo form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/matomo-form_dark.png#gh-dark-mode-only)
@@ -26,7 +26,7 @@ Behind the scenes, this downloads the matching `matomo-<version>.zip` release as
 
 ## Manage a Matomo site
 
-Every Matomo install shows up on the general **Site Manager** page (`/sites`) alongside your other websites. Click **Manage** on a Matomo site to open its overview page:
+Every Matomo install shows up on the general **Site manager** page (`/sites`) alongside your other websites. Click **Manage** on a Matomo site to open its overview page:
 
 * **Screenshot**, **Matomo / PHP / MariaDB / Created** status cards.
 * **Files** – Docroot path, a File Manager shortcut, and live folder size.
@@ -35,7 +35,7 @@ Every Matomo install shows up on the general **Site Manager** page (`/sites`) al
 
 ### Login as Admin
 
-The **Login as Admin** button (in the page header) generates a one-time login link and opens the Matomo dashboard already authenticated. Matomo has no CLI or database-level one-time-login primitive to hook into, so OpenPanel's login helper replays Matomo's own public login form server-side (via a loopback request), then re-issues the resulting session cookie to your browser. It's gated by a random 64-character token baked into the helper file at install time.
+The **Login as admin** button (in the page header) generates a one-time login link and opens the Matomo dashboard already authenticated. Matomo has no CLI or database-level one-time-login primitive to hook into, so OpenPanel's login helper replays Matomo's own public login form server-side (via a loopback request), then re-issues the resulting session cookie to your browser. It's gated by a random 64-character token baked into the helper file at install time.
 
 ### Cache
 
@@ -59,5 +59,5 @@ The **Backups** tab generates and restores full backups (database dump plus a fi
 
 ### Remove
 
-The **Remove** tab's **Delete Application** button fully uninstalls the site: drops the database and database user (parsed from `config/config.ini.php`), deletes every file in the docroot, removes the stored admin credentials, and removes it from Site Manager. This cannot be undone.
+The **Remove** tab's **Delete application** button fully uninstalls the site: drops the database and database user (parsed from `config/config.ini.php`), deletes every file in the docroot, removes the stored admin credentials, and removes it from Site Manager. This cannot be undone.
 

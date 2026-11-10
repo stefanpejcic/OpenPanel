@@ -47,6 +47,6 @@ After uploading the file:
 
 ### Final Step
 
-Click **Start Import** to begin the import process. A log will appear below the table to show the progress and status of the operation.
+Click **Start import** to begin the import process. A log will appear below the table to show the progress and status of the operation.
 
 Once completed, all valid email accounts will be successfully imported.

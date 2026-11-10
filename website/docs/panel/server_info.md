@@ -4,7 +4,7 @@ sidebar_position: 19
 
 # Server Information
 
-View current server specification, your hosting plan and panel details. The page has three tabs: **Server**, **Hosting Plan** and **Panel**. Each tab has its own link, so you can share or bookmark it: `/server/info#server`, `/server/info#plan` and `/server/info#panel`.
+View current server specification, your hosting plan and panel details. The page has three tabs: **Server**, **Hosting plan** and **Panel**. Each tab has its own link, so you can share or bookmark it: `/server/info#server`, `/server/info#plan` and `/server/info#panel`.
 
 ## Server
 

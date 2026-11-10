@@ -12,7 +12,7 @@ Step-by-step guide: [How to Self-Host n8n on Your Own Server](/docs/articles/app
 
 ## Install n8n
 
-Navigate to **OpenPanel > Websites > Install App** and click **Install n8n**.
+Navigate to **OpenPanel > Websites > Install app** and click **Install n8n**.
 
 ![Install n8n form with the application name, fixed port 5678, version, domain, owner account and resource limits](/img/openpanel-screenshots/applications/n8n_install-form.png#gh-light-mode-only)
 ![Install n8n form with the application name, fixed port 5678, version, domain, owner account and resource limits](/img/openpanel-screenshots/applications/n8n_install-form_dark.png#gh-dark-mode-only)
@@ -28,7 +28,7 @@ On the install page, configure:
 
 Unlike the Node.js, Python, Ruby and Java installers, there is no startup file, custom command, package install or Git repository - n8n runs its own fixed entrypoint.
 
-After you click **Start Installation**, OpenPanel:
+After you click **Start installation**, OpenPanel:
 
 1. Adds an `n8nio/n8n` service to your account's `docker-compose.yml`, with its own data volume for `/home/node/.n8n` (workflows, credentials and settings).
 2. Sets `N8N_HOST`, `WEBHOOK_URL` and `N8N_EDITOR_BASE_URL` to the chosen domain, so webhooks and editor links use your real `https://` address.
@@ -41,7 +41,7 @@ Progress is shown below the form. When it finishes, you're redirected to the Sit
 
 ## Manage n8n
 
-n8n shows up on the **Site Manager** page (`/sites`) alongside your other websites. Click **Manage** next to it to open its page, which has four tabs.
+n8n shows up on the **Site manager** page (`/sites`) alongside your other websites. Click **Manage** next to it to open its page, which has four tabs.
 
 ### Overview
 
@@ -70,7 +70,7 @@ Further down, the same tab lets you change the application's settings:
 
 Add custom environment variables for the n8n container, one `KEY=VALUE` per line - for example `GENERIC_TIMEZONE`, execution data pruning, or SMTP settings for n8n's user emails. See the [n8n environment variable reference](https://docs.n8n.io/hosting/configuration/environment-variables/).
 
-Click **Save Environment Variables**, then restart the application from the **Overview** tab for the changes to take effect.
+Click **Save environment variables**, then restart the application from the **Overview** tab for the changes to take effect.
 
 ### Logs
 
@@ -84,4 +84,4 @@ Shows the n8n container log - startup, database migrations and errors from workf
 ![Remove tab with the Confirm delete and Cancel buttons shown after clicking Delete Application](/img/openpanel-screenshots/applications/n8n-remove.png#gh-light-mode-only)
 ![Remove tab with the Confirm delete and Cancel buttons shown after clicking Delete Application](/img/openpanel-screenshots/applications/n8n-remove_dark.png#gh-dark-mode-only)
 
-**Delete Application** stops n8n, deletes its container **and its data volume**, and removes it from Site Manager. All workflows, credentials and executions are lost, so export your workflows from n8n first. Click **Confirm delete** to proceed.
+**Delete application** stops n8n, deletes its container **and its data volume**, and removes it from Site Manager. All workflows, credentials and executions are lost, so export your workflows from n8n first. Click **Confirm delete** to proceed.

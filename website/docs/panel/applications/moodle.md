@@ -10,7 +10,7 @@ Install and manage [Moodle](https://moodle.org/) — an open-source learning man
 
 ## Install Moodle
 
-Navigate to **OpenPanel > Websites > Install App** and click **Install Moodle**.
+Navigate to **OpenPanel > Websites > Install app** and click **Install Moodle**.
 
 ![Install Moodle form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/moodle-form.png#gh-light-mode-only)
 ![Install Moodle form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/moodle-form_dark.png#gh-dark-mode-only)
@@ -26,7 +26,7 @@ Behind the scenes, this downloads the matching packaged tarball from `download.m
 
 ## Manage a Moodle site
 
-Every Moodle install shows up on the general **Site Manager** page (`/sites`) alongside your other websites. Click **Manage** on a Moodle site to open its overview page:
+Every Moodle install shows up on the general **Site manager** page (`/sites`) alongside your other websites. Click **Manage** on a Moodle site to open its overview page:
 
 * **Screenshot** and **Moodle / PHP / MariaDB / Created** status cards, matching the other CMS managers.
 * **Files** – The docroot is a symlink to the app root's `public/` directory; a File Manager shortcut, and live folder size.
@@ -62,4 +62,4 @@ The **Update** action updates an installed site to the latest release in place: 
 
 ### Remove
 
-The **Remove** tab's **Delete Application** button fully uninstalls the site: removes the registered cron job, drops the database and database user, deletes the docroot symlink plus the app root and `moodledata` directories, and removes it from Site Manager. This cannot be undone.
+The **Remove** tab's **Delete application** button fully uninstalls the site: removes the registered cron job, drops the database and database user, deletes the docroot symlink plus the app root and `moodledata` directories, and removes it from Site Manager. This cannot be undone.

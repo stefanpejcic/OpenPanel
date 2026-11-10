@@ -11,8 +11,8 @@ A cron job is a Linux command used to schedule tasks for future execution. It al
 
 The Cron Jobs page has three tabs:
 
-- **Cron Jobs**: the table of scheduled jobs, where you can create new jobs and edit, run, view the logs of or delete existing ones with the icons in the **Actions** column.
-- **File Editor**: edit the file the jobs are stored in directly, see [File Editor](#file-editor).
+- **Cron jobs**: the table of scheduled jobs, where you can create new jobs and edit, run, view the logs of or delete existing ones with the icons in the **Actions** column.
+- **File editor**: edit the file the jobs are stored in directly, see [File Editor](#file-editor).
 - **Logs**: the output of your cron jobs, see [Logs](#logs).
 
 ## Summary
@@ -57,13 +57,13 @@ Editing a disabled job keeps it disabled. When no job is enabled, the cron servi
 
 ## Add
 
-To create a new cron job click the **Create New** button and fill in the form:
+To create a new cron job click the **Create new** button and fill in the form:
 
 ![Create Cron Job form with a PHP command, the container of the default PHP version picked for it, the schedule options from 1 min to Custom, comment and No overlap fields](/img/openpanel-screenshots/advanced/cronjobs_new-form.png#gh-light-mode-only)
 ![Create Cron Job form with a PHP command, the container of the default PHP version picked for it, the schedule options from 1 min to Custom, comment and No overlap fields](/img/openpanel-screenshots/advanced/cronjobs_new-form_dark.png#gh-dark-mode-only)
 
 1. **Command**: the script or command to run, for example `php /var/www/html/blog.example.com/wp-cron.php`.
-2. **Select Container**: the container the command runs in. Only the web server and database type you currently use are listed. When the command starts with `php`, `wp`, `composer` or `artisan`, the container of your default PHP version is picked for you, and for `mysql`, `mysqldump` or `mariadb-dump` your database container. You can still pick another one.
+2. **Select container**: the container the command runs in. Only the web server and database type you currently use are listed. When the command starts with `php`, `wp`, `composer` or `artisan`, the container of your default PHP version is picked for you, and for `mysql`, `mysqldump` or `mariadb-dump` your database container. You can still pick another one.
 3. **Schedule**: pick how often it runs: **1 min**, **5 min**, **30 min**, **Hourly**, **Daily** (the default), **Weekly** or **Monthly**. Pick **Custom** to enter your own cron expression.
 4. **Comment**: an optional name for the job, shown in the table and used to filter its logs.
 5. **No overlap**: skip a run while the previous run of this job is still going.
@@ -129,7 +129,7 @@ To filter logs by a specific job name (comment) directly through the API endpoin
 
 ## File Editor
 
-The **File Editor** tab allows you to edit the file where crons are stored. File format is:
+The **File editor** tab allows you to edit the file where crons are stored. File format is:
 
 ```
 [job-exec "JOB_NAME"]
@@ -162,7 +162,7 @@ You can also set `no-overlap` for a cronjob, to avoid running the job multiple t
 ## Import / Export
 
 Cronjobs can be bulk-edited through a file, making it easy to edit multiple jobs at once or transfer them between servers.
-Open the **File Editor** tab, edit the jobs and click **Save Changes**.
+Open the **File editor** tab, edit the jobs and click **Save changes**.
 
 ![Cron jobs File Editor showing the jobs in crons.ini format](/img/openpanel-screenshots/advanced/cronjobs_editor-editor.png#gh-light-mode-only)
 ![Cron jobs File Editor showing the jobs in crons.ini format](/img/openpanel-screenshots/advanced/cronjobs_editor-editor_dark.png#gh-dark-mode-only)

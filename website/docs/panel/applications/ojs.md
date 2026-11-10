@@ -10,7 +10,7 @@ Install and manage [Open Journal Systems (OJS)](https://pkp.sfu.ca/software/ojs/
 
 ## Install OJS
 
-Navigate to **OpenPanel > Websites > Install App** and click **Install OJS**.
+Navigate to **OpenPanel > Websites > Install app** and click **Install OJS**.
 
 ![Install OJS form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/ojs-form.png#gh-light-mode-only)
 ![Install OJS form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/ojs-form_dark.png#gh-dark-mode-only)
@@ -25,7 +25,7 @@ Behind the scenes, this downloads the matching packaged tarball directly from `p
 
 ## Manage an OJS site
 
-Every OJS install shows up on the general **Site Manager** page (`/sites`) alongside your other websites. Click **Manage** on an OJS site to open its overview page:
+Every OJS install shows up on the general **Site manager** page (`/sites`) alongside your other websites. Click **Manage** on an OJS site to open its overview page:
 
 * **Screenshot** and **OJS / PHP / MariaDB / Created** status cards, matching the other CMS managers.
 * **Files** – The docroot is a symlink to the app root directory; a File Manager shortcut, and live folder size.
@@ -34,7 +34,7 @@ Every OJS install shows up on the general **Site Manager** page (`/sites`) along
 
 ### Login as Admin
 
-The **Login as Admin** button generates a one-time login link and opens the OJS dashboard already authenticated, without needing the admin password. OJS core has no built-in CLI command for this, so OpenPanel deploys a small login helper PHP file into the app root at install time. Each click resolves the site's active Site Administrator account, issues a fresh token (stored in a dedicated `openpanel_login_tokens` table) valid for 10 minutes and usable once, and signs the browser in via PKP's own `Validation::registerUserSession()` helper — the same mechanism a real login uses, short of checking the password.
+The **Login as admin** button generates a one-time login link and opens the OJS dashboard already authenticated, without needing the admin password. OJS core has no built-in CLI command for this, so OpenPanel deploys a small login helper PHP file into the app root at install time. Each click resolves the site's active Site Administrator account, issues a fresh token (stored in a dedicated `openpanel_login_tokens` table) valid for 10 minutes and usable once, and signs the browser in via PKP's own `Validation::registerUserSession()` helper — the same mechanism a real login uses, short of checking the password.
 
 ### Cache
 
@@ -61,5 +61,5 @@ The **Update** action updates an installed site by extracting the target version
 
 ### Remove
 
-The **Remove** tab's **Delete Application** button fully uninstalls the site: removes the registered cron job, drops the database and database user, deletes the docroot symlink plus the app root and files directories, and removes it from Site Manager. This cannot be undone.
+The **Remove** tab's **Delete application** button fully uninstalls the site: removes the registered cron job, drops the database and database user, deletes the docroot symlink plus the app root and files directories, and removes it from Site Manager. This cannot be undone.
 

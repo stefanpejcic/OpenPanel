@@ -13,7 +13,7 @@ With its capability to store and serve data from RAM, it minimizes the need for 
 
 ## Enable / Disable
 
-You have the option to enable or disable the Valkey service container as necessary. Choosing to disable it will promptly clear (delete) all existing Valkey data from memory.
+You have the option to enable or disable the Valkey service container as necessary. Choosing to disable it will promptly clear (delete) all existing Valkey data from memory. Click **Click to disable** and confirm in the dialog to turn it off.
 
 Enabling the Valkey service container will initiate the Valkey container service on the default port, which is _6379_.
 

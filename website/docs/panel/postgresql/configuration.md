@@ -13,7 +13,7 @@ The PostgreSQL Configuration page lets you edit low-level `postgresql.conf` sett
 
 1. Open **OpenPanel** and navigate to **PostgreSQL > Configuration**.
 2. Modify the values you want to change.
-3. Click **Save Changes** to apply changes.
+3. Click **Save changes** to apply changes.
 
 Settings are written to a configuration override for your account, and the PostgreSQL container is restarted to apply them.
 
@@ -21,11 +21,11 @@ Settings are written to a configuration override for your account, and the Postg
 
 When the Configuration page opens, OpenPanel checks your PostgreSQL service in the background and suggests settings that fit how it's actually used. While it checks you'll see *Checking your database for possible optimizations...*.
 
-If it finds something to improve, an **Optimize Database** banner shows at the top of the page and an optimize icon (⚡) shows next to each setting that has a suggestion.
+If it finds something to improve, an **Optimize database** banner shows at the top of the page and an optimize icon (⚡) shows next to each setting that has a suggestion.
 
 1. Click the optimize icon next to a setting, or **Review all** in the banner.
-2. The **Confirm Changes** dialog shows the previous value, the new value and why it's suggested for each setting.
-3. Click **Save Changes** to apply them and restart the service, or **Cancel** to close the dialog without changing anything.
+2. The **Confirm changes** dialog shows the previous value, the new value and why it's suggested for each setting.
+3. Click **Save changes** to apply them and restart the service, or **Cancel** to close the dialog without changing anything.
 
 The banner also shows what the suggestions are based on: the PostgreSQL version, the memory limit and current memory use of the service, the number of databases, their total size and the uptime.
 

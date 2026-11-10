@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Upload from Device
 
-The **Upload from Device** page allows you to easily upload files from your local device to a selected directory on the server.
+The **Upload from device** page allows you to easily upload files from your local device to a selected directory on the server.
 
 ![File Upload page with the drag and drop area and the Upload button](/img/openpanel-screenshots/files/upload-form.png#gh-light-mode-only)
 ![File Upload page with the drag and drop area and the Upload button](/img/openpanel-screenshots/files/upload-form_dark.png#gh-dark-mode-only)

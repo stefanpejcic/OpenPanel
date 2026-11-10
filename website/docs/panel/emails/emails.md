@@ -14,15 +14,15 @@ If the **Emails** module is enabled on the server and your user account has acce
 
 From this interface, you can view all your email accounts and their details:
 
-* **Account @ Domain**: the full email address
-* **Storage Used**: quota usage with a percentage indicator (unit depends on the mailbox's allocated quota: KiB, MiB, GiB, or TiB)
+* **Account @ domain**: the full email address
+* **Storage used**: quota usage with a percentage indicator (unit depends on the mailbox's allocated quota: KiB, MiB, GiB, or TiB)
 * **Options**: buttons for Webmail, Manage, and Connect Devices
 
 ---
 
 ## Create Email
 
-To create a new email account, click the **New Email** button.
+To create a new email account, click the **New email** button.
 
 ![Create an Email form with the domain, username, password and storage quota fields](/img/openpanel-screenshots/emails/new-form.png#gh-light-mode-only)
 ![Create an Email form with the domain, username, password and storage quota fields](/img/openpanel-screenshots/emails/new-form_dark.png#gh-dark-mode-only)
@@ -72,7 +72,7 @@ Click an action, confirm it, and it runs on the selected accounts one after anot
 
 ## Connect Devices
 
-Click **Connect Devices** to view the email server settings for that account.
+Click **Connect devices** to view the email server settings for that account.
 
 ![Connect Devices page with the username, incoming and outgoing servers and the IMAP and SMTP ports](/img/openpanel-screenshots/emails/connect-page.png#gh-light-mode-only)
 ![Connect Devices page with the username, incoming and outgoing servers and the IMAP and SMTP ports](/img/openpanel-screenshots/emails/connect-page_dark.png#gh-dark-mode-only)

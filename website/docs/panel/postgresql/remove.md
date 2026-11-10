@@ -8,16 +8,16 @@ Remove a PostgreSQL user from an existing database to revoke their permissions a
 
 This step is essential for managing access control and ensuring that only authorized users can interact with sensitive or production data.
 
-To remove user access from a database, navigate to **PostgreSQL > Users > Remove User**:
+To remove user access from a database, navigate to **PostgreSQL > Users > Remove user**:
 
-1. **Select a User**
+1. **Select a user**
    Choose the PostgreSQL user whose access you want to revoke.
 
-2. **Select a Database**
+2. **Select a database**
    Choose the database from which the user should be removed.
 
 3. **Click 'Remove User from Database'**
-   After selecting both the user and the database, click the **Remove User from Database** button.
+   After selecting both the user and the database, click the **Remove user from database** button.
    The user will immediately lose **all privileges** on the selected database.
 
 ![Remove User from Database form with user and database dropdowns](/img/openpanel-screenshots/postgresql/remove-form.png#gh-light-mode-only)

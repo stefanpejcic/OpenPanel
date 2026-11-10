@@ -6,15 +6,15 @@ sidebar_position: 5
 
 OpenPanel automatically generates and renews SSL certificates for all domains using **Let's Encrypt**.
 
-You can also configure a **custom SSL certificate** for any domain via **OpenPanel > Domains > SSL Certificates**.
+You can also configure a **custom SSL certificate** for any domain via **OpenPanel > Domains > SSL certificates**.
 
 ## Custom SSL
 
 To use your own SSL certificate:
 
 1. Go to **OpenPanel > Domains**, then click **SSL** next to the domain.
-2. Under **Configure custom SSL**, paste the contents of your certificate and private key (PEM format, including the `-----BEGIN CERTIFICATE-----`/`-----BEGIN PRIVATE KEY-----` lines) into the **Certificate** and **Private Key** fields.
-3. Click **Configure Custom Certificate**.
+2. Under **Configure custom SSL**, paste the contents of your certificate and private key (PEM format, including the `-----BEGIN CERTIFICATE-----`/`-----BEGIN PRIVATE KEY-----` lines) into the **Certificate** and **Private key** fields.
+3. Click **Configure custom certificate**.
 
 Once configured, your custom certificate details will appear on the same page, and the SSL status will change to **Custom SSL**.
 

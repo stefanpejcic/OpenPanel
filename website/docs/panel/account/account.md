@@ -29,7 +29,7 @@ To change your username:
 ### Changing Password  
 To change your password:  
 1. Enter your new password in the **Password** field.  
-2. Confirm it by entering the same password in the **Confirm Password** field.  
+2. Confirm it by entering the same password in the **Confirm password** field.  
 3. Click **Update** to save the new password.  
 
 Note: Once you update your password, you will be **immediately logged out**. All existing sessions will be **terminated**, and you will need to log in again with your new credentials.

@@ -8,13 +8,18 @@ The Two-Factor Authentication is a recommended security feature that allows you 
 
 ## Enable 2FA
 
-To enable 2FA for your account click on the 'Click to enable 2FA' button.
+To enable 2FA for your account, click **Click to enable 2FA**. You will need an authenticator app on your phone, such as Google Authenticator.
+
+1. **Step 1. Scan QR code**: scan the QR code with your authenticator app. If you can't scan it, click **Can't scan it? Show the setup key** and type the key into the app instead.
+2. **Step 2. Enter the code**: enter the 6-digit code from your app, tick the checkbox to confirm the app is set up, and click **Confirm**.
+
+Confirming enables 2FA and permanently deletes the setup key from the panel, so nobody who opens your account later can copy it into their own app.
+
+While setup is in progress, you can click **Cancel setup** to stop and remove the pending key without enabling 2FA.
 
 ![Two-Factor Authentication page showing 2FA as disabled with the Click to enable 2FA button](/img/openpanel-screenshots/account/2fa-page.png#gh-light-mode-only)
 ![Two-Factor Authentication page showing 2FA as disabled with the Click to enable 2FA button](/img/openpanel-screenshots/account/2fa-page_dark.png#gh-dark-mode-only)
 
-A QR code will be displayed that you can scan with your phone using a selected application such as Google Authenticator. Alternatively, you can click on the 'Click here to display OTP code' link to show a code that you can manually type in or copy into the application.
+## Disable 2FA
 
-Once you have set the QR code or OTP code in your application, it's essential to click on the 'Confirm' button to permanently delete the OTP secret from the panel. Otherwise, anyone who accesses your account can view these codes and set them in their application.
-
-While setup is in progress, you can click 'Click to Cancel' to abort and remove the pending OTP secret without enabling 2FA.
+Click **Click to disable 2FA** and confirm in the dialog. From the next login, only your password is needed.

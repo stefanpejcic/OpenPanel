@@ -35,7 +35,7 @@ User can select destination from **Backups > Destination** page.
 ![Backup destination picker with S3-compatible, WebDAV, SSH, Azure and Dropbox options](/img/openpanel-screenshots/files/backups_destination-page.png#gh-light-mode-only)
 ![Backup destination picker with S3-compatible, WebDAV, SSH, Azure and Dropbox options](/img/openpanel-screenshots/files/backups_destination-page_dark.png#gh-dark-mode-only)
 
-Once backup is selected, it's options are available on **Backups > Configuration tab**.
+Once backup is selected, it's options are available on **Backups > Configuration**.
 
 ### SSH/SFTP
 
@@ -163,12 +163,12 @@ By default, everything will be backed up. In case you need to backup only a spec
 | Setting | `BACKUP_SOURCES` | Description |
 |----------|----------|----------|
 | **Everything**    | `/backup` |  Backups content of all docker volumes: website files, mysql/mariadb databases, postgre databases, vhosts files, cron jobs. |
-| **Website Files**    | `/backup/html` |  Backups only website files inside `/var/www/html/` directory. |
+| **Website files**    | `/backup/html` |  Backups only website files inside `/var/www/html/` directory. |
 | **Emails**    | `/backup/01-mail` |  Backups only email files inside `/var/mail/` directory. |
 | **VirtualHosts**    | `/backup/01-vhosts` |  Backups only Apache/Nginx VirtualHosts for domains. |
-| **MySQL Databases**    | `/backup/01-mysql` |  Backups only MySQL/MariaDB databases. |
-| **PostgreSQL Databases**    | `/backup/01-postgres` |  Backups only PostgreSQL databases. |
-| **Cron Jobs**    | `/backup/crons.ini` |  Backups only the `crons.ini` file. |
+| **MySQL databases**    | `/backup/01-mysql` |  Backups only MySQL/MariaDB databases. |
+| **PostgreSQL databases**    | `/backup/01-postgres` |  Backups only PostgreSQL databases. |
+| **Cron jobs**    | `/backup/crons.ini` |  Backups only the `crons.ini` file. |
 
 Before 2.0.16 the emails, VirtualHosts and database values were `/backup/mail`, `/backup/vhosts`, `/backup/mysql` and `/backup/postgres`, the update changes them in `backup.env` automatically.
 
@@ -417,7 +417,7 @@ Creating a Webhook in Discord:
    ![screenshot 3](/img/docs-content/7Djx1x6y-sc-3.png)
 4. Set the name, channel, and icon to your preference, then click **Copy Webhook URL**.  
    ![screenshot 4](/img/docs-content/2rvC2PbL-sc-4.png)
-5. Press **Save Changes**.
+5. Press **Save changes**.
    ![screenshot 5](/img/docs-content/wqG9GzQL-sc-5.png)
 6 Format the service URL:
    ```
@@ -452,12 +452,12 @@ backup
 
 ## Restore & Download
 
-The **Restore & Download** page (`/backups/list`) lets you browse the backup files that already exist on your configured destination, restore them back onto your account, or download them to your computer. It works with every destination: SSH/SFTP, S3, WebDAV, Azure Blob Storage and Dropbox.
+The **Restore & download** page (`/backups/list`) lets you browse the backup files that already exist on your configured destination, restore them back onto your account, or download them to your computer. It works with every destination: SSH/SFTP, S3, WebDAV, Azure Blob Storage and Dropbox.
 
 ![Restore & Download overview with backup totals, a tile per type of data and the restore queue and logs](/img/openpanel-screenshots/files/backups_list-list.png#gh-light-mode-only)
 ![Restore & Download overview with backup totals, a tile per type of data and the restore queue and logs](/img/openpanel-screenshots/files/backups_list-list_dark.png#gh-dark-mode-only)
 
-Click **Reindex Destination** to connect to the remote destination and list the available backup archives. Reindexing runs in the background and the page updates automatically once it finishes. Only the `backup/00-meta/` folder at the start of each archive is read, and archives that were already indexed are not read again. Older archives without that folder are still listed in full (on SSH/SFTP with `tar -tzf` on the remote server, on other destinations by reading the whole archive).
+Click **Reindex destination** to connect to the remote destination and list the available backup archives. Reindexing runs in the background and the page updates automatically once it finishes. Only the `backup/00-meta/` folder at the start of each archive is read, and archives that were already indexed are not read again. Older archives without that folder are still listed in full (on SSH/SFTP with `tar -tzf` on the remote server, on other destinations by reading the whole archive).
 
 The page opens with an overview: the number of backups, the latest backup, their total size and the last restore, followed by a tile for each type of data you can restore. Click a tile to see its backups, newest first, each with the date it was taken (shown in your browser's time zone) and its size. The tabs at the top switch between types, **Overview** goes back to the tiles, and the **Search** box above each list filters it.
 
@@ -473,14 +473,14 @@ Older backups don't list their emails and domains, so the **Emails** and **Domai
 These tabs list whole backups. Select one and the bar at the bottom shows **Download** and **Restore**.
 
 - **Everything** – every backup, with a **Contents** column showing what is in it (website files, databases, emails, domains and cron jobs, with how many of each). Restores everything in it: website files, databases, emails, domains with their DNS zones and cron jobs.
-- **Website Files** and **Cron Jobs** – the backups that contain that part. Restores only that part of the selected backup; restoring cron jobs also restarts the cron container.
+- **Website files** and **Cron jobs** – the backups that contain that part. Restores only that part of the selected backup; restoring cron jobs also restarts the cron container.
 
 ### Choosing single files
 
 ![Choose files dialog browsing a website files backup with a folder ticked for restore](/img/openpanel-screenshots/files/backups_list-files.png#gh-light-mode-only)
 ![Choose files dialog browsing a website files backup with a folder ticked for restore](/img/openpanel-screenshots/files/backups_list-files_dark.png#gh-dark-mode-only)
 
-On **Website Files**, select a backup and click **Choose files** to browse it folder by folder. Tick single files or whole folders and click **Restore selected**, or click the download icon next to a file to download just that file. Only the part of the archive up to the last picked item is read from the destination.
+On **Website files**, select a backup and click **Choose files** to browse it folder by folder. Tick single files or whole folders and click **Restore selected**, or click the download icon next to a file to download just that file. Only the part of the archive up to the last picked item is read from the destination.
 
 ### Databases, Emails and Domains
 
@@ -499,7 +499,7 @@ These tabs list every database, email account and domain found in your backups, 
 ![Restore Summary dialog listing the selected databases and the Restore Selected Items button](/img/openpanel-screenshots/files/backups_list-summary.png#gh-light-mode-only)
 ![Restore Summary dialog listing the selected databases and the Restore Selected Items button](/img/openpanel-screenshots/files/backups_list-summary_dark.png#gh-dark-mode-only)
 
-Select a backup (or databases, email accounts, domains or files) and click **Restore**. The **Restore Summary** lists the items that will be restored; click **Restore Selected Items** to add them to the queue. Restores run in the background, one at a time per account, so you can close the page while they run. Each database is dropped, recreated and its dump is piped into the `mysql`/`mariadb` or `psql` client inside your database container.
+Select a backup (or databases, email accounts, domains or files) and click **Restore**. The **Restore summary** lists the items that will be restored; click **Restore selected items** to add them to the queue. Restores run in the background, one at a time per account, so you can close the page while they run. Each database is dropped, recreated and its dump is piped into the `mysql`/`mariadb` or `psql` client inside your database container.
 
 :::danger
 Restoring overwrites existing data and cannot be undone.

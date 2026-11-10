@@ -4,7 +4,7 @@ sidebar_position: 4
 
 # Daily Summary
 
-The **Statistics > Daily Summary** page shows what happened on your account and websites each day. It starts with what needs fixing, each with a button that opens the page where you fix it, and ends with the day's numbers.
+The **Statistics > Daily summary** page shows what happened on your account and websites each day. It starts with what needs fixing, each with a button that opens the page where you fix it, and ends with the day's numbers.
 
 ![Daily Summary with the day in one sentence, requests, unique IPs, bandwidth, error pages and firewall blocks, the problems found with a button to fix each one, and the All good list](/img/openpanel-screenshots/statistics/daily_summary-page.png#gh-light-mode-only)
 ![Daily Summary with the day in one sentence, requests, unique IPs, bandwidth, error pages and firewall blocks, the problems found with a button to fix each one, and the All good list](/img/openpanel-screenshots/statistics/daily_summary-page_dark.png#gh-dark-mode-only)

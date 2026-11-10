@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # File Manager 
 
-The **File Manager** interface allows you to manage files for all your domains located inside the `/var/www/html/` directory.
+The **File manager** interface allows you to manage files for all your domains located inside the `/var/www/html/` directory.
 
 ![File Manager listing the folders and files in /var/www/html with their size, modification date and permissions](/img/openpanel-screenshots/files/files-list.png#gh-light-mode-only)
 ![File Manager listing the folders and files in /var/www/html with their size, modification date and permissions](/img/openpanel-screenshots/files/files-list_dark.png#gh-dark-mode-only)
@@ -13,7 +13,7 @@ In the table, you can see the following information:
 
 * **Name**
 * **Size** – Displays the size for files. For folders, click **Calculate** to fetch their size.
-* **Last Modified** – Shows the timestamp of the last modification.
+* **Last modified** – Shows the timestamp of the last modification.
 * **Permissions** – Displays symbolic file permissions (e.g., `drwxr-xr-x`). Hover over them to view the octal (numeric) equivalent (e.g., `0755`).
 
 Clicking the **Toggle** icon reveals additional details:
@@ -21,13 +21,13 @@ Clicking the **Toggle** icon reveals additional details:
 * **Owner** – The UID of the file or folder owner.
 * **Group** – The GID of the group that owns the file or folder.
 * **Links** – The number of hard links to the file or directory.
-* **Link Target** – If it’s a symlink, this shows the target it points to.
+* **Link target** – If it’s a symlink, this shows the target it points to.
 * **Type** – Indicates whether it's a directory, file, or symbolic link.
 
 
 ## Create File
 
-To create a new file, navigate to the desired directory and click the **New File** button. A new row appears at the top of the table where you type the file name, including its extension (for example `robots.txt`), and click **Create**. Press `Esc`, click **Cancel** or click anywhere outside the row to cancel.
+To create a new file, navigate to the desired directory and click the **New file** button. A new row appears at the top of the table where you type the file name, including its extension (for example `robots.txt`), and click **Create**. Press `Esc`, click **Cancel** or click anywhere outside the row to cancel.
 
 Optionally, if you want to open the file in the Editor immediately after creation, check the **Open in File Editor after creation** option.
 
@@ -36,7 +36,7 @@ Optionally, if you want to open the file in the Editor immediately after creatio
 
 ## Create Folder
 
-To create a new folder, navigate to the desired directory and click the **New Folder** button. A new row appears at the top of the table, type the folder name and click **Create**.
+To create a new folder, navigate to the desired directory and click the **New folder** button. A new row appears at the top of the table, type the folder name and click **Create**.
 
 ![New folder row at the top of the table with the folder name typed in and the Create and Cancel buttons](/img/openpanel-screenshots/files/files-new-folder.png#gh-light-mode-only)
 ![New folder row at the top of the table with the folder name typed in and the Create and Cancel buttons](/img/openpanel-screenshots/files/files-new-folder_dark.png#gh-dark-mode-only)
@@ -90,7 +90,7 @@ Once a file or folder is selected, the toolbar above the table shows the actions
 ![File Manager toolbar with Select all, View, Edit, Download, Rename, Copy, Move, Compress, Extract, Permissions and Delete buttons](/img/openpanel-screenshots/files/files-buttons.png#gh-light-mode-only)
 ![File Manager toolbar with Select all, View, Edit, Download, Rename, Copy, Move, Compress, Extract, Permissions and Delete buttons](/img/openpanel-screenshots/files/files-buttons_dark.png#gh-dark-mode-only)
 
-On smaller screens the buttons show only their icons, hover over a button to see its name. The **New File**, **New Folder** and **Upload** buttons in the page header also switch to icons only on mobile, so they fit in one row with the filter and search buttons.
+On smaller screens the buttons show only their icons, hover over a button to see its name. The **New file**, **New folder** and **Upload** buttons in the page header also switch to icons only on mobile, so they fit in one row with the filter and search buttons.
 
 ## Select all
 
@@ -157,7 +157,7 @@ To copy or move files to another folder, select them and click on the **Copy** o
 
 - click a folder to open it, or `..` to go one level up,
 - use the breadcrumb above the list to jump back to any parent folder,
-- click **New Folder** to create a folder in the current location and open it,
+- click **New folder** to create a folder in the current location and open it,
 - or type a path in the **Destination** field and press `Enter` to go straight there.
 
 Click **Copy here** or **Move here** to start. A selected folder can't be copied or moved into itself or one of its subfolders, so those folders are greyed out in the browser.

@@ -25,7 +25,7 @@ Available options on the Databases page are:
 - **Delete a MySQL Database**
 
 :::info
-The **New Database** and **Database Wizard** buttons are disabled while the database service is not running.
+The **New database** and **Database wizard** buttons are disabled while the database service is not running.
 :::
 
 ## Connection info

@@ -28,12 +28,12 @@ If you forget your password, follow these steps:
    ![OpenPanel login form with username and password fields, the Forgot password link and passkey sign-in](/img/openpanel-screenshots/intro/login-form_dark.png#gh-dark-mode-only)
 
 
-   > **NOTE:** If the **Forgot Password?** link does not appear on the login form, email-based password reset is disabled by your hosting provider. In this case, you must either:
+   > **NOTE:** If the **Forgot password?** link does not appear on the login form, email-based password reset is disabled by your hosting provider. In this case, you must either:
    >
    > 1. Log in automatically to OpenPanel through their billing panel and reset your password via [Account > Settings](/docs/panel/account/#changing-password)
    > 2. Contact your hosting provider to reset the password for you.
 
-2. Enter your **email address** and click **Send Reset Link**.  
+2. Enter your **Email address** and click **Send reset link**.  
 
    ![Password reset form asking for the account email address](/img/openpanel-screenshots/intro/reset-form.png#gh-light-mode-only)
    ![Password reset form asking for the account email address](/img/openpanel-screenshots/intro/reset-form_dark.png#gh-dark-mode-only)
@@ -46,7 +46,7 @@ If you forget your password, follow these steps:
 
    ![password reset email](/img/docs-content/KZBFgL2L-2025-08-14-13-50.png)
 
-5. Enter your **new password**, confirm it, and click **Change Password**.  
+5. Enter your **New password**, confirm it, and click **Change password**.  
 
    ![set new password form](/img/docs-content/9XFjSnqt-2025-08-14-13-50-1.png)
 

@@ -18,9 +18,9 @@ These settings are **global** and apply to **all domains** (i.e., affect the vir
 - For **OpenLiteSpeed**, you can edit the `openlitespeed.conf` file.
 - For **LiteSpeed**, you can edit the `litespeed.conf` file, an Apache style config LiteSpeed reads.
 
-After making your changes, click **Save Changes** to write the file. If the webserver container is running, the new configuration is tested before it is applied - if it fails the syntax check, the previous content is restored and the save is rejected. When the configuration is valid (or the container isn't running), the file is saved and the webserver container is restarted automatically.
+After making your changes, click **Save changes** to write the file. If the webserver container is running, the new configuration is tested before it is applied - if it fails the syntax check, the previous content is restored and the save is rejected. When the configuration is valid (or the container isn't running), the file is saved and the webserver container is restarted automatically.
 
-If a default configuration template is available for your webserver, a **Restore Default** button is also shown, letting you overwrite the current file with the stock configuration and restart the service.
+If a default configuration template is available for your webserver, a **Restore default** button is also shown, letting you overwrite the current file with the stock configuration and restart the service.
 
 ## LiteSpeed license
 
