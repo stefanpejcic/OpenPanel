@@ -16,7 +16,7 @@ The migration runs in the background with [imapsync](https://imapsync.lamiral.in
 ## Starting a migration
 
 1. Go to **OpenPanel > Email > Migrate**.
-2. Under **Source server**, enter the old server's details:
+2. In step 1, **Source server**, enter the old server's details, or click one of the **Quick fill** buttons (Gmail, Outlook / Microsoft 365, Yahoo, iCloud) to fill in the server, then click **Next**:
 
    | Field | Description |
    |---|---|
@@ -26,13 +26,13 @@ The migration runs in the background with [imapsync](https://imapsync.lamiral.in
    | **Username** | Usually the full email address. |
    | **Password** | The password, or the app password, of the old account. |
 
-3. Under **Destination account**, select your email account on this server and enter its password.
+3. In step 2, **Destination account**, select your email account on this server, enter its **Account password** and click **Next**.
 4. Leave **Skip Spam, Junk and Trash folders** checked unless you want those copied too.
-5. Click **Test connection**. It logs in to both servers and shows whether each login worked, without copying anything.
+5. In step 3, **Test and start**, click **Test connection**. It logs in to both servers and shows whether each login worked, without copying anything.
 6. Click **Start migration**.
 
-![Migrate Emails form with the source server, security, port, username and password fields, the destination account and the Test connection and Start migration buttons](/img/openpanel-screenshots/emails/migrate-form.png#gh-light-mode-only)
-![Migrate Emails form with the source server, security, port, username and password fields, the destination account and the Test connection and Start migration buttons](/img/openpanel-screenshots/emails/migrate-form_dark.png#gh-dark-mode-only)
+![Step 1 of the Migrate wizard with the Quick fill buttons and the source server, security, port, username and password fields](/img/openpanel-screenshots/emails/migrate-form.png#gh-light-mode-only)
+![Step 1 of the Migrate wizard with the Quick fill buttons and the source server, security, port, username and password fields](/img/openpanel-screenshots/emails/migrate-form_dark.png#gh-dark-mode-only)
 
 :::info
 The source server can't be a private or reserved address (e.g. `192.168.x.x` or `10.x.x.x`). To migrate from a server on a private network, ask your hosting provider.

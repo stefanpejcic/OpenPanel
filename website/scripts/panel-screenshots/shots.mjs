@@ -395,8 +395,8 @@ export const pages = {
         prepare: all(
           async page => {
             await page.waitForFunction(() => document.querySelectorAll("select[name='db_user'] option").length > 1);
-            await page.selectOption("select[name='db_user']", 'stefan');
-            await page.selectOption("select[name='database_name']", 'stefan');
+            await page.selectOption("select[name='db_user']", 'wp_blog_user');
+            await page.selectOption("select[name='database_name']", 'wp_blog');
             await page.waitForTimeout(1200);
           },
           rename(MYSQL_USERS, "select[name='db_user']"),
@@ -418,7 +418,7 @@ export const pages = {
             const selects = page.locator('main select');
             for (let i = 0; i < (await selects.count()); i++) {
               const opts = await selects.nth(i).locator('option').evaluateAll(os => os.map(o => o.value).filter(Boolean));
-              if (opts.includes('stefan')) await selects.nth(i).selectOption('stefan');
+              for (const v of ['wp_blog_user', 'wp_blog']) if (opts.includes(v)) { await selects.nth(i).selectOption(v); break; }
             }
           },
           rename(MYSQL_USERS, "main select[name='db_user']"),
@@ -740,14 +740,19 @@ export const pages = {
   },
   // Error Logs and Daily Summary are new in 2.0.16, until the demo has them: PANEL_URL=https://host:2083 node shoot.mjs statistics/error_logs statistics/daily_summary statistics/daily_summary-toast applications/wordpress-errors
   'statistics/error_logs': {
-    url: '/error-logs?from=2026-10-15&to=2026-10-15&tz=0',
+    url: '/error-logs?from=2026-11-10&to=2026-11-10&tz=0',
     // one row per service and severity reads better than 98 rows of the same 502
     before: async page => {
       await page.evaluate(() => {
         const seen = new Set();
         document.querySelectorAll('#errorLogsTable tbody tr').forEach(tr => {
+          // each error row is followed by a one-cell detail row
+          if (tr.children.length < 4) return;
           const key = tr.children[2].textContent.trim() + '|' + tr.children[3].textContent.trim();
-          if (seen.has(key) || seen.size >= 8) tr.remove(); else seen.add(key);
+          if (seen.has(key) || seen.size >= 8) {
+            if (tr.nextElementSibling?.children.length === 1) tr.nextElementSibling.remove();
+            tr.remove();
+          } else seen.add(key);
         });
       });
     },
@@ -1071,8 +1076,8 @@ export const pages = {
           await page.fill('#source_host', 'mail.oldhost.com');
           await page.fill('#source_user', 'info@oldhost.com');
           await page.fill('#source_password', PASSWORD);
-          await page.selectOption('#destination', 'dst-test@shared.tests.openpanel.org');
-          await page.fill('#destination_password', PASSWORD);
+          await page.locator('#destination').evaluate(el => { el.disabled = false; el.value = 'dst-test@shared.tests.openpanel.org'; el.dispatchEvent(new Event('change', { bubbles: true })); });
+          await page.fill('#destination_password', PASSWORD, { timeout: 2000 }).catch(() => {});
           await page.evaluate(() => document.activeElement.blur());
           // what a passed Test connection leaves under the form, the test itself is a POST
           await page.evaluate(() => {
@@ -1113,11 +1118,11 @@ export const pages = {
     ],
   },
   'emails/delete': {
-    url: '/emails/delete/info@wp.tests.openpanel.org',
+    url: '/emails/delete/info@example.test.rs',
     shots: [{ name: 'form', alt: 'Delete email account confirmation for the selected address', crop: 'content' }],
   },
   'emails/aliases_manage': {
-    url: '/emails/aliases/aliasexample@wp.tests.openpanel.org',
+    url: '/emails/aliases/support@example.test.rs',
     shots: [{ name: 'page', alt: 'Manage alias page listing its destination addresses with Remove buttons and a field to add a destination', crop: 'content' }],
   },
   'files/files': {
@@ -1506,7 +1511,7 @@ export const pages = {
         alt: 'Bulk delete confirmation in red for one custom container, noting that the selected built-in container will be skipped',
         viewportHeight: 760,
         // needs a container you added yourself, e.g. uptimekuma from the containers/new example
-        prepare: all(bulkSelect(['memcached', 'uptimekuma']), click('[data-bulk-action="delete"]')),
+        prepare: all(bulkSelect(['memcached', 'tor']), click('[data-bulk-action="delete"]')),
         crop: { from: '#bulk-actions-bar', to: '#bulk-actions-bar' },
       },
     ],
@@ -2165,7 +2170,7 @@ export const pages = {
       { name: 'sets', alt: 'Themes and Plugins buttons for managing the sets that are installed on every new WordPress site', crop: { from: 'main div:has(> a:text-is("Themes"))', pad: 3 } },
       { name: 'refresh', alt: 'Refresh Data button on the WordPress Manager page', crop: { from: '#refreshData', pad: 3 } },
       { name: 'view', alt: 'Switch to Table view button on the WordPress Manager page', crop: { from: 'main a:has-text("Switch to Table view")', pad: 3 } },
-      { ...bulkShot('#sites-table', 2, 'Two WordPress sites selected in the table view with the bulk actions bar offering Update, Backup, Detach and Uninstall'), url: '/wordpress?view=table' },
+      { ...bulkShot('#sites-table', 1, 'A WordPress site selected in the table view with the bulk actions bar offering Update, Backup, Detach and Uninstall'), url: '/wordpress?view=table' },
     ],
   },
   'domains/dns_sections': {
@@ -2400,7 +2405,7 @@ export const pages = {
       {
         name: 'delete',
         alt: 'Delete button of a MongoDB database turned into a Confirm button with a countdown after the first click',
-        prepare: async page => { await page.locator('main table tbody tr:first-of-type button:has-text("Delete")').click(); await page.waitForTimeout(300); await page.mouse.move(0, 0); },
+        prepare: async page => { await page.locator('main table tbody tr:first-of-type button[aria-label^="Delete"]').click(); await page.waitForTimeout(300); await page.mouse.move(0, 0); },
         crop: { from: 'main table thead', to: 'main table tbody tr:first-of-type', pad: 8 },
       },
       bulkShot('#databases-table', ['shop_db'], 'A MongoDB database selected with the bulk actions bar offering Export, Assign user, Remove user and Delete', { keep: ['shop_db'] }),
@@ -2420,7 +2425,7 @@ export const pages = {
       {
         name: 'delete',
         alt: 'Delete button of a MongoDB user turned into a Confirm button with a countdown after the first click',
-        prepare: async page => { await page.locator('main table tbody tr:last-of-type button:has-text("Delete")').click(); await page.waitForTimeout(300); await page.mouse.move(0, 0); },
+        prepare: async page => { await page.locator('main table tbody tr:last-of-type button[aria-label^="Delete"]').click(); await page.waitForTimeout(300); await page.mouse.move(0, 0); },
         crop: { from: 'main table thead', to: 'main table tbody tr:last-of-type', pad: 8 },
       },
       bulkShot('#users-table', ['shop_admin'], 'A MongoDB user selected with the bulk actions bar offering Change password, Add to database, Remove from database and Delete', { keep: ['shop_admin'] }),
