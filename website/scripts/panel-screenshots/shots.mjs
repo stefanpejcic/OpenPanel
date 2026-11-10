@@ -237,7 +237,7 @@ const maskTokens = async page => {
 };
 
 // file manager fixtures: keep a few tidy rows and give the odd test files readable names
-const FM_KEEP = ['wp.tests.openpanel.org', 'php.tests.openpanel.org', 'files.tests.openpanel.org', 'backups', 'index.php', 'index.html', '20MB.zip', 'mtr_output.txt'];
+const FM_KEEP = ['wp.tests.openpanel.org', 'php.tests.openpanel.org', 'files.tests.openpanel.org', 'backups', 'index.php', 'index.html', '20MB.zip', 'mtr_output.txt', 'notes.txt', 'site-backup.zip'];
 const FM_NAMES = { '20MB.zip': 'site-backup.zip', 'mtr_output.txt': 'notes.txt' };
 const fmFixture = async page => {
   await page.evaluate(([keep, names]) => {
@@ -257,7 +257,7 @@ const fmFixture = async page => {
 // select rows by (fixture) name, the first with a plain click and the rest with ctrl
 const fmSelect = (...files) => async page => {
   for (const [i, f] of files.entries()) {
-    await page.locator(`tr[data-file="${f}"]`).click(i ? { modifiers: ['Control'] } : {});
+    await page.locator(`tr[data-file="${f}"]`).first().click(i ? { modifiers: ['Control'] } : {});
   }
   await page.waitForTimeout(300);
 };
@@ -845,7 +845,7 @@ export const pages = {
         prepare: async page => {
           // hide the wide columns so the Actions column fits without horizontal scrolling
           await hideColumns(['docroot', 'php', 'site_count', 'redirect', 'ssl', 'waf'])(page);
-          await page.locator('#dropdownHoverButton-0').hover();
+          await page.locator('#dropdownHoverButton-0').click();
           await page.waitForTimeout(500);
         },
         crop: { from: 'main table thead', to: '#dropdownHover-0', pad: 12 },
@@ -1750,8 +1750,8 @@ export const pages = {
       // wide enough for the modern dashboard's two section columns
       { name: 'window', alt: 'OpenPanel dashboard with the sidebar, feature shortcuts in two columns of sections, and the 2FA, Information and Usage widgets', viewportWidth: 1440, viewportHeight: 820 },
       { name: 'twofa', alt: 'Two-Factor Authentication widget showing 2FA as disabled with the Click to Enable button', prepare: all(hideOnboarding, markCard('Two-Factor Authentication')), crop: { from: '[data-shot=card]', pad: 12 } },
-      { name: 'information', alt: 'Information widget with the username, plan, IP address and last login IP address', prepare: all(hideOnboarding, markCard('Information')), crop: { from: '[data-shot=card]', pad: 12 } },
-      { name: 'usage', alt: 'Usage widget with bars for websites, domains, databases, email and FTP accounts, storage, inodes, CPU and memory', prepare: all(hideOnboarding, markCard('Usage')), crop: { from: '[data-shot=card]', pad: 12 } },
+      { name: 'information', alt: 'Information widget with the username, plan, IP address and last login IP address', prepare: hideOnboarding, crop: { from: '#dashboard_info', pad: 12 } },
+      { name: 'usage', alt: 'Usage section of the dashboard Overview with storage, inodes, CPU and memory against the plan limits', prepare: hideOnboarding, crop: { from: '#dashboard_usage', pad: 12 } },
       { name: 'howto', alt: 'General How-to widget with links to knowledge base articles', prepare: all(hideOnboarding, markCard('General How-to')), crop: { from: '[data-shot=card]', pad: 12 } },
       {
         name: 'layout',
@@ -1935,7 +1935,7 @@ export const pages = {
         alt: 'Show Columns menu with switches for each column of the repositories table',
         prepare: async page => {
           await page.evaluate(() => {
-            const btn = [...document.querySelectorAll('main button')].find(b => b.textContent.trim() === 'Show Columns');
+            const btn = [...document.querySelectorAll('main button')].find(b => b.textContent.trim().toLowerCase() === 'show columns');
             btn.click();
             btn.closest('section').firstElementChild.setAttribute('data-shot', 'toolbar');
           });
@@ -1965,8 +1965,8 @@ export const pages = {
         alt: 'Remove confirmation under a repository row with Cancel and Remove buttons',
         prepare: async page => {
           await page.evaluate(() => {
-            window.Alpine.$data(document.querySelector('[x-data^="gitRepos"]')).removing = 'demo-local-empty';
-            const row = document.getElementById('repo-demo-local-empty');
+            window.Alpine.$data(document.querySelector('[x-data^="gitRepos"]')).removing = 'demo-remote-manual';
+            const row = document.getElementById('repo-demo-remote-manual');
             row.setAttribute('data-shot', 'row');
             row.nextElementSibling.nextElementSibling.setAttribute('data-shot', 'remove');
           });
@@ -1984,12 +1984,12 @@ export const pages = {
   },
   'applications/git_log': {
     as: 'applications/git',
-    url: '/git?log=git-demo-theme',
+    url: '/git?log=demo-remote-auto',
     shots: [{ name: 'log', alt: 'Commit log of a repository with each commit, its message, author and date, and the deployed commit marked', crop: 'content' }],
   },
   'applications/git_tab': {
     as: 'applications/git',
-    url: '/website?domain=example.test.rs',
+    url: '/website?domain=wp.tests.openpanel.org',
     shots: [{
       name: 'tab',
       alt: 'Git tab in the Site Manager with a theme repository and a remote repository, their deploy buttons, clone URL and webhook URL',
@@ -2202,7 +2202,7 @@ export const pages = {
         name: 'toolbar',
         alt: 'DNS Zone Editor menu with the Edit DNS File, Export Zone and Reset options',
         prepare: async page => {
-          await page.locator('#dropdownHoverButton').hover();
+          await page.locator('#dropdownHoverButton').first().click();
           await page.waitForTimeout(600);
         },
         crop: { from: '#dropdownHover', pad: 6 },
@@ -2211,7 +2211,7 @@ export const pages = {
         name: 'reset',
         alt: 'Reset Zone panel asking for confirmation before the DNS zone is restored to its default records',
         prepare: async page => {
-          await page.locator('#dropdownHoverButton').hover();
+          await page.locator('#dropdownHoverButton').first().click();
           await page.waitForTimeout(400);
           await page.locator('#dropdownHover a:has-text("Reset")').click();
           await page.waitForTimeout(800);

@@ -36,6 +36,9 @@ If you have no websites yet, the section has a **New website** button instead.
 
 Shows your storage, inodes, CPU and memory usage against your plan's limits. CPU and memory are read live from the server. Click any row, or **View details**, for the [Resource usage](/docs/panel/statistics/resource_usage/) page.
 
+![Usage section of the dashboard Overview with storage, inodes, CPU and memory against the plan limits](/img/openpanel-screenshots/dashboard/dashboard-usage.png#gh-light-mode-only)
+![Usage section of the dashboard Overview with storage, inodes, CPU and memory against the plan limits](/img/openpanel-screenshots/dashboard/dashboard-usage_dark.png#gh-dark-mode-only)
+
 ### Quick actions
 
 Shortcuts to the tools you are most likely to need, such as File manager, phpMyAdmin, DNS zone editor, SSL certificates, Cron jobs, Backups and Webmail. Only tools enabled on your plan are shown. **All tools** switches to the Tools view.
