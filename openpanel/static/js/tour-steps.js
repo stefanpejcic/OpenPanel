@@ -13,6 +13,20 @@ window.TOUR_HOOKS = {
         var menu = document.getElementById('popup-menu');
         if (btn && menu && !menu.classList.contains('hidden')) btn.click();
     },
+    // the switch sits in the tabs bar, its first button is Overview and the second Tools
+    showOverview: function () {
+        var b = document.querySelectorAll('#tour-dashboard-view button')[0];
+        if (b && b.getAttribute('aria-pressed') !== 'true') b.click();
+    },
+    showTools: function () {
+        var b = document.querySelectorAll('#tour-dashboard-view button')[1];
+        if (b && b.getAttribute('aria-pressed') !== 'true') b.click();
+    },
+    // the MCP form starts folded, the connect snippets live inside it
+    openMcpForm: function () {
+        var b = document.getElementById('mcp-add-button');
+        if (b && b.getAttribute('aria-expanded') !== 'true') b.click();
+    },
     openSearchBox: function () {
         var btn = document.getElementById('openSearchBtn');
         if (btn && btn.offsetParent !== null) btn.click();
@@ -22,27 +36,126 @@ window.TOUR_HOOKS = {
 window.TOUR_STEPS = [
     {
         path: '/dashboard',
-        element: '#dashboard-sortable-area',
-        title: 'Your Shortcuts',
-        description: 'Quick-access icons for every feature you have access to, grouped into sections like Files, Domains, MySQL and more.',
-        side: 'top',
-        align: 'start'
+        element: '#tour-dashboard-view',
+        title: 'Overview and Tools',
+        description: 'Switch between the Overview, with your sites and plan at a glance, and Tools, with every feature as a shortcut. The panel remembers the one you used last.',
+        side: 'bottom',
+        align: 'end',
+        beforeShow: 'showOverview'
     },
     {
         path: '/dashboard',
-        element: '#section-title-files button',
-        title: 'Show/Hide a Section',
-        description: 'Click this button to collapse or expand a section - handy once you know its icons by heart.',
+        element: '#tour-plan-usage',
+        title: 'Plan Usage',
+        description: 'How much of your plan you use. A number turns yellow at 90% of its limit and red once the limit is reached. Click one to open that page.',
         side: 'bottom',
         align: 'end'
     },
     {
         path: '/dashboard',
-        element: '#section-title-files',
-        title: 'Reorder Sections',
-        description: 'Click and drag a section by its title to reorder it. Your custom order is remembered for next time.',
+        element: '#tour-add-buttons',
+        title: 'Add a Domain or Website',
+        description: 'Start here to add a domain or install a new website. When your plan is full, the button explains why it is unavailable.',
+        side: 'bottom',
+        align: 'start'
+    },
+    {
+        path: '/dashboard',
+        element: '#dashboard_sites',
+        title: 'Your Websites',
+        description: 'Your busiest websites first, with what they run on and whether they are up. On plans without websites this shows your email accounts, databases, FTP accounts or containers instead.',
         side: 'top',
         align: 'start'
+    },
+    {
+        path: '/dashboard',
+        element: '#dashboard_sites button[aria-expanded]',
+        title: 'Collapse a Widget',
+        description: 'Every widget here can be folded away. The panel remembers what you collapsed.',
+        side: 'left',
+        align: 'start'
+    },
+    {
+        path: '/dashboard',
+        element: '#dashboard_usage',
+        title: 'Usage',
+        description: 'Disk space, inodes, CPU and memory for your account, compared to your plan.',
+        side: 'top',
+        align: 'start'
+    },
+    {
+        path: '/dashboard',
+        element: '#dashboard_quick',
+        title: 'Quick Actions',
+        description: 'Shortcuts to the tools people open most often.',
+        side: 'top',
+        align: 'start'
+    },
+    {
+        path: '/dashboard',
+        element: '#dashboard_twofa',
+        title: 'Two-Factor Authentication',
+        description: 'Add an extra layer of security to your account with 2FA. Click the button here to enable it.',
+        side: 'left',
+        align: 'start'
+    },
+    {
+        path: '/dashboard',
+        element: '#dashboard_info',
+        title: 'General Information',
+        description: 'Your username, plan, IP address, last login and nameservers. Copy buttons are on the right.',
+        side: 'left',
+        align: 'start'
+    },
+    {
+        path: '/dashboard',
+        element: '#dashboard_howto',
+        title: 'General How-to',
+        description: 'Short guides for common tasks. They open in a new tab.',
+        side: 'left',
+        align: 'start'
+    },
+    {
+        path: '/dashboard',
+        element: '#tour-tool-finder',
+        title: 'Find a Tool',
+        description: 'Type a few letters to filter every tool on this page. Press / from anywhere on the dashboard to jump here.',
+        side: 'bottom',
+        align: 'end',
+        beforeShow: 'showTools'
+    },
+    {
+        path: '/dashboard',
+        element: '#dashboard-sortable-area',
+        title: 'Your Shortcuts',
+        description: 'Every feature you have access to, grouped into sections like Domains, Websites, Email and Files.',
+        side: 'top',
+        align: 'start'
+    },
+    {
+        path: '/dashboard',
+        element: '#dashboard-sortable-area [id^="section-title-"] button',
+        title: 'Show/Hide a Section',
+        description: 'Collapse or expand a section once you know its tools by heart.',
+        side: 'bottom',
+        align: 'end'
+    },
+    {
+        path: '/dashboard',
+        element: '#dashboard-sortable-area [id^="section-title-"]',
+        title: 'Reorder Sections',
+        description: 'Drag a section by its title to move it. Your order is remembered for next time.',
+        side: 'top',
+        align: 'start'
+    },
+    {
+        path: '/dashboard',
+        element: '#tour-dashboard-layout',
+        title: 'Layout',
+        description: 'Lock the layout so sections can no longer be dragged, or reset it to the default order.',
+        side: 'top',
+        align: 'end',
+        beforeHide: 'showOverview'
     },
     {
         path: '/dashboard',
@@ -104,38 +217,6 @@ window.TOUR_STEPS = [
         description: 'Left-click to add the current page to your Favorites, right-click an already-favorited page to remove it.',
         side: 'bottom',
         align: 'end'
-    },
-    {
-        path: '/dashboard',
-        element: '#dashboard_twofa',
-        title: 'Two-Factor Authentication',
-        description: 'Add an extra layer of security to your account with 2FA. Click the button here to enable it.',
-        side: 'left',
-        align: 'start'
-    },
-    {
-        path: '/dashboard',
-        element: '#dashboard_info',
-        title: 'Information',
-        description: 'Your username, hosting plan, IP address and last login details at a glance.',
-        side: 'left',
-        align: 'start'
-    },
-    {
-        path: '/dashboard',
-        element: '#dashboard_usage',
-        title: 'Usage',
-        description: 'Tracks how much of your plan’s resources - websites, domains, databases, storage, CPU, RAM and more - you’re currently using.',
-        side: 'left',
-        align: 'start'
-    },
-    {
-        path: '/dashboard',
-        element: '#dashboard_howto',
-        title: 'General How-to',
-        description: 'Handy links to knowledge base articles for common tasks - opens in a new tab.',
-        side: 'left',
-        align: 'start'
     },
 
     {
@@ -484,9 +565,9 @@ window.TOUR_STEPS.push(
 
     {
         path: '/services',
-        element: '#service-select',
+        element: '#services-table',
         title: 'Services',
-        description: 'Pick a service to view its real-time resource usage, status, and to enable/disable it.',
+        description: 'Every service on your account with its status and resource usage. Start, stop or restart one from its row.',
         side: 'bottom',
         align: 'start'
     },
@@ -570,7 +651,7 @@ window.TOUR_STEPS.push(
 
     {
         path: '/server/info',
-        element: '#server',
+        element: 'main table',
         title: 'Server Information',
         description: 'General info about the server your account runs on - hostname, load, uptime, IP and OS.',
         side: 'top',
@@ -605,9 +686,9 @@ window.TOUR_STEPS.push(
 
     {
         path: '/account/language',
-        element: '#locale-select',
+        element: 'main form[action="/account/language"]',
         title: 'Change language',
-        description: 'Pick the language used across the panel interface.',
+        description: 'Pick the language used across the panel interface. Click a language to switch right away.',
         side: 'bottom',
         align: 'start'
     },
@@ -728,9 +809,9 @@ window.TOUR_STEPS.push(
 
     {
         path: '/malware-scanner',
-        element: '#directory-select',
+        element: '#folderPickerToggle',
         title: 'Malware Scanner',
-        description: 'Pick the folder you want to scan for malware.',
+        description: 'Click to pick the folder you want to scan for malware.',
         side: 'bottom',
         align: 'start'
     },
@@ -745,9 +826,9 @@ window.TOUR_STEPS.push(
 
     {
         path: '/fix-permissions',
-        element: '#directory-select',
+        element: '#folderPickerToggle',
         title: 'Fix Permissions',
-        description: 'Pick the folder whose file and folder permissions should be reset to the recommended defaults.',
+        description: 'Click to pick the folder whose file and folder permissions should be reset to the recommended defaults.',
         side: 'bottom',
         align: 'start'
     },
@@ -956,9 +1037,9 @@ window.TOUR_STEPS.push(
 
     {
         path: '/wordpress',
-        element: '#sites-table',
+        element: '#wp-search',
         title: 'WordPress manager',
-        description: 'Lists your installed WordPress sites with their version and quick actions.',
+        description: 'Your WordPress sites with their version and quick actions. Search here to find one.',
         side: 'top',
         align: 'start'
     },
@@ -981,7 +1062,7 @@ window.TOUR_STEPS.push(
     },
     {
         path: '/emails/filter',
-        element: '#filter-email-select',
+        element: '#domains',
         title: 'Filters',
         description: 'Pick an email account to manage its filters (sieve rules) for sorting or rejecting incoming mail.',
         side: 'bottom',
@@ -1014,9 +1095,9 @@ window.TOUR_STEPS.push(
 
     {
         path: '/containers/terminal',
-        element: '#shell',
+        element: '#service-select',
         title: 'Terminal',
-        description: 'Choose sh or bash, then use the terminal below to run commands interactively inside the container.',
+        description: 'Pick a container, then use the terminal below to run commands inside it.',
         side: 'bottom',
         align: 'start'
     },
@@ -1037,24 +1118,16 @@ window.TOUR_STEPS.push(
         align: 'start'
     },
     {
-        path: '/containers/image/',
-        element: '#check-updates-btn',
-        title: 'Check for Updates',
-        description: 'Click here to check whether newer images are available for your monitored containers.',
-        side: 'bottom',
-        align: 'end'
-    },
-    {
         path: '/containers/image/change',
-        element: '#service',
-        title: 'Change Image Tag',
-        description: 'Pick a service and a new image tag to switch it to.',
+        element: '#versions-table',
+        title: 'Software Versions',
+        description: 'Each service with the image tag it runs. Pick a newer tag to switch a service to it.',
         side: 'bottom',
         align: 'start'
     },
     {
         path: '/containers/webserver',
-        element: '#toAddActive',
+        element: 'main form',
         title: 'Change Webserver',
         description: 'Switch the webserver used across your account - this restarts all affected domains.',
         side: 'top',
@@ -1062,7 +1135,7 @@ window.TOUR_STEPS.push(
     },
     {
         path: '/containers/mysql',
-        element: '#toAddActive',
+        element: 'main form',
         title: 'Change MySQL type',
         description: 'Switch between MySQL and MariaDB for your account.',
         side: 'top',
@@ -1165,7 +1238,7 @@ window.TOUR_STEPS.push(
 
     {
         path: '/file-manager/upload',
-        element: '#fileUpload',
+        element: '#uploadForm',
         title: 'Upload from Device',
         description: 'Click to browse, or drag and drop files here to upload them into the current folder.',
         side: 'bottom',
@@ -1215,9 +1288,9 @@ window.TOUR_STEPS.push(
 
     {
         path: '/account/mcp',
-        element: '#mcp-generate-form',
+        element: '#mcp-add-button',
         title: 'Generate a Token',
-        description: 'Name the token, optionally set an expiry or make it read-only, then generate it to let an MCP client (like Claude) manage this account.',
+        description: 'Click Generate token, name it, optionally set an expiry or make it read-only, then create it to let an MCP client like Claude connect to your account.',
         side: 'top',
         align: 'start'
     },
@@ -1227,7 +1300,8 @@ window.TOUR_STEPS.push(
         title: 'Connecting a Client',
         description: 'Copy-paste snippets for pointing Claude Code or Claude Desktop at this panel using your generated token.',
         side: 'top',
-        align: 'start'
+        align: 'start',
+        beforeShow: 'openMcpForm'
     },
 
     {

@@ -10,7 +10,7 @@ Install and manage [Drupal](https://www.drupal.org/) sites in an existing domain
 
 ## Install Drupal
 
-Navigate to **OpenPanel > Websites > Install App** and click **Install Drupal**.
+Navigate to **OpenPanel > Websites > Install app** and click **Install Drupal**.
 
 ![Install Drupal form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/drupal-form.png#gh-light-mode-only)
 ![Install Drupal form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/drupal-form_dark.png#gh-dark-mode-only)
@@ -26,7 +26,7 @@ Behind the scenes, this runs `composer create-project drupal/recommended-project
 
 ## Manage a Drupal site
 
-Every Drupal install shows up on the general **Site Manager** page (`/sites`) alongside your other websites. Click **Manage** on a Drupal site to open its overview page:
+Every Drupal install shows up on the general **Site manager** page (`/sites`) alongside your other websites. Click **Manage** on a Drupal site to open its overview page:
 
 * **Docroot** – Where the Drupal codebase lives.
 * **Drupal version** – The exact installed version, read live from `composer.lock`.
@@ -35,4 +35,4 @@ Every Drupal install shows up on the general **Site Manager** page (`/sites`) al
 
 ### Remove
 
-The **Remove** tab's **Delete Application** button fully uninstalls the site: drops the database and database user, deletes every file in the docroot, and removes it from Site Manager. This cannot be undone.
+The **Remove** tab's **Delete application** button fully uninstalls the site: drops the database and database user, deletes every file in the docroot, and removes it from Site Manager. This cannot be undone.

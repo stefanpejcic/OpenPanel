@@ -110,7 +110,7 @@ Each alert is sent once per certificate, and all affected domains of the account
 ### Malware found
 
 Sends an email when a malware scan finds infected files on the account:
-- the scheduled ClamAV scan moves them to quarantine. The email lists up to 20 files with the malware signature found in each, and points to the **Malware Scanner > Quarantine** page to delete or restore them.
+- the scheduled ClamAV scan moves them to quarantine. The email lists up to 20 files with the malware signature found in each, and points to the **Malware scanner > Quarantine** page to delete or restore them.
 - when your provider uses ImunifyAV, a finished scan that found malware in your account lists up to 20 of the files. ImunifyAV doesn't quarantine them, so remove or clean them, or ask your provider for help.
 
 Scans you start yourself from the Malware Scanner page don't send an email, since you see the results right away.
@@ -226,4 +226,4 @@ It's off by default, and only shows up when your hosting plan includes the Error
 
 ### Upgrade offer
 
-On Enterprise, if the account's hosting plan has an [upsell plan](/docs/admin/plans/hosting_plans/) with an upgrade URL, the disk space, mailbox and hourly email limit emails also get an **Upgrade to** section named after the upsell plan, with a button to **Dashboard > Upgrade**. It's only added when the upsell plan actually raises the limit that's running out: more disk space or inodes for the disk email, bigger maximum mailbox size for the mailbox email, and more emails per hour for the hourly limit email.
+On Enterprise, if the account's hosting plan has an [upsell plan](/docs/admin/plans/hosting_plans/) with an upgrade URL, the disk space, mailbox and hourly email limit emails also get an **Upgrade to** section named after the upsell plan, with a button to **Dashboard > Upgrade now**. It's only added when the upsell plan actually raises the limit that's running out: more disk space or inodes for the disk email, bigger maximum mailbox size for the mailbox email, and more emails per hour for the hourly limit email.

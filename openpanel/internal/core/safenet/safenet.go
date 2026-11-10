@@ -14,12 +14,45 @@ import (
 // ErrBlockedAddress is returned when the address being connected to is loopback, private, link-local or similar
 var ErrBlockedAddress = errors.New("destination address is not public")
 
-var cgnatRange = &net.IPNet{IP: net.IPv4(100, 64, 0, 0), Mask: net.CIDRMask(10, 32)}
+var blockedRanges = mustCIDRs(
+	"0.0.0.0/8",
+	"100.64.0.0/10", // CGNAT
+	"192.0.0.0/24",
+	"198.18.0.0/15",
+	"240.0.0.0/4",
+	"::/96",          // IPv4-compatible, ::7f00:1 is 127.0.0.1
+	"64:ff9b::/96",   // NAT64
+	"64:ff9b:1::/48", // local-use NAT64
+	"2001::/32",      // Teredo
+	"2001:db8::/32",
+	"2002::/16", // 6to4
+	"fec0::/10", // old site-local
+)
+
+func mustCIDRs(cidrs ...string) []*net.IPNet {
+	out := make([]*net.IPNet, 0, len(cidrs))
+	for _, c := range cidrs {
+		_, n, err := net.ParseCIDR(c)
+		if err != nil {
+			panic(err)
+		}
+		out = append(out, n)
+	}
+	return out
+}
 
 // IsPublicIP reports whether ip is fine to connect to on an account's behalf
 func IsPublicIP(ip net.IP) bool {
-	return !(ip.IsPrivate() || ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() ||
-		ip.IsInterfaceLocalMulticast() || ip.IsMulticast() || ip.IsUnspecified() || cgnatRange.Contains(ip))
+	if ip == nil || ip.IsPrivate() || ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() ||
+		ip.IsInterfaceLocalMulticast() || ip.IsMulticast() || ip.IsUnspecified() {
+		return false
+	}
+	for _, n := range blockedRanges {
+		if n.Contains(ip) {
+			return false
+		}
+	}
+	return true
 }
 
 // Dialer checks the IP actually being connected to, so redirects and DNS rebinding can't reach internal services

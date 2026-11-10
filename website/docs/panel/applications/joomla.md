@@ -10,7 +10,7 @@ Install and manage [Joomla](https://www.joomla.org/) sites in an existing domain
 
 ## Install Joomla
 
-Navigate to **OpenPanel > Websites > Install App** and click **Install Joomla**.
+Navigate to **OpenPanel > Websites > Install app** and click **Install Joomla**.
 
 ![Install Joomla form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/joomla-form.png#gh-light-mode-only)
 ![Install Joomla form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/joomla-form_dark.png#gh-dark-mode-only)
@@ -26,7 +26,7 @@ Behind the scenes, this downloads the matching `Joomla_<version>-Stable-Full_Pac
 
 ## Manage a Joomla site
 
-Every Joomla install shows up on the general **Site Manager** page (`/sites`) alongside your other websites. Click **Manage** on a Joomla site to open its overview page:
+Every Joomla install shows up on the general **Site manager** page (`/sites`) alongside your other websites. Click **Manage** on a Joomla site to open its overview page:
 
 * **Screenshot** and **Joomla / PHP / MariaDB / Created** status cards, matching the other CMS managers.
 * **Files** – Docroot path, a File Manager shortcut, and live folder size.
@@ -35,7 +35,7 @@ Every Joomla install shows up on the general **Site Manager** page (`/sites`) al
 
 ### Login as Admin
 
-The **Login as Admin** button generates a one-time login link and opens the Joomla administrator dashboard already authenticated, without needing the admin password. Joomla core has no built-in CLI command for this (unlike Drupal's `drush user:login`), so OpenPanel deploys a small login helper file into the docroot at install time; each click issues a fresh token valid for 10 minutes and usable once.
+The **Login as admin** button generates a one-time login link and opens the Joomla administrator dashboard already authenticated, without needing the admin password. Joomla core has no built-in CLI command for this (unlike Drupal's `drush user:login`), so OpenPanel deploys a small login helper file into the docroot at install time; each click issues a fresh token valid for 10 minutes and usable once.
 
 ### Cache
 
@@ -47,4 +47,4 @@ The **Logs** tab shows the contents of `administrator/logs/*.php` — the PHP wa
 
 ### Remove
 
-The **Remove** tab's **Delete Application** button fully uninstalls the site: drops the database and database user, deletes every file in the docroot, and removes it from Site Manager. This cannot be undone.
+The **Remove** tab's **Delete application** button fully uninstalls the site: drops the database and database user, deletes every file in the docroot, and removes it from Site Manager. This cannot be undone.

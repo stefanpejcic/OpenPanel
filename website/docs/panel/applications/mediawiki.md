@@ -10,7 +10,7 @@ Install and manage [MediaWiki](https://www.mediawiki.org/) wikis in an existing 
 
 ## Install MediaWiki
 
-Navigate to **OpenPanel > Websites > Install App** and click **Install MediaWiki**.
+Navigate to **OpenPanel > Websites > Install app** and click **Install MediaWiki**.
 
 ![Install MediaWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/mediawiki-form.png#gh-light-mode-only)
 ![Install MediaWiki form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/mediawiki-form_dark.png#gh-dark-mode-only)
@@ -26,7 +26,7 @@ Behind the scenes, this downloads the matching `mediawiki-<version>.tar.gz` pack
 
 ## Manage a wiki
 
-Every MediaWiki install shows up on the general **Site Manager** page (`/sites`) alongside your other websites. Click **Manage** on a MediaWiki site to open its overview page:
+Every MediaWiki install shows up on the general **Site manager** page (`/sites`) alongside your other websites. Click **Manage** on a MediaWiki site to open its overview page:
 
 * **Screenshot** and **MediaWiki / PHP / MariaDB / Created** status cards, matching the other CMS managers.
 * **Files** – Docroot path, a File Manager shortcut, and live folder size.
@@ -35,7 +35,7 @@ Every MediaWiki install shows up on the general **Site Manager** page (`/sites`)
 
 ### Login as Admin
 
-The **Login as Admin** button generates a one-time login link and opens the wiki already authenticated as an administrator, without needing the admin password. MediaWiki core has no CLI command for this (unlike Drupal's `drush uli`), so OpenPanel deploys a small login helper file (`openpanel-login.php`) into the docroot at install time; each click looks up an active sysop account, issues a fresh token valid for 10 minutes and usable once, and the helper binds that admin user to the browser's session via MediaWiki's own `User::setCookies()` API.
+The **Login as admin** button generates a one-time login link and opens the wiki already authenticated as an administrator, without needing the admin password. MediaWiki core has no CLI command for this (unlike Drupal's `drush uli`), so OpenPanel deploys a small login helper file (`openpanel-login.php`) into the docroot at install time; each click looks up an active sysop account, issues a fresh token valid for 10 minutes and usable once, and the helper binds that admin user to the browser's session via MediaWiki's own `User::setCookies()` API.
 
 ### Logs
 
@@ -55,4 +55,4 @@ The **Backups** tab generates on-demand backups (database, files, or both) into 
 
 ### Remove
 
-The **Remove** tab's **Delete Application** button fully uninstalls the site: drops the database, deletes every file in the docroot, removes the per-minute job-queue cron job, and removes it from Site Manager. This cannot be undone.
+The **Remove** tab's **Delete application** button fully uninstalls the site: drops the database, deletes every file in the docroot, removes the per-minute job-queue cron job, and removes it from Site Manager. This cannot be undone.

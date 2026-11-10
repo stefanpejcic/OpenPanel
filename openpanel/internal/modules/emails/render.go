@@ -16,7 +16,7 @@ var (
 	newEmailPage             = web.LoadPage("emails/new.html")
 	singleAccountPage        = web.LoadPage("emails/single_account.html")
 	deletePage               = web.LoadPage("emails/delete.html")
-	infoPage                 = web.LoadPage("emails/info.html")
+	infoPage                 = web.LoadPage("emails/info.html", "partials/_account_created.html")
 	aliasesPage              = web.LoadPage("emails/aliases.html")
 	aliasNewPage             = web.LoadPage("emails/alias_new.html")
 	aliasDetailPage          = web.LoadPage("emails/alias_detail.html")
@@ -66,7 +66,9 @@ type AccountsPageData struct {
 type CreatedMailbox struct {
 	Address string
 	Welcome bool
-	Conn    MailConnection
+	// Info is the account's Connect devices page, same block without the "ready" wording or a close button
+	Info bool
+	Conn MailConnection
 }
 
 // fillAccountsSummary works out the numbers for the stat tiles above the table
@@ -353,6 +355,7 @@ type InfoPageData struct {
 	Address  string
 	Scheme   string
 	Hostname string
+	Created  CreatedMailbox
 }
 
 func renderInfoPage(a *appctx.App, w http.ResponseWriter, r *http.Request, address, scheme, hostname string) {
@@ -361,7 +364,8 @@ func renderInfoPage(a *appctx.App, w http.ResponseWriter, r *http.Request, addre
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := InfoPageData{LayoutData: layout, Address: address, Scheme: scheme, Hostname: hostname}
+	data := InfoPageData{LayoutData: layout, Address: address, Scheme: scheme, Hostname: hostname,
+		Created: CreatedMailbox{Address: address, Info: true, Conn: mailConnectionFor(scheme == "https", hostname)}}
 	if err := infoPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("EMAILS - info template render error: %v", err)
 	}

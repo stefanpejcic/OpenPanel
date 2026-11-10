@@ -6,7 +6,7 @@ sidebar_position: 2
 
 Easily create a new MongoDB database in just a few clicks. Databases are essential for storing, organizing, and retrieving document data for your applications.
 
-Navigate to **MongoDB > Databases > New Database**:
+Navigate to **MongoDB > Databases > New database**:
 
 ![Create a MongoDB Database form with the database name field](/img/openpanel-screenshots/mongodb/new_db-form.png#gh-light-mode-only)
 ![Create a MongoDB Database form with the database name field](/img/openpanel-screenshots/mongodb/new_db-form_dark.png#gh-dark-mode-only)
@@ -15,7 +15,7 @@ Navigate to **MongoDB > Databases > New Database**:
    Type your desired name into the input field. Only letters, numbers, and underscores are allowed, and the name must be between 1 and 63 characters long.
 
 2. **Click 'Create Database'**
-   Once the name is entered, click the **Create Database** button to initialize your new MongoDB database.
+   Once the name is entered, click the **Create database** button to initialize your new MongoDB database.
 
 ---
 

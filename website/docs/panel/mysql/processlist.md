@@ -11,7 +11,7 @@ Checking the currently running queries is useful for identifying slow queries th
 ![MySQL Processes table with the Refresh Processes button and the currently running queries](/img/openpanel-screenshots/mysql/processlist-list.png#gh-light-mode-only)
 ![MySQL Processes table with the Refresh Processes button and the currently running queries](/img/openpanel-screenshots/mysql/processlist-list_dark.png#gh-dark-mode-only)
 
-Click **Refresh Processes** to reload the table with the current list of active processes.
+Click **Refresh processes** to reload the table with the current list of active processes.
 
 ## Kill a query
 

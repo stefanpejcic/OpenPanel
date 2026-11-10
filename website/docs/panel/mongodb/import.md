@@ -8,14 +8,14 @@ Import data into a MongoDB database using a `mongodump` archive file (`.archive`
 
 To import data into a database, navigate to **MongoDB > Import**:
 
-1. **Select a Database**
+1. **Select a database**
    Choose the target database into which you want to import the data.
 
 2. **Select a File**
    Click the **Select** button to choose a `.archive` or `.archive.gz` file from your device.
 
 3. **Upload**
-   Click the **Upload & Import** button and wait for the import process to complete.
+   Click the **Upload & import** button and wait for the import process to complete.
 
 :::info
 Importing replaces any existing collections in the target database that are present in the archive (`mongorestore --drop`).

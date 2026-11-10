@@ -70,19 +70,19 @@ func buildDashboardSections(t i18n.Translator, allowed, upsellAllowed map[string
 // allSections is the modern (menu_style=modern) dashboard: sections and icons follow the sidebar's areas and tab order, single-page areas (Cron Jobs, Server Info) join a neighbouring section instead of standing alone, keys stay the old ones where a section survived so saved orders and custom_dashboard_section.json's before_<key> keep working
 func allSections() []Section {
 	return []Section{
-		{Key: "domains", Title: "Domains", Icon: "ri-global-line", Items: []SectionItem{
-			{"domains", "/domains", "ri-global-line", "Domains", "", false},
-			{"dns", "/domains/edit-dns-zone", "ri-file-text-line", "DNS zone editor", "", false},
-			{"dynamic_dns", "/domains/dynamic-dns", "ri-loop-right-line", "Dynamic DNS", "", false},
-			{"ssl", "/domains/ssl", "ri-lock-line", "SSL certificates", "", false},
-			{"redirects", "/domains/redirect", "ri-link", "Redirects", "", false},
-		}},
 		// mautic/flarum omitted: legacy code slated for removal entirely, not ported here (per user decision)
 		{Key: "websites", Title: "Websites", Icon: "ri-window-2-line", Items: []SectionItem{
 			{"websites", "/sites", "ri-notification-badge-line", "Sites", "", false},
 			{"wordpress", "/wordpress", "ri-wordpress-line", "WordPress", "", false},
 			{"autoinstaller", "/auto-installer", "ri-download-line", "Install app", "", false},
 			{"git", "/git", "ri-git-branch-line", "Git", "", false},
+		}},
+		{Key: "domains", Title: "Domains", Icon: "ri-global-line", Items: []SectionItem{
+			{"domains", "/domains", "ri-global-line", "Domains", "", false},
+			{"dns", "/domains/edit-dns-zone", "ri-file-text-line", "DNS zone editor", "", false},
+			{"dynamic_dns", "/domains/dynamic-dns", "ri-loop-right-line", "Dynamic DNS", "", false},
+			{"ssl", "/domains/ssl", "ri-lock-line", "SSL certificates", "", false},
+			{"redirects", "/domains/redirect", "ri-link", "Redirects", "", false},
 		}},
 		{Key: "emails", Title: "Email", Icon: "ri-mail-line", Items: []SectionItem{
 			{"emails", "/emails", "ri-mail-line", "Email accounts", "", false},

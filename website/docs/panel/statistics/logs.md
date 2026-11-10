@@ -17,7 +17,7 @@ Each log entry contains detailed information, including:
 
 * **Timestamp** – The exact time of the request
 * **Client IP** – The IP address from which the request originated
-* **Log Level** – Log severity (e.g., info, warning, error)
+* **Log level** – Log severity (e.g., info, warning, error)
 * **HTTP Method** – Request method (GET, POST, PUT, etc.)
 * **Status Code** – HTTP response code (200, 301, 403, 500, etc.)
 * **URI** – The requested path

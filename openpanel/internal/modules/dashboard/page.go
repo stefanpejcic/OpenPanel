@@ -260,7 +260,7 @@ func siteTypeLabel(t string) string {
 	return strings.ToUpper(t[:1]) + t[1:]
 }
 
-// dashboardView picks the open view from ?view= or the dashboard_view cookie, tools by default
+// dashboardView picks the open view from ?view= or the dashboard_view cookie, overview by default
 func dashboardView(r *http.Request) string {
 	ok := func(v string) bool { return v == "overview" || v == "tools" }
 	if v := r.URL.Query().Get("view"); ok(v) {
@@ -269,20 +269,21 @@ func dashboardView(r *http.Request) string {
 	if c, err := r.Cookie("dashboard_view"); err == nil && ok(c.Value) {
 		return c.Value
 	}
-	return "tools"
+	return "overview"
 }
 
 // PlanTile is one usage tile on the Overview view
 type PlanTile struct {
-	Label, Href, Icon string
-	Used, Limit, Pct  int
+	// Key names the tile for tests and links: websites, domains, databases, emails, ftp
+	Key, Label, Href, Icon string
+	Used, Limit, Pct       int
 }
 
 // PlanTiles feeds the Overview tiles, a limit of 0 means unlimited
 func (d DashboardPageData) PlanTiles() []PlanTile {
 	allowed := d.UserAllowed
-	tile := func(label, href, icon string, used, limit int) PlanTile {
-		t := PlanTile{Label: d.T.Get(label), Href: href, Icon: icon, Used: used, Limit: limit}
+	tile := func(key, label, href, icon string, used, limit int) PlanTile {
+		t := PlanTile{Key: key, Label: d.T.Get(label), Href: href, Icon: icon, Used: used, Limit: limit}
 		if limit > 0 {
 			t.Pct = min(100, used*100/limit)
 		}
@@ -290,23 +291,23 @@ func (d DashboardPageData) PlanTiles() []PlanTile {
 	}
 	var tiles []PlanTile
 	if allowed["wordpress"] || allowed["website_builder"] || allowed["nodejs"] || allowed["python"] {
-		tiles = append(tiles, tile("Websites", "/sites", "ri-window-line", d.UserWebsitesCount, d.WebsitesLimit))
+		tiles = append(tiles, tile("websites", "Websites", "/sites", "ri-window-line", d.UserWebsitesCount, d.WebsitesLimit))
 	}
 	if allowed["domains"] {
-		tiles = append(tiles, tile("Domains", "/domains", "ri-global-line", d.MainDomainsCount, d.DomainsLimit))
+		tiles = append(tiles, tile("domains", "Domains", "/domains", "ri-global-line", d.MainDomainsCount, d.DomainsLimit))
 	}
 	if allowed["mysql"] || allowed["postgresql"] {
 		href := "/postgresql"
 		if allowed["mysql"] {
 			href = "/mysql"
 		}
-		tiles = append(tiles, tile("Databases", href, "ri-database-2-line", d.DBUsage, d.DBLimit))
+		tiles = append(tiles, tile("databases", "Databases", href, "ri-database-2-line", d.DBUsage, d.DBLimit))
 	}
 	if allowed["emails"] {
-		tiles = append(tiles, tile("Email accounts", "/emails", "ri-mail-line", d.EmailCount, d.EmailLimit))
+		tiles = append(tiles, tile("emails", "Email accounts", "/emails", "ri-mail-line", d.EmailCount, d.EmailLimit))
 	}
 	if allowed["ftp"] {
-		tiles = append(tiles, tile("FTP accounts", "/ftp", "ri-folder-shared-line", d.FTPCount, d.FTPLimit))
+		tiles = append(tiles, tile("ftp", "FTP accounts", "/ftp", "ri-folder-shared-line", d.FTPCount, d.FTPLimit))
 	}
 	return tiles
 }
@@ -314,7 +315,7 @@ func (d DashboardPageData) PlanTiles() []PlanTile {
 // QuickActions is a fixed pick of common tools for the Overview, or the first usable item of each section when the plan has few of them
 func (d DashboardPageData) QuickActions() []SectionItem {
 	var out []SectionItem
-	for _, href := range []string{"/files", "/phpmyadmin", "/domains/edit-dns-zone", "/domains/ssl", "/cronjobs", "/backups"} {
+	for _, href := range []string{"/files", "/phpmyadmin", "/domains/edit-dns-zone", "/domains/ssl", "/cronjobs", "/backups", "/webmail/"} {
 	find:
 		for _, s := range d.Sections {
 			for _, it := range s.Items {

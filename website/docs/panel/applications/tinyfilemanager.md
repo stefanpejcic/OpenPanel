@@ -10,7 +10,7 @@ Install and manage [TinyFileManager](https://github.com/prasathmani/tinyfilemana
 
 ## Install TinyFileManager
 
-Navigate to **OpenPanel > Websites > Install App** and click **Install TinyFileManager**.
+Navigate to **OpenPanel > Websites > Install app** and click **Install TinyFileManager**.
 
 ![Install TinyFileManager form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/tinyfilemanager-form.png#gh-light-mode-only)
 ![Install TinyFileManager form with the site details, domain and location, and admin credentials](/img/openpanel-screenshots/applications/tinyfilemanager-form_dark.png#gh-dark-mode-only)
@@ -24,7 +24,7 @@ Behind the scenes, this downloads `tinyfilemanager.php` from the project's maste
 
 ## Manage a TinyFileManager installation
 
-Every TinyFileManager install shows up on the general **Site Manager** page (`/sites`) alongside your other websites. Click **Manage** on a TinyFileManager site to open its overview page:
+Every TinyFileManager install shows up on the general **Site manager** page (`/sites`) alongside your other websites. Click **Manage** on a TinyFileManager site to open its overview page:
 
 * **Screenshot** and **TinyFileManager / PHP / Created** status cards. TinyFileManager always reports as "main" since there is no real versioning upstream.
 * **Files** – Docroot path, a File Manager shortcut, and live folder size. There is no Database card — TinyFileManager has no database.
@@ -37,4 +37,4 @@ The **Backups** tab generates and restores files-only backups (there is no datab
 
 ### Remove
 
-The **Remove** tab's **Delete Application** button fully uninstalls the site: deletes `tinyfilemanager.php` and removes it from Site Manager. This cannot be undone.
+The **Remove** tab's **Delete application** button fully uninstalls the site: deletes `tinyfilemanager.php` and removes it from Site Manager. This cannot be undone.

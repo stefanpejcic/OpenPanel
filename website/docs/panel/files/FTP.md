@@ -17,11 +17,11 @@ FTP is available in the [OpenPanel Enterprise](/enterprise/) edition. Administra
 
 ## View Users
 
-Go to **OpenPanel > Files > FTP Accounts** to see all FTP accounts, the directory each account is restricted to, and connection details including the server IP.
+Go to **OpenPanel > Files > FTP accounts** to see all FTP accounts, the directory each account is restricted to, and connection details including the server IP.
 
 ## Create User
 
-1. Go to **OpenPanel > Files > FTP Accounts** and click **New Account**.
+1. Go to **OpenPanel > Files > FTP accounts** and click **New account**.
 2. Fill in the form:
 
    | Field | Description |
@@ -29,10 +29,10 @@ Go to **OpenPanel > Files > FTP Accounts** to see all FTP accounts, the director
    | **Username** | The local part of the FTP username: the full username will be `username@domain.com` |
    | **Domain** | Select one of your domains |
    | **Password** | Password for the FTP account |
-   | **Path (folder)** | Directory the account is restricted to: must start with `/var/www/html/` |
+   | **Path (folder)** | Directory the account is restricted to. It starts at the selected domain's folder: browse to a subfolder, or type a path. Must be under `/var/www/html/` |
    | **Disk quota** | Optional, the most the folder can hold in MB or GB. Leave empty for no limit |
 
-3. Click **Create Account** to create the user.
+3. Click **Create account** to create the user.
 
 ![New FTP Account form with the username, domain, password and path fields](/img/openpanel-screenshots/files/ftp_new-form.png#gh-light-mode-only)
 ![New FTP Account form with the username, domain, password and path fields](/img/openpanel-screenshots/files/ftp_new-form_dark.png#gh-dark-mode-only)
@@ -43,7 +43,7 @@ FTP usernames may only contain letters, numbers, and the characters `-`, `_`, `@
 
 ## Change Password
 
-1. Go to **OpenPanel > Files > FTP Accounts** and click the key icon (**Change Password**) next to the account.
+1. Go to **OpenPanel > Files > FTP accounts** and click the key icon (**Change password**) next to the account.
 2. Enter the new password, confirm it, and click **Update**.
 
 ![Change FTP password form with a new password field](/img/openpanel-screenshots/files/ftp_password-form.png#gh-light-mode-only)
@@ -55,7 +55,7 @@ FTP passwords must be 8-30 characters long and contain at least one uppercase le
 
 ## Change Path
 
-1. Go to **OpenPanel > Files > FTP Accounts** and click the pencil icon (**Change Path**) next to the account.
+1. Go to **OpenPanel > Files > FTP accounts** and click the pencil icon (**Change path**) next to the account.
 2. Enter the new directory path and click **Update**. The path must start with `/var/www/html/`.
 
 ![Change FTP path form with the folder field](/img/openpanel-screenshots/files/ftp_path-form.png#gh-light-mode-only)
@@ -65,7 +65,7 @@ FTP passwords must be 8-30 characters long and contain at least one uppercase le
 
 A disk quota limits how big the account's folder can grow. The **Quota** column on the FTP accounts page shows the space used and the quota, or **Unlimited**.
 
-1. Go to **OpenPanel > Files > FTP Accounts** and click the disk icon (**Change Quota**) next to the account.
+1. Go to **OpenPanel > Files > FTP accounts** and click the disk icon (**Change quota**) next to the account.
 2. Enter the quota, pick **MB** or **GB**, and click **Update**. Leave the field empty or enter `0` to remove the quota.
 
 ![Change FTP quota form with the current quota and usage, and the quota field with a MB/GB unit](/img/openpanel-screenshots/files/ftp_quota-form.png#gh-light-mode-only)
@@ -75,7 +75,7 @@ The quota counts everything in the account's folder, also files added from the F
 
 ## Delete User
 
-Go to **OpenPanel > Files > FTP Accounts** and click the trash icon (**Delete**) next to the account. The icon turns into **Confirm** with a 5-second countdown; click it again before the countdown ends to delete the account.
+Go to **OpenPanel > Files > FTP accounts** and click the trash icon (**Delete**) next to the account. The icon turns into **Confirm** with a 5-second countdown; click it again before the countdown ends to delete the account.
 
 ![Delete icon of an FTP account turned into a Confirm button with a countdown after the first click](/img/openpanel-screenshots/files/ftp_actions-delete.png#gh-light-mode-only)
 ![Delete icon of an FTP account turned into a Confirm button with a countdown after the first click](/img/openpanel-screenshots/files/ftp_actions-delete_dark.png#gh-dark-mode-only)
@@ -111,7 +111,7 @@ Both files are pre-filled with the correct server IP, port, username, and remote
 
 ## View Active Connections
 
-Go to **OpenPanel > Files > FTP Accounts** and click **View Connections** to see all currently active FTP sessions for your account.
+Go to **OpenPanel > Files > FTP accounts** and click **View connections** to see all currently active FTP sessions for your account.
 
 ![FTP Connections page listing current FTP sessions](/img/openpanel-screenshots/files/ftp_connections-list.png#gh-light-mode-only)
 ![FTP Connections page listing current FTP sessions](/img/openpanel-screenshots/files/ftp_connections-list_dark.png#gh-dark-mode-only)

@@ -61,7 +61,7 @@ To delete a MongoDB user, click the **Delete** button next to the user in the Us
 :::
 
 :::info
-Built-in MongoDB users (such as `admin` and `root`) are marked as **System User** and cannot be edited or deleted.
+Built-in MongoDB users (such as `admin` and `root`) are marked as **System user** and cannot be edited or deleted.
 :::
 
 ## Bulk Actions

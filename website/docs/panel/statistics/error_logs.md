@@ -4,7 +4,7 @@ sidebar_position: 7
 
 # Error Logs
 
-The **Statistics > Error Logs** page shows the errors of all your websites in one place, so you don't need to know which service or container to check.
+The **Statistics > Error logs** page shows the errors of all your websites in one place, so you don't need to know which service or container to check.
 
 ![Error Logs page with the website, service, severity, search and date filters above a table of errors with their time, severity, service, website and message](/img/openpanel-screenshots/statistics/error_logs-page.png#gh-light-mode-only)
 ![Error Logs page with the website, service, severity, search and date filters above a table of errors with their time, severity, service, website and message](/img/openpanel-screenshots/statistics/error_logs-page_dark.png#gh-dark-mode-only)

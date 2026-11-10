@@ -4,7 +4,7 @@ sidebar_position: 5
 
 # Visitor Statistics
 
-The **Statistics > Visitor Statistics** page uses [GoAccess](https://github.com/allinurl/goaccess), a powerful open-source log analyzer, to provide detailed visual traffic reports for each domain.
+The **Statistics > Visitor statistics** page uses [GoAccess](https://github.com/allinurl/goaccess), a powerful open-source log analyzer, to provide detailed visual traffic reports for each domain.
 
 The **GoAccess** feature is available in your OpenPanel dashboard only if the **GoAccess module** is enabled on the server and your account has permission to access it.
 

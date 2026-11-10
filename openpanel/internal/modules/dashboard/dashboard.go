@@ -180,7 +180,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		MenuStyle:        menuStyle,
 		NavItems:         navItems,
 		NavGroups:        navGroups,
-		PageTabs:         web.DashboardTabs(r.URL.Path, upsellPlanName != "" && upsellURL != ""),
+		PageTabs:         dashboardTabs(r.URL.Path, upsellPlanName != "" && upsellURL != ""),
 		NavTrail:         navTrail,
 		UserAllowed:      userAllowed,
 		UserAllowedJSON:  web.UserAllowedList(userAllowed),
@@ -523,7 +523,10 @@ func buildDashboardData(a *appctx.App, ctx context.Context, userID int, injected
 		d.LastIP, d.LastLoginTime = lastLogins[0].IP, lastLogins[0].LoginTime
 	}
 
-	d.HowToGuides = a.Config.Get("how_to_guides", "")
+	// template only checks for non-empty, so "no" has to become ""
+	if a.Config.Get("how_to_guides", "") == "yes" {
+		d.HowToGuides = "yes"
+	}
 	topics, kbLink := howToLinksForDashboard(a, ctx)
 	d.HowToTopics, d.KnowledgeBaseLink = topics, kbLink
 
@@ -795,7 +798,7 @@ func howToLinksForDashboard(a *appctx.App, ctx context.Context) ([]map[string]an
 		Link   string
 	}
 	r, _ := cache.Memoize(ctx, a.Cache, "how_to_links_for_dashboard_page", 86400*time.Second, func() (result, error) {
-		if a.Config.Get("how_to_guides", "") == "" {
+		if a.Config.Get("how_to_guides", "") != "yes" {
 			return result{}, nil
 		}
 		kbData := readJSONFile("/etc/openpanel/openpanel/conf/knowledge_base_articles.json")
@@ -874,4 +877,12 @@ func atoiDefault(s string, def int) int {
 		return def
 	}
 	return n
+}
+
+// dashboardTabs keeps the Dashboard tab even without an Upgrade tab, the bar also holds the Overview/Tools switch
+func dashboardTabs(path string, upsell bool) []web.NavLink {
+	if tabs := web.DashboardTabs(path, upsell); tabs != nil {
+		return tabs
+	}
+	return []web.NavLink{{Href: "/dashboard", Label: "Dashboard", Active: path == "/dashboard"}}
 }

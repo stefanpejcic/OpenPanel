@@ -1,6 +1,7 @@
 package dashboard
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -159,5 +160,31 @@ func TestRenderDatabaseTypes(t *testing.T) {
 		if !strings.Contains(body, want) {
 			t.Errorf("databases card missing %q", want)
 		}
+	}
+}
+
+func TestDashboardViewDefault(t *testing.T) {
+	r := httptest.NewRequest("GET", "/dashboard", nil)
+	if got := dashboardView(r); got != "overview" {
+		t.Errorf("default view = %q, want overview", got)
+	}
+	r = httptest.NewRequest("GET", "/dashboard?view=tools", nil)
+	if got := dashboardView(r); got != "tools" {
+		t.Errorf("?view=tools gave %q", got)
+	}
+	r = httptest.NewRequest("GET", "/dashboard", nil)
+	r.AddCookie(&http.Cookie{Name: "dashboard_view", Value: "tools"})
+	if got := dashboardView(r); got != "tools" {
+		t.Errorf("saved tools view gave %q", got)
+	}
+}
+
+func TestDashboardTabsWithoutUpsell(t *testing.T) {
+	tabs := dashboardTabs("/dashboard", false)
+	if len(tabs) != 1 || tabs[0].Label != "Dashboard" || !tabs[0].Active {
+		t.Errorf("tabs without upsell = %+v, want one active Dashboard tab", tabs)
+	}
+	if len(dashboardTabs("/dashboard", true)) != 2 {
+		t.Error("with an upsell the Upgrade tab should be there too")
 	}
 }

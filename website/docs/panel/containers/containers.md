@@ -18,15 +18,15 @@ To access this feature:
 
 At the top of the page, you'll see:
 
-- **Running Containers / Total Containers** – Indicates how many services are currently active.
+- **Running containers** – How many containers are running out of the total.
 - **Total CPU** – Number of CPU cores assigned to your hosting plan.
-- **Total Memory** – Amount of RAM (in GB) assigned to your hosting plan.
+- **Total memory** – Amount of RAM (in GB) assigned to your hosting plan.
 
 You can allocate portions of these total resources to individual services.
 
 ## Container Table
 
-Use the **Show Columns** dropdown above the table to show or hide columns. Name, CPU Usage, Memory Usage, PIDs, Status and Actions are shown by default, Block I/O and Net I/O are hidden.
+Use the **Show columns** dropdown above the table to show or hide columns. Name, CPU Usage, Memory Usage, PIDs, Status and Actions are shown by default, Block I/O and Net I/O are hidden.
 
 ![Containers page listing services with a checkbox, their image, CPU and memory usage, PIDs and status](/img/openpanel-screenshots/containers/containers-list.png#gh-light-mode-only)
 ![Containers page listing services with a checkbox, their image, CPU and memory usage, PIDs and status](/img/openpanel-screenshots/containers/containers-list_dark.png#gh-dark-mode-only)
@@ -35,11 +35,11 @@ Each row in the table represents a containerized service and displays:
 
 - **Checkbox** – Selects the service for [bulk actions](#bulk-actions).
 - **Name** – Name of the Docker service, along with the image used and its tag (version).
-- **CPU Usage**  
+- **CPU usage**  
   - **Graph** – Real-time usage as a percentage of the allocated CPU.  
   - **Usage** – How much CPU the container is using from its allocated amount.  
   - **Allocated** – Number of CPU cores allocated to the service.
-- **Memory Usage**  
+- **Memory usage**  
   - **Graph** – Real-time usage as a percentage of the allocated memory.  
   - **Usage** – RAM used by the service from its allocated amount.  
   - **Allocated** – Memory (in GB) allocated to the service.
@@ -99,7 +99,7 @@ Click **Confirm** and the action runs on the services one after another. When it
 
 ## Adding New Services
 
-Click **New Service** on the Containers page to run any Docker image next to your websites, for example a Redis cache, a queue worker or your own app. The form is split into numbered steps:
+Click **New service** on the Containers page to run any Docker image next to your websites, for example a Redis cache, a queue worker or your own app. The form is split into numbered steps:
 
 ![Add a container form with the image and name, resource presets, networks, storage and environment variables](/img/openpanel-screenshots/containers/new-form.png#gh-light-mode-only)
 ![Add a container form with the image and name, resource presets, networks, storage and environment variables](/img/openpanel-screenshots/containers/new-form_dark.png#gh-dark-mode-only)
@@ -164,7 +164,7 @@ When a domain is chosen in the **Domain** step of the form, OpenPanel wires it u
 
 - The container joins the `www` network, so the web server can reach it by its name.
 - A reverse proxy from the domain to `name:port` is added to the domain's Apache, Nginx, OpenResty or OpenLiteSpeed configuration, with WebSocket support, and the web server is restarted.
-- The domain is added to [Site Manager](/docs/panel/applications/sites/) as a **Docker Containers** site. Its **Manage** button opens the container's **Edit** page, and **Delete** deletes the container.
+- The domain is added to [Site Manager](/docs/panel/applications/sites/) as a **Docker containers** site. Its **Manage** button opens the container's **Edit** page, and **Delete** deletes the container.
 
 All requests to the domain go to the container, so any website files on that domain are no longer served. A domain can't be used if it already points to another container, has a NodeJS, Python, Ruby, Java or n8n application at its root, or has sites in subfolders.
 
@@ -174,7 +174,7 @@ When the container is deleted, from its **Delete** button, [bulk actions](#bulk-
 
 ## Templates
 
-The **Add a container** form can be filled in from a link, so an app can be set up in one click. The [Auto Installer](/docs/panel/applications/autoinstaller/#docker-applications) uses this for its **Docker Applications**, and you can make your own links:
+The **Add a container** form can be filled in from a link, so an app can be set up in one click. The [Auto Installer](/docs/panel/applications/autoinstaller/#docker-applications) uses this for its **Docker applications**, and you can make your own links:
 
 ```
 /containers/new?image=louislam/uptime-kuma:2&name=uptimekuma&cpu=0.5&ram=0.5&volume=uptimekuma_data:/app/data&port=3001

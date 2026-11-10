@@ -15,6 +15,6 @@ The wizard performs three steps in sequence:
 2. **Create a user**
 3. **Assign the user to the database**, granting all privileges on it
 
-Click **Create DB, User, and Grant Privileges** to run all three steps automatically.
+Click **Create DB, user, and grant privileges** to run all three steps automatically.
 
 Please ensure to save this data as the password will not be displayed again. However, you have the option to reset it at any time from the [Users](/docs/panel/postgresql/users) page.

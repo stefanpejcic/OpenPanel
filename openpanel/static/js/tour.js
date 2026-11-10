@@ -161,7 +161,11 @@
             } else if (nextVisible && nextVisible.beforeShow) {
                 popover.onNextClick = function () {
                     runHook(nextVisible.beforeShow);
-                    setTimeout(function () { driverObj.moveNext(); }, 60);
+                    // a hook can swap what's on screen, so place the popover after the layout settles
+                    setTimeout(function () {
+                        driverObj.moveNext();
+                        setTimeout(function () { if (driverObj.refresh) driverObj.refresh(); }, 700);
+                    }, 150);
                 };
             }
 

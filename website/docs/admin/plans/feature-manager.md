@@ -180,3 +180,11 @@ Features are accessible to users [only if the corresponding **Module** is active
 For example, adding the "Docker" feature to a feature set does **not** grant access to the Docker (Containers) page in the UI unless the **Docker module** is also activated under **OpenAdmin > Settings > Modules**. The **Module** column on the feature set's edit page shows the current status of each feature's module, and links straight to the Modules page when it's disabled.
 
 Also double check that the feature's **Type** isn't `Enterprise` while running on a Community license - Enterprise features cannot be toggled on without an active Enterprise license.
+
+## Disabled apps still show on the Auto Installer
+
+Features that are not available to a user are hidden from their menu and pages. The exception is the [Auto Installer](/docs/panel/applications/autoinstaller/) page: it always lists every application, and the ones the user can't install are shown greyed out.
+
+An application is greyed out when its module is disabled **or** when it's not in the feature set of the user's plan. Enabling the module is not enough - the feature also has to be turned on in the feature set assigned to the user's hosting plan. Hovering over a greyed-out card shows the user *"This app is disabled on your plan. Contact your administrator to enable it."*, or a link to upgrade if an [upgrade plan](/docs/panel/dashboard/upgrade/) that includes the application is set.
+
+Greyed-out applications can't be hidden from the Auto Installer page, neither by disabling the module nor by removing the feature from the feature set.

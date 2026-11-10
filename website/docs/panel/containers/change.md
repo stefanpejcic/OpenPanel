@@ -4,7 +4,7 @@ sidebar_position: 4
 
 # Change Image Tag
 
-The **Containers > Software Versions** page allows you to update the Docker image tag (version) used by your services.
+The **Containers > Software versions** page allows you to update the Docker image tag (version) used by your services.
 
 ## Requirements
 
@@ -12,8 +12,8 @@ The **Containers > Software Versions** page allows you to update the Docker imag
 
 ## Usage
 
-1. In the OpenPanel menu, go to **Containers > Software Versions**.
-2. Under **Select Service**, choose the service for which you want to change the image tag.
+1. In the OpenPanel menu, go to **Containers > Software versions**.
+2. Under **Select service**, choose the service for which you want to change the image tag.
 3. Click the tag field. It opens a list of the image's tags from Docker Hub, most recently updated first, with the tag you use now marked **(current)**.
 4. Start typing to search the list, for example `alpine` or `8.8`, and click the tag you want. To use a tag that isn't listed, type it in full and pick **Use &lt;tag&gt;**, or press Enter.
 5. Click **Change tag** to apply the change.

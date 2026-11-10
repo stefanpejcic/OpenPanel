@@ -27,6 +27,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/logger"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/safenet"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -176,18 +177,7 @@ func validateMigrateRequest(req *MigrateRequest) error {
 }
 
 // isPublicIP is false for anything a user shouldn't be able to point imapsync at from inside the server
-func isPublicIP(ip net.IP) bool {
-	if ip == nil || ip.IsLoopback() || ip.IsPrivate() || ip.IsUnspecified() || ip.IsMulticast() ||
-		ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() || ip.IsInterfaceLocalMulticast() {
-		return false
-	}
-	for _, cidr := range []string{"0.0.0.0/8", "100.64.0.0/10", "192.0.0.0/24", "198.18.0.0/15", "240.0.0.0/4", "64:ff9b::/96", "64:ff9b:1::/48", "2001:db8::/32"} {
-		if _, n, _ := net.ParseCIDR(cidr); n.Contains(ip) {
-			return false
-		}
-	}
-	return true
-}
+func isPublicIP(ip net.IP) bool { return safenet.IsPublicIP(ip) }
 
 // resolveSource returns the IP imapsync should connect to, resolved here so the hostname can't rebind to an internal address later
 func resolveSource(ctx context.Context, host string, allowPrivate bool) (string, error) {

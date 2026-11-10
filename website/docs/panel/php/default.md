@@ -24,7 +24,7 @@ Only the PHP versions your hosting provider offers are listed, so you may see fe
 
 ## Change the Default Version
 
-1. Navigate to **PHP > Default Version**.
+1. Navigate to **PHP > Default version**.
 2. Click the card of the PHP version you want.
 3. Click **Set PHP &lt;version&gt; as default**.
 

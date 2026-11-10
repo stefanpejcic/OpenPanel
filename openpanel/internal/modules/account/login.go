@@ -347,7 +347,7 @@ func logUserLogin(a *appctx.App, r *http.Request, sess *sessions.Session, userID
 	sessionKey := fmt.Sprintf("session:%d:%s", userID, sessionToken)
 	data := map[string]any{
 		"ip_address": ip,
-		"created_at": time.Now().Format(isoLayout),
+		"created_at": time.Now().UTC().Format(isoLayout),
 		"username":   username,
 	}
 

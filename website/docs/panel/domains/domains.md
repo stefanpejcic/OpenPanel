@@ -14,21 +14,21 @@ If the **Domains** module is enabled on the server and your user account has acc
 From this interface, you can view:
 
 * **Status**: Active or Suspended
-* **Document Root**: the folder where the website files are stored
-* **PHP Version** used by the domain
+* **Document root**: the folder where the website files are stored
+* **PHP version** used by the domain
 * **SSL**: the state of the domain's certificate, see [SSL column](#ssl-column)
 * **WAF**: a toggle to turn the firewall on or off, see [WAF column](#waf-column)
 * **Cloudflare**: an orange cloud next to the domain name when it only accepts traffic from Cloudflare, see [Cloudflare-only access](#cloudflare-only-access)
 * **Actions**: a menu with the options your plan includes
 
-Use **Show Columns** to choose which columns are shown, your choice is remembered in the browser. The **Websites** (number of websites on the domain), **Link**, **Type** and **Redirect** columns are hidden by default.
+Use **Show columns** to choose which columns are shown, your choice is remembered in the browser. The **Websites** (number of websites on the domain), **Link**, **Type** and **Redirect** columns are hidden by default.
 
 ### Filters
 
-Next to **Show Columns** are filters to narrow down the list:
+Next to **Show columns** are filters to narrow down the list:
 
 * **Status**: All, Active or Suspended
-* **PHP Version**: each PHP version used by your domains
+* **PHP version**: each PHP version used by your domains
 * **SSL**: AutoSSL or Custom SSL, if the SSL feature is enabled
 * **Type**: Domain or Subdomain
 * **Redirect**: with or without a redirect, if the Redirects feature is enabled
@@ -60,7 +60,7 @@ If the WAF feature is enabled, the **WAF** column has a toggle to turn the [Web 
 
 Depending on the features enabled on your server, the following actions are available from the **Actions** dropdown menu per domain:
 
-* **Edit DNS Zone** — if the DNS feature is enabled
+* **Edit DNS zone** — if the DNS feature is enabled
 * **Manage WAF** — if the WAF feature is enabled
 * **Restrict to Cloudflare / Remove Cloudflare restriction** — see [Cloudflare-only access](#cloudflare-only-access)
 * **Change docroot** — if the docroot feature is enabled
@@ -72,7 +72,7 @@ Depending on the features enabled on your server, the following actions are avai
 ![Actions menu of a domain with Edit DNS Zone, Manage WAF, Remove Cloudflare restriction, Change docroot, Edit VirtualHosts, Capitalize, Suspend and Delete](/img/openpanel-screenshots/domains/domains-actions.png#gh-light-mode-only)
 ![Actions menu of a domain with Edit DNS Zone, Manage WAF, Remove Cloudflare restriction, Change docroot, Edit VirtualHosts, Capitalize, Suspend and Delete](/img/openpanel-screenshots/domains/domains-actions_dark.png#gh-dark-mode-only)
 
-In addition, if the **Redirects** feature is enabled, the **Redirect** column lets you create, edit, or delete a redirect directly from the table without opening the dropdown menu. It's hidden by default, turn it on from **Show Columns**.
+In addition, if the **Redirects** feature is enabled, the **Redirect** column lets you create, edit, or delete a redirect directly from the table without opening the dropdown menu. It's hidden by default, turn it on from **Show columns**.
 
 ## Cloudflare-only access
 

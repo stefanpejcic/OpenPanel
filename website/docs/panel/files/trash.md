@@ -16,8 +16,8 @@ In the table, you can see the following information:
 
 * **Name**
 * **Size** – Displays the size for files. For folders, click **Calculate** to fetch their size.
-* **Deletion Date** – Shows the timestamp when the file was deleted.
-* **Original Path** – Displays where the file was located before delete.
+* **Deletion date** – Shows the timestamp when the file was deleted.
+* **Original path** – Displays where the file was located before delete.
 
 Clicking the **Toggle** icon reveals additional details:
 
@@ -25,7 +25,7 @@ Clicking the **Toggle** icon reveals additional details:
 * **Owner** – The UID of the file or folder owner.
 * **Group** – The GID of the group that owns the file or folder.
 * **Links** – The number of hard links to the file or directory.
-* **Link Target** – If it’s a symlink, this shows the target it points to.
+* **Link target** – If it’s a symlink, this shows the target it points to.
 * **Type** – Indicates whether it's a directory, file, or symbolic link.
 
 ## Restore Files
@@ -37,7 +37,7 @@ To restore files, select them and click on the **Restore** button. The selected 
 
 ## Restore All Files
 
-To restore everything in the Trash, click on the **Restore All** button. All rows show where they will be restored to, click **Restore** to confirm.
+To restore everything in the Trash, click on the **Restore all** button. All rows show where they will be restored to, click **Restore** to confirm.
 
 ## Delete Files
 
@@ -52,4 +52,4 @@ Files deleted from the Trash are permanently deleted and can't be restored.
 
 ## Delete All Files
 
-To empty the Trash, click on the **Delete All** button. All names are crossed out, click **Delete permanently** to confirm.
+To empty the Trash, click on the **Delete all** button. All names are crossed out, click **Delete permanently** to confirm.

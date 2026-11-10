@@ -6,41 +6,69 @@ sidebar_position: 1
 
 The OpenPanel interface is the central hub of your user account, providing access to all available tools, usage information, and notifications.
 
-The OpenPanel dashboard interface is divided in two sections:
+The dashboard has two views, switched with the **Overview** and **Tools** buttons at the top of the page:
 
-- Features: listing all available options
-- Widgets: 2FA, Information, Usage and How-to guides
+- **Overview** (the default): plan usage, your websites, resource usage, quick actions and the 2FA, Information and How-to widgets.
+- **Tools**: every feature available on your plan, grouped in sections.
+
+The panel remembers the view you used last.
 
 When your hosting provider offers an upgrade plan, the dashboard also has an [**Upgrade now**](/docs/panel/dashboard/upgrade/) tab that compares your plan with the upgrade plan.
 
-![OpenPanel dashboard with the sidebar, feature shortcuts in two columns of sections, and the 2FA, Information and Usage widgets](/img/openpanel-screenshots/dashboard/dashboard-window.png#gh-light-mode-only)
-![OpenPanel dashboard with the sidebar, feature shortcuts in two columns of sections, and the 2FA, Information and Usage widgets](/img/openpanel-screenshots/dashboard/dashboard-window_dark.png#gh-dark-mode-only)
+![OpenPanel dashboard Overview with plan usage, websites, usage and quick actions](/img/openpanel-screenshots/dashboard/dashboard-window.png#gh-light-mode-only)
+![OpenPanel dashboard Overview with plan usage, websites, usage and quick actions](/img/openpanel-screenshots/dashboard/dashboard-window_dark.png#gh-dark-mode-only)
 
-With the [Modern menu style](/docs/panel/dashboard/menu-style/), each section has an icon next to its title, and on wide screens the sections are shown in two columns.
+## Overview
 
-## Customize the layout
+### Plan usage
 
-You can rearrange the feature sections to suit how you work:
+A row of tiles shows how many websites, domains, databases, email accounts and FTP accounts you use out of your plan's limit, or **Unlimited** when there is no limit. Only items enabled on your plan are shown.
+
+Next to the tiles, **New website** and **Add domain** open the forms to add them. When you have used all websites or domains on your plan, the button is disabled and hovering over it tells you so.
+
+### Websites
+
+Lists your newest websites with what they run on (for example WordPress or a Node.js app) and their status: **Active**, **Running**, **Stopped** or **Suspended**. Click a site's name to manage it, or open the **Actions** menu on its row for **Manage**, **Open site**, **File manager**, **DNS zone** and **SSL**. **View all** opens the [Sites](/docs/panel/applications/sites/) page.
+
+If you have no websites yet, the section has a **New website** button instead.
+
+### Usage
+
+Shows your storage, inodes, CPU and memory usage against your plan's limits. CPU and memory are read live from the server. Click any row, or **View details**, for the [Resource usage](/docs/panel/statistics/resource_usage/) page.
+
+### Quick actions
+
+Shortcuts to the tools you are most likely to need, such as File manager, phpMyAdmin, DNS zone editor, SSL certificates, Cron jobs, Backups and Webmail. Only tools enabled on your plan are shown. **All tools** switches to the Tools view.
+
+## Tools
+
+All features available on your plan, grouped in sections like Websites, Domains, Email, Files and Databases. Each tool is an icon with its name below it.
+
+Type in **Find a tool** at the top to filter the icons, for example *DNS*, *PHP version* or *backups*. Press **/** anywhere on the Tools view to jump to it.
+
+### Customize the layout
+
+You can rearrange the sections to suit how you work:
 
 - **Reorder**: drag a section by its title to move it.
 - **Collapse**: click the arrow on the right of a section's title to hide or show its icons.
 
-To lock or reset the layout, click your profile at the bottom of the sidebar and use the buttons next to **Layout**:
+Below the sections, next to **Layout**:
 
-- **Lock** (padlock icon): stops sections from being dragged, so you can't move them by accident, for example while scrolling on a phone. Click it again to unlock.
-- **Reset** (circular arrow icon): puts every section back in its original order and expands any collapsed sections, then reloads the page.
+- **Lock layout**: stops sections from being dragged, so you can't move them by accident, for example while scrolling on a phone. Click **Unlock layout** to allow it again.
+- **Reset layout**: puts every section back in its original order and expands any collapsed sections.
 
-![User menu with the Layout row, showing the lock and reset buttons](/img/openpanel-screenshots/dashboard/dashboard-layout.png#gh-light-mode-only)
-![User menu with the Layout row, showing the lock and reset buttons](/img/openpanel-screenshots/dashboard/dashboard-layout_dark.png#gh-dark-mode-only)
+![Tools view with the Layout row, showing the lock and reset buttons](/img/openpanel-screenshots/dashboard/dashboard-layout.png#gh-light-mode-only)
+![Tools view with the Layout row, showing the lock and reset buttons](/img/openpanel-screenshots/dashboard/dashboard-layout_dark.png#gh-dark-mode-only)
 
 The section order, collapsed sections and lock are saved in your browser, so they apply only on that browser and are cleared if you clear its site data.
 
 ## Two-Factor Authentication
 
-This widget shows whether [Two-Factor Authentication](/docs/panel/security/2fa/) is enabled for your account. If it isn't, click **Click to Enable** to set it up.
+This widget shows whether [Two-Factor Authentication](/docs/panel/security/2fa/) is enabled for your account. If it isn't, click **Enable 2FA** to set it up.
 
-![Two-Factor Authentication widget showing 2FA as disabled with the Click to Enable button](/img/openpanel-screenshots/dashboard/dashboard-twofa.png#gh-light-mode-only)
-![Two-Factor Authentication widget showing 2FA as disabled with the Click to Enable button](/img/openpanel-screenshots/dashboard/dashboard-twofa_dark.png#gh-dark-mode-only)
+![Two-Factor Authentication widget showing 2FA as disabled with the Enable 2FA button](/img/openpanel-screenshots/dashboard/dashboard-twofa.png#gh-light-mode-only)
+![Two-Factor Authentication widget showing 2FA as disabled with the Enable 2FA button](/img/openpanel-screenshots/dashboard/dashboard-twofa_dark.png#gh-dark-mode-only)
 
 ## Information
 
@@ -54,25 +82,6 @@ This section displays general server information:
 
 ![Information widget with the username, plan, IP address and last login IP address](/img/openpanel-screenshots/dashboard/dashboard-information.png#gh-light-mode-only)
 ![Information widget with the username, plan, IP address and last login IP address](/img/openpanel-screenshots/dashboard/dashboard-information_dark.png#gh-dark-mode-only)
-
-## Usage
-
-This widget displays your current usage against your plan's limits, for each item enabled on your plan:
-
-- Websites
-- Domains
-- Databases (MySQL and/or PostgreSQL)
-- Email accounts
-- FTP accounts
-- Storage
-- Inodes
-- CPU Usage
-- Memory Usage
-
-![Usage widget with bars for websites, domains, databases, email and FTP accounts, storage, inodes, CPU and memory](/img/openpanel-screenshots/dashboard/dashboard-usage.png#gh-light-mode-only)
-![Usage widget with bars for websites, domains, databases, email and FTP accounts, storage, inodes, CPU and memory](/img/openpanel-screenshots/dashboard/dashboard-usage_dark.png#gh-dark-mode-only)
-
-CPU and Memory usage are fetched live from the server. For a more detailed, dedicated view of CPU and RAM usage (and historical charts), see the **Resource Usage** and **Resource Usage History** pages under the Advanced menu, if enabled by your Administrator.
 
 ## How-to Guides
 
