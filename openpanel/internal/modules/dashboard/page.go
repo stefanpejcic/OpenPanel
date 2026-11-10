@@ -260,7 +260,7 @@ func siteTypeLabel(t string) string {
 	return strings.ToUpper(t[:1]) + t[1:]
 }
 
-// dashboardView picks the open view from ?view= or the dashboard_view cookie, tools by default
+// dashboardView picks the open view from ?view= or the dashboard_view cookie, overview by default
 func dashboardView(r *http.Request) string {
 	ok := func(v string) bool { return v == "overview" || v == "tools" }
 	if v := r.URL.Query().Get("view"); ok(v) {
@@ -269,7 +269,7 @@ func dashboardView(r *http.Request) string {
 	if c, err := r.Cookie("dashboard_view"); err == nil && ok(c.Value) {
 		return c.Value
 	}
-	return "tools"
+	return "overview"
 }
 
 // PlanTile is one usage tile on the Overview view
