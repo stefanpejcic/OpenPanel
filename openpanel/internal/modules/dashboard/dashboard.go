@@ -523,7 +523,10 @@ func buildDashboardData(a *appctx.App, ctx context.Context, userID int, injected
 		d.LastIP, d.LastLoginTime = lastLogins[0].IP, lastLogins[0].LoginTime
 	}
 
-	d.HowToGuides = a.Config.Get("how_to_guides", "")
+	// template only checks for non-empty, so "no" has to become ""
+	if a.Config.Get("how_to_guides", "") == "yes" {
+		d.HowToGuides = "yes"
+	}
 	topics, kbLink := howToLinksForDashboard(a, ctx)
 	d.HowToTopics, d.KnowledgeBaseLink = topics, kbLink
 
@@ -795,7 +798,7 @@ func howToLinksForDashboard(a *appctx.App, ctx context.Context) ([]map[string]an
 		Link   string
 	}
 	r, _ := cache.Memoize(ctx, a.Cache, "how_to_links_for_dashboard_page", 86400*time.Second, func() (result, error) {
-		if a.Config.Get("how_to_guides", "") == "" {
+		if a.Config.Get("how_to_guides", "") != "yes" {
 			return result{}, nil
 		}
 		kbData := readJSONFile("/etc/openpanel/openpanel/conf/knowledge_base_articles.json")
