@@ -3,8 +3,10 @@ package serverinfo
 
 import (
 	"net/http"
+	"os"
 	"os/exec"
 	"regexp"
+	"strconv"
 	"strings"
 	"syscall"
 
@@ -44,10 +46,43 @@ func getPlatformInfo() platformInfo {
 		info.Version = unameToString(uts.Version)
 		info.Machine = unameToString(uts.Machine)
 	}
-	if out, err := exec.Command("uname", "-p").Output(); err == nil {
-		info.Processor = strings.TrimSpace(string(out))
+	// uname -p prints "unknown" on most Linux builds, /proc/cpuinfo has the real model and isn't namespaced, so the container sees the host CPU
+	if raw, err := os.ReadFile("/proc/cpuinfo"); err == nil {
+		info.Processor = cpuModel(string(raw))
+	}
+	if info.Processor == "" {
+		if out, err := exec.Command("uname", "-p").Output(); err == nil && strings.TrimSpace(string(out)) != "unknown" {
+			info.Processor = strings.TrimSpace(string(out))
+		}
 	}
 	return info
+}
+
+// cpuModel is "Intel Xeon Processor (Cascadelake) · 4 cores" from /proc/cpuinfo, ARM boards name it Hardware or CPU part instead of model name
+func cpuModel(cpuinfo string) string {
+	model, cores := "", 0
+	for _, line := range strings.Split(cpuinfo, "\n") {
+		k, v, ok := strings.Cut(line, ":")
+		if !ok {
+			continue
+		}
+		k, v = strings.TrimSpace(k), strings.TrimSpace(v)
+		switch k {
+		case "processor":
+			cores++
+		case "model name", "Hardware", "cpu model":
+			if model == "" {
+				model = v
+			}
+		}
+	}
+	if model == "" {
+		return ""
+	}
+	if cores > 1 {
+		return model + " · " + strconv.Itoa(cores) + " cores"
+	}
+	return model
 }
 
 var (
