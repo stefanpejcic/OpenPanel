@@ -2080,52 +2080,6 @@ export const pages = {
     url: '/nodejs/install',
     shots: [{ name: 'form', alt: 'Install Node.js Application form with the application details, domain, startup file and the Small, Medium and Large resource presets', crop: 'content' }],
   },
-  'applications/n8n_install': {
-    url: '/n8n/install',
-    prepare: async page => {
-      await page.fill('input[name=service_name]', 'n8n');
-      await page.selectOption('select[name=domain_id]', { label: 'example.test.rs' });
-      await page.fill('input[name=owner_email]', 'admin@example.com');
-      // the form pre-generates a real password, show a placeholder one instead
-      await page.fill('input[name=owner_password]', 'your-strong-password');
-      // option text is drawn from its label attribute, which rename() doesn't touch
-      await page.evaluate(() => document.querySelectorAll('select[name=domain_id] option').forEach(o => { if (o.label === 'example.test.rs') o.label = 'n8n.example.com'; }));
-      await rename({ 'example.test.rs': 'n8n.example.com' }, 'body')(page);
-    },
-    shots: [{ name: 'form', alt: 'Install n8n form with the application name, fixed port 5678, version, domain, owner account and resource limits', crop: 'content' }],
-  },
-  'applications/n8n': {
-    url: '/website?domain=example.test.rs',
-    prepare: async page => {
-      await page.waitForTimeout(2500);
-      await rename({ 'example.test.rs': 'n8n.example.com' }, 'body')(page);
-    },
-    shots: [
-      {
-        name: 'site',
-        alt: 'Overview tab of an n8n application with its status, n8n version, CPU and memory limits, Stop and Restart actions and files',
-        // the test domain doesn't resolve, so hide the failed website screenshot placeholder
-        prepare: async page => { await page.evaluate(() => { document.querySelector('#dashboard > div:first-child > div:first-child').style.display = 'none'; }); },
-        crop: { from: '#n8n-tab', to: '#dashboard > div:nth-child(2)', pad: 8 },
-      },
-      { name: 'settings', alt: 'Container name and port, n8n version picker and CPU, memory and PIDs limits on the Overview tab', crop: { from: '#dashboard > div:nth-child(3)', to: '#dashboard > form', pad: 8 } },
-      {
-        name: 'envvars',
-        url: '/website?domain=example.test.rs&tab=envvars',
-        alt: 'Env Vars tab with custom KEY=VALUE environment variables for the n8n container and the Save Environment Variables button',
-        prepare: fill({ 'textarea[name=env_vars]': 'GENERIC_TIMEZONE=Europe/Berlin\nN8N_DEFAULT_BINARY_DATA_MODE=filesystem\nEXECUTIONS_DATA_MAX_AGE=168' }),
-        crop: { from: '#n8n-tab', to: '#envvars', pad: 8 },
-      },
-      { name: 'logs', url: '/website?domain=example.test.rs&tab=logs', alt: 'Logs tab showing the n8n container log', crop: { from: '#n8n-tab', to: '#logs', pad: 8 } },
-      {
-        name: 'remove',
-        url: '/website?domain=example.test.rs&tab=remove',
-        alt: 'Remove tab with the Confirm delete and Cancel buttons shown after clicking Delete Application',
-        prepare: click('#remove button:has-text("Delete Application")', 400),
-        crop: { from: '#n8n-tab', to: '#remove', pad: 8 },
-      },
-    ],
-  },
   'applications/ruby_install': {
     url: '/ruby/install',
     shots: [{ name: 'form', alt: 'Install Ruby Application form with the application details, domain, startup command and the Small, Medium and Large resource presets', crop: 'content' }],

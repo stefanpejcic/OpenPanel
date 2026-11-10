@@ -1020,7 +1020,7 @@ The **`n8n`** module allows users to install [n8n](https://n8n.io/) workflow aut
 
 When enabled:
 * n8n is available on the Autoinstaller page.
-* Users can [install n8n using Auto Installer](/docs/panel/applications/n8n/): OpenPanel sets up the container, the reverse proxy with WebSocket support, the webhook URL and the n8n owner account.
+* Users can [install n8n using Auto Installer](/docs/panel/applications/autoinstaller/) as a container.
 * Users can manage n8n applications using Site Manager.
 
 When disabled:

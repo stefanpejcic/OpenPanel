@@ -34,7 +34,6 @@ To make an application available, the administrator has to enable its module in 
 - [TinyPhotoGallery](/docs/panel/applications/tinyphotogallery)
 - [TinyFileManager](/docs/panel/applications/tinyfilemanager)
 - [OJS](/docs/panel/applications/ojs)
-- [n8n](/docs/panel/applications/n8n)
 - [NodeJS Applications*](/docs/panel/applications/nodejs)
 - [Python Applications*](/docs/panel/applications/python)
 - [Ruby Applications*](/docs/panel/applications/ruby)
