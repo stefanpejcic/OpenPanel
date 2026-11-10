@@ -321,7 +321,7 @@
         <div class="flex items-center justify-between gap-4 px-6 py-4" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
           <div class="min-w-0">
             <h3 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{$root.T.Get "Usage"}}</h3>{{if $root.UserAllowed.usage}}<a href="/server/usage" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{$root.T.Get "View details"}} &rarr;</a>{{end}}
-            <p class="text-sm/6 text-gray-500" x-show="open">{{$root.T.Get "Disk, inodes, CPU and memory for your account."}}</p>
+            <p class="text-sm/6 text-gray-500" x-show="open">{{if $root.UserAllowed.usage}}{{$root.T.Get "Disk, inodes, CPU and memory for your account."}}{{else}}{{$root.T.Get "Disk and inodes for your account."}}{{end}}</p>
           </div>
           <button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? '{{$root.T.Get "Collapse"}}' : '{{$root.T.Get "Expand"}}'" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button>
         </div>
@@ -355,6 +355,8 @@
               <span class="mt-0.5 block truncate text-xs text-gray-500 tabular-nums" x-text="r.inodes.allocated ? r.inodes.used + ' {{$root.T.Get "of"}} ' + r.inodes.allocated : (r.inodes.used || '')"></span>
             </span>
           </a>
+          {{/* CPU and memory only show with the usage module, some hosts don't sell them on plans */}}
+          {{if $root.UserAllowed.usage}}
           <a href="/server/usage" class="flex min-w-0 items-center gap-3 rounded-md bg-gray-50 p-2.5 transition hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800/80">
             <span class="relative inline-grid size-12 shrink-0 place-items-center">
               <svg viewBox="0 0 36 36" class="size-12 -rotate-90" aria-hidden="true">
@@ -381,6 +383,7 @@
               <span class="mt-0.5 block truncate text-xs text-gray-500 tabular-nums" x-text="r.mem.allocated ? r.mem.used + ' {{$root.T.Get "of"}} ' + r.mem.allocated : (r.mem.used || '')"></span>
             </span>
           </a>
+          {{end}}
         </div>
         </div>
       </div>

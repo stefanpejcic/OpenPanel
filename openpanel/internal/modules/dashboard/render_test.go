@@ -246,3 +246,33 @@ func TestRenderDashboardPageOnboarding(t *testing.T) {
 		t.Error("expected the onboarding wizard")
 	}
 }
+
+// CPU and memory tiles only render when the usage module is on (issue #1330)
+func TestRenderDashboardUsageTilesFollowUsageModule(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	for _, withUsage := range []bool{false, true} {
+		userAllowed := map[string]bool{"dashboard": true, "usage": withUsage}
+		data := DashboardPageData{
+			LayoutData: web.LayoutData{
+				Title: "Dashboard", CSRFToken: "tok", PanelDir: "ltr", MenuStyle: "modern",
+				NavItems: web.BuildSidebarNav(userAllowed, nil, "/dashboard"), UserAllowed: userAllowed,
+				UserAllowedJSON: web.UserAllowedList(userAllowed), CurrentUsername: "u",
+				RequestPath: "/dashboard", T: mgr.Translator("en"),
+			},
+			Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, nil, "modern", nil),
+		}
+		w := httptest.NewRecorder()
+		if err := dashboardPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render (usage=%v): %v", withUsage, err)
+		}
+		body := w.Body.String()
+		for _, s := range []string{"ri-ram-line", "this.fetchResourceUsage();"} {
+			if got := strings.Contains(body, s); got != withUsage {
+				t.Errorf("usage=%v: contains %q = %v", withUsage, s, got)
+			}
+		}
+		if !strings.Contains(body, "ri-stack-line") {
+			t.Errorf("usage=%v: inodes tile should always render", withUsage)
+		}
+	}
+}

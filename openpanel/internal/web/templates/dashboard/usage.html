@@ -165,7 +165,7 @@
 
                 ['disk', 'inodes', 'cpu', 'mem'].forEach(k => this.$watch(k, () => this.shareResources()));
                 this.fetchDiskInodes();
-                this.fetchResourceUsage();
+                {{if .UserAllowed.usage}}this.fetchResourceUsage();{{end}}
             }
         }
     }

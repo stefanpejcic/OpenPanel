@@ -139,6 +139,10 @@
     {
       "from": "/docs/admin/advanced/cpanel",
       "to": "/docs/admin/backups/cpanel/"
+    },
+    {
+      "from": "/docs/panel/applications/n8n",
+      "to": "/docs/panel/applications/autoinstaller/"
     }
   ]
 }

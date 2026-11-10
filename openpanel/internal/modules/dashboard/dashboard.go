@@ -54,7 +54,7 @@ var dashboardAppKeys []string
 
 func Register(mux *http.ServeMux, a *appctx.App) {
 	dashboardAppKeys = parseAppKeys(a.Config.Get("applications_dashboard_items", ""))
-	mux.Handle("/json/resource_usage", auth.RequireLogin(a, "dashboard")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	mux.Handle("/json/resource_usage", auth.RequireLogin(a, "usage")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleResourceUsage(a, w, r)
 	})))
 	mux.Handle("/json/disk_inodes", auth.RequireLogin(a, "dashboard")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
