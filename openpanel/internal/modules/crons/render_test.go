@@ -143,6 +143,29 @@ func TestRenderCronjobsTableCreated(t *testing.T) {
 }
 
 func TestRenderCronjobsLogsPage(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	data := CronjobsPageData{
+		LayoutData: baseLayout(mgr, "/cronjobs/logs"), View: "logs", Service: "cron", LogJob: "db dump",
+		CronJobs: []CronJob{{Schedule: "@daily", Command: "mysqldump x", Container: "mysql", Comment: "db dump"}},
+	}
+	w := httptest.NewRecorder()
+	if err := cronjobsPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	for _, want := range []string{`cronLogs(&#34;db dump&#34;)`, "Cron Job Logs", `<option value="db dump">`} {
+		if !strings.Contains(body, want) {
+			t.Errorf("expected %q in body", want)
+		}
+	}
+	if strings.Contains(body, "Switch to File Editor") || strings.Contains(body, "Need Help?") {
+		t.Error("logs tab shouldn't show the editor switch or help button")
+	}
+}
+
+func TestRenderCronjobsLogsPageClassic(t *testing.T) {
+	webtest.Classic(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := CronjobsPageData{
 		LayoutData: baseLayout(mgr, "/cronjobs/logs"), View: "logs", Service: "cron", LogJob: "db dump",
