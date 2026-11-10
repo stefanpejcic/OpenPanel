@@ -3,7 +3,7 @@
 {{define "content"}}
 <!-- START templates/manager/autoinstaller.html -->
 
-<section aria-label="{{.T.Get "Install app"}}" x-data="{ searchQuery: '', match(el) { const q = this.searchQuery.trim().toLowerCase(); if (!q) return true; return [...el.querySelectorAll('dt, dd')].some(n => n.textContent.toLowerCase().includes(q)); }, sectionMatch(el) { return [...el.querySelectorAll('[data-app]')].some(c => this.match(c)); } }">
+<section id="autoinstaller-apps" aria-label="{{.T.Get "Install app"}}" x-data="{ searchQuery: '', match(el) { const q = this.searchQuery.trim().toLowerCase(); if (!q) return true; return [...el.querySelectorAll('dt, dd')].some(n => n.textContent.toLowerCase().includes(q)); }, sectionMatch(el) { return [...el.querySelectorAll('[data-app]')].some(c => this.match(c)); } }">
 <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
     <header>
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Install app"}}</h1>

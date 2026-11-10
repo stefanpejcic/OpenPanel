@@ -1,6 +1,6 @@
 {{define "twofa"}}{{if and .UserAllowed.twofa (eq .TwofaNag "yes")}}
 <!-- START templates/dashboard/twofa.html -->
-<section id="dashboard_twofa" aria-labelledby="dashboard_twofa_title" class="rounded-md border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950 xl:col-span-1">
+<section id="dashboard_twofa"{{if not .TwofaEnabled}} data-off{{end}} aria-labelledby="dashboard_twofa_title" class="rounded-md border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950 xl:col-span-1">
     <div class="flex items-start gap-3">
         <span class="inline-flex size-9 shrink-0 items-center justify-center rounded-md {{if .TwofaEnabled}}bg-emerald-50 text-emerald-600 dark:bg-emerald-950/70 dark:text-emerald-500{{else}}bg-yellow-50 text-yellow-600 dark:bg-yellow-950/70 dark:text-yellow-500{{end}}" aria-hidden="true"><i class="{{if .TwofaEnabled}}ri-shield-check-line{{else}}ri-shield-keyhole-line{{end}} text-lg leading-none"></i></span>
         <div class="min-w-0" id="dashboard_twofa_content">
