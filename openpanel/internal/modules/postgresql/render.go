@@ -3,7 +3,6 @@ package postgresql
 import (
 	"log"
 	"net/http"
-	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
@@ -40,43 +39,10 @@ type DatabasesPageData struct {
 	ShowAll      bool
 	StatusDetail string // longer explanatory text for the table's empty-state row while the service isn't running/healthy, "" when running+healthy
 	ServerInfo
-	DBLimit int // plan limit, 0 is unlimited
-}
-
-// DBQuotaPct is how full the plan's database quota is, capped at 100
-func (d DatabasesPageData) DBQuotaPct() int {
-	if d.DBLimit <= 0 {
-		return 0
-	}
-	return min(d.UserDatabaseCount()*100/d.DBLimit, 100)
-}
-
-// UserDatabaseCount is the number of non-system databases, for the summary tile
-func (d DatabasesPageData) UserDatabaseCount() int {
-	n := 0
-	for _, db := range d.Databases {
-		if !db.IsSystem {
-			n++
-		}
-	}
-	return n
-}
-
-// UserCount is the number of distinct users assigned to any database
-func (d DatabasesPageData) UserCount() int {
-	seen := map[string]bool{}
-	for _, db := range d.Databases {
-		for _, u := range strings.Split(db.AssignedUsers, ",") {
-			if u = strings.TrimSpace(u); u != "" {
-				seen[u] = true
-			}
-		}
-	}
-	return len(seen)
 }
 
 func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, databases []DatabaseRow, unit string, showAll bool, info ServerInfo) {
-	layout, injectedData, err := web.BuildLayoutData(a, w, r, "PostgreSQL Databases")
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, "PostgreSQL databases")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -92,7 +58,7 @@ func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		ServiceStatusData: ServiceStatusData{ContainerState: status.State, HealthStatus: status.Health},
 		Databases:         databases, Unit: unit, ShowAll: showAll,
 		StatusDetail: postgresContainerStatusDetail(status.State, status.Health),
-		ServerInfo:   info, DBLimit: planDBLimit(r.Context(), a, injectedData),
+		ServerInfo:   info,
 	}
 	if err := databasesPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - databases template render error: %v", err)
@@ -138,7 +104,7 @@ func createPage(a *appctx.App, w http.ResponseWriter, r *http.Request, title str
 }
 
 func renderNewDatabasePage(a *appctx.App, w http.ResponseWriter, r *http.Request, formName, created string) {
-	data, ok := createPage(a, w, r, "Create Database", created != "")
+	data, ok := createPage(a, w, r, "Create a database", created != "")
 	if !ok {
 		return
 	}
@@ -163,7 +129,7 @@ type UsersPageData struct {
 }
 
 func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, users []UserRow, showAll bool) {
-	layout, injectedData, err := web.BuildLayoutData(a, w, r, "PostgreSQL Users")
+	layout, injectedData, err := web.BuildLayoutData(a, w, r, "PostgreSQL users")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -185,7 +151,7 @@ func renderUsersPage(a *appctx.App, w http.ResponseWriter, r *http.Request, stat
 }
 
 func renderCreateUserPage(a *appctx.App, w http.ResponseWriter, r *http.Request, formName, created, password string) {
-	data, ok := createPage(a, w, r, "Create User", created != "")
+	data, ok := createPage(a, w, r, "Create user", created != "")
 	if !ok {
 		return
 	}
@@ -202,7 +168,7 @@ type PasswordPageData struct {
 }
 
 func renderChangePasswordPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dbUser string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Change Password")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Change password")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -215,7 +181,7 @@ func renderChangePasswordPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 }
 
 func renderWizardPage(a *appctx.App, w http.ResponseWriter, r *http.Request, formDB, formUser string) {
-	data, ok := createPage(a, w, r, "Database Wizard", false)
+	data, ok := createPage(a, w, r, "Database wizard", false)
 	if !ok {
 		return
 	}
@@ -226,7 +192,7 @@ func renderWizardPage(a *appctx.App, w http.ResponseWriter, r *http.Request, for
 }
 
 func renderWizardSuccess(a *appctx.App, w http.ResponseWriter, r *http.Request, createdDB, createdUser, password string) {
-	data, ok := createPage(a, w, r, "Database Wizard", true)
+	data, ok := createPage(a, w, r, "Database wizard", true)
 	if !ok {
 		return
 	}
@@ -237,7 +203,7 @@ func renderWizardSuccess(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 }
 
 func renderAssignPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dbUser, databaseName string) {
-	data, ok := createPage(a, w, r, "Assign User to Database", false)
+	data, ok := createPage(a, w, r, "Assign user to database", false)
 	if !ok {
 		return
 	}
@@ -248,7 +214,7 @@ func renderAssignPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dbU
 }
 
 func renderRemovePage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Remove User from Database")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Remove user from database")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -285,7 +251,7 @@ type ProcessListPageData struct {
 }
 
 func renderProcessListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, processList []ProcessRow) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Running Queries")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Running queries")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

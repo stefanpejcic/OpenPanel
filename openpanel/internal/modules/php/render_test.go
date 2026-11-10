@@ -100,7 +100,6 @@ func TestRenderPHPSettingsPage(t *testing.T) {
 				{DomainID: 1, DomainURL: "example.com", PHPVersion: "8.2", Level: "good"},
 				{DomainID: 2, DomainURL: "old.example.com", PHPVersion: "/", Level: "unset"},
 			},
-			VersionCounts:        []PHPVersionCount{{Version: "8.2", Count: 1, Label: "Latest", Level: "good"}},
 			AvailablePHPVersions: []string{"8.1", "8.2"},
 		}
 		w := httptest.NewRecorder()
@@ -111,8 +110,8 @@ func TestRenderPHPSettingsPage(t *testing.T) {
 		if !strings.Contains(body, "example.com") {
 			t.Error("expected domain row")
 		}
-		if !strings.Contains(body, "Latest") {
-			t.Error("expected version counter label")
+		if strings.Contains(body, "version counters") {
+			t.Error("the version counter row was removed")
 		}
 	})
 }
@@ -140,13 +139,23 @@ func TestRenderPHPIniEditorPage(t *testing.T) {
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("selector", func(t *testing.T) {
-		data := PHPIniEditorPageData{LayoutData: baseLayout(mgr, "/php/php_ini_editor"), InstalledVersions: []string{"8.1", "8.2"}}
+		data := PHPIniEditorPageData{
+			LayoutData: baseLayout(mgr, "/php/php_ini_editor"), InstalledVersions: []string{"8.1", "8.2"},
+			VersionPicks: []PHPVersionPick{{Version: "8.2", Level: "secure", Label: "Security fixes only"}, {Version: "8.1", Level: "unsupported", Label: "Unsupported"}},
+		}
 		w := httptest.NewRecorder()
 		if err := iniEditorPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "PHP.INI Editor") {
+		body := w.Body.String()
+		if !strings.Contains(body, "PHP INI editor") {
 			t.Error("expected selector heading")
+		}
+		if !strings.Contains(body, `href="/php/php8.2.ini/editor"`) || !strings.Contains(body, `href="/php/php8.1.ini/editor"`) {
+			t.Error("expected a row link per installed version")
+		}
+		if !strings.Contains(body, "Security fixes only") {
+			t.Error("expected the support label")
 		}
 	})
 
@@ -200,7 +209,7 @@ func TestRenderPHPOptionsPage(t *testing.T) {
 		if !strings.Contains(body, "display_errors") || !strings.Contains(body, "post_max_size") {
 			t.Error("expected option keys in body")
 		}
-		for _, want := range []string{"dbTuning('/php/php8.2/options/recommendations')", `id="db-tuning"`, "Optimize PHP", "Confirm Changes", `x-ref="form"`, `name="display_errors" value="0"`} {
+		for _, want := range []string{"dbTuning('/php/php8.2/options/recommendations')", `id="db-tuning"`, "Optimize PHP", "Confirm changes", `x-ref="form"`, `name="display_errors" value="0"`} {
 			if !strings.Contains(body, want) {
 				t.Errorf("expected %q in body", want)
 			}
@@ -248,7 +257,7 @@ func TestRenderPHPExtensionsPage(t *testing.T) {
 		if err := extensionsPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "PHP Extensions") {
+		if !strings.Contains(w.Body.String(), "PHP extensions") {
 			t.Error("expected selector heading")
 		}
 	})

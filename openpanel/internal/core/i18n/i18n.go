@@ -30,10 +30,32 @@ type Manager struct {
 
 	mu      sync.RWMutex
 	locales map[string]*gotext.Locale
+	folded  map[string]map[string]string // lang -> lowercased msgid -> msgstr, built on first miss
 }
 
 func NewManager(dir string, c *cache.Cache) *Manager {
-	return &Manager{dir: dir, cache: c, locales: make(map[string]*gotext.Locale)}
+	return &Manager{dir: dir, cache: c, locales: make(map[string]*gotext.Locale), folded: make(map[string]map[string]string)}
+}
+
+// foldedIndex maps each translated msgid by its lowercase form, so a sentence-case key still finds the catalog's Title Case entry
+func (m *Manager) foldedIndex(lang string) map[string]string {
+	m.mu.RLock()
+	idx, ok := m.folded[lang]
+	m.mu.RUnlock()
+	if ok {
+		return idx
+	}
+	idx = map[string]string{}
+	for id, tr := range m.locale(lang).GetTranslations() {
+		// identity entries would just put the Title Case english back
+		if msg := tr.Get(); msg != "" && msg != id {
+			idx[strings.ToLower(id)] = msg
+		}
+	}
+	m.mu.Lock()
+	m.folded[lang] = idx
+	m.mu.Unlock()
+	return idx
 }
 
 // AvailableLocales returns every subdirectory of dir with LC_MESSAGES/messages.po, plus "en", cached for 1h - `opencli locale` busts its own cache after installing a locale but not this one, so a new locale won't show up here until the TTL expires
@@ -136,6 +158,11 @@ func (m *Manager) Get(lang, str string, kv ...string) string {
 	// bound as a variable, not called directly - otherwise go vet's printf checker flags str as a non-constant format string, even though it's just a translation key
 	get := m.locale(lang).Get
 	translated := get(str)
+	if translated == str && lang != "" && lang != "en" {
+		if msg, ok := m.foldedIndex(lang)[strings.ToLower(str)]; ok {
+			translated = msg
+		}
+	}
 	if len(kv) == 0 {
 		return translated
 	}

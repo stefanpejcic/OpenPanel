@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"sort"
 	"strings"
 	"time"
 
@@ -56,7 +57,7 @@ func handleActiveSessions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		if ip == "" {
 			ip = "Unknown"
 		}
-		createdAt := data["created_at"]
+		createdAt := sessionTime(data["created_at"])
 		if createdAt == "" {
 			createdAt = "N/A"
 		}
@@ -67,11 +68,29 @@ func handleActiveSessions(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		})
 	}
 
+	// the scan comes back in no order, show this session first and then the newest
+	sort.SliceStable(sessionsList, func(i, j int) bool {
+		if sessionsList[i].Current != sessionsList[j].Current {
+			return sessionsList[i].Current
+		}
+		return sessionsList[i].CreatedAt > sessionsList[j].CreatedAt
+	})
+
 	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
 	w.Header().Set("Pragma", "no-cache")
 	w.Header().Set("Expires", "0")
 
 	renderActiveSessionsPage(a, w, r, sessionsList)
+}
+
+// sessionTime turns the stored "2026-11-05T10:03:54.071078" into "2026-11-05 10:03:54", anything it can't read is kept as is
+func sessionTime(raw string) string {
+	for _, layout := range []string{"2006-01-02T15:04:05.999999999", time.RFC3339Nano, "2006-01-02 15:04:05"} {
+		if t, err := time.Parse(layout, raw); err == nil {
+			return t.Format("2006-01-02 15:04:05")
+		}
+	}
+	return raw
 }
 
 // terminateUserSession deletes the Redis session record, and if it's the caller's own current session, also clears the local cookie so it dies immediately instead of lingering until the deleted record would've expired

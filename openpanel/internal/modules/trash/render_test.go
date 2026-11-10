@@ -28,7 +28,7 @@ func TestRenderTrashPage(t *testing.T) {
 		if err := trashPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "No files in the Trash.") {
+		if !strings.Contains(w.Body.String(), "No files in the trash.") {
 			t.Error("expected empty-state message")
 		}
 	})

@@ -79,9 +79,6 @@ type LayoutData struct {
 
 	Service string // set by pages that manage a single service; "" on the dashboard, so {{if .Service}} partials render nothing there
 
-	// DashboardIconView is the user's saved dashboard icon-section layout ("icon" or "list"), read server-side from the dashboard_icon_view cookie on every page (not just /dashboard) so the sidebar toggle and the dashboard's icon_section template both render the saved choice on first paint with no Alpine/localStorage hydration flicker
-	DashboardIconView string
-
 	// FilemanagerView is the resolved filemanager button style ("classic" or "modern"), read server-side on every page (not just /files) so the account menu's style toggle (only shown on /files) highlights the active choice with no flicker
 	FilemanagerView string
 

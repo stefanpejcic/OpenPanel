@@ -27,7 +27,7 @@ func TestLookupWebserverConfUnknown(t *testing.T) {
 	if entry.ConfFile != "" || entry.ServiceName != "" {
 		t.Errorf("expected empty ConfFile/ServiceName for unknown web server, got %+v", entry)
 	}
-	if entry.PageTitle != "Web Server Configuration Editor" {
+	if entry.PageTitle != "Web server configuration editor" {
 		t.Errorf("PageTitle = %q", entry.PageTitle)
 	}
 }

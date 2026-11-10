@@ -13,7 +13,7 @@ import (
 var (
 	wafListPage   = web.LoadPage("system/waf.html")
 	wafDomainPage = web.LoadPage("system/waf_domain.html")
-	wafLogsPage   = web.LoadPage("system/waf_logs.html")
+	wafLogsPage   = web.LoadPage("domains/_shared.html", "system/waf_logs.html")
 )
 
 // WAFListPageData is system/waf.html's template context.
@@ -58,7 +58,7 @@ func (d WAFListPageData) CountOn() int {
 }
 
 func renderWAFListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data WAFListPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Web Firewall")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Web firewall")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -139,7 +139,7 @@ func buildProfileViews(active []string, detected map[string][]string) (all, sugg
 }
 
 func renderWAFDomainPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data WAFDomainPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Web Firewall for "+data.Domain)
+	layout, _, err := web.BuildLayoutData(a, w, r, "Web firewall for "+data.Domain)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -211,24 +211,26 @@ type WAFLogsPageData struct {
 	TotalPages, TotalLines      int
 	TotalAllowedLinesForShowAll int
 	Domains                     []appctx.Domain
-	PageEntries                 []PageEntry
-	DisabledRules               []string
+	// Picks is the domain list shown when no domain is picked
+	Picks         []web.DomainPick
+	PageEntries   []PageEntry
+	DisabledRules []string
 }
 
 func renderWAFLogSelectPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domains []appctx.Domain) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Web Firewall Logs")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Web firewall logs")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := WAFLogsPageData{LayoutData: layout, Domains: domains}
+	data := WAFLogsPageData{LayoutData: layout, Domains: domains, Picks: wafLogPicks(domains)}
 	if err := wafLogsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WAF - logs select template render error: %v", err)
 	}
 }
 
 func renderWAFLogPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainName string, domains []appctx.Domain, jsonLogs []json.RawMessage, showAll bool, currentPage, itemsPerPage, totalPages, totalLines, totalAllowedForShowAll int) {
-	layout, _, err := web.BuildLayoutData(a, w, r, domainName+" WAF Log")
+	layout, _, err := web.BuildLayoutData(a, w, r, domainName+" firewall log")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -245,4 +247,23 @@ func renderWAFLogPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dom
 	if err := wafLogsPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WAF - logs template render error: %v", err)
 	}
+}
+
+// wafLogPicks lists the domains with their firewall log size, the ones without entries can't be opened
+func wafLogPicks(domains []appctx.Domain) []web.DomainPick {
+	picks := make([]web.DomainPick, 0, len(domains))
+	for _, d := range domains {
+		p := web.DomainPick{Domain: d.DomainURL}
+		info, err := tenantfs.Stat(wafLogPath(d.DomainURL))
+		switch {
+		case err != nil:
+			p.Disabled, p.Note = true, "No log yet"
+		case info.Size() == 0:
+			p.Disabled, p.Note = true, "Log is empty"
+		default:
+			p.Detail = web.FormatBytes(info.Size())
+		}
+		picks = append(picks, p)
+	}
+	return picks
 }

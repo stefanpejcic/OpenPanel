@@ -216,7 +216,7 @@ func TestRenderWAFDomainPageWithProfiles(t *testing.T) {
 		t.Fatalf("Render: %v", err)
 	}
 	body := w.Body.String()
-	for _, want := range []string{"wafSettings(", `&#34;Key&#34;:&#34;wordpress&#34;`, `&#34;Recommended&#34;:true`, "/server/waf/profiles/", "3 blocked", "bi bi-shield-fill-check", "width:240px", "left:-70px", `name="return_to" value="domain"`, `value="strict"`, "Protection level", "Default"} {
+	for _, want := range []string{"wafSettings(", `&#34;Key&#34;:&#34;wordpress&#34;`, `&#34;Recommended&#34;:true`, "/server/waf/profiles/", "3 blocked", "ri-shield-check-line", "size-60", "-left-[70px]", `name="return_to" value="domain"`, `value="strict"`, "Protection level", "Default"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("missing %q", want)
 		}

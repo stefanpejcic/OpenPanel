@@ -26,7 +26,7 @@ type AutoinstallerPageData struct {
 }
 
 func renderAutoinstallerPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domains []appctx.Domain, counts map[string]int, upsell upsellData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Install App")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Install app")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

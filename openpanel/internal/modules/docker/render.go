@@ -503,13 +503,13 @@ func databaseService(choice string) string {
 
 // renderChangeMySQLPage renders the database server switch page, blocked while user databases still exist
 func renderChangeMySQLPage(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext, flavor string, blocked bool, dbCount int) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Database Server")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Database server")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 	data := ChangeMySQLPageData{
-		LayoutData: layout, Title: "Database Server", MySQLType: flavor, Blocked: blocked, DBCount: dbCount,
+		LayoutData: layout, Title: "Database server", MySQLType: flavor, Blocked: blocked, DBCount: dbCount,
 		Choices: serverChoicesFor(userContext, databaseChoices, flavor, databaseService),
 	}
 	if err := changeMySQLPage.Render(w, http.StatusOK, data); err != nil {
@@ -686,7 +686,7 @@ func splitImage(image, fallback string) (repo, tag string) {
 
 // renderChangeImagePage renders the Software Versions table, open names the service whose change sheet opens on load
 func renderChangeImagePage(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext, open string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Software Versions")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Software versions")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

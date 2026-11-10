@@ -1,151 +1,102 @@
 {{define "content"}}
 <!-- START templates/domains/new.html -->
 
-<!-- page header -->
 <section x-data="{ addDomainDebug: localStorage.getItem('addDomainDebug') === 'true' }" x-ref="statusWrapper" x-init="$watch('addDomainDebug', value => localStorage.setItem('addDomainDebug', value))">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <div class="flex items-center gap-x-3">
-                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "New Domain"}}</h1>
-            </div>
-            <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Add a new domain name to be used for websites, emails, etc."}}</p>
-        </div>
-        <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-            <button
-                type="button"
-                @click="addDomainDebug = !addDomainDebug"
-                class="mb-3 inline-flex items-center rounded border px-3 py-2 text-sm font-medium shadow-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60"
-            >
-                <span x-text="addDomainDebug ? '{{.T.Get "Hide Details"}}' : '{{.T.Get "Show Details"}}'"></span>
-                <svg class="w-4 h-4 ml-2 transition-transform" :class="{ 'rotate-180': addDomainDebug }" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
-        </div>
+<!-- page header -->
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "New domain"}}</h1>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Add a new domain name to be used for websites, emails, etc."}}</p>
     </div>
-<!-- END page header -->
-
-
-
-<!-- form -->
-<div class="sm:mx-auto sm:max-w-2xl p-6 m-6 CrawlerStatusCard" id="toAddActive">
-    <form class="mt-8" id="addDomainForm" method="POST"  action="#">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
-
-            <div class="col-span-full">
-                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="domain_url"> {{.T.Get "Domain"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-                <div class="relative w-full mt-2">
-                    <input
-                        type="text"
-                        class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-                        id="domain_url"
-                        placeholder="example.net"
-                        name="domain_url"
-                        pattern="(?:(?!-)[\p{L}\p{N}\p{M}-]{1,63}(?&lt;!-)\.)+(?:[a-zA-Z\p{L}]{2,63}|xn--[a-zA-Z0-9-]{1,59}|\bonion\b)"
-                        title="{{.T.Get "Invalid domain name. Please enter a valid domain name like %(example)s or %(subdomain)s." "example" "'example.com'" "subdomain" "'sub.example.com'"}}"
-                        required
-                    />
-                          <input type="text" class="form-control d-none" name="domain_name" id="domain_name" placeholder="example.net" hidden >
-
-                </div>
-                <p id="punycode-info" style="display: none;" class="mt-2 text-xs text-gray-500 dark:text-gray-500"></p>
-            </div>
-
-
-            <div class="col-span-full">
-                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="docroot"> {{.T.Get "Document Root (folder):"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-                <div class="relative w-full mt-2"  x-data="{tooltip: false }">
-                    <input
-                        type="text"
-                        class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-                        id="docroot"
-                        name="docroot"
-                        value="/var/www/html/"
-                        pattern="^/var/www/html/.*"
-                        title="{{.T.Get "Invalid document root. Please enter a valid path that start with /var/www/html/"}}"
-                        required
-                        {{if not .UserAllowed.docroot}}
-                        @mouseenter="tooltip = true" @mouseleave="tooltip = false"
-                        readonly
-                        {{end}}
-                    />
-                    {{if not .UserAllowed.docroot}}<div x-show="tooltip" x-transition class="absolute z-10 mt-2 w-64 rounded-lg bg-gray-800 text-white text-sm px-3 py-2 shadow-lg" style="top: 100%; left: 0;">{{.T.Get "docroot module or feature are not enabled. Contact Administrator to change docroot."}}</div>{{end}}
-            </div>
-
-            <div class="col-span-full" id="keys-fields" style="display: none;">
-                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="hs_ed25519_public_key">{{.T.Get "Public Key"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-                <div class="relative w-full mt-2">
-                    <input
-                        type="text"
-                        class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-                        id="hs_ed25519_public_key"
-                        name="hs_ed25519_public_key"
-                        pattern="^/var/www/html/.*"
-                        placeholder="/var/www/html/path/to/hs_ed25519_public_key"
-                    />
-                </div>
-            </div>
-
-            <div class="col-span-full" id="key2-fields" style="display: none;">
-                <label class="text-sm leading-none text-gray-900 dark:text-gray-50 font-medium" for="hs_ed25519_secret_key">{{.T.Get "Secret Key"}}<span class="text-red-500 dark:text-red-500">*</span></label>
-                <div class="relative w-full mt-2">
-                    <input
-                        type="text"
-                        class="relative block w-full appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-                        id="hs_ed25519_secret_key"
-                        name="hs_ed25519_secret_key"
-                        pattern="^/var/www/html/.*"
-                        placeholder="/var/www/html/path/to/hs_ed25519_secret_key"
-                    />
-                </div>
-            </div>
-
-
-        </div>
-
-
-
-</div>
-
-
-        <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500">
-            <div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div>
-        </div>
-
-                    {{if not .UserAllowed.php}}
-                    <input type="hidden" name="skip_containers" value="--skip_containers"/>
-                    {{end}}
-
-<div class="md:flex items-center md:justify-end md:space-x-4">
-
-    <button
-        class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 mt-2 w-full sm:w-auto gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0"
-        type="submit"
-        id="installButton"
-    >
-        {{.T.Get "Add Domain"}}
-        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
-        </svg>
+    <button type="button" @click="addDomainDebug = !addDomainDebug" :aria-expanded="addDomainDebug" aria-controls="statusMessage" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">
+        <span x-text="addDomainDebug ? '{{.T.Get "Hide details"}}' : '{{.T.Get "Show details"}}'"></span>
+        <i class="ri-arrow-down-s-line text-base leading-none transition-transform" :class="{ 'rotate-180': addDomainDebug }" aria-hidden="true"></i>
     </button>
 </div>
+<!-- END page header -->
 
+<!-- form -->
+<div class="px-4 pb-6 sm:px-6 lg:px-8">
+<div class="max-w-2xl rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised sm:p-6 CrawlerStatusCard" id="toAddActive">
+    <form id="addDomainForm" method="POST" action="#">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+        <div class="space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="domain_url">{{.T.Get "Domain"}}<span class="ml-1 text-red-600 dark:text-red-500">*</span></label>
+                <input type="text" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
+                    id="domain_url"
+                    placeholder="example.net"
+                    name="domain_url"
+                    aria-describedby="punycode-info"
+                    pattern="(?:(?!-)[\p{L}\p{N}\p{M}-]{1,63}(?&lt;!-)\.)+(?:[a-zA-Z\p{L}]{2,63}|xn--[a-zA-Z0-9-]{1,59}|\bonion\b)"
+                    title="{{.T.Get "Invalid domain name. Please enter a valid domain name like %(example)s or %(subdomain)s." "example" "'example.com'" "subdomain" "'sub.example.com'"}}"
+                    required
+                />
+                <input type="text" class="form-control d-none" name="domain_name" id="domain_name" placeholder="example.net" hidden>
+                <p id="punycode-info" style="display: none;" class="mt-2 text-xs text-gray-500"></p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="docroot">{{.T.Get "Document root (folder)"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
+                <input type="text" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 read-only:bg-gray-50 read-only:text-gray-500 dark:read-only:bg-gray-900 dark:read-only:text-gray-400"
+                    id="docroot"
+                    name="docroot"
+                    value="/var/www/html/"
+                    pattern="^/var/www/html/.*"
+                    title="{{.T.Get "Invalid document root. Please enter a valid path that start with /var/www/html/"}}"
+                    required
+                    {{if not .UserAllowed.docroot}}
+                    aria-describedby="docroot-locked"
+                    readonly
+                    {{end}}
+                />
+                {{if not .UserAllowed.docroot}}<p id="docroot-locked" class="mt-2 text-xs text-gray-500">{{.T.Get "docroot module or feature are not enabled. Contact Administrator to change docroot."}}</p>{{end}}
+            </div>
+
+            <div id="keys-fields" style="display: none;">
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="hs_ed25519_public_key">{{.T.Get "Public key"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
+                <input type="text" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
+                    id="hs_ed25519_public_key"
+                    name="hs_ed25519_public_key"
+                    pattern="^/var/www/html/.*"
+                    placeholder="/var/www/html/path/to/hs_ed25519_public_key"
+                />
+            </div>
+
+            <div id="key2-fields" style="display: none;">
+                <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="hs_ed25519_secret_key">{{.T.Get "Secret key"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
+                <input type="text" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
+                    id="hs_ed25519_secret_key"
+                    name="hs_ed25519_secret_key"
+                    pattern="^/var/www/html/.*"
+                    placeholder="/var/www/html/path/to/hs_ed25519_secret_key"
+                />
+            </div>
+        </div>
+
+        {{if not .UserAllowed.php}}
+        <input type="hidden" name="skip_containers" value="--skip_containers"/>
+        {{end}}
+
+        <div class="mt-6 flex justify-end border-t border-gray-200 pt-6 dark:border-gray-800">
+            <button type="submit" id="installButton" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
+                {{.T.Get "Add domain"}} <i class="ri-arrow-right-line text-base leading-none rtl:rotate-180" aria-hidden="true"></i>
+            </button>
+        </div>
     </form>
 </div>
+</div>
 <!-- END form -->
-
 
 <!-- .CrawlerStatusCard.active spin animation now lives globally in base.html -->
 
 <!-- progress text -->
-<div class="sm:mx-auto p-6 m-6">
-<pre id="statusMessage" x-show="addDomainDebug" x-transition x-cloak class="overflow-auto max-h-64 p-4 rounded" :class="{'bg-gray-800 text-white': addDomainDebug}"></pre>
-
-<div>
+<div class="px-4 pb-6 sm:px-6 lg:px-8">
+<pre id="statusMessage" x-show="addDomainDebug" x-transition x-cloak class="max-h-64 max-w-2xl overflow-auto rounded-md bg-gray-950 p-4 font-mono text-xs whitespace-pre-wrap text-gray-50"></pre>
+</div>
+</section>
 <!-- END progress text -->
-
 
 <!-- js for submit and validation -->
 <script type="module">
@@ -301,7 +252,7 @@ fetch("/domains/new", {
                         document.getElementById("toAddActive").classList.remove("active");
 
                         button.disabled = false;
-                        button.innerHTML = `{{.T.Get "Add Domain"}} <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg>`;
+                        button.innerHTML = `{{.T.Get "Add domain"}} <i class="ri-arrow-right-line text-base leading-none rtl:rotate-180" aria-hidden="true"></i>`;
                         domainUrlInput.value = "";
                         domainNameInput.value = "";
                         domainDocrootInput.value = "/var/www/html/";
@@ -313,7 +264,7 @@ fetch("/domains/new", {
                             wrapper.__x.$data.addDomainDebug = true;
                         }
                     } else if (text.toLowerCase().includes("error") && !toastDisplayed) {
-                        const toastMessage = `{{.T.Get "Error adding domain name"}} ${domainUrlInput.value} {{.T.Get "Click on Show Details above to view the log."}}`;
+                        const toastMessage = `{{.T.Get "Error adding domain name"}} ${domainUrlInput.value} {{.T.Get "Click on Show details above to view the log."}}`;
                         showToast(toastMessage, 'warning');
 
                         const wrapper = document.querySelector('[x-ref="statusWrapper"]');
@@ -325,7 +276,7 @@ fetch("/domains/new", {
                         document.getElementById("toAddActive").classList.remove("active");
 
                         button.disabled = false;
-                        button.innerHTML = `{{.T.Get "Retry"}} <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg>`;
+                        button.innerHTML = `{{.T.Get "Retry"}} <i class="ri-arrow-right-line text-base leading-none rtl:rotate-180" aria-hidden="true"></i>`;
 
                     }
 

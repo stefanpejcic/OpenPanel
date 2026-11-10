@@ -9,37 +9,8 @@
     <meta name="robots" content="noindex">
     <link rel="shortcut icon" type="image/x-icon" href="{{if .Favicon}}{{.Favicon}}{{else}}{{static "images/favicon.svg"}}{{end}}">
     <title>{{.T.Get .Title}} - {{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}</title>
-    <script src="{{static "vendor/tailwindcss/tailwindcss-cdn-3.4.10.js"}}"></script>
-
-    <!-- CSRF protection -->
-    <script type="text/javascript">
-        var csrf_token = "{{.CSRFToken}}";
-    </script>
-
-
-    <style>
-    body {
-      background-image: url("/static/images/bg-body.png") !important;
-      background-repeat: no-repeat;
-      background-position: left; }
-    </style>
-      <!-- Tailwind CSS v3 Configuration -->
-      <script>
-         const defaultTheme = tailwind.defaultTheme;
-         const colors = tailwind.colors;
-         const plugin = tailwind.plugin;
-
-         tailwind.config = {
-           darkMode: "class",
-           theme: {
-             extend: {
-               fontFamily: {
-                 sans: ["Inter", ...defaultTheme.fontFamily.sans],
-               },
-             },
-           },
-         };
-      </script>
+    <link rel="stylesheet" href="{{static "vendor/remixicon/remixicon.css"}}">
+    <link rel="stylesheet" href="{{static "dist/output.css"}}">
 
     <!-- dark mode follows the saved theme, or the device setting if none is saved, same as base.html -->
     <script>if(localStorage.getItem('color-theme')==='dark'||(!('color-theme' in localStorage)&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}</script>
@@ -49,75 +20,80 @@
 
     <!-- Custom CSS code -->
     <link rel="stylesheet" href="{{static "css/custom.css"}}">
+{{if ne .LoginLayout "split"}}
+    <style>body{background-image:url("{{static "images/bg-body.png"}}");background-repeat:no-repeat;background-position:left}</style>
+{{end}}
   </head>
 
-  <body class="mx-auto bg-slate-200 dark:bg-gray-950 mwp-480 d-xl-flex align-items-center justify-content-center">
-<section>
-  <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-
-{{if .Logo}}
-
-<a href="." class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white" style="text-decoration: none;"><img src="{{.Logo}}" class="h-16"></img></a>
-
-{{else if .BrandName}}
-
-<a href="." class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white" style="text-decoration: none;">{{.BrandName}}</a>
-
-{{else}}
-
-<a href="https://openpanel.com?utm=2083_login_page" target="_blank" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white" style="text-decoration: none;">OpenPanel</a>
-
+  <body class="mx-auto min-h-svh bg-gray-50 antialiased dark:bg-gray-950">
+<section{{if eq .LoginLayout "split"}} class="lg:flex"{{end}}>
+{{if eq .LoginLayout "split"}}
+<!-- split layout: a brand panel beside the form on wide screens -->
+<aside class="hidden shrink-0 flex-col justify-between gap-10 border-r border-gray-800 bg-gray-950 p-10 text-gray-50 lg:flex lg:w-1/2 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-50">
+  {{if .Logo}}<a href="." class="flex items-center"><img src="{{.Logo}}" alt="{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}" class="h-12"></a>{{else if .BrandName}}<a href="." class="text-lg font-semibold tracking-tight">{{.BrandName}}</a>{{else}}<a href="https://openpanel.com?utm=2083_login_page" target="_blank" class="text-lg font-semibold tracking-tight">OpenPanel</a>{{end}}
+  <div>
+    <h2 class="text-lg font-semibold">{{.T.Get "Every site, inbox and database in one place."}}</h2>
+    <p class="mt-2 max-w-md text-sm text-gray-400 dark:text-gray-400">{{.T.Get "Each service runs in its own container, with its own CPU, memory and versions you pick."}}</p>
+  </div>
+  <ul class="space-y-3 text-sm text-gray-400 dark:text-gray-400">
+    <li class="flex items-center gap-3"><i class="ri-global-line text-base text-gray-500 dark:text-gray-500" aria-hidden="true"></i>{{.T.Get "Websites, WordPress and Node.js, Python or PHP apps"}}</li>
+    <li class="flex items-center gap-3"><i class="ri-mail-line text-base text-gray-500 dark:text-gray-500" aria-hidden="true"></i>{{.T.Get "Email accounts, DNS zones and SSL"}}</li>
+    <li class="flex items-center gap-3"><i class="ri-archive-line text-base text-gray-500 dark:text-gray-500" aria-hidden="true"></i>{{.T.Get "Backups you can restore file by file"}}</li>
+  </ul>
+</aside>
 {{end}}
+  <div class="mx-auto flex min-h-svh w-full max-w-sm flex-col justify-center px-4 py-10">
+
+<!-- brand: the admin's logo or name when set, the OpenPanel mark otherwise -->
+<div class="mb-6 flex items-center justify-center">
+{{if .Logo}}
+<a href="." class="flex items-center"><img src="{{.Logo}}" alt="{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}" class="h-12"></a>
+{{else if .BrandName}}
+<a href="." class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">{{.BrandName}}</a>
+{{else}}
+<a href="https://openpanel.com?utm=2083_login_page" target="_blank" class="flex items-center gap-3 rounded-md outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+<span class="flex size-9 items-center justify-center rounded-md bg-white p-1.5 shadow-xs ring-1 ring-gray-200 dark:ring-gray-800"><svg aria-hidden="true" version="1.0" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 213.000000 215.000000" preserveAspectRatio="xMidYMid meet" class="size-6 text-black"><g transform="translate(0.000000,215.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"></path></g></svg></span>
+<span class="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-50">OpenPanel</span>
+</a>
+{{end}}
+</div>
 
 <!-- START individual login template file -->
 {{template "content" .}}
 <!-- END individual login template file -->
 
-{{if not .IsEnterprise}}
-<p class="text-sm my-4 text-black-500 dark:text-black-400 font-bold">
-<a href="https://openpanel.com?utm=2083_login_page" target="_blank" class="flex items-center">
-<svg version="1.0" style="vertical-align:middle;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 213.000000 215.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,215.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"></path></g></svg><span>OpenPanel</span>
-</a>
-</p>
-{{end}}
-
-
-<div class="mt-6">
+<!-- footer: language on the left, the OpenPanel credit on the right -->
+<div class="mt-6 flex items-center justify-between gap-4 text-xs text-gray-500">
   <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-  <div class="col-span-full">
 
     <!-- language dropdown with flags and search -->
     {{$current := .T.Locale}}
     {{$found := false}}{{range .Locales}}{{if eq .Code $current}}{{$found = true}}{{end}}{{end}}
     <div class="relative" id="locale-dropdown">
       <button type="button" id="locale-btn" aria-haspopup="listbox" aria-expanded="false"
-        class="flex items-center gap-3 w-full rounded border border-gray-300 bg-white px-3 py-2 text-left text-sm shadow-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
+        aria-label="{{.T.Get "Change language"}}" class="-ml-2 flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs text-gray-600 hover:bg-gray-100 hover:text-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50">
         {{range .Locales}}{{if eq .Code $current}}
-        <img src="/static/flags/{{.FlagCode}}.png" alt="" class="w-6 h-4 rounded-sm" onerror="this.style.display='none'" />
+        <img src="/static/flags/{{.FlagCode}}.png" alt="" class="h-3 w-[18px] rounded-xs" onerror="this.style.display='none'" />
         <span class="font-medium">{{.Native}}</span>
-        {{if ne .English .Native}}<span class="text-gray-500 dark:text-gray-400">{{.English}}</span>{{end}}
         {{end}}{{end}}
-        {{if not $found}}<span class="text-gray-400">{{.T.Get "Change Language"}}</span>{{end}}
-        <svg id="locale-chevron" class="ml-auto w-4 h-4 text-gray-400 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-        </svg>
+        {{if not $found}}<span class="text-gray-400">{{.T.Get "Change language"}}</span>{{end}}
+        <i id="locale-chevron" class="ri-arrow-up-s-line text-gray-400 transition-transform duration-200" aria-hidden="true"></i>
       </button>
 
-      <div id="locale-list" class="hidden absolute z-50 mt-1 w-full rounded border border-gray-200 bg-white shadow-lg dark:border-gray-600 dark:bg-gray-700">
-        <div class="border-b border-gray-200 p-2 dark:border-gray-600">
+      <div id="locale-list" class="hidden absolute bottom-full left-0 z-50 mb-1 w-64 rounded-md border border-gray-200 bg-white p-1 shadow-xl dark:border-gray-800 dark:bg-gray-950">
+        <div class="border-b border-gray-200 p-1 pb-2 dark:border-gray-800">
           <input id="locale-search" type="search" placeholder="{{.T.Get "Search"}}" autocomplete="off"
-            class="relative block w-full appearance-none rounded border px-2.5 py-1.5 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" />
+            aria-label="{{.T.Get "Search"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" />
         </div>
         <ul role="listbox" class="max-h-64 overflow-y-auto py-1">
           {{range .Locales}}
           <li role="option" data-value="{{.Code}}" data-search="{{.Native}} {{.English}} {{.Code}}" aria-selected="{{if eq .Code $current}}true{{else}}false{{end}}"
-            class="flex items-center gap-3 px-3 py-2 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 {{if eq .Code $current}}bg-gray-50 dark:bg-gray-600{{end}}">
-            <img src="/static/flags/{{.FlagCode}}.png" alt="" class="w-6 h-4 rounded-sm" onerror="this.style.display='none'" />
-            <span class="font-medium text-gray-900 dark:text-white">{{.Native}}</span>
+            class="flex cursor-pointer items-center gap-3 rounded px-2 py-1.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-900 {{if eq .Code $current}}bg-gray-100 dark:bg-gray-900{{end}}">
+            <img src="/static/flags/{{.FlagCode}}.png" alt="" class="h-4 w-6 rounded-xs" onerror="this.style.display='none'" />
+            <span class="font-medium text-gray-900 dark:text-gray-50">{{.Native}}</span>
             {{if ne .English .Native}}<span class="text-gray-500 dark:text-gray-400">{{.English}}</span>{{end}}
             {{if eq .Code $current}}
-            <svg class="ml-auto w-4 h-4 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <i class="ri-check-line ml-auto text-blue-500" aria-hidden="true"></i>
             {{end}}
           </li>
           {{end}}
@@ -125,8 +101,9 @@
       </div>
     </div>
 
-
-  </div>
+{{if not .IsEnterprise}}
+  <a href="https://openpanel.com?utm=2083_login_page" target="_blank" class="rounded hover:text-gray-900 hover:underline hover:underline-offset-4 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:hover:text-gray-50">{{.T.Get "Powered by OpenPanel"}}</a>
+{{end}}
 </div>
 
 <script>
@@ -165,6 +142,17 @@
   });
   document.addEventListener('click', function (e) {
     if (!dropdown.contains(e.target)) setOpen(false);
+  });
+
+  document.querySelectorAll('[data-toggle-password]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var input = document.getElementById(b.getAttribute('data-toggle-password'));
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      b.setAttribute('aria-pressed', String(show));
+      b.setAttribute('aria-label', show ? {{toJSON (.T.Get "Hide password")}} : {{toJSON (.T.Get "Show password")}});
+      b.querySelector('i').className = (show ? 'ri-eye-off-line' : 'ri-eye-line') + ' text-base';
+    });
   });
 
   items.forEach(function (item) {

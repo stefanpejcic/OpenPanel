@@ -79,6 +79,15 @@ type VersionInfo struct {
 	IsLatestVersion bool   `json:"isLatestVersion"`
 	IsFutureVersion bool   `json:"isFutureVersion"`
 	IsNextVersion   bool   `json:"isNextVersion"`
+	ReleaseDate     string `json:"releaseDate"`
+}
+
+// released is false for versions the API lists ahead of their release, like the next minor
+func (v VersionInfo) released(now time.Time) bool {
+	if v.IsFutureVersion || v.ReleaseDate == "" {
+		return false
+	}
+	return v.ReleaseDate <= now.Format("2006-01-02")
 }
 
 // fetchPHPVersionsAPI maintains a 3-day disk cache of https://api.openpanel.com/php-versions/, used by settings.html to badge each installed version (latest/next/future/EOL/secure)

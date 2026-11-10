@@ -22,7 +22,7 @@ type ListPageData struct {
 }
 
 func renderListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domains []appctx.Domain, sites []SiteRow, viewMode string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "WordPress Manager")
+	layout, _, err := web.BuildLayoutData(a, w, r, "WordPress manager")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

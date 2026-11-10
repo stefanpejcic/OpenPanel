@@ -2,6 +2,7 @@ package dns
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 
 	"golang.org/x/net/publicsuffix"
@@ -126,6 +127,15 @@ func handleEditDNSZone(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	renderDNSTablePage(a, w, r, domainParam, rows, serialNumber, dnsZoneIssues, zoneDomains)
+}
+
+// zoneRecordCount is the number of records in a domain's zone, SOA left out like the zone table does
+func zoneRecordCount(domain string) string {
+	content, err := tenantfs.ReadFile(zoneFilePath(domain))
+	if err != nil {
+		return ""
+	}
+	return strconv.Itoa(len(buildZoneRows(parseZoneWithLineNumbers(string(content)))))
 }
 
 func fileExists(path string) bool {

@@ -113,7 +113,7 @@ type InodesPageData struct {
 }
 
 func renderInodesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, inodesOutputText string) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Inode Usage")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Inode usage")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

@@ -50,7 +50,7 @@ func enabledFeatures(allowed map[string]bool) []Feature {
 }
 
 func renderServerInfoPage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Server Information")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Server information")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -68,7 +68,7 @@ type StatsPageData struct {
 }
 
 func renderStatsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, rawStats map[string]any) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Resource Usage")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Resource usage")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -124,7 +124,7 @@ type UsageHistoryPageData struct {
 }
 
 func renderUsageHistoryPage(a *appctx.App, w http.ResponseWriter, r *http.Request, chartsMode string, showAll bool, itemsPerPage, totalPages, totalLines, currentPage int, usageData []ResourceUsageLine) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Resource Usage History")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Resource usage history")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

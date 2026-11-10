@@ -8,31 +8,25 @@
       <style>
          .CodeMirror {min-height: 50vh;height: auto;}
          div.CodeMirror-sizer {min-height: 500px!important;}
-         .conf-test-error {border-bottom: 1px solid #fecaca; background: #fef2f2; color: #991b1b; padding: 1rem 1.5rem; font-size: .875rem;}
-         .dark .conf-test-error {border-color: rgba(248, 113, 113, .3); background: rgba(239, 68, 68, .1); color: #fca5a5;}
-         .conf-test-error ul {margin-top: .5rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .8125rem; overflow-wrap: anywhere;}
-         .conf-test-error li + li {margin-top: .25rem;}
-         .conf-test-error p + p, .conf-test-error ul + p {margin-top: .5rem;}
-         .conf-test-error a {text-decoration: underline;}
          .CodeMirror .conf-error-line {background: rgba(239, 68, 68, .2);}
       </style>
 
 {{if eq .Service "litespeed"}}
-<section aria-label="{{.T.Get "LiteSpeed license"}}" class="border-b border-gray-200 bg-white p-4 sm:px-6 lg:px-8 dark:border-gray-800 dark:bg-gray-950" x-data="litespeedLicense()" x-init="load()">
+<section aria-label="{{.T.Get "LiteSpeed license"}}" class="border-b border-gray-200 px-4 py-4 sm:px-6 lg:px-8 dark:border-gray-800" x-data="litespeedLicense()" x-init="load()">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "LiteSpeed license"}}</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-500" x-show="loading">{{.T.Get "Checking license..."}}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-500" x-show="!loading" x-cloak>
+            <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "LiteSpeed license"}}</h2>
+            <p class="mt-1 text-sm text-gray-500" x-show="loading">{{.T.Get "Checking license..."}}</p>
+            <p class="mt-1 text-sm text-gray-500" x-show="!loading" x-cloak>
                 <span x-text="type === 'trial' ? '{{.T.Get "Trial license"}}' : (type === 'none' ? '{{.T.Get "No license"}}' : '{{.T.Get "Your serial number"}}')"></span><span x-show="message">: <span x-text="message"></span></span>
             </p>
-            <p class="mt-1 text-sm text-red-600 dark:text-red-400" x-show="error" x-text="error" x-cloak></p>
-            <p class="mt-1 text-sm text-green-600 dark:text-green-400" x-show="notice" x-text="notice" x-cloak></p>
+            <p class="mt-1 text-sm text-red-600 dark:text-red-500" x-show="error" x-text="error" role="alert" x-cloak></p>
+            <p class="mt-1 text-sm text-emerald-600 dark:text-emerald-500" x-show="notice" x-text="notice" role="status" x-cloak></p>
         </div>
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <input type="text" x-model="serial" placeholder="{{.T.Get "Serial number"}}" autocomplete="off" class="relative block sm:w-64 appearance-none rounded border px-2.5 py-2 outline-none transition sm:text-sm border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-950 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700/30 focus:border-blue-500 dark:focus:border-blue-700 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
-            <button type="button" @click="save()" :disabled="busy || !serial.trim()" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border border-black bg-black px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-gray-800 disabled:opacity-50">{{.T.Get "Save serial"}}</button>
-            <button type="button" x-show="type === 'serial' || type === 'license'" @click="trial()" :disabled="busy" class="relative inline-flex items-center justify-center whitespace-nowrap rounded border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50" x-cloak>{{.T.Get "Use trial"}}</button>
+            <input type="text" x-model="serial" aria-label="{{.T.Get "Serial number"}}" placeholder="{{.T.Get "Serial number"}}" autocomplete="off" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 sm:w-64">
+            <button type="button" @click="save()" :disabled="busy || !serial.trim()" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Save serial"}}</button>
+            <button type="button" x-show="type === 'serial' || type === 'license'" @click="trial()" :disabled="busy" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent shadow-none bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80" x-cloak>{{.T.Get "Use trial"}}</button>
         </div>
     </div>
 </section>
@@ -62,45 +56,82 @@ function litespeedLicense() {
             this.call('POST', { serial: this.serial }).then(d => { if (d.success) { this.notice = d.message; this.serial = ''; } this.load(); });
         },
         trial() {
-            if (!confirm('{{.T.Get "Remove the serial number and go back to a trial license?"}}')) { return; }
-            this.call('POST', { trial: true }).then(d => { if (d.success) { this.notice = d.message; } this.load(); });
+            window.opConfirm('{{.T.Get "Remove the serial number and go back to a trial license?"}}').then(yes => {
+                if (!yes) { return; }
+                this.call('POST', { trial: true }).then(d => { if (d.success) { this.notice = d.message; } this.load(); });
+            });
         }
     };
 }
 </script>
 {{end}}
 
-<form method="post">
+<section aria-label="{{.T.Get "Webserver configuration editor"}}">
+    <script>
+    function wsConfigTest() {
+        return {
+            state: '', output: '', command: '',
+            i18n: { test: {{toJSON ($.T.Get "Test config")}}, again: {{toJSON ($.T.Get "Run again")}}, busy: {{toJSON ($.T.Get "Testing...")}}, unreachable: {{toJSON ($.T.Get "Could not reach the server.")}} },
+            async run() {
+                this.state = 'busy';
+                try {
+                    const res = await fetch('/server/webserver_conf/test', { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } });
+                    const data = await res.json();
+                    this.output = data.output || '';
+                    if (data.command) this.command = data.command;
+                    this.state = data.ok ? 'ok' : 'fail';
+                } catch (e) {
+                    this.output = this.i18n.unreachable;
+                    this.state = 'fail';
+                }
+            },
+        };
+    }
+    </script>
+<form method="post" x-data="wsConfigTest()">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
-<section aria-label="{{.T.Get "WebServer Conf Editor Header"}}" x-data="{ searchQuery: '' }">
-    <div class="border-b flex flex-col border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-950 p-4 sm:p-6 lg:p-8 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h1></div>
-        <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Edit main webserver configuration file:"}} {{.Path}}</p>
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <div class="min-w-0">
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h1>
+            <dl class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
+                <div class="flex min-w-0 items-center gap-1.5"><dt>{{.T.Get "Config file:"}}</dt> <dd class="min-w-0 break-all"><code class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">{{.Path}}</code></dd></div>
+                {{with .Summary}}<div class="flex items-center gap-1.5"><dt>{{$.T.Get "Version:"}}</dt> <dd><code class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">{{if .Version}}{{.Version}}{{else}}{{title $.Service}}{{end}}</code></dd></div>
+                {{with .Uptime}}<div class="flex items-center gap-1.5"><dt>{{$.T.Get "Uptime:"}}</dt> <dd class="font-medium tabular-nums text-gray-900 dark:text-gray-50">{{.}}</dd></div>{{end}}{{end}}
+            </dl>
+        </div>
+        <div class="flex flex-col-reverse gap-2 sm:flex-row">
+            {{with .Summary}}{{if .TestCommand}}
+            <span x-show="state === 'ok'" x-cloak role="status" class="inline-flex self-center items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-500"><i class="ri-checkbox-circle-line" aria-hidden="true"></i>{{$.T.Get "Syntax OK"}}</span>
+            <span x-show="state === 'fail'" x-cloak role="alert" class="inline-flex self-center items-center gap-1.5 text-sm font-medium text-red-600 dark:text-red-500"><i class="ri-error-warning-line" aria-hidden="true"></i>{{$.T.Get "Config test failed"}}</span>
+            <button type="button" @click="run()" :disabled="state === 'busy'" {{if not .Running}}disabled title="{{$.T.Get "The container is not running."}}"{{end}} class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"><i class="ri-play-line text-base leading-none" aria-hidden="true"></i><span x-text="state === 'busy' ? i18n.busy : (state === '' ? i18n.test : i18n.again)">{{$.T.Get "Test config"}}</span></button>
+            {{end}}{{end}}
+            {{if .CanRestoreDefault}}
+            <button type="submit" name="action" value="restore_default" data-confirm="{{.T.Get "This will overwrite the current file with the default configuration and restart the service. Continue?"}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Restore default"}}</button>
+            {{end}}
+            <button type="submit" name="action" value="save" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Save changes"}}</button>
+        </div>
     </div>
-    <div class="mt-2 gap-2 sm:mt-0 sm:flex">
-        {{if .CanRestoreDefault}}
-        <button type="submit" name="action" value="restore_default" onclick="return confirm('{{.T.Get "This will overwrite the current file with the default configuration and restart the service. Continue?"}}')" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 border-gray-300 dark:border-gray-800 text-gray-700 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap sm:mt-0">{{.T.Get "Restore Default"}}</button>
-        {{end}}
-        <button type="submit" name="action" value="save" class="relative inline-flex items-center justify-center rounded border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 disabled:text-gray-400 disabled:dark:text-gray-600 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap border-black bg-black text-white hover:bg-gray-800 sm:mt-0">{{.T.Get "Save Changes"}}</button>
 
-    </div>
-</div>
+
+    <pre x-show="state === 'fail' && output" x-cloak class="mx-4 mb-4 sm:mx-6 lg:mx-8 max-h-48 overflow-auto rounded-md bg-red-50 p-3 font-mono text-xs whitespace-pre-wrap text-red-900 dark:bg-red-950/70 dark:text-red-400" x-text="output"></pre>
 
     {{with .TestFailure}}
-    <div class="conf-test-error" role="alert">
-        <p class="font-medium">{{$.T.Get "Not saved. The config test reported:"}}</p>
-        <ul>
-            {{range .Problems}}<li>{{.}}</li>{{end}}
-        </ul>
-        {{range .Hints}}<p>{{.}}</p>{{end}}
-        {{if .Line}}<p><a href="#" onclick="editor.focus(); editor.setCursor({line: {{.Line}} - 1, ch: 0}); editor.scrollIntoView(null, 200); return false;">{{$.T.Get "Go to line"}} {{.Line}}</a></p>{{end}}
-        {{if and .VhostDomain (index $.UserAllowed "edit_vhost")}}<p><a href="/domains/vhosts?domain={{.VhostDomain}}">{{$.T.Get "Open the VirtualHost file of"}} {{.VhostDomain}}</a></p>{{end}}
+    <div class="mx-4 mb-4 sm:mx-6 lg:mx-8 flex gap-3 rounded-md p-4 text-sm bg-red-50 text-red-900 dark:bg-red-950/70 dark:text-red-500" role="alert">
+        <i class="ri-error-warning-line text-base" aria-hidden="true"></i>
+        <div class="min-w-0 space-y-2">
+            <p class="font-semibold">{{$.T.Get "Not saved. The config test reported:"}}</p>
+            <ul class="space-y-1 font-mono text-xs [overflow-wrap:anywhere]">
+                {{range .Problems}}<li>{{.}}</li>{{end}}
+            </ul>
+            {{range .Hints}}<p>{{.}}</p>{{end}}
+            {{if .Line}}<p><a href="#" class="underline underline-offset-4" onclick="editor.focus(); editor.setCursor({line: {{.Line}} - 1, ch: 0}); editor.scrollIntoView(null, 200); return false;">{{$.T.Get "Go to line"}} {{.Line}}</a></p>{{end}}
+            {{if and .VhostDomain (index $.UserAllowed "edit_vhost")}}<p><a href="/domains/vhosts?domain={{.VhostDomain}}" class="underline underline-offset-4">{{$.T.Get "Open the VirtualHost file of"}} {{.VhostDomain}}</a></p>{{end}}
+        </div>
     </div>
     {{end}}
 
-    <div id="editor-container" class="overflow-auto">
+    <div id="editor-container" class="overflow-auto border-t border-gray-200 dark:border-gray-800">
         <textarea id="editor" name="editor_content" rows="40" cols="100">{{.FileContent}}</textarea>
     </div>
 

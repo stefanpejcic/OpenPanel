@@ -11,7 +11,8 @@ script.onload = function () {
 
     // Create "Copy Path to Clipboard" button
     var copyButton = document.createElement("li");
-    copyButton.innerHTML = '<a href="#" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300" id="copy-button" title="Copy Path to Clipboard" data-clipboard-text=""><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/> </svg></a>';
+    copyButton.className = "flex";
+    copyButton.innerHTML = '<a href="#" class="inline-flex size-6 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50" id="copy-button" title="Copy path to clipboard" aria-label="Copy path to clipboard" data-clipboard-text=""><i class="ri-file-copy-line"></i></a>';
     breadcrumbContainer.appendChild(copyButton);
 
     // Hide middle breadcrumb items if they exceed the limit
@@ -29,7 +30,8 @@ script.onload = function () {
 
         // Create ellipsis link
         var ellipsis = document.createElement("li");
-        ellipsis.innerHTML = '<a href="#" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300" id="breadcrumb-ellipsis" title="Click to display the full path"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots" viewBox="0 0 16 16"> <path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"/> </svg></a>';
+        ellipsis.className = "flex";
+        ellipsis.innerHTML = '<a href="#" class="inline-flex size-6 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50" id="breadcrumb-ellipsis" title="Click to display the full path" aria-label="Click to display the full path"><i class="ri-more-line"></i></a>';
         breadcrumbContainer.insertBefore(ellipsis, breadcrumbItems[1]);
 
         ellipsis.addEventListener("click", function (event) {

@@ -1,4 +1,4 @@
-// Package websites (this file) implements a live/recent-window unique-visitor-IP counter read straight from Caddy's JSON access log, backing the "Live Visitors" widget on the wp/single, websitebuilder and app-runtime pages.
+// Package websites (this file) implements a live/recent-window unique-visitor-IP counter read straight from Caddy's JSON access log, backing the "Live visitors" widget on the wp/single, websitebuilder and app-runtime pages.
 package websites
 
 import (

@@ -1,0 +1,9 @@
+2026-10-26T16:34:15.379343994Z 2026-10-26 16:34:15 0 [Note] InnoDB: Number of transaction pools: 1
+2026-10-26T16:34:15.379343994Z 2026-10-26 16:34:15 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+2026-10-26T16:34:15.379391615Z 2026-10-26 16:34:15 0 [Warning] mariadbd: io_uring_queue_init() failed with ENOSYS: check seccomp filters, and the kernel versio2026-10-26T16:34:15.379404810Z n (newer than 5.1 required)
+2026-10-26T16:34:15.435561481Z create_uring failed: falling back to libaio
+2026-10-26T16:34:15.442311789Z 2026-10-26 16:34:15 0 [Note] InnoDB: Using Linux native AIO
+2026-10-29T11:34:29.545183666Z 2026-10-29 11:34:29 0 [Note] Starting MariaDB 13.0.2-MariaDB-ubu2604 source revision 620a4b5624222048fece7fe1789978ae0675cae2 server_uid pEM4+Qorx3x7Ydi6z7eH10NVrkM= as process 1
+2026-10-29T11:34:29.562241186Z 2026-10-29 11:34:29 0 [Note] mariadbd: Aria engine: starting recovery
+2026-10-29T11:34:29.562241186Z recovered pages: 0%2026-10-29T11:34:29.579538946Z  10%2026-10-29T11:34:29.582958337Z  21% 33% 43% 54% 67% 77% 87% 98% 100%2026-10-29T11:34:29.583213805Z  (0.0 seconds); tables to flush: 22026-10-29T11:34:29.614385786Z  12026-10-29T11:34:29.625292390Z  02026-10-29T11:34:29.625354213Z  (0.0 seconds); 2026-10-29T11:34:29.645455308Z 
+2026-10-29T11:34:29.645455308Z 2026-10-29 11:34:29 0 [Note] mariadbd: Aria engine: recovery done

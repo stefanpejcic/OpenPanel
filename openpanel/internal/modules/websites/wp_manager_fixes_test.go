@@ -86,7 +86,7 @@ func TestSSLState(t *testing.T) {
 		{"Automatic", domains.SSLCertInfo{Expires: "2027-01-01"}, "valid"},
 		{"Custom", domains.SSLCertInfo{Problem: "expiring"}, "expiring"},
 		{"Automatic", domains.SSLCertInfo{Problem: "expired"}, "expired"},
-		{"Automatic", domains.SSLCertInfo{Problem: "missing"}, "missing"},
+		{"Automatic", domains.SSLCertInfo{Problem: "missing"}, "pending"}, // classic shows pending while Caddy is still issuing
 		{"Automatic", domains.SSLCertInfo{Problem: "unreadable"}, "missing"},
 	}
 	for _, c := range cases {

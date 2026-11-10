@@ -32,7 +32,7 @@ func TestRenderInodesPage(t *testing.T) {
 		t.Fatalf("Render: %v", err)
 	}
 	body := w.Body.String()
-	for _, want := range []string{"dir1", "150", "dir2", "Up One Level"} {
+	for _, want := range []string{"dir1", "150", "dir2", "Up one level"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("rendered inodes page missing %q", want)
 		}

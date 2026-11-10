@@ -24,11 +24,9 @@ import (
 // RootPasswordPageData is mysql/root_password.html's template context.
 type RootPasswordPageData struct {
 	web.LayoutData
-	Service       string // MYSQL_TYPE: mysql or mariadb, also the host apps reach it on
-	ServerVersion string // number from VERSION(), "" when the service isn't answering
-	Running       bool   // the mysqld socket is there
-	RemoteOn      bool   // MYSQL_PORT is published on all interfaces
-	RemotePort    string // host port from MYSQL_PORT, "" when it isn't set the usual way
+	Service  string // MYSQL_TYPE: mysql or mariadb, also the host apps reach it on
+	Running  bool   // the mysqld socket is there
+	RemoteOn bool   // MYSQL_PORT is published on all interfaces
 }
 
 // rootPwResult is what a root password change did, the page reads it as JSON
@@ -185,22 +183,17 @@ func handleRootPasswordMySQL(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	renderRootPasswordPage(a, w, r, rootPasswordPageData(ctx, a, userContext))
 }
 
-// rootPasswordPageData only asks VERSION() when the socket is there, so a stopped service doesn't hold the page for the socket wait
+// rootPasswordPageData is the service, whether it's up and whether root can sign in from outside
 func rootPasswordPageData(ctx context.Context, a *appctx.App, userContext string) RootPasswordPageData {
 	data := RootPasswordPageData{Service: GetMySQLVersion(ctx, a, userContext), Running: rootPwSocketExists(userContext)}
-	if data.Running {
-		if rows, err := mysqlmanager.Exec(ctx, userContext, "SELECT VERSION()", ""); err == nil && len(rows) > 0 && len(rows[0]) > 0 {
-			data.ServerVersion = shortServerVersion(toStringCell(rows[0][0]))
-		}
-	}
 	if m := mysqlPortRE.FindStringSubmatch(webserver.GetEnvFileValue(userContext, "MYSQL_PORT")); m != nil {
-		data.RemotePort, data.RemoteOn = m[2], m[1] == ""
+		data.RemoteOn = m[1] == ""
 	}
 	return data
 }
 
 func renderRootPasswordPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data RootPasswordPageData) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Change Root Password")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Change root password")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

@@ -46,7 +46,7 @@ func TestRenderFilesPage(t *testing.T) {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		for _, want := range []string{"reports", "notes.txt", "link", "notes.txt)", "Go Up", "README.md", "Skip the trash"} {
+		for _, want := range []string{"reports", "notes.txt", "link", "notes.txt)", "Go up", "README.md", "Skip the trash"} {
 			if !strings.Contains(body, want) {
 				t.Errorf("rendered files page missing %q", want)
 			}
@@ -66,7 +66,7 @@ func TestRenderFilesPage(t *testing.T) {
 		if err := filesPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "No items found.") {
+		if !strings.Contains(w.Body.String(), "This folder is empty") {
 			t.Error("expected empty-directory message")
 		}
 	})
@@ -167,7 +167,7 @@ func TestRenderEditFilePage(t *testing.T) {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		for _, want := range []string{"Edit File", "documents", "notes.txt", "hello world", "Monaco"} {
+		for _, want := range []string{"Edit file", "documents", "notes.txt", "hello world", "Monaco"} {
 			if !strings.Contains(body, want) {
 				t.Errorf("rendered edit_file page missing %q", want)
 			}
@@ -186,7 +186,7 @@ func TestRenderEditFilePage(t *testing.T) {
 		if err := editFilePage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "Edit WordPress Themes Set") {
+		if !strings.Contains(w.Body.String(), "Edit WordPress themes set") {
 			t.Error("expected the wpcli_themes.txt special-case title")
 		}
 	})

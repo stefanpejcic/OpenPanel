@@ -35,16 +35,16 @@ type BulkAction struct {
 
 // bulkIcons is what the bar shows instead of the label on small screens
 var bulkIcons = map[string]string{
-	"delete": "bi-trash3", "remove": "bi-dash-circle", "terminate": "bi-x-octagon", "kill": "bi-x-octagon", "revoke": "bi-x-circle",
-	"assign": "bi-person-plus", "unassign": "bi-person-dash", "password": "bi-key", "export": "bi-download", "backup": "bi-archive",
-	"restore": "bi-arrow-counterclockwise", "default": "bi-arrow-counterclockwise", "enable": "bi-toggle-on", "disable": "bi-toggle-off",
-	"start": "bi-play-circle", "run": "bi-play", "stop": "bi-stop-circle", "restart": "bi-arrow-repeat", "update": "bi-arrow-up-circle",
-	"suspend": "bi-pause-circle", "unsuspend": "bi-play-circle", "suspension": "bi-pause-circle",
-	"redirect": "bi-signpost-split", "unredirect": "bi-signpost", "ttl": "bi-clock", "schedule": "bi-calendar-event",
-	"overlap_on": "bi-layers", "overlap_off": "bi-layers-half", "waf": "bi-shield-check", "set_level": "bi-sliders",
-	"apply_profile": "bi-ui-checks", "cloudflare": "bi-cloud", "safe": "bi-check2-circle", "repair": "bi-wrench",
-	"optimize": "bi-speedometer2", "version": "bi-tag", "php": "bi-filetype-php", "path": "bi-folder", "container": "bi-box",
-	"detach": "bi-plug", "cpu": "bi-cpu", "ram": "bi-memory", "pids": "bi-list-ol", "quota": "bi-hdd", "add_target": "bi-plus-circle",
+	"delete": "ri-delete-bin-line", "remove": "ri-indeterminate-circle-line", "terminate": "ri-spam-2-line", "kill": "ri-spam-2-line", "revoke": "ri-close-circle-line",
+	"assign": "ri-user-add-line", "unassign": "ri-user-minus-line", "password": "ri-key-2-line", "export": "ri-download-line", "backup": "ri-archive-line",
+	"restore": "ri-arrow-go-back-line", "default": "ri-arrow-go-back-line", "enable": "ri-toggle-fill", "disable": "ri-toggle-line",
+	"start": "ri-play-circle-line", "run": "ri-play-line", "stop": "ri-stop-circle-line", "restart": "ri-loop-right-line", "update": "ri-arrow-up-circle-line",
+	"suspend": "ri-pause-circle-line", "unsuspend": "ri-play-circle-line", "suspension": "ri-pause-circle-line",
+	"redirect": "ri-signpost-line", "unredirect": "ri-signpost-line", "ttl": "ri-time-line", "schedule": "ri-calendar-event-line",
+	"overlap_on": "ri-stack-line", "overlap_off": "ri-stack-line", "waf": "ri-shield-check-line", "set_level": "ri-equalizer-line",
+	"apply_profile": "ri-list-check-3", "cloudflare": "ri-cloud-line", "safe": "ri-checkbox-circle-line", "repair": "ri-tools-line",
+	"optimize": "ri-dashboard-3-line", "version": "ri-price-tag-3-line", "php": "ri-code-s-slash-line", "path": "ri-folder-line", "container": "ri-box-3-line",
+	"detach": "ri-plug-line", "cpu": "ri-cpu-line", "ram": "ri-ram-2-line", "pids": "ri-list-ordered", "quota": "ri-hard-drive-3-line", "add_target": "ri-add-circle-line",
 }
 
 // IconClass is the explicit Icon, the default for its Key, or a generic one
@@ -55,7 +55,7 @@ func (b BulkAction) IconClass() string {
 	if icon, ok := bulkIcons[b.Key]; ok {
 		return icon
 	}
-	return "bi-lightning-charge"
+	return "ri-flashlight-line"
 }
 
 // BulkInput describes the value field shown on confirm, Options turns it into a select

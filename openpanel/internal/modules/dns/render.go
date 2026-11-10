@@ -21,13 +21,13 @@ type DNSPageData struct {
 	Domain       string
 	ViewMode     string
 	Domains      []appctx.Domain // zone-having domains only, for the selector
+	Picks        []web.DomainPick
 	Rows         []ZoneRow
 	Serial       string
 	ZoneContent  string
 	Issues       []HealthIssue
 	TotalRecords int
 	Zones        []ZoneSummary   // list page: every zone with its record counts
-	ZoneRecords  int             // list page: records across all zones
 	Nameservers  []string        // list page: the server's ns1-ns4, for the footer
 	RecordTypes  []string        // add form dropdown
 	EditTypes    []string        // edit dropdown, no DMARC helper there
@@ -64,24 +64,30 @@ func summarizeZone(domain, content string) ZoneSummary {
 }
 
 func renderDNSListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domainRows []DomainZoneRow) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "DNS Zone Editor")
+	layout, _, err := web.BuildLayoutData(a, w, r, "DNS zone editor")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
 	var withZone []appctx.Domain
+	var picks []web.DomainPick
 	var zones []ZoneSummary
-	total := 0
 	for _, d := range domainRows {
 		if d.ZoneFileExists {
 			withZone = append(withZone, appctx.Domain{DomainURL: d.DomainURL})
+			picks = append(picks, web.DomainPick{Domain: d.DomainURL, Detail: zoneRecordCount(d.DomainURL)})
 			content, _ := tenantfs.ReadFile(zoneFilePath(d.DomainURL))
 			z := summarizeZone(d.DomainURL, string(content))
-			total += z.Records
 			zones = append(zones, z)
+		} else {
+			note := "No zone file"
+			if hasSubdomainLabel(d.DomainURL) {
+				note = "Uses the main domain's zone"
+			}
+			picks = append(picks, web.DomainPick{Domain: d.DomainURL, Disabled: true, Note: note})
 		}
 	}
-	data := DNSPageData{LayoutData: layout, Domains: withZone, Zones: zones, ZoneRecords: total}
+	data := DNSPageData{LayoutData: layout, Domains: withZone, Picks: picks, Zones: zones}
 	for _, k := range []string{"ns1", "ns2", "ns3", "ns4"} {
 		if v := a.Config.Get(k, ""); v != "" {
 			data.Nameservers = append(data.Nameservers, v)
@@ -93,7 +99,7 @@ func renderDNSListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, do
 }
 
 func renderDNSTablePage(a *appctx.App, w http.ResponseWriter, r *http.Request, domain string, rows []ZoneRow, serial string, issues []HealthIssue, zoneDomains []appctx.Domain) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Edit DNS Zone")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Edit DNS zone")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -112,7 +118,7 @@ func renderDNSTablePage(a *appctx.App, w http.ResponseWriter, r *http.Request, d
 }
 
 func renderDNSCodePage(a *appctx.App, w http.ResponseWriter, r *http.Request, domain, zoneContent string, issues []HealthIssue) {
-	layout, _, err := web.BuildLayoutData(a, w, r, "Edit DNS File")
+	layout, _, err := web.BuildLayoutData(a, w, r, "Edit DNS file")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

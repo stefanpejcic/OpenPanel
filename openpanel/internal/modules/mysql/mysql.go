@@ -224,7 +224,7 @@ func mysqlContainerStatusDetail(containerState, healthStatus string) string {
 	}
 }
 
-// isSystemMySQLDatabase reports whether name is a built-in system database: these get a "System Database" badge instead of import/export/optimize/repair/delete actions, and are excluded from the zero-user-databases health-toast warning
+// isSystemMySQLDatabase reports whether name is a built-in system database: these get a "System database" badge instead of import/export/optimize/repair/delete actions, and are excluded from the zero-user-databases health-toast warning
 func isSystemMySQLDatabase(name string) bool {
 	switch name {
 	case "information_schema", "mysql", "phpmyadmin", "performance_schema", "sys", "mariadb.sys":

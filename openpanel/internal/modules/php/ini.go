@@ -36,7 +36,7 @@ func handlePHPIniEditor(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 		http.Error(w, "invalid PHP version", http.StatusBadRequest)
 		return
 	}
-	title := "PHP.INI Editor"
+	title := "PHP INI editor"
 	var phpIniContent, displayFilePath string
 	installedVersions := FetchPHPVersions(ctx, a, userContext)
 	service := ""
@@ -57,7 +57,7 @@ func handlePHPIniEditor(a *appctx.App, w http.ResponseWriter, r *http.Request, v
 			service = containerToRestart
 			text = "PHP-FPM"
 		}
-		title = "PHP " + version + " INI Editor"
+		title = "PHP " + version + " INI editor"
 
 		content, readErr := tenantfs.ReadFile(phpIniFilePath)
 		if readErr != nil {
