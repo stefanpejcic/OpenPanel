@@ -180,7 +180,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		MenuStyle:        menuStyle,
 		NavItems:         navItems,
 		NavGroups:        navGroups,
-		PageTabs:         web.DashboardTabs(r.URL.Path, upsellPlanName != "" && upsellURL != ""),
+		PageTabs:         dashboardTabs(r.URL.Path, upsellPlanName != "" && upsellURL != ""),
 		NavTrail:         navTrail,
 		UserAllowed:      userAllowed,
 		UserAllowedJSON:  web.UserAllowedList(userAllowed),
@@ -874,4 +874,12 @@ func atoiDefault(s string, def int) int {
 		return def
 	}
 	return n
+}
+
+// dashboardTabs keeps the Dashboard tab even without an Upgrade tab, the bar also holds the Overview/Tools switch
+func dashboardTabs(path string, upsell bool) []web.NavLink {
+	if tabs := web.DashboardTabs(path, upsell); tabs != nil {
+		return tabs
+	}
+	return []web.NavLink{{Href: "/dashboard", Label: "Dashboard", Active: path == "/dashboard"}}
 }

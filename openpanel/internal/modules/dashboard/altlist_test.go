@@ -178,3 +178,13 @@ func TestDashboardViewDefault(t *testing.T) {
 		t.Errorf("saved tools view gave %q", got)
 	}
 }
+
+func TestDashboardTabsWithoutUpsell(t *testing.T) {
+	tabs := dashboardTabs("/dashboard", false)
+	if len(tabs) != 1 || tabs[0].Label != "Dashboard" || !tabs[0].Active {
+		t.Errorf("tabs without upsell = %+v, want one active Dashboard tab", tabs)
+	}
+	if len(dashboardTabs("/dashboard", true)) != 2 {
+		t.Error("with an upsell the Upgrade tab should be there too")
+	}
+}

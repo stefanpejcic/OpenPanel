@@ -161,7 +161,7 @@
   {{/* Planner KPI row, the used number turns yellow from 90% of the limit and red once it's reached */}}
   <dl id="tour-plan-usage" aria-label="{{$.T.Get "Plan usage"}}" class="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3 lg:flex lg:flex-wrap lg:justify-end lg:gap-x-10">
     {{range .}}
-    <div>
+    <div id="plan_tile_{{.Key}}">
       <dt class="text-sm text-gray-500">{{.Label}}</dt>
       <dd class="mt-1">
         <a href="{{.Href}}" title="{{if .Limit}}{{.Pct}}%{{else}}{{$.T.Get "Unlimited"}}{{end}}" class="text-lg font-semibold tabular-nums transition hover:opacity-75"><span class="{{if and .Limit (ge .Pct 100)}}text-red-600 dark:text-red-500{{else if and .Limit (ge .Pct 90)}}text-yellow-600 dark:text-yellow-500{{else}}text-gray-900 dark:text-gray-50{{end}}">{{.Used}}</span><span class="font-medium text-gray-400 dark:text-gray-600"> / {{if .Limit}}{{.Limit}}{{else}}∞{{end}}</span></a>
