@@ -47,15 +47,16 @@ type LayoutData struct {
 	CustomCSS     bool
 	CustomJS      bool
 
-	MenuStyle       string     // "classic" or "modern", see ReadMenuStyle
-	NavItems        []NavItem  // modern sidebar
-	NavGroups       []NavGroup // classic sidebar
-	PageTabs        []NavLink  // tab bar rendered above the page content, nil when the page's area has no siblings
-	NavTrail        []NavLink  // header trail, the last one is the current page and has no Href
-	ServiceTool     string     // "terminal" or "logs" when that page was opened from a service's own tabs (?ctx=service), so it can drop its own service picker
-	UserAllowed     map[string]bool
-	UserAllowedJSON template.JS
-	IsEnterprise    bool
+	MenuStyle        string     // "classic" or "modern", see ReadMenuStyle
+	NavItems         []NavItem  // modern sidebar
+	NavGroups        []NavGroup // classic sidebar
+	PageTabs         []NavLink  // tab bar rendered above the page content, nil when the page's area has no siblings
+	NavTrail         []NavLink  // header trail, the last one is the current page and has no Href
+	ServiceTool      string     // "terminal" or "logs" when that page was opened from a service's own tabs (?ctx=service), so it can drop its own service picker
+	UserAllowed      map[string]bool
+	UserAllowedJSON  template.JS
+	SidebarFavorites []Favorite // sidebar favorites, rendered server-side so the section doesn't pop in after an ajax load
+	IsEnterprise     bool
 
 	// UpsellAllowed lists modules the current plan doesn't grant but the configured upsell plan does - the sidebar/dashboard show these greyed-out with an upgrade prompt instead of hiding them. UpsellPlanName/UpsellURL are blank when no upsell plan is configured.
 	UpsellAllowed  map[string]bool
@@ -77,9 +78,6 @@ type LayoutData struct {
 	PasswordStrength int // clamped password_strength config value every page's passwordStrength() Alpine component reads as its minimum-score threshold
 
 	Service string // set by pages that manage a single service; "" on the dashboard, so {{if .Service}} partials render nothing there
-
-	// DashboardIconView is the user's saved dashboard icon-section layout ("icon" or "list"), read server-side from the dashboard_icon_view cookie on every page (not just /dashboard) so the sidebar toggle and the dashboard's icon_section template both render the saved choice on first paint with no Alpine/localStorage hydration flicker
-	DashboardIconView string
 
 	// FilemanagerView is the resolved filemanager button style ("classic" or "modern"), read server-side on every page (not just /files) so the account menu's style toggle (only shown on /files) highlights the active choice with no flicker
 	FilemanagerView string

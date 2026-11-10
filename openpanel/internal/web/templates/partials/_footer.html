@@ -47,16 +47,6 @@
                     </span>
                 </div>
                 <div role="separator" aria-orientation="horizontal" class="-mx-1 my-1 h-px border-t border-gray-200 dark:border-gray-800"></div>
-                <div role="group">
-                    <span role="menuitem" id="tour-icons-position" class="flex justify-between group/DropdownMenuItem relative select-none items-center rounded-md py-1.5 pl-2 pr-1 outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50">
-                        <span>{{.T.Get "Icons position"}}:</span>
-                        <span class="inline-flex items-center gap-0.5 rounded-md bg-gray-100 p-0.5 dark:bg-gray-900">
-                            <button type="button" @click="setDashboardIconView('icon')" title="{{.T.Get "Top"}}" :class="$store.dashboardIconView.value === 'icon' ? 'footer-toggle bg-slate-700 bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-50'" class="rounded px-1.5 py-0.5 cursor-pointer"><i class="ri-align-top"></i></button>
-                            <button type="button" @click="setDashboardIconView('list')" title="{{.T.Get "Start"}}" :class="$store.dashboardIconView.value === 'list' ? 'footer-toggle bg-slate-700 bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-50'" class="rounded px-1.5 py-0.5 cursor-pointer"><i class="ri-align-left"></i></button>
-                        </span>
-                    </span>
-                </div>
-                <div role="separator" aria-orientation="horizontal" class="-mx-1 my-1 h-px border-t border-gray-200 dark:border-gray-800"></div>
                 {{end}}
 
                 {{if eq .RequestPath "/files"}}

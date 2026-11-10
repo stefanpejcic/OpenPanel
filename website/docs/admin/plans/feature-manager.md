@@ -2,15 +2,15 @@
 sidebar_position: 3
 ---
 
-# Feature Manager
+# Feature manager
 
 The Feature Manager allows administrators to enable or disable specific features (pages) within the OpenPanel UI. This is useful for customizing the control panel experience based on user roles, security policies, or hosting plans.
 
-Enabled/disabled features are grouped into **Feature Sets** - named collections of toggles that are then assigned to a [hosting plan](/docs/admin/plans/hosting_plans). Each feature set is its own list, so different plans can expose a different set of pages to their users.
+Enabled/disabled features are grouped into **Feature sets** - named collections of toggles that are then assigned to a [hosting plan](/docs/admin/plans/hosting_plans). Each feature set is its own list, so different plans can expose a different set of pages to their users.
 
-## Navigating the Feature Manager
+## Navigating the feature manager
 
-Go to **OpenAdmin > Hosting Plans > Feature Manager**. The index page has two sections:
+Go to **OpenAdmin > Hosting plans > Feature manager**. The index page has two sections:
 
 * **Create** - type a name and click **Create** to create a new, empty feature set.
 * **Manage** - pick an existing feature set from the **Manage feature set** dropdown to open and edit it.
@@ -28,14 +28,14 @@ Selecting or creating a feature set opens its edit page, where every available f
 | **Page**   | The OpenPanel page/route the feature controls.                                |
 | **Module** | Whether the underlying [module](/docs/admin/settings/modules/) is enabled. If it shows **Disabled**, the feature has no effect for users even when toggled on here - click it to go enable the module. |
 
-Use the search box to filter features by name or description, and **Enable All** / **Disable All** to toggle every feature at once. Click **Save** to apply your changes - they take effect for users on plans assigned to this feature set right away. The **default** feature set cannot be deleted, and a feature set that is currently assigned to a hosting plan cannot be deleted either.
+Use the search box to filter features by name or description, and **Enable all** / **Disable all** to toggle every feature at once. Click **Save** to apply your changes - they take effect for users on plans assigned to this feature set right away. The **default** feature set cannot be deleted, and a feature set that is currently assigned to a hosting plan cannot be deleted either.
 
 ![Feature set edit page listing features with a toggle, name, description and type, and the Enable All, Disable All and Save buttons](/img/openadmin-screenshots/plans/feature-manager-edit.png#gh-light-mode-only)
 ![Feature set edit page listing features with a toggle, name, description and type, and the Enable All, Disable All and Save buttons](/img/openadmin-screenshots/plans/feature-manager-edit_dark.png#gh-dark-mode-only)
 
 ---
 
-## Available Features
+## Available features
 
 | **Name** | **Page** | **Type** | **Description** |
 | --- | --- | --- | --- |
@@ -148,11 +148,11 @@ Use the search box to filter features by name or description, and **Enable All**
 Enterprise-type features can only be enabled while the server has an active Enterprise license - on Community licenses their toggle is disabled (grayed out) in the Feature Manager.
 :::
 
-## Use Cases
+## Use cases
 
-**Feature Sets** are used to control which UI features users can access based on their assigned hosting package. This allows for clear separation between user types and service levels.
+**Feature sets** are used to control which UI features users can access based on their assigned hosting package. This allows for clear separation between user types and service levels.
 
-### Example 1: Database-Only Plans
+### Example 1: Database-only plans
 
 Create a feature set named **"MySQL Only"** and enable only MySQL-related features within it.
 Assign this feature set to all database-focused hosting packages. For instance:
@@ -162,12 +162,12 @@ Assign this feature set to all database-focused hosting packages. For instance:
 
 Despite the difference in limits, all users under these plans will see **only MySQL-related pages** in the UI.
 
-### Example 2: Beginner vs. Advanced Users
+### Example 2: beginner vs. advanced users
 
 Create two separate feature sets:
 
 * **Advanced Users Set**:
-  Enable features like **Docker** and **PHP.INI Editor** to give experienced users full control—such as setting custom resource limits, restarting services, etc.
+  Enable features like **Docker** and **php.ini editor** to give experienced users full control—such as setting custom resource limits, restarting services, etc.
 
 * **Beginner Users Set**:
   Do **not** enable advanced features. Instead, allow access to a **PHP selector** with limited options. This keeps the UI simple and safe for users with minimal technical experience.
@@ -175,7 +175,7 @@ Create two separate feature sets:
 
 ## Feature not showing?
 
-Features are accessible to users [only if the corresponding **Module** is active](/docs/admin/settings/modules/). Modules control which OpenPanel features are available, while **Feature Sets** determine access based on the user's hosting package.
+Features are accessible to users [only if the corresponding **Module** is active](/docs/admin/settings/modules/). Modules control which OpenPanel features are available, while **Feature sets** determine access based on the user's hosting package.
 
 For example, adding the "Docker" feature to a feature set does **not** grant access to the Docker (Containers) page in the UI unless the **Docker module** is also activated under **OpenAdmin > Settings > Modules**. The **Module** column on the feature set's edit page shows the current status of each feature's module, and links straight to the Modules page when it's disabled.
 

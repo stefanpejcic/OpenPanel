@@ -16,7 +16,7 @@ jobs:
         id: fetch_version
         shell: bash
         run: |
-          # Fetch tags, get names, filter by semver N.N.N, sort descending, pick biggest
+          # Only plain N.N.N tags count as releases, so -beta images are skipped.
           TAGS_JSON=$(curl -s "https://hub.docker.com/v2/repositories/openpanel/openpanel/tags?page_size=100")
           VERSIONS=$(echo "$TAGS_JSON" | jq -r '.results[].name' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -Vr)
           PANEL_VERSION=$(echo "$VERSIONS" | head -n1)
@@ -26,8 +26,13 @@ jobs:
             exit 1
           fi
 
-          echo "Latest version detected: $PANEL_VERSION"
+          # Release date = when that tag was pushed to Docker Hub (fallback: today)
+          PUSHED=$(echo "$TAGS_JSON" | jq -r --arg v "$PANEL_VERSION" '.results[] | select(.name == $v) | .tag_last_pushed // .last_updated' | head -n1)
+          RELEASE_DATE=$(LC_ALL=C date -u -d "${PUSHED:-now}" '+%B %d, %Y' 2>/dev/null || LC_ALL=C date -u '+%B %d, %Y')
+
+          echo "Latest version detected: $PANEL_VERSION (pushed $RELEASE_DATE)"
           echo "version=$PANEL_VERSION" >> $GITHUB_OUTPUT
+          echo "date=$RELEASE_DATE" >> $GITHUB_OUTPUT
 
       - name: Update website/docusaurus.config.js with new version
         shell: bash
@@ -35,12 +40,11 @@ jobs:
           PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
           sed -i "/versions: {/ , /}/s/label: \".*\"/label: \"$PANEL_VERSION\"/" website/docusaurus.config.js
 
-      - name: Update website/src/refine-theme/landing-hero-github-stars.tsx with new version
+      - name: Update landing page version badge
         shell: bash
         run: |
           PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
-          sed -i -E "s/(const \[version, setVersion\] = useState\(')[^']*(')/\1$PANEL_VERSION\2/" website/src/refine-theme/landing-hero-github-stars.tsx
-          sed -i -E "s/(const latestVersion = filteredTags.length > 0 \? filteredTags\[0\] : ')[^']*(';  \/\/ new verzija tag)/\1$PANEL_VERSION\2/" website/src/refine-theme/landing-hero-github-stars.tsx
+          sed -i -E "s/(const \[version, setVersion\] = useState\(')[^']*(')/\1$PANEL_VERSION\2/" website/src/refine-theme/landing-hero-version.tsx
 
       - name: Update fallback PANEL_VERSION in PODMAN_INSTALL.sh
         shell: bash
@@ -54,18 +58,51 @@ jobs:
           PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
           sed -i -E "s#^Latest OpenPanel version is:.*#Latest OpenPanel version is: **${PANEL_VERSION}** - [View Changelog](https://openpanel.com/docs/changelog/${PANEL_VERSION}/)#" README.md
 
+      - name: Mark changelog page as released
+        shell: bash
+        run: |
+          PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
+          RELEASE_DATE="${{ steps.fetch_version.outputs.date }}"
+          PAGE="website/docs/changelog/${PANEL_VERSION}.md"
+          if [[ -f "$PAGE" ]]; then
+            sed -i "1s/^Not yet released\.$/Released on ${RELEASE_DATE}/" "$PAGE"
+          else
+            echo "No changelog page $PAGE, skipping."
+          fi
+
+      - name: Close milestone (changelog intro is generated from milestones)
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+        shell: bash
+        run: |
+          PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
+          API="https://api.github.com/repos/${{ github.repository }}/milestones"
+          NUMBER=$(curl -s -H "Authorization: Bearer $TOKEN" "$API?state=open&per_page=100" \
+            | jq -r --arg v "$PANEL_VERSION" '.[] | select(.title == $v) | .number' | head -n1)
+          if [[ -n "$NUMBER" ]]; then
+            echo "Closing milestone $PANEL_VERSION (#$NUMBER)"
+            curl -s -f -X PATCH -H "Authorization: Bearer $TOKEN" "$API/$NUMBER" -d '{"state":"closed"}' > /dev/null
+          else
+            echo "No open milestone $PANEL_VERSION."
+          fi
+
       - name: Commit and push changes if any
         env:
           TOKEN: ${{ secrets.TOKEN }}
         shell: bash
         run: |
+          PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add website/docusaurus.config.js website/src/refine-theme/landing-hero-github-stars.tsx
+          git add website/docusaurus.config.js \
+                  website/src/refine-theme/landing-hero-version.tsx \
+                  PODMAN_INSTALL.sh \
+                  README.md
+          [[ -f "website/docs/changelog/${PANEL_VERSION}.md" ]] && git add "website/docs/changelog/${PANEL_VERSION}.md"
 
           # Only commit if changes present
           if ! git diff --cached --quiet; then
-            git commit -m "chore: update panel version to ${{ steps.fetch_version.outputs.version }}"
+            git commit -m "chore: update panel version to ${PANEL_VERSION}"
             git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
           else
             echo "No changes to commit."
@@ -83,7 +120,7 @@ jobs:
         run: |
           cd openpanel-configuration
           PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
-          
+
           echo "Updating VERSION to $PANEL_VERSION in docker/compose/.env"
           sed -i -E 's/^(VERSION=)".*"/\1"'"$PANEL_VERSION"'"/' docker/compose/.env
 
@@ -97,4 +134,3 @@ jobs:
           else
             echo "No changes to commit in openpanel-configuration repo."
           fi
-

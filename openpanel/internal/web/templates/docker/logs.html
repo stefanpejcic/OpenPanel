@@ -4,10 +4,10 @@
 {{define "content"}}
 <!-- START templates/docker/logs.html -->
 
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
     <div>
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Logs"}}</h1>
-        <p class="mt-1 text-sm text-gray-500">{{.T.Get "View Docker container logs."}}</p>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "View Docker container logs."}}</p>
     </div>
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
         {{/* opened from a service's Logs tab, the service is already picked */}}

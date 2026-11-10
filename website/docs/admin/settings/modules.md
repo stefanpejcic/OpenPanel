@@ -6,8 +6,17 @@ sidebar_position: 4
 
 Modules extend the OpenPanel UI by adding new features and pages. To make a feature available to a user or plan, it must first be activated as a module.
 
-![Modules page with a card per module showing its path, type, description and Activate toggle](/img/openadmin-screenshots/settings/modules-page.png#gh-light-mode-only)
-![Modules page with a card per module showing its path, type, description and Activate toggle](/img/openadmin-screenshots/settings/modules-page_dark.png#gh-dark-mode-only)
+Modules are managed on **Settings > Modules**. They are grouped by the area of OpenPanel they belong to: Account, Domains & DNS, Websites & apps, Email, Databases, Files & backups, PHP & runtimes, Containers & server and Security. Each module is one compact row with its name, path, edition and a switch to turn it on or off.
+
+- Click an area in the side list to show only its modules, or **All modules** to show them all again.
+- Use the search box to find modules by name or path, and the filters to show only enabled or disabled modules, or only Community or Enterprise ones.
+- **Enable all** and **Disable all** next to an area turn on or off every module in it. They only touch the modules currently shown, so filter first to change just some of them.
+- Changes are saved together: click **Save changes**, or **Discard** to drop them.
+
+Modules that need an Enterprise license are marked as such and can't be turned on with a Community license.
+
+![Modules page with the areas in a side list and one row per module with its path, edition and switch](/img/openadmin-screenshots/settings/modules-page.png#gh-light-mode-only)
+![Modules page with the areas in a side list and one row per module with its path, edition and switch](/img/openadmin-screenshots/settings/modules-page_dark.png#gh-dark-mode-only)
 
 - Modules are **core features** that are already available on installation and are developed by OpenPanel.
 
@@ -113,7 +122,7 @@ When disabled:
 
 Customize options:
 * To **enable/disable Varnish for all new users** use [*OpenAdmin > Settings > User Defaults* page and *Enable Varnish Proxy* option](/docs/admin/settings/defaults/).
-* To **enable/disable Varnish for a single user** when creating their account use the [**Enable Varnish Cache** option](/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/).
+* To **enable/disable Varnish for a single user** when creating their account use the [**Enable Varnish cache** option](/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/).
 * To **change default CPU/RAM for service** use the [*OpenAdmin > Settings > User Defaults* page](/docs/admin/settings/defaults/).
 * To **edit the default.vcl file for Varnish** use the [*OpenAdmin > Domains > VirtualHost Templates* page](/docs/admin/domains/vhost_templates/#varnish-template) or edit file: [`/etc/openpanel/varnish/default.vcl`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/varnish/default.vcl).
 * To **purge Varnish cache** refer to [How-to Guides > Purging Varnish Cache](/docs/articles/websites/purge-varnish-cache-from-terminal/)
@@ -134,7 +143,7 @@ When disabled:
 The web terminal, changing a service's image tag, and switching the webserver/MySQL type each live behind their own module below rather than `docker` - see **Web Terminal**, **Change Container Image Tag**, **Switch WebServer**, and **Switch MySQL Type**.
 
 
-## Web Terminal {#terminal}
+## Web terminal {#terminal}
 
 The **`terminal`** module allows users to run podman exec commands from an interactive shell inside their containers.
 
@@ -148,7 +157,7 @@ Customize options:
 * [Disable the Terminal](/docs/articles/dev-experience/disable-openpanel-web-terminal/)
 
 
-## Change Container Image Tag {#change-image}
+## Change container image tag {#change-image}
 
 The **`change_image`** module allows users to change the image tag used by a container.
 
@@ -174,7 +183,7 @@ When disabled:
 To keep the page but offer only some webservers, see [How to Disable Webservers for Users](/docs/articles/web-servers/how-to-disable-webservers-for-users/).
 
 
-## Switch MySQL Type {#change-db}
+## Switch MySQL type {#change-db}
 
 The **`change_db`** module allows users to switch between MySQL, MariaDB and Percona for their account.
 
@@ -185,7 +194,7 @@ When disabled:
 * Users do not have access to the *MySQL > Server Type* page.
 
 
-## Fix Permissions
+## Fix permissions
 
 The **`fix_permissions`** module allows users to reset file/folder permissions.
 
@@ -246,7 +255,7 @@ Customize options:
 * To **set webmail domain or relay hosts** use the [*OpenAdmin > Emails > Email Settings* page](/docs/admin/emails/settings/).
 
 
-## Email Filters
+## Email filters
 
 The **`email_filters`** module allows users to configure filters and forwarders for their emails.
 
@@ -258,7 +267,7 @@ When disabled:
 
 
 
-## Email Aliases
+## Email aliases
 
 The **`email_aliases`** module allows users to forward mail from a non-existing address to one or more destinations.
 
@@ -269,7 +278,7 @@ When disabled:
 * Users can not access the *Email > Aliases* page.
 
 
-## Address Importer {#email-import}
+## Address importer {#email-import}
 
 The **`email_import`** module allows users to import email addresses from a CSV file.
 
@@ -280,7 +289,7 @@ When disabled:
 * Users can not access the *Email > Import* page.
 
 
-## Email Migration
+## Email migration
 
 The **`email_migrate`** module allows users to copy emails from another IMAP server into their email accounts.
 
@@ -291,7 +300,7 @@ When disabled:
 * Users can not access the *Email > Migrate* page.
 
 
-## Address Exporter {#email-export}
+## Address exporter {#email-export}
 
 The **`email_export`** module allows users to export all their email addresses to a CSV file.
 
@@ -303,7 +312,7 @@ When disabled:
 
 
 
-## Default Address
+## Default address
 
 The **`email_default`** module allows users to create default (catch-all) email addresses.
 
@@ -315,7 +324,7 @@ When disabled:
 
 
 
-## Email Deliverability
+## Email deliverability
 
 The **`email_deliverability`** module allows users to check and validate SPF, DKIM and DMARC records for their domains.
 
@@ -358,7 +367,7 @@ How-to guides:
 * To **troubleshoot errors** refer to [*How-to Guides > How to troubleshoot: Error establishing a database connection](/docs/articles/databases/how-to-troubleshoot-error-establishing-a-database-connection/).
 
 
-## MySQL Root Password
+## MySQL root password
 
 The **`mysql_root_password`** module allows users to change password for their MySQL root user from the user panel.
 
@@ -370,7 +379,7 @@ When disabled:
 
 
 
-## MySQL Show Processes {#mysql-show-processlist}
+## MySQL show processes {#mysql-show-processlist}
 
 The **`mysql_processlist`** module allows users to view the MySQL process list.
 
@@ -415,7 +424,7 @@ Customize options:
 How-to guides:
 * To **import tables into a database** refer to [**the Documentation**](/docs/panel/mysql/phpmyadmin/#import-sql-files).
 
-## MySQL Import
+## MySQL import
 
 The **`mysql_import`** module allows users to import files into their databases.
 
@@ -432,7 +441,7 @@ How-to guides:
 * To **import into a database** refer to [*How-to Guides > Importing a Database](/docs/articles/containers/import-database/).
 
 
-## MySQL Conf
+## MySQL conf
 
 The **`mysql_conf`** module allows users to edit mysql server configuration.
 
@@ -460,7 +469,7 @@ When disabled:
 * Users do not have access to the *MongoDB* section.
 
 
-## MongoDB Import
+## MongoDB import
 
 The **`mongodb_import`** module allows users to import files into their MongoDB databases.
 
@@ -499,7 +508,7 @@ Customize options:
 * None
 
 
-## PostgreSQL Import
+## PostgreSQL import
 
 The **`postgresql_import`** module allows users to import files into their databases.
 
@@ -513,7 +522,7 @@ Customize options:
 * None
 
 
-## PostgreSQL Conf
+## PostgreSQL conf
 
 The **`postgresql_conf`** module allows users to edit PostgreSQL server configuration.
 
@@ -545,7 +554,7 @@ Customize options:
 
 
 
-## Process Manager
+## Process manager
 
 The **`process_manager`** module allows users to view and terminate processes from all running services.
 
@@ -559,7 +568,7 @@ Customize options:
 * None
 
 
-## Server Info
+## Server info
 
 The **`info`** module allows users to view server information, hosting plan information and OpenPanel information.
 
@@ -574,7 +583,7 @@ Customize options:
 
 
 
-## Temporary Links
+## Temporary links
 
 The **`temporary_links`** module allows users to test their websites using temporary subdomains (links are valid for 15 minutes).
 
@@ -588,7 +597,7 @@ Customize options:
 * To **self-host a proxy service** - refer to [How-to Guides > Temporary Links API](/docs/articles/dev-experience/selfhosted-temporary-links-api/).
 * To **configure a custom domain** - update the [`temporary_links` option](https://dev.openpanel.com/cli/config.html#temporary-links).
 
-## Login History
+## Login history
 
 The **`login_history`** module allows users to view login history for their account.
 
@@ -658,7 +667,7 @@ When disabled:
 * Users do not have access to the *Backups > Overview*, *Configuration* and *Destination* pages.
 * [Administrators need to configure backups for the user](/docs/articles/backups/configuring-backups/#1-admin-configured).
 
-## Backup Wizard
+## Backup wizard
 
 The **`backup_wizard`** module allows users to generate and download a full account backup.
 
@@ -755,7 +764,7 @@ When disabled:
 * Users do not have access to the *Cache & Search > OpenSearch* page.
 
 
-## Disk Usage Explorer
+## Disk usage explorer
 
 The **`disk_usage`** module allows users to view disk usage per-directory.
 
@@ -766,7 +775,7 @@ When disabled:
 * Users do not have access to the *Statistics > Disk Usage* page.
 
 
-## Inodes Explorer
+## Inodes explorer
 
 The **`inodes`** module allows users to view inode usage per-directory.
 
@@ -1021,7 +1030,7 @@ How-to guides:
 * To **self-host n8n step by step** refer to [*How-to Guides > How to Self-Host n8n*](/docs/articles/apps/install-n8n/).
 
 
-## PHP.INI Editor
+## php.ini editor
 The **`php_ini`** module allows users to edit the PHP.INI files using a text editor.
 
 When enabled:
@@ -1057,7 +1066,7 @@ Customize options:
 * To **set a custom WP-CLI for all websites** replace the `/etc/openpanel/wordpress/wp-cli.phar` file.
 * To **customize .htaccess files used for new websites** edit files in `/etc/openpanel/wordpress/htaccess/` folder.
 
-## Website Builder
+## Website builder
 
 The **`website_builder`** module allows users to create simple websites using the HTML Drag & Drop Website Builder.
 
@@ -1155,7 +1164,7 @@ When disabled:
 * Users can not access the *Domains > SSL* page.
 
 
-## Suspend Domains
+## Suspend domains
 
 The **`domain_suspend`** module allows users to suspend/unsuspend website access.
 
@@ -1170,7 +1179,7 @@ When disabled:
 Customize options:
 * To **customize the suspended domain template** use:  [*OpenAdmin > Domains > Domain Templates*](/docs/admin/domains/file_templates/#suspended-website)
 
-## Raw Access Logs
+## Raw access logs
 
 The **`domain_logs`** module allows users to view the raw access log for their domains.
 
@@ -1201,7 +1210,7 @@ Customize options:
 * To **force regeneration of the reports** refer to: [*OpenCLI Documentation > Parse domain access logs*](https://dev.openpanel.com/cli/domains.html#Parse-domain-access-logs).
 
 
-## Error Logs
+## Error logs
 
 The **`error_logs`** module lets users see PHP, web server, database, application and HTTP 5xx errors for all of their websites on a single page, without opening individual containers.
 
@@ -1217,7 +1226,7 @@ When disabled:
 Errors are read live from the user's PHP-FPM, web server, database and application containers (for OpenLiteSpeed and LiteSpeed, from `/usr/local/lsws/logs/error.log` inside the container) and from the Caddy domain access logs (5xx responses only), so nothing extra runs in the background.
 
 
-## Daily Summary
+## Daily summary
 
 The **`summary`** module saves a summary of each day for every user: what needs their attention first, with a link to the page that fixes it, then the day's traffic, logins and account changes.
 
@@ -1255,7 +1264,7 @@ When disabled:
 
 
 
-## Capitalize Domains
+## Capitalize domains
 
 The **`capitalize_domains`** module allows users to set a capitalized version of the domain for display in OpenPanel.
 
@@ -1310,7 +1319,7 @@ When enabled:
 * Users can manage DNS records.
 * 'Edit Zone' links are available for domains under the *OpenPanel > Domains* page.
 * Administrators can access the [**OpenAdmin > Domains > DNS Cluster** page](/docs/admin/domains/dns-cluster/).
-* Administrators can access the [**OpenAdmin > Domains > Zone Templates** page](/docs/admin/domains/dns_templates/).
+* Administrators can access the [**OpenAdmin > Domains > Zone templates** page](/docs/admin/domains/dns_templates/).
 * Administrators can access the [**OpenAdmin > Domains > DNS Zone Editor** page](/docs/admin/domains/dns/).
 
 When disabled:
@@ -1334,7 +1343,7 @@ When disabled:
 * Users can not access the *Domains > Dynamic DNS* page.
 
 
-## IP Blocker
+## IP blocker
 
 The **`ip_blocker`** module allows users to block IP addresses from accessing their websites.
 
@@ -1384,9 +1393,9 @@ Customize options:
 * To **install a PHP extension** refer to: [*How-to Guides > How to install a PHP extension in OpenPanel*](/docs/articles/websites/how-to-install-php-extensions-in-openpanel/).
 * To **increase PHP INI memory_limit** refer to: [*How-to Guides > How to set or increase PHP INI memory_limit or other values?*](/docs/articles/websites/how-to-set-or-increase-PHP-INI-memory-limit-or-other-values/).
 * To **set PHP settings per website** refer to: [*How-to Guides > PHP settings per website (folder)*](/docs/articles/websites/php-user-ini-files/).
-* To **edit default .INI files** refer to: **OpenAdmin > Settings > PHP > Default PHP.INI Files** or edit files in `/etc/openpanel/php/ini` folder.
+* To **edit default .INI files** refer to: **OpenAdmin > Settings > PHP > Default php.ini files** or edit files in `/etc/openpanel/php/ini` folder.
 
-## PHP Options
+## PHP options
 
 The **`php_options`** module allows users to manage options (limits) for their PHP versions.
 
@@ -1397,9 +1406,9 @@ When disabled:
 * Users can not access the *PHP > Options* page.
 
 Customize options:
-* To **customize PHP options available to users** refer to: **OpenAdmin > Settings > PHP > Available Options** or edit */etc/openpanel/php/options.txt* file.
+* To **customize PHP options available to users** refer to: **OpenAdmin > Settings > PHP > Available options** or edit */etc/openpanel/php/options.txt* file.
 
-## PHP Extensions
+## PHP extensions
 
 The **`php_extensions`** module allows users to manage extensions for their PHP versions.
 
@@ -1487,7 +1496,7 @@ Customize options:
 > **NOTE:** Java apps run via Java 11+'s single-file source-code launch (`java Main.java`) by default - no build step needed for a simple app. Projects with a `pom.xml` can enable the "Run Maven install before starting the app" option to run `mvn install` first.
 
 
-## Resources Usage
+## Resources usage
 
 The **`usage`** module allows users to view resource usage for their services.
 
@@ -1529,7 +1538,7 @@ When disabled:
 
 > **NOTE:** MCP requests run through the OpenPanel API, so the [`api`](#api) module must be enabled too.
 
-## AI Assistant
+## AI assistant
 
 The **`ai_assistant`** module adds an AI chat assistant to OpenPanel that answers questions using the OpenPanel documentation, the user's plan features and the page they are on.
 

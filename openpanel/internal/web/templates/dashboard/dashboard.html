@@ -129,15 +129,15 @@
 {{end}}
 
 <div x-data="{
-        view: (function () { const ok = (v) => ['overview', 'tools'].includes(v) ? v : null; let saved = null; try { saved = localStorage.getItem('dashboard_view') } catch (e) {} return ok(new URLSearchParams(location.search).get('view')) || ok(saved) || 'tools' })(),
+        view: {{toJSON .View}},
         find: '',
-        setView(v) { this.view = v; try { localStorage.setItem('dashboard_view', v) } catch (e) {} }
+        setView(v) { this.view = v; document.cookie = 'dashboard_view=' + v + '; path=/; max-age=31536000; SameSite=Lax' }
     }">
 
 <div class="flex flex-col gap-4 px-4 pt-6 sm:flex-row sm:items-start sm:justify-between sm:px-6">
   <div class="min-w-0">
-    {{if or .HostingPlanName .IPAddress}}<p class="font-mono text-xs text-gray-400 dark:text-gray-600">{{.HostingPlanName}}{{if and .HostingPlanName .IPAddress}} · {{end}}{{.IPAddress}}</p>{{end}}
-    <h1 class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Welcome back,"}} {{.CurrentUsername}}</h1>
+    <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Welcome back,"}} {{.CurrentUsername}}</h1>
+    {{if or .HostingPlanName .IPAddress}}<p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.HostingPlanName}}{{if and .HostingPlanName .IPAddress}} · {{end}}{{.IPAddress}}</p>{{end}}
   </div>
   <div class="inline-flex self-start rounded-md bg-gray-100 p-1 dark:bg-gray-900" role="group" aria-label="{{.T.Get "Dashboard view"}}">
     <button type="button" class="inline-flex items-center gap-1.5 rounded px-3 py-1 text-sm font-medium text-gray-500 hover:text-gray-900 aria-pressed:bg-white aria-pressed:text-gray-900 aria-pressed:shadow-sm dark:hover:text-gray-50 dark:aria-pressed:bg-gray-950 dark:aria-pressed:text-gray-50 cursor-pointer" :aria-pressed="(view === 'overview').toString()" @click="setView('overview')"><i class="ri-dashboard-line" aria-hidden="true"></i>{{.T.Get "Overview"}}</button>
@@ -145,53 +145,51 @@
   </div>
 </div>
 
-<div class="flex flex-col gap-5 px-4 pt-6 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:gap-8" x-show="view === 'overview'">
+<div class="flex flex-col gap-5 px-4 pt-6 sm:px-6 2xl:flex-row 2xl:items-end 2xl:justify-between 2xl:gap-8" x-show="view === 'overview'"{{if ne .View "overview"}} style="display: none"{{end}}>
   {{with .PlanTiles}}
-  {{/* Planner KPI row, the three health bars fill as a limit gets used up: emerald, orange from 70%, red from 90% */}}
-  <dl aria-label="{{$.T.Get "Plan usage"}}" class="grid grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-4 lg:flex lg:flex-wrap lg:gap-x-12">
+  {{/* Planner KPI row, the used number turns yellow from 90% of the limit and red once it's reached */}}
+  <dl aria-label="{{$.T.Get "Plan usage"}}" class="grid grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-3 lg:grid-cols-5 2xl:flex 2xl:gap-x-12">
     {{range .}}
     <div>
       <dt class="text-sm text-gray-500">{{.Label}}</dt>
-      <dd class="mt-1 flex items-center gap-2">
-        <span class="flex gap-0.5" title="{{if .Limit}}{{.Pct}}%{{else}}{{$.T.Get "Unlimited"}}{{end}}" aria-hidden="true">
-          {{if ge .Pct 90}}<i class="h-3.5 w-1 rounded-sm bg-red-500"></i><i class="h-3.5 w-1 rounded-sm bg-red-500"></i><i class="h-3.5 w-1 rounded-sm bg-red-500"></i>
-          {{else if ge .Pct 70}}<i class="h-3.5 w-1 rounded-sm bg-orange-500"></i><i class="h-3.5 w-1 rounded-sm bg-orange-500"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i>
-          {{else}}<i class="h-3.5 w-1 rounded-sm bg-emerald-500"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i>{{end}}
-        </span>
-        <a href="{{.Href}}" class="text-lg font-semibold text-gray-900 tabular-nums transition hover:opacity-75 dark:text-gray-50">{{.Used}}<span class="font-medium text-gray-400 dark:text-gray-600"> / {{if .Limit}}{{.Limit}}{{else}}∞{{end}}</span></a>
+      <dd class="mt-1">
+        <a href="{{.Href}}" title="{{if .Limit}}{{.Pct}}%{{else}}{{$.T.Get "Unlimited"}}{{end}}" class="text-lg font-semibold tabular-nums transition hover:opacity-75"><span class="{{if and .Limit (ge .Pct 100)}}text-red-600 dark:text-red-500{{else if and .Limit (ge .Pct 90)}}text-yellow-600 dark:text-yellow-500{{else}}text-gray-900 dark:text-gray-50{{end}}">{{.Used}}</span><span class="font-medium text-gray-400 dark:text-gray-600"> / {{if .Limit}}{{.Limit}}{{else}}∞{{end}}</span></a>
       </dd>
     </div>
     {{end}}
   </dl>
   {{end}}
   {{if or .UserAllowed.domains .UserAllowed.autoinstaller}}
-  <div class="{{if and .UserAllowed.domains .UserAllowed.autoinstaller}}grid grid-cols-2{{else}}flex{{end}} shrink-0 gap-2">
-    {{if .UserAllowed.domains}}<a href="/domains/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-global-line" aria-hidden="true"></i>{{.T.Get "Add domain"}}</a>{{end}}
-    {{if .UserAllowed.autoinstaller}}<a href="/auto-installer" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600"><i class="ri-add-line" aria-hidden="true"></i>{{.T.Get "New website"}}</a>{{end}}
+  <div class="{{if and .UserAllowed.domains .UserAllowed.autoinstaller}}grid grid-cols-2{{else}}flex{{end}} shrink-0 gap-2 sm:self-end 2xl:self-auto">
+    {{if .UserAllowed.domains}}{{if .DomainsFull}}<span role="link" aria-disabled="true" tabindex="0" title="{{.T.Get "You have used all %(n)s domains on your plan." "n" (print .DomainsLimit)}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600"><i class="ri-global-line" aria-hidden="true"></i>{{.T.Get "Add domain"}}</span>{{else}}<a href="/domains/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-global-line" aria-hidden="true"></i>{{.T.Get "Add domain"}}</a>{{end}}{{end}}
+    {{if .UserAllowed.autoinstaller}}{{if .SitesFull}}<span role="link" aria-disabled="true" tabindex="0" title="{{.T.Get "You have used all %(n)s websites on your plan." "n" (print .WebsitesLimit)}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600"><i class="ri-add-line" aria-hidden="true"></i>{{.T.Get "New website"}}</span>{{else}}<a href="/auto-installer" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-add-line" aria-hidden="true"></i>{{.T.Get "New website"}}</a>{{end}}{{end}}
   </div>
   {{end}}
 </div>
 
 {{/* Tools find box sits on its own row so the right column starts level with the first block */}}
-<div class="px-4 pt-6 sm:px-6" x-show="view === 'tools'" x-cloak>
-  <label class="relative block max-w-md" data-page-find>
+<div class="px-4 pt-6 sm:px-6" x-show="view === 'tools'"{{if ne .View "tools"}} style="display: none"{{end}}>
+  <label class="relative block" data-page-find>
     <span class="sr-only">{{.T.Get "Find a tool"}}</span>
     <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
     <input type="search" x-model="find" x-ref="find" placeholder="{{.T.Get "Find a tool: DNS, PHP version, backups..."}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-2 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
   </label>
 </div>
 
-<div class="grid grid-cols-1 gap-4 px-4 pt-6 pb-6 sm:flex sm:grid-cols-2 sm:px-6 md:gap-6 xl:grid-cols-4">
-  <div class="flex flex-col space-y-4 xl:col-span-3 w-full min-w-0">
+<div class="px-4 pt-6 pb-6 sm:px-6">
+  <div class="flex flex-col space-y-4 w-full min-w-0">
 
     {{template "custommessage" .}}
 
     {{$root := .}}
 
     <!-- overview: one surface split by lines, like OpenAdmin's dashboard -->
-    <div x-show="view === 'overview'" class="-mx-4 -mb-6 sm:-mx-6">
+    <div x-show="view === 'overview'"{{if ne .View "overview"}} style="display: none"{{end}} class="-mx-4 -mb-6 sm:-mx-6">
       <div class="grid grid-cols-1 gap-px border-y border-gray-200 bg-gray-200 lg:grid-flow-row-dense lg:grid-cols-3 dark:border-gray-800 dark:bg-gray-800">
-      <div class="flex flex-col bg-white dark:bg-gray-950 lg:col-span-2" data-widget="sites"
+      <div class="flex flex-col bg-white dark:bg-gray-950 lg:col-span-2 [&>[data-widget]+[data-widget]]:border-t [&>[data-widget]+[data-widget]]:border-gray-200 dark:[&>[data-widget]+[data-widget]]:border-gray-800">
+      <!-- plans without sites get their first other feature here: emails, databases, FTP, then containers -->
+      {{if $root.ShowSites}}
+      <div class="flex flex-col bg-white dark:bg-gray-950" data-widget="sites" x-init="$nextTick(() => { const t = document.getElementById('dash-right-top'); const set = () => { $el.style.minHeight = (open && t && innerWidth >= 1024) ? t.offsetHeight + 'px' : '' }; window.ResizeObserver && t && new ResizeObserver(set).observe(t); $watch('open', set); addEventListener('resize', set); set() })"
            x-data="{ open: (function () { try { return localStorage.getItem('dash_widget_sites') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('dash_widget_sites', this.open ? 'open' : 'closed') } catch (e) {} } }">
         <div class="flex items-center justify-between gap-4 px-6 py-4" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
           <div class="min-w-0">
@@ -257,8 +255,56 @@
         {{end}}
         </div>
       </div>
-      <div class="flex flex-col bg-white dark:bg-gray-950 [&>section]:rounded-none [&>section]:border-0 [&>section~section]:border-t [&>section~section]:border-gray-200 dark:[&>section~section]:border-gray-800">{{if and $root.UserAllowed.twofa (eq $root.TwofaNag "yes")}}<template x-if="view === 'overview'">{{template "twofa" $root}}</template>{{end}}<template x-if="view === 'overview'">{{template "information" $root}}</template></div>
-      <div class="flex flex-col bg-white dark:bg-gray-950 lg:col-span-2" data-widget="usage"
+      {{else}}{{with $root.AltList}}
+      <div class="flex flex-col bg-white dark:bg-gray-950" data-widget="sites" x-init="$nextTick(() => { const t = document.getElementById('dash-right-top'); const set = () => { $el.style.minHeight = (open && t && innerWidth >= 1024) ? t.offsetHeight + 'px' : '' }; window.ResizeObserver && t && new ResizeObserver(set).observe(t); $watch('open', set); addEventListener('resize', set); set() })"
+           x-data="{ open: (function () { try { return localStorage.getItem('dash_widget_sites') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('dash_widget_sites', this.open ? 'open' : 'closed') } catch (e) {} } }">
+        <div class="flex items-center justify-between gap-4 px-6 py-4" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
+          <div class="min-w-0">
+            <h3 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{$root.T.Get .Title}}</h3><a href="{{.Href}}" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{$root.T.Get "View all"}} &rarr;</a>
+            <p class="text-sm/6 text-gray-500" x-show="open">{{$root.T.Get .Desc}}</p>
+          </div>
+          <button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? '{{$root.T.Get "Collapse"}}' : '{{$root.T.Get "Expand"}}'" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button>
+        </div>
+        <div x-show="open">
+        {{if .Rows}}
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-gray-200 text-xs font-medium text-gray-500 dark:border-gray-800">
+                <th scope="col" class="py-2.5 pr-4 pl-6 text-left font-medium">{{$root.T.Get .NameLabel}}</th>
+                {{if .MetaLabel}}<th scope="col" class="py-2.5 pr-6 pl-4 text-right font-medium">{{$root.T.Get .MetaLabel}}</th>{{end}}
+                {{if .HasState}}<th scope="col" class="py-2.5 pr-6 pl-4 text-center font-medium">{{$root.T.Get "Status"}}</th>{{end}}
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+              {{$icon := .Icon}}{{$l := .}}
+              {{range .Rows}}
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                <td class="w-full max-w-0 py-2.5 pr-4 pl-6">
+                  <a href="{{.Href}}" class="flex min-w-0 items-center gap-3">
+                    <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300" aria-hidden="true"><i class="{{$icon}}"></i></span>
+                    <span class="min-w-0">
+                      <span class="block truncate font-medium text-gray-900 dark:text-gray-50">{{.Name}}</span>
+                      {{with .Sub}}<span class="block truncate font-mono text-xs text-gray-500">{{.}}</span>{{end}}
+                    </span>
+                  </a>
+                </td>
+                {{if $l.MetaLabel}}<td class="py-2.5 pr-6 pl-4 text-right tabular-nums whitespace-nowrap text-gray-700 dark:text-gray-300">{{.Meta}}</td>{{end}}
+                {{if $l.HasState}}<td class="py-2.5 pr-6 pl-4 text-center"><span class="inline-flex items-center gap-x-1.5 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"><span class="size-2 rounded-full {{if eq .State "Running"}}bg-emerald-500{{else}}bg-gray-400{{end}}" aria-hidden="true"></span>{{$root.T.Get .State}}</span></td>{{end}}
+              </tr>
+              {{end}}
+            </tbody>
+          </table>
+        {{else}}
+        <div class="m-6 flex flex-col items-center justify-center rounded-md border border-dashed border-gray-300 px-4 py-10 text-center dark:border-gray-800">
+          <i class="{{.Icon}} text-2xl leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+          <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{$root.T.Get .Empty}}</p>
+          <a href="{{.Href}}" class="mt-3 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{$root.T.Get "Open"}} &rarr;</a>
+        </div>
+        {{end}}
+        </div>
+      </div>
+      {{end}}{{end}}
+      <div class="flex flex-col bg-white dark:bg-gray-950" data-widget="usage" x-init="$nextTick(() => { const h = document.getElementById('dash-right-howto'); const set = () => { const q = document.querySelector('[data-widget=quick]'); $el.style.minHeight = (open && h && innerWidth >= 1024) ? Math.max(0, h.offsetHeight - (q ? q.offsetHeight : 0)) + 'px' : '' }; window.ResizeObserver && h && new ResizeObserver(set).observe(h); $watch('open', set); addEventListener('resize', set); set() })"
            x-data="{ open: (function () { try { return localStorage.getItem('dash_widget_usage') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('dash_widget_usage', this.open ? 'open' : 'closed') } catch (e) {} } }">
         <div class="flex items-center justify-between gap-4 px-6 py-4" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
           <div class="min-w-0">
@@ -326,9 +372,8 @@
         </div>
         </div>
       </div>
-      <div class="bg-white dark:bg-gray-950 lg:row-span-2 [&>section]:rounded-none [&>section]:border-0">{{template "howto" $root}}</div>
       {{with $root.QuickActions}}
-      <div class="flex flex-col bg-white dark:bg-gray-950 lg:col-span-2" data-widget="quick"
+      <div class="flex flex-col bg-white dark:bg-gray-950" data-widget="quick"
            x-data="{ open: (function () { try { return localStorage.getItem('dash_widget_quick') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('dash_widget_quick', this.open ? 'open' : 'closed') } catch (e) {} } }">
         <div class="flex items-center justify-between gap-4 px-6 py-4" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
           <div class="min-w-0">
@@ -344,18 +389,33 @@
         </div>
       </div>
       {{end}}
+      <div class="flex-1" aria-hidden="true"></div>
+      </div>
+      <div class="flex flex-col gap-px">
+      <div id="dash-right-top" class="flex flex-col bg-white dark:bg-gray-950 [&>section]:rounded-none [&>section]:border-0 [&>section~section]:border-t [&>section~section]:border-gray-200 dark:[&>section~section]:border-gray-800">{{if and $root.UserAllowed.twofa (eq $root.TwofaNag "yes")}}{{template "twofa" $root}}{{end}}{{template "information" $root}}</div>
+      <div id="dash-right-howto" class="flex-1 bg-white dark:bg-gray-950 [&>section]:rounded-none [&>section]:border-0">{{template "howto" $root}}</div>
+      </div>
       </div>
     </div>
+    <script>
+    // first paint: Websites is as tall as the 2FA and info block beside it, Alpine keeps it in sync after
+    (function () { var t = document.getElementById('dash-right-top'), s = document.querySelector('[data-widget="sites"]'), closed = false;
+      try { closed = localStorage.getItem('dash_widget_sites') === 'closed' } catch (e) {}
+      if (t && s && !closed && innerWidth >= 1024 && t.offsetHeight) s.style.minHeight = t.offsetHeight + 'px';
+      var h = document.getElementById('dash-right-howto'), u = document.querySelector('[data-widget="usage"]'), q = document.querySelector('[data-widget="quick"]'), uclosed = false;
+      try { uclosed = localStorage.getItem('dash_widget_usage') === 'closed' } catch (e) {}
+      if (h && u && !uclosed && innerWidth >= 1024 && h.offsetHeight) u.style.minHeight = Math.max(0, h.offsetHeight - (q ? q.offsetHeight : 0)) + 'px'; })();
+    </script>
 
     <!-- tools: the sortable, collapsible sections with a find box over them -->
-    <div class="space-y-4" x-show="view === 'tools'" x-cloak @keydown.slash.window="if (view === 'tools' && !$event.target.closest('input, textarea, select, [contenteditable]')) { $event.preventDefault(); $refs.find.focus() }">
+    <div class="space-y-4" x-show="view === 'tools'"{{if ne .View "tools"}} style="display: none"{{end}} @keydown.slash.window="if (view === 'tools' && !$event.target.closest('input, textarea, select, [contenteditable]')) { $event.preventDefault(); $refs.find.focus() }">
       <div id="dashboard-sortable-area" class="flex flex-col space-y-4">
         {{range .Sections}}
         <div id="wrapper-{{.Key}}" data-id="{{.Key}}" data-labels="{{range .Items}}{{lower .Label}}|{{end}}" x-show="!find || $el.dataset.labels.includes(find.toLowerCase())">
           {{if eq $root.CustomSectionPosition (printf "before_%s" .Key)}}
             {{template "customsection" $root}}
           {{end}}
-          {{template "icon_section" (dict "Section" . "UserAllowedJSON" $root.UserAllowedJSON "IconView" $root.DashboardIconView "T" $root.T "UpsellPlanName" $root.UpsellPlanName "UpsellURL" $root.UpsellURL)}}
+          {{template "icon_section" (dict "Section" . "UserAllowedJSON" $root.UserAllowedJSON "T" $root.T "UpsellPlanName" $root.UpsellPlanName "UpsellURL" $root.UpsellURL)}}
         </div>
         {{end}}
       </div>
@@ -368,15 +428,10 @@
 
   </div>
 
-  <div class="order-first flex flex-col space-y-6 sm:order-none xl:col-span-1 sm:min-w-[340px] sm:max-w-[360px]" x-show="view !== 'overview'">
-    {{/* only the open view's copy is in the page, both carry the same ids */}}
-    {{if and .UserAllowed.twofa (eq .TwofaNag "yes")}}<template x-if="view !== 'overview'">{{template "twofa" .}}</template>{{end}}
-    <template x-if="view !== 'overview'">{{template "information" .}}</template>
-    {{template "usage" .}}
-    {{template "howto" .}}
-  </div>
 </div>
 </div>
+
+{{template "usage" .}}
 
 {{template "onboarding" .}}
 

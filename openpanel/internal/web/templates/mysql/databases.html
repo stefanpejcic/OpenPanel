@@ -4,16 +4,20 @@
 <!-- START templates/mysql/databases.html -->
 
 <section aria-label="{{.T.Get "Databases table"}}" x-data="{ searchQuery: '' }">
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
         <div>
             <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{if eq .Service "mariadb"}}MariaDB{{else}}MySQL{{end}} {{.T.Get "databases"}}</h1>
-            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Total databases:"}} <span id="total_records_count" class="font-medium text-gray-900 tabular-nums dark:text-gray-50">{{len .Databases}}</span></p>
+            <dl class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
+                <div class="flex items-center gap-1.5"><dt>{{.T.Get "Total databases:"}}</dt> <dd><span id="total_records_count" class="font-medium text-gray-900 tabular-nums dark:text-gray-50">{{len .Databases}}</span></dd></div>
+                <div class="flex items-center gap-1.5"><dt>{{.T.Get "Version:"}}</dt> <dd><code class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">{{if eq .Service "mariadb"}}MariaDB{{else}}MySQL{{end}}{{with .ServerVersion}} {{.}}{{end}}</code></dd></div>
+                {{with .Uptime}}<div class="flex items-center gap-1.5"><dt>{{$.T.Get "Uptime:"}}</dt> <dd class="font-medium tabular-nums text-gray-900 dark:text-gray-50">{{.}}</dd></div>{{end}}
+            </dl>
         </div>
 
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
             {{if eq .ContainerState "running"}}
             <a href="/mysql/wizard" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-magic-line" aria-hidden="true"></i>{{.T.Get "Database wizard"}}</a>
-            <a href="/mysql/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600"><i class="ri-add-line" aria-hidden="true"></i>{{.T.Get "New database"}}</a>
+            <a href="/mysql/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-add-line" aria-hidden="true"></i>{{.T.Get "New database"}}</a>
             {{else}}
             <span title="{{.T.Get "Unavailable while the service is not running."}}" aria-disabled="true" class="relative inline-flex cursor-not-allowed items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-gray-300 bg-white px-3 py-2 text-center text-sm font-medium text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-600"><i class="ri-magic-line" aria-hidden="true"></i>{{.T.Get "Database wizard"}}</span>
             <span title="{{.T.Get "Unavailable while the service is not running."}}" aria-disabled="true" class="relative inline-flex cursor-not-allowed items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-transparent bg-blue-300 px-3 py-2 text-center text-sm font-medium text-white dark:bg-blue-800 dark:text-blue-400"><i class="ri-add-line" aria-hidden="true"></i>{{.T.Get "New database"}}</span>
@@ -21,33 +25,7 @@
         </div>
     </div>
 
-    <dl aria-label="{{.T.Get "Server summary"}}" class="grid grid-cols-2 gap-x-8 gap-y-5 px-4 pb-6 sm:grid-cols-4 sm:px-6 lg:flex lg:flex-wrap lg:gap-x-12 lg:px-8">
-        <div>
-            <dt class="text-sm text-gray-500">{{.T.Get "Databases"}}</dt>
-            <dd class="mt-1 flex items-center gap-2">
-                {{$pct := .DBQuotaPct}}
-                <span class="flex gap-0.5" title="{{if .DBLimit}}{{$pct}}%{{else}}{{.T.Get "Unlimited"}}{{end}}" aria-hidden="true">
-                    {{if ge $pct 90}}<i class="h-3.5 w-1 rounded-sm bg-red-500"></i><i class="h-3.5 w-1 rounded-sm bg-red-500"></i><i class="h-3.5 w-1 rounded-sm bg-red-500"></i>
-                    {{else if ge $pct 70}}<i class="h-3.5 w-1 rounded-sm bg-orange-500"></i><i class="h-3.5 w-1 rounded-sm bg-orange-500"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i>
-                    {{else}}<i class="h-3.5 w-1 rounded-sm bg-emerald-500"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i>{{end}}
-                </span>
-                <span class="text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.UserDatabaseCount}}<span class="font-medium text-gray-400 dark:text-gray-600"> / {{if .DBLimit}}{{.DBLimit}}{{else}}∞{{end}}</span></span>
-            </dd>
-        </div>
-        <div>
-            <dt class="text-sm text-gray-500">{{.T.Get "Users with access"}}</dt>
-            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.UserCount}}</dd>
-        </div>
-        <div>
-            <dt class="text-sm text-gray-500">{{.T.Get "Server version"}}</dt>
-            <dd class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-50">{{if eq .Service "mariadb"}}MariaDB{{else}}MySQL{{end}}{{with .ServerVersion}} <span class="font-mono tabular-nums">{{.}}</span>{{end}}</dd>
-        </div>
-        <div>
-            <dt class="text-sm text-gray-500">{{.T.Get "Uptime"}}</dt>
-            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{with .Uptime}}{{.}}{{else}}<span class="text-gray-400 dark:text-gray-600">–</span>{{end}}</dd>
-        </div>
-    </dl>
-    {{if .FromDisk}}<p class="px-4 pb-6 text-xs text-gray-500 sm:px-6 lg:px-8">{{.T.Get "Listed from disk while the service doesn't answer, so the version is unknown."}}</p>{{end}}
+    {{if .FromDisk}}<p class="px-4 pb-4 text-xs text-gray-500 sm:px-6 lg:px-8">{{.T.Get "Listed from disk while the service doesn't answer, so the version is unknown."}}</p>{{end}}
 
     <div class="flex flex-col gap-3 px-4 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div class="relative w-full sm:w-64">
@@ -302,7 +280,7 @@ window.addEventListener('load', () => {
                             class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"
                             x-text="done ? i18n.close : i18n.cancel"></button>
                     <button type="button" x-show="!done" @click="runAction" :disabled="running || loading || tables.length === 0"
-                            class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">
+                            class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
                         <i x-show="running" class="ri-loop-right-line animate-spin" aria-hidden="true"></i>
                         <span x-text="buttonLabel"></span>
                     </button>
@@ -390,7 +368,7 @@ window.addEventListener('load', () => {
 
                         <div class="flex flex-col-reverse gap-2 border-t border-gray-200 px-5 py-4 sm:flex-row sm:justify-end dark:border-gray-800">
                             <button type="button" @click="open = false" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{$.T.Get "Cancel"}}</button>
-                            <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600">{{$.T.Get "Export"}}</button>
+                            <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{$.T.Get "Export"}}</button>
                         </div>
                     </form>
                 </div>

@@ -21,18 +21,28 @@
 
 <section aria-label="{{.T.Get "Domains Header"}}" x-data="{ searchActivityQuery: {{toJSON .SearchTerm}} }">
 
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
         <div>
             <div class="flex items-center gap-x-3">
                 <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Activity log"}}</h1>
             </div>
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            <p class="mt-1 text-sm text-gray-500 max-w-3xl">
                 {{if .SearchTerm}}
                 {{.T.Get "Search results for:"}} {{.SearchTerm}}
                 {{else}}
                 {{.T.Get "View recent user activity and system events."}}
                 {{end}}</p>
         </div>
+        <!-- time range sits in the header so the type chips fit beside the search -->
+        <div class="flex flex-wrap items-center gap-2">
+            {{if or .Filter.Kind .Filter.From .Filter.To .Filter.Search}}
+            <a href="/account/activity" class="text-sm text-gray-500 underline underline-offset-4 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50">{{.T.Get "Clear filters"}}</a>
+            {{end}}
+            {{template "date_range" (dict "T" .T "From" .Filter.From "To" .Filter.To)}}
+        </div>
+        </div>
+    <div class="activity-toolbar flex flex-col gap-3 px-4 pb-4 sm:flex-row sm:flex-wrap sm:items-center sm:px-6 lg:px-8">
+        {{template "filter_chips_css"}}
         <div class="flex flex-col gap-2 sm:flex-row">
             <div class="relative w-full sm:w-64">
                  <form id="activitySearchForm" action="/account/activity" method="get">
@@ -57,27 +67,18 @@
                 </div>
             </div>
             </div>
-        </div>
-
-<div class="activity-toolbar flex flex-wrap items-center justify-between gap-3 px-4 pb-4 sm:px-6 lg:px-8">
-    {{template "filter_chips_css"}}
-    <nav class="flex flex-wrap items-center gap-2" aria-label="{{.T.Get "Filter by type"}}">
-        <a href="{{.AllURL}}" class="activity-chip{{if not .Filter.Kind}} is-active{{end}}"{{if not .Filter.Kind}} aria-current="true"{{end}}>
-            {{.T.Get "All"}} <span class="activity-chip-count">{{.AllCount}}</span>
-        </a>
-        {{range .KindTabs}}
-        <a href="{{.URL}}" class="activity-chip activity-chip--{{.Kind}}{{if .Active}} is-active{{end}}"{{if .Active}} aria-current="true"{{end}}>
-            <span class="activity-chip-dot" aria-hidden="true"></span>{{$.T.Get .Label}} <span class="activity-chip-count">{{.Count}}</span>
-        </a>
-        {{end}}
-    </nav>
-    <div class="flex flex-wrap items-center gap-2">
-        {{template "date_range" (dict "T" .T "From" .Filter.From "To" .Filter.To)}}
-        {{if or .Filter.Kind .Filter.From .Filter.To .Filter.Search}}
-        <a href="/account/activity" class="text-sm text-gray-500 underline underline-offset-4 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50">{{.T.Get "Clear filters"}}</a>
-        {{end}}
+        <nav class="flex flex-wrap items-center gap-2" aria-label="{{.T.Get "Filter by type"}}">
+            <a href="{{.AllURL}}" class="activity-chip{{if not .Filter.Kind}} is-active{{end}}"{{if not .Filter.Kind}} aria-current="true"{{end}}>
+                {{.T.Get "All"}} <span class="activity-chip-count">{{.AllCount}}</span>
+            </a>
+            {{range .KindTabs}}
+            <a href="{{.URL}}" class="activity-chip activity-chip--{{.Kind}}{{if .Active}} is-active{{end}}"{{if .Active}} aria-current="true"{{end}}>
+                <span class="activity-chip-dot" aria-hidden="true"></span>{{$.T.Get .Label}} <span class="activity-chip-count">{{.Count}}</span>
+            </a>
+            {{end}}
+        </nav>
     </div>
-</div>
+
 
 <div class="">
     <div class="activity-table-wrap w-full whitespace-nowrap border-t border-gray-200 dark:border-gray-800">

@@ -3,7 +3,6 @@ package postgresql
 import (
 	"log"
 	"net/http"
-	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
@@ -40,39 +39,6 @@ type DatabasesPageData struct {
 	ShowAll      bool
 	StatusDetail string // longer explanatory text for the table's empty-state row while the service isn't running/healthy, "" when running+healthy
 	ServerInfo
-	DBLimit int // plan limit, 0 is unlimited
-}
-
-// DBQuotaPct is how full the plan's database quota is, capped at 100
-func (d DatabasesPageData) DBQuotaPct() int {
-	if d.DBLimit <= 0 {
-		return 0
-	}
-	return min(d.UserDatabaseCount()*100/d.DBLimit, 100)
-}
-
-// UserDatabaseCount is the number of non-system databases, for the summary tile
-func (d DatabasesPageData) UserDatabaseCount() int {
-	n := 0
-	for _, db := range d.Databases {
-		if !db.IsSystem {
-			n++
-		}
-	}
-	return n
-}
-
-// UserCount is the number of distinct users assigned to any database
-func (d DatabasesPageData) UserCount() int {
-	seen := map[string]bool{}
-	for _, db := range d.Databases {
-		for _, u := range strings.Split(db.AssignedUsers, ",") {
-			if u = strings.TrimSpace(u); u != "" {
-				seen[u] = true
-			}
-		}
-	}
-	return len(seen)
 }
 
 func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, databases []DatabaseRow, unit string, showAll bool, info ServerInfo) {
@@ -92,7 +58,7 @@ func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		ServiceStatusData: ServiceStatusData{ContainerState: status.State, HealthStatus: status.Health},
 		Databases:         databases, Unit: unit, ShowAll: showAll,
 		StatusDetail: postgresContainerStatusDetail(status.State, status.Health),
-		ServerInfo:   info, DBLimit: planDBLimit(r.Context(), a, injectedData),
+		ServerInfo:   info,
 	}
 	if err := databasesPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - databases template render error: %v", err)
@@ -106,7 +72,7 @@ type CreatePageData struct {
 	Names    web.DBNames
 	DBLimit  int // plan limit, 0 is unlimited
 	DBUsage  int
-	FormName string // what was typed, kept after a failed submit
+	FormName string        // what was typed, kept after a failed submit
 	Created  web.DBCreated // the database or user just created, a blank Name shows the form
 
 	CreatedPassword  string // a new user's password, shown once

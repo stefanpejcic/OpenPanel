@@ -124,9 +124,9 @@ type NewDatabasePageData struct {
 	Engine     web.DBEngine
 	Names      web.DBNames
 	DBUsage    int
-	DBLimit    int    // plan limit, 0 is unlimited
-	RemotePort string // published host port, "" when unknown
-	FormName   string // what was typed, kept after a failed submit
+	DBLimit    int           // plan limit, 0 is unlimited
+	RemotePort string        // published host port, "" when unknown
+	FormName   string        // what was typed, kept after a failed submit
 	Created    web.DBCreated // the database just created, a blank Name shows the form
 }
 

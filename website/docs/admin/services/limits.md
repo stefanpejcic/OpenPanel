@@ -2,9 +2,9 @@
 sidebar_position: 2
 ---
 
-# Service Limits
+# Service limits
 
-The **Service Limits** section allows Administrators to view and adjust the allocated CPU and Memory resources for system services.
+The **Service limits** section allows Administrators to view and adjust the allocated CPU and Memory resources for system services.
 
 ![Service Limits page with CPU and memory limits for each system service](/img/openadmin-screenshots/services/limits-page.png#gh-light-mode-only)
 ![Service Limits page with CPU and memory limits for each system service](/img/openadmin-screenshots/services/limits-page_dark.png#gh-dark-mode-only)

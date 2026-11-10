@@ -115,6 +115,8 @@ func handlePgConfigRecommendations(a *appctx.App, w http.ResponseWriter, r *http
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	// the UI pages start PostgreSQL too, sentinel stops an idle one and every read would fail until something else started it
+	docker.StartComposeServiceIfNotRunning(r.Context(), userContext, "postgres")
 	stats, err := gatherPgTuningStats(r.Context(), a, userContext)
 	if err != nil {
 		web.WriteJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "Could not read the database status: " + err.Error()})

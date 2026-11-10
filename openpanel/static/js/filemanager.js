@@ -9,7 +9,7 @@ var anchorRow = null;
 // HELPERS
 
 // classes a selected row gets, the row hover skips selected rows
-const SELECTED = ['selected-row', 'bg-gray-50', 'dark:bg-gray-900'];
+const SELECTED = ['selected-row', 'bg-gray-200', 'dark:bg-gray-900'];
 
 function setClassAll(selector, className) {
     document.querySelectorAll(selector).forEach(el => el.className = className);
@@ -1119,7 +1119,7 @@ function openPicker(action, items) {
 
 // small recipe buttons for the inline editors
 const FM_BTN_BASE = 'relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-xs font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2';
-const FM_BTN_PRIMARY = FM_BTN_BASE + ' border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400';
+const FM_BTN_PRIMARY = FM_BTN_BASE + 'border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600';
 const FM_BTN_DANGER = FM_BTN_BASE + ' border-transparent bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600';
 const FM_BTN_GHOST = FM_BTN_BASE + ' border-transparent bg-transparent shadow-none text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80';
 const FM_BTN_SECONDARY = FM_BTN_BASE + ' border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600';

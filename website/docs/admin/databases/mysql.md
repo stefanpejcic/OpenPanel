@@ -2,14 +2,14 @@
 sidebar_position: 1
 ---
 
-# MySQL Databases
+# MySQL databases
 
 The MySQL tab lists the MySQL and MariaDB databases of every user on the server.
 
 Use **OpenAdmin > Databases > MySQL** to access it.
 
-![Databases page on the MySQL tab listing every database with its owner, MySQL or MariaDB type, number of tables, size and the Terminal, phpMyAdmin, Export and Import actions](/img/openadmin-screenshots/databases/mysql-list.png#gh-light-mode-only)
-![Databases page on the MySQL tab listing every database with its owner, MySQL or MariaDB type, number of tables, size and the Terminal, phpMyAdmin, Export and Import actions](/img/openadmin-screenshots/databases/mysql-list_dark.png#gh-dark-mode-only)
+![Databases page on the MySQL tab listing every database with its owner, MySQL or MariaDB type, number of tables, size, the phpMyAdmin link and the row menu](/img/openadmin-screenshots/databases/mysql-list.png#gh-light-mode-only)
+![Databases page on the MySQL tab listing every database with its owner, MySQL or MariaDB type, number of tables, size, the phpMyAdmin link and the row menu](/img/openadmin-screenshots/databases/mysql-list_dark.png#gh-dark-mode-only)
 
 Every user has their own MySQL or MariaDB service. The list is read from the files of each user's database, so OpenAdmin doesn't connect to any of them and users whose service is stopped are listed too. The header shows how many databases there are, across how many users, and their total size.
 
@@ -20,7 +20,7 @@ Every user has their own MySQL or MariaDB service. The list is read from the fil
 | **Type** | **MySQL** or **MariaDB**, the service the user runs. |
 | **Tables** | Number of tables in the database. |
 | **Size** | Size of the database files on disk. |
-| **Actions** | [phpMyAdmin](#phpmyadmin), [Terminal](#terminal), [Export](#export) and [Import](#import). |
+| **Actions** | [phpMyAdmin](#phpmyadmin) next to the row menu, and in the menu [Terminal](#terminal), [Export](#export) and [Import](#import). |
 
 Use the search box to filter the list by database or owner, and click a column name to sort by it.
 
@@ -32,20 +32,20 @@ System databases like `mysql`, `sys` and `performance_schema` are not listed.
 
 ## Terminal
 
-**Terminal** opens a terminal in the owner's MySQL or MariaDB container, already inside the database's `mysql` or `mariadb` client. It's shown to Super Admin and Admin logins only, like [Terminal](/docs/admin/advanced/terminal).
+**Terminal** in the row menu opens a terminal in the owner's MySQL or MariaDB container, already inside the database's `mysql` or `mariadb` client. It's shown to Super Admin and Admin logins only, like [Terminal](/docs/admin/advanced/terminal).
 
 ## Export
 
-Click **Export** and pick **SQL (.sql)** or **Gzip (.sql.gz)**. The dump is downloaded straight to your browser, also for big databases, and nothing is saved on the server.
+Open the row menu and pick **Export as .sql** or **Export as .sql.gz**. The dump is downloaded straight to your browser, also for big databases, and nothing is saved on the server.
 
-![Export menu of a database with SQL and Gzip downloads](/img/openadmin-screenshots/databases/mysql-export.png#gh-light-mode-only)
-![Export menu of a database with SQL and Gzip downloads](/img/openadmin-screenshots/databases/mysql-export_dark.png#gh-dark-mode-only)
+![Row menu of a database with Terminal, Export as .sql, Export as .sql.gz and Import](/img/openadmin-screenshots/databases/mysql-export.png#gh-light-mode-only)
+![Row menu of a database with Terminal, Export as .sql, Export as .sql.gz and Import](/img/openadmin-screenshots/databases/mysql-export_dark.png#gh-dark-mode-only)
 
 If the dump fails before it starts, the page shows the error instead. If it fails in the middle, the browser marks the download as failed so you don't keep a cut off file.
 
 ## Import
 
-Click **Import**, choose a `.sql` or `.sql.gz` file and click **Import**. The file runs against the existing database while it uploads, a `.gz` file is unpacked on the fly, and the progress bar shows how much is uploaded. Tables in the dump replace the ones with the same name.
+Pick **Import** in the row menu, choose a `.sql` or `.sql.gz` file and click **Import**. The file runs against the existing database while it uploads, a `.gz` file is unpacked on the fly, and the progress bar shows how much is uploaded. Tables in the dump replace the ones with the same name.
 
 ![Import dialog of a database with the file picker for a .sql or .sql.gz dump and the Import button](/img/openadmin-screenshots/databases/mysql-import.png#gh-light-mode-only)
 ![Import dialog of a database with the file picker for a .sql or .sql.gz dump and the Import button](/img/openadmin-screenshots/databases/mysql-import_dark.png#gh-dark-mode-only)

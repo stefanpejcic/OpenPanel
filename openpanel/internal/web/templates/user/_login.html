@@ -20,6 +20,9 @@
 
     <!-- Custom CSS code -->
     <link rel="stylesheet" href="{{static "css/custom.css"}}">
+{{if ne .LoginLayout "split"}}
+    <style>body{background-image:url("{{static "images/bg-body.png"}}");background-repeat:no-repeat;background-position:left}</style>
+{{end}}
   </head>
 
   <body class="mx-auto min-h-svh bg-gray-50 antialiased dark:bg-gray-950">

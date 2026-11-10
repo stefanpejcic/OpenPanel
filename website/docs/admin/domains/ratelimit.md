@@ -2,11 +2,11 @@
 sidebar_position: 4
 ---
 
-# Rate Limiting
+# Rate limiting
 
 Limit how many requests per minute a single visitor and a whole domain can make, so one busy site or bot can't slow down the server.
 
-Use **OpenAdmin > Domains > Rate Limiting** to access it.
+Use **OpenAdmin > Domains > Rate limiting** to access it.
 
 Requests above a limit get HTTP `429 Too Many Requests` until the minute passes. There are two limits:
 
@@ -15,14 +15,14 @@ Requests above a limit get HTTP `429 Too Many Requests` until the minute passes.
 
 `0` turns a limit off. Visitors behind Cloudflare are counted by their real IP address, not by Cloudflare's.
 
-## Server Default
+## Server default
 
 Click **Server Default** to set the limits used by every domain set to **Default**. New installations start with 300 requests per minute per IP and 6000 per domain. On servers updated from an older version, rate limiting stays off until you set a default.
 
 ![Server Default form open with the requests per minute per visitor IP and per domain and the Save default button](/img/openadmin-screenshots/domains/ratelimit-default.png#gh-light-mode-only)
 ![Server Default form open with the requests per minute per visitor IP and per domain and the Save default button](/img/openadmin-screenshots/domains/ratelimit-default_dark.png#gh-dark-mode-only)
 
-## Domains Table
+## Domains table
 
 
 ![Rate Limiting page with the current server default, the Server Default button and each domain's setting, limits and usage over the last 24 hours](/img/openadmin-screenshots/domains/ratelimit-list.png#gh-light-mode-only)
@@ -38,7 +38,7 @@ A peak turns yellow when it came within 20% of its limit, and red when it went o
 
 Usage is read from the domain's access logs and refreshed every 5 minutes, click **Refresh** to read it again.
 
-## Change a Domain
+## Change a domain
 
 
 ![Rate limit window of a domain with Server default, Custom limits and No limits, its usage over the last 24 hours and the most blocked IP addresses](/img/openadmin-screenshots/domains/ratelimit-edit.png#gh-light-mode-only)
@@ -51,7 +51,7 @@ Click **Edit** on a domain and pick:
 
 The window also shows the domain's usage and the IP addresses that were blocked most often. A scraper or attacker can be blocked completely in the [firewall](/docs/admin/security/firewall).
 
-## Bulk Actions
+## Bulk actions
 
 Tick the checkbox of one or more domains, or the one in the table header to select all shown, and use **Use server default**, **Custom limits** or **No limits** in the bar at the bottom. All selected domains are changed with a single Caddy reload.
 
@@ -63,7 +63,7 @@ Tick the checkbox of one or more domains, or the one in the table header to sele
 ![Custom limits step of the bulk actions bar with 600 requests per minute per IP and 20000 per domain entered](/img/openadmin-screenshots/domains/ratelimit-bulk-custom.png#gh-light-mode-only)
 ![Custom limits step of the bulk actions bar with 600 requests per minute per IP and 20000 per domain entered](/img/openadmin-screenshots/domains/ratelimit-bulk-custom_dark.png#gh-dark-mode-only)
 
-## From the Terminal
+## From the terminal
 
 ```bash
 opencli domains-ratelimit                                  # show the server default and every domain

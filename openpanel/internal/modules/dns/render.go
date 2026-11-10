@@ -28,7 +28,6 @@ type DNSPageData struct {
 	Issues       []HealthIssue
 	TotalRecords int
 	Zones        []ZoneSummary   // list page: every zone with its record counts
-	ZoneRecords  int             // list page: records across all zones
 	Nameservers  []string        // list page: the server's ns1-ns4, for the footer
 	RecordTypes  []string        // add form dropdown
 	EditTypes    []string        // edit dropdown, no DMARC helper there
@@ -73,14 +72,12 @@ func renderDNSListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, do
 	var withZone []appctx.Domain
 	var picks []web.DomainPick
 	var zones []ZoneSummary
-	total := 0
 	for _, d := range domainRows {
 		if d.ZoneFileExists {
 			withZone = append(withZone, appctx.Domain{DomainURL: d.DomainURL})
 			picks = append(picks, web.DomainPick{Domain: d.DomainURL, Detail: zoneRecordCount(d.DomainURL)})
 			content, _ := tenantfs.ReadFile(zoneFilePath(d.DomainURL))
 			z := summarizeZone(d.DomainURL, string(content))
-			total += z.Records
 			zones = append(zones, z)
 		} else {
 			note := "No zone file"
@@ -90,7 +87,7 @@ func renderDNSListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, do
 			picks = append(picks, web.DomainPick{Domain: d.DomainURL, Disabled: true, Note: note})
 		}
 	}
-	data := DNSPageData{LayoutData: layout, Domains: withZone, Picks: picks, Zones: zones, ZoneRecords: total}
+	data := DNSPageData{LayoutData: layout, Domains: withZone, Picks: picks, Zones: zones}
 	for _, k := range []string{"ns1", "ns2", "ns3", "ns4"} {
 		if v := a.Config.Get(k, ""); v != "" {
 			data.Nameservers = append(data.Nameservers, v)

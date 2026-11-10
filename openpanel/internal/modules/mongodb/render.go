@@ -49,17 +49,6 @@ func (d DatabasesPageData) TotalSize() string {
 	return formatSize(total)
 }
 
-// LargestDatabase is the user's biggest database, "" when there's none
-func (d DatabasesPageData) LargestDatabase() string {
-	name, size := "", int64(-1)
-	for _, db := range d.Databases {
-		if !db.IsSystem && db.SizeBytes > size {
-			name, size = db.Database, db.SizeBytes
-		}
-	}
-	return name
-}
-
 // UserDatabaseCount is the number of non-system databases, for the summary tile
 func (d DatabasesPageData) UserDatabaseCount() int {
 	n := 0
@@ -113,7 +102,7 @@ type CreatePageData struct {
 	Names    web.DBNames
 	DBLimit  int // plan limit, 0 is unlimited
 	DBUsage  int
-	FormName string // what was typed, kept after a failed submit
+	FormName string        // what was typed, kept after a failed submit
 	Created  web.DBCreated // the database or user just created, a blank Name shows the form
 	Roles    []string
 

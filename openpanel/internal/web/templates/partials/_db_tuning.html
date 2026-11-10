@@ -1,16 +1,16 @@
 {{/* shared optimization suggestions for the MySQL, PostgreSQL and PHP options pages, driven by static/js/db-tuning.js */}}
 
-{{/* db_tuning_banner takes a dict with T, Title, Intro and Checking */}}
+{{/* db_tuning_banner takes a dict with T, Title, Intro and Checking, Aside renders it as a side card */}}
 {{define "db_tuning_banner"}}
     <!-- recommendations banner -->
-    <div id="db-tuning" class="border-b border-gray-200 dark:border-gray-800 px-4 py-4 text-sm sm:px-6 lg:px-8">
+    <div id="db-tuning" class="{{if .Aside}}rounded-md border border-gray-200 p-4 text-sm dark:border-gray-800{{else}}border-b border-gray-200 dark:border-gray-800 px-4 py-4 text-sm sm:px-6 lg:px-8{{end}}">
         <div x-show="loading" class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
             <i class="ri-loop-right-line animate-spin"></i> {{.T.Get .Checking}}
         </div>
         <div x-show="!loading && error" x-cloak class="text-gray-500 dark:text-gray-400">
             <i class="ri-error-warning-line"></i> {{.T.Get "Optimization suggestions are not available right now:"}} <span x-text="error"></span>
         </div>
-        <div x-show="!loading && !error && recs.length > 0" x-cloak class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div x-show="!loading && !error && recs.length > 0" x-cloak class="flex flex-col gap-3{{if not .Aside}} sm:flex-row sm:items-center sm:justify-between{{end}}">
             <div class="flex items-start gap-3">
                 <i class="ri-flashlight-line text-lg text-yellow-500"></i>
                 <div>
@@ -25,7 +25,7 @@
         <div x-show="!loading && !error && recs.length === 0" x-cloak class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
             <i class="ri-checkbox-circle-line text-emerald-500 dark:text-emerald-400"></i> {{.T.Get "No optimizations found, your settings look good for the current usage."}}
         </div>
-        <div x-show="!loading && !error" x-cloak class="mt-2 flex flex-wrap gap-x-4 text-xs text-gray-500 dark:text-gray-400">
+        <div x-show="!loading && !error" x-cloak class="{{if .Aside}}mt-3 flex flex-col gap-1 border-t border-gray-200 pt-3 dark:border-gray-800{{else}}mt-2 flex flex-wrap gap-x-4{{end}} text-xs text-gray-500 dark:text-gray-400">
             <span x-show="facts.server" x-text="facts.server"></span>
             <span x-show="facts.memory_limit">{{.T.Get "Memory limit:"}} <span x-text="facts.memory_limit"></span><span x-show="facts.memory_used"> (<span x-text="facts.memory_used"></span> {{.T.Get "in use"}})</span></span>
             <span x-show="facts.databases">{{.T.Get "Databases:"}} <span x-text="facts.databases"></span></span>
@@ -98,7 +98,7 @@
             </div>
             <div class="flex flex-col gap-2 px-5 py-4 border-t border-gray-200 dark:border-gray-700 sm:flex-row sm:justify-end">
                 <button type="button" @click="open = false" class="relative inline-flex items-center justify-center rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs border-gray-300 dark:border-gray-800 text-gray-900 dark:text-gray-50 bg-white dark:bg-gray-950 hover:bg-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Cancel"}}</button>
-                <button type="button" @click="save()" class="relative inline-flex items-center justify-center rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs text-white border-transparent bg-blue-500 hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 ">{{.T.Get "Save changes"}}</button>
+                <button type="button" @click="save()" class="relative inline-flex items-center justify-center rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Save changes"}}</button>
             </div>
         </div>
     </div>

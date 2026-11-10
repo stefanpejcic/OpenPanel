@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# PostgreSQL Databases
+# PostgreSQL databases
 
 The PostgreSQL tab lists the PostgreSQL databases of every user on the server.
 

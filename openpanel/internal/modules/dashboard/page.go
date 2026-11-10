@@ -3,6 +3,7 @@ package dashboard
 import (
 	"context"
 	"html/template"
+	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
@@ -34,6 +35,7 @@ type DashboardPageData struct {
 	web.LayoutData
 
 	Sections       []Section
+	View           string // "overview" or "tools", rendered server-side so the page doesn't jump on load
 	TourShow       bool
 	OnboardingShow bool
 	OnboardingSkip OnboardingSkip
@@ -64,7 +66,10 @@ type DashboardPageData struct {
 	UserWebsitesCount int
 	MainDomainsCount  int
 	// Websites is the newest few sites for the Overview's websites card
-	Websites   []DashboardSite
+	Websites []DashboardSite
+	// ShowSites is false on plans without sites, AltList then fills that card
+	ShowSites  bool
+	AltList    *DashboardList
 	DBUsage    int
 	EmailCount int
 	FTPCount   int
@@ -252,6 +257,18 @@ func siteTypeLabel(t string) string {
 	return strings.ToUpper(t[:1]) + t[1:]
 }
 
+// dashboardView picks the open view from ?view= or the dashboard_view cookie, tools by default
+func dashboardView(r *http.Request) string {
+	ok := func(v string) bool { return v == "overview" || v == "tools" }
+	if v := r.URL.Query().Get("view"); ok(v) {
+		return v
+	}
+	if c, err := r.Cookie("dashboard_view"); err == nil && ok(c.Value) {
+		return c.Value
+	}
+	return "tools"
+}
+
 // PlanTile is one usage tile on the Overview view
 type PlanTile struct {
 	Label, Href, Icon string
@@ -284,6 +301,9 @@ func (d DashboardPageData) PlanTiles() []PlanTile {
 	}
 	if allowed["emails"] {
 		tiles = append(tiles, tile("Email accounts", "/emails", "ri-mail-line", d.EmailCount, d.EmailLimit))
+	}
+	if allowed["ftp"] {
+		tiles = append(tiles, tile("FTP accounts", "/ftp", "ri-folder-shared-line", d.FTPCount, d.FTPLimit))
 	}
 	return tiles
 }
@@ -318,4 +338,14 @@ func (d DashboardPageData) QuickActions() []SectionItem {
 		}
 	}
 	return out
+}
+
+// DomainsFull is true when the plan's domain limit is used up, 0 means unlimited
+func (d DashboardPageData) DomainsFull() bool {
+	return d.DomainsLimit > 0 && d.MainDomainsCount >= d.DomainsLimit
+}
+
+// SitesFull is true when the plan's website limit is used up, 0 means unlimited
+func (d DashboardPageData) SitesFull() bool {
+	return d.WebsitesLimit > 0 && d.UserWebsitesCount >= d.WebsitesLimit
 }

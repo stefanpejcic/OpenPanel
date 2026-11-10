@@ -97,7 +97,7 @@
                     </div>
                     <div class="grid grid-cols-1 gap-2">
                         <p class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "The admin account was created during install (see the install confirmation for the generated password). Log in from the wiki's own doku.php?do=login page."}}</p>
-                        <a href="http://{{.CurrentDomain}}" target="_blank" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 mt-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">
+                        <a href="http://{{.CurrentDomain}}" target="_blank" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 mt-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
                             {{.T.Get "Open site"}}
                         </a>
                     </div>
@@ -121,7 +121,7 @@
                         </div>
                     </div>
                     <p class="mt-3 text-sm/6" id="dokuwiki-update-status"></p>
-                    <button type="button" id="dokuwiki-update-btn" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 mt-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">{{.T.Get "Check for updates & update"}}</button>
+                    <button type="button" id="dokuwiki-update-btn" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 mt-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Check for updates & update"}}</button>
                     <p id="dokuwiki-update-hint" class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "A backup is recommended before updating - see the Backups tab. conf/, data/ and lib/plugins/ are always preserved."}}</p>
                     <pre id="dokuwiki-update-log" class="hidden mt-3 max-h-64 overflow-y-auto whitespace-pre-wrap rounded-md bg-gray-950 p-4 font-mono text-xs text-gray-50"></pre>
                 </div>

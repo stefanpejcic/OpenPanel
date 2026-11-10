@@ -7,7 +7,7 @@ sidebar_position: 1
 OpenPanel has a single user role named **User** that can only manage their docker container and inherits settings specified by the Admin user.
 
 
-## List Users
+## List users
 
 
 <Tabs>
@@ -16,6 +16,8 @@ OpenPanel has a single user role named **User** that can only manage their docke
   To access all OpenPanel users, navigate to **Accounts > Users**.
   
   The Users page displays a table with user information and buttons to manage it.
+
+  Above the table, OpenAdmin warns about accounts that hit their plan limits: a red box lists accounts at 100% of a limit, since websites, email or databases on them can fail until the limit is raised, and an orange box lists accounts at 90% or more. Each name opens that user, and long lists are shortened to the first few accounts.
   
   ![Users page listing OpenPanel accounts with their status, plan, memory, CPU, disk and inodes usage and the Impersonate button](/img/openadmin-screenshots/accounts/users-list.png#gh-light-mode-only)
   ![Users page listing OpenPanel accounts with their status, plan, memory, CPU, disk and inodes usage and the Impersonate button](/img/openadmin-screenshots/accounts/users-list_dark.png#gh-dark-mode-only)
@@ -33,14 +35,14 @@ OpenPanel has a single user role named **User** that can only manage their docke
   ![Users page with the Package filter open, listing All packages and each hosting plan in use](/img/openadmin-screenshots/accounts/users-filters.png#gh-light-mode-only)
   ![Users page with the Package filter open, listing All packages and each hosting plan in use](/img/openadmin-screenshots/accounts/users-filters_dark.png#gh-dark-mode-only)
 
-  Filters work together with the search box, and **Showing X of Y** below the table counts the users that match. The selected Package and Owner are kept in the page address (for example `/users?plan=Standard+plan`), so a filtered list can be bookmarked or shared. The user count on the **Hosting Plans** page links to the Users page with that plan already selected.
+  Filters work together with the search box, and **Showing X of Y** below the table counts the users that match. The selected Package and Owner are kept in the page address (for example `/users?plan=Standard+plan`), so a filtered list can be bookmarked or shared. The user count on the **Hosting plans** page links to the Users page with that plan already selected.
 
   Click the arrows next to a column name to sort the table by that column. Sorting works for Username, Email, 2FA, Passkeys, Package, Domains, Memory, CPU, Disk, Inodes, Context, Created and Owner. The usage columns sort by the percentage shown in the ring.
 
-  Additional columns can be displayed using the 'Show Columns' button.
+  Additional columns can be displayed using the **Show columns** button.
 
-  ![Show Columns menu of the Users table with a toggle for each column, including 2FA and Passkeys](/img/openadmin-screenshots/accounts/users-columns.png#gh-light-mode-only)
-  ![Show Columns menu of the Users table with a toggle for each column, including 2FA and Passkeys](/img/openadmin-screenshots/accounts/users-columns_dark.png#gh-dark-mode-only)
+  ![Show columns menu of the Users table with a toggle for each column, including 2FA and Passkeys](/img/openadmin-screenshots/accounts/users-columns.png#gh-light-mode-only)
+  ![Show columns menu of the Users table with a toggle for each column, including 2FA and Passkeys](/img/openadmin-screenshots/accounts/users-columns_dark.png#gh-dark-mode-only)
 
   - **2FA** – whether the user has two-factor authentication enabled.
   - **Passkeys** – how many passkeys the user has registered, empty if they have none.
@@ -87,47 +89,53 @@ curl -X GET http://PANEL:2087/api/users -H "Authorization: Bearer JWT_TOKEN_HERE
 </Tabs>
 
 
-## Bulk Actions
+## Bulk actions
 
 Tick the checkbox of one or more users, or the checkbox in the table header to select all users shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 
-![Two users selected with the bulk actions bar offering Suspend, Unsuspend, Change plan, Change password, Change email, Change IP, Disable 2FA, Delete Passkeys, Generate backup and Delete](/img/openadmin-screenshots/accounts/users-bulk.png#gh-light-mode-only)
-![Two users selected with the bulk actions bar offering Suspend, Unsuspend, Change plan, Change password, Change email, Change IP, Disable 2FA, Delete Passkeys, Generate backup and Delete](/img/openadmin-screenshots/accounts/users-bulk_dark.png#gh-dark-mode-only)
+![Two users selected with the bulk actions bar offering Suspend, Unsuspend, Plan, Password, Email, IP, Disable 2FA, Delete Passkeys, Generate backup, Delete and Transfer](/img/openadmin-screenshots/accounts/users-bulk.png#gh-light-mode-only)
+![Two users selected with the bulk actions bar offering Suspend, Unsuspend, Plan, Password, Email, IP, Disable 2FA, Delete Passkeys, Generate backup, Delete and Transfer](/img/openadmin-screenshots/accounts/users-bulk_dark.png#gh-dark-mode-only)
 
 | Action | What it does |
 |---|---|
 | **Suspend** | Suspends the selected users, their websites stop working until they are unsuspended. |
 | **Unsuspend** | Unsuspends the selected users. |
-| **Change plan** | Moves the selected users to the hosting plan you pick, resellers only see their allowed plans. |
-| **Change password** | Sets the password you enter (at least 8 characters) for all selected users. |
-| **Change email** | Sets the email address you enter for all selected users. |
-| **Change IP** | Moves the selected users to a dedicated IP address of the server, or back to the shared IP. |
+| **Plan** | Moves the selected users to the hosting plan you pick, resellers only see their allowed plans. |
+| **Password** | Sets the password you enter (at least 8 characters) for all selected users. |
+| **Email** | Sets the email address you enter for all selected users. |
+| **IP** | Moves the selected users to a dedicated IP address of the server, or back to the shared IP. |
 | **Disable 2FA** | Turns off two-factor authentication, users without 2FA are skipped. |
 | **Delete Passkeys** | Deletes all passkeys of the selected users, they have to register them again to log in with a passkey. Users without passkeys are skipped. |
 | **Generate backup** | Starts a full account backup for each selected user in the background, the same as **Export > Generate full account backup**. |
 | **Delete** | Permanently deletes the selected users with all their websites, databases, emails and files. |
+| **Scan with ImunifyAV** | Starts an ImunifyAV malware scan of the selected users' files. Shown when ImunifyAV is installed, not to resellers. |
+| **Transfer** | Moves the selected accounts to another server over SSH, two at a time, see [Transfer to another server](#export). Enter the remote server, port and SSH login, click **Test connection**, then **Start transfer**. Tick **Live transfer** to suspend each account here and forward DNS to the remote server when it's done. The password is only used for this transfer and isn't saved. Not shown to resellers. |
 
 Only the action that fits a user runs on it: suspended users are skipped by **Suspend** and active ones by **Unsuspend**.
 
-Actions that need a value, like **Change plan**, ask for it in the bar before you confirm:
+Actions that need a value, like **Plan**, ask for it in the bar before you confirm:
 
-![Change plan step of the bulk actions bar with a dropdown of hosting plans for two selected users](/img/openadmin-screenshots/accounts/users-bulk-plan.png#gh-light-mode-only)
-![Change plan step of the bulk actions bar with a dropdown of hosting plans for two selected users](/img/openadmin-screenshots/accounts/users-bulk-plan_dark.png#gh-dark-mode-only)
+![Plan step of the bulk actions bar with a dropdown of hosting plans for two selected users](/img/openadmin-screenshots/accounts/users-bulk-plan.png#gh-light-mode-only)
+![Plan step of the bulk actions bar with a dropdown of hosting plans for two selected users](/img/openadmin-screenshots/accounts/users-bulk-plan_dark.png#gh-dark-mode-only)
 
 Click an action, confirm it, and it runs on the selected users one after another. When it's done the page reloads with a notice listing the users it worked for, or which ones failed and why.
 
-## Create Users
+## Create users
 
 
 <Tabs>
   <TabItem value="openadmin-users-new" label="OpenAdmin" default>
 
-To create a new user, click on the **Create New** button on the Users page. A form is displayed where you can set the username, email address (optionally sending the user a welcome email with their login credentials), and generate a strong password.
+To create a new user, click on the **Create new** button on the Users page. The form is split into sections:
 
-You can also choose the webserver for the account (and optionally enable Varnish Cache), the database type (MySQL or MariaDB), assign a reseller as the account's owner (Enterprise license only, and only when creating the user as a Super Admin/Admin), and select a hosting plan to assign to the user.
+- **Account**: the username, email address (tick **Send welcome email** to send the user their login details) and password. Click **Generate** for a strong password.
+- **Package**: pick the hosting plan. Each card shows the plan's CPU, memory, storage and inodes, open **View all limits** for the rest.
+- **Server options**: open **Advanced** to choose the webserver for the account (and optionally enable Varnish cache), the database type (MySQL or MariaDB), and assign a reseller as the account's owner (Enterprise license only, and only when creating the user as a Super Admin/Admin). Leave it closed to use the server defaults.
 
-![Create New user form with username, email, password, webserver, database type and hosting plan](/img/openadmin-screenshots/accounts/users-new.png#gh-light-mode-only)
-![Create New user form with username, email, password, webserver, database type and hosting plan](/img/openadmin-screenshots/accounts/users-new_dark.png#gh-dark-mode-only)
+Click **Create user** to create the account.
+
+![Create user account form with the Account, Package and Server options sections](/img/openadmin-screenshots/accounts/users-new.png#gh-light-mode-only)
+![Create user account form with the Account, Package and Server options sections](/img/openadmin-screenshots/accounts/users-new_dark.png#gh-dark-mode-only)
 
   </TabItem>
   <TabItem value="CLI-users-new" label="OpenCLI">
@@ -177,12 +185,12 @@ Example response:
 - The OpenPanel password must be 6 to 30 characters long and cannot contain an apostrophe (`'`).
 
 
-## Single User
+## Single user
 
-To view detailed information about a user, and edit their settings, click on their username in the users table. The user page has a menu on the left with these tabs: Overview, Services, Storage, Edit, Permissions, Export, Suspend (replaced by a single Unsuspend action if the account is already suspended), Delete, Activity Log and Login Log.
+To view detailed information about a user, and edit their settings, click on their username in the users table. The user page has tabs for Overview, Services, Storage, Resource usage, Activity and Login log, and a menu with Edit, Permissions, Export, Suspend (replaced by a single Unsuspend action if the account is already suspended) and Delete.
 
 
-### Statistics 
+### Statistics
 
 Overview is the default tab. Its top part displays current usage statistics:
 
@@ -197,18 +205,20 @@ Overview is the default tab. Its top part displays current usage statistics:
 - Time statistics usage was last update
 - Historical usage
 
-![Overview tab of a user with gauges for storage, inodes, CPU and memory usage and the View Past Usage button](/img/openadmin-screenshots/accounts/users-stats.png#gh-light-mode-only)
-![Overview tab of a user with gauges for storage, inodes, CPU and memory usage and the View Past Usage button](/img/openadmin-screenshots/accounts/users-stats_dark.png#gh-dark-mode-only)
+![Overview tab of a user with gauges for storage, inodes, CPU and memory usage and the View history link](/img/openadmin-screenshots/accounts/users-stats.png#gh-light-mode-only)
+![Overview tab of a user with gauges for storage, inodes, CPU and memory usage and the View history link](/img/openadmin-screenshots/accounts/users-stats_dark.png#gh-dark-mode-only)
 
-Clicking on 'View Past Usage' will display a table with past resource usage for the user: Date, CPU %, CPU usage, Memory %, Memory usage and Tasks.
+Click **View history** or the **Resource usage** tab to see the user's past resource usage: Date, CPU %, CPU usage, Memory %, Memory usage, Tasks and Warning. Use the search box to filter the rows. **View raw** opens the raw usage log in a new tab, and **Download** saves it as a `.jsonl` file.
 
-![Past resource usage table of a user with the date, CPU and memory usage and the number of tasks](/img/openadmin-screenshots/accounts/users-history.png#gh-light-mode-only)
-![Past resource usage table of a user with the date, CPU and memory usage and the number of tasks](/img/openadmin-screenshots/accounts/users-history_dark.png#gh-dark-mode-only)
+If the usage stats stopped being collected, the tab says so and shows when the newest data is from. Check that the cron service is running and the `opencli docker-collect_stats` schedule on [Scheduled actions](/docs/admin/advanced/crons/).
+
+![Resource usage tab of a user with the past CPU, memory and tasks, and the View raw and Download buttons](/img/openadmin-screenshots/accounts/users-history.png#gh-light-mode-only)
+![Resource usage tab of a user with the past CPU, memory and tasks, and the View raw and Download buttons](/img/openadmin-screenshots/accounts/users-history_dark.png#gh-dark-mode-only)
 
 
 ### Services
 
-Services tab displays all user services (docker containers). Columns can be toggled with the 'Show Columns' button and include:
+Services tab displays all user services (docker containers). Columns can be toggled with the **Show columns** button and include:
 
 - Service name
 - Docker Image name and tag
@@ -223,7 +233,7 @@ An 'Edit Services' button also lets Administrators edit the raw service configur
 ![Services tab listing the user containers with their CPU and memory usage, PIDs and actions](/img/openadmin-screenshots/accounts/users-services.png#gh-light-mode-only)
 ![Services tab listing the user containers with their CPU and memory usage, PIDs and actions](/img/openadmin-screenshots/accounts/users-services_dark.png#gh-dark-mode-only)
 
-#### Bulk Actions
+#### Bulk actions
 
 Tick the checkbox of one or more services, or the checkbox in the table header to select all services shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 
@@ -291,7 +301,7 @@ Displays [users activity log](/docs/panel/security/account_activity/).
 ![Activity Log tab with the date and the action performed](/img/openadmin-screenshots/accounts/users-activity.png#gh-light-mode-only)
 ![Activity Log tab with the date and the action performed](/img/openadmin-screenshots/accounts/users-activity_dark.png#gh-dark-mode-only)
 
-### Login Log
+### Login log
 
 Displays a log of successful logins for the user, separate from the general Activity log:
 
@@ -388,7 +398,7 @@ opencli user-unsuspend filip
 </Tabs>
 
 
-### Reset Password
+### Reset password
 
 <Tabs>
   <TabItem value="openadmin-users-reset" label="OpenAdmin" default>
@@ -456,7 +466,7 @@ User 'stefan' successfully renamed to 'pejcic'.
 </Tabs>
 
 
-### Change Package
+### Change package
 
 <Tabs>
   <TabItem value="openadmin-user-plan" label="With OpenAdmin" default>
@@ -475,7 +485,7 @@ opencli user-change_plan <USERNAME> '<NEW_PLAN_NAME>'
 </Tabs>
 
 
-### Change Email
+### Change email
 
 <Tabs>
   <TabItem value="openadmin-user-email" label="With OpenAdmin" default>
@@ -507,7 +517,7 @@ Email for user stefan updated to stefan@pejcic.rs.
 To auto-login to a user's OpenPanel account, click on the **Impersonate** button in the top-right corner of the user's page.
  
 
-### Delete User
+### Delete user
 
 
 <Tabs>

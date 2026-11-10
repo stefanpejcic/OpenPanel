@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Get Started
+# Get started
 
 The OpenAdmin offers an administrator-level interface where you can efficiently handle tasks such as creating and managing users, setting up hosting plans, enabling features, and editing OpenPanel settings.
 
@@ -101,7 +101,7 @@ If you encountered any errors while running the installation script, please copy
 </Tabs>
 
 
-## Post Install Steps
+## Post install steps
 
 Recommended steps after installing OpenPanel:
 - [Access the OpenAdmin panel](/docs/articles/dev-experience/how-to-access-openadmin)

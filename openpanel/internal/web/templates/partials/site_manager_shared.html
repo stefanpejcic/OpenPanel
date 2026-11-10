@@ -199,11 +199,18 @@ function sendDataToPreview(event) {
 
 {{define "visitors"}}
 <!-- START templates/partials/visitors.html -->
-<div id="partials_visitors" class="flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
-    <div class="relative mb-1 flex flex-wrap items-center justify-between gap-2" id="partials_waf_title">
-        <h2 id="visitors_header" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Live visitors"}}</h2>
+<div id="partials_visitors" x-data="{ open: (function () { try { return localStorage.getItem('site_widget_visitors') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('site_widget_visitors', this.open ? 'open' : 'closed') } catch (e) {} } }" class="flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
+    <div data-panel-head :class="open ? '' : '!border-b-0 !-mb-5'" class="relative mb-1 flex items-start justify-between gap-3" id="partials_visitors_title">
+        <div class="min-w-0">
+            <h2 id="visitors_header" class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Live visitors"}}</h2>{{if .UserAllowed.goaccess}}<a href="/domains/stats" class="ml-2 text-sm font-normal text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "View statistics"}} &rarr;</a>{{end}}
+            <p class="text-sm/6 text-gray-500" x-show="open">{{.T.Get "Unique visitors in the chosen window, from the access log."}}</p>
+        </div>
+        <button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? {{toJSON (.T.Get "Collapse")}} : {{toJSON (.T.Get "Expand")}}" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button>
+    </div>
+    <div x-show="open">
 
-        <span class="flex items-center gap-x-1.5 text-sm text-gray-500">
+    <div class="flex items-center justify-between gap-3">
+            <span class="order-last flex shrink-0 items-center gap-x-1.5 text-sm text-gray-500">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0 text-gray-400"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM13 12H17V14H11V7H13V12Z"></path></svg>
             <label for="visitor_seconds">{{.T.Get "Last"}}</label>
             <select id="visitor_seconds" class="cursor-pointer appearance-none rounded-md border border-gray-300 bg-white py-1 pl-2 pr-7 text-xs text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
@@ -216,8 +223,6 @@ function sendDataToPreview(event) {
                 <option value="86400">{{.T.Get "24 hours"}}</option>
             </select>
         </span>
-    </div>
-
     <div class="flex items-center min-h-[3rem]">
         <div id="visitors_loader" class="hidden">
             <svg class="animate-spin size-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -228,6 +233,8 @@ function sendDataToPreview(event) {
         {{if .UserAllowed.domain_logs}}<a href="/domains/log/{{index (split .CurrentDomain "/") 0}}" target="_blank" title="{{.T.Get "Open domain access logs in new tab"}}">{{end}}
         <dd id="visitors_data" class="text-2xl font-semibold tabular-nums text-gray-900 dark:text-gray-50">0</dd>
         {{if .UserAllowed.domain_logs}}</a>{{end}}
+    </div>
+    </div>
     </div>
 </div>
 
@@ -281,13 +288,15 @@ document.addEventListener("DOMContentLoaded", () => {
 {{define "waf_panel"}}
 {{if .UserAllowed.waf}}
 <!-- START templates/partials/waf.html -->
-<div id="partials_waf" class="flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
-    <div class="mb-1 flex items-center justify-between gap-4 relative" id="partials_waf_title">
-        <h2 id="waf_title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Firewall"}}</h2>
-
-        <input type="checkbox" role="switch" id="waf_toggle_btn" data-state="false" aria-labelledby="waf_title"
-            data-tooltip-target="tooltip-waf" data-tooltip-placement="left">
+<div id="partials_waf" x-data="{ open: (function () { try { return localStorage.getItem('site_widget_firewall') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('site_widget_firewall', this.open ? 'open' : 'closed') } catch (e) {} } }" class="flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
+    <div data-panel-head :class="open ? '' : '!border-b-0 !-mb-5'" class="mb-1 flex items-start justify-between gap-3 relative" id="partials_waf_title">
+        <div class="min-w-0">
+            <h2 id="waf_title" class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Firewall"}}</h2><a href="/server/waf" class="ml-2 text-sm font-normal text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Manage"}} &rarr;</a>
+            <p class="text-sm/6 text-gray-500" x-show="open">{{.T.Get "Blocks attacks on the site before they reach it."}}</p>
+        </div>
+        <button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? {{toJSON (.T.Get "Collapse")}} : {{toJSON (.T.Get "Expand")}}" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button>
     </div>
+    <div x-show="open">
 
     <div id="tooltip-waf" role="tooltip" class="absolute z-10 invisible inline-block rounded-md bg-gray-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-xs opacity-0 tooltip dark:bg-gray-800">
         {{.T.Get "Control Coraza WAF for the domain"}}
@@ -298,7 +307,9 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="relative">
             <div class="mt-3 flex items-center gap-3">
                 <span class="flex size-10 shrink-0 items-center justify-center rounded-md border border-gray-200 dark:border-gray-800"><i id="waf_icon" class="ri-shield-line text-xl text-gray-400" aria-hidden="true"></i></span>
-                <p id="firewall_status_text" class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Checking firewall status.."}}</p>
+                <p id="firewall_status_text" class="min-w-0 flex-1 text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Checking firewall status.."}}</p>
+                <input type="checkbox" role="switch" id="waf_toggle_btn" data-state="false" aria-labelledby="waf_title"
+            data-tooltip-target="tooltip-waf" data-tooltip-placement="left">
             </div>
 
             <table class="mt-4 w-full text-sm">
@@ -326,6 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </tbody>
             </table>
         </div>
+    </div>
     </div>
 </div>
 
@@ -433,15 +445,20 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 {{define "pagespeed_panel"}}
 <!-- START templates/partials/pagespeed.html -->
-<div id="partials_pagespeed" class="flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
-            <div class="relative mb-3 flex flex-wrap items-center justify-between gap-2" id="partials_pagespeed_title">
-                <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Speed"}}</h2>
-                <span class="inline-flex items-center gap-3 whitespace-nowrap text-xs text-gray-500 tabular-nums">
+<div id="partials_pagespeed" x-data="{ open: (function () { try { return localStorage.getItem('site_widget_speed') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('site_widget_speed', this.open ? 'open' : 'closed') } catch (e) {} } }" class="flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
+            <div data-panel-head :class="open ? '' : '!border-b-0 !-mb-5'" class="relative mb-3 flex items-start justify-between gap-3" id="partials_pagespeed_title">
+                <div class="min-w-0">
+                    <h2 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Speed"}}</h2>{{if and (not .PagespeedAPIKey) .UserAllowed.filemanager}}<a href="/file-manager/edit-file/pagespeed_api_key.txt?new=true" target="_blank" class="ml-2 text-sm font-normal text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Add PageSpeed API key"}} &rarr;</a>{{end}}
+                    <p class="text-sm/6 text-gray-500" x-show="open">{{.T.Get "Google PageSpeed scores for desktop and mobile."}}</p>
+                </div>
+        <button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? {{toJSON (.T.Get "Collapse")}} : {{toJSON (.T.Get "Expand")}}" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button>
+    </div>
+    <div x-show="open">
+            <div class="flex justify-end"><span class="inline-flex items-center gap-3 whitespace-nowrap text-xs text-gray-500 tabular-nums">
                     <span class="flex items-center gap-1"><span aria-hidden="true" class="size-2 rounded-full bg-red-500"></span>0-49</span>
                     <span class="flex items-center gap-1"><span aria-hidden="true" class="size-2 rounded-full bg-yellow-500"></span>50-89</span>
                     <span class="flex items-center gap-1"><span aria-hidden="true" class="size-2 rounded-full bg-emerald-500"></span>90-100</span>
-                </span>
-            </div>
+                </span></div>
 
     <div class="card-body text-center hidden" id="partials_pagespeed_loading">
         <div class="flex h-56 items-center justify-center rounded-md border border-dashed border-gray-300 px-4 dark:border-gray-800">
@@ -519,17 +536,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <tr>
                     <td colspan="3" class="py-2"><span class="text-xs text-gray-500">{{.T.Get "Measured at"}} <span class="text-xs tabular-nums text-gray-500 dark:text-gray-500" id="timestamp"></span></span></td>
                 </tr>
-                <tr>
+                {{if or .PagespeedAPIKey (not .UserAllowed.filemanager)}}<tr>
                     <td colspan="3" class="py-2"><span class="domain_link text-xs text-gray-500 hover:underline hover:underline-offset-4">
                         {{if .PagespeedAPIKey}}
                         {{.T.Get "PageSpeed Insights API key:"}} <span class="text-xs tabular-nums text-gray-500 dark:text-gray-500" id="click_to_show_api_key" style="filter: blur(5px); cursor: pointer;" onclick="revealAPIkey()">{{.PagespeedAPIKey}}</span>
                         {{else if .UserAllowed.filemanager}}
-                        <a href="/file-manager/edit-file/pagespeed_api_key.txt?new=true" target="_blank">{{.T.Get "Click to add PageSpeed Insights API key"}}</a>
                         {{else}}
                         {{.T.Get "Ask Administrator to set a PageSpeed Insights API key"}}
                         {{end}}
                         </span></td>
-                </tr>
+                </tr>{{end}}
             </tbody>
         </table>
     </div>
@@ -549,17 +565,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         <table class="w-full text-sm">
             <thead><tr></tr></thead>
             <tbody>
-                <tr>
+                {{if or .PagespeedAPIKey (not .UserAllowed.filemanager)}}<tr>
                     <td colspan="3" class="pt-3"><span class="domain_link text-xs text-gray-500 hover:underline hover:underline-offset-4">
                         {{if .PagespeedAPIKey}}
                         {{.T.Get "PageSpeed Insights API key:"}} <span class="text-xs tabular-nums text-gray-500 dark:text-gray-500" id="click_to_show_api_key" style="filter: blur(5px); cursor: pointer;" onclick="revealAPIkey()">{{.PagespeedAPIKey}}</span>
                         {{else if .UserAllowed.filemanager}}
-                        <a href="/file-manager/edit-file/pagespeed_api_key.txt?new=true" class="text-xs" target="_blank">{{.T.Get "Click to add PageSpeed Insights API key"}}</a>
                         {{else}}
                         {{.T.Get "Ask Administrator to set a PageSpeed Insights API key"}}
                         {{end}}
                         </span></td>
-                </tr>
+                </tr>{{end}}
             </tbody>
         </table>
     </div>
@@ -699,6 +714,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         fetchDataAndUpdateUI();
     });
     </script>
+    </div>
 </div>
 <!-- END templates/partials/pagespeed.html -->
 {{end}}
@@ -728,7 +744,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             </div>
 
             <div class="col-span-full flex flex-wrap gap-2">
-                <button type="button" id="malwareScanBtn" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 mt-2">{{.T.Get "Scan for malware"}}</button>
+                <button type="button" id="malwareScanBtn" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 mt-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Scan for malware"}}</button>
                 <button type="button" id="malwareStopBtn" style="display: none;" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 mt-2">{{.T.Get "Stop"}}</button>
             </div>
 
@@ -988,7 +1004,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </div>
             </div>
         </div>
-        <button type="submit" :disabled="busy" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">
+        <button type="submit" :disabled="busy" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
             <span x-text="busy ? {{toJSON (.T.Get "Working...")}} : {{toJSON (.T.Get "Create")}}"></span>
         </button>
     </form>
@@ -1081,3 +1097,149 @@ function siteGit(domain, docroot) {
 </script>
 <!-- END site_git_panel -->
 {{end}}{{end}}
+
+{{/* site_backups is the WordPress backups table for other site types, dict T, Title, Intro, and either Domain+Docroot (website builder, files only) or Service (apps, restore only) */}}
+{{define "site_backups"}}
+<!-- START site_backups -->
+{{$btn := "relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"}}
+<section x-data="siteBackups({ domain: {{toJSON .Domain}}, docroot: {{toJSON .Docroot}}, service: {{toJSON .Service}} })" aria-labelledby="site-backups-title">
+    <div class="flex flex-wrap items-end justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <div>
+            <h2 id="site-backups-title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Backups"}}</h2>
+            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get .Intro}}</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+            <label class="relative block"><span class="sr-only">{{.T.Get "Search backups"}}</span><i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-gray-400" aria-hidden="true"></i><input x-model="q" type="search" placeholder="{{.T.Get "Search"}}" class="block w-full rounded-md border border-gray-300 bg-white py-1.5 pl-8 pr-2.5 text-sm text-gray-900 shadow-xs outline-hidden placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-56 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 [&::-webkit-search-cancel-button]:hidden"></label>
+            <button type="button" @click="backupNow()" :disabled="running" class="{{$btn}} border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:bg-gray-950 dark:hover:bg-gray-900/60"><i class="ri-archive-line" aria-hidden="true"></i><span x-text="running ? {{toJSON (.T.Get "Backing up...")}} : {{toJSON (.T.Get "Back up now")}}"></span></button>
+        </div>
+    </div>
+    <div class="flex items-start gap-3 rounded-md p-4 text-sm bg-red-50 text-red-900 dark:bg-red-950/70 dark:text-red-500 mx-4 mt-4 sm:mx-6 lg:mx-8" x-show="error" x-cloak><i class="ri-error-warning-line" aria-hidden="true"></i><span x-text="error"></span></div>
+    <div class="flex flex-wrap items-center gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500 mx-4 mt-4 sm:mx-6 lg:mx-8" x-show="pending" x-cloak>
+        <i class="ri-error-warning-line" aria-hidden="true"></i>
+        <span class="mr-auto" x-text="pendingText()"></span>
+        <button type="button" @click="confirmPending()" :disabled="busy" class="{{$btn}} border-black bg-black text-white hover:bg-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60" x-text="pending && pending.action === 'delete' ? {{toJSON (.T.Get "Delete")}} : {{toJSON (.T.Get "Restore")}}"></button>
+        <button type="button" @click="pending = null" class="{{$btn}} border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Cancel"}}</button>
+    </div>
+    <div class="mt-4 overflow-x-auto" x-show="list.length" x-cloak>
+    <table data-no-sort class="w-full border-t border-gray-200 text-sm dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+        <thead><tr>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Backup"}}</th>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50" x-show="sized">{{.T.Get "Size"}}</th>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
+        </tr></thead>
+        <tbody>
+            <template x-for="b in visible()" :key="b.date">
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                    <td class="border-b border-gray-200 px-4 py-2.5 dark:border-gray-800"><span class="font-medium text-gray-900 dark:text-gray-50" x-text="when(b.date)"></span> <span class="ml-1 font-mono text-xs text-gray-500" x-text="b.date"></span></td>
+                    <td class="border-b border-gray-200 px-4 py-2.5 text-center tabular-nums text-gray-900 dark:border-gray-800 dark:text-gray-50" x-show="sized" x-text="size(b.size)"></td>
+                    <td class="border-b border-gray-200 px-4 py-2.5 text-right whitespace-nowrap dark:border-gray-800">
+                        <div class="relative inline-block" x-data="rowMenu" @click.outside="close()" @keydown.escape="close()">
+                            <button x-ref="btn" type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="{{toJSON (.T.Get "Actions for")}} + ' ' + b.date" class="inline-flex size-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-more-2-line text-base" aria-hidden="true"></i></button>
+                            <div x-ref="menu" :style="pos" class="absolute right-0 z-50 mt-1 w-56 rounded-md border border-gray-200 bg-white p-1 text-left shadow-xl dark:border-gray-800 dark:bg-gray-950" x-show="open" x-cloak role="menu">
+                                <button type="button" role="menuitem" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" @click="open = false; ask('restore', b)"><i class="ri-history-line" aria-hidden="true"></i>{{.T.Get "Restore"}}</button>
+                                <template x-if="cfg.domain">
+                                    <div>
+                                        <a role="menuitem" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" :href="downloadURL(b)" @click="open = false"><i class="ri-download-2-line" aria-hidden="true"></i>{{.T.Get "Download files"}}</a>
+                                        <div class="my-1 border-t border-gray-200 dark:border-gray-800"></div>
+                                        <button type="button" role="menuitem" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-red-600 hover:bg-red-50 dark:text-red-500 dark:hover:bg-red-400/10" @click="open = false; ask('delete', b)"><i class="ri-delete-bin-line" aria-hidden="true"></i>{{.T.Get "Delete"}}</button>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </template>
+        </tbody>
+    </table>
+    </div>
+    <p class="px-4 py-6 text-sm text-gray-500 sm:px-6 lg:px-8" x-show="loading && !list.length">{{.T.Get "Loading backups..."}}</p>
+    <div class="mx-4 mt-4 flex flex-col items-center justify-center rounded-md border border-dashed border-gray-300 px-4 py-10 text-center sm:mx-6 lg:mx-8 dark:border-gray-800" x-show="!loading && !error && !list.length" x-cloak>
+        <i class="ri-archive-line text-2xl text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+        <p class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No backups yet"}}</p>
+        <p class="mt-1 text-sm text-gray-500">{{.T.Get .Empty}}</p>
+    </div>
+    <p class="py-6 text-center text-sm text-gray-500" x-show="q && list.length && !visible().length" x-cloak>{{.T.Get "Nothing matches that search."}}</p>
+    <p class="mt-3 px-4 text-xs text-gray-500 sm:px-6 lg:px-8" x-show="list.length" x-cloak x-text="list.length === 1 ? {{toJSON (.T.Get "1 backup")}} : list.length + ' ' + {{toJSON (.T.Get "backups")}}"></p>
+</section>
+<script>
+// builder sites use the WordPress backup routes by domain, apps use /pm2 by service, which can only list, create and restore
+window.siteBackups = window.siteBackups || function (cfg) {
+    const T = {
+        restoreQ: {{toJSON (.T.Get "Restore the backup from {date}? Current files are replaced.")}},
+        deleteQ: {{toJSON (.T.Get "Delete the backup from {date}? This can't be undone.")}},
+        failed: {{toJSON (.T.Get "Could not load backups.")}},
+        restoring: {{toJSON (.T.Get "Restoring backup... Please wait.")}},
+        backingUp: {{toJSON (.T.Get "Generating backup... Please wait.")}},
+        done: {{toJSON (.T.Get "Backup created successfully!")}},
+        restored: {{toJSON (.T.Get "Backup restored.")}},
+    };
+    const enc = encodeURIComponent;
+    return {
+        cfg, list: [], q: '', loading: false, error: '', running: false, busy: false, pending: null, sized: !!cfg.domain,
+        init() {
+            const panel = this.$el.closest('[role=tabpanel]');
+            const go = () => { if (!this.loaded) { this.loaded = true; this.load(); } };
+            if (panel && panel.classList.contains('hidden')) new MutationObserver((m, o) => { if (!panel.classList.contains('hidden')) { o.disconnect(); go(); } }).observe(panel, { attributes: true, attributeFilter: ['class'] });
+            else go();
+        },
+        listURL() { return cfg.domain ? '/wordpress/backup/get_dates/' + cfg.domain + '?docroot=' + enc(cfg.docroot) : '/pm2/backups/' + cfg.service; },
+        load() {
+            this.loading = true; this.error = '';
+            return fetch(this.listURL(), { headers: { 'X-CSRF-Token': csrf_token } })
+                .then(async r => { const t = await r.text(); if (!r.ok) throw new Error(t || r.status); return JSON.parse(t); })
+                .then(d => { this.list = (Array.isArray(d) ? d : []).map(b => typeof b === 'string' ? { date: b } : b).sort((a, b) => b.date.localeCompare(a.date)); })
+                .catch(e => { this.error = e.message || T.failed; })
+                .finally(() => { this.loading = false; });
+        },
+        visible() { const q = this.q.trim().toLowerCase(); return q ? this.list.filter(b => (this.when(b.date) + ' ' + b.date).toLowerCase().includes(q)) : this.list; },
+        when(date) {
+            const m = /^(\d{4})-(\d{2})-(\d{2})[_ T-](\d{2})[-:](\d{2})[-:]?(\d{2})?/.exec(date);
+            if (!m) return date;
+            const dt = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0));
+            return dt.toLocaleString(document.documentElement.lang || undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        },
+        size(n) {
+            if (n == null || isNaN(n)) return '-';
+            if (n < 1024) return Math.round(n) + ' B';
+            const u = ['KB', 'MB', 'GB', 'TB']; let i = -1; do { n /= 1024; i++; } while (n >= 1024 && i < u.length - 1);
+            return (n < 10 ? n.toFixed(1).replace(/\.0$/, '') : Math.round(n)) + ' ' + u[i];
+        },
+        downloadURL(b) { return '/wordpress/backup/download/' + cfg.domain + '?backup_date=' + enc(b.date) + '&part=files'; },
+        ask(action, b) { this.pending = { action, date: b.date }; },
+        pendingText() { return this.pending ? (this.pending.action === 'delete' ? T.deleteQ : T.restoreQ).replace('{date}', this.when(this.pending.date)) : ''; },
+        async post(url) {
+            const r = await fetch(url, { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } });
+            const t = await r.text();
+            let d = null; try { d = JSON.parse(t); } catch (e) {}
+            if (!r.ok) throw new Error((d && (d.error || d.message)) || t || r.status);
+            return (d && (d.message || d.success)) || (d ? '' : t);
+        },
+        async confirmPending() {
+            const p = this.pending; if (!p) return;
+            this.busy = true;
+            const date = enc(p.date);
+            try {
+                if (p.action === 'delete') showToast(await this.post('/wordpress/backup/delete/' + cfg.domain + '?backup_date=' + date) || T.done, 'success');
+                else {
+                    showToast(T.restoring, 'loading');
+                    const url = cfg.domain ? '/wordpress/backup/restore/' + cfg.domain + '?docroot=' + enc(cfg.docroot) + '&backup_date=' + date : '/pm2/restore/' + cfg.service + '?backup_date=' + date;
+                    showToast(await this.post(url) || T.restored, 'success');
+                }
+            } catch (e) { showToast(e.message, 'error'); }
+            this.pending = null; this.busy = false; this.load();
+        },
+        async backupNow() {
+            this.running = true;
+            showToast(T.backingUp, 'loading');
+            try {
+                const url = cfg.domain ? '/wordpress/backup/run/' + cfg.domain + '?docroot=' + enc(cfg.docroot) + '&backup_files=true' : '/pm2/backup/' + cfg.service;
+                const msg = await this.post(url);
+                showToast(typeof msg === 'string' && msg ? msg : T.done, 'success');
+            } catch (e) { showToast(e.message, 'error'); }
+            this.running = false; this.load();
+        },
+    };
+};
+</script>
+<!-- END site_backups -->
+{{end}}

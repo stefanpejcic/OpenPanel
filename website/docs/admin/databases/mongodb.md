@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# MongoDB Databases
+# MongoDB databases
 
 The MongoDB tab lists the MongoDB databases of every user on the server.
 

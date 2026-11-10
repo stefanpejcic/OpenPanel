@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/podmanmanager"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
@@ -55,10 +56,38 @@ func StartComposeServiceIfNotRunning(ctx context.Context, userContext, serviceNa
 	case "ws":
 		serviceName, _ = GetEnvValue(userContext, "WEB_SERVER")
 	}
-	if GetContainerStatus(ctx, userContext, serviceName).State == "running" {
+	st := GetContainerStatus(ctx, userContext, serviceName)
+	if st.State == "running" && st.Health != "starting" {
 		return
 	}
-	StartOrStopContainer(ctx, userContext, serviceName, "activate", "")
+	if st.State != "running" {
+		StartOrStopContainer(ctx, userContext, serviceName, "activate", "")
+	}
+	waitUntilReady(ctx, userContext, serviceName, serviceReadyTimeout)
+}
+
+// serviceReadyTimeout bounds how long a caller waits for a just-started service, a cold mariadb/postgres needs ~20-40s
+var serviceReadyTimeout = 90 * time.Second
+
+// waitUntilReady waits for a started container to pass its healthcheck, right after start mariadb answers
+// "Access denied" from its init server and postgres has no socket yet, so querying it at once fails.
+// A container without a healthcheck counts as ready once it's running; on timeout the caller's query reports the error.
+func waitUntilReady(ctx context.Context, userContext, serviceName string, timeout time.Duration) {
+	deadline := time.Now().Add(timeout)
+	for {
+		st := GetContainerStatus(ctx, userContext, serviceName)
+		if st.State == "running" && (st.Health == "healthy" || st.Health == "none") {
+			return
+		}
+		if time.Now().After(deadline) || ctx.Err() != nil {
+			return
+		}
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(time.Second):
+		}
+	}
 }
 
 // syncMyCnfPassword sets the password= lines in my.cnf, done in Go because the value comes from the account's .env and must never be read as a sed script

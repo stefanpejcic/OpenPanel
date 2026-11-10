@@ -14,42 +14,72 @@
     let toastDisplayed = false;
 </script>
 
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-    <div class="group">
-        <div class="flex items-center gap-x-3">
-            <img alt="{{.CurrentDomain}} Favicon" loading="lazy" width="5" height="5" decoding="async" class="size-4 rounded-full object-cover" src="/json/favicon/{{.CurrentDomain}}">
-            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.CurrentDomain}}</h1>
+<!-- top area -->
+<div class="flex flex-col gap-5 px-4 pt-6 pb-6 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8 border-b border-gray-200 dark:border-gray-800">
+
+    <div class="flex min-w-0 items-center gap-4">
+        <!-- the site's screenshot as a thumbnail, it opens the site -->
+        <div class="hidden h-20 w-32 shrink-0 overflow-hidden rounded-md sm:block [&_.screenshot]:h-full [&_.h-72]:h-20 [&_.h-72_p]:hidden [&_.h-72_i]:text-xl [&_.h-72_svg]:size-4 [&_img]:h-20">
+            {{template "screenshot" .}}
         </div>
-        <p class="mt-1 text-sm text-gray-500"><a href="http://{{.CurrentDomain}}" class="hover:underline hover:underline-offset-4" target="_blank">https://{{.CurrentDomain}}</a></p>
+        <div class="min-w-0">
+            <p class="text-sm text-gray-500">{{if eq .Type "nodejs"}}Node.js{{else if eq .Type "python"}}Python{{else if eq .Type "ruby"}}Ruby{{else if eq .Type "java"}}Java{{else}}{{title .Type}}{{end}}{{with .Container.Version}} {{.}}{{end}}</p>
+            <h1 class="mt-0.5 truncate text-lg font-semibold text-gray-900 dark:text-gray-50">{{.CurrentDomain}}</h1>
+            <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-gray-700 dark:text-gray-300">
+                <span class="inline-flex items-center gap-1.5"><span class="size-2 rounded-full {{if eq .PM2Status "true"}}bg-emerald-500{{else if eq .PM2Status "false"}}bg-red-500{{else}}bg-gray-400{{end}}" aria-hidden="true"></span>{{if eq .PM2Status "true"}}{{.T.Get "Active"}}{{else if eq .PM2Status "false"}}{{.T.Get "Inactive"}}{{else}}{{.T.Get "Unknown"}}{{end}}</span>
+                {{if eq .SSLState "valid"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20" title="{{.T.Get "Expires"}} {{.SSLExpires}}">{{.T.Get "SSL valid"}}</span>
+                {{else if eq .SSLState "expiring"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20" title="{{.T.Get "Expires"}} {{.SSLExpires}}">{{.T.Get "SSL expiring"}}</span>
+                {{else if eq .SSLState "expired"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.T.Get "SSL expired"}}</span>
+                {{else if eq .SSLState "pending"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{.T.Get "SSL pending"}}</span>
+                {{else if eq .SSLState "missing"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.T.Get "SSL missing"}}</span>{{end}}
+                <a href="http://{{.CurrentDomain}}" class="domain_link inline-flex min-w-0 items-center gap-1 text-gray-500 hover:text-gray-900 hover:underline hover:underline-offset-4 dark:hover:text-gray-50" target="_blank"><span class="truncate">https://{{.CurrentDomain}}</span><i class="ri-external-link-line" aria-hidden="true"></i></a>
+            </div>
+        </div>
     </div>
 
-    <div class="flex gap-2">
+    <!-- action buttons -->
+    <div class="relative flex flex-col gap-2 sm:flex-row sm:items-center">
         {{template "temp_link" .}}
     </div>
+
 </div>
+<!-- END top area -->
 
-<div class="grid gap-6 px-4 pb-8 sm:px-6 lg:px-8 xl:grid-cols-4">
+<div class="pb-6">
 
-    <div class="flex flex-col space-y-4 rounded-md xl:col-span-3">
+    <div class="min-w-0">
 
-        <div class="flex flex-col justify-center rounded-md border border-gray-200 dark:border-gray-800 xl:col-span-3" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
+        <div class="flex flex-col"
+     x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard',
+               showPanel(t) { document.querySelectorAll('#wp-tab-content > [role=tabpanel]').forEach(p => p.classList.toggle('hidden', p.id !== t)); } }"
+     x-init="$watch('activeTab', t => showPanel(t));
+             if (document.readyState !== 'complete') window.addEventListener('load', () => setTimeout(() => showPanel(activeTab), 0));">
 
-    <div class="border-b border-gray-200 px-2 dark:border-gray-800">
-        <ul id="wp-tab" data-tabs-toggle="#wp-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="grid {{if .UserAllowed.malware_scan}}grid-cols-8{{else}}grid-cols-7{{end}} w-full items-center justify-between">
+    <div class="border-b border-gray-200 px-4 sm:px-6 lg:px-8 dark:border-gray-800">
+        <ul id="wp-tab" data-tabs-toggle="#wp-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="flex w-full items-center gap-1 [&>li]:flex-auto [&>li]:min-w-0">
             <li role="presentation">
                 <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
                    @click="activeTab = 'dashboard'"
                    :class="activeTab === 'dashboard' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
-                   class="-mb-px inline-flex w-full items-center justify-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
                     <i class="ri-dashboard-line text-base" aria-hidden="true"></i>
                     <span>{{.T.Get "Overview"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#options" id="options-tab" data-tabs-target="#options" role="tab" aria-controls="options" aria-selected="false"
+                   @click="activeTab = 'options'"
+                   :class="activeTab === 'options' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                    <i class="ri-settings-3-line text-base" aria-hidden="true"></i>
+                    <span>{{.T.Get "Options"}}</span>
                 </a>
             </li>
             <li role="presentation">
                 <a href="#pip" id="pip-tab" data-tabs-target="#pip" role="tab" aria-controls="pip" aria-selected="false"
                    @click="activeTab = 'pip'"
                    :class="activeTab === 'pip' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
-                   class="-mb-px inline-flex w-full items-center justify-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
                     <i class="ri-download-cloud-2-line text-base" aria-hidden="true"></i>
                     <span>{{.T.Get "Install packages"}}</span>
                 </a>
@@ -58,7 +88,7 @@
                 <a href="#envvars" id="envvars-tab" data-tabs-target="#envvars" role="tab" aria-controls="envvars" aria-selected="false"
                    @click="activeTab = 'envvars'"
                    :class="activeTab === 'envvars' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
-                   class="-mb-px inline-flex w-full items-center justify-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
                     <i class="ri-list-settings-line text-base" aria-hidden="true"></i>
                     <span>{{.T.Get "Env vars"}}</span>
                 </a>
@@ -67,7 +97,7 @@
                 <a href="#clone" id="clone-tab" data-tabs-target="#clone" role="tab" aria-controls="clone" aria-selected="false"
                    @click="activeTab = 'clone'"
                    :class="activeTab === 'clone' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
-                   class="-mb-px inline-flex w-full items-center justify-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
                     <i class="ri-file-copy-line text-base" aria-hidden="true"></i>
                     <span>{{.T.Get "Clone"}}</span>
                 </a>
@@ -76,7 +106,7 @@
                 <a href="#backup" id="backup-tab" data-tabs-target="#backup" role="tab" aria-controls="backup" aria-selected="false"
                    @click="activeTab = 'backup'"
                    :class="activeTab === 'backup' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
-                   class="-mb-px inline-flex w-full items-center justify-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
                     <i class="ri-archive-line text-base" aria-hidden="true"></i>
                     <span>{{.T.Get "Backup"}}</span>
                 </a>
@@ -85,7 +115,7 @@
                 <a href="#logs" id="logs-tab" data-tabs-target="#logs" role="tab" aria-controls="logs" aria-selected="false"
                    @click="activeTab = 'logs'"
                    :class="activeTab === 'logs' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
-                   class="-mb-px inline-flex w-full items-center justify-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
                     <i class="ri-file-text-line text-base" aria-hidden="true"></i>
                     <span>{{.T.Get "Logs"}}</span>
                 </a>
@@ -95,7 +125,7 @@
                 <a href="#" id="security-tab" data-tabs-target="#security" role="tab" aria-controls="security" aria-selected="false"
                    @click="activeTab = 'security'"
                    :class="activeTab === 'security' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
-                   class="-mb-px inline-flex w-full items-center justify-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
                     <i class="ri-shield-check-line text-base" aria-hidden="true"></i>
                     <span>{{.T.Get "Security"}}</span>
                 </a>
@@ -105,7 +135,7 @@
                 <a href="#" id="remove-tab" data-tabs-target="#remove" role="tab" aria-controls="remove" aria-selected="false"
                    @click="activeTab = 'remove'"
                    :class="activeTab === 'remove' ? 'border-red-600 text-red-600 dark:border-red-500 dark:text-red-500' : 'border-transparent text-gray-500 hover:text-red-600 dark:hover:text-red-500'"
-                   class="-mb-px inline-flex w-full items-center justify-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
                     <i class="ri-delete-bin-line text-base" aria-hidden="true"></i>
                     <span>{{.T.Get "Remove"}}</span>
                 </a>
@@ -116,81 +146,32 @@
             <div id="wp-tab-content">
 
                 {{if .UserAllowed.malware_scan}}
-                <div class="hidden p-4 sm:p-6" id="security" role="tabpanel" aria-labelledby="security-tab">
+                <div class="hidden max-w-5xl px-4 py-6 sm:px-6 lg:px-8" id="security" role="tabpanel" aria-labelledby="security-tab">
                     {{template "malware_scan_panel" .}}
                 </div>
                 {{end}}
 
-                <div class="hidden p-4 sm:p-6" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+                <div class="hidden" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
 
-        <div class="grid gap-4 sm:grid-cols-1 md:gap-4 xl:grid-cols-4 m-0">
-            <div class="flex flex-col space-y-4 overflow-hidden rounded-md xl:col-span-3">
-                <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden xl:col-span-3">
-            {{template "screenshot" .}}
+        <dl class="grid grid-cols-2 gap-x-8 gap-y-5 px-4 py-6 sm:grid-cols-4 sm:px-6 lg:px-8">
+            <div><dt class="text-sm text-gray-500">{{.T.Get "Status"}}</dt><dd class="mt-1 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-50"><span class="size-2 shrink-0 rounded-full {{if eq .PM2Status "true"}}bg-emerald-500{{else if eq .PM2Status "false"}}bg-red-500{{else}}bg-gray-400{{end}}" aria-hidden="true"></span>{{if eq .PM2Status "true"}}{{.T.Get "Active"}}{{else if eq .PM2Status "false"}}{{.T.Get "Inactive"}}{{else}}{{.T.Get "Unknown"}}{{end}}</dd></div>
+            <div><dt class="text-sm text-gray-500">{{if eq .Type "nodejs"}}{{.T.Get "Node.js"}}{{else if eq .Type "python"}}{{.T.Get "Python"}}{{else if eq .Type "ruby"}}{{.T.Get "Ruby"}}{{else if eq .Type "java"}}{{.T.Get "Java"}}{{end}} {{.T.Get "version"}}</dt><dd class="mt-1 text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-50">{{.Container.Version}}</dd></div>
+            <div><dt class="text-sm text-gray-500">{{.T.Get "CPU limit"}}</dt><dd class="mt-1 text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-50">{{.CPU}}</dd></div>
+            <div><dt class="text-sm text-gray-500">{{.T.Get "Memory limit"}}</dt><dd class="mt-1 text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-50">{{.RAM}}</dd></div>
+        </dl>
+
+        <!-- one surface split by lines: the app on the left, speed, visitors and firewall on the right -->
+        <div class="grid grid-cols-1 gap-px border-y border-gray-200 bg-gray-200 lg:grid-cols-3 dark:border-gray-800 dark:bg-gray-800">
+            <div class="min-w-0 bg-white lg:col-span-2 dark:bg-gray-950">
+        <div class="grid grid-cols-1 gap-px border-b border-gray-200 bg-gray-200 sm:grid-cols-2 dark:border-gray-800 dark:bg-gray-800">
+
+        <div class="flex flex-col bg-white px-6 py-5 dark:bg-gray-950">
+            <div class="-mx-6 -mt-5 mb-4 flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+                <div class="min-w-0">
+                    <h2 id="app-actions-title" class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Actions"}}</h2>
+                    {{if .UserAllowed.docker}}<a href="/containers" target="_blank" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Manage containers"}} &rarr;</a>{{end}}
+                    <p class="text-sm/6 text-gray-500">{{.T.Get "Start, stop or restart the app's container."}}</p>
                 </div>
-            </div>
-            <div class="flex flex-col h-full space-y-4 xl:col-span-1 pb-2">
-
-                <div class="flex flex-col flex-grow justify-center rounded-md border border-gray-200 p-4 dark:border-gray-800">
-                    <div class="mb-2 flex items-center justify-between gap-4 relative">
-                        
-                        <h2 class="text-sm text-gray-500">{{.T.Get "Status"}}</h2>
-                    </div>
-                    <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-50">
-                    <span class="size-2 shrink-0 rounded-full {{if eq .PM2Status "true"}}bg-emerald-500{{else if eq .PM2Status "false"}}bg-red-500{{else}}bg-gray-400{{end}}" aria-hidden="true"></span><span class="inline-block">
-                        {{if eq .PM2Status "true"}}{{.T.Get "Active"}}
-                        {{else if eq .PM2Status "false"}}{{.T.Get "Inactive"}}
-                        {{else}}{{.T.Get "Unknown"}}
-                        {{end}}</span></h3>
-                </div>
-
-                <div class="flex flex-col flex-grow justify-center rounded-md border border-gray-200 p-4 dark:border-gray-800">
-                    <div class="mb-2 flex items-center justify-between gap-4 relative">
-                        
-                        <h2 class="text-sm text-gray-500">
-                            {{if eq .Type "nodejs"}}{{.T.Get "Node.js"}}
-                            {{else if eq .Type "python"}}{{.T.Get "Python"}}
-                            {{else if eq .Type "ruby"}}{{.T.Get "Ruby"}}
-                            {{else if eq .Type "java"}}{{.T.Get "Java"}}
-                            {{end}} {{.T.Get "version"}}</h2>
-                    </div>
-                    <h3 class="inline-flex items-center gap-1.5 text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-50">{{.Container.Version}}</h3>
-                </div>
-
-                <div class="flex flex-col flex-grow justify-center rounded-md border border-gray-200 p-4 dark:border-gray-800">
-                    <div class="mb-2 flex items-center justify-between gap-4 relative">
-                        
-                        <h2 class="text-sm text-gray-500">{{.T.Get "CPU limit"}}</h2>
-                    </div>
-                    <h3 class="inline-flex items-center gap-1.5 text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-50"><i class="dashboard_icon ri-cpu-line text-gray-400" aria-hidden="true"></i> {{.CPU}}</h3>
-                </div>
-
-                <div class="flex flex-col flex-grow justify-center rounded-md border border-gray-200 p-4 dark:border-gray-800">
-                    <div class="mb-2 flex items-center justify-between gap-4 relative">
-                        
-                        <h2 class="text-sm text-gray-500">{{.T.Get "Memory limit"}}</h2>
-                    </div>
-                    <h3 class="inline-flex items-center gap-1.5 text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-50"><i class="dashboard_icon ri-ram-2-line text-gray-400" aria-hidden="true"></i> {{.RAM}}</h3>
-                </div>
-
-            </div>
-        </div>
-
-        <div class="grid gap-4 grid-cols-2 md:gap-4 m-0 pb-4">
-
-        <div class="flex flex-col overflow-hidden rounded-md border border-gray-200 p-4 dark:border-gray-800 xl:col-span-1">
-            <div class="mb-2 flex items-center justify-between gap-4 relative">
-                
-                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Actions"}}</h2>
-                {{if .UserAllowed.docker}}
-                <a type="button" href="/containers" target="_blank" data-tooltip-target="tooltip-pm2-link" data-tooltip-placement="left" aria-label="{{.T.Get "Open"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
-                    <i class="ri-box-3-line text-base" aria-hidden="true"></i>
-                </a>
-<div id="tooltip-pm2-link" role="tooltip" class="absolute z-10 invisible inline-block rounded-md bg-gray-950 px-3 py-2 text-xs font-medium text-gray-50 opacity-0 shadow-lg tooltip dark:bg-gray-800">
-    {{.T.Get "Manage containers"}}
-    <div class="tooltip-arrow" data-popper-arrow></div>
-</div>
-                {{end}}
             </div>
 
   <div class="col">
@@ -300,17 +281,13 @@
 </div>
         </div>
 
-        <div class="flex flex-col overflow-hidden rounded-md border border-gray-200 p-4 dark:border-gray-800 xl:col-span-1">
-            <div class="mb-2 flex items-center justify-between gap-4 relative">
-                
-                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Files"}}</h2>
-                <a type="button" {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}} target="_blank" data-tooltip-target="tooltip-filemanager-link" data-tooltip-placement="left" aria-label="{{.T.Get "Open"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
-                    <i class="ri-folder-open-line text-base" aria-hidden="true"></i>
-                </a>
-<div id="tooltip-filemanager-link" role="tooltip" class="absolute z-10 invisible inline-block rounded-md bg-gray-950 px-3 py-2 text-xs font-medium text-gray-50 opacity-0 shadow-lg tooltip dark:bg-gray-800">
-    {{.T.Get "Open folder in file manager"}}
-    <div class="tooltip-arrow" data-popper-arrow></div>
-</div>
+        <div class="flex flex-col bg-white px-6 py-5 dark:bg-gray-950">
+            <div class="-mx-6 -mt-5 mb-4 flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+                <div class="min-w-0">
+                    <h2 id="app-files-title" class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Files"}}</h2>
+                    {{if .UserAllowed.filemanager}}<a href="/files/{{replace .Docroot "/var/www/html/" ""}}" target="_blank" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Open in file manager"}} &rarr;</a>{{end}}
+                    <p class="text-sm/6 text-gray-500">{{.T.Get "Where the site lives and how much space it takes."}}</p>
+                </div>
             </div>
 
   <div class="col">
@@ -374,15 +351,42 @@
     {{else}}
     <p class="py-4 text-center text-sm text-gray-500">{{.T.Get "This folder is empty."}}</p>
     {{end}}
-    <div class="mt-2 flex items-center justify-between gap-4 text-xs text-gray-500">
-        <span>{{if .HiddenFiles}}{{.T.Get "and %(n)s hidden" "n" (toString .HiddenFiles)}}{{end}}</span>
-        {{if .UserAllowed.filemanager}}<a href="/files/{{replace .Docroot "/var/www/html/" ""}}" target="_blank" class="inline-flex items-center gap-1 font-medium text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Open in file manager"}}<i class="ri-arrow-right-up-line" aria-hidden="true"></i></a>{{end}}
-    </div>
+    {{if .HiddenFiles}}<p class="mt-2 text-xs text-gray-500">{{.T.Get "and %(n)s hidden" "n" (toString .HiddenFiles)}}</p>{{end}}
 </div>
 </div>
         </div>
 
 </div>
+            <section aria-labelledby="app-tasks-title">
+                    <div class="flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+                        <div class="min-w-0">
+                            <h2 id="app-tasks-title" class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Quick tasks"}}</h2>
+                            <p class="text-sm/6 text-gray-500">{{.T.Get "The jobs people reach for most, each one opens its tab."}}</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2 px-6 py-5">
+                        <button type="button" @click="activeTab = 'options'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-settings-3-line" aria-hidden="true"></i>{{.T.Get "Options"}}</button>
+                        <button type="button" @click="activeTab = 'pip'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-download-cloud-2-line" aria-hidden="true"></i>{{.T.Get "Install packages"}}</button>
+                        <button type="button" @click="activeTab = 'envvars'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-list-settings-line" aria-hidden="true"></i>{{.T.Get "Env vars"}}</button>
+                        <button type="button" @click="activeTab = 'backup'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-archive-line" aria-hidden="true"></i>{{.T.Get "Backup"}}</button>
+                        <button type="button" @click="activeTab = 'logs'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-file-text-line" aria-hidden="true"></i>{{.T.Get "Logs"}}</button>
+                        <button type="button" @click="activeTab = 'clone'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-file-copy-line" aria-hidden="true"></i>{{.T.Get "Clone"}}</button>
+                    </div>
+            </section>
+            </div>
+                <div class="divide-y divide-gray-200 bg-white dark:divide-gray-800 dark:bg-gray-950 [&>div]:rounded-none [&>div]:border-x-0 [&>div]:border-t-0 [&>div:last-child]:border-b-0 [&>div]:bg-transparent [&>div]:px-6 [&>div]:py-5 [&_[data-panel-head]]:-mx-6 [&_[data-panel-head]]:-mt-5 [&_[data-panel-head]]:mb-4 [&_[data-panel-head]]:border-b [&_[data-panel-head]]:border-gray-200 [&_[data-panel-head]]:px-6 [&_[data-panel-head]]:py-4 dark:[&_[data-panel-head]]:border-gray-800 dark:[&>div]:bg-transparent">
+                    {{template "pagespeed_panel" .}}
+                    {{template "visitors" .}}
+                    {{template "waf_panel" .}}
+                    <div class="flex items-center justify-between gap-4 text-sm"><span class="text-gray-500">{{.T.Get "Created"}}</span><b id="created_date" data-relative-date="{{.Container.CreatedDate}}" title="{{.Container.CreatedDate}}" class="font-medium text-gray-900 dark:text-gray-50">{{.Container.CreatedDate}}</b></div>
+                </div>
+        </div>
+            </div>
+
+
+                <!-- container, start command, startup, version and limits, like WordPress's Options tab -->
+                <div class="hidden max-w-5xl px-4 py-6 sm:px-6 lg:px-8" id="options" role="tabpanel" aria-labelledby="options-tab">
+
 
     <div class="mt-4 grid grid-cols-1">
 
@@ -733,7 +737,7 @@
     <div class="my-8 h-px w-full bg-gray-200 dark:bg-gray-800"></div>
 
     <div class="flex justify-end">
-    <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 sm:w-fit">{{.T.Get "Save changes"}}</button>
+    <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-fit border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Save changes"}}</button>
     </div>
 
     </form>
@@ -742,8 +746,7 @@
 
             </div>
 
-
-                <div class="hidden p-4 sm:p-6" id="pip" role="tabpanel" aria-labelledby="pip-tab">
+                <div class="hidden max-w-5xl px-4 py-6 sm:px-6 lg:px-8" id="pip" role="tabpanel" aria-labelledby="pip-tab">
 
                 <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
                     <div>
@@ -839,14 +842,14 @@
 
     <div class="w-full flex space-x-2">
     {{if eq .Type "nodejs"}}
-    <button type="button" data-pm="npm" class="install-btn relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 sm:w-fit mt-2 w-full sm:mt-0">{{.T.Get "NPM install"}}</button>
+    <button type="button" data-pm="npm" class="install-btn relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-fit mt-2 w-full sm:mt-0 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "NPM install"}}</button>
     <button type="button" data-pm="pnpm" class="install-btn relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 sm:w-fit mt-2 w-full sm:mt-0">{{.T.Get "PNPM install"}}</button>
     {{else if eq .Type "python"}}
-    <button type="button" data-pm="pip" class="install-btn relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 sm:w-fit mt-2 w-full sm:mt-0">{{.T.Get "PIP install"}}</button>
+    <button type="button" data-pm="pip" class="install-btn relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-fit mt-2 w-full sm:mt-0 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "PIP install"}}</button>
     {{else if eq .Type "ruby"}}
-    <button type="button" data-pm="bundle" class="install-btn relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 sm:w-fit mt-2 w-full sm:mt-0">{{.T.Get "Bundle install"}}</button>
+    <button type="button" data-pm="bundle" class="install-btn relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-fit mt-2 w-full sm:mt-0 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Bundle install"}}</button>
     {{else if eq .Type "java"}}
-    <button type="button" data-pm="mvn" class="install-btn relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 sm:w-fit mt-2 w-full sm:mt-0">{{.T.Get "Maven install"}}</button>
+    <button type="button" data-pm="mvn" class="install-btn relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-fit mt-2 w-full sm:mt-0 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Maven install"}}</button>
     {{end}}
 
     <a href="/file-manager/edit-file/{{replace .Workdir "/var/www/html/" ""}}/{{if eq .Type "nodejs"}}{{.T.Get "package.json"}}{{else if eq .Type "python"}}{{.T.Get "requirements.txt"}}{{else if eq .Type "ruby"}}{{.T.Get "Gemfile"}}{{else if eq .Type "java"}}{{.T.Get "pom.xml"}}{{end}}?new=true" target="_blank" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 sm:w-fit mt-2 w-full sm:mt-0" id="npm-edit-link">{{.T.Get "Edit file"}}</a>
@@ -858,7 +861,7 @@
 
                 </div>
 
-                <div class="hidden p-4 sm:p-6" id="envvars" role="tabpanel" aria-labelledby="envvars-tab">
+                <div class="hidden max-w-5xl px-4 py-6 sm:px-6 lg:px-8" id="envvars" role="tabpanel" aria-labelledby="envvars-tab">
                     <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
                         <div>
                             <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Environment variables"}}</h2>
@@ -869,13 +872,13 @@
                                 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
                                 <textarea name="env_vars" rows="10" placeholder="API_KEY=changeme&#10;DATABASE_URL=postgres://user:pass@host/db" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 font-mono min-h-24">{{.EnvVars}}</textarea>
                                 <p class="mt-2 text-xs text-gray-500">{{.T.Get "Restart the application from the Overview tab after saving so the changes take effect."}}</p>
-                                <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 mt-2">{{.T.Get "Save environment variables"}}</button>
+                                <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 mt-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Save environment variables"}}</button>
                             </form>
                         </div>
                     </div>
                 </div>
 
-                <div class="hidden p-4 sm:p-6" id="clone" role="tabpanel" aria-labelledby="clone-tab">
+                <div class="hidden max-w-5xl px-4 py-6 sm:px-6 lg:px-8" id="clone" role="tabpanel" aria-labelledby="clone-tab">
 
                     <p class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Clone this application's files and settings onto a new domain - useful for quick staging copies."}}</p>
 
@@ -941,7 +944,7 @@
                         <div class="my-8 h-px w-full bg-gray-200 dark:bg-gray-800"></div>
 
                         <div class="flex items-center justify-end space-x-4">
-                            <button type="button" id="pm2-startCloneBtn" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 sm:w-fit mt-2 sm:mt-0">{{.T.Get "Clone application"}}</button>
+                            <button type="button" id="pm2-startCloneBtn" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-fit mt-2 sm:mt-0 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Clone application"}}</button>
                         </div>
                     </form>
 
@@ -1008,146 +1011,11 @@
 
                 </div>
 
-                <div class="hidden p-4 sm:p-6" id="backup" role="tabpanel" aria-labelledby="backup-tab">
-
-                    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
-                        <div>
-                            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Create a backup"}}</h2>
-                            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Archives the app's files, and records its current version/requirements/startup command/resource limits and environment variables."}}</p>
-                        </div>
-                        <div class="sm:max-w-3xl md:col-span-2">
-                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                                <div class="col-span-full">
-                                    <button id="pm2-runBackup" type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 mt-2 sm:mt-0">{{.T.Get "Generate backup"}}</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mx-auto my-6 flex w-full items-center justify-between gap-3 text-sm text-gray-500"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div class="whitespace-nowrap text-inherit">{{.T.Get "or"}}</div><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div><div></div></div>
-
-                    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
-                        <div>
-                            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Restore from backups"}}</h2>
-                            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Restore files and settings from a backup. Every setting is validated before anything is changed."}}</p>
-                        </div>
-                        <div class="sm:max-w-3xl md:col-span-2">
-                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                                <div class="col-span-full">
-                                    <div class="relative w-full mt-2 space-y-2">
-                                        <button id="pm2-restore-btn-or" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600" type="button">
-                                            {{.T.Get "Display backups"}}
-                                        </button>
-
-                                        <div id="pm2-restore-section" class="hidden">
-                                            <p>{{.T.Get "Backup date"}}</p>
-                                            <select class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 cursor-pointer truncate pr-7 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]" id="pm2-restoreBackupDate"></select>
-
-                                            <button type="button" id="pm2-confirmRestore" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 mt-2 sm:mt-0">
-                                                {{.T.Get "Start restore"}}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <script>
-                        (function() {
-                            const runBackupButton = document.getElementById("pm2-runBackup");
-                            const restoreButton = document.getElementById("pm2-restore-btn-or");
-                            const restoreBackupDateSelect = document.getElementById("pm2-restoreBackupDate");
-                            const confirmRestoreButton = document.getElementById("pm2-confirmRestore");
-                            let restoreConfirmed = false;
-
-                            if (runBackupButton) {
-                                runBackupButton.addEventListener("click", function () {
-                                    runBackupButton.disabled = true;
-                                    runBackupButton.textContent = {{toJSON (.T.Get "Generating...")}};
-                                    showToast({{toJSON (.T.Get "Generating backup... Please wait.")}}, 'loading');
-
-                                    fetch("/pm2/backup/{{.Service}}", { method: "POST", headers: { 'X-CSRF-Token': csrf_token } })
-                                        .then(response => response.json().then(data => {
-                                            if (!response.ok) throw data;
-                                            return data;
-                                        }))
-                                        .then(() => {
-                                            showToast({{toJSON (.T.Get "Backup created successfully!")}}, 'success');
-                                            runBackupButton.disabled = false;
-                                            runBackupButton.textContent = {{toJSON (.T.Get "Generate backup")}};
-                                        })
-                                        .catch(error => {
-                                            showToast(`${error?.error || error}`, 'error');
-                                            runBackupButton.disabled = false;
-                                            runBackupButton.textContent = {{toJSON (.T.Get "Generate backup")}};
-                                        });
-                                });
-                            }
-
-                            if (restoreButton) {
-                                restoreButton.addEventListener("click", function () {
-                                    document.getElementById("pm2-restore-section").classList.remove("hidden");
-                                    restoreButton.classList.add("hidden");
-                                    fetch("/pm2/backups/{{.Service}}", { headers: { 'X-CSRF-Token': csrf_token } })
-                                        .then(response => response.json())
-                                        .then(dates => {
-                                            restoreBackupDateSelect.innerHTML = "";
-                                            if (dates.length > 0) {
-                                                dates.forEach(date => {
-                                                    const option = document.createElement("option");
-                                                    option.value = date;
-                                                    option.textContent = date;
-                                                    restoreBackupDateSelect.appendChild(option);
-                                                });
-                                            } else {
-                                                const option = document.createElement("option");
-                                                option.textContent = {{toJSON (.T.Get "No backups available")}};
-                                                option.disabled = true;
-                                                restoreBackupDateSelect.appendChild(option);
-                                            }
-                                        })
-                                        .catch(error => console.error("Error fetching backup dates:", error));
-                                });
-                            }
-
-                            if (confirmRestoreButton) {
-                                confirmRestoreButton.addEventListener("click", function () {
-                                    if (!restoreConfirmed) {
-                                        confirmRestoreButton.textContent = {{toJSON (.T.Get "Click again to confirm")}};
-                                        confirmRestoreButton.classList.remove("bg-blue-500", "hover:bg-blue-600");
-                                        confirmRestoreButton.classList.add("bg-red-600", "hover:bg-red-700");
-                                        restoreConfirmed = true;
-                                        return;
-                                    }
-                                    const selectedDate = restoreBackupDateSelect.value;
-                                    showToast({{toJSON (.T.Get "Restoring backup... Please wait.")}}, 'warning');
-                                    fetch("/pm2/restore/{{.Service}}?backup_date=" + encodeURIComponent(selectedDate), { method: "POST", headers: { 'X-CSRF-Token': csrf_token } })
-                                        .then(response => response.json().then(data => {
-                                            if (!response.ok) throw data;
-                                            return data;
-                                        }))
-                                        .then(() => {
-                                            showToast({{toJSON (.T.Get "Backup restored successfully!")}}, 'success');
-                                            setTimeout(() => {
-                                                restoreConfirmed = false;
-                                                confirmRestoreButton.textContent = {{toJSON (.T.Get "Start restore")}};
-                                                confirmRestoreButton.classList.remove("bg-red-600", "hover:bg-red-700");
-                                                confirmRestoreButton.classList.add("bg-blue-500", "hover:bg-blue-600");
-                                            }, 5000);
-                                        })
-                                        .catch(error => {
-                                            const details = error && error.details ? ' - ' + error.details.join('; ') : '';
-                                            showToast(`${(error?.error || error)}${details}`, 'error');
-                                        });
-                                });
-                            }
-                        })();
-                    </script>
-
+                <div class="hidden py-6" id="backup" role="tabpanel" aria-labelledby="backup-tab">
+                    {{template "site_backups" (dict "T" .T "Service" .Service "Intro" "Copies of the app's files, with its version, requirements, startup command, limits and environment variables. Restore them here." "Empty" "Back up now saves the app's files and settings.")}}
                 </div>
 
-                <div class="hidden p-4 sm:p-6" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+                <div class="hidden max-w-5xl px-4 py-6 sm:px-6 lg:px-8" id="logs" role="tabpanel" aria-labelledby="logs-tab">
 
                     <div class="flex items-center justify-between mb-4">
                         <h3 id="app-log-title" class="font-semibold text-gray-900 dark:text-gray-50">
@@ -1278,7 +1146,7 @@ function openLogsInNewTab() {
                     </script>
                 </div>
 
-                <div class="hidden p-4 sm:p-6" id="remove" role="tabpanel" aria-labelledby="remove-tab">
+                <div class="hidden max-w-5xl px-4 py-6 sm:px-6 lg:px-8" id="remove" role="tabpanel" aria-labelledby="remove-tab">
 
                     <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
                         <div>
@@ -1337,27 +1205,6 @@ function openLogsInNewTab() {
 
     </div>
 
-    <div class="flex flex-col space-y-4 rounded-md xl:col-span-1">
-
-        {{template "pagespeed_panel" .}}
-
-        {{template "visitors" .}}
-
-        {{template "waf_panel" .}}
-
-        <div class="flex flex-col justify-center overflow-hidden rounded-md p-0 xl:col-span-1">
-
-        <table class="w-full text-sm">
-            <tbody>
-                <tr>
-                    <td class="relative py-1.5"><span class="relative text-gray-500"><a data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{{.Container.CreatedDate}}"><i class="ri-information-line"></i></a> {{.T.Get "Created"}}</span></td>
-                    <td class="text-end"><b id="created_date" data-relative-date="{{.Container.CreatedDate}}">{{.Container.CreatedDate}}</b></td>
-                </tr>
-            </tbody>
-        </table>
-        </div>
-
-    </div>
 </div>
 
 <script>

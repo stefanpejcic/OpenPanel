@@ -8,7 +8,7 @@
 <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
     <div class="min-w-0">
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Delete"}} <span class="punycode">{{.Email}}</span></h1>
-        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Permanently delete this alias and all its destinations."}}</p>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Permanently delete this alias and all its destinations."}}</p>
     </div>
 </div>
 
@@ -71,7 +71,7 @@ function deleteAlias(email) {
 <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
     <div>
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Select alias"}}</h1>
-        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Select an alias to delete."}}</p>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Select an alias to delete."}}</p>
     </div>
 </div>
 

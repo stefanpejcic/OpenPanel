@@ -119,7 +119,7 @@ export const markCard = title => async page => {
     document.querySelectorAll('[data-shot]').forEach(e => e.removeAttribute('data-shot'));
     const walker = document.createTreeWalker(document.querySelector('main'), NodeFilter.SHOW_TEXT);
     const matches = [];
-    for (let n; (n = walker.nextNode()); ) if (n.textContent.trim() === title && n.parentElement.offsetParent) matches.push(n);
+    for (let n; (n = walker.nextNode()); ) if (n.textContent.trim().toLowerCase() === title.toLowerCase() && n.parentElement.offsetParent) matches.push(n);
     // a card title is a heading, so prefer those over icon labels with the same text
     matches.sort((a, b) => /^H\d$/.test(b.parentElement.tagName) - /^H\d$/.test(a.parentElement.tagName));
     for (const n of matches) {
@@ -134,7 +134,7 @@ export const markCard = title => async page => {
 export const tab = name => async page => {
   // tab labels carry icon markup, so match on innerText in the page
   await page.evaluate(name => {
-    const a = [...document.querySelectorAll('a')].find(a => /activeTab/.test(a.getAttribute('@click') || '') && a.innerText.trim() === name);
+    const a = [...document.querySelectorAll('a, button')].find(a => /activeTab/.test(a.getAttribute('@click') || '') && a.innerText.trim().toLowerCase() === name.toLowerCase());
     a.click();
     // tag the card that holds the tab bar and its panel, so the crop can stop there
     document.querySelectorAll('[data-shot]').forEach(e => e.removeAttribute('data-shot'));
@@ -149,7 +149,7 @@ export const tab = name => async page => {
 export const markSection = title => async page => {
   await page.evaluate(title => {
     document.querySelectorAll('[data-shot=section]').forEach(e => e.removeAttribute('data-shot'));
-    const h = [...document.querySelectorAll('main h2, main h3')].find(e => e.textContent.trim() === title && e.offsetParent);
+    const h = [...document.querySelectorAll('main h2, main h3')].find(e => e.textContent.trim().toLowerCase() === title.toLowerCase() && e.offsetParent);
     const row = h && (h.closest('.grid') || h.parentElement);
     if (row) row.setAttribute('data-shot', 'section');
   }, title);
@@ -159,7 +159,7 @@ export const markSection = title => async page => {
 export const markSectionId = id => async page => {
   await page.evaluate(id => {
     document.querySelectorAll('[data-shot=section]').forEach(e => e.removeAttribute('data-shot'));
-    const h = document.getElementById(id) || [...document.querySelectorAll('main h2')].find(e => e.textContent.trim().startsWith(id));
+    const h = document.getElementById(id) || [...document.querySelectorAll('main h2')].find(e => e.textContent.trim().toLowerCase().startsWith(id.toLowerCase()));
     const row = h && (h.closest('.grid') || h.parentElement.parentElement);
     if (row) row.setAttribute('data-shot', 'section');
   }, id);

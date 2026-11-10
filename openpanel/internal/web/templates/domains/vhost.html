@@ -16,31 +16,16 @@
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
 <section>
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
     <div>
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts file"}}</h1>
-        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Edit"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts file for the domain name"}} <span class="punycode font-medium text-gray-900 dark:text-gray-50">{{.DomainName}}</span></p>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Edit"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts file for the domain name"}} <span class="punycode font-medium text-gray-900 dark:text-gray-50">{{.DomainName}}</span></p>
     </div>
-    <button type="submit" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">{{.T.Get "Save changes"}}</button>
+    <button type="submit" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Save changes"}}</button>
 </div>
 
     <input type="hidden" name="domain_name" value="{{.DomainName}}">
 
-    <dl aria-label="{{.T.Get "VirtualHosts file summary"}}" class="grid grid-cols-1 gap-x-8 gap-y-5 px-4 pb-6 sm:grid-cols-3 sm:px-6 lg:flex lg:flex-wrap lg:gap-x-12 lg:px-8">
-        <div class="min-w-0">
-            <dt class="text-sm text-gray-500">{{.T.Get "Document root"}}</dt>
-            <dd class="mt-1 flex min-w-0 items-center gap-2">{{if .Domain.Docroot}}<span class="min-w-0 truncate font-mono text-sm font-medium text-gray-900 dark:text-gray-50" title="{{.Domain.Docroot}}">{{.Domain.Docroot}}</span><button type="button" onclick="copyToClipboard(this.dataset.v).then(() => showToast(this.dataset.done, 'success'))" data-v="{{.Domain.Docroot}}" data-done="{{.T.Get "Copied to clipboard"}}" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer" aria-label="{{.T.Get "Copy"}} {{.Domain.Docroot}}" title="{{.T.Get "Copy"}}"><i class="ri-file-copy-line text-base leading-none" aria-hidden="true"></i></button>{{else}}<span class="text-sm text-gray-400 dark:text-gray-600">—</span>{{end}}</dd>
-        </div>
-        <div>
-            <dt class="text-sm text-gray-500">{{.T.Get "PHP version"}}</dt>
-            <dd class="mt-1 text-sm font-medium text-gray-900 tabular-nums dark:text-gray-50">{{if .Domain.PHPVersion}}PHP {{.Domain.PHPVersion}}{{else}}<span class="text-gray-400 dark:text-gray-600">—</span>{{end}}</dd>
-        </div>
-        <div>
-            <dt class="text-sm text-gray-500">{{.T.Get "Ports"}}</dt>
-            <dd class="mt-1 font-mono text-sm font-medium text-gray-900 tabular-nums dark:text-gray-50">{{if .File.Ports}}{{join .File.Ports ", "}}{{else}}<span class="font-sans text-gray-400 dark:text-gray-600">—</span>{{end}}</dd>
-            {{if .File.Lines}}<dd class="mt-0.5 text-xs text-gray-500"><span class="tabular-nums">{{.File.Lines}}</span> {{.T.Get "lines"}}</dd>{{end}}
-        </div>
-    </dl>
 
     <div class="px-4 pb-6 sm:px-6 lg:px-8">
         <div id="editor-container" class="overflow-auto rounded-md border border-gray-200 dark:border-gray-800">
@@ -203,17 +188,17 @@ function validateVhostConfig(content, serverType) {
 
 <!-- page header -->
 <section aria-label="{{.T.Get "Select Domain Header"}}">
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
     <div>
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts file"}}</h1>
-        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Each domain has its own"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts file."}}</p>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Each domain has its own"}} {{title .WebServerPreference}} {{.T.Get "VirtualHosts file."}}</p>
     </div>
 </div>
 <!-- END page header -->
 
     {{if .Domains}}
         <div class="px-4 pb-6 sm:px-6 lg:px-8">
-            <div class="max-w-3xl flex gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500"><i class="ri-error-warning-line text-lg leading-5 shrink-0" aria-hidden="true"></i>
+            <div class="flex gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500"><i class="ri-error-warning-line text-lg leading-5 shrink-0" aria-hidden="true"></i>
                 <div>
                     <p><span class="font-semibold">{{.T.Get "Attention:"}}</span> {{.T.Get "Editing the domain file is intended for advanced users only. This action can potentially lead to server misconfiguration or downtime if not done correctly."}}</p>
                     <p class="mt-2">{{.T.Get "Please be cautious and make sure you understand the changes you are making. We use a rollback mechanism to check for errors, and if any issues are detected, we will revert the changes. However, it's important to have a backup of your configurations before proceeding."}}</p>

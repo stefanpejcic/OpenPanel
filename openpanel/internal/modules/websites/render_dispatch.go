@@ -50,6 +50,7 @@ func renderPHPAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dat
 		return
 	}
 	data.LayoutData = layout
+	data.PageTabs = nil // the site page has its own tabs, the area bar above the heading is left out
 	if err := phpAppPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WEBSITES - php_app template render error: %v", err)
 	}
@@ -65,6 +66,8 @@ type WebsiteBuilderPageData struct {
 	HasSource   bool
 	BlankPage   bool // index.html has an empty body, the editor hasn't added anything yet
 	Files       []SiteEntry
+	SSLState    string // see sslState
+	SSLExpires  string
 }
 
 func renderWebsiteBuilderPage(a *appctx.App, w http.ResponseWriter, r *http.Request, data WebsiteBuilderPageData) {
@@ -74,6 +77,7 @@ func renderWebsiteBuilderPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 	data.LayoutData = layout
+	data.PageTabs = nil // the site page has its own tabs, the area bar above the heading is left out
 	if err := websiteBuilderPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WEBSITES - websitebuilder template render error: %v", err)
 	}
@@ -178,6 +182,7 @@ func renderWPSinglePage(a *appctx.App, w http.ResponseWriter, r *http.Request, d
 		return
 	}
 	data.LayoutData = layout
+	data.PageTabs = nil // the site page has its own tabs, the area bar above the heading is left out
 	data.SecurityToggles = wpSecurityToggles
 	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
 	if err := wpSinglePage.Render(w, http.StatusOK, data); err != nil {
@@ -217,6 +222,7 @@ func renderPythonNodeAppsPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 	data.LayoutData = layout
+	data.PageTabs = nil // the site page has its own tabs, the area bar above the heading is left out
 
 	prefix := data.PM2Data["prefix"]
 	pm2val := func(key string) string {
@@ -325,6 +331,7 @@ func renderCMSAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, cms
 		return
 	}
 	data.LayoutData = layout
+	data.PageTabs = nil // the site page has its own tabs, the area bar above the heading is left out
 	data.App = web.NewAppNames(cmsType, cmsPages[cmsType].name)
 	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
 	if err := cmsPages[cmsType].page.Render(w, http.StatusOK, data); err != nil {

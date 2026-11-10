@@ -8,12 +8,21 @@
 {{$label := "flex items-center gap-1.5 text-sm text-gray-500"}}
 {{$value := "mt-1 truncate text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-50"}}
 
+<!-- each card collapses like the dashboard widgets and remembers it per browser -->
+<script>
+function summaryWidget(key, extra) {
+    let open = true;
+    try { open = localStorage.getItem('summary_widget_' + key) !== 'closed'; } catch (e) {}
+    return Object.assign({ open, toggle() { this.open = !this.open; try { localStorage.setItem('summary_widget_' + key, this.open ? 'open' : 'closed'); } catch (e) {} } }, extra || {});
+}
+</script>
+
 <section aria-label="{{.T.Get "Daily summary"}}">
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8{{if .Found}} border-b border-gray-200 dark:border-gray-800{{end}}">
         <div class="min-w-0">
             <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{if .Found}}{{.Summary.From.Format "Monday, 2 January 2006"}}{{else}}{{.T.Get "Daily summary"}}{{end}}</h1>
             {{/* the day's verdict replaces the page description once there is a summary */}}
-            <p class="mt-1 text-sm text-gray-500">{{if and .Found .Summary.Headline}}{{.Summary.Headline}}{{else}}{{.T.Get "What happened on your account and websites each day, with what needs fixing first."}}{{end}}</p>
+            <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{if and .Found .Summary.Headline}}{{.Summary.Headline}}{{else}}{{.T.Get "What happened on your account and websites each day, with what needs fixing first."}}{{end}}</p>
         </div>
         {{if .Dates}}
         <div class="flex shrink-0 items-center gap-2">
@@ -37,7 +46,7 @@
     {{with .Summary}}
 
     <!-- plain stats, like the dashboard Overview -->
-    <dl class="grid grid-cols-2 gap-x-8 gap-y-5 px-4 pt-2 pb-6 sm:grid-cols-3 sm:px-6 lg:grid-cols-5 lg:px-8">
+    <dl class="grid grid-cols-2 gap-x-8 gap-y-5 px-4 py-6 sm:grid-cols-3 sm:px-6 lg:grid-cols-5 lg:px-8">
         <div class="min-w-0">
             <dt class="flex items-center gap-1.5 text-sm text-gray-500">{{template "summary_icon" "requests"}}{{$.T.Get "Requests"}}</dt>
             <dd class="mt-1 text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-50 flex items-center gap-2">{{.Num .TotalRequests}}
@@ -62,11 +71,18 @@
         </div>
     </dl>
 
-    <!-- one surface split by lines: the day's checks and websites on the left, usage and logins on the right -->
+    <!-- one surface split by lines: checks, websites and account changes on the left, usage and logins on the right -->
     <div class="grid grid-cols-1 gap-px border-y border-gray-200 bg-gray-200 lg:grid-cols-3 dark:border-gray-800 dark:bg-gray-800">
 
-        <section class="bg-white px-4 py-5 sm:px-6 lg:px-8 dark:bg-gray-950 lg:col-span-2" aria-labelledby="summary-checks-title">
-            <h2 id="summary-checks-title" class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{if or .Attention .Look}}{{$.T.Get "Needs a look"}}{{else}}{{$.T.Get "Nothing needs your attention on this day."}}{{end}}</h2>
+        <section x-data="summaryWidget('checks')" class="bg-white dark:bg-gray-950 lg:col-span-2" aria-labelledby="summary-checks-title">
+            <div class="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
+                <div class="min-w-0">
+                    <h2 id="summary-checks-title" class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{if or .Attention .Look}}{{$.T.Get "Needs a look"}}{{else}}{{$.T.Get "Nothing needs your attention on this day."}}{{end}}</h2>
+                    <p class="text-sm/6 text-gray-500" x-show="open">{{$.T.Get "What went wrong on this day, the most urgent first."}}</p>
+                </div>
+                <div class="flex shrink-0 items-center gap-3"><button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? '{{$.T.Get "Collapse"}}' : '{{$.T.Get "Expand"}}'" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button></div>
+            </div>
+            <div x-show="open" class="px-4 pt-1 pb-5 sm:px-6 lg:px-8">
             {{if or .Attention .Look}}
             <ul class="mt-3 divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
                 {{range .Attention}}{{template "summary_item" (dict "T" $.T "Item" . "Urgent" true)}}{{end}}
@@ -84,12 +100,20 @@
                 {{end}}
             </ul>
             {{end}}
+            </div>
         </section>
 
-        <div class="divide-y divide-gray-200 bg-white lg:row-span-2 dark:divide-gray-800 dark:bg-gray-950">
+        <div class="divide-y divide-gray-200 bg-white {{if .Changes}}lg:row-span-3{{else}}lg:row-span-2{{end}} dark:divide-gray-800 dark:bg-gray-950">
             {{if or .Usage .Facts}}
-            <section class="px-4 py-5 sm:px-6 lg:px-8" aria-labelledby="summary-usage-title">
-                <h2 id="summary-usage-title" class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Resource usage"}}</h2>
+            <section x-data="summaryWidget('usage')" aria-labelledby="summary-usage-title">
+                <div class="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
+                    <div class="min-w-0">
+                        <h2 id="summary-usage-title" class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Resource usage"}}</h2>{{if $.UserAllowed.usage}}<a href="/server/usage/history" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{$.T.Get "View history usage"}} &rarr;</a>{{end}}
+                        <p class="text-sm/6 text-gray-500" x-show="open">{{$.T.Get "How close the account got to its plan limits."}}</p>
+                    </div>
+                    <div class="flex shrink-0 items-center gap-3"><button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? '{{$.T.Get "Collapse"}}' : '{{$.T.Get "Expand"}}'" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button></div>
+                </div>
+                <div x-show="open" class="px-4 pt-1 pb-5 sm:px-6 lg:px-8">
                 <ul class="mt-3 space-y-4">
                     {{range .Usage}}
                     <li>
@@ -107,12 +131,21 @@
                     {{end}}
                     {{range .Facts}}<li class="text-sm text-gray-600 dark:text-gray-400">{{.}}</li>{{end}}
                 </ul>
+                </div>
             </section>
             {{end}}
             {{if .Logins}}
-            <section class="px-4 py-5 sm:px-6 lg:px-8" aria-labelledby="summary-logins-title">
-                <h2 id="summary-logins-title" class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Panel logins"}}</h2>
-                <ul class="mt-3 divide-y divide-gray-200 dark:divide-gray-800">
+            <section x-data="summaryWidget('logins')" aria-labelledby="summary-logins-title">
+                <div class="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
+                    <div class="min-w-0">
+                        <h2 id="summary-logins-title" class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Panel logins"}} <span class="font-normal text-gray-500 tabular-nums">({{len .Logins}})</span></h2>{{if $.UserAllowed.login_history}}<a href="/account/login-history" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{$.T.Get "View login history"}} &rarr;</a>{{end}}
+                        <p class="text-sm/6 text-gray-500" x-show="open">{{$.T.Get "Who signed in to the panel and from where."}}</p>
+                    </div>
+                    <div class="flex shrink-0 items-center gap-3"><button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? '{{$.T.Get "Collapse"}}' : '{{$.T.Get "Expand"}}'" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button></div>
+                </div>
+                <div x-show="open" class="px-4 pt-1 pb-5 sm:px-6 lg:px-8">
+                <!-- fixed height so a day with many logins scrolls inside instead of stretching the page -->
+                <ul class="mt-3 h-80 overflow-y-auto overscroll-contain pr-2 divide-y divide-gray-200 dark:divide-gray-800">
                     {{range .Logins}}
                     <li class="flex items-center gap-3 py-2 text-sm">
                         {{if .Flag}}<img src="/static/flags/{{.Flag}}.png" alt="{{.Country}}" title="{{.Country}}" class="h-6 w-8 rounded-sm ring-1 ring-gray-200 dark:ring-gray-800" onerror="this.style.visibility='hidden'">{{else}}<span class="h-6 w-8 rounded-sm bg-gray-100 dark:bg-gray-800" aria-hidden="true"></span>{{end}}
@@ -125,15 +158,20 @@
                     </li>
                     {{end}}
                 </ul>
+                </div>
             </section>
             {{end}}
         </div>
 
-        <section class="bg-white px-4 py-5 sm:px-6 lg:px-8 dark:bg-gray-950 lg:col-span-2" x-data="{ all: false }" aria-labelledby="summary-sites-title">
-            <div class="flex items-center justify-between">
-                <h2 id="summary-sites-title" class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Websites"}} <span class="font-normal text-gray-500 tabular-nums">({{len .Websites}})</span></h2>
-                <span class="text-xs font-medium text-gray-500">{{$.T.Get "Requests"}}</span>
+        <section x-data="summaryWidget('sites', { all: false })" class="bg-white dark:bg-gray-950 lg:col-span-2" aria-labelledby="summary-sites-title">
+            <div class="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
+                <div class="min-w-0">
+                    <h2 id="summary-sites-title" class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Websites"}} <span class="font-normal text-gray-500 tabular-nums">({{len .Websites}})</span></h2>{{if $.UserAllowed.domain_logs}}<a href="/domains/log" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{$.T.Get "View access logs"}} &rarr;</a>{{end}}
+                    <p class="text-sm/6 text-gray-500" x-show="open">{{$.T.Get "Traffic for each website, the busiest first."}}</p>
+                </div>
+                <div class="flex shrink-0 items-center gap-3"><span x-show="open" class="text-xs font-medium text-gray-500">{{$.T.Get "Requests"}}</span><button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? '{{$.T.Get "Collapse"}}' : '{{$.T.Get "Expand"}}'" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button></div>
             </div>
+            <div x-show="open" class="px-4 pt-1 pb-5 sm:px-6 lg:px-8">
             {{if .Websites}}
             <ul class="mt-3 space-y-4">
                 {{range $i, $w := .Websites}}{{with $w}}
@@ -155,11 +193,19 @@
             {{else}}
             <p class="mt-3 text-sm text-gray-500">{{$.T.Get "No website traffic on this day."}}</p>
             {{end}}
+            </div>
         </section>
 
         {{if .Changes}}
-        <section class="bg-white px-4 py-5 sm:px-6 lg:px-8 dark:bg-gray-950 lg:col-span-3" x-data="{ all: false }" aria-labelledby="summary-changes-title">
-            <h2 id="summary-changes-title" class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Changes to your account"}} <span class="font-normal text-gray-500 tabular-nums">({{len .Changes}})</span></h2>
+        <section x-data="summaryWidget('changes', { all: false })" class="bg-white dark:bg-gray-950 lg:col-span-2" aria-labelledby="summary-changes-title">
+            <div class="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
+                <div class="min-w-0">
+                    <h2 id="summary-changes-title" class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Changes to your account"}} <span class="font-normal text-gray-500 tabular-nums">({{len .Changes}})</span></h2>{{if $.UserAllowed.activity}}<a href="/account/activity" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{$.T.Get "View account activity"}} &rarr;</a>{{end}}
+                    <p class="text-sm/6 text-gray-500" x-show="open">{{$.T.Get "Everything that was added, changed or removed."}}</p>
+                </div>
+                <div class="flex shrink-0 items-center gap-3"><button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? '{{$.T.Get "Collapse"}}' : '{{$.T.Get "Expand"}}'" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button></div>
+            </div>
+            <div x-show="open" class="px-4 pt-1 pb-5 sm:px-6 lg:px-8">
                 <ul class="mt-3 divide-y divide-gray-200 dark:divide-gray-800">
                     {{range $i, $c := .Changes}}
                     <li class="flex gap-3 py-1.5 text-sm"{{if ge $i 10}} x-show="all" x-cloak{{end}}>
@@ -169,6 +215,7 @@
                     {{end}}
                 </ul>
                 {{if gt (len .Changes) 10}}<button type="button" x-show="!all" @click="all = true" class="mt-2 text-sm font-medium text-blue-500 hover:underline hover:underline-offset-4">{{$.T.Get "Show all"}}</button>{{end}}
+            </div>
         </section>
         {{end}}
     </div>

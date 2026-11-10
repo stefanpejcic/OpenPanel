@@ -69,16 +69,16 @@ document.addEventListener('DOMContentLoaded', function () {
 {{end}}
 
 <section aria-label="{{.T.Get "Records Table"}}" x-data="dnsTypeFilter()">
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
     <div>
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit DNS for"}} <span class="punycode">{{.Domain}}</span></h1>
-        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Total DNS records:"}} <span id="total_records_count" class="font-medium tabular-nums text-gray-900 dark:text-gray-50">{{.TotalRecords}}</span></p>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Total DNS records:"}} <span id="total_records_count" class="font-medium tabular-nums text-gray-900 dark:text-gray-50">{{.TotalRecords}}</span></p>
     </div>
 
     <input type="text" id="serial_number_current" value="{{.Serial}}" hidden>
 
     <div class="flex items-center gap-2">
-        <button type="button" id="AddDNSRecord" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400"><i class="ri-add-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "New record"}}</button>
+        <button type="button" id="AddDNSRecord" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-add-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "New record"}}</button>
 
         <button id="dropdownHoverButton" data-dropdown-toggle="dropdownHover" data-dropdown-placement="bottom-end" type="button" aria-label="{{.T.Get "More actions"}}" aria-haspopup="menu" class="hidden sm:inline-flex relative items-center justify-center gap-1.5 whitespace-nowrap rounded-md border py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 px-2"><i class="ri-more-2-line text-base leading-none" aria-hidden="true"></i></button>
         <div id="dropdownHover" class="z-20 hidden w-56 rounded-md border border-gray-200 bg-white p-1 text-left shadow-xl dark:border-gray-800 dark:bg-gray-950">
@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             <td class="px-4 text-right">
                                 <div class="flex justify-end gap-2">
                                     <button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600" id="CancelDNSRecord"><i class="ri-close-line text-base leading-none sm:hidden" aria-hidden="true"></i><span class="hidden sm:inline">{{.T.Get "Cancel"}}</span></button>
-                                    <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400" id="save-row"><i class="ri-check-line text-base leading-none sm:hidden" aria-hidden="true"></i><span class="hidden sm:inline">{{.T.Get "Save"}}</span></button>
+                                    <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600" id="save-row"><i class="ri-check-line text-base leading-none sm:hidden" aria-hidden="true"></i><span class="hidden sm:inline">{{.T.Get "Save"}}</span></button>
                                 </div>
                             </td>
                         </form>
@@ -436,7 +436,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             <div class="flex justify-end gap-2">
                                 {{if index $.EditableType .Type}}<button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 py-1.5 edit-button" data-line="{{.RawLine}}" data-line-number="{{.LineNumber}}" data-end-line-number="{{.EndLineNumber}}" data-domain="{{$.Domain}}" aria-label="{{$.T.Get " Edit"}}"><i class="ri-pencil-line text-base leading-none" aria-hidden="true"></i><span class="hidden sm:inline">{{$.T.Get " Edit"}}</span></button>{{end}}
                                 <button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 py-1.5 text-red-600 dark:text-red-500 delete-button" data-row-id="{{.LineNumber}}" data-end-line-number="{{.EndLineNumber}}" data-domain="{{$.Domain}}" aria-label="{{$.T.Get " Delete"}}"><i class="ri-delete-bin-line text-base leading-none" aria-hidden="true"></i><span class="hidden sm:inline">{{$.T.Get " Delete"}}</span></button>
-                                <button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 py-1.5 save-button" style="display: none;" data-line-number="{{.LineNumber}}" data-domain="{{$.Domain}}"><i class="ri-check-line text-base leading-none" aria-hidden="true"></i><span class="hidden sm:inline">{{$.T.Get " Save"}}</span></button>
+                                <button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 py-1.5 save-button border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600" style="display: none;" data-line-number="{{.LineNumber}}" data-domain="{{$.Domain}}"><i class="ri-check-line text-base leading-none" aria-hidden="true"></i><span class="hidden sm:inline">{{$.T.Get " Save"}}</span></button>
                                 <button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 py-1.5 cancel-button" style="display: none;" data-line="{{.RawLine}}"><i class="ri-close-line text-base leading-none" aria-hidden="true"></i><span class="hidden sm:inline">{{$.T.Get " Cancel"}}</span></button>
                             </div>
                         </td>
@@ -560,7 +560,7 @@ document.addEventListener('DOMContentLoaded', function () {
                       <td class="px-4 text-right whitespace-nowrap">
 <div class="flex justify-end gap-2">
 <button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 py-1.5 cancel-button" style="display: none;" data-line="${line}"><i class="ri-close-line text-base leading-none" aria-hidden="true"></i><span class="hidden sm:inline">{{.T.Get "Cancel"}}</span></button>
-<button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 py-1.5 save-button" style="display: none;" data-line-number="${lineNumber}" data-end-line-number="${endLineNumber}" data-domain="${domain}"><i class="ri-check-line text-base leading-none" aria-hidden="true"></i><span class="hidden sm:inline">{{.T.Get "Save"}}</span></button>
+<button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 py-1.5 save-button border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600" style="display: none;" data-line-number="${lineNumber}" data-end-line-number="${endLineNumber}" data-domain="${domain}"><i class="ri-check-line text-base leading-none" aria-hidden="true"></i><span class="hidden sm:inline">{{.T.Get "Save"}}</span></button>
 <button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 py-1.5 edit-button" data-line="${line}" data-line-number="${lineNumber}" data-domain="${domain}"><i class="ri-pencil-line text-base leading-none" aria-hidden="true"></i><span class="hidden sm:inline">{{.T.Get " Edit"}}</span></button>
 <button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 py-1.5 text-red-600 dark:text-red-500 delete-button" data-row-id="${lineNumber}" data-end-line-number="${endLineNumber}" data-domain="${domain}"><i class="ri-delete-bin-line text-base leading-none" aria-hidden="true"></i><span class="hidden sm:inline">${dnsI18n.deleteWithSpace}</span></button>
 </div>
@@ -731,14 +731,14 @@ document.addEventListener('DOMContentLoaded', function () {
 <form method="post" action="/domains/save-dns-zone/{{.Domain}}">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
     <div>
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Edit DNS file for"}} <span class="punycode">{{.Domain}}</span></h1>
-        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Please be cautious and make sure you understand the changes you are making."}}</p>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Please be cautious and make sure you understand the changes you are making."}}</p>
     </div>
 
     <div class="flex items-center gap-2">
-        <button type="button" id="save_zone_button" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">{{.T.Get "Save changes"}}</button>
+        <button type="button" id="save_zone_button" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Save changes"}}</button>
 
         <button id="dropdownHoverButton" data-dropdown-toggle="dropdownHover" data-dropdown-placement="bottom-end" type="button" aria-label="{{.T.Get "More actions"}}" aria-haspopup="menu" class="hidden sm:inline-flex relative items-center justify-center gap-1.5 whitespace-nowrap rounded-md border py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 px-2"><i class="ri-more-2-line text-base leading-none" aria-hidden="true"></i></button>
         <div id="dropdownHover" class="z-20 hidden w-56 rounded-md border border-gray-200 bg-white p-1 text-left shadow-xl dark:border-gray-800 dark:bg-gray-950">
@@ -804,46 +804,39 @@ document.getElementById('save_zone_button').addEventListener('click', function()
 
 <!-- page header -->
 <section aria-label="{{.T.Get "Select DNS Zone Header"}}">
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
     <div>
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "DNS zone editor"}}</h1>
         <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Manage and edit Domain Name System (DNS) zone files, which contain critical information for mapping domain names to IP addresses and managing various DNS records, such as A, CNAME, MX, and TXT records."}}</p>
     </div>
+    {{if and .Picks (or .Zones .Nameservers)}}
+    <dl aria-label="{{.T.Get "DNS summary"}}" class="flex shrink-0 flex-wrap items-start gap-x-10 gap-y-3" x-data="{ copy(text) { copyToClipboard(text).then(() => showToast({{toJSON (.T.Get "Copied to clipboard")}}, 'success')); } }">
+        <div>
+            <dt class="text-sm text-gray-500">{{.T.Get "Zones"}}</dt>
+            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{len .Zones}}</dd>
+        </div>
+        {{with .Nameservers}}
+        <div>
+            <dt class="text-sm text-gray-500">{{$.T.Get "Nameservers"}}</dt>
+            <dd class="mt-1 space-y-0.5">
+            {{range .}}<div class="flex items-center gap-1">
+                <span class="min-w-0 truncate font-mono text-sm font-medium text-gray-900 dark:text-gray-50">{{.}}</span>
+                <button type="button" @click="copy({{toJSON .}})" class="inline-flex size-6 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer" aria-label="{{$.T.Get "Copy"}} {{.}}" title="{{$.T.Get "Copy"}}"><i class="ri-file-copy-line text-base leading-none" aria-hidden="true"></i></button>
+            </div>{{end}}
+        </dd>
+        </div>
+        {{end}}
+    </dl>
+    {{end}}
 </div>
 <!-- END page header -->
 
 {{if .Picks}}
-{{if or .Zones .Nameservers}}
-<dl aria-label="{{.T.Get "DNS summary"}}" class="grid grid-cols-2 gap-x-8 gap-y-5 px-4 pb-6 sm:grid-cols-3 sm:px-6 lg:flex lg:flex-wrap lg:gap-x-12 lg:px-8" x-data="{ copy(text) { copyToClipboard(text).then(() => showToast({{toJSON (.T.Get "Copied to clipboard")}}, 'success')); } }">
-    <div>
-        <dt class="text-sm text-gray-500">{{.T.Get "Zones"}}</dt>
-        <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{len .Zones}}</dd>
-    </div>
-    <div>
-        <dt class="text-sm text-gray-500">{{.T.Get "Total records"}}</dt>
-        <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.ZoneRecords}}</dd>
-    </div>
-    {{with .Nameservers}}
-    <div class="col-span-2 sm:col-span-1">
-        <dt class="text-sm text-gray-500">{{$.T.Get "Nameservers"}}</dt>
-        <dd class="mt-1 flex items-start gap-2">
-            <span class="min-w-0 font-mono text-sm font-medium text-gray-900 dark:text-gray-50">{{range .}}<span class="block truncate">{{.}}</span>{{end}}</span>
-            <button type="button" @click="copy({{toJSON (join . "\n")}})" class="-mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer" aria-label="{{$.T.Get "Copy nameservers"}}" title="{{$.T.Get "Copy"}}"><i class="ri-file-copy-line text-base leading-none" aria-hidden="true"></i></button>
-        </dd>
-    </div>
-    {{end}}
-</dl>
-{{end}}
 
 {{$T := .T}}{{$zones := .Zones}}
 <div x-data="{ q: '' }">
 <!-- #domains is the picker the upstream page had, choosing one opens its zone -->
 <div class="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
-    <label for="domains" class="sr-only">{{$T.Get "Domain"}}</label>
-    <select id="domains" onchange="if (this.value) window.location.href = '/domains/edit-dns-zone/' + this.value" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-64 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
-        <option value="" selected>{{$T.Get "Go to a domain"}}</option>
-        {{range .Picks}}<option value="{{.Domain}}"{{if .Disabled}} disabled{{end}}>{{.Domain}}</option>{{end}}
-    </select>
     {{if gt (len .Picks) 5}}
     <div class="relative w-full sm:w-64">
         <label for="domain-list-search" class="sr-only">{{$T.Get "Search"}}</label>
@@ -852,6 +845,11 @@ document.getElementById('save_zone_button').addEventListener('click', function()
         <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
     </div>
     {{end}}
+    <label for="domains" class="sr-only">{{$T.Get "Domain"}}</label>
+    <select id="domains" onchange="if (this.value) window.location.href = '/domains/edit-dns-zone/' + this.value" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-64 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+        <option value="" selected>{{$T.Get "Go to a domain"}}</option>
+        {{range .Picks}}<option value="{{.Domain}}"{{if .Disabled}} disabled{{end}}>{{.Domain}}</option>{{end}}
+    </select>
 </div>
 <div class="overflow-x-auto">
 <table class="w-full border-t border-gray-200 text-sm dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">

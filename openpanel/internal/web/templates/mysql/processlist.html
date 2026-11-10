@@ -4,11 +4,13 @@
 <!-- START templates/mysql/processlist.html -->
 
 <section aria-label="{{.T.Get "Processes table"}}" x-data="{ searchQuery: '' }">
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
     <div>
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "MySQL running queries"}}</h1>
-        <p class="mt-1 max-w-3xl text-sm text-gray-500">{{.T.Get "List of all current processes running on the MySQL server, providing insights into ongoing queries, operations, and their associated details for better performance monitoring."}}</p>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "List of all current processes running on the MySQL server, providing insights into ongoing queries, operations, and their associated details for better performance monitoring."}}</p>
     </div>
+</div>
+<div class="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
         <div class="relative w-full sm:w-64">
             <input x-model="searchQuery" aria-label="{{.T.Get "Search"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-2 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30" placeholder="{{.T.Get "Search"}}" type="search"/>

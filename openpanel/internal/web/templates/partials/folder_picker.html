@@ -59,7 +59,9 @@ window.folderPicker = (function () {
         refresh();
     }
 
+    let seq = 0;
     async function load(path) {
+        const my = ++seq;
         const list = $('folderPickerList');
         // the clicked folder is picked right away, a toggle to manual before the list arrives keeps it
         if (!manual && !locked) select(path);
@@ -77,8 +79,8 @@ window.folderPicker = (function () {
             setManual(true);
             return;
         }
-        // switched to manual while this was loading, keep what's typed
-        if (manual) return;
+        // switched to manual or opened another folder while this was loading
+        if (manual || my !== seq) return;
         cur = path;
         select(path);
         const parts = path ? path.split('/') : [];
@@ -122,7 +124,10 @@ window.folderPicker = (function () {
     input.addEventListener('input', refresh);
     load(cur);
 
-    return { setManual, lock };
+    // pages can point the picker at a path, like a domain's document root
+    function open(full) { const r = rel(full); if (r === null) { input.value = full; setManual(true); } else { manual = false; load(r); } }
+
+    return { setManual, lock, open };
 })();
 </script>
 <!-- END templates/partials/folder_picker.html -->

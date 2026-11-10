@@ -4,14 +4,14 @@
 
 <!-- page header -->
 <section aria-label="{{.T.Get "Select Domain Log Header"}}">
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
     <div class="min-w-0">
         {{if .DomainName}}
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Access logs for"}} <span class="punycode">{{.DomainName}}</span></h1>
-        <p class="mt-1 truncate font-mono text-xs text-gray-500">/var/log/caddy/domlogs/{{.DomainName}}/access.log</p>
+        <p class="mt-1 truncate font-mono text-xs text-gray-500 max-w-3xl">/var/log/caddy/domlogs/{{.DomainName}}/access.log</p>
         {{else}}
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Access logs"}}</h1>
-        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Every request the web server handled for a domain, newest first."}}</p>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Every request the web server handled for a domain, newest first."}}</p>
         {{end}}
     </div>
     {{if .DomainName}}
@@ -44,11 +44,6 @@
 <!-- domain picker, #domains is the select the upstream page had -->
 <section aria-label="{{.T.Get "Domains"}}" x-data="{ q: '' }">
     <div class="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
-        <label for="domains" class="sr-only">{{.T.Get "Domain"}}</label>
-        <select id="domains" onchange="if (this.value) window.location.href = '/domains/log/' + this.value" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-64 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
-            <option value="" selected>{{.T.Get "Select domain"}}</option>
-            {{range .Domains}}<option class="punycode" value="{{.Domain}}"{{if or (not .Exists) (hasSuffix .Domain ".onion")}} disabled{{end}}>{{.Domain}}</option>{{end}}
-        </select>
         {{if gt (len .Domains) 5}}
         <div class="relative w-full sm:w-64">
             <label for="log-domain-search" class="sr-only">{{.T.Get "Search"}}</label>
@@ -56,6 +51,11 @@
             <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
         </div>
         {{end}}
+        <label for="domains" class="sr-only">{{.T.Get "Domain"}}</label>
+        <select id="domains" onchange="if (this.value) window.location.href = '/domains/log/' + this.value" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-64 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+            <option value="" selected>{{.T.Get "Select domain"}}</option>
+            {{range .Domains}}<option class="punycode" value="{{.Domain}}"{{if or (not .Exists) (hasSuffix .Domain ".onion")}} disabled{{end}}>{{.Domain}}</option>{{end}}
+        </select>
     </div>
     <div class="overflow-x-auto">
     <table class="w-full border-t border-gray-200 text-sm dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">

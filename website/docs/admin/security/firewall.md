@@ -16,7 +16,7 @@ For instructions on how to use the CSF UI, please refer to [Sentinel Firewall of
 ![Sentinel Security and Firewall (CSF) page with the firewall status and server information actions](/img/openadmin-screenshots/security/firewall-csf_dark.png#gh-dark-mode-only)
 
 
-## External Firewall
+## External firewall
 
 Some cloud providers, like [Hetzner](https://docs.hetzner.com/robot/dedicated-server/firewall/), offer their own external firewalls. If you are using an external firewall, ensure the following ports are open for OpenPanel services to be accessible: `53` `80` `443` `2083` `2087` `32768:60999`
 

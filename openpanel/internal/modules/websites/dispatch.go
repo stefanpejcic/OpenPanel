@@ -283,6 +283,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 	case "websitebuilder", "sitebuilder":
 		source, hasSource := loadSiteSource(userContext, docroot)
 		sbFiles, _ := listSiteDir(userContext, docroot, 12)
+		_, sbHTTPS, sbCert := domains.SiteStatus(ctx, a, domainNameUsed)
 		renderWebsiteBuilderPage(a, w, r, WebsiteBuilderPageData{
 			pageData:    basePageData,
 			Container:   container,
@@ -290,6 +291,8 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			HasSource:   hasSource,
 			BlankPage:   hasSource && blankPage(source),
 			Files:       sbFiles,
+			SSLState:    sslState(sbHTTPS, sbCert),
+			SSLExpires:  sbCert.Expires,
 		})
 
 	default:

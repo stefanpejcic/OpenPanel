@@ -12,7 +12,7 @@ Configure nameservers, branding, and UI display settings for the OpenPanel inter
 
 Customize the appearance of OpenPanel to match your brand:
 
-- **Brand Name**  
+- **Brand name**  
 
 ![Branding section with the brand name, logo, favicon and logout URL](/img/openadmin-screenshots/settings/openpanel-branding.png#gh-light-mode-only)
 ![Branding section with the brand name, logo, favicon and logout URL](/img/openadmin-screenshots/settings/openpanel-branding_dark.png#gh-dark-mode-only)
@@ -55,7 +55,7 @@ Settings for OpenPanel user accounts:
 
 ### DNS record types
 
-Choose which record types users can add and edit in the OpenPanel [DNS Zone Editor](/docs/panel/domains/dns/). Click a type to turn it on or off, or click **Restore Default** to go back to the default list.
+Choose which record types users can add and edit in the OpenPanel [DNS Zone Editor](/docs/panel/domains/dns/). Click a type to turn it on or off, or click **Restore default** to go back to the default list.
 
 | Type | On by default | Used for |
 |---|---|---|
@@ -114,7 +114,7 @@ They'll be offered the wizard again next time they log in, minus any steps they'
 
 You can also add your own custom steps to the wizard - for example, a step to enable Redis - without modifying OpenPanel itself. See [Add Custom Steps to the Onboarding Wizard](/docs/articles/dev-experience/add-custom-steps-to-onboarding-wizard).
 
-## File Manager
+## File manager
 
 Configure the following settings for the File Manager:
 
@@ -200,7 +200,7 @@ A warning is shown when Terminal Commands Timeout is under 30 seconds (it applie
 ![Statistics section with the resource usage and statistics options](/img/openadmin-screenshots/settings/openpanel-statistics.png#gh-light-mode-only)
 ![Statistics section with the resource usage and statistics options](/img/openadmin-screenshots/settings/openpanel-statistics_dark.png#gh-dark-mode-only)
 
-## AI Assistant
+## AI assistant
 
 Settings for the [AI Assistant](/docs/panel/dashboard/dashboard#ai-assistant), the chat users open from the **AI** button in the OpenPanel header. It answers questions about the panel using the OpenPanel documentation, the user's plan features and the page they're on, and can look things up or make changes in the user's account.
 

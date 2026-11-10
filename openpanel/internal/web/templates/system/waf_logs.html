@@ -13,7 +13,7 @@
     <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
         <div>
             <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "WAF logs for"}} <span class="punycode">{{.DomainName}}</span></h1>
-            <p class="mt-1 text-sm text-gray-500 tabular-nums">{{.T.Get "Showing"}} {{add (mul .ItemsPerPage (sub .CurrentPage 1)) 1}} - {{if gt (mul .ItemsPerPage .CurrentPage) .TotalLines}}{{.TotalLines}}{{else}}{{mul .ItemsPerPage .CurrentPage}}{{end}} {{.T.Get "out of"}} {{.TotalLines}} {{.T.Get "rows"}}</p>
+            <p class="mt-1 text-sm text-gray-500 tabular-nums max-w-3xl">{{.T.Get "Showing"}} {{add (mul .ItemsPerPage (sub .CurrentPage 1)) 1}} - {{if gt (mul .ItemsPerPage .CurrentPage) .TotalLines}}{{.TotalLines}}{{else}}{{mul .ItemsPerPage .CurrentPage}}{{end}} {{.T.Get "out of"}} {{.TotalLines}} {{.T.Get "rows"}}</p>
         </div>
         <div class="flex items-center gap-3">
             {{if lt .TotalLines .TotalAllowedLinesForShowAll}}
@@ -292,10 +292,10 @@ function logsTable() {
 
 <!-- page header -->
 <section aria-label="{{.T.Get "WAF logs for domain"}}">
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
     <div>
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Web firewall logs"}}</h1>
-        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Requests the firewall checked or blocked, per domain."}}</p>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Requests the firewall checked or blocked, per domain."}}</p>
     </div>
 </div>
 <!-- END page header -->

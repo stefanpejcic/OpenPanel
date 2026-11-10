@@ -11,7 +11,7 @@ import (
 
 var ftpAccountsPage = web.LoadPage("files/ftp.html", "partials/_account_created.html")
 var ftpConnectionsPage = web.LoadPage("files/ftp_connections.html")
-var ftpNewPage = web.LoadPage("files/ftp_new.html")
+var ftpNewPage = web.LoadPage("files/ftp_new.html", "partials/folder_picker.html")
 var ftpPasswordPage = web.LoadPage("files/ftp_password.html")
 var ftpPathPage = web.LoadPage("files/ftp_path.html")
 var ftpQuotaPage = web.LoadPage("files/ftp_quota.html")

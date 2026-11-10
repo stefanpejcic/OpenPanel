@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
@@ -94,8 +95,9 @@ func wizardVersions(installed []string, def string, domains []WizardDomain, isLi
 			}
 		}
 	} else {
-		for v := range api {
-			if !have[v] && phpVersionFormRE.MatchString(v) {
+		now := time.Now()
+		for v, info := range api {
+			if !have[v] && phpVersionFormRE.MatchString(v) && info.released(now) {
 				missing = append(missing, v)
 			}
 		}

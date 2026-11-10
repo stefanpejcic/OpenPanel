@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"testing"
 
@@ -102,73 +101,5 @@ func TestChangePermissionsJSONRefusal(t *testing.T) {
 	handleChangePermissions(a, w, req)
 	if w.Code != http.StatusFound || w.Header().Get("Location") != "/files/site" {
 		t.Errorf("form post: status %d location %q, want 302 to /files/site", w.Code, w.Header().Get("Location"))
-	}
-}
-
-// the Permissions column opens the dialog, world-writable modes are red and a symlink's lrwxrwxrwx stays plain text
-func TestRenderFilesPermissions(t *testing.T) {
-	mgr := i18n.NewManager(t.TempDir(), nil)
-	raw := []ViewRow{
-		{Name: "wp-admin", Type: "directory", Permissions: "drwxr-xr-x"},
-		{Name: "cache", Type: "directory", Permissions: "drwxrwxrwt"},
-		{Name: "upload.php", Type: "file", Permissions: "-rw-rw-rw-"},
-		{Name: "wp-config.php", Type: "file", Permissions: "-rw-------"},
-		{Name: "current", Type: "symlink", Permissions: "lrwxrwxrwx", LinkTarget: "wp-admin"},
-	}
-	var dirs, files, rows []ViewRow
-	for i, r := range raw {
-		r.Index = i
-		r = r.withMode()
-		if r.Type == "directory" {
-			dirs = append(dirs, r)
-		} else {
-			files = append(files, r)
-		}
-		rows = append(rows, r)
-	}
-	layout := baseLayout(mgr, "/files/site")
-	layout.UserAllowed["fix_permissions"] = true
-	data := FilesPageData{
-		LayoutData: layout, PathParam: "site", View: "classic", Breadcrumbs: buildBreadcrumbs("site"),
-		Directories: dirs, Files: files, Rows: rows,
-		FilemanagerUploadSize: 500, FilemanagerEditSize: 5, FilemanagerViewSize: 5, FilemanagerDownloadSize: 500, FilemanagerUploadBatchSize: 1000,
-		CurrentPage: 1, TotalPages: 1, TotalFiles: len(rows), StartLineNumber: 1, EndLineNumber: len(rows),
-		PageEntries: buildPageEntries(1, 1),
-	}
-	w := httptest.NewRecorder()
-	if err := filesPage.Render(w, 200, data); err != nil {
-		t.Fatalf("Render: %v", err)
-	}
-	body := w.Body.String()
-	for _, want := range []string{
-		`data-mode="600"`, `aria-label="Change permissions of wp-config.php"`, `title="-rw-------"`,
-		`id="fmPermModal"`, "Apply to everything inside", `href="/fix-permissions"`, `data-perm-preset="644"`,
-		`title="A symlink uses the permissions of what it points to."`,
-	} {
-		if !strings.Contains(body, want) {
-			t.Errorf("rendered files page missing %q", want)
-		}
-	}
-	risky := regexp.MustCompile(`aria-label="Change permissions of ([^"]+)" class="[^"]*text-red-600`).FindAllStringSubmatch(body, -1)
-	var names []string
-	for _, m := range risky {
-		names = append(names, m[1])
-	}
-	if strings.Join(names, ",") != "cache,upload.php" {
-		t.Errorf("red permission cells = %v, want cache and upload.php", names)
-	}
-	if strings.Contains(body, "Change permissions of current") || strings.Contains(body, "permissionCell") {
-		t.Error("the symlink should be plain text and the old hover cell gone")
-	}
-
-	// without the Fix permissions feature the dialog doesn't link to it
-	delete(layout.UserAllowed, "fix_permissions")
-	data.LayoutData = layout
-	w = httptest.NewRecorder()
-	if err := filesPage.Render(w, 200, data); err != nil {
-		t.Fatalf("Render: %v", err)
-	}
-	if strings.Contains(w.Body.String(), `href="/fix-permissions"`) {
-		t.Error("Fix permissions link shown to a user without the feature")
 	}
 }

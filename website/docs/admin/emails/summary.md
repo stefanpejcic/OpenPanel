@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# Summary Reports
+# Summary reports
 
 The *Emails > Summary Reports* page (`/emails/reports`) shows daily summaries of the mail server log (Postfix), generated every 24 hours.
 

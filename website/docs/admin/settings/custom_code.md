@@ -2,7 +2,7 @@
 sidebar_position: 10
 ---
 
-# Custom Code
+# Custom code
 
 The Custom Code section, accessible via OpenAdmin > Settings > Custom Code, allows you to inject and manage custom code that extends or modifies the behavior and appearance of the OpenPanel UI.
 
@@ -30,7 +30,7 @@ Add custom JavaScript to all pages. This is ideal for extending UI functionality
 
 Stored in `/etc/openpanel/openpanel/custom_code/custom.js` file.
 
-## Code in Header
+## Code in header
 Insert custom code directly into the head tag of every page. Useful for meta tags, analytics scripts, and global settings.
 
 ![Code in Header editor for the head tag of every OpenPanel page](/img/openadmin-screenshots/settings/custom_code-header.png#gh-light-mode-only)
@@ -38,7 +38,7 @@ Insert custom code directly into the head tag of every page. Useful for meta tag
 
 Stored in `/etc/openpanel/openpanel/custom_code/in_header.html` file.
 
-## Code in Footer
+## Code in footer
 Insert custom code directly into the footer section of all pages. This is commonly used for tracking scripts, analytics, or deferred JavaScript.
 
 ![Code in Footer editor](/img/openadmin-screenshots/settings/custom_code-footer.png#gh-light-mode-only)
@@ -46,7 +46,7 @@ Insert custom code directly into the footer section of all pages. This is common
 
 Stored in `/etc/openpanel/openpanel/custom_code/in_footer.html` file.
 
-## Custom Section
+## Custom section
 
 You can add a **custom section** with icon-based items to the *Dashboard* in **OpenPanel**.
 
@@ -147,11 +147,11 @@ Example:
 
 ```
 
-## Welcome Email
+## Welcome email
 
 HTML message that is placed straight into a new mailbox when the user ticks **Send a welcome email with instructions to set up a mail client** on *OpenPanel > Emails > New*. It is saved into the inbox on the server with `doveadm`, so it is never sent over the internet and doesn't go to any external address.
 
-Click **Restore Default** to load the [default template](https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/custom_code/welcome.html) into the editor, then click Save.
+Click **Restore default** to load the [default template](https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/custom_code/welcome.html) into the editor, then click Save.
 
 A live preview of the HTML is shown next to the editor and updates as you type. The preview is sandboxed, so scripts in the HTML don't run.
 
@@ -171,7 +171,7 @@ If the file is empty or missing, no welcome message is added and the email accou
 
 Stored in `/etc/openpanel/openpanel/custom_code/welcome.html` file.
 
-## WordPress Plugins Set
+## WordPress plugins set
 
 List the WordPress plugins you want to automatically install on all new WordPress sites.
 Enter one item per row. Supported formats:
@@ -182,7 +182,7 @@ Enter one item per row. Supported formats:
 ![WordPress Plugins Set editor](/img/openadmin-screenshots/settings/custom_code-plugins.png#gh-light-mode-only)
 ![WordPress Plugins Set editor](/img/openadmin-screenshots/settings/custom_code-plugins_dark.png#gh-dark-mode-only)
 
-## WordPress Themes Set
+## WordPress themes set
 
 List the WordPress themes to automatically install for all new WordPress sites.
 Enter one item per row. Supported formats:
@@ -193,7 +193,7 @@ Enter one item per row. Supported formats:
 ![WordPress Themes Set editor](/img/openadmin-screenshots/settings/custom_code-themes.png#gh-light-mode-only)
 ![WordPress Themes Set editor](/img/openadmin-screenshots/settings/custom_code-themes_dark.png#gh-dark-mode-only)
 
-## After Update
+## After update
 Define custom bash commands that will automatically run after each OpenPanel update. Ideal for restoring customizations or triggering automation scripts.
 
 ![After update script editor](/img/openadmin-screenshots/settings/custom_code-after.png#gh-light-mode-only)
@@ -208,7 +208,7 @@ Examples:
 
 Stored in `/root/openpanel_run_after_update` file.
 
-## Before Startup
+## Before startup
 
 Add custom bash code to be executed before starting OpenPanel.
 

@@ -2,7 +2,7 @@
 sidebar_position: 5
 ---
 
-# FTP Accounts
+# FTP accounts
 
 :::info
 FTP management in OpenAdmin is only available on [OpenPanel Enterprise edition](/enterprise)
@@ -34,7 +34,7 @@ The quota is the size of the account's folder, checked by the FTP service every 
 
 Accounts themselves are created and removed from the OpenPanel user interface, not from here. The data shown is populated by the `opencli ftp-users` command; if no accounts are shown yet, click **Click to refresh data** to run it manually, or wait for its periodic cronjob run.
 
-The **Configuration** tab exposes the raw FTP server configuration file in an editable text area. Edit the file contents and click **Save Configuration** to apply changes.
+The **Configuration** tab exposes the raw FTP server configuration file in an editable text area. Edit the file contents and click **Save configuration** to apply changes.
 
 ![FTP Configuration tab with the FTP server settings](/img/openadmin-screenshots/services/ftp-configuration.png#gh-light-mode-only)
 ![FTP Configuration tab with the FTP server settings](/img/openadmin-screenshots/services/ftp-configuration_dark.png#gh-dark-mode-only)

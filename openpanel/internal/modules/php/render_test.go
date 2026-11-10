@@ -100,7 +100,6 @@ func TestRenderPHPSettingsPage(t *testing.T) {
 				{DomainID: 1, DomainURL: "example.com", PHPVersion: "8.2", Level: "good"},
 				{DomainID: 2, DomainURL: "old.example.com", PHPVersion: "/", Level: "unset"},
 			},
-			VersionCounts:        []PHPVersionCount{{Version: "8.2", Count: 1, Label: "Latest", Level: "good"}},
 			AvailablePHPVersions: []string{"8.1", "8.2"},
 		}
 		w := httptest.NewRecorder()
@@ -111,8 +110,8 @@ func TestRenderPHPSettingsPage(t *testing.T) {
 		if !strings.Contains(body, "example.com") {
 			t.Error("expected domain row")
 		}
-		if !strings.Contains(body, "Latest") {
-			t.Error("expected version counter label")
+		if strings.Contains(body, "version counters") {
+			t.Error("the version counter row was removed")
 		}
 	})
 }

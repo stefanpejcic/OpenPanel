@@ -48,7 +48,7 @@ Updated load to 10
 
 ---
 
-## Pause Notifications
+## Pause notifications
 
 Temporarily silence email and webhook alerts without changing any of the settings below — useful during planned maintenance so a batch of expected service restarts doesn't flood your inbox.
 
@@ -109,15 +109,15 @@ When a service is turned off but should be monitored, a recommendation is shown 
 
 ---
 
-## Resource Usage
+## Resource usage
 
 Get alerts when resource usage exceeds thresholds (checked every 5 minutes):
 
-* **Load Average** - recommended at least 2× the number of CPU cores (max 100).
+* **Load average** - recommended at least 2× the number of CPU cores (max 100).
 * **CPU %** - recommended 85-95%.
 * **RAM %** - recommended 85-95%, cache isn't counted as used.
 * **Disk Usage %** - recommended 85-95% of the `/` disk, leaving at least 5 GB (or 10% on small disks) when the alert fires.
-* **SWAP %** - recommended 40-80%, above it Sentinel clears swap if there's enough free RAM. Skipped on servers without swap.
+* **Swap %** - recommended 40-80%, above it Sentinel clears swap if there's enough free RAM. Skipped on servers without swap.
 
 Under each field the recommended value is calculated for your server (CPU cores, RAM, disk and swap size), and a warning is shown when the value is set too low (alerts on normal usage) or, for disk, too high to react in time.
 
@@ -146,7 +146,7 @@ Receive notifications when specific server-level actions are detected:
 
 ---
 
-## User Actions
+## User actions
 
 Get notified whenever an action occurs in the admin or user panels.
 
@@ -186,7 +186,7 @@ Actions are grouped into **OpenAdmin**, **Web Firewall**, **Users**, **FTP**, **
 
 ---
 
-## SSH Allowlist
+## SSH allowlist
 
 Specify IP addresses (or CIDRs) that will be exempt from SSH and OpenAdmin login checks.
 
@@ -197,7 +197,7 @@ Below the list, your current IP and the IPs that logged into OpenAdmin before (f
 
 ---
 
-## SMTP Settings
+## SMTP settings
 
 No SMTP server is configured by default — email notifications will **not** be sent until you set one up here.
 

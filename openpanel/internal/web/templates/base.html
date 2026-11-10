@@ -104,21 +104,6 @@
         };
     </script>
     <script>
-        // Global store for the dashboard's icon-section layout ("icon" grid
-        // vs "list" rows) - initialized from the server-rendered cookie
-        // value (see web.ReadDashboardIconView) so both the sidebar's
-        // layout toggle (only shown on /dashboard, see _footer.html) and
-        // the dashboard's own icon_section template share one reactive
-        // value with no localStorage/client-side hydration flicker.
-        document.addEventListener('alpine:init', () => {
-            Alpine.store('dashboardIconView', { value: {{toJSON .DashboardIconView}} });
-        });
-        function setDashboardIconView(v) {
-            Alpine.store('dashboardIconView').value = v;
-            document.cookie = 'dashboard_icon_view=' + v + '; path=/; max-age=31536000; SameSite=Lax';
-        }
-    </script>
-    <script>
         // dashboard lock/reset live in localStorage, same as the saved section order
         document.addEventListener('alpine:init', () => {
             let locked = false;
@@ -169,6 +154,7 @@
     </script>
     <script defer src="{{static "js/showtoasts.js"}}"></script>
     <script defer src="{{static "js/confirm.js"}}"></script>
+    <script defer src="{{static "js/table-sort.js"}}"></script>
     <script defer src="{{static "js/health-toast.js"}}"></script>
     <script defer src="{{static "js/relative-date.js"}}"></script>
     <script defer src="{{static "js/service-status.js"}}"></script>
@@ -417,19 +403,19 @@ document.addEventListener('submit', (e) => {
 
             <div data-sidebar="sidebar" class="flex h-full w-full flex-col" style="max-width: 16em;">
 
-                <div data-sidebar="header" class="truncate flex flex-col gap-2 p-2 px-3 py-4 min-h-16 h-auto" id="logo_section">
+                <div data-sidebar="header" class="truncate flex h-16 shrink-0 items-center border-b border-gray-200 px-3 dark:border-gray-800" id="logo_section">
 
                      {{if .Logo}}
                      <!-- logo -->
-                     <div class="flex items-center justify-center gap-3">
-                         <a href="/dashboard" class="group flex text-slate-500 hover:text-slate-700 dark:hover:text-slate-400">
-                            <img src="{{.Logo}}" class="h-auto w-full" id="logo_image"></img>
+                     <div class="flex min-w-0 flex-1 items-center justify-center gap-3">
+                         <a href="/dashboard" class="group flex min-w-0 text-slate-500 hover:text-slate-700 dark:hover:text-slate-400">
+                            <img src="{{.Logo}}" class="max-h-10 w-auto max-w-full object-contain" id="logo_image" alt="{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}">
                          </a>
                      </div>
                      <!-- END logo -->
                      {{else}}
                      <!-- text logo -->
-                     <div class="flex items-center gap-2">
+                     <div class="flex min-w-0 items-center gap-2">
                         <span id="logo_openpanel_icon" class="flex shrink-0 text-gray-900 dark:text-gray-50"><svg version="1.0" class="size-9 shrink-0" style="vertical-align:middle;" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 213.000000 215.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,215.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"></path></g></svg></span>
                         <div id="logo_brand_name" class="min-w-0"><span class="block truncate leading-none font-bold text-gray-900 dark:text-gray-50" style="font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; font-size: 22px;">
                           <a href="/" id="hostname" style="text-decoration:none;">{{if .BrandName}}{{.BrandName}}{{else}}OpenPanel{{end}}</a>
@@ -439,8 +425,7 @@ document.addEventListener('submit', (e) => {
                      {{end}}
                 </div>
 
-                <div><div class="mx-auto flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 my-0 py-0"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div></div>
-
+                {{if ne .MenuStyle "modern"}}
                 {{/* "/" focuses the menu search unless the page has its own find box showing */}}
                 <div class="px-3 pt-3" x-data="{ q: '' }" @keydown.window="if ($event.key === '/' && !$event.ctrlKey && !$event.metaKey && !$event.altKey && !$event.target.closest('input, textarea, select, [contenteditable]') && !document.querySelector('[data-page-find]')?.offsetParent) { $event.preventDefault(); $refs.q.focus() }">
                     <label class="relative block">
@@ -450,9 +435,10 @@ document.addEventListener('submit', (e) => {
                         <kbd x-show="!q" class="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 rounded border border-gray-200 px-1.5 font-mono text-xs text-gray-400 dark:border-gray-800">/</kbd>
                     </label>
                 </div>
+                {{end}}
 
                 <div data-sidebar="content" class="min-h-0 flex flex-1 flex-col gap-2 overflow-y-auto  [&::-webkit-scrollbar]:w-2  [&::-webkit-scrollbar-track]:bg-gray-100  [&::-webkit-scrollbar-thumb]:bg-gray-300  dark:[&::-webkit-scrollbar-track]:bg-neutral-700  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
-                    <p id="sidebar-search-empty" class="px-5 pt-3 text-sm text-gray-500" hidden>{{.T.Get "No matching pages"}}</p>
+                    {{if ne .MenuStyle "modern"}}<p id="sidebar-search-empty" class="px-5 pt-3 text-sm text-gray-500" hidden>{{.T.Get "No matching pages"}}</p>{{end}}
 
       {{if .UserAllowed.favorites}}
 
@@ -461,10 +447,10 @@ document.addEventListener('submit', (e) => {
                             <ul data-sidebar="menu" class="flex w-full min-w-0 flex-col">
 
 
-                                <li x-cloak x-data="{ open: true, active: false, q: '' }" @sidebar-search.window="q = $event.detail" class="relative">
+                                <li x-data="{ open: true, active: false, q: '' }" @sidebar-search.window="q = $event.detail" class="relative">
                                 <button @click="open = !open" class="flex w-full items-center justify-between gap-x-2.5 rounded p-2 text-base text-gray-900 transition hover:bg-gray-200/50 sm:text-sm dark:text-gray-400 hover:dark:bg-gray-900 hover:dark:text-gray-50 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500"><div class="flex items-center gap-2.5"><i class="ri-star-line text-lg leading-none" aria-hidden="true"></i> {{.T.Get "Favorites"}} </div><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon rotate-0 size-5 shrink-0 transform text-gray-400 transition-transform duration-150 ease-in-out dark:text-gray-600 rotate-180" :class="{ 'rotate-180': open }"><path d="M12 16L6 10H18L12 16Z"></path></svg></button>
                                     <ul x-show="open || active || q" x-transition class="relative space-y-1 border-l border-transparent">
-                                        <div id="favorites-list" class="relative z-50 overflow-hidden min-w-48 text-gray-900 will-change-[transform,opacity] data-[state=closed]:animate-hide data-[side=bottom]:animate-slideDownAndFade data-[side=left]:animate-slideLeftAndFade data-[side=right]:animate-slideRightAndFade data-[side=top]:animate-slideUpAndFade"></div>
+                                        <div id="favorites-list" class="relative z-50 overflow-hidden min-w-48 text-gray-900 will-change-[transform,opacity] data-[state=closed]:animate-hide data-[side=bottom]:animate-slideDownAndFade data-[side=left]:animate-slideLeftAndFade data-[side=right]:animate-slideRightAndFade data-[side=top]:animate-slideUpAndFade"><span class="absolute inset-y-0 left-4 w-px bg-gray-300 dark:bg-gray-800"></span>{{range .SidebarFavorites}}<li class="relative flex gap-2 rounded py-1.5 pl-9 pr-3 text-base transition sm:text-sm text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50 outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500" x-show="!q || {{toJSON .Title}}.toLowerCase().includes(q.toLowerCase())"><a href="/{{.Link}}" data-active="false">{{.Title}}</a></li>{{end}}</div>
                                     </ul>
                                 </li>
 
@@ -506,8 +492,8 @@ document.addEventListener('submit', (e) => {
                                         });
                                 }
 
-                                // Load favorites immediately
-                                loadFavorites();
+                                // list is server-rendered, this just seeds the header button state
+                                window.userFavorites = {{if .SidebarFavorites}}{{.SidebarFavorites}}{{else}}[]{{end}};
                                 </script>
 
 

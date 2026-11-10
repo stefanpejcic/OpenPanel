@@ -57,7 +57,8 @@ func FilterServices(all []string, webserver, mysqlType string) []string {
 func handleManageService(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	service := r.PathValue("service")
-	if !podmanmanager.ValidName(service) {
+	// an empty name is /services/ itself, which renders the service picker below
+	if service != "" && !podmanmanager.ValidName(service) {
 		http.Error(w, "invalid service name", http.StatusBadRequest)
 		return
 	}

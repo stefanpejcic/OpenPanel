@@ -148,10 +148,10 @@
     var filemanagerTable = document.getElementById('filemanager_table');
 
     function addSelectedClass(el) {
-        el.classList.add('selected-row', 'bg-blue-50', 'dark:bg-blue-400/10');
+        el.classList.add('selected-row', 'bg-gray-200', 'dark:bg-gray-900');
     }
     function removeSelectedClass(el) {
-        el.classList.remove('selected-row', 'bg-blue-50', 'dark:bg-blue-400/10');
+        el.classList.remove('selected-row', 'bg-gray-200', 'dark:bg-gray-900');
     }
     function toggleSelectedClass(el) {
         el.classList.toggle('selected-row');
@@ -221,7 +221,7 @@
         var bar = document.createElement('span');
         bar.className = 'inline-flex items-center gap-2 ml-3 whitespace-nowrap';
         bar.innerHTML =
-            '<button type="button" data-act="ok" class="' + (isDelete ? 'relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600"><i class="ri-delete-bin-line"></i> ' : 'relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400"><i class="ri-arrow-go-back-line"></i> ') +
+            '<button type="button" data-act="ok" class="' + (isDelete ? 'relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600"><i class="ri-delete-bin-line"></i> ' : 'relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-arrow-go-back-line"></i> ') +
             label + '</button>' +
             '<button type="button" data-act="cancel" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">' + i18n.cancel + '</button>';
         // delete confirms right next to the name, restore at the end of the name column
@@ -608,7 +608,7 @@
     });
 
     function toggleButtonState() {
-        var baseClass = 'relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400';
+        var baseClass = 'relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600';
         var redButtonClass = 'relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-red-600 hover:bg-red-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-red-500 dark:hover:bg-red-400/10 dark:disabled:text-gray-600';
 
         function setButtonsState(selector, enabled, customClass) {

@@ -5,10 +5,10 @@
 
 <!-- page header -->
 <section aria-label="{{.T.Get "Account"}}" x-data="{ searchQuery: '' }">
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
         <div>
             <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Email & password"}}</h1>
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">{{.T.Get "Update email address to receive notifications or change the password for logging into your account, ensuring secure and up-to-date access."}}</p>
+            <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Update email address to receive notifications or change the password for logging into your account, ensuring secure and up-to-date access."}}</p>
         </div>
     </div>
 <!-- END page header -->
@@ -45,7 +45,7 @@
 
 <!-- form -->
 <div class="CrawlerStatusCard px-4 pb-8 sm:px-6 lg:px-8" id="toAddActive" x-data="focusField()">
-    <form method="POST" class="max-w-5xl divide-y divide-gray-200 border-t border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+    <form method="POST" class="max-w-5xl divide-y divide-gray-200 dark:divide-gray-800">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
     <section aria-labelledby="account-info-title" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
@@ -169,7 +169,7 @@
     </section>
 
         <div class="flex flex-col-reverse gap-2 pt-6 sm:flex-row sm:justify-end">
-            <button id="save-button" type="submit" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">{{.T.Get "Update"}}</button>
+            <button id="save-button" type="submit" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Update"}}</button>
         </div>
 
     </form>

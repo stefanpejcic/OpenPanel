@@ -25,11 +25,12 @@
         copy(text) { copyToClipboard(text).then(() => showToast({{toJSON (.T.Get "Copied to clipboard")}}, 'success')); }
     }"
     x-init="fetchFlag()">
-    <div class="border-b border-gray-200 px-4 py-3 dark:border-gray-800" id="dashboard_info_title">
-        <h2 id="dashboard_info_heading" class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "General information"}}</h2>
+    <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800" id="dashboard_info_title">
+        <h2 id="dashboard_info_heading" class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "General information"}}</h2>{{if .UserAllowed.info}}<a href="/server/info" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "View"}} &rarr;</a>{{end}}
+        <p class="text-sm/6 text-gray-500">{{.T.Get "Your account, plan and the addresses you need to connect."}}</p>
     </div>
 
-    <dl class="divide-y divide-gray-200 px-4 text-sm dark:divide-gray-800">
+    <dl class="divide-y divide-gray-200 px-6 text-sm dark:divide-gray-800">
         <div id="dashboard_info_username" class="flex flex-wrap items-center gap-x-2 gap-y-0.5 py-2.5">
             <dt class="w-full text-xs font-medium text-gray-500">{{.T.Get "Current user"}}</dt>
             <dd class="min-w-0 truncate font-medium text-gray-900 dark:text-gray-50">{{.CurrentUsername}}</dd>
@@ -71,9 +72,6 @@
         </div>
         {{end}}
 
-        {{if .UserAllowed.info}}
-        <div><a href="/server/info" class="flex items-center justify-between gap-2 py-2.5 text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Server information"}}<i class="ri-arrow-right-s-line text-base leading-none" aria-hidden="true"></i></a></div>
-        {{end}}
     </dl>
 </section>
 <!-- END templates/dashboard/information.html -->

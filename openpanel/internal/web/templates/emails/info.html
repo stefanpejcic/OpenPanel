@@ -3,10 +3,10 @@
 {{define "content"}}
 <!-- START templates/emails/info.html -->
 
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
     <div class="min-w-0">
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Connect devices"}}</h1>
-        <p class="mt-1 text-sm text-gray-500">{{.T.Get "View email server information for account"}} <span class="punycode font-medium text-gray-900 dark:text-gray-50">{{.Address}}</span></p>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "View email server information for account"}} <span class="punycode font-medium text-gray-900 dark:text-gray-50">{{.Address}}</span></p>
     </div>
     <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
         <a href="https://openpanel.com/docs/articles/email/how-to-setup-your-email-client" target="_blank" class="inline-flex items-center gap-1 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "How to set up your email client"}}<i class="ri-external-link-line" aria-hidden="true"></i></a>

@@ -9,12 +9,14 @@
 
 <!-- page header -->
 <section aria-label="{{.T.Get "Usage Header"}}" x-data="{ searchQuery: '' }">
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
         <div>
         <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Historical CPU and Memory Usage"}}</h1>
 </div>
-        <p class="mt-1 max-w-2xl text-sm text-gray-500">{{.T.Get "View past CPU and Memory usage."}}</p>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "View past CPU and Memory usage."}}</p>
     </div>
+</div>
+    <div class="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
     <div class="flex flex-col gap-2 sm:flex-row">
         <div class="relative w-full sm:w-64">
             <input
@@ -30,7 +32,7 @@
             </div>
         </div>
     </div>
-</div>
+    </div>
 <!-- END page header -->
 
     <!-- charts sit on one surface split by a line, edge to edge like the table under them -->
@@ -118,9 +120,9 @@
                 </thead>
                 <tbody>
                     {{range .UsageData}}
-                    <tr x-show="searchQuery === '' || '{{.Timestamp}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.CPU.Usage.Pct}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Memory.UsagePct}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Memory.Used.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Memory.Total.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Bandwidth.UsagePct}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Bandwidth.Limit.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.CPU.Total.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Warning}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                    <tr x-show="searchQuery === '' || '{{.Timestamp}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.CPUPct}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Memory.UsagePct}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Memory.Used.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Memory.Total.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Bandwidth.UsagePct}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Bandwidth.Limit.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.CPU.Total.Human}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{.Warning}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
                         <td class="time_readable tabular-nums border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400"><time datetime="{{.Timestamp}}">{{.Timestamp}}</time></td>
-                        <td class="border-b border-gray-200 px-4 py-2.5 text-center whitespace-nowrap text-gray-600 tabular-nums dark:border-gray-800 dark:text-gray-400">{{.CPU.Usage.Pct}}</td>
+                        <td class="border-b border-gray-200 px-4 py-2.5 text-center whitespace-nowrap text-gray-600 tabular-nums dark:border-gray-800 dark:text-gray-400">{{.CPUPct}}%</td>
                         <td class="border-b border-gray-200 px-4 py-2.5 text-center whitespace-nowrap text-gray-600 tabular-nums dark:border-gray-800 dark:text-gray-400">{{.CPU.Total.Human}}</td>
                         <td class="border-b border-gray-200 px-4 py-2.5 text-center whitespace-nowrap text-gray-600 tabular-nums dark:border-gray-800 dark:text-gray-400">{{.Memory.UsagePct}}</td>
                         <td data-size class="border-b border-gray-200 px-4 py-2.5 text-center whitespace-nowrap text-gray-600 tabular-nums dark:border-gray-800 dark:text-gray-400">{{.Memory.Used.Human}} / {{.Memory.Total.Human}}</td>

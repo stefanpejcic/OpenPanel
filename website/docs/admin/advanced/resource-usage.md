@@ -2,11 +2,11 @@
 sidebar_position: 1
 ---
 
-# Resource Usage
+# Resource usage
 
 Real-time server-wide resource usage, for the whole physical/virtual machine OpenPanel runs on (not a single user's account).
 
-Use **OpenAdmin > Server > Resource Usage** to view it.
+Use **OpenAdmin > Server > Resource usage** to view it.
 
 ## Tabs
 

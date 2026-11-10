@@ -3,41 +3,14 @@
 {{define "content"}}
 <!-- START templates/manager/sites.html -->
 
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
     <header>
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Site manager"}}</h1>
-        <p class="mt-1 text-sm text-gray-500">{{$apps := ""}}{{if .UserAllowed.wordpress}}{{$apps = print $apps " WordPress,"}}{{end}}{{if .UserAllowed.drupal}}{{$apps = print $apps " Drupal,"}}{{end}}{{if .UserAllowed.python}}{{$apps = print $apps " Python,"}}{{end}}{{if .UserAllowed.nodejs}}{{$apps = print $apps " Node.js,"}}{{end}}{{if $apps}}{{.T.Get "Manage %(apps)s and other websites." "apps" (trimSpace $apps)}}{{else}}{{.T.Get "Manage your websites."}}{{end}}</p>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{$apps := ""}}{{if .UserAllowed.wordpress}}{{$apps = print $apps " WordPress,"}}{{end}}{{if .UserAllowed.drupal}}{{$apps = print $apps " Drupal,"}}{{end}}{{if .UserAllowed.python}}{{$apps = print $apps " Python,"}}{{end}}{{if .UserAllowed.nodejs}}{{$apps = print $apps " Node.js,"}}{{end}}{{if $apps}}{{.T.Get "Manage %(apps)s and other websites." "apps" (trimSpace $apps)}}{{else}}{{.T.Get "Manage your websites."}}{{end}}</p>
     </header>
 </div>
 
 {{if .Groups}}
-<!-- summary: sites vs plan, containers, domains still free for a site -->
-<dl aria-label="{{.T.Get "Summary"}}" class="grid grid-cols-2 gap-x-8 gap-y-5 px-4 pb-6 sm:flex sm:flex-wrap sm:gap-x-12 sm:px-6 lg:px-8">
-    <div>
-        <dt class="text-sm text-gray-500">{{.T.Get "Websites"}}</dt>
-        <dd class="mt-1 flex items-center gap-2">
-            {{if .WebsitesLimit}}
-            <span class="flex gap-0.5" title="{{.WebsitesPct}}%" aria-hidden="true">
-                {{if ge .WebsitesPct 90}}<i class="h-3.5 w-1 rounded-sm bg-red-500"></i><i class="h-3.5 w-1 rounded-sm bg-red-500"></i><i class="h-3.5 w-1 rounded-sm bg-red-500"></i>
-                {{else if ge .WebsitesPct 70}}<i class="h-3.5 w-1 rounded-sm bg-orange-500"></i><i class="h-3.5 w-1 rounded-sm bg-orange-500"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i>
-                {{else}}<i class="h-3.5 w-1 rounded-sm bg-emerald-500"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i><i class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></i>{{end}}
-            </span>
-            {{end}}
-            <span class="text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.SiteCount}}<span class="font-medium text-gray-400 dark:text-gray-600"> / {{if .WebsitesLimit}}{{.WebsitesLimit}}{{else}}∞{{end}}</span></span>
-        </dd>
-    </div>
-    <div>
-        <dt class="text-sm text-gray-500">{{.T.Get "App containers"}}</dt>
-        <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.ContainerCount}}</dd>
-    </div>
-    <div>
-        <dt class="text-sm text-gray-500">{{.T.Get "Domains without a site"}}</dt>
-        <dd class="mt-1 flex items-baseline gap-2">
-            <span class="text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{len .FreeDomains}}</span>
-            {{if .FreeDomains}}{{if .UserAllowed.autoinstaller}}<a href="/auto-installer{{if eq (len .FreeDomains) 1}}?domain={{index .FreeDomains 0}}{{end}}" title="{{range $i, $d := .FreeDomains}}{{if $i}}, {{end}}{{$d}}{{end}}" class="text-sm text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Install a site"}} &rarr;</a>{{end}}{{end}}
-        </dd>
-    </div>
-</dl>
 
 <section aria-label="{{.T.Get "Websites Table"}}" x-data="{
     searchQuery: '',
@@ -165,7 +138,7 @@
                 <i class="ri-search-eye-line text-base" aria-hidden="true"></i>
                 {{.T.Get "Scan"}}
             </button>
-            <a id="sites-new-button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 w-full sm:w-fit" href="/auto-installer">
+            <a id="sites-new-button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 w-full sm:w-fit border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600" href="/auto-installer">
                 <i class="ri-add-line text-base" aria-hidden="true"></i>
                 {{.T.Get "New site"}}
             </a>
@@ -175,7 +148,7 @@
     <div id="scanForSitesExplain" class="hidden mx-4 mb-4 sm:mx-6 lg:mx-8 rounded-md bg-gray-100 p-4 text-sm text-gray-900 dark:bg-gray-800/70 dark:text-gray-400">
         <p>{{.T.Get "This will scan for installations that exist on disk but aren't in Site Manager yet - files will be scanned, detected, and (if reachable) imported automatically."}}</p>
         <div class="mt-3 flex gap-2">
-            <button type="button" id="scanForSitesConfirm" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">
+            <button type="button" id="scanForSitesConfirm" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
                 {{.T.Get "Start scan"}}
             </button>
             <button type="button" id="scanForSitesCancel" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">
@@ -492,8 +465,11 @@ c6.183-2.355,12.954,0.883,15.31,7.066c7.066,19.138,10.6,39.453,10.6,60.063C653.7
     </div>
 
     {{template "bulk_btn_style"}}
-    <div x-show="selectedCount > 0" x-cloak x-transition
-        class="sticky bottom-0 inset-x-0 z-20 flex flex-col gap-3 border-t border-gray-200 bg-white px-4 py-3 shadow-lg dark:border-gray-800 dark:bg-gray-950 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div x-show="selectedCount > 0" class="h-24" aria-hidden="true"></div>
+    <div x-show="selectedCount > 0" x-cloak x-transition :style="barStyle"
+        x-data="{ barStyle: {}, place() { const m = $el.closest('main') || document.querySelector('main'); if (!m) return; const r = m.getBoundingClientRect(); this.barStyle = { left: r.left + 'px', right: Math.max(0, innerWidth - r.right) + 'px' } } }"
+        x-init="place(); window.ResizeObserver && new ResizeObserver(() => place()).observe($el.closest('main') || document.body)"
+        class="fixed bottom-0 z-40 flex flex-col gap-3 border-t border-gray-200 bg-white px-4 py-3 shadow-lg dark:border-gray-800 dark:bg-gray-950 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
 
         <template x-if="!confirmingAction">
             <div class="text-sm font-medium text-gray-900 dark:text-gray-50">
@@ -533,7 +509,7 @@ c6.183-2.355,12.954,0.883,15.31,7.066c7.066,19.138,10.6,39.453,10.6,60.063C653.7
                     <button type="button" @click="cancelBulkAction()" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 py-1.5">
                         {{.T.Get "Cancel"}}
                     </button>
-                    <button type="button" @click="confirmBulkAction()" :class="confirmingAction === 'delete' ? 'bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 py-1.5 border-transparent text-white">
+                    <button type="button" @click="confirmBulkAction()" :class="confirmingAction === 'delete' ? 'bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600' : 'border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 py-1.5 border-transparent text-white">
                         {{.T.Get "Confirm"}}
                     </button>
                 </div>
@@ -673,7 +649,7 @@ document.addEventListener("DOMContentLoaded", function () {
             <td class="relative p-2">
                 <form method="POST" action="${url}">
                     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-                    <button class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2 py-1 text-center text-xs font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400" type="submit"><i class="ri-refresh-line" aria-hidden="true"></i>${i18n.update}</button>
+                    <button class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2 py-1 text-center text-xs font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600" type="submit"><i class="ri-refresh-line" aria-hidden="true"></i>${i18n.update}</button>
                 </form>
             </td>
         </tr>
@@ -726,7 +702,7 @@ document.addEventListener("DOMContentLoaded", function () {
     <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No websites yet"}}</p>
     <p class="mt-2 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Create your first website to get started"}}</p>
     {{if .UserAllowed.autoinstaller}}
-    <a href="/auto-installer" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 mt-4">
+    <a href="/auto-installer" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 mt-4 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
         <i class="ri-add-line text-base" aria-hidden="true"></i>
         {{.T.Get "New website"}}
     </a>

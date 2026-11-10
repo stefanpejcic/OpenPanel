@@ -8,7 +8,7 @@ Passkeys let you sign in to your own OpenAdmin account using your device's built
 
 Use **OpenAdmin > Security > Passkeys** to manage them.
 
-## Register a Passkey
+## Register a passkey
 
 1. Open the **Passkeys** page.
 2. Click to register a new passkey and follow your browser/OS prompt (Windows Hello, Touch ID, a hardware security key, etc.).
@@ -20,5 +20,5 @@ You can register multiple passkeys for the same account, and remove any of them 
 ![Passkeys page with the registered passkeys and the Add a passkey form](/img/openadmin-screenshots/security/passkeys-page_dark.png#gh-dark-mode-only)
 
 :::info
-This page manages passkeys for your **own** login. To disable passkeys for a Reseller or Administrator, use the **Disable Passkeys** action on their row in [Accounts](/docs/admin/accounts/administrators/) or [Resellers](/docs/admin/accounts/resellers/).
+This page manages passkeys for your **own** login. To disable passkeys for a Reseller or Administrator, use the **Disable passkeys** action on their row in [Accounts](/docs/admin/accounts/administrators/) or [Resellers](/docs/admin/accounts/resellers/).
 :::

@@ -2,17 +2,17 @@
 sidebar_position: 2
 ---
 
-# Add Servers
+# Add servers
 
 There are two ways to add a server: with a join code from a server that already runs OpenPanel, or with an install command on a new VPS.
 
 ## Add an existing server
 
-1. On the server you want to add, open **System > Multi-Server** and click **Generate join code**. You can also run this over SSH:
+1. On the server you want to add, open **System > Multi-server** and click **Generate join code**. You can also run this over SSH:
    ```bash
    /usr/local/admin/openadmin-amd64 cluster-join-code
    ```
-2. On the master open **System > Multi-Server**, and under **Add server** enter the address of the new server (for example `https://203.0.113.10:2087`), an optional name, and paste the code.
+2. On the master open **System > Multi-server**, and under **Add server** enter the address of the new server (for example `https://203.0.113.10:2087`), an optional name, and paste the code.
 
 The code is valid for 30 minutes and works once. The first server you add makes the current server the master.
 
@@ -21,7 +21,7 @@ The code is valid for 30 minutes and works once. The first server you add makes 
 
 ## Install a new server straight into the cluster
 
-1. On the master open **System > Multi-Server** and click **Generate install command** under **Add server**.
+1. On the master open **System > Multi-server** and click **Generate install command** under **Add server**.
 2. Run the command on the new VPS, with your Enterprise key in place of `YOUR_ENTERPRISE_KEY`:
    ```bash
    bash <(curl -sSL https://openpanel.org) --key=YOUR_ENTERPRISE_KEY --join-cluster=opinvite-...

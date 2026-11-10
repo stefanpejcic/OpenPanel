@@ -1,154 +1,6 @@
 {{define "usage"}}<!-- START templates/dashboard/usage.html -->
-<section id="dashboard_usage" aria-labelledby="dashboard_usage_heading" class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950 xl:col-span-1" x-data="usageDashboard()" x-init="init()" x-show="$data.view !== 'overview'">
-    <div class="border-b border-gray-200 px-4 py-3 dark:border-gray-800" id="dashboard_usage_title">
-        <h2 id="dashboard_usage_heading" class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Usage"}}</h2>
-    </div>
-
-    {{if .LimitReached}}
-    <div id="dashboard_usage_upgrade_banner" class="m-4 flex gap-3 rounded-md bg-yellow-50 p-4 text-sm text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500">
-        <i class="ri-error-warning-line size-5 shrink-0 text-lg leading-5" aria-hidden="true"></i>
-        <div class="min-w-0">
-            <p class="font-semibold">{{.T.Get "You've reached one or more limits of your current plan."}}</p>
-            {{if .UpgradePlanName}}
-            <p class="mt-1">{{.T.Get "Upgrade to"}} <strong>{{.UpgradePlanName}}</strong> {{.T.Get "for higher limits."}}</p>
-            {{if .UpgradeURL}}
-            <a href="/dashboard/upgrade" class="animate-upsell-pulse relative mt-3 inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-gray-300 bg-white px-3 py-2 text-center text-sm font-medium text-gray-900 shadow-xs transition-all duration-100 ease-in-out hover:bg-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Upgrade now"}}</a>
-            {{end}}
-            {{else}}
-            <p class="mt-1">{{.T.Get "Contact your hosting provider to upgrade your plan."}}</p>
-            {{end}}
-        </div>
-    </div>
-    {{end}}
-
-    <div class="divide-y divide-gray-200 dark:divide-gray-800">
-
-        {{if or .UserAllowed.wordpress .UserAllowed.website_builder .UserAllowed.nodejs .UserAllowed.python}}
-        <!-- Websites -->
-        <a id="dashboard_usage_websites" href="/sites" class="block px-4 py-3 text-sm transition hover:bg-gray-50 dark:hover:bg-gray-900/60 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2">
-            <div class="flex items-baseline justify-between gap-3">
-                <p class="text-gray-600 dark:text-gray-400">{{.T.Get "Websites"}}</p>
-                <p class="text-sm font-semibold text-gray-900 tabular-nums dark:text-gray-50"><span x-text="websites.used"></span><span class="font-normal text-gray-500"> / <span x-text="websites.allocated"></span></span></p>
-            </div>
-            <span class="mt-2 block h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800" role="progressbar" aria-label="{{.T.Get "Websites"}}" :aria-valuenow="websites.percentage" aria-valuemin="0" aria-valuemax="100">
-                <span class="block h-full rounded-full" :style="'width: ' + websites.percentage + '%'" :class="progressBarClass(websites.percentage)"></span>
-            </span>
-        </a>
-        {{end}}
-
-        {{if .UserAllowed.domains}}
-        <!-- Domains -->
-        <a id="dashboard_usage_domains" href="/domains" class="block px-4 py-3 text-sm transition hover:bg-gray-50 dark:hover:bg-gray-900/60 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2">
-            <div class="flex items-baseline justify-between gap-3">
-                <p class="text-gray-600 dark:text-gray-400">{{.T.Get "Domains"}}</p>
-                <p class="text-sm font-semibold text-gray-900 tabular-nums dark:text-gray-50"><span x-text="domains.used"></span><span class="font-normal text-gray-500"> / <span x-text="domains.allocated"></span></span></p>
-            </div>
-            <span class="mt-2 block h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800" role="progressbar" aria-label="{{.T.Get "Domains"}}" :aria-valuenow="domains.percentage" aria-valuemin="0" aria-valuemax="100">
-                <span class="block h-full rounded-full" :style="'width: ' + domains.percentage + '%'" :class="progressBarClass(domains.percentage)"></span>
-            </span>
-        </a>
-        {{end}}
-
-        {{if or .UserAllowed.mysql .UserAllowed.postgresql}}
-        <!-- Databases -->
-        <a id="dashboard_usage_databases" href="/{{if .UserAllowed.mysql}}mysql{{end}}" class="block px-4 py-3 text-sm transition hover:bg-gray-50 dark:hover:bg-gray-900/60 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2">
-            <div class="flex items-baseline justify-between gap-3">
-                <p class="text-gray-600 dark:text-gray-400">{{.T.Get "Databases"}}</p>
-                <p class="text-sm font-semibold text-gray-900 tabular-nums dark:text-gray-50"><span x-text="databases.used"></span><span class="font-normal text-gray-500"> / <span x-text="databases.allocated"></span></span></p>
-            </div>
-            <span class="mt-2 block h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800" role="progressbar" aria-label="{{.T.Get "Databases"}}" :aria-valuenow="databases.percentage" aria-valuemin="0" aria-valuemax="100">
-                <span class="block h-full rounded-full" :style="'width: ' + databases.percentage + '%'" :class="progressBarClass(databases.percentage)"></span>
-            </span>
-        </a>
-        {{end}}
-
-        {{if .UserAllowed.emails}}
-        <!-- Emails -->
-        <a id="dashboard_usage_emails" href="/emails" class="block px-4 py-3 text-sm transition hover:bg-gray-50 dark:hover:bg-gray-900/60 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2">
-            <div class="flex items-baseline justify-between gap-3">
-                <p class="text-gray-600 dark:text-gray-400">{{.T.Get "Email accounts"}}</p>
-                <p class="text-sm font-semibold text-gray-900 tabular-nums dark:text-gray-50"><span x-text="emails.used"></span><span class="font-normal text-gray-500"> / <span x-text="emails.allocated"></span></span></p>
-            </div>
-            <span class="mt-2 block h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800" role="progressbar" aria-label="{{.T.Get "Email accounts"}}" :aria-valuenow="emails.percentage" aria-valuemin="0" aria-valuemax="100">
-                <span class="block h-full rounded-full" :style="'width: ' + emails.percentage + '%'" :class="progressBarClass(emails.percentage)"></span>
-            </span>
-        </a>
-        {{end}}
-
-        {{if .UserAllowed.ftp}}
-        <!-- FTP -->
-        <a id="dashboard_usage_ftp" href="/ftp" class="block px-4 py-3 text-sm transition hover:bg-gray-50 dark:hover:bg-gray-900/60 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2">
-            <div class="flex items-baseline justify-between gap-3">
-                <p class="text-gray-600 dark:text-gray-400">{{.T.Get "FTP accounts"}}</p>
-                <p class="text-sm font-semibold text-gray-900 tabular-nums dark:text-gray-50"><span x-text="ftp.used"></span><span class="font-normal text-gray-500"> / <span x-text="ftp.allocated"></span></span></p>
-            </div>
-            <span class="mt-2 block h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800" role="progressbar" aria-label="{{.T.Get "FTP accounts"}}" :aria-valuenow="ftp.percentage" aria-valuemin="0" aria-valuemax="100">
-                <span class="block h-full rounded-full" :style="'width: ' + ftp.percentage + '%'" :class="progressBarClass(ftp.percentage)"></span>
-            </span>
-        </a>
-        {{end}}
-
-        <!-- Storage -->
-        <a id="dashboard_usage_storage" :href="userAllowed.includes('disk_usage') ? '/disk-usage' : '#'" class="block px-4 py-3 text-sm transition hover:bg-gray-50 dark:hover:bg-gray-900/60 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2">
-            <div class="flex items-baseline justify-between gap-3">
-                <p class="text-gray-600 dark:text-gray-400">{{.T.Get "Storage"}}</p>
-                <p class="text-sm font-semibold text-gray-900 tabular-nums dark:text-gray-50" x-text="disk.percentage + '%'"></p>
-            </div>
-            <span class="mt-2 block h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800" role="progressbar" aria-label="{{.T.Get "Storage"}}" :aria-valuenow="disk.percentage" aria-valuemin="0" aria-valuemax="100">
-                <span class="block h-full rounded-full" :style="'width: ' + disk.percentage + '%'" :class="progressBarClass(disk.percentage)"></span>
-            </span>
-            <span class="mt-1.5 flex items-center justify-between text-xs text-gray-500 tabular-nums">
-                <span x-text="disk.used"></span>
-                <span x-text="disk.allocated"></span>
-            </span>
-        </a>
-
-        <!-- Inodes -->
-        <a id="dashboard_usage_inodes" :href="userAllowed.includes('inodes') ? '/inodes-explorer' : '#'" class="block px-4 py-3 text-sm transition hover:bg-gray-50 dark:hover:bg-gray-900/60 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2">
-            <div class="flex items-baseline justify-between gap-3">
-                <p class="text-gray-600 dark:text-gray-400">{{.T.Get "Inodes"}}</p>
-                <p class="text-sm font-semibold text-gray-900 tabular-nums dark:text-gray-50" x-text="inodes.percentage + '%'"></p>
-            </div>
-            <span class="mt-2 block h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800" role="progressbar" aria-label="{{.T.Get "Inodes"}}" :aria-valuenow="inodes.percentage" aria-valuemin="0" aria-valuemax="100">
-                <span class="block h-full rounded-full" :style="'width: ' + inodes.percentage + '%'" :class="progressBarClass(inodes.percentage)"></span>
-            </span>
-            <span class="mt-1.5 flex items-center justify-between text-xs text-gray-500 tabular-nums">
-                <span x-text="inodes.used"></span>
-                <span x-text="inodes.allocated"></span>
-            </span>
-        </a>
-
-        <!-- CPU Usage -->
-        <a id="dashboard_usage_cpu" :href="userAllowed.includes('usage') ? '/server/usage' : '#'" class="block px-4 py-3 text-sm transition hover:bg-gray-50 dark:hover:bg-gray-900/60 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2">
-            <div class="flex items-baseline justify-between gap-3">
-                <p class="text-gray-600 dark:text-gray-400">{{.T.Get "CPU usage"}}</p>
-                <p class="text-sm font-semibold text-gray-900 tabular-nums dark:text-gray-50" x-text="cpu.percentage + '%'"></p>
-            </div>
-            <span class="mt-2 block h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800" role="progressbar" aria-label="{{.T.Get "CPU Usage"}}" :aria-valuenow="cpu.visual" aria-valuemin="0" aria-valuemax="100">
-                <span class="block h-full rounded-full" :style="'width: ' + cpu.visual + '%'" :class="progressBarClass(cpu.visual)"></span>
-            </span>
-            <span class="mt-1.5 flex items-center justify-between text-xs text-gray-500 tabular-nums">
-                <span x-text="cpu.used"></span>
-                <span x-text="cpu.allocated"></span>
-            </span>
-        </a>
-
-        <!-- RAM Usage -->
-        <a id="dashboard_usage_memory" :href="userAllowed.includes('usage') ? '/server/usage' : '#'" class="block px-4 py-3 text-sm transition hover:bg-gray-50 dark:hover:bg-gray-900/60 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2">
-            <div class="flex items-baseline justify-between gap-3">
-                <p class="text-gray-600 dark:text-gray-400">{{.T.Get "Memory usage"}}</p>
-                <p class="text-sm font-semibold text-gray-900 tabular-nums dark:text-gray-50" x-text="mem.percentage + '%'"></p>
-            </div>
-            <span class="mt-2 block h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800" role="progressbar" aria-label="{{.T.Get "Memory Usage"}}" :aria-valuenow="mem.percentage" aria-valuemin="0" aria-valuemax="100">
-                <span class="block h-full rounded-full" :style="'width: ' + mem.percentage + '%'" :class="progressBarClass(mem.percentage)"></span>
-            </span>
-            <span class="mt-1.5 flex items-center justify-between text-xs text-gray-500 tabular-nums">
-                <span x-text="mem.used"></span>
-                <span x-text="mem.allocated"></span>
-            </span>
-        </a>
-    </div>
-
+<!-- no markup of its own: loads plan and resource usage for the Overview, then shares it -->
+<div x-data="usageDashboard()" x-init="init()" hidden></div>
     <script>
     function usageDashboard() {
         return {
@@ -258,7 +110,8 @@
                     const data = response;
 
                     // CPU
-                    let cpuUsedPct = data.cpu.usage.pct || 0;
+                    // pct counts 100 per core, so 101 of 200 is half the plan
+                    let cpuUsedPct = data.cpu.total.pct > 0 ? Math.round((data.cpu.usage.pct || 0) * 100 / data.cpu.total.pct) : Math.round(data.cpu.usage.pct || 0);
 
                     this.cpu = {
                         used: data.cpu.usage.human || '0 cores',
@@ -317,7 +170,7 @@
         }
     }
     </script>
-</section>
+
 
 {{if and .LimitReached .UpgradePlanName}}
 <script>

@@ -6,10 +6,10 @@
 
 <div x-data="{ showUpload: (new URLSearchParams(window.location.search).get('method') !== 'download') }">
 
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
         <div>
                 <h1 id="current_option" class="text-lg font-semibold text-gray-900 dark:text-gray-50"><span x-text="showUpload ? '{{.T.Get "File upload"}}' : '{{.T.Get "Download from URL"}}'"></span></h1>
-                <p class="mt-1 text-sm text-gray-500"><i class="ri-folder-line" aria-hidden="true"></i> <a href="/files/{{.PathParam}}" class="hover:text-gray-900 hover:underline hover:underline-offset-4 dark:hover:text-gray-50">/var/www/html/{{.PathParam}}</a></p>
+                <p class="mt-1 text-sm text-gray-500 max-w-3xl"><i class="ri-folder-line" aria-hidden="true"></i> <a href="/files/{{.PathParam}}" class="hover:text-gray-900 hover:underline hover:underline-offset-4 dark:hover:text-gray-50">/var/www/html/{{.PathParam}}</a></p>
             </div>
             <div class="editor-header mt-2 gap-2 sm:mt-0 sm:flex">
             </div>
@@ -21,7 +21,7 @@
 
     <!-- Upload Files Form -->
     <div x-show="showUpload" class="CrawlerStatusCard px-4 pb-8 sm:px-6 lg:px-8" id="upload_files_form">
-        <form id="uploadForm" enctype="multipart/form-data" method="POST" class="max-w-5xl divide-y divide-gray-200 border-t border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+        <form id="uploadForm" enctype="multipart/form-data" method="POST" class="max-w-5xl divide-y divide-gray-200 dark:divide-gray-800">
 
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
@@ -102,7 +102,7 @@ dropArea.addEventListener('drop', (e) => {
                 <button type="button" id="change_to_wget" @click.prevent="showUpload = false" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">
                     {{.T.Get "Download from URL instead"}}
                 </button>
-                <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">
+                <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
                     <i class="ri-upload-line"></i> {{.T.Get "Upload"}}
                 </button>
             </div>
@@ -111,7 +111,7 @@ dropArea.addEventListener('drop', (e) => {
 
     <!-- Wget Files Form -->
     <div x-show="!showUpload" class="CrawlerStatusCard px-4 pb-8 sm:px-6 lg:px-8" id="wget_files_form">
-        <form id="wgetForm" enctype="multipart/form-data" method="POST" class="max-w-5xl divide-y divide-gray-200 border-t border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+        <form id="wgetForm" enctype="multipart/form-data" method="POST" class="max-w-5xl divide-y divide-gray-200 dark:divide-gray-800">
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
             <section aria-labelledby="wget-title" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
                 <div>
@@ -136,7 +136,7 @@ dropArea.addEventListener('drop', (e) => {
                 <button type="button" id="change_to_upload" @click.prevent="showUpload = true" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">
                     {{.T.Get "Upload from device instead"}}
                 </button>
-                <button type="submit" id="installButton" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">
+                <button type="submit" id="installButton" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
                     <i class="ri-download-line" aria-hidden="true"></i> {{.T.Get "Download"}}
                 </button>
             </div>

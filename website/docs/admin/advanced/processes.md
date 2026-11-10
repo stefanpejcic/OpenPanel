@@ -2,7 +2,7 @@
 sidebar_position: 4
 ---
 
-# Process Manager
+# Process manager
 
 The Process Manager allows you to view and manage running system processes directly from the OpenPanel interface. It's a powerful tool for monitoring system activity and taking quick action when needed.
 
@@ -27,7 +27,7 @@ Processes using 90% or more CPU, or 20% or more RAM, are listed above the table:
 
 CPU usage is measured between page loads, so a process using a lot of CPU is listed from the second time the page is opened.
 
-## Bulk Actions
+## Bulk actions
 
 Tick the checkbox of one or more processes, or the checkbox in the table header to select all processes shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 

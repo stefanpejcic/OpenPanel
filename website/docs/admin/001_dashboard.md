@@ -6,7 +6,7 @@ sidebar_position: 2
 
 The dashboard page is the hub of the OpenAdmin interface and provides the overview of the current server performance and usage.
 
-For administrator accounts, the dashboard also displays a quick summary bar with counts for **Servers**, **Containers**, **Users**, **Domains**, **Websites**, **Packages**, and **Emails** (each showing current usage against the license's limit, if any). Reseller accounts instead see their own **OpenPanel Accounts** and **Disk Space Used** usage against the limits set by the administrator.
+For administrator accounts, the dashboard also displays a quick summary bar with counts for **Servers**, **Containers**, **Users**, **Domains**, **Websites**, **Packages**, and **Emails** (each showing current usage against the license's limit, if any). Reseller accounts instead see their own **OpenPanel accounts** and **Disk space used** usage against the limits set by the administrator.
 
 ![Summary bar with the number of nodes, containers, users, domains, websites, packages and emails](/img/openadmin-screenshots/001_dashboard-summary.png#gh-light-mode-only)
 ![Summary bar with the number of nodes, containers, users, domains, websites, packages and emails](/img/openadmin-screenshots/001_dashboard-summary_dark.png#gh-dark-mode-only)
@@ -15,14 +15,25 @@ The dashboard page contains widgets:
 
 - **Tasks** widget: Lists background tasks that are running now.
 - **Cluster** widget: On Enterprise, shows every server of a [multi-server](/docs/admin/system/multi-server/) cluster with its users, domains, version and unread notifications.
-- **Daily Summary** tab: Displays yesterday's traffic and issues for all accounts combined, see [Daily Summary](/docs/admin/daily-summary). Shown only when the [Daily Summary module](/docs/admin/settings/modules/#daily-summary) is enabled.
-- **User Activity** widget: Displays real-time combined activity log of all OpenPanel users.
-- **Latest News** widget: Displays blog articles from the OpenPanel blog.
-- **System Information** widget: Displays Information about your server configuration: Hostname, IPv4 address, OS, OpenPanel version, Server Time, Kernel, CPU type, Uptime, Number of Running Processes and available Package Updates.
-- **Resource Usage** widget: Displays a CPU % and RAM % chart for the last hour, with a link to view the full resource usage history.
+- **Daily summary** tab: Displays yesterday's traffic and issues for all accounts combined, see [Daily Summary](/docs/admin/daily-summary). Shown only when the [Daily Summary module](/docs/admin/settings/modules/#daily-summary) is enabled.
+- **User activity** widget: Displays real-time combined activity log of all OpenPanel users.
+- **Latest news** widget: Displays blog articles from the OpenPanel blog.
+- **System information** widget: Displays information about your server configuration: hostname, IPv4 address, OS, OpenPanel version, server time, kernel, CPU type, uptime, number of running processes and available package updates.
+- **Resource usage** widget: Displays a CPU % and RAM % chart for the last hour, with a link to view the full resource usage history.
 
 ![OpenAdmin dashboard with the summary bar and the User Activity, Latest News, System Information and Resource Usage widgets](/img/openadmin-screenshots/001_dashboard-window.png#gh-light-mode-only)
 ![OpenAdmin dashboard with the summary bar and the User Activity, Latest News, System Information and Resource Usage widgets](/img/openadmin-screenshots/001_dashboard-window_dark.png#gh-dark-mode-only)
+
+### Notes on the dashboard
+
+The dashboard flags problems it finds above or inside the related widget:
+
+- **Usage stats are not being collected**: the resource usage chart has no data from the last few minutes, so what it shows is old. Check that the cron service is running and the `opencli sentinel` schedule on [Scheduled actions](/docs/admin/advanced/crons/).
+- **Long running tasks**: a task that has been running for over 20 hours is most likely stuck. Check it on the [Tasks](/docs/admin/advanced/tasks/) page, a hung task can block the next run of its cron.
+- **Servers with problems**: on a multi-server master, servers that are offline, have a service down or have disk or RAM over 90%. Paused servers are left out.
+- **OS support ending**: the System information widget warns when the server's OS stops getting security updates soon, or already has. On a standalone server with few accounts it also points to the [migration guide](/docs/admin/system/migrate/), since everything can be moved to a server with a current OS.
+- **OpenPanel update**: versions older than 2.0.22 are asked to update, since 2.0.22 brings a lot of security fixes.
+- **Many package updates**: a large number of available package updates means the server hasn't been upgraded in a long time. Back up the server first, then run the upgrade from the [Terminal](/docs/admin/advanced/terminal/).
 
 ## Onboarding
 
@@ -38,11 +49,12 @@ After logging in, OpenAdmin opens an onboarding guide (`/onboarding`) until it's
 
 Administrators can arrange the widgets, and the layout is saved on the admin account, so it's the same in every browser and, on a multi-server master, on the dashboard of every server:
 
-- **Move a widget**: hover over it and drag it by the handle in its top right corner.
-- **Change the width**: hover over a widget and pick **1/3**, **2/3** or **3/3** of the page. By default Resource Usage takes 2/3 of the page and the other widgets 1/3. Two 1/3 widgets that follow a 2/3 one stack in the column next to it, like Tasks and Cluster next to Resource Usage.
+- **Move a widget**: drag it by the handle in its top right corner, or focus the handle and use the arrow keys. While you drag, the free slot is shown as a dashed drop zone.
+- **Change the width**: hover over the handle and pick **1/3**, **1/2**, **2/3** or **Full** width. By default Resource Usage takes 2/3 of the page and the other widgets 1/3.
+- **Change the height**: hover over the handle and pick **1 block high** or **2 blocks high**. A 2 block high widget makes room for two 1 block widgets stacked next to it, like Tasks and Cluster next to Resource Usage. Other widgets move up to fill gaps in the grid.
 - **Collapse a widget**: click the arrow in its top right corner to show only its title. Click it again to expand it.
 
-To go back to the default layout, click **Reset dashboard layout** under the widgets.
+To go back to the default order, widths and heights, click **Reset layout** under the widgets.
 
 ## Usage
 
@@ -58,45 +70,45 @@ Hovering over each metric provides detailed information:
 ![Resource usage bar in the top-right corner of OpenAdmin with the load tooltip open](/img/openadmin-screenshots/001_dashboard-sse.png#gh-light-mode-only)
 ![Resource usage bar in the top-right corner of OpenAdmin with the load tooltip open](/img/openadmin-screenshots/001_dashboard-sse_dark.png#gh-dark-mode-only)
 
-## Daily Summary
+## Daily summary
 
 The daily summary of all accounts is on its own tab, see [Daily Summary](/docs/admin/daily-summary).
 
-## User Activity
+## User activity
 
-The **User Activity** widget provides a combined list of latest actions from all OpenPanel users (their activity logs).
+The **User activity** widget provides a combined list of latest actions from all OpenPanel users (their activity logs).
 
 ![User Activity widget with the latest actions of all OpenPanel users](/img/openadmin-screenshots/001_dashboard-activity.png#gh-light-mode-only)
 ![User Activity widget with the latest actions of all OpenPanel users](/img/openadmin-screenshots/001_dashboard-activity_dark.png#gh-dark-mode-only)
 
-## Latest News
+## Latest news
 
-The **Latest News** widget displays news from [OpenPanel Blog](https://openpanel.com/blog).
+The **Latest news** widget displays news from [OpenPanel Blog](https://openpanel.com/blog).
 
 ![Latest News widget with articles from the OpenPanel blog](/img/openadmin-screenshots/001_dashboard-news.png#gh-light-mode-only)
 ![Latest News widget with articles from the OpenPanel blog](/img/openadmin-screenshots/001_dashboard-news_dark.png#gh-dark-mode-only)
 
-## System Information
+## System information
 
-The **System Information** widget displays information about your server:
+The **System information** widget displays information about your server:
 
 - Hostname
 - IPv4 address
 - OS
 - OpenPanel version
-- Server Time
+- Server time
 - Kernel version
 - CPU model
 - Uptime
 - Number of running processes
-- Available Package updates
+- Available package updates
 
 ![System Information widget with hostname, IPv4 address, OS, OpenPanel version, server time, kernel, CPU, uptime, processes and package updates](/img/openadmin-screenshots/001_dashboard-sysinfo.png#gh-light-mode-only)
 ![System Information widget with hostname, IPv4 address, OS, OpenPanel version, server time, kernel, CPU, uptime, processes and package updates](/img/openadmin-screenshots/001_dashboard-sysinfo_dark.png#gh-dark-mode-only)
 
-## Resource Usage
+## Resource usage
 
-The **Resource Usage** widget displays a chart of CPU % and RAM % usage over the last hour. On a multi-server master it draws a line for every server, click a server's name above the chart to show only that one. Click **View history** to open the full Resource Usage history page (**Server > Resource Usage**).
+The **Resource usage** widget displays a chart of CPU % and RAM % usage over the last hour. On a multi-server master it draws a line for every server, click a server's name above the chart to show only that one. Click **View history** to open the full Resource Usage history page (**Server > Resource usage**).
 
 ![Resource Usage widget with a chart of CPU and RAM usage over the last hour and the View history link](/img/openadmin-screenshots/001_dashboard-usage.png#gh-light-mode-only)
 ![Resource Usage widget with a chart of CPU and RAM usage over the last hour and the View history link](/img/openadmin-screenshots/001_dashboard-usage_dark.png#gh-dark-mode-only)
@@ -107,8 +119,8 @@ On a [multi-server](/docs/admin/system/multi-server/) master, the **Cluster** wi
 
 On a single server it shows that the server is standalone, and on a slave which master manages it.
 
-![Cluster widget listing the master and two servers with their health bars, users, domains, version and last sync](/img/openadmin-screenshots/001_dashboard-cluster.png#gh-light-mode-only)
-![Cluster widget listing the master and two servers with their health bars, users, domains, version and last sync](/img/openadmin-screenshots/001_dashboard-cluster_dark.png#gh-dark-mode-only)
+![Cluster widget with a problem notice, the master with its users, domains, version and notifications, a paused server and an offline one](/img/openadmin-screenshots/001_dashboard-cluster.png#gh-light-mode-only)
+![Cluster widget with a problem notice, the master with its users, domains, version and notifications, a paused server and an offline one](/img/openadmin-screenshots/001_dashboard-cluster_dark.png#gh-dark-mode-only)
 
 ## Tasks
 
@@ -117,15 +129,15 @@ The **Tasks** widget lists background tasks that are currently running on the se
 ![Tasks widget with the currently running background tasks and the View all link](/img/openadmin-screenshots/001_dashboard-tasks.png#gh-light-mode-only)
 ![Tasks widget with the currently running background tasks and the View all link](/img/openadmin-screenshots/001_dashboard-tasks_dark.png#gh-dark-mode-only)
 
-## Found a Bug
+## Found a bug
 
 By default, every page in both the OpenPanel and OpenAdmin UIs includes a **"Found a bug? Let us know"** link at the bottom. This link allows users to report issues directly to our [GitHub Issues](https://github.com/stefanpejcic/OpenPanel/issues) page and includes basic information to help reproduce the problem.
 
 For the OpenPanel UI, administrators can disable this link by going to **Settings > OpenPanel** and toggling off the **"Display link to report bugs"** option.
 
-## Dark Mode
+## Dark mode
 
-To enable Dark Mode, click your username in the bottom-left corner and select the Moon icon. To switch back to Light Mode, click the Sun icon.
+To enable dark mode, click your username in the bottom-left corner and turn on the **Dark mode** switch. Turn it off to go back to light mode. Until you pick one, OpenAdmin follows your browser's light or dark setting.
 
 ![OpenAdmin dashboard in dark mode](/img/openadmin-screenshots/001_dashboard_dark-window.png#screenshot)
 
@@ -133,12 +145,12 @@ To enable Dark Mode, click your username in the bottom-left corner and select th
 
 OpenAdmin menu lists all available options in the OpenAdmin interface. Simply click on a menu item to open it.
 
-The menu comes in two styles, set by the **Menu Style** option on [**Settings > OpenPanel**](/docs/admin/settings/openpanel/#display) (the same option sets the default for OpenPanel users):
+The menu comes in two styles, set by the **Menu style** option on [**Settings > OpenPanel**](/docs/admin/settings/openpanel/#display) (the same option sets the default for OpenPanel users):
 
 - **Classic** (default): items are grouped in expandable sections, like the screenshot below.
 - **Modern**: the sidebar has one link per area - Accounts, Hosting Plans, Domains, Emails, Backups, then **Server** (Services, Security, Server, System) and **Settings** (Settings, License & Support) - and the pages of that area are shown as tabs at the top of each page.
 
-These docs use the Modern names, so a path like **System > Server Time** means: click **System** in the sidebar, then the **Server Time** tab. In the Classic menu the same pages are in the expandable groups, for example **Server > Server Time**.
+These docs use the Modern names, so a path like **System > Server time** means: click **System** in the sidebar, then the **Server time** tab. In the Classic menu the same pages are in the expandable groups, for example **Server > Server time**.
 
 In the Modern menu, a colored dot next to a sidebar item flags something that needs attention - hover it to see what:
 
@@ -161,7 +173,7 @@ Search returns:
 ![Search box in the OpenAdmin sidebar with matching pages, users and websites](/img/openadmin-screenshots/001_dashboard-search.png#gh-light-mode-only)
 ![Search box in the OpenAdmin sidebar with matching pages, users and websites](/img/openadmin-screenshots/001_dashboard-search_dark.png#gh-dark-mode-only)
 
-## Keyboard Shortcuts
+## Keyboard shortcuts
 
 OpenAdmin UI can be navigated using keyboard shortcuts: [view documentation](/docs/articles/dev-experience/openadmin-keyboard-shortcuts/).
 

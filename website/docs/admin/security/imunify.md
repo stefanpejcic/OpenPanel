@@ -24,7 +24,7 @@ If ImunifyAV is not installed, opening the ImunifyAV page in OpenAdmin shows a *
 
 ## Start
 
-OpenAdmin automatically attempts to start the ImunifyAV service the first time you open its page. If the service is still not running afterwards, a **Not Running** message is shown, prompting you to start it manually from the terminal:
+OpenAdmin automatically attempts to start the ImunifyAV service the first time you open its page. If the service is still not running afterwards, a **Not running** message is shown, prompting you to start it manually from the terminal:
 
 ```bash
 opencli imunify start

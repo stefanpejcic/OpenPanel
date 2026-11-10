@@ -2,15 +2,15 @@
 sidebar_position: 5
 ---
 
-# Two-Factor Authentication
+# Two-factor authentication
 
 Two-Factor Authentication (2FA) adds a second login step for your own OpenAdmin account — a time-based one-time password (TOTP) from an authenticator app, in addition to your password.
 
-Use **OpenAdmin > Security > Two-Factor Authentication** to set it up.
+Use **OpenAdmin > Security > Two-factor authentication** to set it up.
 
 ## Enable 2FA
 
-1. Open the **Two-Factor Authentication** page.
+1. Open the **Two-factor authentication** page.
 2. Scan the displayed QR code with an authenticator app (e.g. Google Authenticator), or manually enter the shown secret key.
 3. Enter the generated code to confirm and enable 2FA.
 

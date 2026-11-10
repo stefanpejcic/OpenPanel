@@ -101,3 +101,11 @@ type ResourceUsageLine struct {
 	} `json:"bandwidth"`
 	Warning string `json:"warning"`
 }
+
+// CPUPct is usage as a share of the plan's cores, the file's pct fields count 100 per core
+func (l ResourceUsageLine) CPUPct() int {
+	if l.CPU.Total.Pct <= 0 {
+		return int(l.CPU.Usage.Pct + 0.5)
+	}
+	return int(l.CPU.Usage.Pct*100/l.CPU.Total.Pct + 0.5)
+}

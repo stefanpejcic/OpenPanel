@@ -17,19 +17,19 @@
 
 <!-- page header -->
 <section aria-label="{{.T.Get "Crons header"}}" x-data="{ searchQuery: '', showSection: false }">
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
         <div>
         {{if eq .View "table"}}
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Cron jobs"}}</h1>
-        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Run commands on a schedule, like a WordPress cron, a cleanup script or a nightly report."}}</p>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Run commands on a schedule, like a WordPress cron, a cleanup script or a nightly report."}}</p>
 
         {{else if eq .View "code"}}
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Cron file editor"}}</h1>
-        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Edit every job at once in the file the cron container reads."}}</p>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Edit every job at once in the file the cron container reads."}}</p>
 
         {{else if eq .View "logs"}}
         <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Cron job logs"}}</h1>
-        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Output of your cron jobs, newest last. Filter by job to see what a single job did."}}</p>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Output of your cron jobs, newest last. Filter by job to see what a single job did."}}</p>
         {{end}}
     </div>
     <div class="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">
@@ -66,10 +66,11 @@
             <button type="button" @click="send()" :disabled="loading" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"><i class="ri-refresh-line text-base" :class="loading ? 'animate-spin' : ''" aria-hidden="true"></i>{{.T.Get "Refresh"}}</button>
 </div>
 {{end}}
-{{if ne .View "logs"}}
-                <button type="button" @click="showSection = !showSection" :aria-expanded="showSection ? 'true' : 'false'" aria-controls="cron-help" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 w-full sm:w-fit">
-                    <i class="ri-question-line text-base" aria-hidden="true"></i> {{.T.Get "Need help?"}}
-                </button>
+{{if eq .View "table"}}
+                <a href="/cronjobs/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 w-full sm:w-fit border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
+            <i class="ri-add-line text-base" aria-hidden="true"></i>
+            {{.T.Get "Create new"}}
+        </a>
 {{end}}
 
 
@@ -78,59 +79,13 @@
 <form method="post" action="/cronjobs/save">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
-<button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 w-full sm:w-auto">{{.T.Get "Save changes"}}</button>
+<button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 w-full sm:w-auto border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Save changes"}}</button>
 
 {{end}}
 
     </div>
 </div>
 <!-- END page header -->
-
-        <!-- Initially Hidden, Show on Click -->
-        <div id="cron-help" x-show="showSection" x-cloak class="px-4 pb-4 sm:px-6 lg:px-8">
-            <dl class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800 text-sm">
-                <div class="px-4 py-3">
-                    <dt class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Schedule"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></dt>
-                    <dd class="mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
-                        <p><span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Description"}}:</span> {{.T.Get "When the job should be executed. E.g. every 10 seconds or every night at 1 AM."}}</p>
-                        <p><span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Value"}}:</span> {{.T.Get "String, see scheduling format of the Go implementation of cron. E.g. @every 10s or 0 0 1 * * * (every night at 1 AM). Note: the format starts with seconds, instead of minutes."}}</p>
-                        <p><span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Default"}}:</span> {{.T.Get "Required field, no default."}}</p>
-                    </dd>
-                </div>
-                <div class="px-4 py-3">
-                    <dt class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Command"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></dt>
-                    <dd class="mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
-                        <p><span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Description"}}:</span> {{.T.Get "Command you want to run inside the container."}}</p>
-                        <p><span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Value"}}:</span> {{.T.Get "String, e.g. touch /tmp/example"}}</p>
-                        <p><span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Default"}}:</span> {{.T.Get "Required field, no default."}}</p>
-                    </dd>
-                </div>
-                <div class="px-4 py-3">
-                    <dt class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></dt>
-                    <dd class="mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
-                        <p><span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Description"}}:</span> {{.T.Get "Name of the container you want to execute the command in."}}</p>
-                        <p><span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Value"}}:</span> {{.T.Get "String, e.g. nginx-proxy"}}</p>
-                        <p><span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Default"}}:</span> {{.T.Get "Required field, no default."}}</p>
-                    </dd>
-                </div>
-                <div class="px-4 py-3">
-                    <dt class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Comment"}}</dt>
-                    <dd class="mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
-                        <p><span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Description"}}:</span> {{.T.Get "Name/comment for the cron job"}}</p>
-                        <p><span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Value"}}:</span> {{.T.Get "String, e.g. job for mysql db dump"}}</p>
-                        <p><span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Default"}}:</span> {{.T.Get "Optional."}}</p>
-                    </dd>
-                </div>
-                <div class="px-4 py-3">
-                    <dt class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "No overlap"}}</dt>
-                    <dd class="mt-1 space-y-0.5 text-gray-600 dark:text-gray-400">
-                        <p><span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Description"}}:</span> {{.T.Get "Skip this run if the previous run of this job is still in progress."}}</p>
-                        <p><span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Value"}}:</span> {{.T.Get "Checkbox, adds a no-overlap line to the job's block when checked."}}</p>
-                        <p><span class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Default"}}:</span> {{.T.Get "Optional, unchecked by default."}}</p>
-                    </dd>
-                </div>
-            </dl>
-        </div>
 
 {{if eq .View "table"}}
 <script src="{{static "js/cron-times.js"}}"></script>
@@ -258,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function () {
     {{end}}
 
     <!-- toolbar -->
-    <div class="flex flex-col justify-between gap-2 px-4 py-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+    <div class="flex flex-col justify-between gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
         <div class="relative w-full sm:w-64">
             <input x-model="searchQuery" aria-label="{{.T.Get "Search"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 pl-8 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" placeholder="{{.T.Get "Search"}}" type="search"/>
@@ -273,10 +228,6 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
         </div>
 
-        <a href="/cronjobs/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 w-full sm:w-fit">
-            <i class="ri-add-line text-base" aria-hidden="true"></i>
-            {{.T.Get "Create new"}}
-        </a>
     </div>
 
 
@@ -366,26 +317,26 @@ document.addEventListener('DOMContentLoaded', function () {
                     {{if $next}}<span title="{{$next}}" x-text="cronFmt.from({{toJSON $next}}, $store.cronRuns.now)"></span>{{else}}<span class="text-gray-400 dark:text-gray-500">—</span>{{end}}
                 </td>
 
-                <td x-show="editing" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 w-48">
+                <td x-show="editing" x-cloak class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 w-48">
                             <input type="text" name="schedule" aria-label="{{$.T.Get "Schedule"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 font-mono" value="{{$item.Schedule}}">
                 </td>
-                <td x-show="editing" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 w-full">
+                <td x-show="editing" x-cloak class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 w-full">
                     <div class="flex flex-col gap-2">
                             <input type="text" name="comment" aria-label="{{$.T.Get "Comment"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" placeholder="{{$.T.Get "optional"}}" value="{{$item.Comment}}">
                             <input type="text" name="command" aria-label="{{$.T.Get "Command"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 font-mono" value="{{$item.Command}}">
                     </div>
                 </td>
-                <td x-show="editing" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 w-48">
+                <td x-show="editing" x-cloak class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 w-48">
                     <select name="container" aria-label="{{$.T.Get "Container"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]" required>
 {{range $.Services}}
     <option value="{{.}}" {{if eq . $item.Container}}selected{{end}}>{{.}}</option>
 {{end}}
                     </select>
                 </td>
-                <td x-show="editing" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
+                <td x-show="editing" x-cloak class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
                     <label class="inline-flex items-center gap-2 text-sm text-gray-900 dark:text-gray-50"><input type="checkbox" name="no_overlap" value="1" {{if $item.NoOverlap}}checked{{end}}> {{$.T.Get "No overlap"}}</label>
                 </td>
-                <td x-show="editing" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400"></td>
+                <td x-show="editing" x-cloak class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400"></td>
 
                 <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-right">
 
@@ -393,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     <button type="button" @click="editing = true" x-show="!editing" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" title="{{$.T.Get "Edit"}}" aria-label="{{$.T.Get "Edit"}} {{$item.Comment}}"><i class="ri-pencil-line text-base" aria-hidden="true"></i></button>
 
-                            <button x-show="editing" type="submit" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" title="{{$.T.Get "Save"}}" aria-label="{{$.T.Get "Save"}} {{$item.Comment}}"><i class="ri-check-line text-base" aria-hidden="true"></i></button>
+                            <button x-show="editing" x-cloak type="submit" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" title="{{$.T.Get "Save"}}" aria-label="{{$.T.Get "Save"}} {{$item.Comment}}"><i class="ri-check-line text-base" aria-hidden="true"></i></button>
 
                     </form>
 
@@ -476,7 +427,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                             <div class="flex flex-col-reverse gap-2 border-t border-gray-200 px-6 py-4 sm:flex-row sm:justify-end dark:border-gray-900">
                                 <button type="button" @click="closeRun()" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{$.T.Get "Close"}}</button>
-                                <button type="button" @click="runStart()" :disabled="runStatus === 'connecting' || runStatus === 'running'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">{{$.T.Get "Run again"}}</button>
+                                <button type="button" @click="runStart()" :disabled="runStatus === 'connecting' || runStatus === 'running'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{$.T.Get "Run again"}}</button>
                             </div>
                         </div>
                     </div>
@@ -645,10 +596,10 @@ no-overlap</pre>
             </div>
 
             <!-- error -->
-            <div x-show="!logsLoading && logsError" class="p-4 text-red-400" role="alert" x-text="logsError"></div>
+            <div x-cloak x-show="!logsLoading && logsError" class="p-4 text-red-400" role="alert" x-text="logsError"></div>
 
             <!-- empty -->
-            <div x-show="!logsLoading && !logsError && logEntries.length === 0" class="px-4 py-10 text-center text-gray-400">{{.T.Get "No log entries found."}}</div>
+            <div x-cloak x-show="!logsLoading && !logsError && logEntries.length === 0" class="px-4 py-10 text-center text-gray-400">{{.T.Get "No log entries found."}}</div>
 
             <!-- log rows -->
             <template x-if="!logsLoading && !logsError && logEntries.length > 0">
@@ -670,12 +621,12 @@ no-overlap</pre>
                         </template>
                     </tbody>
                 </table>
-                <p x-show="q && !shown().length" class="px-4 py-6 text-center font-sans text-sm text-gray-500">{{.T.Get "No line matches the filter."}}</p>
+                <p x-cloak x-show="q && !shown().length" class="px-4 py-6 text-center font-sans text-sm text-gray-500">{{.T.Get "No line matches the filter."}}</p>
             </template>
         </div>
 
         <!-- footer: entry count -->
-        <div x-show="!logsLoading && !logsError && logEntries.length > 0" class="flex items-center justify-between gap-4 border-t border-gray-800 bg-gray-900 px-4 py-2 text-xs text-gray-400">
+        <div x-cloak x-show="!logsLoading && !logsError && logEntries.length > 0" class="flex items-center justify-between gap-4 border-t border-gray-800 bg-gray-900 px-4 py-2 text-xs text-gray-400">
             <span><span x-text="logEntries.length" class="tabular-nums"></span> {{.T.Get "entries shown"}}</span>
             <a href="/cronjobs/editor" class="text-blue-400 hover:underline hover:underline-offset-4">{{.T.Get "Open the crons file"}}</a>
         </div>

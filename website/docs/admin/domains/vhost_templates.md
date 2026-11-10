@@ -2,15 +2,15 @@
 sidebar_position: 7
 ---
 
-# Edit VirtualHost Templates
+# Edit VirtualHost templates
 
 **Domains > VirtualHost Templates** holds the configuration templates used when a domain is added:
 
 - **Apache VirtualHost**: VirtualHost of domains added by users with the Apache webserver.
 - **Nginx VirtualHost**: VirtualHost of domains added by users with the Nginx webserver.
 - **OpenResty VirtualHost**: VirtualHost of domains added by users with the OpenResty webserver.
-- **Varnish Template**: the `default.vcl` applied to Varnish instances created for new user accounts.
-- **Caddy VHosts**: the template applied to all newly added domains for the front-facing Caddy webserver.
+- **Varnish template**: the `default.vcl` applied to Varnish instances created for new user accounts.
+- **Caddy VirtualHost**: the template applied to all newly added domains for the front-facing Caddy webserver.
 
 Changes apply only to domains added after you save, existing domains keep their configuration.
 
@@ -90,12 +90,12 @@ This is the template used for creating VirtualHosts of domains added by users **
 ```
 
 - Edit the code in the editor.
-- When finished, click **Save Files** to apply your changes.
+- When finished, click **Save files** to apply your changes.
 
 To revert to the original Apache template:
 
-1. Click **Restore Default** to reload the version from GitHub.
-2. Don’t forget to click **Save Files** afterward to confirm the reset.
+1. Click **Restore default** to reload the version from GitHub.
+2. Don’t forget to click **Save files** afterward to confirm the reset.
 
 ## Nginx VirtualHost
 
@@ -214,12 +214,12 @@ server {
 ```
 
 - Edit the code in the editor.
-- When finished, click **Save Files** to apply your changes.
+- When finished, click **Save files** to apply your changes.
 
 To revert to the original Nginx template:
 
-1. Click **Restore Default** to reload the version from GitHub.
-2. Don’t forget to click **Save Files** afterward to confirm the reset.
+1. Click **Restore default** to reload the version from GitHub.
+2. Don’t forget to click **Save files** afterward to confirm the reset.
 
 
 ## OpenResty VirtualHost
@@ -351,14 +351,14 @@ server {
 ```
 
 - Edit the code in the editor.
-- When finished, click **Save Files** to apply your changes.
+- When finished, click **Save files** to apply your changes.
 
 To revert to the original OpenResty template:
 
-1. Click **Restore Default** to reload the version from GitHub.
-2. Don’t forget to click **Save Files** afterward to confirm the reset.
+1. Click **Restore default** to reload the version from GitHub.
+2. Don’t forget to click **Save files** afterward to confirm the reset.
 
-## Varnish Template
+## Varnish template
 
 This is the template used for creating `default.vcl` file for users **when using the Varnish Caching**.
 
@@ -599,21 +599,21 @@ sub vcl_deliver {
 ```
 
 - Edit the code in the editor.
-- When finished, click **Save Files** to apply your changes.
+- When finished, click **Save files** to apply your changes.
 
 To revert to the original Varnish template:
 
-1. Click **Restore Default** to reload the version from GitHub.
-2. Don’t forget to click **Save Files** afterward to confirm the reset.
+1. Click **Restore default** to reload the version from GitHub.
+2. Don’t forget to click **Save files** afterward to confirm the reset.
 
-## Caddy VHosts
+## Caddy VirtualHost {#caddy-vhosts}
 
 This is the template applied to **all** newly added domains for the front-facing Caddy webserver (Caddy handles TLS termination and reverse-proxies traffic to the domain's Apache/Nginx/OpenResty container, and enforces Coraza WAF when enabled).
 
 The variables `<DOMAIN_NAME>`, `<SSL_PORT>`, and `<NON_SSL_PORT>` are automatically replaced by OpenPanel during domain creation. Do not modify the comments in the file, as they are used as markers for Dedicated IP and Varnish Caching.
 
-![Caddy VHosts template editor](/img/openadmin-screenshots/domains/vhost_templates-caddy.png#gh-light-mode-only)
-![Caddy VHosts template editor](/img/openadmin-screenshots/domains/vhost_templates-caddy_dark.png#gh-dark-mode-only)
+![Caddy VirtualHost template editor](/img/openadmin-screenshots/domains/vhost_templates-caddy.png#gh-light-mode-only)
+![Caddy VirtualHost template editor](/img/openadmin-screenshots/domains/vhost_templates-caddy_dark.png#gh-dark-mode-only)
 
 ```bash
 # HTTP block (port 80) - Handles HTTP traffic
@@ -709,9 +709,9 @@ https://<DOMAIN_NAME>, https://www.<DOMAIN_NAME> {
 ```
 
 - Edit the code in the editor.
-- When finished, click **Save Files** to apply your changes.
+- When finished, click **Save files** to apply your changes.
 
 To revert to the original Caddy template:
 
-1. Click **Restore Default** to reload the version from GitHub.
-2. Don’t forget to click **Save Files** afterward to confirm the reset.
+1. Click **Restore default** to reload the version from GitHub.
+2. Don’t forget to click **Save files** afterward to confirm the reset.

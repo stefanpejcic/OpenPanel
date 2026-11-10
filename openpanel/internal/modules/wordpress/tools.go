@@ -524,7 +524,7 @@ func likePrefix(prefix string) string {
 }
 
 func siteTables(ctx context.Context, s *wpToolSite) (dbName, prefix string, tables []string, err error) {
-	dbName, prefix, err = getWPConfigDBInfo(s.HostPath)
+	dbName, prefix, err = getWPConfigDBInfo(wpHTMLVolume(s.UserContext), s.HostPath)
 	if err != nil {
 		return "", "", nil, err
 	}

@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Manage Domains
+# Manage domains
 
 Domains page displays all domains currently hosted on server.
 
@@ -31,7 +31,7 @@ The table shows these columns by default:
 | **Owner**       | The OpenPanel user who owns the domain.                                     |
 | **Actions**     | Menu with the [domain actions](#domain-actions).                            |
 
-Click **Show Columns** to show or hide columns. These optional columns are hidden by default:
+Click **Show columns** to show or hide columns. These optional columns are hidden by default:
 
 | Column                                    | Description                                                    |
 |-------------------------------------------|----------------------------------------------------------------|
@@ -68,7 +68,7 @@ my.openpanel.com
   </TabItem>
 </Tabs>
 
-## Bulk Actions
+## Bulk actions
 
 Tick the checkbox of one or more domains, or the checkbox in the table header to select all domains shown by the current search. A bar appears at the bottom of the page with the number selected, a **Clear** link and these actions:
 
@@ -177,23 +177,24 @@ Click **Adding just one domain?** to go back to the single domain form.
 
 Each row in the Domains table has an actions menu (the `⋮` button) with the following options:
 
-- **Edit DNS Zone** — opens the [DNS Zone Editor](/docs/admin/domains/dns) for this domain. Only shown if the **dns** module is enabled.
+- **Edit DNS zone** — opens the [DNS zone editor](/docs/admin/domains/dns) for this domain. Only shown if the **dns** module is enabled.
 - **Suspend domain** / **Unsuspend domain** — suspends the domain with a reason, see [Suspend a domain](#suspend-a-domain) below, or unsuspends it.
-- **Manage SSL** — opens the SSL page for the domain. Not shown for suspended domains.
-- **Edit Virtual Host** — opens the VirtualHost config editor for the domain.
-- **Edit Apache Config** — opens the webserver configuration file of the domain owner (the label follows the owner's webserver).
+- **Manage SSL** — opens the SSL page for the domain. Not shown for suspended domains. When Caddy failed to get a certificate for the domain, the page shows the **Last certificate error** with the reason in plain words and the full error under **Error details**, next to the **View SSL logs** button.
+- **Edit virtual host** — opens the VirtualHost config editor for the domain.
+- **Edit Apache config** — opens the webserver configuration file of the domain owner (the label follows the owner's webserver).
 - **Edit Caddyfile** — opens the Caddy config editor for the domain.
+- **Restrict to Cloudflare** / **Unrestrict from Cloudflare** — only lets visitors in through Cloudflare's proxy, other requests get a 403. Same as the **Cloudflare** bulk action.
 - **Delete domain** — permanently deletes the domain, see [Delete domain](#delete-domain) below.
 
-![Actions menu of a domain with Edit DNS Zone, Manage SSL, Edit Virtual Host, Edit Apache Config, Edit Caddyfile, Suspend domain and Delete domain](/img/openadmin-screenshots/domains/domains-actions.png#gh-light-mode-only)
-![Actions menu of a domain with Edit DNS Zone, Manage SSL, Edit Virtual Host, Edit Apache Config, Edit Caddyfile, Suspend domain and Delete domain](/img/openadmin-screenshots/domains/domains-actions_dark.png#gh-dark-mode-only)
+![Actions menu of a domain with Edit DNS zone, Manage SSL, Edit virtual host, Edit Apache config, Edit Caddyfile, Restrict to Cloudflare, Suspend domain and Delete domain](/img/openadmin-screenshots/domains/domains-actions.png#gh-light-mode-only)
+![Actions menu of a domain with Edit DNS zone, Manage SSL, Edit virtual host, Edit Apache config, Edit Caddyfile, Restrict to Cloudflare, Suspend domain and Delete domain](/img/openadmin-screenshots/domains/domains-actions_dark.png#gh-dark-mode-only)
 
 ## Suspend a domain
 
 Suspending a domain replaces its website with a suspended page, email and other services keep working. To suspend a domain:
 
 1. Open the domain's actions menu (`⋮`) and click **Suspend domain**.
-2. Pick a **Reason**. **Default suspended page** shows the [Suspended Website](/docs/admin/domains/file_templates/#suspended-website) page, the other options are the [suspension reasons](/docs/admin/domains/file_templates/#suspension-reasons) from **Domains > Domain Templates**, such as *Copyright / DMCA Violation* or *Overdue Payment / Billing*.
+2. Pick a **Reason**. **Default suspended page** shows the [Suspended Website](/docs/admin/domains/file_templates/#suspended-website) page, the other options are the [suspension reasons](/docs/admin/domains/file_templates/#suspension-reasons) from **Domains > Domain templates**, such as *Copyright / DMCA Violation* or *Overdue Payment / Billing*.
 3. Optionally enter a **Comment**, for example a ticket number. The user sees it in OpenPanel.
 4. Click **Suspend**.
 

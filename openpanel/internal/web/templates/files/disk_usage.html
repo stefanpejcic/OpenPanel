@@ -9,62 +9,21 @@
     aria-label="{{.T.Get "Disk Usage Header"}}"
     x-data="{ searchQuery: '' }"
 >
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
         <div>
             <div class="flex items-center gap-x-3">
                 <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Disk usage"}}</h1>
             </div>
-            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Disk usage is the amount of space that is used by the content of your sites, this includes databases, files, videos, images, emails and pages."}}</p>
+            <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Disk usage is the amount of space that is used by the content of your sites, this includes databases, files, videos, images, emails and pages."}}</p>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
-            <button type="button" onclick="location.reload(true); return false;" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 hidden sm:w-fit mt-2 w-full sm:w-auto sm:mt-0"><i class="ri-refresh-line"></i> {{.T.Get "Reload data"}}</button>
+            <button type="button" onclick="location.reload(true); return false;" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 hidden sm:w-fit mt-2 w-full sm:w-auto sm:mt-0 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-refresh-line"></i> {{.T.Get "Reload data"}}</button>
         </div>
     </div>
 </section>
 <!-- END page header -->
 
-{{with .KPIs}}{{if or .Disk .Inodes .LargestFolder .Trash}}
-<div class="px-4 pb-5 sm:px-6 lg:px-8">
-    <dl aria-label="{{$.T.Get "Disk usage summary"}}" class="grid grid-cols-2 gap-x-8 gap-y-5 sm:grid-cols-4 lg:flex lg:flex-wrap lg:gap-x-12">
-        {{with .Disk}}
-        <div>
-            <dt class="text-sm text-gray-500">{{$.T.Get "Disk"}}</dt>
-            <dd class="mt-1 flex items-center gap-2">
-                {{if .Limit}}{{template "du_bars" .Pct}}{{end}}
-                <span class="text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.Value}} {{.Unit}}<span class="font-medium text-gray-400 dark:text-gray-600"> / {{if .Limit}}{{.Limit}}{{else}}∞{{end}}</span></span>
-            </dd>
-            {{if .FromListing}}<dd class="mt-0.5 text-sm text-gray-500">{{$.T.Get "Home folder total"}}</dd>{{end}}
-        </div>
-        {{end}}
-        {{with .Inodes}}
-        <div>
-            <dt class="text-sm text-gray-500">{{$.T.Get "Inodes"}}</dt>
-            <dd class="mt-1 flex items-center gap-2">
-                {{if .Limit}}{{template "du_bars" .Pct}}{{end}}
-                <span class="text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.Value}}<span class="font-medium text-gray-400 dark:text-gray-600"> / {{if .Limit}}{{.Limit}}{{else}}∞{{end}}</span></span>
-            </dd>
-        </div>
-        {{end}}
-        {{with .LargestFolder}}
-        <div class="min-w-0">
-            <dt class="text-sm text-gray-500">{{$.T.Get "Largest folder"}}</dt>
-            <dd class="mt-1 flex min-w-0 items-baseline gap-2">
-                <span title="{{.Directory}}" class="max-w-xs truncate font-mono text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Directory}}</span>
-                <span class="shrink-0 text-sm text-gray-400 tabular-nums dark:text-gray-600">{{$.KPIs.LargestSize}}</span>
-            </dd>
-        </div>
-        {{end}}
-        {{with .Trash}}
-        <div>
-            <dt class="text-sm text-gray-500">{{$.T.Get "Trash"}}</dt>
-            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.Value}} {{.Unit}}</dd>
-            <dd class="mt-0.5 text-sm">{{if $.KPIs.TrashBytes}}{{if $.KPIs.TrashHref}}<a href="{{$.KPIs.TrashHref}}" class="text-blue-500 hover:underline hover:underline-offset-4">{{$.T.Get "Empty it to free space"}}</a>{{else}}<span class="text-gray-500">{{$.T.Get "Empty it to free space"}}</span>{{end}}{{else}}<span class="text-gray-500">{{$.T.Get "Trash is empty"}}</span>{{end}}</dd>
-        </div>
-        {{end}}
-    </dl>
-</div>
-{{end}}{{end}}
 
 <div class="px-4 pb-4 sm:px-6 lg:px-8">
     <nav aria-label="{{.T.Get "Breadcrumb"}}" class="rounded-md bg-gray-50 px-3 py-2 dark:bg-gray-900">
@@ -136,7 +95,7 @@
                             <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400"><div class="flex items-center gap-3"><div class="h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800"><div data-share class="h-full rounded-full bg-blue-500" style="width: 0%"></div></div><span data-share-pct class="w-10 shrink-0 text-right text-xs tabular-nums text-gray-500"></span></div></td>
                             <td class="hidden border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-end">
                                 {{if .FileManagerHref}}
-                                <a href="{{.FileManagerHref}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 mt-2 w-full sm:w-auto sm:mt-0">
+                                <a href="{{.FileManagerHref}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 mt-2 w-full sm:w-auto sm:mt-0 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
                                     {{$.T.Get "File manager"}}
                                 </a>
                                 {{end}}

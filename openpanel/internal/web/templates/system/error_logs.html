@@ -13,10 +13,10 @@
 
 <div x-data="errorLogs()">
 <section aria-label="{{.T.Get "Error logs"}}">
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
         <div class="min-w-0">
             <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Error logs"}}</h1>
-            <p class="mt-1 text-sm text-gray-500">{{.T.Get "PHP, web server, database and HTTP 5xx errors for all your websites in one place."}}</p>
+            <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "PHP, web server, database and HTTP 5xx errors for all your websites in one place."}}</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
             <a :href="exportURL('json')" href="/error-logs?format=json" target="_blank" rel="noopener" class="{{$ghost}} text-sm"><i class="ri-braces-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "Open as JSON"}}</a>
@@ -30,6 +30,12 @@
 
     <!-- filters, the date range reloads the page, the rest filter in the browser -->
     <div class="grid grid-cols-1 gap-4 px-4 pb-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
+        <label class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Search"}}
+            <span class="relative mt-2 block">
+                <input type="search" name="q" x-model.debounce.200ms="q" @input="reset()" placeholder="{{.T.Get "e.g. Fatal error, wp-content, 502"}}" aria-label="{{.T.Get "Search messages"}}" class="{{$field}} pl-8 font-normal [&::-webkit-search-decoration]:hidden">
+                <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+            </span>
+        </label>
         <label class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Website"}}
             <select name="domain" x-model="domain" @change="exact = false; reset()" class="{{$select}} mt-2 font-normal">
                 <option value="">{{.T.Get "All websites"}}</option>
@@ -48,12 +54,6 @@
                 <option value="warning">{{.T.Get "Warnings and up"}}</option>
                 <option value="error">{{.T.Get "Errors and up"}}</option>
             </select>
-        </label>
-        <label class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Search"}}
-            <span class="relative mt-2 block">
-                <input type="search" name="q" x-model.debounce.200ms="q" @input="reset()" placeholder="{{.T.Get "e.g. Fatal error, wp-content, 502"}}" aria-label="{{.T.Get "Search messages"}}" class="{{$field}} pl-8 font-normal [&::-webkit-search-decoration]:hidden">
-                <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
-            </span>
         </label>
         <div class="sm:col-span-2 lg:col-span-4">
             {{template "date_range" (dict "T" .T "From" .Query.FromDay "To" .Query.ToDay "Tz" true)}}

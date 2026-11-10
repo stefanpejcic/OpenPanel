@@ -4,7 +4,7 @@
 <!-- START templates/mongodb/databases.html -->
 
 <section aria-label="{{.T.Get "Databases table"}}" x-data="{ searchQuery: '' }">
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
         <div>
             <div class="relative flex items-center gap-2" x-data="{ tooltip: false }">
                 <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "MongoDB databases"}}</h1>
@@ -17,41 +17,23 @@
                     </ul>
                 </div>
             </div>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Total databases:"}} <span id="total_records_count" class="font-medium text-gray-900 tabular-nums dark:text-gray-50">{{len .Databases}}</span></p>
+            <dl class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
+                <div class="flex items-center gap-1.5"><dt>{{.T.Get "Total databases:"}}</dt> <dd><span id="total_records_count" class="font-medium text-gray-900 tabular-nums dark:text-gray-50">{{len .Databases}}</span></dd></div>
+                {{if .UserDatabaseCount}}<div class="flex items-center gap-1.5"><dt>{{.T.Get "Total size:"}}</dt> <dd class="font-medium tabular-nums text-gray-900 dark:text-gray-50">{{.TotalSize}}</dd></div>{{end}}
+            </dl>
         </div>
 
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
             {{if eq .ContainerState "running"}}
             <a href="/mongodb/wizard" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"><i class="ri-magic-line" aria-hidden="true"></i>{{.T.Get "Database wizard"}}</a>
-            <a href="/mongodb/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400"><i class="ri-add-line text-base" aria-hidden="true"></i>{{.T.Get "New database"}}</a>
+            <a href="/mongodb/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-add-line text-base" aria-hidden="true"></i>{{.T.Get "New database"}}</a>
             {{else}}
             <span title="{{.T.Get "Unavailable while the service is not running."}}" aria-disabled="true" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 cursor-not-allowed opacity-50">{{.T.Get "Database wizard"}}</span>
-            <span title="{{.T.Get "Unavailable while the service is not running."}}" aria-disabled="true" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 cursor-not-allowed opacity-50"><i class="ri-add-line text-base" aria-hidden="true"></i>{{.T.Get "New database"}}</span>
+            <span title="{{.T.Get "Unavailable while the service is not running."}}" aria-disabled="true" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 cursor-not-allowed opacity-50 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-add-line text-base" aria-hidden="true"></i>{{.T.Get "New database"}}</span>
             {{end}}
         </div>
     </div>
 
-    <!-- summary, same layout as the dashboard's plan usage -->
-    <dl aria-label="{{.T.Get "MongoDB summary"}}" class="grid grid-cols-2 gap-x-8 gap-y-5 px-4 pb-6 sm:grid-cols-4 sm:px-6 lg:flex lg:flex-wrap lg:gap-x-12 lg:px-8">
-        <div>
-            <dt class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Databases"}}</dt>
-            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.UserDatabaseCount}}</dd>
-        </div>
-        <div>
-            <dt class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Users"}}</dt>
-            <dd class="mt-1">{{if .HasUsers}}<a href="/mongodb/users" class="text-lg font-semibold text-gray-900 tabular-nums transition hover:opacity-75 dark:text-gray-50">{{.UserCount}}</a>{{else}}<span class="text-lg font-semibold text-gray-400 dark:text-gray-600">—</span>{{end}}</dd>
-        </div>
-        <div>
-            <dt class="text-sm text-gray-500 dark:text-gray-500">{{.T.Get "Total size"}}</dt>
-            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{if .UserDatabaseCount}}{{.TotalSize}}{{else}}<span class="text-gray-400 dark:text-gray-600">—</span>{{end}}</dd>
-        </div>
-        {{with .LargestDatabase}}
-        <div>
-            <dt class="text-sm text-gray-500 dark:text-gray-500">{{$.T.Get "Largest"}}</dt>
-            <dd class="mt-1 truncate font-mono text-lg font-semibold text-gray-900 dark:text-gray-50" title="{{.}}">{{.}}</dd>
-        </div>
-        {{end}}
-    </dl>
 
     {{if and .HasUsers (eq .UserCount 0) .UserDatabaseCount}}
     <div class="mx-4 mb-4 flex items-start gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 sm:mx-6 lg:mx-8 dark:bg-yellow-950/70 dark:text-yellow-500"><i class="ri-error-warning-line" aria-hidden="true"></i><span>{{.T.Get "No database users yet, so apps can't sign in to these databases."}} <a href="/mongodb/user" class="font-medium underline underline-offset-4">{{.T.Get "Create a user"}}</a> {{.T.Get "and assign it a role."}}</span></div>
@@ -139,7 +121,7 @@
                                                     </div>
                                                     <div class="flex flex-col-reverse gap-2 border-t border-gray-200 dark:border-gray-800 px-4 py-3 sm:flex-row sm:justify-end">
                                                         <button type="button" @click="open = false" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{$.T.Get "Cancel"}}</button>
-                                                        <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400">{{$.T.Get "Export"}}</button>
+                                                        <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{$.T.Get "Export"}}</button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -159,7 +141,7 @@
                     <tr>
                         <td colspan="4" class="border-b border-gray-200 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-500">
                             <p>{{.T.Get "No databases yet."}}</p>
-                            <a href="/mongodb/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400 mt-4">{{.T.Get "Create your first database"}}</a>
+                            <a href="/mongodb/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 mt-4 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Create your first database"}}</a>
                         </td>
                     </tr>
                     {{end}}

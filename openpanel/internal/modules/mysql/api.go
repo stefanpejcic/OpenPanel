@@ -128,6 +128,8 @@ func apiMySQLListDatabases(a *appctx.App, w http.ResponseWriter, r *http.Request
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	// the UI pages start MySQL too, sentinel stops an idle one and every read would fail until something else started it
+	docker.StartComposeServiceIfNotRunning(r.Context(), userContext, "sql")
 
 	rows, execErr := mysqlmanager.Exec(ctx, userContext, `
 		SELECT 'db' AS type, schema_name AS col1, NULL AS col2
@@ -417,6 +419,8 @@ func apiMySQLDatabasesSize(a *appctx.App, w http.ResponseWriter, r *http.Request
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	// the UI pages start MySQL too, sentinel stops an idle one and every read would fail until something else started it
+	docker.StartComposeServiceIfNotRunning(r.Context(), userContext, "sql")
 
 	unit := strings.ToLower(r.URL.Query().Get("unit"))
 	if unit == "" {
@@ -463,6 +467,8 @@ func apiMySQLListUsers(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	// the UI pages start MySQL too, sentinel stops an idle one and every read would fail until something else started it
+	docker.StartComposeServiceIfNotRunning(r.Context(), userContext, "sql")
 	rows, execErr := mysqlmanager.Exec(ctx, userContext, "SELECT User FROM mysql.user WHERE User NOT IN ("+restricted.usersSQL+") ORDER BY User", "")
 	if execErr != nil {
 		writeAPIMySQLJSON(w, http.StatusInternalServerError, map[string]string{"error": mysqlAPIError(execErr)})
@@ -813,6 +819,8 @@ func apiMySQLInfo(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	// the UI pages start MySQL too, sentinel stops an idle one and every read would fail until something else started it
+	docker.StartComposeServiceIfNotRunning(r.Context(), userContext, "sql")
 
 	rows, execErr := mysqlmanager.Exec(ctx, userContext, `
 		SELECT 'db' AS type, schema_name AS col1, NULL AS col2
@@ -861,6 +869,8 @@ func apiMySQLProcesslist(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	// the UI pages start MySQL too, sentinel stops an idle one and every read would fail until something else started it
+	docker.StartComposeServiceIfNotRunning(r.Context(), userContext, "sql")
 	rows, execErr := mysqlmanager.Exec(ctx, userContext, "SHOW FULL PROCESSLIST", "")
 	if execErr != nil {
 		writeAPIMySQLJSON(w, http.StatusInternalServerError, map[string]string{"error": mysqlAPIError(execErr)})
@@ -1190,6 +1200,8 @@ func apiMySQLGetConfig(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	// the UI pages start MySQL too, sentinel stops an idle one and every read would fail until something else started it
+	docker.StartComposeServiceIfNotRunning(r.Context(), userContext, "sql")
 	content := readMySQLConfigFile(userContext)
 	currentConfig := configEntriesToMap(parseMySQLConfigContent(content))
 	writeAPIMySQLJSON(w, http.StatusOK, map[string]any{"configuration": currentConfig, "available_keys": availableConfKeys})

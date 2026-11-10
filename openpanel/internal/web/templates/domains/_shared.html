@@ -5,23 +5,28 @@
 <div class="mx-4 flex h-64 flex-col items-center justify-center rounded-md border border-dashed border-gray-300 text-center sm:mx-6 lg:mx-8 dark:border-gray-800">
     <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No domains yet"}}</p>
     <p class="mt-1 text-sm text-gray-500">{{.T.Get "Add your first domain to get started"}}</p>
-    <a href="/domains/new" class="mt-4 relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300 dark:disabled:bg-blue-800 dark:disabled:text-blue-400"><i class="ri-add-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "New domain"}}</a>
+    <a href="/domains/new" class="mt-4 relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-add-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "New domain"}}</a>
 </div>
 <!-- END templates/domains/partials/_no_domain.html -->
 {{end}}
 
-{{define "domain_list"}}
-<!-- domain_list(T, Rows []web.DomainPick, Base, Action, Icon, DetailLabel, BadgeLabel, NoteInDetail, LongDetail, EmptyText); short middle columns sit centered under their headers, LongDetail keeps a column of paths or addresses left, EmptyText replaces the dash there; FirstLabel and Noun/Nouns rename the first column and the count for lists of something other than domains -->
-{{$T := .T}}{{$base := .Base}}{{$action := .Action}}{{$icon := .Icon}}
-<div x-data="{ q: '' }">
-<!-- quick jump and search; #domains is the picker the upstream pages had, choosing one opens it -->
-<div class="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+{{define "domain_picker"}}
+{{$T := .T}}{{$base := .Base}}
     <label for="domains" class="sr-only">{{if .FirstLabel}}{{$T.Get .FirstLabel}}{{else}}{{$T.Get "Domain"}}{{end}}</label>
     <select id="domains" data-base="{{$base}}" onchange="if (this.value) window.location.href = this.dataset.base + this.value" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-64 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
         <option value="" selected>{{if .FirstLabel}}{{$T.Get "Go to an address"}}{{else}}{{$T.Get "Go to a domain"}}{{end}}</option>
         {{range .Rows}}<option value="{{.Domain}}"{{if .Disabled}} disabled{{end}}>{{.Domain}}</option>{{end}}
     </select>
-    {{if gt (len .Rows) 5}}
+{{end}}
+
+{{define "domain_list"}}
+<!-- domain_list(T, Rows []web.DomainPick, Base, Action, Icon, DetailLabel, BadgeLabel, NoteInDetail, LongDetail, EmptyText); short middle columns sit centered under their headers, LongDetail keeps a column of paths or addresses left, EmptyText replaces the dash there, Search shows the search box even on short lists; FirstLabel and Noun/Nouns rename the first column and the count for lists of something other than domains -->
+{{$T := .T}}{{$base := .Base}}{{$action := .Action}}{{$icon := .Icon}}
+<div x-data="{ q: '' }">
+<!-- quick jump and search; #domains is the picker the upstream pages had, choosing one opens it -->
+{{if or (not .NoPicker) .Search (gt (len .Rows) 5)}}
+<div class="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+    {{if or .Search (gt (len .Rows) 5)}}
     <div class="relative w-full sm:w-64">
         <label for="domain-list-search" class="sr-only">{{$T.Get "Search"}}</label>
         <input id="domain-list-search" x-model="q" type="search" placeholder="{{$T.Get "Search"}}"
@@ -29,7 +34,9 @@
         <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
     </div>
     {{end}}
+    {{if not .NoPicker}}{{template "domain_picker" .}}{{end}}
 </div>
+{{end}}
 <div class="overflow-x-auto">
 <table class="w-full border-t border-gray-200 text-sm dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
     <thead>

@@ -2,7 +2,7 @@
 sidebar_position: 4
 ---
 
-# Activity Log
+# Activity log
 
 OpenAdmin records every change made by Administrators and Resellers in a separate activity log for each account. Only requests that change something are recorded, opening or browsing pages is not.
 
@@ -17,7 +17,7 @@ Each entry has the date and time, the IP address it was made from and a short de
 - Passwords and other values typed into forms are never written to the log.
 - Logins are not part of the activity log, they are shown in the **Activity** column and kept in `/var/log/openpanel/admin/login.log`.
 
-## Viewing the Activity Log
+## Viewing the activity log
 
 ![Activity Log page of an administrator with the date, IP address and action of each change](/img/openadmin-screenshots/accounts/administrators-activity.png#gh-light-mode-only)
 ![Activity Log page of an administrator with the date, IP address and action of each change](/img/openadmin-screenshots/accounts/administrators-activity_dark.png#gh-dark-mode-only)
@@ -33,7 +33,7 @@ The newest actions are shown first, 50 per page. Use the search to filter by act
 |---|---|
 | **Super Admin** | The activity log of every account. |
 | **Admin** | The activity log of every account. |
-| **Reseller** | Only their own, from **My Activity Log** on their [Reseller Account](/docs/admin/accounts/resellers#reseller-account) page. |
+| **Reseller** | Only their own, from **My activity log** on their [Reseller Account](/docs/admin/accounts/resellers#reseller-account) page. |
 
 ## Log files
 
@@ -41,7 +41,7 @@ The logs are stored in `/var/log/openpanel/admin/activity/<username>.log`, one l
 
 When an account is renamed with `opencli admin rename` (or from OpenAdmin), its log file is renamed too, and when an account is deleted with `opencli admin delete` its log file is deleted.
 
-## Actions recorded for Administrators
+## Actions recorded for administrators
 
 Administrators can use every page in OpenAdmin, so every change below can appear in their log. Values in `<>` are replaced with the actual names.
 
@@ -221,7 +221,7 @@ Administrators can use every page in OpenAdmin, so every change below can appear
 
 Any other change that is not in this list is recorded as the request method and path, for example `POST /settings/example`.
 
-## Actions recorded for Resellers
+## Actions recorded for resellers
 
 Resellers can only use the pages for their own users, plans and emails, so these are the actions that can appear in their log:
 
