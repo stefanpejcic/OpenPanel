@@ -11,7 +11,12 @@ Auto Installer allows you to one-click install applications.
 
 ## Available Applications
 
-For an application to appear on the Autoinstaller page, the corresponding module must be enabled.
+The Auto Installer page always lists every application. Applications you can't install are shown greyed out, and hovering over one tells you why:
+
+- **This app is disabled on your plan. Contact your administrator to enable it.** - the application's [module](/docs/admin/settings/modules/) is disabled on the server, or it isn't in the [feature set](/docs/admin/plans/feature-manager/) of your hosting plan.
+- **This app is not included in your plan. Upgrade to &lt;plan&gt;** - your hosting provider has set an [upgrade plan](/docs/panel/dashboard/upgrade/) that includes the application. The link opens their upgrade page.
+
+To make an application available, the administrator has to enable its module in **OpenAdmin > Settings > Modules** and add it to the feature set of your hosting plan in **OpenAdmin > Hosting plans > Feature manager**.
 
 - [WordPress](/docs/panel/applications/wordpress)
 - [Drupal](/docs/panel/applications/drupal)
@@ -29,7 +34,6 @@ For an application to appear on the Autoinstaller page, the corresponding module
 - [TinyPhotoGallery](/docs/panel/applications/tinyphotogallery)
 - [TinyFileManager](/docs/panel/applications/tinyfilemanager)
 - [OJS](/docs/panel/applications/ojs)
-- [n8n](/docs/panel/applications/n8n)
 - [NodeJS Applications*](/docs/panel/applications/nodejs)
 - [Python Applications*](/docs/panel/applications/python)
 - [Ruby Applications*](/docs/panel/applications/ruby)

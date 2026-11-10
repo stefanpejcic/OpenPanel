@@ -130,5 +130,5 @@ n8n runs inside your account's network, so its MySQL, PostgreSQL and Redis nodes
 
 - [Deploy a Node.js app](/docs/articles/websites/deploy-nodejs-app/)
 - [Self-host Nextcloud](/docs/articles/apps/install-nextcloud/)
-- [n8n in OpenPanel (reference)](/docs/panel/applications/n8n/)
+- [Auto Installer (reference)](/docs/panel/applications/autoinstaller/)
 - [All installable apps](/docs/panel/applications/autoinstaller/)

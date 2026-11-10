@@ -275,3 +275,64 @@ func TestRenderDashboardPageOnboarding(t *testing.T) {
 		t.Error("expected the onboarding wizard")
 	}
 }
+
+// CPU and memory tiles only render when the usage module is on (issue #1330)
+func TestRenderDashboardUsageTilesFollowUsageModuleClassic(t *testing.T) {
+	webtest.Classic(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	for _, withUsage := range []bool{false, true} {
+		userAllowed := map[string]bool{"dashboard": true, "usage": withUsage}
+		data := DashboardPageData{
+			LayoutData: web.LayoutData{
+				Title: "Dashboard", CSRFToken: "tok", PanelDir: "ltr", MenuStyle: "modern",
+				NavItems: web.BuildSidebarNav(userAllowed, nil, "/dashboard"), UserAllowed: userAllowed,
+				UserAllowedJSON: web.UserAllowedList(userAllowed), CurrentUsername: "u",
+				RequestPath: "/dashboard", T: mgr.Translator("en"),
+			},
+			Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, nil, "modern", nil),
+		}
+		w := httptest.NewRecorder()
+		if err := dashboardPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render (usage=%v): %v", withUsage, err)
+		}
+		body := w.Body.String()
+		for _, s := range []string{"ri-ram-line", "this.fetchResourceUsage();"} {
+			if got := strings.Contains(body, s); got != withUsage {
+				t.Errorf("usage=%v: contains %q = %v", withUsage, s, got)
+			}
+		}
+		if !strings.Contains(body, "ri-stack-line") {
+			t.Errorf("usage=%v: inodes tile should always render", withUsage)
+		}
+	}
+}
+
+func TestRenderDashboardUsageTilesFollowUsageModule(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	for _, withUsage := range []bool{false, true} {
+		userAllowed := map[string]bool{"dashboard": true, "usage": withUsage}
+		data := DashboardPageData{
+			LayoutData: web.LayoutData{
+				Title: "Dashboard", CSRFToken: "tok", PanelDir: "ltr", MenuStyle: "modern",
+				NavItems: web.BuildSidebarNav(userAllowed, nil, "/dashboard"), UserAllowed: userAllowed,
+				UserAllowedJSON: web.UserAllowedList(userAllowed), CurrentUsername: "u",
+				RequestPath: "/dashboard", T: mgr.Translator("en"),
+			},
+			Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, nil, "modern", nil),
+		}
+		w := httptest.NewRecorder()
+		if err := dashboardPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render (usage=%v): %v", withUsage, err)
+		}
+		body := w.Body.String()
+		for _, s := range []string{`id="dashboard_ring_memory"`, `id="dashboard_usage_cpu"`, "this.fetchResourceUsage();"} {
+			if got := strings.Contains(body, s); got != withUsage {
+				t.Errorf("usage=%v: contains %q = %v", withUsage, s, got)
+			}
+		}
+		if !strings.Contains(body, `id="dashboard_ring_inodes"`) {
+			t.Errorf("usage=%v: inodes tile should always render", withUsage)
+		}
+	}
+}
