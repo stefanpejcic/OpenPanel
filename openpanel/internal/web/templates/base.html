@@ -685,7 +685,9 @@ document.addEventListener('submit', (e) => {
 {{template "content" .}}
 <!-- END individual template file -->
     </main>
-    <script>function toggleSidebar(){const root=document.documentElement;const isOpen=root.classList.toggle('sidebar-open');sessionStorage.setItem('sidebarOpen',isOpen);}window.addEventListener('resize',()=>{if(window.innerWidth<768){document.documentElement.classList.remove('sidebar-open');}});</script>
+    <script>function toggleSidebar(){const root=document.documentElement;const isOpen=root.classList.toggle('sidebar-open');sessionStorage.setItem('sidebarOpen',isOpen);}</script>
+    <!-- close the sidebar only when the window narrows past 768px, the phone keyboard fires resize too -->
+    <script>(function(){let lastWidth=window.innerWidth;window.addEventListener('resize',()=>{const w=window.innerWidth;if(w<768&&lastWidth>=768){document.documentElement.classList.remove('sidebar-open');}lastWidth=w;});})();</script>
     <script>
     document.addEventListener('keydown', (e) => {
         if (!((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b')) return;
