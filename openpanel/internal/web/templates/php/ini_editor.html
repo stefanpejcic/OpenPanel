@@ -7,8 +7,8 @@
     <script src="{{static "vendor/codemirror/codemirror.min.js"}}"></script>
     <link rel="stylesheet" href="{{static "vendor/codemirror/theme/dracula.min.css"}}">
     <style>
-        .CodeMirror {min-height: 50vh;height: auto;}
-        div.CodeMirror-sizer {min-height: 500px!important;}
+        /* fills the window under the header so the card and its bottom border stay on screen */
+        .CodeMirror {height: calc(100svh - 12rem); min-height: 20rem;}
     </style>
 
 <form method="post">

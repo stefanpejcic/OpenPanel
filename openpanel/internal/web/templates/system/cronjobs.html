@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
     {{if .CronJobs}}
     <!-- summary, the 1px gap over the border colour draws the dividers at any column count -->
     {{with .Summary}}
-    <div class="px-4 sm:px-6 lg:px-8">
+    <div class="px-4 pb-4 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 gap-px overflow-hidden rounded-md border border-gray-200 bg-gray-200 sm:grid-cols-2 lg:grid-cols-4 dark:border-gray-800 dark:bg-gray-800" x-data="cronSummary({{toJSON $.T.Locale}}, {{toJSON .TimeZone}}, {{toJSON .NextRun}}, {{toJSON $.CronJobs}})">
         <div class="bg-white p-4 dark:bg-gray-950">
             <p class="flex items-center gap-1.5 text-sm text-gray-500"><i class="ri-checkbox-circle-line" aria-hidden="true"></i>{{$.T.Get "Active"}}</p>

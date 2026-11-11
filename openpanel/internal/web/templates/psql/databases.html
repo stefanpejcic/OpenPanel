@@ -6,19 +6,10 @@
 <section aria-label="{{.T.Get "Databases table"}}" x-data="{ searchQuery: '' }">
     <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
         <div>
-            <div class="relative flex items-center gap-2" x-data="{ tooltip: false }">
-                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "PostgreSQL databases"}}</h1>
-                <span tabindex="0" class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50 cursor-help" @mouseenter="tooltip = true" @mouseleave="tooltip = false" @focus="tooltip = true" @blur="tooltip = false">postgres</span>
-                <div x-show="tooltip" x-transition x-cloak role="tooltip" class="rounded-md border border-gray-200 bg-white p-3 text-sm text-gray-600 shadow-xl dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400 absolute top-full left-0 z-10 mt-2 w-80">
-                    <p>{{.T.Get "To connect to the database, do not use localhost or 127.0.0.1. Instead, use:"}}</p>
-                    <ul class="mt-2 space-y-1">
-                        <li>{{.T.Get "server:"}} <span class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">postgres</span></li>
-                        <li>{{.T.Get "port:"}} <span class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">5432</span></li>
-                    </ul>
-                </div>
-            </div>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "PostgreSQL databases"}}</h1>
             <dl class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
                 <div class="flex items-center gap-1.5"><dt>{{.T.Get "Total databases:"}}</dt> <dd><span id="total_records_count" class="font-medium text-gray-900 tabular-nums dark:text-gray-50">{{len .Databases}}</span></dd></div>
+                <div class="flex items-center gap-1.5" title="{{.T.Get "To connect to the database, do not use localhost or 127.0.0.1. Instead, use:"}} postgres:5432"><dt>{{.T.Get "Host:"}}</dt> <dd><code class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">postgres:5432</code></dd></div>
                 {{if .HasInfo}}<div class="flex items-center gap-1.5"><dt>{{.T.Get "Version:"}}</dt> <dd><code class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">PostgreSQL {{.ServerVersion}}</code></dd></div>
                 <div class="flex items-center gap-1.5"><dt>{{.T.Get "Connections:"}}</dt> <dd class="font-medium tabular-nums text-gray-900 dark:text-gray-50">{{.Connections}}</dd></div>{{end}}
             </dl>
