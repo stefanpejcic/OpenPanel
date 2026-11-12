@@ -25,7 +25,7 @@
 {{end}}
   </head>
 
-  <body class="mx-auto min-h-svh bg-gray-50 antialiased dark:bg-gray-950">
+  <body class="mx-auto min-h-svh {{if eq .LoginLayout "split"}}bg-gray-50{{else}}bg-slate-200{{end}} antialiased dark:bg-gray-950">
 <section{{if eq .LoginLayout "split"}} class="lg:flex"{{end}}>
 {{if eq .LoginLayout "split"}}
 <!-- split layout: a brand panel beside the form on wide screens -->
