@@ -154,13 +154,14 @@ func TestRenderLocalePage(t *testing.T) {
 		}
 		return body[i : i+strings.Index(body[i:], "</button>")]
 	}
-	if de := cardOf("de"); !strings.Contains(de, "border-blue-500") || !strings.Contains(de, "ri-checkbox-circle-fill") {
+	// the classic theme marks the current language with aria-current, a check and a "Current" label
+	if de := cardOf("de"); !strings.Contains(de, `aria-current="true"`) || !strings.Contains(de, "ri-check-line") || !strings.Contains(de, "Current") {
 		t.Error("expected the current locale's card to be highlighted")
 	}
-	if en := cardOf("en"); strings.Contains(en, "border-blue-500") || strings.Contains(en, "ri-checkbox-circle-fill") {
+	if en := cardOf("en"); strings.Contains(en, `aria-current="true"`) || strings.Contains(en, "ri-check-line") {
 		t.Error("only the current locale should be highlighted")
 	}
-	if !strings.Contains(body, `class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"`) || strings.Count(body, `name="locale"`) != 3 {
+	if !strings.Contains(body, "grid grid-cols-1 gap-px") || !strings.Contains(body, "sm:grid-cols-2 lg:grid-cols-3") || strings.Count(body, `name="locale"`) != 3 {
 		t.Error("expected one card per locale in a 3 column grid")
 	}
 }

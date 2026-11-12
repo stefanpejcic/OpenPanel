@@ -748,6 +748,10 @@ setup_compose() {
     # recreates the service and its deps, so the first `opencli user-add` (it starts openpanel) restarted mysql in the middle of its INSERT
     pin_bind_ip
 
+    # openpanel mounts imunify's rpc socket dir, without the dir podman won't start the container
+    install -d -m 755 /run/defence360agent
+    echo "d /run/defence360agent 0755 root root -" > /etc/tmpfiles.d/openpanel-imunify.conf
+
     [[ "$REPAIR" == true ]] && {
         run podman-compose -f /root/docker-compose.yml down
         run podman volume rm root_mysql

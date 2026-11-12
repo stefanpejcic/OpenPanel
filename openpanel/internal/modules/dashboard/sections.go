@@ -197,6 +197,7 @@ func allSections() []Section {
 			{"waf", "/server/waf/log", "ri-error-warning-line", "Web firewall logs", "", false},
 			{"ip_blocker", "/security/ip-blocker", "ri-forbid-line", "IP blocker", "", false},
 			{"malware_scan", "/malware-scanner", "ri-barcode-line", "Malware scanner", "", false},
+			{"imunifyav", "/imunifyav", "ri-shield-check-line", "ImunifyAV", "", false},
 			{"twofa", "/account/2fa", "ri-fingerprint-line", "Two-factor auth", "", false},
 			{"passkeys", "/account/passkeys", "ri-key-2-line", "Passkeys", "", false},
 			{"sessions", "/account/sessions", "ri-group-line", "Active sessions", "", false},
@@ -318,6 +319,7 @@ func classicSections() []Section {
 			{"webserver_conf", "/server/webserver_conf", "ri-server-line", "Webserver configuration", "", false},
 			{"waf", "/server/waf", "ri-shield-keyhole-line", "WAF settings", "", false},
 			{"waf", "/server/waf/log", "ri-error-warning-line", "WAF logs", "", false},
+			{"imunifyav", "/imunifyav", "ri-shield-check-line", "ImunifyAV", "", false},
 			{"info", "/server/info", "ri-information-line", "Server information", "", false},
 		}},
 		{Key: "account", Title: "Account", Items: []SectionItem{

@@ -144,3 +144,21 @@ func TestResolveMenuStyle(t *testing.T) {
 		}
 	}
 }
+
+func TestClassicSidebarNavImunifyAVInAdvanced(t *testing.T) {
+	groups := BuildClassicSidebarNav(map[string]bool{"imunifyav": true, "malware_scan": true}, nil, "/imunifyav/summary")
+	var adv *NavGroup
+	for i := range groups {
+		for _, l := range groups[i].Links {
+			if l.Href == "/imunifyav" && groups[i].Label != "Advanced" {
+				t.Fatalf("ImunifyAV is in %q, want Advanced", groups[i].Label)
+			}
+		}
+		if groups[i].Label == "Advanced" {
+			adv = &groups[i]
+		}
+	}
+	if adv == nil || !adv.Open || !adv.Active || len(adv.Links) != 1 || !adv.Links[0].Active {
+		t.Fatalf("Advanced group = %+v", adv)
+	}
+}

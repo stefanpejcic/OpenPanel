@@ -1092,7 +1092,20 @@ When disabled:
 Customize options:
 * To **customize the cpu/memory limits for the ClamAV service** refer to: [*OpenAdmin > Services > Service Limits*](/docs/admin/services/limits/).
 
+## ImunifyAV {#imunifyav}
 
+The **`imunifyav`** module gives users their own ImunifyAV page. It needs ImunifyAV installed from *OpenAdmin > Security > ImunifyAV* or with [`opencli imunify install`](/docs/articles/opencli/imunify/).
+
+When enabled:
+* Users can access the **Security > ImunifyAV** page. It opens ImunifyAV's own interface logged in as the user, so they see and scan only their own files, and get whatever the server's ImunifyAV license offers users.
+* **Security > ImunifyAV > Summary** lists the infected files and the scans of the account, with a button to scan it. The page falls back to this summary when ImunifyAV's interface for the user panel isn't running.
+* The `imunify-gui-panel` service that serves ImunifyAV's interface to OpenPanel is started.
+
+When disabled:
+* Users can not access the *Security > ImunifyAV* page.
+* The `imunify-gui-panel` service is stopped. ImunifyAV itself keeps running and scanning, and stays available in OpenAdmin.
+
+The server's ImunifyAV license applies to every user, they can't add or manage a license of their own.
 
 ## Files {#filemanager}
 

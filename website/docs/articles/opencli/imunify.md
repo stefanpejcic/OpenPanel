@@ -34,9 +34,28 @@ Allowing users to initiate a scan..
 Installing PHP if not present...
 PHP already installed.
 New service added successfully.
+ImunifyAV UI for the user panel listens on 172.20.0.1:9000.
 Install completed!
 ```
 </details>
+
+## User panel
+
+`opencli imunify install` also sets up what the [ImunifyAV page in OpenPanel](/docs/admin/settings/modules/#imunifyav) needs:
+
+* The agent's socket folder `/run/defence360agent/` is mounted into the `openpanel` container. On servers installed before the mount was in `/root/docker-compose.yml`, `install`, or `start` while the `imunifyav` module is enabled, adds the line and recreates the container once. If the compose file looks different, it prints a warning and you add the mount yourself.
+* A second ImunifyAV UI runs as the `imunify-gui-panel` systemd service on the gateway of the OpenPanel network (usually `172.20.0.1:9000`), because the `openpanel` container can't reach `127.0.0.1` on the host. It only answers `/imav/` requests that carry the key in `/etc/openpanel/imunify/panel.key`, so user containers that can reach the gateway get `403`.
+
+The service only runs while the `imunifyav` module is enabled. Turning the module on or off in *OpenAdmin > Settings > Modules* starts or stops it, and `install` and `start` leave it stopped when the module is off:
+
+```bash
+# opencli imunify start
+Starting ImunifyAV...
+ImunifyAV GUI started.
+Enable the imunifyav module in OpenAdmin > Settings > Modules to give users the ImunifyAV page.
+```
+
+`opencli imunify start` creates the service on servers that don't have it yet and restarts it, `stop` stops it and `uninstall` removes it with `/etc/openpanel/imunify/`.
 
 ## Status
 
@@ -53,6 +72,7 @@ opencli imunify status
 # opencli imunify status
 Imunify GUI is running.
 48213 php -S 127.0.0.1:9000 -t /etc/sysconfig/imunify360/
+Imunify GUI for the user panel is running.
 ```
 </details>
 
@@ -71,6 +91,7 @@ opencli imunify start
 # opencli imunify start
 Starting ImunifyAV...
 ImunifyAV GUI started.
+ImunifyAV UI for the user panel listens on 172.20.0.1:9000.
 ```
 </details>
 
