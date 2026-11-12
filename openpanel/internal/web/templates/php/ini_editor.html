@@ -7,15 +7,15 @@
     <script src="{{static "vendor/codemirror/codemirror.min.js"}}"></script>
     <link rel="stylesheet" href="{{static "vendor/codemirror/theme/dracula.min.css"}}">
     <style>
-        .CodeMirror {min-height: 50vh;height: auto;}
-        div.CodeMirror-sizer {min-height: 500px!important;}
+        /* fills the window under the header so the card and its bottom border stay on screen */
+        .CodeMirror {height: calc(100svh - 12rem); min-height: 20rem;}
     </style>
 
 <form method="post">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
 <section aria-label="{{.Title}}">
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div class="sticky top-16 z-30 flex flex-col gap-4 bg-white px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 dark:bg-gray-950">
         <div class="min-w-0">
             <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h1>
             <p class="mt-1 truncate font-mono text-xs text-gray-500 max-w-3xl">{{.FilePath}}</p>

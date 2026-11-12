@@ -18,12 +18,12 @@
             <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center text-gray-400 dark:text-gray-600"><i class="ri-search-line" aria-hidden="true"></i></div>
         </div>
         <!-- one surface split by lines, the current language is the gray row -->
-        <form method="POST" action="/account/language" class="grid grid-cols-1 gap-px overflow-hidden rounded-md border border-gray-200 bg-gray-200 sm:grid-cols-2 lg:grid-cols-3 dark:border-gray-800 dark:bg-gray-800">
+        <form method="POST" action="/account/language" class="grid grid-cols-1 gap-px overflow-hidden rounded-md border border-gray-200 sm:grid-cols-2 lg:grid-cols-3 dark:border-gray-800">
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
             {{range .Locales}}
             <button type="submit" name="locale" value="{{.Code}}"
                     x-show="query === '' || {{toJSON (printf "%s %s %s" .Native .English .Code)}}.toLowerCase().includes(query.toLowerCase())"
-                    {{if eq .Code $current}}aria-current="true"{{end}} class="flex items-center gap-3 px-4 py-3 text-left transition outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2 {{if eq .Code $current}}bg-gray-100 dark:bg-gray-900{{else}}bg-white hover:bg-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60{{end}}">
+                    {{if eq .Code $current}}aria-current="true"{{end}} class="flex items-center gap-3 px-4 py-3 text-left ring-1 ring-gray-200 transition dark:ring-gray-800 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2 {{if eq .Code $current}}bg-gray-100 dark:bg-gray-900{{else}}bg-white hover:bg-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60{{end}}">
                 <img src="/static/flags/{{.FlagCode}}.png" alt="" class="h-4 w-6 shrink-0 rounded-xs">
                 <span class="flex min-w-0 flex-col">
                     <span class="truncate text-sm font-medium text-gray-900 dark:text-gray-50">{{.Native}}</span>
