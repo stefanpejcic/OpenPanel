@@ -8,6 +8,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
@@ -22,6 +23,60 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 }
 
 func TestRenderDNSListPage(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+
+	t.Run("no domains", func(t *testing.T) {
+		data := DNSPageData{LayoutData: baseLayout(mgr, "/domains/edit-dns-zone")}
+		w := httptest.NewRecorder()
+		if err := dnsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "No domains yet") {
+			t.Error("expected empty-state message")
+		}
+	})
+
+	t.Run("with zone-having domains", func(t *testing.T) {
+		data := DNSPageData{
+			LayoutData: baseLayout(mgr, "/domains/edit-dns-zone"),
+			Domains:    []appctx.Domain{{DomainURL: "example.com"}},
+		}
+		w := httptest.NewRecorder()
+		if err := dnsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "example.com") {
+			t.Error("expected domain option")
+		}
+	})
+
+	t.Run("zone list", func(t *testing.T) {
+		data := DNSPageData{
+			LayoutData: baseLayout(mgr, "/domains/edit-dns-zone"),
+			Domains:    []appctx.Domain{{DomainURL: "example.com"}, {DomainURL: "shop.example.com"}},
+			Zones: []ZoneSummary{
+				{Domain: "example.com", Records: 9, Types: []TypeCount{{"A", 3}, {"CNAME", 3}, {"MX", 1}, {"TXT", 2}}},
+				{Domain: "shop.example.com", Records: 4, Types: []TypeCount{{"A", 2}, {"TXT", 2}}},
+			},
+			ZoneRecords: 13,
+		}
+		w := httptest.NewRecorder()
+		if err := dnsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		for _, want := range []string{"2 zones", "13 records", `href="/domains/edit-dns-zone/shop.example.com"`, "CNAME 3", "/domains/export-dns-zone/example.com"} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q in zone list", want)
+			}
+		}
+	})
+}
+
+func TestRenderDNSListPageClassic(t *testing.T) {
+	webtest.Classic(t)
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("no domains", func(t *testing.T) {
@@ -51,6 +106,28 @@ func TestRenderDNSListPage(t *testing.T) {
 		}
 		if strings.Contains(body, `href="/domains/edit-dns-zone/blog.example.com"`) {
 			t.Error("expected no link for a domain without its own zone")
+		}
+	})
+
+	t.Run("zone list", func(t *testing.T) {
+		data := DNSPageData{
+			LayoutData: baseLayout(mgr, "/domains/edit-dns-zone"),
+			Domains:    []appctx.Domain{{DomainURL: "example.com"}, {DomainURL: "shop.example.com"}},
+			Zones: []ZoneSummary{
+				{Domain: "example.com", Records: 9, Types: []TypeCount{{"A", 3}, {"CNAME", 3}, {"MX", 1}, {"TXT", 2}}},
+				{Domain: "shop.example.com", Records: 4, Types: []TypeCount{{"A", 2}, {"TXT", 2}}},
+			},
+			ZoneRecords: 13,
+		}
+		w := httptest.NewRecorder()
+		if err := dnsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		for _, want := range []string{"2 zones", "13 records", `href="/domains/edit-dns-zone/shop.example.com"`, "CNAME 3", "/domains/export-dns-zone/example.com"} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q in zone list", want)
+			}
 		}
 	})
 }

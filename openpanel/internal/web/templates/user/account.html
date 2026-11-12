@@ -1,17 +1,17 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/user/account.html -->
-
-<!-- page header -->
-<section aria-label="{{.T.Get "Account"}}" x-data="{ searchQuery: '' }">
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
+<div class="op-content">
+    <div class="op-page-head">
         <div>
-            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Email & password"}}</h1>
-            <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Update email address to receive notifications or change the password for logging into your account, ensuring secure and up-to-date access."}}</p>
+            {{if or .HostingPlanName .MemberSinceLabel}}<div class="op-eyebrow">{{.HostingPlanName}}{{if and .HostingPlanName .MemberSinceLabel}} · {{end}}{{with .MemberSinceLabel}}{{$.T.Get "member since"}} {{.}}{{end}}</div>{{end}}
+            <h1 class="op-title">{{.T.Get "Login Details"}}</h1>
+            <p class="op-meta">{{.T.Get "Your email address and password for this panel."}}</p>
         </div>
     </div>
-<!-- END page header -->
 
 <!-- js to focus fields -->
 <script>
@@ -40,146 +40,88 @@
         }));
     });
 </script>
-
 <!-- END js to focus fields -->
 
-<!-- form -->
-<div class="CrawlerStatusCard px-4 pb-8 sm:px-6 lg:px-8" id="toAddActive" x-data="focusField()">
-    <form method="POST" class="max-w-5xl divide-y divide-gray-200 dark:divide-gray-800">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+    <div class="op-cols-2">
+        <form class="op-card CrawlerStatusCard" id="toAddActive" method="POST" x-data="focusField()">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+            <div class="op-card-head"><h2>{{.T.Get "Email & Password"}}</h2></div>
+            <div class="op-form-grid">
+                <div class="op-field">
+                    <label for="username" class="op-label">{{.T.Get "Username"}}</label>
+                    {{if .PermitUsernameChangeByUser}}
+                    <input type="text" id="username" name="username" pattern="^[a-zA-Z0-9]{3,20}$" title="{{.T.Get "Username must be between 3 and 20 characters, and only contain letters and numbers (no spaces, hyphens, or underscores)."}}" class="op-input op-mono" value="{{.CurrentUsername}}">
+                    <span class="op-hint">{{.T.Get "3 to 20 letters and numbers."}}</span>
+                    {{else}}
+                    <input type="text" id="username" class="op-input op-mono" value="{{.CurrentUsername}}" readonly>
+                    <span class="op-hint">{{.T.Get "Set by your administrator."}}</span>
+                    {{end}}
+                </div>
 
-    <section aria-labelledby="account-info-title" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
-        <div>
-            <h2 id="account-info-title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Account"}}</h2>
-            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Where this session signs in from and how the account is protected."}}</p>
-        </div>
-        <dl class="grid grid-cols-1 gap-x-8 gap-y-5 text-sm sm:grid-cols-2 md:col-span-2">
-            {{if .ThisIP}}
-            <div>
-                <dt class="text-gray-500">{{.T.Get "This session's IP"}}</dt>
-                <dd class="mt-1 font-mono text-gray-900 dark:text-gray-50">{{.ThisIP}}</dd>
+                <div class="op-field">
+                    <label for="email" class="op-label">{{.T.Get "Email address"}}</label>
+                    <input type="email" id="email" name="email" placeholder="{{.CurrentEmail}}" class="op-input" value="{{.CurrentEmail}}" autocomplete="email" required>
+                    <span class="op-hint">{{.T.Get "Used for password resets and notifications."}}</span>
+                </div>
+
+                <div class="op-field"
+                    x-data="passwordStrength({
+                        weak: '{{.T.Get "Weak password"}}',
+                        medium: '{{.T.Get "Medium strength password"}}',
+                        strong: '{{.T.Get "Strong password"}}',
+                        tooWeak: '{{.T.Get "Password does not meet the required strength."}}'
+                    }, {{.PasswordStrength}})"
+                    x-init="checkStrength()">
+                    <label for="password" class="op-label">{{.T.Get "New Password"}}</label>
+                    <div class="op-affix">
+                        <input type="password" id="password" name="password" placeholder="{{.T.Get "New Password"}}" maxlength="30" class="op-input" x-model="password" x-ref="input" @input="checkStrength()" autocomplete="new-password">
+                        <button type="button" id="show-hide-password" class="op-icon-btn" aria-label="{{.T.Get "Show password"}}" title="{{.T.Get "Show password"}}"><i class="bi bi-eye"></i></button>
+                        <button type="button" id="generate-password" class="op-icon-btn" aria-label="{{.T.Get "Generate password"}}" title="{{.T.Get "Generate password"}}"><i class="bi bi-shuffle"></i></button>
+                    </div>
+                    <div class="op-pw-meter" :data-score="!password ? 0 : strength === 'Strong' ? 4 : strength === 'Medium' ? 2 : 1"><span></span><span></span><span></span><span></span></div>
+                    <span class="op-hint" :class="{ 'is-danger': strength === 'Weak', 'is-warning': strength === 'Medium', 'is-success': strength === 'Strong' }" x-text="password ? strengthMessage : '{{.T.Get "Leave empty to keep your current password."}}'">{{.T.Get "Leave empty to keep your current password."}}</span>
+                </div>
+
+                <div class="op-field">
+                    <label for="confirm_password" class="op-label">{{.T.Get "Confirm New Password"}}</label>
+                    <div class="op-affix">
+                        <input type="password" id="confirm_password" name="confirm_password" placeholder="{{.T.Get "Confirm New Password"}}" maxlength="30" class="op-input" autocomplete="new-password">
+                        <span class="d-none" id="copy-password-link"><button type="button" id="copy-password" class="op-icon-btn" aria-label="{{.T.Get "Copy password"}}" title="{{.T.Get "Copy password"}}"><i class="bi bi-clipboard"></i></button></span>
+                    </div>
+                    <span class="op-hint" id="passwordHint">{{.T.Get "Type the new password again."}}</span>
+                    <span class="op-hint is-danger" id="passwordError" style="display:none;">{{.T.Get "Passwords do not match."}}</span>
+                </div>
             </div>
+            <div class="op-form-foot">
+                <button type="reset" class="op-btn op-btn-secondary">{{.T.Get "Cancel"}}</button>
+                <button id="save-button" type="submit" class="op-btn op-btn-primary">{{.T.Get "Update"}}</button>
+            </div>
+        </form>
+
+        <div class="op-col">
+            {{if .UserAllowed.twofa}}
+            <section class="op-card">
+                {{if not .TwofaEnabled}}<div class="op-glow" style="right:-260px;top:-300px"></div>{{end}}
+                <div class="op-card-head"><h2>{{.T.Get "Two-factor authentication"}}</h2>{{if .TwofaEnabled}}<span class="op-status is-success">{{.T.Get "On"}}</span>{{else}}<span class="op-status is-warning">{{.T.Get "Off"}}</span>{{end}}</div>
+                <p class="op-meta" style="margin:0 0 12px">{{if .TwofaEnabled}}{{.T.Get "A code from your authenticator app is asked for after your password."}}{{else}}{{.T.Get "Add an authenticator app or a passkey so a stolen password isn't enough to get in."}}{{end}}</p>
+                <a class="op-btn {{if .TwofaEnabled}}op-btn-secondary{{else}}op-btn-primary{{end}}" href="/account/2fa">{{if .TwofaEnabled}}{{.T.Get "Manage 2FA"}}{{else}}{{.T.Get "Enable 2FA"}}{{end}}</a>
+            </section>
             {{end}}
-            <div>
-                <dt class="text-gray-500">{{.T.Get "Last login"}}</dt>
-                <dd class="mt-1 text-gray-900 dark:text-gray-50">{{if .LastIP}}<span class="font-mono">{{.LastIP}}</span>{{with .LastLoginTime}} <span class="text-gray-500 tabular-nums">· {{.}}</span>{{end}}{{else}}<span class="text-gray-500">–</span>{{end}}</dd>
-            </div>
-            {{with .MemberSinceLabel}}
-            <div>
-                <dt class="text-gray-500">{{$.T.Get "Member since"}}</dt>
-                <dd class="mt-1 tabular-nums text-gray-900 dark:text-gray-50">{{.}}</dd>
-            </div>
-            {{end}}
-            {{if and .UserAllowed.passkeys (ge .PasskeyCount 0)}}
-            <div>
-                <dt class="text-gray-500">{{.T.Get "Passkeys"}}</dt>
-                <dd class="mt-1 flex items-center gap-2"><span class="tabular-nums text-gray-900 dark:text-gray-50">{{if .PasskeyCount}}{{.PasskeyCount}}{{else}}{{.T.Get "None"}}{{end}}</span><a href="/account/passkeys" class="text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Manage passkeys"}}</a></dd>
-            </div>
-            {{end}}
-        </dl>
-    </section>
-
-    <section aria-labelledby="account-email-title" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
-        <div>
-            <h2 id="account-email-title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Contact email"}}</h2>
-            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Login alerts and password reset links are sent to this address."}}</p>
+            <section class="op-card">
+                <div class="op-card-head"><h2>{{.T.Get "Sessions"}}</h2>{{if .UserAllowed.sessions}}<a href="/account/sessions">{{.T.Get "Active sessions"}}</a>{{end}}</div>
+                <dl class="op-dl op-dl-end">
+                    <dt>{{.T.Get "This device"}}</dt><dd x-data="{ d: '' }" x-init="const u = navigator.userAgent; d = (/Edg\//.test(u) ? 'Edge' : /Firefox\//.test(u) ? 'Firefox' : /Chrome\//.test(u) ? 'Chrome' : /Safari\//.test(u) ? 'Safari' : '') + ((/Windows/.test(u) && ' on Windows') || (/Mac OS X/.test(u) && !/Mobile/.test(u) && ' on macOS') || (/Android/.test(u) && ' on Android') || (/iPhone|iPad/.test(u) && ' on iOS') || (/Linux/.test(u) && ' on Linux') || '')" x-text="d || '–'">–</dd>
+                    {{if .ThisIP}}<dt>{{.T.Get "IP address"}}</dt><dd class="op-mono">{{.ThisIP}}</dd>{{end}}
+                    <dt>{{.T.Get "Last login"}}</dt><dd>{{if .LastIP}}<span class="op-mono">{{.LastIP}}</span>{{if .LastLoginTime}} <span class="op-muted">· {{.LastLoginTime}}</span>{{end}}{{else}}–{{end}}</dd>
+                    {{if .UserAllowed.twofa}}<dt>{{.T.Get "Two-factor"}}</dt><dd>{{if .TwofaEnabled}}{{.T.Get "On"}}{{else}}{{.T.Get "Off"}}{{end}}</dd>{{end}}
+                    {{if and .UserAllowed.passkeys (ge .PasskeyCount 0)}}<dt>{{.T.Get "Passkeys"}}</dt><dd><a href="/account/passkeys">{{if .PasskeyCount}}{{.PasskeyCount}}{{else}}{{.T.Get "None"}}{{end}}</a></dd>{{end}}
+                </dl>
+            </section>
         </div>
-        <div class="space-y-6 md:col-span-2">
-            <div>
-              <label for="email" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Email address"}}<span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
-              <input type="email" id="email" name="email" placeholder="{{.CurrentEmail}}" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" value="{{.CurrentEmail}}" required>
-            </div>
-
-            {{if .PermitUsernameChangeByUser}}
-            <div>
-                <label for="username" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Username"}}<span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
-                <input type="text" id="username" name="username" pattern="^[a-zA-Z0-9]{3,20}$" aria-describedby="username-help" title="{{.T.Get "Username must be between 3 and 20 characters, and only contain letters and numbers (no spaces, hyphens, or underscores)."}}" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" value="{{.CurrentUsername}}">
-                <p id="username-help" class="mt-2 text-xs text-gray-500">{{.T.Get "Username must be between 3 and 20 characters, and only contain letters and numbers (no spaces, hyphens, or underscores)."}}</p>
-            </div>
-            {{end}}
-        </div>
-    </section>
-
-    <section aria-labelledby="account-password-title" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
-        <div>
-            <h2 id="account-password-title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Password"}}</h2>
-            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Leave both fields empty to keep your current password. Changing it signs you out everywhere and revokes your MCP tokens."}}</p>
-        </div>
-        <div class="space-y-6 md:col-span-2">
-            <div
-              x-data="passwordStrength({
-                weak: '{{.T.Get "Weak password"}}',
-                medium: '{{.T.Get "Medium strength password"}}',
-                strong: '{{.T.Get "Strong password"}}',
-                tooWeak: '{{.T.Get "Password does not meet the required strength."}}'
-              }, {{.PasswordStrength}})"
-              x-init="checkStrength()"
-            >
-              <label for="password" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "New password"}}</label>
-              <div class="mt-2 flex rounded-md shadow-xs">
-                <input type="password" id="password" name="password"  maxlength="30" aria-describedby="password-strength" class="rounded-r-none shadow-none block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" x-model="password" x-ref="input" @input="checkStrength()">
-                <button type="button" id="show-hide-password" aria-label="{{.T.Get "Show password"}}" title="{{.T.Get "Show password"}}" class="relative -ml-px inline-flex shrink-0 items-center justify-center border border-gray-300 bg-white px-3 text-sm text-gray-700 hover:bg-gray-50 focus:z-10 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60">
-                  <i class="ri-eye-line" aria-hidden="true"></i>
-                </button>
-                <button type="button" id="generate-password" aria-label="{{.T.Get "Generate password"}}" title="{{.T.Get "Generate password"}}" class="rounded-r-md relative -ml-px inline-flex shrink-0 items-center justify-center border border-gray-300 bg-white px-3 text-sm text-gray-700 hover:bg-gray-50 focus:z-10 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60">
-                  <i class="ri-shuffle-line" aria-hidden="true"></i>
-                </button>
-              </div>
-
-              <!-- Password strength indicator -->
-              <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
-                <div
-                  class="h-full rounded-full transition-all duration-300"
-                  :class="{
-                    'bg-red-500': strength === 'Weak',
-                    'bg-yellow-500': strength === 'Medium',
-                    'bg-emerald-500': strength === 'Strong',
-                    'w-1/3': strength === 'Weak',
-                    'w-2/3': strength === 'Medium',
-                    'w-full': strength === 'Strong'
-                  }"
-                ></div>
-              </div>
-              <p id="password-strength"
-                class="mt-1.5 text-xs font-medium"
-                :class="{
-                  'text-red-600 dark:text-red-500': strength === 'Weak',
-                  'text-yellow-600 dark:text-yellow-500': strength === 'Medium',
-                  'text-emerald-600 dark:text-emerald-500': strength === 'Strong'
-                }"
-              >
-                <span x-text="strengthMessage"></span>
-              </p>
-            </div>
-
-            <div>
-              <label for="confirm_password" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Confirm password"}}</label>
-              <div class="mt-2 flex rounded-md shadow-xs">
-                <input type="password" id="confirm_password" name="confirm_password" maxlength="30" aria-describedby="passwordError" class="shadow-none block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
-                <span class="hidden shrink-0" id="copy-password-link">
-                  <button type="button" id="copy-password" aria-label="{{.T.Get "Copy password"}}" title="{{.T.Get "Copy password"}}" class="h-full rounded-r-md relative -ml-px inline-flex shrink-0 items-center justify-center border border-gray-300 bg-white px-3 text-sm text-gray-700 hover:bg-gray-50 focus:z-10 outline outline-0 -outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60">
-                    <i class="ri-clipboard-line" aria-hidden="true"></i></button>
-                </span>
-              </div>
-              <p id="passwordError" class="mt-2 text-xs text-red-600 dark:text-red-500" style="display:none;">
-                {{.T.Get "Passwords do not match."}}
-              </p>
-            </div>
-        </div>
-    </section>
-
-        <div class="flex flex-col-reverse gap-2 pt-6 sm:flex-row sm:justify-end">
-            <button id="save-button" type="submit" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Update"}}</button>
-        </div>
-
-    </form>
+    </div>
 </div>
-</section>
-<!-- END form -->
-
 
     <script>
-// Sve za pass generate, copy to clipboard i hide/show
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById("password");
             const confirmPasswordInput = document.getElementById("confirm_password");
@@ -189,13 +131,13 @@
             if (passwordInput.type === "password") {
                 passwordInput.type = "text";
                 confirmPasswordInput.type = "text";
-                eyeIcon.classList.remove("ri-eye-line");
-                eyeIcon.classList.add("ri-eye-off-line");
+                eyeIcon.classList.remove("bi-eye");
+                eyeIcon.classList.add("bi-eye-slash");
             } else {
                 passwordInput.type = "password";
                 confirmPasswordInput.type = "password";
-                eyeIcon.classList.remove("ri-eye-off-line");
-                eyeIcon.classList.add("ri-eye-line");
+                eyeIcon.classList.remove("bi-eye-slash");
+                eyeIcon.classList.add("bi-eye");
             }
         }
 
@@ -212,19 +154,11 @@
         }
 
         function copyPasswordToClipboard() {
-            const passwordInput = document.createElement("input");
-            passwordInput.type = "text";
-            passwordInput.value = document.getElementById("password").value;
-            document.body.appendChild(passwordInput);
-            passwordInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(passwordInput);
-
+            copyToClipboard(document.getElementById("password").value);
             const copyLink = document.getElementById("copy-password");
-            copyLink.innerHTML = '<i class="ri-check-line"></i>';
-
+            copyLink.innerHTML = '<i class="bi bi-check"></i>';
             setTimeout(() => {
-                copyLink.innerHTML = '<i class="ri-clipboard-line"></i>';
+                copyLink.innerHTML = '<i class="bi bi-clipboard"></i>';
             }, 3000);
         }
 
@@ -238,25 +172,21 @@
             document.getElementById("password").value = newPassword;
             document.getElementById("confirm_password").value = newPassword;
             document.getElementById("password").dispatchEvent(new Event('input', { bubbles: true }));
-            eyeIcon.classList.remove("ri-eye-line");
-            eyeIcon.classList.add("ri-eye-off-line");
-            document.getElementById("copy-password-link").classList.remove("hidden");
-            document.getElementById("confirm_password").classList.add("rounded-r-none");
+            eyeIcon.classList.remove("bi-eye");
+            eyeIcon.classList.add("bi-eye-slash");
+            document.getElementById("copy-password-link").classList.remove("d-none");
         });
 
         document.getElementById("copy-password").addEventListener("click", copyPasswordToClipboard);
 
-        document.querySelector("#toAddActive form").addEventListener("submit", function(e) {
+        document.querySelector("#toAddActive").addEventListener("submit", function(e) {
             const password = document.getElementById("password").value;
             const confirmPassword = document.getElementById("confirm_password").value;
-            const errorDiv = document.getElementById("passwordError");
-
-            if (password !== confirmPassword) {
-                e.preventDefault();
-                errorDiv.style.display = "block";
-            } else {
-                errorDiv.style.display = "none";
-            }
+            const mismatch = password !== confirmPassword;
+            if (mismatch) e.preventDefault();
+            document.getElementById("passwordError").style.display = mismatch ? "" : "none";
+            document.getElementById("passwordHint").style.display = mismatch ? "none" : "";
+            document.getElementById("confirm_password").classList.toggle("is-invalid", mismatch);
         });
     </script>
 

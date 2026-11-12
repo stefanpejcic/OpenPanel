@@ -10,6 +10,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func testLayout(mgr *i18n.Manager) web.LayoutData {
@@ -46,39 +47,86 @@ func render(t *testing.T, data PageData) string {
 }
 
 func TestRenderSummaryPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	from := time.Date(2026, 10, 15, 0, 0, 0, 0, time.UTC)
-	s := Summary{Username: "stefan", Date: "2026-10-15", From: from,
+	s := Summary{Username: "stefan", Date: "2026-10-15", From: from, GeneratedAt: from.Add(30*time.Hour + 15*time.Minute), PrevRequests: 8,
 		Attention: []Item{{Title: "Malware <found>", Detail: "3 files", Action: "Review the quarantined files", Link: "/malware-scanner/quarantine"}},
 		Look:      []Item{{Title: "Disk is 90% full", Action: "Ask your hosting provider for more disk space."}},
 		Good:      []string{"SSL certificates valid"},
-		Websites:  []Website{{Name: "a.com", Requests: 10, ServerErrors: 2, TopPages: []string{"/", "/shop"}}},
-		Logins:    []Login{{Time: from.Add(9 * time.Hour), IP: "1.1.1.1"}},
+		Websites:  []Website{{Name: "a.com", Requests: 10, ServerErrors: 2, TopPages: []string{"/", "/shop"}, TopPageViews: 4, Share: 100, PrevRequests: 5}},
+		Logins:    []Login{{Time: from.Add(9 * time.Hour), IP: "1.1.1.1", Country: "RS", New: true}},
 		Changes:   []string{"09:05 added domain b.com"},
+		Usage:     []UsageBar{{Title: "Memory at the busiest hour", Used: "384 MB", Total: "6.0 GB", Percent: 95, Limit: 90}},
 	}
-	data := PageData{LayoutData: testLayout(mgr), Summary: s, Found: true, Dates: []string{"2026-10-16", "2026-10-15", "2026-10-14"}, Prev: "2026-10-14", Next: "2026-10-16"}
-	w := httptest.NewRecorder()
-	if err := summaryPage.Render(w, 200, data); err != nil {
-		t.Fatalf("Render: %v", err)
-	}
-	body := w.Body.String()
+	prev := Summary{Websites: []Website{{Name: "a.com", Requests: 8, UniqueIPs: 4, ServerErrors: 1}}}
+	data := PageData{LayoutData: testLayout(mgr), Summary: s, Found: true, Dates: []string{"2026-10-16", "2026-10-15", "2026-10-14"}, Prev: "2026-10-14", Next: "2026-10-16", Date: "2026-10-15",
+		Tiles: tiles(s, prev, true), EmailOn: true, Email: "stefan@example.com"}
+	body := render(t, data)
 	for _, want := range []string{
-		"Thursday, 15 October 2026", "Malware &lt;found&gt;", `href="/malware-scanner/quarantine"`,
-		"Ask your hosting provider for more disk space.", "SSL certificates valid", "a.com",
-		`href="/summary/2026-10-14"`, `href="/summary/2026-10-16"`, `<option value="2026-10-15" selected>`,
-		">1.1.1.1</p>", "added domain b.com", "09:05", "border-gray-200 dark:border-gray-800",
+		"Thursday, 15 October 2026", "made 16 Oct 06:15 UTC", "Malware &lt;found&gt;", `href="/malware-scanner/quarantine"`,
+		"Ask your hosting provider for more disk space.", "SSL certificates valid", "What went well", "a.com",
+		`href="/summary?date=2026-10-14"`, `href="/summary?date=2026-10-16"`, `<option value="2026-10-15" selected>Thu 15 Oct</option>`,
+		// requests 10 against 8 the day before, errors 2 against 1 is bad news
+		`<span class="op-badge is-success" title="Compared with the day before">&#43;25%</span>`, "8 the day before",
+		`<span class="op-badge is-danger" title="Compared with the day before">&#43;100%</span>`,
+		"Top page / · 4 views · &#43;100% vs the day before", `data-sort-key="requests"`, `data-sort-value="10"`, "2 5xx",
+		`src="/static/flags/rs.png"`, "New IP", "1.1.1.1", "added domain b.com", "dsChanges(", `op-progress is-warning`,
+		`x-data="dsEmail(true)"`, "stefan@example.com", `href="/account/notifications#daily-summary"`, `href="/server/usage/history"`,
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("rendered page missing %q", want)
 		}
 	}
 
-	w = httptest.NewRecorder()
-	if err := summaryPage.Render(w, 200, PageData{LayoutData: testLayout(mgr)}); err != nil {
-		t.Fatalf("Render empty: %v", err)
-	}
-	if !strings.Contains(w.Body.String(), "Your first summary will be ready tomorrow morning.") {
+	body = render(t, PageData{LayoutData: testLayout(mgr)})
+	if !strings.Contains(body, "Your first summary will be ready tomorrow morning.") || !strings.Contains(body, `x-data="dsEmail(false)"`) {
 		t.Error("empty state missing")
+	}
+
+	// a day that isn't saved keeps the picker so the user can go back
+	body = render(t, PageData{LayoutData: testLayout(mgr), Dates: []string{"2026-10-16"}, Date: "2026-10-01"})
+	if !strings.Contains(body, "There is no summary for this day.") || !strings.Contains(body, "Pick a day") {
+		t.Error("missing-day state missing")
+	}
+}
+
+// TestRenderSummaryRealDays renders testinguser's three saved days, a busy one and two quiet ones
+func TestRenderSummaryRealDays(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	dates := []string{"2026-10-28", "2026-10-27", "2026-10-26"}
+	for i, d := range dates {
+		s := realSummary(t, d)
+		var prev Summary
+		hasPrev := i+1 < len(dates)
+		if hasPrev {
+			prev = realSummary(t, dates[i+1])
+		}
+		data := PageData{LayoutData: testLayout(mgr), Summary: s, Found: true, Dates: dates, Date: d, Tiles: tiles(s, prev, hasPrev), Email: "user_1793020192884@openpanel.org"}
+		if i > 0 {
+			data.Next = dates[i-1]
+		}
+		if hasPrev {
+			data.Prev = dates[i+1]
+		}
+		body := render(t, data)
+		if !strings.Contains(body, s.Headline) {
+			t.Errorf("%s: headline missing", d)
+		}
+		switch d {
+		case "2026-10-26":
+			for _, want := range []string{"Needs your attention · 3", "Worth a look · 1", `href="/error-logs?domain=php.tests.openpanel.org&amp;exact=1"`, "nodejs.tests.openpanel.org", "No summary for the day before", "New IP", "10.0.2.2"} {
+				if !strings.Contains(body, want) {
+					t.Errorf("%s: missing %q", d, want)
+				}
+			}
+		case "2026-10-27":
+			// 0 requests against 34 the day before
+			if !strings.Contains(body, "-100%") || !strings.Contains(body, "34 the day before") || !strings.Contains(body, "No website traffic on this day") {
+				t.Errorf("%s: day-over-day missing", d)
+			}
+		}
 	}
 }
 

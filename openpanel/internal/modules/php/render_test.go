@@ -7,6 +7,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
@@ -136,6 +137,41 @@ func TestRenderPHPInfoPage(t *testing.T) {
 }
 
 func TestRenderPHPIniEditorPage(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+
+	t.Run("selector", func(t *testing.T) {
+		data := PHPIniEditorPageData{LayoutData: baseLayout(mgr, "/php/php_ini_editor"), InstalledVersions: []string{"8.1", "8.2"}}
+		w := httptest.NewRecorder()
+		if err := iniEditorPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "PHP.INI Editor") {
+			t.Error("expected selector heading")
+		}
+	})
+
+	t.Run("editor with issues", func(t *testing.T) {
+		data := PHPIniEditorPageData{
+			LayoutData: baseLayout(mgr, "/php/php8.2.ini/editor"), Version: "8.2", FileContent: "memory_limit = 256M",
+			Issues: []HealthIssue{{ID: "php-ini-syntax:8.2", Severity: "error", Message: "boom"}},
+		}
+		w := httptest.NewRecorder()
+		if err := iniEditorPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, "memory_limit = 256M") {
+			t.Error("expected file content in editor textarea")
+		}
+		if !strings.Contains(body, "reportHealthIssues") {
+			t.Error("expected health issue script block")
+		}
+	})
+}
+
+func TestRenderPHPIniEditorPageClassic(t *testing.T) {
+	webtest.Classic(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("selector", func(t *testing.T) {
@@ -179,6 +215,78 @@ func TestRenderPHPIniEditorPage(t *testing.T) {
 }
 
 func TestRenderPHPOptionsPage(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+
+	t.Run("selector", func(t *testing.T) {
+		data := PHPOptionsPageData{LayoutData: baseLayout(mgr, "/php/options"), InstalledVersions: []string{"8.2"}}
+		w := httptest.NewRecorder()
+		if err := optionsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "Edit PHP options") {
+			t.Error("expected selector heading")
+		}
+	})
+
+	t.Run("fields", func(t *testing.T) {
+		data := PHPOptionsPageData{
+			LayoutData: baseLayout(mgr, "/php/php8.2/options"), Version: "8.2",
+			Fields: []OptionField{
+				{Key: "display_errors", Kind: "checkbox_binary", Value: "1", Checked: true},
+				{Key: "post_max_size", Kind: "unit", Value: "256M", NumberPart: "256", UnitPart: "M"},
+				buildOptionField("date.timezone", "", []string{"Africa/Abidjan", "Europe/Belgrade"}),
+			},
+		}
+		w := httptest.NewRecorder()
+		if err := optionsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, "display_errors") || !strings.Contains(body, "post_max_size") {
+			t.Error("expected option keys in body")
+		}
+		for _, want := range []string{"dbTuning('/php/php8.2/options/recommendations')", `id="db-tuning"`, "Optimize PHP", "Confirm Changes", `x-ref="form"`, `name="display_errors" value="0"`} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q in body", want)
+			}
+		}
+		if !strings.Contains(body, `<option value="" selected>`) || strings.Contains(body, `value="Africa/Abidjan" selected`) {
+			t.Error("an unset timezone should select the empty option, not the first zone")
+		}
+		if n := strings.Count(body, "review(&#34;"); n != 3 {
+			t.Errorf("expected an optimize button per option, got %d", n)
+		}
+	})
+
+	t.Run("disable_functions warning", func(t *testing.T) {
+		data := PHPOptionsPageData{
+			LayoutData: baseLayout(mgr, "/php/php8.2/options"), Version: "8.2",
+			Fields:           []OptionField{buildOptionField("disable_functions", "exec,system", nil)},
+			StartupFunctions: fpmStartupFunctions,
+		}
+		w := httptest.NewRecorder()
+		if err := optionsPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		for _, want := range []string{`name="disable_functions" x-model="v"`, "ini_get_all", "is needed by PHP-FPM to start"} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q in body", want)
+			}
+		}
+		// on LiteSpeed there's no php-fpm, so plain input and no warning
+		data.StartupFunctions = nil
+		w = httptest.NewRecorder()
+		_ = optionsPage.Render(w, 200, data)
+		if strings.Contains(w.Body.String(), "is needed by PHP-FPM to start") {
+			t.Error("no warning expected without StartupFunctions")
+		}
+	})
+}
+
+func TestRenderPHPOptionsPageClassic(t *testing.T) {
+	webtest.Classic(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("selector", func(t *testing.T) {

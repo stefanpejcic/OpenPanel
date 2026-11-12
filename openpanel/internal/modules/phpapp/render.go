@@ -8,7 +8,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-var installPage = web.LoadPage("manager/php_install.html", "partials/install_success.html")
+var installPage = web.LoadPage("manager/_install_wizard.html", "manager/php_install.html")
 
 // InstallPageData is manager/php_install.html's template context.
 type InstallPageData struct {

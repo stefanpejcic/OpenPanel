@@ -51,7 +51,10 @@ func renderPHPAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dat
 		return
 	}
 	data.LayoutData = layout
-	data.PageTabs = nil // the site page has its own tabs, the area bar above the heading is left out
+	// the classic site page has its own tabs, so its area bar above the heading is left out
+	if web.Theme() == web.ThemeClassic {
+		data.PageTabs = nil
+	}
 	if err := phpAppPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WEBSITES - php_app template render error: %v", err)
 	}
@@ -78,7 +81,10 @@ func renderWebsiteBuilderPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 	data.LayoutData = layout
-	data.PageTabs = nil // the site page has its own tabs, the area bar above the heading is left out
+	// the classic site page has its own tabs, so its area bar above the heading is left out
+	if web.Theme() == web.ThemeClassic {
+		data.PageTabs = nil
+	}
 	if err := websiteBuilderPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WEBSITES - websitebuilder template render error: %v", err)
 	}
@@ -182,8 +188,13 @@ func renderWPSinglePage(a *appctx.App, w http.ResponseWriter, r *http.Request, d
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	// a WordPress site lives under /website, but it belongs to the WordPress tab
+	layout.ActivateTab("/wordpress")
 	data.LayoutData = layout
-	data.PageTabs = nil // the site page has its own tabs, the area bar above the heading is left out
+	// the classic site page has its own tabs, so its area bar above the heading is left out
+	if web.Theme() == web.ThemeClassic {
+		data.PageTabs = nil
+	}
 	data.SecurityToggles = wpSecurityToggles
 	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
 	if err := wpSinglePage.Render(w, http.StatusOK, data); err != nil {
@@ -223,7 +234,10 @@ func renderPythonNodeAppsPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 		return
 	}
 	data.LayoutData = layout
-	data.PageTabs = nil // the site page has its own tabs, the area bar above the heading is left out
+	// the classic site page has its own tabs, so its area bar above the heading is left out
+	if web.Theme() == web.ThemeClassic {
+		data.PageTabs = nil
+	}
 
 	prefix := data.PM2Data["prefix"]
 	pm2val := func(key string) string {
@@ -291,6 +305,13 @@ type CMSAppPageData struct {
 	HasPhotos            bool
 	App                  web.AppNames
 	SSLState, SSLExpires string // see sslState
+	Switch               []SiteOption
+}
+
+// SiteOption is one entry in a manager's site switcher
+type SiteOption struct {
+	Name string
+	App  string
 }
 
 // cmsPage is how the /website dispatcher reads one CMS type, dbInfo is nil for apps without a database
@@ -326,7 +347,10 @@ func renderCMSAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, cms
 		return
 	}
 	data.LayoutData = layout
-	data.PageTabs = nil // the site page has its own tabs, the area bar above the heading is left out
+	// the classic site page has its own tabs, so its area bar above the heading is left out
+	if web.Theme() == web.ThemeClassic {
+		data.PageTabs = nil
+	}
 	data.App = web.NewAppNames(cmsType, cmsPages[cmsType].name)
 	sort.Sort(sort.Reverse(sort.StringSlice(data.AvailablePHPVersions)))
 	if err := cmsPages[cmsType].page.Render(w, http.StatusOK, data); err != nil {

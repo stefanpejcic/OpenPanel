@@ -192,6 +192,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			}
 			data.MySQLType = webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
 		}
+		data.Switch = cmsSiteSwitch(r, a, userID)
 		_, cmsHTTPS, cmsCert := domains.SiteStatus(ctx, a, domainNameUsed)
 		data.SSLState, data.SSLExpires = sslState(cmsHTTPS, cmsCert), cmsCert.Expires
 		if cp.version != nil {
@@ -367,4 +368,24 @@ func getCurrentEnvVars(userContext, containerName string) string {
 func userDomains(ctx context.Context, a *appctx.App, userID int) []appctx.Domain {
 	d, _ := a.AllDomainsForUser(ctx, userID)
 	return d
+}
+
+// cmsSiteSwitch lists the account's sites that open in a CMS manager, for the header switcher
+func cmsSiteSwitch(r *http.Request, a *appctx.App, userID int) []SiteOption {
+	rows, err := a.DB.QueryContext(r.Context(), "SELECT site_name, type FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id = ?) ORDER BY site_name", userID)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	var out []SiteOption
+	for rows.Next() {
+		var name, typ sql.NullString
+		if rows.Scan(&name, &typ) != nil || name.String == "" {
+			continue
+		}
+		if cp, ok := cmsPages[strings.ToLower(typ.String)]; ok {
+			out = append(out, SiteOption{Name: name.String, App: cp.name})
+		}
+	}
+	return out
 }

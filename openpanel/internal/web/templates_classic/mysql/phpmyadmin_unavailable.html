@@ -1,0 +1,19 @@
+{{define "content"}}
+<!-- START templates/mysql/phpmyadmin_unavailable.html -->
+
+<header class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "phpMyAdmin"}}</h1>
+</header>
+
+<div class="px-4 pb-8 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-center rounded-md border border-gray-200 px-6 py-12 dark:border-gray-800">
+        <div class="text-center">
+            <i class="ri-bar-chart-line text-3xl text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+            <p class="mt-2 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "phpMyAdmin is currently unavailable"}}</p>
+            <p class="mt-1 text-sm text-gray-500">{{if .ErrorMessage}}{{.ErrorMessage}}{{else}}{{.T.Get "Please contact support."}}{{end}}</p>
+            <p class="mt-6 text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Contact administrator"}}</p>
+        </div>
+    </div>
+</div>
+<!-- END templates/mysql/phpmyadmin_unavailable.html -->
+{{end}}

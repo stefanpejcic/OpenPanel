@@ -2,6 +2,7 @@ package ftp
 
 import (
 	"encoding/json"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
@@ -141,6 +142,29 @@ func TestRenderFTPQuotaPage(t *testing.T) {
 }
 
 func TestRenderFTPAccountsPageQuotaColumn(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	data := FTPAccountsPageData{
+		LayoutData: baseLayout(mgr, "/ftp"), FTPHost: "1.2.3.4", FTPPort: "21",
+		Accounts: []Account{
+			{Username: "full@example.com", Path: "/var/www/html/", QuotaMB: 1, UsedKB: 2048, HasUsage: true, OverQuota: true},
+			{Username: "free@example.com", Path: "/var/www/html/"},
+		},
+	}
+	w := httptest.NewRecorder()
+	if err := ftpAccountsPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	for _, want := range []string{"Over quota", "Unlimited", "/ftp/quota/full@example.com", "2.0 MB / 1 MB", "width: 100%", "ftpColumnsVisibility", "uid: false", "gid: false", `x-model="columns.uid"`} {
+		if !strings.Contains(body, want) {
+			t.Errorf("expected %q in accounts page", want)
+		}
+	}
+}
+
+func TestRenderFTPAccountsPageQuotaColumnClassic(t *testing.T) {
+	webtest.Classic(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := FTPAccountsPageData{
 		LayoutData: baseLayout(mgr, "/ftp"), FTPHost: "1.2.3.4", FTPPort: "21",

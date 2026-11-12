@@ -1,0 +1,38 @@
+{{define "layout"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{.Title}}</title>
+    <script>if(localStorage.getItem('color-theme')==='dark'||(!('color-theme' in localStorage)&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}else{document.documentElement.classList.remove('dark');}</script>
+    <link rel="stylesheet" href="{{static "vendor/remixicon/remixicon.css"}}">
+    <link rel="stylesheet" href="{{static "dist/output.css"}}">
+</head>
+
+<body class="bg-white text-gray-900 antialiased dark:bg-gray-950 dark:text-gray-50">
+<main class="phpinfo mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+
+    <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h1>
+
+    <dl class="meta mt-1 flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-500">
+        {{if .Service}}<div class="flex gap-1.5"><dt>{{.T.Get "Service"}}</dt><dd class="font-medium text-gray-900 dark:text-gray-50">{{.Service}}</dd></div>{{end}}
+        {{if .Version}}<div class="flex gap-1.5"><dt>{{.T.Get "Version"}}</dt><dd class="font-medium text-gray-900 tabular-nums dark:text-gray-50">{{.Version}}</dd></div>{{end}}
+    </dl>
+
+    {{if .FileContent}}
+        <h2 class="mt-6 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "PHP configuration"}} <span class="font-mono text-xs font-normal text-gray-500">php -i</span></h2>
+        <div class="container-box mt-3 overflow-x-auto rounded-md border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900">
+            <pre class="mono font-mono text-xs whitespace-pre-wrap text-gray-900 dark:text-gray-50">{{.FileContent}}</pre>
+        </div>
+    {{else}}
+        <div class="error mt-6 flex gap-3 rounded-md bg-red-50 p-4 text-sm text-red-900 dark:bg-red-950/70 dark:text-red-500">
+            <i class="ri-error-warning-line shrink-0 text-xl leading-5" aria-hidden="true"></i>
+            <p>{{.T.Get "No PHP information available."}}</p>
+        </div>
+    {{end}}
+
+</main>
+</body>
+</html>
+{{end}}

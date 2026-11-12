@@ -1,0 +1,319 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/files/ftp_new.html -->
+
+<section aria-label="{{.T.Get "New FTP Account Header"}}">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "New FTP account"}}</h1></div>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Create a new FTP account."}}</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+    </div>
+</div>
+
+
+{{if .Domains}}
+<!-- form -->
+<div class="mx-4 mb-8 grid max-w-5xl grid-cols-1 items-start gap-6 sm:mx-6 lg:mx-8 lg:grid-cols-3" x-data="{ user: {{toJSON .Username}}, domain: '', taken: {{toJSON .Taken}}, full() { return (this.user || {{toJSON (.T.Get "username")}}) + '@' + this.domain }, isTaken() { return !!this.user && (this.taken || []).includes((this.user + '@' + this.domain).toLowerCase()) } }" x-init="domain = $refs.dom.value">
+<div class="rounded-md border border-gray-200 bg-white p-4 lg:col-span-2 dark:border-gray-800 dark:bg-raised CrawlerStatusCard" id="toAddActive">
+    <form method="POST" action="/ftp/new">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6">
+
+
+
+
+  <div class="col-span-full">
+    <label for="new_ftp_username" class="block text-sm font-medium text-gray-900 dark:text-gray-50 mb-2">{{.T.Get "Username"}} <span class="text-red-500 dark:text-red-500">*</span></label>
+    <input type="text" name="username" id="new_ftp_username" value="{{.Username}}" x-model.trim="user" :aria-invalid="isTaken().toString()" aria-describedby="new_ftp_username_taken" autocomplete="off" spellcheck="false" pattern="[A-Za-z0-9]+" title="{{.T.Get "Only letters and numbers are allowed."}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 pe-11" required>
+    <p id="new_ftp_username_taken" class="mt-2 flex items-center gap-1.5 text-sm text-red-600 dark:text-red-500" x-show="isTaken()" x-cloak role="alert"><i class="ri-error-warning-line" aria-hidden="true"></i><span x-text="{{toJSON (.T.Get "FTP account %(ftp_username)s already exists." "ftp_username" "{name}")}}.replace('{name}', user + '@' + domain)"></span></p>
+  </div>
+
+  <div class="col-span-full">
+    <label for="domain" class="block text-sm font-medium text-gray-900 dark:text-gray-50 mb-2">{{.T.Get "Domain"}} <span class="text-red-500 dark:text-red-500">*</span></label>
+    <select name="domain" id="domain" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]" required="" onchange="updateDocroot()" x-ref="dom" @change="domain = $event.target.value">
+        <option value="" disabled></option>
+        {{range .Domains}}
+        <option class="punycode" docroot="{{.Docroot}}" value="{{.DomainURL}}" label="{{.DomainURL}}"{{if eq .DomainURL $.Domain}} selected{{end}}>{{.DomainURL}}</option>
+        {{end}}
+    </select>
+  </div>
+
+
+<div
+  class="col-span-full"
+  x-data="passwordStrength({
+    weak: '{{.T.Get "Weak password"}}',
+    medium: '{{.T.Get "Medium strength password"}}',
+    strong: '{{.T.Get "Strong password"}}',
+    tooWeak: '{{.T.Get "Password does not meet the required strength."}}'
+  }, {{.PasswordStrength}})"
+  x-init="checkStrength()"
+>
+  <label
+    for="password"
+    class="block text-sm font-medium text-gray-900 dark:text-gray-50 mb-2"
+  >
+    {{.T.Get "Password"}} <span class="text-red-500 dark:text-red-500">*</span>
+  </label>
+  <div class="flex">
+    <input
+      type="text"
+      name="password"
+      id="password"
+      maxlength="30"
+      minlength="8"
+      title="{{.T.Get "Password must be at least 8 characters, and include a lowercase letter, an uppercase letter, a number, and a special character."}}"
+      pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}"
+      placeholder="{{.T.Get "New password"}}"
+      class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 rounded-r-none"
+      x-model="password"
+      x-ref="input"
+      @input="checkStrength()"
+    />
+
+    <div class="input-group-append flex">
+      <button
+        class="-ml-px inline-flex items-center border border-gray-300 bg-white px-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 focus:z-10 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400 dark:hover:bg-gray-900/60 dark:hover:text-gray-50"
+        type="button"
+        id="generatePassword" aria-label="{{.T.Get "Generate password"}}" title="{{.T.Get "Generate password"}}">
+        <i class="ri-shuffle-line"></i>
+      </button>
+    </div>
+    <div class="input-group-append flex">
+      <button class="-ml-px inline-flex items-center border border-gray-300 bg-white px-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 focus:z-10 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400 dark:hover:bg-gray-900/60 dark:hover:text-gray-50" type="button" id="togglePassword" aria-label="{{.T.Get "Show password"}}" title="{{.T.Get "Show password"}}">
+        <i class="ri-eye-line"></i>
+      </button>
+    </div>
+    <div class="input-group-append flex">
+        <span class="flex d-none" id="copy-password-link">
+
+        <button type="button" id="copy-password" aria-label="{{.T.Get "Copy"}}" title="{{.T.Get "Copy"}}" class="-ml-px inline-flex items-center border border-gray-300 bg-white px-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 focus:z-10 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400 dark:hover:bg-gray-900/60 dark:hover:text-gray-50 h-full rounded-r-md">
+            <i class="ri-clipboard-line"></i>
+        </button>
+
+        </span>
+    </div>
+  </div>
+
+  <!-- Password strength indicator -->
+  <div class="mt-2 h-1.5 rounded-full bg-gray-200 dark:bg-gray-800 overflow-hidden">
+    <div
+      class="h-full rounded-full transition-all duration-300"
+      :class="{
+        'bg-red-500': strength === 'Weak',
+        'bg-yellow-500': strength === 'Medium',
+        'bg-emerald-500': strength === 'Strong',
+        'w-1/3': strength === 'Weak',
+        'w-2/3': strength === 'Medium',
+        'w-full': strength === 'Strong'
+      }"
+      style="width: 0%"
+      :style="{
+        width:
+          strength === 'Weak'
+            ? '33%'
+            : strength === 'Medium'
+            ? '66%'
+            : strength === 'Strong'
+            ? '100%'
+            : '0%'
+      }"
+    ></div>
+  </div>
+  <p
+    class="mt-1 text-sm font-semibold"
+    :class="{
+      'text-red-600 dark:text-red-500': strength === 'Weak',
+      'text-yellow-600 dark:text-yellow-500': strength === 'Medium',
+      'text-emerald-600 dark:text-emerald-500': strength === 'Strong'
+    }"
+  >
+    <span x-text="strengthMessage" class="text-xs"></span>
+  </p>
+</div>
+
+<script>
+function updateDocroot() {
+    const domainSelect = document.getElementById('domain');
+    const selectedOption = domainSelect.options[domainSelect.selectedIndex];
+    const docroot = selectedOption.getAttribute('docroot');
+    if (docroot && window.folderPicker) folderPicker.open(docroot.replace(/\/?$/, '/'));
+}
+
+// the first domain is preselected without a change event, so sync its docroot once on load unless a rejected submit brought a folder back
+document.addEventListener('DOMContentLoaded', () => {
+    const kept = document.getElementById('new_user_path');
+    if (kept.hasAttribute('data-prefilled')) folderPicker.open(kept.value);
+    else if (document.getElementById('domain').value) updateDocroot();
+    // the picker's value is what gets saved
+    kept.form.addEventListener('submit', () => { kept.value = document.getElementById('directory-select').value; });
+});
+
+</script>
+
+
+
+
+
+
+  <div class="col-span-full">
+    <span class="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Path (folder)"}} <span class="text-red-500 dark:text-red-500">*</span></span>
+    {{template "folder_picker" .}}
+    <input type="hidden" name="path" id="new_user_path" value="/var/www/html/{{.Folder}}" {{if .Folder}} data-prefilled{{end}}>
+  </div>
+
+  <div class="col-span-full">
+    <label for="quota" class="block text-sm font-medium text-gray-900 dark:text-gray-50 mb-2">{{.T.Get "Disk quota"}}</label>
+    <div class="flex">
+      <input type="number" min="0" step="1" name="quota" id="quota" value="" placeholder="{{.T.Get "Unlimited"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 rounded-r-none">
+      <select name="quota_unit" id="quota_unit" aria-label="{{.T.Get "Unit"}}" class="block w-24 appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 -ml-px rounded-l-none hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+        <option value="M">MB</option>
+        <option value="G">GB</option>
+      </select>
+    </div>
+    <p class="mt-2 text-xs text-gray-500">{{.T.Get "Leave empty or set 0 for no limit. Uploads are blocked once the folder grows past the quota, files can still be deleted."}}</p>
+  </div>
+
+
+        </div>
+
+
+<div class="mt-6 flex flex-col-reverse gap-2 border-t border-gray-200 pt-4 sm:flex-row sm:justify-end dark:border-gray-800">
+    <a href="/ftp" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">
+        {{.T.Get "Back to FTP accounts"}}
+    </a>
+    <button type="submit" :disabled="isTaken()" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Create account"}}
+    </button>
+</div>
+
+    </form>
+</div>
+<aside aria-label="{{.T.Get "FTP clients will use"}}" class="rounded-md border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-raised">
+    <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "FTP clients will use"}}</h2>
+    <dl class="mt-3 space-y-3 text-sm">
+        <div>
+            <dt class="text-gray-500">{{.T.Get "Host"}}</dt>
+            <dd class="mt-1 flex items-center justify-between gap-2"><span class="truncate font-mono text-gray-900 dark:text-gray-50">{{.FTPHost}}</span><button type="button" onclick="copyToClipboard({{.FTPHost}}).then(() => showToast({{.T.Get "Copied to clipboard."}}, 'success'))" aria-label="{{.T.Get "Copy host"}}" title="{{.T.Get "Copy host"}}" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50"><i class="ri-clipboard-line" aria-hidden="true"></i></button></dd>
+        </div>
+        <div>
+            <dt class="text-gray-500">{{.T.Get "Port"}}</dt>
+            <dd class="mt-1 flex items-center justify-between gap-2"><span class="font-mono tabular-nums text-gray-900 dark:text-gray-50">{{.FTPPort}}</span><button type="button" onclick="copyToClipboard({{.FTPPort}}).then(() => showToast({{.T.Get "Copied to clipboard."}}, 'success'))" aria-label="{{.T.Get "Copy port"}}" title="{{.T.Get "Copy port"}}" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50"><i class="ri-clipboard-line" aria-hidden="true"></i></button></dd>
+        </div>
+        <div>
+            <dt class="text-gray-500">{{.T.Get "Username"}}</dt>
+            <dd class="mt-1 break-all font-mono text-gray-900 dark:text-gray-50" x-text="full()"></dd>
+        </div>
+    </dl>
+    <p class="mt-4 border-t border-gray-200 pt-3 text-sm text-gray-500 dark:border-gray-800">{{.T.Get "Once it's created, FTP Accounts has ready-made setup files for FileZilla and Cyberduck."}}</p>
+</aside>
+</div>
+<!-- END form -->
+
+
+
+
+    <script>
+// GENERATE PASS FOR NEW USER AND CHANGE PASS FORMS
+function generateRandomStrongPassword(length) {
+    const lowercase = "abcdefghijklmnopqrstuvwxyz";
+    const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const digits = "0123456789";
+    const special = "!@#$%^&*+=?";
+    const allChars = lowercase + uppercase + digits + special;
+
+    let password = "";
+
+    password += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
+    password += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
+    password += digits.charAt(Math.floor(Math.random() * digits.length));
+    password += special.charAt(Math.floor(Math.random() * special.length));
+
+    for (let i = 4; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * allChars.length);
+        password += allChars.charAt(randomIndex);
+    }
+
+    const arr = password.split("");
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.join("");
+
+}
+
+
+
+// NEW USER FORM
+
+function generateInitiallyFTPPassword() {
+    const generatedPassword = generateRandomStrongPassword(16);
+    const passwordField = document.getElementById("password");
+    passwordField.value = generatedPassword;
+    passwordField.dispatchEvent(new Event('input', { bubbles: true }));
+    document.getElementById("copy-password-link").classList.remove("d-none");
+
+}
+
+    // When the page loads, populate random values for the inputs
+document.addEventListener("DOMContentLoaded", function () {
+    generateInitiallyFTPPassword();
+});
+
+document.getElementById("generatePassword").addEventListener("click", function() {
+    const generatedPassword = generateRandomStrongPassword(16);
+    document.getElementById("password").value = generatedPassword;
+
+    const passwordField = document.getElementById("password");
+    passwordField.dispatchEvent(new Event('input', { bubbles: true }));
+    if (passwordField.type === "password") {
+        passwordField.type = "text";
+    }
+    document.getElementById("copy-password-link").classList.remove("d-none");
+});
+
+
+    document.getElementById("togglePassword").addEventListener("click", function() {
+        const passwordField = document.getElementById("password");
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+        } else {
+            passwordField.type = "password";
+        }
+    });
+
+    function copyPasswordToClipboard() {
+            const passwordInput = document.createElement("input");
+            passwordInput.type = "text";
+            passwordInput.value = document.getElementById("password").value;
+            document.body.appendChild(passwordInput);
+            passwordInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(passwordInput);
+
+            const copyLink = document.getElementById("copy-password");
+            copyLink.innerHTML = '<i class="ri-check-line"></i>';
+
+            setTimeout(() => {
+                copyLink.innerHTML = '<i class="ri-clipboard-line"></i>';
+            }, 3000);
+    }
+    document.getElementById("copy-password").addEventListener("click", copyPasswordToClipboard);
+
+</script>
+{{else}}
+<!-- START templates/domains/partials/_no_domain.html -->
+<div class="mt-8 inset-x-0 flex h-64 flex-col items-center justify-center">
+    <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No domains yet"}}</p>
+    <p class="mt-1 text-sm text-gray-500">{{.T.Get "Add your first domain to get started"}}</p>
+    <a href="/domains/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-fit mt-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M11 11V5H13V11H19V13H13V19H11V13H5V11H11Z"></path></svg>{{.T.Get "New domain"}}</a>
+</div>
+<!-- END templates/domains/partials/_no_domain.html -->
+{{end}}
+
+<!-- END templates/files/ftp_new.html -->
+{{end}}

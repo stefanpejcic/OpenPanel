@@ -8,6 +8,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func testLayout(mgr *i18n.Manager) web.LayoutData {
@@ -21,6 +22,7 @@ func testLayout(mgr *i18n.Manager) web.LayoutData {
 }
 
 func TestRenderErrorLogsPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	q := Query{Domain: "a.com", Service: "php-fpm-8.2", Search: "fatal", Exact: true, FromDay: "2026-10-01", ToDay: "2026-10-03", Limit: 1}
 	res := Result{
@@ -36,10 +38,10 @@ func TestRenderErrorLogsPage(t *testing.T) {
 	}
 	body := w.Body.String()
 	for _, want := range []string{
-		"Error logs", `x-data="errorLogs()"`, `value="a.com/blog" class="punycode"`, "&nbsp;&nbsp;↳ a.com/blog", `value="php-fpm-8.2"`, "PHP 8.2",
+		"Error Logs", `x-data="opErrorLogs()"`, `value="a.com/blog" class="punycode"`, "&nbsp;&nbsp;↳ a.com/blog", `value="php-fpm-8.2"`, "PHP 8.2",
 		`window.EL_ROWS = [[1792085165000,"critical","php-fpm-8.2","php","a.com","Fatal error: `,
 		`domain: "a.com", exact: true, service: "php-fpm-8.2"`, `q: "fatal", from: "2026-10-01", to: "2026-10-03"`,
-		"Download .txt", "format: 'json'", "Grouped", `id="bulk-actions-bar"`, `:aria-sort="ariaSort('rank')"`, "sortBy('rank')",
+		"Download .txt", "opBusy.show(", "format: 'json'", "Grouped", `class="op-bulkbar"`, `class="op-th-sort"`, "sortBy('rank')",
 		"Only this website", "Only this service", "Copy line", "Quick date range", "Last 7 days",
 		"newest 1 of 2 entries loaded",
 	} {
@@ -68,13 +70,14 @@ func TestRenderErrorLogsEmpty(t *testing.T) {
 }
 
 func TestRenderErrorLogsForbidden(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := buildPageData(testLayout(mgr), Query{Domain: "x.com"}, Result{}, nil, "You do not own this domain.")
 	w := httptest.NewRecorder()
 	if err := errorLogsPage.Render(w, 403, data); err != nil {
 		t.Fatalf("Render: %v", err)
 	}
-	if body := w.Body.String(); !strings.Contains(body, `role="alert"`) || !strings.Contains(body, "You do not own this domain.") {
+	if body := w.Body.String(); !strings.Contains(body, `class="op-alert is-danger"`) || !strings.Contains(body, "You do not own this domain.") {
 		t.Error("error alert missing")
 	}
 }

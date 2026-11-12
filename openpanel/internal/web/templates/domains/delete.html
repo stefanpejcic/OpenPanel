@@ -1,78 +1,97 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "content"}}
 <!-- START templates/domains/delete.html -->
 
+
 <!-- page header -->
 <section aria-label="{{.T.Get "Delete Domain Header"}}">
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-    <div>
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Delete domain"}} <span class="punycode">{{.DomainURL}}</span></h1>
-        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Deleting the domain name will stop any services associated with this domain from working, however all existing data such as emails and files will remain on disk."}}</p>
+    <div class="op-page-head op-cms-head">
+        <div>
+        <div class="op-wp-title"><h1 class="op-title">{{.T.Get "Delete domain"}} <span class="punycode">{{.DomainURL}}</span></h1></div>
+        <p class="op-meta">{{.T.Get "Deleting the domain name will stop any services associated with this domain from working, however all existing data such as emails and files will remain on disk."}}</p>
+    </div>
+    <div class="op-actions">
     </div>
 </div>
 <!-- END page header -->
 
+
+
 <!-- form -->
-<div class="px-4 pb-6 sm:px-6 lg:px-8">
-<div class="max-w-2xl CrawlerStatusCard" id="toAddActive">
-    <form method="POST">
+<div class="op-card op-block-card CrawlerStatusCard" id="toAddActive">
+    <form class="mt-8" method="POST">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
+    <div class="op-form-grid">
+
             {{if or (gt .SiteCount 0) (gt .SubdomainCount 0)}}
-            <div class="space-y-4">
+
                 {{if gt .SubdomainCount 0}}
-                <div class="flex gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500"><i class="ri-error-warning-line text-lg leading-5 shrink-0" aria-hidden="true"></i>
-                    <p>{{.SubdomainCount}}
+                <div class="op-field-wrap">
+                    <p class="op-muted">{{.SubdomainCount}}
                         {{if gt .SubdomainCount 1}} {{.T.Get "subdomains"}}{{else}}{{.T.Get "subdomain"}}{{end}} {{.T.Get "associated with this domain."}} {{.T.Get "Please remove the subdomains first in order to delete the domain name."}}</p>
                 </div>
                 {{end}}
 
                 {{if gt .SiteCount 0}}
-                <div class="flex gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500"><i class="ri-error-warning-line text-lg leading-5 shrink-0" aria-hidden="true"></i>
-                    <div>
-                    <p>{{.SiteCount}}
+                <div class="op-field-wrap">
+                    <p class="op-muted">{{.SiteCount}}
                         {{if gt .SiteCount 1}} {{.T.Get "websites"}}{{else}}{{.T.Get "website"}}{{end}} {{.T.Get "associated with this domain."}} {{.T.Get "Please remove the websites first in order to delete the domain name."}}</p>
-                    <p class="mt-3 font-semibold">{{.T.Get "Websites that use this domain:"}}</p>
-                    <ul class="mt-1 list-disc pl-5">
+                    <p class="my-4 op-muted">{{.T.Get "Websites that use this domain:"}}</p>
                             {{range .Sites}}
-                        <li><a href="/website?domain={{.SiteName}}" class="underline underline-offset-4">{{.SiteName}}</a></li>
+                                <ul>
+                                    <li><a href="/website?domain={{.SiteName}}" class="">{{.SiteName}}</a></li>
+                                </ul>
                             {{end}}
-                    </ul>
-                    </div>
                 </div>
                 {{end}}
-            </div>
 
             {{else}}
 
             <input type="hidden" name="domain_url" value="{{.DomainURL}}">
 
-            <ul class="divide-y divide-gray-200 rounded-md border border-gray-200 text-sm dark:divide-gray-800 dark:border-gray-800">
-                <li class="flex items-start gap-3 px-4 py-3 text-gray-900 dark:text-gray-50"><i class="ri-check-line text-base leading-5 text-emerald-600 dark:text-emerald-500" aria-hidden="true"></i><span>{{.T.Get "Folder"}} <code class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">{{.Docroot}}</code> {{.T.Get "and all associated data will be kept."}}</span></li>
+            <div class="op-field-wrap">
+
+                <p class="text op-muted">
+                <ul class="list-disc pl-6 space-y-2 my-4 text-left">
+                <li><span class="is-success">{{.T.Get "Folder"}} {{.Docroot}} {{.T.Get "and all associated data will be kept."}}</span></li>
                     {{if .UserAllowed.ftp}}
-                <li class="flex items-start gap-3 px-4 py-3 text-gray-900 dark:text-gray-50"><i class="ri-check-line text-base leading-5 text-emerald-600 dark:text-emerald-500" aria-hidden="true"></i><span>{{.T.Get "FTP accounts that have a path under this domain document root will remain."}}</span></li>
+                <li><span class="is-success">{{.T.Get "FTP accounts that have a path under this domain document root will remain."}}</span></li>
                     {{end}}
-                <li class="flex items-start gap-3 px-4 py-3 text-gray-900 dark:text-gray-50"><i class="ri-close-line text-base leading-5 text-red-600 dark:text-red-500" aria-hidden="true"></i><span>{{.T.Get "Websites that use this domain name will immediately stop working."}}</span></li>
+                <li><span class="is-danger">{{.T.Get "Websites that use this domain name will immediately stop working."}}</span></li>
                 {{if .UserAllowed.emails}}
-                <li class="flex items-start gap-3 px-4 py-3 text-gray-900 dark:text-gray-50"><i class="ri-close-line text-base leading-5 text-red-600 dark:text-red-500" aria-hidden="true"></i><span>{{.T.Get "All"}} @<span class="punycode">{{.DomainURL}}</span> {{.T.Get "email accounts will be deleted, but the messages remain on disk."}}</span></li>
+                    <li><span class="is-danger">{{.T.Get "All"}} @<span class="punycode">{{.DomainURL}}</span> {{.T.Get "email accounts will be deleted, but the messages remain on disk."}}</span></li>
                 {{end}}
-                <li class="flex items-start gap-3 px-4 py-3 text-gray-900 dark:text-gray-50"><i class="ri-close-line text-base leading-5 text-red-600 dark:text-red-500" aria-hidden="true"></i><span>{{.T.Get "DNS zone with all its records will be permanently deleted."}}</span></li>
-                <li class="flex items-start gap-3 px-4 py-3 text-gray-900 dark:text-gray-50"><i class="ri-close-line text-base leading-5 text-red-600 dark:text-red-500" aria-hidden="true"></i><span>{{.T.Get "SSL certificate for the domain will immediately be revoked."}}</span></li>
-            </ul>
+                <li><span class="is-danger">{{.T.Get "DNS zone with all its records will be permanently deleted."}}</span></li>
+                <li><span class="is-danger">{{.T.Get "SSL certificate for the domain will immediately be revoked."}}</span></li>
+                </ul>
+                </p>
+
+            </div>
 
             {{end}}
-
-        <div class="mt-6 flex flex-col-reverse gap-2 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end dark:border-gray-800">
-            <a href="/domains" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Back to domains"}}</a>
-{{if not (or (gt .SiteCount 0) (gt .SubdomainCount 0))}}
-            <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600"><i class="ri-delete-bin-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "Delete domain"}}</button>
-{{end}}
         </div>
+
+
+<div class="op-sep"><div class="op-divider"></div></div>
+
+<div class="op-actions op-actions-end">
+    <a href="/domains" class="op-btn op-btn-secondary">
+        {{.T.Get "Back to Domains"}}
+    </a>
+
+{{if not (or (gt .SiteCount 0) (gt .SubdomainCount 0))}}
+    <button type="submit" class="op-btn op-btn-primary">{{.T.Get "Delete Domain"}} <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path></svg>
+    </button>
+{{end}}
+
+
+</div>
 
     </form>
 </div>
-</div>
 <!-- END form -->
-</section>
 
 <!-- END templates/domains/delete.html -->
 {{end}}

@@ -59,16 +59,16 @@ type AccountsPageData struct {
 	AliasCount     int
 	AliasInboxes   int
 	Full           bool
-	Created        CreatedMailbox
+	Connect        AccountsConnect
+	Created        CreatedMailbox // classic's connect block, Modern uses Connect
 }
 
-// CreatedMailbox fills the "Connect a mail app" section above the table, a blank Address hides it
-type CreatedMailbox struct {
-	Address string
+// AccountsConnect drives the "Connect a mail app" card, Created is the mailbox the create form just made
+type AccountsConnect struct {
+	Created string
 	Welcome bool
-	// Info is the account's Connect devices page, same block without the "ready" wording or a close button
-	Info bool
-	Conn MailConnection
+	Host    string
+	Secure  bool
 }
 
 // fillAccountsSummary works out the numbers for the stat tiles above the table
@@ -135,6 +135,15 @@ func oneDecimal(v float64) string {
 	return strings.TrimSuffix(strconv.FormatFloat(v, 'f', 1, 64), ".0")
 }
 
+// CreatedMailbox fills the connect section above the table, a blank Address hides it
+type CreatedMailbox struct {
+	Address string
+	Welcome bool
+	// Info is the account's Connect devices page, same block without the "ready" wording or a close button
+	Info bool
+	Conn MailConnection
+}
+
 // emailQuotaToast mirrors accounts.html's ns.quota_issues + quota_toast_issues 1/2/multiple pluralization branch (percent_val > 80)
 func emailQuotaToast(rows []EmailListRow) (id, message string) {
 	type issue struct {
@@ -169,7 +178,7 @@ func emailQuotaToast(rows []EmailListRow) (id, message string) {
 	}
 }
 
-func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, currentEmailsList []string, domains []appctx.Domain, maxEmailQuota string, emailLimit int, aliases func() []AliasEntry, created CreatedMailbox) {
+func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, currentEmailsList []string, domains []appctx.Domain, emailLimit int, maxEmailQuota string, aliases func() []AliasEntry, connect AccountsConnect, created CreatedMailbox) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Emails")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -181,13 +190,13 @@ func renderAccountsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, c
 	}
 	annotateEmailRows(rows)
 	for i := range rows {
-		if created.Address != "" && strings.EqualFold(rows[i].Address, created.Address) {
-			rows[i].IsNew, created.Address = true, rows[i].Address
+		if connect.Created != "" && strings.EqualFold(rows[i].Address, connect.Created) {
+			rows[i].IsNew, connect.Created = true, rows[i].Address
 		}
 	}
 	toastID, toastMsg := emailQuotaToast(rows)
 	layout.BulkActions = accountsBulkActions(layout.T, maxEmailQuota)
-	data := AccountsPageData{LayoutData: layout, Rows: rows, TotalCount: len(currentEmailsList), QuotaToastID: toastID, QuotaToastMsg: toastMsg, Created: created}
+	data := AccountsPageData{LayoutData: layout, Rows: rows, TotalCount: len(currentEmailsList), QuotaToastID: toastID, QuotaToastMsg: toastMsg, Connect: connect, Created: created}
 	var aliasList []AliasEntry
 	if layout.UserAllowed["email_aliases"] {
 		aliasList = aliases()

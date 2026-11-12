@@ -1,0 +1,85 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/emails/aliases.html -->
+
+<section aria-label="{{.T.Get "Aliases Header"}}" x-data="{ searchQuery: '' }">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
+        <div>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Aliases"}}</h1>
+            <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Total aliases:"}} <span class="tabular-nums font-medium text-gray-900 dark:text-gray-50">{{len .AliasList}}</span></p>
+        </div>
+        <div>
+            <a href="/emails/aliases/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
+                <i class="ri-add-line text-base leading-none" aria-hidden="true"></i>
+                {{.T.Get "New alias"}}
+            </a>
+        </div>
+    </div>
+    <div class="flex flex-wrap items-center gap-2 px-4 pb-4 sm:px-6 lg:px-8">
+        <div class="relative w-full sm:w-64">
+            <label for="aliases-search-input" class="sr-only">{{.T.Get "Search"}}</label>
+            <input id="aliases-search-input" x-model="searchQuery" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30" placeholder="{{.T.Get "Search"}}" type="search"/>
+            <div class="pointer-events-none absolute inset-y-0 left-2 flex items-center text-gray-400 dark:text-gray-600">
+                <i class="ri-search-line text-base" aria-hidden="true"></i>
+            </div>
+        </div>
+    </div>
+
+{{template "bulk_open" (dict "T" .T "Table" "#aliases-table" "Endpoint" "/emails/aliases/bulk")}}
+    <div class="relative overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+        <table id="aliases-table" class="w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+            <thead>
+                <tr>
+{{template "bulk_head_checkbox" .}}
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "From (alias)"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Delivers to"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50"><span class="sr-only">{{.T.Get "Options"}}</span></th>
+                </tr>
+            </thead>
+            <tbody>
+
+            {{if not .AliasList}}
+                <tr>
+                    <td colspan="4" class="py-10 text-center text-sm text-gray-500">
+                        <p>{{.T.Get "No aliases yet."}}</p>
+                        <a href="/emails/aliases/new" class="mt-3 relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Add your first alias"}}</a>
+                    </td>
+                </tr>
+            {{else}}
+                {{range .AliasList}}
+                {{$entry := .}}
+                <tr x-show="searchQuery === '' || {{toJSON $entry.Source}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON (join $entry.Targets ",")}}.toLowerCase().includes(searchQuery.toLowerCase())"
+                    class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
+{{template "bulk_row_checkbox" (dict "T" $.T "Key" $entry.Source "Label" $entry.Source)}}
+
+                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap dark:border-gray-800">
+                        <a href="/emails/aliases/{{$entry.Source}}" class="punycode font-medium text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50">{{$entry.Source}}</a>
+                    </td>
+
+                    <td class="border-b border-gray-200 px-4 py-2.5 text-gray-600 dark:border-gray-800 dark:text-gray-400">
+                        <div class="flex flex-wrap gap-1">
+                            {{range $entry.Targets}}
+                            <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{.}}</span>
+                            {{end}}
+                        </div>
+                    </td>
+
+                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-right dark:border-gray-800">
+                        <a href="/emails/aliases/{{$entry.Source}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
+                            <i class="ri-settings-3-line text-gray-500" aria-hidden="true"></i> {{$.T.Get "Manage"}}
+                        </a>
+                    </td>
+                </tr>
+                {{end}}
+            {{end}}
+
+            </tbody>
+        </table>
+    </div>
+{{template "bulk_bar" .}}
+</div>
+</section>
+
+<!-- END templates/emails/aliases.html -->
+{{end}}

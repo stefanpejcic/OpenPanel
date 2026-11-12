@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Install wizard - OpenPanel Modern</title>
+<script>(function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('color-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark');})();</script>
+<link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="dist/app.css">
+<style>[x-cloak]{display:none!important}
+/* copied from src/panel.css, area: install-wizards port */  .op-affix { display: flex; align-items: stretch; min-width: 0; }
+  .op-affix > .op-input, .op-affix > .op-select { flex: 1; min-width: 0; }
+  .op-affix > *, .op-affix > .op-affix-end > .op-btn { border-radius: 0; }
+  .op-affix > :first-child, .op-affix > :first-child > .op-btn { border-top-left-radius: var(--radius-sm); border-bottom-left-radius: var(--radius-sm); }
+  .op-affix > :last-child, .op-affix > :last-child > .op-btn { border-top-right-radius: var(--radius-sm); border-bottom-right-radius: var(--radius-sm); }
+  .op-affix-addon { display: inline-flex; align-items: center; padding: 0 10px; background: var(--color-raised); color: var(--color-body); font: 400 13px/20px var(--font-mono); white-space: nowrap; user-select: none; }
+  .op-affix > .op-input.op-wp-subdir { flex: 0 0 110px; width: 110px; }
+
+@layer components {
+  .op-iw-page { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+  .op-iw-title { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .op-iw-title .op-eyebrow a { color: var(--color-accent-text); text-decoration: none; }
+  .op-iw-logo { --hue: transparent; width: 48px; height: 48px; padding: 7px; background: #fff; box-shadow: inset 0 0 0 1px var(--color-raised); }
+  .op-iw-logo img { width: 100%; height: 100%; object-fit: contain; }
+  .op-iw-logo.is-sm { width: 32px; height: 32px; padding: 4px; border-radius: 8px; }
+  .op-iw { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) 280px; align-items: start; }
+  .op-iw-card { min-width: 0; }
+  .op-iw-stepper li { cursor: pointer; }
+  .op-iw-stepper li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .op-iw-panel { display: flex; flex-direction: column; gap: 18px; margin-top: 24px; }
+  .op-iw-panel-head h2 { margin: 0; font-size: 16px; line-height: 24px; color: var(--color-heading); }
+  .op-iw-panel-head .op-meta { margin: 4px 0 0; }
+  .op-iw-where, .op-iw-grid { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .op-iw-grid:empty { display: none; }
+  .op-iw-span { grid-column: 1 / -1; }
+  .op-iw-cell { min-width: 0; }
+  .op-iw-opt { font-weight: 400; color: var(--color-muted); }
+  .op-iw-err { color: var(--color-danger); }
+  .op-iw-cell .op-hint.is-success { color: var(--color-success); }
+  .op-iw-cell .op-hint.is-warning { color: var(--color-warning); }
+  .op-iw-cell .op-hint.is-danger { color: var(--color-danger); }
+  [aria-invalid="true"].op-input, [aria-invalid="true"].op-select, .op-affix:has([aria-invalid="true"]) { box-shadow: inset 0 0 0 1px var(--color-danger); }
+  .op-iw-path { display: grid; gap: 6px; padding: 12px 14px; border-radius: var(--radius-md); background: var(--color-inset); font-size: 13px; }
+  .op-iw-path > div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 12px; align-items: baseline; }
+  .op-iw-path .op-mono { min-width: 0; overflow-wrap: anywhere; color: var(--color-heading); }
+  .op-iw-path b.op-mono { font-weight: 600; }
+  .op-iw-pass { display: flex; gap: 8px; min-width: 0; }
+  .op-iw-pass .op-input { flex: 1; min-width: 0; }
+  .op-iw-pass .op-btn { flex: none; }
+  .op-iw-icon { width: 36px; padding: 0; justify-content: center; }
+  .op-iw-pass .op-btn svg { width: 16px; height: 16px; }
+  .op-iw-meter { height: 4px; border-radius: 9999px; background: var(--color-raised); overflow: hidden; }
+  .op-iw-meter span { display: block; height: 100%; border-radius: inherit; transition: width .2s; }
+  .op-iw-check { grid-template-columns: auto minmax(0, 1fr); cursor: pointer; }
+  .op-iw-check .op-check { margin-top: 2px; }
+  .op-iw-check.is-off { opacity: .55; cursor: default; }
+  .op-iw-presets { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+  .op-iw-presets .op-segmented { background: var(--color-inset); }
+  .op-iw-presets .op-segmented button.is-on { background: var(--color-raised); color: var(--color-heading); }
+  .op-iw-more { align-self: flex-start; }
+  .op-iw-more svg { width: 14px; height: 14px; transition: transform .15s; }
+  .op-iw-more[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .op-iw-kvs { display: flex; flex-direction: column; margin: 0; }
+  .op-iw-kv { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 4px 16px; align-items: baseline; padding: 9px 0; box-shadow: inset 0 -1px 0 var(--color-raised); font-size: 13px; line-height: 20px; }
+  .op-iw-kv:last-child { box-shadow: none; }
+  .op-iw-kv dt { color: var(--color-muted); }
+  .op-iw-kv dd { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; min-width: 0; margin: 0; color: var(--color-heading); }
+  .op-iw-kv dd > span, .op-iw-kv dd > a { min-width: 0; overflow-wrap: anywhere; }
+  .op-iw-kv dd > a { color: var(--color-accent-text); text-decoration: none; }
+  .op-iw-kv dd > a:hover { text-decoration: underline; }
+  .op-iw-link { padding: 0; border: 0; background: none; color: var(--color-accent-text); font: 500 12px/20px var(--font-sans); cursor: pointer; }
+  .op-iw-link:hover { text-decoration: underline; }
+  .op-iw-review { display: flex; flex-direction: column; gap: 18px; }
+  .op-iw-what ol { columns: 2 240px; column-gap: 32px; margin: 8px 0 0; padding-left: 20px; font-size: 13px; line-height: 20px; color: var(--color-muted); }
+  .op-iw-what li { break-inside: avoid; padding: 2px 0; }
+  .op-iw-foot { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+  .op-iw-left { margin-right: auto; }
+  .op-iw-foot-row { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; width: 100%; }
+  .op-iw-foot-row > :first-child { margin-right: auto; }
+  .op-iw-foot .op-btn svg { width: 16px; height: 16px; }
+  .op-iw-aside { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 14px; }
+  .op-iw-aside-head { display: flex; align-items: center; gap: 10px; color: var(--color-heading); font-size: 15px; }
+  .op-iw-sum { display: flex; flex-direction: column; gap: 10px; margin: 0; }
+  .op-iw-sum dt { font-size: 12px; line-height: 16px; color: var(--color-muted); }
+  .op-iw-sum dd { margin: 2px 0 0; font: 400 13px/18px var(--font-mono); color: var(--color-heading); overflow-wrap: anywhere; }
+  .op-iw-aside > .op-hint { margin: 0; }
+  .op-iw-run { display: flex; flex-direction: column; gap: 16px; }
+  .op-iw-run-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 8px 16px; }
+  .op-iw-run-head h2 { margin: 0; font-size: 15px; line-height: 24px; font-weight: 600; color: var(--color-heading); overflow-wrap: anywhere; }
+  .op-iw-run-head .op-meta { margin: 2px 0 0; overflow-wrap: anywhere; }
+  .op-iw-run-meta { display: flex; align-items: center; gap: 10px; }
+  .op-iw-bar { height: 6px; border-radius: 9999px; background: var(--color-raised); overflow: hidden; }
+  .op-iw-bar span { display: block; height: 100%; border-radius: inherit; background: var(--color-accent); transition: width .3s; }
+  .op-iw-bar.is-failed span { background: var(--color-danger); }
+  .op-iw-note { margin: 0; }
+  .op-iw-steps { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .op-iw-steps li { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 9px 12px; border-radius: var(--radius-sm); background: var(--color-inset); font-size: 13px; line-height: 18px; color: var(--color-faint, var(--color-muted)); }
+  .op-iw-steps li.is-done { color: var(--color-body); }
+  .op-iw-steps li.is-active { background: var(--color-accent-soft); color: var(--color-heading); font-weight: 500; }
+  .op-iw-steps li.is-error { background: color-mix(in srgb, var(--color-danger) 12%, transparent); color: var(--color-danger); font-weight: 500; }
+  .op-iw-ico { display: inline-flex; flex: none; width: 18px; height: 18px; align-items: center; justify-content: center; }
+  .op-iw-ico svg { width: 18px; height: 18px; }
+  .op-iw-steps li.is-done .op-iw-ico { color: var(--color-success); }
+  .op-iw-steps li.is-active .op-iw-ico { color: var(--color-accent-text); }
+  .op-iw-dot::before { content: ""; width: 8px; height: 8px; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--color-raised); }
+  .op-iw-spin svg { animation: op-iw-spin 1s linear infinite; }
+  @keyframes op-iw-spin { to { transform: rotate(360deg); } }
+  .op-iw-loghead { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+  .op-iw-loghead .op-btn svg { width: 14px; height: 14px; }
+  .op-iw-logtoggle { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; }
+  .op-iw-logtoggle svg { width: 14px; height: 14px; transition: transform .15s; }
+  .op-iw-logtoggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .op-iw-log { min-height: 64px; max-height: 260px; margin: 0; padding: 12px 14px; overflow: auto; border-radius: var(--radius-sm); background: var(--color-inset); color: var(--color-heading); font-size: 12px; line-height: 19px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .op-iw-done { display: flex; flex-direction: column; gap: 12px; }
+  .op-iw-hero { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: var(--radius-md); background: color-mix(in srgb, var(--color-success) 10%, transparent); }
+  .op-iw-hero b { display: block; color: var(--color-heading); font-size: 14px; line-height: 20px; overflow-wrap: anywhere; }
+  .op-iw-hero .op-hint { margin: 2px 0 0; }
+  .op-iw-hero-ico { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--color-success); color: #fff; }
+  .op-iw-hero-ico svg { width: 20px; height: 20px; }
+  @media (width < 64rem) {
+    .op-iw { grid-template-columns: minmax(0, 1fr); }
+    .op-iw-aside { position: static; }
+  }
+  @media (width < 40rem) {
+    .op-iw-where, .op-iw-grid, .op-iw-steps { grid-template-columns: minmax(0, 1fr); }
+    .op-iw-kv, .op-iw-path > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+    .op-iw-stepper li { min-width: 0; }
+    .op-iw-stepper li[aria-current="step"] { flex-grow: 3; }
+    .op-iw-stepper li:not([aria-current="step"]) span { display: none; }
+    .op-iw-pass { flex-wrap: wrap; }
+    .op-iw-pass .op-input { flex-basis: 100%; }
+  }
+}
+</style>
+<script src="shell.js"></script>
+<script src="install-wizard.js"></script>
+<script src="install-apps.js"></script>
+<script defer src="vendor/alpine.min.js"></script>
+</head>
+<body>
+<div class="op-app" x-data="{ nav: false }" :data-nav-open="nav || null" @keydown.escape.window="nav = false">
+  <aside class="op-sidebar" aria-label="Sidebar" x-data="{ navq: '', userMenu: false, menuStyle: 'classic' }" x-effect="opFilterNav($el, navq)" @keydown.window="if ($event.key === '/' && !$event.ctrlKey && !$event.target.closest('input, textarea, select')) { $event.preventDefault(); nav = true; $refs.navq.focus() }" @focus-nav-search.window="nav = true; $nextTick(() => $refs.navq.focus())">
+    <a class="op-brand" href="index.html"><svg viewBox="0 0 213 215" aria-hidden="true"><g transform="translate(0,215) scale(0.1,-0.1)" fill="currentColor"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"/></g></svg> OpenPanel</a>
+    <label class="op-sidesearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg><input type="search" x-ref="navq" x-model="navq" placeholder="Search menu" aria-label="Search the menu" autocomplete="off" @keydown.escape="navq = ''; $el.blur()" @keydown.enter.prevent="opFirstNavHit($el.closest('aside'))"><kbd x-show="!navq">/</kbd></label>
+    <div class="op-sidebar-scroll">
+    <nav class="op-nav" aria-label="Main"><a class="op-nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1"/><path d="M5 16h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1"/><path d="M15 12h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1"/><path d="M15 4h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1"/></svg> Dashboard</a><a class="op-nav-item" href="websites.html" aria-current="page"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 6h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"></path><path d="M17 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path></svg> Websites</a><a class="op-nav-item" href="domains.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19.5 7a9 9 0 0 0 -7.5 -4a8.991 8.991 0 0 0 -7.484 4"></path><path d="M11.5 3a16.989 16.989 0 0 0 -1.826 4"></path><path d="M12.5 3a16.989 16.989 0 0 1 1.828 4"></path><path d="M19.5 17a9 9 0 0 1 -7.5 4a8.991 8.991 0 0 1 -7.484 -4"></path><path d="M11.5 21a16.989 16.989 0 0 1 -1.826 -4"></path><path d="M12.5 21a16.989 16.989 0 0 0 1.828 -4"></path><path d="M2 10l1 4l1.5 -4l1.5 4l1 -4"></path><path d="M17 10l1 4l1.5 -4l1.5 4l1 -4"></path><path d="M9.5 10l1 4l1.5 -4l1.5 4l1 -4"></path></svg> Domains</a><a class="op-nav-item" href="email.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"></path><path d="M3 7l9 6l9 -6"></path></svg> Email</a><a class="op-nav-item" href="files.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"/></svg> Files</a><a class="op-nav-item" href="backups.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/><path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10"/><path d="M10 12l4 0"/></svg> Backups</a></nav>
+    <nav class="op-nav" aria-label="Databases"><div class="op-nav-label">Databases</div><a class="op-nav-item" href="mysql.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"/><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"/><path d="M7 8l0 .01"/><path d="M7 16l0 .01"/><path d="M11 8h6"/><path d="M11 16h6"/></svg> MySQL</a><a class="op-nav-item" href="postgresql.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6a8 3 0 1 0 16 0a8 3 0 1 0 -16 0"/><path d="M4 6v6a8 3 0 0 0 16 0v-6"/><path d="M4 12v6a8 3 0 0 0 16 0v-6"/></svg> PostgreSQL</a></nav>
+    <nav class="op-nav" aria-label="Configure"><div class="op-nav-label">Configure</div><a class="op-nav-item" href="php.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M2 12a10 9 0 1 0 20 0a10 9 0 1 0 -20 0"></path><path d="M5.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M15.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M12 7.5l-1 5.5"></path><path d="M11.6 10h2.4l-.5 3"></path></svg> PHP</a><a class="op-nav-item" href="cron.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 7v5l3 3"/></svg> Cron Jobs</a><a class="op-nav-item" href="cache.html"><svg aria-hidden="true" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="currentColor" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5.636 19.364a9 9 0 1 1 12.728 0" /><path d="M16 9l-4 4" /></svg> Cache & Search</a><a class="op-nav-item" href="webserver.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 6l8 0"/><path d="M16 6l4 0"/><path d="M8 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 12l2 0"/><path d="M10 12l10 0"/><path d="M17 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 18l11 0"/><path d="M19 18l1 0"/></svg> Web Server Config</a><a class="op-nav-item" href="containers.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5"/><path d="M12 12l8 -4.5"/><path d="M12 12l0 9"/><path d="M12 12l-8 -4.5"/></svg> Containers</a></nav>
+    <nav class="op-nav" aria-label="Monitor"><div class="op-nav-label">Monitor</div><a class="op-nav-item" href="statistics.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 20h14"/></svg> Statistics</a><a class="op-nav-item" href="services.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l3 3l-3 3"/><path d="M13 15l3 0"/><path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/></svg> Processes & Services</a></nav>
+    <nav class="op-nav" aria-label="Account"><div class="op-nav-label">Account</div><a class="op-nav-item" href="account.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 10a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855"/></svg> Account</a><a class="op-nav-item" href="security.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/></svg> Security</a><a class="op-nav-item" href="server-info.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></svg> Server Info</a><a class="op-nav-item" href="components.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M14 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M14 7l6 0"/><path d="M17 4l0 6"/></svg> Components</a></nav>
+    <p class="op-nav-empty" hidden>No matching pages</p>
+    </div>
+    <div class="op-user-wrap" @click.outside="userMenu = false" @keydown.escape="userMenu = false">
+      <div class="op-menu op-user-menu" role="menu" x-show="userMenu" x-cloak x-transition.opacity>
+        <div class="op-menu-note">OpenPanel 1.6.4</div>
+        <hr>
+        <div class="op-menu-row" role="group"><span>Theme</span><button type="button" class="op-icon-btn" aria-label="Switch theme" @click="let d=document.documentElement.classList.toggle('dark');localStorage.setItem('color-theme', d ? 'dark' : 'light')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg></button></div>
+        <div class="op-menu-row" role="group"><span>Menu style</span><span class="op-seg"><button type="button" title="Classic" @click="menuStyle = 'classic'" :aria-pressed="(menuStyle === 'classic').toString()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 5h8"/><path d="M13 9h5"/><path d="M13 15h8"/><path d="M13 19h5"/><path d="M3 4h6v6h-6z"/><path d="M3 14h6v6h-6z"/></svg></button><button type="button" title="Modern" @click="menuStyle = 'modern'" :aria-pressed="(menuStyle === 'modern').toString()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"/><path d="M9 4v16"/></svg></button></span></div>
+        <hr>
+        <a role="menuitem" href="https://openpanel.com/docs/changelog/" target="_blank" rel="noopener">Changelog<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <a role="menuitem" href="https://openpanel.com/docs/panel/intro/" target="_blank" rel="noopener">Documentation<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <a role="menuitem" href="https://community.openpanel.org/" target="_blank" rel="noopener">Community Forums<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <hr>
+        <button type="button" role="menuitem" @click="userMenu = false">Take the tour</button>
+        <a role="menuitem" href="index.html">Sign out</a>
+      </div>
+      <button type="button" class="op-user" @click="userMenu = !userMenu" aria-haspopup="menu" :aria-expanded="userMenu.toString()"><span class="op-avatar">T</span><span class="op-user-text"><b>testinguser</b><span>Developer plus</span></span><svg class="op-user-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></button>
+    </div>
+  </aside>
+  <div class="op-scrim" x-show="nav" x-cloak @click="nav = false"></div>
+  <div class="op-main">
+    <header class="op-topbar">
+      <button class="op-icon-btn op-menu-btn" type="button" aria-label="Open menu" @click="nav = true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6l16 0"/><path d="M4 12l16 0"/><path d="M4 18l16 0"/></svg></button>
+      <div class="op-crumb"><span>Websites</span> <span style="color:var(--color-faint)">/</span> <a href="install.html" style="color:inherit;text-decoration:none">Install App</a> <span style="color:var(--color-faint)">/</span> <b>Install</b></div>
+      <span class="op-stat"><i>LOAD</i>1.14</span><span class="op-stat"><i>RAM</i>68.8%</span><span class="op-stat"><i>CPU</i>6.9%</span><span class="op-stat"><i>DISK</i>54.7%</span>
+      <button class="op-ai" type="button" aria-label="AI assistant">AI</button>
+      <div class="op-toolsearch" x-data="opToolSearch()" @keydown.window.ctrl.k.prevent="show()" @keydown.window.meta.k.prevent="show()" @click.outside="hide()" @keydown.escape="hide()"><button class="op-icon-btn" type="button" aria-label="Search tools" title="Search tools (Ctrl K)" x-show="!open" @click="show()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg></button><div class="op-toolsearch-box" x-show="open" x-cloak><label class="op-sidesearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg><input type="search" x-ref="q" x-model="q" placeholder="Search tools" aria-label="Search tools" autocomplete="off" @input="active = 0" @keydown.down.prevent="move(1)" @keydown.up.prevent="move(-1)" @keydown.enter.prevent="go()"><kbd>Esc</kbd></label><div class="op-menu op-toolsearch-list" x-show="q" role="listbox"><template x-for="(t, i) in results" :key="t[0]"><a :href="t[1]" role="option" :aria-selected="(i === active).toString()" @mouseenter="active = i"><span x-text="t[0]"></span><small x-text="t[2]"></small></a></template><p class="op-nav-empty" x-show="!results.length">No tools match</p></div></div></div>
+      <button class="op-icon-btn" type="button" aria-label="Switch theme" x-data @click="let d=document.documentElement.classList.toggle('dark');localStorage.setItem('color-theme', d ? 'dark' : 'light')"><span class="dark:hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg></span><span class="hidden dark:inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg></span></button>
+    </header>
+    <nav class="op-tabs" aria-label="Websites"><a href="websites.html">Sites</a><a href="websites-wordpress.html">WordPress</a><a href="install.html" aria-current="page">Install App</a><a href="websites-git.html">Git</a></nav>
+    <main class="op-content">
+      <script>window.opIWConfig = window.opIWProtoConfig();</script>
+      <div class="op-col" style="gap:22px">
+      <div class="op-col" style="gap:22px" x-data="{ has: window.opIWConfig.domains.length > 0 }">
+      <section class="op-card" x-show="!has" x-cloak><div class="op-empty"><b>No domains yet</b><span class="op-hint">Add your first domain to get started.</span><a class="op-btn op-btn-primary" href="domain-new.html">New domain</a></div></section>
+      <template x-if="has"><div><div class="op-iw-page" x-data="opInstallWizard(window.opIWConfig)">
+  <div class="op-page-head op-iw-head">
+    <div class="op-iw-title">
+      <span class="op-app-logo op-iw-logo"><img :src="cfg.logo" alt="" width="32" height="32"></span>
+      <div style="min-width:0">
+        <div class="op-eyebrow"><a href="install.html">Install App</a></div>
+        <h1 class="op-title" x-text="phase === 'form' ? cfg.title : phase === 'done' ? fmt(t.installed, cfg.name) : phase === 'failed' ? t.failed : fmt(t.installing, cfg.name)"></h1>
+        <p class="op-meta" x-text="cfg.desc"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="op-iw" x-show="phase === 'form'">
+    <form class="op-card op-iw-card" x-ref="form" @submit.prevent="submit()" novalidate autocomplete="off">
+      <input type="hidden" name="csrf_token" value="preview">
+      <ol class="op-stepper op-iw-stepper">
+        <template x-for="(s, i) in steps" :key="s.id"><li :class="i < step && 'is-done'" :aria-current="step === i ? 'step' : null" @click="go(i)"><b x-text="fmt(t.stepN, i + 1)"></b><span x-text="s.label"></span></li></template>
+      </ol>
+
+      <template x-for="(s, si) in steps" :key="s.id">
+        <section class="op-iw-panel" x-show="step === si">
+          <div class="op-iw-panel-head"><h2 x-text="s.title || s.label"></h2><p class="op-meta" x-show="s.desc" x-text="s.desc"></p></div>
+
+          <div class="op-iw-where" x-show="s.id === 'where'">
+            <div class="op-field">
+              <label class="op-label" for="iw_domain_id">Domain</label>
+              <select class="op-select" id="iw_domain_id" name="domain_id" @change="pickDomain($event.target.value)" :aria-invalid="!!errs.domain_id">
+                <option value="" :selected="!domainId" disabled x-text="t.selectDomain"></option>
+                <template x-for="d in domains" :key="d.DomainID"><option :value="d.DomainID" :selected="String(d.DomainID) === String(domainId)" x-text="d.DomainURL"></option></template>
+              </select>
+              <span class="op-hint op-iw-err" x-show="errs.domain_id" x-text="errs.domain_id"></span>
+            </div>
+            <div class="op-field">
+              <label class="op-label" for="iw_subdirectory">Folder <span class="op-iw-opt" x-text="t.optional"></span></label>
+              <div class="op-affix"><span class="op-affix-addon">/</span><input class="op-input op-mono" id="iw_subdirectory" name="subdirectory" x-model="subdir" @input="errs.subdirectory = ''" @blur="cleanSubdir()" placeholder="blog" spellcheck="false" autocapitalize="off"></div>
+              <span class="op-hint op-iw-err" x-show="errs.subdirectory" x-text="errs.subdirectory"></span>
+              <span class="op-hint" x-show="!errs.subdirectory">Leave it empty to install at the domain root.</span>
+            </div>
+            <div class="op-iw-path op-iw-span" x-show="dom()">
+              <div><span class="op-hint">Site address</span><b class="op-mono" x-text="siteUrl()"></b></div>
+              <div><span class="op-hint">Installs into</span><span class="op-mono" x-text="installPath()"></span></div>
+              <div x-show="cfg.php"><span class="op-hint" x-text="t.phpVersion"></span><span class="op-mono" x-text="dom() && dom().PHPVersion && dom().PHPVersion !== '/' ? dom().PHPVersion : t.notSet"></span></div>
+            </div>
+            <div class="op-alert op-iw-span" :style="{ '--tone': cfg.php && cfg.php.block ? 'var(--color-danger)' : 'var(--color-warning)' }" x-show="phpIssue()" x-cloak><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/><path d="M12 16h.01"/></svg><span x-text="phpIssue()"></span></div>
+          </div>
+
+          <div class="op-iw-grid" x-show="fieldsFor(s.id).length">
+            <template x-for="f in fieldsFor(s.id)" :key="f.name">
+              <div class="op-iw-cell" :class="{ 'op-iw-span': !f.half }" x-show="shown(f) && (!f.more || more[s.id])">
+                <template x-if="f.type === 'note'"><div class="op-alert" :style="{ '--tone': f.tone || 'var(--color-accent)' }"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></svg><span x-text="f.label"></span></div></template>
+
+                <template x-if="f.type === 'check'">
+                  <label class="op-check-row op-iw-check" :class="{ 'is-off': off(f) }"><input class="op-check" type="checkbox" :id="'iw_' + f.name" :name="f.name" value="1" :checked="!!v[f.name]" :disabled="off(f)" @change="v[f.name] = $event.target.checked"><span><b x-text="f.label"></b><p x-show="f.hint" x-text="f.hint"></p></span></label>
+                </template>
+
+                <template x-if="f.type === 'presets'">
+                  <div class="op-iw-presets"><span class="op-label" x-text="f.label"></span><div class="op-segmented" role="group"><template x-for="p in f.presets" :key="p.label"><button type="button" :aria-pressed="presetOn(p).toString()" :class="presetOn(p) && 'is-on'" @click="applyPreset(p)" x-text="p.label"></button></template></div></div>
+                </template>
+
+                <template x-if="!['note', 'check', 'presets'].includes(f.type)">
+                  <div class="op-field">
+                    <label class="op-label" :for="'iw_' + f.name"><span x-text="f.label"></span> <span class="op-iw-opt" x-show="!f.required && f.type !== 'select'" x-text="t.optional"></span></label>
+                    <template x-if="f.type === 'select'">
+                      <select class="op-select" :id="'iw_' + f.name" :name="f.name" :disabled="off(f)" @change="v[f.name] = $event.target.value; edit(f)">
+                        <template x-for="o in (opts[f.name] || [])" :key="o.value"><option :value="o.value" :selected="String(o.value) === String(v[f.name])" x-text="o.label"></option></template>
+                      </select>
+                    </template>
+                    <template x-if="f.type === 'password'">
+                      <div class="op-iw-pass">
+                        <input class="op-input op-mono" :id="'iw_' + f.name" :name="f.name" :type="reveal[f.name] ? 'text' : 'password'" x-model="v[f.name]" @input="edit(f)" :placeholder="f.placeholder || ''" :aria-invalid="!!errs[f.name]" autocomplete="new-password" spellcheck="false" autocapitalize="off">
+                        <button class="op-btn op-btn-secondary" type="button" x-show="f.gen" @click="regen(f)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/></svg><span x-text="t.generate"></span></button>
+                        <button class="op-btn op-btn-secondary op-iw-icon" type="button" @click="reveal[f.name] = !reveal[f.name]" :aria-label="reveal[f.name] ? t.hide : t.show" :title="reveal[f.name] ? t.hide : t.show"><span x-show="!reveal[f.name]"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/></svg></span><span x-show="reveal[f.name]"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.585 10.587a2 2 0 0 0 2.829 2.828"/><path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87"/><path d="M3 3l18 18"/></svg></span></button>
+                      </div>
+                    </template>
+                    <template x-if="!['select', 'password'].includes(f.type) && f.prefix && cfg.mysqlPrefix">
+                      <div class="op-affix"><span class="op-affix-addon" x-text="cfg.mysqlPrefix"></span><input class="op-input op-mono" :id="'iw_' + f.name" :name="f.name" type="text" x-model="v[f.name]" @input="edit(f)" :aria-invalid="!!errs[f.name]" spellcheck="false" autocapitalize="off"></div>
+                    </template>
+                    <template x-if="!['select', 'password'].includes(f.type) && !(f.prefix && cfg.mysqlPrefix)">
+                      <div :class="f.unit && 'op-affix'"><input class="op-input" :class="f.mono && 'op-mono'" :id="'iw_' + f.name" :name="f.name" :type="f.type === 'email' ? 'email' : f.type === 'number' ? 'number' : 'text'" :inputmode="f.type === 'number' ? 'decimal' : null" :min="f.min" :max="f.max" :step="f.inc" :readonly="!!f.readonly" :disabled="off(f)" x-model="v[f.name]" @input="edit(f)" @blur="blur(f)" :placeholder="f.placeholder || ''" :aria-invalid="!!errs[f.name]" spellcheck="false" autocapitalize="off"><span class="op-affix-addon" x-show="f.unit" x-text="f.unit"></span></div>
+                    </template>
+                    <template x-if="f.strength">
+                      <div class="op-iw-meter" x-show="v[f.name]"><span :style="{ width: strength(f).pct + '%', background: strength(f).tone }"></span></div>
+                    </template>
+                    <span class="op-hint op-iw-err" x-show="errs[f.name]" x-text="errs[f.name]"></span>
+                    <span class="op-hint" x-show="!errs[f.name] && f.strength && v[f.name]" x-text="strength(f).label"></span>
+                    <span class="op-hint" x-show="!errs[f.name] && f.type === 'select' && optsState[f.name] === 'loading'" x-text="t.loadingVersions"></span>
+                    <span class="op-hint" x-show="!errs[f.name] && f.type === 'select' && optsState[f.name] === 'failed'" x-text="t.versionsFailed"></span>
+                    <span class="op-hint" x-show="!errs[f.name] && hints[f.name]" :class="hints[f.name] && 'is-' + hints[f.name].tone" x-text="hints[f.name] && hints[f.name].text"></span>
+                    <span class="op-hint" x-show="!errs[f.name] && f.hint" x-text="f.hint"></span>
+                  </div>
+                </template>
+              </div>
+            </template>
+          </div>
+          <button type="button" class="op-btn op-btn-ghost op-btn-sm op-iw-more" x-show="fieldsFor(s.id).some((f) => f.more)" @click="more[s.id] = !more[s.id]" :aria-expanded="(!!more[s.id]).toString()"><span x-text="more[s.id] ? t.fewer : t.more"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6l6 -6"/></svg></button>
+
+          <div class="op-iw-review" x-show="s.id === 'review'">
+            <dl class="op-iw-kvs">
+              <template x-for="(r, ri) in reviewRows()" :key="ri">
+                <div class="op-iw-kv"><dt x-text="r.label"></dt><dd :class="r.mono && 'op-mono'"><span x-text="r.secret && !reveal['rv_' + r.name] ? '••••••••••••' : r.value"></span><button type="button" class="op-iw-link" x-show="r.secret" @click="reveal['rv_' + r.name] = !reveal['rv_' + r.name]" x-text="reveal['rv_' + r.name] ? t.hide : t.show"></button></dd></div>
+              </template>
+            </dl>
+            <div class="op-iw-what">
+              <span class="op-label" x-text="t.what"></span>
+              <ol><template x-for="(r, ri) in run" :key="ri"><li x-text="r.label"></li></template></ol>
+            </div>
+          </div>
+        </section>
+      </template>
+
+      <div class="op-form-foot op-iw-foot">
+        <a class="op-btn op-btn-secondary op-iw-left" href="install.html" x-show="step === 0" x-text="t.cancel"></a>
+        <button class="op-btn op-btn-secondary op-iw-left" type="button" x-show="step > 0" @click="back()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l14 0"/><path d="M5 12l6 6"/><path d="M5 12l6 -6"/></svg><span x-text="t.back"></span></button>
+        <button class="op-btn op-btn-primary" type="button" x-show="step < steps.length - 1" @click="next()"><span x-text="t.next"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l14 0"/><path d="M13 18l6 -6"/><path d="M13 6l6 6"/></svg></button>
+        <button class="op-btn op-btn-primary" type="submit" x-show="step === steps.length - 1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/></svg><span x-text="cfg.cta || fmt(t.install + ' %s', cfg.name)"></span></button>
+      </div>
+    </form>
+
+    <aside class="op-card op-iw-aside">
+      <div class="op-iw-aside-head"><span class="op-app-logo op-iw-logo is-sm"><img :src="cfg.logo" alt="" width="24" height="24"></span><b x-text="cfg.name"></b></div>
+      <dl class="op-iw-sum">
+        <template x-for="(r, ri) in summary()" :key="ri"><div><dt x-text="r.label"></dt><dd x-text="r.value"></dd></div></template>
+      </dl>
+      <p class="op-hint" x-show="cfg.note" x-text="cfg.note"></p>
+    </aside>
+  </div>
+
+  <section class="op-card op-iw-run" x-show="phase !== 'form'" x-cloak>
+    <div class="op-iw-run-head">
+      <div style="min-width:0">
+        <h2 class="op-mono" x-text="host()"></h2>
+        <p class="op-meta"><span class="op-mono" x-text="installPath()"></span></p>
+      </div>
+      <div class="op-iw-run-meta">
+        <span class="op-status" :class="phase === 'done' ? 'is-success' : phase === 'failed' ? 'is-danger' : 'is-warning'" x-text="phase === 'done' ? t.done : phase === 'failed' ? t.failedBadge : t.running"></span>
+        <span class="op-hint op-mono" x-text="clock()"></span>
+      </div>
+    </div>
+    <div class="op-iw-bar" :class="phase === 'failed' && 'is-failed'"><span :style="{ width: pct() + '%' }"></span></div>
+    <div class="op-alert op-iw-note" style="--tone:var(--color-warning)" x-show="phase === 'running'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></svg><span x-text="slow ? t.slow : t.keepOpen"></span></div>
+
+    <div class="op-iw-done" x-show="phase === 'done'">
+      <div class="op-iw-hero"><span class="op-iw-hero-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></svg></span><div style="min-width:0"><b x-text="result.status"></b><p class="op-hint" x-show="creds().some((c) => c.secret)" x-text="t.shownOnce"></p></div></div>
+      <dl class="op-iw-kvs">
+        <div class="op-iw-kv"><dt x-text="t.siteUrl"></dt><dd><a class="op-mono" :href="siteUrl()" target="_blank" rel="noopener" x-text="siteUrl()"></a><button type="button" class="op-iw-link" @click="copy(siteUrl())" x-text="t.copy"></button></dd></div>
+        <div class="op-iw-kv" x-show="adminUrl()"><dt x-text="t.adminUrl"></dt><dd><a class="op-mono" :href="adminUrl()" target="_blank" rel="noopener" x-text="adminUrl()"></a><button type="button" class="op-iw-link" @click="copy(adminUrl())" x-text="t.copy"></button></dd></div>
+        <template x-for="c in creds()" :key="c.key"><div class="op-iw-kv"><dt x-text="c.label"></dt><dd><span class="op-mono" x-text="c.secret && !reveal['done_' + c.key] ? '••••••••••••' : c.value"></span><button type="button" class="op-iw-link" x-show="c.secret" @click="reveal['done_' + c.key] = !reveal['done_' + c.key]" x-text="reveal['done_' + c.key] ? t.hide : t.show"></button><button type="button" class="op-iw-link" @click="copy(c.value)" x-text="t.copy"></button></dd></div></template>
+      </dl>
+      <p class="op-hint" x-show="cfg.doneNote" x-text="cfg.doneNote"></p>
+    </div>
+
+    <div class="op-alert op-iw-note" style="--tone:var(--color-danger)" x-show="phase === 'failed'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg><span x-text="error"></span></div>
+
+    <ol class="op-iw-steps" x-show="phase !== 'done'">
+      <template x-for="(r, i) in run" :key="i">
+        <li :class="'is-' + stepState(i)">
+          <span class="op-iw-ico" x-show="stepState(i) === 'done'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 12l2 2l4 -4"/></svg></span>
+          <span class="op-iw-ico op-iw-spin" x-show="stepState(i) === 'active'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"/></svg></span>
+          <span class="op-iw-ico" x-show="stepState(i) === 'error'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M10 10l4 4m0 -4l-4 4"/></svg></span>
+          <span class="op-iw-ico op-iw-dot" x-show="stepState(i) === 'pending'"></span>
+          <span x-text="r.label"></span>
+        </li>
+      </template>
+    </ol>
+
+    <div class="op-iw-logwrap">
+      <div class="op-iw-loghead"><button type="button" class="op-iw-link op-iw-logtoggle" x-show="phase === 'done'" @click="showLog = !showLog" :aria-expanded="showLog.toString()"><span x-text="showLog ? t.hideLog : t.showLog"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6l6 -6"/></svg></button><span class="op-label" x-show="phase !== 'done'" x-text="t.log"></span><button class="op-btn op-btn-ghost op-btn-sm" type="button" x-show="phase !== 'done' || showLog" @click="copy(log.join('\n'))" :disabled="!log.length"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z"/><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1"/></svg><span x-text="t.copyLog"></span></button></div>
+      <pre class="op-iw-log op-mono" x-ref="log" x-show="phase !== 'done' || showLog" x-text="log.join('\n')"></pre>
+    </div>
+
+    <div class="op-form-foot op-iw-foot" x-show="phase !== 'running'">
+      <template x-if="phase === 'failed'"><div class="op-iw-foot-row"><button class="op-btn op-btn-secondary" type="button" @click="edit2()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"/><path d="M13.5 6.5l4 4"/></svg><span x-text="t.edit"></span></button><button class="op-btn op-btn-primary" type="button" @click="start()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/></svg><span x-text="t.retry"></span></button></div></template>
+      <template x-if="phase === 'done'"><div class="op-iw-foot-row"><a class="op-btn op-btn-secondary" href="install.html" x-text="t.another"></a><a class="op-btn op-btn-primary" :href="managerUrl()"><span x-text="cfg.managerLabel || t.manager"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l14 0"/><path d="M13 18l6 -6"/><path d="M13 6l6 6"/></svg></a></div></template>
+    </div>
+  </section>
+  <div class="op-toast" x-show="toast" x-cloak x-transition role="status" x-text="toast"></div>
+</div></div></template>
+      </div>
+      <p style="margin:0;font-size:13px;color:var(--color-muted)">Preview: one wizard for every installer, <code>?app=</code> picks the app (<span id="iw-apps"></span>). Fields, checks, run checkpoints and log lines are the panel's own; the run is simulated here. <a href="?app=wordpress&amp;fail" style="color:var(--color-accent-text)">?fail</a> ends the run with a real server error, <a href="?app=wordpress&amp;domain=wordpress.tests.openpanel.org" style="color:var(--color-accent-text)">?domain=</a> preselects a domain like the Site Manager links do.</p>
+<script>document.getElementById("iw-apps").innerHTML = window.opIWProtoApps.map(function (a) { return '<a href="?app=' + a + '" style="color:var(--color-accent-text)">' + a + '</a>'; }).join(", ");</script>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

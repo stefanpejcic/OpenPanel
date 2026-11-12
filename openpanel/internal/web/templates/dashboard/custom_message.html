@@ -1,9 +1,6 @@
 {{define "custommessage"}}<!-- START templates/dashboard/custom_message.html -->
 {{if .CustomMessage}}
-    <div class="flex gap-3 rounded-md bg-blue-50 p-4 text-sm text-blue-900 dark:bg-blue-950/70 dark:text-blue-400 xl:col-span-3">
-      <i class="ri-information-line size-5 shrink-0 text-lg leading-5" aria-hidden="true"></i>
-      <div class="min-w-0">{{.CustomMessage}}</div>
-    </div>
+    <div class="op-alert" role="note">{{template "op_icon" "info"}}<span>{{.CustomMessage}}</span></div>
 {{end}}
 <!-- END templates/dashboard/custom_message.html -->
 {{end}}

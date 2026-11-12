@@ -1,6 +1,63 @@
 {{define "usage"}}<!-- START templates/dashboard/usage.html -->
-<!-- no markup of its own: loads plan and resource usage for the Overview, then shares it -->
-<div x-data="usageDashboard()" x-init="init()" hidden></div>
+<section id="dashboard_usage" class="op-card" x-data="usageDashboard()" x-init="init()">
+    <div class="op-card-head" id="dashboard_usage_title"><h2 x-show="typeof view === 'undefined' || view === 'overview'">{{.T.Get "Usage"}}</h2><h2 x-show="typeof view !== 'undefined' && view !== 'overview'" x-cloak>{{.T.Get "Statistics"}}</h2>{{if .UserAllowed.usage}}<a href="/server/usage">{{.T.Get "Details"}}</a>{{end}}</div>
+
+    {{if .LimitReached}}
+    <div id="dashboard_usage_upgrade_banner" class="op-alert is-warning" style="margin-bottom:14px">{{template "op_icon" "alert"}}
+        <span><b>{{.T.Get "You've reached one or more limits of your current plan."}}</b>
+        {{if .UpgradePlanName}}{{.T.Get "Upgrade to"}} <b>{{.UpgradePlanName}}</b> {{.T.Get "for higher limits."}}
+        {{if .UpgradeURL}}<a href="/dashboard/upgrade">{{.T.Get "Upgrade now"}}</a>{{end}}
+        {{else}}{{.T.Get "Contact your hosting provider to upgrade your plan."}}{{end}}</span>
+    </div>
+    {{end}}
+
+    {{/* Overview: rings for what the plan tiles above don't cover */}}
+    <div class="op-rings" x-show="typeof view === 'undefined' || view === 'overview'">
+        <a class="op-ring-tile" id="dashboard_ring_storage" :href="userAllowed.includes('disk_usage') ? '/disk-usage' : '#'">
+            <span class="op-ring"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" class="op-ring-track"/><circle cx="32" cy="32" r="26" class="op-ring-bar" :class="progressBarClass(disk.percentage)" stroke-dasharray="163.4" :stroke-dashoffset="163.4 - 163.4 * Math.min(100, parseFloat(disk.percentage) || 0) / 100" transform="rotate(-90 32 32)"/></svg>{{template "op_icon" "folder"}}</span>
+            <span class="op-ring-text"><b>{{.T.Get "Storage"}}</b><span class="op-mono" x-text="disk.percentage + '%'"></span><small x-text="disk.used + (disk.allocated ? ' {{.T.Get "of"}} ' + disk.allocated : '')"></small></span>
+        </a>
+        <a class="op-ring-tile" id="dashboard_ring_inodes" :href="userAllowed.includes('inodes') ? '/inodes-explorer' : '#'">
+            <span class="op-ring"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" class="op-ring-track"/><circle cx="32" cy="32" r="26" class="op-ring-bar" :class="progressBarClass(inodes.percentage)" stroke-dasharray="163.4" :stroke-dashoffset="163.4 - 163.4 * Math.min(100, parseFloat(inodes.percentage) || 0) / 100" transform="rotate(-90 32 32)"/></svg>{{template "op_icon" "file"}}</span>
+            <span class="op-ring-text"><b>{{.T.Get "Inodes"}}</b><span class="op-mono" x-text="inodes.percentage + '%'"></span><small x-text="inodes.used + (inodes.allocated ? ' {{.T.Get "of"}} ' + inodes.allocated : '')"></small></span>
+        </a>
+        {{/* CPU and memory only show with the usage module, some hosts don't sell them on plans */}}
+        {{if .UserAllowed.usage}}
+        <a class="op-ring-tile" id="dashboard_ring_cpu" :href="userAllowed.includes('usage') ? '/server/usage' : '#'">
+            <span class="op-ring"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" class="op-ring-track"/><circle cx="32" cy="32" r="26" class="op-ring-bar" :class="progressBarClass(cpu.visual)" stroke-dasharray="163.4" :stroke-dashoffset="163.4 - 163.4 * Math.min(100, parseFloat(cpu.visual) || 0) / 100" transform="rotate(-90 32 32)"/></svg>{{template "op_icon" "cpu"}}</span>
+            <span class="op-ring-text"><b>{{.T.Get "CPU Usage"}}</b><span class="op-mono" x-text="cpu.percentage + '%'"></span><small x-text="cpu.used + (cpu.allocated ? ' {{.T.Get "of"}} ' + cpu.allocated : '')"></small></span>
+        </a>
+        <a class="op-ring-tile" id="dashboard_ring_memory" :href="userAllowed.includes('usage') ? '/server/usage' : '#'">
+            <span class="op-ring"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" class="op-ring-track"/><circle cx="32" cy="32" r="26" class="op-ring-bar" :class="progressBarClass(mem.percentage)" stroke-dasharray="163.4" :stroke-dashoffset="163.4 - 163.4 * Math.min(100, parseFloat(mem.percentage) || 0) / 100" transform="rotate(-90 32 32)"/></svg>{{template "op_icon" "memory"}}</span>
+            <span class="op-ring-text"><b>{{.T.Get "Memory Usage"}}</b><span class="op-mono" x-text="mem.percentage + '%'"></span><small x-text="mem.used + (mem.allocated ? ' {{.T.Get "of"}} ' + mem.allocated : '')"></small></span>
+        </a>
+        {{end}}
+    </div>
+
+    {{/* Tools and Classic: label over "used / limit", cPanel style */}}
+    <div class="op-info-list" x-show="typeof view !== 'undefined' && view !== 'overview'" x-cloak>
+        {{if .UserAllowed.usage}}
+        <a id="dashboard_usage_cpu" :href="userAllowed.includes('usage') ? '/server/usage' : '#'"><p>{{.T.Get "CPU"}}</p><p><b class="op-mono" :class="usageTone(cpu.percentage)" x-text="cpu.allocated ? cpu.used + ' / ' + cpu.allocated : cpu.used"></b></p></a>
+        <a id="dashboard_usage_memory" :href="userAllowed.includes('usage') ? '/server/usage' : '#'"><p>{{.T.Get "Memory"}}</p><p><b class="op-mono" :class="usageTone(mem.percentage)" x-text="mem.allocated ? mem.used + ' / ' + mem.allocated : mem.used"></b></p></a>
+        {{end}}
+        <a id="dashboard_usage_storage" :href="userAllowed.includes('disk_usage') ? '/disk-usage' : '#'"><p>{{.T.Get "Storage"}}</p><p><b class="op-mono" :class="usageTone(disk.percentage)" x-text="disk.allocated ? disk.used + ' / ' + disk.allocated : disk.used"></b></p></a>
+        <a id="dashboard_usage_inodes" :href="userAllowed.includes('inodes') ? '/inodes-explorer' : '#'"><p>{{.T.Get "Inodes"}}</p><p><b class="op-mono" :class="usageTone(inodes.percentage)" x-text="inodes.allocated ? inodes.used + ' / ' + inodes.allocated : inodes.used"></b></p></a>
+        {{if or .UserAllowed.wordpress .UserAllowed.website_builder .UserAllowed.nodejs .UserAllowed.python}}
+        <a id="dashboard_usage_websites" href="/sites"><p>{{.T.Get "Websites"}}</p><p><b class="op-mono" :class="usageTone(websites.percentage)" x-text="websites.used + ' / ' + websites.allocated"></b></p></a>
+        {{end}}
+        {{if .UserAllowed.domains}}
+        <a id="dashboard_usage_domains" href="/domains"><p>{{.T.Get "Domains"}}</p><p><b class="op-mono" :class="usageTone(domains.percentage)" x-text="domains.used + ' / ' + domains.allocated"></b></p></a>
+        {{end}}
+        {{if or .UserAllowed.mysql .UserAllowed.postgresql}}
+        <a id="dashboard_usage_databases" href="/{{if .UserAllowed.mysql}}mysql{{else}}postgresql{{end}}"><p>{{.T.Get "Databases"}}</p><p><b class="op-mono" :class="usageTone(databases.percentage)" x-text="databases.used + ' / ' + databases.allocated"></b></p></a>
+        {{end}}
+        {{if .UserAllowed.emails}}
+        <a id="dashboard_usage_emails" href="/emails"><p>{{.T.Get "Email accounts"}}</p><p><b class="op-mono" :class="usageTone(emails.percentage)" x-text="emails.used + ' / ' + emails.allocated"></b></p></a>
+        {{end}}
+        {{if .UserAllowed.ftp}}
+        <a id="dashboard_usage_ftp" href="/ftp"><p>{{.T.Get "FTP Accounts"}}</p><p><b class="op-mono" :class="usageTone(ftp.percentage)" x-text="ftp.used + ' / ' + ftp.allocated"></b></p></a>
+        {{end}}
+    </div>
     <script>
     function usageDashboard() {
         return {
@@ -18,6 +75,7 @@
             inodes:   { used: "{{.T.Get "Calculating.."}}", allocated: "", percentage: 0 },
             cpu:      { used: "{{.T.Get "Calculating.."}}", allocated: "", percentage: 0 },
             mem:      { used: "{{.T.Get "Calculating.."}}", allocated: "", percentage: 0 },
+            unavailable: "{{.T.Get "Not available"}}",
 
             calcStat({ count, limit }) {
                 const isUnlimited = limit === 0;
@@ -47,15 +105,21 @@
                 if (inodes < 1e6) return inodes.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
                 return (inodes / 1e6).toFixed(2) + 'M';
             },
+            usageTone(percent) {
+                percent = parseFloat(percent);
+                if (percent > 90) return 'is-danger';
+                if (percent > 70) return 'is-hot';
+                return '';
+            },
             progressBarClass(percent) {
                 percent = parseFloat(percent);
-                if (percent >= 90) return 'bg-red-500 dark:bg-red-500';
-                if (percent >= 70) return 'bg-yellow-500 dark:bg-yellow-500';
-                return 'bg-blue-500 dark:bg-blue-500';
+                if (percent > 90) return 'is-danger';
+                if (percent > 70) return 'is-warning';
+                return '';
             },
             fetchDiskInodes() {
                 fetch('/json/disk_inodes')
-                    .then(response => response.json())
+                    .then(response => response.ok ? response.json() : Promise.reject(response.status))
                     .then(data => {
                         const isDiskUnlimited = data.disk_soft === 0;
                         const isInodesUnlimited = data.inodes_soft === 0;
@@ -98,20 +162,20 @@
                             }
                             if (issues.length) reportHealthIssues('dashboard', issues, 24);
                         }
-                    });
+                    })
+                    .catch(() => { this.disk.used = this.inodes.used = this.unavailable; });
             },
 
             fetchResourceUsage() {
                 fetch('/json/resource_usage', {
                     headers: { 'X-CSRF-TOKEN': '{{.CSRFToken}}' }
                 })
-                .then(res => res.json())
+                .then(res => res.ok ? res.json() : Promise.reject(res.status))
                 .then(response => {
                     const data = response;
 
                     // CPU
-                    // pct counts 100 per core, so 101 of 200 is half the plan
-                    let cpuUsedPct = data.cpu.total.pct > 0 ? Math.round((data.cpu.usage.pct || 0) * 100 / data.cpu.total.pct) : Math.round(data.cpu.usage.pct || 0);
+                    let cpuUsedPct = data.cpu.usage.pct || 0;
 
                     this.cpu = {
                         used: data.cpu.usage.human || '0 cores',
@@ -145,14 +209,11 @@
                         }
                         if (issues.length) reportHealthIssues('dashboard', issues, 24);
                     }
-                });
+                })
+                .catch(() => { this.cpu.used = this.mem.used = this.unavailable; });
             },
 
             // Initialization
-            // the Overview strip in dashboard.html listens for these
-            shareResources() {
-                window.dispatchEvent(new CustomEvent('dashboard-resources', { detail: { disk: this.disk, inodes: this.inodes, cpu: this.cpu, mem: this.mem } }));
-            },
             init() {
                 if (this.initialized) return;
                 this.initialized = true;
@@ -163,14 +224,13 @@
                 this.emails       = this.calcStat({ count: {{.EmailCount}},  limit: {{.EmailLimit}} });
                 this.ftp          = this.calcStat({ count: {{.FTPCount}},    limit: {{.FTPLimit}} });
 
-                ['disk', 'inodes', 'cpu', 'mem'].forEach(k => this.$watch(k, () => this.shareResources()));
                 this.fetchDiskInodes();
                 {{if .UserAllowed.usage}}this.fetchResourceUsage();{{end}}
             }
         }
     }
     </script>
-
+</section>
 
 {{if and .LimitReached .UpgradePlanName}}
 <script>

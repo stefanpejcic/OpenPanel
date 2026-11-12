@@ -189,6 +189,8 @@
         if (!d) return;
         info = d;
         if (d.name) document.getElementById('ai-assistant-title').textContent = d.name;
+        const sub = document.getElementById('ai-assistant-sub');
+        if (sub) sub.textContent = d.configured ? (S['short_' + d.actions] || '') : S.short_none;
         showInfo();
         if (!busy) render();
       })

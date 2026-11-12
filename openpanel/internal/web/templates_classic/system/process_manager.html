@@ -1,0 +1,248 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+    <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/system/process_manager.html -->
+
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Process manager"}}</h1>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "View and manage currently running processes on the server."}}</p>
+    </div>
+</div>
+
+<script src="{{static "js/data-table.js"}}"></script>
+<section aria-label="{{.T.Get "Processes Table"}}" x-data="createTableController({
+        storageKey: 'processManagerColumnsVisibility',
+        columns: {
+            container: true,
+            uid: true,
+            pid: true,
+            ppid: false,
+            cpu: true,
+            stime: false,
+            tty: false,
+            time: true,
+            cmd: true,
+            actions: true
+        }
+    })" x-init="init()" x-cloak>
+    <div class="flex flex-col justify-between gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+        <div class="flex w-full flex-col gap-2 sm:w-fit sm:flex-row sm:items-center">
+        <div class="relative w-full sm:w-64">
+            <input
+                x-model="searchQuery"
+                aria-label="{{.T.Get "Search"}}"
+                class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 pl-8 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+                placeholder="{{.T.Get "Search"}}"
+                type="search"
+            />
+            <div class="pointer-events-none absolute inset-y-0 left-2 flex items-center text-gray-400 dark:text-gray-600">
+                <i class="ri-search-line text-base" aria-hidden="true"></i>
+            </div>
+        </div>
+
+        <div class="relative">
+            <button id="dropdownToggleButton" data-dropdown-toggle="dropdownToggle" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 w-full sm:w-fit" type="button"><i class="ri-equalizer-line text-base" aria-hidden="true"></i> {{.T.Get "Show columns"}}</button>
+
+            <div id="dropdownToggle" class="z-10 hidden w-64 rounded-md border border-gray-200 bg-white p-1 shadow-xl dark:border-gray-800 dark:bg-gray-950 text-sm">
+                <ul class="space-y-0.5" aria-labelledby="dropdownToggleButton">
+                    {{template "column_toggle" (dict "Key" "container" "Label" (.T.Get "Container"))}}
+                    {{template "column_toggle" (dict "Key" "uid" "Label" (.T.Get "UID"))}}
+                    {{template "column_toggle" (dict "Key" "pid" "Label" (.T.Get "PID"))}}
+                    {{template "column_toggle" (dict "Key" "ppid" "Label" (.T.Get "PPID"))}}
+                    {{template "column_toggle" (dict "Key" "cpu" "Label" (.T.Get "CPU"))}}
+                    {{template "column_toggle" (dict "Key" "stime" "Label" (.T.Get "STIME"))}}
+                    {{template "column_toggle" (dict "Key" "tty" "Label" (.T.Get "TTY"))}}
+                    {{template "column_toggle" (dict "Key" "time" "Label" (.T.Get "TIME"))}}
+                    {{template "column_toggle" (dict "Key" "cmd" "Label" (.T.Get "CMD"))}}
+                    {{template "column_toggle" (dict "Key" "actions" "Label" (.T.Get "Actions"))}}
+                </ul>
+            </div>
+        </div>
+        </div>
+
+        <a href="/process-manager" data-preserve-sort class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 w-full sm:w-fit"><i class="ri-refresh-line text-base" aria-hidden="true"></i> {{.T.Get "Refresh processes"}}</a>
+    </div>
+
+{{template "bulk_open" (dict "T" .T "Table" "#process-manager-table" "Endpoint" "/process-manager/bulk")}}
+   <div class="overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+            <table id="process-manager-table" class="w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+                <thead>
+                    <tr>
+{{template "bulk_head_checkbox" .}}
+
+    <div id="tooltip-Container" role="tooltip" class="absolute z-10 invisible inline-block max-w-xs rounded-md bg-gray-900 px-3 py-2 text-xs font-normal whitespace-normal text-white opacity-0 shadow-xl transition-opacity duration-300 tooltip dark:bg-gray-800">
+        {{.T.Get "Service (Container name) in which the process is running."}}
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+                        <th x-show="columns.container" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1" data-tooltip-target="tooltip-Container" data-tooltip-placement="right">
+                            <button type="button" data-sort-key="container" data-sort-type="string" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.T.Get "Container"}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
+                        </th>
+    <div id="tooltip-UID" role="tooltip" class="absolute z-10 invisible inline-block max-w-xs rounded-md bg-gray-900 px-3 py-2 text-xs font-normal whitespace-normal text-white opacity-0 shadow-xl transition-opacity duration-300 tooltip dark:bg-gray-800">
+        {{.T.Get "The user ID running the process inside the container."}}
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+                        <th x-show="columns.uid" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1" data-tooltip-target="tooltip-UID" data-tooltip-placement="right">
+                            <button type="button" data-sort-key="uid" data-sort-type="string" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.T.Get "UID"}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
+                        </th>
+    <div id="tooltip-PID" role="tooltip" class="absolute z-10 invisible inline-block max-w-xs rounded-md bg-gray-900 px-3 py-2 text-xs font-normal whitespace-normal text-white opacity-0 shadow-xl transition-opacity duration-300 tooltip dark:bg-gray-800">
+        {{.T.Get "The Process ID (PID) of the process."}}
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+                        <th x-show="columns.pid" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1" data-tooltip-target="tooltip-PID" data-tooltip-placement="right">
+                            <button type="button" data-sort-key="pid" data-sort-type="number" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.T.Get "PID"}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
+                        </th>
+    <div id="tooltip-PPID" role="tooltip" class="absolute z-10 invisible inline-block max-w-xs rounded-md bg-gray-900 px-3 py-2 text-xs font-normal whitespace-normal text-white opacity-0 shadow-xl transition-opacity duration-300 tooltip dark:bg-gray-800">
+        {{.T.Get "The Parent Process ID (PPID), which refers to the process ID of the parent process."}}
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+                        <th x-show="columns.ppid" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1" data-tooltip-target="tooltip-PPID" data-tooltip-placement="right">
+                            <button type="button" data-sort-key="ppid" data-sort-type="number" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.T.Get "PPID"}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
+                        </th>
+    <div id="tooltip-CPU" role="tooltip" class="absolute z-10 invisible inline-block max-w-xs rounded-md bg-gray-900 px-3 py-2 text-xs font-normal whitespace-normal text-white opacity-0 shadow-xl transition-opacity duration-300 tooltip dark:bg-gray-800">
+        {{.T.Get "The CPU usage percentage for the process."}}
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+                        <th x-show="columns.cpu" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1" data-tooltip-target="tooltip-CPU" data-tooltip-placement="right">
+                            <button type="button" data-sort-key="cpu" data-sort-type="number" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.T.Get "CPU"}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
+                        </th>
+    <div id="tooltip-STIME" role="tooltip" class="absolute z-10 invisible inline-block max-w-xs rounded-md bg-gray-900 px-3 py-2 text-xs font-normal whitespace-normal text-white opacity-0 shadow-xl transition-opacity duration-300 tooltip dark:bg-gray-800">
+        {{.T.Get "The start time of the process."}}
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+                        <th x-show="columns.stime" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1" data-tooltip-target="tooltip-STIME" data-tooltip-placement="right">
+                            <button type="button" data-sort-key="stime" data-sort-type="string" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.T.Get "STIME"}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
+                        </th>
+    <div id="tooltip-TTY" role="tooltip" class="absolute z-10 invisible inline-block max-w-xs rounded-md bg-gray-900 px-3 py-2 text-xs font-normal whitespace-normal text-white opacity-0 shadow-xl transition-opacity duration-300 tooltip dark:bg-gray-800">
+        {{.T.Get "The terminal associated with the process. ? means that the process is running in the background."}}
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+                        <th x-show="columns.tty" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1" data-tooltip-target="tooltip-TTY" data-tooltip-placement="right">
+                            <button type="button" data-sort-key="tty" data-sort-type="string" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.T.Get "TTY"}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
+                        </th>
+    <div id="tooltip-TIME" role="tooltip" class="absolute z-10 invisible inline-block max-w-xs rounded-md bg-gray-900 px-3 py-2 text-xs font-normal whitespace-normal text-white opacity-0 shadow-xl transition-opacity duration-300 tooltip dark:bg-gray-800">
+        {{.T.Get "The cumulative CPU time the process has consumed."}}
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+                        <th x-show="columns.time" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1" data-tooltip-target="tooltip-TIME" data-tooltip-placement="right">
+                            <button type="button" data-sort-key="time" data-sort-type="duration" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.T.Get "TIME"}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
+                        </th>
+    <div id="tooltip-CMD" role="tooltip" class="absolute z-10 invisible inline-block max-w-xs rounded-md bg-gray-900 px-3 py-2 text-xs font-normal whitespace-normal text-white opacity-0 shadow-xl transition-opacity duration-300 tooltip dark:bg-gray-800">
+        {{.T.Get "The command that is running in the container."}}
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+                        <th x-show="columns.cmd" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1" data-tooltip-target="tooltip-CMD" data-tooltip-placement="right">
+                            <button type="button" data-sort-key="cmd" data-sort-type="string" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.T.Get "CMD"}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
+                        </th>
+                        <th x-show="columns.actions" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 text-right">
+                            <span class="sr-only">{{.T.Get "Actions"}}</span>
+                        </th>
+                    </tr>
+                </thead>
+        <tbody>
+
+    {{if not .ProcessData}}
+        <tr>
+            <td colspan="11" class="py-10 text-center text-sm text-gray-500">{{.T.Get "No processes"}}</td>
+        </tr>
+    {{else}}
+        {{$userAllowed := .UserAllowed}}
+        {{range .ProcessData}}
+<tr x-show="searchQuery === '' || {{toJSON .Container}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON .PID}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON .CMD}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row hover:bg-gray-50 dark:hover:bg-gray-900/60">
+{{template "bulk_row_checkbox" (dict "T" $.T "Key" (printf "%s/%v" .Container .PID) "Label" (printf "%s %v" .Container .PID))}}
+                <td x-show="columns.container" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 font-medium" data-sort-col="container">
+                    <a href="/{{if index $userAllowed "services"}}services/{{.Container}}{{else if index $userAllowed "docker"}}containers{{else}}#{{end}}" class="text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50">{{.Container}}</a>
+                </td>
+                <td x-show="columns.uid" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums text-center" data-sort-col="uid">{{.UID}}</td>
+                <td x-show="columns.pid" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums text-center" data-sort-col="pid">{{.PID}}</td>
+                <td x-show="columns.ppid" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums text-center" data-sort-col="ppid">{{.PPID}}</td>
+                <td x-show="columns.cpu" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums text-center" data-sort-col="cpu">{{.C}}</td>
+                <td x-show="columns.stime" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums text-center" data-sort-col="stime">{{.STIME}}</td>
+                <td x-show="columns.tty" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-center" data-sort-col="tty">{{.TTY}}</td>
+                <td x-show="columns.time" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums text-center" data-sort-col="time">{{.TIME}}</td>
+        <td x-show="columns.cmd" class="border-b border-gray-200 min-w-64 px-4 py-2.5 font-mono text-xs break-all text-gray-600 dark:border-gray-800 dark:text-gray-400" data-sort-col="cmd" data-sort-value="{{.CMD}}">
+            {{if gt (len .CMD) 100}}
+            <span id="short_cmd_{{.PID}}">
+                {{slice .CMD 0 100}}...
+                <a href="#" class="font-sans text-blue-500 hover:underline hover:underline-offset-4" onclick="showFullCmd('{{.PID}}'); return false;">{{$.T.Get "View full command"}}</a>
+            </span>
+            <span id="full_cmd_{{.PID}}" class="whitespace-normal break-all" style="display:none;">
+                {{.CMD}}
+            </span>
+        {{else}}
+            {{.CMD}}
+        {{end}}
+        </td>
+        <td x-show="columns.actions" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-right">
+            <button type="button" onclick="sendPID('{{.PID}}', '{{.Container}}', this);" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1.5 text-sm font-medium text-red-600 transition outline outline-0 outline-offset-2 outline-blue-500 hover:bg-red-50 focus-visible:outline-2 dark:text-red-500 dark:hover:bg-red-400/10">{{$.T.Get "Terminate"}}</button>
+        </td>
+            </tr>
+        {{end}}
+    {{end}}
+        </tbody>
+    </table>
+    </div>
+{{template "bulk_bar" .}}
+</div>
+</section>
+
+
+<script>
+const i18n = {
+    terminatingPid: "{{.T.Get "Terminating PID:"}}",
+    pidPrefix: "{{.T.Get "PID:"}}",
+    terminatedSuffix: "{{.T.Get "terminated"}}",
+    killingPid: "{{.T.Get "Killing PID:"}}",
+    failedSuffix: "{{.T.Get "failed"}}",
+};
+
+function showFullCmd(pid) {
+    document.getElementById('short_cmd_' + pid).style.display = 'none';
+    document.getElementById('full_cmd_' + pid).style.display = '';
+}
+
+function sendPID(pid, container, btn) {
+    const row = btn.closest('tr');
+    const requestData = { pid_to_kill: pid, container: container };
+
+    showToast(`${i18n.terminatingPid} ${pid}`, 'warning');
+
+    fetch('/process-manager', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-Token': csrf_token,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+    })
+        .then(response => response.json().catch(() => ({})))
+        .then(data => {
+            if (data.success) {
+                showToast(`${i18n.pidPrefix} ${pid} ${i18n.terminatedSuffix}`, 'success');
+                row.remove();
+            } else {
+                showToast(data.error_message || data.error || `${i18n.killingPid} ${pid} ${i18n.failedSuffix}`, 'error');
+            }
+        })
+        .catch(error => {
+            showToast(`${i18n.killingPid} ${pid} ${i18n.failedSuffix}`, 'error');
+        });
+}
+</script>
+<script src="{{static "js/table-sort.js"}}"></script>
+
+<!-- END templates/system/process_manager.html -->
+{{end}}
+
+{{define "column_toggle"}}
+<li>
+    <label for="col-toggle-{{.Key}}" class="flex w-full cursor-pointer items-center justify-between gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900">
+        <span>{{.Label}}</span>
+        <input type="checkbox" role="switch" id="col-toggle-{{.Key}}" x-model="columns.{{.Key}}" x-on:change="saveColumns">
+    </label>
+</li>
+{{end}}

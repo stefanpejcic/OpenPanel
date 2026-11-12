@@ -136,6 +136,7 @@ func renderDefaultPage(a *appctx.App, w http.ResponseWriter, r *http.Request, ph
 type PHPSettingsPageData struct {
 	web.LayoutData
 	Domains              []PHPDomainRow
+	VersionCounts        []PHPVersionCount
 	OutdatedDomains      int
 	AvailablePHPVersions []string
 	DefaultVersion       string // DEFAULT_PHP_VERSION from the user's .env
@@ -168,7 +169,7 @@ func envLabels(injectedData map[string]any) (defaultVersion, webServer string) {
 	return webserver.GetEnvFileValue(userContext, "DEFAULT_PHP_VERSION"), webServerLabel(webserver.GetEnvFileValue(userContext, "WEB_SERVER"))
 }
 
-func renderPHPSettingsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, rows []PHPDomainRow, outdatedDomains int, availableVersions []string) {
+func renderPHPSettingsPage(a *appctx.App, w http.ResponseWriter, r *http.Request, rows []PHPDomainRow, counts []PHPVersionCount, outdatedDomains int, availableVersions []string) {
 	layout, injectedData, err := web.BuildLayoutData(a, w, r, "Settings")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -178,7 +179,7 @@ func renderPHPSettingsPage(a *appctx.App, w http.ResponseWriter, r *http.Request
 	sortVersionsDesc(sortedAvailable)
 	layout.BulkActions = phpDomainsBulkActions(layout.T, sortedAvailable)
 	data := PHPSettingsPageData{
-		LayoutData: layout, Domains: rows,
+		LayoutData: layout, Domains: rows, VersionCounts: counts,
 		OutdatedDomains: outdatedDomains, AvailablePHPVersions: sortedAvailable,
 	}
 	data.DefaultVersion, data.WebServer = envLabels(injectedData)

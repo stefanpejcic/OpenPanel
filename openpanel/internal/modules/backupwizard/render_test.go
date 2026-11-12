@@ -7,6 +7,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
@@ -20,6 +21,42 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 }
 
 func TestRenderBackupWizardPage(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+
+	t.Run("no backups", func(t *testing.T) {
+		data := BackupWizardPageData{LayoutData: baseLayout(mgr, "/backup-wizard"), BackupIncludes: []string{"The home directory"}}
+		w := httptest.NewRecorder()
+		if err := backupWizardPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "No backups found") {
+			t.Error("expected empty-state message")
+		}
+	})
+
+	t.Run("in progress", func(t *testing.T) {
+		data := BackupWizardPageData{
+			LayoutData: baseLayout(mgr, "/backup-wizard"), InProgress: true,
+			InProgressStarted: "2026-01-01 00:00:00", InProgressSize: "12.3 MB",
+			Backups: []BackupFile{{Name: "site.tar.gz", Size: "5.0 MB", Mtime: "2026-01-01 00:00:00", InProgress: true}},
+		}
+		w := httptest.NewRecorder()
+		if err := backupWizardPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, "site.tar.gz") {
+			t.Error("expected backup row in rendered page")
+		}
+		if !strings.Contains(body, "disabled") {
+			t.Error("expected the Generate Backup button to be disabled while in progress")
+		}
+	})
+}
+
+func TestRenderBackupWizardPageClassic(t *testing.T) {
+	webtest.Classic(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("no backups", func(t *testing.T) {

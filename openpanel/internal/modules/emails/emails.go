@@ -361,19 +361,6 @@ func newEmailFieldError(username, password string, threshold int) string {
 	return ""
 }
 
-// addFailureReason picks what to show when opencli email add fails, some errors (no license, no mailserver) only go to stdout
-func addFailureReason(stderr, stdout string) string {
-	if s := strings.TrimSpace(stderr); s != "" {
-		return s
-	}
-	for _, line := range strings.Split(stdout, "\n") {
-		if line = strings.TrimSpace(line); line != "" {
-			return strings.TrimPrefix(line, "Error: ")
-		}
-	}
-	return "command failed"
-}
-
 func addressTaken(lines []string, email string) bool {
 	for _, addr := range addressesOf(lines) {
 		if strings.EqualFold(addr, email) {
@@ -405,7 +392,9 @@ func emailAddFailure(cmdErr error, stdout, stderr string) (string, bool) {
 	case stderr != "":
 		return stderr, true
 	case stdout != "":
-		return stdout, true
+		// some errors (no license, no mailserver) only go to stdout, the first line is the message
+		line, _, _ := strings.Cut(stdout, "\n")
+		return strings.TrimPrefix(strings.TrimSpace(line), "Error: "), true
 	}
 	return "command failed", true
 }
@@ -755,12 +744,20 @@ func handleEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	emailLimitStr, maxEmailQuota, _ := a.QueryPlanEmailMailboxLimits(ctx, planID)
 	emailLimit, _ := strconv.Atoi(emailLimitStr)
 	aliases := func() []AliasEntry { return GetAliasList(ctx, a, userID, currentUsername, userDomains) }
+	var connect AccountsConnect
 	// ?created= comes from the create form's redirect and opens the mail app settings for that mailbox
+	if created := r.URL.Query().Get("created"); isValidEmail(created) {
+		if _, domain, _ := strings.Cut(created, "@"); userDomains[domain] {
+			connect.Created, connect.Welcome = created, r.URL.Query().Get("welcome") == "1"
+		}
+	}
+	connect.Host, connect.Secure = mailConnectHost(ctx, a, currentUsername)
+	// classic shows the same mailbox through its own Created block
 	created := createdMailboxFromRequest(r, userDomains)
 	if created.Address != "" {
 		created.Conn = currentMailConnection(ctx, a, currentUsername)
 	}
-	renderAccountsPage(a, w, r, currentEmailsList, domains, maxEmailQuota, emailLimit, aliases, created)
+	renderAccountsPage(a, w, r, currentEmailsList, domains, emailLimit, maxEmailQuota, aliases, connect, created)
 }
 
 // createdMailboxFromRequest reads ?created=&welcome=, ignoring addresses on domains this account doesn't own

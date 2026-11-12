@@ -1,0 +1,36 @@
+{{define "customsection"}}{{if .CustomSectionItems}}
+{{/* admins may still list Bootstrap icon names in the custom section config */}}<link rel="stylesheet" href="{{static "vendor/bootstrap-icons/bootstrap-icons.css"}}">
+<div x-data='{
+    open: (function() {
+        const s = localStorage.getItem("section_custom");
+        return s === null ? true : s === "true";
+    })(),
+    toggleOpen() {
+        this.open = !this.open;
+        localStorage.setItem("section_custom", this.open);
+    }
+    }'
+    class="mb-4 flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950 xl:col-span-3">
+    <div class="relative m-0 flex items-center justify-between gap-4 border-b border-gray-200 py-2 pr-2 pl-4 dark:border-gray-800">
+        <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{if .CustomSectionTitle}}{{.T.Get .CustomSectionTitle}}{{else}}{{.T.Get "Custom"}}{{end}}</h2>
+        <button type="button" @click="toggleOpen" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" :aria-label="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" :aria-expanded="open" :aria-controls="'section-icons-custom'">
+            <!-- Minus icon (show when open) -->
+            <i class="ri-arrow-down-s-line inline-block text-xl leading-none" x-show="open" x-cloak aria-hidden="true"></i>
+            <!-- Plus icon (show when closed) -->
+            <i class="ri-arrow-down-s-line inline-block text-xl leading-none" x-show="!open" x-cloak aria-hidden="true"></i>
+            <span x-text="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" class="sr-only"></span>
+        </button>
+    </div>
+
+    <div :id="'section-icons-custom'" class="flex flex-wrap p-2 lg:w-full md:w-5/6 transition-all duration-300" x-show="open" x-collapse>
+        {{range .CustomSectionItems}}
+        <a href="{{.URL}}" {{if hasPrefix .URL "http"}}target="_blank"{{end}} class="group block w-1/2 rounded-md text-center lg:w-1/4 hover:bg-gray-50 dark:hover:bg-gray-900/60 cursor-pointer outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+            <div class="py-3 text-center">
+                <span class="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-gray-100 text-lg text-gray-700 transition group-hover:bg-blue-50 group-hover:text-blue-500 dark:bg-gray-900 dark:text-gray-300 dark:group-hover:bg-blue-950/70 dark:group-hover:text-blue-400" aria-hidden="true"><i class="{{if hasPrefix .Icon "bi-"}}bi {{end}}{{.Icon}}"></i></span>
+                <p class="pt-2 text-sm font-medium text-gray-700 dark:text-gray-300">{{$.T.Get .Label}}</p>
+            </div>
+        </a>
+        {{end}}
+    </div>
+</div>
+{{end}}{{end}}

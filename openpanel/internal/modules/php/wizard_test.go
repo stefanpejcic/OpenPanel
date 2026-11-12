@@ -1,6 +1,7 @@
 package php
 
 import (
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -65,6 +66,7 @@ func TestWizardOpen(t *testing.T) {
 }
 
 func TestRenderWizardPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	domains := []WizardDomain{{Domain: "a.example.com", Version: "8.5", Level: "good"}, {Domain: "old.example.com", Version: "7.4", Level: "unsupported"}}
 	data := PHPWizardPageData{
@@ -78,12 +80,16 @@ func TestRenderWizardPage(t *testing.T) {
 	}
 	body := w.Body.String()
 	for _, want := range []string{
-		"PHP wizard", "phpWizard(", "Not installed:", "8.4, 8.3, 8.1", `action="/php/domains"`, `name="new_php_version"`, "/php/wizard?v=",
-		"/install-extensions", "/php/domains/bulk", "/php/default?output=json", "'.ini/editor'", "tab = 'domains'", "presetKeys()",
+		"PHP Wizard", "apache · php-fpm per version", "phpWizard(", `<option value="8.5">PHP 8.5 (default)</option>`, `<option value="8.4" disabled>PHP 8.4 · ask your provider</option>`,
+		"Ask your provider", "8.5, 7.4", `action="/php/domains"`, `name="new_php_version"`, "/php/wizard?v=",
+		"/install-extensions", "/php/domains/bulk", "/php/default?output=json", "'.ini/editor'", "op-phpw-az",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("wizard page missing %q", want)
 		}
+	}
+	if strings.Contains(body, "Install PHP") {
+		t.Error("users can't install PHP versions, the page shouldn't offer it")
 	}
 
 	// LiteSpeed has no per-domain versions and no domains tab
@@ -93,7 +99,7 @@ func TestRenderWizardPage(t *testing.T) {
 		t.Fatalf("Render: %v", err)
 	}
 	body = w.Body.String()
-	if !strings.Contains(body, "LiteSpeed runs one PHP version") || strings.Contains(body, "tab = 'domains'") {
+	if !strings.Contains(body, "All on the default version") || strings.Contains(body, "tab = 'domains'") {
 		t.Error("litespeed wizard should drop the domains tab")
 	}
 
@@ -104,17 +110,7 @@ func TestRenderWizardPage(t *testing.T) {
 	if err := wizardPage.Render(w, 200, data); err != nil {
 		t.Fatalf("Render: %v", err)
 	}
-	if body = w.Body.String(); strings.Contains(body, "tab = 'extensions'") || strings.Contains(body, "tab = 'options'") || strings.Contains(body, ".ini/editor") {
+	if body = w.Body.String(); strings.Contains(body, "op-phpw-az") || strings.Contains(body, "presetKeys().length") || strings.Contains(body, ".ini/editor") {
 		t.Error("tabs for features the user lacks are still rendered")
-	}
-
-	// no versions at all shows the empty state instead of the layout
-	data.Versions, data.UserAllowed = nil, nil
-	w = httptest.NewRecorder()
-	if err := wizardPage.Render(w, 200, data); err != nil {
-		t.Fatalf("Render: %v", err)
-	}
-	if !strings.Contains(w.Body.String(), "No PHP versions are installed.") {
-		t.Error("expected the empty state without versions")
 	}
 }

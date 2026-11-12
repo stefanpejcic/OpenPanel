@@ -1,0 +1,344 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+<script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/manager/php_app.html -->
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('logs', { rawMode: false });
+    });
+</script>
+
+<!-- top area, same as the WordPress and app pages -->
+<div class="flex flex-col gap-5 px-4 pt-6 pb-6 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8 border-b border-gray-200 dark:border-gray-800">
+    <div class="flex min-w-0 items-center gap-4">
+        <span class="hidden size-14 shrink-0 items-center justify-center rounded-md border border-gray-200 bg-white sm:flex dark:border-gray-800 dark:bg-gray-950"><img alt="" loading="lazy" decoding="async" class="size-6 rounded-sm object-cover" style="color:transparent" src="/json/favicon/{{.CurrentDomain}}"></span>
+        <div class="min-w-0">
+            <p class="text-sm text-gray-500">{{.T.Get "PHP application"}}</p>
+            <h1 class="mt-0.5 truncate text-lg font-semibold text-gray-900 dark:text-gray-50">{{.CurrentDomain}}</h1>
+            <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-gray-700 dark:text-gray-300">
+                {{with .PHPVersion}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">PHP {{.}}</span>{{end}}
+                {{if eq .SSLState "valid"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20"{{with .SSLExpires}} title="{{$.T.Get "Expires"}} {{.}}"{{end}}>{{.T.Get "SSL valid"}}</span>{{else if eq .SSLState "expiring"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">{{.T.Get "SSL expiring"}}</span>{{else if eq .SSLState "expired"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.T.Get "SSL expired"}}</span>{{else if eq .SSLState "pending"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{.T.Get "SSL pending"}}</span>{{else if eq .SSLState "missing"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.T.Get "SSL missing"}}</span>{{end}}
+                <a href="http://{{.CurrentDomain}}" class="domain_link inline-flex min-w-0 items-center gap-1 text-gray-500 hover:text-gray-900 hover:underline hover:underline-offset-4 dark:hover:text-gray-50" target="_blank"><span class="truncate">https://{{.CurrentDomain}}</span><i class="ri-external-link-line" aria-hidden="true"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="relative flex flex-col gap-2 sm:flex-row sm:items-center">
+        {{template "temp_link" .}}
+    </div>
+</div>
+
+<div class="border-b border-gray-200 dark:border-gray-800">
+
+    <div class="flex min-w-0 flex-col bg-white dark:bg-gray-950">
+
+        <div class="flex flex-col" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard' }">
+
+    <div class="border-b border-gray-200 px-4 sm:px-6 lg:px-8 dark:border-gray-800">
+        <ul id="php-tab" data-tabs-toggle="#php-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="flex w-full items-center gap-1 [&>li]:flex-1 [&>li]:min-w-0 [&>li>a]:w-full [&>li>a]:justify-center">
+            <li role="presentation">
+                <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
+                   @click="activeTab = 'dashboard'"
+                   :class="activeTab === 'dashboard' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+                   class="-mb-px inline-flex w-full items-center justify-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                    <i class="ri-dashboard-line text-base" aria-hidden="true"></i>
+                    <span>{{.T.Get "Overview"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#composer" id="composer-tab" data-tabs-target="#composer" role="tab" aria-controls="composer" aria-selected="false"
+                   @click="activeTab = 'composer'"
+                   :class="activeTab === 'composer' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+                   class="-mb-px inline-flex w-full items-center justify-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                    <i class="ri-terminal-box-line text-base" aria-hidden="true"></i>
+                    <span>{{.T.Get "Composer"}}</span>
+                </a>
+            </li>
+            <li role="presentation">
+                <a href="#logs" id="logs-tab" data-tabs-target="#logs" role="tab" aria-controls="logs" aria-selected="false"
+                   @click="activeTab = 'logs'; loadPHPAppLogs();"
+                   :class="activeTab === 'logs' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+                   class="-mb-px inline-flex w-full items-center justify-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                    <i class="ri-file-text-line text-base" aria-hidden="true"></i>
+                    <span>{{.T.Get "Logs"}}</span>
+                </a>
+            </li>
+            {{template "site_git_tabbtn" .}}
+            <li role="presentation">
+                <a href="#" id="remove-tab" data-tabs-target="#remove" role="tab" aria-controls="remove" aria-selected="false"
+                   @click="activeTab = 'remove'"
+                   :class="activeTab === 'remove' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+                   class="-mb-px inline-flex w-full items-center justify-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                    <i class="ri-delete-bin-line text-base" aria-hidden="true"></i>
+                    <span>{{.T.Get "Remove"}}</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div id="php-tab-content">
+
+        <div class="hidden" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
+            <!-- the app on the left, speed, visitors and firewall on the right, like the other site pages -->
+            <div class="grid grid-cols-1 gap-px bg-gray-200 lg:grid-cols-3 dark:bg-gray-800">
+            <div class="min-w-0 bg-white p-4 sm:p-6 lg:col-span-2 dark:bg-gray-950">
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Overview"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "This PHP application runs inside the domain's own PHP-FPM container and has no container of its own."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <table class="w-full text-sm">
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                            <tr>
+                                <td class="py-2 text-gray-500 dark:text-gray-400">{{.T.Get "Docroot"}}</td>
+                                <td class="py-2 text-right font-mono text-gray-900 dark:text-gray-50">{{.Docroot}}</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 text-gray-500 dark:text-gray-400">{{.T.Get "PHP version"}}</td>
+                                <td class="py-2 text-right">
+                                    <span class="font-mono text-gray-900 dark:text-gray-50">{{if eq .PHPVersion "/"}}{{.T.Get "Not set"}}{{else}}{{.PHPVersion}}{{end}}</span>
+                                    <a href="/php/domains" class="ml-2 text-xs text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Change"}}</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 text-gray-500 dark:text-gray-400">{{.T.Get "Initial project"}}</td>
+                                <td class="py-2 text-right font-mono text-gray-900 dark:text-gray-50">{{if .InitialProject}}{{.InitialProject}}{{else}}—{{end}}</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 text-gray-500 dark:text-gray-400">{{.T.Get "Web server"}}</td>
+                                <td class="py-2 text-right text-gray-900 dark:text-gray-50">{{if .WebServer}}{{title .WebServer}}{{else}}—{{end}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="my-8 border-t border-gray-200 dark:border-gray-800"></div>
+
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Files"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Composer and the web server both work from this folder."}}</p>
+                    {{if .UserAllowed.filemanager}}<a href="/files/{{replace .Docroot "/var/www/html/" ""}}" target="_blank" class="mt-3 inline-block text-sm text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Open in File Manager"}} &rarr;</a>{{end}}
+                </div>
+                <div class="min-w-0 sm:max-w-3xl md:col-span-2">
+                    {{if .Files}}
+                    <div class="overflow-x-auto rounded-md border border-gray-200 dark:border-gray-800">
+                        <table class="w-full text-sm">
+                            <thead><tr><th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{.T.Get "Name"}}</th><th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{.T.Get "Size"}}</th><th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{.T.Get "Modified"}}</th></tr></thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                                {{range .Files}}<tr><td class="px-4 py-2"><span class="inline-flex min-w-0 items-center gap-2 text-gray-900 dark:text-gray-50"><i class="{{if .Dir}}ri-folder-line{{else}}ri-file-line{{end}} text-base text-gray-500" aria-hidden="true"></i><span class="truncate font-mono text-xs">{{.Name}}{{if .Dir}}/{{end}}</span></span></td><td class="px-4 py-2 text-right whitespace-nowrap tabular-nums text-gray-500">{{if .Dir}}—{{else}}{{.Size}}{{end}}</td><td class="px-4 py-2 text-right whitespace-nowrap tabular-nums text-gray-500">{{.Modified}}</td></tr>{{end}}
+                            </tbody>
+                        </table>
+                    </div>
+                    {{if .HiddenFiles}}<p class="mt-2 text-xs text-gray-500">{{.T.Get "%(n)s dotfiles not shown" "n" (toString .HiddenFiles)}}</p>{{end}}
+                    {{else}}
+                    <p class="py-6 text-center text-sm text-gray-500">{{.T.Get "The folder is empty."}}</p>
+                    {{end}}
+                </div>
+            </div>
+        </div>
+            <div class="divide-y divide-gray-200 bg-white dark:divide-gray-800 dark:bg-gray-950 [&>div]:rounded-none [&>div]:border-x-0 [&>div]:border-t-0 [&>div:last-child]:border-b-0 [&>div]:bg-transparent [&>div]:px-6 [&>div]:py-5 dark:[&>div]:bg-transparent [&_[data-panel-head]]:-mx-6 [&_[data-panel-head]]:-mt-5 [&_[data-panel-head]]:mb-4 [&_[data-panel-head]]:border-b [&_[data-panel-head]]:border-gray-200 [&_[data-panel-head]]:px-6 [&_[data-panel-head]]:py-4 dark:[&_[data-panel-head]]:border-gray-800">
+
+        {{template "pagespeed_panel" .}}
+
+        {{template "visitors" .}}
+
+        {{template "waf_panel" .}}
+
+    </div>
+            </div>
+        </div>
+
+        <div class="hidden p-4 sm:p-6" id="composer" role="tabpanel" aria-labelledby="composer-tab">
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Composer"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Run Composer against this project's composer.json, inside the PHP container."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2 space-y-3">
+                    <div class="flex items-start gap-2">
+                        <input type="checkbox" id="optimize_autoloader" {{if .ComposerOptimizeAutoloader}}checked{{end}}
+                            class="mt-0.5">
+                        <label for="optimize_autoloader" class="text-sm text-gray-900 dark:text-gray-50">
+                            {{.T.Get "Optimize autoloader on next update (--optimize-autoloader)"}}
+                        </label>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="runComposer('install')" id="composer-install-btn" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-fit mt-2 w-full sm:mt-0 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Composer install"}}</button>
+                        <button type="button" onclick="runComposer('update')" id="composer-update-btn" class="relative inline-flex items-center justify-center rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-offset-2 outline-0 focus-visible:outline-2 outline-blue-500 dark:outline-blue-500 dark:border-gray-800 dark:text-gray-50 dark:bg-gray-950 dark:hover:bg-gray-900/60 sm:w-fit mt-2 w-full gap-x-1.5 whitespace-nowrap sm:mt-0">{{.T.Get "Composer update"}}</button>
+                        <a href="/file-manager/edit-file/{{replace .Docroot "/var/www/html/" ""}}/{{.T.Get "composer.json"}}?new=true" target="_blank" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 sm:w-fit mt-2 w-full sm:mt-0">{{.T.Get "Edit composer.json"}}</a>
+                    </div>
+
+                    <pre id="composer-output" class="hidden rounded-md bg-gray-950 p-3 font-mono text-xs text-gray-50 overflow-x-auto max-h-64"></pre>
+                </div>
+            </div>
+
+            <div class="my-8 border-t border-gray-200 dark:border-gray-800"></div>
+
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Requirements"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "What composer.json asks for and what composer.lock installed."}}</p>
+                </div>
+                <div class="min-w-0 sm:max-w-3xl md:col-span-2">
+                    {{if .ComposerRows}}
+                    <div class="overflow-x-auto rounded-md border border-gray-200 dark:border-gray-800">
+                        <table class="w-full text-sm">
+                            <thead><tr><th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{.T.Get "Package"}}</th><th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{.T.Get "Constraint"}}</th><th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{.T.Get "Installed"}}</th></tr></thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                                {{range .ComposerRows}}<tr><td class="px-4 py-2 font-mono text-xs text-gray-900 dark:text-gray-50">{{.Name}}{{if .Dev}} <span class="ml-1 rounded-sm bg-gray-100 px-1.5 py-0.5 font-sans text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400">{{$.T.Get "dev"}}</span>{{end}}</td><td class="px-4 py-2 font-mono text-xs text-gray-500">{{.Constraint}}</td><td class="px-4 py-2 text-right font-mono text-xs text-gray-900 dark:text-gray-50">{{if .Installed}}{{.Installed}}{{else if hasPrefix .Name "ext-"}}<span class="font-sans text-gray-500">{{$.T.Get "built in"}}</span>{{else if and (eq .Name "php") $.PHPVersion (ne $.PHPVersion "/")}}{{$.PHPVersion}} <span class="font-sans text-gray-500">({{$.T.Get "container"}})</span>{{else}}<span class="text-gray-500">—</span>{{end}}</td></tr>{{end}}
+                            </tbody>
+                        </table>
+                    </div>
+                    {{else}}
+                    <p class="py-6 text-center text-sm text-gray-500">{{.T.Get "No composer.json found in the site folder."}}</p>
+                    {{end}}
+                </div>
+            </div>
+
+            {{if .Packages}}
+            <div class="my-8 border-t border-gray-200 dark:border-gray-800"></div>
+
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-3" x-data="{ set: 'prod' }">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Installed packages"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Every package composer.lock installed, with its locked version."}}</p>
+                    <div class="mt-3 inline-flex rounded-md border border-gray-200 p-0.5 text-sm dark:border-gray-800" role="group" aria-label="{{.T.Get "Package set"}}">
+                        <button type="button" @click="set = 'prod'" :aria-pressed="(set === 'prod').toString()" :class="set === 'prod' ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-50'" class="rounded-sm px-2.5 py-1 font-medium outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.T.Get "Production"}}</button>
+                        <button type="button" @click="set = 'dev'" :aria-pressed="(set === 'dev').toString()" :class="set === 'dev' ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-50'" class="rounded-sm px-2.5 py-1 font-medium outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.T.Get "Development"}}</button>
+                    </div>
+                </div>
+                <div class="min-w-0 sm:max-w-3xl md:col-span-2">
+                    <div class="max-h-96 overflow-auto rounded-md border border-gray-200 dark:border-gray-800">
+                        <table class="w-full text-sm">
+                            <thead><tr><th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{.T.Get "Package"}}</th><th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{.T.Get "Version"}}</th></tr></thead>
+                            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+                                {{range .Packages}}<tr {{if .Dev}}x-show="set === 'dev'" x-cloak{{else}}x-show="set === 'prod'"{{end}}><td class="px-4 py-2 font-mono text-xs text-gray-900 dark:text-gray-50">{{.Name}}</td><td class="px-4 py-2 text-right font-mono text-xs text-gray-500">{{.Version}}</td></tr>{{end}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {{end}}
+        </div>
+
+        <div class="hidden p-4 sm:p-6" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+            <pre id="php-app-logs" class="rounded-md bg-gray-950 p-3 font-mono text-xs text-gray-50 overflow-x-auto max-h-[32rem]">{{.T.Get "Loading..."}}</pre>
+        </div>
+
+        {{template "site_git_panel" .}}
+
+        <div class="hidden p-4 sm:p-6" id="remove" role="tabpanel" aria-labelledby="remove-tab">
+            <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Delete"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Removes it from the Site manager."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+                        <div class="col-span-full">
+                            <div class="relative w-full mt-2 space-y-2">
+                                <button x-show="!open" @click="open = true" type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600">
+                                    <i class="ri-delete-bin-line text-base" aria-hidden="true"></i> {{.T.Get "Delete application"}}
+                                </button>
+                                <div x-show="open">
+                                    <p class="text-sm/6 text-gray-500">{{.T.Get "Removes this application from the Site manager."}}</p>
+                                    <p class="my-2 text-sm/6 text-gray-500">{{.T.Get "All website data such as files and database remains."}}</p>
+                                    <div class="my-6 flex flex-col gap-2 sm:flex-row-reverse sm:justify-end">
+                                        <button onclick="confirmRemovePHPApp()" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600" type="button">
+                                        {{.T.Get "Confirm delete"}}
+                                        </button>
+                                        <button @click="open = false" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600" type="button">
+                                        {{.T.Get "Cancel"}}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+        </div>
+
+    </div>
+
+    
+
+</div>
+
+<script>
+const PHP_APP_SITE_NAME = {{toJSON .Container.SiteName}};
+
+function runComposer(action) {
+    const installBtn = document.getElementById('composer-install-btn');
+    const updateBtn = document.getElementById('composer-update-btn');
+    installBtn.disabled = true;
+    updateBtn.disabled = true;
+    showToast({{toJSON (.T.Get "Running Composer")}} + ' ' + action + {{toJSON (.T.Get "... this can take a while.")}}, 'loading');
+
+    const params = new URLSearchParams();
+    params.set('csrf_token', csrf_token);
+    if (action === 'update' && document.getElementById('optimize_autoloader').checked) {
+        params.set('optimize_autoloader', '1');
+    }
+
+    fetch(`/php/manage/composer-${action}/${encodeURIComponent(PHP_APP_SITE_NAME)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+    })
+    .then(res => res.json())
+    .then(data => {
+        installBtn.disabled = false;
+        updateBtn.disabled = false;
+        const output = document.getElementById('composer-output');
+        output.classList.remove('hidden');
+        output.textContent = data.output || data.error || '';
+        showToast(data.message || data.error, data.error ? 'error' : 'success');
+    })
+    .catch(err => {
+        installBtn.disabled = false;
+        updateBtn.disabled = false;
+        showToast({{toJSON (.T.Get "Request failed.")}}, 'error');
+        console.error(err);
+    });
+}
+
+let _phpAppLogsLoaded = false;
+function loadPHPAppLogs() {
+    if (_phpAppLogsLoaded) return;
+    _phpAppLogsLoaded = true;
+    fetch(`/php/manage/logs/${encodeURIComponent(PHP_APP_SITE_NAME)}`)
+        .then(res => res.text())
+        .then(text => { document.getElementById('php-app-logs').textContent = text; })
+        .catch(() => { document.getElementById('php-app-logs').textContent = {{toJSON (.T.Get "Failed to load logs.")}}; });
+}
+
+function confirmRemovePHPApp() {
+    showToast({{toJSON (.T.Get "Application removal started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', `/php/manage/delete/${encodeURIComponent(PHP_APP_SITE_NAME)}`, true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            window.location.href = '/sites';
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token));
+}
+</script>
+
+<!-- END templates/manager/php_app.html -->
+{{end}}

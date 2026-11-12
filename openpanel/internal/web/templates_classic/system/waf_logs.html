@@ -1,0 +1,309 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+    <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/system/waf_logs.html -->
+
+{{if .JSONLogs}}
+
+<section aria-label="{{.T.Get "Select Domain Log Header"}}" x-data="logsTable()" x-init="init()">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <div>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "WAF logs for"}} <span class="punycode">{{.DomainName}}</span></h1>
+            <p class="mt-1 text-sm text-gray-500 tabular-nums max-w-3xl">{{.T.Get "Showing"}} {{add (mul .ItemsPerPage (sub .CurrentPage 1)) 1}} - {{if gt (mul .ItemsPerPage .CurrentPage) .TotalLines}}{{.TotalLines}}{{else}}{{mul .ItemsPerPage .CurrentPage}}{{end}} {{.T.Get "out of"}} {{.TotalLines}} {{.T.Get "rows"}}</p>
+        </div>
+        <div class="flex items-center gap-3">
+            {{if lt .TotalLines .TotalAllowedLinesForShowAll}}
+            <label for="showAllCheckbox" class="inline-flex cursor-pointer items-center gap-2 text-sm text-gray-900 dark:text-gray-50">
+                <input type="checkbox" role="switch" id="showAllCheckbox" {{if .ShowAll}}checked{{end}}>
+                <span>{{.T.Get "Show all"}} <span class="tabular-nums">{{.TotalLines}}</span> {{.T.Get "rows"}}</span>
+            </label>
+            {{end}}
+        </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2 px-4 pb-4 sm:px-6 lg:px-8">
+        <div class="relative w-full sm:w-64">
+            <label for="waf-logs-search" class="sr-only">{{.T.Get "Search"}}</label>
+            <input id="waf-logs-search" x-model="searchQuery" type="search" placeholder="{{.T.Get "Search"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 py-1.5 pl-8 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden">
+            <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+        </div>
+
+        <!-- Dropdown for Column Visibility -->
+        <div class="relative">
+            <button id="dropdownToggleButton" data-dropdown-toggle="dropdownToggle" type="button" class="flex items-center gap-x-1.5 whitespace-nowrap rounded-md border border-gray-300 px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 cursor-pointer border-dashed">
+                <i class="ri-equalizer-line text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Show columns"}}
+            </button>
+            <div id="dropdownToggle" class="z-20 hidden max-h-96 w-72 overflow-y-auto rounded-md border border-gray-200 bg-white p-1 shadow-xl dark:border-gray-800 dark:bg-gray-950">
+                <ul aria-labelledby="dropdownToggleButton">
+                    <template x-for="col in columnList" :key="col">
+                        <li>
+                            <label :for="'waf-col-' + col" class="flex w-full cursor-pointer items-center justify-between gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900">
+                                <span class="truncate font-mono text-xs" x-text="col"></span>
+                                <input type="checkbox" role="switch" :id="'waf-col-' + col" x-model="columns[col]">
+                            </label>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto">
+            <table id="waf-logs-table" class="w-full border-t border-gray-200 text-sm dark:border-gray-800 [&>tbody>tr>td]:py-2.5 [&_th:first-of-type]:pl-4 sm:[&_th:first-of-type]:pl-6 lg:[&_th:first-of-type]:pl-8 [&_td:first-of-type]:pl-4 sm:[&_td:first-of-type]:pl-6 lg:[&_td:first-of-type]:pl-8 [&_th:last-of-type]:pr-4 sm:[&_th:last-of-type]:pr-6 lg:[&_th:last-of-type]:pr-8 [&_td:last-of-type]:pr-4 sm:[&_td:last-of-type]:pr-6 lg:[&_td:last-of-type]:pr-8">
+                <thead>
+                    <tr>
+                        <template x-for="col in columnList" :key="col">
+                            <th x-show="columns[col]" x-text="col" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 font-mono"></th>
+                        </template>
+                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Disable rule"}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="log in filteredLogs()" :key="log.id">
+                    <tr class="domain_row hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                                <template x-for="col in columnList" :key="col">
+                                    <td x-show="columns[col]" x-text="getValue(log, col)" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 max-w-xs truncate"></td>
+                                </template>
+                                <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
+                                    <div class="flex flex-wrap gap-1">
+                                        <template x-for="rule in log._rules" :key="rule.id">
+                                            <button type="button" @click="disableRule(rule)" :disabled="disabled.includes(rule.id) || busy === rule.id" :title="rule.msg"
+                                                class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium tabular-nums text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-red-50 hover:text-red-700 hover:ring-red-600/30 disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-gray-900 disabled:hover:ring-gray-300 dark:text-gray-50 dark:ring-gray-700 dark:hover:bg-red-400/10 dark:hover:text-red-400 dark:disabled:hover:text-gray-50">
+                                                <i :class="disabled.includes(rule.id) ? 'ri-check-line' : 'ri-forbid-line'" aria-hidden="true"></i>
+                                                <span x-text="rule.id"></span>
+                                                <span x-show="disabled.includes(rule.id)">{{.T.Get "disabled"}}</span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </td>
+                    </tr>
+                    </template>
+                </tbody>
+            </table>
+    </div>
+
+</section>
+
+<!-- pagination -->
+{{if gt .TotalPages 1}}
+<div class="flex justify-center px-4 py-4 sm:px-6 lg:px-8">
+    <nav aria-label="{{.T.Get "Pagination"}}">
+        <ul class="flex items-center gap-1 text-sm">
+            {{if gt .CurrentPage 1}}
+            <li><a href="/server/waf/log/{{.DomainName}}?page={{sub .CurrentPage 1}}" class="inline-flex items-center rounded-md px-2.5 py-1.5 font-medium text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80">{{.T.Get "Previous"}}</a></li>
+            {{end}}
+            {{range .PageEntries}}
+                {{if .IsEllipsis}}
+            <li><span class="px-2 text-gray-400">&hellip;</span></li>
+                {{else if eq .Number $.CurrentPage}}
+            <li><span aria-current="page" class="inline-flex min-w-8 items-center justify-center rounded-md px-2.5 py-1.5 font-medium tabular-nums text-gray-900 ring-1 ring-gray-300 dark:text-gray-50 dark:ring-gray-700">{{.Number}}</span></li>
+                {{else}}
+            <li><a href="/server/waf/log/{{$.DomainName}}?page={{.Number}}" class="inline-flex min-w-8 items-center justify-center rounded-md px-2.5 py-1.5 font-medium tabular-nums text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800/80">{{.Number}}</a></li>
+                {{end}}
+            {{end}}
+            {{if lt .CurrentPage .TotalPages}}
+            <li><a href="/server/waf/log/{{.DomainName}}?page={{add .CurrentPage 1}}" class="inline-flex items-center rounded-md px-2.5 py-1.5 font-medium text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80">{{.T.Get "Next"}}</a></li>
+            {{end}}
+        </ul>
+    </nav>
+</div>
+{{end}}
+<!-- END pagination -->
+
+{{if lt .TotalLines .TotalAllowedLinesForShowAll}}
+<script>
+    // same show-all switch as the domain access logs
+    document.getElementById('showAllCheckbox').addEventListener('change', (e) => {
+        const params = new URLSearchParams(window.location.search);
+        if (e.target.checked) { params.set('show_all', 'true'); params.delete('page'); } else { params.delete('show_all'); }
+        window.location.search = params.toString();
+    });
+</script>
+{{end}}
+
+<script type="text/javascript">
+window.jsonLogs = {{toJSON .JSONLogs}};
+window.wafDisabledRules = {{toJSON .DisabledRules}} || [];
+
+function logsTable() {
+    return {
+        searchQuery: '',
+        columns: {},
+        columnList: [],
+        defaultColumns: [
+            'client_ip',
+            'request.method',
+            'request.uri',
+            'is_interrupted',
+            'timestamp',
+            'messages.rule_ids',
+            'messages.msg',
+			'messages.tags',
+            'messages.severity'
+        ],
+        logs: [],
+        disabled: window.wafDisabledRules,
+        busy: '',
+        // 949/959 add up the score and block, 980 only reports it, disabling those would turn blocking off for the domain
+        isScoringRule(id) { return /^(949|959|980)/.test(id); },
+        async disableRule(rule) {
+            if (this.disabled.includes(rule.id)) return;
+            const q = {{toJSON (.T.Get "Disable WAF rule")}} + ' ' + rule.id + (rule.msg ? ' (' + rule.msg + ')' : '') + ' ' + {{toJSON (.T.Get "for")}} + ' ' + {{toJSON .DomainName}} + '?\n\n' + {{toJSON (.T.Get "The firewall will stop checking requests against this rule on the whole domain. You can enable it again on the domain's WAF page.")}};
+            if (!(await window.opConfirm(q, { danger: true, ok: {{toJSON (.T.Get "Disable rule")}} }))) return;
+            this.busy = rule.id;
+            const body = new FormData();
+            body.append('rule_id', rule.id);
+            body.append('csrf_token', csrf_token);
+            try {
+                const res = await fetch('/server/waf/disable-rule/' + encodeURIComponent({{toJSON .DomainName}}), { method: 'POST', body, headers: { 'X-CSRF-Token': csrf_token } });
+                const data = await res.json().catch(() => ({}));
+                if (res.ok || res.status === 207) {
+                    this.disabled.push(rule.id);
+                    showToast(data.warning || ({{toJSON (.T.Get "Rule")}} + ' ' + rule.id + ' ' + {{toJSON (.T.Get "disabled for")}} + ' ' + {{toJSON .DomainName}}), data.warning ? 'warning' : 'success');
+                } else {
+                    showToast(data.error || data.message || ({{toJSON (.T.Get "Could not disable rule")}} + ' ' + rule.id), 'error');
+                }
+            } catch (e) {
+                showToast({{toJSON (.T.Get "Could not disable rule")}} + ' ' + rule.id, 'error');
+            } finally {
+                this.busy = '';
+            }
+        },
+        init() {
+            const flatten = (obj, prefix = '') => {
+                let result = {};
+                for (let key in obj) {
+                    if (obj[key] && typeof obj[key] === 'object') {
+                        if (Array.isArray(obj[key])) {
+                            if (obj[key].length > 0 && typeof obj[key][0] === 'object') {
+                                Object.assign(result, flatten(obj[key][0], prefix + key + '.'));
+                            } else {
+                                result[prefix + key] = obj[key].join(', ');
+                            }
+                        } else {
+                            Object.assign(result, flatten(obj[key], prefix + key + '.'));
+                        }
+                    } else {
+                        result[prefix + key] = obj[key];
+                    }
+                }
+                return result;
+            };
+
+            this.logs = window.jsonLogs.map(l => {
+                let flattened = flatten(l.transaction);
+
+                // rules that matched, minus the scoring ones, non-enumerable so they don't show up as a column
+                const rules = [];
+                (l.messages || []).forEach(m => {
+                    const em = m.error_message || '';
+                    const id = (em.match(/\[id "(\d+)"\]/) || [])[1];
+                    if (!id || this.isScoringRule(id) || rules.some(r => r.id === id)) return;
+                    rules.push({ id, msg: (em.match(/\[msg "([^"]+)"\]/) || [])[1] || '' });
+                });
+                Object.defineProperty(flattened, '_rules', { value: rules, enumerable: false, writable: true, configurable: true });
+
+                // parse rule IDs/msg/severity out of error_message strings
+                if (l.messages && l.messages.length > 0) {
+                    const ruleIds = [];
+                    let firstMsg = '';
+                    let firstSeverity = '';
+
+					l.messages.forEach((m, i) => {
+					    const em = m.error_message || '';
+					    const idMatch = em.match(/\[id "(\d+)"\]/);
+					    if (idMatch) ruleIds.push(idMatch[1]);
+					    if (i === 0) {
+					        const msgMatch = em.match(/\[msg "([^"]+)"\]/);
+					        const sevMatch = em.match(/\[severity "([^"]+)"\]/);
+					        const tagMatches = [...em.matchAll(/\[tag "([^"]+)"\]/g)].map(t => t[1]);
+					        firstMsg = msgMatch ? msgMatch[1] : '';
+					        firstSeverity = sevMatch ? sevMatch[1] : '';
+					        flattened['messages.tags'] = tagMatches.join(', ');
+					    }
+					});
+
+                    flattened['messages.rule_ids'] = ruleIds.join(', ');
+                    flattened['messages.msg'] = firstMsg;
+                    flattened['messages.severity'] = firstSeverity;
+                } else {
+                    flattened['messages.rule_ids'] = '';
+                    flattened['messages.msg'] = '';
+                    flattened['messages.severity'] = '';
+					flattened['messages.tags'] = '';
+                }
+
+                return flattened;
+            });
+
+            if (this.logs.length) {
+                this.columnList = Object.keys(this.logs[0]);
+
+                const saved = localStorage.getItem('wafColumns');
+                if (saved) {
+                    try {
+                        this.columns = JSON.parse(saved);
+                    } catch (e) {
+                        console.warn("Invalid wafColumns in storage, resetting.");
+                    }
+                }
+
+                if (!Object.keys(this.columns).length) {
+                    this.columnList.forEach(c => {
+                        this.columns[c] = this.defaultColumns.includes(c);
+                    });
+                } else {
+                    this.columnList.forEach(c => {
+                        if (!(c in this.columns)) this.columns[c] = false;
+                    });
+                }
+            }
+
+            this.$watch('columns', (val) => {
+                localStorage.setItem('wafColumns', JSON.stringify(val));
+            });
+        },
+        getValue(log, key) {
+            return log[key] ?? '';
+        },
+        filteredLogs() {
+            if (!this.searchQuery) return this.logs;
+            return this.logs.filter(log =>
+                this.columnList.some(col =>
+                    String(this.getValue(log, col)).toLowerCase().includes(this.searchQuery.toLowerCase())
+                )
+            );
+        },
+        toggleColumn(col) {
+            this.columns[col] = !this.columns[col];
+            localStorage.setItem('wafColumns', JSON.stringify(this.columns));
+        }
+    }
+}
+</script>
+
+
+
+{{else}}
+
+<!-- page header -->
+<section aria-label="{{.T.Get "WAF logs for domain"}}">
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Web firewall logs"}}</h1>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Requests the firewall checked or blocked, per domain."}}</p>
+    </div>
+</div>
+<!-- END page header -->
+
+{{template "domain_list" (dict "T" .T "Rows" .Picks "Base" "/server/waf/log/" "Action" "View log" "Icon" "ri-file-list-3-line" "DetailLabel" "Log size" "NoteInDetail" true)}}
+
+</section>
+{{end}}
+
+<!-- END templates/system/waf_logs.html -->
+{{end}}

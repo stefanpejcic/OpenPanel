@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Usage History - OpenPanel Modern</title>
+<script>(function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('color-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark');})();</script>
+<link rel="preload" href="fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="dist/app.css">
+<style>[x-cloak]{display:none!important}</style>
+<style>
+  .uh-chart { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; }
+  .uh-y { display: flex; flex-direction: column; justify-content: space-between; height: 180px; font: 500 11px/1 var(--font-mono); color: var(--color-muted); text-align: right; }
+  .uh-y span { transform: translateY(-50%); } .uh-y span:first-child { transform: none; } .uh-y span:last-child { transform: translateY(-100%); }
+  .uh-plot { position: relative; height: 180px; cursor: crosshair; touch-action: pan-y; }
+  .uh-plot svg { display: block; width: 100%; height: 180px; overflow: visible; }
+  .uh-plot .gl { stroke: var(--color-raised); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .uh-plot .base { stroke: var(--color-faint); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .uh-plot .area { fill: color-mix(in srgb, var(--hue) 16%, transparent); }
+  .uh-plot .line { fill: none; stroke: var(--hue); stroke-width: 2; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .uh-plot .cross { stroke: var(--color-faint); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+  .uh-dot { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--hue); box-shadow: 0 0 0 2px var(--color-panel); pointer-events: none; }
+  .uh-tip { position: absolute; top: 0; z-index: 5; min-width: 128px; padding: 7px 10px; border-radius: var(--radius-sm); background: var(--color-heading); color: var(--color-page); font-size: 12px; line-height: 16px; pointer-events: none; white-space: nowrap; }
+  .uh-tip b { display: block; font-weight: 600; } .uh-tip span { opacity: .75; }
+  .uh-x { position: relative; grid-column: 2; height: 22px; font: 500 11px/16px var(--font-mono); color: var(--color-muted); }
+  .uh-x span { position: absolute; top: 6px; transform: translateX(-50%); white-space: nowrap; }
+  .uh-x span.is-start { transform: none; } .uh-x span.is-end { transform: translateX(-100%); }
+  .uh-key { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-muted); }
+  .uh-key i { width: 10px; height: 3px; border-radius: 2px; background: var(--hue); }
+  .uh-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; margin-bottom: 14px; }
+  .uh-head h2 { margin: 0; font-size: 15px; line-height: 24px; font-weight: 600; color: var(--color-heading); }
+  .uh-head p { margin: 0; font-size: 12px; color: var(--color-muted); }
+  .uh-pct { display: inline-flex; align-items: center; gap: 8px; }
+  .uh-pct .op-progress { width: 56px; background: var(--color-raised); }
+  .uh-more { margin-top: 10px; }
+  .op-kpi-note { white-space: normal; }
+  .op-table tr[hidden] { display: none; }
+  .uh-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-bottom: 12px; }
+  .uh-tools h2 { margin: 0; font-size: 15px; line-height: 24px; font-weight: 600; color: var(--color-heading); }
+  .uh-toggle { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; color: var(--color-body); cursor: pointer; }
+</style>
+<script>
+// testinguser's /home/testinguser/resource_usage.txt: [timestamp, cpu.usage.pct, memory.used.bytes, memory.usage_pct, tasks.current, bandwidth.total_sent.bytes, warning]
+window.USAGE = { memTotal: 6442450944, cpuTotal: 400, tasksLimit: 6000, rows: [["2026-10-26T12:53",5,45465600,0,25,0,null],["2026-10-26T13:00",23,221868032,3,125,0,null],["2026-10-26T14:00",0,151228416,2,105,0,null],["2026-10-26T17:00",0,385351680,5,130,0,null],["2026-10-26T18:00",0,386224128,5,130,0,null],["2026-10-26T19:00",0,387100672,6,130,0,null],["2026-10-26T20:00",0,387944448,6,130,0,null],["2026-10-26T21:00",0,388804608,6,130,0,null],["2026-10-26T22:00",0,468070400,7,173,0,null],["2026-10-26T23:00",0,346935296,5,132,0,null],["2026-10-27T00:00",0,346963968,5,130,0,null],["2026-10-27T01:00",0,347820032,5,130,0,null],["2026-10-27T02:00",0,348696576,5,130,0,null],["2026-10-27T03:00",0,349171712,5,130,0,null],["2026-10-27T04:00",0,350044160,5,130,0,null],["2026-10-27T05:00",0,350498816,5,130,0,null],["2026-10-27T06:00",0,351379456,5,130,0,null],["2026-10-27T07:00",0,352276480,5,130,0,null],["2026-10-27T08:00",0,359649280,5,142,0,null],["2026-10-27T09:00",0,356921344,5,130,0,null],["2026-10-27T10:00",0,357801984,5,130,0,null],["2026-10-27T11:00",0,358367232,5,130,0,null],["2026-10-27T12:00",0,359301120,5,130,0,null],["2026-10-27T13:00",14,377892864,5,143,0,null],["2026-10-27T14:00",0,361115648,5,130,0,null],["2026-10-27T15:00",0,361590784,5,130,0,null],["2026-10-27T16:00",0,362434560,5,130,0,null],["2026-10-27T17:00",0,362909696,5,130,0,null],["2026-10-27T18:00",0,363798528,5,130,0,null],["2026-10-27T19:00",0,364683264,5,130,0,null],["2026-10-27T20:00",0,365113344,5,130,0,null],["2026-10-27T21:00",0,365989888,5,130,0,null],["2026-10-27T22:00",0,366456832,5,130,0,null],["2026-10-27T23:00",0,367333376,5,130,0,null],["2026-10-28T00:00",0,367788032,5,130,0,null],["2026-10-28T01:00",0,368656384,5,130,0,null],["2026-10-28T02:00",0,369532928,5,130,0,null],["2026-10-28T03:00",0,369987584,5,130,0,null],["2026-10-28T04:00",0,370860032,5,130,0,null],["2026-10-28T05:00",0,371314688,5,130,0,null],["2026-10-28T06:00",0,372203520,5,130,0,null],["2026-10-28T07:00",0,373075968,5,130,0,null],["2026-10-28T08:00",0,373555200,5,130,0,null],["2026-10-28T09:00",0,374403072,5,130,0,null],["2026-10-28T10:00",0,374861824,5,130,0,null],["2026-10-28T11:00",0,375734272,5,130,0,null],["2026-10-28T12:00",16,402923520,6,131,0,null],["2026-10-28T13:00",0,377167872,5,130,0,null],["2026-10-28T14:00",0,378089472,5,130,0,null],["2026-10-28T15:00",0,376766464,5,130,0,null],["2026-10-28T16:00",0,377593856,5,130,0,null],["2026-10-28T17:00",0,378056704,5,130,0,null],["2026-10-28T18:00",0,378941440,5,131,0,null],["2026-10-28T19:00",0,379371520,5,130,0,null],["2026-10-28T20:00",0,380227584,5,132,0,null],["2026-10-28T21:00",0,381063168,5,132,0,null],["2026-10-28T22:00",0,381546496,5,132,0,null],["2026-10-28T23:00",0,382369792,5,132,0,null],["2026-10-29T00:00",0,382799872,5,132,0,null],["2026-10-29T01:00",2,383647744,5,132,0,null],["2026-10-29T02:00",0,384471040,5,132,0,null],["2026-10-29T03:00",0,384954368,5,132,0,null],["2026-10-29T04:00",0,385806336,5,132,0,null],["2026-10-29T05:00",0,386265088,5,132,0,null],["2026-10-29T06:00",0,387149824,6,132,0,null],["2026-10-29T07:00",0,387993600,6,132,0,null],["2026-10-29T08:00",0,402227200,6,134,0,null],["2026-10-29T09:00",0,403107840,6,134,0,null],["2026-10-29T10:00",0,473853952,7,162,0,null],["2026-10-29T11:00",14,494424064,7,167,0,null],["2026-10-29T12:00",0,1215442944,18,233,0,null],["2026-10-29T13:00",0,1348222976,20,238,0,null],["2026-10-29T14:00",0,1220182016,18,255,0,null],["2026-10-29T15:00",0,1251770368,19,268,0,null],["2026-10-29T16:00",0,1258934272,19,277,0,null],["2026-10-29T17:00",0,1371951104,21,306,0,null],["2026-10-29T18:00",0,1430339584,22,329,0,null]] };
+(function () {
+  const H = 3600e3, MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], DAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const pts = window.USAGE.rows.map((r) => ({ t: Date.parse(r[0] + ':00Z'), cpu: r[1] / 100, mem: r[2], memPct: r[3], tasks: r[4], bw: r[5], warn: r[6] || '' }));
+  const pad = (n) => String(n).padStart(2, '0');
+  const hm = (t) => { const d = new Date(t); return pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()); };
+  const dm = (t) => { const d = new Date(t); return d.getUTCDate() + ' ' + MON[d.getUTCMonth()]; };
+  const fmtGB = (b) => { const g = b / 2 ** 30; return g >= 10 ? g.toFixed(1) : g.toFixed(2); };
+  const fmtCores = (c) => (c >= 1 ? c.toFixed(1) : c.toFixed(2));
+  const num = (n) => n.toLocaleString('en-US');
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const bytes = (b) => { const u = ['B', 'KB', 'MB', 'GB', 'TB']; let i = 0; while (b >= 1024 && i < 4) { b /= 1024; i++; } return (i ? b.toFixed(1) : b) + ' ' + u[i]; };
+  const cpuOfLimit = (c) => Math.round(c * 100 / window.USAGE.cpuTotal * 100);
+
+  // rows go in before Alpine starts so opSortCol can move them around and x-show still filters them
+  window.opUsageRows = function (tbody) {
+    tbody.innerHTML = pts.slice().reverse().map((p) => {
+      const d = new Date(p.t);
+      return '<tr data-t="' + p.t + '"' + (p.warn ? ' data-warn' : '') + '>' +
+        '<td class="op-cell-title" data-sort="' + p.t + '"><div class="op-row-title"><div><b>' + hm(p.t) + '</b><span class="op-sub">' + DAY[d.getUTCDay()] + ' ' + dm(p.t) + '</span></div></div></td>' +
+        '<td data-label="CPU" class="is-num" data-sort="' + p.cpu + '"><span class="op-mono">' + fmtCores(p.cpu) + ' cores</span></td>' +
+        '<td data-label="Memory" class="is-num" data-sort="' + p.mem + '"><span class="op-mono">' + fmtGB(p.mem) + ' GB</span></td>' +
+        '<td data-label="Of limit" data-sort="' + p.memPct + '"><span class="uh-pct"><span class="op-progress' + (p.memPct >= 85 ? ' is-warning' : '') + '"><span style="width:' + Math.max(p.memPct, 1) + '%"></span></span><span class="op-mono">' + p.memPct + '%</span></span></td>' +
+        '<td data-label="Processes" class="is-num" data-sort="' + p.tasks + '"><span class="op-mono">' + num(p.tasks) + '</span></td>' +
+        '<td data-label="Bandwidth" class="is-num" data-sort="' + p.bw + '"><span class="op-mono">' + bytes(p.bw) + '</span></td>' +
+        '<td data-label="Warning">' + (p.warn ? '<span class="op-status is-warning">' + esc(p.warn) + '</span>' : '<span class="op-hint">None</span>') + '</td></tr>';
+    }).join('');
+  };
+
+  const SERIES = {
+    mem: { v: (p) => p.mem / 2 ** 30, min: 0.5, fmt: (v) => (v ? +v.toFixed(2) + ' GB' : '0') },
+    cpu: { v: (p) => p.cpu, min: 0.1, fmt: (v) => (v ? +v.toFixed(2) + '' : '0') },
+    tasks: { v: (p) => p.tasks, min: 10, fmt: (v) => num(v) },
+  };
+  const nice = (v, min) => { v = Math.max(v * 1.1, min); const e = 10 ** Math.floor(Math.log10(v)); return [1, 2, 2.5, 5, 10].map((m) => m * e).find((m) => m >= v - 1e-9); };
+
+  window.usageHistory = () => ({
+    D: window.USAGE, pts, range: '3d', onlyWarn: false, hov: null, limit: 24, all: false, sortTick: 0,
+    ranges: [['24h', '24 hours', 24], ['3d', '3 days', 72], ['7d', '7 days', 168]],
+    num, fmtGB, fmtCores, cpuOfLimit,
+    fmtShort: (t) => dm(t) + ', ' + hm(t),
+    fmtFull(t) { return DAY[new Date(t).getUTCDay()] + ' ' + dm(t) + ', ' + hm(t) + ' UTC'; },
+    get hours() { return this.ranges.find((r) => r[0] === this.range)[2]; },
+    get to() { return pts[pts.length - 1].t; },
+    get from() { return Math.max(pts[0].t, this.to - this.hours * H); },
+    get rangeLabel() { return dm(this.from) + ' ' + hm(this.from) + ' to ' + dm(this.to) + ' ' + hm(this.to); },
+    get shown() { return pts.filter((p) => p.t >= this.from); },
+    get warnCount() { return this.shown.filter((p) => p.warn).length; },
+    get visibleCount() { return this.onlyWarn ? this.warnCount : this.shown.length; },
+    // shows the first `limit` matching rows in whatever order opSortCol left them
+    filterRows(tbody) {
+      let n = 0;
+      for (const tr of tbody.rows) { const ok = +tr.dataset.t >= this.from && (!this.onlyWarn || 'warn' in tr.dataset); tr.hidden = !ok || (!this.all && n >= this.limit); if (ok) n++; }
+    },
+    peak(k) { return this.shown.reduce((a, p) => (p[k] > a[k] ? p : a), this.shown[0]); },
+    yMax(k) { const s = SERIES[k]; return nice(Math.max(...this.shown.map(s.v)), s.min); },
+    yTicks(k) { const m = this.yMax(k); return [m, m / 2, 0].map(SERIES[k].fmt); },
+    x(t) { return (t - this.from) / (this.to - this.from) * 600; },
+    segs(k) {
+      const s = SERIES[k], m = this.yMax(k), out = [];
+      let cur = [], prev = null;
+      for (const p of this.shown) {
+        if (prev && p.t - prev.t > 1.5 * H) { out.push(cur); cur = []; }
+        cur.push([this.x(p.t), 180 - s.v(p) / m * 178]);
+        prev = p;
+      }
+      if (cur.length) out.push(cur);
+      return out;
+    },
+    line(k) { return this.segs(k).map((g) => 'M' + g.map((q) => q[0].toFixed(1) + ',' + q[1].toFixed(1)).join(' L') + (g.length === 1 ? ' l2,0' : '')).join(' '); },
+    area(k) { return this.segs(k).filter((g) => g.length > 1).map((g) => 'M' + g[0][0].toFixed(1) + ',180 L' + g.map((q) => q[0].toFixed(1) + ',' + q[1].toFixed(1)).join(' L') + ' L' + g[g.length - 1][0].toFixed(1) + ',180 Z').join(' '); },
+    xTicks() {
+      const step = this.hours <= 24 ? 6 * H : 24 * H, out = [];
+      for (let t = Math.ceil(this.from / step) * step; t <= this.to; t += step) {
+        const x = (t - this.from) / (this.to - this.from) * 100;
+        out.push({ x, label: step < 24 * H ? hm(t) : dm(t), cls: x < 6 ? 'is-start' : x > 94 ? 'is-end' : '' });
+      }
+      return out;
+    },
+    hover(e, k) {
+      const r = e.currentTarget.getBoundingClientRect(), t = this.from + (e.clientX - r.left) / r.width * (this.to - this.from);
+      const p = this.shown.reduce((a, q) => (Math.abs(q.t - t) < Math.abs(a.t - t) ? q : a));
+      this.hov = { k, p, x: this.x(p.t) / 6, y: (180 - SERIES[k].v(p) / this.yMax(k) * 178) / 1.8 };
+    },
+    tipStyle() { return this.hov.x > 55 ? { left: this.hov.x + '%', transform: 'translateX(calc(-100% - 12px))' } : { left: this.hov.x + '%', transform: 'translateX(12px)' }; },
+  });
+})();
+</script>
+<script src="shell.js"></script>
+<script defer src="vendor/alpine.min.js"></script>
+</head>
+<body>
+<div class="op-app" x-data="{ nav: false }" :data-nav-open="nav || null" @keydown.escape.window="nav = false">
+  <aside class="op-sidebar" aria-label="Sidebar" x-data="{ navq: '', userMenu: false, menuStyle: 'classic' }" x-effect="opFilterNav($el, navq)" @keydown.window="if ($event.key === '/' && !$event.ctrlKey && !$event.target.closest('input, textarea, select')) { $event.preventDefault(); nav = true; $refs.navq.focus() }" @focus-nav-search.window="nav = true; $nextTick(() => $refs.navq.focus())">
+    <a class="op-brand" href="index.html"><svg viewBox="0 0 213 215" aria-hidden="true"><g transform="translate(0,215) scale(0.1,-0.1)" fill="currentColor"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"/></g></svg> OpenPanel</a>
+    <label class="op-sidesearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg><input type="search" x-ref="navq" x-model="navq" placeholder="Search menu" aria-label="Search the menu" autocomplete="off" @keydown.escape="navq = ''; $el.blur()" @keydown.enter.prevent="opFirstNavHit($el.closest('aside'))"><kbd x-show="!navq">/</kbd></label>
+    <div class="op-sidebar-scroll">
+    <nav class="op-nav" aria-label="Main"><a class="op-nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1"/><path d="M5 16h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1"/><path d="M15 12h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1"/><path d="M15 4h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1"/></svg> Dashboard</a><a class="op-nav-item" href="websites.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 6h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"></path><path d="M17 7m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path></svg> Websites</a><a class="op-nav-item" href="domains.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19.5 7a9 9 0 0 0 -7.5 -4a8.991 8.991 0 0 0 -7.484 4"></path><path d="M11.5 3a16.989 16.989 0 0 0 -1.826 4"></path><path d="M12.5 3a16.989 16.989 0 0 1 1.828 4"></path><path d="M19.5 17a9 9 0 0 1 -7.5 4a8.991 8.991 0 0 1 -7.484 -4"></path><path d="M11.5 21a16.989 16.989 0 0 1 -1.826 -4"></path><path d="M12.5 21a16.989 16.989 0 0 0 1.828 -4"></path><path d="M2 10l1 4l1.5 -4l1.5 4l1 -4"></path><path d="M17 10l1 4l1.5 -4l1.5 4l1 -4"></path><path d="M9.5 10l1 4l1.5 -4l1.5 4l1 -4"></path></svg> Domains</a><a class="op-nav-item" href="email.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"></path><path d="M3 7l9 6l9 -6"></path></svg> Email</a><a class="op-nav-item" href="files.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"/></svg> Files</a><a class="op-nav-item" href="backups.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/><path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10"/><path d="M10 12l4 0"/></svg> Backups</a></nav>
+    <nav class="op-nav" aria-label="Databases"><div class="op-nav-label">Databases</div><a class="op-nav-item" href="mysql.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"/><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"/><path d="M7 8l0 .01"/><path d="M7 16l0 .01"/><path d="M11 8h6"/><path d="M11 16h6"/></svg> MySQL</a><a class="op-nav-item" href="postgresql.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6a8 3 0 1 0 16 0a8 3 0 1 0 -16 0"/><path d="M4 6v6a8 3 0 0 0 16 0v-6"/><path d="M4 12v6a8 3 0 0 0 16 0v-6"/></svg> PostgreSQL</a></nav>
+    <nav class="op-nav" aria-label="Configure"><div class="op-nav-label">Configure</div><a class="op-nav-item" href="php.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M2 12a10 9 0 1 0 20 0a10 9 0 1 0 -20 0"></path><path d="M5.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M15.5 15l.395 -1.974l.605 -3.026h1.32a1 1 0 0 1 .986 1.164l-.167 1a1 1 0 0 1 -.986 .836h-1.653"></path><path d="M12 7.5l-1 5.5"></path><path d="M11.6 10h2.4l-.5 3"></path></svg> PHP</a><a class="op-nav-item" href="cron.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 7v5l3 3"/></svg> Cron Jobs</a><a class="op-nav-item" href="cache.html"><svg aria-hidden="true" stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="currentColor" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5.636 19.364a9 9 0 1 1 12.728 0" /><path d="M16 9l-4 4" /></svg> Cache & Search</a><a class="op-nav-item" href="webserver.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 6l8 0"/><path d="M16 6l4 0"/><path d="M8 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 12l2 0"/><path d="M10 12l10 0"/><path d="M17 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M4 18l11 0"/><path d="M19 18l1 0"/></svg> Web Server Config</a><a class="op-nav-item" href="containers.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5"/><path d="M12 12l8 -4.5"/><path d="M12 12l0 9"/><path d="M12 12l-8 -4.5"/></svg> Containers</a></nav>
+    <nav class="op-nav" aria-label="Monitor"><div class="op-nav-label">Monitor</div><a class="op-nav-item" href="statistics.html" aria-current="page"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 20h14"/></svg> Statistics</a><a class="op-nav-item" href="services.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l3 3l-3 3"/><path d="M13 15l3 0"/><path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/></svg> Processes & Services</a></nav>
+    <nav class="op-nav" aria-label="Account"><div class="op-nav-label">Account</div><a class="op-nav-item" href="account.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 10a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855"/></svg> Account</a><a class="op-nav-item" href="security.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/></svg> Security</a><a class="op-nav-item" href="server-info.html"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 9h.01"/><path d="M11 12h1v4h1"/></svg> Server Info</a><a class="op-nav-item" href="components.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M4 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M14 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M14 7l6 0"/><path d="M17 4l0 6"/></svg> Components</a></nav>
+    <p class="op-nav-empty" hidden>No matching pages</p>
+    </div>
+    <div class="op-user-wrap" @click.outside="userMenu = false" @keydown.escape="userMenu = false">
+      <div class="op-menu op-user-menu" role="menu" x-show="userMenu" x-cloak x-transition.opacity>
+        <div class="op-menu-note">OpenPanel 1.6.4</div>
+        <hr>
+        <div class="op-menu-row" role="group"><span>Theme</span><button type="button" class="op-icon-btn" aria-label="Switch theme" @click="let d=document.documentElement.classList.toggle('dark');localStorage.setItem('color-theme', d ? 'dark' : 'light')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg></button></div>
+        <div class="op-menu-row" role="group"><span>Menu style</span><span class="op-seg"><button type="button" title="Classic" @click="menuStyle = 'classic'" :aria-pressed="(menuStyle === 'classic').toString()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 5h8"/><path d="M13 9h5"/><path d="M13 15h8"/><path d="M13 19h5"/><path d="M3 4h6v6h-6z"/><path d="M3 14h6v6h-6z"/></svg></button><button type="button" title="Modern" @click="menuStyle = 'modern'" :aria-pressed="(menuStyle === 'modern').toString()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"/><path d="M9 4v16"/></svg></button></span></div>
+        <hr>
+        <a role="menuitem" href="https://openpanel.com/docs/changelog/" target="_blank" rel="noopener">Changelog<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <a role="menuitem" href="https://openpanel.com/docs/panel/intro/" target="_blank" rel="noopener">Documentation<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <a role="menuitem" href="https://community.openpanel.org/" target="_blank" rel="noopener">Community Forums<span class="op-menu-ext"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span></a>
+        <hr>
+        <button type="button" role="menuitem" @click="userMenu = false">Take the tour</button>
+        <a role="menuitem" href="index.html">Sign out</a>
+      </div>
+      <button type="button" class="op-user" @click="userMenu = !userMenu" aria-haspopup="menu" :aria-expanded="userMenu.toString()"><span class="op-avatar">T</span><span class="op-user-text"><b>testinguser</b><span>Developer plus</span></span><svg class="op-user-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></button>
+    </div>
+  </aside>
+  <div class="op-scrim" x-show="nav" x-cloak @click="nav = false"></div>
+  <div class="op-main">
+    <header class="op-topbar">
+      <button class="op-icon-btn op-menu-btn" type="button" aria-label="Open menu" @click="nav = true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6l16 0"/><path d="M4 12l16 0"/><path d="M4 18l16 0"/></svg></button>
+      <div class="op-crumb"><span>Statistics</span> <span style="color:var(--color-faint)">/</span> <b>Usage History</b></div>
+      <span class="op-stat"><i>LOAD</i>1.14</span><span class="op-stat"><i>RAM</i>68.8%</span><span class="op-stat"><i>CPU</i>6.9%</span><span class="op-stat"><i>DISK</i>54.7%</span>
+      <button class="op-ai" type="button" aria-label="AI assistant">AI</button>
+      <div class="op-toolsearch" x-data="opToolSearch()" @keydown.window.ctrl.k.prevent="show()" @keydown.window.meta.k.prevent="show()" @click.outside="hide()" @keydown.escape="hide()"><button class="op-icon-btn" type="button" aria-label="Search tools" title="Search tools (Ctrl K)" x-show="!open" @click="show()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg></button><div class="op-toolsearch-box" x-show="open" x-cloak><label class="op-sidesearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg><input type="search" x-ref="q" x-model="q" placeholder="Search tools" aria-label="Search tools" autocomplete="off" @input="active = 0" @keydown.down.prevent="move(1)" @keydown.up.prevent="move(-1)" @keydown.enter.prevent="go()"><kbd>Esc</kbd></label><div class="op-menu op-toolsearch-list" x-show="q" role="listbox"><template x-for="(t, i) in results" :key="t[0]"><a :href="t[1]" role="option" :aria-selected="(i === active).toString()" @mouseenter="active = i"><span x-text="t[0]"></span><small x-text="t[2]"></small></a></template><p class="op-nav-empty" x-show="!results.length">No tools match</p></div></div></div>
+      <button class="op-icon-btn" type="button" aria-label="Switch theme" x-data @click="let d=document.documentElement.classList.toggle('dark');localStorage.setItem('color-theme', d ? 'dark' : 'light')"><span class="dark:hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg></span><span class="hidden dark:inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg></span></button>
+    </header>
+    <nav class="op-tabs" aria-label="Statistics"><a href="statistics.html" aria-current="page">Resource Usage</a><a href="disk.html">Disk Usage</a><a href="disk.html?mode=inodes">Inode Usage</a><a href="statistics-summary.html">Daily Summary</a><a href="visitors.html">Visitor Statistics</a><a href="domains-access-logs.html">Access Logs</a><a href="error-logs.html">Error Logs</a></nav>
+    <main class="op-content" x-data="usageHistory()">
+      <div class="op-page-head"><div><div class="op-eyebrow">Sampled every hour · last sample <span x-text="fmtFull(to)"></span></div><h1 class="op-title">Usage History</h1><p class="op-meta">CPU, memory and processes for your whole account, hour by hour, so you can see when it gets busy.</p></div><div class="op-actions"><div class="op-segmented" role="group" aria-label="Time range"><template x-for="r in ranges" :key="r[0]"><button type="button" :aria-pressed="(range === r[0]).toString()" @click="range = r[0]; hov = null; all = false" x-text="r[1]"></button></template></div></div></div>
+
+      <div class="op-alert is-warning" role="status" x-show="warnCount" x-cloak><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/><path d="M12 16h.01"/></svg><span x-text="warnCount + (warnCount === 1 ? ' sample' : ' samples') + ' in this range went over a limit threshold. They are marked in the table below.'"></span></div>
+
+      <section class="op-kpis" aria-label="Peaks in this range">
+        <div class="op-kpi"><div class="op-kpi-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 3.2a9 9 0 1 0 10.8 10.8a1 1 0 0 0 -1 -1h-6.8a2 2 0 0 1 -2 -2v-7a.9 .9 0 0 0 -1 -.8"/><path d="M15 3.5a9 9 0 0 1 5.5 5.5h-4.5a1 1 0 0 1 -1 -1v-4.5"/></svg> Peak memory</div><div class="op-kpi-value"><span x-text="fmtGB(peak('mem').mem)"></span> <small>GB</small></div><div class="op-kpi-note" x-text="peak('mem').memPct + '% of ' + (+fmtGB(D.memTotal)) + ' GB · ' + fmtShort(peak('mem').t)"></div><div class="op-progress"><span :style="{ width: Math.max(peak('mem').memPct, 1) + '%' }"></span></div></div>
+        <div class="op-kpi"><div class="op-kpi-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12h4l3 8l4 -16l3 8h4"/></svg> Peak CPU</div><div class="op-kpi-value"><span x-text="fmtCores(peak('cpu').cpu)"></span> <small>cores</small></div><div class="op-kpi-note" x-text="cpuOfLimit(peak('cpu').cpu) + '% of ' + fmtCores(D.cpuTotal / 100) + ' cores · ' + fmtShort(peak('cpu').t)"></div><div class="op-progress"><span :style="{ width: Math.max(cpuOfLimit(peak('cpu').cpu), 1) + '%' }"></span></div></div>
+        <div class="op-kpi"><div class="op-kpi-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M13 5h8"/><path d="M13 9h5"/><path d="M13 15h8"/><path d="M13 19h5"/><path d="M3 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/><path d="M3 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"/></svg> Peak processes</div><div class="op-kpi-value" x-text="num(peak('tasks').tasks)"></div><div class="op-kpi-note" x-text="'of ' + num(D.tasksLimit) + ' allowed · ' + fmtShort(peak('tasks').t)"></div><div class="op-progress"><span :style="{ width: Math.max(peak('tasks').tasks / D.tasksLimit * 100, 1) + '%' }"></span></div></div>
+        <div class="op-kpi"><div class="op-kpi-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/><path d="M12 16h.01"/></svg> Over a threshold</div><div class="op-kpi-value"><span x-text="warnCount"></span> <small x-text="'of ' + shown.length + ' samples'"></small></div><div class="op-kpi-note" :class="warnCount ? 'is-warning' : ''" x-text="warnCount ? 'See the marked rows below' : 'Memory and CPU stayed under 85%'"></div></div>
+      </section>
+
+      <section class="op-card" style="--hue: var(--color-hue-purple)" aria-labelledby="uh-mem">
+        <div class="uh-head"><h2 id="uh-mem">Memory</h2><p><span class="uh-key"><i></i>Used</span> · limit <span x-text="+fmtGB(D.memTotal)"></span> GB</p></div>
+        <div class="uh-chart">
+          <div class="uh-y" aria-hidden="true"><template x-for="v in yTicks('mem')"><span x-text="v"></span></template></div>
+          <div class="uh-plot" @pointermove="hover($event, 'mem')" @pointerleave="hov = null">
+            <svg viewBox="0 0 600 180" preserveAspectRatio="none" role="img" :aria-label="'Memory used, ' + rangeLabel + ', peak ' + fmtGB(peak('mem').mem) + ' GB'"><line class="gl" x1="0" x2="600" y1="0.5" y2="0.5"/><line class="gl" x1="0" x2="600" y1="90" y2="90"/><line class="base" x1="0" x2="600" y1="179.5" y2="179.5"/><path class="area" :d="area('mem')"/><path class="line" :d="line('mem')"/><line class="cross" x-show="hov && hov.k === 'mem'" :x1="hov ? hov.x * 6 : 0" :x2="hov ? hov.x * 6 : 0" y1="0" y2="180"/></svg>
+            <template x-if="hov && hov.k === 'mem'"><div><span class="uh-dot" :style="{ left: hov.x + '%', top: hov.y + '%' }"></span><div class="uh-tip" :style="tipStyle()"><b x-text="fmtGB(hov.p.mem) + ' GB · ' + hov.p.memPct + '%'"></b><span x-text="fmtFull(hov.p.t)"></span></div></div></template>
+          </div>
+          <div class="uh-x" aria-hidden="true"><template x-for="tk in xTicks()"><span :class="tk.cls" :style="{ left: tk.x + '%' }" x-text="tk.label"></span></template></div>
+        </div>
+      </section>
+
+      <div class="op-cols-2">
+        <section class="op-card" style="--hue: var(--color-hue-cyan)" aria-labelledby="uh-cpu">
+          <div class="uh-head"><h2 id="uh-cpu">CPU</h2><p><span class="uh-key"><i></i>Cores in use</span> · limit <span x-text="fmtCores(D.cpuTotal / 100)"></span> cores</p></div>
+          <div class="uh-chart">
+            <div class="uh-y" aria-hidden="true"><template x-for="v in yTicks('cpu')"><span x-text="v"></span></template></div>
+            <div class="uh-plot" @pointermove="hover($event, 'cpu')" @pointerleave="hov = null">
+              <svg viewBox="0 0 600 180" preserveAspectRatio="none" role="img" :aria-label="'CPU cores in use, ' + rangeLabel + ', peak ' + fmtCores(peak('cpu').cpu) + ' cores'"><line class="gl" x1="0" x2="600" y1="0.5" y2="0.5"/><line class="gl" x1="0" x2="600" y1="90" y2="90"/><line class="base" x1="0" x2="600" y1="179.5" y2="179.5"/><path class="area" :d="area('cpu')"/><path class="line" :d="line('cpu')"/><line class="cross" x-show="hov && hov.k === 'cpu'" :x1="hov ? hov.x * 6 : 0" :x2="hov ? hov.x * 6 : 0" y1="0" y2="180"/></svg>
+              <template x-if="hov && hov.k === 'cpu'"><div><span class="uh-dot" :style="{ left: hov.x + '%', top: hov.y + '%' }"></span><div class="uh-tip" :style="tipStyle()"><b x-text="fmtCores(hov.p.cpu) + ' cores · ' + cpuOfLimit(hov.p.cpu) + '%'"></b><span x-text="fmtFull(hov.p.t)"></span></div></div></template>
+            </div>
+            <div class="uh-x" aria-hidden="true"><template x-for="tk in xTicks()"><span :class="tk.cls" :style="{ left: tk.x + '%' }" x-text="tk.label"></span></template></div>
+          </div>
+        </section>
+        <section class="op-card" style="--hue: var(--color-hue-orange)" aria-labelledby="uh-tasks">
+          <div class="uh-head"><h2 id="uh-tasks">Processes</h2><p><span class="uh-key"><i></i>Running</span> · limit <span x-text="num(D.tasksLimit)"></span></p></div>
+          <div class="uh-chart">
+            <div class="uh-y" aria-hidden="true"><template x-for="v in yTicks('tasks')"><span x-text="v"></span></template></div>
+            <div class="uh-plot" @pointermove="hover($event, 'tasks')" @pointerleave="hov = null">
+              <svg viewBox="0 0 600 180" preserveAspectRatio="none" role="img" :aria-label="'Running processes, ' + rangeLabel + ', peak ' + peak('tasks').tasks"><line class="gl" x1="0" x2="600" y1="0.5" y2="0.5"/><line class="gl" x1="0" x2="600" y1="90" y2="90"/><line class="base" x1="0" x2="600" y1="179.5" y2="179.5"/><path class="area" :d="area('tasks')"/><path class="line" :d="line('tasks')"/><line class="cross" x-show="hov && hov.k === 'tasks'" :x1="hov ? hov.x * 6 : 0" :x2="hov ? hov.x * 6 : 0" y1="0" y2="180"/></svg>
+              <template x-if="hov && hov.k === 'tasks'"><div><span class="uh-dot" :style="{ left: hov.x + '%', top: hov.y + '%' }"></span><div class="uh-tip" :style="tipStyle()"><b x-text="num(hov.p.tasks) + ' processes'"></b><span x-text="fmtFull(hov.p.t)"></span></div></div></template>
+            </div>
+            <div class="uh-x" aria-hidden="true"><template x-for="tk in xTicks()"><span :class="tk.cls" :style="{ left: tk.x + '%' }" x-text="tk.label"></span></template></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="op-card" aria-labelledby="uh-samples">
+        <div class="uh-tools"><h2 id="uh-samples">Samples <span class="op-hint" x-text="'· ' + visibleCount + ' of ' + shown.length"></span></h2><label class="uh-toggle"><button class="op-switch" type="button" role="switch" :aria-checked="onlyWarn.toString()" @click="onlyWarn = !onlyWarn" aria-label="Only samples over a threshold"></button>Only samples over a threshold</label></div>
+        <div class="op-table-wrap"><table class="op-table">
+          <thead @click="$nextTick(() => sortTick++)"><tr>
+            <th aria-sort="descending"><button class="op-th-sort" type="button" onclick="opSortCol(this)">Time<i aria-hidden="true"></i></button></th>
+            <th aria-sort="none" class="is-num"><button class="op-th-sort" type="button" onclick="opSortCol(this)">CPU<i aria-hidden="true"></i></button></th>
+            <th aria-sort="none" class="is-num"><button class="op-th-sort" type="button" onclick="opSortCol(this)">Memory<i aria-hidden="true"></i></button></th>
+            <th aria-sort="none"><button class="op-th-sort" type="button" onclick="opSortCol(this)">Of limit<i aria-hidden="true"></i></button></th>
+            <th aria-sort="none" class="is-num"><button class="op-th-sort" type="button" onclick="opSortCol(this)">Processes<i aria-hidden="true"></i></button></th>
+            <th aria-sort="none" class="is-num"><button class="op-th-sort" type="button" onclick="opSortCol(this)">Bandwidth<i aria-hidden="true"></i></button></th>
+            <th aria-sort="none"><button class="op-th-sort" type="button" onclick="opSortCol(this)">Warning<i aria-hidden="true"></i></button></th>
+          </tr></thead>
+          <tbody id="uh-rows" x-effect="sortTick; filterRows($el)"></tbody>
+        </table></div>
+        <script>opUsageRows(document.getElementById('uh-rows'));</script>
+        <button class="op-btn op-btn-ghost op-btn-sm uh-more" type="button" x-show="!all && visibleCount > limit" @click="all = true" x-text="'Show all ' + visibleCount + ' samples'"></button>
+        <div class="op-empty" x-show="!visibleCount" x-cloak><b>No samples went over a threshold</b><span class="op-hint">A sample is marked when memory or CPU reaches 85% of your limit, or bandwidth 90%.</span></div>
+        <div class="op-tfoot"><span>Times are UTC, the server's time. The newest 168 samples (7 days) are kept. No bandwidth limit is set on this account.</span><span class="op-mono" style="color:var(--color-accent-text)">opencli docker-collect_stats testinguser</span></div>
+      </section>
+    </main>
+  </div>
+</div>
+</body>
+</html>

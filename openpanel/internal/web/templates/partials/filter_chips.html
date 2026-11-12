@@ -1,16 +1,16 @@
 {{define "filter_chips_css"}}
 <style>
 /* rounded filter chips with a count, used by the activity log and the dns zone type filter */
-.activity-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.625rem; border-radius: 0.375rem; border: 1px solid var(--color-gray-200); font-size: 0.8125rem; font-weight: 500; color: var(--color-gray-700); background: var(--color-white); text-decoration: none; transition: background-color .15s, border-color .15s; }
-.activity-chip:hover { background: var(--color-gray-50); border-color: var(--color-gray-300); }
-.activity-chip.is-active { background: var(--color-blue-50); border-color: var(--color-blue-500); color: var(--color-blue-900); }
-.activity-chip-count { font-variant-numeric: tabular-nums; color: var(--color-gray-500); font-size: 0.75rem; }
-.activity-chip.is-active .activity-chip-count { color: var(--color-blue-500); }
+.activity-chip { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.7rem; border-radius: 9999px; border: 1px solid #e5e7eb; font-size: 0.8125rem; color: #374151; background: #fff; text-decoration: none; transition: background-color .15s, border-color .15s; }
+.activity-chip:hover { background: #f9fafb; border-color: #d1d5db; }
+.activity-chip.is-active { background: #111827; border-color: #111827; color: #fff; }
+.activity-chip-count { font-variant-numeric: tabular-nums; color: #6b7280; font-size: 0.75rem; }
+.activity-chip.is-active .activity-chip-count { color: #d1d5db; }
 .activity-chip-dot { width: 0.5rem; height: 0.5rem; border-radius: 9999px; background: currentColor; }
-.dark .activity-chip { border-color: var(--color-gray-800); color: var(--color-gray-300); background: var(--color-gray-950); }
-.dark .activity-chip:hover { background: var(--color-gray-900); border-color: var(--color-gray-700); }
-.dark .activity-chip.is-active { background: color-mix(in oklab, var(--color-blue-400) 10%, transparent); border-color: var(--color-blue-500); color: var(--color-blue-400); }
-.dark .activity-chip-count { color: var(--color-gray-400); }
-.dark .activity-chip.is-active .activity-chip-count { color: var(--color-blue-400); }
+.dark .activity-chip { border-color: #1f2937; color: #d1d5db; background: #030712; }
+.dark .activity-chip:hover { background: #111827; border-color: #374151; }
+.dark .activity-chip.is-active { background: #f9fafb; border-color: #f9fafb; color: #111827; }
+.dark .activity-chip-count { color: #9ca3af; }
+.dark .activity-chip.is-active .activity-chip-count { color: #4b5563; }
 </style>
 {{end}}

@@ -1,0 +1,190 @@
+{{define "usage"}}<!-- START templates/dashboard/usage.html -->
+<!-- no markup of its own: loads plan and resource usage for the Overview, then shares it -->
+<div x-data="usageDashboard()" x-init="init()" hidden></div>
+    <script>
+    function usageDashboard() {
+        return {
+            userAllowed: {{.UserAllowedJSON}},
+
+            // backend
+            websites:   { used: '0', allocated: '∞', percentage: 0 },
+            domains:    { used: '0', allocated: '∞', percentage: 0 },
+            databases:  { used: '0', allocated: '∞', percentage: 0 },
+            emails:     { used: '0', allocated: '∞', percentage: 0 },
+            ftp:        { used: '0', allocated: '∞', percentage: 0 },
+
+            // ajax
+            disk:     { used: "{{.T.Get "Calculating.."}}", allocated: "", percentage: 0 },
+            inodes:   { used: "{{.T.Get "Calculating.."}}", allocated: "", percentage: 0 },
+            cpu:      { used: "{{.T.Get "Calculating.."}}", allocated: "", percentage: 0 },
+            mem:      { used: "{{.T.Get "Calculating.."}}", allocated: "", percentage: 0 },
+
+            calcStat({ count, limit }) {
+                const isUnlimited = limit === 0;
+                const allocated = isUnlimited ? '∞' : limit;
+                const percentage = isUnlimited ? 0 : Math.min(100, ((count / limit) * 100).toFixed(1));
+                return {
+                    used: count.toString(),
+                    allocated: allocated.toString(),
+                    percentage: percentage,
+                };
+            },
+            formatBytes(kb) {
+                const sizes = ['KB', 'MB', 'GB', 'TB', 'PB'];
+                if (kb === 0) return 'Unlimited';
+                const i = Math.min(Math.floor(Math.log(kb) / Math.log(1000)), sizes.length - 1);
+                return Math.round((kb / Math.pow(1000, i)) * 100) / 100 + ' ' + sizes[i];
+            },
+            formatBytesToBigger(bytes) {
+                const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+                if (bytes === 0) return 'Unlimited';
+                const i = Math.floor(Math.log(bytes * 1024) / Math.log(1024));
+                const roundedValue = i > 2 ? Math.ceil(bytes * 1024 / Math.pow(1024, i)) : Math.round(bytes * 1024 / Math.pow(1024, i));
+                return roundedValue + ' ' + sizes[i];
+            },
+            formatInodes(inodes) {
+                if (inodes === 0) return 'Unlimited';
+                if (inodes < 1e6) return inodes.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                return (inodes / 1e6).toFixed(2) + 'M';
+            },
+            progressBarClass(percent) {
+                percent = parseFloat(percent);
+                if (percent >= 90) return 'bg-red-500 dark:bg-red-500';
+                if (percent >= 70) return 'bg-yellow-500 dark:bg-yellow-500';
+                return 'bg-blue-500 dark:bg-blue-500';
+            },
+            fetchDiskInodes() {
+                fetch('/json/disk_inodes')
+                    .then(response => response.json())
+                    .then(data => {
+                        const isDiskUnlimited = data.disk_soft === 0;
+                        const isInodesUnlimited = data.inodes_soft === 0;
+
+                        const diskUsed = this.formatBytes(data.disk_used);
+                        const diskTotal = isDiskUnlimited ? '∞' : this.formatBytesToBigger(data.disk_soft);
+                        const diskPct = isDiskUnlimited ? 0 : Math.min(100, ((data.disk_used / data.disk_soft) * 100).toFixed(1));
+
+                        this.disk = {
+                            used: diskUsed,
+                            allocated: diskTotal,
+                            percentage: diskPct
+                        };
+
+                        const inodesUsed = this.formatInodes(data.inodes_used);
+                        const inodesTotal = isInodesUnlimited ? '∞' : this.formatInodes(data.inodes_soft);
+                        const inodesPct = isInodesUnlimited ? 0 : Math.min(100, ((data.inodes_used / data.inodes_soft) * 100).toFixed(1));
+
+                        this.inodes = {
+                            used: inodesUsed,
+                            allocated: inodesTotal,
+                            percentage: inodesPct
+                        };
+
+                        if (typeof reportHealthIssues === 'function') {
+                            const issues = [];
+                            if (!isDiskUnlimited && diskPct >= 90) {
+                                issues.push({
+                                    id: 'disk-limit',
+                                    severity: diskPct >= 100 ? 'error' : 'warning',
+                                    message: "{{.T.Get "Disk usage is at"}} " + diskPct + "% {{.T.Get "of your limit."}}",
+                                });
+                            }
+                            if (!isInodesUnlimited && inodesPct >= 90) {
+                                issues.push({
+                                    id: 'inodes-limit',
+                                    severity: inodesPct >= 100 ? 'error' : 'warning',
+                                    message: "{{.T.Get "Inodes usage is at"}} " + inodesPct + "% {{.T.Get "of your limit."}}",
+                                });
+                            }
+                            if (issues.length) reportHealthIssues('dashboard', issues, 24);
+                        }
+                    });
+            },
+
+            fetchResourceUsage() {
+                fetch('/json/resource_usage', {
+                    headers: { 'X-CSRF-TOKEN': '{{.CSRFToken}}' }
+                })
+                .then(res => res.json())
+                .then(response => {
+                    const data = response;
+
+                    // CPU
+                    // pct counts 100 per core, so 101 of 200 is half the plan
+                    let cpuUsedPct = data.cpu.total.pct > 0 ? Math.round((data.cpu.usage.pct || 0) * 100 / data.cpu.total.pct) : Math.round(data.cpu.usage.pct || 0);
+
+                    this.cpu = {
+                        used: data.cpu.usage.human || '0 cores',
+                        allocated: data.cpu.total.human || '0 cores',
+                        percentage: cpuUsedPct, // convert from %
+                        visual: cpuUsedPct
+                    };
+
+                    // Memory
+                    this.mem = {
+                        used: data.memory.used.human || '0',
+                        allocated: data.memory.total.human || '0',
+                        percentage: data.memory.usage_pct || 0
+                    };
+
+                    if (typeof reportHealthIssues === 'function') {
+                        const issues = [];
+                        if (cpuUsedPct >= 90) {
+                            issues.push({
+                                id: 'cpu-limit',
+                                severity: cpuUsedPct >= 100 ? 'error' : 'warning',
+                                message: "{{.T.Get "CPU usage is at"}} " + cpuUsedPct + "% {{.T.Get "of your limit."}}",
+                            });
+                        }
+                        if (this.mem.percentage >= 90) {
+                            issues.push({
+                                id: 'ram-limit',
+                                severity: this.mem.percentage >= 100 ? 'error' : 'warning',
+                                message: "{{.T.Get "RAM usage is at"}} " + this.mem.percentage + "% {{.T.Get "of your limit."}}",
+                            });
+                        }
+                        if (issues.length) reportHealthIssues('dashboard', issues, 24);
+                    }
+                });
+            },
+
+            // Initialization
+            // the Overview strip in dashboard.html listens for these
+            shareResources() {
+                window.dispatchEvent(new CustomEvent('dashboard-resources', { detail: { disk: this.disk, inodes: this.inodes, cpu: this.cpu, mem: this.mem } }));
+            },
+            init() {
+                if (this.initialized) return;
+                this.initialized = true;
+
+                this.websites     = this.calcStat({ count: {{.UserWebsitesCount}}, limit: {{.WebsitesLimit}} });
+                this.domains      = this.calcStat({ count: {{.MainDomainsCount}}, limit: {{.DomainsLimit}} });
+                this.databases    = this.calcStat({ count: {{.DBUsage}},     limit: {{.DBLimit}} });
+                this.emails       = this.calcStat({ count: {{.EmailCount}},  limit: {{.EmailLimit}} });
+                this.ftp          = this.calcStat({ count: {{.FTPCount}},    limit: {{.FTPLimit}} });
+
+                ['disk', 'inodes', 'cpu', 'mem'].forEach(k => this.$watch(k, () => this.shareResources()));
+                this.fetchDiskInodes();
+                {{if .UserAllowed.usage}}this.fetchResourceUsage();{{end}}
+            }
+        }
+    }
+    </script>
+
+
+{{if and .LimitReached .UpgradePlanName}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof reportHealthIssues === 'function') {
+        reportHealthIssues('dashboard-upsell', [{
+            id: 'upsell:' + {{toJSON .UpgradePlanName}},
+            severity: 'info',
+            message: {{toJSON (.T.Get "You've reached one or more limits of your current plan. Upgrade to %(plan)s for higher limits." "plan" .UpgradePlanName)}}
+        }], 168); // once a week
+    }
+});
+</script>
+{{end}}
+
+<!-- END templates/dashboard/usage.html -->
+{{end}}

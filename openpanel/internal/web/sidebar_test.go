@@ -35,8 +35,8 @@ func findItem(items []NavItem, label string) *NavItem {
 func TestNavPathAndUploadDownloadActiveState(t *testing.T) {
 	allowed := map[string]bool{"filemanager": true}
 	cases := map[string]string{
-		"/file-manager/upload":                 "File manager",
-		"/file-manager/upload?method=upload":   "File manager",
+		"/file-manager/upload":                 "File Manager",
+		"/file-manager/upload?method=upload":   "File Manager",
 		"/file-manager/upload?method=download": "Download from URL",
 	}
 	for url, want := range cases {
@@ -83,14 +83,14 @@ func TestSidebarSections(t *testing.T) {
 			sections[item.Section] = item.Label
 		}
 	}
-	if sections["Configure"] != "PHP" || sections["Monitor & secure"] != "Statistics" {
+	if sections["Configure"] != "PHP" || sections["Monitor"] != "Statistics" {
 		t.Errorf("unexpected section starts: %v", sections)
 	}
 
 	// a section with no visible areas hands its heading to nobody, the next section still gets its own
 	items := BuildSidebarNav(map[string]bool{"domains": true, "info": true}, nil, "/domains")
-	if items[1].Label != "Server info" || items[1].Section != "Monitor & secure" {
-		t.Errorf("expected Server Info to carry the Monitor & Secure heading, got %+v", items)
+	if items[1].Label != "Server Info" || items[1].Section != "Account" {
+		t.Errorf("expected Server Info to carry the Account heading, got %+v", items)
 	}
 }
 
@@ -102,10 +102,10 @@ func TestEachPageBelongsToOneArea(t *testing.T) {
 		"/domains/log":          "Statistics",
 		"/error-logs":           "Statistics",
 		"/summary/2026-10-15":   "Statistics",
-		"/domains/vhosts":       "Web server config",
+		"/domains/vhosts":       "Web Server Config",
 		"/domains/ssl":          "Domains",
 		"/containers/mysql":     "MySQL",
-		"/containers/webserver": "Web server config",
+		"/containers/webserver": "Web Server Config",
 		"/containers/terminal":  "Containers",
 		"/server/usage/history": "Statistics",
 	}
@@ -125,7 +125,7 @@ func TestEachPageBelongsToOneArea(t *testing.T) {
 func TestBuildPageTabsMySQL(t *testing.T) {
 	allowed := map[string]bool{"mysql": true, "mysql_conf": true, "phpmyadmin": true, "remote_mysql": true, "change_db": true}
 	tabs := BuildPageTabs(allowed, nil, "/mysql/assign", TabContext{})
-	if got := tabLabels(tabs); got != "Databases,Users,phpMyAdmin,Remote access,Configuration,Server type" {
+	if got := tabLabels(tabs); got != "Databases,Users,phpMyAdmin,Remote Access,Configuration,Server Type" {
 		t.Errorf("unexpected MySQL tabs: %s", got)
 	}
 	if activeTab(tabs) != "Users" {
@@ -134,8 +134,8 @@ func TestBuildPageTabsMySQL(t *testing.T) {
 	if tabs[2].Target != "_blank" {
 		t.Error("expected phpMyAdmin to open in a new window")
 	}
-	if activeTab(BuildPageTabs(allowed, nil, "/containers/mysql", TabContext{})) != "Server type" {
-		t.Error("expected Server type active on /containers/mysql")
+	if activeTab(BuildPageTabs(allowed, nil, "/containers/mysql", TabContext{})) != "Server Type" {
+		t.Error("expected Server Type active on /containers/mysql")
 	}
 }
 
@@ -161,11 +161,11 @@ func TestDatabasesSectionListsEnabledEngines(t *testing.T) {
 func TestBuildPageTabsBackups(t *testing.T) {
 	allowed := map[string]bool{"backups": true, "backup_wizard": true}
 	tabs := BuildPageTabs(allowed, nil, "/backups/settings", TabContext{})
-	if tabLabels(tabs) != "Overview,Restore,Configuration,Destination,Backup wizard" || activeTab(tabs) != "Configuration" {
+	if tabLabels(tabs) != "Overview,Restore,Configuration,Destination,Backup Wizard" || activeTab(tabs) != "Configuration" {
 		t.Errorf("unexpected backup tabs: %+v", tabs)
 	}
 	tabs = BuildPageTabs(allowed, nil, "/backups/list", TabContext{BackupsAdminManaged: true})
-	if tabLabels(tabs) != "Restore,Backup wizard" {
+	if tabLabels(tabs) != "Restore,Backup Wizard" {
 		t.Errorf("expected Overview/Configuration/Destination hidden when admin-managed, got %s", tabLabels(tabs))
 	}
 }
@@ -178,16 +178,16 @@ func TestBuildPageTabsNeedsTwoTabs(t *testing.T) {
 
 func TestBuildPageTabsServerInfo(t *testing.T) {
 	tabs := BuildPageTabs(map[string]bool{"info": true}, nil, "/server/info", TabContext{})
-	if tabLabels(tabs) != "Server,Hosting plan,Panel" || activeTab(tabs) != "Server" || tabs[1].Href != "/server/info#plan" {
+	if tabLabels(tabs) != "Server,Hosting Plan,Panel" || activeTab(tabs) != "Server" || tabs[1].Href != "/server/info#plan" {
 		t.Errorf("unexpected server info tabs: %+v", tabs)
 	}
 }
 
 func TestBuildPageTabsCronjobs(t *testing.T) {
 	allowed := map[string]bool{"crons": true}
-	for path, active := range map[string]string{"/cronjobs": "Cron jobs", "/cronjobs/new": "Cron jobs", "/cronjobs/editor": "File editor", "/cronjobs/logs": "Logs"} {
+	for path, active := range map[string]string{"/cronjobs": "Cron Jobs", "/cronjobs/new": "Cron Jobs", "/cronjobs/editor": "File Editor", "/cronjobs/logs": "Logs"} {
 		tabs := BuildPageTabs(allowed, nil, path, TabContext{})
-		if tabLabels(tabs) != "Cron jobs,File editor,Logs" || activeTab(tabs) != active {
+		if tabLabels(tabs) != "Cron Jobs,File Editor,Logs" || activeTab(tabs) != active {
 			t.Errorf("%s: tabs %s, active %s", path, tabLabels(tabs), activeTab(tabs))
 		}
 	}
@@ -202,7 +202,7 @@ func TestBuildPageTabsWebsitesAndEmail(t *testing.T) {
 	}
 
 	tabs = BuildPageTabs(allowed, nil, "/drupal/install", TabContext{})
-	if tabLabels(tabs) != "Sites,WordPress,Install app" || activeTab(tabs) != "Install app" {
+	if tabLabels(tabs) != "Sites,WordPress,Install App" || activeTab(tabs) != "Install App" {
 		t.Errorf("unexpected website tabs: %+v", tabs)
 	}
 }
@@ -243,15 +243,15 @@ func TestBuildPageTabsServiceTabs(t *testing.T) {
 	}
 }
 
-func TestAccountIsSidebarItemBelowContainers(t *testing.T) {
+func TestAccountIsSidebarItemBelowStatistics(t *testing.T) {
 	allowed := map[string]bool{"docker": true, "locale": true, "favorites": true, "api": true, "mcp": true, "usage": true}
 	items := BuildSidebarNav(allowed, nil, "/account/favorites")
 	for i, item := range items {
 		if item.Label != "Account" {
 			continue
 		}
-		if i == 0 || items[i-1].Label != "Containers" {
-			t.Errorf("expected Account right below Containers, got %+v", items)
+		if i == 0 || items[i-1].Label != "Statistics" || item.Section != "Account" {
+			t.Errorf("expected Account under its own heading right below Statistics, got %+v", items)
 		}
 		if item.Href != "/account/language" || !item.Active {
 			t.Errorf("expected an active Account link to /account/language, got %+v", item)
@@ -280,11 +280,11 @@ func TestAccountSecurityPagesAreSecurityTabs(t *testing.T) {
 	allowed := map[string]bool{"waf": true, "twofa": true, "passkeys": true, "sessions": true, "activity": true, "login_history": true}
 
 	tabs := BuildPageTabs(allowed, nil, "/account/passkeys", TabContext{})
-	if tabLabels(tabs) != "Web firewall,Two-factor auth,Passkeys,Active sessions,Activity log,Login history" || activeTab(tabs) != "Passkeys" {
+	if tabLabels(tabs) != "Web Firewall,Two-Factor Auth,Passkeys,Active Sessions,Activity Log,Login History" || activeTab(tabs) != "Passkeys" {
 		t.Errorf("unexpected security tabs: %+v", tabs)
 	}
-	if activeTab(BuildPageTabs(allowed, nil, "/account/login-history", TabContext{})) != "Login history" {
-		t.Error("expected Login history active on /account/login-history")
+	if activeTab(BuildPageTabs(allowed, nil, "/account/login-history", TabContext{})) != "Login History" {
+		t.Error("expected Login History active on /account/login-history")
 	}
 
 	security := findItem(BuildSidebarNav(allowed, nil, "/account/2fa"), "Security")
@@ -343,10 +343,10 @@ func TestBuildNavTrail(t *testing.T) {
 		{"/mysql/users", "/mysql/users", "Users", "Databases > MySQL > Users"},
 		{"/mysql", "/mysql", "Databases", "Databases > MySQL"},
 		{"/postgresql/import", "/postgresql/import", "Import", "Databases > PostgreSQL > Import"},
-		{"/mysql/assign", "/mysql/assign", "Assign user", "Databases > MySQL > Users > Assign user"},
+		{"/mysql/assign", "/mysql/assign", "Assign User", "Databases > MySQL > Users > Assign User"},
 		{"/domains", "/domains", "Domains", "Domains"},
-		{"/domains/ssl", "/domains/ssl", "SSL", "Domains > SSL certificates"},
-		{"/cronjobs/new", "/cronjobs/new", "New cron job", "Cron jobs > New cron job"},
+		{"/domains/ssl", "/domains/ssl", "SSL", "Domains > SSL Certificates"},
+		{"/cronjobs/new", "/cronjobs/new", "New Cron Job", "Cron Jobs > New Cron Job"},
 		{"/somewhere", "/somewhere", "Some Page", "Some Page"},
 	}
 	for _, c := range cases {
@@ -390,9 +390,9 @@ func TestUpgradeFeatures(t *testing.T) {
 		got[g.Area] = strings.Join(g.Pages, ",")
 	}
 	want := map[string]string{
-		"Files":      "FTP accounts",
+		"Files":      "FTP Accounts",
 		"MySQL":      "phpMyAdmin",
-		"PostgreSQL": "Databases,Users,Running queries",
+		"PostgreSQL": "Databases,Users,Running Queries",
 	}
 	if len(got) != len(want) {
 		t.Errorf("unexpected feature groups: %v", got)

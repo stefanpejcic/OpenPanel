@@ -286,5 +286,8 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 		groups = append(groups, NavGroup{"Account", classicAccountIcon, "account-menu", links, open, open})
 	}
 
+	for i := range groups {
+		groups[i].Icon = themedIcon(groups[i].Icon)
+	}
 	return groups
 }

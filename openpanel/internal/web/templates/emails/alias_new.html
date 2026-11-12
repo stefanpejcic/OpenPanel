@@ -1,80 +1,16 @@
 {{define "alpine_plugins"}}{{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
 {{define "content"}}
 <!-- START templates/emails/alias_new.html -->
-
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
+<!-- the modern theme creates aliases from the sheet on /emails/aliases, GET /emails/aliases/new only renders this under ui_theme=classic -->
+<div class="op-page-head">
     <div>
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Create an alias"}}</h1>
-        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Forward mail from an alias address to any destination."}}</p>
+        <h1 class="op-title">{{.T.Get "Create an Alias"}}</h1>
+        <p class="op-meta">{{.T.Get "Forward mail from an alias address to any destination."}}</p>
     </div>
 </div>
-
-{{if .Domains}}
-<div class="px-4 pb-8 sm:px-6 lg:px-8">
-    <form class="max-w-2xl rounded-md border border-gray-200 bg-white dark:border-gray-900 dark:bg-raised" method="POST">
-        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-        <div class="space-y-6 p-4 sm:p-6">
-            <div>
-                <label for="domain" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Domain"}}</label>
-                <select name="domain" id="domain" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]" required>
-                    {{range $i, $d := .Domains}}
-                    <option class="punycode" value="{{$d.DomainURL}}"{{if eq $i 0}} selected{{end}}>{{$d.DomainURL}}</option>
-                    {{end}}
-                </select>
-            </div>
-
-            <div>
-                <label for="username" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Alias address"}} <span class="text-red-600 dark:text-red-500">*</span></label>
-                <div class="mt-2 flex">
-                    <input type="text" name="username" id="username" maxlength="60" placeholder="{{.T.Get "alias"}}" pattern="^\S+$" title="{{.T.Get "No spaces allowed."}}" required aria-describedby="username-help" class="block min-w-0 flex-1 appearance-none rounded-l-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:z-10 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
-                    <input type="text" id="at_address" disabled aria-hidden="true" tabindex="-1" class="block min-w-0 flex-1 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400">
-                </div>
-                <p id="username-help" class="mt-2 text-xs text-gray-500">{{.T.Get "Emails sent to this address will be forwarded to the destination below."}}</p>
-            </div>
-
-            <div>
-                <label for="target" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Destination address"}} <span class="text-red-600 dark:text-red-500">*</span></label>
-                <input type="email" name="target" id="target" maxlength="254" placeholder="{{.T.Get "destination@example.com"}}" required aria-describedby="target-help" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
-                <p id="target-help" class="mt-2 text-xs text-gray-500">{{.T.Get "Can be any email address (on this server or external)."}}</p>
-            </div>
-        </div>
-
-        <div class="flex flex-col-reverse gap-2 border-t border-gray-200 p-4 sm:flex-row sm:justify-end sm:px-6 dark:border-gray-900">
-            <a href="/emails/aliases" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
-                {{.T.Get "Back to aliases"}}
-            </a>
-            <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
-                {{.T.Get "Create alias"}}
-            </button>
-        </div>
-    </form>
-</div>
-
-{{else}}
-<div class="flex h-64 flex-col items-center justify-center px-4 text-center">
-    <p class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No domains yet"}}</p>
-    <p class="mt-2 text-sm text-gray-500">{{.T.Get "Add your first domain to get started"}}</p>
-    <a href="/domains/new" class="mt-4 relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-add-line -ml-1 text-base" aria-hidden="true"></i>{{.T.Get "New domain"}}</a>
-</div>
-{{end}}
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const domainSelect = document.getElementById("domain");
-        const atAddress   = document.getElementById("at_address");
-        if (!domainSelect || !atAddress) return;
-
-        function updateAtAddress() {
-            const selected = domainSelect.options[domainSelect.selectedIndex];
-            atAddress.value = selected.value ? "@" + selected.value : "";
-        }
-
-        domainSelect.addEventListener("change", updateAtAddress);
-        updateAtAddress();
-    });
-</script>
-
+<section class="op-card"><div class="op-empty"><span class="op-ico-tile">{{template "op_icon" "forward"}}</span><b>{{.T.Get "Aliases are created from the Aliases page."}}</b><a href="/emails/aliases?new=1" class="op-btn op-btn-primary">{{template "op_icon" "plus"}} {{.T.Get "New Alias"}}</a></div></section>
 <!-- END templates/emails/alias_new.html -->
 {{end}}

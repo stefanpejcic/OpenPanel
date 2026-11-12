@@ -1,4 +1,6 @@
 {{define "alpine_plugins"}}{{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
 {{define "flowbite_js"}}
 <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
@@ -14,237 +16,19 @@
     let toastDisplayed = false;
 </script>
 
-<!-- top area -->
-<div class="flex flex-col gap-5 px-4 pt-6 pb-6 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8 border-b border-gray-200 dark:border-gray-800">
-
-    <div class="flex min-w-0 items-center gap-4">
-        <!-- the site's screenshot as a thumbnail, it opens the site -->
-        <div class="hidden h-20 w-32 shrink-0 overflow-hidden rounded-md sm:block [&_.screenshot]:h-full [&_.h-72]:h-20 [&_.h-72_p]:hidden [&_.h-72_i]:text-xl [&_.h-72_svg]:size-4 [&_img]:h-20">
-            {{template "screenshot" .}}
-        </div>
-        <div class="min-w-0">
-            <p class="text-sm text-gray-500">{{if eq .Type "nodejs"}}Node.js{{else if eq .Type "python"}}Python{{else if eq .Type "ruby"}}Ruby{{else if eq .Type "java"}}Java{{else}}{{title .Type}}{{end}}{{with .Container.Version}} {{.}}{{end}}</p>
-            <h1 class="mt-0.5 truncate text-lg font-semibold text-gray-900 dark:text-gray-50">{{.CurrentDomain}}</h1>
-            <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-gray-700 dark:text-gray-300">
-                <span class="inline-flex items-center gap-1.5"><span class="size-2 rounded-full {{if eq .PM2Status "true"}}bg-emerald-500{{else if eq .PM2Status "false"}}bg-red-500{{else}}bg-gray-400{{end}}" aria-hidden="true"></span>{{if eq .PM2Status "true"}}{{.T.Get "Active"}}{{else if eq .PM2Status "false"}}{{.T.Get "Inactive"}}{{else}}{{.T.Get "Unknown"}}{{end}}</span>
-                {{if eq .SSLState "valid"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20" title="{{.T.Get "Expires"}} {{.SSLExpires}}">{{.T.Get "SSL valid"}}</span>
-                {{else if eq .SSLState "expiring"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20" title="{{.T.Get "Expires"}} {{.SSLExpires}}">{{.T.Get "SSL expiring"}}</span>
-                {{else if eq .SSLState "expired"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.T.Get "SSL expired"}}</span>
-                {{else if eq .SSLState "pending"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{.T.Get "SSL pending"}}</span>
-                {{else if eq .SSLState "missing"}}<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.T.Get "SSL missing"}}</span>{{end}}
-                <a href="http://{{.CurrentDomain}}" class="domain_link inline-flex min-w-0 items-center gap-1 text-gray-500 hover:text-gray-900 hover:underline hover:underline-offset-4 dark:hover:text-gray-50" target="_blank"><span class="truncate">https://{{.CurrentDomain}}</span><i class="ri-external-link-line" aria-hidden="true"></i></a>
-            </div>
+<div class="op-page-head op-cms-head op-rt-head">
+    <div class="op-rt-id">
+        <span class="op-mgr-logo" aria-hidden="true">{{template "op_app_logo" .Type}}</span>
+        <div style="min-width:0">
+            <div class="op-eyebrow">{{if eq .Type "nodejs"}}Node.js{{else if eq .Type "python"}}Python{{else if eq .Type "ruby"}}Ruby{{else if eq .Type "java"}}Java{{else}}{{title .Type}}{{end}} {{.T.Get "app"}}{{if .Service}} · {{.Service}}{{end}}</div>
+            <h1 class="op-title">{{.CurrentDomain}}</h1>
+            <p class="op-meta"><a class="op-link" href="https://{{.CurrentDomain}}" target="_blank" rel="noopener">https://{{.CurrentDomain}}</a></p>
         </div>
     </div>
 
-    <!-- action buttons -->
-    <div class="relative flex flex-col gap-2 sm:flex-row sm:items-center">
-        {{template "temp_link" .}}
-    </div>
-
-</div>
-<!-- END top area -->
-
-<div class="pb-6">
-
-    <div class="min-w-0">
-
-        <div class="flex flex-col"
-     x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'dashboard',
-               showPanel(t) { document.querySelectorAll('#wp-tab-content > [role=tabpanel]').forEach(p => p.classList.toggle('hidden', p.id !== t)); } }"
-     x-init="$watch('activeTab', t => showPanel(t));
-             if (document.readyState !== 'complete') window.addEventListener('load', () => setTimeout(() => showPanel(activeTab), 0));">
-
-    <div class="border-b border-gray-200 px-4 sm:px-6 lg:px-8 dark:border-gray-800">
-        <ul id="wp-tab" data-tabs-toggle="#wp-tab-content" role="tablist" data-tab-overflow data-more-label="{{.T.Get "More"}}" class="flex w-full items-center gap-1 [&>li]:flex-1 [&>li]:min-w-0 [&>li>a]:w-full [&>li>a]:justify-center">
-            <li role="presentation">
-                <a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true"
-                   @click="activeTab = 'dashboard'"
-                   :class="activeTab === 'dashboard' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
-                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
-                    <i class="ri-dashboard-line text-base" aria-hidden="true"></i>
-                    <span>{{.T.Get "Overview"}}</span>
-                </a>
-            </li>
-            <li role="presentation">
-                <a href="#options" id="options-tab" data-tabs-target="#options" role="tab" aria-controls="options" aria-selected="false"
-                   @click="activeTab = 'options'"
-                   :class="activeTab === 'options' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
-                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
-                    <i class="ri-settings-3-line text-base" aria-hidden="true"></i>
-                    <span>{{.T.Get "Options"}}</span>
-                </a>
-            </li>
-            <li role="presentation">
-                <a href="#pip" id="pip-tab" data-tabs-target="#pip" role="tab" aria-controls="pip" aria-selected="false"
-                   @click="activeTab = 'pip'"
-                   :class="activeTab === 'pip' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
-                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
-                    <i class="ri-download-cloud-2-line text-base" aria-hidden="true"></i>
-                    <span>{{.T.Get "Install packages"}}</span>
-                </a>
-            </li>
-            <li role="presentation">
-                <a href="#envvars" id="envvars-tab" data-tabs-target="#envvars" role="tab" aria-controls="envvars" aria-selected="false"
-                   @click="activeTab = 'envvars'"
-                   :class="activeTab === 'envvars' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
-                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
-                    <i class="ri-list-settings-line text-base" aria-hidden="true"></i>
-                    <span>{{.T.Get "Env vars"}}</span>
-                </a>
-            </li>
-            <li role="presentation">
-                <a href="#clone" id="clone-tab" data-tabs-target="#clone" role="tab" aria-controls="clone" aria-selected="false"
-                   @click="activeTab = 'clone'"
-                   :class="activeTab === 'clone' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
-                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
-                    <i class="ri-file-copy-line text-base" aria-hidden="true"></i>
-                    <span>{{.T.Get "Clone"}}</span>
-                </a>
-            </li>
-            <li role="presentation">
-                <a href="#backup" id="backup-tab" data-tabs-target="#backup" role="tab" aria-controls="backup" aria-selected="false"
-                   @click="activeTab = 'backup'"
-                   :class="activeTab === 'backup' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
-                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
-                    <i class="ri-archive-line text-base" aria-hidden="true"></i>
-                    <span>{{.T.Get "Backup"}}</span>
-                </a>
-            </li>
-            <li role="presentation">
-                <a href="#logs" id="logs-tab" data-tabs-target="#logs" role="tab" aria-controls="logs" aria-selected="false"
-                   @click="activeTab = 'logs'"
-                   :class="activeTab === 'logs' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
-                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
-                    <i class="ri-file-text-line text-base" aria-hidden="true"></i>
-                    <span>{{.T.Get "Logs"}}</span>
-                </a>
-            </li>
-            {{if .UserAllowed.malware_scan}}
-            <li role="presentation">
-                <a href="#" id="security-tab" data-tabs-target="#security" role="tab" aria-controls="security" aria-selected="false"
-                   @click="activeTab = 'security'"
-                   :class="activeTab === 'security' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
-                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
-                    <i class="ri-shield-check-line text-base" aria-hidden="true"></i>
-                    <span>{{.T.Get "Security"}}</span>
-                </a>
-            </li>
-            {{end}}
-            <li role="presentation">
-                <a href="#" id="remove-tab" data-tabs-target="#remove" role="tab" aria-controls="remove" aria-selected="false"
-                   @click="activeTab = 'remove'"
-                   :class="activeTab === 'remove' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
-                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
-                    <i class="ri-delete-bin-line text-base" aria-hidden="true"></i>
-                    <span>{{.T.Get "Remove"}}</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-
-            <div id="wp-tab-content">
-
-                {{if .UserAllowed.malware_scan}}
-                <div class="hidden max-w-5xl px-4 py-6 sm:px-6 lg:px-8" id="security" role="tabpanel" aria-labelledby="security-tab">
-                    {{template "malware_scan_panel" .}}
-                </div>
-                {{end}}
-
-                <div class="hidden" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
-
-        <dl class="grid grid-cols-2 gap-x-8 gap-y-5 px-4 py-6 sm:grid-cols-4 sm:px-6 lg:px-8">
-            <div><dt class="text-sm text-gray-500">{{.T.Get "Status"}}</dt><dd class="mt-1 flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-50"><span class="size-2 shrink-0 rounded-full {{if eq .PM2Status "true"}}bg-emerald-500{{else if eq .PM2Status "false"}}bg-red-500{{else}}bg-gray-400{{end}}" aria-hidden="true"></span>{{if eq .PM2Status "true"}}{{.T.Get "Active"}}{{else if eq .PM2Status "false"}}{{.T.Get "Inactive"}}{{else}}{{.T.Get "Unknown"}}{{end}}</dd></div>
-            <div><dt class="text-sm text-gray-500">{{if eq .Type "nodejs"}}{{.T.Get "Node.js"}}{{else if eq .Type "python"}}{{.T.Get "Python"}}{{else if eq .Type "ruby"}}{{.T.Get "Ruby"}}{{else if eq .Type "java"}}{{.T.Get "Java"}}{{end}} {{.T.Get "version"}}</dt><dd class="mt-1 text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-50">{{.Container.Version}}</dd></div>
-            <div><dt class="text-sm text-gray-500">{{.T.Get "CPU limit"}}</dt><dd class="mt-1 text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-50">{{.CPU}}</dd></div>
-            <div><dt class="text-sm text-gray-500">{{.T.Get "Memory limit"}}</dt><dd class="mt-1 text-lg font-semibold tabular-nums text-gray-900 dark:text-gray-50">{{.RAM}}</dd></div>
-        </dl>
-
-        <!-- one surface split by lines: the app on the left, speed, visitors and firewall on the right -->
-        <div class="grid grid-cols-1 gap-px border-y border-gray-200 bg-gray-200 lg:grid-cols-3 dark:border-gray-800 dark:bg-gray-800">
-            <div class="min-w-0 bg-white lg:col-span-2 dark:bg-gray-950">
-        <div class="grid grid-cols-1 gap-px border-b border-gray-200 bg-gray-200 sm:grid-cols-2 dark:border-gray-800 dark:bg-gray-800">
-
-        <div class="flex flex-col bg-white px-6 py-5 dark:bg-gray-950">
-            <div class="-mx-6 -mt-5 mb-4 flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-                <div class="min-w-0">
-                    <h2 id="app-actions-title" class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Actions"}}</h2>
-                    {{if .UserAllowed.docker}}<a href="/containers" target="_blank" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Manage containers"}} &rarr;</a>{{end}}
-                    <p class="text-sm/6 text-gray-500">{{.T.Get "Start, stop or restart the app's container."}}</p>
-                </div>
-            </div>
-
-  <div class="col">
-  <div role="group" class="w-full flex space-x-2">
-
-{{if eq .PM2Status "false"}}
-<button type="button" onclick="startApp(this);" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 w-full"><i class="ri-play-line"></i> {{.T.Get "Start"}}</button>
-
-<script>
-    function startApp(button) {
-        const pm2Id = {{toJSON .Service}};
-        showToast({{toJSON (.T.Get "Starting application. Please wait.")}}, 'loading');
-
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', `/pm2/start/${pm2Id}`, true);
-        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-        xhr.onload = function() {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                showToast({{toJSON (.T.Get "Application started successfully.")}}, 'success');
-                setTimeout(() => { location.reload(); }, 1000);
-            } else {
-                let msg = {{toJSON (.T.Get "Error starting application.")}};
-                try { msg = JSON.parse(xhr.responseText).error || msg; } catch (e) {}
-                showToast(msg, 'error');
-                console.error('Start failed:', xhr.statusText);
-            }
-        };
-        xhr.onerror = function() {
-            showToast({{toJSON (.T.Get "Error starting application.")}}, 'error');
-            console.error('Network error occurred');
-        };
-        xhr.send();
-    }
-</script>
-
-{{else if eq .PM2Status "true"}}
-<button type="button" onclick="stopApp(this);" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 w-full"><i class="ri-stop-line"></i> {{.T.Get "Stop"}}</button>
-
-<script>
-    function stopApp(button) {
-        const pm2Id = {{toJSON .Service}};
-        showToast({{toJSON (.T.Get "Stopping application. Please wait.")}}, 'loading');
-
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', `/pm2/stop/${pm2Id}`, true);
-        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-        xhr.onload = function() {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                showToast({{toJSON (.T.Get "Application stopped successfully.")}}, 'success');
-                setTimeout(() => { location.reload(); }, 1000);
-            } else {
-                let msg = {{toJSON (.T.Get "Error stopping application.")}};
-                try { msg = JSON.parse(xhr.responseText).error || msg; } catch (e) {}
-                showToast(msg, 'error');
-                console.error('Stop failed:', xhr.statusText);
-            }
-        };
-        xhr.onerror = function() {
-            showToast({{toJSON (.T.Get "Error stopping application.")}}, 'error');
-            console.error('Network error occurred');
-        };
-        xhr.send();
-    }
-</script>
-{{end}}
-
-<button type="button" id="restartButton" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 w-full"><i class="ri-refresh-line"></i> {{.T.Get "Restart"}}</button>
+    <div class="op-actions">
+        <span class="op-status {{if eq .PM2Status "true"}}is-success{{else}}is-muted{{end}}">{{if eq .PM2Status "true"}}{{.T.Get "Active"}}{{else if eq .PM2Status "false"}}{{.T.Get "Inactive"}}{{else}}{{.T.Get "Unknown"}}{{end}}</span>
+<button type="button" id="restartButton" class="op-btn op-btn-secondary">{{template "op_icon" "refresh"}} {{.T.Get "Restart"}}</button>
 
 <script>
     document.getElementById('restartButton').addEventListener('click', function(event) {
@@ -277,583 +61,362 @@
     });
 </script>
 
-  </div>
-</div>
-        </div>
+{{if eq .PM2Status "false"}}
+<button type="button" onclick="startApp(this);" class="op-btn op-btn-primary">{{template "op_icon" "play"}} {{.T.Get "Start"}}</button>
 
-        <div class="flex flex-col bg-white px-6 py-5 dark:bg-gray-950">
-            <div class="-mx-6 -mt-5 mb-4 flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-                <div class="min-w-0">
-                    <h2 id="app-files-title" class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Files"}}</h2>
-                    {{if .UserAllowed.filemanager}}<a href="/files/{{replace .Docroot "/var/www/html/" ""}}" target="_blank" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Open in file manager"}} &rarr;</a>{{end}}
-                    <p class="text-sm/6 text-gray-500">{{.T.Get "Where the site lives and how much space it takes."}}</p>
-                </div>
-            </div>
+<script>
+    function startApp(button) {
+        const pm2Id = {{toJSON .Service}};
+        showToast({{toJSON (.T.Get "Starting application. Please wait.")}}, 'loading');
 
-  <div class="col">
-<table class="w-full text-sm">
-    <tbody>
-        <tr>
-            <td class="relative py-1.5"><span class="relative text-gray-500">{{.T.Get "Folder"}}</span></td>
-            <td class="text-end truncate"><a class="domain_link relative font-medium text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50" {{if .UserAllowed.filemanager}}href="/files/{{replace .Docroot "/var/www/html/" ""}}"{{end}}>{{.Docroot}}</a></td>
-        </tr>
-    </tbody>
-</table>
-<table class="w-full text-sm">
-    <tbody>
-        <tr>
-            <td class="relative py-1.5"><span class="relative text-gray-500">{{.T.Get "Folder size"}}</span></td>
-            <td class="text-end"><b id="filesSize">{{.T.Get "Calculating.."}}</b></td>
-        </tr>
-    </tbody>
-</table>
-<table class="w-full text-sm">
-    <tbody>
-        {{if .UserAllowed.disk_usage}}
-        <tr>
-            <td class="relative py-1.5"><span class="relative text-gray-500">{{.T.Get "Disk usage"}}</span></td>
-            <td class="text-end"><a href="{{.DiskUsageHref}}" target="_blank" class="inline-flex items-center gap-1 text-gray-500 hover:text-gray-900 dark:hover:text-gray-50" title="{{.T.Get "Open folder in disk usage explorer"}}">
-                <i class="ri-arrow-right-up-line text-base" aria-hidden="true"></i>
-            </a></td>
-        </tr>
-        {{end}}
-        {{if .UserAllowed.inodes}}
-        <tr>
-            <td class="relative py-1.5"><span class="relative text-gray-500">{{.T.Get "Inodes explorer"}}</span></td>
-            <td class="text-end"><a href="{{.InodesExplorerHref}}" target="_blank" class="inline-flex items-center gap-1 text-gray-500 hover:text-gray-900 dark:hover:text-gray-50" title="{{.T.Get "Open folder in inodes explorer"}}">
-                <i class="ri-arrow-right-up-line text-base" aria-hidden="true"></i>
-            </a></td>
-        </tr>
-        {{end}}
-        {{if .UserAllowed.ftp}}
-        <tr>
-            <td class="relative py-1.5"><span class="relative text-gray-500">{{.T.Get "FTP accounts"}}</span></td>
-            <td class="text-end"><a href="/ftp" target="_blank" class="inline-flex items-center gap-1 text-gray-500 hover:text-gray-900 dark:hover:text-gray-50" title="{{.T.Get "Open FTP accounts"}}">
-                <i class="ri-arrow-right-up-line text-base" aria-hidden="true"></i>
-            </a></td>
-        </tr>
-        {{end}}
-    </tbody>
-</table>
-{{/* top-level entries of the app folder */}}
-<div class="mt-4">
-    {{if .Files}}
-    <ul class="divide-y divide-gray-200 rounded-md border border-gray-200 text-sm dark:divide-gray-800 dark:border-gray-800" id="app-files-list">
-        {{range .Files}}
-        <li class="flex items-center gap-3 px-3 py-2">
-            <i class="{{if .Dir}}ri-folder-line{{else}}ri-file-line{{end}} text-base text-gray-400" aria-hidden="true"></i>
-            <span class="min-w-0 flex-1 truncate font-mono text-gray-900 dark:text-gray-50">{{.Name}}</span>
-            <span class="shrink-0 font-mono tabular-nums text-xs text-gray-500">{{.Size}}</span>
-            <span class="hidden shrink-0 tabular-nums text-xs text-gray-500 sm:inline">{{.Modified}}</span>
-        </li>
-        {{end}}
-    </ul>
-    {{else}}
-    <p class="py-4 text-center text-sm text-gray-500">{{.T.Get "This folder is empty."}}</p>
-    {{end}}
-    {{if .HiddenFiles}}<p class="mt-2 text-xs text-gray-500">{{.T.Get "and %(n)s hidden" "n" (toString .HiddenFiles)}}</p>{{end}}
-</div>
-</div>
-        </div>
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `/pm2/start/${pm2Id}`, true);
+        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-</div>
-            <section aria-labelledby="app-tasks-title">
-                    <div class="flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-                        <div class="min-w-0">
-                            <h2 id="app-tasks-title" class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Quick tasks"}}</h2>
-                            <p class="text-sm/6 text-gray-500">{{.T.Get "The jobs people reach for most, each one opens its tab."}}</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap gap-2 px-6 py-5">
-                        <button type="button" @click="activeTab = 'options'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-settings-3-line" aria-hidden="true"></i>{{.T.Get "Options"}}</button>
-                        <button type="button" @click="activeTab = 'pip'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-download-cloud-2-line" aria-hidden="true"></i>{{.T.Get "Install packages"}}</button>
-                        <button type="button" @click="activeTab = 'envvars'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-list-settings-line" aria-hidden="true"></i>{{.T.Get "Env vars"}}</button>
-                        <button type="button" @click="activeTab = 'backup'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-archive-line" aria-hidden="true"></i>{{.T.Get "Backup"}}</button>
-                        <button type="button" @click="activeTab = 'logs'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-file-text-line" aria-hidden="true"></i>{{.T.Get "Logs"}}</button>
-                        <button type="button" @click="activeTab = 'clone'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-file-copy-line" aria-hidden="true"></i>{{.T.Get "Clone"}}</button>
-                    </div>
-            </section>
-            </div>
-                <div class="divide-y divide-gray-200 bg-white dark:divide-gray-800 dark:bg-gray-950 [&>div]:rounded-none [&>div]:border-x-0 [&>div]:border-t-0 [&>div:last-child]:border-b-0 [&>div]:bg-transparent [&>div]:px-6 [&>div]:py-5 [&_[data-panel-head]]:-mx-6 [&_[data-panel-head]]:-mt-5 [&_[data-panel-head]]:mb-4 [&_[data-panel-head]]:border-b [&_[data-panel-head]]:border-gray-200 [&_[data-panel-head]]:px-6 [&_[data-panel-head]]:py-4 dark:[&_[data-panel-head]]:border-gray-800 dark:[&>div]:bg-transparent">
-                    {{template "pagespeed_panel" .}}
-                    {{template "visitors" .}}
-                    {{template "waf_panel" .}}
-                    <div class="flex items-center justify-between gap-4 text-sm"><span class="text-gray-500">{{.T.Get "Created"}}</span><b id="created_date" data-relative-date="{{.Container.CreatedDate}}" title="{{.Container.CreatedDate}}" class="font-medium text-gray-900 dark:text-gray-50">{{.Container.CreatedDate}}</b></div>
-                </div>
-        </div>
-            </div>
-
-
-                <!-- container, start command, startup, version and limits, like WordPress's Options tab -->
-                <div class="hidden max-w-5xl px-4 py-6 sm:px-6 lg:px-8" id="options" role="tabpanel" aria-labelledby="options-tab">
-
-
-    <div class="mt-4 grid grid-cols-1">
-
-    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
-    <div>
-        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container"}}</h2>
-        <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Name"}} {{if .Container.Port}}{{.T.Get " and custom port "}}{{end}}{{.T.Get "on which the application is accessible from other services."}}</p>
-    </div>
-    <div class="sm:max-w-3xl md:col-span-2">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-            <p class="flex items-center gap-2 font-mono text-sm text-gray-900 dark:text-gray-50"><i class="ri-box-3-line text-gray-400" aria-hidden="true"></i>{{.Service}}{{if .Container.Port}}:{{.Container.Port}}{{end}}</p>
-        </div>
-    </div>
-    </div>
-
-    <div class="my-8 h-px w-full bg-gray-200 dark:bg-gray-800"></div>
-
-    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
-    <div>
-        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Start command"}}</h2>
-        <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "The command the container runs, read from docker-compose.yml, and the web server in front of it."}}</p>
-    </div>
-    <div class="sm:max-w-3xl md:col-span-2">
-        <div class="flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 dark:border-gray-800 dark:bg-gray-900">
-            <span class="font-mono text-sm text-gray-400 select-none" aria-hidden="true">$</span>
-            <code id="start-command" class="min-w-0 flex-1 break-all font-mono text-sm text-gray-900 dark:text-gray-50">{{if .StartCommand}}{{.StartCommand}}{{else if .CustomCmd}}{{.CustomCmd}}{{else if .StartupFile}}{{.StartupFile}}{{else}}{{.T.Get "No start command set"}}{{end}}</code>
-            <button type="button" title="{{.T.Get "Copy start command"}}" aria-label="{{.T.Get "Copy start command"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" onclick="copyToClipboard(document.getElementById('start-command').textContent.trim()).then(() => showToast({{toJSON (.T.Get "Copied start command.")}}, 'success')).catch(() => showToast({{toJSON (.T.Get "Failed to copy start command.")}}, 'warning'))"><i class="ri-file-copy-line text-base" aria-hidden="true"></i></button>
-        </div>
-        <dl class="mt-4 text-sm">
-            <div class="flex items-center justify-between gap-4 py-1.5">
-                <dt class="text-gray-500">{{.T.Get "Web server"}}</dt>
-                <dd class="font-medium text-gray-900 dark:text-gray-50">{{if .WebServer}}{{title .WebServer}}{{else}}{{.T.Get "Unknown"}}{{end}}</dd>
-            </div>
-        </dl>
-    </div>
-    </div>
-
-    <div class="my-8 h-px w-full bg-gray-200 dark:bg-gray-800"></div>
-
-            <form action="/pm2/update/{{.Service}}" method="POST">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
-    <div>
-        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Startup"}}</h2>
-        <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Configure startup file and if install should be run before starting the application."}}</p>
-    </div>
-    <div class="sm:max-w-3xl md:col-span-2">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-            <div class="col-span-full">
-
-    <label class="flex items-center justify-between gap-1 text-sm font-medium text-gray-900 dark:text-gray-50" for="startup_file" x-data="{tooltip: false }">
-        <span>{{.T.Get "Startup file"}} <span class="text-red-600 dark:text-red-500">*</span></span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<i class="ri-question-line text-base" aria-hidden="true"></i>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded-md bg-gray-950 px-3 py-2 text-xs font-normal text-gray-50 shadow-lg dark:bg-gray-800" style="top: 100%; right: 0;">
-                 {{.T.Get "If no custom startup command is provided, this file is executed with command:"}}
-                 <br>
-                 {{if eq .Type "nodejs"}}node{{else if eq .Type "python"}}python{{else if eq .Type "ruby"}}ruby{{else if eq .Type "java"}}java{{end}} {{.StartupFile}}
-            </div>
-        </span>
-    </label>
-
-    <div class="relative w-full mt-2" x-data="{ value: {{toJSON .StartupFile}}, error: false, errorMessage: '', appType: {{toJSON .Type}}, ext: {{if eq .Type "nodejs"}}'js'{{else if eq .Type "python"}}'py'{{else if eq .Type "ruby"}}'rb'{{else if eq .Type "java"}}'java'{{else}}''{{end}} }">
-    <input
-        class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-        required id="startup_file" name="startup_file" type="text" x-model="value"
-        :aria-invalid="error ? 'true' : 'false'"
-        @input="
-            if (!value.startsWith('/var/www/html/')) {
-                error = true;
-                errorMessage = 'Path must start with /var/www/html/';
-            } else if (value.includes('../')) {
-                error = true;
-                errorMessage = 'Path traversal (../) is not allowed';
-            } else if (!value.endsWith('.' + ext)) {
-                error = true;
-                errorMessage = 'Startup file needs to be a .' + ext + ' file';
+        xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                showToast({{toJSON (.T.Get "Application started successfully.")}}, 'success');
+                setTimeout(() => { location.reload(); }, 1000);
             } else {
-                error = false;
-                errorMessage = '';
+                let msg = {{toJSON (.T.Get "Error starting application.")}};
+                try { msg = JSON.parse(xhr.responseText).error || msg; } catch (e) {}
+                showToast(msg, 'error');
+                console.error('Start failed:', xhr.statusText);
             }
-        ">
-    <template x-if="error"><p class="mt-2 text-xs text-red-600 dark:text-red-500" x-text="errorMessage"></p></template>
+        };
+        xhr.onerror = function() {
+            showToast({{toJSON (.T.Get "Error starting application.")}}, 'error');
+            console.error('Network error occurred');
+        };
+        xhr.send();
+    }
+</script>
+
+{{else if eq .PM2Status "true"}}
+<button type="button" onclick="stopApp(this);" class="op-btn op-btn-secondary">{{template "op_icon" "stop"}} {{.T.Get "Stop"}}</button>
+
+<script>
+    function stopApp(button) {
+        const pm2Id = {{toJSON .Service}};
+        showToast({{toJSON (.T.Get "Stopping application. Please wait.")}}, 'loading');
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `/pm2/stop/${pm2Id}`, true);
+        xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                showToast({{toJSON (.T.Get "Application stopped successfully.")}}, 'success');
+                setTimeout(() => { location.reload(); }, 1000);
+            } else {
+                let msg = {{toJSON (.T.Get "Error stopping application.")}};
+                try { msg = JSON.parse(xhr.responseText).error || msg; } catch (e) {}
+                showToast(msg, 'error');
+                console.error('Stop failed:', xhr.statusText);
+            }
+        };
+        xhr.onerror = function() {
+            showToast({{toJSON (.T.Get "Error stopping application.")}}, 'error');
+            console.error('Network error occurred');
+        };
+        xhr.send();
+    }
+</script>
+{{end}}
+
+
+        {{template "temp_link" .}}
+        {{template "op_site_del" (dict "T" .T "Label" (.T.Get "Delete application")
+            "Delete" (.T.Get "Delete application") "DeleteText" (.T.Get "Stops the application, deletes its container and removes it from Site Manager. Files and databases stay.") "DeleteJS" (print "confirmRemoveforWP(" (toJSON .CurrentDomain) ")"))}}
     </div>
-            </div>
+</div>
 
-            <div class="col-span-full">
-        <label class="flex items-center justify-between gap-1 text-sm font-medium text-gray-900 dark:text-gray-50" for="custom_cmd" x-data="{tooltip: false }">
-        <span>{{.T.Get "Custom startup command"}}</span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<i class="ri-question-line text-base" aria-hidden="true"></i>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded-md bg-gray-950 px-3 py-2 text-xs font-normal text-gray-50 shadow-lg dark:bg-gray-800" style="top: 100%; right: 0;">
-                 {{.T.Get "You can provide a custom startup command with flags to be used instead of the default:"}}
-                 <br>
-                 {{if eq .Type "nodejs"}}node{{else if eq .Type "python"}}python{{else if eq .Type "ruby"}}ruby{{else if eq .Type "java"}}java{{end}} {{.StartupFile}}
-            </div>
-        </span>
-    </label>
-
-    <div class="relative w-full mt-2" x-data="{ value: {{toJSON .CustomCmd}}, error: false }">
-    <input
-    class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-    id="custom_cmd" name="custom_cmd" type="text" x-model="value"
-    :aria-invalid="error ? 'true' : 'false'"
-    @input="
-         if (value.includes('..')) {
-        error = true;
-        startuperrorMessage = 'Path traversal (..) is not allowed';
-        } else {
-        error = false;
-        startuperrorMessage = '';
-        }
-    ">
-    <template x-if="error"><p class="mt-2 text-xs text-red-600 dark:text-red-500" x-text="startuperrorMessage"></p></template>
+<section class="op-rt-run" aria-label="{{.T.Get "Start command"}}" x-data>
+    <div class="op-rt-run-line"><span class="op-rt-prompt">$</span><code id="op-rt-cmd">{{if .StartCommand}}{{.StartCommand}}{{else if .CustomCmd}}{{.CustomCmd}}{{else if .StartupFile}}{{.StartupFile}}{{else}}{{.T.Get "No start command set"}}{{end}}</code>
+        <button type="button" class="op-icon-btn" aria-label="{{.T.Get "Copy start command"}}" @click="navigator.clipboard && navigator.clipboard.writeText(document.getElementById('op-rt-cmd').textContent.trim()); showToast({{toJSON (.T.Get "Copied start command.")}}, 'success')">{{template "op_icon" "copy"}}</button></div>
+    <div class="op-rt-run-meta">
+        <span><i class="op-rt-dot{{if ne .PM2Status "true"}} is-off{{end}}"></i>{{if eq .PM2Status "true"}}{{.T.Get "Running"}}{{else}}{{.T.Get "Stopped"}}{{end}}</span>
+        {{if .Service}}<span>{{.T.Get "service"}} <b>{{.Service}}{{if .Container.Port}}:{{.Container.Port}}{{end}}</b></span>{{end}}
+        {{if .Container.Version}}<span>{{if eq .Type "nodejs"}}Node.js{{else if eq .Type "python"}}Python{{else if eq .Type "ruby"}}Ruby{{else if eq .Type "java"}}Java{{else}}{{title .Type}}{{end}} <b>{{.Container.Version}}</b></span>{{end}}
+        {{if .Workdir}}<span>{{.T.Get "workdir"}} <b>{{.Workdir}}</b></span>{{end}}
     </div>
-            </div>
+</section>
 
-            {{if .UserAllowed.git}}
-            <div class="col-span-full">
-        <label class="flex items-center justify-between gap-1 text-sm font-medium text-gray-900 dark:text-gray-50" for="git_repo_url" x-data="{tooltip: false }">
-        <span>{{.T.Get "Git repository URL"}}</span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<i class="ri-question-line text-base" aria-hidden="true"></i>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded-md bg-gray-950 px-3 py-2 text-xs font-normal text-gray-50 shadow-lg dark:bg-gray-800" style="top: 100%; right: 0;">
-                 {{.T.Get "If set, the app's code is re-fetched from this repository and reset to its latest commit on every restart, before install/startup runs - any local changes to files in the docroot are overwritten. Clear the field and save to disconnect the repository."}}
-            </div>
-        </span>
-    </label>
+{{- $rt := "" -}}{{- $run := "" -}}{{- $inst := "" -}}
+{{- if eq .Type "nodejs"}}{{$rt = "Node.js"}}{{$run = "node"}}{{$inst = "npm install"}}
+{{- else if eq .Type "python"}}{{$rt = "Python"}}{{$run = "python"}}{{$inst = "pip install -r requirements.txt"}}
+{{- else if eq .Type "ruby"}}{{$rt = "Ruby"}}{{$run = "ruby"}}{{$inst = "bundle install"}}
+{{- else if eq .Type "java"}}{{$rt = "Java"}}{{$run = "java"}}{{$inst = "mvn install"}}{{end}}
+<div class="op-content op-mgr-shell"
+     x-data="{ activeTab: (new URLSearchParams(window.location.search).get('tab') || 'dashboard').replace(/^remove$/, 'dashboard').replace(/^backup$/, 'backups') }"
+     x-init="$watch('activeTab', t => t === 'logs' && window.loadAppLogs && loadAppLogs()); activeTab === 'logs' && setTimeout(() => window.loadAppLogs && loadAppLogs(), 0)">
 
-    <div class="relative w-full mt-2" x-data="{ value: {{toJSON .GitRepoURL}}, error: false }">
-    <input
-    class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-    id="git_repo_url" name="git_repo_url" type="text" placeholder="https://github.com/user/repo.git" x-model="value"
-    :aria-invalid="error ? 'true' : 'false'"
-    @input="
-        if (value !== '' && !value.startsWith('https://')) {
-        error = true;
-        errorMessage = 'Only https:// URLs are supported';
-        } else {
-        error = false;
-        errorMessage = '';
-        }
-    ">
-    <template x-if="error"><p class="mt-2 text-xs text-red-600 dark:text-red-500" x-text="errorMessage"></p></template>
-    </div>
-    <p class="mt-1.5 text-xs text-gray-500">{{.T.Get "Only public repositories are supported. For a private repo, generate a personal access token and embed it in the URL, e.g."}} <code>https://&lt;token&gt;@github.com/user/repo.git</code></p>
-            </div>
+    <div class="op-wp-tabs-bar op-mgr-nav" x-effect="activeTab; $nextTick(() => { const a = $el.querySelector('.is-active'); if (a && $el.scrollWidth > $el.clientWidth) $el.scrollLeft = a.offsetLeft - 8; })">
+        <ul id="wp-tab" data-tabs-toggle="#wp-tab-content" role="tablist" class="op-wp-tabs">
+            <li role="presentation"><a href="#" id="dashboard-tab" data-tabs-target="#dashboard" role="tab" aria-controls="dashboard" aria-selected="true" @click="activeTab = 'dashboard'" :class="activeTab === 'dashboard' && 'is-active'" class="op-wp-tab">{{template "op_icon" "layout"}}<span class="op-wp-tab-label">{{.T.Get "Overview"}}</span></a></li>
+            <li role="presentation"><a href="#" id="settings-tab" data-tabs-target="#settings" role="tab" aria-controls="settings" aria-selected="false" @click="activeTab = 'settings'" :class="activeTab === 'settings' && 'is-active'" class="op-wp-tab">{{template "op_icon" "adjustments"}}<span class="op-wp-tab-label">{{.T.Get "Settings"}}</span></a></li>
+            <li role="presentation"><a href="#pip" id="pip-tab" data-tabs-target="#pip" role="tab" aria-controls="pip" aria-selected="false" @click="activeTab = 'pip'" :class="activeTab === 'pip' && 'is-active'" class="op-wp-tab">{{template "op_icon" "box"}}<span class="op-wp-tab-label">{{.Manifest.File}}</span></a></li>
+            <li role="presentation"><a href="#envvars" id="envvars-tab" data-tabs-target="#envvars" role="tab" aria-controls="envvars" aria-selected="false" @click="activeTab = 'envvars'" :class="activeTab === 'envvars' && 'is-active'" class="op-wp-tab">{{template "op_icon" "listdetails"}}<span class="op-wp-tab-label">{{.T.Get "Environment"}}</span></a></li>
+            <li role="presentation"><a href="#logs" id="logs-tab" data-tabs-target="#logs" role="tab" aria-controls="logs" aria-selected="false" @click="activeTab = 'logs'" :class="activeTab === 'logs' && 'is-active'" class="op-wp-tab">{{template "op_icon" "terminal"}}<span class="op-wp-tab-label">{{.T.Get "Logs"}}</span></a></li>
+            <li role="presentation"><a href="#clone" id="clone-tab" data-tabs-target="#clone" role="tab" aria-controls="clone" aria-selected="false" @click="activeTab = 'clone'" :class="activeTab === 'clone' && 'is-active'" class="op-wp-tab">{{template "op_icon" "copy"}}<span class="op-wp-tab-label">{{.T.Get "Clone"}}</span></a></li>
+            <li role="presentation"><a href="#backups" id="backups-tab" data-tabs-target="#backups" role="tab" aria-controls="backups" aria-selected="false" @click="activeTab = 'backups'" :class="activeTab === 'backups' && 'is-active'" class="op-wp-tab">{{template "op_icon" "archive"}}<span class="op-wp-tab-label">{{.T.Get "Backups"}}</span></a></li>
+            {{if .UserAllowed.malware_scan}}
+            <li role="presentation"><a href="#" id="security-tab" data-tabs-target="#security" role="tab" aria-controls="security" aria-selected="false" @click="activeTab = 'security'" :class="activeTab === 'security' && 'is-active'" class="op-wp-tab">{{template "op_icon" "shield"}}<span class="op-wp-tab-label">{{.T.Get "Security"}}</span></a></li>
             {{end}}
-
-            <div class="col-span-full">
-        <label class="flex items-center justify-between gap-1 text-sm font-medium text-gray-900 dark:text-gray-50" for="workdir" x-data="{tooltip: false }">
-        <span>{{.T.Get "Work dir"}} <span class="text-red-600 dark:text-red-500">*</span></span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<i class="ri-question-line text-base" aria-hidden="true"></i>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded-md bg-gray-950 px-3 py-2 text-xs font-normal text-gray-50 shadow-lg dark:bg-gray-800" style="top: 100%; right: 0;">
-                 {{.T.Get "Set the working directory inside which packages are installed with command:"}}
-                 <br>
-                 {{if eq .Type "nodejs"}}npm{{else if eq .Type "python"}}pip{{else if eq .Type "ruby"}}bundle{{else if eq .Type "java"}}mvn{{end}} {{.T.Get "install"}}
-            </div>
-        </span>
-    </label>
-
-    <div class="relative w-full mt-2" x-data="{ value: {{toJSON .Workdir}}, error: false }">
-    <input
-    class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-    required id="workdir" name="workdir" type="text" x-model="value"
-    :aria-invalid="error ? 'true' : 'false'"
-    @input="
-        if (!value.startsWith('/var/www/html/')) {
-        error = true;
-        errorMessage = 'Path must start with /var/www/html/';
-        } else if (value.includes('../')) {
-        error = true;
-        errorMessage = 'Path traversal (../) is not allowed';
-        } else {
-        error = false;
-        errorMessage = '';
-        }
-    ">
-    <template x-if="error"><p class="mt-2 text-xs text-red-600 dark:text-red-500" x-text="errorMessage"></p></template>
+        </ul>
     </div>
-            </div>
 
-<div class="col-span-full">
-        <label class="flex items-center justify-between gap-1 text-sm font-medium text-gray-900 dark:text-gray-50" for="requirements" x-data="{tooltip: false }">
-        <span>{{.T.Get "Install packages before startup"}}</span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<i class="ri-question-line text-base" aria-hidden="true"></i>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded-md bg-gray-950 px-3 py-2 text-xs font-normal text-gray-50 shadow-lg dark:bg-gray-800" style="top: 100%; right: 0;">
-                 {{.T.Get "If enabled, this command is executed before the custom startup command or startup file:"}}
-                 <br>
-                 {{if eq .Type "nodejs"}}npm{{else if eq .Type "python"}}pip{{else if eq .Type "ruby"}}bundle{{else if eq .Type "java"}}mvn{{end}} {{.T.Get "install"}} {{if eq .Type "python"}}-r requirements.txt{{end}}
-            </div>
-        </span>
-    </label>
+    <div id="wp-tab-content" class="op-mgr-body">
 
-    <div class="relative w-full mt-2">
-    <select id="requirements" name="requirements" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 truncate mt-2 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
-    <option value="1" {{if .RequirementsSelected}}selected{{end}}>{{$.T.Get "Yes"}}</option>
-    <option value="" {{if not .RequirementsSelected}}selected{{end}}>{{$.T.Get "No"}}</option>
-    </select>
-                        </div>
-</div>
-
+        {{if .UserAllowed.malware_scan}}
+        <div class="hidden op-wp-panel" id="security" role="tabpanel" aria-labelledby="security-tab">
+            {{template "malware_scan_panel" .}}
         </div>
-    </div>
-    </div>
+        {{end}}
 
-    <div class="my-8 h-px w-full bg-gray-200 dark:bg-gray-800"></div>
+        <div class="hidden op-wp-panel" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
 
-    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
-    <div>
-        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Version"}}</h2>
-        <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Change version, make sure to restart the application afterward by stopping and starting it."}}</p>
-    </div>
-    <div class="sm:max-w-3xl md:col-span-2">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-            <div class="col-span-full">
-        <label class="flex items-center justify-between gap-1 text-sm font-medium text-gray-900 dark:text-gray-50" for="version" x-data="{tooltip: false }">
-        <span>{{.T.Get "Version"}} <span class="text-red-600 dark:text-red-500">*</span></span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<i class="ri-question-line text-base" aria-hidden="true"></i>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded-md bg-gray-950 px-3 py-2 text-xs font-normal text-gray-50 shadow-lg dark:bg-gray-800" style="top: 100%; right: 0;">
-                 {{.T.Get "Select"}} {{if eq .Type "nodejs"}}Node.js{{else if eq .Type "python"}}Python{{else if eq .Type "ruby"}}Ruby{{else if eq .Type "java"}}Java{{end}} {{.T.Get "version to use for the application."}}
-            </div>
-        </span>
-    </label>
-
-                <div class="relative w-full mt-2">
-    <select name="version" id="version" required class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 cursor-pointer truncate pr-7 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
-    </select>
-
-    <script>
-    function updateVersionOptions() {
-    const versionSelect = document.getElementById('version');
-    const currentVersion = {{toJSON .CurrentVersion}};
-    const type = {{toJSON .Type}};
-    const versionI18n = { error: {{toJSON (.T.Get "Error")}} };
-
-    versionSelect.innerHTML = '<option>{{.T.Get "Loading versions..."}}</option>';
-
-    fetch(`/docker/tags/${type}`)
-        .then(response => response.json())
-        .then(data => {
-            versionSelect.innerHTML = '';
-
-            if (data.error) {
-                const option = document.createElement('option');
-                option.value = "";
-                option.textContent = data.error;
-                versionSelect.appendChild(option);
-                return;
-            }
-
-            const versions = data.map(item => item.latest).filter(v => v);
-
-            versions.forEach(version => {
-                const option = document.createElement('option');
-                option.value = version;
-
-                if (version === currentVersion) {
-                    option.textContent = `${version} (Current)`;
-                    option.selected = true;
-                } else {
-                    option.textContent = version;
-                }
-
-                versionSelect.appendChild(option);
-            });
-        })
-        .catch(error => {
-            versionSelect.innerHTML = '';
-            const option = document.createElement('option');
-            option.value = "";
-            option.textContent = `${versionI18n.error}: ${error.message}`;
-            versionSelect.appendChild(option);
-        });
-    }
-
-    document.addEventListener('DOMContentLoaded', updateVersionOptions);
-    </script>
-                        </div>
-            </div>
-        </div>
-    </div>
-    </div>
-
-    <div class="my-8 h-px w-full bg-gray-200 dark:bg-gray-800"></div>
-
-    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
-    <div>
-        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Resource limits"}}</h2>
-        <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Limit the CPU and memory available to the container."}}</p>
-    </div>
-    <div class="sm:max-w-3xl md:col-span-2">
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-            <div class="col-span-full">
-        <label class="flex items-center justify-between gap-1 text-sm font-medium text-gray-900 dark:text-gray-50" for="cpu" x-data="{tooltip: false }">
-        <span>{{.T.Get "CPU (cores)"}} <span class="text-red-600 dark:text-red-500">*</span></span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<i class="ri-question-line text-base" aria-hidden="true"></i>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded-md bg-gray-950 px-3 py-2 text-xs font-normal text-gray-50 shadow-lg dark:bg-gray-800" style="top: 100%; right: 0;">
-                 {{.T.Get "Set max number of CPU cores to allocate for this service."}}
-            </div>
-        </span>
-    </label>
-
-                <div class="relative w-full mt-2"><input class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-                        required id="cpu" name="cpu" type="number" min="0.10" step=".01" value="{{.CPU}}"></div>
-            </div>
-            <div class="col-span-full">
-        <label class="flex items-center justify-between gap-1 text-sm font-medium text-gray-900 dark:text-gray-50" for="ram" x-data="{tooltip: false }">
-        <span>{{.T.Get "Memory (GB)"}} <span class="text-red-600 dark:text-red-500">*</span></span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<i class="ri-question-line text-base" aria-hidden="true"></i>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded-md bg-gray-950 px-3 py-2 text-xs font-normal text-gray-50 shadow-lg dark:bg-gray-800" style="top: 100%; right: 0;">
-                 {{.T.Get "Set max size in GB for Memory to allocate for this service."}}
-            </div>
-        </span>
-    </label>
-
-                <div class="relative w-full mt-2"><input class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-                        required id="ram" name="ram" type="number" min="0.10" step=".01" value="{{.RAM}}"></div>
+            <div class="op-mgr-meters" aria-label="{{.T.Get "Resource use"}}">
+                {{template "op_rt_usage" .}}
+                <div class="op-kpi"><span class="op-kpi-label">{{template "op_icon" "folder"}} {{.T.Get "Folder size"}}</span><span class="op-kpi-value" id="filesSize">–</span><span class="op-kpi-note">{{.Docroot}}</span></div>
             </div>
 
-            <div class="col-span-full">
-        <label class="flex items-center justify-between gap-1 text-sm font-medium text-gray-900 dark:text-gray-50" for="pids" x-data="{tooltip: false }">
-        <span>{{.T.Get "PIDs"}} <span class="text-red-600 dark:text-red-500">*</span></span>
-        <span @mouseenter="tooltip = true" @mouseleave="tooltip = false" class="relative cursor-pointer">
-<i class="ri-question-line text-base" aria-hidden="true"></i>
-            <div x-show="tooltip" x-transition x-cloak class="absolute z-10 mt-2 w-64 rounded-md bg-gray-950 px-3 py-2 text-xs font-normal text-gray-50 shadow-lg dark:bg-gray-800" style="top: 100%; right: 0;">
-                 {{.T.Get "Set total of PIDs allowed for the application."}}
-            </div>
-        </span>
-    </label>
-
-                <div class="relative w-full mt-2">
-                    <input class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-                        required id="pids" name="pids" type="number" min="10" max="1000" step="1" value="{{.PIDs}}">
-                        </div>
-            </div>
-
-        </div>
-    </div>
-    </div>
-
-    <div class="my-8 h-px w-full bg-gray-200 dark:bg-gray-800"></div>
-
-    <div class="flex justify-end">
-    <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-fit border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Save changes"}}</button>
-    </div>
-
-    </form>
-
-    </div>
-
-            </div>
-
-                <div class="hidden max-w-5xl px-4 py-6 sm:px-6 lg:px-8" id="pip" role="tabpanel" aria-labelledby="pip-tab">
-
-                <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
-                    <div>
-                        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Dependencies"}}</h2>
-                        <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Packages listed in the app's manifest, with the installed version when a lock file is present."}}</p>
-                        <p class="mt-2 font-mono text-xs text-gray-500">{{.Manifest.File}}</p>
+            <section class="op-card">
+                <div class="op-card-head"><h2>{{.T.Get "How requests reach the app"}}</h2></div>
+                <div class="op-mgr-flow">
+                    <div class="op-mgr-hop">
+                        <span class="op-label">{{template "op_icon" "globe"}} {{.T.Get "Domain"}}</span>
+                        <b>{{.CurrentDomain}}</b>
+                        <p class="op-hint">{{if eq .SSLState "valid"}}{{.T.Get "SSL certificate valid until %(date)s" "date" .SSLExpires}}{{else if eq .SSLState "expiring"}}{{.T.Get "SSL certificate expires %(date)s" "date" .SSLExpires}}{{else if eq .SSLState "expired"}}{{.T.Get "SSL certificate expired"}}{{else if eq .SSLState "missing"}}{{.T.Get "SSL is on, the certificate isn't issued yet"}}{{else}}{{.T.Get "Served over plain HTTP"}}{{end}}</p>
                     </div>
-                    <div class="sm:max-w-3xl md:col-span-2 space-y-6" id="manifest-groups">
-                        {{if not .Manifest.Found}}
-                        <p class="py-4 text-center text-sm text-gray-500">{{.T.Get "%(file)s was not found in the app folder." "file" .Manifest.File}}</p>
-                        {{else}}
-                        {{range .Manifest.Groups}}
-                        <div>
-                            <h3 class="mb-2 text-sm font-medium text-gray-900 dark:text-gray-50">{{$.T.Get .Title}}</h3>
-                            <div class="overflow-x-auto rounded-md border border-gray-200 dark:border-gray-800">
-                                <table class="w-full text-sm">
-                                    <thead><tr>
-                                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{$.T.Get "Package"}}</th>
-                                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{$.T.Get .ValueLabel}}</th>
-                                        {{if .HasInstalled}}<th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{$.T.Get "Installed"}}</th>{{end}}
-                                    </tr></thead>
-                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
-                                        {{$inst := .HasInstalled}}
-                                        {{range .Rows}}
-                                        <tr>
-                                            <td class="px-4 py-2.5 font-mono text-gray-900 dark:text-gray-50">{{.Name}}</td>
-                                            <td class="px-4 py-2.5 font-mono text-gray-600 dark:text-gray-400">{{.Value}}</td>
-                                            {{if $inst}}<td class="px-4 py-2.5 font-mono text-gray-600 dark:text-gray-400">{{if .Installed}}{{.Installed}}{{else}}<span class="font-sans text-gray-500">{{$.T.Get "not installed"}}</span>{{end}}</td>{{end}}
-                                        </tr>
-                                        {{end}}
-                                    </tbody>
-                                </table>
-                            </div>
+                    <span class="op-mgr-arrow" aria-hidden="true">{{template "op_icon" "arrowright"}}</span>
+                    <div class="op-mgr-hop">
+                        <span class="op-label">{{template "op_icon" "server"}} {{.T.Get "Web server"}}</span>
+                        <b>{{if .WebServer}}{{title .WebServer}}{{else}}{{.T.Get "Web server"}}{{end}}</b>
+                        <p class="op-hint">{{.T.Get "Proxies every path to the container"}}</p>
+                    </div>
+                    <span class="op-mgr-arrow" aria-hidden="true">{{template "op_icon" "arrowright"}}</span>
+                    <div class="op-mgr-hop">
+                        <span class="op-label">{{template "op_icon" "box"}} {{.T.Get "Container"}}</span>
+                        <b>{{lower .Service}}{{if .Container.Port}}:{{.Container.Port}}{{end}}</b>
+                        <p class="op-hint">{{if .Image}}{{.Image}}{{else}}{{$rt}} {{.Container.Version}}{{end}}</p>
+                    </div>
+                </div>
+                {{if .Container.Port}}<p class="op-hint op-mgr-flow-note">{{.T.Get "Other services in your account reach the app at"}} <span class="op-mono">{{lower .Service}}:{{.Container.Port}}</span>.</p>{{end}}
+            </section>
+
+            <div class="op-mgr-grid2">
+                <section class="op-card">
+                    <div class="op-card-head">
+                        <h2>{{.T.Get "Files"}}</h2>
+                        {{if .UserAllowed.filemanager}}<a href="/files/{{replace .Docroot "/var/www/html/" ""}}">{{.T.Get "Open in File Manager"}}</a>{{end}}
+                    </div>
+                    <dl class="op-mgr-kv" x-data>
+                        <dt>{{.T.Get "Folder"}}</dt><dd class="op-mono">{{.Docroot}}</dd>
+                        <dd><button type="button" class="op-icon-btn" aria-label="{{.T.Get "Copy folder path"}}" @click="navigator.clipboard && navigator.clipboard.writeText({{toJSON .Docroot}}); showToast({{toJSON (.T.Get "Copied folder path.")}}, 'success')">{{template "op_icon" "copy"}}</button></dd>
+                        <dt>{{.T.Get "Startup file"}}</dt><dd class="op-mono">{{replace .StartupFile (print .Docroot "/") ""}}</dd>
+                        <dd><button type="button" class="op-icon-btn" aria-label="{{.T.Get "Copy startup file path"}}" @click="navigator.clipboard && navigator.clipboard.writeText({{toJSON .StartupFile}}); showToast({{toJSON (.T.Get "Copied startup file path.")}}, 'success')">{{template "op_icon" "copy"}}</button></dd>
+                    </dl>
+                    {{if .Files}}
+                    <ul class="op-mgr-files">
+                        {{range .Files}}<li class="{{if .Dir}}is-dir{{end}}">{{if .Dir}}{{template "op_icon" "folder"}}{{else}}{{template "op_icon" "file"}}{{end}}<span>{{.Name}}</span><span class="op-mono">{{if .Dir}}{{.Modified}}{{else}}{{.Size}}{{end}}</span></li>{{end}}
+                    </ul>
+                    {{if .HiddenFiles}}<p class="op-hint">{{.T.Get "%(n)s hidden files not shown" "n" (toString .HiddenFiles)}}</p>{{end}}
+                    {{else}}
+                    <p class="op-hint">{{.T.Get "The folder is empty."}}</p>
+                    {{end}}
+                    {{if or .UserAllowed.disk_usage .UserAllowed.inodes .UserAllowed.ftp}}
+                    <div class="op-mgr-links">
+                        {{if .UserAllowed.disk_usage}}<a class="op-btn op-btn-secondary op-btn-sm" href="{{.DiskUsageHref}}">{{template "op_icon" "chartpie"}} {{.T.Get "Disk Usage"}}</a>{{end}}
+                        {{if .UserAllowed.inodes}}<a class="op-btn op-btn-secondary op-btn-sm" href="{{.InodesExplorerHref}}">{{template "op_icon" "file"}} {{.T.Get "Inodes Explorer"}}</a>{{end}}
+                        {{if .UserAllowed.ftp}}<a class="op-btn op-btn-secondary op-btn-sm" href="/ftp">{{template "op_icon" "ftp"}} {{.T.Get "FTP Accounts"}}</a>{{end}}
+                    </div>
+                    {{end}}
+                </section>
+
+                <section class="op-card">
+                    <div class="op-card-head">
+                        <h2>{{.T.Get "Latest log lines"}}</h2>
+                        <a href="?domain={{.CurrentDomain}}&tab=logs" @click.prevent="document.getElementById('logs-tab').click()">{{.T.Get "All logs"}}</a>
+                    </div>
+                    <pre class="op-mgr-mini" id="op-rt-tail">{{.T.Get "Loading..."}}</pre>
+                </section>
+            </div>
+
+            <div class="op-mgr-side3">
+                {{template "waf_panel" .}}
+                {{template "visitors" .}}
+                <section class="op-card">
+                    <div class="op-card-head"><h2>{{.T.Get "Created"}}</h2></div>
+                    <b class="op-kpi-value" id="created_date" data-relative-date="{{.Container.CreatedDate}}">{{.Container.CreatedDate}}</b>
+                    <p class="op-mono op-hint">{{replace (replace .Container.CreatedDate "T" " ") "Z" " UTC"}}</p>
+                </section>
+            </div>
+        </div>
+
+        <div class="hidden op-wp-panel" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+            <form action="/pm2/update/{{.Service}}" method="POST" class="op-mgr-form"
+                  x-data="{ startup: {{toJSON .StartupFile}}, custom: {{toJSON .CustomCmd}}, workdir: {{toJSON .Workdir}}, git: {{toJSON .GitRepoURL}}, req: {{if .RequirementsSelected}}true{{else}}false{{end}},
+                            ext: {{if eq .Type "nodejs"}}'js'{{else if eq .Type "python"}}'py'{{else if eq .Type "ruby"}}'rb'{{else if eq .Type "java"}}'java'{{else}}''{{end}},
+                            get startupErr() { const v = this.startup; if (!v.startsWith('/var/www/html/')) return {{toJSON (.T.Get "Path must start with /var/www/html/")}}; if (v.includes('../')) return {{toJSON (.T.Get "Path traversal (../) is not allowed")}}; if (this.ext && !v.endsWith('.' + this.ext)) return {{toJSON (.T.Get "Startup file needs to be a .%(ext)s file")}}.replace('%(ext)s', this.ext); return ''; },
+                            get customErr() { return this.custom.includes('..') ? {{toJSON (.T.Get "Path traversal (..) is not allowed")}} : ''; },
+                            get workdirErr() { const v = this.workdir; if (!v.startsWith('/var/www/html/')) return {{toJSON (.T.Get "Path must start with /var/www/html/")}}; if (v.includes('../')) return {{toJSON (.T.Get "Path traversal (../) is not allowed")}}; return ''; },
+                            get gitErr() { return this.git !== '' && !this.git.startsWith('https://') ? {{toJSON (.T.Get "Only https:// URLs are supported")}} : ''; },
+                            get runs() { return (this.req ? {{toJSON $inst}} + ' && ' : '') + (this.custom.trim() || {{toJSON $run}} + ' ' + this.startup); } }"
+                  @submit="if (startupErr || customErr || workdirErr || gitErr) { $event.preventDefault(); showToast({{toJSON (.T.Get "Fix the highlighted fields first.")}}, 'error'); }">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input type="hidden" name="requirements" :value="req ? '1' : ''" value="{{if .RequirementsSelected}}1{{end}}">
+
+                <div class="op-card-head"><h2>{{.T.Get "Settings"}}</h2><span class="op-hint">{{.T.Get "Saved to the app's service in docker-compose.yml and .env"}}</span></div>
+
+                <div class="op-mgr-sec">
+                    <div><h3>{{.T.Get "Startup"}}</h3><p class="op-hint">{{.T.Get "Which file starts the app, and whether packages are installed first."}}</p></div>
+                    <div class="op-mgr-fields">
+                        <div class="op-field">
+                            <label class="op-label" for="startup_file">{{.T.Get "Startup file"}}</label>
+                            <input class="op-input op-mono" required id="startup_file" name="startup_file" type="text" x-model="startup" :class="startupErr && 'is-invalid'">
+                            <p class="op-hint" x-show="!startupErr">{{.T.Get "Run with %(cmd)s when no custom command is set." "cmd" $run}}</p>
+                            <p class="op-hint is-danger" x-show="startupErr" x-text="startupErr" x-cloak></p>
                         </div>
-                        {{else}}
-                        <p class="py-4 text-center text-sm text-gray-500">{{.T.Get "No packages listed in this file."}}</p>
-                        {{end}}
-                        {{end}}
+                        <div class="op-field">
+                            <label class="op-label" for="custom_cmd">{{.T.Get "Custom startup command"}} <span class="op-muted">{{.T.Get "optional"}}</span></label>
+                            <input class="op-input op-mono" id="custom_cmd" name="custom_cmd" type="text" x-model="custom" placeholder="{{$run}} {{replace .StartupFile (print .Docroot "/") ""}}" :class="customErr && 'is-invalid'">
+                            <p class="op-hint" x-show="!customErr">{{.T.Get "Used instead of the default, with any flags you need."}}</p>
+                            <p class="op-hint is-danger" x-show="customErr" x-text="customErr" x-cloak></p>
+                        </div>
+                        <div class="op-field">
+                            <label class="op-label" for="workdir">{{.T.Get "Work dir"}}</label>
+                            <input class="op-input op-mono" required id="workdir" name="workdir" type="text" x-model="workdir" :class="workdirErr && 'is-invalid'">
+                            <p class="op-hint" x-show="!workdirErr">{{.T.Get "Packages are installed here with %(cmd)s." "cmd" $inst}}</p>
+                            <p class="op-hint is-danger" x-show="workdirErr" x-text="workdirErr" x-cloak></p>
+                        </div>
+                        <label class="op-check-row op-switch-row">
+                            <span><b>{{.T.Get "Install packages before startup"}}</b><p>{{.T.Get "Runs %(cmd)s before the startup command." "cmd" $inst}}</p></span>
+                            <input type="checkbox" role="switch" x-model="req" aria-label="{{.T.Get "Install packages before startup"}}">
+                        </label>
+                        <div class="op-field">
+                            <span class="op-label">{{.T.Get "Runs on start"}}</span>
+                            <code class="op-mgr-preview" x-text="runs"></code>
+                        </div>
                     </div>
                 </div>
 
-                <div class="my-8 h-px w-full bg-gray-200 dark:bg-gray-800"></div>
+                {{if .UserAllowed.git}}
+                <div class="op-mgr-sec">
+                    <div><h3>{{.T.Get "Git deploy"}}</h3><p class="op-hint">{{.T.Get "Re-fetch the code from a repository on every restart."}}</p></div>
+                    <div class="op-mgr-fields">
+                        <div class="op-field">
+                            <label class="op-label" for="git_repo_url">{{.T.Get "Git repository URL"}} <span class="op-muted">{{.T.Get "optional"}}</span></label>
+                            <input class="op-input op-mono" id="git_repo_url" name="git_repo_url" type="text" placeholder="https://github.com/user/repo.git" x-model="git" :class="gitErr && 'is-invalid'">
+                            <p class="op-hint is-danger" x-show="gitErr" x-text="gitErr" x-cloak></p>
+                            <p class="op-hint">{{.T.Get "On every restart the code is reset to the latest commit, before install and startup run. Local changes in the folder are overwritten. Only public repositories work; for a private one, put a personal access token in the URL. Clear the field to disconnect."}}</p>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
 
-                <h3 class="font-semibold text-gray-900 dark:text-gray-50 mb-4">
-                    {{if eq .Type "nodejs"}}{{.T.Get "package.json"}}
-                    {{else if eq .Type "python"}}{{.T.Get "requirements.txt"}}
-                    {{else if eq .Type "ruby"}}{{.T.Get "Gemfile"}}
-                    {{else if eq .Type "java"}}{{.T.Get "pom.xml"}}
-                    {{end}}
-                        {{.T.Get "file content"}}</h3>
+                <div class="op-mgr-sec">
+                    <div><h3>{{.T.Get "Version"}}</h3><p class="op-hint">{{.T.Get "Restart the app after changing the %(rt)s version." "rt" $rt}}</p></div>
+                    <div class="op-mgr-fields">
+                        <div class="op-field">
+                            <label class="op-label" for="version">{{.T.Get "%(rt)s version" "rt" $rt}}</label>
+                            <select name="version" id="version" required class="op-select op-mono"></select>
+                        </div>
+                    </div>
+                </div>
 
-    <script>
-    document.querySelector('html').addEventListener('click', function(e) {
-    if (!e.target.closest('#pip-tab')) return;
+                <div class="op-mgr-sec">
+                    <div><h3>{{.T.Get "Resource limits"}}</h3><p class="op-hint">{{.T.Get "CPU, memory and processes this container can use."}}</p></div>
+                    <div class="op-mgr-fields is-3">
+                        <div class="op-field"><label class="op-label" for="cpu">{{.T.Get "CPU (cores)"}}</label><input class="op-input op-mono" required id="cpu" name="cpu" type="number" min="0.10" step=".01" value="{{.CPU}}"></div>
+                        <div class="op-field"><label class="op-label" for="ram">{{.T.Get "Memory (GB)"}}</label><input class="op-input op-mono" required id="ram" name="ram" type="number" min="0.10" step=".01" value="{{.RAM}}"></div>
+                        <div class="op-field"><label class="op-label" for="pids">{{.T.Get "PIDs"}}</label><input class="op-input op-mono" required id="pids" name="pids" type="number" min="10" max="1000" step="1" value="{{.PIDs}}"><p class="op-hint">{{.T.Get "10 to 1000"}}</p></div>
+                    </div>
+                </div>
 
-    const workdir = {{toJSON .Workdir}};
-    const docroot = encodeURIComponent(
-        workdir || {{toJSON (replace .Docroot "/var/www/html/" "")}}
-    );
+                <div class="op-mgr-foot">
+                    <span class="op-hint">{{.T.Get "Restart the application to apply the changes."}}</span>
+                    <button type="submit" class="op-btn op-btn-primary">{{.T.Get "Save changes"}}</button>
+                </div>
+            </form>
 
-    const type = {{toJSON .Type}};
+            <script>
+            (function () {
+                const versionSelect = document.getElementById('version');
+                const currentVersion = {{toJSON .CurrentVersion}};
+                const loading = document.createElement('option');
+                loading.textContent = {{toJSON (.T.Get "Loading versions...")}};
+                versionSelect.appendChild(loading);
+                fetch('/docker/tags/' + encodeURIComponent({{toJSON .Type}}))
+                    .then(r => r.json())
+                    .then(data => {
+                        versionSelect.innerHTML = '';
+                        if (data.error) {
+                            const o = document.createElement('option'); o.value = ''; o.textContent = data.error; versionSelect.appendChild(o);
+                            return;
+                        }
+                        const versions = data.map(item => item.latest).filter(v => v);
+                        if (currentVersion && !versions.includes(currentVersion)) versions.unshift(currentVersion);
+                        versions.forEach(v => {
+                            const o = document.createElement('option');
+                            o.value = v;
+                            o.textContent = v === currentVersion ? v + ' ' + {{toJSON (.T.Get "(current)")}} : v;
+                            o.selected = v === currentVersion;
+                            versionSelect.appendChild(o);
+                        });
+                    })
+                    .catch(err => {
+                        versionSelect.innerHTML = '';
+                        const o = document.createElement('option'); o.value = currentVersion || ''; o.textContent = currentVersion || ({{toJSON (.T.Get "Error")}} + ': ' + err.message); versionSelect.appendChild(o);
+                    });
+            })();
+            </script>
+        </div>
 
-    let filename = "requirements.txt";
-    if (type === "nodejs") {
-        filename = "package.json";
-    } else if (type === "ruby") {
-        filename = "Gemfile";
-    } else if (type === "java") {
-        filename = "pom.xml";
-    }
+                <div class="hidden op-wp-panel" id="pip" role="tabpanel" aria-labelledby="pip-tab">
 
-    const url = `/file-manager/view-file/${docroot}/${filename}`;
-
-    fetch(url)
-        .then(res => res.text())
-        .then(data => {
-            const isHTML = /<[^>]+>/.test(data);
-            if (isHTML) {
-                document.getElementById('requirements_file').textContent = `/var/www/html/${decodeURIComponent(docroot)}/${filename} does not exist.`;
-            } else {
-                document.getElementById('requirements_file').textContent = data;
-            }
-        })
-        .catch(function() {
-            document.getElementById('requirements_file').textContent = `/var/www/html/${decodeURIComponent(docroot)}/${filename} does not exist.`;
-            console.error(`Failed to fetch ${filename}`);
-        });
-    });
-    </script>
-
-    <pre id="requirements_file">
-    </pre>
-
-    <div class="w-full flex space-x-2">
-    {{if eq .Type "nodejs"}}
-    <button type="button" data-pm="npm" class="install-btn relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-fit mt-2 w-full sm:mt-0 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "NPM install"}}</button>
-    <button type="button" data-pm="pnpm" class="install-btn relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 sm:w-fit mt-2 w-full sm:mt-0">{{.T.Get "PNPM install"}}</button>
-    {{else if eq .Type "python"}}
-    <button type="button" data-pm="pip" class="install-btn relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-fit mt-2 w-full sm:mt-0 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "PIP install"}}</button>
-    {{else if eq .Type "ruby"}}
-    <button type="button" data-pm="bundle" class="install-btn relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-fit mt-2 w-full sm:mt-0 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Bundle install"}}</button>
-    {{else if eq .Type "java"}}
-    <button type="button" data-pm="mvn" class="install-btn relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-fit mt-2 w-full sm:mt-0 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Maven install"}}</button>
-    {{end}}
-
-    <a href="/file-manager/edit-file/{{replace .Workdir "/var/www/html/" ""}}/{{if eq .Type "nodejs"}}{{.T.Get "package.json"}}{{else if eq .Type "python"}}{{.T.Get "requirements.txt"}}{{else if eq .Type "ruby"}}{{.T.Get "Gemfile"}}{{else if eq .Type "java"}}{{.T.Get "pom.xml"}}{{end}}?new=true" target="_blank" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 sm:w-fit mt-2 w-full sm:mt-0" id="npm-edit-link">{{.T.Get "Edit file"}}</a>
-    </div>
+                <div class="op-card-head op-rt-pkg-head">
+                    <div><h2 class="op-mono">{{.Manifest.File}}</h2><span class="op-hint op-mono">{{.Manifest.Path}}</span></div>
+                    <div class="op-actions">
+                        {{if eq .Type "nodejs"}}
+                        <button type="button" data-pm="npm" class="op-btn op-btn-primary op-btn-sm install-btn">{{.T.Get "NPM install"}}</button>
+                        <button type="button" data-pm="pnpm" class="op-btn op-btn-secondary op-btn-sm install-btn">{{.T.Get "PNPM install"}}</button>
+                        {{else if eq .Type "python"}}
+                        <button type="button" data-pm="pip" class="op-btn op-btn-primary op-btn-sm install-btn">{{.T.Get "PIP install"}}</button>
+                        {{else if eq .Type "ruby"}}
+                        <button type="button" data-pm="bundle" class="op-btn op-btn-primary op-btn-sm install-btn">{{.T.Get "Bundle install"}}</button>
+                        {{else if eq .Type "java"}}
+                        <button type="button" data-pm="mvn" class="op-btn op-btn-primary op-btn-sm install-btn">{{.T.Get "Maven install"}}</button>
+                        {{end}}
+                        {{if .UserAllowed.filemanager}}<a href="/file-manager/edit-file/{{replace .Manifest.Path "/var/www/html/" ""}}?new=true" target="_blank" class="op-btn op-btn-ghost op-btn-sm" id="npm-edit-link">{{template "op_icon" "pencil"}} {{.T.Get "Edit file"}}</a>{{end}}
+                    </div>
+                </div>
+                {{if not .Manifest.Found}}
+                <p class="op-meta">{{.T.Get "%(file)s was not found in the app folder." "file" .Manifest.Path}}</p>
+                {{else}}
+                <div class="op-rt-pkg">
+                    <div class="op-col">
+                        {{range .Manifest.Groups}}
+                        <div class="op-table-wrap">
+                            <table class="op-table is-plain op-rt-deps">
+                                <thead><tr><th>{{$.T.Get .Title}}</th><th>{{$.T.Get .ValueLabel}}</th>{{if .HasInstalled}}<th>{{$.T.Get "Installed"}}</th>{{end}}</tr></thead>
+                                <tbody>
+                                    {{$inst := .HasInstalled}}
+                                    {{range .Rows}}<tr><td class="op-mono">{{.Name}}</td><td class="op-mono">{{.Value}}</td>{{if $inst}}<td class="op-mono">{{if .Installed}}{{.Installed}}{{else}}<span class="op-muted">{{$.T.Get "not installed"}}</span>{{end}}</td>{{end}}</tr>{{end}}
+                                </tbody>
+                            </table>
+                        </div>
+                        {{else}}
+                        <p class="op-meta">{{.T.Get "No packages listed in this file."}}</p>
+                        {{end}}
+                    </div>
+                    <pre class="op-pre op-rt-manifest" id="requirements_file">{{.Manifest.Text}}</pre>
+                </div>
+                {{end}}
 
     <div id="installPIPModal">
     <div class="modal-body"></div>
@@ -861,90 +424,90 @@
 
                 </div>
 
-                <div class="hidden max-w-5xl px-4 py-6 sm:px-6 lg:px-8" id="envvars" role="tabpanel" aria-labelledby="envvars-tab">
-                    <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                <div class="hidden op-wp-panel" id="envvars" role="tabpanel" aria-labelledby="envvars-tab">
+                    <div class="op-section">
                         <div>
-                            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Environment variables"}}</h2>
-                            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Custom environment variables passed to the application's container, one KEY=VALUE per line."}}</p>
+                            <h2 class="op-h">{{.T.Get "Environment Variables"}}</h2>
+                            <p class="op-meta">{{.T.Get "Custom environment variables passed to the application's container, one KEY=VALUE per line."}}</p>
                         </div>
-                        <div class="sm:max-w-3xl md:col-span-2">
+                        <div class="op-section-body">
                             <form action="/pm2/envvars/{{.Service}}" method="POST">
                                 <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-                                <textarea name="env_vars" rows="10" placeholder="API_KEY=changeme&#10;DATABASE_URL=postgres://user:pass@host/db" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 font-mono min-h-24">{{.EnvVars}}</textarea>
-                                <p class="mt-2 text-xs text-gray-500">{{.T.Get "Restart the application from the Overview tab after saving so the changes take effect."}}</p>
-                                <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 mt-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Save environment variables"}}</button>
+                                <textarea name="env_vars" rows="10" placeholder="API_KEY=changeme&#10;DATABASE_URL=postgres://user:pass@host/db" class="op-input">{{.EnvVars}}</textarea>
+                                <p class="op-hint">{{.T.Get "Restart the application from the Overview tab after saving for changes to take effect."}}</p>
+                                <button type="submit" class="op-btn op-btn-primary">{{.T.Get "Save Environment Variables"}}</button>
                             </form>
                         </div>
                     </div>
                 </div>
 
-                <div class="hidden max-w-5xl px-4 py-6 sm:px-6 lg:px-8" id="clone" role="tabpanel" aria-labelledby="clone-tab">
+                <div class="hidden op-wp-panel" id="clone" role="tabpanel" aria-labelledby="clone-tab">
 
-                    <p class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Clone this application's files and settings onto a new domain - useful for quick staging copies."}}</p>
+                    <p class="op-meta">{{.T.Get "Clone this application's files and settings onto a new domain - useful for quick staging copies."}}</p>
 
                     <form id="pm2-CloneForm">
                         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
-                        <div class="my-8 h-px w-full bg-gray-200 dark:bg-gray-800"></div>
+                        <div class="op-sep"><div class="op-divider"></div></div>
 
-                        <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                        <div class="op-section">
                             <div>
-                                <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Location"}}</h2>
-                                <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Please choose the URL to install the clone on"}}</p>
+                                <h2 class="op-h">{{.T.Get "Location"}}</h2>
+                                <p class="op-meta">{{.T.Get "Please choose the URL to install the clone on"}}</p>
                             </div>
-                            <div class="sm:max-w-3xl md:col-span-2">
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                                    <div class="col-span-full">
-                                        <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="pm2-target_domain_id">{{.T.Get "Target"}}<span class="text-red-600 dark:text-red-500">*</span></label>
-                                        <div class="relative w-full mt-2">
+                            <div class="op-section-body">
+                                <div class="op-form-grid">
+                                    <div class="op-field-wrap">
+                                        <label class="op-label" for="pm2-target_domain_id">{{.T.Get "Target"}}<span class="is-danger">*</span></label>
+                                        <div class="op-field-ctl">
                                             <div class="flex">
-                                                <select class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 cursor-pointer truncate pr-7 rounded-r-none hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]" name="target_domain_id" id="pm2-target_domain_id">
+                                                <select class="op-input" name="target_domain_id" id="pm2-target_domain_id">
                                                     <option selected disabled value="">{{.T.Get "Select a domain"}}</option>
                                                     {{range .Domains}}
                                                         <option class="punycode" value="{{.DomainID}}">{{.DomainURL}}</option>
                                                     {{end}}
                                                 </select>
                                                 <div class="input-group-append flex">
-                                                    <input type="text" name="target_subdirectory" id="pm2-target_subdirectory" placeholder="{{.T.Get "subfolder"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 border-l-0 rounded-l-none">
+                                                    <input type="text" name="target_subdirectory" id="pm2-target_subdirectory" placeholder="{{.T.Get "subfolder"}}" class="op-input op-join-r">
                                                 </div>
                                             </div>
-                                            <p class="mt-2 text-xs text-gray-500">{{.T.Get "Make sure the target domain/subfolder isn't already used by another site - existing files there may be overwritten."}}</p>
+                                            <p class="op-hint">{{.T.Get "Make sure the target domain/subfolder isn't already used by another site - existing files there may be overwritten."}}</p>
                                         </div>
                                     </div>
-                                    <div class="col-span-full">
-                                        <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="pm2-target_service_name">{{.T.Get "Service name"}}<span class="text-red-600 dark:text-red-500">*</span></label>
-                                        <div class="relative w-full mt-2">
-                                            <input class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" id="pm2-target_service_name" name="target_service_name" type="text" placeholder="{{.Service}}-clone" />
+                                    <div class="op-field-wrap">
+                                        <label class="op-label" for="pm2-target_service_name">{{.T.Get "Service Name"}}<span class="is-danger">*</span></label>
+                                        <div class="op-field-ctl">
+                                            <input class="op-input" id="pm2-target_service_name" name="target_service_name" type="text" placeholder="{{.Service}}-clone" />
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="my-8 h-px w-full bg-gray-200 dark:bg-gray-800"></div>
+                        <div class="op-sep"><div class="op-divider"></div></div>
 
-                        <div class="grid grid-cols-1 gap-10 md:grid-cols-3">
+                        <div class="op-section">
                             <div>
-                                <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Startup"}}</h2>
-                                <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Version, requirements, and resource limits are carried over from this application automatically."}}</p>
+                                <h2 class="op-h">{{.T.Get "Startup"}}</h2>
+                                <p class="op-meta">{{.T.Get "Version, requirements, and resource limits are carried over from this application automatically."}}</p>
                             </div>
-                            <div class="sm:max-w-3xl md:col-span-2">
-                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                                    <div class="col-span-full">
-                                        <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="pm2-clone_startup_file">{{.T.Get "Startup file"}} <span class="text-red-600 dark:text-red-500">*</span></label>
-                                        <div class="relative w-full mt-2">
-                                            <input class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" id="pm2-clone_startup_file" name="startup_file" type="text" value="{{.StartupFile}}" />
-                                            <p class="mt-2 text-xs text-gray-500">{{.T.Get "Prefilled from this application - update the domain portion of the path to match the target above."}}</p>
+                            <div class="op-section-body">
+                                <div class="op-form-grid">
+                                    <div class="op-field-wrap">
+                                        <label class="op-label" for="pm2-clone_startup_file">{{.T.Get "Startup File"}}<span class="is-danger">*</span></label>
+                                        <div class="op-field-ctl">
+                                            <input class="op-input" id="pm2-clone_startup_file" name="startup_file" type="text" value="{{.StartupFile}}" />
+                                            <p class="op-hint">{{.T.Get "Prefilled from this application - update the domain portion of the path to match the target above."}}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="my-8 h-px w-full bg-gray-200 dark:bg-gray-800"></div>
+                        <div class="op-sep"><div class="op-divider"></div></div>
 
-                        <div class="flex items-center justify-end space-x-4">
-                            <button type="button" id="pm2-startCloneBtn" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-fit mt-2 sm:mt-0 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Clone application"}}</button>
+                        <div class="op-actions op-actions-end">
+                            <button type="button" id="pm2-startCloneBtn" class="op-btn op-btn-primary">{{.T.Get "Clone Application"}}</button>
                         </div>
                     </form>
 
@@ -993,17 +556,17 @@
                                     .then(response => {
                                         if (response.status === 'success') {
                                             showToast(response.warning || {{toJSON (.T.Get "Cloned successfully!")}}, response.warning ? 'warning' : 'success');
-                                            btn.textContent = {{toJSON (.T.Get "Clone complete")}};
+                                            btn.textContent = {{toJSON (.T.Get "Clone Complete")}};
                                         } else {
                                             showToast({{toJSON (.T.Get "Error cloning application")}}, 'error');
                                             btn.disabled = false;
-                                            btn.textContent = {{toJSON (.T.Get "Try again")}};
+                                            btn.textContent = {{toJSON (.T.Get "Try Again")}};
                                         }
                                     })
                                     .catch(error => {
                                         showToast(`${error?.error || error}`, 'error');
                                         btn.disabled = false;
-                                        btn.textContent = {{toJSON (.T.Get "Retry clone")}};
+                                        btn.textContent = {{toJSON (.T.Get "Retry Clone")}};
                                     });
                             });
                         })();
@@ -1011,119 +574,232 @@
 
                 </div>
 
-                <div class="hidden py-6" id="backup" role="tabpanel" aria-labelledby="backup-tab">
-                    {{template "site_backups" (dict "T" .T "Service" .Service "Intro" "Copies of the app's files, with its version, requirements, startup command, limits and environment variables. Restore them here." "Empty" "Back up now saves the app's files and settings.")}}
-                </div>
+                <div class="hidden op-wp-panel" id="backups" role="tabpanel" aria-labelledby="backups-tab">
 
-                <div class="hidden max-w-5xl px-4 py-6 sm:px-6 lg:px-8" id="logs" role="tabpanel" aria-labelledby="logs-tab">
-
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 id="app-log-title" class="font-semibold text-gray-900 dark:text-gray-50">
-                            {{.T.Get "Loading application logs.."}}
-                        </h3>
-                        <div class="flex space-x-2">
-                            <button title="{{.T.Get "Change view"}}"
-                                class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 py-1.5"
-                                @click="
-                                    $store.logs.rawMode = !$store.logs.rawMode;
-                                    renderLogs(window.__loadedLogs, $store.logs.rawMode);
-                                "
-                                x-text="$store.logs.rawMode ? {{toJSON (.T.Get "Formatted view")}} : {{toJSON (.T.Get "Raw view")}}">
-                            </button>
-
-                            <button title="{{.T.Get "Copy to clipboard"}}"
-                                class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 py-1.5"
-                                @click="copyLogs()"><i class="ri-file-copy-line text-base" aria-hidden="true"></i>
-                            </button>
-
-                            <button title="{{.T.Get "Open log in new tab"}}"
-                                class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 py-1.5"
-                                @click="openLogsInNewTab()">
-                                <i class="ri-arrow-right-up-line text-base" aria-hidden="true"></i>
-                            </button>
+                    <div class="op-section">
+                        <div>
+                            <h2 class="op-h">{{.T.Get "Create a Backup"}}</h2>
+                            <p class="op-meta">{{.T.Get "Archives the app's files, and records its current version/requirements/startup command/resource limits and environment variables."}}</p>
+                        </div>
+                        <div class="op-section-body">
+                            <div class="op-form-grid">
+                                <div class="op-field-wrap">
+                                    <button id="pm2-runBackup" type="button" class="op-btn op-btn-primary">{{.T.Get "Generate Backup"}}</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-<style>
-.text-red-900 {color: hsl(358, 66%, 48%)}
-.bg-red-200 { background-color: hsl(0, 100%, 96%)}
-.text-yellow-900 { color: hsl(30, 100%, 32%)}
-.bg-yellow-200 { background-color: hsl(44, 100%, 92%)}
-</style>
+                    <div class="op-sep"><div class="op-divider"></div><div class="whitespace-nowrap">{{.T.Get "or"}}</div><div class="op-divider"></div><div></div></div>
 
-<div id="app-log" class="h-72 overflow-y-auto rounded-md bg-gray-950 p-3 font-mono text-xs text-gray-50"></div>
+                    <div class="op-section">
+                        <div>
+                            <h2 class="op-h">{{.T.Get "Restore from Backups"}}</h2>
+                            <p class="op-meta">{{.T.Get "Restore files and settings from a backup. Every setting is validated before anything is changed."}}</p>
+                        </div>
+                        <div class="op-section-body">
+                            <div class="op-form-grid">
+                                <div class="op-field-wrap">
+                                    <div class="op-field-ctl op-stack-sm">
+                                        <button id="pm2-restore-btn-or" class="op-btn op-btn-primary" type="button">
+                                            {{.T.Get "Display Backups"}}
+                                        </button>
+
+                                        <div id="pm2-restore-section" class="hidden">
+                                            <p>{{.T.Get "Select a backup date:"}}</p>
+                                            <select class="op-input" id="pm2-restoreBackupDate"></select>
+
+                                            <button type="button" id="pm2-confirmRestore" class="op-btn op-btn-primary">
+                                                {{.T.Get "Start Restore"}}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <script>
-                    document.querySelector('html').addEventListener('click', function(e) {
-                        if (!e.target.closest('#logs-tab')) return;
-                        const domain = {{toJSON .Service}};
+                        (function() {
+                            const runBackupButton = document.getElementById("pm2-runBackup");
+                            const restoreButton = document.getElementById("pm2-restore-btn-or");
+                            const restoreBackupDateSelect = document.getElementById("pm2-restoreBackupDate");
+                            const confirmRestoreButton = document.getElementById("pm2-confirmRestore");
+                            let restoreConfirmed = false;
 
-                        fetch(`/pm2/logs/${encodeURIComponent(domain)}`)
+                            if (runBackupButton) {
+                                runBackupButton.addEventListener("click", function () {
+                                    runBackupButton.disabled = true;
+                                    runBackupButton.textContent = {{toJSON (.T.Get "Generating...")}};
+                                    showToast({{toJSON (.T.Get "Generating backup... Please wait.")}}, 'loading');
+
+                                    fetch("/pm2/backup/{{.Service}}", { method: "POST", headers: { 'X-CSRF-Token': csrf_token } })
+                                        .then(response => response.json().then(data => {
+                                            if (!response.ok) throw data;
+                                            return data;
+                                        }))
+                                        .then(() => {
+                                            showToast({{toJSON (.T.Get "Backup created successfully!")}}, 'success');
+                                            runBackupButton.disabled = false;
+                                            runBackupButton.textContent = {{toJSON (.T.Get "Generate Backup")}};
+                                        })
+                                        .catch(error => {
+                                            showToast(`${error?.error || error}`, 'error');
+                                            runBackupButton.disabled = false;
+                                            runBackupButton.textContent = {{toJSON (.T.Get "Generate Backup")}};
+                                        });
+                                });
+                            }
+
+                            if (restoreButton) {
+                                restoreButton.addEventListener("click", function () {
+                                    document.getElementById("pm2-restore-section").classList.remove("hidden");
+                                    restoreButton.classList.add("hidden");
+                                    fetch("/pm2/backups/{{.Service}}", { headers: { 'X-CSRF-Token': csrf_token } })
+                                        .then(response => response.json())
+                                        .then(dates => {
+                                            restoreBackupDateSelect.innerHTML = "";
+                                            if (dates.length > 0) {
+                                                dates.forEach(date => {
+                                                    const option = document.createElement("option");
+                                                    option.value = date;
+                                                    option.textContent = date;
+                                                    restoreBackupDateSelect.appendChild(option);
+                                                });
+                                            } else {
+                                                const option = document.createElement("option");
+                                                option.textContent = {{toJSON (.T.Get "No backups available")}};
+                                                option.disabled = true;
+                                                restoreBackupDateSelect.appendChild(option);
+                                            }
+                                        })
+                                        .catch(error => console.error("Error fetching backup dates:", error));
+                                });
+                            }
+
+                            if (confirmRestoreButton) {
+                                confirmRestoreButton.addEventListener("click", function () {
+                                    if (!restoreConfirmed) {
+                                        confirmRestoreButton.textContent = {{toJSON (.T.Get "Click again to confirm")}};
+                                        confirmRestoreButton.classList.remove("op-btn-primary");
+                                        confirmRestoreButton.classList.add("op-btn-danger");
+                                        restoreConfirmed = true;
+                                        return;
+                                    }
+                                    const selectedDate = restoreBackupDateSelect.value;
+                                    showToast({{toJSON (.T.Get "Restoring backup... Please wait.")}}, 'warning');
+                                    fetch("/pm2/restore/{{.Service}}?backup_date=" + encodeURIComponent(selectedDate), { method: "POST", headers: { 'X-CSRF-Token': csrf_token } })
+                                        .then(response => response.json().then(data => {
+                                            if (!response.ok) throw data;
+                                            return data;
+                                        }))
+                                        .then(() => {
+                                            showToast({{toJSON (.T.Get "Backup restored successfully!")}}, 'success');
+                                            setTimeout(() => {
+                                                restoreConfirmed = false;
+                                                confirmRestoreButton.textContent = {{toJSON (.T.Get "Start Restore")}};
+                                                confirmRestoreButton.classList.remove("op-btn-danger");
+                                                confirmRestoreButton.classList.add("op-btn-primary");
+                                            }, 5000);
+                                        })
+                                        .catch(error => {
+                                            const details = error && error.details ? ' - ' + error.details.join('; ') : '';
+                                            showToast(`${(error?.error || error)}${details}`, 'error');
+                                        });
+                                });
+                            }
+                        })();
+                    </script>
+
+                </div>
+
+                <div class="hidden op-wp-panel" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+
+                    <div class="op-card-head op-mgr-loghead">
+                        <h2 id="app-log-title">{{.T.Get "Container log"}} <span class="op-hint op-mono">{{lower .Service}}</span></h2>
+                        <div class="op-actions">
+                            <button type="button" class="op-btn op-btn-sm op-btn-secondary"
+                                @click="$store.logs.rawMode = !$store.logs.rawMode; renderLogs(window.__loadedLogs || '', $store.logs.rawMode);"
+                                x-text="$store.logs.rawMode ? {{toJSON (.T.Get "Formatted view")}} : {{toJSON (.T.Get "Raw view")}}">{{.T.Get "Raw view"}}</button>
+                            <button type="button" class="op-btn op-btn-sm op-btn-secondary" @click="loadAppLogs()">{{template "op_icon" "refresh"}} {{.T.Get "Refresh"}}</button>
+                            <button type="button" class="op-icon-btn" title="{{.T.Get "Copy to clipboard"}}" aria-label="{{.T.Get "Copy to clipboard"}}" @click="copyLogs()">{{template "op_icon" "copy"}}</button>
+                            <button type="button" class="op-icon-btn" title="{{.T.Get "Open log in new tab"}}" aria-label="{{.T.Get "Open log in new tab"}}" @click="openLogsInNewTab()">{{template "op_icon" "external"}}</button>
+                        </div>
+                    </div>
+
+                    <div id="app-log" class="op-mgr-log" tabindex="0"><pre>{{.T.Get "Loading application logs.."}}</pre></div>
+
+                    <script>
+                    // one request feeds both the Logs tab and the overview's last lines
+                    window.loadAppLogs = function () {
+                        const svc = {{toJSON .Service}};
+                        return fetch(`/pm2/logs/${encodeURIComponent(svc)}`)
                             .then(response => response.text())
                             .then(data => {
-                                const modalTitle = document.getElementById('app-log-title');
-                                const modalBody = document.getElementById('app-log');
                                 window.__loadedLogs = data;
-
-                                modalTitle.textContent = "{{.T.Get "Container log for"}} " + domain;
-                                modalBody.innerHTML = '';
-
-                                const rawMode = Alpine.store('logs').rawMode;
-                                renderLogs(data, rawMode);
+                                renderLogs(data, Alpine.store('logs').rawMode);
+                                renderLogTail(data);
                             })
                             .catch(error => {
+                                document.getElementById('app-log').innerHTML = '';
                                 showToast({{toJSON (.T.Get "Error fetching container logs for application.")}}, 'warning');
-                                console.error({{toJSON (.T.Get "Error fetching container logs for application:")}}, error);
+                                console.error(error);
                             });
-                    });
+                    };
+
+                    function parseLogLine(line) {
+                        try {
+                            const j = JSON.parse(line);
+                            if (j && j.log !== undefined) return { time: j.time || '', msg: String(j.log).replace(/\n$/, ''), err: (j.stream || '').toLowerCase() === 'stderr' };
+                        } catch (e) {}
+                        const m = line.match(/^(\d{4}-\d\d-\d\dT[\d:.]+Z?)\s?(.*)$/);
+                        return m ? { time: m[1], msg: m[2], err: false } : { time: '', msg: line, err: false };
+                    }
 
                     function renderLogs(data, rawMode) {
-                        const modalBody = document.getElementById('app-log');
-                        modalBody.innerHTML = '';
-
+                        const box = document.getElementById('app-log');
+                        box.innerHTML = '';
                         const pre = document.createElement('pre');
-
-                        if (rawMode) {
-                            pre.textContent = data;
-                            modalBody.appendChild(pre);
-                            return;
-                        }
-
-                        const lines = data.split('\n');
-
+                        box.appendChild(pre);
+                        if (rawMode) { pre.textContent = data; box.classList.add('is-raw'); return; }
+                        box.classList.remove('is-raw');
+                        const lines = data.split('\n').map(l => l.trim()).filter(Boolean);
+                        if (!lines.length) { pre.textContent = {{toJSON (.T.Get "Nothing logged yet.")}}; return; }
                         lines.forEach(line => {
-                            line = line.trim();
-                            if (!line) return;
-
-                            let isJson = false;
-
-                            try {
-                                const json = JSON.parse(line);
-
-                                if (json.time && json.log) {
-                                    const lineSpan = document.createElement('span');
-                                    lineSpan.textContent = `[${json.time}] `;
-
-                                    const logSpan = document.createElement('span');
-                                    logSpan.textContent = json.log;
-
-                                    if (json.stream?.toLowerCase() === 'stderr') {
-                                        logSpan.classList.add('text-red-900', 'bg-red-200');
-                                    }
-
-                                    lineSpan.appendChild(logSpan);
-                                    pre.appendChild(lineSpan);
-                                    isJson = true;
-                                }
-                            } catch (e) {}
-
-                            if (!isJson) {
-                                pre.appendChild(document.createTextNode(line + '\n'));
+                            const l = parseLogLine(line);
+                            if (l.time) {
+                                const t = document.createElement('span');
+                                t.className = 'op-mgr-log-t';
+                                t.textContent = l.time.replace('T', ' ').replace(/\.\d+Z?$/, '') + ' ';
+                                pre.appendChild(t);
                             }
+                            const msg = document.createElement('span');
+                            if (l.err) msg.className = 'op-log-hl is-danger';
+                            msg.textContent = l.msg + '\n';
+                            pre.appendChild(msg);
                         });
-
-                        modalBody.appendChild(pre);
                     }
+
+                    function renderLogTail(data) {
+                        const tail = document.getElementById('op-rt-tail');
+                        if (!tail) return;
+                        const lines = data.split('\n').map(l => l.trim()).filter(Boolean).slice(-8);
+                        tail.innerHTML = '';
+                        if (!lines.length) { tail.textContent = {{toJSON (.T.Get "Nothing logged yet.")}}; return; }
+                        lines.forEach(line => {
+                            const l = parseLogLine(line);
+                            const t = document.createElement('span');
+                            t.className = 'op-mgr-log-t';
+                            const hm = l.time.match(/T(\d\d:\d\d:\d\d)/);
+                            t.textContent = (hm ? hm[1] : '') + ' ';
+                            const msg = document.createElement('span');
+                            if (l.err) msg.className = 'op-log-hl is-danger';
+                            msg.textContent = l.msg + '\n';
+                            tail.append(t, msg);
+                        });
+                    }
+
+                    document.addEventListener('DOMContentLoaded', () => window.loadAppLogs());
 
 function copyLogs() {
     if (!window.__loadedLogs) return;
@@ -1146,38 +822,7 @@ function openLogsInNewTab() {
                     </script>
                 </div>
 
-                <div class="hidden max-w-5xl px-4 py-6 sm:px-6 lg:px-8" id="remove" role="tabpanel" aria-labelledby="remove-tab">
-
-                    <div x-data="{ open: false }" class="grid grid-cols-1 gap-10 md:grid-cols-3">
-                        <div>
-                            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Delete"}}</h2>
-                            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Stops the application, deletes docker container and removes it from Site Manager interface."}}</p>
-                        </div>
-                        <div class="sm:max-w-3xl md:col-span-2">
-                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                                <div class="col-span-full">
-                                    <div class="relative w-full mt-2 space-y-2">
-                                        <button x-show="!open" @click="open = true" type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600">
-                                            <i class="ri-delete-bin-line text-base" aria-hidden="true"></i> {{.T.Get "Delete application"}}
-                                        </button>
-                                        <div x-show="open">
-                                            <p class="text-sm/6 text-gray-500">{{.T.Get "Stops the application, deletes docker container and removes it from Site Manager interface."}}</p>
-                                            <p class="my-2 text-sm/6 text-gray-500">{{.T.Get "All website data such as files and database remains."}}</p>
-                                            <div class="my-6 flex flex-col gap-2 sm:flex-row-reverse sm:justify-end">
-                                                <button onclick="confirmRemoveforWP({{toJSON .CurrentDomain}})" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600" type="button">
-                                                {{.T.Get "Confirm delete"}}
-                                                </button>
-                                                <button @click="open = false" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600" type="button">
-                                                {{.T.Get "Cancel"}}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+                <div class="hidden op-wp-panel" id="remove" role="tabpanel">
             <script>
                 function confirmRemoveforWP(Id) {
                     showToast({{toJSON (.T.Get "Application removal started. Please wait.")}}, 'loading');
@@ -1196,15 +841,10 @@ function openLogsInNewTab() {
                 }
             </script>
 
-                    <p class="text-sm text-gray-500 dark:text-gray-400"></p>
+                    <p class="op-meta"></p>
                 </div>
 
-            </div>
-
-        </div>
-
     </div>
-
 </div>
 
 <script>
@@ -1258,7 +898,7 @@ document.querySelector('html').addEventListener('click', function(e) {
         modalBody.innerHTML = '';
 
         const pre = document.createElement('pre');
-        pre.classList.add('overflow-auto', 'max-h-64', 'p-4', 'my-4', 'bg-gray-800', 'text-white', 'rounded');
+        pre.classList.add('overflow-auto', 'max-h-64', 'my-4', 'op-pre');
         pre.textContent = data.output || data.error_output || data.message || "";
         modalBody.appendChild(pre);
 

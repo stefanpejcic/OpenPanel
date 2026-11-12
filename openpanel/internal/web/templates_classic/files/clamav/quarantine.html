@@ -1,0 +1,199 @@
+{{define "alpine_plugins"}}{{end}}
+{{define "flowbite_js"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/files/clamav/quarantine.html -->
+
+<!-- page header -->
+<section
+    aria-label="{{.T.Get "Files Header"}}"
+    x-data="{ searchQuery: '' }"
+>
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Quarantine"}}</h1></div>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">
+            {{if .QuarantineFiles}}
+                {{.T.Get "Quarantined files:"}} <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20 tabular-nums">{{len .QuarantineFiles}}</span>
+            {{else}}
+                {{.T.Get "Files that were detected by ClamAV as malicious and placed in quarantine."}}
+            {{end}}
+        </p>
+    </div>
+</div>
+    <div class="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+    <div class="flex flex-wrap items-center gap-2">
+        <div class="relative w-full sm:w-64">
+    <input
+        x-model="searchQuery"
+        class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 pl-8"
+        placeholder="{{.T.Get "Search"}}"
+        aria-label="{{.T.Get "Search"}}"
+        type="search"
+    />
+    <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
+            <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
+        </svg>
+    </div>
+</div>
+
+        <a href="/malware-scanner/logs" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 mt-2 w-full sm:w-auto sm:mt-0">{{.T.Get "Scan logs"}}</a>
+        <a href="/malware-scanner" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-fit mt-2 w-full sm:w-auto sm:mt-0 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Run scan"}}</a>
+    </div>
+    </div>
+<!-- END page header -->
+
+
+{{if not .QuarantineFiles}}
+<!-- no files -->
+<div class="border-t border-gray-200 px-4 py-6 sm:px-6 lg:px-8 dark:border-gray-800">
+    <div class="flex flex-col items-center justify-center rounded-md border border-dashed border-gray-300 px-4 py-10 text-center dark:border-gray-800">
+        <i class="ri-shield-check-line text-2xl leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+        <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No quarantined files"}}</p>
+        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Nothing has been flagged. Files a scan detects are moved here, out of your website folders."}} <a href="/malware-scanner" class="text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Start a scan"}}</a></p>
+    </div>
+</div>
+<!-- END no files -->
+{{else}}
+
+<!-- files table -->
+<section aria-label="{{.T.Get "Quarantined files"}}">
+    {{template "bulk_open" (dict "T" .T "Table" "#quarantine-table" "Endpoint" "/malware-scanner/quarantine/bulk")}}
+    <div class="overflow-x-auto">
+        <div class="w-full overflow-auto whitespace-nowrap">
+            <table id="quarantine-table" class="w-full text-sm border-t border-gray-200 dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+                <thead>
+                    <tr>
+                        {{template "bulk_head_checkbox" .}}
+                        <th scope="col" class="border-b border-gray-200 px-4 py-1 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "File") "Key" "file" "Type" "string")}}</th>
+                        <th scope="col" class="border-b border-gray-200 px-4 py-1 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Reason") "Key" "reason" "Type" "string")}}</th>
+                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .QuarantineFiles}}
+                    <tr x-show="searchQuery === '' || {{toJSON .DisplayPath}}.toLowerCase().includes(searchQuery.toLowerCase())" class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                        {{template "bulk_row_checkbox" (dict "T" $.T "Key" .RelPath "Label" .DisplayPath)}}
+
+                        <td class="q-path border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 font-medium text-gray-900 dark:text-gray-50" data-sort-col="file">{{.DisplayPath}}</td>
+
+                        <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400" data-sort-col="reason" data-sort-value="{{.Signature}}">
+                            {{if .Signature}}
+                            <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.Signature}}</span>
+                            {{if .QuarantinedAt}}<span class="ml-1 text-xs text-gray-500 tabular-nums">{{.QuarantinedAt}}</span>{{end}}
+                            {{else}}
+                            <span class="text-xs text-gray-400 dark:text-gray-600">{{$.T.Get "Unknown"}}</span>
+                            {{end}}
+                        </td>
+
+                        <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
+                            <div class="flex justify-end gap-2">
+                                <button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600" onclick="quarantineConfirm(this, 'restore', () => restoreQuarantinedFile({{toJSON .RelPath}}))"><i class="ri-arrow-go-back-line"></i> {{$.T.Get "Restore"}}</button>
+                                <button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600" onclick="quarantineConfirm(this, 'safe', () => markQuarantinedFileSafe({{toJSON .RelPath}}, {{toJSON .FileName}}))"><i class="ri-shield-check-line"></i> {{$.T.Get "Mark as safe"}}</button>
+                                <button type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-red-600 hover:bg-red-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-red-500 dark:hover:bg-red-400/10 dark:disabled:text-gray-600" onclick="quarantineConfirm(this, 'delete', () => deleteQuarantinedFile({{toJSON .RelPath}}))"><i class="ri-delete-bin-line"></i> {{$.T.Get "Delete"}}</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {{template "bulk_bar" .}}
+    </div>
+</section>
+<!-- END files table -->
+
+{{end}}
+
+<script src="{{static "js/table-sort.js"}}"></script>
+<script>
+function reloadAfter(ms) {
+    setTimeout(() => location.reload(), ms);
+}
+
+// inline confirmation in the row, like the File Manager: delete crosses the path out, mark safe turns it green
+let closeQuarantineConfirm = null;
+const quarantineModes = {
+    restore: { tone: ['text-blue-500'], icon: 'ri-arrow-go-back-line', label: '{{.T.Get "Restore"}}', btn: 'relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600' },
+    safe: { tone: ['text-emerald-600', 'dark:text-emerald-500'], icon: 'ri-shield-check-line', label: '{{.T.Get "Mark as safe"}}', btn: 'relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600' },
+    delete: { tone: ['text-red-600', 'dark:text-red-500', 'line-through'], icon: 'ri-delete-bin-line', label: '{{.T.Get "Delete permanently"}}', btn: 'relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600' },
+};
+
+function quarantineConfirm(btn, action, run) {
+    if (closeQuarantineConfirm) closeQuarantineConfirm();
+    const mode = quarantineModes[action];
+    const row = btn.closest('tr');
+    const actions = btn.closest('div');
+    const path = row.querySelector('.q-path');
+    const original = path.innerHTML;
+
+    path.classList.add(...mode.tone);
+    if (action === 'restore') path.insertAdjacentHTML('afterbegin', '<i class="ri-arrow-go-back-line mr-1"></i>');
+
+    const bar = document.createElement('span');
+    bar.className = 'inline-flex items-center gap-2';
+    bar.innerHTML =
+        `<button type="button" data-act="ok" class="${mode.btn}"><i class="${mode.icon}"></i> ${mode.label}</button>` +
+        `<button type="button" data-act="cancel" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Cancel"}}</button>`;
+    const buttons = Array.from(actions.children);
+    buttons.forEach(b => b.style.display = 'none');
+    actions.appendChild(bar);
+
+    function close() {
+        bar.remove();
+        buttons.forEach(b => b.style.display = '');
+        path.innerHTML = original;
+        path.classList.remove(...mode.tone);
+        document.removeEventListener('click', onOutside, true);
+        document.removeEventListener('keydown', onKey);
+        closeQuarantineConfirm = null;
+    }
+    function onOutside(e) { if (!bar.contains(e.target)) close(); }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+
+    bar.querySelector('[data-act="cancel"]').addEventListener('click', close);
+    bar.querySelector('[data-act="ok"]').addEventListener('click', () => {
+        bar.querySelectorAll('button').forEach(b => b.disabled = true);
+        document.removeEventListener('click', onOutside, true);
+        run();
+    });
+    setTimeout(() => document.addEventListener('click', onOutside, true), 0);
+    document.addEventListener('keydown', onKey);
+    bar.querySelector('[data-act="ok"]').focus();
+    closeQuarantineConfirm = close;
+}
+
+function quarantineRequest(url, method, okMsg, failMsg) {
+    fetch(url, { method, headers: { 'X-CSRF-Token': csrf_token } })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) { showToast(okMsg, 'success'); reloadAfter(800); }
+        else { showToast(data.error || failMsg, 'error'); if (closeQuarantineConfirm) closeQuarantineConfirm(); }
+    })
+    .catch(e => { showToast(e.message, 'error'); if (closeQuarantineConfirm) closeQuarantineConfirm(); });
+}
+
+function restoreQuarantinedFile(relPath) {
+    quarantineRequest(`/malware-scanner/quarantine/restore?file=${encodeURIComponent(relPath)}`,
+        'POST', '{{.T.Get "File restored."}}', '{{.T.Get "Restore failed"}}');
+}
+
+function deleteQuarantinedFile(relPath) {
+    quarantineRequest(`/malware-scanner/quarantine/delete?file=${encodeURIComponent(relPath)}`,
+        'POST', '{{.T.Get "File deleted."}}', '{{.T.Get "Delete failed"}}');
+}
+
+function markQuarantinedFileSafe(relPath, fileName) {
+    quarantineRequest(`/malware-scanner/quarantine/mark-safe?file=${encodeURIComponent(relPath)}`,
+        'POST', '{{.T.Get "Marked as safe and restored."}}', '{{.T.Get "Failed"}}');
+}
+</script>
+
+<!-- END templates/files/clamav/quarantine.html -->
+{{end}}
+
+{{define "sort_header"}}
+<button type="button" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.Label}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
+{{end}}

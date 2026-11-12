@@ -13,12 +13,12 @@ import (
 
 var (
 	databasesPage     = web.LoadPage("mysql/databases.html")
-	newDatabasePage   = web.LoadPage("db/new.html", "partials/_db_created.html")
+	newDatabasePage   = web.LoadPage("db/new.html", "partials/_db_create.html", "partials/_db_created.html")
 	usersPage         = web.LoadPage("mysql/users.html")
-	createUserPage    = web.LoadPage("mysql/mysql_user.html", "partials/_db_created.html")
+	createUserPage    = web.LoadPage("mysql/mysql_user.html", "partials/_db_create.html", "partials/_db_created.html")
 	passwordPage      = web.LoadPage("mysql/password.html")
-	wizardPage        = web.LoadPage("mysql/wizard.html")
-	assignPage        = web.LoadPage("mysql/assign.html")
+	wizardPage        = web.LoadPage("mysql/wizard.html", "partials/_db_create.html")
+	assignPage        = web.LoadPage("mysql/assign.html", "partials/_db_create.html")
 	removePage        = web.LoadPage("mysql/remove.html")
 	importPage        = web.LoadPage("mysql/import.html")
 	processlistPage   = web.LoadPage("mysql/processlist.html")

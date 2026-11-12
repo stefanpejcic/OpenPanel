@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -367,5 +368,22 @@ func TestBoolFlag(t *testing.T) {
 	yes, no := true, false
 	if boolFlag(nil) != "1" || boolFlag(&yes) != "1" || boolFlag(&no) != "0" {
 		t.Error("boolFlag mismatch")
+	}
+}
+
+// every /wordpress/tools/<action> the manager page calls has to be a known action
+func TestManagerPageToolActions(t *testing.T) {
+	raw, err := os.ReadFile("../../web/templates/manager/wp/single.html")
+	if err != nil {
+		t.Skip("template not found:", err)
+	}
+	matches := regexp.MustCompile(`/wordpress/tools/([a-z-]+)`).FindAllStringSubmatch(string(raw), -1)
+	if len(matches) == 0 {
+		t.Fatal("manager page calls no tool endpoints")
+	}
+	for _, m := range matches {
+		if !wpToolReadActions[m[1]] && !wpToolWriteActions[m[1]] {
+			t.Errorf("single.html calls unknown tool action %q", m[1])
+		}
 	}
 }

@@ -1,27 +1,34 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "content"}}
 <!-- START templates/domains/capitalize.html -->
 
 <!-- page header -->
 <section aria-label="{{.T.Get "Edit Domain Display"}}">
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
-    <div>
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Capitalize"}} <span class="punycode">{{.DomainURL}}</span></h1>
-        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "You can customize your domain type case by clicking on the letter you want to change, for example SuperDomainName.com."}}</p>
+    <div class="op-page-head op-cms-head">
+        <div>
+        <div class="op-wp-title"><h1 class="op-title">{{.T.Get "Capitalize"}} <span class="punycode">{{.DomainURL}}</span></h1></div>
+        <p class="op-meta">{{.T.Get "You can customize your domain type case by clicking on the letter you want to change.(e.g. SuperDomainName.com)."}}</p>
     </div>
-    <a href="/domains" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"><i class="ri-arrow-left-line text-base leading-none rtl:rotate-180" aria-hidden="true"></i>{{.T.Get "Back to domains"}}</a>
+    <div class="op-actions">
+    </div>
 </div>
 <!-- END page header -->
 
-<div class="px-4 pb-6 sm:px-6 lg:px-8">
-<div class="max-w-3xl rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised sm:p-6">
-    <form method="POST">
+
+<div class="sm:mx-auto sm:max-w-3xl p-6 m-6">
+    <form class="mt-8" method="POST">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <div class="op-form-grid">
+            <div class="op-field-wrap">
 
 <input type="hidden" name="domain_url" value="{{.DomainURL}}">
 <input type="hidden" name="capitalized_domain" id="capitalized_domain"
-       value="{{if .CapitalizedDomain}}{{.CapitalizedDomain}}{{else}}{{.DomainURL}}{{end}}">
+       value="{{if .CapitalizedDomain}}{{.CapitalizedDomain}}{{else}}{{.DomainURL}}{{end}}"
+       class="op-input">
 
-<div id="letters-container" class="flex flex-wrap justify-center gap-1 py-4" role="group" aria-label="{{.T.Get "Capitalize"}}">
+<div id="letters-container" class="flex flex-wrap mt-2 justify-center">
     <!-- Buttons are dynamically added here -->
 </div>
 
@@ -35,36 +42,32 @@
 
             domain.split('').forEach((char) => {
                 const button = document.createElement('button');
-                button.type = 'button';
                 button.textContent = char;
 
-                button.classList.add('min-w-8', 'rounded-md', 'px-1.5', 'pt-1', 'pb-0.5', 'font-mono', 'text-lg', 'text-gray-900', 'dark:text-gray-50', 'hover:bg-gray-100', 'dark:hover:bg-gray-800', 'border-b-2', 'cursor-pointer', 'outline', 'outline-0', 'outline-offset-2', 'outline-blue-500', 'focus-visible:outline-2');
+                button.classList.add('op-letter');
 
                 if (/^[A-Za-z]$/.test(char)) {
                     if (char === char.toUpperCase()) {
-                        button.classList.add('border-blue-500');
+                        button.classList.add('is-on');
                     } else {
                         button.classList.add('border-transparent');
                     }
-                    button.setAttribute('aria-pressed', char === char.toUpperCase());
 
                     button.addEventListener('click', (event) => {
                         event.preventDefault();
                         if (button.textContent === button.textContent.toUpperCase()) {
                             button.textContent = button.textContent.toLowerCase();
-                            button.classList.remove('border-blue-500');
+                            button.classList.remove('is-on');
                             button.classList.add('border-transparent');
                         } else {
                             button.textContent = button.textContent.toUpperCase();
                             button.classList.remove('border-transparent');
-                            button.classList.add('border-blue-500');
+                            button.classList.add('is-on');
                         }
-                        button.setAttribute('aria-pressed', button.textContent === button.textContent.toUpperCase());
                         updateDomainValue();
                     });
                 } else {
-                    button.classList.add('border-transparent', 'pointer-events-none', 'text-gray-400');
-                    button.tabIndex = -1;
+                    button.classList.add('border-transparent', 'pointer-events-none');
                 }
 
                 lettersContainer.appendChild(button);
@@ -86,11 +89,30 @@
     });
 </script>
 
-        <div class="mt-6 flex justify-end border-t border-gray-200 pt-6 dark:border-gray-800">
-            <button type="submit" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Save"}}</button>
+
+            </div>
         </div>
-    </form>
+
+<div class="op-sep"><div class="op-divider"></div></div>
+
+<div class="op-actions op-actions-end">
+
+
+    <button type="submit" class="op-btn op-btn-primary">
+        {{.T.Get "Save"}}
+        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10"> <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/> </svg>
+    </button>
+
+
+</form>
+
+    <a href="/domains" class="op-btn op-btn-secondary">
+        {{.T.Get "Back to Domains"}}
+    </a>
+
+
 </div>
+
 </div>
 
 </section>

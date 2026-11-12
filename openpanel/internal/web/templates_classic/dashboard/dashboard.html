@@ -1,0 +1,527 @@
+{{define "alpine_plugins"}}
+    <script defer src="{{static "vendor/alpinejs/alpinejs3xx-collapse.min.js"}}"></script>
+{{end}}
+
+{{define "icon_section"}}
+{{if .Section.Items}}
+        <div
+          data-section-id="{{.Section.Key}}"
+          x-data='{
+            open: (function() {
+              const s = localStorage.getItem("section_state_" + {{toJSON .Section.Key}});
+              return s === null ? true : s === "true";
+            })(),
+            toggleOpen() {
+              this.open = !this.open;
+              localStorage.setItem("section_state_" + {{toJSON .Section.Key}}, this.open);
+            }
+          }'
+          class="flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950 xl:col-span-3"
+        >
+          <div class="relative m-0 flex items-center justify-between gap-4 border-b border-gray-200 py-2 pr-2 pl-4 cursor-move active:cursor-grabbing dark:border-gray-800" id="section-title-{{.Section.Key}}">
+            <h2 class="flex items-center gap-3 text-sm font-semibold text-gray-900 dark:text-gray-50">
+              {{if .Section.Icon}}<span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-500 dark:bg-blue-950/70 dark:text-blue-400" aria-hidden="true"><i class="{{.Section.Icon}}"></i></span>{{end}}
+              {{.Section.Title}}
+            </h2>
+
+            <button type="button" @click="toggleOpen" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" :aria-label="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" :aria-expanded="open" :aria-controls="'section-icons-{{.Section.Key}}'">
+              <i class="ri-arrow-up-s-line inline-block text-xl leading-none" x-show="open" x-cloak aria-hidden="true"></i>
+              <i class="ri-arrow-down-s-line inline-block text-xl leading-none" x-show="!open" x-cloak aria-hidden="true"></i>
+              <span x-text="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" class="sr-only"></span>
+            </button>
+          </div>
+
+          <div
+            id="section-icons-{{.Section.Key}}"
+            class="grid grid-cols-[repeat(auto-fill,minmax(88px,1fr))] gap-1 p-2 lg:grid-flow-col lg:grid-cols-none lg:auto-cols-[96px] lg:overflow-x-auto lg:overscroll-x-contain"
+            x-show="open || find"
+            x-collapse
+          >
+            {{$upsellPlanName := .UpsellPlanName}}
+            {{$upsellURL := .UpsellURL}}
+            {{range .Section.Items}}
+              {{if .Disabled}}
+                <a data-label="{{lower .Label}}" x-show="!find || $el.dataset.label.includes(find.toLowerCase())" title="{{if $upsellPlanName}}{{$.T.Get "Upgrade to"}} {{$upsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
+                   {{if $upsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}
+                   class="flex min-w-0 flex-col items-center gap-2 rounded-md px-1 pt-3 pb-2.5 text-center opacity-55 cursor-not-allowed">
+                    <span class="inline-flex size-7 shrink-0 items-center justify-center text-[28px] leading-none text-gray-900 dark:text-gray-50" aria-hidden="true">
+                      <i class="{{.Icon}}"></i>
+                    </span>
+                    <span class="text-[13px] leading-4 text-gray-600 group-hover:text-gray-900 lg:min-h-8 dark:text-gray-400 dark:group-hover:text-gray-50">{{.Label}}</span>
+                </a>
+              {{else}}
+                <a href="{{.Href}}" target="{{if .Target}}{{.Target}}{{else}}_self{{end}}" data-label="{{lower .Label}}" x-show="!find || $el.dataset.label.includes(find.toLowerCase())" class="group flex min-w-0 flex-col items-center gap-2 rounded-md px-1 pt-3 pb-2.5 text-center hover:bg-gray-100 dark:hover:bg-gray-900/60 cursor-pointer outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                    <span class="inline-flex size-7 shrink-0 items-center justify-center text-[28px] leading-none text-gray-900 dark:text-gray-50" aria-hidden="true">
+                      <i class="{{.Icon}}"></i>
+                    </span>
+                    <span class="text-[13px] leading-4 text-gray-600 group-hover:text-gray-900 lg:min-h-8 dark:text-gray-400 dark:group-hover:text-gray-50">{{.Label}}</span>
+                </a>
+              {{end}}
+            {{end}}
+          </div>
+        </div>
+{{end}}
+{{end}}
+
+{{define "modern_section"}}
+{{if .Section.Items}}
+        <div
+          data-section-id="{{.Section.Key}}"
+          x-data='{
+            open: (function() {
+              const s = localStorage.getItem("section_state_" + {{toJSON .Section.Key}});
+              return s === null ? true : s === "true";
+            })(),
+            toggleOpen() {
+              this.open = !this.open;
+              localStorage.setItem("section_state_" + {{toJSON .Section.Key}}, this.open);
+            }
+          }'
+          class="mb-4 overflow-hidden rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950"
+        >
+          <div class="flex items-center justify-between gap-4 px-4 py-3 border-b border-gray-200 dark:border-gray-800 cursor-move active:cursor-grabbing" id="section-title-{{.Section.Key}}">
+            <h2 class="flex items-center gap-3 text-sm font-semibold text-gray-900 dark:text-gray-50">
+              {{if .Section.Icon}}<span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-500 dark:bg-blue-950/70 dark:text-blue-400" aria-hidden="true"><i class="{{.Section.Icon}}"></i></span>{{end}}
+              {{.Section.Title}}
+            </h2>
+
+            <button type="button" @click="toggleOpen" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" :aria-label="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" :aria-expanded="open" :aria-controls="'section-icons-{{.Section.Key}}'">
+              <i class="ri-arrow-up-s-line inline-block text-xl leading-none" x-show="open" x-cloak aria-hidden="true"></i>
+              <i class="ri-arrow-down-s-line inline-block text-xl leading-none" x-show="!open" x-cloak aria-hidden="true"></i>
+              <span x-text="open ? '{{.T.Get "Hide icons"}}' : '{{.T.Get "Show icons"}}'" class="sr-only"></span>
+            </button>
+          </div>
+
+          <div id="section-icons-{{.Section.Key}}" class="grid grid-cols-2 gap-x-2 gap-y-0.5 p-2" x-show="open" x-collapse>
+            {{$upsellPlanName := .UpsellPlanName}}
+            {{$upsellURL := .UpsellURL}}
+            {{range .Section.Items}}
+              {{if .Disabled}}
+                <a title="{{if $upsellPlanName}}{{$.T.Get "Upgrade to"}} {{$upsellPlanName}} {{$.T.Get "to use this feature."}}{{else}}{{$.T.Get "Not included in your plan. Contact your administrator to enable it."}}{{end}}"
+                   {{if $upsellURL}}href="/dashboard/upgrade"{{else}}href="#" onclick="return false;"{{end}}
+                   class="flex min-h-10 min-w-0 items-center gap-2.5 rounded-md px-2 py-1 text-[13px] leading-4 text-gray-600 opacity-55 cursor-not-allowed dark:text-gray-400">
+                  <span class="inline-flex size-7 shrink-0 items-center justify-center text-[22px] leading-none text-gray-900 dark:text-gray-50" aria-hidden="true"><i class="{{.Icon}}"></i></span>
+                  <span class="leading-tight">{{.Label}}</span>
+                </a>
+              {{else}}
+                <a href="{{.Href}}" target="{{if .Target}}{{.Target}}{{else}}_self{{end}}" class="flex min-h-10 min-w-0 items-center gap-2.5 rounded-md px-2 py-1 text-[13px] leading-4 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-900/60 dark:hover:text-gray-50">
+                  <span class="inline-flex size-7 shrink-0 items-center justify-center text-[22px] leading-none text-gray-900 dark:text-gray-50" aria-hidden="true"><i class="{{.Icon}}"></i></span>
+                  <span class="leading-tight">{{.Label}}</span>
+                </a>
+              {{end}}
+            {{end}}
+          </div>
+        </div>
+{{end}}
+{{end}}
+
+{{define "page_tabs_right"}}
+<!-- Overview / Tools switch, sits on the right of the tabs bar -->
+  <div id="tour-dashboard-view" class="my-1.5 inline-flex shrink-0 rounded-md bg-gray-100 p-1 dark:bg-gray-900" x-data="{ view: {{toJSON .View}} }" role="group" aria-label="{{.T.Get "Dashboard view"}}">
+    <button type="button" class="inline-flex items-center gap-1.5 rounded px-3 py-1 text-sm font-medium text-gray-500 hover:text-gray-900 aria-pressed:bg-white aria-pressed:text-gray-900 aria-pressed:shadow-sm dark:hover:text-gray-50 dark:aria-pressed:bg-gray-950 dark:aria-pressed:text-gray-50 cursor-pointer" aria-pressed="{{if eq .View "overview"}}true{{else}}false{{end}}" :aria-pressed="(view === 'overview').toString()" @click="view = 'overview'; $dispatch('dashboard-view', 'overview')"><i class="ri-dashboard-line" aria-hidden="true"></i>{{.T.Get "Overview"}}</button>
+    <button type="button" class="inline-flex items-center gap-1.5 rounded px-3 py-1 text-sm font-medium text-gray-500 hover:text-gray-900 aria-pressed:bg-white aria-pressed:text-gray-900 aria-pressed:shadow-sm dark:hover:text-gray-50 dark:aria-pressed:bg-gray-950 dark:aria-pressed:text-gray-50 cursor-pointer" aria-pressed="{{if eq .View "tools"}}true{{else}}false{{end}}" :aria-pressed="(view === 'tools').toString()" @click="view = 'tools'; $dispatch('dashboard-view', 'tools')"><i class="ri-apps-2-line" aria-hidden="true"></i>{{.T.Get "Tools"}}</button>
+  </div>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/dashboard/dashboard.html -->
+
+<script src="{{static "vendor/sortablejs/Sortable.min.js"}}"></script>
+<style>.cursor-move { cursor: move; } .cursor-grabbing:active { cursor: grab; } .\-left-4 { left:0!important;} .dashboard-locked .cursor-move { cursor: default; }</style>
+{{if eq .MenuStyle "modern"}}
+<!-- utilities missing from dist/output.css -->
+<style>
+.px-1\.5 { padding-left: .375rem; padding-right: .375rem; } .py-1\.5 { padding-top: .375rem; padding-bottom: .375rem; }
+@media (min-width: 80rem) { .xl\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>
+{{end}}
+
+<div x-data="{
+        view: {{toJSON .View}},
+        find: '',
+        setView(v) { this.view = v; document.cookie = 'dashboard_view=' + v + '; path=/; max-age=31536000; SameSite=Lax'; if (v === 'tools') this.$nextTick(() => this.$refs.find && this.$refs.find.focus({ preventScroll: true })) }
+    }" @dashboard-view.window="setView($event.detail)">
+
+<!-- title, plan and the add buttons on the left, the plan figures (or the tool finder) on the right -->
+<div class="flex flex-col gap-5 px-4 pt-6 sm:px-6 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
+  <div class="min-w-0">
+    <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Welcome back,"}} {{.CurrentUsername}}</h1>
+    <div class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-3">
+  {{if or .HostingPlanName .IPAddress}}<p class="text-sm text-gray-500">{{.HostingPlanName}}{{if and .HostingPlanName .IPAddress}} · {{end}}{{.IPAddress}}</p>{{end}}
+  {{if or .UserAllowed.domains .UserAllowed.autoinstaller}}
+    <div id="tour-add-buttons" class="flex shrink-0 flex-wrap gap-2">
+      {{if .UserAllowed.domains}}{{if .DomainsFull}}<span role="link" aria-disabled="true" tabindex="0" title="{{.T.Get "You have used all %(n)s domains on your plan." "n" (print .DomainsLimit)}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600"><i class="ri-global-line" aria-hidden="true"></i>{{.T.Get "Add domain"}}</span>{{else}}<a href="/domains/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-global-line" aria-hidden="true"></i>{{.T.Get "Add domain"}}</a>{{end}}{{end}}
+      {{if .UserAllowed.autoinstaller}}{{if .SitesFull}}<span role="link" aria-disabled="true" tabindex="0" title="{{.T.Get "You have used all %(n)s websites on your plan." "n" (print .WebsitesLimit)}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-600"><i class="ri-add-line" aria-hidden="true"></i>{{.T.Get "New website"}}</span>{{else}}<a href="/auto-installer" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-add-line" aria-hidden="true"></i>{{.T.Get "New website"}}</a>{{end}}{{end}}
+    </div>
+    {{end}}
+    </div>
+  </div>
+  <div class="min-w-0" x-show="view === 'overview'"{{if ne .View "overview"}} style="display: none"{{end}}>
+  {{with .PlanTiles}}
+  {{/* Planner KPI row, the used number turns yellow from 90% of the limit and red once it's reached */}}
+  <dl id="tour-plan-usage" aria-label="{{$.T.Get "Plan usage"}}" class="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3 lg:flex lg:flex-wrap lg:justify-end lg:gap-x-10">
+    {{range .}}
+    <div id="plan_tile_{{.Key}}">
+      <dt class="text-sm text-gray-500">{{.Label}}</dt>
+      <dd class="mt-1">
+        <a href="{{.Href}}" title="{{if .Limit}}{{.Pct}}%{{else}}{{$.T.Get "Unlimited"}}{{end}}" class="text-lg font-semibold tabular-nums transition hover:opacity-75"><span class="{{if and .Limit (ge .Pct 100)}}text-red-600 dark:text-red-500{{else if and .Limit (ge .Pct 90)}}text-yellow-600 dark:text-yellow-500{{else}}text-gray-900 dark:text-gray-50{{end}}">{{.Used}}</span><span class="font-medium text-gray-400 dark:text-gray-600"> / {{if .Limit}}{{.Limit}}{{else}}∞{{end}}</span></a>
+      </dd>
+    </div>
+    {{end}}
+  </dl>
+  {{end}}
+  </div>
+  <div class="min-w-0 lg:pt-1" x-show="view === 'tools'"{{if ne .View "tools"}} style="display: none"{{end}}>
+  <label id="tour-tool-finder" class="relative block w-full lg:w-96" data-page-find>
+    <span class="sr-only">{{.T.Get "Find a tool"}}</span>
+    <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
+    <input type="search" x-model="find" x-ref="find"{{if eq .View "tools"}} autofocus{{end}} placeholder="{{.T.Get "Find a tool: DNS, PHP version, backups..."}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-2 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
+  </label>
+  </div>
+</div>
+
+
+
+
+{{/* Tools find box sits on its own row so the right column starts level with the first block */}}
+
+
+<div class="px-4 pt-6 pb-6 sm:px-6">
+  <div class="flex flex-col space-y-4 w-full min-w-0">
+
+    {{template "custommessage" .}}
+
+    {{$root := .}}
+
+    <!-- overview: one surface split by lines, like OpenAdmin's dashboard -->
+    <div x-show="view === 'overview'"{{if ne .View "overview"}} style="display: none"{{end}} class="-mx-4 -mb-6 sm:-mx-6">
+      <div class="grid grid-cols-1 gap-px border-y border-gray-200 bg-gray-200 lg:grid-flow-row-dense lg:grid-cols-3 dark:border-gray-800 dark:bg-gray-800">
+      <div class="flex flex-col bg-white dark:bg-gray-950 lg:col-span-2 [&>[data-widget]+[data-widget]]:border-t [&>[data-widget]+[data-widget]]:border-gray-200 dark:[&>[data-widget]+[data-widget]]:border-gray-800">
+      <!-- plans without sites get their first other feature here: emails, databases, FTP, then containers -->
+      {{if $root.ShowSites}}
+      <div id="dashboard_sites" class="flex flex-col bg-white dark:bg-gray-950" data-widget="sites" x-init="$nextTick(() => { const t = document.getElementById('dash-right-top'); const set = () => { $el.style.minHeight = (open && t && innerWidth >= 1024) ? t.offsetHeight + 'px' : '' }; window.ResizeObserver && t && new ResizeObserver(set).observe(t); $watch('open', set); addEventListener('resize', set); set() })"
+           x-data="{ open: (function () { try { return localStorage.getItem('dash_widget_sites') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('dash_widget_sites', this.open ? 'open' : 'closed') } catch (e) {} } }">
+        <div class="flex items-center justify-between gap-4 px-6 py-4" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
+          <div class="min-w-0">
+            <h3 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{$root.T.Get "Websites"}}</h3><a href="/sites" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{$root.T.Get "View all"}} &rarr;</a>
+            <p class="text-sm/6 text-gray-500" x-show="open">{{$root.T.Get "Your newest sites and what they run on."}}</p>
+          </div>
+          <button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? '{{$root.T.Get "Collapse"}}' : '{{$root.T.Get "Expand"}}'" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button>
+        </div>
+        <div x-show="open">
+        {{with .Websites}}
+        <div>
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-gray-200 text-xs font-medium text-gray-500 dark:border-gray-800">
+                <th scope="col" class="py-2.5 pr-4 pl-6 text-left font-medium">{{$root.T.Get "Site"}}</th>
+                <th scope="col" class="hidden px-4 py-2.5 text-center font-medium sm:table-cell">{{$root.T.Get "Runs on"}}</th>
+                <th scope="col" class="px-4 py-2.5 text-center font-medium">{{$root.T.Get "Status"}}</th>
+                <th scope="col" class="w-px py-2.5 pr-6 pl-4"><span class="sr-only">{{$root.T.Get "Actions"}}</span></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+              {{range .}}
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                <td class="w-full max-w-0 py-2.5 pr-4 pl-6">
+                  <a href="{{.Href}}" class="flex min-w-0 items-center gap-3">
+                    <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300" title="{{.Type}}" aria-hidden="true"><i class="{{.TileIcon}}"></i></span>
+                    <span class="min-w-0">
+                      <span class="block truncate font-medium text-gray-900 dark:text-gray-50">{{.Name}}</span>
+                      <span class="block text-xs text-gray-500">{{.Type}}</span>
+                    </span>
+                  </a>
+                </td>
+                <td class="hidden px-4 py-2.5 text-center font-mono text-xs text-gray-700 sm:table-cell dark:text-gray-300">{{.RunsOn}}</td>
+                <td class="px-4 py-2.5 text-center">
+                  {{if .Suspended}}<span class="inline-flex items-center gap-x-1.5 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"><span class="size-2 rounded-full bg-red-500" aria-hidden="true"></span>{{$root.T.Get "Suspended"}}</span>
+                  {{else if eq .StateLabel "Stopped"}}<span class="inline-flex items-center gap-x-1.5 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"><span class="size-2 rounded-full bg-gray-400" aria-hidden="true"></span>{{$root.T.Get "Stopped"}}</span>
+                  {{else if eq .StateLabel "Running"}}<span class="inline-flex items-center gap-x-1.5 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"><span class="size-2 rounded-full bg-emerald-500" aria-hidden="true"></span>{{$root.T.Get "Running"}}</span>
+                  {{else}}<span class="inline-flex items-center gap-x-1.5 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"><span class="size-2 rounded-full bg-emerald-500" aria-hidden="true"></span>{{$root.T.Get "Active"}}</span>{{end}}
+                </td>
+                <td class="py-2.5 pr-6 pl-4 text-right">
+                  <div class="relative inline-block text-left" x-data="rowMenu" @click.outside="close()" @keydown.escape="close()">
+                    <button type="button" x-ref="btn" class="inline-flex size-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer" aria-label="{{$root.T.Get "Actions for"}} {{.Name}}" :aria-expanded="open.toString()" @click="toggle()"><i class="ri-more-2-line text-base leading-none" aria-hidden="true"></i></button>
+                    <div x-show="open" x-cloak x-ref="menu" :style="pos" class="absolute right-0 z-50 mt-1 w-48 rounded-md border border-gray-200 bg-white p-1 shadow-xl dark:border-gray-800 dark:bg-gray-950">
+                      <a href="{{.Href}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-settings-3-line" aria-hidden="true"></i>{{$root.T.Get "Manage"}}</a>
+                      <a href="https://{{.Name}}" target="_blank" rel="noopener" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-external-link-line" aria-hidden="true"></i>{{$root.T.Get "Open site"}}</a>
+                      {{if $root.UserAllowed.filemanager}}<a href="/files/{{.Name}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-folder-line" aria-hidden="true"></i>{{$root.T.Get "File manager"}}</a>{{end}}
+                      {{if $root.UserAllowed.dns}}<a href="/domains/edit-dns-zone/{{.Name}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-file-list-3-line" aria-hidden="true"></i>{{$root.T.Get "DNS zone"}}</a>{{end}}
+                      {{if $root.UserAllowed.ssl}}<a href="/domains/ssl?domain_name={{.Name}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-lock-line" aria-hidden="true"></i>{{$root.T.Get "SSL"}}</a>{{end}}
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {{end}}
+            </tbody>
+          </table>
+        </div>
+        {{else}}
+        <div class="m-6 flex flex-col items-center justify-center rounded-md border border-dashed border-gray-300 px-4 py-10 text-center dark:border-gray-800">
+          <i class="ri-window-line text-2xl leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+          <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{$root.T.Get "No websites yet"}}</p>
+          {{if $root.UserAllowed.autoinstaller}}<a href="/auto-installer" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 mt-4"><i class="ri-add-line" aria-hidden="true"></i>{{$root.T.Get "New website"}}</a>{{end}}
+        </div>
+        {{end}}
+        </div>
+      </div>
+      {{else}}{{with $root.AltList}}
+      <div id="dashboard_sites" class="flex flex-col bg-white dark:bg-gray-950" data-widget="sites" x-init="$nextTick(() => { const t = document.getElementById('dash-right-top'); const set = () => { $el.style.minHeight = (open && t && innerWidth >= 1024) ? t.offsetHeight + 'px' : '' }; window.ResizeObserver && t && new ResizeObserver(set).observe(t); $watch('open', set); addEventListener('resize', set); set() })"
+           x-data="{ open: (function () { try { return localStorage.getItem('dash_widget_sites') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('dash_widget_sites', this.open ? 'open' : 'closed') } catch (e) {} } }">
+        <div class="flex items-center justify-between gap-4 px-6 py-4" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
+          <div class="min-w-0">
+            <h3 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{$root.T.Get .Title}}</h3><a href="{{.Href}}" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{$root.T.Get "View all"}} &rarr;</a>
+            <p class="text-sm/6 text-gray-500" x-show="open">{{$root.T.Get .Desc}}</p>
+          </div>
+          <button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? '{{$root.T.Get "Collapse"}}' : '{{$root.T.Get "Expand"}}'" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button>
+        </div>
+        <div x-show="open">
+        {{if .Rows}}
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-gray-200 text-xs font-medium text-gray-500 dark:border-gray-800">
+                <th scope="col" class="py-2.5 pr-4 pl-6 text-left font-medium">{{$root.T.Get .NameLabel}}</th>
+                {{if .HasType}}<th scope="col" class="hidden px-4 py-2.5 text-left font-medium sm:table-cell">{{$root.T.Get "Type"}}</th>{{end}}
+                {{if .MetaLabel}}<th scope="col" class="py-2.5 pr-6 pl-4 text-right font-medium">{{$root.T.Get .MetaLabel}}</th>{{end}}
+                {{if .HasState}}<th scope="col" class="py-2.5 pr-6 pl-4 text-center font-medium">{{$root.T.Get "Status"}}</th>{{end}}
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
+              {{$icon := .Icon}}{{$l := .}}
+              {{range .Rows}}
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                <td class="w-full max-w-0 py-2.5 pr-4 pl-6">
+                  <a href="{{.Href}}" class="flex min-w-0 items-center gap-3">
+                    <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300" aria-hidden="true"><i class="{{$icon}}"></i></span>
+                    <span class="min-w-0">
+                      <span class="block truncate font-medium text-gray-900 dark:text-gray-50">{{.Name}}</span>
+                      {{with .Sub}}<span class="block truncate font-mono text-xs text-gray-500">{{.}}</span>{{end}}
+                    </span>
+                  </a>
+                </td>
+                {{if $l.HasType}}<td class="hidden px-4 py-2.5 whitespace-nowrap sm:table-cell"><span class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">{{.TypeIcon}}{{.TypeLabel}}</span></td>{{end}}
+                {{if $l.MetaLabel}}<td class="py-2.5 pr-6 pl-4 text-right tabular-nums whitespace-nowrap text-gray-700 dark:text-gray-300">{{.Meta}}</td>{{end}}
+                {{if $l.HasState}}<td class="py-2.5 pr-6 pl-4 text-center"><span class="inline-flex items-center gap-x-1.5 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300"><span class="size-2 rounded-full {{if eq .State "Running"}}bg-emerald-500{{else}}bg-gray-400{{end}}" aria-hidden="true"></span>{{$root.T.Get .State}}</span></td>{{end}}
+              </tr>
+              {{end}}
+            </tbody>
+          </table>
+        {{else}}
+        <div class="m-6 flex flex-col items-center justify-center rounded-md border border-dashed border-gray-300 px-4 py-10 text-center dark:border-gray-800">
+          <i class="{{.Icon}} text-2xl leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+          <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{$root.T.Get .Empty}}</p>
+          <a href="{{.Href}}" class="mt-3 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{$root.T.Get "Open"}} &rarr;</a>
+        </div>
+        {{end}}
+        </div>
+      </div>
+      {{end}}{{end}}
+      <div id="dashboard_usage" class="flex flex-col bg-white dark:bg-gray-950" data-widget="usage" x-init="$nextTick(() => { const h = document.getElementById('dash-right-howto'); const set = () => { const q = document.querySelector('[data-widget=quick]'); $el.style.minHeight = (open && h && innerWidth >= 1024) ? Math.max(0, h.offsetHeight - (q ? q.offsetHeight : 0)) + 'px' : '' }; window.ResizeObserver && h && new ResizeObserver(set).observe(h); $watch('open', set); addEventListener('resize', set); set() })"
+           x-data="{ open: (function () { try { return localStorage.getItem('dash_widget_usage') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('dash_widget_usage', this.open ? 'open' : 'closed') } catch (e) {} } }">
+        <div class="flex items-center justify-between gap-4 px-6 py-4" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
+          <div class="min-w-0">
+            <h3 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{$root.T.Get "Usage"}}</h3>{{if $root.UserAllowed.usage}}<a href="/server/usage" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{$root.T.Get "View details"}} &rarr;</a>{{end}}
+            <p class="text-sm/6 text-gray-500" x-show="open">{{if $root.UserAllowed.usage}}{{$root.T.Get "Disk, inodes, CPU and memory for your account."}}{{else}}{{$root.T.Get "Disk and inodes for your account."}}{{end}}</p>
+          </div>
+          <button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? '{{$root.T.Get "Collapse"}}' : '{{$root.T.Get "Expand"}}'" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button>
+        </div>
+        <div x-show="open"
+               x-data="{ r: { disk: {}, inodes: {}, cpu: {}, mem: {} }, ring(p) { p = parseFloat(p) || 0; return p >= 90 ? 'stroke-red-500' : p >= 70 ? 'stroke-yellow-500' : 'stroke-blue-500' } }"
+               @dashboard-resources.window="r = $event.detail">
+        <div class="grid grid-cols-1 gap-2 p-6 sm:grid-cols-2">
+          <a href="/disk-usage" class="flex min-w-0 items-center gap-3 rounded-md bg-gray-50 p-2.5 transition hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800/80">
+            <span class="relative inline-grid size-12 shrink-0 place-items-center">
+              <svg viewBox="0 0 36 36" class="size-12 -rotate-90" aria-hidden="true">
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.5" class="stroke-gray-200 dark:stroke-gray-800"></circle>
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.5" :stroke-dasharray="(r.disk.percentage || 0) + ' 100'" :class="ring(r.disk.percentage)"></circle>
+            </svg>
+              <i class="ri-hard-drive-3-line absolute text-lg leading-none text-gray-500 dark:text-gray-400" aria-hidden="true"></i>
+            </span>
+            <span class="min-w-0 flex-1">
+              <span class="flex items-baseline justify-between gap-3 text-sm"><span class="text-gray-600 dark:text-gray-400">{{$root.T.Get "Storage"}}</span><span class="font-semibold text-gray-900 tabular-nums dark:text-gray-50" x-text="(r.disk.percentage ?? 0) + '%'"></span></span>
+              <span class="mt-0.5 block truncate text-xs text-gray-500 tabular-nums" x-text="r.disk.allocated ? r.disk.used + ' {{$root.T.Get "of"}} ' + r.disk.allocated : (r.disk.used || '')"></span>
+            </span>
+          </a>
+          <a href="/inodes-explorer" class="flex min-w-0 items-center gap-3 rounded-md bg-gray-50 p-2.5 transition hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800/80">
+            <span class="relative inline-grid size-12 shrink-0 place-items-center">
+              <svg viewBox="0 0 36 36" class="size-12 -rotate-90" aria-hidden="true">
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.5" class="stroke-gray-200 dark:stroke-gray-800"></circle>
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.5" :stroke-dasharray="(r.inodes.percentage || 0) + ' 100'" :class="ring(r.inodes.percentage)"></circle>
+            </svg>
+              <i class="ri-stack-line absolute text-lg leading-none text-gray-500 dark:text-gray-400" aria-hidden="true"></i>
+            </span>
+            <span class="min-w-0 flex-1">
+              <span class="flex items-baseline justify-between gap-3 text-sm"><span class="text-gray-600 dark:text-gray-400">{{$root.T.Get "Inodes"}}</span><span class="font-semibold text-gray-900 tabular-nums dark:text-gray-50" x-text="(r.inodes.percentage ?? 0) + '%'"></span></span>
+              <span class="mt-0.5 block truncate text-xs text-gray-500 tabular-nums" x-text="r.inodes.allocated ? r.inodes.used + ' {{$root.T.Get "of"}} ' + r.inodes.allocated : (r.inodes.used || '')"></span>
+            </span>
+          </a>
+          {{/* CPU and memory only show with the usage module, some hosts don't sell them on plans */}}
+          {{if $root.UserAllowed.usage}}
+          <a href="/server/usage" class="flex min-w-0 items-center gap-3 rounded-md bg-gray-50 p-2.5 transition hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800/80">
+            <span class="relative inline-grid size-12 shrink-0 place-items-center">
+              <svg viewBox="0 0 36 36" class="size-12 -rotate-90" aria-hidden="true">
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.5" class="stroke-gray-200 dark:stroke-gray-800"></circle>
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.5" :stroke-dasharray="(r.cpu.visual || 0) + ' 100'" :class="ring(r.cpu.visual)"></circle>
+            </svg>
+              <i class="ri-cpu-line absolute text-lg leading-none text-gray-500 dark:text-gray-400" aria-hidden="true"></i>
+            </span>
+            <span class="min-w-0 flex-1">
+              <span class="flex items-baseline justify-between gap-3 text-sm"><span class="text-gray-600 dark:text-gray-400">{{$root.T.Get "CPU"}}</span><span class="font-semibold text-gray-900 tabular-nums dark:text-gray-50" x-text="(r.cpu.percentage ?? 0) + '%'"></span></span>
+              <span class="mt-0.5 block truncate text-xs text-gray-500 tabular-nums" x-text="r.cpu.allocated ? r.cpu.used + ' {{$root.T.Get "of"}} ' + r.cpu.allocated : (r.cpu.used || '')"></span>
+            </span>
+          </a>
+          <a href="/server/usage" class="flex min-w-0 items-center gap-3 rounded-md bg-gray-50 p-2.5 transition hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800/80">
+            <span class="relative inline-grid size-12 shrink-0 place-items-center">
+              <svg viewBox="0 0 36 36" class="size-12 -rotate-90" aria-hidden="true">
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.5" class="stroke-gray-200 dark:stroke-gray-800"></circle>
+              <circle cx="18" cy="18" r="15.9155" fill="none" stroke-width="3.5" :stroke-dasharray="(r.mem.percentage || 0) + ' 100'" :class="ring(r.mem.percentage)"></circle>
+            </svg>
+              <i class="ri-ram-line absolute text-lg leading-none text-gray-500 dark:text-gray-400" aria-hidden="true"></i>
+            </span>
+            <span class="min-w-0 flex-1">
+              <span class="flex items-baseline justify-between gap-3 text-sm"><span class="text-gray-600 dark:text-gray-400">{{$root.T.Get "Memory"}}</span><span class="font-semibold text-gray-900 tabular-nums dark:text-gray-50" x-text="(r.mem.percentage ?? 0) + '%'"></span></span>
+              <span class="mt-0.5 block truncate text-xs text-gray-500 tabular-nums" x-text="r.mem.allocated ? r.mem.used + ' {{$root.T.Get "of"}} ' + r.mem.allocated : (r.mem.used || '')"></span>
+            </span>
+          </a>
+          {{end}}
+        </div>
+        </div>
+      </div>
+      {{with $root.QuickActions}}
+      <div id="dashboard_quick" class="flex flex-col bg-white dark:bg-gray-950" data-widget="quick"
+           x-data="{ open: (function () { try { return localStorage.getItem('dash_widget_quick') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('dash_widget_quick', this.open ? 'open' : 'closed') } catch (e) {} } }">
+        <div class="flex items-center justify-between gap-4 px-6 py-4" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
+          <div class="min-w-0">
+            <h3 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{$root.T.Get "Quick actions"}}</h3><a href="#" @click.prevent="setView('tools')" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{$root.T.Get "All tools"}} &rarr;</a>
+            <p class="text-sm/6 text-gray-500" x-show="open">{{$root.T.Get "Tools you are likely to need."}}</p>
+          </div>
+          <button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? '{{$root.T.Get "Collapse"}}' : '{{$root.T.Get "Expand"}}'" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button>
+        </div>
+        <div x-show="open">
+        <div class="flex flex-wrap gap-2 p-6">
+          {{range .}}<a href="{{.Href}}" {{if .Target}}target="{{.Target}}"{{end}} class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="{{.Icon}}" aria-hidden="true"></i>{{.Label}}</a>{{end}}
+        </div>
+        </div>
+      </div>
+      {{end}}
+      <div class="flex-1" aria-hidden="true"></div>
+      </div>
+      <div class="flex flex-col gap-px">
+      <div id="dash-right-top" class="flex flex-col bg-white dark:bg-gray-950 [&>section]:rounded-none [&>section]:border-0 [&>section~section]:border-t [&>section~section]:border-gray-200 dark:[&>section~section]:border-gray-800">{{if and $root.UserAllowed.twofa (eq $root.TwofaNag "yes")}}{{template "twofa" $root}}{{end}}{{template "information" $root}}</div>
+      <div id="dash-right-howto" class="flex-1 bg-white dark:bg-gray-950 [&>section]:rounded-none [&>section]:border-0">{{template "howto" $root}}</div>
+      </div>
+      </div>
+    </div>
+    <script>
+    // first paint: Websites is as tall as the 2FA and info block beside it, Alpine keeps it in sync after
+    (function () { var t = document.getElementById('dash-right-top'), s = document.querySelector('[data-widget="sites"]'), closed = false;
+      try { closed = localStorage.getItem('dash_widget_sites') === 'closed' } catch (e) {}
+      if (t && s && !closed && innerWidth >= 1024 && t.offsetHeight) s.style.minHeight = t.offsetHeight + 'px';
+      var h = document.getElementById('dash-right-howto'), u = document.querySelector('[data-widget="usage"]'), q = document.querySelector('[data-widget="quick"]'), uclosed = false;
+      try { uclosed = localStorage.getItem('dash_widget_usage') === 'closed' } catch (e) {}
+      if (h && u && !uclosed && innerWidth >= 1024 && h.offsetHeight) u.style.minHeight = Math.max(0, h.offsetHeight - (q ? q.offsetHeight : 0)) + 'px'; })();
+    </script>
+
+    <!-- tools: the sortable, collapsible sections with a find box over them -->
+    <div class="space-y-4" x-show="view === 'tools'"{{if ne .View "tools"}} style="display: none"{{end}} @keydown.slash.window="if (view === 'tools' && !$event.target.closest('input, textarea, select, [contenteditable]')) { $event.preventDefault(); $refs.find.focus() }">
+      <div id="dashboard-sortable-area" class="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
+        {{range .Sections}}
+        <div id="wrapper-{{.Key}}" data-id="{{.Key}}" data-labels="{{range .Items}}{{lower .Label}}|{{end}}" x-show="!find || $el.dataset.labels.includes(find.toLowerCase())">
+          {{if eq $root.CustomSectionPosition (printf "before_%s" .Key)}}
+            {{template "customsection" $root}}
+          {{end}}
+          {{template "icon_section" (dict "Section" . "UserAllowedJSON" $root.UserAllowedJSON "T" $root.T "UpsellPlanName" $root.UpsellPlanName "UpsellURL" $root.UpsellURL)}}
+        </div>
+        {{end}}
+      </div>
+      <div class="flex flex-col items-center justify-center rounded-md border border-dashed border-gray-300 px-4 py-10 text-center dark:border-gray-800" x-show="find && ![...$el.parentElement.querySelectorAll('[data-labels]')].some(s => s.dataset.labels.includes(find.toLowerCase()))" x-cloak>
+        <i class="ri-search-line text-2xl leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+        <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No tool matches"}}</p>
+        <p class="mt-1 text-sm text-gray-500">{{.T.Get "Try another word."}}</p>
+      </div>
+      <!-- layout controls only matter here, where sections can be dragged and collapsed -->
+      <div id="tour-dashboard-layout" class="flex items-center justify-end gap-2 text-sm text-gray-500" x-show="!find">
+        <span>{{.T.Get "Layout"}}:</span>
+        <span class="inline-flex items-center gap-0.5 rounded-md bg-gray-100 p-0.5 dark:bg-gray-900">
+          <button type="button" @click="setDashboardLocked(!$store.dashboardLocked.value)" :title="$store.dashboardLocked.value ? '{{.T.Get "Unlock layout"}}' : '{{.T.Get "Lock layout"}}'" :class="$store.dashboardLocked.value ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-50'" class="rounded px-1.5 py-0.5 cursor-pointer"><i :class="$store.dashboardLocked.value ? 'ri-lock-line' : 'ri-lock-unlock-line'"></i></button>
+          <button type="button" @click="resetDashboardLayout()" title="{{.T.Get "Reset layout"}}" class="rounded px-1.5 py-0.5 cursor-pointer text-gray-500 hover:text-gray-900 dark:hover:text-gray-50"><i class="ri-arrow-go-back-line"></i></button>
+        </span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</div>
+
+{{template "usage" .}}
+
+{{template "onboarding" .}}
+
+{{if and .UserAllowed.summary (not .OnboardingShow)}}
+<script>
+// once a day, tell the user when yesterday's summary found something
+document.addEventListener('DOMContentLoaded', function() {
+    let shown = null;
+    try { shown = localStorage.getItem('summary_toast_date'); } catch (e) {}
+    fetch('/summary/latest.json', { credentials: 'same-origin' })
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => {
+            if (!d || !d.found || d.date === shown || (d.attention + d.look) === 0) return;
+            try { localStorage.setItem('summary_toast_date', d.date); } catch (e) {}
+            const parts = [];
+            if (d.attention) parts.push({{.T.Get "Needs your attention"}} + ': ' + d.attention);
+            if (d.look) parts.push({{.T.Get "Worth a look"}} + ': ' + d.look);
+            const msg = {{.T.Get "Yesterday's summary found something to check."}} + '\n' + parts.join(' · ');
+            setTimeout(() => showToast(msg, d.attention ? 'warning' : 'info', true, { label: {{.T.Get "View summary"}}, href: d.url }), 800);
+        })
+        .catch(() => {});
+});
+</script>
+{{end}}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sortableContainer = document.getElementById('dashboard-sortable-area');
+
+    let locked = false;
+    try { locked = localStorage.getItem('dashboard_locked') === 'true'; } catch (e) {}
+    sortableContainer.classList.toggle('dashboard-locked', locked);
+
+    const sortable = Sortable.create(sortableContainer, {
+        disabled: locked,
+        animation: 150,
+        handle: '[id^="section-title-"]',
+        ghostClass: 'opacity-50',
+        filter: 'button',
+        preventOnFilter: false,
+        direction: 'vertical',
+        fallbackOnBody: true,
+        swapThreshold: 0.65,
+
+        onEnd: function() {
+            const order = sortable.toArray();
+            localStorage.setItem('dashboard_section_order', JSON.stringify(order));
+        }
+    });
+
+    window.addEventListener('dashboard-lock', function(e) {
+        sortable.option('disabled', e.detail);
+        sortableContainer.classList.toggle('dashboard-locked', e.detail);
+    });
+
+    const savedOrder = JSON.parse(localStorage.getItem('dashboard_section_order'));
+    if (savedOrder) {
+        savedOrder.forEach(key => {
+            const element = sortableContainer.querySelector(`[data-id="${key}"]`);
+            if (element) {
+                sortableContainer.appendChild(element);
+            }
+        });
+    }
+});
+</script>
+
+
+<!-- END templates/dashboard/dashboard.html -->
+{{end}}

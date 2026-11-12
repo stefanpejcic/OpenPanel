@@ -1,0 +1,84 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/mysql/processlist.html -->
+
+<section aria-label="{{.T.Get "Processes table"}}" x-data="{ searchQuery: '' }">
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "MySQL running queries"}}</h1>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "List of all current processes running on the MySQL server, providing insights into ongoing queries, operations, and their associated details for better performance monitoring."}}</p>
+    </div>
+</div>
+<div class="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div class="relative w-full sm:w-64">
+            <input x-model="searchQuery" aria-label="{{.T.Get "Search"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-2 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30" placeholder="{{.T.Get "Search"}}" type="search"/>
+            <div class="pointer-events-none absolute bottom-0 left-2.5 flex h-full items-center text-gray-400 dark:text-gray-600">
+                <i class="ri-search-line" aria-hidden="true"></i>
+            </div>
+        </div>
+        <a href="/mysql/processlist" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-refresh-line" aria-hidden="true"></i>{{.T.Get "Refresh processes"}}</a>
+    </div>
+</div>
+
+{{template "bulk_open" (dict "T" .T "Table" "#processlist-table" "Endpoint" "/mysql/processlist/bulk")}}
+    <div class="relative overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+        <table id="processlist-table" class="w-full text-sm [&_td]:py-2.5 [&_th]:py-2.5 [&_tr]:border-b [&_tr]:border-gray-200 dark:[&_tr]:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+            <thead>
+                <tr>
+{{template "bulk_head_checkbox" .}}
+                    <th scope="col" class="px-4 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:text-gray-50">{{.T.Get "ID"}}</th>
+                    <th scope="col" class="px-4 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:text-gray-50">{{.T.Get "User"}}</th>
+                    <th scope="col" class="px-4 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:text-gray-50">{{.T.Get "Host"}}</th>
+                    <th scope="col" class="px-4 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:text-gray-50">{{.T.Get "DB"}}</th>
+                    <th scope="col" class="px-4 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:text-gray-50">{{.T.Get "Command"}}</th>
+                    <th scope="col" class="px-4 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:text-gray-50">{{.T.Get "Time"}}</th>
+                    <th scope="col" class="px-4 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:text-gray-50">{{.T.Get "State"}}</th>
+                    <th scope="col" class="px-4 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:text-gray-50">{{.T.Get "Info"}}</th>
+                    <th scope="col" class="px-4 text-right text-xs font-semibold whitespace-nowrap text-gray-900 dark:text-gray-50"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
+                </tr>
+            </thead>
+            <tbody>
+            {{if .ProcessList}}
+            {{range .ProcessList}}
+            <tr x-show="searchQuery === ''
+                || {{toJSON .User}}.toLowerCase().includes(searchQuery.toLowerCase())
+                || {{toJSON .Host}}.toLowerCase().includes(searchQuery.toLowerCase())
+                || {{toJSON .DB}}.toLowerCase().includes(searchQuery.toLowerCase())
+                || {{toJSON .Command}}.toLowerCase().includes(searchQuery.toLowerCase())
+                || {{toJSON .State}}.toLowerCase().includes(searchQuery.toLowerCase())
+                || {{toJSON .Info}}.toLowerCase().includes(searchQuery.toLowerCase())"
+                class="domain_row hover:bg-gray-50 dark:hover:bg-gray-900/60">
+{{$skip := ""}}{{if not (and (eq .Command "Query") (ne .User "system user") (ne .User "event_scheduler") (ne .Info "SHOW FULL PROCESSLIST"))}}{{$skip = "*"}}{{end}}{{template "bulk_row_checkbox" (dict "T" $.T "Key" (toString .ID) "Label" (toString .ID) "Skip" $skip)}}
+                <td class="text-center px-4 whitespace-nowrap text-gray-600 tabular-nums dark:text-gray-400">{{.ID}}</td>
+                <td class="px-4 whitespace-nowrap font-medium text-gray-900 dark:text-gray-50">{{.User}}</td>
+                <td class="px-4 whitespace-nowrap text-gray-600 dark:text-gray-400">{{.Host}}</td>
+                <td class="px-4 whitespace-nowrap text-gray-600 dark:text-gray-400">{{if .DB}}{{.DB}}{{else}}<span class="text-gray-400 dark:text-gray-600">{{$.T.Get "None"}}</span>{{end}}</td>
+                <td class="text-center px-4 whitespace-nowrap text-gray-600 dark:text-gray-400">{{.Command}}</td>
+                <td class="text-center px-4 whitespace-nowrap text-gray-600 tabular-nums dark:text-gray-400">{{.Time}}</td>
+                <td class="text-center px-4 whitespace-nowrap text-gray-600 dark:text-gray-400">{{if .State}}{{.State}}{{else}}<span class="text-gray-400 dark:text-gray-600">—</span>{{end}}</td>
+                <td class="max-w-xs truncate px-4 whitespace-nowrap font-mono text-xs text-gray-600 dark:text-gray-400" title="{{.Info}}">{{if .Info}}{{.Info}}{{else}}<span class="text-gray-400 dark:text-gray-600">{{$.T.Get "None"}}</span>{{end}}</td>
+                <td class="px-4 text-right whitespace-nowrap">
+                    {{if and (eq .Command "Query") (ne .User "system user") (ne .User "event_scheduler") (ne .Info "SHOW FULL PROCESSLIST")}}
+                    <form method="POST" action="/mysql/processlist/kill" data-confirm="{{$.T.Get "Kill this query?"}}">
+                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+                        <input type="hidden" name="id" value="{{.ID}}"/>
+                        <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-red-600 hover:bg-red-50 dark:border-gray-800 dark:bg-gray-950 dark:text-red-500 dark:hover:bg-red-400/10"><i class="ri-spam-2-line" aria-hidden="true"></i>{{$.T.Get "Kill"}}</button>
+                    </form>
+                    {{end}}
+                </td>
+            </tr>
+            {{end}}
+            {{else}}
+            <tr><td colspan="10" class="py-10! text-center text-sm text-gray-500">{{.T.Get "No active processes."}}</td></tr>
+            {{end}}
+            </tbody>
+        </table>
+    </div>
+{{template "bulk_bar" .}}
+</div>
+</section>
+
+<!-- END templates/mysql/processlist.html -->
+{{end}}

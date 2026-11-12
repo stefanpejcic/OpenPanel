@@ -1,3 +1,5 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "content"}}
 <!-- START templates/php/extensions.html -->
 
@@ -5,99 +7,75 @@
 
 <input type="hidden" id="global-csrf-token" name="csrf_token" value="{{.CSRFToken}}"/>
 
-<section aria-label="{{.Title}}" x-data="{ searchQuery: '' }">
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
+<div class="op-content" aria-label="{{.T.Get "PHP Extensions Header"}}" x-data="{ searchQuery: '' }">
+    {{$n := 0}}{{range .Extensions}}{{if or (eq .State "active") (eq .State "disabled")}}{{$n = add $n 1}}{{end}}{{end}}
+    <div class="op-page-head">
         <div>
-            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Title}}</h1>
-            <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Enable or disable PHP extensions for this version, or install new ones. Toggling restarts the PHP service."}}</p>
+            <div class="op-eyebrow">php-fpm-{{.Version}} · {{$n}} {{.T.Get "installed"}}</div>
+            <h1 class="op-title">PHP {{.Version}} {{.T.Get "Extensions"}}</h1>
+            <p class="op-meta">{{.T.Get "Enable or disable PHP extensions for this version, or install new ones. Toggling restarts the PHP service."}}</p>
         </div>
+        {{if gt (len .InstalledVersions) 1}}<div class="op-actions"><select class="op-select" style="width:auto;min-width:110px" aria-label="{{.T.Get "PHP version"}}" onchange="location.href = '/php/php' + this.value + '/extensions'">{{range .InstalledVersions}}<option value="{{.}}" {{if eq . $.Version}}selected{{end}}>PHP {{.}}</option>{{end}}</select></div>{{end}}
     </div>
-    <div class="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <div class="relative w-full sm:w-64">
-                <input x-model="searchQuery" aria-label="{{.T.Get "Search"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 pl-8" placeholder="{{.T.Get "Search"}}" type="search"/>
-                <div class="pointer-events-none absolute inset-y-0 left-2 flex items-center text-gray-400 dark:text-gray-600"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0"><path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path></svg></div>
-            </div>
-            <button type="button" id="open-install-modal" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-add-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "Install"}}</button>
-        </div>
-    </div>
-<!-- END page header -->
 
-<div id="install-progress-banner" role="status" class="hidden mx-4 mb-4 rounded-md bg-blue-50 p-4 text-sm text-blue-900 sm:mx-6 lg:mx-8 dark:bg-blue-950/70 dark:text-blue-400"></div>
+    <div id="install-progress-banner" class="hidden" role="status"></div>
 
-{{if .RecentlyRemoved}}
-<div class="mx-4 mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-md bg-yellow-50 p-4 text-sm text-yellow-900 sm:mx-6 lg:mx-8 dark:bg-yellow-950/70 dark:text-yellow-500">
-    <i class="ri-error-warning-line shrink-0 text-xl leading-5" aria-hidden="true"></i>
-    <span class="font-semibold">{{.T.Get "Recently active extensions no longer installed:"}}</span>
-    <span class="inline-flex flex-wrap gap-2">
-    {{range .RecentlyRemoved}}
-        <button type="button" class="quick-install-ext inline-flex items-center gap-1 rounded-md bg-white px-2 py-1 text-xs font-medium text-yellow-900 ring-1 ring-yellow-600/30 ring-inset hover:bg-yellow-100 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20 dark:hover:bg-yellow-400/20" data-extension="{{.}}" title="{{$.T.Get "Click to install again"}}">{{.}} <i class="ri-refresh-line" aria-hidden="true"></i></button>
+    {{if .RecentlyRemoved}}
+    <div class="op-alert is-warning" role="status">{{template "op_icon" "alert"}}<span><b>{{.T.Get "Recently active extensions no longer installed:"}}</b>
+        {{range .RecentlyRemoved}}<button type="button" class="quick-install-ext op-btn op-btn-sm op-btn-secondary" style="margin:4px 4px 0 0" data-extension="{{.}}" title="{{$.T.Get "Click to install again"}}">{{template "op_icon" "download"}} {{.}}</button>{{end}}</span></div>
     {{end}}
-    </span>
-</div>
-{{end}}
 
-<!-- table -->
-<div class="relative overflow-x-auto">
-    <table class="border-t border-gray-200 dark:border-gray-800 w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
-        <thead>
-            <tr>
-                <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Extension"}}</th>
-                <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Status"}}</th>
-                <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Action"}}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{$csrf := .CSRFToken}}
-            {{range .Extensions}}
-                {{if or (eq .State "active") (eq .State "disabled")}}
-                <tr x-show="searchQuery === '' || '{{.Name}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
-                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap font-medium text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.Name}}</td>
-                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
-                        {{if eq .State "active"}}
-                            <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20">{{$.T.Get "Enabled"}}</span>
-                        {{else}}
-                            <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{$.T.Get "Disabled"}}</span>
-                        {{end}}
-                    </td>
-                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-right">
-                        {{if .Managed}}
-                        <span class="text-xs text-gray-500" title="{{$.T.Get "Mounted into the PHP service by OpenPanel, it can't be installed or disabled here."}}">{{$.T.Get "Provided by OpenPanel"}}</span>
-                        {{else}}
-                        <form method="post" class="inline">
-                            <input type="hidden" name="csrf_token" value="{{$csrf}}"/>
-                            <input type="hidden" name="extension" value="{{.Name}}"/>
-                            <input type="hidden" name="enable" value="{{if eq .State "active"}}0{{else}}1{{end}}"/>
-                            <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1 text-center text-xs font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">
-                                {{if eq .State "active"}}{{$.T.Get "Disable"}}{{else}}{{$.T.Get "Enable"}}{{end}}
-                            </button>
-                        </form>
-                        {{end}}
-                    </td>
-                </tr>
+    <section class="op-card" aria-label="{{.T.Get "Extensions"}}">
+        <div class="op-toolbar">
+            <label class="op-search">{{template "op_icon" "search"}}<input class="op-input" type="search" x-model="searchQuery" placeholder="{{.T.Get "Search extensions"}}" aria-label="{{.T.Get "Search extensions"}}"></label>
+            <button type="button" id="open-install-modal" class="op-btn op-btn-primary">{{template "op_icon" "download"}} {{.T.Get "Install"}}</button>
+        </div>
+        <div class="op-table-wrap">
+            <table class="op-table">
+                <thead><tr><th scope="col">{{.T.Get "Extension"}}</th><th scope="col">{{.T.Get "Status"}}</th><th scope="col" class="is-shrink">{{.T.Get "Action"}}</th></tr></thead>
+                <tbody>
+                {{$csrf := .CSRFToken}}
+                {{range .Extensions}}
+                    {{if or (eq .State "active") (eq .State "disabled")}}
+                    <tr x-show="searchQuery === '' || {{toJSON .Name}}.toLowerCase().includes(searchQuery.toLowerCase())">
+                        <td class="op-cell-title"><b class="op-mono" style="font-size:13px">{{.Name}}</b></td>
+                        <td data-label="{{$.T.Get "Status"}}">{{if eq .State "active"}}<span class="op-status is-success">{{$.T.Get "Enabled"}}</span>{{else}}<span class="op-status">{{$.T.Get "Disabled"}}</span>{{end}}</td>
+                        <td class="is-shrink">
+                            {{if .Managed}}
+                            <span class="op-hint" title="{{$.T.Get "Mounted into the PHP service by OpenPanel, it can't be installed or disabled here."}}">{{$.T.Get "Provided by OpenPanel"}}</span>
+                            {{else}}
+                            <form method="post" style="display:inline">
+                                <input type="hidden" name="csrf_token" value="{{$csrf}}"/>
+                                <input type="hidden" name="extension" value="{{.Name}}"/>
+                                <input type="hidden" name="enable" value="{{if eq .State "active"}}0{{else}}1{{end}}"/>
+                                <button type="submit" class="op-btn op-btn-sm {{if eq .State "active"}}op-btn-secondary{{else}}op-btn-primary{{end}}">{{if eq .State "active"}}{{$.T.Get "Disable"}}{{else}}{{$.T.Get "Enable"}}{{end}}</button>
+                            </form>
+                            {{end}}
+                        </td>
+                    </tr>
+                    {{end}}
+                {{else}}
+                <tr><td colspan="3"><div class="op-empty"><span class="op-ico-tile">{{template "op_icon" "puzzle"}}</span><b>{{.T.Get "No extensions installed yet for this PHP version."}}</b></div></td></tr>
                 {{end}}
-            {{else}}
-            <tr><td colspan="3" class="border-b border-gray-200 py-10 text-center text-sm text-gray-500 dark:border-gray-800">{{.T.Get "No extensions installed yet for this PHP version."}}</td></tr>
-            {{end}}
-        </tbody>
-    </table>
+                </tbody>
+            </table>
+        </div>
+        <div class="op-tfoot"><span>{{$n}} {{.T.Get "extensions"}}</span></div>
+    </section>
 </div>
-<!-- END table -->
-</section>
 
 <!-- Install extension modal -->
-<div id="install-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="install-modal-title">
-    <div class="flex max-h-full w-full max-w-3xl flex-col rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-900 dark:bg-raised">
-        <div class="px-6 pt-6 pb-4">
-            <h2 id="install-modal-title" class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Install PHP extensions"}}</h2>
-            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Select extensions to install for PHP"}} {{.Version}}.</p>
+<div id="install-modal" class="hidden">
+    <div class="op-scrim" onclick="document.getElementById('cancel-install-modal').click()"></div>
+    <div class="op-sheet" role="dialog" aria-label="{{.T.Get "Install PHP extensions"}}">
+        <h2>{{.T.Get "Install PHP extensions"}}</h2>
+        <p class="op-meta">{{.T.Get "Select extensions to install for PHP"}} {{.Version}}.</p>
+        <div id="available-extensions-list" class="op-priv-grid" style="margin:14px 0 18px;max-height:50vh;overflow-y:auto">
+            <p class="op-hint">{{.T.Get "Loading..."}}</p>
         </div>
-        <div id="available-extensions-list" class="grid min-h-0 grid-cols-2 gap-x-4 overflow-y-auto border-t border-gray-200 px-6 py-4 sm:grid-cols-3 md:grid-cols-4 dark:border-gray-800">
-            <p class="text-sm text-gray-500">{{.T.Get "Loading..."}}</p>
-        </div>
-        <div class="flex flex-col-reverse gap-2 border-t border-gray-200 px-6 py-4 sm:flex-row sm:justify-end dark:border-gray-800">
-            <button type="button" id="cancel-install-modal" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Cancel"}}</button>
-            <button type="button" id="confirm-install" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Install selected"}}</button>
+        <div class="op-actions" style="justify-content:flex-end">
+            <button type="button" id="cancel-install-modal" class="op-btn op-btn-secondary">{{.T.Get "Cancel"}}</button>
+            <button type="button" id="confirm-install" class="op-btn op-btn-primary">{{.T.Get "Install selected"}}</button>
         </div>
     </div>
 </div>
@@ -121,26 +99,26 @@
     }
 
     function loadAvailableExtensions() {
-        listEl.innerHTML = '<p class="text-sm text-gray-500">{{.T.Get "Loading..."}}</p>';
+        listEl.innerHTML = '<p class="text-sm op-muted">{{.T.Get "Loading..."}}</p>';
         fetch('/php/php' + version + '/available-extensions')
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 var extensions = (data.extensions || []).filter(function(e) { return !e.installed; });
                 if (extensions.length === 0) {
-                    listEl.innerHTML = '<p class="text-sm text-gray-500">{{.T.Get "All supported extensions are already installed."}}</p>';
+                    listEl.innerHTML = '<p class="text-sm op-muted">{{.T.Get "All supported extensions are already installed."}}</p>';
                     return;
                 }
                 listEl.innerHTML = '';
                 extensions.forEach(function(ext) {
                     var label = document.createElement('label');
-                    label.className = 'flex items-center gap-2 py-1.5 text-sm text-gray-900 dark:text-gray-50';
+                    label.className = 'op-check-label';
                     var checkedAttr = extensionsHistory.indexOf(ext.name.toLowerCase()) !== -1 ? ' checked' : '';
-                    label.innerHTML = '<input type="checkbox" value="' + ext.name + '" class="ext-checkbox"' + checkedAttr + '> ' + ext.name;
+                    label.innerHTML = '<input type="checkbox" value="' + ext.name + '" class="ext-checkbox op-check"' + checkedAttr + '> ' + ext.name;
                     listEl.appendChild(label);
                 });
             })
             .catch(function() {
-                listEl.innerHTML = '<p class="text-sm text-red-600 dark:text-red-500">{{.T.Get "Failed to load available extensions."}}</p>';
+                listEl.innerHTML = '<p class="text-sm is-danger">{{.T.Get "Failed to load available extensions."}}</p>';
             });
     }
 
@@ -222,18 +200,19 @@
 {{else}}
 
 <!-- page header -->
-<section aria-label="{{.T.Get "PHP extensions"}}">
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+<div class="op-content" aria-label="{{.T.Get "PHP Extensions Select Header"}}">
+    <div class="op-page-head">
         <div>
-            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "PHP extensions"}}</h1>
-            <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Enable, disable, or install PHP extensions per PHP version."}}</p>
+            <h1 class="op-title">{{.T.Get "PHP Extensions"}}</h1>
+            <p class="op-meta">{{.T.Get "Enable, disable, or install PHP extensions per PHP version."}}</p>
         </div>
-        {{template "php_version_select" (dict "T" .T "Versions" .VersionPicks "Suffix" "/extensions" "Button" (.T.Get "Manage extensions") "Icon" "ri-puzzle-line")}}
     </div>
-
-{{template "php_version_picker" (dict "T" .T "Versions" .VersionPicks "Suffix" "/extensions" "Button" (.T.Get "Manage extensions") "Icon" "ri-puzzle-line" "NoSelect" true)}}
-
-</section>
+    <section class="op-card">
+        <div class="op-card-head"><h2>{{.T.Get "Pick a PHP version"}}</h2><span class="op-hint">{{len .InstalledVersions}} {{.T.Get "installed"}}</span></div>
+        <div class="op-chips">{{range .InstalledVersions}}<a class="op-chip" href="/php/php{{.}}/extensions"><span class="op-mono">PHP {{.}}</span></a>{{else}}<span class="op-hint">{{.T.Get "No PHP versions are installed."}}</span>{{end}}</div>
+        <div class="op-form-foot"><a href="/php/domains" class="op-btn op-btn-secondary">{{.T.Get "Back to PHP versions"}}</a></div>
+    </section>
+</div>
 
 {{end}}
 

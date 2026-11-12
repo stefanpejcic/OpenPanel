@@ -35,6 +35,20 @@ type BulkAction struct {
 
 // bulkIcons is what the bar shows instead of the label on small screens
 var bulkIcons = map[string]string{
+	"delete": "bi-trash3", "remove": "bi-dash-circle", "terminate": "bi-x-octagon", "kill": "bi-x-octagon", "revoke": "bi-x-circle",
+	"assign": "bi-person-plus", "unassign": "bi-person-dash", "password": "bi-key", "export": "bi-download", "backup": "bi-archive",
+	"restore": "bi-arrow-counterclockwise", "default": "bi-arrow-counterclockwise", "enable": "bi-toggle-on", "disable": "bi-toggle-off",
+	"start": "bi-play-circle", "run": "bi-play", "stop": "bi-stop-circle", "restart": "bi-arrow-repeat", "update": "bi-arrow-up-circle",
+	"suspend": "bi-pause-circle", "unsuspend": "bi-play-circle", "suspension": "bi-pause-circle",
+	"redirect": "bi-signpost-split", "unredirect": "bi-signpost", "ttl": "bi-clock", "schedule": "bi-calendar-event",
+	"overlap_on": "bi-layers", "overlap_off": "bi-layers-half", "waf": "bi-shield-check", "set_level": "bi-sliders",
+	"apply_profile": "bi-ui-checks", "cloudflare": "bi-cloud", "safe": "bi-check2-circle", "repair": "bi-wrench",
+	"optimize": "bi-speedometer2", "version": "bi-tag", "php": "bi-filetype-php", "path": "bi-folder", "container": "bi-box",
+	"detach": "bi-plug", "cpu": "bi-cpu", "ram": "bi-memory", "pids": "bi-list-ol", "quota": "bi-hdd", "add_target": "bi-plus-circle",
+}
+
+// plannerBulkIcons are the classic theme's Remix versions of bulkIcons
+var plannerBulkIcons = map[string]string{
 	"delete": "ri-delete-bin-line", "remove": "ri-indeterminate-circle-line", "terminate": "ri-spam-2-line", "kill": "ri-spam-2-line", "revoke": "ri-close-circle-line",
 	"assign": "ri-user-add-line", "unassign": "ri-user-minus-line", "password": "ri-key-2-line", "export": "ri-download-line", "backup": "ri-archive-line",
 	"restore": "ri-arrow-go-back-line", "default": "ri-arrow-go-back-line", "enable": "ri-toggle-fill", "disable": "ri-toggle-line",
@@ -52,10 +66,14 @@ func (b BulkAction) IconClass() string {
 	if b.Icon != "" {
 		return b.Icon
 	}
-	if icon, ok := bulkIcons[b.Key]; ok {
+	icons, fallback := bulkIcons, "bi-lightning-charge"
+	if Theme() == ThemeClassic {
+		icons, fallback = plannerBulkIcons, "ri-flashlight-line"
+	}
+	if icon, ok := icons[b.Key]; ok {
 		return icon
 	}
-	return "ri-flashlight-line"
+	return fallback
 }
 
 // BulkInput describes the value field shown on confirm, Options turns it into a select

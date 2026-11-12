@@ -3,8 +3,12 @@ package mysql
 import (
 	"context"
 	"errors"
+	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func TestRootPwProblem(t *testing.T) {
@@ -138,4 +142,61 @@ func TestRootPwStatus(t *testing.T) {
 			t.Errorf("rootPwStatus(%q) = %d, want %d", kind, got, want)
 		}
 	}
+}
+
+func TestRenderRootPasswordPort(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	render := func(t *testing.T, data RootPasswordPageData) string {
+		t.Helper()
+		data.LayoutData = baseLayout(mgr, "/mysql/root-password")
+		w := httptest.NewRecorder()
+		if err := rootPasswordPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		return w.Body.String()
+	}
+
+	t.Run("mariadb running, remote off", func(t *testing.T) {
+		body := render(t, RootPasswordPageData{Service: "mariadb", ServerVersion: "13.0.2", Running: true, RemotePort: "32770"})
+		for _, want := range []string{
+			"MariaDB 13.0.2", "The database keeps running.", `name="csrf_token" value="test-csrf-token"`, `name="password"`,
+			"Generate", "rp-crit", "Who signs in as root", "my.cnf", "MYSQL_ROOT_PASSWORD", `Off on this account. When on, root can also sign in from outside on port <span class="op-mono">32770</span>`,
+			"Update by hand", "Change the root password?", "MariaDB keeps running. Nothing restarts", "rp-steps", "New root password", "Shown this once",
+			`href="/mysql/phpmyadmin"`, `'X-CSRF-Token': csrf_token`, "const running = true",
+		} {
+			if !strings.Contains(body, want) {
+				t.Errorf("missing %q", want)
+			}
+		}
+		if strings.Contains(strings.ToLower(body), "restart mysql") || strings.Contains(body, "The service restarts") {
+			t.Error("page still says the service restarts")
+		}
+	})
+
+	t.Run("mysql stopped, remote on", func(t *testing.T) {
+		body := render(t, RootPasswordPageData{Service: "mysql", RemoteOn: true, RemotePort: "3307"})
+		for _, want := range []string{`On for this account. Root can sign in from outside on port <span class="op-mono">3307</span>`, "const running = false", "MySQL isn&#39;t running, so nothing changed."} {
+			if !strings.Contains(body, want) {
+				t.Errorf("missing %q", want)
+			}
+		}
+	})
+
+	t.Run("no phpmyadmin feature", func(t *testing.T) {
+		data := RootPasswordPageData{Service: "mariadb", Running: true}
+		data.LayoutData = baseLayout(mgr, "/mysql/root-password")
+		data.UserAllowed = map[string]bool{"mysql": true}
+		w := httptest.NewRecorder()
+		if err := rootPasswordPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if strings.Contains(body, "Open phpMyAdmin") || strings.Contains(body, "Signs you in as root") {
+			t.Error("phpMyAdmin shown without the feature")
+		}
+		if !strings.Contains(body, "Off on this account.") {
+			t.Error("expected remote off without a port")
+		}
+	})
 }

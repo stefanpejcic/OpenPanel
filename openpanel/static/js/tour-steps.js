@@ -13,19 +13,8 @@ window.TOUR_HOOKS = {
         var menu = document.getElementById('popup-menu');
         if (btn && menu && !menu.classList.contains('hidden')) btn.click();
     },
-    // the switch sits in the tabs bar, its first button is Overview and the second Tools
-    showOverview: function () {
-        var b = document.querySelectorAll('#tour-dashboard-view button')[0];
-        if (b && b.getAttribute('aria-pressed') !== 'true') b.click();
-    },
-    showTools: function () {
-        var b = document.querySelectorAll('#tour-dashboard-view button')[1];
-        if (b && b.getAttribute('aria-pressed') !== 'true') b.click();
-    },
-    // the MCP form starts folded, the connect snippets live inside it
-    openMcpForm: function () {
-        var b = document.getElementById('mcp-add-button');
-        if (b && b.getAttribute('aria-expanded') !== 'true') b.click();
+    showClassicDashboard: function () {
+        window.dispatchEvent(new CustomEvent('dashboard-view', { detail: 'classic' }));
     },
     openSearchBox: function () {
         var btn = document.getElementById('openSearchBtn');
@@ -36,126 +25,38 @@ window.TOUR_HOOKS = {
 window.TOUR_STEPS = [
     {
         path: '/dashboard',
-        element: '#tour-dashboard-view',
-        title: 'Overview and Tools',
-        description: 'Switch between the Overview, with your sites and plan at a glance, and Tools, with every feature as a shortcut. The panel remembers the one you used last.',
-        side: 'bottom',
-        align: 'end',
-        beforeShow: 'showOverview'
-    },
-    {
-        path: '/dashboard',
-        element: '#tour-plan-usage',
-        title: 'Plan Usage',
-        description: 'How much of your plan you use. A number turns yellow at 90% of its limit and red once the limit is reached. Click one to open that page.',
-        side: 'bottom',
-        align: 'end'
-    },
-    {
-        path: '/dashboard',
-        element: '#tour-add-buttons',
-        title: 'Add a Domain or Website',
-        description: 'Start here to add a domain or install a new website. When your plan is full, the button explains why it is unavailable.',
-        side: 'bottom',
-        align: 'start'
-    },
-    {
-        path: '/dashboard',
-        element: '#dashboard_sites',
-        title: 'Your Websites',
-        description: 'Your busiest websites first, with what they run on and whether they are up. On plans without websites this shows your email accounts, databases, FTP accounts or containers instead.',
-        side: 'top',
-        align: 'start'
-    },
-    {
-        path: '/dashboard',
-        element: '#dashboard_sites button[aria-expanded]',
-        title: 'Collapse a Widget',
-        description: 'Every widget here can be folded away. The panel remembers what you collapsed.',
-        side: 'left',
-        align: 'start'
-    },
-    {
-        path: '/dashboard',
-        element: '#dashboard_usage',
-        title: 'Usage',
-        description: 'Disk space, inodes, CPU and memory for your account, compared to your plan.',
-        side: 'top',
-        align: 'start'
-    },
-    {
-        path: '/dashboard',
-        element: '#dashboard_quick',
-        title: 'Quick Actions',
-        description: 'Shortcuts to the tools people open most often.',
-        side: 'top',
-        align: 'start'
-    },
-    {
-        path: '/dashboard',
-        element: '#dashboard_twofa',
-        title: 'Two-Factor Authentication',
-        description: 'Add an extra layer of security to your account with 2FA. Click the button here to enable it.',
-        side: 'left',
-        align: 'start'
-    },
-    {
-        path: '/dashboard',
-        element: '#dashboard_info',
-        title: 'General Information',
-        description: 'Your username, plan, IP address, last login and nameservers. Copy buttons are on the right.',
-        side: 'left',
-        align: 'start'
-    },
-    {
-        path: '/dashboard',
-        element: '#dashboard_howto',
-        title: 'General How-to',
-        description: 'Short guides for common tasks. They open in a new tab.',
-        side: 'left',
-        align: 'start'
-    },
-    {
-        path: '/dashboard',
-        element: '#tour-tool-finder',
-        title: 'Find a Tool',
-        description: 'Type a few letters to filter every tool on this page. Press / from anywhere on the dashboard to jump here.',
-        side: 'bottom',
-        align: 'end',
-        beforeShow: 'showTools'
-    },
-    {
-        path: '/dashboard',
         element: '#dashboard-sortable-area',
         title: 'Your Shortcuts',
-        description: 'Every feature you have access to, grouped into sections like Domains, Websites, Email and Files.',
+        description: 'Quick-access icons for every feature you have access to, grouped into sections like Files, Domains, MySQL and more.',
         side: 'top',
-        align: 'start'
+        align: 'start',
+        beforeShow: 'showClassicDashboard'
     },
     {
         path: '/dashboard',
-        element: '#dashboard-sortable-area [id^="section-title-"] button',
+        element: '#section-title-files button',
         title: 'Show/Hide a Section',
-        description: 'Collapse or expand a section once you know its tools by heart.',
+        description: 'Click this button to collapse or expand a section - handy once you know its icons by heart.',
         side: 'bottom',
         align: 'end'
     },
     {
         path: '/dashboard',
-        element: '#dashboard-sortable-area [id^="section-title-"]',
+        element: '#section-title-files',
         title: 'Reorder Sections',
-        description: 'Drag a section by its title to move it. Your order is remembered for next time.',
+        description: 'Click and drag a section by its title to reorder it. Your custom order is remembered for next time.',
         side: 'top',
         align: 'start'
     },
     {
         path: '/dashboard',
-        element: '#tour-dashboard-layout',
-        title: 'Layout',
-        description: 'Lock the layout so sections can no longer be dragged, or reset it to the default order.',
+        element: '#tour-icons-position',
+        title: 'Icons Position',
+        description: 'Click your profile at the bottom of the sidebar, then use this toggle to switch between showing the icon label below the icon (Top) or beside it (Start), whichever is easier to scan.',
         side: 'top',
-        align: 'end',
-        beforeHide: 'showOverview'
+        align: 'start',
+        beforeShow: 'openProfileMenu',
+        beforeHide: 'closeProfileMenu'
     },
     {
         path: '/dashboard',
@@ -218,6 +119,38 @@ window.TOUR_STEPS = [
         side: 'bottom',
         align: 'end'
     },
+    {
+        path: '/dashboard',
+        element: '#dashboard_twofa',
+        title: 'Two-Factor Authentication',
+        description: 'Add an extra layer of security to your account with 2FA. Click the button here to enable it.',
+        side: 'left',
+        align: 'start'
+    },
+    {
+        path: '/dashboard',
+        element: '#dashboard_info',
+        title: 'Information',
+        description: 'Your username, hosting plan, IP address and last login details at a glance.',
+        side: 'left',
+        align: 'start'
+    },
+    {
+        path: '/dashboard',
+        element: '#dashboard_usage',
+        title: 'Usage',
+        description: 'Tracks how much of your plan’s resources - websites, domains, databases, storage, CPU, RAM and more - you’re currently using.',
+        side: 'left',
+        align: 'start'
+    },
+    {
+        path: '/dashboard',
+        element: '#dashboard_howto',
+        title: 'General How-to',
+        description: 'Handy links to knowledge base articles for common tasks - opens in a new tab.',
+        side: 'left',
+        align: 'start'
+    },
 
     {
         path: '/files',
@@ -279,7 +212,7 @@ window.TOUR_STEPS = [
     {
         path: '/domains',
         element: '#dropdownToggleButton',
-        title: 'Show columns',
+        title: 'Show Columns',
         description: 'Choose which columns to display, like HSTS status or PHP version.',
         side: 'bottom',
         align: 'start'
@@ -346,7 +279,7 @@ window.TOUR_STEPS = [
     {
         path: '/sites',
         element: '#sites-table',
-        title: 'Site manager',
+        title: 'Site Manager',
         description: 'All your websites - WordPress, Node.js, Python and others - grouped by type, with their admin email, version, speed score and actions.',
         side: 'top',
         align: 'start'
@@ -415,7 +348,7 @@ window.TOUR_STEPS.push(
     {
         path: '/emails',
         element: '#email-accounts',
-        title: 'Email accounts',
+        title: 'Email Accounts',
         description: 'Lists your email accounts and their quota usage. Click an address to manage it.',
         side: 'top',
         align: 'start'
@@ -472,9 +405,9 @@ window.TOUR_STEPS.push(
     },
     {
         path: '/php/default',
-        element: '#php_versions',
+        element: '#new_php_version',
         title: 'Change Default',
-        description: 'Pick another PHP version, then click Set as default to apply it.',
+        description: 'Select a new default PHP version, then click Change to apply it.',
         side: 'bottom',
         align: 'start'
     },
@@ -490,7 +423,7 @@ window.TOUR_STEPS.push(
     {
         path: '/php/options',
         element: '#save-changes-button',
-        title: 'Save changes',
+        title: 'Save Changes',
         description: 'Toggle options like upload limits or execution time, then click here to save.',
         side: 'bottom',
         align: 'end'
@@ -549,7 +482,7 @@ window.TOUR_STEPS.push(
     {
         path: '/containers',
         element: '#dropdownToggleButton',
-        title: 'Show columns',
+        title: 'Show Columns',
         description: 'Choose which columns to display, like Block I/O, Network I/O or PIDs.',
         side: 'bottom',
         align: 'start'
@@ -565,9 +498,9 @@ window.TOUR_STEPS.push(
 
     {
         path: '/services',
-        element: '#services-table',
+        element: '#service-select',
         title: 'Services',
-        description: 'Every service on your account with its status and resource usage. Start, stop or restart one from its row.',
+        description: 'Pick a service to view its real-time resource usage, status, and to enable/disable it.',
         side: 'bottom',
         align: 'start'
     },
@@ -600,7 +533,7 @@ window.TOUR_STEPS.push(
     {
         path: '/security/ip-blocker',
         element: '#blocked_ips',
-        title: 'IP blocker',
+        title: 'IP Blocker',
         description: 'List IP addresses (one per line) that should be blocked from accessing your websites.',
         side: 'top',
         align: 'start'
@@ -643,7 +576,7 @@ window.TOUR_STEPS.push(
     {
         path: '/server/waf',
         element: '#waf-domains-table',
-        title: 'Web firewall',
+        title: 'Web Firewall',
         description: 'Turn the Coraza Web Application Firewall on or off for each of your domains individually.',
         side: 'top',
         align: 'start'
@@ -651,7 +584,7 @@ window.TOUR_STEPS.push(
 
     {
         path: '/server/info',
-        element: 'main table',
+        element: '#server',
         title: 'Server Information',
         description: 'General info about the server your account runs on - hostname, load, uptime, IP and OS.',
         side: 'top',
@@ -661,7 +594,7 @@ window.TOUR_STEPS.push(
     {
         path: '/server/webserver_conf',
         element: '#editor-container',
-        title: 'Webserver configuration',
+        title: 'Webserver Configuration',
         description: 'Edit the main webserver configuration file directly. Click Save Changes when done.',
         side: 'top',
         align: 'start'
@@ -670,7 +603,7 @@ window.TOUR_STEPS.push(
     {
         path: '/account',
         element: '#email',
-        title: 'Email & password',
+        title: 'Email & Password',
         description: 'Update the email address and password used to log into your account.',
         side: 'right',
         align: 'start'
@@ -686,9 +619,9 @@ window.TOUR_STEPS.push(
 
     {
         path: '/account/language',
-        element: 'main form[action="/account/language"]',
-        title: 'Change language',
-        description: 'Pick the language used across the panel interface. Click a language to switch right away.',
+        element: '#locale-select',
+        title: 'Change Language',
+        description: 'Pick the language used across the panel interface.',
         side: 'bottom',
         align: 'start'
     },
@@ -696,7 +629,7 @@ window.TOUR_STEPS.push(
     {
         path: '/account/notifications',
         element: 'form button[type="submit"]',
-        title: 'Email notifications',
+        title: 'Email Notifications',
         description: 'Choose which email notifications you want to receive, then click Save Preferences.',
         side: 'bottom',
         align: 'end'
@@ -714,7 +647,7 @@ window.TOUR_STEPS.push(
     {
         path: '/account/sessions',
         element: '#sessions-table',
-        title: 'Active sessions',
+        title: 'Active Sessions',
         description: 'Shows every device/browser currently logged into your account. End a session here if you don’t recognize it.',
         side: 'top',
         align: 'start'
@@ -723,7 +656,7 @@ window.TOUR_STEPS.push(
     {
         path: '/account/favorites',
         element: '#favorites-table',
-        title: 'Favorite pages',
+        title: 'Favorite Pages',
         description: 'Pages you’ve starred for quick access from the sidebar. Remove one from here, or by right-clicking its star.',
         side: 'top',
         align: 'start'
@@ -732,7 +665,7 @@ window.TOUR_STEPS.push(
     {
         path: '/account/activity',
         element: '#activitySearchForm',
-        title: 'Activity log',
+        title: 'Activity Log',
         description: 'Search and filter the full activity log for your account.',
         side: 'bottom',
         align: 'start'
@@ -741,7 +674,7 @@ window.TOUR_STEPS.push(
     {
         path: '/account/login-history',
         element: '#login-log-table',
-        title: 'Login history',
+        title: 'Login History',
         description: 'Shows past logins to your account, including the IP address and time.',
         side: 'top',
         align: 'start'
@@ -809,16 +742,16 @@ window.TOUR_STEPS.push(
 
     {
         path: '/malware-scanner',
-        element: '#folderPickerToggle',
+        element: '#directory-select',
         title: 'Malware Scanner',
-        description: 'Click to pick the folder you want to scan for malware.',
+        description: 'Pick the folder you want to scan for malware.',
         side: 'bottom',
         align: 'start'
     },
     {
         path: '/malware-scanner',
         element: '#start-scan-btn',
-        title: 'Start scan',
+        title: 'Start Scan',
         description: 'Click here to start scanning the selected folder. Infected files get quarantined.',
         side: 'bottom',
         align: 'end'
@@ -826,9 +759,9 @@ window.TOUR_STEPS.push(
 
     {
         path: '/fix-permissions',
-        element: '#folderPickerToggle',
+        element: '#directory-select',
         title: 'Fix Permissions',
-        description: 'Click to pick the folder whose file and folder permissions should be reset to the recommended defaults.',
+        description: 'Pick the folder whose file and folder permissions should be reset to the recommended defaults.',
         side: 'bottom',
         align: 'start'
     },
@@ -905,7 +838,7 @@ window.TOUR_STEPS.push(
     {
         path: '/domains/vhosts',
         element: '#editor-container',
-        title: 'Edit virtual hosts',
+        title: 'Edit Virtual Hosts',
         description: 'Edit the raw virtual host (vhost/Caddyfile) configuration for the selected domain.',
         side: 'top',
         align: 'start'
@@ -914,7 +847,7 @@ window.TOUR_STEPS.push(
     {
         path: '/domains/log',
         element: '#logs-table',
-        title: 'Raw access logs',
+        title: 'Raw Access Logs',
         description: 'View the raw access log entries for the selected domain.',
         side: 'top',
         align: 'start'
@@ -947,7 +880,7 @@ window.TOUR_STEPS.push(
     {
         path: '/mysql/processlist',
         element: '#processlist-table',
-        title: 'Running queries',
+        title: 'Running Queries',
         description: 'Shows currently running MySQL queries/connections, useful for spotting slow or stuck queries.',
         side: 'top',
         align: 'start'
@@ -955,7 +888,7 @@ window.TOUR_STEPS.push(
     {
         path: '/mysql/remote-mysql',
         element: '#remote',
-        title: 'Remote access',
+        title: 'Remote Access',
         description: 'Connection details for accessing this MySQL server remotely, and which users are allowed to.',
         side: 'right',
         align: 'start'
@@ -963,7 +896,7 @@ window.TOUR_STEPS.push(
     {
         path: '/mysql/configuration',
         element: '#mysql-config-table',
-        title: 'MySQL configuration',
+        title: 'MySQL Configuration',
         description: 'Tune MySQL server configuration values directly.',
         side: 'top',
         align: 'start'
@@ -996,7 +929,7 @@ window.TOUR_STEPS.push(
     {
         path: '/postgresql/processlist',
         element: '#processlist-table',
-        title: 'Running queries',
+        title: 'Running Queries',
         description: 'Shows currently running PostgreSQL queries/connections.',
         side: 'top',
         align: 'start'
@@ -1004,7 +937,7 @@ window.TOUR_STEPS.push(
     {
         path: '/mongodb/processlist',
         element: '#processlist-table',
-        title: 'Running queries',
+        title: 'Running Queries',
         description: 'Shows currently running MongoDB operations. Click Kill to stop a slow one.',
         side: 'top',
         align: 'start'
@@ -1012,7 +945,7 @@ window.TOUR_STEPS.push(
     {
         path: '/postgresql/remote-postgresql',
         element: '#remote',
-        title: 'Remote access',
+        title: 'Remote Access',
         description: 'Connection details for accessing this PostgreSQL server remotely.',
         side: 'right',
         align: 'start'
@@ -1020,7 +953,7 @@ window.TOUR_STEPS.push(
     {
         path: '/postgresql/configuration',
         element: '#postgresql-config-table',
-        title: 'PostgreSQL configuration',
+        title: 'PostgreSQL Configuration',
         description: 'Tune PostgreSQL server configuration values directly.',
         side: 'top',
         align: 'start'
@@ -1029,7 +962,7 @@ window.TOUR_STEPS.push(
     {
         path: '/auto-installer',
         element: '#autoinstaller-apps',
-        title: 'Install app',
+        title: 'Install App',
         description: 'Pick an application to install - WordPress and others depending on what’s enabled for your plan.',
         side: 'top',
         align: 'start'
@@ -1037,9 +970,9 @@ window.TOUR_STEPS.push(
 
     {
         path: '/wordpress',
-        element: '#wp-search',
-        title: 'WordPress manager',
-        description: 'Your WordPress sites with their version and quick actions. Search here to find one.',
+        element: '#sites-table',
+        title: 'WordPress Manager',
+        description: 'Lists your installed WordPress sites with their version and quick actions.',
         side: 'top',
         align: 'start'
     },
@@ -1062,7 +995,7 @@ window.TOUR_STEPS.push(
     },
     {
         path: '/emails/filter',
-        element: '#domains',
+        element: '#filter-email-select',
         title: 'Filters',
         description: 'Pick an email account to manage its filters (sieve rules) for sorting or rejecting incoming mail.',
         side: 'bottom',
@@ -1079,7 +1012,7 @@ window.TOUR_STEPS.push(
     {
         path: '/emails/default',
         element: '#domains',
-        title: 'Default address',
+        title: 'Default Address',
         description: 'Pick a domain, then set a catch-all address for mail sent to addresses that don’t exist on it.',
         side: 'bottom',
         align: 'start'
@@ -1087,7 +1020,7 @@ window.TOUR_STEPS.push(
     {
         path: '/emails/import',
         element: '#toAddActive',
-        title: 'Address importer',
+        title: 'Address Importer',
         description: 'Bulk-import email accounts from a CSV file.',
         side: 'top',
         align: 'start'
@@ -1095,9 +1028,9 @@ window.TOUR_STEPS.push(
 
     {
         path: '/containers/terminal',
-        element: '#service-select',
+        element: '#shell',
         title: 'Terminal',
-        description: 'Pick a container, then use the terminal below to run commands inside it.',
+        description: 'Choose sh or bash, then use the terminal below to run commands interactively inside the container.',
         side: 'bottom',
         align: 'start'
     },
@@ -1118,16 +1051,24 @@ window.TOUR_STEPS.push(
         align: 'start'
     },
     {
+        path: '/containers/image/',
+        element: '#check-updates-btn',
+        title: 'Check for Updates',
+        description: 'Click here to check whether newer images are available for your monitored containers.',
+        side: 'bottom',
+        align: 'end'
+    },
+    {
         path: '/containers/image/change',
-        element: '#versions-table',
-        title: 'Software Versions',
-        description: 'Each service with the image tag it runs. Pick a newer tag to switch a service to it.',
+        element: '#service',
+        title: 'Change Image Tag',
+        description: 'Pick a service and a new image tag to switch it to.',
         side: 'bottom',
         align: 'start'
     },
     {
         path: '/containers/webserver',
-        element: 'main form',
+        element: '#toAddActive',
         title: 'Change Webserver',
         description: 'Switch the webserver used across your account - this restarts all affected domains.',
         side: 'top',
@@ -1135,8 +1076,8 @@ window.TOUR_STEPS.push(
     },
     {
         path: '/containers/mysql',
-        element: 'main form',
-        title: 'Change MySQL type',
+        element: '#toAddActive',
+        title: 'Change MySQL Type',
         description: 'Switch between MySQL and MariaDB for your account.',
         side: 'top',
         align: 'start'
@@ -1145,7 +1086,7 @@ window.TOUR_STEPS.push(
     {
         path: '/mysql/import',
         element: '#file',
-        title: 'Import database',
+        title: 'Import Database',
         description: 'Upload a .sql file to import into an existing database.',
         side: 'bottom',
         align: 'start'
@@ -1153,7 +1094,7 @@ window.TOUR_STEPS.push(
     {
         path: '/postgresql/import',
         element: '#file',
-        title: 'Import database',
+        title: 'Import Database',
         description: 'Upload a .sql file to import into an existing database.',
         side: 'bottom',
         align: 'start'
@@ -1162,7 +1103,7 @@ window.TOUR_STEPS.push(
     {
         path: '/domains/suspend',
         element: '#confirm-suspend',
-        title: 'Suspend a domain',
+        title: 'Suspend a Domain',
         description: 'Select a domain, then confirm to suspend it - visitors will see a suspended page instead of the site.',
         side: 'bottom',
         align: 'start'
@@ -1170,7 +1111,7 @@ window.TOUR_STEPS.push(
     {
         path: '/domains/unsuspend',
         element: '#confirm-unsuspend',
-        title: 'Unsuspend a domain',
+        title: 'Unsuspend a Domain',
         description: 'Select a suspended domain, then confirm to bring it back online.',
         side: 'bottom',
         align: 'start'
@@ -1204,7 +1145,7 @@ window.TOUR_STEPS.push(
     {
         path: '/domains/edit-dns-zone',
         element: '#domains',
-        title: 'DNS zone editor',
+        title: 'DNS Zone Editor',
         description: 'Pick a domain to view and edit its DNS records - as a table, or as a raw zone file.',
         side: 'bottom',
         align: 'start'
@@ -1213,7 +1154,7 @@ window.TOUR_STEPS.push(
     {
         path: '/domains/stats',
         element: '#domains',
-        title: 'Visitor statistics',
+        title: 'Visitor Statistics',
         description: 'Pick a domain to view its visitor statistics report, generated from that domain\'s access logs.',
         side: 'bottom',
         align: 'start'
@@ -1238,7 +1179,7 @@ window.TOUR_STEPS.push(
 
     {
         path: '/file-manager/upload',
-        element: '#uploadForm',
+        element: '#fileUpload',
         title: 'Upload from Device',
         description: 'Click to browse, or drag and drop files here to upload them into the current folder.',
         side: 'bottom',
@@ -1288,9 +1229,9 @@ window.TOUR_STEPS.push(
 
     {
         path: '/account/mcp',
-        element: '#mcp-add-button',
+        element: '#mcp-generate-form',
         title: 'Generate a Token',
-        description: 'Click Generate token, name it, optionally set an expiry or make it read-only, then create it to let an MCP client like Claude connect to your account.',
+        description: 'Name the token, optionally set an expiry or make it read-only, then generate it to let an MCP client (like Claude) manage this account.',
         side: 'top',
         align: 'start'
     },
@@ -1300,14 +1241,13 @@ window.TOUR_STEPS.push(
         title: 'Connecting a Client',
         description: 'Copy-paste snippets for pointing Claude Code or Claude Desktop at this panel using your generated token.',
         side: 'top',
-        align: 'start',
-        beforeShow: 'openMcpForm'
+        align: 'start'
     },
 
     {
         path: '/account/api',
         element: '#swagger-ui-container',
-        title: 'API reference',
+        title: 'API Reference',
         description: 'Browse every API endpoint and try requests live against this server - pre-authorized with a token for your account.',
         side: 'top',
         align: 'start'

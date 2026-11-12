@@ -1,0 +1,1247 @@
+{{define "temp_link"}}
+{{if .UserAllowed.temporary_links}}
+<!-- START templates/partials/temp_link.html -->
+<a href="#" type="button" data-selected-domain="{{.CurrentDomain}}" onclick="sendDataToPreview(event)" data-tooltip-target="tooltip-temporary-link" data-tooltip-placement="left" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 w-full sm:w-fit">{{.T.Get "Live preview"}}<i class="ri-arrow-right-up-line text-base" aria-hidden="true"></i></a>
+
+<div id="tooltip-temporary-link" role="tooltip" class="absolute z-10 invisible inline-block rounded-md bg-gray-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-xs opacity-0 tooltip dark:bg-gray-800">
+    {{.T.Get "Preview website on temporary .openpanel.org subdomain"}}
+    <div class="tooltip-arrow" data-popper-arrow></div>
+</div>
+
+<script>
+function sendDataToPreview(event) {
+    const button = event.currentTarget;
+    const originalHTML = button.innerHTML;
+
+    button.innerHTML = `<svg class="animate-spin size-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg> Generating..`;
+    button.disabled = true;
+
+    const domain = button.getAttribute('data-selected-domain');
+
+    fetch(`/domains/temporary-link?domain=${encodeURIComponent(domain)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.link) {
+                window.open(data.link, '_blank');
+                showToast({{toJSON (.T.Get "Link opened in new tab, link is valid for 15 minutes.")}}, 'info');
+            } else {
+                showToast({{toJSON (.T.Get "No link found in the response. Contact Administrator.")}}, 'warning');
+                console.error('No link found in the response.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        })
+        .finally(() => {
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.disabled = false;
+            }, 5000);
+        });
+}
+</script>
+<!-- END templates/partials/temp_link.html -->
+{{end}}
+{{end}}
+
+{{define "screenshot"}}
+<!-- START templates/partials/screenshot.html -->
+<div x-data="screenshotComponent({{toJSON .CurrentDomain}})" x-init="loadScreenshotWhenIdle()" class="screenshot relative flex overflow-hidden rounded-md border border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900" :data-link="'http://' + domain">
+
+  <template x-if="loading">
+<div class="h-72 w-full flex flex-col items-center justify-center text-center text-gray-500 dark:text-gray-400">
+  <svg class="animate-spin size-6 text-gray-400 dark:text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+  <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Loading screenshot..."}}</p>
+</div>
+  </template>
+
+  <template x-if="!loading && screenshotAvailable">
+    <div class="relative group">
+      <a :href="'http://' + domain" target="_blank" class="block w-full h-full relative">
+        <img :src="screenshotUrl" :alt="{{toJSON (.T.Get "Screenshot of")}} + ' ' + domain" class="h-full w-full object-cover"/>
+      </a>
+
+      <div class="pointer-events-none absolute inset-0 flex items-end bg-black/0 p-3 transition-all duration-200 group-hover:bg-black/30">
+        <a :href="'http://' + domain" target="_blank" rel="noopener noreferrer"
+           class="pointer-events-auto flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-900 opacity-0 shadow-xs transition-opacity duration-150 group-hover:opacity-100 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900">
+          <i class="ri-external-link-line" aria-hidden="true"></i>
+          {{.T.Get "Open site"}}
+        </a>
+      </div>
+
+      <button type="button" data-tooltip-target="tooltip-refresh-link" data-tooltip-placement="left" @click.prevent="regenerateScreenshot()" class="absolute top-2 right-2 inline-flex size-8 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-500 shadow-xs transition hover:bg-gray-50 hover:text-gray-900 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-gray-50" aria-label="{{.T.Get "Refresh screenshot"}}">
+        <i class="ri-refresh-line text-base" aria-hidden="true"></i>
+      </button>
+      <div id="tooltip-refresh-link" role="tooltip" class="absolute z-10 invisible inline-block rounded-md bg-gray-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-xs opacity-0 tooltip dark:bg-gray-800">
+          {{.T.Get "Click to refresh screenshot"}}
+          <div class="tooltip-arrow" data-popper-arrow></div>
+      </div>
+    </div>
+  </template>
+
+  <template x-if="!loading && !screenshotAvailable">
+    <div id="placeholder_no_image" class="h-72 w-full flex flex-col items-center justify-center text-center text-gray-500 dark:text-gray-400">
+      <i class="ri-image-line text-3xl text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+      <p class="mt-3 font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No screenshot"}}</p>
+      <p class="mt-1 text-sm text-gray-500">{{.T.Get "Failed to generate website screenshot."}}</p>
+    </div>
+  </template>
+</div>
+
+<script>
+  // counts in-flight fetches so the screenshot can wait until the rest of the page has its data
+  if (!window.__opFetchTracker) {
+    window.__opFetchTracker = { inflight: 0 };
+    const origFetch = window.fetch.bind(window);
+    window.fetch = (...args) => {
+      window.__opFetchTracker.inflight++;
+      return origFetch(...args).finally(() => { window.__opFetchTracker.inflight--; });
+    };
+  }
+
+  function screenshotComponent(domain) {
+    return {
+      domain,
+      loading: true,
+      screenshotAvailable: false,
+      screenshotUrl: '',
+
+      // Neither <img>/Image loading nor fetch() have a built-in timeout - if
+      // the screenshot API is down or just slow to answer, onload/onerror
+      // (or the fetch promise) never fire, loading stays true, and the
+      // spinner never resolves. loadImageWithTimeout bounds that wait so
+      // the component always settles into a final state either way.
+      loadImageWithTimeout(url, timeoutMs = 30000) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          const timer = setTimeout(() => {
+            img.onload = img.onerror = null;
+            reject(new Error('screenshot load timed out'));
+          }, timeoutMs);
+          img.onload = () => { clearTimeout(timer); resolve(); };
+          img.onerror = () => { clearTimeout(timer); reject(new Error('screenshot load failed')); };
+          img.src = url;
+        });
+      },
+
+      // screenshot API hits the site itself and hogs the PHP container, so let the page's own requests go first
+      loadScreenshotWhenIdle(maxWaitMs = 15000) {
+        const start = Date.now();
+        let quiet = 0;
+        const check = () => {
+          if (window.__opFetchTracker.inflight === 0) quiet++; else quiet = 0;
+          if (quiet >= 3 || Date.now() - start > maxWaitMs) { this.loadScreenshot(); return; }
+          setTimeout(check, 200);
+        };
+        const begin = () => setTimeout(check, 300);
+        if (document.readyState === 'complete') begin(); else window.addEventListener('load', begin, { once: true });
+      },
+
+      loadScreenshot() {
+        this.loading = true;
+        this.screenshotAvailable = false;
+
+        const url = `/json/screenshot/${this.domain}?t=${Date.now()}`;
+        this.loadImageWithTimeout(url)
+          .then(() => {
+            this.screenshotUrl = url;
+            this.screenshotAvailable = true;
+          })
+          .catch(() => {
+            this.screenshotAvailable = false;
+          })
+          .finally(() => {
+            this.loading = false;
+          });
+      },
+
+      async regenerateScreenshot() {
+        this.loading = true;
+        this.screenshotAvailable = false;
+
+        try {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 30000);
+          try {
+            await fetch(`/json/screenshot/${this.domain}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrf_token
+              },
+              signal: controller.signal
+            });
+          } finally {
+            clearTimeout(timer);
+          }
+
+          const url = `/json/screenshot/${this.domain}?t=${Date.now()}`;
+          await this.loadImageWithTimeout(url);
+          this.screenshotUrl = url;
+          this.screenshotAvailable = true;
+        } catch (err) {
+          console.error('Error regenerating screenshot:', err);
+          this.screenshotAvailable = false;
+        } finally {
+          this.loading = false;
+        }
+      }
+    };
+  }
+</script>
+<!-- END templates/partials/screenshot.html -->
+{{end}}
+
+{{define "visitors"}}
+<!-- START templates/partials/visitors.html -->
+<div id="partials_visitors" x-data="{ open: (function () { try { return localStorage.getItem('site_widget_visitors') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('site_widget_visitors', this.open ? 'open' : 'closed') } catch (e) {} } }" class="flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
+    <div data-panel-head :class="open ? '' : '!border-b-0 !-mb-5'" class="relative mb-1 flex items-start justify-between gap-3" id="partials_visitors_title">
+        <div class="min-w-0">
+            <h2 id="visitors_header" class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Live visitors"}}</h2>{{if .UserAllowed.goaccess}}<a href="/domains/stats" class="ml-2 text-sm font-normal text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "View statistics"}} &rarr;</a>{{end}}
+            <p class="text-sm/6 text-gray-500" x-show="open">{{.T.Get "Unique visitors in the chosen window, from the access log."}}</p>
+        </div>
+        <button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? {{toJSON (.T.Get "Collapse")}} : {{toJSON (.T.Get "Expand")}}" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button>
+    </div>
+    <div x-show="open">
+
+    <div class="flex items-center justify-between gap-3">
+            <span class="order-last flex shrink-0 items-center gap-x-1.5 text-sm text-gray-500">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0 text-gray-400"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20ZM13 12H17V14H11V7H13V12Z"></path></svg>
+            <label for="visitor_seconds">{{.T.Get "Last"}}</label>
+            <select id="visitor_seconds" class="cursor-pointer appearance-none rounded-md border border-gray-300 bg-white py-1 pl-2 pr-7 text-xs text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+                <option value="60" selected>{{.T.Get "1 minute"}}</option>
+                <option value="300">{{.T.Get "5 minutes"}}</option>
+                <option value="1800">{{.T.Get "30 minutes"}}</option>
+                <option value="3600">{{.T.Get "1 hour"}}</option>
+                <option value="21600">{{.T.Get "6 hours"}}</option>
+                <option value="43200">{{.T.Get "12 hours"}}</option>
+                <option value="86400">{{.T.Get "24 hours"}}</option>
+            </select>
+        </span>
+    <div class="flex items-center min-h-[3rem]">
+        <div id="visitors_loader" class="hidden">
+            <svg class="animate-spin size-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+        </div>
+        {{if .UserAllowed.domain_logs}}<a href="/domains/log/{{index (split .CurrentDomain "/") 0}}" target="_blank" title="{{.T.Get "Open domain access logs in new tab"}}">{{end}}
+        <dd id="visitors_data" class="text-2xl font-semibold tabular-nums text-gray-900 dark:text-gray-50">0</dd>
+        {{if .UserAllowed.domain_logs}}</a>{{end}}
+    </div>
+    </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const domain = {{toJSON .CurrentDomain}};
+    const countEl = document.getElementById("visitors_data");
+    const loaderEl = document.getElementById("visitors_loader");
+    const selectEl = document.getElementById("visitor_seconds");
+    const headerEl = document.getElementById("visitors_header");
+    let refreshTimer;
+
+    function getLabel(seconds) {
+        return seconds == 60
+            ? {{toJSON (.T.Get "Live visitors")}}
+            : {{toJSON (.T.Get "Visitors")}};
+    }
+
+    async function updateVisitors(seconds) {
+        if (document.hidden) return;
+
+        headerEl.textContent = getLabel(seconds);
+        loaderEl.classList.remove("hidden");
+        countEl.classList.add("hidden");
+
+        try {
+            const safeDomain = domain.split('/')[0];
+            const res = await fetch(`/json/visitors/${safeDomain}?seconds=${seconds}`);
+            const { count } = await res.json();
+            countEl.textContent = count ?? "0";
+        } catch (err) {
+            console.error("Error fetching visitors:", err);
+            countEl.textContent = "0";
+        } finally {
+            loaderEl.classList.add("hidden");
+            countEl.classList.remove("hidden");
+        }
+
+        opStop(refreshTimer);
+        if (seconds == 60)
+            refreshTimer = opPoll(() => updateVisitors(seconds), 30000);
+    }
+
+    updateVisitors(selectEl.value);
+    selectEl.addEventListener("change", e => updateVisitors(e.target.value));
+});
+</script>
+<!-- END templates/partials/visitors.html -->
+{{end}}
+
+{{define "waf_panel"}}
+{{if .UserAllowed.waf}}
+<!-- START templates/partials/waf.html -->
+<div id="partials_waf" x-data="{ open: (function () { try { return localStorage.getItem('site_widget_firewall') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('site_widget_firewall', this.open ? 'open' : 'closed') } catch (e) {} } }" class="flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
+    <div data-panel-head :class="open ? '' : '!border-b-0 !-mb-5'" class="mb-1 flex items-start justify-between gap-3 relative" id="partials_waf_title">
+        <div class="min-w-0">
+            <h2 id="waf_title" class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Firewall"}}</h2><a href="/server/waf" class="ml-2 text-sm font-normal text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Manage"}} &rarr;</a>
+            <p class="text-sm/6 text-gray-500" x-show="open">{{.T.Get "Blocks attacks on the site before they reach it."}}</p>
+        </div>
+        <button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? {{toJSON (.T.Get "Collapse")}} : {{toJSON (.T.Get "Expand")}}" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button>
+    </div>
+    <div x-show="open">
+
+    <div id="tooltip-waf" role="tooltip" class="absolute z-10 invisible inline-block rounded-md bg-gray-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-xs opacity-0 tooltip dark:bg-gray-800">
+        {{.T.Get "Control Coraza WAF for the domain"}}
+        <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
+
+    <div id="partials_waf_data">
+        <div class="relative">
+            <div class="mt-3 flex items-center gap-3">
+                <span class="flex size-10 shrink-0 items-center justify-center rounded-md border border-gray-200 dark:border-gray-800"><i id="waf_icon" class="ri-shield-line text-xl text-gray-400" aria-hidden="true"></i></span>
+                <p id="firewall_status_text" class="min-w-0 flex-1 text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Checking firewall status.."}}</p>
+                <input type="checkbox" role="switch" id="waf_toggle_btn" data-state="false" aria-labelledby="waf_title"
+            data-tooltip-target="tooltip-waf" data-tooltip-placement="left">
+            </div>
+
+            <table class="mt-4 w-full text-sm">
+                <tbody class="divide-y divide-gray-200 border-t border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+                    <tr>
+                        <td class="py-2.5"><span class="flex items-center gap-1.5 text-gray-500">
+                            <i class="ri-error-warning-line"></i> {{.T.Get "Requests denied"}}
+                        </span></td>
+                        <td class="text-end">
+                            <a href="/server/waf/log/{{index (split .CurrentDomain "/") 0}}" target="_blank" title="{{.T.Get "Open domain WAF logs in new tab"}}">
+                            <span id="blocks" class="font-medium tabular-nums text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50"></span>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="py-2.5"><span class="flex items-center gap-1.5 text-gray-500">
+                            <i class="ri-shield-check-line"></i> {{.T.Get "Requests challenged"}}
+                        </span></td>
+                        <td class="text-end">
+                            <a href="/server/waf/log/{{index (split .CurrentDomain "/") 0}}" target="_blank" title="{{.T.Get "Open domain WAF logs in new tab"}}">
+                            <span id="checks" class="font-medium tabular-nums text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50"></span>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+    const domainName = {{toJSON .CurrentDomain}};
+    const i18n = {
+        active: {{toJSON (.T.Get "Firewall is active")}},
+        inactive: {{toJSON (.T.Get "Firewall is inactive")}},
+        fetchStateError: {{toJSON (.T.Get "Error fetching firewall state")}},
+        statsError: {{toJSON (.T.Get "Error fetching WAF data (blocked/challenged) for the domain.")}},
+        toggleError: {{toJSON (.T.Get "An error occurred while updating the firewall status, please check console log.")}},
+        statusMessage: {{toJSON (.T.Get "Firewall for %(domain)s is now %(status)s")}}
+    };
+    const wafButton = document.getElementById("waf_toggle_btn");
+    const statusText = document.getElementById("firewall_status_text");
+    const wafIcon = document.getElementById("waf_icon");
+    const circles = document.querySelectorAll('.circle');
+    const blocksEl = document.getElementById("blocks");
+    const checksEl = document.getElementById("checks");
+
+    function updateCircles(active) {
+        circles.forEach(circle => circle.classList.toggle('active', active));
+    }
+
+    function setButtonState(active) {
+        wafButton.checked = active;
+        wafButton.dataset.state = String(active);
+    }
+
+    function iconClass(active) {
+        return active ? "ri-shield-check-line text-xl text-emerald-600 dark:text-emerald-500" : "ri-shield-cross-line text-xl text-gray-400";
+    }
+
+    async function fetchFirewallState() {
+        try {
+            const response = await fetch(`/server/waf?domain=${domainName}`);
+            const data = await response.json();
+            const firewallState = Object.values(data)[0];
+            const isActive = firewallState === "On";
+
+            setButtonState(isActive);
+            updateCircles(isActive);
+            wafIcon.className = iconClass(isActive);
+            statusText.textContent = isActive ? i18n.active : i18n.inactive;
+        } catch (error) {
+            console.error("Error fetching firewall state:", error);
+            showToast(i18n.fetchStateError, "warning");
+        }
+    }
+
+    async function fetchWafStats() {
+        try {
+            const safeDomain = domainName.split('/')[0];
+            const response = await fetch(`/json/waf/${safeDomain}?seconds=3600`);
+            const data = await response.json();
+            blocksEl.textContent = data.blocks || 0;
+            checksEl.textContent = data.checks || 0;
+        } catch (error) {
+            console.error("Error fetching WAF stats for domain:", error);
+            showToast(i18n.statsError, "warning");
+        }
+    }
+
+    async function toggleFirewall() {
+        const isActive = wafButton.dataset.state === "true";
+        const newState = !isActive;
+        setButtonState(newState);
+        updateCircles(newState);
+
+        const formData = new FormData();
+        formData.append("domain_name", domainName);
+        formData.append("modsec_action", newState ? "On" : "Off");
+
+        try {
+            const postResponse = await fetch(`/server/waf?domain=${domainName}`, {
+                method: "POST",
+                headers: { 'X-CSRF-TOKEN': csrf_token },
+                body: formData,
+            });
+            const result = await postResponse.json();
+            const [domain, status] = Object.entries(result)[0];
+            statusText.textContent = status === "On" ? i18n.active : i18n.inactive;
+            wafIcon.className = iconClass(status === "On");
+            showToast(i18n.statusMessage.replace('%(domain)s', domain).replace('%(status)s', status), status === "On" ? "success" : "info");
+            await fetchWafStats();
+        } catch (error) {
+            console.error(error);
+            setButtonState(isActive);
+            updateCircles(isActive);
+            wafIcon.className = iconClass(isActive);
+            statusText.textContent = isActive ? i18n.active : i18n.inactive;
+            showToast(i18n.toggleError, "error");
+        }
+    }
+
+    wafButton.addEventListener("change", toggleFirewall);
+    await fetchFirewallState();
+    await fetchWafStats();
+});
+</script>
+<!-- END templates/partials/waf.html -->
+{{end}}
+{{end}}
+
+{{define "pagespeed_panel"}}
+<!-- START templates/partials/pagespeed.html -->
+<div id="partials_pagespeed" x-data="{ open: (function () { try { return localStorage.getItem('site_widget_speed') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('site_widget_speed', this.open ? 'open' : 'closed') } catch (e) {} } }" class="flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
+            <div data-panel-head :class="open ? '' : '!border-b-0 !-mb-5'" class="relative mb-3 flex items-start justify-between gap-3" id="partials_pagespeed_title">
+                <div class="min-w-0">
+                    <h2 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Speed"}}</h2>{{if and (not .PagespeedAPIKey) .UserAllowed.filemanager}}<a href="/file-manager/edit-file/pagespeed_api_key.txt?new=true" target="_blank" class="ml-2 text-sm font-normal text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Add PageSpeed API key"}} &rarr;</a>{{end}}
+                    <p class="text-sm/6 text-gray-500" x-show="open">{{.T.Get "Google PageSpeed scores for desktop and mobile."}}</p>
+                </div>
+        <button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? {{toJSON (.T.Get "Collapse")}} : {{toJSON (.T.Get "Expand")}}" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button>
+    </div>
+    <div x-show="open">
+            <div class="flex justify-end"><span class="inline-flex items-center gap-3 whitespace-nowrap text-xs text-gray-500 tabular-nums">
+                    <span class="flex items-center gap-1"><span aria-hidden="true" class="size-2 rounded-full bg-red-500"></span>0-49</span>
+                    <span class="flex items-center gap-1"><span aria-hidden="true" class="size-2 rounded-full bg-yellow-500"></span>50-89</span>
+                    <span class="flex items-center gap-1"><span aria-hidden="true" class="size-2 rounded-full bg-emerald-500"></span>90-100</span>
+                </span></div>
+
+    <div class="card-body text-center hidden" id="partials_pagespeed_loading">
+        <div class="flex h-56 items-center justify-center rounded-md border border-dashed border-gray-300 px-4 dark:border-gray-800">
+            <div class="text-center">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon mx-auto size-6 text-gray-400 dark:text-gray-600">
+                    <path d="M3 12H7V21H3V12ZM17 8H21V21H17V8ZM10 2H14V21H10V2Z"></path>
+                </svg>
+                <p class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Loading Google PageSpeed data"}}</p>
+                <p class="mt-1 text-xs text-gray-500">{{.T.Get "Data refreshes every 24 hours."}}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body text-center hidden" id="partials_pagespeed_data">
+        <div class="row my-4">
+            <div class="group inline-flex gap-4">
+                <div class="wrapper_ps desktop">
+        <div class="flex justify-center">
+            <div class="relative" role="progressbar" aria-label="{{.T.Get "progress bar"}}" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" data-max="100" data-value="65">
+                <svg width="120" height="120" viewBox="0 0 90 90" class="-rotate-90 transform">
+                    <circle r="42" cx="45" cy="45" stroke-width="6" fill="transparent" stroke="" stroke-linecap="round" class="transition-colors ease-linear stroke-gray-200 dark:stroke-gray-800"></circle>
+                    <circle r="42" cx="45" cy="45" stroke-width="6" stroke-dasharray="263.89378290154264 263.89378290154264" stroke-dashoffset="66.28214111016942" fill="transparent" stroke="" stroke-linecap="round" class="desktop-mainColor stroke-blue-500 transform-gpu transition-all duration-300 ease-in-out"></circle>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="flex flex-col items-center">
+                        <span class="mt-1 font-medium tabular-nums text-gray-900 dark:text-gray-50" id="desktop-performance_score">??</span><span class="text-xs font-medium tabular-nums text-gray-500 dark:text-gray-500">{{.T.Get "Desktop"}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                <div class="wrapper_ps mobile">
+        <div class="flex justify-center">
+            <div class="relative" role="progressbar" aria-label="{{.T.Get "progress bar"}}" aria-valuenow="74.88302286571907" aria-valuemin="0" aria-valuemax="100" data-max="100" data-value="74.88302286571907">
+                <svg width="120" height="120" viewBox="0 0 90 90" class="-rotate-90 transform">
+                    <circle r="42" cx="45" cy="45" stroke-width="6" fill="transparent" stroke="" stroke-linecap="round" class="transition-colors ease-linear stroke-gray-200 dark:stroke-gray-800"></circle>
+                    <circle r="42" cx="45" cy="45" stroke-width="6" stroke-dasharray="263.89378290154264 263.89378290154264" stroke-dashoffset="66.28214111016942" fill="transparent" stroke="" stroke-linecap="round" class="mobile-mainColor stroke-blue-500 transform-gpu transition-all duration-300 ease-in-out"></circle>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="flex flex-col items-center">
+                        <span class="mt-1 font-medium tabular-nums text-gray-900 dark:text-gray-50" id="mobile-performance_score">??</span><span class="text-xs font-medium tabular-nums text-gray-500 dark:text-gray-500">{{.T.Get "Mobile"}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+            </div>
+        </div>
+
+        <table class="w-full text-sm">
+            <thead>
+                <tr>
+                    <td class="relative p-2"></td>
+                    <td class="py-2 text-end text-xs font-semibold text-gray-900 dark:text-gray-50"><span>{{.T.Get "Desktop"}}</span></td>
+                    <td class="py-2 text-end text-xs font-semibold text-gray-900 dark:text-gray-50"><span>{{.T.Get "Mobile"}}</span></td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="py-2 text-left"><span class="text-gray-500">{{.T.Get "First contentful paint:"}}</span></td>
+                    <td class="text-end"><b id="desktop-first_contentful_paint">??</b></td>
+                    <td class="text-end"><b id="mobile-first_contentful_paint">??</b></td>
+                </tr>
+                <tr>
+                    <td class="py-2 text-left"><span class="text-gray-500">{{.T.Get "Speed index:"}}</span></td>
+                    <td class="text-end"><b id="desktop-speed_index">??</b></td>
+                    <td class="text-end"><b id="mobile-speed_index">??</b></td>
+                </tr>
+                <tr>
+                    <td class="py-2 text-left"><span class="text-gray-500">{{.T.Get "Time to interactive:"}}</span></td>
+                    <td class="text-end"><b id="desktop-interactive">??</b></td>
+                    <td class="text-end"><b id="mobile-interactive">??</b></td>
+                </tr>
+                <tr>
+                    <td colspan="3" class="py-2"><span class="text-xs text-gray-500">{{.T.Get "Measured at"}} <span class="text-xs tabular-nums text-gray-500 dark:text-gray-500" id="timestamp"></span></span></td>
+                </tr>
+                {{if or .PagespeedAPIKey (not .UserAllowed.filemanager)}}<tr>
+                    <td colspan="3" class="py-2"><span class="domain_link text-xs text-gray-500 hover:underline hover:underline-offset-4">
+                        {{if .PagespeedAPIKey}}
+                        {{.T.Get "PageSpeed Insights API key:"}} <span class="text-xs tabular-nums text-gray-500 dark:text-gray-500" id="click_to_show_api_key" style="filter: blur(5px); cursor: pointer;" onclick="revealAPIkey()">{{.PagespeedAPIKey}}</span>
+                        {{else if .UserAllowed.filemanager}}
+                        {{else}}
+                        {{.T.Get "Ask Administrator to set a PageSpeed Insights API key"}}
+                        {{end}}
+                        </span></td>
+                </tr>{{end}}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card-body text-center" id="partials_pagespeed_no_data">
+        <div class="flex h-56 items-center justify-center rounded-md border border-dashed border-gray-300 px-4 dark:border-gray-800">
+            <div class="text-center">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon mx-auto size-6 text-gray-400 dark:text-gray-600">
+                    <path d="M3 12H7V21H3V12ZM17 8H21V21H17V8ZM10 2H14V21H10V2Z"></path>
+                </svg>
+                <p class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No data to show"}}</p>
+                <p class="mt-1 text-xs text-gray-500">{{.T.Get "May take 24h for data to be shown."}}</p>
+                <p id="partials_pagespeed_quota" class="mt-2 hidden text-xs text-gray-500">{{.T.Get "Google's free PageSpeed quota ran out. Add your own API key to keep scores coming."}}</p>
+            </div>
+        </div>
+
+        <table class="w-full text-sm">
+            <thead><tr></tr></thead>
+            <tbody>
+                {{if or .PagespeedAPIKey (not .UserAllowed.filemanager)}}<tr>
+                    <td colspan="3" class="pt-3"><span class="domain_link text-xs text-gray-500 hover:underline hover:underline-offset-4">
+                        {{if .PagespeedAPIKey}}
+                        {{.T.Get "PageSpeed Insights API key:"}} <span class="text-xs tabular-nums text-gray-500 dark:text-gray-500" id="click_to_show_api_key" style="filter: blur(5px); cursor: pointer;" onclick="revealAPIkey()">{{.PagespeedAPIKey}}</span>
+                        {{else if .UserAllowed.filemanager}}
+                        {{else}}
+                        {{.T.Get "Ask Administrator to set a PageSpeed Insights API key"}}
+                        {{end}}
+                        </span></td>
+                </tr>{{end}}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+    function revealAPIkey() {
+        var keySpan = document.getElementById("click_to_show_api_key");
+        if (!keySpan) return;
+        if (keySpan.style.filter === "blur(5px)") {
+            keySpan.style.filter = "none";
+        } else {
+            keySpan.style.filter = "blur(5px)";
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+        const circumference = 2 * Math.PI * 42;
+
+        function getClassForScore(score) {
+            if (score <= 45) return 'stroke-red-500';
+            if (score <= 89) return 'stroke-yellow-500';
+            if (score <= 100) return 'stroke-emerald-500';
+            return 'stroke-gray-500';
+        }
+
+        function updateCircleCompletion(selector, score) {
+            const offset = circumference - (score / 100) * circumference;
+            document.querySelectorAll(selector).forEach(el => {
+                el.style.strokeDashoffset = offset;
+            });
+        }
+
+        function updateUI(data) {
+            const metrics = ['performance_score', 'first_contentful_paint', 'speed_index', 'interactive'];
+
+            ['desktop', 'mobile'].forEach(type => {
+                const score = Math.round(data[`${type}_speed`].performance_score * 100);
+                const colorClass = getClassForScore(score);
+
+                document.querySelector(`#${type}-performance_score`).textContent = score;
+                document.querySelectorAll(`.${type}-mainColor`).forEach(el => {
+                    el.classList.remove('stroke-blue-500');
+                    el.classList.add(colorClass);
+                });
+                updateCircleCompletion(`.${type}-mainColor`, score);
+
+                metrics.slice(1).forEach(metric => {
+                    document.querySelector(`#${type}-${metric}`).textContent = data[`${type}_speed`][metric];
+                });
+            });
+
+            document.querySelector('#timestamp').textContent = data.timestamp;
+        }
+
+        let toastDisplayed = false;
+
+        function fetchDataAndUpdateUI() {
+            const currentDomain = {{toJSON .CurrentDomain}};
+
+            document.querySelector('#partials_pagespeed_loading').classList.remove('hidden');
+            document.querySelector('#partials_pagespeed_data').classList.add('hidden');
+            document.querySelector('#partials_pagespeed_no_data').classList.add('hidden');
+
+            fetch(`/json/page_speed/${currentDomain}`, {
+                method: "GET",
+                headers: { 'X-CSRF-TOKEN': csrf_token }
+            })
+                .then(response => response.json().then(data => ({ ok: response.ok, data })))
+                .then(({ ok, data }) => {
+                    if (!ok) {
+                        let toastMessage = {{toJSON (.T.Get "Error fetching Google PageSpeed data for the domain. Please refresh the page. If the issue continues, contact support for assistance.")}};
+
+                        if (data && data.message) {
+                            const apiMessage = String(data.message);
+
+                            if (apiMessage.toLowerCase().includes('exceeded for quota metric')) {
+                                // a quiet note in the card instead of a popup on every visit
+                                document.querySelector('#partials_pagespeed_quota').classList.remove('hidden');
+                                toastDisplayed = true;
+                                document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
+                                document.querySelector('#partials_pagespeed_no_data').classList.remove('hidden');
+                                return;
+                            }
+                            else if (apiMessage.includes('Aborting')) {
+                                toastMessage = apiMessage;
+                                return;
+                            }
+                        }
+
+                        showToast(toastMessage, 'error');
+                        toastDisplayed = true;
+                        document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
+                        document.querySelector('#partials_pagespeed_no_data').classList.remove('hidden');
+                        return;
+                    }
+
+                    if (data.message) {
+                        let toastMessage = data.message;
+
+                        if (toastMessage.toLowerCase().includes('exceeded for quota metric')) {
+                            document.querySelector('#partials_pagespeed_quota').classList.remove('hidden');
+                            toastDisplayed = true;
+
+                            document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
+                            document.querySelector('#partials_pagespeed_no_data').classList.remove('hidden');
+                            return;
+                        }
+
+                        if (toastMessage.includes('Aborting')) {
+                            showToast(toastMessage, 'error');
+                            document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
+                            document.querySelector('#partials_pagespeed_no_data').classList.remove('hidden');
+                            return;
+                        }
+
+                        showToast(toastMessage, 'loading');
+                        toastDisplayed = true;
+                        setTimeout(fetchDataAndUpdateUI, 15000);
+                    } else {
+                        updateUI(data);
+                        document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
+                        document.querySelector('#partials_pagespeed_data').classList.remove('hidden');
+                        if (toastDisplayed) {
+                            showToast({{toJSON (.T.Get "The site's Google PageSpeed data has been successfully collected.")}}, 'success');
+                        }
+                    }
+                })
+                .catch(function () {
+                    showToast({{toJSON (.T.Get "Error fetching Google PageSpeed data for the domain. Please refresh the page. If the issue continues, contact support for assistance.")}}, 'error');
+                    toastDisplayed = true;
+                    document.querySelector('#partials_pagespeed_loading').classList.add('hidden');
+                    document.querySelector('#partials_pagespeed_no_data').classList.remove('hidden');
+                });
+        }
+
+        fetchDataAndUpdateUI();
+    });
+    </script>
+    </div>
+</div>
+<!-- END templates/partials/pagespeed.html -->
+{{end}}
+
+{{/* malware_scan_panel: a self-contained "Scan for malware" section reused
+     across every app manager page's Security tab (WordPress, other CMS
+     apps, Node.js/Python apps). Runs the site's docroot through the
+     existing /start-scan endpoint (see internal/modules/malwarescan) and
+     streams per-file progress the same way /malware-scanner does. */}}
+{{define "malware_scan_panel"}}
+{{if .UserAllowed.malware_scan}}
+<!-- START templates/partials/malware_scan_panel.html -->
+<div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-3">
+    <div>
+        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Scan for malware"}}</h2>
+    </div>
+    <div class="sm:max-w-3xl md:col-span-2">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
+
+            <p class="col-span-full my-2 text-sm/6 text-gray-500">{{.T.Get "Scan this site's files for malware using the ClamAV antivirus scanner."}}</p>
+
+            <div id="malwareQuarantineNotice" class="col-span-full rounded-md bg-red-50 p-4 text-sm text-red-900 dark:bg-red-950/70 dark:text-red-500" style="display: none;" role="alert">
+                <p class="font-medium"><span id="malwareQuarantineCount"></span> {{.T.Get "infected files from this site are in quarantine."}}</p>
+                <p class="mt-1">{{.T.Get "The site may have been compromised. Review the files, find how they got there and update or remove the vulnerable code."}}</p>
+                <ul id="malwareQuarantineFiles" class="mt-2 list-disc pl-5 font-mono text-xs break-all"></ul>
+                <a href="/malware-scanner/quarantine" class="mt-2 inline-block font-medium underline underline-offset-4">{{.T.Get "View quarantine"}}</a>
+            </div>
+
+            <div class="col-span-full flex flex-wrap gap-2">
+                <button type="button" id="malwareScanBtn" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 mt-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Scan for malware"}}</button>
+                <button type="button" id="malwareStopBtn" style="display: none;" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 mt-2">{{.T.Get "Stop"}}</button>
+            </div>
+
+            <div id="malwareScanProgress" class="col-span-full" style="display: none;">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    <span id="malwareScanCount">0</span> {{.T.Get "files scanned"}} &mdash;
+                    <span id="malwareScanCurrent"></span>
+                </p>
+            </div>
+
+            <div id="malwareScanComplete" class="col-span-full rounded-md bg-emerald-50 p-4 text-sm text-emerald-900 dark:bg-emerald-950/70 dark:text-emerald-500" style="display: none;"></div>
+
+            <div id="malwareScanResults" class="col-span-full font-mono text-xs text-gray-600 empty:hidden dark:text-gray-400"></div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const scanDirectory = {{toJSON .Docroot}};
+    const i18n = {
+        scanning: {{toJSON (.T.Get "Scanning...")}},
+        scanLabel: {{toJSON (.T.Get "Scan for malware")}},
+        scanFailed: {{toJSON (.T.Get "Scan failed: ")}},
+        scanComplete: {{toJSON (.T.Get "Scan is complete!")}},
+        filesScanned: {{toJSON (.T.Get "files scanned.")}},
+        noMalwareFound: {{toJSON (.T.Get "No malware found.")}},
+        more: {{toJSON (.T.Get "more")}}
+    };
+
+    const btn = document.getElementById('malwareScanBtn');
+    if (!btn) return;
+    const stopBtn = document.getElementById('malwareStopBtn');
+    // reloading drops the streaming request, which cancels the scan server-side
+    stopBtn.addEventListener('click', () => window.location.reload());
+
+    // files the scheduled scan already quarantined from this site
+    fetch(`/malware-scanner/quarantine/site?directory=${encodeURIComponent(scanDirectory)}`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+            if (!data || !data.count) return;
+            document.getElementById('malwareQuarantineCount').textContent = data.count;
+            const list = document.getElementById('malwareQuarantineFiles');
+            data.files.slice(0, 5).forEach(f => {
+                const li = document.createElement('li');
+                li.textContent = f.path + (f.signature ? ' (' + f.signature + ')' : '');
+                list.appendChild(li);
+            });
+            if (data.count > 5) {
+                const li = document.createElement('li');
+                li.textContent = '+' + (data.count - 5) + ' ' + i18n.more;
+                list.appendChild(li);
+            }
+            document.getElementById('malwareQuarantineNotice').style.display = 'block';
+        })
+        .catch(() => {});
+
+    const progressEl = document.getElementById('malwareScanProgress');
+    const countEl = document.getElementById('malwareScanCount');
+    const currentEl = document.getElementById('malwareScanCurrent');
+    const completeEl = document.getElementById('malwareScanComplete');
+    const resultsEl = document.getElementById('malwareScanResults');
+
+    let scanLineBuffer = '';
+    let scannedCount = 0;
+    let malwareCount = 0;
+
+    // text nodes since file names come from the site and could contain html
+    function appendScanResult(line) {
+        const div = document.createElement('div');
+        div.textContent = line;
+        resultsEl.appendChild(div);
+    }
+
+    // one "X - result" line per file, only malware/error lines go in the list so big scans don't hang the tab
+    function handleScanLine(line) {
+        if (!line) return;
+
+        if (line.startsWith('Error: ')) {
+            appendScanResult(i18n.scanFailed + line.slice(7));
+            return;
+        }
+
+        scannedCount++;
+        countEl.textContent = scannedCount;
+        currentEl.textContent = line;
+
+        if (!line.endsWith('No malware found')) {
+            appendScanResult(line);
+            if (line.includes(' - Malware detected')) {
+                malwareCount++;
+            }
+        }
+    }
+
+    btn.addEventListener('click', function() {
+        btn.disabled = true;
+        btn.innerHTML = '<svg class="animate-spin size-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path> </svg>' + i18n.scanning;
+
+        scanLineBuffer = '';
+        scannedCount = 0;
+        malwareCount = 0;
+        resultsEl.replaceChildren();
+        countEl.textContent = '0';
+        currentEl.textContent = '';
+        progressEl.style.display = 'block';
+        completeEl.style.display = 'none';
+        stopBtn.style.display = 'inline-flex';
+
+        fetch(`/start-scan?directory=${encodeURIComponent(scanDirectory)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.body.getReader();
+            })
+            .then(reader => {
+                const decoder = new TextDecoder('utf-8');
+                return reader.read().then(function processText({ done, value }) {
+                    if (done) {
+                        if (scanLineBuffer.trim()) handleScanLine(scanLineBuffer.trim());
+                        progressEl.style.display = 'none';
+                        const summary = `${i18n.scanComplete} ${scannedCount} ${i18n.filesScanned}`;
+                        completeEl.textContent = summary;
+                        completeEl.style.display = 'block';
+                        if (scannedCount > 0 && !resultsEl.hasChildNodes()) {
+                            appendScanResult(i18n.noMalwareFound);
+                        }
+                        if (typeof showToast === 'function') {
+                            showToast(summary, malwareCount > 0 ? 'error' : 'success');
+                        }
+                        return;
+                    }
+                    scanLineBuffer += decoder.decode(value, { stream: true });
+                    const lines = scanLineBuffer.split('\n');
+                    scanLineBuffer = lines.pop();
+                    lines.forEach(handleScanLine);
+                    return reader.read().then(processText);
+                });
+            })
+            .catch(error => {
+                console.error('Scan failed:', error);
+                appendScanResult(i18n.scanFailed + error.message);
+                if (typeof showToast === 'function') {
+                    showToast(i18n.scanFailed + error.message, 'error');
+                }
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = i18n.scanLabel;
+                stopBtn.style.display = 'none';
+            });
+    });
+})();
+</script>
+<!-- END templates/partials/malware_scan_panel.html -->
+{{end}}
+{{end}}
+
+{{define "site_git_tabbtn"}}{{if .UserAllowed.git}}<li role="presentation">
+                <a href="#" id="git-tab" data-tabs-target="#git" role="tab" aria-controls="git" aria-selected="false"
+                   @click="activeTab = 'git'"
+                   :class="activeTab === 'git' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+                   class="-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-medium whitespace-nowrap transition-colors outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                    <i class="ri-git-branch-line text-base" aria-hidden="true"></i>
+                    <span>{{.T.Get "Git"}}</span>
+                </a>
+            </li>{{end}}{{end}}
+
+
+{{define "site_git_panel"}}{{if .UserAllowed.git}}
+{{$in := "block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"}}
+{{$lbl := "mb-2 block text-sm font-medium text-gray-900 dark:text-gray-50"}}
+{{$btn := "relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"}}
+<!-- START site_git_panel -->
+<div class="hidden p-4 sm:p-6" id="git" role="tabpanel" aria-labelledby="git-tab"
+     x-data="siteGit({{toJSON .CurrentDomain}}, {{toJSON .Docroot}})" x-init="load()">
+
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">
+        <div>
+            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Git"}}</h2>
+            <p class="mt-1 text-sm text-gray-500">{{.T.Get "Deploy this website from a Git repository."}}</p>
+        </div>
+        <div class="flex gap-2">
+            <button type="button" class="{{$btn}}" @click="adding = !adding" x-text="adding ? {{toJSON (.T.Get "Cancel")}} : {{toJSON (.T.Get "Add repository")}}"></button>
+        </div>
+    </div>
+
+    <template x-if="message"><div class="mb-4 rounded-md bg-emerald-50 p-4 text-sm text-emerald-900 dark:bg-emerald-950/70 dark:text-emerald-500" x-text="message"></div></template>
+    <template x-if="error"><div class="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-900 dark:bg-red-950/70 dark:text-red-500" x-text="error"></div></template>
+
+    <template x-if="password">
+        <div class="mb-4 rounded-md bg-blue-50 p-4 text-sm text-blue-900 dark:bg-blue-950/70 dark:text-blue-400">
+            <p class="font-semibold">{{.T.Get "Push credentials, copy the password now, it is not shown again."}}</p>
+            <p class="mt-1">{{.T.Get "Username"}}: <code class="select-text rounded bg-white/60 px-1 py-0.5 font-mono text-xs dark:bg-gray-900">{{.CurrentUsername}}</code></p>
+            <p>{{.T.Get "Password"}}: <code class="select-text rounded bg-white/60 px-1 py-0.5 font-mono text-xs dark:bg-gray-900" x-text="password"></code></p>
+        </div>
+    </template>
+
+    <!-- add -->
+    <form x-show="adding" x-cloak @submit.prevent="create($event.target)" class="mb-4 space-y-4 rounded-md border border-gray-200 p-4 dark:border-gray-800">
+        <input type="hidden" name="action" value="create">
+        <input type="hidden" name="domain" :value="domain">
+        <input type="hidden" name="source" :value="source">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button type="button" @click="source = 'remote'" :class="source === 'remote' ? 'border-blue-500 ring-1 ring-blue-500 dark:border-blue-500' : 'border-gray-300 dark:border-gray-800'" :aria-pressed="(source === 'remote').toString()" class="flex items-start gap-3 text-left rounded-md border p-3">
+            <span class="relative shrink-0 inline-flex items-center justify-center rounded-md bg-gray-100 dark:bg-gray-800" style="width:2.5rem;height:2.5rem;"><i class="ri-git-branch-line text-xl text-gray-600 dark:text-gray-400" aria-hidden="true"></i><i class="ri-cloud-line absolute text-xs text-blue-500" style="right:-4px;bottom:-4px;"></i></span>
+            <span><span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Remote Git hosting"}}</span><span class="block text-xs text-gray-500">{{.T.Get "Clone from GitHub, GitLab, Bitbucket or any Git server."}}</span></span>
+            </button>
+            <button type="button" @click="source = 'local'" :class="source === 'local' ? 'border-blue-500 ring-1 ring-blue-500 dark:border-blue-500' : 'border-gray-300 dark:border-gray-800'" :aria-pressed="(source === 'local').toString()" class="flex items-start gap-3 text-left rounded-md border p-3">
+            <span class="relative shrink-0 inline-flex items-center justify-center rounded-md bg-gray-100 dark:bg-gray-800" style="width:2.5rem;height:2.5rem;"><i class="ri-git-branch-line text-xl text-gray-600 dark:text-gray-400" aria-hidden="true"></i><i class="ri-stack-line absolute text-xs text-gray-500" style="right:-4px;bottom:-4px;"></i></span>
+            <span><span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Local repository"}}</span><span class="block text-xs text-gray-500">{{.T.Get "Create an empty repository here and push to it from your computer."}}</span></span>
+            </button>
+        </div>
+        <div x-show="source === 'remote'" class="space-y-4">
+            <div>
+                <label for="git-remote_url" class="{{$lbl}}">{{.T.Get "Repository URL"}}</label>
+                <input type="text" name="remote_url" id="git-remote_url" x-model="url" placeholder="https://github.com/user/repo.git" class="{{$in}}">
+            </div>
+            <template x-if="isSSH(url)">
+                <div>
+                    <p class="{{$lbl}}">{{.T.Get "Add this key to the repository as a deploy key (read-only is enough) before clicking Create."}}</p>
+                    <div class="flex items-start gap-2">
+                        <textarea readonly rows="2" class="{{$in}} font-mono text-xs" x-text="publicKey"></textarea>
+                        <button type="button" class="{{$btn}}" @click="copyToClipboard(publicKey)">{{.T.Get "Copy"}}</button>
+                    </div>
+                </div>
+            </template>
+            <template x-if="url !== '' && !isSSH(url)">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label for="git-remote_user" class="{{$lbl}}">{{.T.Get "Username (private repositories only)"}}</label><input type="text" name="remote_user" id="git-remote_user" autocomplete="off" class="{{$in}}"></div>
+                    <div><label for="git-remote_pass" class="{{$lbl}}">{{.T.Get "Password or access token"}}</label><input type="password" name="remote_pass" id="git-remote_pass" autocomplete="new-password" class="{{$in}}"></div>
+                </div>
+            </template>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div><label for="git-name" class="{{$lbl}}">{{.T.Get "Repository name"}}</label><input type="text" name="name" id="git-name" :placeholder="source === 'remote' ? {{toJSON (.T.Get "taken from the URL")}} : domain" class="{{$in}}"></div>
+            <div><label for="git-branch" class="{{$lbl}}">{{.T.Get "Branch"}}</label><input type="text" name="branch" id="git-branch" :placeholder="source === 'remote' ? {{toJSON (.T.Get "default branch")}} : 'main'" class="{{$in}}"></div>
+            <div><label for="git-target_dir" class="{{$lbl}}">{{.T.Get "Deploy to directory"}}</label><input type="text" name="target_dir" id="git-target_dir" :value="docroot" class="{{$in}}"></div>
+            <div><label for="git-deploy_mode" class="{{$lbl}}">{{.T.Get "Deployment mode"}}</label>
+                <select name="deploy_mode" id="git-deploy_mode" class="{{$in}} pl-3 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+                    <option value="automatic">{{.T.Get "Automatic"}}</option>
+                    <option value="manual">{{.T.Get "Manual"}}</option>
+                    <option value="none">{{.T.Get "No deployment"}}</option>
+                </select>
+            </div>
+        </div>
+        <div x-data="{ on: false }">
+            <label class="inline-flex items-center gap-2 text-sm text-gray-900 dark:text-gray-50 cursor-pointer"><input type="checkbox" name="actions_enabled" value="1" x-model="on"> {{.T.Get "Enable additional deploy actions"}}</label>
+            <div x-show="on" x-cloak class="mt-3 grid grid-cols-1 lg:grid-cols-4 gap-4">
+                <div><label for="git-actions_container" class="{{$lbl}}">{{.T.Get "Run in container"}}</label>
+                    <select name="actions_container" id="git-actions_container" class="{{$in}} pl-3 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]"><template x-for="c in containers" :key="c"><option :value="c" x-text="c"></option></template></select>
+                </div>
+                <div class="lg:col-span-3"><label for="git-actions" class="{{$lbl}}">{{.T.Get "Commands (run after each deployment, from the deploy directory)"}}</label>
+                    <textarea name="actions" id="git-actions" rows="3" class="{{$in}} font-mono text-xs"></textarea>
+                </div>
+            </div>
+        </div>
+        <button type="submit" :disabled="busy" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
+            <span x-text="busy ? {{toJSON (.T.Get "Working...")}} : {{toJSON (.T.Get "Create")}}"></span>
+        </button>
+    </form>
+
+    <!-- list -->
+    <template x-if="loaded && repos.length === 0 && !adding">
+        <p class="text-sm text-gray-500">{{.T.Get "No repositories deploy to this website yet."}}</p>
+    </template>
+    <div class="space-y-3">
+        <template x-for="r in repos" :key="r.name">
+            <div class="rounded-md border border-gray-200 p-4 dark:border-gray-800">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="font-medium text-gray-900 dark:text-gray-50" x-text="r.name"></span>
+                            <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20" x-text="r.source === 'local' ? {{toJSON (.T.Get "Local")}} : {{toJSON (.T.Get "Remote")}}"></span>
+                            <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-blue-50 text-blue-900 ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30" x-text="r.branch"></span>
+                            <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20"><i class="text-gray-400 dark:text-gray-500" :class="modeIcon(r.deploy_mode)"></i><span x-text="modeLabel(r.deploy_mode)"></span></span>
+                        </div>
+                        <p class="mt-1 text-sm text-gray-500 break-words"><code class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50" x-text="r.target_dir"></code></p>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                            <template x-if="r.latest"><span><code x-text="r.latest.Short"></code> <span x-text="r.latest.Subject"></span>
+                                <span x-show="r.deploy_mode !== 'none'" class="ml-1 inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset" :class="r.up_to_date ? 'bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20' : 'bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20'" x-text="r.up_to_date ? {{toJSON (.T.Get "deployed")}} : {{toJSON (.T.Get "not deployed")}}"></span></span></template>
+                            <template x-if="!r.latest"><span class="text-gray-400">{{.T.Get "No commits yet."}}</span></template>
+                        </p>
+                        <p x-show="r.last_error" class="mt-1 text-sm text-red-600 dark:text-red-500" x-text="r.last_error"></p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 shrink-0">
+                        <button x-show="r.source === 'remote'" type="button" :disabled="busy" class="{{$btn}}" @click="act('pull', r.name)">{{.T.Get "Pull updates"}}</button>
+                        <button x-show="r.deploy_mode !== 'none'" type="button" :disabled="busy" class="{{$btn}}" @click="act('deploy', r.name)">{{.T.Get "Deploy"}}</button>
+                        <a :href="'/git?log=' + encodeURIComponent(r.name)" class="{{$btn}}">{{.T.Get "Commit log"}}</a>
+                        <a :href="'/git#repo-' + r.name" class="{{$btn}}">{{.T.Get "Settings"}}</a>
+                    </div>
+                </div>
+                <div class="mt-3 flex flex-wrap items-center gap-2" x-show="r.clone_url || r.webhook_url">
+                    <span class="text-xs text-gray-500" x-text="r.clone_url ? {{toJSON (.T.Get "Clone URL")}} : {{toJSON (.T.Get "Webhook URL")}}"></span>
+                    <div class="flex max-w-xl flex-1 items-center gap-2 rounded-md bg-gray-50 px-3 py-1.5 dark:bg-gray-900">
+                        <code class="flex-1 select-text truncate font-mono text-xs text-gray-600 dark:text-gray-400" :title="r.clone_url || r.webhook_url" x-text="r.clone_url || r.webhook_url"></code>
+                        <button type="button" x-data="{ copied: false }" @click="copyToClipboard(r.clone_url || r.webhook_url); copied = true; setTimeout(() => copied = false, 1500)" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50" :aria-label="copied ? {{toJSON (.T.Get "Copied!")}} : {{toJSON (.T.Get "Copy URL")}}" :title="copied ? {{toJSON (.T.Get "Copied!")}} : {{toJSON (.T.Get "Copy URL")}}">
+                            <i x-show="!copied" class="ri-file-copy-line text-base" aria-hidden="true"></i>
+    <i x-show="copied" x-cloak class="ri-check-line text-base text-emerald-600 dark:text-emerald-500" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+</div>
+<script>
+function siteGit(domain, docroot) {
+    const modes = { automatic: {{toJSON (.T.Get "Automatic")}}, manual: {{toJSON (.T.Get "Manual")}}, none: {{toJSON (.T.Get "No deployment")}} };
+    return {
+        domain, docroot, repos: [], containers: [], publicKey: '', loaded: false, adding: false, busy: false,
+        source: 'remote', url: '', message: '', error: '', password: '',
+        isSSH(u) { return /^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+:/.test(u) || u.startsWith('ssh://'); },
+        modeLabel(m) { return modes[m] || m; },
+        modeIcon(m) { return { automatic: 'ri-flashlight-line', manual: 'ri-cursor-line', none: 'ri-forbid-line' }[m] || ''; },
+        async load() {
+            try {
+                const res = await fetch('/git/site.json?domain=' + encodeURIComponent(this.domain));
+                const data = await res.json();
+                if (data.error) { this.error = data.error; return; }
+                this.repos = data.repos || [];
+                this.containers = data.containers || [];
+                this.publicKey = data.public_key || '';
+            } catch (e) { this.error = String(e); } finally { this.loaded = true; }
+        },
+        async post(body) {
+            this.busy = true; this.message = ''; this.error = '';
+            try {
+                const res = await fetch('/git/action.json', { method: 'POST', headers: { 'X-CSRF-TOKEN': csrf_token }, body });
+                const data = await res.json();
+                if (data.error) { this.error = data.error; return false; }
+                this.message = data.message || '';
+                if (data.push_password) this.password = data.push_password;
+                return true;
+            } catch (e) { this.error = String(e); return false; } finally { this.busy = false; await this.load(); }
+        },
+        async create(form) {
+            if (await this.post(new FormData(form))) { this.adding = false; form.reset(); this.url = ''; }
+        },
+        act(action, name) {
+            const body = new FormData();
+            body.append('action', action);
+            body.append('repo', name);
+            return this.post(body);
+        },
+    };
+}
+</script>
+<!-- END site_git_panel -->
+{{end}}{{end}}
+
+{{/* site_backups is the WordPress backups table for other site types, dict T, Intro, Empty, and either Domain+Docroot (Base is the app's route prefix, /wordpress by default, DB adds the database) or Service (apps, restore only) */}}
+{{define "site_backups"}}
+<!-- START site_backups -->
+{{$btn := "relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"}}
+<section x-data="siteBackups({ domain: {{toJSON .Domain}}, docroot: {{toJSON .Docroot}}, service: {{toJSON .Service}}, base: {{toJSON .Base}}, db: {{if .DB}}true{{else}}false{{end}} })" aria-labelledby="site-backups-title">
+    <div class="flex flex-wrap items-end justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <div>
+            <h2 id="site-backups-title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Backups"}}</h2>
+            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get .Intro}}</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+            <label class="relative block"><span class="sr-only">{{.T.Get "Search backups"}}</span><i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-gray-400" aria-hidden="true"></i><input x-model="q" type="search" placeholder="{{.T.Get "Search"}}" class="block w-full rounded-md border border-gray-300 bg-white py-1.5 pl-8 pr-2.5 text-sm text-gray-900 shadow-xs outline-hidden placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-56 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 [&::-webkit-search-cancel-button]:hidden"></label>
+            <button type="button" @click="backupNow()" :disabled="running" class="{{$btn}} border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:bg-gray-950 dark:hover:bg-gray-900/60"><i class="ri-archive-line" aria-hidden="true"></i><span x-text="running ? {{toJSON (.T.Get "Backing up...")}} : {{toJSON (.T.Get "Back up now")}}"></span></button>
+        </div>
+    </div>
+    <div class="flex items-start gap-3 rounded-md p-4 text-sm bg-red-50 text-red-900 dark:bg-red-950/70 dark:text-red-500 mx-4 mt-4 sm:mx-6 lg:mx-8" x-show="error" x-cloak><i class="ri-error-warning-line" aria-hidden="true"></i><span x-text="error"></span></div>
+    <div class="flex flex-wrap items-center gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500 mx-4 mt-4 sm:mx-6 lg:mx-8" x-show="pending" x-cloak>
+        <i class="ri-error-warning-line" aria-hidden="true"></i>
+        <span class="mr-auto" x-text="pendingText()"></span>
+        <button type="button" @click="confirmPending()" :disabled="busy" class="{{$btn}} border-black bg-black text-white hover:bg-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60" x-text="pending && pending.action === 'delete' ? {{toJSON (.T.Get "Delete")}} : {{toJSON (.T.Get "Restore")}}"></button>
+        <button type="button" @click="pending = null" class="{{$btn}} border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Cancel"}}</button>
+    </div>
+    <div class="mt-4 overflow-x-auto" x-show="list.length" x-cloak>
+    <table data-no-sort class="w-full border-t border-gray-200 text-sm dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+        <thead><tr>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Backup"}}</th>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50" x-show="sized">{{.T.Get "Size"}}</th>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
+        </tr></thead>
+        <tbody>
+            <template x-for="b in visible()" :key="b.date">
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                    <td class="border-b border-gray-200 px-4 py-2.5 dark:border-gray-800"><span class="font-medium text-gray-900 dark:text-gray-50" x-text="when(b.date)"></span> <span class="ml-1 font-mono text-xs text-gray-500" x-text="b.date"></span></td>
+                    <td class="border-b border-gray-200 px-4 py-2.5 text-center tabular-nums text-gray-900 dark:border-gray-800 dark:text-gray-50" x-show="sized" x-text="size(b.size)"></td>
+                    <td class="border-b border-gray-200 px-4 py-2.5 text-right whitespace-nowrap dark:border-gray-800">
+                        <div class="relative inline-block" x-data="rowMenu" @click.outside="close()" @keydown.escape="close()">
+                            <button x-ref="btn" type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="{{toJSON (.T.Get "Actions for")}} + ' ' + b.date" class="inline-flex size-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-more-2-line text-base" aria-hidden="true"></i></button>
+                            <div x-ref="menu" :style="pos" class="absolute right-0 z-50 mt-1 w-56 rounded-md border border-gray-200 bg-white p-1 text-left shadow-xl dark:border-gray-800 dark:bg-gray-950" x-show="open" x-cloak role="menu">
+                                <button type="button" role="menuitem" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" @click="open = false; ask('restore', b)"><i class="ri-history-line" aria-hidden="true"></i>{{.T.Get "Restore"}}</button>
+                                <template x-if="cfg.domain">
+                                    <div>
+                                        <a role="menuitem" x-show="b.hasFilesBackup !== false" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" :href="downloadURL(b, 'files')" @click="open = false"><i class="ri-download-2-line" aria-hidden="true"></i>{{.T.Get "Download files"}}</a>
+                                        <a role="menuitem" x-show="b.hasDbBackup" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900" :href="downloadURL(b, 'database')" @click="open = false"><i class="ri-download-2-line" aria-hidden="true"></i>{{.T.Get "Download database"}}</a>
+                                        <div class="my-1 border-t border-gray-200 dark:border-gray-800"></div>
+                                        <button type="button" role="menuitem" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-red-600 hover:bg-red-50 dark:text-red-500 dark:hover:bg-red-400/10" @click="open = false; ask('delete', b)"><i class="ri-delete-bin-line" aria-hidden="true"></i>{{.T.Get "Delete"}}</button>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </template>
+        </tbody>
+    </table>
+    </div>
+    <p class="px-4 py-6 text-sm text-gray-500 sm:px-6 lg:px-8" x-show="loading && !list.length">{{.T.Get "Loading backups..."}}</p>
+    <div class="mx-4 mt-4 flex flex-col items-center justify-center rounded-md border border-dashed border-gray-300 px-4 py-10 text-center sm:mx-6 lg:mx-8 dark:border-gray-800" x-show="!loading && !error && !list.length" x-cloak>
+        <i class="ri-archive-line text-2xl text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+        <p class="mt-2 text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No backups yet"}}</p>
+        <p class="mt-1 text-sm text-gray-500">{{.T.Get .Empty}}</p>
+    </div>
+    <p class="py-6 text-center text-sm text-gray-500" x-show="q && list.length && !visible().length" x-cloak>{{.T.Get "Nothing matches that search."}}</p>
+    <p class="mt-3 px-4 text-xs text-gray-500 sm:px-6 lg:px-8" x-show="list.length" x-cloak x-text="list.length === 1 ? {{toJSON (.T.Get "1 backup")}} : list.length + ' ' + {{toJSON (.T.Get "backups")}}"></p>
+</section>
+<script>
+// builder sites use the WordPress backup routes by domain, apps use /pm2 by service, which can only list, create and restore
+window.siteBackups = window.siteBackups || function (cfg) {
+    const T = {
+        restoreQ: {{toJSON (.T.Get "Restore the backup from {date}? Current files are replaced.")}},
+        deleteQ: {{toJSON (.T.Get "Delete the backup from {date}? This can't be undone.")}},
+        failed: {{toJSON (.T.Get "Could not load backups.")}},
+        restoring: {{toJSON (.T.Get "Restoring backup... Please wait.")}},
+        backingUp: {{toJSON (.T.Get "Generating backup... Please wait.")}},
+        done: {{toJSON (.T.Get "Backup created successfully!")}},
+        restored: {{toJSON (.T.Get "Backup restored.")}},
+    };
+    const enc = encodeURIComponent;
+    return {
+        cfg, list: [], q: '', loading: false, error: '', running: false, busy: false, pending: null, sized: false, base: cfg.base || '/wordpress',
+        init() {
+            const panel = this.$el.closest('[role=tabpanel]');
+            const go = () => { if (!this.loaded) { this.loaded = true; this.load(); } };
+            if (panel && panel.classList.contains('hidden')) new MutationObserver((m, o) => { if (!panel.classList.contains('hidden')) { o.disconnect(); go(); } }).observe(panel, { attributes: true, attributeFilter: ['class'] });
+            else go();
+        },
+        listURL() { return cfg.domain ? this.base + '/backup/get_dates/' + cfg.domain + '?docroot=' + enc(cfg.docroot) : '/pm2/backups/' + cfg.service; },
+        load() {
+            this.loading = true; this.error = '';
+            return fetch(this.listURL(), { headers: { 'X-CSRF-Token': csrf_token } })
+                .then(async r => { const t = await r.text(); if (!r.ok) throw new Error(t || r.status); return JSON.parse(t); })
+                .then(d => { this.list = (Array.isArray(d) ? d : []).map(b => typeof b === 'string' ? { date: b } : b).sort((a, b) => b.date.localeCompare(a.date)); this.sized = this.list.some(b => b.size != null); })
+                .catch(e => { this.error = e.message || T.failed; })
+                .finally(() => { this.loading = false; });
+        },
+        visible() { const q = this.q.trim().toLowerCase(); return q ? this.list.filter(b => (this.when(b.date) + ' ' + b.date).toLowerCase().includes(q)) : this.list; },
+        when(date) {
+            const m = /^(\d{4})-(\d{2})-(\d{2})[_ T-](\d{2})[-:](\d{2})[-:]?(\d{2})?/.exec(date);
+            if (!m) return date;
+            const dt = new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0));
+            return dt.toLocaleString(document.documentElement.lang || undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        },
+        size(n) {
+            if (n == null || isNaN(n)) return '-';
+            if (n < 1024) return Math.round(n) + ' B';
+            const u = ['KB', 'MB', 'GB', 'TB']; let i = -1; do { n /= 1024; i++; } while (n >= 1024 && i < u.length - 1);
+            return (n < 10 ? n.toFixed(1).replace(/\.0$/, '') : Math.round(n)) + ' ' + u[i];
+        },
+        // download and delete go through the WordPress routes, every site's backups sit in the same backups/<domain> folder
+        downloadURL(b, part) { return '/wordpress/backup/download/' + cfg.domain + '?backup_date=' + enc(b.date) + '&part=' + part; },
+        ask(action, b) { this.pending = { action, date: b.date }; },
+        pendingText() { return this.pending ? (this.pending.action === 'delete' ? T.deleteQ : T.restoreQ).replace('{date}', this.when(this.pending.date)) : ''; },
+        async post(url) {
+            const r = await fetch(url, { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } });
+            const t = await r.text();
+            let d = null; try { d = JSON.parse(t); } catch (e) {}
+            if (!r.ok) throw new Error((d && (d.error || d.message)) || t || r.status);
+            return (d && (d.message || d.success)) || (d ? '' : t);
+        },
+        async confirmPending() {
+            const p = this.pending; if (!p) return;
+            this.busy = true;
+            const date = enc(p.date);
+            try {
+                if (p.action === 'delete') showToast(await this.post('/wordpress/backup/delete/' + cfg.domain + '?backup_date=' + date) || T.done, 'success');
+                else {
+                    showToast(T.restoring, 'loading');
+                    const url = cfg.domain ? this.base + '/backup/restore/' + cfg.domain + '?docroot=' + enc(cfg.docroot) + '&backup_date=' + date : '/pm2/restore/' + cfg.service + '?backup_date=' + date;
+                    showToast(await this.post(url) || T.restored, 'success');
+                }
+            } catch (e) { showToast(e.message, 'error'); }
+            this.pending = null; this.busy = false; this.load();
+        },
+        async backupNow() {
+            this.running = true;
+            showToast(T.backingUp, 'loading');
+            try {
+                const url = cfg.domain ? this.base + '/backup/run/' + cfg.domain + '?docroot=' + enc(cfg.docroot) + '&backup_files=true' + (cfg.db ? '&backup_database=true' : '') : '/pm2/backup/' + cfg.service;
+                const msg = await this.post(url);
+                showToast(typeof msg === 'string' && msg ? msg : T.done, 'success');
+            } catch (e) { showToast(e.message, 'error'); }
+            this.running = false; this.load();
+        },
+    };
+};
+</script>
+<!-- END site_backups -->
+{{end}}

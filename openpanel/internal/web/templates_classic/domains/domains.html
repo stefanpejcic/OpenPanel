@@ -1,0 +1,444 @@
+{{define "flowbite_js"}}
+    <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/domains/domains.html -->
+
+<section aria-label="{{.T.Get "Domains"}}" x-data="{ searchQuery: '' }">
+
+<!-- page header -->
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Domains"}}</h1>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Total domains:"}} <span class="font-medium tabular-nums text-gray-900 dark:text-gray-50">{{.TotalDomains}}</span></p>
+    </div>
+    <a href="/domains/new" id="login_button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
+        <i class="ri-add-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "New domain"}}
+    </a>
+</div>
+<!-- END page header -->
+
+<script src="{{static "js/data-table.js"}}"></script>
+<div x-data="Object.assign(createTableController({
+        storageKey: 'domainsColumnsVisibility',
+        trackCount: true,
+        initialCount: {{len .Domains}},
+        columns: {
+            domain: true,
+            type: false,
+            link: false,
+            status: true,
+            docroot: true,
+            php: true,
+            site_count: false,
+            redirect: false,
+            ssl: true,
+            waf: true,
+            actions: true
+        }
+    }), {
+        filters: { status: 'all', php: 'all', ssl: 'all', type: 'all', redirect: 'all' },
+        filterOpen: '',
+        activeFilters() { return Object.values(this.filters).filter(f => f !== 'all').length; },
+        matchesFilters(v) { return Object.entries(this.filters).every(([k, f]) => f === 'all' || v[k] === f); }
+    })" x-init="init()" x-cloak>
+
+    <!-- toolbar -->
+    <div class="flex flex-wrap items-center gap-2 px-4 pb-4 sm:px-6 lg:px-8">
+        <div class="relative w-full sm:w-64">
+            <label for="domains-search" class="sr-only">{{.T.Get "Search"}}</label>
+            <input id="domains-search" x-model="searchQuery" type="search" placeholder="{{.T.Get "Search"}}"
+                class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden">
+            <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+        </div>
+
+        <!-- column visibility -->
+        <div class="relative">
+            <button id="dropdownToggleButton" data-dropdown-toggle="dropdownToggle" type="button" class="flex items-center gap-x-1.5 whitespace-nowrap rounded-md border border-dashed border-gray-300 px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 cursor-pointer">
+                <i class="ri-equalizer-line text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Show columns"}}
+            </button>
+            <div id="dropdownToggle" class="z-20 hidden w-60 rounded-md border border-gray-200 bg-white p-1 shadow-xl dark:border-gray-800 dark:bg-gray-950">
+                <ul aria-labelledby="dropdownToggleButton">
+                    {{template "column_toggle" (dict "Key" "domain" "Label" (.T.Get "Domain name"))}}
+                    {{template "column_toggle" (dict "Key" "link" "Label" (.T.Get "Link"))}}
+                    {{template "column_toggle" (dict "Key" "type" "Label" (.T.Get "Type"))}}
+                    {{template "column_toggle" (dict "Key" "status" "Label" (.T.Get "Status"))}}
+{{if .UserAllowed.docroot}}
+                    {{template "column_toggle" (dict "Key" "docroot" "Label" (.T.Get "Document root"))}}
+{{end}}
+                    {{template "column_toggle" (dict "Key" "php" "Label" (.T.Get "PHP version"))}}
+                    {{template "column_toggle" (dict "Key" "site_count" "Label" (.T.Get "Websites"))}}
+{{if .UserAllowed.redirects}}
+                    {{template "column_toggle" (dict "Key" "redirect" "Label" (.T.Get "Redirect"))}}
+{{end}}
+{{if .UserAllowed.ssl}}
+                    {{template "column_toggle" (dict "Key" "ssl" "Label" (.T.Get "SSL status"))}}
+{{end}}
+{{if .UserAllowed.waf}}
+                    {{template "column_toggle" (dict "Key" "waf" "Label" (.T.Get "WAF"))}}
+{{end}}
+                    {{template "column_toggle" (dict "Key" "actions" "Label" (.T.Get "Actions"))}}
+                </ul>
+            </div>
+        </div>
+
+{{if .Filters}}
+        <div class="hidden items-center gap-2 sm:flex">{{range .Filters}}{{template "domain_filter" .}}{{end}}</div>
+        <div class="relative sm:hidden" @click.outside="if (filterOpen === 'mobile') filterOpen = ''">
+            <button type="button" @click="filterOpen = filterOpen === 'mobile' ? '' : 'mobile'" :class="activeFilters() ? 'border-solid' : 'border-dashed'" class="flex items-center gap-x-1.5 whitespace-nowrap rounded-md border border-gray-300 px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 cursor-pointer">
+                <span>{{.T.Get "Filters"}} <span x-show="activeFilters()" x-text="'(' + activeFilters() + ')'"></span></span>
+                <i class="ri-arrow-down-s-line text-sm leading-none text-gray-500" aria-hidden="true"></i>
+            </button>
+            <div x-show="filterOpen === 'mobile'" x-cloak class="absolute left-0 z-20 mt-1 w-64 rounded-md border border-gray-200 bg-white p-2 shadow-xl dark:border-gray-800 dark:bg-gray-950">
+{{range $i, $f := .Filters}}
+                <fieldset class="{{if $i}}mt-2 border-t border-gray-200 pt-2 dark:border-gray-800{{end}}">
+                    <legend class="mb-1 px-1 text-xs font-medium text-gray-500">{{$f.Label}}</legend>
+                    <div class="flex flex-wrap gap-x-4">
+{{range $f.Options}}
+                        <label class="flex cursor-pointer items-center gap-2 px-1 py-1 text-sm text-gray-900 dark:text-gray-50">
+                            <input type="radio" name="domain-mfilter-{{$f.Key}}" value="{{.Value}}" x-model="filters.{{$f.Key}}">
+                            <span>{{.Label}}</span>
+                        </label>
+{{end}}
+                    </div>
+                </fieldset>
+{{end}}
+            </div>
+        </div>
+{{end}}
+    </div>
+
+{{template "bulk_open" (dict "T" .T "Table" "#domains-table" "Endpoint" "/domains/bulk")}}
+    <div class="overflow-x-auto">
+        <table id="domains-table" class="w-full [&>tbody>tr>td]:py-2.5 border-t border-gray-200 text-sm dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+            <thead>
+                <tr>
+{{template "bulk_head_checkbox" .}}
+                    <th x-show="columns.domain" scope="col" class="border-b border-gray-200 px-4 py-1 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Domain name") "Key" "domain" "Type" "string")}}</th>
+                    <th x-show="columns.link" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Link"}}</th>
+                    <th x-show="columns.type" scope="col" class="border-b border-gray-200 px-4 py-1 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Type") "Key" "type" "Type" "string")}}</th>
+                    <th x-show="columns.status" scope="col" class="border-b border-gray-200 px-4 py-1 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Status") "Key" "status" "Type" "string")}}</th>
+                    {{if .UserAllowed.docroot}}
+                    <th x-show="columns.docroot" scope="col" class="border-b border-gray-200 px-4 py-1 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Document root") "Key" "docroot" "Type" "string")}}</th>
+                    {{end}}
+                    <th x-show="columns.php" scope="col" class="border-b border-gray-200 px-4 py-1 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "PHP version") "Key" "php" "Type" "string")}}</th>
+                    <th x-show="columns.site_count" scope="col" class="border-b border-gray-200 px-4 py-1 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Websites") "Key" "site_count" "Type" "number")}}</th>
+                    {{if .UserAllowed.redirects}}
+                    <th x-show="columns.redirect" scope="col" class="border-b border-gray-200 px-4 py-1 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Redirect") "Key" "redirect" "Type" "string")}}</th>
+                    {{end}}
+                    {{if .UserAllowed.ssl}}
+                    <th x-show="columns.ssl" scope="col" class="border-b border-gray-200 px-4 py-1 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "SSL") "Key" "ssl" "Type" "number")}}</th>
+                    {{end}}
+                    {{if .UserAllowed.waf}}
+                    <th x-show="columns.waf" scope="col" class="border-b border-gray-200 px-4 py-1 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "WAF") "Key" "waf" "Type" "number")}}</th>
+                    {{end}}
+                    <th id="tour-domains-actions" x-show="columns.actions" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
+                </tr>
+            </thead>
+            <tbody x-ref="tbody">
+            {{if not .Domains}}
+                <tr>
+                    <td colspan="13" class="py-10 text-center text-sm text-gray-500">{{.T.Get "No domains yet."}} <a href="/domains/new" class="text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Add your first domain"}}</a></td>
+                </tr>
+            {{else}}
+                {{$root := .}}
+                {{range $i, $domain := .Domains}}
+                <tr x-show="(searchQuery === '' || '{{$domain.DomainURL}}'.toLowerCase().includes(searchQuery.toLowerCase())) && matchesFilters({{toJSON $domain.Filter}})" class="user-row hover:bg-gray-50 dark:hover:bg-gray-900/60 [&>td]:border-b [&>td]:border-gray-200 dark:[&>td]:border-gray-800">
+{{$skip := ""}}{{if hasSuffix $domain.DomainURL ".onion"}}{{$skip = "suspend,unsuspend"}}{{else if eq $domain.SuspendedBy "admin"}}{{$skip = "suspend,unsuspend,php,redirect,unredirect,waf,cloudflare,delete"}}{{else if eq $domain.Status "Suspended"}}{{$skip = "suspend"}}{{else if eq $domain.Status "Not Suspended"}}{{$skip = "unsuspend"}}{{end}}
+{{if not $domain.RedirectURL}}{{$skip = printf "%s,unredirect" $skip}}{{end}}
+{{if hasSuffix $domain.DomainURL ".onion"}}{{$skip = printf "%s,cloudflare" $skip}}{{end}}
+{{template "bulk_row_checkbox" (dict "T" $root.T "Key" $domain.DomainURL "Label" $domain.DomainURL "Skip" $skip)}}
+
+                    <td x-show="columns.domain" class="px-4 py-2.5 whitespace-nowrap font-medium text-gray-900 select-text dark:text-gray-50" data-sort-col="domain" data-sort-value="{{$domain.DomainURL}}">
+                        <span class="punycode">{{$domain.DomainURL}}</span>{{if $domain.Cloudflare}} <span title="{{$root.T.Get "Restricted to Cloudflare IPs only"}}" class="ml-1 inline-flex align-middle"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#F38020" aria-label="Cloudflare" class="size-4"><path d="M16.5088 16.8447c.1475-.5068.0908-.9707-.1553-1.3154-.2246-.3164-.6045-.499-1.0615-.5205l-8.6592-.1123a.1559.1559 0 0 1-.1333-.0713c-.0283-.042-.0351-.0986-.021-.1553.0278-.084.1123-.1484.2036-.1562l8.7359-.1123c1.0351-.0489 2.1601-.8868 2.5537-1.9136l.499-1.3013c.0215-.0561.0293-.1128.0147-.168-.5625-2.5463-2.835-4.4453-5.5499-4.4453-2.5039 0-4.6284 1.6177-5.3876 3.8614-.4927-.3658-1.1187-.5625-1.794-.499-1.2026.119-2.1665 1.083-2.2861 2.2856-.0283.31-.0069.6128.0635.894C1.5683 13.171 0 14.7754 0 16.752c0 .1748.0142.3515.0352.5273.0141.083.0844.1475.1689.1475h15.9814c.0909 0 .1758-.0645.2032-.1553l.12-.4268zm2.7568-5.5634c-.0771 0-.1611 0-.2383.0112-.0566 0-.1054.0415-.127.0976l-.3378 1.1744c-.1475.5068-.0918.9707.1543 1.3164.2256.3164.6055.498 1.0625.5195l1.8437.1133c.0557 0 .1055.0263.1329.0703.0283.043.0351.1074.0214.1562-.0283.084-.1132.1485-.204.1553l-1.921.1123c-1.041.0488-2.1582.8867-2.5527 1.914l-.1406.3585c-.0283.0713.0215.1416.0986.1416h6.5977c.0771 0 .1474-.0489.169-.126.1122-.4082.1757-.837.1757-1.2803 0-2.6025-2.125-4.727-4.7344-4.727"/></svg></span>{{end}}
+                    </td>
+
+                    <td x-show="columns.link" class="px-4 py-2.5 whitespace-nowrap text-gray-600 dark:text-gray-400"><a class="domain_link inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4" href="http://{{$domain.DomainURL}}" target="_blank"><span>http://<span class="punycode">{{$domain.DomainURL}}</span>/</span><i class="ri-external-link-line text-sm leading-none" aria-hidden="true"></i></a></td>
+
+                    <td x-show="columns.type" class="px-4 py-2.5 whitespace-nowrap text-gray-600 select-text dark:text-gray-400" data-sort-col="type">{{if $domain.IsSubdomain}}{{$root.T.Get "subdomain"}}{{else}}{{$root.T.Get "domain"}}{{end}}</td>
+
+                    <td x-show="columns.status" class="px-4 py-2.5 whitespace-nowrap text-gray-600 dark:text-gray-400" data-sort-col="status" data-sort-value="{{$domain.Status}}">
+                        {{if eq $domain.Status "Suspended"}}
+                        <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{if eq $domain.SuspendedBy "admin"}}{{$root.T.Get "Suspended by admin"}}{{else}}{{$root.T.Get "Suspended"}}{{end}}</span>
+                        {{if $domain.SuspendReason}}<span class="mt-1 block text-xs font-medium select-text">{{$domain.SuspendReason}}</span>{{end}}
+                        {{if $domain.SuspendComment}}<span class="mt-1 block text-xs select-text">{{$domain.SuspendComment}}</span>{{end}}
+                        {{else if eq $domain.Status "Not Suspended"}}
+                        <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20">{{$root.T.Get "Active"}}</span>
+                        {{else}}
+                        <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{$domain.Status}}</span>
+                        {{end}}
+                    </td>
+
+                    {{if $root.UserAllowed.docroot}}
+                    <td x-show="columns.docroot" class="px-4 py-2.5 whitespace-nowrap text-gray-600 select-text dark:text-gray-400" data-sort-col="docroot" data-sort-value="{{$domain.Docroot}}">
+                        {{if $root.UserAllowed.filemanager}}<a href="/files{{replace $domain.Docroot "/var/www/html" ""}}" class="hover:text-gray-900 hover:underline hover:underline-offset-4 dark:hover:text-gray-50" title="{{$domain.Docroot}}">{{else}}<span title="{{$domain.Docroot}}">{{end}}<span class="inline-flex max-w-[18rem] items-center gap-1.5"><i class="ri-folder-fill text-base leading-none text-orange-500" aria-hidden="true"></i><span class="domain_link truncate">{{$domain.Docroot}}</span></span>{{if $root.UserAllowed.filemanager}}</a>{{else}}</span>{{end}}
+                    </td>
+                    {{end}}
+
+                    <td x-show="columns.php" class="px-4 py-2.5 whitespace-nowrap text-center tabular-nums text-gray-600 select-text dark:text-gray-400" data-sort-col="php" data-sort-value="{{$domain.PHPVersion}}">{{if $root.UserAllowed.php}}<a href="/php/domains" class="hover:text-gray-900 hover:underline hover:underline-offset-4 dark:hover:text-gray-50">{{end}}{{$domain.PHPVersion}}{{if $root.UserAllowed.php}}</a>{{end}}</td>
+
+                    <td x-show="columns.site_count" class="px-4 py-2.5 whitespace-nowrap tabular-nums text-gray-600 select-text dark:text-gray-400" data-sort-col="site_count" data-sort-value="{{$domain.SiteCount}}">{{if or $root.UserAllowed.nodejs $root.UserAllowed.python $root.UserAllowed.wordpress $root.UserAllowed.website_builder}}{{if gt $domain.SiteCount 0}}<a href="/sites" class="hover:text-gray-900 hover:underline hover:underline-offset-4 dark:hover:text-gray-50">{{$domain.SiteCount}}</a>{{else}}{{$domain.SiteCount}}{{end}}{{end}}</td>
+
+                    {{if $root.UserAllowed.redirects}}
+                    <td x-show="columns.redirect" class="px-4 py-2.5 whitespace-nowrap text-gray-600 dark:text-gray-400" data-sort-col="redirect" data-sort-value="{{$domain.RedirectURL}}">
+                    {{if $domain.RedirectURL}}
+                        <div id="edit-form-{{$domain.DomainID}}" style="display: none;">
+                            <form action="/domains/redirect" method="post" class="flex items-center gap-2">
+                                <input type="hidden" name="csrf_token" value="{{$root.CSRFToken}}"/>
+                                <input type="hidden" name="domain_id" value="{{$domain.DomainID}}">
+                                <input type="hidden" name="domain_name" value="{{$domain.DomainURL}}">
+                                <input type="hidden" name="domain_url" value="{{$domain.DomainURL}}">
+                                <input type="url" name="redirect_url" value="{{$domain.RedirectURL}}" pattern="https://.*" title="{{$root.T.Get "Must be a valid URL starting with https://."}}" aria-label="{{$root.T.Get "Redirect"}}" placeholder="https://example.net" required=""
+                                    class="block w-56 appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
+                                <button type="submit" class="relative inline-flex items-center justify-center whitespace-nowrap rounded-md border px-2.5 py-1.5 text-sm font-medium shadow-xs outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{$root.T.Get "Save"}}</button>
+                                <button type="button" onclick="cancelEdit('{{$domain.DomainID}}')" class="relative inline-flex items-center justify-center whitespace-nowrap rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm font-medium text-gray-900 shadow-xs hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{$root.T.Get "Cancel"}}</button>
+                            </form>
+                        </div>
+                        <div id="edit-buttons-{{$domain.DomainID}}" style="display: inline-flex;" class="items-center gap-1">
+                            <span id="redirect-value-{{$domain.DomainID}}" class="mr-1"><a href="{{$domain.RedirectURL}}" target="_blank" class="text-blue-500 hover:underline hover:underline-offset-4">{{$domain.RedirectURL}}</a></span>
+                            <button type="button" onclick="editRedirect('{{$domain.DomainID}}')" aria-label="{{$root.T.Get "Edit"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"><i class="ri-pencil-line text-base leading-none" aria-hidden="true"></i></button>
+                            <form action="/domains/redirect/delete" method="post" data-confirm="{{$root.T.Get "Remove the redirect for"}} {{$domain.DomainURL}}?">
+                                <input type="hidden" name="csrf_token" value="{{$root.CSRFToken}}"/>
+                                <input type="hidden" name="domain_name" value="{{$domain.DomainURL}}">
+                                <input type="hidden" name="redirect_url" value="{{$domain.RedirectURL}}">
+                                <button type="submit" aria-label="{{$root.T.Get "Delete"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-red-600 transition hover:bg-red-50 dark:text-red-500 dark:hover:bg-red-400/10 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"><i class="ri-close-line text-base leading-none" aria-hidden="true"></i></button>
+                            </form>
+                        </div>
+                    {{else}}
+                        <div id="create-form-{{$domain.DomainID}}" style="display: none;">
+                            <form action="/domains/redirect" method="post" class="flex items-center gap-2">
+                                <input type="hidden" name="csrf_token" value="{{$root.CSRFToken}}"/>
+                                <input type="hidden" name="domain_name" value="{{$domain.DomainURL}}">
+                                <input type="url" name="redirect_url" pattern="https?://.*" title="{{$root.T.Get "Must be a valid URL starting with http:// or https://."}}" aria-label="{{$root.T.Get "Enter redirect URL"}}" placeholder="{{$root.T.Get "Enter redirect URL"}}"
+                                    class="block w-56 appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
+                                <button type="submit" class="relative inline-flex items-center justify-center whitespace-nowrap rounded-md border px-2.5 py-1.5 text-sm font-medium shadow-xs outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{$root.T.Get "Save"}}</button>
+                                <button type="button" onclick="cancelCreate('{{$domain.DomainID}}')" class="relative inline-flex items-center justify-center whitespace-nowrap rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm font-medium text-gray-900 shadow-xs hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{$root.T.Get "Cancel"}}</button>
+                            </form>
+                        </div>
+                        <button type="button" onclick="showRedirectInput('{{$domain.DomainID}}')" id="create-button-{{$domain.DomainID}}" class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm font-medium text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"><i class="ri-add-line text-base leading-none text-gray-500" aria-hidden="true"></i>{{$root.T.Get "Create redirect"}}</button>
+                    {{end}}
+                    </td>
+                    {{end}}
+
+                    {{if $root.UserAllowed.ssl}}
+                    <td x-show="columns.ssl" class="px-4 py-2.5 whitespace-nowrap text-gray-600 dark:text-gray-400" data-sort-col="ssl" data-sort-value="{{if hasSuffix $domain.DomainURL ".onion"}}2{{else if or (not (or (eq $domain.HTTPS "Automatic") (eq $domain.HTTPS "Custom"))) (eq $domain.SSL.Problem "expired") (eq $domain.SSL.Problem "missing")}}0{{else if $domain.SSL.Problem}}1{{else}}3{{end}}">
+                    {{$p := $domain.SSL.Problem}}
+                    {{$onion := hasSuffix $domain.DomainURL ".onion"}}
+                    {{$https := or (eq $domain.HTTPS "Automatic") (eq $domain.HTTPS "Custom")}}
+                    {{$tone := "bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20"}}
+                    {{if $onion}}{{$tone = "bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20"}}{{else if or (not $https) (eq $p "expired") (eq $p "missing")}}{{$tone = "bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20"}}{{else if $p}}{{$tone = "bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20"}}{{end}}
+                        <a href="/domains/ssl?domain_name={{$domain.DomainURL}}" title="{{if $onion}}{{$root.T.Get "No SSL is needed on the Tor network."}}{{else}}{{if eq $domain.HTTPS "Automatic"}}{{$root.T.Get "AutoSSL"}}{{else if eq $domain.HTTPS "Custom"}}{{$root.T.Get "Custom SSL"}}{{end}}{{if $domain.SSL.Issuer}}, {{$root.T.Get "issued by"}} {{$domain.SSL.Issuer}}{{end}}{{end}}" class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset hover:underline hover:underline-offset-4 {{$tone}}">
+                        {{if $onion}}
+                            {{$root.T.Get "None"}}
+                        {{else if not $https}}
+                            {{$domain.HTTPS}}
+                        {{else if eq $p "expired"}}
+                            {{$root.T.Get "Expired"}} {{$domain.SSL.Expires}}
+                        {{else if eq $p "expiring"}}
+                            {{$root.T.Get "Expires"}} {{$domain.SSL.Expires}}
+                        {{else if eq $p "missing"}}
+                            {{$root.T.Get "Not issued yet"}}
+                        {{else if eq $p "unreadable"}}
+                            {{$root.T.Get "Unreadable"}}
+                        {{else if $domain.SSL.Expires}}
+                            {{$root.T.Get "Valid until"}} {{$domain.SSL.Expires}}
+                        {{else}}
+                            {{$root.T.Get "Check"}}
+                        {{end}}
+                        </a>
+                    </td>
+                    {{end}}
+
+                    {{if $root.UserAllowed.waf}}
+                    <td x-show="columns.waf" class="px-4 py-2.5 whitespace-nowrap text-gray-600 dark:text-gray-400" data-sort-col="waf" data-sort-value="{{if eq $domain.WAF "On"}}2{{else if eq $domain.WAF "DetectionOnly"}}1{{else}}0{{end}}">
+                    {{$wafOn := or (eq $domain.WAF "On") (eq $domain.WAF "DetectionOnly")}}
+                        <form action="/server/waf" method="post" x-data="{ busy: false }" class="inline-flex items-center">
+                            <input type="hidden" name="csrf_token" value="{{$root.CSRFToken}}"/>
+                            <input type="hidden" name="domain_name" value="{{$domain.DomainURL}}">
+                            <input type="hidden" name="return_to" value="domains">
+                            <input type="hidden" name="modsec_action" value="{{if $wafOn}}Off{{else}}On{{end}}">
+                            <input type="checkbox" role="switch" {{if $wafOn}}checked{{end}} :disabled="busy" aria-label="{{$root.T.Get "WAF"}} {{$domain.DomainURL}}" title="{{if eq $domain.WAF "DetectionOnly"}}{{$root.T.Get "Monitor only"}}{{else if $wafOn}}{{$root.T.Get "On"}}{{else}}{{$root.T.Get "Off"}}{{end}}"
+                                @change="busy = true; $el.form.submit()">
+                        </form>
+                    </td>
+                    {{end}}
+
+                    <td x-show="columns.actions" class="px-4 py-2.5 text-right whitespace-nowrap">
+                        <button id="dropdownHoverButton-{{$i}}" data-dropdown-toggle="dropdownHover-{{$i}}" data-dropdown-placement="bottom-end" type="button" aria-label="{{$root.T.Get "Actions"}} {{$domain.DomainURL}}" aria-haspopup="menu" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"><i class="ri-more-2-line text-base leading-none" aria-hidden="true"></i></button>
+                    </td>
+                </tr>
+                {{end}}
+            {{end}}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- row menus live outside the scrolling table so they don't get clipped -->
+    {{$root := .}}
+    {{range $i, $domain := .Domains}}
+    <div id="dropdownHover-{{$i}}" class="z-20 hidden w-56 rounded-md border border-gray-200 bg-white p-1 text-left shadow-xl dark:border-gray-800 dark:bg-gray-950">
+        <ul role="menu" aria-labelledby="dropdownHoverButton-{{$i}}" class="text-sm">
+    {{if eq $domain.SuspendedBy "admin"}}
+            <li class="flex gap-2 px-2 py-1.5 text-gray-500"><i class="ri-lock-line text-base leading-none" aria-hidden="true"></i><span class="whitespace-normal">{{$root.T.Get "Suspended by the administrator, contact support to make changes."}}</span></li>
+    {{else}}
+        {{if not (hasSuffix $domain.DomainURL ".onion")}}
+            {{if and $root.UserAllowed.dns $domain.DNS}}
+            <li><a role="menuitem" href="/domains/edit-dns-zone/{{$domain.DomainURL}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-pencil-line text-base leading-none text-gray-500" aria-hidden="true"></i>{{$root.T.Get "Edit DNS zone"}}</a></li>
+            {{end}}
+            {{if $root.UserAllowed.waf}}
+            <li><a role="menuitem" href="/server/waf/{{$domain.DomainURL}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-shield-check-line text-base leading-none text-gray-500" aria-hidden="true"></i>{{$root.T.Get "Manage WAF"}}</a></li>
+            {{end}}
+            <li>
+                <form method="post" action="/domains/cloudflare">
+                    <input type="hidden" name="csrf_token" value="{{$root.CSRFToken}}"/>
+                    <input type="hidden" name="domain_name" value="{{$domain.DomainURL}}">
+                    <input type="hidden" name="cloudflare_action" value="{{if $domain.Cloudflare}}disable{{else}}enable{{end}}">
+                    <button role="menuitem" type="submit" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-cloud-line text-base leading-none text-gray-500" aria-hidden="true"></i>{{if $domain.Cloudflare}}{{$root.T.Get "Remove Cloudflare restriction"}}{{else}}{{$root.T.Get "Restrict to Cloudflare"}}{{end}}</button>
+                </form>
+            </li>
+            {{if $root.UserAllowed.docroot}}
+            <li><a role="menuitem" href="/domains/docroot?domain_name={{$domain.DomainURL}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-folder-line text-base leading-none text-gray-500" aria-hidden="true"></i>{{$root.T.Get "Change docroot"}}</a></li>
+            {{end}}
+        {{end}}
+        {{if $root.UserAllowed.edit_vhost}}
+            <li><a role="menuitem" href="/domains/vhosts?domain={{$domain.DomainURL}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-file-code-line text-base leading-none text-gray-500" aria-hidden="true"></i>{{$root.T.Get "Edit VirtualHosts"}}</a></li>
+        {{end}}
+        {{if $root.UserAllowed.capitalize_domains}}
+            <li><a role="menuitem" href="/domains/capitalize/{{$domain.DomainURL}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-font-size text-base leading-none text-gray-500" aria-hidden="true"></i>{{$root.T.Get "Capitalize"}}</a></li>
+        {{end}}
+        {{if and (not (hasSuffix $domain.DomainURL ".onion")) $root.UserAllowed.domain_suspend}}
+            {{if eq $domain.Status "Suspended"}}
+            <li><a role="menuitem" href="/domains/unsuspend?domain={{$domain.DomainURL}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-checkbox-circle-line text-base leading-none text-gray-500" aria-hidden="true"></i>{{$root.T.Get "Unsuspend"}}</a></li>
+            {{else if eq $domain.Status "Not Suspended"}}
+            <li><a role="menuitem" href="/domains/suspend?domain={{$domain.DomainURL}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-forbid-line text-base leading-none text-gray-500" aria-hidden="true"></i>{{$root.T.Get "Suspend"}}</a></li>
+            {{end}}
+        {{end}}
+            <li class="my-1 border-t border-gray-200 dark:border-gray-800" role="separator"></li>
+            <li><a role="menuitem" href="/domains/delete?domain={{$domain.DomainURL}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-red-600 hover:bg-gray-100 dark:text-red-500 dark:hover:bg-gray-900"><i class="ri-delete-bin-line text-base leading-none" aria-hidden="true"></i>{{$root.T.Get "Delete"}}</a></li>
+    {{end}}
+        </ul>
+    </div>
+    {{end}}
+
+{{template "bulk_bar" .}}
+</div>
+
+    <div class="flex items-center justify-end px-4 py-3 sm:px-6 lg:px-8">
+        <div class="hidden text-sm tabular-nums text-gray-500">{{.T.Get "0 of"}} {{len .Domains}} {{.T.Get "row(s) selected."}}</div>
+        <p class="text-sm tabular-nums text-gray-500">
+            {{.T.Get "Showing"}}
+            <span class="font-medium text-gray-900 dark:text-gray-50" x-text="count"></span> {{.T.Get "of"}} <span class="font-medium text-gray-900 dark:text-gray-50">{{len .Domains}}</span>
+        </p>
+    </div>
+</div>
+
+</section>
+<!-- END domains table -->
+
+{{if .UserAllowed.redirects}}
+<script>
+    function showRedirectInput(domainId) {
+        document.getElementById('create-button-' + domainId).style.display = 'none';
+        document.getElementById('create-form-' + domainId).style.display = 'block';
+    }
+
+    function cancelCreate(domainId) {
+        document.getElementById('create-form-' + domainId).style.display = 'none';
+        document.getElementById('create-button-' + domainId).style.display = 'inline-flex';
+    }
+
+function editRedirect(domainId) {
+    var editButtons = document.getElementById('edit-buttons-' + domainId);
+    if (editButtons) editButtons.style.display = 'none';
+
+    var editForm = document.getElementById('edit-form-' + domainId);
+    if (editForm) editForm.style.display = 'block';
+}
+
+function cancelEdit(domainId) {
+    var editButtons = document.getElementById('edit-buttons-' + domainId);
+    if (editButtons) editButtons.style.display = 'inline-flex';
+
+    var editForm = document.getElementById('edit-form-' + domainId);
+    if (editForm) editForm.style.display = 'none';
+}
+
+</script>
+{{end}}
+
+{{if gt .TotalPages 1}}
+<div class="flex flex-col gap-3 px-4 py-4 text-sm text-gray-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <p class="tabular-nums">{{.T.Get "Showing domains"}} {{.StartLineNumber}} {{.T.Get "to"}} {{.EndLineNumber}}, {{.T.Get "from a total of"}} {{.TotalDomains}}.</p>
+    <nav aria-label="{{.T.Get "Page navigation"}}">
+        <ul class="flex items-center gap-1">
+            {{if gt .CurrentPage 1}}
+            <li><a href="/domains?page={{.PrevPage}}" aria-label="{{.T.Get "Previous"}}" class="inline-flex items-center rounded-md px-2.5 py-1.5 font-medium text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80"><span aria-hidden="true">&laquo; {{.T.Get "Previous"}}</span></a></li>
+            {{end}}
+            {{range .PageEntries}}
+                {{if .IsEllipsis}}
+            <li><span class="px-2 text-gray-400">...</span></li>
+                {{else if eq .Number $.CurrentPage}}
+            <li><span aria-current="page" class="inline-flex min-w-8 items-center justify-center rounded-md px-2.5 py-1.5 font-medium tabular-nums text-gray-900 ring-1 ring-gray-300 dark:text-gray-50 dark:ring-gray-700">{{.Number}}</span></li>
+                {{else}}
+            <li><a href="/domains?page={{.Number}}" class="inline-flex min-w-8 items-center justify-center rounded-md px-2.5 py-1.5 font-medium tabular-nums text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800/80">{{.Number}}</a></li>
+                {{end}}
+            {{end}}
+            {{if lt .CurrentPage .TotalPages}}
+            <li><a href="/domains?page={{.NextPage}}" aria-label="{{.T.Get "Next"}}" class="inline-flex items-center rounded-md px-2.5 py-1.5 font-medium text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80"><span aria-hidden="true">{{.T.Get "Next"}} &raquo;</span></a></li>
+            {{end}}
+        </ul>
+    </nav>
+</div>
+{{end}}
+
+<script>
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'n' || e.ctrlKey || e.metaKey || e.altKey) return;
+    const tag = document.activeElement.tagName.toLowerCase();
+    const isInputFocused = ['input', 'textarea'].includes(tag) || document.activeElement.isContentEditable;
+    if (isInputFocused) return;
+    e.preventDefault();
+    document.querySelector('a[href="/domains/new"]')?.click();
+});
+if (window.registerShortcut) registerShortcut(['N'], '{{.T.Get "Add new domain"}}');
+</script>
+<script src="{{static "js/table-sort.js"}}"></script>
+
+<!-- END templates/domains/domains.html -->
+{{end}}
+
+{{define "column_toggle"}}
+<li>
+    <label for="col-toggle-{{.Key}}" class="flex w-full cursor-pointer items-center justify-between gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900">
+        <span>{{.Label}}</span>
+        <input type="checkbox" role="switch" id="col-toggle-{{.Key}}" x-model="columns.{{.Key}}" x-on:change="saveColumns">
+    </label>
+</li>
+{{end}}
+
+{{define "domain_filter"}}
+<div class="relative" @click.outside="if (filterOpen === '{{.Key}}') filterOpen = ''">
+    <button type="button" @click="filterOpen = filterOpen === '{{.Key}}' ? '' : '{{.Key}}'" :class="filters.{{.Key}} !== 'all' ? 'border-solid' : 'border-dashed'" class="flex items-center gap-x-1.5 whitespace-nowrap rounded-md border border-gray-300 px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 cursor-pointer">
+        <span x-text="filters.{{.Key}} === 'all' ? {{toJSON .Label}} : {{toJSON .Label}} + ': ' + ({ {{range $i, $o := .Options}}{{if $i}}, {{end}}{{toJSON $o.Value}}: {{toJSON $o.Label}}{{end}} })[filters.{{.Key}}]">{{.Label}}</span>
+        <i class="ri-arrow-down-s-line text-sm leading-none text-gray-500" aria-hidden="true"></i>
+    </button>
+    <div x-show="filterOpen === '{{.Key}}'" x-cloak class="absolute left-0 z-20 mt-1 w-48 rounded-md border border-gray-200 bg-white p-1 shadow-xl dark:border-gray-800 dark:bg-gray-950">
+        <ul>
+{{$key := .Key}}
+{{range .Options}}
+            <li>
+                <label class="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900">
+                    <input type="radio" name="domain-filter-{{$key}}" value="{{.Value}}" x-model="filters.{{$key}}" @change="filterOpen = ''">
+                    <span>{{.Label}}</span>
+                </label>
+            </li>
+{{end}}
+        </ul>
+    </div>
+</div>
+{{end}}
+
+{{define "sort_header"}}
+<button type="button" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.Label}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
+{{end}}

@@ -166,7 +166,7 @@ func handlePHPWizard(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		versions[i].Label = statusLabelText(versions[i].Label)
 	}
 
-	layout, _, err := web.BuildLayoutData(a, w, r, "PHP wizard")
+	layout, _, err := web.BuildLayoutData(a, w, r, "PHP Wizard")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

@@ -1,159 +1,167 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/system/cronjobs.html -->
 
 {{if eq .View "code"}}
-      <!-- Include CodeMirror, clike and Dracula theme files -->
+      <!-- CodeMirror, themed by the kit (.cm-s-op) -->
       <link rel="stylesheet" href="{{static "vendor/codemirror/codemirror.min.css"}}">
       <script src="{{static "vendor/codemirror/codemirror.min.js"}}"></script>
       <script src="{{static "vendor/codemirror/mode/clike/clike.min.js"}}"></script>
-      <link rel="stylesheet" href="{{static "vendor/codemirror/theme/dracula.min.css"}}">
-      <style>
-         .CodeMirror {min-height: 50vh;height: auto;}
-      </style>
-{{end}}
-
-
-<!-- page header -->
-<section aria-label="{{.T.Get "Crons header"}}" x-data="{ searchQuery: '', showSection: false }">
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
-        <div>
-        {{if eq .View "table"}}
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Cron jobs"}}</h1>
-        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Run commands on a schedule, like a WordPress cron, a cleanup script or a nightly report."}}</p>
-
-        {{else if eq .View "code"}}
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Cron file editor"}}</h1>
-        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Edit every job at once in the file the cron container reads."}}</p>
-
-        {{else if eq .View "logs"}}
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Cron job logs"}}</h1>
-        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Output of your cron jobs, newest last. Filter by job to see what a single job did."}}</p>
-        {{end}}
-    </div>
-    <div class="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">
-
-{{if eq .View "logs"}}
-<!-- log filters, the log panel below listens for cron-logs-filter -->
-<div class="flex flex-wrap items-center gap-3" x-data="{ job: {{toJSON .LogJob}}, lines: 100, loading: false,
-        send() { window.dispatchEvent(new CustomEvent('cron-logs-filter', { detail: { job: this.job, lines: this.lines } })); } }"
-     @cron-logs-loading.window="loading = $event.detail">
-            <!-- filter: job name -->
-            <div class="flex items-center gap-2">
-                <label for="cron-log-job" class="text-sm whitespace-nowrap text-gray-500">{{.T.Get "Job"}}</label>
-                <select id="cron-log-job" x-model="job" @change="send()" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 w-auto hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
-                    <option value="">{{.T.Get "All jobs"}}</option>
-                    {{range .CronJobs}}
-                    <option value="{{.Comment}}">{{if .Comment}}{{.Comment}}{{else}}{{.Command}}{{end}}</option>
-                    {{end}}
-                </select>
-            </div>
-
-            <!-- filter: lines -->
-            <div class="flex items-center gap-2">
-                <label for="cron-log-lines" class="text-sm whitespace-nowrap text-gray-500">{{.T.Get "Lines"}}</label>
-                <select id="cron-log-lines" x-model.number="lines" @change="send()" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 w-auto hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
-                    <option value="50">50</option>
-                    <option value="100" selected>100</option>
-                    <option value="250">250</option>
-                    <option value="500">500</option>
-                    <option value="1000">1000</option>
-                </select>
-            </div>
-
-            <!-- refresh -->
-            <button type="button" @click="send()" :disabled="loading" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"><i class="ri-refresh-line text-base" :class="loading ? 'animate-spin' : ''" aria-hidden="true"></i>{{.T.Get "Refresh"}}</button>
-</div>
-{{end}}
-{{if eq .View "table"}}
-                <a href="/cronjobs/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 w-full sm:w-fit border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
-            <i class="ri-add-line text-base" aria-hidden="true"></i>
-            {{.T.Get "Create new"}}
-        </a>
-{{end}}
-
-
-{{if eq .View "code"}}
-
-<form method="post" action="/cronjobs/save">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-<button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 w-full sm:w-auto border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Save changes"}}</button>
 
 {{end}}
-
-    </div>
-</div>
-<!-- END page header -->
 
 {{if eq .View "table"}}
 <script src="{{static "js/cron-times.js"}}"></script>
 <script>
-// shared by the summary and every row: the clock and the last result per job from the log
-const cronFmt = cronTimes({{toJSON .T.Locale}}, {{toJSON .Summary.TimeZone}});
-document.addEventListener('alpine:init', () => {
-    Alpine.store('cronRuns', { loaded: false, last: {}, now: new Date() });
-    setInterval(() => { Alpine.store('cronRuns').now = new Date(); }, 30000);
-});
-</script>
-<script>
-// the stats row: next run from the server, last-run failures from ofelia's log lines
-function cronSummary(locale, timeZone, nextRun, jobs) {
+// the jobs table: search, filters, run times in the cron time zone and last-run failures from ofelia's log lines
+function cronPage(locale, timeZone, jobs) {
     return {
+        searchQuery: '',
+        showSection: false,
+        tzOpen: false,
+        filterOpen: '',
+        filters: { status: 'all', container: 'all' },
+        jobs: jobs || [],
         fmt: cronTimes(locale, timeZone),
-        nextRun: nextRun,
         now: new Date(),
+        last: {},
         failed: null,
+        failedJobs: [],
         init() {
             setInterval(() => { this.now = new Date(); }, 5000);
+            this.checkLogHealth();
             fetch('/cronjobs/log?' + new URLSearchParams({ lines: 1000 }))
                 .then(r => r.ok ? r.json() : [])
                 .then(data => {
                     // [Job "name" (id)] Finished in "1.2s", failed: true, skipped: false, ...
-                    const last = {}, runs = {};
+                    const last = {};
                     const re = /\[Job "([^"]+)"[^\]]*\] Finished in .*?failed: (true|false)/;
                     (Array.isArray(data) ? data : []).forEach(entry => {
-                        const line = String(entry.log || '');
-                        const m = re.exec(line);
-                        if (!m) return;
-                        last[m[1]] = m[2] === 'true';
-                        runs[m[1]] = { failed: m[2] === 'true', at: (line.match(/^\S+/) || [''])[0] };
+                        const m = re.exec(String(entry.log || ''));
+                        if (m) last[m[1]] = m[2] === 'true';
                     });
-                    this.failed = (jobs || []).filter(j => !j.Disabled && last[j.Comment]).length;
-                    Object.assign(Alpine.store('cronRuns'), { loaded: true, last: runs });
+                    this.last = last;
+                    this.failedJobs = this.jobs.filter(j => !j.Disabled && last[j.Comment]).map(j => j.Comment);
+                    this.failed = this.failedJobs.length;
                 })
                 .catch(() => { this.failed = null; });
+        },
+        logErrors: 0,
+        // counted for the inline note, a toast on every visit was too loud
+        checkLogHealth() {
+            fetch('/cronjobs/log?' + new URLSearchParams({ lines: 200 }).toString())
+                .then(r => r.ok ? r.json() : [])
+                .then(data => {
+                    if (!Array.isArray(data)) return;
+                    this.logErrors = data.filter(entry => {
+                        const msg = String(entry.log ?? entry.message ?? entry.msg ?? '').replace(/failed: false|error: none/g, '');
+                        return /\b(error|fatal|failed|denied|refused|exception|panic|critical)\b/i.test(msg);
+                    }).length;
+                })
+                .catch(() => {});
+        },
+        failedLast(job) { return !job.Disabled && !!this.last[job.Comment]; },
+        shown(job) {
+            const q = this.searchQuery.toLowerCase();
+            if (q && ![job.Container, job.Command, job.Schedule, job.Comment].some(v => String(v || '').toLowerCase().includes(q))) return false;
+            const s = this.filters.status;
+            if (s === 'active' && (job.Disabled || this.failedLast(job))) return false;
+            if (s === 'failed' && !this.failedLast(job)) return false;
+            if (s === 'paused' && !job.Disabled) return false;
+            return this.filters.container === 'all' || job.Container === this.filters.container;
+        },
+        activeFilters() { return Object.values(this.filters).filter(v => v !== 'all').length; },
+        resetFilters() { this.filters = { status: 'all', container: 'all' }; },
+        // relative when it's within the hour, the day and clock otherwise
+        nextText(when) {
+            const s = (new Date(when) - this.now) / 1000;
+            return s > 0 && s < 3600 ? this.fmt.from(when, this.now) : this.fmt.day(when) + ' ' + this.fmt.time(when);
         },
     };
 }
 </script>
+{{end}}
 
+<div class="op-content" {{if eq .View "table"}}x-data="cronPage({{toJSON $.T.Locale}}, {{toJSON .Summary.TimeZone}}, {{toJSON .CronJobs}})"{{else}}x-data="{ showSection: false }"{{end}}>
 
-<section aria-label="{{.T.Get "Crons table"}}" x-data="{
-    searchQuery: '',
-    statusFilter: 'all',
+<!-- page header -->
+<div class="op-page-head">
+    <div>
+        {{if eq .View "table"}}
+        {{if .Summary.TimeZone}}<div class="op-eyebrow">{{.T.Get "Time zone"}} {{.Summary.TimeZone}}</div>{{end}}
+        <h1 class="op-title">{{.T.Get "Cron Jobs"}}</h1>
+        <p class="op-meta">{{.T.Get "Scheduled commands that run inside your containers."}}</p>
+        {{else if eq .View "code"}}
+        <div class="op-eyebrow">crons.ini</div>
+        <h1 class="op-title">{{.T.Get "Crons File Editor"}}</h1>
+        <p class="op-meta">{{.T.Get "Edit every job at once in the file the cron container reads."}}</p>
+        {{else if eq .View "logs"}}
+        <h1 class="op-title">{{.T.Get "Cron Job Logs"}}</h1>
+        <p class="op-meta">{{.T.Get "Output of your cron jobs, newest last. Filter by job to see what a single job did."}}</p>
+        {{end}}
+    </div>
+    <div class="op-actions">
+{{if eq .View "logs"}}
+        <button type="button" x-data="{ loading: false }" @cron-logs-loading.window="loading = $event.detail" @click="window.dispatchEvent(new CustomEvent('cron-logs-refresh'))" :disabled="loading" class="op-btn op-btn-secondary"><span :class="loading ? 'animate-spin' : ''" style="display:inline-flex">{{template "op_icon" "refresh"}}</span> {{.T.Get "Refresh"}}</button>
+{{else if eq .View "table"}}
+        <button type="button" @click="showSection = !showSection" :aria-expanded="showSection.toString()" class="op-btn op-btn-ghost">{{template "op_icon" "info"}} {{.T.Get "Need Help?"}}</button>
+{{end}}
+{{if eq .View "table"}}
+        <button type="button" class="op-btn op-btn-ghost" @click="tzOpen = true"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 7v5l3 3"/></svg> {{.T.Get "Change Time Zone"}}</button>
+        <a href="/cronjobs/new" class="op-btn op-btn-primary">{{template "op_icon" "plus"}} {{.T.Get "Create New"}}</a>
+{{else if eq .View "code"}}
+        <a href="/cronjobs" class="op-btn op-btn-secondary">{{.T.Get "Back to table"}}</a>
+        <form id="cron-file-form" method="post" action="/cronjobs/save">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+            <button type="submit" class="op-btn op-btn-primary">{{template "op_icon" "check"}} {{.T.Get "Save Changes"}}</button>
+        </form>
+{{end}}
+    </div>
+</div>
+<!-- END page header -->
 
-    checkLogHealth() {
-        fetch('/cronjobs/log?' + new URLSearchParams({ lines: 200 }).toString())
-            .then(r => r.ok ? r.json() : [])
-            .then(data => {
-                if (typeof reportHealthIssues !== 'function' || !Array.isArray(data)) return;
-                const errorEntries = data.filter(entry => {
-                    const msg = entry.log ?? entry.message ?? entry.msg ?? '';
-                    return /\b(error|fatal|failed|denied|refused|exception|panic|critical)\b/i.test(String(msg));
-                });
-                if (errorEntries.length) {
-                    reportHealthIssues('cronjobs', [{
-                        id: 'cron-log-errors',
-                        severity: 'warning',
-                        message: errorEntries.length + ' ' + {{toJSON (.T.Get "cron log entries contain errors. Check the logs.")}},
-                    }], 24);
-                }
-            })
-            .catch(() => {});
-    }
-}" x-init="checkLogHealth()">
+{{if ne .View "logs"}}
+<!-- field help, shown from the Need Help? button -->
+<section class="op-card" x-show="showSection" x-cloak aria-label="{{.T.Get "Need Help?"}}">
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div>
+            <h3 class="op-h">{{.T.Get "Schedule"}} *</h3>
+            <p class="op-meta"><strong>{{.T.Get "Description"}}:</strong> {{.T.Get "When the job should be executed. E.g. every 10 seconds or every night at 1 AM."}}</p>
+            <p class="op-meta"><strong>{{.T.Get "Value"}}:</strong> {{.T.Get "String, see scheduling format of the Go implementation of cron. E.g. @every 10s or 0 0 1 * * * (every night at 1 AM). Note: the format starts with seconds, instead of minutes."}}</p>
+            <p class="op-meta"><strong>{{.T.Get "Default"}}:</strong> {{.T.Get "Required field, no default."}}</p>
+        </div>
+        <div>
+            <h3 class="op-h">{{.T.Get "Command"}} *</h3>
+            <p class="op-meta"><strong>{{.T.Get "Description"}}:</strong> {{.T.Get "Command you want to run inside the container."}}</p>
+            <p class="op-meta"><strong>{{.T.Get "Value"}}:</strong> {{.T.Get "String, e.g. touch /tmp/example"}}</p>
+            <p class="op-meta"><strong>{{.T.Get "Default"}}:</strong> {{.T.Get "Required field, no default."}}</p>
+        </div>
+        <div>
+            <h3 class="op-h">{{.T.Get "Container"}} *</h3>
+            <p class="op-meta"><strong>{{.T.Get "Description"}}:</strong> {{.T.Get "Name of the container you want to execute the command in."}}</p>
+            <p class="op-meta"><strong>{{.T.Get "Value"}}:</strong> {{.T.Get "String, e.g. nginx-proxy"}}</p>
+            <p class="op-meta"><strong>{{.T.Get "Default"}}:</strong> {{.T.Get "Required field, no default."}}</p>
+        </div>
+        <div>
+            <h3 class="op-h">{{.T.Get "Comment"}}</h3>
+            <p class="op-meta"><strong>{{.T.Get "Description"}}:</strong> {{.T.Get "Name/comment for the cron job"}}</p>
+            <p class="op-meta"><strong>{{.T.Get "Value"}}:</strong> {{.T.Get "String, e.g. job for mysql db dump"}}</p>
+            <p class="op-meta"><strong>{{.T.Get "Default"}}:</strong> {{.T.Get "Optional."}}</p>
+        </div>
+        <div>
+            <h3 class="op-h">{{.T.Get "No overlap"}}</h3>
+            <p class="op-meta"><strong>{{.T.Get "Description"}}:</strong> {{.T.Get "Skip this run if the previous run of this job is still in progress."}}</p>
+            <p class="op-meta"><strong>{{.T.Get "Value"}}:</strong> {{.T.Get "Checkbox, adds a no-overlap line to the job's block when checked."}}</p>
+            <p class="op-meta"><strong>{{.T.Get "Default"}}:</strong> {{.T.Get "Optional, unchecked by default."}}</p>
+        </div>
+    </div>
+</section>
+{{end}}
+
+{{if eq .View "table"}}
 
 {{if .ScheduleIssues}}
 <script>
@@ -165,319 +173,296 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 {{end}}
 
-    {{if .CronJobs}}
-    <!-- summary, the 1px gap over the border colour draws the dividers at any column count -->
-    {{with .Summary}}
-    <div class="px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 gap-px overflow-hidden rounded-md border border-gray-200 bg-gray-200 sm:grid-cols-2 lg:grid-cols-4 dark:border-gray-800 dark:bg-gray-800" x-data="cronSummary({{toJSON $.T.Locale}}, {{toJSON .TimeZone}}, {{toJSON .NextRun}}, {{toJSON $.CronJobs}})">
-        <div class="bg-white p-4 dark:bg-gray-950">
-            <p class="flex items-center gap-1.5 text-sm text-gray-500"><i class="ri-checkbox-circle-line" aria-hidden="true"></i>{{$.T.Get "Active"}}</p>
-            <p class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.Active}} <span class="text-sm font-normal text-gray-500">/ {{.Total}}</span></p>
-        </div>
-        <div class="bg-white p-4 dark:bg-gray-950">
-            <p class="flex items-center gap-1.5 text-sm text-gray-500"><i class="ri-error-warning-line" aria-hidden="true"></i>{{$.T.Get "Failed on last run"}}</p>
-            <p class="mt-1 text-lg font-semibold tabular-nums" :class="failed > 0 ? 'text-red-600 dark:text-red-500' : 'text-gray-900 dark:text-gray-50'" x-text="failed === null ? '–' : failed">–</p>
-        </div>
-        <div class="min-w-0 bg-white p-4 dark:bg-gray-950">
-            <p class="flex min-w-0 items-center gap-1.5 text-sm text-gray-500"><i class="ri-time-line shrink-0" aria-hidden="true"></i><span class="shrink-0">{{$.T.Get "Next run"}}</span>{{if .NextRun}}<span class="truncate">· <span x-text="fmt.time(nextRun)"></span> · {{.NextJob}}</span>{{end}}</p>
-            {{if .NextRun}}
-            <p class="mt-1 truncate text-lg font-semibold text-gray-900 dark:text-gray-50" x-text="fmt.from(nextRun, now)"></p>
-            {{else}}
-            <p class="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-50">–</p>
-            <p class="text-xs text-gray-500">{{$.T.Get "no active jobs scheduled"}}</p>
-            {{end}}
-        </div>
-        <!-- time zone, the pencil turns it into a select -->
-        <div class="min-w-0 bg-white p-4 dark:bg-gray-950" x-data="{ editing: false, hover: false }" @mouseenter="hover = true" @mouseleave="hover = false" @focusin="hover = true" @focusout="hover = false">
-            <div class="flex items-center justify-between gap-2">
-                <p class="flex items-center gap-1.5 text-sm text-gray-500"><i class="ri-global-line" aria-hidden="true"></i>{{$.T.Get "Cron time zone"}}</p>
-                <button type="button" x-show="!editing" @click="editing = true; $nextTick(() => $refs.tzSelect.focus())" :class="hover ? '' : 'opacity-0'"
-                        class="-my-1 inline-flex size-6 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"
-                        title="{{$.T.Get "Change time zone"}}" aria-label="{{$.T.Get "Change time zone"}}"><i class="ri-pencil-line" aria-hidden="true"></i></button>
-            </div>
-            <p x-show="!editing" class="mt-1 truncate text-lg font-semibold text-gray-900 dark:text-gray-50">{{.TimeZone}}</p>
-            <form x-show="editing" x-cloak method="post" action="/cronjobs/timezone" class="mt-1 flex flex-wrap items-center gap-2">
-                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
-                <select name="timezone" x-ref="tzSelect" aria-label="{{$.T.Get "Cron time zone"}}" @keydown.escape="editing = false" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
-                    {{$current := .TimeZone}}
-                    <option value="UTC" {{if eq $current "UTC"}}selected{{end}}>UTC</option>
-                    {{range $.Timezones}}{{if ne . "UTC"}}<option value="{{.}}" {{if eq . $current}}selected{{end}}>{{.}}</option>{{end}}{{end}}
-                </select>
-                <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{$.T.Get "Save"}}</button>
-                <button type="button" @click="editing = false" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent shadow-none bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-800/80">{{$.T.Get "Cancel"}}</button>
-            </form>
-        </div>
-    </div>
-    </div>
-    {{end}}
-    {{end}}
-
-    <!-- toolbar -->
-    <div class="flex flex-col justify-between gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-        <div class="relative w-full sm:w-64">
-            <input x-model="searchQuery" aria-label="{{.T.Get "Search"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 pl-8 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden" placeholder="{{.T.Get "Search"}}" type="search"/>
-            <div class="pointer-events-none absolute inset-y-0 left-2 flex items-center text-gray-400 dark:text-gray-600">
-                <i class="ri-search-line text-base" aria-hidden="true"></i>
-            </div>
-        </div>
-        <div class="inline-flex self-start overflow-hidden rounded-md border border-gray-300 text-xs font-medium dark:border-gray-800" role="group" aria-label="{{.T.Get "Show"}}">
-            <template x-for="f in [['all', {{toJSON (.T.Get "All")}}], ['active', {{toJSON (.T.Get "Active")}}], ['paused', {{toJSON (.T.Get "Paused")}}]]" :key="f[0]">
-                <button type="button" @click="statusFilter = f[0]" :aria-pressed="(statusFilter === f[0]).toString()" :class="statusFilter === f[0] ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50' : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-950 dark:text-gray-400 dark:hover:bg-gray-900'" class="border-r border-gray-300 px-2.5 py-1.5 last:border-r-0 dark:border-gray-800" x-text="f[1]"></button>
-            </template>
-        </div>
-        </div>
-
-    </div>
-
-
+<!-- last-run failures, filled in once the log is read -->
+<div class="op-alert is-danger" role="status" x-show="failed > 0" x-cloak>
+    {{template "op_icon" "alert"}}
+    <span><span x-text="failed"></span> <span x-text="failed === 1 ? '{{.T.Get "cron job failed on its last run:"}}' : '{{.T.Get "cron jobs failed on their last run:"}}'"></span> <span x-text="failedJobs.join(', ')"></span>. <a href="/cronjobs/logs">{{.T.Get "Check the logs"}}</a></span>
+</div>
+<p class="op-meta op-cron-lognote" x-show="!failed && logErrors > 0" x-cloak>{{template "op_icon" "alert"}} <span x-text="logErrors + ' ' + {{toJSON (.T.Get "cron log entries contain errors.")}}"></span> <a href="/cronjobs/logs">{{.T.Get "Check the logs"}}</a></p>
 
 {{if .CronJobs}}
-{{template "bulk_open" (dict "T" .T "Table" "#cronjobs-table" "Endpoint" "/cronjobs/bulk")}}
-   <div class="overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-            <table id="cronjobs-table" class="w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
-                <thead>
-                    <tr>
-                        {{template "bulk_head_checkbox" .}}
-                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1">
-                            {{template "sort_header" (dict "Label" (.T.Get "Enabled") "Key" "status" "Type" "number")}}
-                        </th>
-                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1">
-                            {{template "sort_header" (dict "Label" (.T.Get "Schedule") "Key" "schedule" "Type" "string")}}
-                        </th>
-                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1">
-                            {{template "sort_header" (dict "Label" (.T.Get "Job") "Key" "comment" "Type" "string")}}
-                        </th>
-                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1">
-                            {{template "sort_header" (dict "Label" (.T.Get "Container") "Key" "container" "Type" "string")}}
-                        </th>
-                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1">
-                            {{.T.Get "Last run"}}
-                        </th>
-                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 py-1">
-                            {{template "sort_header" (dict "Label" (.T.Get "Next run") "Key" "next" "Type" "string")}}
-                        </th>
-                        <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 w-10 text-right">
-                            <span class="sr-only">{{.T.Get "Actions"}}</span>
-                        </th>
-                    </tr>
-                </thead>
-        <tbody>
-        {{range .CronJobs}}
-        {{$item := .}}
-
-<tr x-data="{ editing: false }" x-show="(statusFilter === 'all' || (statusFilter === 'paused') === {{if $item.Disabled}}true{{else}}false{{end}}) && (searchQuery === '' || {{toJSON $item.Container}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $item.Command}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $item.Schedule}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $item.Comment}}.toLowerCase().includes(searchQuery.toLowerCase()))" class="domain_row hover:bg-gray-50 dark:hover:bg-gray-900/60{{if and $.Created (eq $.Created $item.Comment)}} bg-gray-50 dark:bg-gray-900{{end}}">
-{{$row := $.Row $item}}{{$skip := "enable"}}{{if $item.Disabled}}{{$skip = "disable"}}{{end}}
-{{template "bulk_row_checkbox" (dict "T" $.T "Key" $item.Key "Label" $item.Comment "Skip" $skip)}}
-                <!-- on/off, outside the edit form since forms can't nest -->
-                <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400" data-sort-col="status" data-sort-value="{{if $item.Disabled}}0{{else}}1{{end}}">
-                    <form method="post" action="/cronjobs/toggle" class="flex justify-center">
-                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
-                        <input type="hidden" name="key" value="{{$item.Key}}"/>
-                        <input type="hidden" name="enabled" value="{{if $item.Disabled}}1{{else}}0{{end}}"/>
-                        <input type="checkbox" role="switch" {{if not $item.Disabled}}checked{{end}} onchange="this.form.submit()" title="{{if $item.Disabled}}{{$.T.Get "Click to enable"}}{{else}}{{$.T.Get "Click to disable"}}{{end}}" aria-label="{{if $item.Disabled}}{{$.T.Get "Enable"}}{{else}}{{$.T.Get "Disable"}}{{end}} {{$item.Comment}}">
-                    </form>
-                </td>
-
-                <form id="editForm" method="post" action="/cronjobs/edit">
-    <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
-
-                <input type="text" class="hidden" name="original_command" value="{{$item.Command}}" required>
-                <input type="text" class="hidden" name="original_schedule" value="{{$item.Schedule}}" required>
-                <input type="text" class="hidden" name="original_container" value="{{$item.Container}}" required>
-                <input type="text" class="hidden" name="original_comment" value="{{$item.Comment}}" required>
-
-                <td x-show="!editing" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
-                    <span class="block font-mono text-xs text-gray-900 dark:text-gray-50" data-sort-col="schedule">{{$item.Schedule}}</span>
-                    {{if $row.Text}}<span class="mt-0.5 block text-xs text-gray-500">{{$row.Text}}</span>{{else if $row.Invalid}}<span class="mt-0.5 block text-xs text-red-600 dark:text-red-500">{{$.T.Get "Invalid schedule"}}</span>{{end}}
-                </td>
-                <td x-show="!editing" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
-                    {{if and $.Created (eq $.Created $item.Comment)}}<span class="float-right ml-2 rounded-md bg-blue-50 px-1.5 text-xs font-medium text-blue-900 ring-1 ring-inset ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30">{{$.T.Get "Just added"}}</span>{{end}}
-                    {{if $item.Comment}}<span class="block max-w-64 truncate font-medium text-gray-900 2xl:max-w-sm dark:text-gray-50" title="{{$item.Comment}}" data-sort-col="comment">{{$item.Comment}}</span>{{else}}<span class="block text-gray-400 dark:text-gray-500" data-sort-col="comment" data-sort-value="">{{$.T.Get "No name"}}</span>{{end}}
-                    <span class="mt-0.5 flex items-center gap-2"><code class="block max-w-64 truncate font-mono text-xs text-gray-500 2xl:max-w-sm" title="{{$item.Command}}">{{$item.Command}}</code>{{if $item.NoOverlap}}<span class="shrink-0 rounded-md bg-gray-100 px-1.5 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400">{{$.T.Get "No overlap"}}</span>{{end}}</span>
-                </td>
-                <td x-show="!editing" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-center" data-sort-col="container">{{$item.Container}}</td>
-                <td x-show="!editing" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-center">
-                    {{if $item.Disabled}}<span class="text-gray-500">{{$.T.Get "Paused"}}</span>{{else}}
-                    <span x-show="!$store.cronRuns.loaded" class="text-gray-400 dark:text-gray-500">—</span>
-                    <template x-if="$store.cronRuns.loaded">
-                        <span class="inline-flex items-center gap-1.5" :title="$store.cronRuns.last[{{toJSON $item.Comment}}] ? $store.cronRuns.last[{{toJSON $item.Comment}}].at : ''">
-                            <template x-if="!$store.cronRuns.last[{{toJSON $item.Comment}}]"><span class="text-gray-400 dark:text-gray-500">{{$.T.Get "Not in the log"}}</span></template>
-                            <template x-if="$store.cronRuns.last[{{toJSON $item.Comment}}]">
-                                <span class="inline-flex items-center gap-1.5" :class="$store.cronRuns.last[{{toJSON $item.Comment}}].failed ? 'text-red-600 dark:text-red-500' : 'text-emerald-700 dark:text-emerald-500'">
-                                    <span class="size-1.5 rounded-full" :class="$store.cronRuns.last[{{toJSON $item.Comment}}].failed ? 'bg-red-500' : 'bg-emerald-500'" aria-hidden="true"></span>
-                                    <span x-text="$store.cronRuns.last[{{toJSON $item.Comment}}].failed ? {{toJSON ($.T.Get "Failed")}} : {{toJSON ($.T.Get "Succeeded")}}"></span>
-                                </span>
-                            </template>
-                        </span>
-                    </template>{{end}}
-                </td>
-                {{$next := $row.NextRun}}
-                <td x-show="!editing" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-center tabular-nums" data-sort-col="next" data-sort-value="{{if $next}}{{$next}}{{else}}9{{end}}">
-                    {{if $next}}<span title="{{$next}}" x-text="cronFmt.from({{toJSON $next}}, $store.cronRuns.now)"></span>{{else}}<span class="text-gray-400 dark:text-gray-500">—</span>{{end}}
-                </td>
-
-                <td x-show="editing" x-cloak class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 w-48">
-                            <input type="text" name="schedule" aria-label="{{$.T.Get "Schedule"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 font-mono" value="{{$item.Schedule}}">
-                </td>
-                <td x-show="editing" x-cloak class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 w-full">
-                    <div class="flex flex-col gap-2">
-                            <input type="text" name="comment" aria-label="{{$.T.Get "Comment"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" placeholder="{{$.T.Get "optional"}}" value="{{$item.Comment}}">
-                            <input type="text" name="command" aria-label="{{$.T.Get "Command"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 font-mono" value="{{$item.Command}}">
-                    </div>
-                </td>
-                <td x-show="editing" x-cloak class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 w-48">
-                    <select name="container" aria-label="{{$.T.Get "Container"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]" required>
-{{range $.Services}}
-    <option value="{{.}}" {{if eq . $item.Container}}selected{{end}}>{{.}}</option>
+<section class="op-card" aria-label="{{.T.Get "Crons Table"}}">
+    <div class="op-toolbar">
+        <label class="op-search">{{template "op_icon" "search"}}<input class="op-input" type="search" x-model="searchQuery" placeholder="{{.T.Get "Search jobs"}}" aria-label="{{.T.Get "Search jobs"}}"></label>
+        <div class="op-md-only">
+            <div style="position:relative" x-data="{ open: false }" @click.outside="open = false" @keydown.escape="open = false">
+                <button type="button" class="op-filter" :class="filters.status !== 'all' && 'is-set'" :aria-expanded="open.toString()" @click="open = !open">
+                    <span x-text="filters.status === 'all' ? {{toJSON (.T.Get "Status")}} : {{toJSON (.T.Get "Status")}} + ': ' + ({ active: {{toJSON (.T.Get "Active")}}, failed: {{toJSON (.T.Get "Failed on last run")}}, paused: {{toJSON (.T.Get "Paused")}} })[filters.status]">{{.T.Get "Status"}}</span>
+                    {{template "op_icon" "chev"}}
+                </button>
+                <div class="op-menu op-options-list" x-show="open" x-cloak style="left:0;top:40px">
+                    <label><input type="radio" name="cron-filter-status" value="all" x-model="filters.status" @change="open = false"> {{.T.Get "All"}}</label>
+                    <label><input type="radio" name="cron-filter-status" value="active" x-model="filters.status" @change="open = false"> {{.T.Get "Active"}}</label>
+                    <label><input type="radio" name="cron-filter-status" value="failed" x-model="filters.status" @change="open = false"> {{.T.Get "Failed on last run"}}</label>
+                    <label><input type="radio" name="cron-filter-status" value="paused" x-model="filters.status" @change="open = false"> {{.T.Get "Paused"}}</label>
+                </div>
+            </div>
+{{if .Services}}
+            <div style="position:relative" x-data="{ open: false }" @click.outside="open = false" @keydown.escape="open = false">
+                <button type="button" class="op-filter" :class="filters.container !== 'all' && 'is-set'" :aria-expanded="open.toString()" @click="open = !open">
+                    <span x-text="filters.container === 'all' ? {{toJSON (.T.Get "Container")}} : {{toJSON (.T.Get "Container")}} + ': ' + filters.container">{{.T.Get "Container"}}</span>
+                    {{template "op_icon" "chev"}}
+                </button>
+                <div class="op-menu op-options-list" x-show="open" x-cloak style="left:0;top:40px">
+                    <label><input type="radio" name="cron-filter-container" value="all" x-model="filters.container" @change="open = false"> {{.T.Get "All"}}</label>
+                    {{range .Services}}<label><input type="radio" name="cron-filter-container" value="{{.}}" x-model="filters.container" @change="open = false"> {{.}}</label>{{end}}
+                </div>
+            </div>
 {{end}}
-                    </select>
-                </td>
-                <td x-show="editing" x-cloak class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
-                    <label class="inline-flex items-center gap-2 text-sm text-gray-900 dark:text-gray-50"><input type="checkbox" name="no_overlap" value="1" {{if $item.NoOverlap}}checked{{end}}> {{$.T.Get "No overlap"}}</label>
-                </td>
-                <td x-show="editing" x-cloak class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400"></td>
-
-                <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-right">
-
-<div class="flex items-center justify-end gap-0.5" role="group" aria-label="{{$.T.Get "Actions"}}">
-
-    <button type="button" @click="editing = true" x-show="!editing" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" title="{{$.T.Get "Edit"}}" aria-label="{{$.T.Get "Edit"}} {{$item.Comment}}"><i class="ri-pencil-line text-base" aria-hidden="true"></i></button>
-
-                            <button x-show="editing" x-cloak type="submit" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" title="{{$.T.Get "Save"}}" aria-label="{{$.T.Get "Save"}} {{$item.Comment}}"><i class="ri-check-line text-base" aria-hidden="true"></i></button>
-
-                    </form>
-
-            <!-- Run now, opens a modal streaming the job's live output over a websocket -->
-            <span x-data="{
-                runOpen: false,
-                runStatus: 'idle',
-                runOutput: '',
-                runExitCode: null,
-                runWs: null,
-
-                runStart() {
-                    this.runOutput = '';
-                    this.runExitCode = null;
-                    this.runStatus = 'connecting';
-
-                    const params = new URLSearchParams({
-                        comment: {{toJSON $item.Comment}},
-                        schedule: {{toJSON $item.Schedule}},
-                        container: {{toJSON $item.Container}},
-                        command: {{toJSON $item.Command}},
-                    });
-                    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-                    this.runWs = new WebSocket(proto + '://' + location.host + '/ws/cronjobs/run?' + params.toString());
-
-                    this.runWs.onopen = () => { this.runStatus = 'running'; };
-                    this.runWs.onmessage = (evt) => {
-                        let msg;
-                        try { msg = JSON.parse(evt.data); } catch { return; }
-                        if (msg.type === 'output') {
-                            this.runOutput += msg.data;
-                            this.$nextTick(() => { if (this.$refs.runOutputBox) this.$refs.runOutputBox.scrollTop = this.$refs.runOutputBox.scrollHeight; });
-                        } else if (msg.type === 'exit') {
-                            this.runExitCode = msg.code;
-                            this.runStatus = 'done';
-                        }
-                    };
-                    this.runWs.onerror = () => { this.runStatus = 'error'; };
-                    this.runWs.onclose = () => { if (this.runStatus !== 'done') this.runStatus = 'error'; };
-                },
-
-                openRun() { this.runOpen = true; this.runStart(); },
-
-                closeRun() {
-                    this.runOpen = false;
-                    if (this.runWs) { try { this.runWs.close(); } catch (_) {} this.runWs = null; }
-                },
-
-                runStatusText() {
-                    if (this.runStatus === 'connecting') return {{toJSON ($.T.Get "Connecting…")}};
-                    if (this.runStatus === 'running') return {{toJSON ($.T.Get "Running…")}};
-                    if (this.runStatus === 'error') return {{toJSON ($.T.Get "Connection error")}};
-                    if (this.runExitCode === 0) return {{toJSON ($.T.Get "Finished successfully")}};
-                    return {{toJSON ($.T.Get "Finished with exit code")}} + ' ' + this.runExitCode;
-                }
-            }">
-                <button type="button" @click="openRun()" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" title="{{$.T.Get "Run now"}}" aria-label="{{$.T.Get "Run now"}} {{$item.Comment}}"><i class="ri-play-line text-base" aria-hidden="true"></i></button>
-
-                <template x-teleport="body">
-                    <div x-show="runOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" @keydown.escape.window="closeRun()">
-                        <div class="w-full max-w-lg rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-900 dark:bg-raised flex max-w-2xl flex-col text-left" style="max-height: 80vh;" @click.outside="closeRun()" role="dialog" aria-modal="true" aria-labelledby="run-title-{{$item.Key}}">
-
-                            <div class="flex items-center justify-between gap-4 px-6 py-4">
-                                <div class="min-w-0">
-                                    <h2 id="run-title-{{$item.Key}}" class="text-base font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Run cron job"}}</h2>
-                                    <p class="mt-0.5 truncate text-sm text-gray-500">{{$item.Comment}} — {{$item.Container}}</p>
-                                </div>
-                                <button type="button" @click="closeRun()" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" aria-label="{{$.T.Get "Close"}}"><i class="ri-close-line text-lg" aria-hidden="true"></i></button>
-                            </div>
-
-                            <div class="flex items-center gap-2 border-t border-gray-200 px-6 py-2 text-xs dark:border-gray-900" role="status">
-                                <span class="inline-block size-2 rounded-full"
-                                      :class="{ 'bg-yellow-500': runStatus === 'connecting', 'bg-blue-500 animate-pulse': runStatus === 'running', 'bg-emerald-500': runStatus === 'done' && runExitCode === 0, 'bg-red-500': runStatus === 'error' || (runStatus === 'done' && runExitCode !== 0) }"></span>
-                                <span class="text-gray-500" x-text="runStatusText()"></span>
-                            </div>
-
-                            <div class="min-h-40 flex-1 overflow-y-auto bg-gray-950 px-6 py-3" x-ref="runOutputBox">
-                                <pre class="min-h-full font-mono text-xs break-all whitespace-pre-wrap text-gray-50" x-text="runOutput || {{toJSON ($.T.Get "Waiting for output…")}}"></pre>
-                            </div>
-
-                            <div class="flex flex-col-reverse gap-2 border-t border-gray-200 px-6 py-4 sm:flex-row sm:justify-end dark:border-gray-900">
-                                <button type="button" @click="closeRun()" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{$.T.Get "Close"}}</button>
-                                <button type="button" @click="runStart()" :disabled="runStatus === 'connecting' || runStatus === 'running'" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{$.T.Get "Run again"}}</button>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </span>
-
-            <!-- per-row logs, filtered to this job -->
-            <a href="/cronjobs/logs?job={{$item.Comment}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" title="{{$.T.Get "Logs"}}" aria-label="{{$.T.Get "Logs"}} {{$item.Comment}}"><i class="ri-file-list-3-line text-base" aria-hidden="true"></i></a>
-
-                        <form method="POST" class="inline" action="/cronjobs/delete">
-    <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
-
-    <input type="text" class="hidden" name="command" value="{{$item.Command}}" required>
-                            <input type="text" class="hidden" name="schedule" value="{{$item.Schedule}}" required>
-                            <input type="text" class="hidden" name="container" value="{{$item.Container}}" required>
-                            <input type="text" class="hidden" name="comment" value="{{$item.Comment}}" required>
-
-                            <button type="button" onclick="confirmDelete(this);" class="inline-flex h-8 min-w-8 shrink-0 items-center justify-center gap-1 rounded-md px-1.5 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 hover:text-red-600 dark:hover:text-red-500" title="{{$.T.Get "Delete"}}" aria-label="{{$.T.Get "Delete"}} {{$item.Comment}}"><i class="ri-delete-bin-line text-base leading-none" aria-hidden="true"></i></button>
-                            </form>
-
-</div>
-
-                </td>
-            </tr>
-
-        {{end}}
-        </tbody>
-            </table>
+        </div>
+        <button class="op-filter op-md-hide" type="button" :class="activeFilters() && 'is-set'" @click="filterOpen = 'sheet'">{{template "op_icon" "filter"}} {{.T.Get "Filters"}} <b x-show="activeFilters()" x-text="activeFilters()"></b></button>
     </div>
 
+{{template "bulk_open" (dict "T" .T "Table" "#cronjobs-table" "Endpoint" "/cronjobs/bulk")}}
+    <div class="op-table-wrap">
+        <table id="cronjobs-table" class="op-table">
+            <thead>
+                <tr>
+                    <th scope="col" class="is-shrink"><input type="checkbox" class="op-check" :checked="bulkAllChecked" :indeterminate="bulkSomeChecked" @change="bulkToggleAll($event.target.checked)" aria-label="{{.T.Get "Select all"}}"></th>
+                    <th scope="col">{{template "sort_header" (dict "Label" (.T.Get "Schedule") "Key" "schedule" "Type" "string")}}</th>
+                    <th scope="col">{{template "sort_header" (dict "Label" (.T.Get "Command") "Key" "command" "Type" "string")}}</th>
+                    <th scope="col">{{template "sort_header" (dict "Label" (.T.Get "Status") "Key" "status" "Type" "number")}}</th>
+                    <th scope="col">{{template "sort_header" (dict "Label" (.T.Get "Next run") "Key" "next" "Type" "string")}}</th>
+                    <th scope="col">{{.T.Get "Enabled"}}</th>
+                    <th scope="col" class="is-shrink"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
+                </tr>
+            </thead>
+            <tbody>
+{{range $i, $item := .CronJobs}}
+{{$row := $.Row $item}}
+{{$fid := printf "cron-edit-%d" $i}}{{if eq $i 0}}{{$fid = "editForm"}}{{end}}
+{{$skip := "enable"}}{{if $item.Disabled}}{{$skip = "disable"}}{{end}}
+                <tr class="domain_row{{if and $.Created (eq $item.Comment $.Created)}} op-cf-new-row{{end}}" x-data="{ editing: false }" x-show="shown({{toJSON $item}})" :aria-selected="(!!bulkSelected[{{toJSON $item.Key}}]).toString()">
+                    <td class="is-shrink"><input type="checkbox" class="bulk-select-box op-check" value="{{$item.Key}}" data-bulk-skip="{{$skip}}" :checked="!!bulkSelected[{{toJSON $item.Key}}]" @change="bulkToggle($event.target)" aria-label="{{$.T.Get "Select"}} {{$item.Comment}}"></td>
+                    <td data-sort-col="schedule" data-sort-value="{{$item.Schedule}}">
+                        <div class="op-row-title" x-show="!editing">
+                            <span class="op-file-ico" style="--hue:var(--color-hue-yellow)"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 7v5l3 3"/></svg></span>
+                            <div><b><span class="op-mono" style="font-size:13px">{{$item.Schedule}}</span></b>{{if and $.Created (eq $item.Comment $.Created)}}<span class="op-tag op-cf-tag-new">{{$.T.Get "New"}}</span>{{end}}{{with $row.Text}}<span class="op-sub">{{.}}</span>{{end}}</div>
+                        </div>
+                        <input x-show="editing" x-cloak form="{{$fid}}" type="text" name="schedule" class="op-input op-mono" style="min-width:150px" value="{{$item.Schedule}}" aria-label="{{$.T.Get "Schedule"}}">
+                    </td>
+                    <td data-label="{{$.T.Get "Command"}}" data-sort-col="command" data-sort-value="{{$item.Command}}">
+                        <span x-show="!editing" style="display:block;min-width:0">
+                            <span class="op-mono" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:320px;color:var(--color-heading)" title="{{$item.Command}}">{{$item.Command}}</span>
+                            <span class="op-sub"><span data-sort-col="container">{{$item.Container}}</span>{{if $item.Comment}} · <span data-sort-col="comment">{{$item.Comment}}</span>{{end}}{{if $item.NoOverlap}} · {{$.T.Get "No overlap"}}{{end}}</span>
+                        </span>
+                        <div x-show="editing" x-cloak class="op-stack" style="gap:6px;min-width:260px">
+                            <input form="{{$fid}}" type="text" name="command" class="op-input op-mono" value="{{$item.Command}}" aria-label="{{$.T.Get "Command"}}">
+                            <div style="display:flex;flex-wrap:wrap;gap:6px">
+                                <select form="{{$fid}}" name="container" class="op-select op-select-sm w-auto" required aria-label="{{$.T.Get "Container"}}">
+{{range $.Services}}
+                                    <option value="{{.}}" {{if eq . $item.Container}}selected{{end}}>{{.}}</option>
+{{end}}
+                                </select>
+                                <input form="{{$fid}}" type="text" name="comment" class="op-input" style="flex:1;min-width:120px;height:30px" placeholder="{{$.T.Get "optional"}}" value="{{$item.Comment}}" aria-label="{{$.T.Get "Name/Comment"}}">
+                            </div>
+                            <label class="op-check-label" style="display:inline-flex;align-items:center;gap:8px"><input form="{{$fid}}" type="checkbox" name="no_overlap" value="1" {{if $item.NoOverlap}}checked{{end}} class="op-check"> {{$.T.Get "No overlap"}}</label>
+                        </div>
+                    </td>
+                    <td data-label="{{$.T.Get "Status"}}" data-sort-col="status" data-sort-value="{{if $item.Disabled}}0{{else}}1{{end}}">
+                        {{if $item.Disabled}}<span class="op-status is-muted">{{$.T.Get "Paused"}}</span>
+                        {{else if $row.Invalid}}<span class="op-status is-warning">{{$.T.Get "Invalid schedule"}}</span>
+                        {{else}}<span class="op-status" :class="failedLast({{toJSON $item}}) ? 'is-danger' : 'is-success'" x-text="failedLast({{toJSON $item}}) ? {{toJSON ($.T.Get "Failed on last run")}} : {{toJSON ($.T.Get "Active")}}">{{$.T.Get "Active"}}</span>{{end}}
+                    </td>
+                    <td data-label="{{$.T.Get "Next run"}}" data-sort-col="next" data-sort-value="{{$row.NextRun}}">
+                        {{if $row.NextRun}}<span class="op-mono" :title="fmt.from({{toJSON $row.NextRun}}, now)" x-text="nextText({{toJSON $row.NextRun}})"></span>{{else}}<span class="op-mono">&mdash;</span>{{end}}
+                    </td>
+                    <td data-label="{{$.T.Get "Enabled"}}">
+                        <!-- on/off, its own form since forms can't nest -->
+                        <form method="post" action="/cronjobs/toggle">
+                            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+                            <input type="hidden" name="key" value="{{$item.Key}}"/>
+                            <input type="hidden" name="enabled" value="{{if $item.Disabled}}1{{else}}0{{end}}"/>
+                            <button type="submit" class="op-switch" role="switch" aria-checked="{{if $item.Disabled}}false{{else}}true{{end}}" title="{{if $item.Disabled}}{{$.T.Get "Click to enable"}}{{else}}{{$.T.Get "Click to disable"}}{{end}}" aria-label="{{if $item.Disabled}}{{$.T.Get "Enable"}}{{else}}{{$.T.Get "Disable"}}{{end}} {{$item.Comment}}"></button>
+                        </form>
+                    </td>
+                    <td class="is-shrink op-cell-menu" style="position:relative">
+                        <!-- inline edit, the inputs in the other cells join this form by its id -->
+                        <form id="{{$fid}}" method="post" action="/cronjobs/edit" x-show="editing" x-cloak style="display:flex;gap:2px">
+                            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+                            <input type="hidden" name="original_command" value="{{$item.Command}}">
+                            <input type="hidden" name="original_schedule" value="{{$item.Schedule}}">
+                            <input type="hidden" name="original_container" value="{{$item.Container}}">
+                            <input type="hidden" name="original_comment" value="{{$item.Comment}}">
+                            <button type="submit" class="op-icon-btn" title="{{$.T.Get "Save"}}" aria-label="{{$.T.Get "Save"}} {{$item.Comment}}">{{template "op_icon" "check"}}</button>
+                            <button type="button" class="op-icon-btn" @click="editing = false" title="{{$.T.Get "Cancel"}}" aria-label="{{$.T.Get "Cancel"}}">{{template "op_icon" "x"}}</button>
+                        </form>
+
+                        <!-- Run now opens a modal streaming the job's live output over a websocket -->
+                        <div x-show="!editing" @cron-run="openRun()" x-data="{
+                            runOpen: false,
+                            runStatus: 'idle',
+                            runOutput: '',
+                            runExitCode: null,
+                            runWs: null,
+
+                            runStart() {
+                                this.runOutput = '';
+                                this.runExitCode = null;
+                                this.runStatus = 'connecting';
+
+                                const params = new URLSearchParams({
+                                    comment: {{toJSON $item.Comment}},
+                                    schedule: {{toJSON $item.Schedule}},
+                                    container: {{toJSON $item.Container}},
+                                    command: {{toJSON $item.Command}},
+                                });
+                                const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+                                this.runWs = new WebSocket(proto + '://' + location.host + '/ws/cronjobs/run?' + params.toString());
+
+                                this.runWs.onopen = () => { this.runStatus = 'running'; };
+                                this.runWs.onmessage = (evt) => {
+                                    let msg;
+                                    try { msg = JSON.parse(evt.data); } catch { return; }
+                                    if (msg.type === 'output') {
+                                        this.runOutput += msg.data;
+                                        this.$nextTick(() => { if (this.$refs.runOutputBox) this.$refs.runOutputBox.scrollTop = this.$refs.runOutputBox.scrollHeight; });
+                                    } else if (msg.type === 'exit') {
+                                        this.runExitCode = msg.code;
+                                        this.runStatus = 'done';
+                                    }
+                                };
+                                this.runWs.onerror = () => { this.runStatus = 'error'; };
+                                this.runWs.onclose = () => { if (this.runStatus !== 'done') this.runStatus = 'error'; };
+                            },
+
+                            openRun() { this.runOpen = true; this.runStart(); },
+
+                            closeRun() {
+                                this.runOpen = false;
+                                if (this.runWs) { try { this.runWs.close(); } catch (_) {} this.runWs = null; }
+                            },
+
+                            runStatusText() {
+                                if (this.runStatus === 'connecting') return {{toJSON ($.T.Get "Connecting…")}};
+                                if (this.runStatus === 'running') return {{toJSON ($.T.Get "Running…")}};
+                                if (this.runStatus === 'error') return {{toJSON ($.T.Get "Connection error")}};
+                                if (this.runExitCode === 0) return {{toJSON ($.T.Get "Finished successfully")}};
+                                return {{toJSON ($.T.Get "Finished with exit code")}} + ' ' + this.runExitCode;
+                            }
+                        }">
+                            <template x-teleport="body">
+                                <div x-show="runOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center" style="background: rgba(0,0,0,0.5);" @keydown.escape.window="closeRun()">
+                                    <div class="op-modal op-scope" role="dialog" aria-modal="true" aria-label="{{$.T.Get "Run Cron Job"}}" style="max-height: 80vh;" @click.outside="closeRun()">
+                                        <div class="op-modal-head">
+                                            <div>
+                                                <h2 class="op-h">{{$.T.Get "Run Cron Job"}}</h2>
+                                                <p class="op-hint">{{$item.Comment}} · {{$item.Container}}</p>
+                                            </div>
+                                            <button type="button" @click="closeRun()" class="op-icon-btn" aria-label="{{$.T.Get "Close"}}">{{template "op_icon" "x"}}</button>
+                                        </div>
+                                        <div class="op-modal-body">
+                                            <p class="flex items-center gap-2 text-xs" style="margin:0 0 10px">
+                                                <span class="op-dot" :class="{ 'is-warning': runStatus === 'connecting', 'op-accent-text animate-pulse': runStatus === 'running', 'is-success': runStatus === 'done' && runExitCode === 0, 'is-danger': runStatus === 'error' || (runStatus === 'done' && runExitCode !== 0) }"></span>
+                                                <span class="op-muted" x-text="runStatusText()"></span>
+                                            </p>
+                                            <pre x-ref="runOutputBox" class="op-pre" style="white-space:pre-wrap;word-break:break-all;min-height:160px" x-text="runOutput || {{toJSON ($.T.Get "Waiting for output…")}}"></pre>
+                                        </div>
+                                        <div class="op-modal-foot" style="justify-content:flex-end">
+                                            <button type="button" @click="closeRun()" class="op-btn op-btn-secondary">{{$.T.Get "Close"}}</button>
+                                            <button type="button" @click="runStart()" :disabled="runStatus === 'connecting' || runStatus === 'running'" class="op-btn op-btn-primary">{{$.T.Get "Run Again"}}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <div x-data="opMenu()" @click.outside="open = false" @keydown.escape="open = false">
+                                <button class="op-icon-btn" type="button" aria-label="{{$.T.Get "Actions"}} {{$item.Comment}}" :aria-expanded="open.toString()" x-ref="btn" @click="toggle()">{{template "op_icon" "dots"}}</button>
+                                <div class="op-menu" x-ref="menu" x-show="open" x-cloak>
+                                    <button type="button" @click="open = false; setTimeout(() => $dispatch('cron-run'), 0)">{{template "op_icon" "refresh"}} {{$.T.Get "Run now"}}</button>
+                                    <button type="button" @click="open = false; editing = true">{{template "op_icon" "pencil"}} {{$.T.Get "Edit"}}</button>
+                                    <!-- per-row logs, filtered to this job -->
+                                    <a href="/cronjobs/logs?job={{$item.Comment}}">{{template "op_icon" "logs"}} {{$.T.Get "View logs"}}</a>
+                                    <hr>
+                                    <form method="POST" action="/cronjobs/delete">
+                                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+                                        <input type="hidden" name="command" value="{{$item.Command}}">
+                                        <input type="hidden" name="schedule" value="{{$item.Schedule}}">
+                                        <input type="hidden" name="container" value="{{$item.Container}}">
+                                        <input type="hidden" name="comment" value="{{$item.Comment}}">
+                                        <button type="button" class="is-danger" onclick="confirmDelete(this);">{{template "op_icon" "trash"}} <span data-label>{{$.T.Get "Delete"}}</span></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+{{end}}
+            </tbody>
+        </table>
+    </div>
+    <div class="op-empty" x-show="!jobs.some(j => shown(j))" x-cloak>
+        <b>{{.T.Get "Nothing matches"}}</b>
+        <span class="op-hint">{{.T.Get "Try another search or clear the filters."}}</span>
+        <button type="button" class="op-btn op-btn-secondary" @click="searchQuery = ''; resetFilters()">{{.T.Get "Clear filters"}}</button>
+    </div>
 {{template "bulk_bar" .}}
+</div>
+    <div class="op-tfoot"><span>{{.T.Get "%(total)s jobs, %(active)s active" "total" (printf "%d" (len .CronJobs)) "active" (printf "%d" .Summary.Active)}}</span></div>
+</section>
+
+<!-- filters on phones -->
+<div class="op-scrim" x-show="filterOpen === 'sheet'" x-cloak @click="filterOpen = ''"></div>
+<div class="op-sheet" role="dialog" aria-modal="true" aria-label="{{.T.Get "Filters"}}" x-show="filterOpen === 'sheet'" x-cloak @keydown.escape.window="filterOpen = ''">
+    <h2>{{.T.Get "Filters"}}</h2>
+    <div class="op-stack" style="margin:16px 0 20px">
+        <label class="op-field"><span class="op-label">{{.T.Get "Status"}}</span>
+            <select class="op-select" x-model="filters.status">
+                <option value="all">{{.T.Get "All"}}</option>
+                <option value="active">{{.T.Get "Active"}}</option>
+                <option value="failed">{{.T.Get "Failed on last run"}}</option>
+                <option value="paused">{{.T.Get "Paused"}}</option>
+            </select>
+        </label>
+{{if .Services}}
+        <label class="op-field"><span class="op-label">{{.T.Get "Container"}}</span>
+            <select class="op-select" x-model="filters.container">
+                <option value="all">{{.T.Get "All"}}</option>
+                {{range .Services}}<option value="{{.}}">{{.}}</option>{{end}}
+            </select>
+        </label>
+{{end}}
+    </div>
+    <div class="op-actions">
+        <button class="op-btn op-btn-secondary" type="button" @click="resetFilters()">{{.T.Get "Reset"}}</button>
+        <button class="op-btn op-btn-primary" type="button" style="flex:1" @click="filterOpen = ''">{{.T.Get "Show results"}}</button>
+    </div>
 </div>
 
 {{else}}
 <!-- no crons table -->
-<div class="mx-4 sm:mx-6 lg:mx-8 flex gap-3 rounded-md p-4 text-sm bg-gray-100 text-gray-900 dark:bg-gray-800/70 dark:text-gray-400">
-    <i class="ri-time-line text-base" aria-hidden="true"></i>
-    <div>
-        <p class="font-semibold">{{.T.Get "No cronjobs."}}</p>
-        <p class="mt-1 max-w-2xl text-gray-600 dark:text-gray-400">
-            {{.T.Get "No cronjobs yet, to create a cron click on the button above."}}
-            <a href="https://openpanel.com/docs/panel/cronjobs/" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "View documentation"}}<i class="ri-arrow-right-up-line" aria-hidden="true"></i></a>
-        </p>
+<section class="op-card" aria-label="{{.T.Get "Crons Table"}}">
+    <div class="op-empty">
+        <b>{{.T.Get "No cronjobs."}}</b>
+        <span class="op-hint">{{.T.Get "No cronjobs yet, to create a cron click on the button above."}}
+            <a href="https://openpanel.com/docs/panel/cronjobs/" target="_blank" class="op-accent-text">{{.T.Get "View Documentation"}}</a></span>
     </div>
-</div>
+</section>
 <!-- END no crons table -->
 {{end}}
 
-
-</section>
+<!-- time zone the cron service runs in -->
+<div class="op-scrim" x-show="tzOpen" x-cloak @click="tzOpen = false"></div>
+<div class="op-sheet" role="dialog" aria-modal="true" aria-label="{{.T.Get "Cron time zone"}}" x-show="tzOpen" x-cloak @keydown.escape.window="tzOpen = false">
+    <h2>{{.T.Get "Cron time zone"}}</h2>
+    <p class="op-meta">{{.T.Get "Schedules run in this time zone."}}</p>
+    <form method="post" action="/cronjobs/timezone">
+        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+        <div class="op-stack" style="margin:16px 0 20px">
+            <label class="op-field"><span class="op-label">{{.T.Get "Time zone"}}</span>
+                <select name="timezone" class="op-select" aria-label="{{.T.Get "Cron time zone"}}">
+                    {{$current := .Summary.TimeZone}}
+                    <option value="UTC" {{if eq $current "UTC"}}selected{{end}}>UTC</option>
+                    {{range $.Timezones}}{{if ne . "UTC"}}<option value="{{.}}" {{if eq . $current}}selected{{end}}>{{.}}</option>{{end}}{{end}}
+                </select>
+            </label>
+        </div>
+        <div class="op-actions">
+            <button type="button" class="op-btn op-btn-secondary" @click="tzOpen = false">{{.T.Get "Cancel"}}</button>
+            <button type="submit" class="op-btn op-btn-primary" style="flex:1">{{.T.Get "Save"}}</button>
+        </div>
+    </form>
+</div>
 
 <script>
 const cronDeleteI18n = {
@@ -487,154 +472,158 @@ const cronDeleteI18n = {
 
 // click once to arm, click again within 5s to actually delete the cron job
 function confirmDelete(button) {
+    if (button.dataset.armed) {
+        button.closest('form').submit();
+        return;
+    }
+    var label = button.querySelector('[data-label]');
     var countdown = 5;
-    var countdownActive = true;
-
-    // red with the seconds left, a second click deletes
-    button.classList.add('bg-red-50', 'text-red-600', 'dark:bg-red-400/10', 'dark:text-red-400');
-    button.title = cronDeleteI18n.confirm;
-    button.innerHTML = '<i class="ri-delete-bin-fill text-base leading-none" aria-hidden="true"></i><span class="btn-indicator-mini text-xs font-medium tabular-nums">' + countdown + '</span>';
-
+    button.dataset.armed = '1';
+    var paint = function () { label.textContent = cronDeleteI18n.confirm + ' (' + countdown + ')'; };
+    paint();
     var intervalId = setInterval(function () {
         countdown--;
-        var indicator = button.querySelector('.btn-indicator-mini');
-        if (indicator) indicator.textContent = countdown;
-        button.removeAttribute('onclick');
-        if (countdown === 0) {
-            clearInterval(intervalId);
-            revertButton(button);
-            countdownActive = false;
-        }
+        if (countdown > 0) { paint(); return; }
+        clearInterval(intervalId);
+        delete button.dataset.armed;
+        label.textContent = cronDeleteI18n.delete;
     }, 1000);
-
-    button.addEventListener('click', function () {
-        if (countdownActive) {
-            button.closest('form').submit();
-        }
-    });
-}
-
-function revertButton(button) {
-    button.classList.remove('bg-red-50', 'text-red-600', 'dark:bg-red-400/10', 'dark:text-red-400');
-    button.title = cronDeleteI18n.delete;
-    button.innerHTML = '<i class="ri-delete-bin-line text-base leading-none" aria-hidden="true"></i>';
-    button.setAttribute('onclick', 'confirmDelete(this);');
 }
 </script>
 
 {{else if eq .View "code"}}
 <!-- crons file editor -->
-<style>
-div.CodeMirror-sizer {min-height: 500px!important;}
-</style>
+<div class="op-alert is-warning" role="status">{{template "op_icon" "alert"}}<span>{{.T.Get "Editing the crons file is intended for advanced users only. If you mistyped the cron entry in the file, you will not be warned as opposed to when saving cronjobs in table mode."}} {{.T.Get "The panel still refuses image=, network= and the job-run, job-local and job-service-run job types."}}</span></div>
 
-    <div class="px-4 pb-8 sm:px-6 lg:px-8">
-        <div class="flex gap-3 rounded-md p-4 text-sm bg-amber-50 text-amber-900 dark:bg-amber-950/70 dark:text-amber-400" role="note">
-            <i class="ri-error-warning-line text-lg leading-5" aria-hidden="true"></i>
-            <p>{{.T.Get "Meant for advanced users. A typo here isn't caught the way it is when you add or edit a job in the table, so check each block before saving."}}</p>
-        </div>
-        <div class="mt-4 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]">
-            <div id="editor-container" class="min-w-0 overflow-hidden rounded-md border border-gray-200 dark:border-gray-800">
-                <div class="flex items-center justify-between gap-2 border-b border-gray-200 bg-gray-50 px-3 py-2 dark:border-gray-800 dark:bg-gray-900">
-                    <span class="rounded-md bg-white px-1.5 py-0.5 font-mono text-xs text-gray-900 ring-1 ring-gray-200 dark:bg-gray-950 dark:text-gray-50 dark:ring-gray-800">crons.ini</span>
-                    <span class="text-xs text-gray-500">{{.T.Get "Ctrl+S saves"}}</span>
-                </div>
-                <textarea id="editor" name="crontab_content" aria-label="{{.T.Get "Cron file editor"}}">{{.CrontabContent}}</textarea>
-            </div>
-            <aside class="rounded-md border border-gray-200 p-4 text-sm dark:border-gray-800" aria-label="{{.T.Get "File format"}}">
-                <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "One block per job"}}</h2>
-                <pre class="mt-3 overflow-x-auto rounded-md bg-gray-50 p-3 font-mono text-xs leading-5 text-gray-900 dark:bg-gray-900 dark:text-gray-50">[job-exec "Nightly cleanup"]
+<div class="op-cron-code" x-data="cronFileEditor()">
+<section class="op-card" style="min-width:0" aria-label="{{.T.Get "Crons File Editor"}}">
+    <div class="op-toolbar" style="justify-content:space-between">
+        <span class="op-actions" style="align-items:center"><span class="op-tag op-mono">crons.ini</span><span class="op-status is-warning" x-show="dirty" x-cloak>{{.T.Get "Unsaved changes"}}</span></span>
+        <span class="op-actions" style="align-items:center">
+            <input type="search" x-ref="find" x-show="mode === 'find'" x-cloak x-model="query" class="op-input" style="width:200px;height:34px" placeholder="{{.T.Get "Find"}}" aria-label="{{.T.Get "Find"}}" @keydown.enter.prevent="findNext()" @keydown.escape.prevent="mode = ''">
+            <input type="number" min="1" x-ref="line" x-show="mode === 'line'" x-cloak x-model="lineNo" class="op-input" style="width:110px;height:34px" placeholder="{{.T.Get "Line"}}" aria-label="{{.T.Get "Go to line"}}" @keydown.enter.prevent="goLine()" @keydown.escape.prevent="mode = ''">
+            <button class="op-filter" type="button" @click="open('find')" :aria-pressed="(mode === 'find').toString()">{{template "op_icon" "search"}} {{.T.Get "Find"}}</button>
+            <button class="op-filter" type="button" @click="open('line')" :aria-pressed="(mode === 'line').toString()">{{.T.Get "Go to line"}}</button>
+        </span>
+    </div>
+    <div class="op-cron-cm">
+        <textarea id="editor" name="crontab_content" form="cron-file-form">{{.CrontabContent}}</textarea>
+    </div>
+    <div class="op-editor-bar"><span x-text="{{toJSON (.T.Get "Line")}} + ' ' + line + ', ' + {{toJSON (.T.Get "column")}} + ' ' + col + ' · ' + lines + ' ' + {{toJSON (.T.Get "lines")}}"></span><span>{{.T.Get "Ctrl+S saves · Ctrl+F finds · Ctrl+G goes to a line"}}</span></div>
+</section>
+<aside class="op-card" aria-label="{{.T.Get "Format"}}">
+    <h2 style="margin:0 0 10px;font-size:15px;color:var(--color-heading)">{{.T.Get "One block per job"}}</h2>
+    <pre class="op-cron-sample">[job-exec "Name"]
 schedule = 0 0 1 * * *
 container = php-fpm-8.3
 command = php -v
 no-overlap</pre>
-                <p class="mt-2 text-xs text-gray-500">{{.T.Get "Leave an empty line between blocks."}}</p>
-                <dl class="mt-4 space-y-3">
-                    <div><dt class="font-mono text-xs text-blue-600 dark:text-blue-500">schedule</dt><dd class="mt-0.5 text-gray-600 dark:text-gray-400">{{.T.Get "When it runs. Six fields, seconds first, or a shortcut like @daily or @every 10m."}}</dd></div>
-                    <div><dt class="font-mono text-xs text-blue-600 dark:text-blue-500">container</dt><dd class="mt-0.5 text-gray-600 dark:text-gray-400">{{.T.Get "The container the command runs in."}}</dd></div>
-                    <div><dt class="font-mono text-xs text-blue-600 dark:text-blue-500">command</dt><dd class="mt-0.5 text-gray-600 dark:text-gray-400">{{.T.Get "What to run inside that container."}}</dd></div>
-                    <div><dt class="font-mono text-xs text-blue-600 dark:text-blue-500">no-overlap</dt><dd class="mt-0.5 text-gray-600 dark:text-gray-400">{{.T.Get "Optional. Skips a run while the previous one is still going."}}</dd></div>
-                </dl>
-            </aside>
-        </div>
-    </div>
-
-</section>
-
+    <dl class="op-cron-keys">
+        <div><dt>schedule</dt><dd>{{.T.Get "When the job should be executed. The format starts with seconds, or use @every 10s, @daily."}}</dd></div>
+        <div><dt>container</dt><dd>{{.T.Get "Name of the container you want to execute the command in."}}</dd></div>
+        <div><dt>command</dt><dd>{{.T.Get "Command you want to run inside the container."}}</dd></div>
+        <div><dt>no-overlap</dt><dd>{{.T.Get "Optional. Skip this run if the previous run of this job is still in progress."}}</dd></div>
+    </dl>
+    <button type="button" class="op-btn op-btn-ghost op-btn-sm" style="margin-top:12px" @click="showSection = !showSection" :aria-expanded="showSection.toString()">{{.T.Get "Need Help?"}}</button>
+</aside>
+</div>
 
 <script>
-    const editor = document.getElementById('editor');
-    const codeMirror = CodeMirror.fromTextArea(editor, {
-        lineNumbers: true,
-        mode: "text/x-sh",
-        theme: "dracula",
-        // Ctrl+S / Cmd+S saves the same way the Save changes button does
-        extraKeys: { 'Ctrl-S': saveCrons, 'Cmd-S': saveCrons },
-    });
-    function saveCrons(cm) {
-        cm.save();
-        if (editor.form) editor.form.requestSubmit();
-    }
+function cronFileEditor() {
+    return {
+        cm: null, dirty: false, mode: '', query: '', lineNo: '', line: 1, col: 1, lines: 1,
+        init() {
+            this.cm = CodeMirror.fromTextArea(document.getElementById('editor'), {
+                lineNumbers: true,
+                mode: 'text/x-sh',
+                theme: 'op',
+                viewportMargin: Infinity,
+                extraKeys: {
+                    'Ctrl-S': () => this.save(), 'Cmd-S': () => this.save(),
+                    'Ctrl-F': () => this.open('find'), 'Cmd-F': () => this.open('find'),
+                    'Ctrl-G': () => this.open('line'), 'Cmd-G': () => this.open('line'),
+                },
+            });
+            const sync = () => { const c = this.cm.getCursor(); this.line = c.line + 1; this.col = c.ch + 1; this.lines = this.cm.lineCount(); };
+            this.cm.on('cursorActivity', sync);
+            this.cm.on('change', () => { this.dirty = true; sync(); });
+            sync();
+            window.addEventListener('beforeunload', (e) => { if (this.dirty) e.preventDefault(); });
+            document.getElementById('cron-file-form').addEventListener('submit', () => { this.dirty = false; this.cm.save(); });
+        },
+        save() { this.dirty = false; this.cm.save(); document.getElementById('cron-file-form').requestSubmit(); },
+        open(m) { this.mode = this.mode === m ? '' : m; if (this.mode) this.$nextTick(() => this.$refs[m].focus()); },
+        // plain text search from the cursor, wrapping at the end
+        findNext() {
+            const q = this.query; if (!q) return;
+            const text = this.cm.getValue().toLowerCase(), from = this.cm.indexFromPos(this.cm.getCursor('to'));
+            let i = text.indexOf(q.toLowerCase(), from);
+            if (i < 0) i = text.indexOf(q.toLowerCase());
+            if (i < 0) return;
+            this.cm.setSelection(this.cm.posFromIndex(i), this.cm.posFromIndex(i + q.length));
+            this.cm.scrollIntoView(null, 80);
+        },
+        goLine() {
+            const n = Math.max(1, Math.min(this.cm.lineCount(), parseInt(this.lineNo, 10) || 1));
+            this.cm.setCursor({ line: n - 1, ch: 0 });
+            this.cm.scrollIntoView(null, 80);
+            this.cm.focus();
+            this.mode = '';
+        },
+    };
+}
 </script>
-
 <!-- END crons file editor -->
 {{else if eq .View "logs"}}
 <div x-data="cronLogs({{toJSON .LogJob}})" x-init="fetchLogs(); $watch('logsLoading', v => window.dispatchEvent(new CustomEvent('cron-logs-loading', { detail: v })))"
-     @cron-logs-filter.window="logJob = $event.detail.job; logLines = $event.detail.lines; fetchLogs()" class="px-4 pb-8 sm:px-6 lg:px-8">
-    <div class="overflow-hidden rounded-md bg-gray-950 ring-1 ring-gray-900">
-        <!-- text filter over what's loaded -->
-        <div class="flex items-center gap-2 border-b border-gray-800 bg-gray-900 px-3 py-2">
-            <i class="ri-filter-3-line text-gray-500" aria-hidden="true"></i>
-            <input type="search" x-model="q" placeholder="{{.T.Get "Filter: Started, Finished, failed: true..."}}" aria-label="{{.T.Get "Filter log lines"}}" class="min-w-0 flex-1 bg-transparent text-sm text-gray-50 placeholder:text-gray-500 outline-hidden">
-            <span x-show="q" x-cloak class="shrink-0 text-xs text-gray-500 tabular-nums" x-text="shown().length + ' / ' + logEntries.length"></span>
+     @cron-logs-refresh.window="fetchLogs()">
+    <section class="op-card" aria-label="{{.T.Get "Cron Job Logs"}}">
+        <div class="op-toolbar op-cron-logbar">
+            <label class="op-field" style="flex:0 1 240px"><span class="op-label">{{.T.Get "Job"}}</span>
+                <select x-model="logJob" @change="fetchLogs()" class="op-select">
+                    <option value="">{{.T.Get "All jobs"}}</option>
+                    {{range .CronJobs}}
+                    <option value="{{.Comment}}">{{if .Comment}}{{.Comment}}{{else}}{{.Command}}{{end}}</option>
+                    {{end}}
+                </select>
+            </label>
+            <label class="op-field" style="flex:0 1 110px"><span class="op-label">{{.T.Get "Lines"}}</span>
+                <select x-model.number="logLines" @change="fetchLogs()" class="op-select">
+                    <option value="50">50</option>
+                    <option value="100" selected>100</option>
+                    <option value="250">250</option>
+                    <option value="500">500</option>
+                    <option value="1000">1000</option>
+                </select>
+            </label>
+            <label class="op-search" style="flex:1 1 240px">{{template "op_icon" "search"}}<input class="op-input" type="search" x-model="q" placeholder="{{.T.Get "Filter: Started, Finished, failed…"}}" aria-label="{{.T.Get "Filter log lines"}}"></label>
         </div>
-        <!-- log body -->
-        <div class="max-h-[70vh] overflow-y-auto font-mono text-xs">
 
-            <!-- loading spinner -->
-            <div x-show="logsLoading" class="flex items-center justify-center gap-2 py-10 text-gray-400" role="status"><i class="ri-loader-4-line animate-spin text-base" aria-hidden="true"></i>{{.T.Get "Fetching logs.."}}
-            </div>
+        <div x-show="logsLoading" class="op-empty"><span class="op-hint">{{.T.Get "Fetching logs.."}}</span></div>
+        <div x-show="!logsLoading && logsError" x-cloak class="op-alert is-danger">{{template "op_icon" "alert"}}<span x-text="logsError"></span></div>
+        <div x-show="!logsLoading && !logsError && logEntries.length === 0" x-cloak class="op-empty"><b>{{.T.Get "No log entries found."}}</b><span class="op-hint">{{.T.Get "Jobs log here once the cron container runs them."}}</span></div>
 
-            <!-- error -->
-            <div x-cloak x-show="!logsLoading && logsError" class="p-4 text-red-400" role="alert" x-text="logsError"></div>
-
-            <!-- empty -->
-            <div x-cloak x-show="!logsLoading && !logsError && logEntries.length === 0" class="px-4 py-10 text-center text-gray-400">{{.T.Get "No log entries found."}}</div>
-
-            <!-- log rows -->
-            <template x-if="!logsLoading && !logsError && logEntries.length > 0">
-                <table class="w-full text-left">
-                    <thead class="sticky top-0 bg-gray-950">
-                        <tr class="border-b border-gray-800 font-sans text-xs font-semibold text-gray-400">
-                            <th scope="col" class="px-4 py-2 whitespace-nowrap">{{.T.Get "Time (UTC)"}}</th>
-                            <th scope="col" class="px-2 py-2 text-center">{{.T.Get "Level"}}</th>
-                            <th scope="col" class="px-4 py-2">{{.T.Get "Message"}}</th>
+        <template x-if="!logsLoading && !logsError && logEntries.length > 0">
+            <div class="op-table-wrap"><table class="op-table op-cron-logtable">
+                <thead><tr><th>{{.T.Get "Time"}}</th><th>{{.T.Get "Level"}}</th><th>{{.T.Get "Message"}}</th></tr></thead>
+                <tbody>
+                    <template x-for="(e, idx) in shownEntries()" :key="idx">
+                        <tr>
+                            <td data-label="{{.T.Get "Time"}}"><span class="op-mono op-cron-time" x-text="formatTime(e.time)"></span></td>
+                            <td data-label="{{.T.Get "Level"}}"><span class="op-badge" :class="levelTone(e.level)" x-show="e.level" x-text="e.level"></span></td>
+                            <td data-label="{{.T.Get "Message"}}"><span class="op-mono op-cron-msg" :class="msgTone(e)" x-text="e.msg"></span></td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <template x-for="(entry, idx) in shown()" :key="idx">
-                            <tr class="border-b border-gray-800/70 hover:bg-gray-900">
-                                <td class="px-4 py-1.5 align-top whitespace-nowrap text-gray-400 tabular-nums" x-text="formatTime(parse(entry).time)"></td>
-                                <td class="px-2 py-1.5 align-top text-center"><span x-show="parse(entry).level" class="inline-flex rounded px-1.5 py-0.5 font-sans text-[11px] font-medium ring-1 ring-inset" :class="levelClass(parse(entry).level)" x-text="parse(entry).level"></span></td>
-                                <td class="px-4 py-1.5 break-all whitespace-pre-wrap" :class="msgClass(parse(entry))" x-text="parse(entry).msg"></td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
-                <p x-cloak x-show="q && !shown().length" class="px-4 py-6 text-center font-sans text-sm text-gray-500">{{.T.Get "No line matches the filter."}}</p>
-            </template>
-        </div>
+                    </template>
+                </tbody>
+            </table></div>
+        </template>
 
-        <!-- footer: entry count -->
-        <div x-cloak x-show="!logsLoading && !logsError && logEntries.length > 0" class="flex items-center justify-between gap-4 border-t border-gray-800 bg-gray-900 px-4 py-2 text-xs text-gray-400">
-            <span><span x-text="logEntries.length" class="tabular-nums"></span> {{.T.Get "entries shown"}}</span>
-            <a href="/cronjobs/editor" class="text-blue-400 hover:underline hover:underline-offset-4">{{.T.Get "Open the crons file"}}</a>
+        <div class="op-tfoot" x-show="!logsLoading &amp;&amp; !logsError &amp;&amp; logEntries.length > 0" x-cloak>
+            <span><span x-text="shownEntries().length"></span> {{.T.Get "entries shown"}}</span>
+            <a href="/cronjobs/editor" style="color:var(--color-accent-text)">{{.T.Get "Open the crons file"}}</a>
         </div>
-    </div>
-    <!-- END log panel -->
+    </section>
 </div>
-
-</section>
 
 <script>
 // the Logs tab, job comes from ?job= when opened from a job's Logs button
@@ -645,6 +634,7 @@ function cronLogs(job) {
         logsLoading: false,
         logsError: '',
         logEntries: [],
+        q: '',
         fetchLogs() {
             this.logsLoading = true;
             this.logsError = '';
@@ -653,49 +643,53 @@ function cronLogs(job) {
             if (this.logJob) params.set('job', this.logJob);
             fetch('/cronjobs/log?' + params.toString())
                 .then(r => r.ok ? r.json() : r.json().then(e => { throw new Error(e.error || r.statusText); }))
-                .then(data => { this.logEntries = data; })
+                .then(data => { this.logEntries = this.parse(Array.isArray(data) ? data : []); })
                 .catch(err => { this.logsError = err.message; })
                 .finally(() => { this.logsLoading = false; });
         },
-        q: '',
-        shown() {
-            const s = this.q.trim().toLowerCase();
-            return s ? this.logEntries.filter(e => (this.parse(e).level + ' ' + this.parse(e).msg).toLowerCase().includes(s)) : this.logEntries;
+        // ofelia lines look like "2026-10-29T09:15:04.123Z common.go:125 ▶ NOTICE message", lines without a time belong to the entry above
+        parse(rows) {
+            const out = [];
+            const re = /^(\d{4}-\d\d-\d\dT[\d:.]+Z?)\s+(?:\S+\s+▶\s+)?([A-Z]+)\s+(.*)$/;
+            for (const row of rows) {
+                const line = String(row.log ?? row.message ?? row.msg ?? '').replace(/\x1b\[[0-9;]*m/g, '');
+                if (!line.trim()) continue;
+                const m = re.exec(line);
+                if (m) out.push({ time: m[1], level: m[2], msg: m[3] });
+                else if (out.length) out[out.length - 1].msg += '\n' + line;
+                else out.push({ time: '', level: '', msg: line });
+            }
+            return out;
         },
-        // the scheduler logs in UTC, show it as 2026-11-05 10:15:00 so lines line up
+        shownEntries() {
+            const q = this.q.trim().toLowerCase();
+            return q ? this.logEntries.filter(e => (e.level + ' ' + e.msg).toLowerCase().includes(q)) : this.logEntries;
+        },
+        levelTone(l) { return { ERROR: 'is-danger', CRITICAL: 'is-danger', WARNING: 'is-warning' }[l] || ''; },
+        msgTone(e) {
+            if (e.level === 'ERROR' || e.level === 'CRITICAL' || /failed: true/.test(e.msg)) return 'is-danger';
+            if (e.level === 'WARNING') return 'is-warning';
+            if (/Finished in .*failed: false/.test(e.msg)) return 'is-success';
+            return '';
+        },
         formatTime(ts) {
             if (!ts) return '';
             const d = new Date(ts);
             if (isNaN(d)) return ts;
-            return d.toISOString().slice(0, 19).replace('T', ' ');
+            const p = n => String(n).padStart(2, '0');
+            return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
         },
-        extractMsg(entry) {
-            return entry.log ?? entry.message ?? entry.msg ?? JSON.stringify(entry);
-        },
-        // scheduler lines look like "<time> common.go:125 ▶ NOTICE <message>" with terminal colour codes in them
-        parse(entry) {
-            const raw = String(this.extractMsg(entry)).replace(/\x1b\[[0-9;]*m/g, '');
-            const m = raw.match(/^(\d{4}-\d\d-\d\dT[\d:.]+Z?)\s+\S+\s+▶\s+([A-Z]+)\s+([\s\S]*)$/);
-            if (!m) return { time: entry.time, level: '', msg: raw };
-            return { time: entry.time || m[1], level: m[2], msg: m[3] };
-        },
-        levelClass(level) {
-            return { ERROR: 'bg-red-400/10 text-red-400 ring-red-400/30', CRITICAL: 'bg-red-400/10 text-red-400 ring-red-400/30', WARNING: 'bg-yellow-400/10 text-yellow-400 ring-yellow-400/30' }[level] || 'bg-gray-400/10 text-gray-300 ring-gray-400/20';
-        },
-        // failed runs read red even when the scheduler only logs them as NOTICE
-        msgClass(p) {
-            if (p.level === 'ERROR' || p.level === 'CRITICAL' || /failed: true/.test(p.msg)) return 'text-red-400';
-            if (p.level === 'WARNING') return 'text-yellow-300';
-            return 'text-gray-100';
-        }
     };
 }
 </script>
 {{else}}
 
+
 {{.T.Get "view mode is unknown, only code, table and logs are allowed"}}
 
 {{end}}
+
+</div>
 
 <script>
 document.addEventListener('keydown', (e) => {
@@ -714,5 +708,5 @@ if (window.registerShortcut) registerShortcut(['N'], {{toJSON (.T.Get "Add new c
 {{end}}
 
 {{define "sort_header"}}
-<button type="button" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.Label}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
+<button type="button" class="op-th-sort" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" onclick="opSortToggle(event, this, sortTableColumn)">{{.Label}}<i aria-hidden="true"></i></button>
 {{end}}

@@ -1,0 +1,227 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+<script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+{{template "cms_block" .}}
+        {{template "cms_block_2" .}}
+        {{template "cms_block_4" .}}
+    <div class="flex min-w-0 flex-col bg-white dark:bg-gray-950">
+
+        {{template "cms_block_8" .}}
+            {{template "cms_tabbtn_dashboard" .}}
+            {{template "cms_tabbtn_update" .}}
+            {{template "cms_tabbtn_clone" .}}
+            {{template "cms_tabbtn_backups" .}}
+            {{template "cms_tab_security" .}}
+        {{template "cms_tab_dashboard" .}}
+            <div>
+                <div class="hidden">
+                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded-md xl:col-span-3">
+                        {{template "cms_block_10" .}}
+                {{template "cms_block_13" .}}
+                {{template "cms_block_14" .}}
+                <div class="flex flex-col bg-white px-6 py-5 min-w-0 sm:row-span-2 sm:grid sm:grid-cols-1 sm:grid-rows-subgrid sm:gap-y-0 sm:[&>*:last-child]:self-start dark:bg-gray-950">
+                    <div class="relative -mx-6 -mt-5 mb-4 flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+                        <div class="min-w-0"><h2 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>{{if .UserAllowed.mysql}}<a href="/mysql" target="_blank" class="ml-2 text-sm font-normal text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Manage"}} &rarr;</a>{{end}}<p class="text-sm/6 text-gray-500">{{.T.Get "The database the site uses."}}</p></div>
+                    </div>
+
+                    {{if .DBInfo.error}}
+                    <div class="flex items-center justify-between gap-4 rounded-md border border-gray-200 px-4 py-3 dark:border-gray-800">
+                        <span class="text-sm text-gray-500 dark:text-gray-500">{{.DBInfo.error}}</span>
+                    </div>
+                    {{else}}
+                    <div class="divide-y divide-gray-200 dark:divide-gray-800 [&>div]:px-0">
+                        <div class="flex items-center justify-between gap-4 px-4 py-3" id="database-size-row">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Database size"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50" id="databaseSize">{{.T.Get "Calculating.."}}</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Database host"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.DBInfo.database_host}}</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Database name"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">
+                            {{if .UserAllowed.mysql}}
+                                <a href="/mysql" class="text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50">{{.DBInfo.database_name}}</a>
+                            {{else}}
+                                {{.DBInfo.database_name}}
+                            {{end}}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Database user"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">
+                            {{if .UserAllowed.mysql}}
+                                <a href="/mysql/users" class="text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50">{{.DBInfo.database_user}}</a>
+                            {{else}}
+                                {{.DBInfo.database_user}}
+                            {{end}}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Password"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50" id="database-password" style="filter: blur(5px); cursor: pointer;" onclick="revealPhpbbDBPassword()">{{.DBInfo.database_password}}</span>
+                        </div>
+
+                        {{if .UserAllowed.phpmyadmin}}
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "phpMyAdmin"}}</span>
+                            <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-50"><a
+                                        type="button"
+                                        id="phpmyadmin-link"
+                                        href="/phpmyadmin"
+                                        target="_blank"
+                                        data-tooltip-target="tooltip-phpmyadmin-link" data-tooltip-placement="left"
+                                        class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"
+                                    >
+                                        <i class="ri-arrow-right-up-line text-lg leading-none" aria-hidden="true"></i>
+                                    </a>
+                                    <div id="tooltip-phpmyadmin-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-md shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Open database in phpMyAdmin"}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div>
+                                    <a
+                                        type="button"
+                                        id="phpmyadmin-link-manual"
+                                        href="/phpmyadmin/link"
+                                        target="_blank"
+                                        data-tooltip-target="tooltip-phpmyadmin-link-manual" data-tooltip-placement="left"
+                                        class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"
+                                    >
+                                        <i class="ri-login-box-line text-lg leading-none" aria-hidden="true"></i>
+                                    </a>
+                                    <div id="tooltip-phpmyadmin-link-manual" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-md shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Open phpMyAdmin login form"}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div></span>
+                        </div>
+                        {{end}}
+                    </div>
+                    {{end}}
+                </div>
+                <!-- END database info -->
+
+                <script>
+                    function revealPhpbbDBPassword() {
+                        var passwordSpan = document.getElementById("database-password");
+                        passwordSpan.style.filter = passwordSpan.style.filter === "blur(5px)" ? "none" : "blur(5px)";
+                    }
+                </script>
+
+            </dl>
+            </div>
+            <div class="divide-y divide-gray-200 bg-white dark:divide-gray-800 dark:bg-gray-950 [&>div]:rounded-none [&>div]:border-x-0 [&>div]:border-t-0 [&>div:last-child]:border-b-0 [&>div]:bg-transparent [&>div]:px-6 [&>div]:py-5 dark:[&>div]:bg-transparent [&_[data-panel-head]]:-mx-6 [&_[data-panel-head]]:-mt-5 [&_[data-panel-head]]:mb-4 [&_[data-panel-head]]:border-b [&_[data-panel-head]]:border-gray-200 [&_[data-panel-head]]:px-6 [&_[data-panel-head]]:py-4 dark:[&_[data-panel-head]]:border-gray-800">
+
+        {{template "pagespeed_panel" .}}
+
+        {{template "visitors" .}}
+
+        {{template "waf_panel" .}}
+
+        {{template "phpbb_cache" .}}
+
+    </div>
+            </div>
+        </div>
+
+
+        <div class="hidden p-4 rounded-md" id="update" role="tabpanel" aria-labelledby="update-tab">
+            <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-3">
+                <div>
+                    <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Version"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500 dark:text-gray-500">{{.T.Get "phpBB has no safe unattended CLI updater, so updates are run from your own Admin Control Panel."}}</p>
+                </div>
+                <div class="sm:max-w-3xl md:col-span-2">
+                    <div class="divide-y divide-gray-200 dark:divide-gray-800 [&>div]:px-0">
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Installed version"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{if .Version}}{{.Version}}{{else}}{{.T.Get "Unknown"}}{{end}}</span>
+                        </div>
+                    </div>
+                    <a href="https://{{.CurrentDomain}}/adm/index.php?i=acp_help" target="_blank" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 mt-3 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Open admin control panel"}}</a>
+                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">{{.T.Get "Check phpbb.com for the latest release, then use phpBB's own Automatic Update Package under ACP > System > Update following their documented procedure. A backup is recommended first - see the Backups tab."}}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="hidden p-4 rounded-md" id="clone" role="tabpanel" aria-labelledby="clone-tab">
+
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Clone a phpBB instance with its database and files."}}</p>
+
+            <form id="phpbb-CloneForm">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input type="hidden" name="source_domain" value="{{.CurrentDomain}}">
+                <input type="hidden" name="source_folder" value="{{.Docroot}}">
+                <input type="hidden" name="source_db" value="{{.DBInfo.database_name}}">
+                <input type="hidden" name="version" value="{{.Version}}">
+
+                <div class="mx-auto my-4 flex w-full items-center justify-between gap-3 text-sm text-gray-500 dark:text-gray-500 !my-10"><div class="h-[1px] w-full bg-gray-200 dark:bg-gray-800"></div></div>
+
+                {{template "cms_block_17" .}}
+                {{template "cms_block_24" .}}
+                {{template "cms_block_19" .}}
+            {{template "cms_script_4" .}}
+{{template "cms_block_21" .}}
+        <div class="hidden py-6" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+            {{template "site_backups" (dict "T" .T "Domain" .CurrentDomain "Docroot" .Docroot "Base" (print "/" .App.Slug) "DB" .DBInfo "Intro" "Copies of this site's files and database. Restore, download or delete them here." "Empty" "Back up now saves this site.")}}
+        </div>
+
+        {{template "cms_tab_remove" .}}
+    
+
+</div>
+
+<script>
+const PHPBB_SITE_ID = {{toJSON .Container.ID}};
+
+function confirmRemovephpBB() {
+    showToast({{toJSON (.T.Get "phpBB removal started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/phpbb/remove', true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            window.location.href = '/sites';
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(PHPBB_SITE_ID));
+}
+
+function confirmDetachphpBB() {
+    showToast({{toJSON (.T.Get "phpBB detach process started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/sites/detach', true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                window.location.href = '/sites';
+            } else {
+                showToast({{toJSON (.T.Get "An error occurred while detaching phpBB. Please try again.")}}, 'error');
+            }
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(PHPBB_SITE_ID));
+}
+</script>
+
+{{template "cms_script_11" .}}
+
+<!-- END templates/manager/phpbb_app.html -->
+{{end}}
+
+{{define "phpbb_cache"}}
+<!-- START phpbb_cache widget -->
+<div x-data="phpbbCacheComponent()" class="flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
+  {{template "cms_block_32" .}}
+    <div class="grid grid-cols-1 gap-2">
+        {{template "cms_block_33" .}}
+{{template "cms_script_13" .}}
+<!-- END phpbb_cache widget -->
+{{end}}

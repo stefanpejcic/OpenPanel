@@ -80,7 +80,7 @@ func TestBuildDashboardSectionsMatchSidebarOrder(t *testing.T) {
 		titles = append(titles, s.Title)
 	}
 	for _, item := range web.BuildSidebarNav(allowed, nil, "/dashboard") {
-		if item.Label != "Cron jobs" && item.Label != "Server info" {
+		if item.Label != "Cron Jobs" && item.Label != "Server Info" {
 			labels = append(labels, item.Label)
 		}
 	}

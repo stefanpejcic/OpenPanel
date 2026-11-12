@@ -1,81 +1,78 @@
 {{define "alpine_plugins"}}{{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
 {{define "content"}}
 <!-- START templates/emails/deliverability_domain.html -->
+<div class="op-content CrawlerStatusCard" id="deliverabilityDetail" x-data="opDeliverability()" x-init="load()">
 
-<!-- page header -->
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
+<div class="op-page-head">
     <div>
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Email deliverability"}}</h1>
-        <p class="mt-1 text-sm text-gray-500 punycode max-w-3xl">{{.Domain}}</p>
+        <div class="op-eyebrow"><a href="/emails/deliverability" style="color:var(--color-accent-text)">{{.T.Get "Email Deliverability"}}</a></div>
+        <h1 class="op-title punycode" style="overflow-wrap:anywhere">{{.Domain}}</h1>
+        <p class="op-meta" x-show="d" x-cloak x-text="bad() ? bad() + ' ' + {{toJSON (.T.Get "of 3 records need fixing. Add the expected values in the DNS zone, changes show up here once DNS updates.")}} : {{toJSON (.T.Get "All three records are published and match this server.")}}"></p>
     </div>
-    <a href="/emails/deliverability" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 sm:w-fit">
-        <i class="ri-arrow-left-line" aria-hidden="true"></i> {{.T.Get "Back to deliverability"}}
-    </a>
+    <div class="op-actions">
+        <a href="/emails/deliverability" class="op-btn op-btn-secondary">{{template "op_icon" "arrowleft"}} {{.T.Get "All domains"}}</a>
+        {{if .UserAllowed.dns}}<a href="/domains/edit-dns-zone/{{.Domain}}" class="op-btn op-btn-primary">{{.T.Get "Open DNS Zone Editor"}}</a>{{end}}
+    </div>
 </div>
-<!-- END page header -->
 
-<div class="max-w-3xl px-4 pb-8 sm:px-6 lg:px-8" id="deliverabilityDetail">
-    <div class="flex items-center justify-center gap-2 rounded-md border border-gray-200 p-8 text-sm text-gray-500 dark:border-gray-800" id="deliverabilityLoading">
-        <i class="ri-loader-4-line animate-spin" aria-hidden="true"></i> {{.T.Get "Checking DNS records..."}}
-    </div>
+<section class="op-card op-empty" id="deliverabilityLoading" x-show="!d">
+    <span class="op-ico-tile">{{template "op_icon" "mail"}}</span>
+    <b x-text="err || {{toJSON (.T.Get "Checking DNS records...")}}">{{.T.Get "Checking DNS records..."}}</b>
+</section>
 
-    <div id="deliverabilityResult" class="hidden space-y-6"></div>
+<template x-if="d"><div class="op-col" id="deliverabilityResult">
+    <section class="op-kpis op-kpis-3" aria-label="{{.T.Get "Record status"}}">
+        <template x-for="k in keys" :key="k"><div class="op-kpi">
+            <div class="op-kpi-label" x-text="k.toUpperCase()"></div>
+            <div class="op-kpi-value" style="font-size:20px"><span class="op-status" :class="tone(d[k].status)" x-text="label(d[k].status)"></span></div>
+            <div class="op-kpi-note op-mono" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap" x-text="host(k)"></div>
+        </div></template>
+    </section>
+
+    <template x-for="k in keys" :key="k"><section class="op-card" :aria-label="k.toUpperCase()">
+        <div class="op-card-head"><div><h2 style="display:flex;align-items:center;gap:10px"><span x-text="k.toUpperCase()"></span> <span class="op-status" :class="tone(d[k].status)" x-text="label(d[k].status)"></span></h2><p class="op-meta" x-text="about[k]"></p></div></div>
+        <div class="op-deliv-grid">
+            <span class="op-label">{{.T.Get "Host"}}</span>
+            <div class="op-row" style="gap:8px;min-width:0"><span class="op-tag op-mono" style="flex:none">TXT</span><div class="op-dv-copy" style="flex:1"><span class="op-mono" x-text="host(k)"></span><button class="op-icon-btn" type="button" @click="copy(host(k))" :aria-label="{{toJSON (.T.Get "Copy")}} + ' ' + k.toUpperCase() + ' host'" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div></div>
+            <span class="op-label">{{.T.Get "Expected value"}}</span>
+            <div class="op-dv-copy"><span class="op-mono" x-show="d[k].expected" x-text="d[k].expected"></span><span class="op-hint" x-show="!d[k].expected">{{.T.Get "Nothing to add."}}</span><button class="op-icon-btn" type="button" x-show="d[k].expected" @click="copy(d[k].expected)" :aria-label="{{toJSON (.T.Get "Copy")}} + ' ' + k.toUpperCase() + ' value'" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
+            <span class="op-label">{{.T.Get "Published now"}}</span>
+            <div class="op-dv-copy"><span class="op-mono" x-show="d[k].current" x-text="d[k].current"></span><span class="op-hint" x-show="!d[k].current">{{.T.Get "Nothing published yet."}}</span><button class="op-icon-btn" type="button" x-show="d[k].current" @click="copy(d[k].current)" :aria-label="{{toJSON (.T.Get "Copy")}} + ' ' + k.toUpperCase()" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
+        </div>
+        <p class="op-hint" style="margin:12px 0 0" x-show="d[k].status === 'wrong_ip'">{{.T.Get "The published record lists a different server IP. Replace it with the expected value."}}</p>
+        <p class="op-hint" style="margin:12px 0 0" x-show="d[k].status === 'mismatch'">{{.T.Get "The published record doesn't match what this server expects. Replace it with the expected value."}}</p>
+    </section></template>
+</div></template>
+
+<div class="op-toast" x-show="toast" x-cloak x-transition role="status" x-text="toast"></div>
 </div>
 
 <script>
-function recordTable(label, record) {
-    const map = {
-        ok: ['bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20', 'OK'],
-        missing: ['bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20', 'Missing'],
-        mismatch: ['bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20', 'Mismatch'],
-        wrong_ip: ['bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20', '{{.T.Get "Wrong IP"}}'],
+function opDeliverability() {
+    return {
+        d: null, err: '', toast: '',
+        keys: ['spf', 'dkim', 'dmarc'],
+        about: {
+            spf: {{toJSON (.T.Get "Lists the servers allowed to send mail for this domain.")}},
+            dkim: {{toJSON (.T.Get "Signs outgoing mail so receivers can tell it really came from you.")}},
+            dmarc: {{toJSON (.T.Get "Tells receivers what to do with mail that fails SPF or DKIM.")}},
+        },
+        load() {
+            fetch('/emails/deliverability/{{.Domain}}?output=json')
+                .then(r => r.json())
+                .then(data => { if (data && data.spf) this.d = data; else this.err = {{toJSON (.T.Get "Failed to check DNS records.")}}; })
+                .catch(e => { this.err = {{toJSON (.T.Get "Failed to check DNS records.")}}; console.error('Failed to load deliverability status', e); });
+        },
+        host(k) { const h = { spf: '', dkim: 'mail._domainkey.', dmarc: '_dmarc.' }[k]; return h + {{toJSON .Domain}}; },
+        tone(st) { return { ok: 'is-success', missing: 'is-danger', mismatch: 'is-warning', wrong_ip: 'is-warning' }[st] || 'is-muted'; },
+        label(st) { return { ok: 'OK', missing: {{toJSON (.T.Get "Missing")}}, mismatch: {{toJSON (.T.Get "Mismatch")}}, wrong_ip: {{toJSON (.T.Get "Wrong IP")}} }[st] || st; },
+        bad() { return this.d ? this.keys.filter(k => this.d[k].status !== 'ok').length : 0; },
+        copy(t) { navigator.clipboard && navigator.clipboard.writeText(t); this.toast = {{toJSON (.T.Get "Copied.")}}; setTimeout(() => this.toast = '', 2000); },
     };
-    const [cls, statusLabel] = map[record.status] || ['bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20', record.status];
-
-    function escapeHtml(value) {
-        const div = document.createElement('div');
-        div.textContent = value || '';
-        return div.innerHTML;
-    }
-
-    return `
-        <div>
-            <div class="mb-2 flex items-center justify-between">
-                <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">${label}</h2>
-                <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${cls}">${statusLabel}</span>
-            </div>
-            <dl class="divide-y divide-gray-200 rounded-md border border-gray-200 text-sm dark:divide-gray-800 dark:border-gray-800">
-                <div class="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:gap-4">
-                    <dt class="w-28 shrink-0 text-gray-500">{{.T.Get "Current"}}</dt>
-                    <dd class="font-mono text-xs break-all text-gray-900 dark:text-gray-50">${record.current ? escapeHtml(record.current) : '<span class="text-gray-400 dark:text-gray-600">' + {{toJSON (.T.Get "Not found")}} + '</span>'}</dd>
-                </div>
-                <div class="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:gap-4">
-                    <dt class="w-28 shrink-0 text-gray-500">{{.T.Get "Expected"}}</dt>
-                    <dd class="font-mono text-xs break-all text-gray-900 dark:text-gray-50">${record.expected ? escapeHtml(record.expected) : '<span class="text-gray-400 dark:text-gray-600">—</span>'}</dd>
-                </div>
-            </dl>
-        </div>
-    `;
 }
-
-document.addEventListener('DOMContentLoaded', function () {
-    fetch('/emails/deliverability/{{.Domain}}?output=json')
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('deliverabilityLoading').classList.add('hidden');
-            const result = document.getElementById('deliverabilityResult');
-            result.classList.remove('hidden');
-            result.innerHTML =
-                recordTable('SPF', data.spf) +
-                recordTable('DKIM', data.dkim) +
-                recordTable('DMARC', data.dmarc);
-        })
-        .catch(function (err) {
-            document.getElementById('deliverabilityLoading').textContent = {{toJSON (.T.Get "Failed to check DNS records.")}};
-            console.error('Failed to load deliverability status', err);
-        });
-});
 </script>
 
 <!-- END templates/emails/deliverability_domain.html -->

@@ -1,0 +1,170 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/emails/accounts.html -->
+
+<section aria-label="{{.T.Get "Emails Header"}}" x-data="{ searchQuery: '', statusFilter: 'all', statusOpen: false }">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
+        <div>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Emails"}}</h1>
+            <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Total emails:"}} <span class="tabular-nums font-medium text-gray-900 dark:text-gray-50">{{.TotalCount}}</span></p>
+        </div>
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <a href="/emails/export" id="export_emails_csv" class="hidden relative items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-file-download-line text-base text-gray-500" aria-hidden="true"></i> {{.T.Get "Export"}}</a>
+            <a href="/emails/new" id="showAddEmailFormBtn" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-add-line -ml-1 text-base" aria-hidden="true"></i> {{.T.Get "New email"}}</a>
+        </div>
+    </div>
+
+    {{if .Created.Address}}{{template "email_created" .}}{{end}}
+
+    <div class="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+        <div class="relative w-full sm:w-64">
+            <label for="emails-search-input" class="sr-only">{{.T.Get "Search"}}</label>
+            <input
+                id="emails-search-input"
+                x-model="searchQuery"
+                class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+                placeholder="{{.T.Get "Search"}}"
+                type="search"
+            />
+            <div class="pointer-events-none absolute inset-y-0 left-2 flex items-center text-gray-400 dark:text-gray-600">
+                <i class="ri-search-line text-base" aria-hidden="true"></i>
+            </div>
+        </div>
+
+        <div class="relative" @click.outside="statusOpen = false">
+            <button type="button" @click="statusOpen = !statusOpen" :aria-expanded="statusOpen" :class="statusFilter !== 'all' ? 'border-solid' : 'border-dashed'" class="flex w-full items-center gap-x-1.5 whitespace-nowrap rounded-md border border-gray-300 px-2 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 sm:w-fit dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 cursor-pointer">
+                <span class="w-full text-left sm:w-fit" x-text="{all: {{toJSON (.T.Get "Status")}}, suspended: {{toJSON (.T.Get "Suspended")}}, filter: {{toJSON (.T.Get "Has filter")}}, quota: {{toJSON (.T.Get "Near quota")}}}[statusFilter]">{{.T.Get "Status"}}</span>
+                <i class="ri-arrow-down-s-line text-base text-gray-500" aria-hidden="true"></i>
+            </button>
+            <div x-show="statusOpen" x-cloak class="absolute left-0 z-20 mt-1 w-48 rounded-md border border-gray-200 bg-white p-1 shadow-xl dark:border-gray-800 dark:bg-gray-950">
+                <label class="flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900">
+                    <input type="radio" name="email-status-filter" value="all" x-model="statusFilter" @change="statusOpen = false">
+                    {{.T.Get "All"}}
+                </label>
+                <label class="flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900">
+                    <input type="radio" name="email-status-filter" value="suspended" x-model="statusFilter" @change="statusOpen = false">
+                    {{.T.Get "Suspended"}}
+                </label>
+                <label class="flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900">
+                    <input type="radio" name="email-status-filter" value="filter" x-model="statusFilter" @change="statusOpen = false">
+                    {{.T.Get "Has filter"}}
+                </label>
+                <label class="flex w-full cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900">
+                    <input type="radio" name="email-status-filter" value="quota" x-model="statusFilter" @change="statusOpen = false">
+                    {{.T.Get "Near quota"}}
+                </label>
+            </div>
+        </div>
+    </div>
+
+{{template "bulk_open" (dict "T" .T "Table" "#email-accounts" "Endpoint" "/emails/bulk")}}
+    <div class="relative overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+        <table id="email-accounts" class="w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+            <thead>
+                <tr>
+{{template "bulk_head_checkbox" .}}
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Account @ domain") "Key" "address" "Type" "string")}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Storage used") "Key" "quota" "Type" "number")}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50"><span class="sr-only">{{.T.Get "Options"}}</span></th>
+                </tr>
+            </thead>
+            <tbody>
+
+            {{if not .Rows}}
+                <tr>
+                    <td colspan="4" class="py-10 text-center text-sm text-gray-500">
+                        <p>{{.T.Get "No emails yet."}}</p>
+                        <a href="/emails/new" class="mt-3 relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Add your first email"}}</a>
+                    </td>
+                </tr>
+
+            {{else}}
+            {{range .Rows}}
+            {{$row := .}}
+                <tr x-show="(searchQuery === '' || {{toJSON $row.Address}}.toLowerCase().includes(searchQuery.toLowerCase())) && (statusFilter === 'all' || (statusFilter === 'suspended' && {{$row.Suspended}}) || (statusFilter === 'filter' && {{$row.HasFilter}}) || (statusFilter === 'quota' && {{$row.NearQuota}}))" class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
+{{template "bulk_row_checkbox" (dict "T" $.T "Key" $row.Address "Label" $row.Address)}}
+
+                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap font-medium text-gray-900 dark:border-gray-800 dark:text-gray-50" data-sort-col="address" data-sort-value="{{$row.Address}}"><span class="punycode">{{$row.Address}}</span></td>
+
+                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400" data-sort-col="quota" data-sort-value="{{$row.PercentVal}}">
+                        <div class="w-40">
+                            <span class="sr-only">{{$row.QuotaDisplay}}</span>
+                            <div class="flex justify-between text-xs text-gray-500">{{if $row.Limit}}<span class="tabular-nums" title="{{$row.QuotaDisplay}}">{{$row.Used}} {{$.T.Get "of"}} {{$row.Limit}}</span><span class="tabular-nums">{{$row.PercentVal}}%</span>{{else}}<span class="tabular-nums">{{$row.QuotaDisplay}}</span>{{end}}</div>
+                            <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+                                <div id="disk-progress-bar"
+                                    class="h-full rounded-full {{if ge $row.PercentVal 90}}bg-red-500{{else if ge $row.PercentVal 70}}bg-yellow-500{{else}}bg-blue-500{{end}}"
+                                    role="progressbar"
+                                    aria-label="{{$.T.Get "Storage used"}}"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                    aria-valuenow="{{$row.PercentVal}}"
+                                    style="width: {{$row.CappedVal}}%;">
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
+                        <div class="flex justify-end gap-2">
+                            {{if $.UserAllowed.webmail}}
+                            <a href="/webmail/{{$row.Address}}" target="_blank" data-email="{{$row.Address}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-external-link-line text-gray-500" aria-hidden="true"></i> {{$.T.Get "Webmail"}}</a>
+                            {{end}}
+                            <a href="/emails/info/{{$row.Address}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-smartphone-line text-gray-500" aria-hidden="true"></i> {{$.T.Get "Connect devices"}}</a>
+                            <a href="/emails/edit/{{$row.Address}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-settings-3-line text-gray-500" aria-hidden="true"></i> {{$.T.Get "Manage"}}</a>
+                        </div>
+                    </td>
+                </tr>
+
+            {{end}}
+            {{end}}
+            </tbody>
+        </table>
+    </div>
+{{template "bulk_bar" .}}
+</div>
+</section>
+<!-- END emails table -->
+
+{{if .QuotaToastMsg}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof reportHealthIssues === 'function') {
+        reportHealthIssues('emails', [{id: {{toJSON .QuotaToastID}}, severity: 'warning', message: {{toJSON .QuotaToastMsg}}}], 24);
+    }
+});
+</script>
+{{end}}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('.webmail-link').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                const email = this.dataset.email;
+                const url = `/webmail/${email}`;
+                const toastMessage = {{toJSON (.T.Get "Webmail for ")}} + email + {{toJSON (.T.Get " opened in new window.")}};
+                showToast(toastMessage, 'success');
+            });
+        });
+    });
+</script>
+
+<script>
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'n' || e.ctrlKey || e.metaKey || e.altKey) return;
+    const tag = document.activeElement.tagName.toLowerCase();
+    const isInputFocused = ['input', 'textarea'].includes(tag) || document.activeElement.isContentEditable;
+    if (isInputFocused) return;
+    e.preventDefault();
+    document.getElementById('showAddEmailFormBtn')?.click();
+});
+if (window.registerShortcut) registerShortcut(['N'], {{toJSON (.T.Get "Add new email account")}});
+</script>
+<script src="{{static "js/table-sort.js"}}"></script>
+
+<!-- END templates/emails/accounts.html -->
+{{end}}
+
+{{define "sort_header"}}
+<button type="button" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.Label}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
+{{end}}

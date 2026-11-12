@@ -143,8 +143,8 @@ var azureIcon = template.HTML(`<svg width="150" height="150" class="size-5" view
 
 // remix icons for the destinations that have no brand logo
 var (
-	s3Icon     = template.HTML(`<i class="ri-cloud-line text-xl leading-none text-gray-600 dark:text-gray-400" aria-hidden="true"></i>`)     //nolint:gosec // static markup
-	webdavIcon = template.HTML(`<i class="ri-global-line text-xl leading-none text-gray-600 dark:text-gray-400" aria-hidden="true"></i>`)    //nolint:gosec // static markup
+	s3Icon     = template.HTML(`<i class="ri-cloud-line text-xl leading-none text-gray-600 dark:text-gray-400" aria-hidden="true"></i>`)        //nolint:gosec // static markup
+	webdavIcon = template.HTML(`<i class="ri-global-line text-xl leading-none text-gray-600 dark:text-gray-400" aria-hidden="true"></i>`)       //nolint:gosec // static markup
 	sshIcon    = template.HTML(`<i class="ri-terminal-box-line text-xl leading-none text-gray-600 dark:text-gray-400" aria-hidden="true"></i>`) //nolint:gosec // static markup
 )
 

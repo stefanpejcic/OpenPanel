@@ -8,6 +8,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
@@ -22,6 +23,7 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 
 // TestRenderFilesPage exercises filemanager.html + every included partial through html/template's real executor, covering both the populated-directory and empty-directory branches
 func TestRenderFilesPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("populated, classic view", func(t *testing.T) {
@@ -46,7 +48,7 @@ func TestRenderFilesPage(t *testing.T) {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		for _, want := range []string{"reports", "notes.txt", "link", "notes.txt)", "Go up", "README.md", "Skip the trash"} {
+		for _, want := range []string{"reports", "notes.txt", "link", "notes.txt)", "Up one level", "README.md", "Skip the trash"} {
 			if !strings.Contains(body, want) {
 				t.Errorf("rendered files page missing %q", want)
 			}
@@ -66,7 +68,7 @@ func TestRenderFilesPage(t *testing.T) {
 		if err := filesPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "This folder is empty") {
+		if !strings.Contains(w.Body.String(), "No items found.") {
 			t.Error("expected empty-directory message")
 		}
 	})
@@ -151,6 +153,7 @@ func TestRenderUploadPage(t *testing.T) {
 }
 
 func TestRenderEditFilePage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("regular file", func(t *testing.T) {
@@ -167,7 +170,7 @@ func TestRenderEditFilePage(t *testing.T) {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		for _, want := range []string{"Edit file", "documents", "notes.txt", "hello world", "Monaco"} {
+		for _, want := range []string{"Edit File", "documents", "notes.txt", "hello world", "Monaco"} {
 			if !strings.Contains(body, want) {
 				t.Errorf("rendered edit_file page missing %q", want)
 			}
@@ -186,7 +189,7 @@ func TestRenderEditFilePage(t *testing.T) {
 		if err := editFilePage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "Edit WordPress themes set") {
+		if !strings.Contains(w.Body.String(), "Edit WordPress Themes Set") {
 			t.Error("expected the wpcli_themes.txt special-case title")
 		}
 	})

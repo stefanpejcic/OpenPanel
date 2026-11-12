@@ -106,8 +106,31 @@ type DashboardSite struct {
 	Service, Port, State string
 }
 
-// TileIcon is the Remix icon for the site's type
-func (s DashboardSite) TileIcon() string {
+// Tile is the op_icon name and hue of the site's type tile
+func (s DashboardSite) Tile() (icon, hue string) {
+	switch s.Type {
+	case "WordPress":
+		return "wordpress", "green"
+	case "Node.js":
+		return "terminal", "green"
+	case "Python":
+		return "terminal", "yellow"
+	case "Ruby":
+		return "terminal", "red"
+	case "Java":
+		return "terminal", "orange"
+	case "PHP":
+		return "php", "purple"
+	case "n8n", "Docker":
+		return "box", "cyan"
+	case "Website Builder":
+		return "layout", "indigo"
+	}
+	return "apps", "blue"
+}
+
+// plannerTileIcon is the classic theme's Remix icon for the site's type
+func (s DashboardSite) plannerTileIcon() string {
 	switch s.Type {
 	case "WordPress":
 		return "ri-wordpress-line"
@@ -126,6 +149,15 @@ func (s DashboardSite) TileIcon() string {
 	}
 	return "ri-global-line"
 }
+
+// TileIcon is the site type's icon, an op_icon name in Modern and a Remix class in the classic theme
+func (s DashboardSite) TileIcon() string {
+	i, _ := s.Tile()
+	return web.ByTheme(i, s.plannerTileIcon())
+}
+
+// TileHue is the tile colour Modern uses
+func (s DashboardSite) TileHue() string { _, h := s.Tile(); return h }
 
 // RunsOn is the PHP version, or the runtime for apps in their own container
 func (s DashboardSite) RunsOn() string {
@@ -291,23 +323,23 @@ func (d DashboardPageData) PlanTiles() []PlanTile {
 	}
 	var tiles []PlanTile
 	if allowed["wordpress"] || allowed["website_builder"] || allowed["nodejs"] || allowed["python"] {
-		tiles = append(tiles, tile("websites", "Websites", "/sites", "ri-window-line", d.UserWebsitesCount, d.WebsitesLimit))
+		tiles = append(tiles, tile("websites", "Websites", "/sites", web.ByTheme("browser", "ri-window-line"), d.UserWebsitesCount, d.WebsitesLimit))
 	}
 	if allowed["domains"] {
-		tiles = append(tiles, tile("domains", "Domains", "/domains", "ri-global-line", d.MainDomainsCount, d.DomainsLimit))
+		tiles = append(tiles, tile("domains", "Domains", "/domains", web.ByTheme("globe", "ri-global-line"), d.MainDomainsCount, d.DomainsLimit))
 	}
 	if allowed["mysql"] || allowed["postgresql"] {
 		href := "/postgresql"
 		if allowed["mysql"] {
 			href = "/mysql"
 		}
-		tiles = append(tiles, tile("databases", "Databases", href, "ri-database-2-line", d.DBUsage, d.DBLimit))
+		tiles = append(tiles, tile("databases", "Databases", href, web.ByTheme("db", "ri-database-2-line"), d.DBUsage, d.DBLimit))
 	}
 	if allowed["emails"] {
-		tiles = append(tiles, tile("emails", "Email accounts", "/emails", "ri-mail-line", d.EmailCount, d.EmailLimit))
+		tiles = append(tiles, tile("emails", "Email accounts", "/emails", web.ByTheme("mail", "ri-mail-line"), d.EmailCount, d.EmailLimit))
 	}
 	if allowed["ftp"] {
-		tiles = append(tiles, tile("ftp", "FTP accounts", "/ftp", "ri-folder-shared-line", d.FTPCount, d.FTPLimit))
+		tiles = append(tiles, tile("ftp", "FTP accounts", "/ftp", web.ByTheme("ftp", "ri-folder-shared-line"), d.FTPCount, d.FTPLimit))
 	}
 	return tiles
 }

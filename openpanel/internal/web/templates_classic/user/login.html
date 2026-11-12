@@ -1,0 +1,102 @@
+{{define "content"}}
+<!-- START templates/user/login.html -->
+
+<div class="w-full rounded-md border border-gray-200 bg-white p-6 shadow-xs dark:border-gray-900 dark:bg-raised">
+    <div>
+        <h1 class="text-center text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Sign in to your account"}}</h1>
+
+<form method="POST" class="mt-6 space-y-4" action="/login">
+
+<input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+
+{{if not .TwofaEnabled}}
+<!-- Username and password fields only if 2FA is not enabled -->
+            <div>
+                <label for="username" class="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Username"}}</label>
+                <input type="text" name="username" id="username" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" required="" placeholder="{{.T.Get "username"}}" {{if .UnrecognizedError}}autofocus value="{{.Username}}"{{else if .Username}}value="{{.Username}}"{{else}}autofocus{{end}}>
+            </div>
+            <div>
+                <label for="password" class="mb-2 flex items-baseline justify-between text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Password"}}{{if eq .PasswordReset "yes"}} <a href="/reset_password" tabindex="-1" class="font-normal text-gray-900 hover:underline dark:text-gray-50 hover:underline-offset-4">{{.T.Get "Forgot password?"}}</a>{{end}}</label>
+                <div class="relative">
+                <input type="password" name="password" id="password" placeholder="••••••••" class="pr-10 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" required="" {{if .PasswordError}}autofocus{{end}}>
+                <button type="button" data-toggle-password="password" aria-label="{{.T.Get "Show password"}}" aria-pressed="false" class="absolute inset-y-0 right-1 my-auto inline-flex size-8 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50"><i class="ri-eye-line text-base" aria-hidden="true"></i></button>
+                </div>
+            </div>
+
+{{else}}
+<!-- 2FA field if 2FA is enabled -->
+<input type="hidden" name="user_id" value="{{.UserID}}">
+
+            <div>
+                <label for="twofa_code" class="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Two-factor authentication code"}}</label>
+
+                <input autofocus id="twofa_code" name="twofa_code" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500" required="">
+            </div>
+{{end}}
+
+{{if and .CaptchaProvider (not .TwofaEnabled)}}
+<div class="flex justify-center">
+{{if eq .CaptchaProvider "google"}}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<div class="g-recaptcha" data-sitekey="{{.CaptchaSiteKey}}"></div>
+{{else if eq .CaptchaProvider "turnstile"}}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<div class="cf-turnstile" data-sitekey="{{.CaptchaSiteKey}}"></div>
+{{else}}
+<!-- "custom" provider: add your own widget markup/script here, populating an input named "{{.CaptchaFieldName}}" with the response token before submit -->
+<input type="hidden" name="{{.CaptchaFieldName}}" data-custom-captcha-response>
+{{end}}
+</div>
+{{end}}
+
+            <button type="submit" class="w-full relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-[#090E1A] text-white hover:bg-black disabled:bg-gray-400 dark:bg-gray-50 dark:text-gray-950 dark:hover:bg-white dark:disabled:bg-gray-700 dark:disabled:text-gray-400">{{.T.Get "Sign In"}}</button>
+        </form>
+
+{{if not .TwofaEnabled}}
+<div class="my-5 flex items-center gap-3 text-xs text-gray-500"><span class="h-px flex-1 bg-gray-200 dark:bg-gray-800"></span>{{.T.Get "or"}}<span class="h-px flex-1 bg-gray-200 dark:bg-gray-800"></span></div>
+<button type="button" id="passkey-login-btn" class="w-full relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Sign in with a passkey"}}</button>
+<script>window.PasskeyI18n = { registerStart: '{{.T.Get "Failed to start passkey registration."}}', save: '{{.T.Get "Failed to save passkey."}}', loginStart: '{{.T.Get "Failed to start passkey login."}}', login: '{{.T.Get "Passkey login failed."}}' };</script>
+<script src="{{static "js/passkeys.js"}}"></script>
+<script>
+    document.getElementById('passkey-login-btn').addEventListener('click', async function () {
+        if (!window.PublicKeyCredential) {
+            alert("{{.T.Get "Passkeys require this panel to be accessed over HTTPS with a domain name."}}");
+            return;
+        }
+        try {
+            const result = await loginWithPasskey();
+            window.location.href = result.redirect || '/dashboard';
+        } catch (e) {
+            alert(e.message);
+        }
+    });
+</script>
+{{end}}
+
+        <!-- START errors -->
+        {{$message := .ErrorMessage}}{{$tone := .ErrorTone}}
+        {{with .FirstFlash}}{{$message = $.T.Get .Text}}{{$tone = .Category}}{{end}}
+
+        {{if $message}}
+        {{if eq $tone "warning"}}
+        <div class="mt-5 flex items-start gap-3 rounded-md p-4 text-sm bg-yellow-50 text-yellow-900 dark:bg-yellow-950/70 dark:text-yellow-500" role="alert">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-5 shrink-0 text-yellow-500 dark:text-yellow-500"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"></path></svg>
+        <p>{{$message}}</p>
+        </div>
+        {{else}}
+        <div class="mt-5 flex gap-3 rounded-md p-4 text-sm bg-red-50 text-red-900 dark:bg-red-950/70 dark:text-red-500" role="alert">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-red-500 dark:text-red-500"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"></path></svg>
+        <p>
+            {{$message}}
+        </p>
+        </div>
+        {{end}}
+        {{end}}
+        <!-- END errors -->
+
+    </div>
+</div>
+
+<!-- END templates/user/login.html -->
+{{end}}

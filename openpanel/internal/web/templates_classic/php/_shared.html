@@ -1,0 +1,63 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "php_version_select"}}
+{{$T := .T}}{{$suffix := .Suffix}}{{$button := .Button}}{{$icon := .Icon}}
+<!-- quick jump, the same #php_version / #submit_version the upstream selector had -->
+<form method="GET" id="php_version_form" class="flex flex-col gap-2 sm:flex-row sm:items-center" data-suffix="{{$suffix}}">
+    <label for="php_version" class="sr-only">{{$T.Get "PHP version"}}</label>
+    <select id="php_version" onchange="phpPickVersion(this)" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 sm:w-56 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+        <option value="" disabled selected>{{$T.Get "Select PHP version"}}</option>
+        {{range .Versions}}<option value="{{.Version}}">PHP {{.Version}}</option>{{end}}
+    </select>
+    <button type="submit" id="submit_version" disabled class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border h-8 px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none disabled:text-gray-400 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{$button}}</button>
+</form>
+<script>
+// the form opens /php/php<version><suffix>, like the upstream selector did
+function phpPickVersion(select) {
+    select.form.action = '/php/php' + select.value + select.form.dataset.suffix;
+    document.getElementById('submit_version').disabled = !select.value;
+}
+</script>
+{{end}}
+
+{{define "php_version_picker"}}
+<!-- php_version_picker(T, Versions []PHPVersionPick, Suffix, Button, Icon); one row per installed version, the button opens /php/php<version><Suffix> -->
+{{$T := .T}}{{$suffix := .Suffix}}{{$button := .Button}}{{$icon := .Icon}}
+{{if not .NoSelect}}{{template "php_version_select" .}}{{end}}
+<div class="overflow-x-auto">
+<table class="w-full border-t border-gray-200 text-sm dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+    <thead>
+        <tr>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{$T.Get "PHP version"}}</th>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{$T.Get "Support"}}</th>
+            <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50"><span class="sr-only">{{$T.Get "Actions"}}</span></th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .Versions}}
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/60 [&>td]:border-b [&>td]:border-gray-200 dark:[&>td]:border-gray-800">
+            <td class="px-4 py-2.5 whitespace-nowrap">
+                <a href="/php/php{{.Version}}{{$suffix}}" class="inline-flex items-center gap-2 font-medium text-gray-900 tabular-nums hover:underline hover:underline-offset-4 dark:text-gray-50">
+                    <span class="flex gap-0.5" aria-hidden="true">
+                        {{if eq .Level "good"}}<span class="h-3.5 w-1 rounded-sm bg-emerald-500"></span><span class="h-3.5 w-1 rounded-sm bg-emerald-500"></span><span class="h-3.5 w-1 rounded-sm bg-emerald-500"></span>
+                        {{else if eq .Level "secure"}}<span class="h-3.5 w-1 rounded-sm bg-yellow-500"></span><span class="h-3.5 w-1 rounded-sm bg-yellow-500"></span><span class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></span>
+                        {{else}}<span class="h-3.5 w-1 rounded-sm bg-red-500"></span><span class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></span><span class="h-3.5 w-1 rounded-sm bg-gray-300 dark:bg-gray-700"></span>{{end}}
+                    </span>
+                    PHP {{.Version}}
+                </a>
+            </td>
+            <td class="px-4 py-2.5 text-center whitespace-nowrap text-gray-600 dark:text-gray-400">{{if .Label}}{{$T.Get .Label}}{{else}}<span class="text-gray-400 dark:text-gray-500">—</span>{{end}}</td>
+            <td class="px-4 py-2.5 whitespace-nowrap">
+                <div class="flex h-8 items-center justify-end">
+                <a href="/php/php{{.Version}}{{$suffix}}" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border h-8 px-2.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="{{$icon}} text-base leading-none" aria-hidden="true"></i>{{$button}}</a>
+                </div>
+            </td>
+        </tr>
+        {{else}}
+        <tr><td colspan="3" class="border-b border-gray-200 py-10 text-center text-sm text-gray-500 dark:border-gray-800">{{$T.Get "No PHP versions installed."}}</td></tr>
+        {{end}}
+    </tbody>
+</table>
+</div>
+<p class="px-4 pt-3 pb-6 text-xs text-gray-500 sm:px-6 lg:px-8"><span class="tabular-nums">{{len .Versions}}</span> {{if eq (len .Versions) 1}}{{$T.Get "version"}}{{else}}{{$T.Get "versions"}}{{end}}</p>
+{{end}}

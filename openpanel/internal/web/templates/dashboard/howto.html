@@ -1,22 +1,10 @@
 {{define "howto"}}{{if .HowToGuides}}
 <!-- START templates/dashboard/howto.html -->
-<section id="dashboard_howto" aria-labelledby="dashboard_howto_heading" class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950 xl:col-span-1"
-    x-data="{ open: (function () { try { return localStorage.getItem('dash_widget_howto') !== 'closed' } catch (e) { return true } })(), toggle() { this.open = !this.open; try { localStorage.setItem('dash_widget_howto', this.open ? 'open' : 'closed') } catch (e) {} } }">
-    <div id="dashboard_howto_title" class="flex items-center justify-between gap-4 px-6 py-4" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
-        <div class="min-w-0">
-        <h2 id="dashboard_howto_heading" class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "General how-to"}}</h2>{{with .KnowledgeBaseLink}}<a href="{{.}}" target="_blank" rel="noopener" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{$.T.Get "View docs"}} &rarr;</a>{{end}}
-        <p class="text-sm/6 text-gray-500" x-show="open">{{.T.Get "Short guides for the things people do most."}}</p>
-        </div>
-        <button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? '{{.T.Get "Collapse"}}' : '{{.T.Get "Expand"}}'" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button>
-    </div>
-    <ul id="dashboard_howto_data" x-show="open" role="list" class="divide-y divide-gray-200 text-sm dark:divide-gray-800">
+<section id="dashboard_howto" class="op-card">
+    <div id="dashboard_howto_title" class="op-card-head"><h2>{{.T.Get "General How-to"}}</h2>{{if .KnowledgeBaseLink}}<a href="{{.KnowledgeBaseLink}}" target="_blank" rel="noopener">{{.T.Get "Knowledge base"}}</a>{{end}}</div>
+    <ul id="dashboard_howto_data" class="op-link-list">
         {{range .HowToTopics}}
-        <li>
-            <a class="flex items-center justify-between gap-3 px-6 py-2.5 text-gray-900 hover:bg-gray-50 dark:text-gray-50 dark:hover:bg-gray-900/60" href="{{.Link}}" target="_blank" rel="noopener">
-                <span class="min-w-0">{{$.T.Get .Title}}</span>
-                <i class="ri-arrow-right-up-line shrink-0 text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
-            </a>
-        </li>
+        <li><a href="{{.Link}}" target="_blank" rel="noopener">{{template "op_icon" "book"}} <span>{{$.T.Get .Title}}</span></a></li>
         {{end}}
     </ul>
 </section>

@@ -1,3 +1,5 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 {{define "flowbite_js"}}{{end}}
 
@@ -6,10 +8,10 @@
 
 <div x-data="{ showUpload: (new URLSearchParams(window.location.search).get('method') !== 'download') }">
 
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
+    <div class="op-page-head op-cms-head">
         <div>
-                <h1 id="current_option" class="text-lg font-semibold text-gray-900 dark:text-gray-50"><span x-text="showUpload ? '{{.T.Get "File upload"}}' : '{{.T.Get "Download from URL"}}'"></span></h1>
-                <p class="mt-1 text-sm text-gray-500 max-w-3xl"><i class="ri-folder-line" aria-hidden="true"></i> <a href="/files/{{.PathParam}}" class="hover:text-gray-900 hover:underline hover:underline-offset-4 dark:hover:text-gray-50">/var/www/html/{{.PathParam}}</a></p>
+                <div class="op-wp-title"><h1 id="current_option" class="op-title"><span x-text="showUpload ? '{{.T.Get "File Upload"}}' : '{{.T.Get "Download from URL"}}'"></span></h1></div>
+                <p class="op-meta"><a href="/files/{{.PathParam}}" class="">{{.PathParam}}</a></p>
             </div>
             <div class="editor-header mt-2 gap-2 sm:mt-0 sm:flex">
             </div>
@@ -20,36 +22,33 @@
 <!-- forms -->
 
     <!-- Upload Files Form -->
-    <div x-show="showUpload" class="CrawlerStatusCard px-4 pb-8 sm:px-6 lg:px-8" id="upload_files_form">
-        <form id="uploadForm" enctype="multipart/form-data" method="POST" class="max-w-5xl divide-y divide-gray-200 dark:divide-gray-800">
+    <div x-show="showUpload" class="op-card op-block-card CrawlerStatusCard" id="upload_files_form">
+        <form class="mt-8" id="uploadForm" enctype="multipart/form-data" method="POST">
 
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
-<section aria-labelledby="upload-title" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
-    <div>
-        <h2 id="upload-title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Upload files"}}</h2>
-        <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Pick files from your computer or drop them on the box. They go into the folder above."}}</p>
-    </div>
-<div class="md:col-span-2">
+<div class="flex items-center justify-center w-full">
     <label for="fileUpload"
-           class="flex flex-col items-center justify-center w-full h-56 border border-gray-300 border-dashed rounded-md cursor-pointer hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/60 py-6">
+           class="flex flex-col items-center justify-center w-full h-64 cursor-pointer py-6 op-surface">
 
-        <div id="uploadText" class="flex flex-col items-center justify-center pt-5 pb-6 max-h-72 overflow-y-auto  [&::-webkit-scrollbar]:w-2  [&::-webkit-scrollbar-track]:bg-gray-100  [&::-webkit-scrollbar-thumb]:bg-gray-300  dark:[&::-webkit-scrollbar-track]:bg-gray-700  dark:[&::-webkit-scrollbar-thumb]:bg-gray-500">
-            <i class="ri-upload-cloud-2-line mb-3 text-2xl text-gray-400" aria-hidden="true"></i>
-            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                <span class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Click to upload"}}</span> {{.T.Get "or drag and drop"}}
+        <div id="uploadText" class="flex flex-col items-center justify-center pt-5 pb-6 max-h-72 overflow-y-auto">
+            <svg class="w-8 h-8 mb-4 op-muted" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                 fill="none" viewBox="0 0 20 16">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+            </svg>
+            <p class="mb-2 text-sm op-muted">
+                <span class="font-semibold">{{.T.Get "Click to upload"}}</span> {{.T.Get "or drag and drop"}}
             </p>
-            <p class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Any file type, multiple files allowed"}}</p>
+            <p class="op-hint">{{.T.Get "Any file type (Multiple files allowed)"}}</p>
             {{if .FilemanagerUploadSize}}
-            <p class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Max size:"}} {{.FilemanagerUploadSize}} MB</p>
+            <p class="op-hint">{{.T.Get "Max size:"}} {{.FilemanagerUploadSize}} MB</p>
             {{end}}
         </div>
 
         <input id="fileUpload" name="fileUpload" type="file" class="hidden" multiple required />
     </label>
-    <div id="upload-progress-container"></div>
 </div>
-</section>
 
 <script>
 document.getElementById('fileUpload').addEventListener('change', function(event) {
@@ -58,7 +57,7 @@ document.getElementById('fileUpload').addEventListener('change', function(event)
 
     if (files.length) {
         uploadText.innerHTML = `
-            <ul class="text-sm text-gray-900 dark:text-gray-50 list-disc pl-5">
+            <ul class="text-sm list-disc pl-5 op-muted">
                 ${files.map(file => `<li>${file.name}</li>`).join('')}
             </ul>
         `;
@@ -76,13 +75,13 @@ const uploadText = document.getElementById('uploadText');
 
 ['dragenter', 'dragover'].forEach(eventName => {
     dropArea.addEventListener(eventName, () => {
-        dropArea.classList.add('ring-2', 'ring-blue-500');
+        dropArea.classList.add('is-dragover');
     });
 });
 
 ['dragleave', 'drop'].forEach(eventName => {
     dropArea.addEventListener(eventName, () => {
-        dropArea.classList.remove('ring-2', 'ring-blue-500');
+        dropArea.classList.remove('is-dragover');
     });
 });
 
@@ -97,50 +96,66 @@ dropArea.addEventListener('drop', (e) => {
 
 
 
+            <div class="op-sep">
+                <div class="op-divider"></div>
+            </div>
 
-            <div class="flex flex-col-reverse gap-2 pt-6 sm:flex-row sm:justify-end">
-                <button type="button" id="change_to_wget" @click.prevent="showUpload = false" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">
+            <div class="op-actions op-actions-end">
+                <button type="button" id="change_to_wget" @click.prevent="showUpload = false" class="op-btn op-btn-secondary">
                     {{.T.Get "Download from URL instead"}}
                 </button>
-                <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
-                    <i class="ri-upload-line"></i> {{.T.Get "Upload"}}
+                <button type="submit" class="op-btn op-btn-primary">
+                    {{.T.Get "Upload"}}
+                    <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+                    </svg>
                 </button>
             </div>
         </form>
+
+
+        <div id="upload-progress-container"></div>
+
+
     </div>
 
     <!-- Wget Files Form -->
-    <div x-show="!showUpload" class="CrawlerStatusCard px-4 pb-8 sm:px-6 lg:px-8" id="wget_files_form">
-        <form id="wgetForm" enctype="multipart/form-data" method="POST" class="max-w-5xl divide-y divide-gray-200 dark:divide-gray-800">
-            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-            <section aria-labelledby="wget-title" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
-                <div>
-                    <h2 id="wget-title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Download a file"}}</h2>
-                    <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Paste a link to a file and the server downloads it into the folder above, without going through your computer."}}</p>
+    <div x-show="!showUpload" class="op-card op-block-card CrawlerStatusCard" id="wget_files_form">
+        <form class="mt-8" id="wgetForm" enctype="multipart/form-data" method="POST">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <div class="">
+                <div class="col-span">
+                    <input type="url" class="op-input" id="fileWget" name="fileWget" placeholder="https://" required>
                 </div>
-                <div class="md:col-span-2">
-                    <label for="fileWget" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "URL"}} <span class="font-normal text-gray-500">{{.T.Get "starting with"}} https://</span></label>
-                    <input type="url" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 mt-2" id="fileWget" name="fileWget" placeholder="https://" required>
-                    <div id="download-progress-div" class="hidden mt-6 rounded-md bg-gray-50 p-4 dark:bg-gray-900">
-                        <div class="flex items-center justify-between gap-3 text-xs text-gray-500">
-                            <div id="download-progress-header">{{.T.Get "Download in progress..."}}</div>
-                            <span id="download-progress-label" class="tabular-nums">0%</span>
-                        </div>
-                        <div id="download-progress-bar" class="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800" role="progressbar">
-                            <div id="download-progress-bar-inner" class="h-full rounded-full bg-blue-500 transition-all" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <div class="flex flex-col-reverse gap-2 pt-6 sm:flex-row sm:justify-end">
-                <button type="button" id="change_to_upload" @click.prevent="showUpload = true" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">
+            </div>
+
+            <div class="op-sep">
+                <div class="op-divider"></div>
+            </div>
+
+            <div class="op-actions op-actions-end">
+                <button type="button" id="change_to_upload" @click.prevent="showUpload = true" class="op-btn op-btn-secondary">
                     {{.T.Get "Upload from device instead"}}
                 </button>
-                <button type="submit" id="installButton" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
-                    <i class="ri-download-line" aria-hidden="true"></i> {{.T.Get "Download"}}
+                <button type="submit" id="installButton" class="op-btn op-btn-primary">
+                    {{.T.Get "Download"}}
+                    <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"></path>
+                    </svg>
                 </button>
             </div>
         </form>
+
+        <div id="download-progress-div" class="hidden">
+            <div id="download-progress-header" class="op-meta">{{.T.Get "Download in progress..."}}</div>
+            <div id="download-progress-bar" class="w-full h-4 mt-2 relative op-inset-box">
+                <div id="download-progress-bar-inner" class="h-4" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                <span id="download-progress-label" class="absolute inset-0 flex items-center justify-center text-sm op-strong">0%</span>
+            </div>
+        </div>
+
+
     </div>
 
 </div>
@@ -451,7 +466,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // uploadBatch sends one request with its own progress row and calls done once it's over, done(true) when cancelled
     function uploadBatch(uploadFiles, done) {
         const uploadProgressContainer = document.getElementById('upload-progress-container');
-        const classesToAdd = ['mt-6', 'space-y-4', 'rounded-md', 'bg-gray-50', 'p-4', 'dark:bg-gray-900'];
+        const classesToAdd = ['mt-6', 'border', 'rounded-xl', 'shadow-sm', 'p-6', 'dark:bg-neutral-800', 'dark:border-neutral-700'];
         classesToAdd.forEach(className => {
             if (!uploadProgressContainer.classList.contains(className)) {
                 uploadProgressContainer.classList.add(className);
@@ -472,39 +487,32 @@ document.addEventListener("DOMContentLoaded", function () {
         xhr.open('POST', '/file-manager/upload', true);
 
         const progressContainer = document.createElement('div');
-        progressContainer.classList.add('justify-between', 'items-center');
+        progressContainer.classList.add('op-upload-item');
 
         progressContainer.innerHTML = `
-            <div class="flex items-center justify-between  gap-x-3">
-                <div class="flex space-x-2 items-center">
-                <div class="size-8 flex justify-center items-center rounded-md border border-gray-200 bg-white text-gray-500 dark:border-gray-800 dark:bg-gray-950"><i class="ri-upload-line"></i></div>
-                    <p class="text-sm font-medium text-gray-900 dark:text-gray-50">${currentFileName}</p>
-                </div>
-                <div class="inline-flex items-center gap-x-2">
-                    <button type="button" aria-label="{{.T.Get "Cancel"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 cancel-btn"><i class="ri-close-line"></i></button>
-                </div>
+            <div class="op-upload-row">
+                <span class="op-ico-tile is-sm" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" x2="12" y1="3" y2="15"></line></svg></span>
+                <p class="upload-name op-strong op-truncate">${currentFileName}</p>
+                <button type="button" class="op-icon-btn op-icon-btn-sm cancel-btn" aria-label="Cancel">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>
+                </button>
             </div>
-            <div class="flex items-center justify-between gap-x-3 whitespace-nowrap">
-                <div class="mt-2 flex w-full h-2 bg-gray-200 rounded-full overflow-hidden dark:bg-gray-800" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                    <div class="rounded-full bg-blue-600 transition-all duration-500" style="width: 0%"></div>
-                </div>
-                <div class="mt-2 w-10 text-end">
-                    <span class="text-xs text-gray-500 tabular-nums">0%</span>
-                </div>
+            <div class="op-upload-row">
+                <div class="op-progress op-grow" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"><span class="upload-bar" style="width: 0%"></span></div>
+                <span class="upload-pct op-mono">0%</span>
             </div>
         `;
 
         document.getElementById('upload-progress-container').appendChild(progressContainer);
 
-        const progressBar = progressContainer.querySelector('.bg-blue-600');
-        const progressLabel = progressContainer.querySelector('span');
+        const progressBar = progressContainer.querySelector('.upload-bar');
+        const progressLabel = progressContainer.querySelector('.upload-pct');
         const cancelButton = progressContainer.querySelector('.cancel-btn');
 
         cancelButton.addEventListener('click', () => {
             xhr.abort();
-            progressBar.classList.remove('bg-blue-600');
-            progressBar.classList.add('bg-red-500');
-            cancelButton.innerHTML = '<i class="ri-error-warning-line text-red-500"></i>';
+                        progressBar.classList.add('is-danger');
+            cancelButton.innerHTML = '<svg class="shrink-0 size-4 is-danger" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"> <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path> </svg>';
             done(true);
         });
 
@@ -519,19 +527,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
         xhr.onload = function () {
             if (xhr.status === 200) {
-                progressContainer.querySelector('.text-sm').innerText = `${currentFileName} uploaded successfully`;
+                progressContainer.querySelector('.upload-name').innerText = `${currentFileName} uploaded successfully`;
                 showToast("{{.T.Get "Files uploaded successfully!"}}", 'success');
-                progressBar.classList.remove('bg-blue-600');
-                progressBar.classList.add('bg-emerald-500');
-                cancelButton.innerHTML = '<i class="ri-checkbox-circle-line text-emerald-500"></i>';
+                                progressBar.classList.add('is-success');
+                cancelButton.innerHTML = '<svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"> <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path> </svg>';
                 cancelButton.classList.remove('cancel-btn');
                 done(false);
             } else {
-                progressBar.classList.remove('bg-blue-600');
-                progressBar.classList.add('bg-red-500');
+                                progressBar.classList.add('is-warning');
                 showToast("{{.T.Get "Error uploading file:"}} " + xhr.statusText + ' - ' + xhr.responseText, "error");
-                progressContainer.querySelector('.text-sm').innerText = `${currentFileName} upload failed`;
-                cancelButton.innerHTML = '<i class="ri-error-warning-line text-red-500"></i>';
+                progressContainer.querySelector('.upload-name').innerText = `${currentFileName} upload failed`;
+                cancelButton.innerHTML = '<svg class="shrink-0 size-4 is-danger" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"> <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path> </svg>';
                 cancelButton.classList.remove('cancel-btn');
                 done(false);
             }
@@ -539,10 +545,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         xhr.onerror = function () {
             showToast("{{.T.Get "Network error during file upload. Please try again."}}", 'error');
-            progressBar.classList.remove('bg-blue-600');
-            progressBar.classList.add('bg-red-500');
-            progressContainer.querySelector('.text-sm').innerText = `${currentFileName} upload failed`;
-            cancelButton.innerHTML = '<i class="ri-error-warning-line text-red-500"></i>';
+                        progressBar.classList.add('is-warning');
+            progressContainer.querySelector('.upload-name').innerText = `${currentFileName} upload failed`;
+            cancelButton.innerHTML = '<svg class="shrink-0 size-4 is-danger" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"> <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path> </svg>';
             cancelButton.classList.remove('cancel-btn');
             done(false);
         };

@@ -1,102 +1,81 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
+
 {{define "content"}}
 <!-- START templates/domains/new.html -->
+<div class="op-content" x-data="{ addDomainDebug: localStorage.getItem('addDomainDebug') === 'true', target: 'new', name: '' }" x-ref="statusWrapper" x-init="$watch('addDomainDebug', value => localStorage.setItem('addDomainDebug', value))">
 
-<section x-data="{ addDomainDebug: localStorage.getItem('addDomainDebug') === 'true' }" x-ref="statusWrapper" x-init="$watch('addDomainDebug', value => localStorage.setItem('addDomainDebug', value))">
-<!-- page header -->
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
-    <div>
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "New domain"}}</h1>
-        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Add a new domain name to be used for websites, emails, etc."}}</p>
-    </div>
-    <button type="button" @click="addDomainDebug = !addDomainDebug" :aria-expanded="addDomainDebug" aria-controls="statusMessage" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">
-        <span x-text="addDomainDebug ? '{{.T.Get "Hide details"}}' : '{{.T.Get "Show details"}}'"></span>
-        <i class="ri-arrow-down-s-line text-base leading-none transition-transform" :class="{ 'rotate-180': addDomainDebug }" aria-hidden="true"></i>
-    </button>
-</div>
-<!-- END page header -->
-
-<!-- form -->
-<div class="px-4 pb-6 sm:px-6 lg:px-8">
-<div class="max-w-2xl rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised sm:p-6 CrawlerStatusCard" id="toAddActive">
-    <form id="addDomainForm" method="POST" action="#">
-    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-        <div class="space-y-6">
-            <div>
-                <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="domain_url">{{.T.Get "Domain"}}<span class="ml-1 text-red-600 dark:text-red-500">*</span></label>
-                <input type="text" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-                    id="domain_url"
-                    placeholder="example.net"
-                    name="domain_url"
-                    aria-describedby="punycode-info"
-                    pattern="(?:(?!-)[\p{L}\p{N}\p{M}-]{1,63}(?&lt;!-)\.)+(?:[a-zA-Z\p{L}]{2,63}|xn--[a-zA-Z0-9-]{1,59}|\bonion\b)"
-                    title="{{.T.Get "Invalid domain name. Please enter a valid domain name like %(example)s or %(subdomain)s." "example" "'example.com'" "subdomain" "'sub.example.com'"}}"
-                    required
-                />
-                <input type="text" class="form-control d-none" name="domain_name" id="domain_name" placeholder="example.net" hidden>
-                <p id="punycode-info" style="display: none;" class="mt-2 text-xs text-gray-500"></p>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="docroot">{{.T.Get "Document root (folder)"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
-                <input type="text" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 read-only:bg-gray-50 read-only:text-gray-500 dark:read-only:bg-gray-900 dark:read-only:text-gray-400"
-                    id="docroot"
-                    name="docroot"
-                    value="/var/www/html/"
-                    pattern="^/var/www/html/.*"
-                    title="{{.T.Get "Invalid document root. Please enter a valid path that start with /var/www/html/"}}"
-                    required
-                    {{if not .UserAllowed.docroot}}
-                    aria-describedby="docroot-locked"
-                    readonly
-                    {{end}}
-                />
-                {{if not .UserAllowed.docroot}}<p id="docroot-locked" class="mt-2 text-xs text-gray-500">{{.T.Get "docroot module or feature are not enabled. Contact Administrator to change docroot."}}</p>{{end}}
-            </div>
-
-            <div id="keys-fields" style="display: none;">
-                <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="hs_ed25519_public_key">{{.T.Get "Public key"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
-                <input type="text" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-                    id="hs_ed25519_public_key"
-                    name="hs_ed25519_public_key"
-                    pattern="^/var/www/html/.*"
-                    placeholder="/var/www/html/path/to/hs_ed25519_public_key"
-                />
-            </div>
-
-            <div id="key2-fields" style="display: none;">
-                <label class="block text-sm font-medium text-gray-900 dark:text-gray-50" for="hs_ed25519_secret_key">{{.T.Get "Secret key"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
-                <input type="text" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-                    id="hs_ed25519_secret_key"
-                    name="hs_ed25519_secret_key"
-                    pattern="^/var/www/html/.*"
-                    placeholder="/var/www/html/path/to/hs_ed25519_secret_key"
-                />
-            </div>
+    <div class="op-page-head">
+        <div>
+            <div class="op-eyebrow"><a class="op-link" href="/domains">{{.T.Get "Domains"}}</a></div>
+            <h1 class="op-title">{{.T.Get "Add a Domain"}}</h1>
+            <p class="op-meta">{{.T.Get "Point a domain at a new folder or at an existing website."}}</p>
         </div>
-
-        {{if not .UserAllowed.php}}
-        <input type="hidden" name="skip_containers" value="--skip_containers"/>
-        {{end}}
-
-        <div class="mt-6 flex justify-end border-t border-gray-200 pt-6 dark:border-gray-800">
-            <button type="submit" id="installButton" class="w-full sm:w-auto relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
-                {{.T.Get "Add domain"}} <i class="ri-arrow-right-line text-base leading-none rtl:rotate-180" aria-hidden="true"></i>
+        <div class="op-actions">
+            <button type="button" class="op-btn op-btn-secondary" @click="addDomainDebug = !addDomainDebug" :aria-expanded="addDomainDebug.toString()">
+                {{template "op_icon" "logs"}} <span x-text="addDomainDebug ? '{{.T.Get "Hide Details"}}' : '{{.T.Get "Show Details"}}'"></span>
             </button>
         </div>
-    </form>
-</div>
-</div>
-<!-- END form -->
+    </div>
 
-<!-- .CrawlerStatusCard.active spin animation now lives globally in base.html -->
+    <section class="op-card CrawlerStatusCard" id="toAddActive">
+        <form id="addDomainForm" method="POST" action="#">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+            <input type="text" name="domain_name" id="domain_name" hidden>
+            {{if not .UserAllowed.php}}<input type="hidden" name="skip_containers" value="--skip_containers"/>{{end}}
 
-<!-- progress text -->
-<div class="px-4 pb-6 sm:px-6 lg:px-8">
-<pre id="statusMessage" x-show="addDomainDebug" x-transition x-cloak class="max-h-64 max-w-2xl overflow-auto rounded-md bg-gray-950 p-4 font-mono text-xs whitespace-pre-wrap text-gray-50"></pre>
+            <div class="op-section"><div><h3>{{.T.Get "Domain"}}</h3><p>{{.T.Get "Without http:// or www. Subdomains work too."}}</p></div>
+                <div class="op-col" style="gap:12px">
+                    <label class="op-field" for="domain_url"><span class="op-label">{{.T.Get "Domain name"}}</span>
+                        <input type="text" class="op-input op-mono" id="domain_url" name="domain_url" placeholder="example.org" autocomplete="off" autocapitalize="off" spellcheck="false" x-model="name"
+                            pattern="(?:(?!-)[\p{L}\p{N}\p{M}-]{1,63}(?&lt;!-)\.)+(?:[a-zA-Z\p{L}]{2,63}|xn--[a-zA-Z0-9-]{1,59}|\bonion\b)"
+                            title="{{.T.Get "Invalid domain name. Please enter a valid domain name like %(example)s or %(subdomain)s." "example" "'example.com'" "subdomain" "'sub.example.com'"}}"
+                            aria-describedby="domain-hint" required>
+                        <span class="op-hint" id="domain-hint" aria-live="polite" data-idle="{{.T.Get "A domain like example.com or a subdomain like shop.example.com."}}" data-ok="{{.T.Get "Looks good."}}" data-bad="{{.T.Get "That isn't a valid domain name yet."}}">{{.T.Get "A domain like example.com or a subdomain like shop.example.com."}}</span>
+                        <span class="op-hint" id="punycode-info" style="display: none;"></span>
+                    </label>
+                    <label class="op-field" id="keys-fields" style="display: none;" for="hs_ed25519_public_key"><span class="op-label">{{.T.Get "Public Key"}}</span>
+                        <input type="text" class="op-input op-mono" id="hs_ed25519_public_key" name="hs_ed25519_public_key" pattern="^/var/www/html/.*" placeholder="/var/www/html/path/to/hs_ed25519_public_key">
+                    </label>
+                    <label class="op-field" id="key2-fields" style="display: none;" for="hs_ed25519_secret_key"><span class="op-label">{{.T.Get "Secret Key"}}</span>
+                        <input type="text" class="op-input op-mono" id="hs_ed25519_secret_key" name="hs_ed25519_secret_key" pattern="^/var/www/html/.*" placeholder="/var/www/html/path/to/hs_ed25519_secret_key">
+                    </label>
+                </div>
+            </div>
+
+            <div class="op-section"><div><h3>{{.T.Get "Where it points"}}</h3><p>{{.T.Get "You can change the folder later from Domains."}}</p></div>
+                <div class="op-col" style="gap:12px">
+                    {{if and .UserAllowed.docroot .Sites}}
+                    <div class="op-options" style="--cols:2">
+                        <label class="op-option"><input type="radio" name="op_target" value="new" x-model="target" @change="document.getElementById('docroot').value = '/var/www/html/' + name.trim()"><div><b>{{.T.Get "New folder"}}</b><span>{{.T.Get "An empty site you upload to"}}</span></div></label>
+                        <label class="op-option"><input type="radio" name="op_target" value="site" x-model="target" @change="document.getElementById('docroot').value = $refs.site.value"><div><b>{{.T.Get "Existing website"}}</b><span>{{.T.Get "Share its folder, like an alias"}}</span></div></label>
+                    </div>
+                    <label class="op-field" x-show="target === 'site'" x-cloak><span class="op-label">{{.T.Get "Website"}}</span>
+                        <select class="op-select" x-ref="site" @change="document.getElementById('docroot').value = $event.target.value">
+                            {{range .Sites}}<option class="punycode" value="{{.Docroot}}">{{.DomainURL}}</option>{{end}}
+                        </select>
+                    </label>
+                    {{end}}
+                    <div class="op-field">
+                        <label class="op-label" for="docroot">{{.T.Get "Document root"}}</label>
+                        <input type="text" class="op-input op-mono" id="docroot" name="docroot" value="/var/www/html/" pattern="^/var/www/html/.*"
+                            title="{{.T.Get "Invalid document root. Please enter a valid path that start with /var/www/html/"}}" required
+                            {{if not .UserAllowed.docroot}}readonly aria-describedby="docroot-locked"{{else}}:readonly="target === 'site'"{{end}}>
+                        {{if .UserAllowed.docroot}}<span class="op-hint">{{.T.Get "Filled in from the domain name. Created if it does not exist."}}</span>
+                        {{else}}<span class="op-hint" id="docroot-locked">{{.T.Get "docroot module or feature are not enabled. Contact Administrator to change docroot."}}</span>{{end}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="op-savebar">
+                <a href="/domains" class="op-btn op-btn-secondary">{{.T.Get "Cancel"}}</a>
+                <button class="op-btn op-btn-primary" type="submit" id="installButton">{{template "op_icon" "plus"}} {{.T.Get "Add Domain"}}</button>
+            </div>
+        </form>
+    </section>
+
+    <pre id="statusMessage" class="op-pre" x-show="addDomainDebug" x-transition x-cloak aria-live="polite"></pre>
 </div>
-</section>
-<!-- END progress text -->
 
 <!-- js for submit and validation -->
 <script type="module">
@@ -190,8 +169,9 @@ addDomainForm.addEventListener("submit", function(event) {
 
     // Disable the button and show loading message
     const button = document.getElementById("installButton");
+    const buttonLabel = button.innerHTML;
     button.disabled = true;
-    button.innerText = "Adding...";
+    button.textContent = "{{.T.Get "Adding..."}}";
 
     // Clear any previous status messages
     const statusMessageDiv = document.getElementById("statusMessage");
@@ -252,31 +232,25 @@ fetch("/domains/new", {
                         document.getElementById("toAddActive").classList.remove("active");
 
                         button.disabled = false;
-                        button.innerHTML = `{{.T.Get "Add domain"}} <i class="ri-arrow-right-line text-base leading-none rtl:rotate-180" aria-hidden="true"></i>`;
+                        button.innerHTML = buttonLabel;
                         domainUrlInput.value = "";
                         domainNameInput.value = "";
                         domainDocrootInput.value = "/var/www/html/";
                         punycodeInfo.style.display = "none";
 
                     } else if (text.toLowerCase().includes("warning") && !toastDisplayed) {
-                        const wrapper = document.querySelector('[x-ref="statusWrapper"]');
-                        if (wrapper && wrapper.__x) {
-                            wrapper.__x.$data.addDomainDebug = true;
-                        }
+                        showAddDomainLog();
                     } else if (text.toLowerCase().includes("error") && !toastDisplayed) {
-                        const toastMessage = `{{.T.Get "Error adding domain name"}} ${domainUrlInput.value} {{.T.Get "Click on Show details above to view the log."}}`;
+                        const toastMessage = `{{.T.Get "Error adding domain name"}} ${domainUrlInput.value} {{.T.Get "Click on Show Details above to view the log."}}`;
                         showToast(toastMessage, 'warning');
 
-                        const wrapper = document.querySelector('[x-ref="statusWrapper"]');
-                        if (wrapper && wrapper.__x) {
-                            wrapper.__x.$data.addDomainDebug = true;
-                        }
+                        showAddDomainLog();
 
                         toastDisplayed = true; // Mark toast as displayed
                         document.getElementById("toAddActive").classList.remove("active");
 
                         button.disabled = false;
-                        button.innerHTML = `{{.T.Get "Retry"}} <i class="ri-arrow-right-line text-base leading-none rtl:rotate-180" aria-hidden="true"></i>`;
+                        button.textContent = "{{.T.Get "Retry"}}";
 
                     }
 
@@ -297,6 +271,11 @@ fetch("/domains/new", {
 
 
 });
+
+function showAddDomainLog() {
+    const wrapper = document.querySelector('[x-ref="statusWrapper"]');
+    if (wrapper && window.Alpine) Alpine.$data(wrapper).addDomainDebug = true;
+}
 
 // Function to extract domain name from a URL
 function extractDomainName(url) {
@@ -322,7 +301,14 @@ function syncDomainCustomValidity() {
         ? punycodeValueForSubmission
         : domainUrlInput.value;
 
-    if (valueToTest === '' || isValidDomainName(valueToTest)) {
+    const hint = document.getElementById('domain-hint');
+    const ok = valueToTest === '' || isValidDomainName(valueToTest);
+    domainUrlInput.classList.toggle('is-invalid', !ok);
+    hint.classList.toggle('is-invalid', !ok);
+    hint.classList.toggle('is-valid', ok && valueToTest !== '');
+    hint.textContent = ok ? (valueToTest === '' ? hint.dataset.idle : hint.dataset.ok) : hint.dataset.bad;
+
+    if (ok) {
         domainUrlInput.setCustomValidity('');
     } else {
         domainUrlInput.setCustomValidity(
@@ -347,8 +333,8 @@ domainUrlInput.addEventListener('input', function () {
 
     // '.onion'
     if (domainUrlValue.includes('.onion')) {
-        keysFields.style.display = 'block';
-        key2Fields.style.display = 'block';
+        keysFields.style.display = 'flex';
+        key2Fields.style.display = 'flex';
     } else {
         keysFields.style.display = 'none';
         key2Fields.style.display = 'none';
@@ -366,14 +352,14 @@ domainUrlInput.addEventListener('input', function () {
         punycodeInfo.style.display = 'block';
 
         var updatedDocRootValue = "/var/www/html/" + punycodeValueForSubmission;
-        if (docRootInput) {
+        if (docRootInput && !(document.querySelector('input[name=op_target][value=site]') || {}).checked) {
             docRootInput.value = updatedDocRootValue;
         }
     } else {
         punycodeInfo.style.display = 'none';
 
         var updatedDocRootValue = "/var/www/html/" + domainUrlValue;
-        if (docRootInput) {
+        if (docRootInput && !(document.querySelector('input[name=op_target][value=site]') || {}).checked) {
             docRootInput.value = updatedDocRootValue;
         }
 

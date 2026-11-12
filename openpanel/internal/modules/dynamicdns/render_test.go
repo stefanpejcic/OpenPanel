@@ -8,6 +8,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 // fakeToken repeats a word to token length, so fixtures never look like real secrets
@@ -25,40 +26,60 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 }
 
 func TestRenderDynamicDNSPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
-
-	t.Run("empty", func(t *testing.T) {
-		data := DynamicDNSPageData{
-			LayoutData:  baseLayout(mgr, "/domains/dynamic-dns"),
-			DomainNames: []string{"example.com"},
-			BaseURL:     "https://203.0.113.10:2083/",
-		}
+	now := time.Date(2026, 10, 29, 12, 0, 0, 0, time.UTC)
+	render := func(t *testing.T, data DynamicDNSPageData, selectHost string) string {
+		t.Helper()
+		fillHostSummary(&data, selectHost, now)
 		w := httptest.NewRecorder()
 		if err := dynamicDNSPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "No Dynamic DNS entries yet") {
-			t.Error("expected empty-state message")
+		return w.Body.String()
+	}
+	domains := []string{"example.com", "shop.example.com"}
+
+	t.Run("no domains", func(t *testing.T) {
+		body := render(t, DynamicDNSPageData{LayoutData: baseLayout(mgr, "/domains/dynamic-dns"), BaseURL: "https://203.0.113.10:2083/"}, "")
+		if !strings.Contains(body, "No domains yet") || strings.Contains(body, "New Host") {
+			t.Error("expected the no-domain state without a New Host button")
 		}
 	})
 
-	t.Run("with entries", func(t *testing.T) {
-		entry := DynDNSEntry{LineNumber: 5, Subdomain: "home", TTL: "300", Type: "A", Record: "1.2.3.4", Token: "abcdefghijklmnop", LastUpdated: "2026-01-01T00:00:00Z"}
-		data := DynamicDNSPageData{
-			LayoutData:  baseLayout(mgr, "/domains/dynamic-dns"),
-			DomainNames: []string{"example.com"},
-			Hosts:       []DynHost{newDynHost("example.com", entry)},
-			BaseURL:     "https://203.0.113.10:2083/",
+	t.Run("empty", func(t *testing.T) {
+		body := render(t, DynamicDNSPageData{LayoutData: baseLayout(mgr, "/domains/dynamic-dns"), DomainNames: domains, BaseURL: "https://203.0.113.10:2083/"}, "")
+		for _, want := range []string{"No Dynamic DNS hosts yet", "home.example.com", "Add your first host", "How it works", "New Dynamic DNS host", `name="action" value="create"`} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q in empty state", want)
+			}
 		}
-		w := httptest.NewRecorder()
-		if err := dynamicDNSPage.Render(w, 200, data); err != nil {
-			t.Fatalf("Render: %v", err)
+		if strings.Contains(body, "Connect a device") {
+			t.Error("connect card should be hidden without hosts")
 		}
-		body := w.Body.String()
-		for _, want := range []string{"home", "1.2.3.4", "dynamic-dns/update?token=abcdefghijklmnop"} {
+	})
+
+	t.Run("with hosts", func(t *testing.T) {
+		hosts := []DynHost{
+			newDynHost("example.com", DynDNSEntry{LineNumber: 12, Subdomain: "home", Record: "198.51.100.23", Token: fakeToken("home"), LastUpdated: "2026-10-29T08:12:05Z"}),
+			newDynHost("example.com", DynDNSEntry{LineNumber: 13, Subdomain: "nas", Record: "0.0.0.0", Token: fakeToken("nas"), LastUpdated: "2026-10-29T10:40:11Z"}),
+			newDynHost("shop.example.com", DynDNSEntry{LineNumber: 9, Subdomain: "office", Record: "10.0.2.2", Token: fakeToken("office"), LastUpdated: "2026-10-26T13:28:42Z"}),
+		}
+		body := render(t, DynamicDNSPageData{LayoutData: baseLayout(mgr, "/domains/dynamic-dns"), Hosts: hosts, DomainNames: domains, BaseURL: "https://203.0.113.10:2083/"}, "nas.example.com")
+		for _, want := range []string{
+			"home.example.com", "198.51.100.23", "3 hours ago", "2026-10-29 08:12:05 UTC",
+			"Waiting for first call", "Not set yet", "2 days ago",
+			"/dynamic-dns/update?token=home••••••••",
+			"3 hosts across 2 domains",
+			"Connect a device", "Router / NAS", "400 IPv4 address required",
+			"Set up a device", "Delete this host?", `name="action" value="edit"`, `name="action" value="delete"`,
+		} {
 			if !strings.Contains(body, want) {
 				t.Errorf("expected %q in body", want)
 			}
+		}
+		if !strings.Contains(body, ", 1, ") {
+			t.Error("expected ?host=nas.example.com to preselect the second host")
 		}
 	})
 }

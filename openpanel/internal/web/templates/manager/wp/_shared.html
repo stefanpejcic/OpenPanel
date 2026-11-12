@@ -1,137 +1,99 @@
 {{define "wp_vulnerabilities"}}
 <!-- START templates/manager/wp/_vulnerabilities.html -->
-<div id="partials_wp_vulnerability">
-    <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-3">
-        <div>
-            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "WP vulnerabilities"}}</h2>
-            <p class="my-2 text-sm/6 text-gray-500">{{.T.Get "WP Manager automatically scans your WP core version, plugins and themes for known vulnerabilities."}}</p>
-        </div>
-
-        <div class="sm:max-w-3xl md:col-span-2">
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                <div class="flex gap-2 justify-between items-center col-span-full pb-2">
-                    <span class="my-2 flex gap-2 text-sm/6 text-gray-500 dark:text-gray-500">
-                        <span id="partials_wp_vulnerability_total_count_text">{{.T.Get "Vulnerabilities detected"}} <span class="text-sm font-medium text-gray-900 dark:text-gray-50" id="partials_wp_vulnerability_total_count">0</span></span>
-                        <span class="text-sm font-medium text-gray-900 dark:text-gray-50" id="vulnerabilities_checked"></span>
-                    </span>
-                    <form method="post" action="/json/wp_vulnerability/{{.CurrentDomain}}">
-                        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-                        <input type="hidden" name="redirect_to" value="/website?domain={{.CurrentDomain}}"/>
-                        <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 sm:w-fit mt-2 sm:mt-0">{{.T.Get "Scan for vulnerabilities"}}</button>
-                    </form>
-                </div>
-            </div>
-            <div class="relative w-full mt-2">
-                <div class="card-body text-center" id="partials_wp_vulnerability_loading">
-                    <p class="my-2 text-sm/6 text-gray-500">{{.T.Get "Loading WordPress vulnerability data.."}}</p>
-                </div>
-
-                <div class="card-body text-center hidden" id="partials_wp_vulnerability_no_data">
-                    <div class="flex items-center space-x-2">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-emerald-500 dark:text-emerald-400">
-                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path>
-                        </svg>
-                        <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No vulnerabilities found"}}</p>
-                    </div>
-                </div>
-
-                <div class="card-body hidden" id="partials_wp_vulnerability_data">
-                    <div id="wp_vulnerability_table_body"></div>
-                </div>
-            </div>
-        </div>
+<section class="op-card" id="partials_wp_vulnerability">
+    <div class="op-card-head">
+        <h2>{{.T.Get "WP Vulnerabilities"}}</h2>
+        <form method="post" action="/json/wp_vulnerability/{{.CurrentDomain}}">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+            <input type="hidden" name="redirect_to" value="/website?domain={{.CurrentDomain}}"/>
+            <button type="submit" class="op-btn op-btn-secondary op-btn-sm">{{template "op_icon" "search"}} {{.T.Get "Scan for vulnerabilities"}}</button>
+        </form>
     </div>
-</div>
+    <p class="op-meta op-wp-lead">{{.T.Get "WP Manager automatically scans your WP core version, plugins and themes for known vulnerabilities."}}</p>
+
+    <div id="partials_wp_vulnerability_loading">
+        <p class="op-hint">{{.T.Get "Loading WordPress vulnerability data.."}}</p>
+    </div>
+
+    <div class="hidden" id="partials_wp_vulnerability_no_data">
+        <div class="op-alert is-success">{{template "op_icon" "check"}}<span>{{.T.Get "No vulnerabilities found"}}</span></div>
+    </div>
+
+    <div class="hidden" id="partials_wp_vulnerability_data">
+        <div id="wp_vulnerability_table_body" class="op-wp-vulns"></div>
+    </div>
+
+    <div class="op-tfoot">
+        <span id="partials_wp_vulnerability_total_count_text">{{.T.Get "Vulnerabilities detected"}} <b class="op-strong" id="partials_wp_vulnerability_total_count">0</b></span>
+        <span id="vulnerabilities_checked"></span>
+    </div>
+</section>
 <!-- END templates/manager/wp/_vulnerabilities.html -->
 {{end}}
 
 {{define "wp_secure"}}
-<div id="partials_wp_harden">
-    <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-3">
-        <div>
-            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Security measures"}}</h2>
-            <p class="mt-2 text-sm text-gray-500">{{.T.Get "Server-level restrictions to harden your WordPress instance. Rules are applied at the webserver level before PHP processing."}}</p>
-        </div>
-
-        <div class="sm:max-w-3xl md:col-span-2">
-            <form id="wordpress-security-form" method="post" action="/wordpress/secure/{{.CurrentDomain}}">
-                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                    <div class="col-span-full divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
-
-                        {{/* Named "hardening-update", not "security-update": Go's html/template
-                             flags any attribute whose name contains "uri"/"url"/"src" as a URL
-                             attribute (a heuristic against "javascript:..." injection in custom
-                             attrs), and "security" itself contains "uri" - that misclassification
-                             made it percent-escape the quotes in the JS expression below (%22
-                             instead of &#34;), which browsers don't auto-decode outside URL
-                             context, breaking the Alpine expression with a syntax error. */}}
-                        {{range $rule := .SecurityToggles}}
-                        <div x-data="{ enabled: false, tooltip: false }"
-                             @hardening-update.window="enabled = $event.detail.includes({{toJSON $rule.ID}})"
-                             class="flex items-center justify-between gap-4 px-4 py-3">
-
-                            <span class="flex items-center gap-3">
-                                <input type="checkbox" role="switch" id="harden-{{$rule.ID}}" x-model="enabled">
-                                <label for="harden-{{$rule.ID}}" class="text-sm font-medium text-gray-900 dark:text-gray-50">{{$.T.Get $rule.Label}}</label>
-                            </span>
-
-                            <input type="hidden" name="{{$rule.ID}}" value="{{$rule.ID}}" x-bind:disabled="!enabled" />
-
-                            <div class="relative flex items-center" @mouseenter="tooltip = true" @mouseleave="tooltip = false">
-                                <button type="button" @focus="tooltip = true" @blur="tooltip = false" aria-label="{{$.T.Get "How it works"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-400 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-500 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"><i class="ri-question-line text-base" aria-hidden="true"></i></button>
-
-                                <div x-show="tooltip" x-cloak
-                                     x-transition:enter="transition ease-out duration-200"
-                                     x-transition:enter-start="opacity-0 scale-95"
-                                     x-transition:enter-end="opacity-100 scale-100"
-                                     class="absolute right-0 bottom-full mb-2 z-50 w-72 rounded-md border border-gray-200 bg-white p-3 text-xs text-gray-600 shadow-xl dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400">
-                                    <div class="mb-1 text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "How it works"}}</div>
-                                    <div class="leading-relaxed">{{$.T.Get $rule.TechDetails}}</div>
-                                    <div class="mt-2 border-t border-gray-200 pt-2 font-mono text-gray-500 dark:border-gray-800">{{$.T.Get "Action"}}: 403 Forbidden</div>
-                                </div>
-                            </div>
-                        </div>
-                        {{end}}
-
-                    </div>
-                    <div class="col-span-full flex items-center justify-end">
-                        <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Apply changes"}}</button>
-                    </div>
-                </div>
-            </form>
-
-            <script>
-            document.querySelector('#security-tab')?.addEventListener('click', function() {
-                fetch(`/wordpress/secure/{{.CurrentDomain}}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        window.dispatchEvent(new CustomEvent('hardening-update', { detail: data }));
-                    })
-                    .catch(err => console.error('Failed to fetch security status:', err));
-            });
-            </script>
-        </div>
+<section class="op-card" id="partials_wp_harden" x-data="{ active: null }" @hardening-update.window="active = $event.detail.length">
+    <div class="op-card-head">
+        <h2>{{.T.Get "Security Measures"}}</h2>
+        <span class="op-status" x-show="active !== null" x-cloak :class="active >= {{len .SecurityToggles}} ? 'is-success' : 'is-warning'" x-text="active + ' / {{len .SecurityToggles}} ' + {{toJSON (.T.Get "active")}}"></span>
     </div>
-</div>
+    <p class="op-meta op-wp-lead">{{.T.Get "Server-level restrictions to harden your WordPress instance. Rules are applied at the webserver level before PHP processing."}}</p>
+
+    <form id="wordpress-security-form" method="post" action="/wordpress/secure/{{.CurrentDomain}}">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+        <div class="op-checks">
+            {{/* Named "hardening-update", not "security-update": Go's html/template
+                 flags any attribute whose name contains "uri"/"url"/"src" as a URL
+                 attribute (a heuristic against "javascript:..." injection in custom
+                 attrs), and "security" itself contains "uri" - that misclassification
+                 made it percent-escape the quotes in the JS expression below (%22
+                 instead of &#34;), which browsers don't auto-decode outside URL
+                 context, breaking the Alpine expression with a syntax error. */}}
+            {{range $rule := .SecurityToggles}}
+            <div class="op-check-row" x-data="{ enabled: false }"
+                 @hardening-update.window="enabled = $event.detail.includes({{toJSON $rule.ID}})">
+                <span class="op-wp-state" :class="enabled ? 'is-success' : 'is-off'">
+                    <span x-show="enabled">{{template "op_icon" "check"}}</span>
+                    <span x-show="!enabled">{{template "op_icon" "alert"}}</span>
+                </span>
+                <div>
+                    <b>{{$.T.Get $rule.Label}}</b>
+                    <p>{{$.T.Get $rule.TechDetails}}</p>
+                </div>
+                <button type="button" @click="enabled = !enabled" role="switch" :aria-checked="enabled.toString()" aria-label="{{$.T.Get $rule.Label}}" class="op-switch"></button>
+                <input type="hidden" name="{{$rule.ID}}" value="{{$rule.ID}}" x-bind:disabled="!enabled" />
+            </div>
+            {{end}}
+        </div>
+
+        <div class="op-form-foot">
+            <button type="submit" class="op-btn op-btn-primary">{{.T.Get "Apply Changes"}}</button>
+        </div>
+    </form>
+
+    <script>
+    document.querySelector('#security-tab')?.addEventListener('click', function() {
+        fetch(`/wordpress/secure/{{.CurrentDomain}}`)
+            .then(response => response.json())
+            .then(data => {
+                window.dispatchEvent(new CustomEvent('hardening-update', { detail: data }));
+            })
+            .catch(err => console.error('Failed to fetch security status:', err));
+    });
+    </script>
+</section>
 {{end}}
 
 {{define "wp_googlesafebrowsing"}}
 <!-- START templates/partials/googlesafebrowsing.html -->
-    <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-3">
-        <div>
-            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Google Safe Browsing"}}</h2>
-            <p class="my-2 text-sm/6 text-gray-500">{{.T.Get "Check website status on"}} <a href="https://transparencyreport.google.com/safe-browsing/search?url=http:%2F%2F{{.CurrentDomain}}" target="_blank" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4 dark:text-blue-500" rel="noopener noreferrer">{{.T.Get "Google Safe Browsing"}}<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path></svg></a></p>
-        </div>
-        <div class="sm:max-w-3xl md:col-span-2">
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-6">
-                <div class="col-span-full">
-
-<p class="my-2 text-sm/6 text-gray-500">{{.T.Get "Google's Safe Browsing technology examines billions of URLs per day looking for unsafe websites, many of which are legitimate websites that have been compromised. When an unsafe site is detected, warning is shown on Google Search and in web browsers. Here you can see whether this website is currently marked by Google as dangerous to visit."}}</p>
-
-                    <div class="relative w-full mt-2">
-                        <span id="safebrowsing_results"></span>
+<section class="op-card">
+    <div class="op-card-head">
+        <h2>{{.T.Get "Google Safe Browsing"}}</h2>
+        <a href="https://transparencyreport.google.com/safe-browsing/search?url=http:%2F%2F{{.CurrentDomain}}" target="_blank" rel="noopener noreferrer">{{.T.Get "Check website status on"}} Google ↗</a>
+    </div>
+    <p class="op-meta op-wp-lead">{{.T.Get "Google's Safe Browsing technology examines billions of URLs per day looking for unsafe websites, many of which are legitimate websites that have been compromised. When an unsafe site is detected, warning is shown on Google Search and in web browsers. Here you can see whether this website is currently marked by Google as dangerous to visit."}}</p>
+    <div id="safebrowsing_results"></div>
 
 <script>
     var securityTab = document.getElementById('security-tab');
@@ -176,27 +138,29 @@
                         svgIcon = escHTML(s.name);
                     }
 
-                	return `<a href="${safeLink(s.link)}" target="_blank" rel="noopener noreferrer" class="inline-block ml-1 hover:opacity-80 transition">${svgIcon}</a>`;
+                	return `<a href="${safeLink(s.link)}" target="_blank" rel="noopener noreferrer" class="inline-block ml-1 transition">${svgIcon}</a>`;
 
                 }).join('');
 
 	            vulnHTML += `
-                <div class="px-4 py-3">
-                    <span class="text-sm font-medium text-gray-900 dark:text-gray-50">${escHTML(v.name)}</span>
-                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">${escHTML(displayDesc)}</div>
-                    <div class="mt-2 text-xs text-gray-500 hidden">Fixed in: ${escHTML(v.operator && v.operator.max_version)}</div>
-                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">Date: ${escHTML(displayDate)}</div>
-                    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400 space-x-2">Source: ${sourcesHTML}</div>
+                <div class="op-check-row">
+                    <span class="op-wp-state is-warning">{{template "op_icon" "alert"}}</span>
+                    <div>
+                        <b>${escHTML(v.name)}</b>
+                        <p>${escHTML(displayDesc)}</p>
+                        <p class="hidden">Fixed in: ${escHTML(v.operator && v.operator.max_version)}</p>
+                        <p class="op-wp-vuln-src"><span>Date: ${escHTML(displayDate)}</span><span>Source: ${sourcesHTML}</span></p>
+                    </div>
                 </div>`;
 
                 });
             } else {
-                vulnHTML = '<div class="flex items-center gap-2 px-4 py-3"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-emerald-500 dark:text-emerald-400"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path></svg><p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{$.T.Get "None"}}</p></div>';
+                vulnHTML = '<div class="op-check-row op-wp-plain"><div><b class="op-wp-none">{{$.T.Get "None"}}</b></div></div>';
             }
 
-            let linkHTML = link ? `<a href="${safeLink(link)}" target="_blank" rel="noopener noreferrer" class="text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50">${escHTML(name)}</a>` : escHTML(name);
+            let linkHTML = link ? `<a href="${safeLink(link)}" target="_blank" rel="noopener noreferrer" class="op-accent-text">${escHTML(name)}</a>` : escHTML(name);
 
-            return `<div class="mb-3"><p class="flex items-center gap-2 py-2 text-sm font-medium text-gray-900 dark:text-gray-50">${type} ${linkHTML}${latest ? `<span class="font-normal text-gray-500">(Updated: ${escHTML(latest)})</span>` : ''}</p><div class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">${vulnHTML}</div></div>`;
+            return `<div class="op-wp-vuln"><div class="op-row-title"><span class="op-ico-tile is-sm">${type}</span><div><b>${linkHTML}</b>${latest ? `<span class="op-sub">Updated: ${escHTML(latest)}</span>` : ''}</div></div><div class="op-checks">${vulnHTML}</div></div>`;
         }
 
         function fetchWPVulnerabilities() {
@@ -240,13 +204,13 @@
                             } else {
                                 name = key.replace('core_', '');
                             }
-                            typeIcon = `<i class="ri-wordpress-line text-base text-gray-400" aria-hidden="true"></i>`;
+                            typeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" alt="Core" height="16" fill="currentColor" class="bi bi-wordpress" viewBox="0 0 16 16"> <path d="M12.633 7.653c0-.848-.305-1.435-.566-1.892l-.08-.13c-.317-.51-.594-.958-.594-1.48 0-.63.478-1.218 1.152-1.218q.03 0 .058.003l.031.003A6.84 6.84 0 0 0 8 1.137 6.86 6.86 0 0 0 2.266 4.23c.16.005.313.009.442.009.717 0 1.828-.087 1.828-.087.37-.022.414.521.044.565 0 0-.371.044-.785.065l2.5 7.434 1.5-4.506-1.07-2.929c-.369-.022-.719-.065-.719-.065-.37-.022-.326-.588.043-.566 0 0 1.134.087 1.808.087.718 0 1.83-.087 1.83-.087.37-.022.413.522.043.566 0 0-.372.043-.785.065l2.48 7.377.684-2.287.054-.173c.27-.86.469-1.495.469-2.046zM1.137 8a6.86 6.86 0 0 0 3.868 6.176L1.73 5.206A6.8 6.8 0 0 0 1.137 8"/> <path d="M6.061 14.583 8.121 8.6l2.109 5.78q.02.05.049.094a6.85 6.85 0 0 1-4.218.109m7.96-9.876q.046.328.047.706c0 .696-.13 1.479-.522 2.458l-2.096 6.06a6.86 6.86 0 0 0 2.572-9.224z"/> <path fill-rule="evenodd" d="M0 8c0-4.411 3.589-8 8-8s8 3.589 8 8-3.59 8-8 8-8-3.589-8-8m.367 0c0 4.209 3.424 7.633 7.633 7.633S15.632 12.209 15.632 8C15.632 3.79 12.208.367 8 .367 3.79.367.367 3.79.367 8"/> </svg>`;
                         } else if (key.startsWith('theme_')) {
                             name = item.data.name || key;
-                            typeIcon = `<i class="ri-computer-line text-base text-gray-400" aria-hidden="true"></i>`;
+                            typeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" alt="Theme" height="16" fill="currentColor" class="bi bi-display" viewBox="0 0 16 16"> <path d="M0 4s0-2 2-2h12s2 0 2 2v6s0 2-2 2h-4q0 1 .25 1.5H11a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1h.75Q6 13 6 12H2s-2 0-2-2zm1.398-.855a.76.76 0 0 0-.254.302A1.5 1.5 0 0 0 1 4.01V10c0 .325.078.502.145.602q.105.156.302.254a1.5 1.5 0 0 0 .538.143L2.01 11H14c.325 0 .502-.078.602-.145a.76.76 0 0 0 .254-.302 1.5 1.5 0 0 0 .143-.538L15 9.99V4c0-.325-.078-.502-.145-.602a.76.76 0 0 0-.302-.254A1.5 1.5 0 0 0 13.99 3H2c-.325 0-.502.078-.602.145"/> </svg>`;
                         } else if (key.startsWith('plugin_')) {
                             name = item.data.name || key;
-                            typeIcon = `<i class="ri-plug-2-line text-base text-gray-400" aria-hidden="true"></i>`;
+                            typeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" alt="Plugin" height="16" fill="currentColor" class="bi bi-plugin" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M1 8a7 7 0 1 1 2.898 5.673c-.167-.121-.216-.406-.002-.62l1.8-1.8a3.5 3.5 0 0 0 4.572-.328l1.414-1.415a.5.5 0 0 0 0-.707l-.707-.707 1.559-1.563a.5.5 0 1 0-.708-.706l-1.559 1.562-1.414-1.414 1.56-1.562a.5.5 0 1 0-.707-.706l-1.56 1.56-.707-.706a.5.5 0 0 0-.707 0L5.318 5.975a3.5 3.5 0 0 0-.328 4.571l-1.8 1.8c-.58.58-.62 1.6.121 2.137A8 8 0 1 0 0 8a.5.5 0 0 0 1 0"/> </svg>`;
                         } else {
                             typeIcon = 'Other';
                             name = item.data.name || key;
@@ -286,7 +250,7 @@
         fetchWPVulnerabilities();
 
         var resultsContainer = document.getElementById('safebrowsing_results');
-        resultsContainer.innerHTML = {{toJSON (printf "<p class=\"text-sm text-gray-500 dark:text-gray-400\">%s</p>" (.T.Get "Checking website status..."))}};
+        resultsContainer.innerHTML = {{toJSON (printf "<p class=\"op-hint\">%s</p>" (.T.Get "Checking website status..."))}};
 
         fetch(`/json/safebrowsing/${selectedDomain}`, {
             method: "GET",
@@ -298,29 +262,24 @@
         .then(function(response) {
             var html = '';
             if (response.status === "safe") {
-                html = `<div class="flex items-center space-x-2"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-emerald-500 dark:text-emerald-400"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22ZM17.4571 9.45711L11 15.9142L6.79289 11.7071L8.20711 10.2929L11 13.0858L16.0429 8.04289L17.4571 9.45711Z"></path></svg><p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No unsafe content found"}}</p></div>`;
+                html = `<div class="op-alert is-success">{{template "op_icon" "check"}}<span>{{.T.Get "No unsafe content found"}}</span></div>`;
             } else if (response.status === "danger") {
-                html = `<div class="flex items-center space-x-2"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="remixicon size-5 shrink-0 text-red-500 dark:text-red-400"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"></path></svg><p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "The website is flagged for threats:"}}</p></div><ul class="mt-2 list-inside list-disc text-sm text-red-600 dark:text-red-400">`;
+                html = `<div class="op-alert is-danger">{{template "op_icon" "alert"}}<span>{{.T.Get "The website is flagged for threats:"}}</span></div><ul class="op-wp-threats is-danger">`;
                 response.threats.forEach(function(threat) {
                     html += `<li>${escHTML(threat.threatType)} on ${escHTML(threat.platformType)}</li>`;
                 });
                 html += '</ul>';
             } else if (response.error) {
-                html = `<div class="flex items-center gap-2"><i class="ri-error-warning-line text-base text-yellow-600 dark:text-yellow-500" aria-hidden="true"></i><p class="text-sm font-medium text-gray-900 dark:text-gray-50">${escHTML(response.error)}</p></div>`;
+                html = `<div class="op-alert is-warning">{{template "op_icon" "alert"}}<span>${escHTML(response.error)}</span></div>`;
             }
             resultsContainer.innerHTML = html;
         })
         .catch(function(error) {
-            resultsContainer.innerHTML = {{toJSON (printf "<div class=\"flex items-center space-x-2\"><p class=\"text-sm font-medium text-gray-900 dark:text-gray-50\">%s</p></div>" (.T.Get "Failed to check the website"))}};
+            resultsContainer.innerHTML = {{toJSON (printf "<div class=\"op-alert is-warning\"><span>%s</span></div>" (.T.Get "Failed to check the website"))}};
         });
 
     });
 </script>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+</section>
 <!-- END templates/partials/googlesafebrowsing.html -->
 {{end}}

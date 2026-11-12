@@ -1,89 +1,69 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
+
+{{/* a sortable column head for table-sort.js */}}
+{{define "fav_sort"}}<button type="button" class="op-th-sort" data-sort-key="{{.Key}}" data-sort-type="string" onclick="opSortToggle(event, this, sortTableColumn)">{{.Label}}<i aria-hidden="true"></i></button>{{end}}
 
 {{define "content"}}
 <!-- START templates/user/favorites.html -->
 
-<!-- page header -->
-<section aria-label="{{.T.Get "Favorites"}}" x-data="{ searchQuery: '' }">
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
+<div class="op-content" aria-label="{{.T.Get "Favorites"}}" x-data="{ searchQuery: '' }">
+    <div class="op-page-head">
         <div>
-        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Favorites"}}</h1></div>
-        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Add a page to favorites by left-clicking the star in the top-right corner of any page and remove it either from this page or by right-clicking the same star."}}</p>
+            <h1 class="op-title">{{.T.Get "Favorites"}}</h1>
+            <p class="op-meta">{{.T.Get "Add a page with the star in the top bar of any page, click it again or remove it here to take it off."}}</p>
+        </div>
     </div>
-    <div class="flex flex-col gap-2 sm:flex-row">
-    </div>
-</div>
-<!-- END page header -->
 
 {{if index .UserAllowed "favorites"}}
+    <section class="op-card" aria-label="{{.T.Get "Favorites Table"}}">
+        <div class="op-toolbar"><label class="op-search">{{template "op_icon" "search"}}<input x-model="searchQuery" class="op-input" placeholder="{{.T.Get "Search"}}" type="search" aria-label="{{.T.Get "Search favorites"}}"></label></div>
 
-<!-- domains table -->
-
-<section aria-label="{{.T.Get "Logins Table"}}" x-data="{ searchQuery: '' }">
-    <div class="flex flex-col justify-between gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
-        <div class="relative w-full sm:w-64 [&>input]:py-1.5">
-            <input
-                x-model="searchQuery" aria-label="{{.T.Get "Search"}}"
-                class="pl-8 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-                placeholder="{{.T.Get "Search"}}"
-                type="search"
-            />
-            <div class="pointer-events-none absolute bottom-0 left-2 flex h-full items-center justify-center text-gray-400 dark:text-gray-600">
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-[1.125rem] shrink-0">
-                    <path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path>
-                </svg>
-            </div>
-        </div>
-
-        <div class="flex flex-col items-center gap-2 sm:flex-row">
-        </div>
-
-    </div>
-
-    {{template "bulk_open" (dict "T" .T "Table" "#favorites-table" "Endpoint" "/account/favorites/bulk")}}
-    <div class="overflow-x-auto">
-        <div class="w-full overflow-auto whitespace-nowrap border-t border-gray-200 dark:border-gray-800">
-            <table id="favorites-table" class="caption-bottom w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
-                <thead class="">
+        {{template "bulk_open" (dict "T" .T "Table" "#favorites-table" "Endpoint" "/account/favorites/bulk")}}
+{{if .Favorites}}
+        <div class="op-table-wrap">
+            <table id="favorites-table" class="op-table">
+                <thead>
                     <tr>
                         {{template "bulk_head_checkbox" .}}
-                        <th scope="col" class="w-10 border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">#</th>
-                        <th scope="col" class="border-b border-gray-200 px-4 py-1.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">
-                            <button type="button" data-sort-key="title" data-sort-type="string" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.T.Get "Title"}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
-                        </th>
-                        <th scope="col" class="border-b border-gray-200 px-4 py-1.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">
-                            <button type="button" data-sort-key="link" data-sort-type="string" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.T.Get "Link"}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
-                        </th>
-                        <th scope="col" class="w-10 border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
+                        <th class="is-shrink">#</th>
+                        <th>{{template "fav_sort" (dict "Label" (.T.Get "Title") "Key" "title")}}</th>
+                        <th>{{template "fav_sort" (dict "Label" (.T.Get "Link") "Key" "link")}}</th>
+                        <th class="is-shrink"><span class="op-sr">{{.T.Get "Actions"}}</span></th>
                     </tr>
                 </thead>
                 <tbody>
-                    {{if not .Favorites}}
-                    <tr>
-                        <td colspan="5" class="border-b border-gray-200 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-800">{{.T.Get "No favorites yet."}}</td>
-                    </tr>
-                    {{else}}
                     {{$root := .}}
                     {{range $i, $favorite := .Favorites}}
-                    <tr x-show="searchQuery === '' || '{{$favorite.Name}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{$favorite.Link}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
-
-                {{template "bulk_row_checkbox" (dict "T" $root.T "Key" $favorite.Link "Label" $favorite.Name)}}
-                <td class="w-10 text-center tabular-nums border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">{{add $i 1}}</td>
-                <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400" data-sort-col="title" data-sort-value="{{$favorite.Name}}"><span class="punycode font-medium text-gray-900 dark:text-gray-50">{{$favorite.Name}}</span></td>
-                <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400" data-sort-col="link" data-sort-value="{{$favorite.Link}}"><a href="{{if hasPrefix $favorite.Link "/"}}{{$favorite.Link}}{{else}}/{{$favorite.Link}}{{end}}" class="text-blue-500 hover:underline hover:underline-offset-4">{{$favorite.Link}}</a></td>
-                <td class="border-b border-gray-200 px-4 py-2.5 text-right whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400"><button type="button" onclick="deleteFavorite('{{$favorite.Link}}')" title="{{$root.T.Get "Delete"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-400/10 dark:hover:text-red-500 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"><i class="ri-delete-bin-line text-base" aria-hidden="true"></i><span class="sr-only">{{$root.T.Get "Delete"}}</span></button></td>
-            </tr>
-            {{end}}
-            {{end}}
+                    {{$href := $favorite.Link}}{{if not (hasPrefix $favorite.Link "/")}}{{$href = printf "/%s" $favorite.Link}}{{end}}
+                    <tr data-row-check x-show="searchQuery === '' || {{toJSON (lower (printf "%s %s" $favorite.Name $favorite.Link))}}.includes(searchQuery.toLowerCase())">
+                        {{template "bulk_row_checkbox" (dict "T" $root.T "Key" $favorite.Link "Label" $favorite.Name)}}
+                        <td class="is-shrink"><span class="op-mono op-hint">{{add $i 1}}</span></td>
+                        <td class="op-cell-title" data-sort-col="title" data-sort-value="{{$favorite.Name}}"><div class="op-row-title"><span class="op-ico-tile is-sm" style="--hue:var(--color-hue-yellow)">{{template "op_icon" "star"}}</span><div><b class="punycode">{{$favorite.Name}}</b></div></div></td>
+                        <td data-label="{{$root.T.Get "Link"}}" data-sort-col="link" data-sort-value="{{$favorite.Link}}"><a href="{{$href}}" class="op-mono op-fav-link">{{$href}}</a></td>
+                        <td class="is-shrink op-cell-menu" x-data="opMenu()" @click.outside="open = false" @keydown.escape="open = false">
+                            <button class="op-icon-btn" type="button" aria-label="{{$root.T.Get "Actions for"}} {{$favorite.Name}}" :aria-expanded="open.toString()" x-ref="btn" @click="toggle()">{{template "op_icon" "dots"}}</button>
+                            <div class="op-menu" x-ref="menu" x-show="open" x-cloak>
+                                <a href="{{$href}}">{{template "op_icon" "out"}} {{$root.T.Get "Open"}}</a>
+                                <button type="button" class="is-danger" @click="open = false; deleteFavorite({{toJSON $favorite.Link}})">{{template "op_icon" "trash"}} {{$root.T.Get "Remove"}}</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {{end}}
                 </tbody>
-           </table>
+            </table>
         </div>
-    </div>
-    {{template "bulk_bar" .}}
-    </div>
-</section>
-<!-- END domains table -->
-
+{{else}}
+        <div class="op-empty">
+            <span class="op-ico-tile">{{template "op_icon" "star"}}</span>
+            <b>{{.T.Get "No favorites yet."}}</b>
+            <span class="op-hint">{{.T.Get "Use the star in the top bar of any page to add it here."}}</span>
+        </div>
+{{end}}
+        {{template "bulk_bar" .}}
+        </div>
+    </section>
 
 <script>
     function deleteFavorite(link) {
@@ -114,13 +94,12 @@
 
 {{else}}
 
-<div class="mx-4 sm:mx-6 lg:mx-8 flex gap-3 rounded-md bg-gray-100 p-4 text-sm text-gray-900 dark:bg-gray-800/70 dark:text-gray-400">
-    <i class="ri-information-line size-5 shrink-0 text-lg leading-5" aria-hidden="true"></i>
-    <p class="font-semibold">{{.T.Get "Favorites are not enabled by the Administrator."}}</p>
-    <p class="mt-1 max-w-2xl text-sm leading-6 text-gray-500">{{.T.Get "The Favorites feature is currently disabled by the administrator; please contact your administrator to enable it."}}<a href="https://openpanel.com/docs/panel/dashboard/#favorites" target="_blank" class="inline-flex items-center gap-1 text-blue-500 hover:underline hover:underline-offset-4 dark:text-blue-500">{{.T.Get "View documentation"}} <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" aria-hidden="true" class="remixicon size-4 shrink-0"><path d="M16.0037 9.41421L7.39712 18.0208L5.98291 16.6066L14.5895 8H7.00373V6H18.0037V17H16.0037V9.41421Z"></path></svg></a></p>
-</div>
+    <div class="op-alert is-warning">{{template "op_icon" "alert"}}
+        <span><b>{{.T.Get "Favorites are not enabled by the Administrator."}}</b> {{.T.Get "The Favorites feature is currently disabled by the administrator; please contact your administrator to enable it."}} <a href="https://openpanel.com/docs/panel/dashboard/#favorites" target="_blank" rel="noopener">{{.T.Get "Learn more"}}</a></span>
+    </div>
 
 {{end}}
+</div>
 
 <!-- END templates/user/favorites.html -->
 {{end}}

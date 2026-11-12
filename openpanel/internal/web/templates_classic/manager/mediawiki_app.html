@@ -1,0 +1,115 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+<script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+{{template "cms_block" .}}
+        {{template "cms_block_2" .}}
+        {{template "cms_block_3" .}}
+{{template "cms_script_2" .}}
+{{template "cms_block_5" .}}
+    <div class="flex min-w-0 flex-col bg-white dark:bg-gray-950">
+
+        {{template "cms_block_7" .}}
+            {{template "cms_tabbtn_dashboard" .}}
+            {{template "cms_tabbtn_logs" .}}
+            {{template "cms_tabbtn_update" .}}
+            {{template "cms_tabbtn_clone" .}}
+            {{template "cms_tabbtn_backups" .}}
+            {{template "cms_tab_security_2" .}}
+        {{template "cms_tab_dashboard" .}}
+            <div>
+                <div class="hidden">
+                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded-md xl:col-span-3">
+                        {{template "cms_block_10" .}}
+                {{template "cms_block_13" .}}
+                {{template "cms_block_14" .}}
+                {{template "cms_block_18" .}}
+                <script>
+                    function revealMediaWikiDBPassword() {
+                        var passwordSpan = document.getElementById("database-password");
+                        passwordSpan.style.filter = passwordSpan.style.filter === "blur(5px)" ? "none" : "blur(5px)";
+                    }
+                </script>
+</dl>
+            </div>
+            <div class="divide-y divide-gray-200 bg-white dark:divide-gray-800 dark:bg-gray-950 [&>div]:rounded-none [&>div]:border-x-0 [&>div]:border-t-0 [&>div:last-child]:border-b-0 [&>div]:bg-transparent [&>div]:px-6 [&>div]:py-5 dark:[&>div]:bg-transparent [&_[data-panel-head]]:-mx-6 [&_[data-panel-head]]:-mt-5 [&_[data-panel-head]]:mb-4 [&_[data-panel-head]]:border-b [&_[data-panel-head]]:border-gray-200 [&_[data-panel-head]]:px-6 [&_[data-panel-head]]:py-4 dark:[&_[data-panel-head]]:border-gray-800">
+
+        {{template "pagespeed_panel" .}}
+
+        {{template "visitors" .}}
+
+        {{template "cms_block_26" .}}
+
+    </div>
+            </div>
+        </div>
+
+        <div class="hidden p-4 rounded-md" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+
+            {{template "cms_block_23" .}}
+                {{template "cms_block_22" .}}
+            {{template "cms_script_5" .}}
+        </div>
+
+        <div class="hidden p-4 rounded-md" id="update" role="tabpanel" aria-labelledby="update-tab">
+            {{template "cms_block_28" .}}
+            {{template "cms_script_9" .}}
+        </div>
+
+        {{template "cms_tab_clone" .}}
+                {{template "cms_block_17" .}}
+                {{template "cms_block_24" .}}
+                {{template "cms_block_31" .}}
+            {{template "cms_script_4" .}}
+{{template "cms_block_21" .}}
+        <div class="hidden py-6" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+            {{template "site_backups" (dict "T" .T "Domain" .CurrentDomain "Docroot" .Docroot "Base" (print "/" .App.Slug) "DB" .DBInfo "Intro" "Copies of this site's files and database. Restore, download or delete them here." "Empty" "Back up now saves this site.")}}
+        </div>
+
+        {{template "cms_tab_remove_3" .}}
+    
+
+</div>
+<script>
+const MEDIAWIKI_SITE_ID = {{toJSON .Container.ID}};
+
+function confirmRemoveMediaWiki() {
+    showToast({{toJSON (.T.Get "MediaWiki removal started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/mediawiki/remove', true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            window.location.href = '/sites';
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(MEDIAWIKI_SITE_ID));
+}
+
+function confirmDetachMediaWiki() {
+    showToast({{toJSON (.T.Get "MediaWiki detach process started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/sites/detach', true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                window.location.href = '/sites';
+            } else {
+                showToast({{toJSON (.T.Get "An error occurred while detaching MediaWiki. Please try again.")}}, 'error');
+            }
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(MEDIAWIKI_SITE_ID));
+}
+</script>
+
+{{template "cms_script_11" .}}
+
+<!-- END templates/manager/mediawiki_app.html -->
+{{end}}

@@ -1,0 +1,573 @@
+{{define "alpine_plugins"}}{{end}}
+{{define "flowbite_js"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/files/upload_file.html -->
+
+<div x-data="{ showUpload: (new URLSearchParams(window.location.search).get('method') !== 'download') }">
+
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
+        <div>
+                <h1 id="current_option" class="text-lg font-semibold text-gray-900 dark:text-gray-50"><span x-text="showUpload ? '{{.T.Get "File upload"}}' : '{{.T.Get "Download from URL"}}'"></span></h1>
+                <p class="mt-1 text-sm text-gray-500 max-w-3xl"><i class="ri-folder-line" aria-hidden="true"></i> <a href="/files/{{.PathParam}}" class="hover:text-gray-900 hover:underline hover:underline-offset-4 dark:hover:text-gray-50">/var/www/html/{{.PathParam}}</a></p>
+            </div>
+            <div class="editor-header mt-2 gap-2 sm:mt-0 sm:flex">
+            </div>
+        </div>
+
+
+
+<!-- forms -->
+
+    <!-- Upload Files Form -->
+    <div x-show="showUpload" class="CrawlerStatusCard px-4 pb-8 sm:px-6 lg:px-8" id="upload_files_form">
+        <form id="uploadForm" enctype="multipart/form-data" method="POST" class="max-w-5xl divide-y divide-gray-200 dark:divide-gray-800">
+
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+<section aria-labelledby="upload-title" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
+    <div>
+        <h2 id="upload-title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Upload files"}}</h2>
+        <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Pick files from your computer or drop them on the box. They go into the folder above."}}</p>
+    </div>
+<div class="md:col-span-2">
+    <label for="fileUpload"
+           class="flex flex-col items-center justify-center w-full h-56 border border-gray-300 border-dashed rounded-md cursor-pointer hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-900/60 py-6">
+
+        <div id="uploadText" class="flex flex-col items-center justify-center pt-5 pb-6 max-h-72 overflow-y-auto  [&::-webkit-scrollbar]:w-2  [&::-webkit-scrollbar-track]:bg-gray-100  [&::-webkit-scrollbar-thumb]:bg-gray-300  dark:[&::-webkit-scrollbar-track]:bg-gray-700  dark:[&::-webkit-scrollbar-thumb]:bg-gray-500">
+            <i class="ri-upload-cloud-2-line mb-3 text-2xl text-gray-400" aria-hidden="true"></i>
+            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                <span class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Click to upload"}}</span> {{.T.Get "or drag and drop"}}
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Any file type, multiple files allowed"}}</p>
+            {{if .FilemanagerUploadSize}}
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{.T.Get "Max size:"}} {{.FilemanagerUploadSize}} MB</p>
+            {{end}}
+        </div>
+
+        <input id="fileUpload" name="fileUpload" type="file" class="hidden" multiple required />
+    </label>
+    <div id="upload-progress-container"></div>
+</div>
+</section>
+
+<script>
+document.getElementById('fileUpload').addEventListener('change', function(event) {
+    const files = Array.from(event.target.files);
+    const uploadText = document.getElementById('uploadText');
+
+    if (files.length) {
+        uploadText.innerHTML = `
+            <ul class="text-sm text-gray-900 dark:text-gray-50 list-disc pl-5">
+                ${files.map(file => `<li>${file.name}</li>`).join('')}
+            </ul>
+        `;
+    }
+});
+
+const dropArea = document.querySelector('label[for="fileUpload"]');
+const fileInput = document.getElementById('fileUpload');
+const uploadText = document.getElementById('uploadText');
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropArea.addEventListener(eventName, (e) => e.preventDefault());
+    dropArea.addEventListener(eventName, (e) => e.stopPropagation());
+});
+
+['dragenter', 'dragover'].forEach(eventName => {
+    dropArea.addEventListener(eventName, () => {
+        dropArea.classList.add('ring-2', 'ring-blue-500');
+    });
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    dropArea.addEventListener(eventName, () => {
+        dropArea.classList.remove('ring-2', 'ring-blue-500');
+    });
+});
+
+dropArea.addEventListener('drop', (e) => {
+    const droppedFiles = e.dataTransfer.files;
+    if (droppedFiles.length) {
+        fileInput.files = droppedFiles;
+        fileInput.dispatchEvent(new Event('change'));
+    }
+});
+</script>
+
+
+
+
+            <div class="flex flex-col-reverse gap-2 pt-6 sm:flex-row sm:justify-end">
+                <button type="button" id="change_to_wget" @click.prevent="showUpload = false" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">
+                    {{.T.Get "Download from URL instead"}}
+                </button>
+                <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
+                    <i class="ri-upload-line"></i> {{.T.Get "Upload"}}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Wget Files Form -->
+    <div x-show="!showUpload" class="CrawlerStatusCard px-4 pb-8 sm:px-6 lg:px-8" id="wget_files_form">
+        <form id="wgetForm" enctype="multipart/form-data" method="POST" class="max-w-5xl divide-y divide-gray-200 dark:divide-gray-800">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+            <section aria-labelledby="wget-title" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
+                <div>
+                    <h2 id="wget-title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Download a file"}}</h2>
+                    <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Paste a link to a file and the server downloads it into the folder above, without going through your computer."}}</p>
+                </div>
+                <div class="md:col-span-2">
+                    <label for="fileWget" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "URL"}} <span class="font-normal text-gray-500">{{.T.Get "starting with"}} https://</span></label>
+                    <input type="url" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 mt-2" id="fileWget" name="fileWget" placeholder="https://" required>
+                    <div id="download-progress-div" class="hidden mt-6 rounded-md bg-gray-50 p-4 dark:bg-gray-900">
+                        <div class="flex items-center justify-between gap-3 text-xs text-gray-500">
+                            <div id="download-progress-header">{{.T.Get "Download in progress..."}}</div>
+                            <span id="download-progress-label" class="tabular-nums">0%</span>
+                        </div>
+                        <div id="download-progress-bar" class="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800" role="progressbar">
+                            <div id="download-progress-bar-inner" class="h-full rounded-full bg-blue-500 transition-all" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div class="flex flex-col-reverse gap-2 pt-6 sm:flex-row sm:justify-end">
+                <button type="button" id="change_to_upload" @click.prevent="showUpload = true" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">
+                    {{.T.Get "Upload from device instead"}}
+                </button>
+                <button type="submit" id="installButton" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
+                    <i class="ri-download-line" aria-hidden="true"></i> {{.T.Get "Download"}}
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+<!-- END forms -->
+
+
+<!-- js code to switch upload forms and process uploads -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const wgetForm = document.getElementById('wgetForm');
+    const uploadForm = document.getElementById('uploadForm');
+    const changeToWgetLink = document.getElementById('change_to_wget');
+    const changeToUploadLink = document.getElementById('change_to_upload');
+
+    function getCsrfToken() {
+        const el = document.querySelector('input[name="csrf_token"]');
+        return el ? el.value : '';
+    }
+
+    let uploadInProgress = false;
+    let downloadInProgress = false;
+
+    const STORAGE_KEY = `fm_wget_download_{{.PathParam}}`;
+    let pollTimer = null;
+    let currentDownloadId = null;
+    let notFoundRetries = 0;
+
+    function showDownloadUI(startHeaderText = '{{.T.Get "Starting download..."}}') {
+        const progressDiv = document.getElementById('download-progress-div');
+        const progressBar = document.getElementById('download-progress-bar-inner');
+        const progressLabel = document.getElementById('download-progress-label');
+        const progressHeader = document.getElementById('download-progress-header');
+
+        progressDiv.classList.remove('hidden');
+        progressDiv.style.display = 'block';
+        progressBar.style.width = '0%';
+        progressBar.setAttribute('aria-valuenow', 0);
+        progressLabel.innerText = '0%';
+        progressHeader.innerText = startHeaderText;
+    }
+
+    function updateDownloadUI(percent, headerText) {
+        const progressBar = document.getElementById('download-progress-bar-inner');
+        const progressLabel = document.getElementById('download-progress-label');
+        const progressHeader = document.getElementById('download-progress-header');
+
+        progressBar.style.width = `${percent}%`;
+        progressBar.setAttribute('aria-valuenow', percent);
+        progressLabel.innerText = `${percent}%`;
+        if (headerText) progressHeader.innerText = headerText;
+    }
+
+    function setDownloadButtonsState(isDownloading) {
+        changeToUploadLink.disabled = !!isDownloading;
+        downloadInProgress = !!isDownloading;
+    }
+
+    function clearPollTimer() {
+        if (pollTimer) {
+            clearTimeout(pollTimer);
+            pollTimer = null;
+        }
+    }
+
+    function saveDownloadState(downloadId) {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+            download_id: downloadId,
+            started_at: Date.now()
+        }));
+    }
+
+    function loadDownloadState() {
+        try {
+            const raw = sessionStorage.getItem(STORAGE_KEY);
+            return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function clearDownloadState() {
+        sessionStorage.removeItem(STORAGE_KEY);
+        currentDownloadId = null;
+        notFoundRetries = 0;
+        clearPollTimer();
+    }
+
+    function scheduleNextPoll(downloadId, delayMs) {
+        clearPollTimer();
+        pollTimer = setTimeout(() => pollDownloadProgress(downloadId), delayMs);
+    }
+
+    function pollDownloadProgress(downloadId) {
+        if (document.hidden) return;
+
+        fetch(`/file-manager/wget/status/${downloadId}`, { cache: 'no-store' })
+            .then(async (response) => {
+                let data = {};
+                try { data = await response.json(); } catch (e) {}
+
+                if (response.status === 404 || data.error) {
+                    notFoundRetries += 1;
+
+                    const delay = Math.min(1000 * Math.pow(2, Math.min(notFoundRetries, 3)), 10000);
+
+                    updateDownloadUI(
+                        0,
+                        '{{.T.Get "Reconnecting to download status..."}}'
+                    );
+
+                    if (notFoundRetries >= 8) {
+                        const msg = (data && data.error) ? data.error : '{{.T.Get "Download not found."}}';
+                        document.getElementById('download-progress-header').innerText = msg;
+                        showToast(msg, 'error');
+                        setDownloadButtonsState(false);
+                        clearDownloadState();
+                        return;
+                    }
+
+                    scheduleNextPoll(downloadId, delay);
+                    return;
+                }
+
+                notFoundRetries = 0;
+
+                const percent = data.progress || 0;
+                updateDownloadUI(percent, data.message || '{{.T.Get "Download in progress..."}}');
+
+                if (data.status === 'downloading' || data.status === 'queued' || data.status === 'starting') {
+                    scheduleNextPoll(downloadId, 1000);
+                } else if (data.status === 'done') {
+                    document.getElementById('download-progress-header').innerText =
+                        data.message || '{{.T.Get "Download finished successfully."}}';
+                    showToast(data.message || '{{.T.Get "File downloaded successfully!"}}', 'success');
+
+                    setDownloadButtonsState(false);
+                    clearDownloadState();
+
+                    setTimeout(() => {
+                        const progressDiv = document.getElementById('download-progress-div');
+                        progressDiv.style.display = 'none';
+                    }, 5000);
+                } else if (data.status === 'error') {
+                    document.getElementById('download-progress-header').innerText =
+                        data.message || '{{.T.Get "Download failed."}}';
+                    showToast(data.message || '{{.T.Get "Error downloading file."}}', 'error');
+
+                    setDownloadButtonsState(false);
+                    clearDownloadState();
+                } else {
+                    document.getElementById('download-progress-header').innerText = '{{.T.Get "Unknown download status."}}';
+                    setDownloadButtonsState(false);
+                    clearDownloadState();
+                }
+            })
+            .catch((error) => {
+                console.error('Error polling download status:', error);
+
+                notFoundRetries += 1;
+                const delay = Math.min(1000 * Math.pow(2, Math.min(notFoundRetries, 3)), 10000);
+                document.getElementById('download-progress-header').innerText = '{{.T.Get "Reconnecting..."}}';
+                scheduleNextPoll(downloadId, delay);
+            });
+    }
+
+    (function resumeIfNeeded() {
+        const state = loadDownloadState();
+        if (state && state.download_id) {
+            currentDownloadId = state.download_id;
+            showDownloadUI('{{.T.Get "Resuming download status..."}}');
+            setDownloadButtonsState(true);
+            pollDownloadProgress(currentDownloadId);
+        }
+    })();
+
+    document.addEventListener('visibilitychange', () => {
+        if (!currentDownloadId) return;
+
+        if (document.hidden) {
+            clearPollTimer();
+        } else {
+            pollDownloadProgress(currentDownloadId);
+        }
+    });
+
+    wgetForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const fileInput = document.getElementById('fileWget');
+        const url = fileInput.value.trim();
+
+        if (!url) {
+            showToast("{{.T.Get "Please enter a valid URL."}}", 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('url', url);
+
+        const pathParam = "{{.PathParam}}";
+        formData.append('path_param', pathParam);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/file-manager/wget', true);
+
+        const csrf = getCsrfToken();
+        if (csrf) xhr.setRequestHeader('X-CSRF-Token', csrf);
+
+        showDownloadUI('{{.T.Get "Starting download..."}}');
+        setDownloadButtonsState(true);
+
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                let data;
+                try {
+                    data = JSON.parse(xhr.responseText);
+                } catch (e) {
+                    document.getElementById('download-progress-header').innerText = '{{.T.Get "Unexpected server response."}}';
+                    showToast("{{.T.Get "Unexpected server response from download endpoint."}}", 'error');
+                    setDownloadButtonsState(false);
+                    return;
+                }
+
+                if (!data.download_id) {
+                    document.getElementById('download-progress-header').innerText = '{{.T.Get "Missing download ID."}}';
+                    showToast("{{.T.Get "Server did not return a download ID."}}", 'error');
+                    setDownloadButtonsState(false);
+                    return;
+                }
+
+                currentDownloadId = data.download_id;
+                notFoundRetries = 0;
+                saveDownloadState(currentDownloadId);
+
+                pollDownloadProgress(currentDownloadId);
+            } else {
+                document.getElementById('download-progress-header').innerText = '{{.T.Get "Download request failed."}}';
+                showToast("{{.T.Get "Error starting download:"}} " + xhr.statusText + ' - ' + xhr.responseText, "error");
+                setDownloadButtonsState(false);
+            }
+        };
+
+        xhr.onerror = function () {
+            document.getElementById('download-progress-header').innerText = '{{.T.Get "Network error."}}';
+            showToast("{{.T.Get "Network error during file download. Please try again."}}", 'error');
+            setDownloadButtonsState(false);
+        };
+
+        xhr.send(formData);
+    });
+
+    // the limit is per file, one request can carry a few files so a bigger selection goes out as several requests
+    const MAX_UPLOAD_SIZE_MB = {{.FilemanagerUploadSize}};
+    const MAX_UPLOAD_SIZE_BYTES = MAX_UPLOAD_SIZE_MB * 1024 * 1024;
+    const MAX_BATCH_BYTES = ({{.FilemanagerUploadBatchSize}} || Infinity) * 1024 * 1024;
+
+    // uploadBatches splits files into requests under MAX_BATCH_BYTES, files over the per-file limit go in tooBig and are never sent
+    function uploadBatches(files) {
+        const batches = [], tooBig = [];
+        let batch = [], bytes = 0;
+        files.forEach(f => {
+            if (MAX_UPLOAD_SIZE_BYTES && f.size > MAX_UPLOAD_SIZE_BYTES) {
+                tooBig.push(f);
+                return;
+            }
+            if (batch.length && bytes + f.size > MAX_BATCH_BYTES) {
+                batches.push(batch);
+                batch = [];
+                bytes = 0;
+            }
+            batch.push(f);
+            bytes += f.size;
+        });
+        if (batch.length) batches.push(batch);
+        return { batches, tooBig };
+    }
+
+    uploadForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const fileInput = document.getElementById('fileUpload');
+        const selected = Array.from(fileInput.files);
+        if (selected.length === 0) {
+            showToast("{{.T.Get "Please select files to upload."}}", 'warning');
+            return;
+        }
+        const { batches, tooBig } = uploadBatches(selected);
+        if (tooBig.length) {
+            showToast('{{.T.Get "Over the %(size)s MB upload limit:"}}'.replace('%(size)s', MAX_UPLOAD_SIZE_MB) + ' ' + tooBig.map(f => f.name).join(', '), 'warning');
+            return;
+        }
+        fileInput.value = '';
+
+        changeToWgetLink.disabled = true;
+        uploadInProgress = true;
+        let next = 0;
+        const sendNext = (cancelled) => {
+            if (cancelled || next >= batches.length) {
+                changeToWgetLink.disabled = false;
+                uploadInProgress = false;
+                return;
+            }
+            uploadBatch(batches[next++], sendNext);
+        };
+        sendNext(false);
+    });
+
+    // uploadBatch sends one request with its own progress row and calls done once it's over, done(true) when cancelled
+    function uploadBatch(uploadFiles, done) {
+        const uploadProgressContainer = document.getElementById('upload-progress-container');
+        const classesToAdd = ['mt-6', 'space-y-4', 'rounded-md', 'bg-gray-50', 'p-4', 'dark:bg-gray-900'];
+        classesToAdd.forEach(className => {
+            if (!uploadProgressContainer.classList.contains(className)) {
+                uploadProgressContainer.classList.add(className);
+            }
+        });
+
+        const currentFileName = uploadFiles.length === 1 ? uploadFiles[0].name : `${uploadFiles.length} files`;
+        const formData = new FormData();
+
+        const pathParam = "{{.PathParam}}";
+        formData.append('path_param', pathParam);
+
+        for (let i = 0; i < uploadFiles.length; i++) {
+            formData.append('files', uploadFiles[i]);
+        }
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/file-manager/upload', true);
+
+        const progressContainer = document.createElement('div');
+        progressContainer.classList.add('justify-between', 'items-center');
+
+        progressContainer.innerHTML = `
+            <div class="flex items-center justify-between  gap-x-3">
+                <div class="flex space-x-2 items-center">
+                <div class="size-8 flex justify-center items-center rounded-md border border-gray-200 bg-white text-gray-500 dark:border-gray-800 dark:bg-gray-950"><i class="ri-upload-line"></i></div>
+                    <p class="text-sm font-medium text-gray-900 dark:text-gray-50">${currentFileName}</p>
+                </div>
+                <div class="inline-flex items-center gap-x-2">
+                    <button type="button" aria-label="{{.T.Get "Cancel"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 cancel-btn"><i class="ri-close-line"></i></button>
+                </div>
+            </div>
+            <div class="flex items-center justify-between gap-x-3 whitespace-nowrap">
+                <div class="mt-2 flex w-full h-2 bg-gray-200 rounded-full overflow-hidden dark:bg-gray-800" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <div class="rounded-full bg-blue-600 transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <div class="mt-2 w-10 text-end">
+                    <span class="text-xs text-gray-500 tabular-nums">0%</span>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('upload-progress-container').appendChild(progressContainer);
+
+        const progressBar = progressContainer.querySelector('.bg-blue-600');
+        const progressLabel = progressContainer.querySelector('span');
+        const cancelButton = progressContainer.querySelector('.cancel-btn');
+
+        cancelButton.addEventListener('click', () => {
+            xhr.abort();
+            progressBar.classList.remove('bg-blue-600');
+            progressBar.classList.add('bg-red-500');
+            cancelButton.innerHTML = '<i class="ri-error-warning-line text-red-500"></i>';
+            done(true);
+        });
+
+        xhr.upload.onprogress = function (e) {
+            if (e.lengthComputable) {
+                const percent = (e.loaded / e.total) * 100;
+                progressBar.style.width = percent + '%';
+                progressBar.setAttribute('aria-valuenow', percent);
+                progressLabel.innerText = Math.round(percent) + '%';
+            }
+        };
+
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                progressContainer.querySelector('.text-sm').innerText = `${currentFileName} uploaded successfully`;
+                showToast("{{.T.Get "Files uploaded successfully!"}}", 'success');
+                progressBar.classList.remove('bg-blue-600');
+                progressBar.classList.add('bg-emerald-500');
+                cancelButton.innerHTML = '<i class="ri-checkbox-circle-line text-emerald-500"></i>';
+                cancelButton.classList.remove('cancel-btn');
+                done(false);
+            } else {
+                progressBar.classList.remove('bg-blue-600');
+                progressBar.classList.add('bg-red-500');
+                showToast("{{.T.Get "Error uploading file:"}} " + xhr.statusText + ' - ' + xhr.responseText, "error");
+                progressContainer.querySelector('.text-sm').innerText = `${currentFileName} upload failed`;
+                cancelButton.innerHTML = '<i class="ri-error-warning-line text-red-500"></i>';
+                cancelButton.classList.remove('cancel-btn');
+                done(false);
+            }
+        };
+
+        xhr.onerror = function () {
+            showToast("{{.T.Get "Network error during file upload. Please try again."}}", 'error');
+            progressBar.classList.remove('bg-blue-600');
+            progressBar.classList.add('bg-red-500');
+            progressContainer.querySelector('.text-sm').innerText = `${currentFileName} upload failed`;
+            cancelButton.innerHTML = '<i class="ri-error-warning-line text-red-500"></i>';
+            cancelButton.classList.remove('cancel-btn');
+            done(false);
+        };
+
+        const csrf = getCsrfToken();
+        if (csrf) xhr.setRequestHeader('X-CSRF-Token', csrf);
+
+        xhr.send(formData);
+    }
+
+    window.addEventListener('beforeunload', function (e) {
+        if (uploadInProgress) {
+            const confirmationMessage = '{{.T.Get "An upload is in progress. Are you sure you want to leave?"}}';
+            e.returnValue = confirmationMessage;
+            return confirmationMessage;
+        }
+        if (downloadInProgress) {
+            const confirmationMessage = '{{.T.Get "A download is in progress. Are you sure you want to leave?"}}';
+            e.returnValue = confirmationMessage;
+            return confirmationMessage;
+        }
+    });
+});
+</script>
+<!-- END js code to switch upload forms and process uploads -->
+
+<!-- END templates/files/upload_file.html -->
+{{end}}

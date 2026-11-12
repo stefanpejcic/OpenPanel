@@ -1,0 +1,30 @@
+{{define "twofa"}}{{if and .UserAllowed.twofa (eq .TwofaNag "yes")}}
+<!-- START templates/dashboard/twofa.html -->
+<section id="dashboard_twofa"{{if not .TwofaEnabled}} data-off{{end}} aria-labelledby="dashboard_twofa_title" class="rounded-md border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-950 xl:col-span-1">
+    <div class="flex items-start gap-3">
+        <span class="inline-flex size-9 shrink-0 items-center justify-center rounded-md {{if .TwofaEnabled}}bg-emerald-50 text-emerald-600 dark:bg-emerald-950/70 dark:text-emerald-500{{else}}bg-yellow-50 text-yellow-600 dark:bg-yellow-950/70 dark:text-yellow-500{{end}}" aria-hidden="true"><i class="{{if .TwofaEnabled}}ri-shield-check-line{{else}}ri-shield-keyhole-line{{end}} text-lg leading-none"></i></span>
+        <div class="min-w-0" id="dashboard_twofa_content">
+            <h2 id="dashboard_twofa_title" class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Two-factor authentication"}}</h2>
+            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">{{.TwofaStatusMessage}}</p>
+        </div>
+    </div>
+
+    <form method="POST" action="/account/2fa" class="mt-4">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+        {{if not .TwofaEnabled}}
+        <div class="hidden">
+            <input type="checkbox" id="twofa_active" name="twofa_active" checked>
+            <label for="twofa_active">{{.T.Get "Enable 2FA"}}</label>
+        </div>
+        {{end}}
+
+        {{if .TwofaEnabled}}
+        <button type="submit" class="relative inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"><i class="ri-shield-cross-line" aria-hidden="true"></i> {{.T.Get "Click to disable 2FA"}}</button>
+        {{else}}
+        <button type="submit" class="relative inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-shield-check-line" aria-hidden="true"></i> {{.T.Get "Enable 2FA"}}</button>
+        {{end}}
+    </form>
+</section>
+<!-- END templates/dashboard/twofa.html -->
+{{end}}{{end}}

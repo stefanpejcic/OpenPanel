@@ -1,0 +1,218 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/emails/alias_detail.html -->
+
+<!-- page header -->
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
+    <div class="min-w-0">
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Manage alias"}}</h1>
+        <p class="mt-1 truncate text-sm text-gray-500 punycode max-w-3xl">{{.Email}}</p>
+    </div>
+    <div class="flex gap-2">
+        <a href="/emails/aliases" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
+            <i class="ri-arrow-left-line -ml-1 text-base text-gray-500" aria-hidden="true"></i>
+            {{.T.Get "Back to aliases"}}
+        </a>
+    </div>
+</div>
+<!-- END page header -->
+
+<div class="max-w-2xl space-y-6 px-4 pb-8 sm:px-6 lg:px-8">
+
+    <div class="rounded-md border border-gray-200 bg-white dark:border-gray-900 dark:bg-raised">
+        <h2 class="border-b border-gray-200 px-4 py-3 text-sm font-semibold text-gray-900 dark:border-gray-900 dark:text-gray-50">{{.T.Get "Current destinations"}}</h2>
+
+        <div id="targets-table-wrap">
+        {{if and .Entry .Entry.Targets}}
+            <table class="w-full text-sm">
+                <thead>
+                    <tr>
+                        <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Delivers to"}}</th>
+                        <th class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Action"}}</th>
+                    </tr>
+                </thead>
+                <tbody id="targets-tbody" class="divide-y divide-gray-200 dark:divide-gray-800">
+                    {{range .Entry.Targets}}
+                    <tr data-target="{{.}}">
+                        <td class="px-4 py-2.5 text-gray-900 dark:text-gray-50">{{.}}</td>
+                        <td class="px-4 py-2.5 text-right">
+                            <button type="button" data-action="remove-target" class="remove-btn relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-transparent px-2.5 py-1.5 text-center text-sm font-medium text-red-600 transition-all duration-100 ease-in-out hover:bg-red-50 disabled:pointer-events-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:text-red-500 dark:hover:bg-red-400/10">
+                                <i class="ri-delete-bin-line" aria-hidden="true"></i> {{$.T.Get "Remove"}}
+                            </button>
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        {{else}}
+            <p id="empty-state" class="px-4 py-10 text-center text-sm text-gray-500">
+                {{.T.Get "No destinations configured for this alias yet."}}
+            </p>
+        {{end}}
+        </div>
+
+        <!-- Add new target, no form -->
+        <input type="hidden" id="csrf_token" value="{{.CSRFToken}}"/>
+
+        <div class="border-t border-gray-200 p-4 dark:border-gray-900">
+            <label for="new-target" class="block text-sm font-medium text-gray-900 dark:text-gray-50">
+                {{.T.Get "New destination address"}} <span class="text-red-600 dark:text-red-500">*</span>
+            </label>
+            <div class="mt-2 flex flex-col gap-2 sm:flex-row">
+                <input
+                    type="email"
+                    id="new-target"
+                    maxlength="254"
+                    aria-describedby="new-target-help"
+                    placeholder="{{.T.Get "destination@example.com"}}"
+                    class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30"
+                >
+                <button type="button" id="add-destination-btn" class="relative inline-flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
+                    <i class="ri-add-line -ml-1 text-base" aria-hidden="true"></i>
+                    {{.T.Get "Add destination"}}
+                </button>
+            </div>
+            <p id="new-target-help" class="mt-2 text-xs text-gray-500">
+                {{.T.Get "Add another address that this alias should forward to."}}
+            </p>
+        </div>
+    </div>
+
+    <!-- Danger zone -->
+    <div class="rounded-md border border-gray-200 bg-white dark:border-gray-900 dark:bg-raised">
+        <h2 class="border-b border-gray-200 px-4 py-3 text-sm font-semibold text-gray-900 dark:border-gray-900 dark:text-gray-50">{{.T.Get "Danger zone"}}</h2>
+        <div class="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Delete this alias"}}</p>
+                <p class="mt-1 text-sm text-gray-500">{{.T.Get "Removes the alias address and all its destinations permanently."}}</p>
+            </div>
+            <a href="/emails/aliases/delete/{{.Email}}" class="relative inline-flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600"><i class="ri-delete-bin-line" aria-hidden="true"></i> {{.T.Get "Delete alias"}}</a>
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+(function () {
+    const SOURCE = {{toJSON .Email}};
+    const csrf = () => document.getElementById('csrf_token').value;
+    const REMOVE_HTML = `<i class="ri-delete-bin-line" aria-hidden="true"></i> {{.T.Get "Remove"}}`;
+
+    function makeRow(target) {
+        const tr = document.createElement('tr');
+        tr.dataset.target = target;
+        tr.innerHTML = `
+            <td class="px-4 py-2.5 text-gray-900 dark:text-gray-50"></td>
+            <td class="px-4 py-2.5 text-right">
+                <button type="button" data-action="remove-target"
+                    class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-transparent px-2.5 py-1.5 text-center text-sm font-medium text-red-600 transition-all duration-100 ease-in-out hover:bg-red-50 disabled:pointer-events-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:text-red-500 dark:hover:bg-red-400/10">
+                    ${REMOVE_HTML}
+                </button>
+            </td>`;
+        tr.firstElementChild.textContent = target;
+        return tr;
+    }
+
+    const container = document.getElementById('targets-table-wrap');
+
+    container.addEventListener('click', async function (e) {
+        const btn = e.target.closest('[data-action="remove-target"]');
+        if (!btn || btn.disabled) return;
+
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        const row = btn.closest('tr');
+        const target = row?.dataset.target;
+        if (!target) return;
+
+
+        btn.disabled = true;
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+        btn.innerHTML = {{toJSON (.T.Get "Removing...")}};
+
+        try {
+            const res = await fetch(`/emails/aliases/${encodeURIComponent(SOURCE)}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrf(),
+                },
+                body: JSON.stringify({ target }),
+            });
+
+            if (res.ok) {
+                row.remove();
+                const tbody = document.getElementById('targets-tbody');
+                if (!tbody || tbody.querySelectorAll('tr').length === 0) {
+                    container.innerHTML = `<p id="empty-state" class="px-4 py-10 text-center text-sm text-gray-500">{{.T.Get "No destinations configured for this alias yet."}}</p>`;
+                }
+            } else {
+                const data = await res.json().catch(() => ({}));
+                alert(data.error || {{toJSON (.T.Get "Failed to remove destination.")}});
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                btn.innerHTML = REMOVE_HTML;
+            }
+        } catch (err) {
+            console.error('Delete error:', err);
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            btn.innerHTML = REMOVE_HTML;
+        }
+    });
+
+    const addBtn = document.getElementById('add-destination-btn');
+    addBtn.addEventListener('click', async function () {
+        const input = document.getElementById('new-target');
+        const target = input.value.trim();
+
+        if (!target || !target.includes('@') || addBtn.disabled) return;
+
+        addBtn.disabled = true;
+        const originalHTML = addBtn.innerHTML;
+        addBtn.innerText = {{toJSON (.T.Get "Adding...")}};
+
+        try {
+            const res = await fetch(`/emails/aliases/${encodeURIComponent(SOURCE)}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-Token': csrf(),
+                },
+                body: new URLSearchParams({ target }).toString(),
+            });
+
+            if (res.ok) {
+                let tbody = document.getElementById('targets-tbody');
+                if (!tbody) {
+                    container.innerHTML = `
+                        <table class="w-full text-sm">
+                            <thead><tr>
+                                <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Delivers to"}}</th>
+                                <th class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Action"}}</th>
+                            </tr></thead>
+                            <tbody id="targets-tbody" class="divide-y divide-gray-200 dark:divide-gray-800"></tbody>
+                        </table>`;
+                    tbody = document.getElementById('targets-tbody');
+                }
+                tbody.appendChild(makeRow(target));
+                input.value = '';
+            } else {
+                const data = await res.json().catch(() => ({}));
+                alert(data.error || {{toJSON (.T.Get "Failed to add destination.")}});
+            }
+        } catch (err) {
+            console.error('Add error:', err);
+        } finally {
+            addBtn.disabled = false;
+            addBtn.innerHTML = originalHTML;
+        }
+    });
+})();
+</script>
+
+<!-- END templates/emails/alias_detail.html -->
+{{end}}

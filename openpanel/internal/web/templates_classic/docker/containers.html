@@ -1,0 +1,475 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+    <script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+<!-- START templates/docker/containers.html -->
+
+<section aria-label="{{.T.Get "Containers Table"}}" x-data="{ searchQuery: '' }" >
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
+        <div>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Containers"}}</h1>
+            <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Running containers:"}} <span class="font-medium tabular-nums text-gray-900 dark:text-gray-50"><span id="total_records_count">0/</span>{{len .Rows}}</span></p>
+        </div>
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+            {{if .UserAllowed.change_image}}
+            <a href="/containers/image/change" class="relative inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-gray-300 bg-white px-3 py-2 text-center text-sm font-medium text-gray-900 shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 hover:bg-gray-50 focus-visible:outline-2 sm:w-auto dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
+                <i class="ri-stack-line text-base" aria-hidden="true"></i> {{.T.Get "Software versions"}}
+            </a>
+            {{end}}
+            <a href="/containers/new" id="login_button" class="relative inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-auto border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
+                <i class="ri-add-line text-base" aria-hidden="true"></i> {{.T.Get "New service"}}
+            </a>
+        </div>
+    </div>
+
+{{if .Created.Service}}{{template "container_created" .}}{{end}}
+
+
+
+<script src="{{static "js/data-table.js"}}"></script>
+{{template "bulk_open" (dict "T" .T "Table" "#containers-table" "Endpoint" "/containers/bulk")}}
+<div x-data="createTableController({
+        storageKey: 'containersColumnsVisibility',
+        columns: {
+            name: true,
+            cpu: true,
+            ram: true,
+            ports: true,
+            blockio: false,
+            netio: false,
+            pids: true,
+            status: true,
+            actions: true
+        }
+    })" x-init="init()" x-cloak>
+    <div class="flex flex-col gap-2 px-4 pb-4 sm:flex-row sm:items-center sm:px-6 lg:px-8">
+        <div class="relative w-full sm:w-64">
+            <input
+                x-model="searchQuery"
+                aria-label="{{.T.Get "Search"}}"
+                class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+                placeholder="{{.T.Get "Search"}}"
+                type="search"
+            />
+            <div class="pointer-events-none absolute inset-y-0 left-2 flex items-center text-gray-400 dark:text-gray-600">
+                <i class="ri-search-line text-base" aria-hidden="true"></i>
+            </div>
+        </div>
+        <div class="relative">
+            <button id="dropdownToggleButton" data-dropdown-toggle="dropdownToggle" class="relative inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-900 shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 hover:bg-gray-50 focus-visible:outline-2 sm:w-fit dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60" type="button"><i class="ri-equalizer-line text-base" aria-hidden="true"></i> {{.T.Get "Show columns"}}</button>
+
+            <div id="dropdownToggle" class="z-10 hidden w-64 rounded-md border border-gray-200 bg-white p-1 text-sm text-gray-900 shadow-xl dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50">
+                <ul class="space-y-0.5" aria-labelledby="dropdownToggleButton">
+                    {{template "column_toggle" (dict "Key" "name" "T" .T "Label" (.T.Get "Name"))}}
+                    {{template "column_toggle" (dict "Key" "cpu" "T" .T "Label" (.T.Get "CPU usage"))}}
+                    {{template "column_toggle" (dict "Key" "ram" "T" .T "Label" (.T.Get "Memory usage"))}}
+                    {{template "column_toggle" (dict "Key" "ports" "T" .T "Label" (.T.Get "Ports"))}}
+                    {{template "column_toggle" (dict "Key" "blockio" "T" .T "Label" (.T.Get "Block I/O"))}}
+                    {{template "column_toggle" (dict "Key" "netio" "T" .T "Label" (.T.Get "Net I/O"))}}
+                    {{template "column_toggle" (dict "Key" "pids" "T" .T "Label" (.T.Get "PIDs"))}}
+                    {{template "column_toggle" (dict "Key" "status" "T" .T "Label" (.T.Get "Status"))}}
+                    {{template "column_toggle" (dict "Key" "actions" "T" .T "Label" (.T.Get "Actions"))}}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+            <table id="containers-table" class="w-full text-sm [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+                <thead>
+                    <tr>
+                        {{template "bulk_head_checkbox" .}}
+                        <th x-show="columns.name" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Name"}}</th>
+                        <th x-show="columns.cpu" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "CPU usage"}}</th>
+                        <th x-show="columns.ram" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Memory usage"}}</th>
+                        <th x-show="columns.ports" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Ports"}}</th>
+                        <th x-show="columns.blockio" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Block I/O"}}</th>
+                        <th x-show="columns.netio" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Net I/O"}}</th>
+                        <th x-show="columns.pids" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "PIDs"}}</th>
+                        <th x-show="columns.status" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Status"}}</th>
+                        <th x-show="columns.actions" scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
+                    </tr>
+                </thead>
+        <tbody>
+        {{range .Rows}}
+        {{template "container_row" (dict "Row" . "T" $.T "TotalCPU" $.TotalCPU "TotalRAM" $.TotalRAM "CSRFToken" $.CSRFToken "CanChangeImage" $.UserAllowed.change_image)}}
+        {{end}}
+        </tbody>
+            </table>
+    </div>
+</div>
+{{template "bulk_bar" .}}
+</div>
+</section>
+
+
+<!-- JS for stats -->
+<script>
+const containersI18n = {
+    enabled: "{{.T.Get "Enabled"}}"
+};
+// usage ring color: blue under 70%, yellow from 70%, red from 90%
+function meterStroke(pct) {
+    return pct >= 90 ? 'stroke-red-500' : pct >= 70 ? 'stroke-yellow-500' : 'stroke-blue-500';
+}
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/json/services', {
+        method: 'GET',
+        headers: {
+            'X-CSRF-TOKEN': csrf_token
+        }
+    })
+        .then(response => response.json())
+        .then(function(response) {
+            if (response.container_stats) {
+
+                var totalCount = 0;
+                var highUsageContainers = [];
+
+                if (response.container_stats.length === 0) {
+                    showToast('{{.T.Get "No container are currently running."}}', 'warning');
+                } else {
+
+
+                response.container_stats.forEach(function(container) {
+                    var containerName = container.Name;
+                    var containerId = containerName.replace(/\./g, '\\.');
+
+                    var statusCell = document.querySelector('#status-' + containerId);
+                    if (!statusCell) return;  // container not in this table, skip
+
+                    var blockioCell = document.querySelector('#blockio-' + containerId);
+                    var netioCell = document.querySelector('#netio-' + containerId);
+                    var pidsCell = document.querySelector('#pids-usage-' + containerId);
+                    var ramCell = document.querySelector('#ram-' + containerId);
+                    var startItem = document.querySelector('#start-item-' + containerId);
+                    var stopItem = document.querySelector('#stop-item-' + containerId);
+                    var cpuCell = document.querySelector('#cpu-' + containerId);
+                    var ramText = document.querySelector('#ram-usage-' + containerId);
+                    var cpuText = document.querySelector('#cpu-usage-' + containerId);
+
+                    var allocatedCpuInput = document.querySelector('#cpu-allocated-' + containerId);
+                    var allocatedCpu = allocatedCpuInput ? (parseFloat(allocatedCpuInput.value) || 1) : 1;
+
+                    var rawCpuUsage = parseFloat(container.CPUPerc.replace('%', '')) || 0;
+                    var cpuUsage = (rawCpuUsage / (allocatedCpu * 100)) * 100;
+
+                    var memUsage = parseFloat(container.MemPerc.replace('%', '')) || 0;
+
+                    var allocatedPidsInput = document.querySelector('#pids-allocated-' + containerId);
+                    var allocatedPids = allocatedPidsInput ? (parseFloat(allocatedPidsInput.value) || 0) : 0;
+                    var rawPidsUsage = parseFloat(container.PIDs) || 0;
+                    var pidsUsage = allocatedPids > 0 ? (rawPidsUsage / allocatedPids) * 100 : 0;
+
+                    var cpuDashOffset = 78.54 * (1 - cpuUsage / 100);
+                    var memDashOffset = 78.54 * (1 - memUsage / 100);
+
+                    var cpuTextInfo = `${container.CPUPerc}`;
+
+                    cpuText.innerHTML = cpuTextInfo;
+
+                    var memUsageOnly = container.MemUsage.split('/')[0].trim();
+                    var ramTextInfo = `${memUsageOnly}`;
+
+                    ramText.innerHTML = ramTextInfo;
+
+                    var cpuInfo = `
+                        <div class="flex gap-2">
+                            <!-- CPU Usage -->
+                            <div class="flex items-center gap-x-2.5">
+                                <div class="relative" role="progressbar" aria-valuenow="${cpuUsage}" aria-valuemin="0" aria-valuemax="100">
+                                    <svg width="28" height="28" viewBox="0 0 28 28" class="-rotate-90 transform">
+                                        <circle r="12.5" cx="14" cy="14" stroke-width="3" fill="transparent" class="stroke-gray-200 dark:stroke-gray-800"></circle>
+                                        <circle r="12.5" cx="14" cy="14" stroke-width="3" stroke-dasharray="78.54" stroke-dashoffset="${cpuDashOffset}" fill="transparent"
+                                        class="${meterStroke(cpuUsage)} transition-all duration-300">
+                                        </circle>
+                                    </svg>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-[11px] font-semibold text-gray-900 tabular-nums dark:text-gray-50">${Math.round(cpuUsage)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    cpuCell.innerHTML = cpuInfo;
+
+                    var ramInfo = `
+                        <div class="flex gap-2">
+                            <!-- Memory Usage -->
+                            <div class="flex items-center gap-x-2.5">
+                                <div class="relative" role="progressbar" aria-valuenow="${memUsage}" aria-valuemin="0" aria-valuemax="100">
+                                    <svg width="28" height="28" viewBox="0 0 28 28" class="-rotate-90 transform">
+                                        <circle r="12.5" cx="14" cy="14" stroke-width="3" fill="transparent" class="stroke-gray-200 dark:stroke-gray-800"></circle>
+                                        <circle r="12.5" cx="14" cy="14" stroke-width="3" stroke-dasharray="78.54" stroke-dashoffset="${memDashOffset}" fill="transparent"
+
+                                        class="${meterStroke(memUsage)} transition-all duration-300">
+
+
+
+                                        </circle>
+                                    </svg>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-[11px] font-semibold text-gray-900 tabular-nums dark:text-gray-50">${Math.round(memUsage)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    ramCell.innerHTML = ramInfo;
+
+                    blockioCell.textContent = container.BlockIO;
+                    netioCell.textContent = container.NetIO;
+                    pidsCell.textContent = container.PIDs;
+
+                    var statusInfo = `<span class="inline-flex items-center gap-2 text-gray-900 dark:text-gray-50"><span class="size-2 shrink-0 rounded-full bg-emerald-500" aria-hidden="true"></span>${containersI18n.enabled}</span>`;
+                    statusCell.innerHTML = statusInfo;
+
+
+                    // Container is running: show "Stop" in the actions dropdown instead of "Start".
+                    if (startItem) startItem.classList.add('hidden');
+                    if (stopItem) stopItem.classList.remove('hidden');
+
+                    if (cpuUsage >= 90 || memUsage >= 90 || pidsUsage >= 90) {
+                        highUsageContainers.push(containerName);
+                    }
+
+                    totalCount++;
+                });
+                document.querySelector('#total_records_count').textContent = totalCount + "/";
+
+                if (typeof reportHealthIssues === 'function' && highUsageContainers.length) {
+                    let issue;
+                    if (highUsageContainers.length === 1) {
+                        issue = { id: 'resource-limit:' + highUsageContainers[0], severity: 'warning', message: "{{.T.Get "Container"}} " + highUsageContainers[0] + " {{.T.Get "is reaching its CPU/RAM/PIDs limit."}}" };
+                    } else if (highUsageContainers.length === 2) {
+                        issue = { id: 'resource-limit:' + highUsageContainers.join(','), severity: 'warning', message: "{{.T.Get "Containers"}} " + highUsageContainers.join(', ') + " {{.T.Get "are reaching their CPU/RAM/PIDs limit."}}" };
+                    } else {
+                        issue = { id: 'resource-limit:multiple', severity: 'warning', message: highUsageContainers.length + " {{.T.Get "containers are reaching their CPU/RAM/PIDs limit."}}" };
+                    }
+                    reportHealthIssues('containers', [issue], 24);
+                }
+                }
+            }
+        })
+        .catch(function(error) {
+            console.error("Error fetching container stats:", error);
+            showToast('{{.T.Get "Error fetching docker stats for containers."}}', 'error');
+            document.querySelector('#total_records_count').textContent = "?/";
+        });
+});
+
+</script>
+<!-- END JS for stats -->
+
+<script>
+// search table based on ?s= in the url
+document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const s = params.get('s');
+    if (s) {
+        setTimeout(() => {
+            const searchInput = document.querySelector('[x-model="searchQuery"]');
+            if (searchInput) {
+                const scope = Alpine.$data(searchInput.closest('[x-data]'));
+                if (scope) {
+                    scope.searchQuery = s;
+                }
+                searchInput.value = s;
+                searchInput.dispatchEvent(new Event('input'));
+            }
+        }, 100);
+    }
+});
+</script>
+
+<!-- END templates/docker/containers.html -->
+{{end}}
+
+{{define "column_toggle"}}
+<li>
+    <label for="col-toggle-{{.Key}}" class="flex w-full cursor-pointer items-center justify-between gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900">
+        <span>{{.Label}}</span>
+        <input type="checkbox" role="switch" id="col-toggle-{{.Key}}" x-model="columns.{{.Key}}" x-on:change="saveColumns">
+    </label>
+</li>
+{{end}}
+
+{{define "container_row"}}
+{{$row := .Row}}
+{{$t := .T}}
+<tr x-show="searchQuery === '' || '{{$row.DisplayName}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{$row.Service}}'.toLowerCase().includes(searchQuery.toLowerCase()) || '{{$row.Image}}'.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row hover:bg-gray-50 dark:hover:bg-gray-900/60">
+
+    {{$skip := ""}}{{if not $row.ShowManage}}{{$skip = "delete"}}{{end}}
+    {{template "bulk_row_checkbox" (dict "Key" $row.Service "Label" $row.DisplayName "Skip" $skip "T" $t)}}
+
+    <td x-show="columns.name" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
+        <div class="flex flex-col gap-0.5">
+            <span class="font-medium text-gray-900 dark:text-gray-50">{{$row.DisplayName}}</span>
+            <div class="flex items-center gap-1 text-xs">
+                <span class="text-gray-500">{{$.T.Get "Image"}}:</span>
+                <span class="font-mono text-gray-900 dark:text-gray-50">{{$row.Image}}</span>
+{{if $row.ImageTrusted}}
+                <i class="ri-shield-check-fill text-sm text-emerald-600 dark:text-emerald-400" aria-hidden="true"></i>
+{{else}}
+                <i class="ri-shield-check-fill text-sm text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+{{end}}
+            </div>
+        </div>
+    </td>
+
+<td x-show="columns.cpu"
+    x-data="{
+    editing: false,
+    rawValue: '{{if $row.CPUUnlimited}}{{else}}{{$row.CPUValue}}{{end}}',
+    CPUinputValue: '{{if $row.CPUUnlimited}}0{{else}}{{$row.CPUValue}}{{end}}',
+    get isUnlimited() { return this.rawValue === '' || this.rawValue === '0'; },
+    get value() { return this.isUnlimited ? '∞' : this.rawValue; },
+    set value(val) { this.rawValue = val; this.CPUinputValue = val; }
+}"
+class="group relative border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
+
+    <div class="flex items-center gap-2.5">
+        <div id="cpu-{{$row.Service}}">
+                <div class="relative" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <svg width="28" height="28" viewBox="0 0 28 28" class="-rotate-90 transform">
+                        <circle r="12.5" cx="14" cy="14" stroke-width="3" fill="transparent" class="stroke-gray-200 dark:stroke-gray-800"></circle>
+                        <circle r="12.5" cx="14" cy="14" stroke-width="3" stroke-dasharray="78.54" stroke-dashoffset="78.54" fill="transparent" class="stroke-blue-500 transition-all duration-300"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-[11px] font-semibold text-gray-900 tabular-nums dark:text-gray-50">0</span>
+                    </div>
+                </div>
+        </div>
+
+        <div class="flex flex-col">
+            <span class="text-gray-900 dark:text-gray-50">
+                <span class="text-xs text-gray-500">{{$t.Get "Usage:"}} </span>
+                <span class="font-medium tabular-nums" id="cpu-usage-{{$row.Service}}"><span class="text-gray-400 dark:text-gray-600">—</span></span>
+            </span>
+            <span class="flex items-center gap-1 text-xs text-gray-500">
+                <input id="cpu-allocated-{{$row.Service}}" type="hidden" value="{{.TotalCPU}}">
+                {{$t.Get "Allocated:"}}
+                <span x-show="!editing"><span class="font-medium tabular-nums" x-text="value"></span> {{$t.Get "cores"}} <a href="#" @click.prevent="editing = !editing" class="hidden text-gray-400 hover:text-gray-600 group-hover:inline-block focus-visible:inline-block dark:hover:text-gray-300" aria-label="{{$t.Get "Edit"}}"><i class="ri-pencil-line" aria-hidden="true"></i></a></span>
+            <form action="/containers/cpu/{{$row.Service}}" method="POST" x-show="editing" @click.stop="editing = true" class="flex items-center gap-2">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input x-model="CPUinputValue" aria-label="{{$t.Get "CPU usage"}}" title='{{if ne .TotalCPU 0}}{{$t.Get "Maximum allowed: "}}{{.TotalCPU}} {{$t.Get "cores"}}{{else}}{{$t.Get "Max CPUs that this service can use. 0 = unlimited"}}{{end}}' name="value" type="number" min="0" {{if ne .TotalCPU 0}}max="{{.TotalCPU}}"{{end}} step=".01" class="block w-20 appearance-none rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30" />
+                <button type="submit" class="inline-flex items-center rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-900 shadow-xs hover:bg-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{$t.Get "Save"}}</button>
+            </form>
+            </span>
+        </div>
+    </div>
+</td>
+
+<td x-show="columns.ram"
+    x-data="{
+    editing: false,
+    rawValue: '{{if $row.RAMUnlimited}}{{else}}{{$row.RAMGB}}{{end}}',
+    RAMinputValue: '{{if $row.RAMUnlimited}}0{{else}}{{$row.RAMGB}}{{end}}',
+    get isUnlimited() { return this.rawValue === '' || this.rawValue === '0'; },
+    get value() { return this.isUnlimited ? '∞' : this.rawValue + ' GB'; },
+    set value(val) { this.rawValue = val; this.RAMinputValue = val; }
+}" class="group relative border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
+
+    <div class="flex items-center gap-2.5">
+        <div id="ram-{{$row.Service}}">
+                <div class="relative" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                    <svg width="28" height="28" viewBox="0 0 28 28" class="-rotate-90 transform">
+                        <circle r="12.5" cx="14" cy="14" stroke-width="3" fill="transparent" class="stroke-gray-200 dark:stroke-gray-800"></circle>
+                        <circle r="12.5" cx="14" cy="14" stroke-width="3" stroke-dasharray="78.54" stroke-dashoffset="78.54" fill="transparent" class="stroke-blue-500 transition-all duration-300"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-[11px] font-semibold text-gray-900 tabular-nums dark:text-gray-50">0</span>
+                    </div>
+                </div>
+        </div>
+
+        <div class="flex flex-col">
+            <span class="text-gray-900 dark:text-gray-50">
+                <span class="text-xs text-gray-500">{{$t.Get "Usage:"}} </span>
+                <span class="font-medium tabular-nums" id="ram-usage-{{$row.Service}}"><span class="text-gray-400 dark:text-gray-600">—</span></span>
+            </span>
+            <span class="flex items-center gap-1 text-xs text-gray-500">
+                {{$t.Get "Allocated:"}}
+                <span x-show="!editing"><span class="font-medium tabular-nums">{{if $row.RAMUnlimited}}∞{{else}}{{$row.RAMGB}} GB{{end}}</span> <a href="#" @click.prevent="editing = !editing" class="hidden text-gray-400 hover:text-gray-600 group-hover:inline-block focus-visible:inline-block dark:hover:text-gray-300" aria-label="{{$t.Get "Edit"}}"><i class="ri-pencil-line" aria-hidden="true"></i></a></span>
+            <form action="/containers/ram/{{$row.Service}}" method="POST" x-show="editing" @click.stop="editing = true" class="flex items-center gap-2">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input x-model="RAMinputValue" aria-label="{{$t.Get "Memory usage"}}" name="value" title='{{if ne .TotalRAM 0}}{{$t.Get "Maximum allowed: "}}{{.TotalRAM}} GB{{else}}{{$t.Get "Max memory that this service can use. 0 = unlimited"}}{{end}}' type="number" min="0" {{if ne .TotalRAM 0}}max="{{.TotalRAM}}"{{end}} step=".01" class="block w-20 appearance-none rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30" />
+                <button type="submit" class="inline-flex items-center rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-900 shadow-xs hover:bg-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{$t.Get "Save"}}</button>
+            </form>
+            </span>
+        </div>
+    </div>
+</td>
+
+    <td x-show="columns.ports" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
+        {{if $row.Ports}}<span class="font-mono text-xs text-gray-900 tabular-nums dark:text-gray-50" title="{{$row.PortsTitle}}">{{$row.Ports}}</span>{{if $row.PortsTitle}}<span class="sr-only"> ({{$row.PortsTitle}})</span>{{end}}{{else}}<span class="text-gray-400 dark:text-gray-600">—</span>{{end}}
+    </td>
+    <td x-show="columns.blockio" id="blockio-{{$row.Service}}" class="text-center border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums">--</td>
+    <td x-show="columns.netio" id="netio-{{$row.Service}}" class="text-center border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums">--</td>
+    <td x-show="columns.pids"
+    x-data="{
+    editing: false,
+    rawValue: '{{if $row.PIDsUnlimited}}{{else}}{{$row.PIDsValue}}{{end}}',
+    PIDsinputValue: '{{if $row.PIDsUnlimited}}0{{else}}{{$row.PIDsValue}}{{end}}',
+    get isUnlimited() { return this.rawValue === '' || this.rawValue === '0'; },
+    get value() { return this.isUnlimited ? '∞' : this.rawValue; },
+    set value(val) { this.rawValue = val; this.PIDsinputValue = val; }
+}" class="group relative border-b border-gray-200 px-4 py-2.5 text-center whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 tabular-nums">
+
+    <span x-show="!editing">
+        <input id="pids-allocated-{{$row.Service}}" type="hidden" value="{{if $row.PIDsUnlimited}}0{{else}}{{$row.PIDsValue}}{{end}}">
+        <span class="font-medium text-gray-900 dark:text-gray-50" id="pids-usage-{{$row.Service}}">--</span> / <span class="font-medium text-gray-900 dark:text-gray-50" x-text="value"></span>
+        <a href="#" @click.prevent="editing = !editing" class="hidden text-gray-400 hover:text-gray-600 group-hover:inline-block focus-visible:inline-block dark:hover:text-gray-300" aria-label="{{$t.Get "Edit"}}"><i class="ri-pencil-line" aria-hidden="true"></i></a>
+    </span>
+    <form action="/containers/pids/{{$row.Service}}" method="POST" x-show="editing" @click.stop="editing = true" class="flex items-center justify-center gap-2">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+        <input x-model="PIDsinputValue" aria-label="{{$t.Get "PIDs"}}" title='{{$t.Get "Max processes that this service can run. 0 = unlimited"}}' name="value" type="number" min="0" step="1" class="block w-20 appearance-none rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30" />
+        <button type="submit" class="inline-flex items-center rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-900 shadow-xs hover:bg-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{$t.Get "Save"}}</button>
+    </form>
+    </td>
+
+    <td x-show="columns.status" id="status-{{$row.Service}}" class="text-center border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
+        <span class="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400"><span class="size-2 shrink-0 rounded-full bg-gray-400 dark:bg-gray-600" aria-hidden="true"></span>{{$t.Get "Disabled"}}</span>
+    </td>
+
+    <td x-show="columns.actions" class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 text-right">
+        <div class="relative inline-block text-left" x-data="rowMenu" @click.outside="close()" @keydown.escape="close()">
+        <button id="dropdownHoverButton-{{$row.Service}}" x-ref="btn" @click="toggle()" :aria-expanded="open.toString()" type="button" aria-label="{{$t.Get "Actions"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50"><i class="ri-more-2-line text-base" aria-hidden="true"></i></button>
+
+        <div id="dropdownHover-{{$row.Service}}" x-show="open" x-cloak x-ref="menu" :style="pos" class="absolute right-0 z-50 mt-1 w-48 rounded-md border border-gray-200 bg-white p-1 text-left shadow-xl dark:border-gray-800 dark:bg-gray-950">
+            <ul class="text-sm" aria-labelledby="dropdownHoverButton-{{$row.Service}}">
+                <li id="start-item-{{$row.Service}}">
+                    <form method="POST" action="/containers/start/{{$row.DisplayName}}">
+                        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                        <button type="submit" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-play-line text-gray-500" aria-hidden="true"></i> {{$t.Get "Start"}}</button>
+                    </form>
+                </li>
+                <li id="stop-item-{{$row.Service}}" class="hidden">
+                    <form method="POST" action="/containers/stop/{{$row.Service}}">
+                        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                        <button type="submit" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-stop-line text-gray-500" aria-hidden="true"></i> {{$t.Get "Stop"}}</button>
+                    </form>
+                </li>
+{{if $row.ShowManage}}
+                <li><a href="/containers/edit/{{$row.Service}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-edit-box-line text-gray-500" aria-hidden="true"></i> {{$t.Get "Edit"}}</a></li>
+{{end}}
+                <li><a href="/containers/terminal/{{$row.Service}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-terminal-box-line text-gray-500" aria-hidden="true"></i> {{$t.Get "Terminal"}}</a></li>
+                <li><a href="/containers/logs?container={{$row.Service}}&lines=20" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-file-text-line text-gray-500" aria-hidden="true"></i> {{$t.Get "Logs"}}</a></li>
+{{if and .CanChangeImage $row.ImageChangeable}}
+                <li><a href="/containers/image/change/{{$row.Service}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-arrow-up-circle-line text-gray-500" aria-hidden="true"></i> {{$t.Get "Change version"}}</a></li>
+{{end}}
+{{if $row.ShowManage}}
+                <li class="my-1 border-t border-gray-200 dark:border-gray-800" role="separator"></li>
+                <li><a href="/containers/delete/{{$row.Service}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-sm text-red-600 hover:bg-gray-100 dark:text-red-500 dark:hover:bg-gray-900"><i class="ri-delete-bin-line" aria-hidden="true"></i> {{$t.Get "Delete"}}</a></li>
+{{end}}
+            </ul>
+        </div>
+        </div>
+    </td>
+</tr>
+{{end}}

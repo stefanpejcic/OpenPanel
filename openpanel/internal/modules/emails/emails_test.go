@@ -427,8 +427,8 @@ func TestAddFailureReason(t *testing.T) {
 		{"", "", "command failed"},
 	}
 	for _, c := range cases {
-		if got := addFailureReason(c.stderr, c.stdout); got != c.want {
-			t.Errorf("addFailureReason(%q, %q) = %q, want %q", c.stderr, c.stdout, got, c.want)
+		if got, _ := emailAddFailure(errors.New("exit status 1"), c.stdout, c.stderr); got != c.want {
+			t.Errorf("emailAddFailure(%q, %q) = %q, want %q", c.stdout, c.stderr, got, c.want)
 		}
 	}
 }

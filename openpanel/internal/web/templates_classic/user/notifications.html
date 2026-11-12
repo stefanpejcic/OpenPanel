@@ -1,0 +1,113 @@
+{{define "notification_row"}}{{$c := .C}}{{$t := .T}}
+<li class="px-4 py-4">
+    <div class="flex items-start gap-3">
+        <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-gray-100 text-base text-gray-700 dark:bg-gray-900 dark:text-gray-300" aria-hidden="true">{{template "notification_icon" $c}}</span>
+        <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5">
+                <h3 id="notif-{{$c.Key}}" class="text-sm font-medium text-gray-900 dark:text-gray-50">{{$t.Get $c.Title}}</h3>
+                <a href="{{$c.DocsURL}}" target="_blank" rel="noopener" title="{{$t.Get "Learn more"}}" aria-label="{{$t.Get "Learn more"}}: {{$t.Get $c.Title}}" class="inline-flex size-5 items-center justify-center rounded text-gray-400 hover:text-blue-500 dark:text-gray-600 dark:hover:text-blue-400"><i class="ri-question-line text-sm leading-none" aria-hidden="true"></i></a>
+            </div>
+            <p class="mt-0.5 text-sm text-gray-500">{{$t.Get $c.Description}}</p>
+        </div>
+        <input type="checkbox" role="switch" class="mt-0.5 shrink-0" name="{{$c.Key}}" value="1" x-model="on[{{toJSON $c.Key}}]" aria-labelledby="notif-{{$c.Key}}">
+    </div>
+    {{if $c.Subs}}
+    <div class="mt-3 ml-11 space-y-3 border-l border-gray-200 pl-4 dark:border-gray-800" x-show="on[{{toJSON $c.Key}}]" x-cloak>
+        {{range $c.Subs}}
+        <label class="flex cursor-pointer items-center justify-between gap-3">
+            <span class="text-sm text-gray-600 dark:text-gray-400">{{$t.Get .Title}}</span>
+            <input type="checkbox" role="switch" name="{{.Key}}" value="1" x-model="on[{{toJSON .Key}}]">
+        </label>
+        {{end}}
+    </div>
+    {{end}}
+</li>
+{{end}}
+
+{{define "alpine_plugins"}}{{end}}
+
+{{define "notification_icon"}}
+{{- if eq .Key "notify_account_login"}}
+<i class="ri-login-box-line" aria-hidden="true"></i>
+{{- else if eq .Key "notify_password_change"}}
+<i class="ri-lock-password-line" aria-hidden="true"></i>
+{{- else if eq .Key "notify_twofactorauth_change"}}
+<i class="ri-shield-check-line" aria-hidden="true"></i>
+{{- else if eq .Key "notify_contact_address_change"}}
+<i class="ri-mail-line" aria-hidden="true"></i>
+{{- else if eq .Key "notify_disk_limit"}}
+<i class="ri-database-2-line" aria-hidden="true"></i>
+{{- else if eq .Key "notify_email_quota_limit"}}
+<i class="ri-inbox-line" aria-hidden="true"></i>
+{{- else if eq .Key "notify_passkey_change"}}
+<i class="ri-fingerprint-line" aria-hidden="true"></i>
+{{- else if eq .Key "notify_api_token_change"}}
+<i class="ri-key-2-line" aria-hidden="true"></i>
+{{- else if eq .Key "notify_malware_found"}}
+<i class="ri-bug-line" aria-hidden="true"></i>
+{{- else if eq .Key "notify_email_ratelimit"}}
+<i class="ri-send-plane-line" aria-hidden="true"></i>
+{{- else if eq .Key "notify_service_failed"}}
+<i class="ri-server-line" aria-hidden="true"></i>
+{{- else if eq .Key "notify_ssl_expiry"}}
+<i class="ri-file-shield-2-line" aria-hidden="true"></i>
+{{- else if eq .Key "notify_wp_vulnerability"}}
+<i class="ri-error-warning-line" aria-hidden="true"></i>
+{{- else if eq .Key "notify_ratelimit"}}
+<i class="ri-dashboard-3-line" aria-hidden="true"></i>
+{{- else if eq .Key "notify_daily_summary"}}
+<i class="ri-calendar-check-line" aria-hidden="true"></i>
+{{- else if eq .Key "notify_error_logs"}}
+<i class="ri-file-warning-line" aria-hidden="true"></i>
+{{- end}}
+{{end}}
+
+
+{{define "content"}}
+<!-- START templates/user/notifications.html -->
+
+<section aria-label="{{.T.Get "Notifications Settings"}}" x-data="{ on: { {{range $i, $p := .Notifications}}{{if $i}}, {{end}}{{toJSON $p.Key}}: {{if eq $p.Value "1"}}true{{else}}false{{end}}{{end}} } }">
+    <div class="px-4 pt-6 pb-4 sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Email notifications"}}</h1>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">
+            {{.T.Get "Security alerts help you spot unwanted changes early, usage alerts warn you before you run out of space."}}
+            {{if .Email}}{{.T.Get "Emails are sent to"}} <span class="font-medium text-gray-900 dark:text-gray-50">{{.Email}}</span>. <a href="/account#email" class="text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Change email address"}}</a>{{end}}
+        </p>
+    </div>
+
+    <div class="px-4 pb-8 sm:px-6 lg:px-8">
+        <form method="POST" id="notifications-form" class="max-w-5xl divide-y divide-gray-200 dark:divide-gray-800">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+        <section aria-labelledby="notif-group-security" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
+            <div>
+                <h2 id="notif-group-security" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Security alerts"}}</h2>
+                <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Sent right away when something changes on your account or your sites are at risk, so you can act if it wasn't you."}}</p>
+            </div>
+            <div class="md:col-span-2">
+                <ul role="list" class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+                    <li class="flex items-center justify-between gap-4 px-4 py-2.5 text-xs font-medium text-gray-500" aria-hidden="true"><span>{{.T.Get "Alert"}}</span><span>{{.T.Get "Email me"}}</span></li>
+                    {{range .Cards}}{{if ne .Group "Usage"}}{{template "notification_row" (dict "C" . "T" $.T)}}{{end}}{{end}}
+                </ul>
+            </div>
+        </section>
+        <section aria-labelledby="notif-group-usage" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
+            <div>
+                <h2 id="notif-group-usage" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Usage alerts"}}</h2>
+                <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Warnings before you hit a limit, plus the optional daily reports."}}</p>
+            </div>
+            <div class="md:col-span-2">
+                <ul role="list" class="divide-y divide-gray-200 rounded-md border border-gray-200 dark:divide-gray-800 dark:border-gray-800">
+                    <li class="flex items-center justify-between gap-4 px-4 py-2.5 text-xs font-medium text-gray-500" aria-hidden="true"><span>{{.T.Get "Alert"}}</span><span>{{.T.Get "Email me"}}</span></li>
+                    {{range .Cards}}{{if eq .Group "Usage"}}{{template "notification_row" (dict "C" . "T" $.T)}}{{end}}{{end}}
+                </ul>
+            </div>
+        </section>
+            <div class="flex flex-col-reverse gap-2 pt-6 sm:flex-row sm:justify-end">
+                <button type="submit" class="relative inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 sm:w-auto border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Save preferences"}}</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- END templates/user/notifications.html -->
+{{end}}

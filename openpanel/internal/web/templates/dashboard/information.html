@@ -1,7 +1,6 @@
 {{define "information"}}<!-- START templates/dashboard/information.html -->
-{{/* label over value rows split by rules, the row's link or copy button sits on the right */}}
-<section id="dashboard_info" aria-labelledby="dashboard_info_heading"
-    class="rounded-md border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950 xl:col-span-1"
+{{/* Overview shows the tile version, Tools and Classic the label over value list */}}
+<section id="dashboard_info" class="op-card"
     x-data="{
         lastIp: '{{.LastIP}}',
         showFlag: '{{.IPCountyFlag}}' === 'yes',
@@ -25,54 +24,53 @@
         copy(text) { copyToClipboard(text).then(() => showToast({{toJSON (.T.Get "Copied to clipboard")}}, 'success')); }
     }"
     x-init="fetchFlag()">
-    <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800" id="dashboard_info_title">
-        <h2 id="dashboard_info_heading" class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "General information"}}</h2>{{if .UserAllowed.info}}<a href="/server/info" class="ml-2 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "View"}} &rarr;</a>{{end}}
-        <p class="text-sm/6 text-gray-500">{{.T.Get "Your account, plan and the addresses you need to connect."}}</p>
+
+    <div class="op-card-head" id="dashboard_info_title" x-show="typeof view === 'undefined' || view === 'overview'"><h2>{{.T.Get "Information"}}</h2>{{if .UserAllowed.account}}<a href="/account">{{.T.Get "Account"}}</a>{{end}}</div>
+
+    <div x-show="typeof view === 'undefined' || view === 'overview'">
+        <div class="op-info-tiles">
+            <div class="op-info-tile" id="dashboard_info_username">
+                <div class="op-info-tile-head"><span>{{template "op_icon" "user"}} {{.T.Get "Username"}}</span></div>
+                <b>{{if .UserAllowed.account}}<a href="/account#username">{{.CurrentUsername}}</a>{{else}}{{.CurrentUsername}}{{end}}</b>
+            </div>
+            <div class="op-info-tile">
+                <div class="op-info-tile-head"><span>{{template "op_icon" "box"}} {{.T.Get "Plan"}}</span></div>
+                <b>{{if .UserAllowed.info}}<a href="/server/info#plan">{{.HostingPlanName}}</a>{{else}}{{.HostingPlanName}}{{end}}</b>
+            </div>
+            <div class="op-info-tile" id="dashboard_info_ip">
+                <div class="op-info-tile-head"><span>{{template "op_icon" "server"}} {{.T.Get "IP Address"}}</span>{{if .IPAddress}}<button class="op-icon-btn" type="button" @click="copy({{toJSON .IPAddress}})" aria-label="{{.T.Get "Copy IP address"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button>{{end}}</div>
+                <b class="op-mono">{{.IPAddress}}</b>
+            </div>
+            <div class="op-info-tile" id="last-login-info">
+                <div class="op-info-tile-head"><span>{{template "op_icon" "login"}} {{.T.Get "Last login"}}</span><template x-if="flagSrc"><img :src="flagSrc" :alt="country" :title="country" class="op-flag"></template></div>
+                <b class="op-mono">{{if .LastIP}}<a {{if .UserAllowed.login_history}}href="/account/login-history"{{end}} id="last-ip" x-text="lastIp">{{.LastIP}}</a>{{else}}{{.T.Get "/"}}{{end}}</b>
+                {{if and .LastIP .LastLoginAgo}}<span class="op-hint" title="{{.LastLoginTime}}">{{.LastLoginAgo}}</span>{{end}}
+            </div>
+        </div>
+        {{if and .UserAllowed.domains .NS1 .NS2}}
+        <div class="op-info-ns" id="dashboard_info_nameservers">{{template "op_icon" "globe"}} <span class="op-mono">{{.NS1}}</span><span class="op-mono">{{.NS2}}</span>{{if .NS3}}<span class="op-mono">{{.NS3}}</span>{{end}}{{if .NS4}}<span class="op-mono">{{.NS4}}</span>{{end}}</div>
+        {{end}}
     </div>
 
-    <dl class="divide-y divide-gray-200 px-6 text-sm dark:divide-gray-800">
-        <div id="dashboard_info_username" class="flex flex-wrap items-center gap-x-2 gap-y-0.5 py-2.5">
-            <dt class="w-full text-xs font-medium text-gray-500">{{.T.Get "Current user"}}</dt>
-            <dd class="min-w-0 truncate font-medium text-gray-900 dark:text-gray-50">{{.CurrentUsername}}</dd>
-            {{if .UserAllowed.account}}<dd class="ml-auto"><a href="/account" class="text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Account"}}</a></dd>{{end}}
-        </div>
-
-        <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 py-2.5">
-            <dt class="w-full text-xs font-medium text-gray-500">{{.T.Get "Hosting plan"}}</dt>
-            <dd class="min-w-0 truncate font-medium text-gray-900 dark:text-gray-50">{{if .UserAllowed.info}}<a href="/server/info#plan" class="hover:text-blue-500">{{.HostingPlanName}}</a>{{else}}{{.HostingPlanName}}{{end}}</dd>
-        </div>
-
-        {{if .IPAddress}}
-        <div id="dashboard_info_ip" class="flex flex-wrap items-center gap-x-2 gap-y-0.5 py-2.5">
-            <dt class="w-full text-xs font-medium text-gray-500">{{.T.Get "IP address"}}</dt>
-            <dd class="min-w-0 truncate font-mono font-medium text-gray-900 dark:text-gray-50">{{.IPAddress}}</dd>
-            <dd class="ml-auto -my-1.5"><button type="button" @click="copy({{toJSON .IPAddress}})" class="inline-flex size-7 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer" aria-label="{{.T.Get "Copy IP address"}}" title="{{.T.Get "Copy"}}"><i class="ri-file-copy-line text-base leading-none" aria-hidden="true"></i></button></dd>
-        </div>
-        {{end}}
-
-        <div id="last-login-info" class="flex flex-wrap items-center gap-x-2 gap-y-0.5 py-2.5">
-            <dt class="w-full text-xs font-medium text-gray-500">{{.T.Get "Last login IP address"}}</dt>
-            {{if .LastIP}}
-            <dd class="flex min-w-0 items-center gap-2">
-                <a {{if .UserAllowed.login_history}}href="/account/login-history"{{end}} id="last-ip" x-text="lastIp" class="truncate font-mono font-medium text-gray-900 hover:text-blue-500 dark:text-gray-50">{{.LastIP}}</a>
-                <template x-if="flagSrc"><img :src="flagSrc" :alt="country" :title="country" class="h-3 w-4 shrink-0 rounded-xs"></template>
-                {{if .LastLoginAgo}}<span class="whitespace-nowrap text-gray-500" title="{{.LastLoginTime}}">{{.LastLoginAgo}}</span>{{end}}
-            </dd>
-            {{if .UserAllowed.login_history}}<dd class="ml-auto"><a href="/account/login-history" class="text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "History"}}</a></dd>{{end}}
-            {{else}}
-            <dd class="text-gray-400">{{.T.Get "/"}}</dd>
+    <div x-show="typeof view !== 'undefined' && view !== 'overview'" x-cloak>
+        <div class="op-card-head"><h2>{{.T.Get "General information"}}</h2></div>
+        <div class="op-info-list">
+            <div><span>{{.T.Get "Current user"}}</span><b>{{.CurrentUsername}}</b>{{if .UserAllowed.account}}<a href="/account">{{.T.Get "Account"}}</a>{{end}}</div>
+            <div><span>{{.T.Get "Hosting plan"}}</span>{{if .UserAllowed.info}}<a href="/server/info#plan">{{.HostingPlanName}}</a>{{else}}<b>{{.HostingPlanName}}</b>{{end}}</div>
+            {{if .IPAddress}}
+            <div><span>{{.T.Get "IP Address"}}</span><b class="op-mono">{{.IPAddress}}</b><button class="op-icon-btn" type="button" @click="copy({{toJSON .IPAddress}})" aria-label="{{.T.Get "Copy IP address"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
             {{end}}
+            <div><span>{{.T.Get "Last Login IP Address"}}</span>{{if .LastIP}}<b class="op-mono">{{.LastIP}}</b><template x-if="flagSrc"><img :src="flagSrc" :alt="country" :title="country" class="op-flag"></template>{{if .LastLoginAgo}}<em title="{{.LastLoginTime}}">{{.LastLoginAgo}}</em>{{end}}{{if .UserAllowed.login_history}}<a href="/account/login-history">{{.T.Get "History"}}</a>{{end}}{{else}}<b>{{.T.Get "/"}}</b>{{end}}</div>
+            {{if and .UserAllowed.domains .NS1 .NS2}}
+            <div><span>{{.T.Get "Nameservers"}}</span><b class="op-mono">{{.NS1}}<br>{{.NS2}}{{if .NS3}}<br>{{.NS3}}{{end}}{{if .NS4}}<br>{{.NS4}}{{end}}</b><button class="op-icon-btn" type="button" @click="copy({{toJSON (printf "%s\n%s" .NS1 .NS2)}})" aria-label="{{.T.Get "Copy nameservers"}}" title="{{.T.Get "Copy"}}">{{template "op_icon" "copy"}}</button></div>
+            {{end}}
+            {{if .UserAllowed.twofa}}
+            <div><span>{{.T.Get "Two-Factor Authentication"}}</span><b>{{if .TwofaEnabled}}<span class="op-status is-success">{{.T.Get "On"}}</span>{{else}}<span class="op-status is-warning">{{.T.Get "Off"}}</span>{{end}}</b>
+                {{if .TwofaEnabled}}<a href="/account/2fa">{{.T.Get "Manage"}}</a>{{else}}<form method="POST" action="/account/2fa"><input type="hidden" name="csrf_token" value="{{.CSRFToken}}"><input type="checkbox" name="twofa_active" checked hidden><button class="op-link-btn" type="submit">{{.T.Get "Enable"}}</button></form>{{end}}</div>
+            {{end}}
+            {{if .UserAllowed.info}}<a class="op-info-more" href="/server/info">{{.T.Get "Server Information"}}{{template "op_icon" "chevright"}}</a>{{end}}
         </div>
-
-        {{if and .UserAllowed.domains .NS1 .NS2}}
-        <div id="dashboard_info_nameservers" class="flex flex-wrap items-start gap-x-2 gap-y-0.5 py-2.5">
-            <dt class="w-full text-xs font-medium text-gray-500">{{.T.Get "Nameservers"}}</dt>
-            <dd class="min-w-0 font-mono font-medium text-gray-900 dark:text-gray-50"><span class="block truncate">{{.NS1}}</span><span class="block truncate">{{.NS2}}</span>{{if .NS3}}<span class="block truncate">{{.NS3}}</span>{{end}}{{if .NS4}}<span class="block truncate">{{.NS4}}</span>{{end}}</dd>
-            <dd class="ml-auto"><button type="button" @click="copy({{toJSON (printf "%s\n%s" .NS1 .NS2)}})" class="inline-flex size-7 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer" aria-label="{{.T.Get "Copy nameservers"}}" title="{{.T.Get "Copy"}}"><i class="ri-file-copy-line text-base leading-none" aria-hidden="true"></i></button></dd>
-        </div>
-        {{end}}
-
-    </dl>
+    </div>
 </section>
 <!-- END templates/dashboard/information.html -->
 {{end}}

@@ -1,0 +1,522 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/emails/migrate.html -->
+
+<style>
+    #migrateLiveLog { max-height: 24rem; }
+    #migrateLogView { max-height: 32rem; }
+    #migrateHistory .migrate-msg { max-width: 16rem; white-space: normal; }
+    #migrateHistory .migrate-wrap, #migrateFormCard .migrate-wrap { overflow-wrap: anywhere; }
+    @media (min-width: 640px) { #migrateServerRow { grid-template-columns: 1fr 10rem 7rem; } }
+</style>
+
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Migrate emails"}}</h1>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Copy folders and messages from another IMAP server into one of your email accounts. Messages already copied are skipped, so a migration can safely be run again."}}</p>
+    </div>
+</div>
+
+{{if .Accounts}}
+<!-- running job -->
+<div id="migrateRunning" class="px-4 pb-8 sm:px-6 lg:px-8 {{if not .Status.Running}}hidden{{end}}">
+    <div class="rounded-md border border-gray-200 bg-white dark:border-gray-900 dark:bg-raised p-4">
+        <div class="flex items-center justify-between gap-3">
+            <div class="flex items-start gap-3">
+                <i class="ri-loader-4-line mt-0.5 animate-spin text-blue-500" aria-hidden="true"></i>
+                <div>
+                    <p class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Migration in progress"}}</p>
+                    <p id="migrateRunningInfo" class="mt-1 text-sm text-gray-500"></p>
+                </div>
+            </div>
+            <button type="button" id="migrateCancel" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600">{{.T.Get "Cancel"}}</button>
+        </div>
+        <pre id="migrateLiveLog" class="mt-4 overflow-auto rounded-md bg-gray-950 p-4 font-mono text-xs text-gray-50 whitespace-pre-wrap break-all"></pre>
+    </div>
+</div>
+
+<!-- form -->
+<div id="migrateFormCard" class="px-4 pb-8 sm:px-6 lg:px-8 {{if .Status.Running}}hidden{{end}}">
+<div class="max-w-3xl rounded-md border border-gray-200 bg-white p-4 sm:p-6 dark:border-gray-900 dark:bg-raised">
+    <ol id="migrateSteps" class="flex gap-3">
+        <li class="flex-1">
+            <button type="button" data-step-nav="1" class="block w-full rounded-md text-left outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                <span data-step-bar class="block h-1 rounded-full bg-gray-200 dark:bg-gray-800"></span>
+                <span class="mt-2 block text-xs text-gray-500 tabular-nums">{{.T.Get "Step"}} 1</span>
+                <span data-step-name class="block text-sm text-gray-500">{{.T.Get "Source server"}}</span>
+            </button>
+        </li>
+        <li class="flex-1">
+            <button type="button" data-step-nav="2" class="block w-full rounded-md text-left outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                <span data-step-bar class="block h-1 rounded-full bg-gray-200 dark:bg-gray-800"></span>
+                <span class="mt-2 block text-xs text-gray-500 tabular-nums">{{.T.Get "Step"}} 2</span>
+                <span data-step-name class="block text-sm text-gray-500">{{.T.Get "Destination account"}}</span>
+            </button>
+        </li>
+        <li class="flex-1">
+            <button type="button" data-step-nav="3" class="block w-full rounded-md text-left outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                <span data-step-bar class="block h-1 rounded-full bg-gray-200 dark:bg-gray-800"></span>
+                <span class="mt-2 block text-xs text-gray-500 tabular-nums">{{.T.Get "Step"}} 3</span>
+                <span data-step-name class="block text-sm text-gray-500">{{.T.Get "Test and start"}}</span>
+            </button>
+        </li>
+    </ol>
+
+    <form id="migrateForm" class="mt-6 border-t border-gray-200 pt-6 dark:border-gray-800" autocomplete="off" novalidate>
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+        <!-- step 1 -->
+        <div data-step="1" class="space-y-6">
+            <div>
+                <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Source server"}}</h2>
+                <p class="mt-1 text-sm text-gray-500">{{.T.Get "The server you are moving emails from."}}</p>
+            </div>
+            <div>
+                <p class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Quick fill"}}</p>
+                <div class="mt-2 flex flex-wrap gap-2">
+                    <button type="button" data-host="imap.gmail.com" class="migrate-chip rounded-md border border-gray-300 bg-white px-2.5 py-1 text-sm text-gray-700 shadow-xs transition hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60">Gmail</button>
+                    <button type="button" data-host="outlook.office365.com" class="migrate-chip rounded-md border border-gray-300 bg-white px-2.5 py-1 text-sm text-gray-700 shadow-xs transition hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60">Outlook / Microsoft 365</button>
+                    <button type="button" data-host="imap.mail.yahoo.com" class="migrate-chip rounded-md border border-gray-300 bg-white px-2.5 py-1 text-sm text-gray-700 shadow-xs transition hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60">Yahoo</button>
+                    <button type="button" data-host="imap.mail.me.com" class="migrate-chip rounded-md border border-gray-300 bg-white px-2.5 py-1 text-sm text-gray-700 shadow-xs transition hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900/60">iCloud</button>
+                </div>
+            </div>
+            <div id="migrateServerRow" class="grid grid-cols-1 gap-4">
+                <div>
+                    <label for="source_host" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "IMAP server"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
+                    <input type="text" name="source_host" id="source_host" maxlength="253" placeholder="imap.example.com" required class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
+                </div>
+                <div>
+                    <label for="source_security" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Security"}}</label>
+                    <select name="source_security" id="source_security" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+                        <option value="ssl" selected>SSL/TLS</option>
+                        <option value="starttls">STARTTLS</option>
+                        <option value="none">{{.T.Get "None"}}</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="source_port" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Port"}}</label>
+                    <input type="number" name="source_port" id="source_port" min="1" max="65535" value="993" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 tabular-nums">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                    <label for="source_user" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Username"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
+                    <input type="text" name="source_user" id="source_user" maxlength="254" placeholder="you@example.com" required class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
+                </div>
+                <div>
+                    <label for="source_password" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Password"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
+                    <input type="password" name="source_password" id="source_password" maxlength="1024" required autocomplete="new-password" aria-describedby="source_password_help" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
+                </div>
+                <p id="source_password_help" class="text-xs text-gray-500 sm:col-span-2">{{.T.Get "For Gmail, Outlook and other providers with two-factor login, use an app password."}}</p>
+            </div>
+        </div>
+
+        <!-- step 2 -->
+        <div data-step="2" class="hidden space-y-6">
+            <div>
+                <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Destination account"}}</h2>
+                <p class="mt-1 text-sm text-gray-500">{{.T.Get "The email account on this server that receives the messages."}}</p>
+            </div>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                    <label for="destination" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Email account"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
+                    <select name="destination" id="destination" required class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+                        <option value="" disabled selected>{{.T.Get "Select an account"}}</option>
+                        {{range .Accounts}}
+                        <option class="punycode" value="{{.}}">{{.}}</option>
+                        {{end}}
+                    </select>
+                </div>
+                <div>
+                    <label for="destination_password" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Account password"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
+                    <input type="password" name="destination_password" id="destination_password" maxlength="1024" required autocomplete="new-password" aria-describedby="destination_password_help" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500">
+                    <p id="destination_password_help" class="mt-2 text-xs text-gray-500">{{.T.Get "Forgot it? You can set a new one under Email accounts."}}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- step 3 -->
+        <div data-step="3" class="hidden space-y-6">
+            <div>
+                <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Test and start"}}</h2>
+                <p class="mt-1 text-sm text-gray-500">{{.T.Get "Check both logins work, then start copying. Messages already copied are skipped."}}</p>
+            </div>
+            <dl class="divide-y divide-gray-200 rounded-md border border-gray-200 text-sm dark:divide-gray-800 dark:border-gray-800">
+                <div class="flex justify-between gap-3 px-4 py-2.5">
+                    <dt class="text-gray-500">{{.T.Get "From"}}</dt>
+                    <dd id="migrateReviewFrom" class="migrate-wrap text-right font-mono text-xs text-gray-900 dark:text-gray-50"></dd>
+                </div>
+                <div class="flex justify-between gap-3 px-4 py-2.5">
+                    <dt class="text-gray-500">{{.T.Get "Server"}}</dt>
+                    <dd id="migrateReviewServer" class="migrate-wrap text-right font-mono text-xs text-gray-900 dark:text-gray-50"></dd>
+                </div>
+                <div class="flex justify-between gap-3 px-4 py-2.5">
+                    <dt class="text-gray-500">{{.T.Get "To"}}</dt>
+                    <dd id="migrateReviewTo" class="migrate-wrap text-right font-mono text-xs text-gray-900 dark:text-gray-50"></dd>
+                </div>
+            </dl>
+            <div class="flex items-center gap-2">
+                <input type="checkbox" name="exclude_junk" id="exclude_junk" value="1" checked>
+                <label for="exclude_junk" class="text-sm text-gray-900 dark:text-gray-50">{{.T.Get "Skip Spam, Junk and Trash folders"}}</label>
+            </div>
+            <div id="migrateTestResult" class="hidden" role="status"></div>
+        </div>
+
+        <div class="mt-6 flex flex-col-reverse gap-2 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end sm:gap-3 dark:border-gray-800">
+            <button type="button" id="migrateBack" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"><i class="ri-arrow-left-line" aria-hidden="true"></i>{{.T.Get "Back"}}</button>
+            <button type="button" id="migrateNext" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Next"}}<i class="ri-arrow-right-line" aria-hidden="true"></i></button>
+            <button type="button" id="migrateTest" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Test connection"}}</button>
+            <button type="submit" id="migrateStart" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Start migration"}}<i class="ri-arrow-right-line" aria-hidden="true"></i></button>
+        </div>
+    </form>
+</div>
+</div>
+
+<!-- history -->
+<div id="migrateHistory" class="pb-8 {{if not .Status.Jobs}}hidden{{end}}">
+    <h2 class="px-4 pb-3 text-sm font-semibold text-gray-900 sm:px-6 lg:px-8 dark:text-gray-50">{{.T.Get "Recent migrations"}}</h2>
+    <div class="relative overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+        <table class="w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+            <thead>
+                <tr>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Started"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Migration"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Status"}}</th>
+                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50"><span class="sr-only">{{.T.Get "Log"}}</span></th>
+                </tr>
+            </thead>
+            <tbody id="migrateHistoryRows"></tbody>
+        </table>
+    </div>
+    <div class="px-4 sm:px-6 lg:px-8">
+        <pre id="migrateLogView" class="mt-4 hidden overflow-auto rounded-md bg-gray-950 p-4 font-mono text-xs text-gray-50 whitespace-pre-wrap break-all"></pre>
+    </div>
+</div>
+
+{{else}}
+<div class="mx-4 flex flex-col items-center justify-center rounded-md border border-dashed border-gray-300 py-16 text-center sm:mx-6 lg:mx-8 dark:border-gray-700">
+    <i class="ri-mail-line text-3xl text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+    <p class="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "No email accounts yet"}}</p>
+    <p class="mt-1 text-sm text-gray-500">{{.T.Get "Create the email account you want to migrate into first."}}</p>
+    <a href="/emails/new" class="mt-4 relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-add-line" aria-hidden="true"></i> {{.T.Get "New email account"}}</a>
+</div>
+{{end}}
+
+{{if .Accounts}}
+<script>
+(function () {
+    const csrf = {{toJSON .CSRFToken}};
+    const i18n = {
+        running: {{toJSON (.T.Get "Running")}},
+        completed: {{toJSON (.T.Get "Completed")}},
+        failed: {{toJSON (.T.Get "Failed")}},
+        cancelled: {{toJSON (.T.Get "Cancelled")}},
+        viewLog: {{toJSON (.T.Get "View log")}},
+        testing: {{toJSON (.T.Get "Testing...")}},
+        starting: {{toJSON (.T.Get "Starting...")}},
+        started: {{toJSON (.T.Get "Migration started.")}},
+        cancelConfirm: {{toJSON (.T.Get "Stop the running migration? Messages copied so far are kept.")}},
+        stopMigration: {{toJSON (.T.Get "Stop migration")}},
+        sourceOk: {{toJSON (.T.Get "Source server: login successful")}},
+        sourceFail: {{toJSON (.T.Get "Source server: login failed")}},
+        destOk: {{toJSON (.T.Get "Destination account: login successful")}},
+        destFail: {{toJSON (.T.Get "Destination account: login failed")}},
+        error: {{toJSON (.T.Get "Something went wrong, please try again.")}},
+        tooBig: {{toJSON (.T.Get "%d messages were bigger than this server's %s limit and were not copied.")}},
+    };
+    // imapsync exit codes the log ends with, anything else is shown as is
+    const failReasons = {
+        EXIT_AUTHENTICATION_FAILURE_USER1: {{toJSON (.T.Get "Login to the source server failed, check the username and password.")}},
+        EXIT_AUTHENTICATION_FAILURE_USER2: {{toJSON (.T.Get "Login to the destination account failed, check its password.")}},
+        EXIT_CONNECTION_FAILURE_HOST1: {{toJSON (.T.Get "Could not connect to the source server, check the server, security and port.")}},
+        EXIT_CONNECTION_FAILURE_HOST2: {{toJSON (.T.Get "Could not connect to the destination server.")}},
+        EXIT_OVERQUOTA: {{toJSON (.T.Get "The destination account is full, raise its quota and run the migration again.")}},
+        EXIT_WITH_ERRORS: {{toJSON (.T.Get "Finished with errors, some messages were not copied. See the log.")}},
+        EXIT_WITH_ERRORS_MAX: {{toJSON (.T.Get "Stopped after too many errors. See the log.")}},
+        EXIT_ERR_APPEND: {{toJSON (.T.Get "The destination account refused some messages, they were not copied. See the log.")}},
+        EXIT_CONNECTION_FAILURE: {{toJSON (.T.Get "Could not connect to the source server, check the server, security and port.")}},
+        EXIT_TLS_FAILURE: {{toJSON (.T.Get "The SSL/TLS connection failed, try another Security option.")}},
+        EXIT_BY_SIGNAL: {{toJSON (.T.Get "Stopped before finishing.")}},
+    };
+    const statusClass = {
+        running: "inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-blue-50 text-blue-900 ring-blue-500/30 dark:bg-blue-400/10 dark:text-blue-400 dark:ring-blue-400/30",
+        completed: "inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20",
+        failed: "inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20",
+        cancelled: "inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20",
+    };
+
+    const form = document.getElementById("migrateForm");
+    const formCard = document.getElementById("migrateFormCard");
+    const runningCard = document.getElementById("migrateRunning");
+    const liveLog = document.getElementById("migrateLiveLog");
+    const history = document.getElementById("migrateHistory");
+    const rows = document.getElementById("migrateHistoryRows");
+    const logView = document.getElementById("migrateLogView");
+    const testResult = document.getElementById("migrateTestResult");
+    let pollTimer = null;
+
+    const hostInput = document.getElementById("source_host");
+    const securityInput = document.getElementById("source_security");
+    const portInput = document.getElementById("source_port");
+    const portFor = { ssl: "993", starttls: "143", none: "143" };
+    securityInput.addEventListener("change", function () {
+        if (Object.values(portFor).includes(portInput.value)) portInput.value = portFor[this.value];
+    });
+
+    // every provider on the list takes IMAP over SSL on 993
+    const chips = document.querySelectorAll(".migrate-chip");
+    function markChip() {
+        chips.forEach(function (chip) {
+            const on = chip.dataset.host === hostInput.value.trim();
+            chip.classList.toggle("border-blue-500", on);
+            chip.classList.toggle("border-gray-300", !on);
+            chip.classList.toggle("dark:border-blue-700", on);
+            chip.classList.toggle("dark:border-gray-800", !on);
+            chip.classList.toggle("text-blue-600", on);
+            chip.classList.toggle("dark:text-blue-400", on);
+        });
+    }
+    chips.forEach(function (chip) {
+        chip.addEventListener("click", function () {
+            hostInput.value = chip.dataset.host;
+            securityInput.value = "ssl";
+            portInput.value = "993";
+            hostInput.dispatchEvent(new Event("input", { bubbles: true }));
+        });
+    });
+    hostInput.addEventListener("input", markChip);
+
+    const panels = document.querySelectorAll("#migrateForm [data-step]");
+    const navs = document.querySelectorAll("[data-step-nav]");
+    const backBtn = document.getElementById("migrateBack");
+    const nextBtn = document.getElementById("migrateNext");
+    const testBtn = document.getElementById("migrateTest");
+    const startBtn = document.getElementById("migrateStart");
+    const lastStep = panels.length;
+    let step = 1;
+
+    function showStep(n) {
+        step = n;
+        panels.forEach(function (panel) { panel.classList.toggle("hidden", Number(panel.dataset.step) !== n); });
+        navs.forEach(function (nav) {
+            const i = Number(nav.dataset.stepNav);
+            const bar = nav.querySelector("[data-step-bar]");
+            const name = nav.querySelector("[data-step-name]");
+            bar.classList.toggle("bg-blue-500", i <= n);
+            bar.classList.toggle("dark:bg-blue-500", i <= n);
+            bar.classList.toggle("bg-gray-200", i > n);
+            bar.classList.toggle("dark:bg-gray-800", i > n);
+            name.classList.toggle("text-gray-900", i === n);
+            name.classList.toggle("dark:text-gray-50", i === n);
+            name.classList.toggle("font-medium", i === n);
+            name.classList.toggle("text-gray-500", i !== n);
+            name.classList.toggle("dark:text-gray-400", i !== n);
+            if (i === n) nav.setAttribute("aria-current", "step"); else nav.removeAttribute("aria-current");
+        });
+        // inline-flex comes after .hidden in output.css so the class won't hide these
+        backBtn.style.display = n === 1 ? "none" : "";
+        nextBtn.style.display = n === lastStep ? "none" : "";
+        testBtn.style.display = n === lastStep ? "" : "none";
+        startBtn.style.display = n === lastStep ? "" : "none";
+        if (n === lastStep) fillReview();
+    }
+
+    function fillReview() {
+        const security = securityInput.options[securityInput.selectedIndex].text;
+        document.getElementById("migrateReviewFrom").textContent = document.getElementById("source_user").value;
+        document.getElementById("migrateReviewServer").textContent = hostInput.value + ":" + portInput.value + " (" + security + ")";
+        document.getElementById("migrateReviewTo").textContent = document.getElementById("destination").value;
+    }
+
+    // the form is novalidate since the browser can't point at a required field in a hidden step
+    function validUpTo(n) {
+        for (let i = 1; i <= n; i++) {
+            const panel = document.querySelector('#migrateForm [data-step="' + i + '"]');
+            const bad = Array.from(panel.querySelectorAll("input, select")).find(function (el) { return !el.checkValidity(); });
+            if (bad) {
+                showStep(i);
+                bad.reportValidity();
+                return false;
+            }
+        }
+        return true;
+    }
+
+    nextBtn.addEventListener("click", function () { if (validUpTo(step)) showStep(step + 1); });
+    backBtn.addEventListener("click", function () { showStep(step - 1); });
+    navs.forEach(function (nav) {
+        nav.addEventListener("click", function () {
+            const i = Number(nav.dataset.stepNav);
+            if (i <= step || validUpTo(i - 1)) showStep(i);
+        });
+    });
+
+    function cell(text, nowrap) {
+        const td = document.createElement("td");
+        td.className = "border-b border-gray-200 px-4 py-2.5 align-top text-gray-600 dark:border-gray-800 dark:text-gray-400 " + (nowrap ? "whitespace-nowrap" : "migrate-wrap");
+        td.textContent = text;
+        return td;
+    }
+
+    function render(st) {
+        const jobs = st.jobs || [];
+        runningCard.classList.toggle("hidden", !st.running);
+        formCard.classList.toggle("hidden", st.running);
+        history.classList.toggle("hidden", jobs.length === 0);
+
+        if (st.running && jobs.length) {
+            document.getElementById("migrateRunningInfo").textContent = jobs[0].source_user + " (" + jobs[0].source_host + ") → " + jobs[0].destination;
+            const atBottom = liveLog.scrollTop + liveLog.clientHeight >= liveLog.scrollHeight - 20;
+            liveLog.textContent = st.log || "";
+            if (atBottom) liveLog.scrollTop = liveLog.scrollHeight;
+        }
+
+        rows.replaceChildren();
+        jobs.forEach(function (job) {
+            const tr = document.createElement("tr");
+            tr.className = "hover:bg-gray-50 dark:hover:bg-gray-900/60";
+            tr.appendChild(cell(new Date(job.started).toLocaleString(), true));
+            const migTd = cell("");
+            const from = document.createElement("p");
+            // non-breaking hyphens so an address doesn't wrap at a dash
+            from.className = "font-medium text-gray-900 dark:text-gray-50";
+            from.textContent = job.source_user.replace(/-/g, "\u2011");
+            const host = document.createElement("p");
+            host.className = "text-xs text-gray-500";
+            host.textContent = job.source_host;
+            const to = document.createElement("p");
+            to.textContent = "→ " + job.destination.replace(/-/g, "\u2011");
+            migTd.append(from, host, to);
+            tr.appendChild(migTd);
+            const statusTd = cell("", true);
+            const badge = document.createElement("span");
+            badge.className = statusClass[job.status] || statusClass.cancelled;
+            badge.textContent = i18n[job.status] || job.status;
+            statusTd.appendChild(badge);
+            if (job.message && job.status === "failed") {
+                const msg = document.createElement("p");
+                msg.className = "migrate-msg mt-1 break-words text-xs text-gray-500";
+                msg.textContent = failReasons[job.message] || job.message;
+                statusTd.appendChild(msg);
+            }
+            if (job.too_big > 0 && job.status !== "running") {
+                const big = document.createElement("p");
+                big.className = "migrate-msg mt-1 break-words text-xs text-yellow-700 dark:text-yellow-500";
+                big.textContent = i18n.tooBig.replace("%d", job.too_big).replace("%s", Math.round(job.max_size / 1048576) + " MB");
+                statusTd.appendChild(big);
+            }
+            tr.appendChild(statusTd);
+            const actionTd = cell("", true);
+            const link = document.createElement("a");
+            link.href = "#";
+            link.className = "text-blue-500 hover:underline hover:underline-offset-4";
+            link.textContent = i18n.viewLog;
+            link.addEventListener("click", function (e) { e.preventDefault(); showLog(job.id); });
+            actionTd.appendChild(link);
+            tr.appendChild(actionTd);
+            rows.appendChild(tr);
+        });
+
+        clearTimeout(pollTimer);
+        if (st.running) pollTimer = setTimeout(refresh, 3000);
+    }
+
+    function refresh() {
+        fetch("/emails/migrate/status", { headers: { "Accept": "application/json" } })
+            .then(function (r) { return r.json(); })
+            .then(render)
+            .catch(function () { pollTimer = setTimeout(refresh, 10000); });
+    }
+
+    function showLog(id) {
+        fetch("/emails/migrate/log/" + encodeURIComponent(id))
+            .then(function (r) { return r.text(); })
+            .then(function (text) {
+                logView.textContent = text;
+                logView.classList.remove("hidden");
+                logView.scrollTop = logView.scrollHeight;
+                logView.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            });
+    }
+
+    function post(url, body) {
+        return fetch(url, { method: "POST", body: body }).then(function (r) {
+            return r.json().catch(function () { return { error: i18n.error }; }).then(function (data) {
+                if (!r.ok && !data.error) data.error = i18n.error;
+                return data;
+            });
+        });
+    }
+
+    function busy(button, text) {
+        const old = button.innerHTML;
+        button.disabled = true;
+        button.textContent = text;
+        return function () { button.disabled = false; button.innerHTML = old; };
+    }
+
+    document.getElementById("migrateTest").addEventListener("click", function () {
+        if (!validUpTo(lastStep)) return;
+        const done = busy(this, i18n.testing);
+        testResult.classList.add("hidden");
+        post("/emails/migrate/test", new FormData(form)).then(function (data) {
+            done();
+            if (data.error) { showToast(data.error, "error"); return; }
+            const ok = data.source && data.destination;
+            testResult.className = (ok ? "flex gap-3 rounded-md p-4 text-sm bg-emerald-50 text-emerald-900 dark:bg-emerald-950/70 dark:text-emerald-500" : "flex gap-3 rounded-md p-4 text-sm bg-red-50 text-red-900 dark:bg-red-950/70 dark:text-red-500") + " flex-col gap-1";
+            testResult.replaceChildren();
+            [data.source ? i18n.sourceOk : i18n.sourceFail, data.destination ? i18n.destOk : i18n.destFail].forEach(function (line) {
+                const p = document.createElement("p");
+                p.textContent = line;
+                testResult.appendChild(p);
+            });
+            if (!ok && data.output) {
+                const pre = document.createElement("pre");
+                pre.className = "mt-2 whitespace-pre-wrap break-all font-mono text-xs";
+                pre.textContent = data.output;
+                testResult.appendChild(pre);
+            }
+        }).catch(function () { done(); showToast(i18n.error, "error"); });
+    });
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        // enter in a field moves on instead of starting early
+        if (step < lastStep) { nextBtn.click(); return; }
+        if (!validUpTo(lastStep)) return;
+        const done = busy(startBtn, i18n.starting);
+        post("/emails/migrate", new FormData(form)).then(function (data) {
+            done();
+            if (data.error) { showToast(data.error, "error"); return; }
+            showToast(i18n.started, "success");
+            form.querySelectorAll("input[type=password]").forEach(function (el) { el.value = ""; });
+            testResult.classList.add("hidden");
+            showStep(1);
+            refresh();
+        }).catch(function () { done(); showToast(i18n.error, "error"); });
+    });
+
+    document.getElementById("migrateCancel").addEventListener("click", function () {
+        const button = this;
+        window.opConfirm(i18n.cancelConfirm, { danger: true, ok: i18n.stopMigration }).then(function (ok) {
+            if (!ok) return;
+            const done = busy(button, "...");
+            const body = new FormData();
+            body.append("csrf_token", csrf);
+            post("/emails/migrate/cancel", body).then(function (data) {
+                done();
+                if (data.error) showToast(data.error, "error");
+                refresh();
+            }).catch(function () { done(); showToast(i18n.error, "error"); });
+        });
+    });
+
+    showStep(1);
+    render({{toJSON .Status}});
+})();
+</script>
+{{end}}
+
+<!-- END templates/emails/migrate.html -->
+{{end}}

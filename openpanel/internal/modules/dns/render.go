@@ -22,6 +22,7 @@ type DNSPageData struct {
 	ViewMode     string
 	Domains      []appctx.Domain // zone-having domains only, for the selector
 	Picks        []web.DomainPick
+	ZoneRecords  int // list page: records across all zones
 	Rows         []ZoneRow
 	Serial       string
 	ZoneContent  string
@@ -72,6 +73,7 @@ func renderDNSListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, do
 	var withZone []appctx.Domain
 	var picks []web.DomainPick
 	var zones []ZoneSummary
+	total := 0
 	for _, d := range domainRows {
 		if d.ZoneFileExists {
 			withZone = append(withZone, appctx.Domain{DomainURL: d.DomainURL})
@@ -79,6 +81,7 @@ func renderDNSListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, do
 			content, _ := tenantfs.ReadFile(zoneFilePath(d.DomainURL))
 			z := summarizeZone(d.DomainURL, string(content))
 			zones = append(zones, z)
+			total += z.Records
 		} else {
 			note := "No zone file"
 			if hasSubdomainLabel(d.DomainURL) {
@@ -87,7 +90,7 @@ func renderDNSListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, do
 			picks = append(picks, web.DomainPick{Domain: d.DomainURL, Disabled: true, Note: note})
 		}
 	}
-	data := DNSPageData{LayoutData: layout, Domains: withZone, Picks: picks, Zones: zones}
+	data := DNSPageData{LayoutData: layout, Domains: withZone, Picks: picks, Zones: zones, ZoneRecords: total}
 	for _, k := range []string{"ns1", "ns2", "ns3", "ns4"} {
 		if v := a.Config.Get(k, ""); v != "" {
 			data.Nameservers = append(data.Nameservers, v)

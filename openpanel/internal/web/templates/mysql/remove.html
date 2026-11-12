@@ -1,46 +1,65 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/mysql/remove.html -->
+<div class="op-content">
 
-<header class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+<div class="op-page-head">
     <div>
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Remove user access from database"}}</h1>
-        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Remove a user from an existing MySQL database to revoke their permissions and prevent access to executing queries, modifying tables, or managing data within the specified database."}}</p>
+        <h1 class="op-title">{{.T.Get "Remove User access from Database"}}</h1>
+        <p class="op-meta">{{.T.Get "Remove a user from an existing MySQL database to revoke their permissions and prevent access to executing queries, modifying tables, or managing data within the specified database."}}</p>
     </div>
-</header>
+</div>
 
-<!-- form -->
-<div class="max-w-2xl px-4 pb-8 sm:px-6 lg:px-8">
-<div id="toAddActive" class="CrawlerStatusCard rounded-md border border-gray-200 bg-white dark:border-gray-900 dark:bg-raised">
+<section class="op-card" id="toAddActive">
     <form method="POST" action="/mysql/remove_user_from_db" id="userDbForm2">
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-    <input type="hidden" name="db_host" value="%">
 
-        <div class="space-y-6 p-4 sm:p-6">
-            <div>
-                <label for="db_user" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "User"}}<span class="text-red-600 dark:text-red-500">*</span></label>
-                <select name="db_user" id="db_user" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]" required>
-                    <option value="" disabled>{{.T.Get "Select a username"}}</option>
-                </select>
-            </div>
+    <div class="op-section">
+        <div><h3>{{.T.Get "Revoke access"}}</h3><p>{{.T.Get "The user stays; only its privileges on the selected database are revoked."}}</p></div>
+        <div class="op-col" style="gap:14px;min-width:0">
 
-            <div>
-                <label for="database_name" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}<span class="text-red-600 dark:text-red-500">*</span></label>
-                <select name="database_name" id="database_name" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]" required>
-                    <option value="" disabled>{{.T.Get "Select a database"}}</option>
-                </select>
-            </div>
+  <div class="op-field-wrap">
+    <label for="db_user" class="op-label">{{.T.Get "Select user:"}}</label>
+
+    <div class="op-join">
+
+  <select name="db_user" class="op-input" required>
+    <option value="" disabled>{{.T.Get "Select a Username"}}</option>
+  </select>
+
+    </div>
+  </div>
+
+
+  <div class="op-field-wrap">    <label for="database_name" class="op-label" >{{.T.Get "Select database:"}} <span class="is-danger">*</span></label>
+    <div>
+        <input type="text" name="db_host" class="form-control" placeholder=" {{.T.Get "Host"}}" value="%" hidden required>
+  <select name="database_name" class="op-input" required>
+    <option value="" disabled>{{.T.Get "Select a Database"}}</option>
+  </select>
+
+    </div>
+  </div>
+
+      
+
         </div>
+    </div>
 
-        <div class="flex flex-col-reverse gap-2 border-t border-gray-200 px-4 py-4 sm:flex-row sm:justify-end sm:px-6 dark:border-gray-800">
-            <a href="/mysql" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Back to databases"}}</a>
-            <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600">{{.T.Get "Remove user from database"}}</button>
-        </div>
+
+<div class="op-form-foot">
+    <a href="/mysql" class="op-btn op-btn-secondary">
+        {{.T.Get "Back to Databases"}}
+    </a>
+    <button type="submit" class="op-btn op-btn-primary">{{.T.Get "Remove User from Database"}}
+    </button>
+</div>
+
     </form>
-</div>
-</div>
-<!-- END form -->
+</section>
 
 <script>
 
@@ -78,6 +97,7 @@ function refreshData() {
 
 refreshData();
 </script>
+</div>
 
 <!-- END templates/mysql/remove.html -->
 {{end}}

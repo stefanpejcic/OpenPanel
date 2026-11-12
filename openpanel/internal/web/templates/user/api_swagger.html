@@ -1,3 +1,5 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "content"}}
@@ -5,6 +7,7 @@
 
 <link rel="stylesheet" href="{{static "vendor/swagger-ui/swagger-ui.css"}}">
 <script src="{{static "vendor/swagger-ui/swagger-ui-bundle.js"}}"></script>
+<script src="{{static "vendor/swagger-ui/swagger-ui-standalone-preset.js"}}"></script>
 
 <style>
     /* Swagger UI ships its own complete dark theme (html.dark-mode, see
@@ -15,58 +18,40 @@
        with this panel's own dark/light toggle (html.dark, see
        partials/theme_switcher.html) instead, so hide Swagger's toggle
        button since clicking it would fight that sync. */
+    .swagger-ui .topbar .dark-mode-toggle { display: none; }
+    .swagger-ui .topbar .download-url-input[disabled],
+    .swagger-ui .topbar .download-url-button[disabled] { opacity: .5; cursor: not-allowed; }
     #swagger-ui-container { min-height: 60vh; }
-    /* Swagger's own look toned down to the panel's: our fonts, no grey panels or shadows, quieter headings */
-    #swagger-ui .swagger-ui, #swagger-ui .swagger-ui *:not(code):not(pre):not(.microlight):not(.microlight *) { font-family: inherit; }
-    #swagger-ui .swagger-ui .wrapper { max-width: none; padding: 0; }
-    #swagger-ui .swagger-ui .info { margin: 24px 0; }
-    #swagger-ui .swagger-ui .info hgroup.main { display: none; }
-    #swagger-ui .swagger-ui .info .markdown p, #swagger-ui .swagger-ui .info li { font-size: .875rem; line-height: 1.5rem; }
-    #swagger-ui .swagger-ui .scheme-container { background: transparent; box-shadow: none; margin: 0; padding: 16px 0; border-top: 1px solid var(--color-gray-200); border-bottom: 1px solid var(--color-gray-200); }
-    #swagger-ui .swagger-ui .scheme-container .schemes > label { font-size: .875rem; font-weight: 500; }
-    #swagger-ui .swagger-ui .btn { border-radius: .375rem; box-shadow: none; font-size: .875rem; font-weight: 500; }
-    #swagger-ui .swagger-ui .btn.authorize { border: 1px solid var(--color-gray-300); background: #fff; color: var(--color-gray-900); padding: 7px 12px; }
-    #swagger-ui .swagger-ui .btn.authorize svg { fill: var(--color-gray-500); width: 16px; height: 16px; }
-    #swagger-ui .swagger-ui .btn.authorize:hover { background: var(--color-gray-50); }
-    #swagger-ui .swagger-ui select { border-radius: .375rem; box-shadow: none; border: 1px solid var(--color-gray-300); font-size: .875rem; font-weight: 400; }
-    #swagger-ui .swagger-ui .opblock-tag { font-size: 1rem; font-weight: 600; padding: 12px 0; border-bottom-color: var(--color-gray-200); }
-    #swagger-ui .swagger-ui .opblock-tag small { font-size: .875rem; font-weight: 400; color: var(--color-gray-500); }
-    #swagger-ui .swagger-ui .opblock { border-radius: .375rem; box-shadow: none; }
-    #swagger-ui .swagger-ui .opblock .opblock-summary-method { border-radius: .25rem; font-size: .75rem; min-width: 64px; }
-    #swagger-ui .swagger-ui .opblock .opblock-summary-description { font-size: .875rem; }
-    html.dark-mode #swagger-ui .swagger-ui, html.dark-mode #swagger-ui .swagger-ui .scheme-container { background: transparent; }
-    html.dark-mode #swagger-ui .swagger-ui .scheme-container, html.dark-mode #swagger-ui .swagger-ui .opblock-tag { border-color: var(--color-gray-800); }
-    html.dark-mode #swagger-ui .swagger-ui .btn.authorize { border-color: var(--color-gray-800); background: var(--color-gray-950); color: var(--color-gray-50); }
-    html.dark-mode #swagger-ui .swagger-ui .btn.authorize:hover { background: var(--color-gray-900); }
-    html.dark-mode #swagger-ui .swagger-ui select { border-color: var(--color-gray-800); }
 </style>
 
-<section aria-label="{{.T.Get "API Swagger UI"}}">
-
-    <!-- Page header -->
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
+<div class="op-content" aria-label="{{.T.Get "API Swagger UI"}}" x-data="{ ops: null, tags: null, origin: location.origin }" @api-spec.window="ops = $event.detail.ops; tags = $event.detail.tags">
+    <div class="op-page-head">
         <div>
-            <div class="flex items-center gap-x-3">
-                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "API reference"}}</h1>
-                <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">REST</span>
-            </div>
+            <div class="op-eyebrow">REST · OpenAPI</div>
+            <h1 class="op-title">{{.T.Get "API Reference"}}</h1>
             {{if .Token}}
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">{{.T.Get "Pre-authorized with a token for your account - \"Try it out\" runs live against this server."}}</p>
+            <p class="op-meta">{{.T.Get "Pre-authorized with a token for your account - \"Try it out\" runs live against this server."}}</p>
             {{else}}
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">{{.T.Get "Authenticate with a Bearer token via"}} <code class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">POST /api/login</code>.</p>
+            <p class="op-meta">{{.T.Get "Authenticate with a Bearer token via"}} <span class="op-code">POST /api/login</span>.</p>
             {{end}}
         </div>
-        <div class="flex gap-2">
-            <a id="download-spec-btn" href="/static/openapi.yaml" class="relative inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-gray-300 bg-white px-3 py-2 text-center text-sm font-medium text-gray-900 shadow-xs transition-all duration-100 ease-in-out hover:bg-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 sm:w-auto">
-                <i class="ri-download-line" aria-hidden="true"></i>{{.T.Get "Download spec"}}
-            </a>
+        <div class="op-actions">
+            <a id="download-spec-btn" href="/static/openapi.yaml" class="op-btn op-btn-primary" download>{{template "op_icon" "download"}} {{.T.Get "Download spec"}}</a>
         </div>
     </div>
 
-    <div id="swagger-ui-container" class="px-4 pb-8 sm:px-6 lg:px-8">
-        <div id="swagger-ui"></div>
-    </div>
-</section>
+    <section class="op-kpis" aria-label="{{.T.Get "Summary"}}">
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "code"}} {{.T.Get "Endpoints"}}</div><div class="op-kpi-value" x-text="ops === null ? '…' : ops"></div><div class="op-kpi-note" x-text="tags === null ? '' : tags + ' {{.T.Get "groups"}}'"></div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "key"}} {{.T.Get "Auth"}}</div><div class="op-kpi-value op-kpi-text">{{.T.Get "Bearer token"}}</div><div class="op-kpi-note op-mono">POST /api/login</div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "server"}} {{.T.Get "Server"}}</div><div class="op-kpi-value op-kpi-text">{{.T.Get "This install"}}</div><div class="op-kpi-note op-mono op-wrap" x-text="origin + '/'"></div></div>
+    </section>
+
+    <section class="op-card op-swagger-card">
+        <div id="swagger-ui-container">
+            <div id="swagger-ui"></div>
+        </div>
+    </section>
+</div>
 
 <script>
     // Swagger UI's own dark theme is keyed off a `dark-mode` class on
@@ -85,9 +70,8 @@
         window.ui = SwaggerUIBundle({
             url: '/static/openapi.yaml',
             dom_id: '#swagger-ui',
-            // the base layout has no top bar, so there's no URL field to point it at another spec
-            presets: [SwaggerUIBundle.presets.apis],
-            layout: 'BaseLayout',
+            presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+            layout: 'StandaloneLayout',
             deepLinking: true,
             // the badge sends our spec url to validator.swagger.io on every load, it can't reach this panel anyway
             validatorUrl: null,
@@ -99,6 +83,19 @@
                 // overridden dark-mode with its OS-preference guess during
                 // mount, above.
                 syncSwaggerDarkMode();
+                try {
+                    const spec = window.ui.specSelectors.specJson().toJS();
+                    let ops = 0;
+                    Object.values(spec.paths || {}).forEach(p => Object.keys(p).forEach(m => { if (['get', 'post', 'put', 'patch', 'delete'].includes(m)) ops++; }));
+                    window.dispatchEvent(new CustomEvent('api-spec', { detail: { ops: ops, tags: (spec.tags || []).length } }));
+                } catch (e) {}
+                // This page only ever serves this panel's own spec - the
+                // topbar's URL field and "Explore" button would otherwise
+                // let a user point Swagger UI at an arbitrary spec/URL.
+                var urlInput = document.getElementById('download-url-input');
+                if (urlInput) { urlInput.disabled = true; }
+                var exploreBtn = document.querySelector('.download-url-button');
+                if (exploreBtn) { exploreBtn.disabled = true; }
             }
         });
 

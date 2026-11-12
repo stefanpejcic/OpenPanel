@@ -8,6 +8,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func TestParseContainerRows(t *testing.T) {
@@ -41,6 +42,7 @@ func TestSitesAllowed(t *testing.T) {
 }
 
 func TestRenderDashboardAltList(t *testing.T) {
+	webtest.Classic(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	allowed := map[string]bool{"dashboard": true, "docker": true}
 	base := DashboardPageData{
@@ -92,6 +94,7 @@ func TestLimitsFull(t *testing.T) {
 }
 
 func TestRenderAddButtonsAtLimit(t *testing.T) {
+	webtest.Classic(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	allowed := map[string]bool{"dashboard": true, "domains": true, "autoinstaller": true, "wordpress": true}
 	data := DashboardPageData{
@@ -141,6 +144,7 @@ func TestContainerRowsRunningFirst(t *testing.T) {
 }
 
 func TestRenderDatabaseTypes(t *testing.T) {
+	webtest.Classic(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	allowed := map[string]bool{"dashboard": true, "mysql": true, "postgresql": true}
 	data := DashboardPageData{

@@ -9,6 +9,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 // baseLayout builds a representative web.LayoutData shared by every render test below - the same app-shell fields BuildLayoutData would produce, without needing a live *appctx.App/http.Request
@@ -32,14 +33,15 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 
 // exercises containers.html with a representative mix of rows: unlimited/limited CPU+RAM, a trusted and an untrusted image, and a core service (no Edit/Delete) alongside a user-added one
 func TestRenderContainersPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := ContainersPageData{
 		LayoutData: baseLayout(mgr, "/containers"),
 		TotalCPU:   4,
 		TotalRAM:   8,
 		Rows: []ContainerRow{
-			{Service: "nginx", DisplayName: "nginx", Image: "nginx:latest", ImageTrusted: true, CPUUnlimited: true, RAMUnlimited: true, ShowManage: false},
-			{Service: "myapp", DisplayName: "myapp", Image: "custom/myapp:v1", ImageTrusted: false, CPUValue: "1.5", RAMGB: "2", ShowManage: true},
+			{Service: "nginx", DisplayName: "nginx", Image: "nginx:latest", ImageTrusted: true, CPUUnlimited: true, RAMUnlimited: true, ShowManage: false, Ports: "80, 443", PortsTitle: "8080:80, 8443:443", Icon: "browser", Hue: "cyan", ImageChangeable: true},
+			{Service: "myapp", DisplayName: "myapp", Image: "custom/myapp:v1", ImageTrusted: false, CPUValue: "1.5", RAMGB: "2", ShowManage: true, Icon: "apps", Hue: "blue", ImageChangeable: true},
 		},
 	}
 	data.BulkActions = containerBulkActions(data.T, data.TotalCPU, data.TotalRAM)
@@ -56,7 +58,7 @@ func TestRenderContainersPage(t *testing.T) {
 	if strings.Contains(body, "/containers/edit/nginx") {
 		t.Error("core service nginx should not show an Edit link")
 	}
-	for _, want := range []string{`value="nginx" data-bulk-skip="delete"`, `value="myapp" data-bulk-skip=""`, `data-bulk-action="pids"`, `data-bulk-input="cpu"`, `max="4"`, "js/bulk-actions.js"} {
+	for _, want := range []string{`value="nginx" data-bulk-skip="delete"`, `value="myapp" data-bulk-skip=""`, `data-bulk-action="pids"`, `data-bulk-input="cpu"`, `max="4"`, "js/bulk-actions.js", "/json/containers/images", "containerImages()", "restartAll()", "Restart All"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("rendered containers page missing bulk markup %q", want)
 		}
@@ -183,6 +185,36 @@ func TestRenderDeleteConfirmPage(t *testing.T) {
 }
 
 func TestRenderChangeMySQLPage(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	choices := []ServerChoice{
+		{Value: "mysql", Label: "MySQL", Description: "d", Icon: "mysql", Current: true},
+		{Value: "mariadb", Label: "MariaDB", Description: "d", Icon: "mariadb"},
+		{Value: "percona", Label: "Percona", Description: "d", Icon: "percona"},
+	}
+	w := httptest.NewRecorder()
+	data := ChangeMySQLPageData{LayoutData: baseLayout(mgr, "/containers/mysql"), Title: "Database Server", MySQLType: "mysql", Choices: choices}
+	if err := changeMySQLPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, `name="new_sql" value="percona"`) || !strings.Contains(body, "/static/img/servers/percona.svg") {
+		t.Error("expected a percona card with its icon")
+	}
+	if !strings.Contains(body, `name="new_sql" value="mysql" checked disabled`) || !strings.Contains(body, "Choose a database server") {
+		t.Error("expected the current type locked and the switch button")
+	}
+
+	w = httptest.NewRecorder()
+	data.Blocked, data.DBCount = true, 3
+	_ = changeMySQLPage.Render(w, 200, data)
+	if body := w.Body.String(); strings.Contains(body, "Choose a database server") || !strings.Contains(body, "Go to Databases") || !strings.Contains(body, "<strong>3</strong>") {
+		t.Error("blocked page should show the notice instead of the button")
+	}
+}
+
+func TestRenderChangeMySQLPageClassic(t *testing.T) {
+	webtest.Classic(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	choices := []ServerChoice{
 		{Value: "mysql", Label: "MySQL", Description: "d", Icon: "mysql", Current: true},
@@ -246,6 +278,7 @@ func TestDatabaseFlavorAndChoices(t *testing.T) {
 }
 
 func TestRenderChangeWebserverPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	choices := []ServerChoice{
 		{Value: "nginx", Label: "Nginx", Description: "d", Icon: "nginx", Current: true},
@@ -277,8 +310,51 @@ func TestRenderChangeWebserverPage(t *testing.T) {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		if strings.Contains(body, "Choose a webserver") {
-			t.Error("switch button should be hidden while domains still exist")
+		if !strings.Contains(body, `disabled class="op-btn op-btn-primary"`) {
+			t.Error("switch button should be disabled while domains still exist")
+		}
+		if !strings.Contains(body, "Go to Domains") || !strings.Contains(body, "<strong>2</strong>") {
+			t.Error("expected the remove domains notice with the count")
+		}
+	})
+}
+
+func TestRenderChangeWebserverPageClassic(t *testing.T) {
+	webtest.Classic(t)
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	choices := []ServerChoice{
+		{Value: "nginx", Label: "Nginx", Description: "d", Icon: "nginx", Current: true},
+		{Value: "apache", Label: "Apache", Description: "d", Icon: "apache"},
+	}
+
+	t.Run("no domains", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		data := ChangeWebserverPageData{LayoutData: baseLayout(mgr, "/containers/webserver"), Title: "Webserver", Webserver: "nginx", Choices: choices}
+		if err := changeWebserverPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, `name="new_ws" value="apache"`) || !strings.Contains(body, "/static/img/servers/apache.svg") {
+			t.Error("expected an apache card with its icon")
+		}
+		if !strings.Contains(body, `name="new_ws" value="nginx" checked disabled`) {
+			t.Error("the current webserver should be shown checked and not selectable")
+		}
+		if !strings.Contains(body, "Choose a webserver") {
+			t.Error("expected the switch button when there are no domains")
+		}
+	})
+
+	t.Run("has domains", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		data := ChangeWebserverPageData{LayoutData: baseLayout(mgr, "/containers/webserver"), Title: "Webserver", Webserver: "nginx", Choices: choices, DomainCount: 2}
+		if err := changeWebserverPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		if !strings.Contains(body, `disabled class="op-btn op-btn-primary"`) {
+			t.Error("switch button should be disabled while domains still exist")
 		}
 		if !strings.Contains(body, "Go to domains") || !strings.Contains(body, "<strong>2</strong>") {
 			t.Error("expected the remove domains notice with the count")
@@ -295,38 +371,64 @@ func TestServerChoicesFor(t *testing.T) {
 }
 
 func TestRenderChangeImagePage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
-	t.Run("single service", func(t *testing.T) {
+	rows := []ImageRow{
+		{Service: "mariadb", Repo: "mariadb", Tag: "latest", HubURL: "https://hub.docker.com/_/mariadb/tags", Floating: true, Data: true, Icon: "db", Hue: "purple"},
+		{Service: "testapp", Repo: "nginx", Tag: "latest", Floating: true, Pinned: true, Icon: "box", Hue: "cyan"},
+	}
+
+	t.Run("table", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		data := ChangeImagePageData{
-			LayoutData: baseLayout(mgr, "/containers/image/change/nginx"),
-			Service:    "nginx", CurrentVersion: "1.26", HubURL: "https://hub.docker.com/_/nginx/tags",
-		}
+		data := ChangeImagePageData{LayoutData: baseLayout(mgr, "/containers/image/change"), Rows: rows}
 		if err := changeImagePage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
 		body := w.Body.String()
-		if !strings.Contains(body, `value="1.26"`) {
-			t.Error("expected current version prefilled in rendered form")
+		for _, want := range []string{`<tr data-service="mariadb"`, `href="https://hub.docker.com/_/mariadb/tags"`, "2 services · 2 on a floating tag", "Set in compose file", `name="new_tag"`} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q in the rendered page", want)
+			}
 		}
-		if !strings.Contains(body, `href="https://hub.docker.com/_/nginx/tags"`) {
-			t.Error("expected the Docker Hub link for the image")
+		if strings.Count(body, `@click="open(`) != 1 {
+			t.Error("expected a Change version button only on the service whose tag lives in .env")
 		}
 	})
 
-	t.Run("picker", func(t *testing.T) {
+	t.Run("sheet opens for the service in the URL", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		data := ChangeImagePageData{
-			LayoutData:         baseLayout(mgr, "/containers/image/change"),
-			SelectableServices: []string{"nginx", "myapp"},
-		}
+		data := ChangeImagePageData{LayoutData: baseLayout(mgr, "/containers/image/change/mariadb"), Rows: rows, Open: "mariadb"}
 		if err := changeImagePage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		body := w.Body.String()
-		if !strings.Contains(body, "nginx") || !strings.Contains(body, "myapp") {
-			t.Error("expected selectable services in rendered picker")
+		if !strings.Contains(w.Body.String(), `, &#34;mariadb&#34;)">`) {
+			t.Error("expected the open service passed to the page component")
+		}
+	})
+
+	t.Run("stopped container", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		data := TerminalPageData{
+			LayoutData:    baseLayout(mgr, "/containers/terminal/myapp"),
+			ContainerName: "myapp", TerminalTimeoutSeconds: 10, ActiveServices: []string{"nginx"},
+		}
+		if err := terminalPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), `<option value="myapp" selected>myapp</option>`) {
+			t.Error("expected the current container in the picker even when it isn't listed as running")
+		}
+	})
+
+	t.Run("no services", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		data := ChangeImagePageData{LayoutData: baseLayout(mgr, "/containers/image/change")}
+		if err := changeImagePage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if !strings.Contains(w.Body.String(), "No services to change") {
+			t.Error("expected the empty state")
 		}
 	})
 }
@@ -364,19 +466,24 @@ func TestRenderLogsPage(t *testing.T) {
 }
 
 func TestRenderTerminalPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 
 	t.Run("connected", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		data := TerminalPageData{
 			LayoutData:    baseLayout(mgr, "/containers/terminal/myapp"),
-			ContainerName: "myapp", TerminalTimeoutSeconds: 10,
+			ContainerName: "myapp", TerminalTimeoutSeconds: 10, ActiveServices: []string{"myapp", "nginx"},
 		}
 		if err := terminalPage.Render(w, 200, data); err != nil {
 			t.Fatalf("Render: %v", err)
 		}
-		if !strings.Contains(w.Body.String(), "/ws/containers/terminal/myapp") {
+		body := w.Body.String()
+		if !strings.Contains(body, "/ws/containers/terminal/myapp") {
 			t.Error("expected websocket path in rendered terminal page")
+		}
+		if !strings.Contains(body, `<option value="nginx">nginx</option>`) || !strings.Contains(body, `<option value="myapp" selected>`) {
+			t.Error("expected the container picker to list running services with the current one selected")
 		}
 	})
 
@@ -499,6 +606,8 @@ func TestCreatedContainerFor(t *testing.T) {
 }
 
 func TestRenderContainersPageCreated(t *testing.T) {
+	// asserts the classic theme's created-state markup
+	webtest.Classic(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	row := ContainerRow{Service: "myapp", DisplayName: "myapp", Image: "nginx:latest", CPUValue: "1", RAMGB: "1", PIDsUnlimited: true}
 	render := func(c CreatedContainer, terminal bool) string {

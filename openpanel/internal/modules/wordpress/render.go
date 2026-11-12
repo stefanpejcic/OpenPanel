@@ -10,7 +10,7 @@ import (
 
 var (
 	listPage    = web.LoadPage("manager/wp/list.html")
-	installPage = web.LoadPage("manager/wp/install.html")
+	installPage = web.LoadPage("manager/_install_wizard.html", "manager/wp/install.html")
 )
 
 // ListPageData is manager/wp/list.html's template context.

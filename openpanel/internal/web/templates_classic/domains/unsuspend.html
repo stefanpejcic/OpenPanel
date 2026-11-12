@@ -1,0 +1,51 @@
+{{define "content"}}
+<!-- START templates/domains/unsuspend.html -->
+
+<section>
+{{if .DomainName}}
+
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Unsuspend domain"}} <span class="punycode">{{.DomainName}}</span></h1>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Unsuspending a domain will immediately restore access to the website."}}</p>
+    </div>
+</div>
+
+<!-- form -->
+<div class="px-4 pb-6 sm:px-6 lg:px-8">
+<div class="max-w-2xl rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised sm:p-6 CrawlerStatusCard" id="toAddActive">
+    <form method="POST" action="/domains/unsuspend">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+    <input type="hidden" name="domain_name" value="{{.DomainName}}" readonly>
+
+        <p class="text-sm text-gray-900 dark:text-gray-50">{{.T.Get "Confirm unsuspend of domain:"}} <span class="punycode font-medium">{{.DomainName}}</span></p>
+
+        <div class="mt-6 flex flex-col-reverse gap-2 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end dark:border-gray-800">
+            <a href="/domains" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Back to domains"}}</a>
+            <button id="confirm-unsuspend" type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-checkbox-circle-line text-base leading-none" aria-hidden="true"></i>{{.T.Get "Confirm unsuspend"}}</button>
+        </div>
+    </form>
+</div>
+</div>
+<!-- END form -->
+
+{{else}}
+
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Unsuspend a domain"}}</h1>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Unsuspending a domain will immediately restore access to the website."}}</p>
+    </div>
+</div>
+
+    {{if .Domains}}
+        {{template "domain_list" (dict "T" .T "Rows" .Picks "Base" "/domains/unsuspend?domain=" "Action" "Unsuspend" "Icon" "ri-play-circle-line" "BadgeLabel" "Status")}}
+    {{else}}
+        {{template "no_domain" .}}
+    {{end}}
+
+{{end}}
+</section>
+
+<!-- END templates/domains/unsuspend.html -->
+{{end}}

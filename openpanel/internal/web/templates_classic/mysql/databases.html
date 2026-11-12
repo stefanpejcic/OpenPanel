@@ -1,0 +1,658 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/mysql/databases.html -->
+
+<section aria-label="{{.T.Get "Databases table"}}" x-data="{ searchQuery: '' }">
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
+        <div>
+            <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{if eq .Service "mariadb"}}MariaDB{{else}}MySQL{{end}} {{.T.Get "databases"}}</h1>
+            <dl class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
+                <div class="flex items-center gap-1.5"><dt>{{.T.Get "Total databases:"}}</dt> <dd><span id="total_records_count" class="font-medium text-gray-900 tabular-nums dark:text-gray-50">{{len .Databases}}</span></dd></div>
+                <div class="flex items-center gap-1.5"><dt>{{.T.Get "Version:"}}</dt> <dd><code class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">{{if eq .Service "mariadb"}}MariaDB{{else}}MySQL{{end}}{{with .ServerVersion}} {{.}}{{end}}</code></dd></div>
+                {{with .Uptime}}<div class="flex items-center gap-1.5"><dt>{{$.T.Get "Uptime:"}}</dt> <dd class="font-medium tabular-nums text-gray-900 dark:text-gray-50">{{.}}</dd></div>{{end}}
+            </dl>
+        </div>
+
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+            {{if eq .ContainerState "running"}}
+            <a href="/mysql/wizard" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-magic-line" aria-hidden="true"></i>{{.T.Get "Database wizard"}}</a>
+            <a href="/mysql/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-add-line" aria-hidden="true"></i>{{.T.Get "New database"}}</a>
+            {{else}}
+            <span title="{{.T.Get "Unavailable while the service is not running."}}" aria-disabled="true" class="relative inline-flex cursor-not-allowed items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-gray-300 bg-white px-3 py-2 text-center text-sm font-medium text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-600"><i class="ri-magic-line" aria-hidden="true"></i>{{.T.Get "Database wizard"}}</span>
+            <span title="{{.T.Get "Unavailable while the service is not running."}}" aria-disabled="true" class="relative inline-flex cursor-not-allowed items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-transparent bg-blue-300 px-3 py-2 text-center text-sm font-medium text-white dark:bg-blue-800 dark:text-blue-400"><i class="ri-add-line" aria-hidden="true"></i>{{.T.Get "New database"}}</span>
+            {{end}}
+        </div>
+    </div>
+
+    {{if .FromDisk}}<p class="px-4 pb-4 text-xs text-gray-500 sm:px-6 lg:px-8">{{.T.Get "Listed from disk while the service doesn't answer, so the version is unknown."}}</p>{{end}}
+
+    <div class="flex flex-col gap-3 px-4 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <div class="relative w-full sm:w-64">
+            <input x-model="searchQuery" aria-label="{{.T.Get "Search"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30" placeholder="{{.T.Get "Search"}}" type="search"/>
+            <div class="pointer-events-none absolute bottom-0 left-2.5 flex h-full items-center text-gray-400 dark:text-gray-600">
+                <i class="ri-search-line" aria-hidden="true"></i>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-gray-900 dark:text-gray-50">
+            <label for="showAllCheckbox" class="inline-flex items-center gap-2">
+                <input type="checkbox" role="switch" id="showAllCheckbox" {{if .ShowAll}}checked{{end}}>
+                {{.T.Get "Show system databases"}}
+            </label>
+            <span class="inline-flex items-center gap-2">
+                <label for="showSizesCheckbox" class="inline-flex items-center gap-2">
+                    <input type="checkbox" role="switch" id="showSizesCheckbox">
+                    {{.T.Get "Show database sizes"}}
+                </label>
+                <span id="size-unit-wrapper" style="display:none !important;">
+                    <select id="display-size" aria-label="{{.T.Get "Size unit"}}" class="block appearance-none rounded-md border border-gray-300 bg-white py-1 pr-8 pl-3 text-sm text-gray-900 shadow-xs outline-hidden transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+                        <option value="bytes" {{if eq .Unit "bytes"}}selected{{end}}>B</option>
+                        <option value="kb" {{if eq .Unit "kb"}}selected{{end}}>KB</option>
+                        <option value="mb" {{if eq .Unit "mb"}}selected{{end}}>MB</option>
+                        <option value="gb" {{if eq .Unit "gb"}}selected{{end}}>GB</option>
+                    </select>
+                </span>
+            </span>
+        </div>
+    </div>
+
+<script>
+const showAllCheckbox    = document.getElementById('showAllCheckbox');
+const showSizesCheckbox  = document.getElementById('showSizesCheckbox');
+const displaySizeSelect  = document.getElementById('display-size');
+const sizeUnitWrapper    = document.getElementById('size-unit-wrapper');
+
+function getSelectedUnit() {
+    return displaySizeSelect.value;
+}
+
+function updateURL() {
+    const urlSearchParams = new URLSearchParams(window.location.search);
+
+    if (showAllCheckbox.checked) {
+        urlSearchParams.set('show_all', 'true');
+        sessionStorage.setItem('show_all', 'true');
+    } else {
+        urlSearchParams.delete('show_all');
+        sessionStorage.removeItem('show_all');
+    }
+
+    const unit = getSelectedUnit();
+    if (unit) {
+        urlSearchParams.set('unit', unit);
+        sessionStorage.setItem('unit', unit);
+    } else {
+        urlSearchParams.delete('unit');
+        sessionStorage.removeItem('unit');
+    }
+
+    window.location.search = urlSearchParams.toString();
+}
+
+
+function setSizeColumnVisible(visible) {
+    const sizeHeader = document.getElementById('size-column-header');
+    if (sizeHeader) sizeHeader.style.display = visible ? '' : 'none';
+
+    document.querySelectorAll('.db_size_cell').forEach(cell => {
+        cell.style.display = visible ? '' : 'none';
+    });
+
+    sizeUnitWrapper.style.setProperty('display', visible ? 'flex' : 'none', 'important');
+}
+
+let sizesFetched = false;
+
+function populateDatabasesTable() {
+    const showAllValue = sessionStorage.getItem('show_all');
+    const unit         = sessionStorage.getItem('unit') || displaySizeSelect.value;
+    const url          = `/json/mysql-size?unit=${unit}${showAllValue ? '&show_all' : ''}`;
+
+    const sizeUnitSpan = document.getElementById('size_unit');
+    if (sizeUnitSpan) {
+        sizeUnitSpan.textContent = `(${unit.toUpperCase()})`;
+    }
+
+    document.querySelectorAll('.db_size_cell').forEach(cell => {
+        cell.textContent = '…';
+    });
+
+    fetch(url, {
+        method: 'GET',
+        headers: { 'X-CSRF-Token': csrf_token }
+    })
+        .then(res => res.json())
+        .then(sizeResponse => {
+            sizesFetched = true;
+            document.querySelectorAll('#databases-table tbody tr').forEach(row => {
+                const dbName      = row.querySelector('td[data-sort-col="database"]')?.textContent.trim();
+                const dbSizeInfo  = sizeResponse.find(item => item.Database === dbName);
+
+                let sizeValue = 'N/A';
+                if (dbSizeInfo) {
+                    for (const key in dbSizeInfo) {
+                        if (key.toLowerCase().includes('size')) {
+                            sizeValue = dbSizeInfo[key];
+                            break;
+                        }
+                    }
+                }
+
+                const sizeCell = row.querySelector('.db_size_cell');
+                if (sizeCell) sizeCell.textContent = sizeValue;
+            });
+        })
+        .catch(function () {
+            console.error('Failed to fetch database size info');
+            document.querySelectorAll('.db_size_cell').forEach(cell => {
+                cell.textContent = '{{.T.Get "Error"}}';
+            });
+        });
+}
+
+showSizesCheckbox.addEventListener('change', function () {
+    const checked = this.checked;
+    sessionStorage.setItem('show_sizes', checked ? 'true' : '');
+    setSizeColumnVisible(checked);
+
+    if (checked && !sizesFetched) {
+        populateDatabasesTable();
+    }
+});
+
+displaySizeSelect.addEventListener('change', function () {
+    sessionStorage.setItem('unit', this.value);
+    if (showSizesCheckbox.checked) {
+        sizesFetched = false;
+        populateDatabasesTable();
+    }
+});
+
+showAllCheckbox.addEventListener('change', updateURL);
+
+window.addEventListener('load', () => {
+    const showAllValue  = sessionStorage.getItem('show_all');
+    const unitValue     = sessionStorage.getItem('unit');
+    const showSizes     = sessionStorage.getItem('show_sizes');
+
+    if (showAllValue === 'true') showAllCheckbox.checked = true;
+    if (unitValue)               displaySizeSelect.value = unitValue;
+
+    if (showSizes === 'true') {
+        showSizesCheckbox.checked = true;
+        setSizeColumnVisible(true);
+        populateDatabasesTable();
+    } else {
+        setSizeColumnVisible(false);
+    }
+});
+</script>
+
+{{template "bulk_open" (dict "T" .T "Table" "#databases-table" "Endpoint" "/mysql/bulk")}}
+    <div class="relative overflow-x-auto border-t border-gray-200 dark:border-gray-800">
+        <table id="databases-table" class="w-full text-sm [&_td]:py-2.5 [&_tr]:border-b [&_tr]:border-gray-200 dark:[&_tr]:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
+            <thead>
+                <tr>
+{{template "bulk_head_checkbox" .}}
+                    <th scope="col" class="px-4 py-1 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Database name") "Key" "database" "Type" "string")}}</th>
+                    <th id="size-column-header" scope="col" class="px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:text-gray-50" style="display:none;">{{.T.Get "Size"}} <span id="size_unit">({{.Unit}})</span></th>
+                    <th scope="col" class="px-4 py-1 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Assigned users") "Key" "assigned_users" "Type" "string")}}</th>
+                    <th scope="col" class="px-4 py-2.5 text-right text-xs font-semibold whitespace-nowrap text-gray-900 dark:text-gray-50"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
+                </tr>
+            </thead>
+            <tbody>
+    {{if eq .ContainerState "running"}}
+        {{if eq .HealthStatus "healthy"}}
+            {{if .Databases}}
+                {{range .Databases}}
+                {{$db := .}}
+                <tr x-show="searchQuery === '' || {{toJSON $db.Database}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $db.AssignedUsers}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row hover:bg-gray-50 dark:hover:bg-gray-900/60">
+{{$skip := ""}}{{if $db.IsSystem}}{{$skip = "*"}}{{end}}{{template "bulk_row_checkbox" (dict "T" $.T "Key" $db.Database "Label" $db.Database "Skip" $skip)}}
+                    <td class="px-4 font-medium whitespace-nowrap text-gray-900 select-text dark:text-gray-50" data-sort-col="database">{{$db.Database}}</td>
+                    <td class="db_size_cell px-4 whitespace-nowrap text-gray-600 tabular-nums dark:text-gray-400" style="display:none;">—</td>
+                    <td class="px-4 whitespace-nowrap text-gray-600 dark:text-gray-400" data-sort-col="assigned_users" data-sort-value="{{$db.AssignedUsers}}">
+                        {{if $db.AssignedUsers}}
+                        {{$users := split $db.AssignedUsers ","}}
+                        {{range $i, $u := $users}}{{if $i}}, {{end}}{{$user := trimSpace $u}}<a href="/mysql/assign?database_name={{$db.Database}}&database_user={{$user}}" title="{{$.T.Get "Manage privileges"}}" class="text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50">{{$user}}</a>{{end}}
+                        {{else}}<span class="text-gray-400 dark:text-gray-600">{{$.T.Get "No users"}}</span>{{end}}
+                    </td>
+<td class="px-4 text-right whitespace-nowrap text-gray-600 dark:text-gray-400" x-data="dbActionModal()">
+
+    <!-- optimize / repair modal -->
+<template x-teleport="body">
+    <div x-show="open" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+         @keydown.escape.window="if (!running) open = false">
+
+        <div class="flex w-full max-w-xl flex-col rounded-md border border-gray-200 bg-white text-left shadow-lg dark:border-gray-900 dark:bg-raised"
+             style="max-height: 80vh;"
+             role="dialog" aria-modal="true" :aria-label="(action === 'optimize' ? i18n.optimizeTitle : i18n.repairTitle) + ' ' + database"
+             @click.outside="if (!running) open = false">
+
+            <div class="flex items-start justify-between gap-4 px-5 py-4">
+                <div>
+                    <h2 class="text-base font-semibold text-gray-900 dark:text-gray-50">
+                        <span x-text="action === 'optimize' ? i18n.optimizeTitle : i18n.repairTitle"></span>
+                        <span class="font-mono" x-text="database"></span>
+                    </h2>
+                    <p class="mt-1 text-sm text-wrap text-gray-500" x-text="action === 'optimize' ? i18n.optimizeHelp : i18n.repairHelp"></p>
+                </div>
+                <button type="button" @click="open = false" :disabled="running" :title="i18n.close" :aria-label="i18n.close" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                    <i class="ri-close-line" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto border-t border-gray-200 px-5 py-3 dark:border-gray-800">
+                <p x-show="loading" class="py-6 text-center text-sm text-gray-500" x-text="i18n.loading"></p>
+                <p x-show="!loading && tables.length === 0" class="py-6 text-center text-sm text-gray-500" x-text="i18n.noTables"></p>
+                <table x-show="!loading && tables.length > 0" class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-left text-xs dark:border-gray-800">
+                            <th class="py-2 pr-3 font-semibold text-gray-900 dark:text-gray-50" x-text="i18n.table"></th>
+                            <th class="py-2 pr-3 font-semibold text-gray-900 dark:text-gray-50" x-text="i18n.engine"></th>
+                            <th class="py-2 pr-3 text-right font-semibold text-gray-900 dark:text-gray-50" x-text="i18n.size"></th>
+                            <th x-show="action === 'optimize'" class="py-2 pr-3 text-right font-semibold text-gray-900 dark:text-gray-50" x-text="i18n.unused"></th>
+                            <th class="py-2 font-semibold text-gray-900 dark:text-gray-50" x-text="i18n.result"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="t in tables" :key="t.table">
+                            <tr class="border-b border-gray-200 dark:border-gray-800">
+                                <td class="py-2 pr-3 font-mono text-xs text-gray-900 dark:text-gray-50" x-text="t.table"></td>
+                                <td class="py-2 pr-3 text-xs text-gray-500" x-text="t.engine"></td>
+                                <td class="py-2 pr-3 text-right text-xs text-gray-500 tabular-nums" x-text="size(t.data_length + t.index_length)"></td>
+                                <td x-show="action === 'optimize'" class="py-2 pr-3 text-right text-xs text-gray-500 tabular-nums" x-text="t.data_free ? size(t.data_free) : '-'"></td>
+                                <td class="py-2 text-xs text-wrap">
+                                    <span x-show="running && !results[t.table]" class="text-gray-400 dark:text-gray-600" x-text="i18n.working"></span>
+                                    <span x-show="results[t.table]" :class="resultOf(t).failed ? 'text-red-600 dark:text-red-500' : 'text-gray-600 dark:text-gray-400'" :title="resultOf(t).detail" x-text="resultOf(t).label"></span>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="flex flex-col gap-3 border-t border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800">
+                <span class="text-xs text-gray-500" x-text="summary"></span>
+                <div class="flex flex-col-reverse gap-2 sm:flex-row">
+                    <button type="button" @click="open = false" :disabled="running"
+                            class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"
+                            x-text="done ? i18n.close : i18n.cancel"></button>
+                    <button type="button" x-show="!done" @click="runAction" :disabled="running || loading || tables.length === 0"
+                            class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
+                        <i x-show="running" class="ri-loop-right-line animate-spin" aria-hidden="true"></i>
+                        <span x-text="buttonLabel"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+
+<div class="flex items-center justify-end gap-0.5">
+    {{if $db.IsSystem}}
+    <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-gray-500/30 ring-inset dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{$.T.Get "System database"}}</span>
+    {{else}}
+        {{if $.UserAllowed.mysql_import}}
+        <a href="/mysql/import/{{$db.Database}}" title="{{$.T.Get "Import"}}" aria-label="{{$.T.Get "Import"}} {{$db.Database}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+            <i class="ri-upload-line" aria-hidden="true"></i>
+        </a>
+        {{end}}
+
+        <div x-data="exportModal({{toJSON $db.Database}})">
+            <button type="button" @click="open = true" title="{{$.T.Get "Export"}}" aria-label="{{$.T.Get "Export"}} {{$db.Database}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                <i class="ri-download-line" aria-hidden="true"></i>
+            </button>
+
+            <!-- stays in the row: the mysql spec finds .export-section inside it -->
+            <div x-cloak x-show="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 export-section" @keydown.escape.window="open = false">
+                <div @click.outside="open = false" role="dialog" aria-modal="true" :aria-label="{{toJSON ($.T.Get "Export")}} + ' ' + database" class="w-full max-w-sm rounded-md border border-gray-200 bg-white text-left shadow-lg dark:border-gray-900 dark:bg-raised">
+                    <form method="POST" action="/mysql/export" @submit="handleSubmit">
+                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                        <input type="hidden" name="database_name" :value="database">
+                        <input type="hidden" name="local_path" :value="fullPath">
+
+                        <div class="flex items-start justify-between gap-4 px-5 py-4">
+                            <h2 class="text-base font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Export"}} <span class="font-mono" x-text="database"></span></h2>
+                            <button type="button" @click="open = false" aria-label="{{$.T.Get "Close"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50"><i class="ri-close-line" aria-hidden="true"></i></button>
+                        </div>
+
+                        <div class="space-y-5 border-t border-gray-200 px-5 py-4 dark:border-gray-800">
+                            <fieldset>
+                                <legend class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{$.T.Get "Format:"}}</legend>
+                                <div class="mt-2 grid grid-cols-2 rounded-md bg-gray-100 p-1 dark:bg-gray-900">
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="export_format" value="sql" x-model="format" class="peer sr-only">
+                                        <div :class="format === 'sql' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+                                            class="flex items-center justify-center rounded px-3 py-1 text-sm font-medium transition-all peer-focus-visible:outline-2 peer-focus-visible:outline-blue-500">
+                                            SQL (.sql)
+                                        </div>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="export_format" value="gzip" x-model="format" class="peer sr-only">
+                                        <div :class="format === 'gzip' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+                                            class="flex items-center justify-center rounded px-3 py-1 text-sm font-medium transition-all peer-focus-visible:outline-2 peer-focus-visible:outline-blue-500">
+                                            GZIP (.sql.gz)
+                                        </div>
+                                    </label>
+                                </div>
+                            </fieldset>
+
+                            <fieldset>
+                                <legend class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{$.T.Get "Destination:"}}</legend>
+                                <div class="mt-2 grid grid-cols-2 rounded-md bg-gray-100 p-1 dark:bg-gray-900">
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="export_destination" value="browser" x-model="mode" class="peer sr-only">
+                                        <div :class="mode === 'browser' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+                                            class="flex items-center justify-center rounded px-3 py-1 text-sm font-medium transition-all peer-focus-visible:outline-2 peer-focus-visible:outline-blue-500">
+                                            {{$.T.Get "Browser"}}
+                                        </div>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="export_destination" value="files" x-model="mode" class="peer sr-only">
+                                        <div :class="mode === 'files' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'"
+                                            class="flex items-center justify-center rounded px-3 py-1 text-sm font-medium transition-all peer-focus-visible:outline-2 peer-focus-visible:outline-blue-500">
+                                            {{$.T.Get "Files"}}
+                                        </div>
+                                    </label>
+                                </div>
+                            </fieldset>
+
+                            <div x-show="mode === 'files'" x-transition class="flex">
+                                <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 font-mono text-xs text-gray-500 dark:border-gray-800 dark:bg-gray-900">/var/www/html/</span>
+                                <input type="text" x-model="relativePath" placeholder="backups" aria-label="{{$.T.Get "Folder"}}" class="block w-full min-w-0 appearance-none rounded-r-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col-reverse gap-2 border-t border-gray-200 px-5 py-4 sm:flex-row sm:justify-end dark:border-gray-800">
+                            <button type="button" @click="open = false" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{$.T.Get "Cancel"}}</button>
+                            <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{$.T.Get "Export"}}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" @click="openModal('optimize', {{toJSON $db.Database}})" title="{{$.T.Get "Optimize"}}" aria-label="{{$.T.Get "Optimize"}} {{$db.Database}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+            <i class="ri-sparkling-line" aria-hidden="true"></i>
+        </button>
+
+        <button type="button" @click="openModal('repair', {{toJSON $db.Database}})" title="{{$.T.Get "Repair"}}" aria-label="{{$.T.Get "Repair"}} {{$db.Database}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+            <i class="ri-tools-line" aria-hidden="true"></i>
+        </button>
+
+        {{if $.UserAllowed.phpmyadmin}}
+        <a href="/phpmyadmin/?route=/database/structure&db={{$db.Database}}" target="_blank" title="{{$.T.Get "phpMyAdmin"}}" aria-label="{{$.T.Get "phpMyAdmin"}} {{$db.Database}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+            <i class="ri-external-link-line" aria-hidden="true"></i>
+        </a>
+        {{end}}
+
+        <form method="POST" action="/mysql/delete">
+            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+            <input type="hidden" name="database_name" value="{{$db.Database}}">
+            <button type="button" onclick="confirmDelete(this)" data-confirm-label="{{$.T.Get "Confirm"}}" title="{{$.T.Get "Delete"}}" aria-label="{{$.T.Get "Delete"}} {{$db.Database}}" class="btn-danger inline-flex h-8 min-w-8 shrink-0 gap-1 px-1.5 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-red-600 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-red-500 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">
+                <i class="ri-delete-bin-line" aria-hidden="true"></i>
+            </button>
+        </form>
+    {{end}}
+</div>
+
+                    </td>
+                </tr>
+                {{end}}
+
+<script>
+function exportModal(dbName) {
+    return {
+        open: false,
+        mode: 'browser',
+        format: 'sql',   //
+        database: dbName,
+        basePath: '/var/www/html/',
+        relativePath: '',
+
+        get fullPath() {
+            return this.basePath + this.relativePath.replace(/^\/+/, '');
+        },
+
+        handleSubmit(event) {
+            if (this.mode === 'files') {
+                if (!this.fullPath.startsWith(this.basePath)) {
+                    event.preventDefault();
+                }
+
+                if (!this.fullPath.startsWith(this.basePath)) {
+                    event.preventDefault();
+                }
+            }
+        }
+    }
+}
+</script>
+
+            {{else}}
+            <tr>
+                <td colspan="5" class="py-10! text-center text-sm text-gray-500">
+                    <p>{{.T.Get "No databases yet."}}</p>
+                    <a href="/mysql/new" class="relative mt-3 inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">{{.T.Get "Create your first database"}}</a>
+                </td>
+            </tr>
+            {{end}}
+        {{else}}
+        {{/* read from the datadir while the service starts, users and actions come with the next refresh */}}
+        {{range .Databases}}
+        <tr class="domain_row opacity-60">
+            <td class="w-10 pr-2"></td>
+            <td class="px-4 font-medium whitespace-nowrap text-gray-900 dark:text-gray-50">{{.Database}}</td>
+            <td class="db_size_cell px-4 whitespace-nowrap text-gray-600 dark:text-gray-400" style="display:none;">—</td>
+            <td class="px-4 whitespace-nowrap text-gray-400 dark:text-gray-600">—</td>
+            <td class="px-4 text-right whitespace-nowrap">{{if .IsSystem}}<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-gray-500/30 ring-inset dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{$.T.Get "System database"}}</span>{{end}}</td>
+        </tr>
+        {{end}}
+        <tr>
+            <td colspan="5" class="py-10! text-center text-sm text-gray-500">
+                {{$.T.Get .StatusDetail}}
+                <br><span id="refresh-message"></span>
+            </td>
+        </tr>
+        {{end}}
+    {{else}}
+        {{range .Databases}}
+        <tr class="domain_row opacity-60">
+            <td class="w-10 pr-2"></td>
+            <td class="px-4 font-medium whitespace-nowrap text-gray-900 dark:text-gray-50">{{.Database}}</td>
+            <td class="db_size_cell px-4 whitespace-nowrap text-gray-600 dark:text-gray-400" style="display:none;">—</td>
+            <td class="px-4 whitespace-nowrap text-gray-400 dark:text-gray-600">—</td>
+            <td class="px-4 text-right whitespace-nowrap">{{if .IsSystem}}<span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-900 ring-1 ring-gray-500/30 ring-inset dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{$.T.Get "System database"}}</span>{{end}}</td>
+        </tr>
+        {{end}}
+        <tr>
+            <td colspan="5" class="py-10! text-center text-sm text-gray-500">
+                {{$.T.Get .StatusDetail}}
+                <br>
+                <span id="refresh-message"></span>
+            </td>
+        </tr>
+    {{end}}
+    {{if ne .HealthStatus "healthy"}}
+    <script>
+        let countdown = 5;
+        const messageEl = document.getElementById('refresh-message');
+        const interval = setInterval(() => {
+            if (countdown > 0) {
+                messageEl.textContent = `{{.T.Get "The page will refresh in"}} ${countdown} {{.T.Get "seconds"}}`;
+                countdown--;
+            } else {
+                clearInterval(interval);
+                window.location.reload();
+            }
+        }, 1000);
+    </script>
+    {{end}}
+            </tbody>
+        </table>
+    </div>
+
+{{template "bulk_bar" .}}
+</div>
+{{if .DBToastMessage}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof reportHealthIssues === 'function') {
+        reportHealthIssues('mysql-databases', [{id: {{toJSON .DBToastID}}, severity: 'warning', message: {{toJSON .DBToastMessage}}}], 24);
+    }
+});
+</script>
+{{end}}
+
+<script>
+const i18n = {
+    close:         {{toJSON (.T.Get "Close")}},
+    cancel:        {{toJSON (.T.Get "Cancel")}},
+    loading:       {{toJSON (.T.Get "Loading tables...")}},
+    noTables:      {{toJSON (.T.Get "No tables in this database.")}},
+    table:         {{toJSON (.T.Get "Table")}},
+    engine:        {{toJSON (.T.Get "Engine")}},
+    size:          {{toJSON (.T.Get "Size")}},
+    unused:        {{toJSON (.T.Get "Unused")}},
+    result:        {{toJSON (.T.Get "Result")}},
+    working:       {{toJSON (.T.Get "Working...")}},
+    optimizeTitle: {{toJSON (.T.Get "Optimize")}},
+    repairTitle:   {{toJSON (.T.Get "Repair")}},
+    optimizeHelp:  {{toJSON (.T.Get "Rebuilds every table to free up unused space and defragment indexes. Tables are briefly locked while they are rebuilt, so run this when your site is quiet.")}},
+    repairHelp:    {{toJSON (.T.Get "Checks every table for damage and fixes it. Only MyISAM, Aria and ARCHIVE tables can be repaired, InnoDB tables recover on their own and are skipped.")}},
+    optimizeRun:   {{toJSON (.T.Get "Optimize tables")}},
+    repairRun:     {{toJSON (.T.Get "Repair tables")}},
+    optimizing:    {{toJSON (.T.Get "Optimizing...")}},
+    repairing:     {{toJSON (.T.Get "Repairing...")}},
+    ok:            {{toJSON (.T.Get "OK")}},
+    rebuilt:       {{toJSON (.T.Get "Rebuilt")}},
+    notNeeded:     {{toJSON (.T.Get "Not needed")}},
+    failed:        {{toJSON (.T.Get "Failed")}},
+    tablesCount:   {{toJSON (.T.Get "tables")}},
+    unusedTotal:   {{toJSON (.T.Get "unused")}},
+    freed:         {{toJSON (.T.Get "Freed")}},
+    doneOk:        {{toJSON (.T.Get "All tables done.")}},
+    doneFailed:    {{toJSON (.T.Get "failed, hover the result to see why.")}},
+};
+</script>
+
+<script>
+function dbActionModal() {
+    return {
+        open: false,
+        action: '',
+        database: '',
+        tables: [],
+        results: {},
+        running: false,
+        done: false,
+        loading: false,
+        freed: 0,
+
+        size(bytes) {
+            if (!bytes) return '0 B';
+            const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+            return (bytes / Math.pow(1024, i)).toFixed(i ? 1 : 0).replace(/\.0$/, '') + ' ' + units[i];
+        },
+
+        async fetchTables() {
+            const res = await fetch(`/mysql/${this.action}/${this.database}`, { headers: { 'X-CSRF-Token': csrf_token } });
+            const data = await res.json();
+            return data.tables || [];
+        },
+
+        async openModal(action, dbName) {
+            Object.assign(this, { action, database: dbName, tables: [], results: {}, running: false, done: false, freed: 0, loading: true, open: true });
+            this.tables = await this.fetchTables();
+            this.loading = false;
+        },
+
+        async runAction() {
+            if (this.running) return;
+            this.running = true;
+            this.results = {};
+            const before = this.tables.reduce((sum, t) => sum + t.data_length + t.index_length, 0);
+
+            const res = await fetch(`/mysql/${this.action}/${this.database}`, {
+                method: 'POST',
+                headers: { 'X-CSRF-Token': csrf_token, 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+            for (const r of (data.results || [])) {
+                this.results[r.table] = r;
+            }
+
+            if (this.action === 'optimize') {
+                this.tables = await this.fetchTables();
+                const after = this.tables.reduce((sum, t) => sum + t.data_length + t.index_length, 0);
+                this.freed = Math.max(before - after, 0);
+            }
+            this.running = false;
+            this.done = true;
+        },
+
+        // turns MySQL's msg_type/msg_text rows into one short word per table
+        resultOf(t) {
+            const r = this.results[t.table];
+            if (!r) return { label: '', detail: '', failed: false };
+            if (r.status === 'error') return { label: i18n.failed, detail: r.error, failed: true };
+            const details = r.details || [];
+            const detail = details.map(d => d.msg_text).join('\n');
+            const text = detail.toLowerCase();
+            if (details.some(d => d.msg_type === 'error')) return { label: i18n.failed, detail, failed: true };
+            if (text.includes("doesn't support repair") || text.includes('does not support repair')) return { label: i18n.notNeeded, detail, failed: false };
+            if (text.includes('recreate + analyze')) return { label: i18n.rebuilt, detail, failed: false };
+            if (text.includes('already up to date') || text.includes('up to date')) return { label: i18n.notNeeded, detail, failed: false };
+            return { label: i18n.ok, detail, failed: false };
+        },
+
+        get buttonLabel() {
+            if (this.running) return this.action === 'optimize' ? i18n.optimizing : i18n.repairing;
+            return this.action === 'optimize' ? i18n.optimizeRun : i18n.repairRun;
+        },
+
+        get summary() {
+            if (this.loading || this.tables.length === 0) return '';
+            if (!this.done) {
+                const unused = this.tables.reduce((sum, t) => sum + (t.data_free || 0), 0);
+                let text = this.tables.length + ' ' + i18n.tablesCount;
+                if (this.action === 'optimize' && unused) text += ', ' + this.size(unused) + ' ' + i18n.unusedTotal;
+                return text;
+            }
+            const failed = this.tables.filter(t => this.resultOf(t).failed).length;
+            let text = failed ? failed + ' ' + i18n.doneFailed : i18n.doneOk;
+            if (this.action === 'optimize' && this.freed) text += ' ' + i18n.freed + ' ' + this.size(this.freed) + '.';
+            return text;
+        }
+    }
+}
+</script>
+
+<script>
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'n' || e.ctrlKey || e.metaKey || e.altKey) return;
+    const tag = document.activeElement.tagName.toLowerCase();
+    const isInputFocused = ['input', 'textarea'].includes(tag) || document.activeElement.isContentEditable;
+    if (isInputFocused) return;
+    e.preventDefault();
+    document.querySelector('a[href="/mysql/new"]')?.click();
+});
+{{if eq .ContainerState "running"}}
+if (window.registerShortcut) registerShortcut(['N'], {{toJSON (.T.Get "Add new database")}});
+{{end}}
+</script>
+<script src="{{static "js/table-sort.js"}}"></script>
+
+</section>
+
+<script src="{{static "js/confirm-delete.js"}}"></script>
+<!-- END templates/mysql/databases.html -->
+{{end}}
+
+{{define "sort_header"}}
+<button type="button" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.Label}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
+{{end}}

@@ -1,0 +1,106 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/psql/assign.html -->
+
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
+    <header>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Assign user to database"}}</h1>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-500 max-w-3xl">{{.T.Get "Assign a user to an existing PostgreSQL database to manage database permissions and enable access for executing queries, modifying tables, or managing data within the specified database."}}</p>
+    </header>
+</div>
+
+<!-- form -->
+<div class="grid grid-cols-1 gap-6 px-4 pb-8 sm:px-6 lg:grid-cols-3 lg:px-8" x-data="psqlAssign()">
+<div id="toAddActive" class="CrawlerStatusCard rounded-md border border-gray-200 bg-white lg:col-span-2 dark:border-gray-900 dark:bg-raised">
+    <form method="POST" @submit="if (!ready()) { $event.preventDefault(); return } busy = true">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+    <div class="space-y-6 p-4 sm:p-6">
+        <div>
+            <label for="db_user" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "User"}}<span class="text-red-600 dark:text-red-500">*</span></label>
+            <select name="db_user" id="db_user" x-model="user" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 mt-2 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]" required>
+                <option value="">{{.T.Get "Select a user"}}</option>
+                {{range .Names.Users}}<option value="{{.}}">{{.}}</option>{{end}}
+            </select>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-500" x-show="!users.length" x-cloak>{{.T.Get "No users yet."}} <a href="/postgresql/user" class="text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Create a user"}}</a> {{.T.Get "first."}}</p>
+        </div>
+
+        <div>
+            <label for="database_name" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}<span class="text-red-600 dark:text-red-500">*</span></label>
+            <select name="database_name" id="database_name" x-model="db" required class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 mt-2 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+                <option value="">{{.T.Get "Select a database"}}</option>
+                {{range .Names.Databases}}<option value="{{.}}">{{.}}</option>{{end}}
+            </select>
+            <p class="mt-2 text-sm text-gray-500 dark:text-gray-500" x-show="!dbs.length" x-cloak>{{.T.Get "No databases yet."}} <a href="/postgresql/new" class="text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Create a database"}}</a> {{.T.Get "first."}}</p>
+            <p class="mt-2 text-sm text-yellow-700 dark:text-yellow-500" x-show="already()" x-cloak>{{.T.Get "This user already has access to this database."}}</p>
+        </div>
+
+        <div>
+            <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Runs as"}}</span>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-500">{{.T.Get "PostgreSQL users get full access to the database and can create tables in its public schema."}}</p>
+            <pre x-text="preview()" class="mt-2 overflow-x-auto rounded-md bg-gray-50 p-4 font-mono text-xs text-gray-900 dark:bg-gray-900 dark:text-gray-50"></pre>
+        </div>
+    </div>
+
+    <div class="flex flex-col-reverse gap-2 border-t border-gray-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-end sm:px-6 dark:border-gray-800">
+        <p class="text-sm text-gray-500 sm:mr-auto dark:text-gray-500" x-show="!ready() && !busy" x-text="user ? {{toJSON (.T.Get "Pick a database to continue.")}} : {{toJSON (.T.Get "Pick a user to continue.")}}"></p>
+        <a href="/postgresql" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Back to databases"}}</a>
+        <button type="submit" :disabled="!ready() || busy" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Assign user to database"}}</button>
+    </div>
+
+    </form>
+</div>
+
+<aside class="space-y-6">
+    <div class="rounded-md border border-gray-200 bg-white p-4 text-sm dark:border-gray-800 dark:bg-gray-950">
+        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Who has access now"}}</h2>
+        <ul class="mt-3 space-y-3" x-show="assigned.length">
+            <template x-for="a in assigned" :key="a.database">
+                <li>
+                    <span class="block font-mono text-gray-900 break-all dark:text-gray-50" x-text="a.database"></span>
+                    <span class="mt-1 flex flex-wrap gap-1">
+                        <template x-for="u in split(a.users)" :key="u"><button type="button" @click="pick(u, a.database)" class="rounded-md px-2 py-0.5 font-mono text-xs ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 hover:bg-gray-100 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20 dark:hover:bg-gray-400/20" x-text="u"></button></template>
+                    </span>
+                </li>
+            </template>
+        </ul>
+        <p class="mt-3 text-gray-500 dark:text-gray-500" x-show="!assigned.length" x-cloak>{{.T.Get "No user has access to a database yet."}}</p>
+    </div>
+    <div class="rounded-md border border-gray-200 bg-white p-4 text-sm dark:border-gray-800 dark:bg-gray-950">
+        <h2 class="font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Starting from scratch?"}}</h2>
+        <p class="mt-2 text-gray-500 dark:text-gray-500">{{.T.Get "The"}} <a href="/postgresql/wizard" class="text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Database wizard"}}</a> {{.T.Get "creates a database, a user and this grant in one go."}}</p>
+    </div>
+</aside>
+</div>
+<!-- END form -->
+
+<script>
+function psqlAssign() {
+    const q = new URLSearchParams(location.search);
+    const users = {{toJSON .Names.Users}} || [], dbs = {{toJSON .Names.Databases}} || [];
+    const pre = (v, list) => list.includes(v) ? v : '';
+    return {
+        init() { keepFilled(this) },
+        users, dbs,
+        assigned: {{toJSON .Names.Assigned}} || [],
+        user: pre({{toJSON .DBUser}} || q.get('db_user') || q.get('database_user') || '', users),
+        db: pre({{toJSON .DatabaseName}} || q.get('database_name') || '', dbs),
+        busy: false,
+        split(s) { return (s || '').split(',').map(v => v.trim()).filter(Boolean); },
+        pick(u, d) { this.user = u; this.db = d; },
+        already() {
+            const a = this.assigned.find(x => x.database === this.db);
+            return !!(a && this.user && this.split(a.users).includes(this.user));
+        },
+        ready() { return !!this.user && !!this.db; },
+        preview() {
+            const d = this.db || '[database]', u = this.user || '[user]';
+            return 'GRANT ALL PRIVILEGES ON DATABASE "' + d + '" TO "' + u + '";\nGRANT USAGE, CREATE ON SCHEMA public TO "' + u + '";';
+        }
+    };
+}
+</script>
+
+<!-- END templates/psql/assign.html -->
+{{end}}

@@ -7,6 +7,7 @@ import (
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
@@ -20,6 +21,7 @@ func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
 }
 
 func TestRenderAllPages(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	layout := baseLayout(mgr, "/mongodb")
 
@@ -55,16 +57,13 @@ func TestRenderAllPages(t *testing.T) {
 		if !strings.Contains(body, "refresh-message") || !strings.Contains(body, "window.location.reload()") {
 			t.Error("expected the countdown-and-reload script when not healthy")
 		}
-		if !strings.Contains(body, "cursor-not-allowed") {
+		if !strings.Contains(body, `aria-disabled="true"`) {
 			t.Error("New Database button should render as disabled while the service isn't running")
 		}
 	})
 	t.Run("new", func(t *testing.T) {
 		w := httptest.NewRecorder()
-		if err := newDatabasePage.Render(w, 200, struct {
-			web.LayoutData
-			Created web.DBCreated
-		}{LayoutData: layout}); err != nil {
+		if err := newDatabasePage.Render(w, 200, CreatePageData{LayoutData: layout, Engine: web.MongoDBEngine, Roles: mongoRoles}); err != nil {
 			t.Fatalf("new: %v", err)
 		}
 	})
@@ -154,6 +153,8 @@ func TestRenderProcessListPage(t *testing.T) {
 }
 
 func TestRenderNewDatabaseCreated(t *testing.T) {
+	// asserts the classic theme's created-state markup
+	webtest.Classic(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	layout := baseLayout(mgr, "/mongodb/new")
 	r := httptest.NewRequest("GET", "/mongodb/new?created=app_db", nil)
@@ -171,6 +172,8 @@ func TestRenderNewDatabaseCreated(t *testing.T) {
 }
 
 func TestRenderCreateUserCreated(t *testing.T) {
+	// asserts the classic theme's created-state markup
+	webtest.Classic(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	layout := baseLayout(mgr, "/mongodb/user")
 	r := httptest.NewRequest("GET", "/mongodb/user?created=app_user", nil)

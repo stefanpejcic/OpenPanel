@@ -3,6 +3,7 @@ package postgresql
 import (
 	"log"
 	"net/http"
+	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
@@ -11,12 +12,12 @@ import (
 
 var (
 	databasesPage      = web.LoadPage("psql/databases.html")
-	newDatabasePage    = web.LoadPage("db/new.html", "partials/_db_created.html")
+	newDatabasePage    = web.LoadPage("db/new.html", "partials/_db_create.html", "partials/_db_created.html")
 	usersPage          = web.LoadPage("psql/users.html")
-	createUserPage     = web.LoadPage("psql/psql_user.html", "partials/_db_created.html")
+	createUserPage     = web.LoadPage("psql/psql_user.html", "partials/_db_create.html", "partials/_db_created.html")
 	passwordPage       = web.LoadPage("psql/password.html")
-	wizardPage         = web.LoadPage("psql/wizard.html")
-	assignPage         = web.LoadPage("psql/assign.html")
+	wizardPage         = web.LoadPage("psql/wizard.html", "partials/_db_create.html")
+	assignPage         = web.LoadPage("psql/assign.html", "partials/_db_create.html")
 	removePage         = web.LoadPage("psql/remove.html")
 	importPage         = web.LoadPage("psql/import.html")
 	processlistPage    = web.LoadPage("psql/processlist.html")
@@ -39,6 +40,39 @@ type DatabasesPageData struct {
 	ShowAll      bool
 	StatusDetail string // longer explanatory text for the table's empty-state row while the service isn't running/healthy, "" when running+healthy
 	ServerInfo
+	DBLimit int // plan limit, 0 is unlimited
+}
+
+// DBQuotaPct is how full the plan's database quota is, capped at 100
+func (d DatabasesPageData) DBQuotaPct() int {
+	if d.DBLimit <= 0 {
+		return 0
+	}
+	return min(d.UserDatabaseCount()*100/d.DBLimit, 100)
+}
+
+// UserDatabaseCount is the number of non-system databases, for the summary tile
+func (d DatabasesPageData) UserDatabaseCount() int {
+	n := 0
+	for _, db := range d.Databases {
+		if !db.IsSystem {
+			n++
+		}
+	}
+	return n
+}
+
+// UserCount is the number of distinct users assigned to any database
+func (d DatabasesPageData) UserCount() int {
+	seen := map[string]bool{}
+	for _, db := range d.Databases {
+		for _, u := range strings.Split(db.AssignedUsers, ",") {
+			if u = strings.TrimSpace(u); u != "" {
+				seen[u] = true
+			}
+		}
+	}
+	return len(seen)
 }
 
 func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, status docker.ContainerStatus, databases []DatabaseRow, unit string, showAll bool, info ServerInfo) {
@@ -58,7 +92,7 @@ func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		ServiceStatusData: ServiceStatusData{ContainerState: status.State, HealthStatus: status.Health},
 		Databases:         databases, Unit: unit, ShowAll: showAll,
 		StatusDetail: postgresContainerStatusDetail(status.State, status.Health),
-		ServerInfo:   info,
+		ServerInfo:   info, DBLimit: planDBLimit(r.Context(), a, injectedData),
 	}
 	if err := databasesPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("POSTGRESQL - databases template render error: %v", err)

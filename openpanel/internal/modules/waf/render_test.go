@@ -9,6 +9,7 @@ import (
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/i18n"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
+	"gist.github.com/stefanpejcic/openpanel/internal/web/webtest"
 )
 
 func baseLayout(mgr *i18n.Manager, path string) web.LayoutData {
@@ -75,6 +76,24 @@ func TestRenderWAFDomainPage(t *testing.T) {
 }
 
 func TestRenderWAFLogSelectPage(t *testing.T) {
+	webtest.ModernOnly(t)
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	data := WAFLogsPageData{LayoutData: baseLayout(mgr, "/server/waf/log"), Domains: []appctx.Domain{{DomainURL: "example.com"}}}
+	w := httptest.NewRecorder()
+	if err := wafLogsPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body := w.Body.String()
+	if !strings.Contains(body, "example.com") || !strings.Contains(body, "/server/waf/log/${selectedVersion}") {
+		t.Error("expected domain picker with plain domain-url redirect (no username prefix) in body")
+	}
+	if strings.Contains(body, "domain.username") {
+		t.Error("did not expect a reference to the nonexistent domain.username field")
+	}
+}
+
+func TestRenderWAFLogSelectPageClassic(t *testing.T) {
+	webtest.Classic(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	data := WAFLogsPageData{LayoutData: baseLayout(mgr, "/server/waf/log"), Domains: []appctx.Domain{{DomainURL: "example.com"}},
 		Picks: []web.DomainPick{{Domain: "example.com", Detail: "1.0 KB"}}}
@@ -92,6 +111,7 @@ func TestRenderWAFLogSelectPage(t *testing.T) {
 }
 
 func TestRenderWAFLogPage(t *testing.T) {
+	webtest.ModernOnly(t)
 	mgr := i18n.NewManager(t.TempDir(), nil)
 	logs := []json.RawMessage{json.RawMessage(`{"transaction":{"client_ip":"1.2.3.4"}}`)}
 	data := WAFLogsPageData{
@@ -106,5 +126,20 @@ func TestRenderWAFLogPage(t *testing.T) {
 	body := w.Body.String()
 	if !strings.Contains(body, "example.com") || !strings.Contains(body, `"client_ip":"1.2.3.4"`) {
 		t.Error("expected domain name and embedded log JSON in body")
+	}
+	if strings.Contains(body, `aria-label="Select domain"`) {
+		t.Error("domain switcher shown for a single domain")
+	}
+
+	data.Domains = []appctx.Domain{{DomainURL: "example.com"}, {DomainURL: "shop.example.org"}}
+	w = httptest.NewRecorder()
+	if err := wafLogsPage.Render(w, 200, data); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
+	body = w.Body.String()
+	for _, want := range []string{`<option value="example.com" selected>example.com</option>`, `<option value="shop.example.org">shop.example.org</option>`} {
+		if !strings.Contains(body, want) {
+			t.Errorf("WAF log domain switcher missing %q", want)
+		}
 	}
 }

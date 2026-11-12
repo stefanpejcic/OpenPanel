@@ -1,276 +1,197 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/system/cronjobs_new.html -->
-
-<!-- page header -->
-<section aria-label="{{.T.Get "Create cron job"}}" x-data="cronSchedule()">
-  <div class="px-4 pt-6 pb-4 sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
-    <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Create cron job"}}</h1>
-    <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Run a command inside one of your containers on a schedule. To add several jobs at once, use the"}} <a href="/cronjobs/editor" class="text-blue-600 hover:underline hover:underline-offset-4 dark:text-blue-500">{{.T.Get "File editor"}}</a>.</p>
-  </div>
-  <!-- END page header -->
-
-  <div class="grid grid-cols-1 gap-8 px-4 pb-8 sm:px-6 lg:px-8 xl:grid-cols-[minmax(0,64rem)_18rem]" id="toAddActive">
-    <form id="cronForm" action="/cronjobs/save" method="post" data-parsley-validate="" novalidate="" class="min-w-0">
-      <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-
-      <div class="divide-y divide-gray-200 dark:divide-gray-800">
-
-        <section class="grid grid-cols-1 gap-x-8 gap-y-3 py-6 md:grid-cols-3" aria-labelledby="cron-command-title">
-          <div>
-            <h2 id="cron-command-title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Command"}}</h2>
-            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "What to run. Paths are inside the container, your sites are under /var/www/html/."}}</p>
-          </div>
-          <div class="md:col-span-2">
-            <label for="command" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Command"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
-            <div class="mt-2"><input type="text" id="command" name="command" required
-                 aria-describedby="command-help" @input="tick++" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 font-mono"
-                 placeholder="php /var/www/html/example.com/cron.php"></div>
-            <p id="command-help" class="mt-2 text-xs text-gray-500">{{.T.Get "Runs with the container's shell. What it prints shows up on the Logs tab."}}</p>
-          </div>
-        </section>
-
-        <section class="grid grid-cols-1 gap-x-8 gap-y-3 py-6 md:grid-cols-3" aria-labelledby="cron-container-title">
-          <div>
-            <h2 id="cron-container-title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container"}}</h2>
-            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Where the command runs. PHP and WP-CLI need a PHP container, mysqldump needs your database container."}}</p>
-          </div>
-          <div class="md:col-span-2">
-            <label for="container" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Container"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
-            <div class="mt-2"><select id="container" @change="tick++" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]" aria-describedby="container_hint" required>
-            <option value="--" disabled>{{.T.Get "-- Select --"}}</option>
-            {{range .Containers}}
-              <option value="{{.}}">{{.}}</option>
-            {{end}}
-          </select></div>
-            <p id="container_hint" class="mt-2 text-xs text-gray-500" hidden></p>
-          </div>
-        </section>
-
-        <section class="grid grid-cols-1 gap-x-8 gap-y-3 py-6 md:grid-cols-3" aria-labelledby="schedule-label">
-          <div>
-            <h2 id="schedule-label" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Schedule"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></h2>
-            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "When it runs, in the cron time zone"}} (<span x-text="timeZone || 'UTC'"></span>).</p>
-          </div>
-          <div class="md:col-span-2">
-            <div class="grid grid-cols-2 gap-2 sm:grid-cols-4" role="radiogroup" aria-labelledby="schedule-label">
-              <template x-for="p in presets" :key="p.label">
-                <button type="button" role="radio" :aria-checked="isPreset(p) ? 'true' : 'false'" @click="pickPreset(p)"
-                        class="rounded-md border border-gray-300 bg-white px-3 py-2 text-left outline outline-0 outline-offset-2 outline-blue-500 hover:bg-gray-50 focus-visible:outline-2 aria-checked:border-blue-500 aria-checked:ring-1 aria-checked:ring-blue-500 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900/60 dark:aria-checked:border-blue-500">
-                  <span class="block text-sm font-medium text-gray-900 dark:text-gray-50" x-text="p.label"></span>
-                  <span class="block text-xs text-gray-500" x-text="p.hint"></span>
-                </button>
-              </template>
-            </div>
-
-            <div x-show="custom" x-cloak class="mt-3">
-              <div class="flex items-center justify-between gap-2">
-                <label for="schedule" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Custom schedule"}}</label>
-                <a x-show="custom" x-cloak href="https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-sm text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Expression format"}} <i class="ri-external-link-line" aria-hidden="true"></i></a>
-              </div>
-              <div class="mt-2"><input type="text" id="schedule" name="schedule" x-model.debounce.400ms="schedule" x-ref="scheduleInput" aria-describedby="schedule-help"
-                   class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 font-mono"
-                   placeholder="* * * * * * {{$.T.Get "or"}} @daily" required></div>
-              <p id="schedule-help" class="mt-2 text-xs text-gray-500">{{.T.Get "6 fields, seconds first: second minute hour day month weekday, or a descriptor like @every 2h."}}</p>
-            </div>
-
-            <div class="mt-4 rounded-md bg-gray-50 p-3 text-sm dark:bg-gray-900" aria-live="polite">
-              <p x-show="!nextError" class="flex items-center gap-2 font-medium text-gray-900 dark:text-gray-50"><i class="ri-time-line text-gray-400 dark:text-gray-500" aria-hidden="true"></i><span x-text="describe() || schedule"></span></p>
-              <p x-show="nextError" x-cloak class="flex items-center gap-2 text-red-600 dark:text-red-500"><i class="ri-error-warning-line" aria-hidden="true"></i><span x-text="nextError"></span></p>
-              <template x-if="nextRuns.length">
-                <div class="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-500">
-                  <span>{{.T.Get "Next runs"}}</span>
-                  <template x-for="r in nextRuns" :key="r"><span class="rounded-md bg-white px-1.5 py-0.5 font-mono tabular-nums text-gray-900 ring-1 ring-gray-200 dark:bg-gray-950 dark:text-gray-50 dark:ring-gray-800" x-text="fmt.day(r) + ', ' + fmt.time(r)"></span></template>
-                </div>
-              </template>
-            </div>
-          </div>
-        </section>
-
-        <section class="grid grid-cols-1 gap-x-8 gap-y-3 py-6 md:grid-cols-3" aria-labelledby="cron-name-title">
-          <div>
-            <h2 id="cron-name-title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Name"}}</h2>
-            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "How the job shows up in the list and in the logs."}}</p>
-          </div>
-          <div class="md:col-span-2">
-            <label for="comment" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Name"}} <span class="font-normal text-gray-500">({{.T.Get "optional"}})</span></label>
-            <div class="mt-2"><input type="text" id="comment" name="comment" x-model="name" maxlength="30" :aria-invalid="taken().toString()"
-                 @input="tick++" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500"
-                 placeholder="{{.T.Get "Nightly cleanup"}}"></div>
-            <p x-show="taken()" x-cloak class="mt-2 text-xs text-red-600 dark:text-red-500">{{.T.Get "A cron job with this name already exists. Pick another name."}}</p>
-            <p class="mt-2 text-xs text-gray-500">{{.T.Get "Up to 30 characters, no double quotes or backslashes."}}</p>
-          </div>
-        </section>
-
-        <section class="grid grid-cols-1 gap-x-8 gap-y-3 py-6 md:grid-cols-3" aria-labelledby="cron-overlap-title">
-          <div>
-            <h2 id="cron-overlap-title" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Overlap"}}</h2>
-            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "For jobs that can take longer than the time between runs."}}</p>
-          </div>
-          <div class="md:col-span-2">
-            <label for="no_overlap" class="flex cursor-pointer items-start justify-between gap-4 rounded-md border border-gray-200 p-3 dark:border-gray-800">
-              <span>
-                <span class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "No overlap"}}</span>
-                <span id="no-overlap-help" class="mt-0.5 block text-sm text-gray-500">{{.T.Get "Skip this run if the previous run of this job is still in progress."}}</span>
-              </span>
-              <input type="checkbox" role="switch" id="no_overlap" @change="tick++" aria-describedby="no-overlap-help">
-            </label>
-          </div>
-        </section>
-      </div>
-
-      <div class="flex flex-col-reverse gap-2 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end dark:border-gray-800">
-        <a href="/cronjobs" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Cancel"}}</a>
-        <button type="button" onclick="submitCronForm()" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Schedule CronJob"}}</button>
-      </div>
-    </form>
-
-    <aside class="space-y-4" aria-label="{{.T.Get "Preview"}}">
-      <div class="rounded-md border border-gray-200 p-4 dark:border-gray-800">
-        <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Added to crons.ini"}}</h2>
-        <pre class="mt-3 overflow-x-auto rounded-md bg-gray-50 p-3 font-mono text-xs leading-5 text-gray-900 dark:bg-gray-900 dark:text-gray-50" x-text="preview()"></pre>
-        <p class="mt-3 text-xs text-gray-500">{{.T.Get "Cron reloads after you save, so the job is live right away."}}</p>
-      </div>
-      <div class="rounded-md border border-gray-200 p-4 text-sm dark:border-gray-800">
-        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Good to know"}}</h2>
-        <dl class="mt-3 space-y-2">
-          <div class="flex justify-between gap-4"><dt class="text-gray-500">{{.T.Get "Time zone"}}</dt><dd class="font-medium text-gray-900 dark:text-gray-50" x-text="timeZone || 'UTC'"></dd></div>
-          <div class="flex justify-between gap-4"><dt class="text-gray-500">{{.T.Get "Output"}}</dt><dd><a href="/cronjobs/logs" class="text-blue-600 hover:underline hover:underline-offset-4 dark:text-blue-500">{{.T.Get "Logs tab"}}</a></dd></div>
-        </dl>
-        <p class="mt-3 text-xs text-gray-500">{{.T.Get "Change the time zone on the Cron jobs page. A job can be paused, run once or edited from its row there."}}</p>
-      </div>
-    </aside>
-  </div>
-  <!-- END form -->
-
-  <script src="{{static "js/cron-times.js"}}"></script>
-  <script>
-    function cronSchedule() {
-      const names = {{toJSON .JobNames}};
-      const locale = {{toJSON .T.Locale}}, timeZone = {{toJSON .TimeZone}};
-      return {
-        schedule: '@daily',
-        custom: false,
-        timeZone: timeZone,
-        fmt: cronTimes(locale, timeZone),
-        nextRuns: [],
-        nextError: '',
-        nextText: '',
-        name: '',
-        tick: 0,
-        presets: [
-          { value: '@every 1m', label: {{toJSON (.T.Get "Every minute")}}, hint: '' },
-          { value: '@every 5m', label: {{toJSON (.T.Get "Every 5 minutes")}}, hint: '' },
-          { value: '@every 30m', label: {{toJSON (.T.Get "Every 30 minutes")}}, hint: '' },
-          { value: '@hourly', label: {{toJSON (.T.Get "Hourly")}}, hint: {{toJSON (.T.Get "at minute 0")}} },
-          { value: '@daily', label: {{toJSON (.T.Get "Daily")}}, hint: {{toJSON (.T.Get "at 00:00")}} },
-          { value: '@weekly', label: {{toJSON (.T.Get "Weekly")}}, hint: {{toJSON (.T.Get "Sundays at 00:00")}} },
-          { value: '@monthly', label: {{toJSON (.T.Get "Monthly")}}, hint: {{toJSON (.T.Get "on the 1st at 00:00")}} },
-          { value: '', label: {{toJSON (.T.Get "Custom")}}, hint: {{toJSON (.T.Get "your own expression")}} },
-        ],
+<script src="{{static "js/cron-times.js"}}"></script>
+<script>
+// create form: the same command, container and name checks handleSaveCronjob runs, the schedule is checked live by /cronjobs/new?preview= with the server's parser
+function opNewCron(c) {
+    const fmt = cronTimes(c.locale, c.tz);
+    c.names = c.names || [];
+    return {
+        presets: c.presets, command: '', container: c.php || '', picked: false, auto: '', sel: '@daily', expr: '', name: '', noOverlap: false, tried: false, busy: false,
+        preview: { text: '', next: [], error: '' }, pending: false, _seq: 0, _t: null,
         init() {
-          this.$watch('schedule', () => this.loadNext());
-          this.loadNext();
+            this.$watch('command', () => this.guess());
+            this.$watch('sel', () => this.check());
+            this.$watch('expr', () => this.check());
+            this.check();
         },
-        describe() { return this.nextText; },
-        taken() { const n = this.name.trim(); return n !== '' && (names || []).includes(n); },
-        // the server parses it the way cron will, so a bad expression shows here before saving
-        async loadNext() {
-          const expr = String(this.schedule || '').trim();
-          this.nextRuns = [];
-          this.nextError = '';
-          this.nextText = '';
-          if (!expr) return;
-          try {
-            const d = await fetch('/cronjobs/new?' + new URLSearchParams({ preview: expr })).then(r => r.json());
-            if (expr !== String(this.schedule || '').trim()) return;
-            if (d.error) this.nextError = d.error;
-            else { this.nextRuns = d.next || []; this.nextText = d.text || ''; }
-          } catch (e) { /* the summary line still shows the expression */ }
+        schedule() { return this.sel === 'custom' ? this.expr.trim() : this.sel; },
+        // PHP and MySQL/MariaDB commands only run where that runtime is, so follow the command until the user picks a container
+        guess() {
+            if (this.picked) return;
+            const cmd = this.command.trim();
+            let target = '', kind = '';
+            if (c.php && /^(\S*\/)?(php[\d.]*|wp|composer|artisan)(\s|$)/i.test(cmd)) { target = c.php; kind = 'php'; }
+            else if (c.db && /^(\S*\/)?(mysql|mysqldump|mysqlcheck|mariadb|mariadb-dump|mariadb-check)(\s|$)/i.test(cmd)) { target = c.db; kind = 'db'; }
+            if (target) this.container = target;
+            this.auto = kind;
         },
-        // the block the save handler writes, built from what's in the form right now
-        preview() {
-          this.tick;
-          const v = id => (document.getElementById(id) || {}).value || '';
-          const lines = ['[job-exec "' + (v('comment').trim() || v('container') || '…') + '"]', 'schedule = ' + (String(this.schedule || '').trim() || '…'), 'container = ' + (v('container') || '…'), 'command = ' + (v('command').trim() || '…')];
-          if ((document.getElementById('no_overlap') || {}).checked) lines.push('no-overlap');
-          return lines.join('\n');
+        pickContainer(v) { this.container = v; this.picked = true; this.auto = ''; },
+        check() {
+            const s = this.schedule(), seq = ++this._seq;
+            clearTimeout(this._t);
+            if (!s) { this.preview = { text: '', next: [], error: '' }; this.pending = false; return; }
+            this.pending = true;
+            this._t = setTimeout(() => {
+                fetch('/cronjobs/new?' + new URLSearchParams({ preview: s }), { headers: { Accept: 'application/json' } })
+                    .then(r => r.ok ? r.json() : Promise.reject())
+                    .then(p => { if (seq === this._seq) { this.preview = { text: p.text || '', next: p.next || [], error: p.error || '' }; this.pending = false; } })
+                    .catch(() => { if (seq === this._seq) { this.preview = { text: '', next: [], error: '' }; this.pending = false; } });
+            }, this.sel === 'custom' ? 300 : 0);
         },
-        isPreset(p) { return p.value === '' ? this.custom : !this.custom && this.schedule === p.value; },
-        pickPreset(p) {
-          this.custom = p.value === '';
-          if (this.custom) {
-            this.$nextTick(() => this.$refs.scheduleInput.focus());
-          } else {
-            this.schedule = p.value;
-          }
+        cmdErr() {
+            const v = this.command.trim();
+            if (!v) return this.tried ? c.t.noCmd : '';
+            if (/\b(image|network)\s*=/i.test(v)) return c.t.forbidden;
+            if (/\bjob-(run|local|service-run)/i.test(v)) return c.t.exec;
+            return '';
         },
-      };
+        containerErr() { return !this.container && this.tried ? c.t.noContainer : ''; },
+        schedErr() {
+            if (this.sel !== 'custom') return '';
+            if (!this.expr.trim()) return this.tried ? c.t.noSchedule : '';
+            return this.pending ? '' : this.preview.error;
+        },
+        nameErr() {
+            const n = this.name.trim();
+            if (n.length > 30) return c.t.long;
+            if (/["\\]/.test(n)) return c.t.chars;
+            if (n && c.names.includes(n)) return c.t.taken.replace('{name}', n);
+            return '';
+        },
+        autoName() {
+            if (this.name.trim()) return this.name.trim();
+            const base = (this.container || 'job').slice(0, 30);
+            if (!c.names.includes(base)) return base;
+            for (let i = 1; ; i++) { const n = base + '-' + i; if (!c.names.includes(n)) return n; }
+        },
+        describe() { return this.sel === 'custom' ? (this.preview.text || c.t.custom) : c.words[this.sel]; },
+        runs() { const sec = this.preview.next.some(d => new Date(d).getUTCSeconds()); return this.preview.next.map(d => fmt.day(d) + ', ' + fmt.time(d, sec)); },
+        block() {
+            return '[job-exec "' + this.autoName() + '"]\nschedule = ' + (this.schedule() || '…') + '\ncontainer = ' + (this.container || '…') + '\ncommand = ' + (this.command.trim() || '…') + (this.noOverlap ? '\nno-overlap' : '');
+        },
+        pick(v) { this.sel = v; if (v === 'custom') this.$nextTick(() => this.$refs.expr.focus()); },
+        submit(e) {
+            this.tried = true;
+            if (this.cmdErr() || this.containerErr() || this.schedErr() || this.nameErr()) {
+                e.preventDefault();
+                this.$nextTick(() => { const el = this.$root.querySelector('.op-cf-form .is-invalid'); if (el) el.focus(); });
+                return;
+            }
+            this.busy = true;
+        },
+    };
+}
+</script>
+<div class="op-content" x-data="opNewCron({
+    containers: {{toJSON .Containers}}, php: {{toJSON .PHPContainer}}, db: {{toJSON .DBContainer}}, tz: {{toJSON .TimeZone}}, names: {{toJSON .JobNames}}, locale: {{toJSON .T.Locale}},
+    presets: [
+        ['@every 1m', {{toJSON (.T.Get "Every minute")}}, ''], ['@every 5m', {{toJSON (.T.Get "Every 5 minutes")}}, ''], ['@every 30m', {{toJSON (.T.Get "Every 30 minutes")}}, ''],
+        ['@hourly', {{toJSON (.T.Get "Hourly")}}, {{toJSON (.T.Get "at minute 0")}}], ['@daily', {{toJSON (.T.Get "Daily")}}, {{toJSON (.T.Get "at 00:00")}}],
+        ['@weekly', {{toJSON (.T.Get "Weekly")}}, {{toJSON (.T.Get "Sundays 00:00")}}], ['@monthly', {{toJSON (.T.Get "Monthly")}}, {{toJSON (.T.Get "on the 1st, 00:00")}}],
+        ['custom', {{toJSON (.T.Get "Custom")}}, {{toJSON (.T.Get "cron expression")}}]
+    ],
+    words: {
+        '@every 1m': {{toJSON (.T.Get "Every minute")}}, '@every 5m': {{toJSON (.T.Get "Every 5 minutes")}}, '@every 30m': {{toJSON (.T.Get "Every 30 minutes")}},
+        '@hourly': {{toJSON (.T.Get "Every hour")}}, '@daily': {{toJSON (.T.Get "Every day at %(time)s" "time" "00:00")}},
+        '@weekly': {{toJSON (.T.Get "Once a week, Sundays at 00:00")}}, '@monthly': {{toJSON (.T.Get "Once a month, on the 1st at 00:00")}}
+    },
+    t: {
+        noCmd: {{toJSON (.T.Get "Enter the command to run.")}},
+        forbidden: {{toJSON (.T.Get "image= or network= are not allowed in the command.")}},
+        exec: {{toJSON (.T.Get "job-run, job-local, and job-service-run are not allowed in the command.")}},
+        noContainer: {{toJSON (.T.Get "Pick the container to run the command in.")}},
+        noSchedule: {{toJSON (.T.Get "Enter a schedule, or pick one of the presets.")}},
+        long: {{toJSON (.T.Get "Keep the name to 30 characters or fewer.")}},
+        chars: {{toJSON (.T.Get "The name can't contain double quotes or backslashes.")}},
+        taken: {{toJSON (.T.Get "A cron job named \"%(name)s\" already exists. Pick another name." "name" "{name}")}},
+        custom: {{toJSON (.T.Get "Custom schedule")}}
     }
+})">
+    <div class="op-page-head">
+        <div>
+            <div class="op-eyebrow"><a class="op-link" href="/cronjobs">{{.T.Get "Cron Jobs"}}</a></div>
+            <h1 class="op-title">{{.T.Get "Create Cron Job"}}</h1>
+            <p class="op-meta">{{.T.Get "Run a command inside one of your containers on a schedule."}} {{.T.Get "To add several jobs at once, use the"}} <a class="op-link" href="/cronjobs/editor">{{.T.Get "File Editor"}}</a>.</p>
+        </div>
+    </div>
 
-
-    // PHP and MySQL/MariaDB commands only run where that runtime is, so pick the account's default PHP or database container for them until the user picks one
-    (function () {
-      const phpContainer = {{toJSON .PHPContainer}};
-      const dbContainer = {{toJSON .DBContainer}};
-      const command = document.getElementById('command');
-      const select = document.getElementById('container');
-      const hint = document.getElementById('container_hint');
-      const hints = {
-        php: {{toJSON (.T.Get "Picked the container of your default PHP version for this PHP command.")}},
-        db: {{toJSON (.T.Get "Picked your database container for this MySQL command.")}},
-      };
-      let picked = false;
-      select.addEventListener('change', () => { picked = true; hint.hidden = true; });
-      command.addEventListener('input', () => {
-        if (picked) return;
-        const cmd = command.value.trim();
-        let target = '', kind = '';
-        if (phpContainer && /^(\S*\/)?(php[\d.]*|wp|composer|artisan)(\s|$)/i.test(cmd)) {
-          target = phpContainer; kind = 'php';
-        } else if (dbContainer && /^(\S*\/)?(mysql|mysqldump|mysqlcheck|mariadb|mariadb-dump|mariadb-check)(\s|$)/i.test(cmd)) {
-          target = dbContainer; kind = 'db';
-        }
-        if (target && select.value !== target) { select.value = target; select.dispatchEvent(new Event('input', { bubbles: true })); }
-        hint.hidden = !target;
-        if (target) hint.textContent = hints[kind];
-      });
-    })();
-
-    function submitCronForm() {
-      const schedule = document.getElementById('schedule').value.trim();
-      const command = document.getElementById('command').value.trim();
-      const container = document.getElementById('container').value;
-
-      if (!schedule || !command || !container) {
-        const msg = {{toJSON (.T.Get "Please fill in all required fields before submitting.")}};
-        if (window.showToast) showToast(msg, 'error'); else alert(msg);
-        return;
-      }
-
-      const form = document.getElementById('cronForm');
-
-      const appendHiddenInput = (name, value) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = value;
-        form.appendChild(input);
-      };
-
-      appendHiddenInput('schedule', schedule);
-      appendHiddenInput('command', command);
-      appendHiddenInput('container', container);
-      appendHiddenInput('comment', document.getElementById('comment').value);
-      if (document.getElementById('no_overlap').checked) {
-        appendHiddenInput('no_overlap', '1');
-      }
-
-      form.submit();
-    }
-  </script>
-</section>
-
+    {{if .Containers}}
+    <div class="op-cf-grid">
+        <form class="op-card op-cf-form" method="POST" action="/cronjobs/save" novalidate @submit="submit($event)" aria-label="{{.T.Get "Create Cron Job"}}"
+            data-busy="{{.T.Get "Scheduling the cron job"}}" data-busy-steps="{{.T.Get "Adding the job to crons.ini"}}|{{.T.Get "Reloading the cron container"}}" data-busy-leave="no">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            <input type="hidden" name="schedule" :value="schedule()">
+            <input type="hidden" name="container" :value="container">
+            <fieldset>
+                <div class="op-section"><div><h3>{{.T.Get "Command"}}</h3><p>{{.T.Get "What to run. Paths are inside the container, your sites are under"}} <span class="op-mono">/var/www/html/</span>.</p></div>
+                    <div class="op-field"><label class="op-label" for="command">{{.T.Get "Command"}} <span class="is-danger">*</span></label>
+                        <input class="op-input op-mono" id="command" name="command" x-model="command" data-no-live-validate placeholder="php /var/www/html/example.com/cron.php" autocomplete="off" spellcheck="false" autocapitalize="off" :class="cmdErr() && 'is-invalid'" :aria-invalid="(!!cmdErr()).toString()">
+                        <span class="op-hint" x-show="!cmdErr()">{{.T.Get "Runs with the container's shell. Output goes to the Logs tab."}}</span>
+                        <span class="op-hint is-invalid" x-show="cmdErr()" x-cloak x-text="cmdErr()" role="alert"></span>
+                    </div>
+                </div>
+                <div class="op-section"><div><h3>{{.T.Get "Container"}}</h3><p>{{.T.Get "Where the command runs. PHP and WP-CLI need a PHP container, mysqldump needs your database container."}}</p></div>
+                    <div class="op-field"><label class="op-label" for="container">{{.T.Get "Container"}} <span class="is-danger">*</span></label>
+                        <select class="op-select" id="container" @change="pickContainer($event.target.value)" :class="containerErr() && 'is-invalid'">
+                            <option value="" disabled{{if not .PHPContainer}} selected{{end}}>{{.T.Get "Choose a container"}}</option>
+                            {{range .Containers}}<option value="{{.}}" :selected="container === {{toJSON .}}"{{if eq . $.PHPContainer}} selected{{end}}>{{.}}</option>{{end}}
+                        </select>
+                        <span class="op-hint" x-show="auto === 'php'" x-cloak>{{.T.Get "Picked the container of your default PHP version for this PHP command."}}</span>
+                        <span class="op-hint" x-show="auto === 'db'" x-cloak>{{.T.Get "Picked your database container for this MySQL command."}}</span>
+                        <span class="op-hint" x-show="!auto && !containerErr()">{{.T.Get "One of the %(n)s containers on your account." "n" (print (len .Containers))}}</span>
+                        <span class="op-hint is-invalid" x-show="containerErr()" x-cloak x-text="containerErr()" role="alert"></span>
+                    </div>
+                </div>
+                <div class="op-section"><div><h3>{{.T.Get "Schedule"}}</h3><p>{{.T.Get "When it runs, in the cron time zone"}} (<span class="op-mono">{{.TimeZone}}</span>).</p></div>
+                    <div class="op-col" style="gap:12px">
+                        <div class="op-cf-presets" role="radiogroup" aria-label="{{.T.Get "Schedule"}}">
+                            <template x-for="p in presets" :key="p[0]"><button type="button" role="radio" :aria-checked="(sel === p[0]).toString()" @click="pick(p[0])"><span x-text="p[1]"></span><small x-show="p[2]" x-text="p[2]"></small></button></template>
+                        </div>
+                        <div class="op-field" x-show="sel === 'custom'" x-cloak>
+                            <div class="op-cf-label-row"><label class="op-label" for="schedule">{{.T.Get "Cron expression"}}</label><a href="https://pkg.go.dev/github.com/robfig/cron#hdr-CRON_Expression_Format" target="_blank" rel="noopener">{{.T.Get "Expression Format"}} {{template "op_icon" "external"}}</a></div>
+                            <input class="op-input op-mono" id="schedule" x-ref="expr" x-model="expr" data-no-live-validate placeholder="0 30 2 * * *" autocomplete="off" spellcheck="false" :class="schedErr() && 'is-invalid'" :aria-invalid="(!!schedErr()).toString()">
+                            <span class="op-hint" x-show="!schedErr()">{{.T.Get "6 fields, seconds first: second minute hour day month weekday, or a descriptor like @every 2h."}}</span>
+                            <span class="op-hint is-invalid" x-show="schedErr()" x-cloak x-text="schedErr()" role="alert"></span>
+                        </div>
+                        <div class="op-cf-when" :class="schedErr() && 'is-bad'" aria-live="polite" x-show="schedule()">
+                            <div>{{template "op_icon" "clock"}}<b x-text="schedErr() ? {{toJSON (.T.Get "This schedule never runs until it is fixed")}} : describe() + ' (' + {{toJSON .TimeZone}} + ')'"></b></div>
+                            <div class="op-cf-next" x-show="!schedErr() && preview.next.length"><span>{{.T.Get "Next runs"}}</span><ol><template x-for="r in runs()" :key="r"><li x-text="r"></li></template></ol></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="op-section"><div><h3>{{.T.Get "Name"}}</h3><p>{{.T.Get "How the job shows up in the list and in the logs."}}</p></div>
+                    <div class="op-field"><label class="op-label" for="comment">{{.T.Get "Name"}} <span class="op-muted" style="font-weight:400">({{.T.Get "optional"}})</span></label>
+                        <input class="op-input" id="comment" name="comment" x-model="name" maxlength="30" data-no-live-validate placeholder="{{.T.Get "Nightly cleanup"}}" autocomplete="off" :class="nameErr() && 'is-invalid'" :aria-invalid="(!!nameErr()).toString()">
+                        <span class="op-hint" x-show="!nameErr()" x-text="name.trim() ? {{toJSON (.T.Get "%(n)s characters left." "n" "{n}")}}.replace('{n}', 30 - name.trim().length) : {{toJSON (.T.Get "Leave it empty to use %(name)s." "name" "{name}")}}.replace('{name}', autoName())"></span>
+                        <span class="op-hint is-invalid" x-show="nameErr()" x-cloak x-text="nameErr()" role="alert"></span>
+                    </div>
+                </div>
+                <div class="op-section"><div><h3>{{.T.Get "Overlap"}}</h3><p>{{.T.Get "For jobs that can take longer than the time between runs."}}</p></div>
+                    <div class="op-check-row" style="grid-template-columns:minmax(0,1fr) auto;align-items:center"><div><b>{{.T.Get "No overlap"}}</b><p>{{.T.Get "Skip this run if the previous run of this job is still in progress."}}</p></div><button class="op-switch" type="button" role="switch" :aria-checked="noOverlap.toString()" @click="noOverlap = !noOverlap" aria-label="{{.T.Get "No overlap"}}"></button></div>
+                    <input type="hidden" name="no_overlap" :value="noOverlap ? '1' : ''" :disabled="!noOverlap">
+                </div>
+                <div class="op-savebar"><span class="op-mono op-cf-cmd" x-text="'[job-exec &quot;' + autoName() + '&quot;] ' + (schedule() || '…')"></span><a class="op-btn op-btn-secondary" href="/cronjobs">{{.T.Get "Cancel"}}</a><button class="op-btn op-btn-primary" type="submit" :disabled="busy">{{.T.Get "Schedule CronJob"}}</button></div>
+            </fieldset>
+        </form>
+        <aside class="op-col" style="gap:16px">
+            <section class="op-card"><div class="op-card-head"><h2>{{.T.Get "Added to crons.ini"}}</h2></div>
+                <pre class="op-cf-pre" x-text="block()"></pre>
+                <p class="op-hint" style="margin:12px 0 0">{{.T.Get "The cron container reloads after saving, so the job is live right away."}}</p>
+            </section>
+            <section class="op-card"><div class="op-card-head"><h2>{{.T.Get "Good to know"}}</h2></div>
+                <dl class="op-dl"><dt>{{.T.Get "Time zone"}}</dt><dd>{{.TimeZone}}</dd><dt>{{.T.Get "Jobs now"}}</dt><dd>{{len .JobNames}}</dd><dt>{{.T.Get "Output"}}</dt><dd><a class="op-link" href="/cronjobs/logs">{{.T.Get "Logs tab"}}</a></dd></dl>
+                <p class="op-hint" style="margin:14px 0 0">{{.T.Get "Change the time zone from the Cron Jobs page. A job you add here can be paused, run once or edited from its row menu."}}</p>
+            </section>
+        </aside>
+    </div>
+    {{else}}
+    <section class="op-card"><div class="op-empty"><span class="op-ico-tile">{{template "op_icon" "box"}}</span><b>{{.T.Get "No containers to run jobs in"}}</b><span class="op-hint">{{.T.Get "Cron jobs run inside your containers. Start a service from Containers first."}}</span><a class="op-btn op-btn-primary" href="/containers">{{.T.Get "Containers"}}</a></div></section>
+    {{end}}
+</div>
 <!-- END templates/system/cronjobs_new.html -->
 {{end}}

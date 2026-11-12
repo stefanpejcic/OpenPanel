@@ -1,324 +1,205 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/psql/databases.html -->
-
-<section aria-label="{{.T.Get "Databases table"}}" x-data="{ searchQuery: '' }">
-    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
+{{$running := eq .ContainerState "running"}}
+<div class="op-content" aria-label="{{.T.Get "Databases Table"}}" x-data="{ searchQuery: '' }">
+    <div class="op-page-head">
         <div>
-            <div class="relative flex items-center gap-2" x-data="{ tooltip: false }">
-                <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "PostgreSQL databases"}}</h1>
-                <span tabindex="0" class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50 cursor-help" @mouseenter="tooltip = true" @mouseleave="tooltip = false" @focus="tooltip = true" @blur="tooltip = false">postgres</span>
-                <div x-show="tooltip" x-transition x-cloak role="tooltip" class="rounded-md border border-gray-200 bg-white p-3 text-sm text-gray-600 shadow-xl dark:border-gray-800 dark:bg-gray-950 dark:text-gray-400 absolute top-full left-0 z-10 mt-2 w-80">
-                    <p>{{.T.Get "To connect to the database, do not use localhost or 127.0.0.1. Instead, use:"}}</p>
-                    <ul class="mt-2 space-y-1">
-                        <li>{{.T.Get "server:"}} <span class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">postgres</span></li>
-                        <li>{{.T.Get "port:"}} <span class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">5432</span></li>
-                    </ul>
-                </div>
-            </div>
-            <dl class="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
-                <div class="flex items-center gap-1.5"><dt>{{.T.Get "Total databases:"}}</dt> <dd><span id="total_records_count" class="font-medium text-gray-900 tabular-nums dark:text-gray-50">{{len .Databases}}</span></dd></div>
-                {{if .HasInfo}}<div class="flex items-center gap-1.5"><dt>{{.T.Get "Version:"}}</dt> <dd><code class="rounded bg-gray-100 px-1 py-0.5 font-mono text-xs text-gray-900 dark:bg-gray-800 dark:text-gray-50">PostgreSQL {{.ServerVersion}}</code></dd></div>
-                <div class="flex items-center gap-1.5"><dt>{{.T.Get "Connections:"}}</dt> <dd class="font-medium tabular-nums text-gray-900 dark:text-gray-50">{{.Connections}}</dd></div>{{end}}
-            </dl>
+            <div class="op-eyebrow">PostgreSQL · {{.T.Get "port"}} 5432</div>
+            <h1 class="op-title">{{.T.Get "PostgreSQL Databases"}}</h1>
+            <p class="op-meta">{{.T.Get "Create databases, assign users and import or export dumps."}}</p>
         </div>
-
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-            {{if eq .ContainerState "running"}}
-            <a href="/postgresql/wizard" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"><i class="ri-magic-line" aria-hidden="true"></i>{{.T.Get "Database wizard"}}</a>
-            <a href="/postgresql/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-add-line text-base" aria-hidden="true"></i>{{.T.Get "New database"}}</a>
+        <div class="op-actions">
+            {{if $running}}
+            <a href="/postgresql/wizard" class="op-btn op-btn-secondary">{{template "op_icon" "wand"}} {{.T.Get "Database Wizard"}}</a>
+            <a href="/postgresql/new" class="op-btn op-btn-primary">{{template "op_icon" "plus"}} {{.T.Get "New Database"}}</a>
             {{else}}
-            <span title="{{.T.Get "Unavailable while the service is not running."}}" aria-disabled="true" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 cursor-not-allowed opacity-50">{{.T.Get "Database wizard"}}</span>
-            <span title="{{.T.Get "Unavailable while the service is not running."}}" aria-disabled="true" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 cursor-not-allowed opacity-50 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-add-line text-base" aria-hidden="true"></i>{{.T.Get "New database"}}</span>
+            <span title="{{.T.Get "Unavailable while the service is not running."}}" aria-disabled="true" class="op-btn op-btn-secondary">{{template "op_icon" "wand"}} {{.T.Get "Database Wizard"}}</span>
+            <span title="{{.T.Get "Unavailable while the service is not running."}}" aria-disabled="true" class="op-btn op-btn-primary">{{template "op_icon" "plus"}} {{.T.Get "New Database"}}</span>
             {{end}}
         </div>
     </div>
 
+    <section class="op-kpis" aria-label="{{.T.Get "Summary"}}">
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "db"}} {{.T.Get "Databases"}}</div><div class="op-kpi-value">{{.UserDatabaseCount}}{{if .DBLimit}} <small>/ {{.DBLimit}}</small>{{end}}</div>{{if .DBLimit}}<div class="op-progress{{if ge .DBQuotaPct 90}} is-danger{{else if ge .DBQuotaPct 70}} is-warning{{end}}"><span style="width:{{.DBQuotaPct}}%"></span></div>{{else}}<div class="op-kpi-note">{{if .ShowAll}}{{.T.Get "System databases shown"}}{{else}}{{.T.Get "System databases hidden"}}{{end}}</div>{{end}}</div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "user"}} {{.T.Get "Users"}}</div><div class="op-kpi-value">{{.UserCount}}</div><div class="op-kpi-note">{{.T.Get "Assigned to your databases"}}</div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "chart"}} {{.T.Get "Total size"}}</div><div class="op-kpi-value" id="kpi-total-size">…</div><div class="op-kpi-note" id="kpi-largest">&nbsp;</div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "info"}} {{.T.Get "Service"}}</div><div class="op-kpi-value">{{if and $running (eq .HealthStatus "healthy")}}{{.T.Get "Running"}}{{else if $running}}{{.T.Get "Starting"}}{{else}}{{.T.Get "Stopped"}}{{end}}</div><div class="op-kpi-note">{{if .HasInfo}}PostgreSQL {{.ServerVersion}} · {{.Connections}} {{if eq .Connections 1}}{{.T.Get "connection"}}{{else}}{{.T.Get "connections"}}{{end}}{{else}}PostgreSQL · {{.T.Get "server"}} <span class="op-mono">postgres</span>{{end}}</div></div>
+    </section>
 
-    <div class="flex flex-col gap-3 px-4 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-        <div class="relative w-full sm:w-64">
-            <input x-model="searchQuery" type="search" aria-label="{{.T.Get "Search"}}" placeholder="{{.T.Get "Search"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 py-1.5 pl-8"/>
-            <div class="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-gray-400 dark:text-gray-500"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" aria-hidden="true" class="size-4 shrink-0"><path d="M18.031 16.6168L22.3137 20.8995L20.8995 22.3137L16.6168 18.031C15.0769 19.263 13.124 20 11 20C6.032 20 2 15.968 2 11C2 6.032 6.032 2 11 2C15.968 2 20 6.032 20 11C20 13.124 19.263 15.0769 18.031 16.6168ZM16.0247 15.8748C17.2475 14.6146 18 12.8956 18 11C18 7.1325 14.8675 4 11 4C7.1325 4 4 7.1325 4 11C4 14.8675 7.1325 18 11 18C12.8956 18 14.6146 17.2475 15.8748 16.0247L16.0247 15.8748Z"></path></svg></div>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
-            <div class="flex items-center gap-2">
-                <input type="checkbox" role="switch" id="showAllCheckbox" {{if .ShowAll}}checked{{end}}>
-                <label for="showAllCheckbox" class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Show system databases"}}</label>
-            </div>
-            <div class="flex items-center gap-2">
-                <label for="display-size" class="text-sm whitespace-nowrap text-gray-600 dark:text-gray-400">{{.T.Get "Size in:"}}</label>
-                <select id="display-size" class="block appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 py-1.5 pr-8 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
-                    <option value="bytes" {{if eq .Unit "bytes"}}selected{{end}}>B</option>
+    <section class="op-card" aria-label="{{.T.Get "Databases"}}">
+        <div class="op-toolbar">
+            <label class="op-search">{{template "op_icon" "search"}}<input class="op-input" type="search" x-model="searchQuery" placeholder="{{.T.Get "Search databases"}}" aria-label="{{.T.Get "Search databases"}}"></label>
+            <span class="op-pill-toggle"><input class="form-check-input" type="checkbox" role="switch" id="showAllCheckbox" {{if .ShowAll}}checked{{end}}><label class="form-check-label" for="showAllCheckbox">{{.T.Get "System databases"}}</label></span>
+            <span class="op-pill-toggle" style="white-space:nowrap">{{.T.Get "Size in"}}
+                <select id="display-size" class="op-select op-select-sm w-auto" aria-label="{{.T.Get "Size unit"}}">
+                    <option value="bytes" {{if eq .Unit "bytes"}}selected{{end}}> B</option>
                     <option value="kb" {{if eq .Unit "kb"}}selected{{end}}>KB</option>
                     <option value="mb" {{if eq .Unit "mb"}}selected{{end}}>MB</option>
                     <option value="gb" {{if eq .Unit "gb"}}selected{{end}}>GB</option>
                 </select>
-            </div>
+            </span>
         </div>
-    </div>
-
-    <script>
-        const showAllCheckbox = document.getElementById('showAllCheckbox');
-        const displaySizeSelect = document.getElementById('display-size');
-
-        function getSelectedUnit() {
-            return displaySizeSelect.value;
-        }
-
-        function updateURL() {
-            const urlSearchParams = new URLSearchParams(window.location.search);
-
-            if (showAllCheckbox.checked) {
-                urlSearchParams.set('show_all', 'true');
-                sessionStorage.setItem('show_all', 'true');
-            } else {
-                urlSearchParams.delete('show_all');
-                sessionStorage.removeItem('show_all');
-            }
-
-            const unit = getSelectedUnit();
-            if (unit) {
-                urlSearchParams.set('unit', unit);
-                sessionStorage.setItem('unit', unit);
-            } else {
-                urlSearchParams.delete('unit');
-                sessionStorage.removeItem('unit');
-            }
-
-            window.location.search = urlSearchParams.toString();
-        }
-
-        window.addEventListener('load', () => {
-            const showAllValue = sessionStorage.getItem('show_all');
-            const unitValue = sessionStorage.getItem('unit');
-
-            if (showAllValue === 'true') {
-                showAllCheckbox.checked = true;
-            }
-            if (unitValue) {
-                displaySizeSelect.value = unitValue;
-            }
-        });
-
-        displaySizeSelect.addEventListener('change', updateURL);
-        showAllCheckbox.addEventListener('change', updateURL);
-    </script>
-
 {{template "bulk_open" (dict "T" .T "Table" "#databases-table" "Endpoint" "/postgresql/bulk")}}
-    <div class="relative overflow-x-auto border-t border-gray-200 dark:border-gray-800">
-        <table id="databases-table" class="w-full text-sm [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
-            <thead>
-                <tr>
+        <div class="op-table-wrap">
+            <table id="databases-table" class="op-table">
+                <thead>
+                    <tr>
 {{template "bulk_head_checkbox" .}}
-                    <th scope="col" class="border-b border-gray-200 px-4 py-1 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Database name") "Key" "database" "Type" "string")}}</th>
-                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-center text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Size"}} <span id="size_unit" class="font-normal text-gray-500">({{upper .Unit}})</span></th>
-                    <th scope="col" class="border-b border-gray-200 px-4 py-1 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{template "sort_header" (dict "Label" (.T.Get "Assigned users") "Key" "assigned_users" "Type" "string")}}</th>
-                    <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50 w-10 text-right"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
-                </tr>
-            </thead>
-            <tbody>
-            {{if eq .ContainerState "running"}}
-                {{if eq .HealthStatus "healthy"}}
-                    {{if .Databases}}
+                        <th scope="col">{{.T.Get "Database Name"}}</th>
+                        <th scope="col" class="is-num">{{.T.Get "Size"}} <span id="size_unit">({{upper .Unit}})</span></th>
+                        <th scope="col">{{.T.Get "Assigned Users"}}</th>
+                        <th scope="col" class="is-shrink"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {{if and $running (eq .HealthStatus "healthy")}}
                     {{range .Databases}}
                     {{$db := .}}
-                    <tr x-show="searchQuery === '' || {{toJSON $db.Database}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $db.AssignedUsers}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row hover:bg-gray-50 dark:hover:bg-gray-900/60">
+                    <tr x-show="searchQuery === '' || {{toJSON $db.Database}}.toLowerCase().includes(searchQuery.toLowerCase()) || {{toJSON $db.AssignedUsers}}.toLowerCase().includes(searchQuery.toLowerCase())" class="domain_row" data-db="{{$db.Database}}">
 {{$skip := ""}}{{if $db.IsSystem}}{{$skip = "*"}}{{end}}{{template "bulk_row_checkbox" (dict "T" $.T "Key" $db.Database "Label" $db.Database "Skip" $skip)}}
-                        <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap font-medium text-gray-900 dark:border-gray-800 dark:text-gray-50" data-sort-col="database">{{$db.Database}}</td>
-                        <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400 db_size text-center tabular-nums"></td>
-                        <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400" data-sort-col="assigned_users" data-sort-value="{{$db.AssignedUsers}}">{{if $db.AssignedUsers}}{{$db.AssignedUsers}}{{else}}<span class="text-gray-400 dark:text-gray-600">{{$.T.Get "No users"}}</span>{{end}}</td>
-                        <td class="border-b border-gray-200 px-4 py-2.5 whitespace-nowrap text-gray-600 dark:border-gray-800 dark:text-gray-400">
-                            <div class="flex items-center justify-end gap-1">
-                                {{if $db.IsSystem}}
-                                <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-900 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{$.T.Get "System database"}}</span>
-                                {{else}}
-                                    {{if $.UserAllowed.postgresql_import}}
-                                    <a href="/postgresql/import/{{$db.Database}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" title="{{$.T.Get "Import"}}" aria-label="{{$.T.Get "Import"}} {{$db.Database}}"><i class="ri-upload-line text-base" aria-hidden="true"></i></a>
-                                    {{end}}
-                                    <div x-data="{ ...exportModal({{toJSON $db.Database}}) }" @keydown.escape.window="open = false">
-                                        <button type="button" @click="open = true" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" title="{{$.T.Get "Export"}}" aria-label="{{$.T.Get "Export"}} {{$db.Database}}"><i class="ri-download-line text-base" aria-hidden="true"></i></button>
-
-                                        <div x-cloak x-show="open" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 export-section">
-                                            <div @click.outside="open = false" class="w-full max-w-sm rounded-md border border-gray-200 bg-white text-left whitespace-normal shadow-lg dark:border-gray-900 dark:bg-raised" role="dialog" aria-modal="true" aria-labelledby="export-title-{{$db.Database}}">
-                                                <form method="POST" action="/postgresql/export" @submit="handleSubmit">
-                                                    <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
-                                                    <input type="hidden" name="database_name" :value="database">
-                                                    <input type="hidden" name="local_path" :value="fullPath">
-
-                                                    <div class="px-4 py-3">
-                                                        <h2 id="export-title-{{$db.Database}}" class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Export"}} <span class="font-mono" x-text="database"></span></h2>
-                                                    </div>
-                                                    <div class="space-y-4 border-t border-gray-200 dark:border-gray-800 p-4">
-                                                        <fieldset>
-                                                            <legend class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{$.T.Get "Format:"}}</legend>
-                                                            <div class="grid grid-cols-2 rounded-md bg-gray-100 p-1 dark:bg-gray-900 mt-2">
-                                                                <label class="flex cursor-pointer items-center justify-center rounded px-3 py-1 text-sm font-medium transition" :class="format === 'sql' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'">
-                                                                    <input type="radio" name="export_format" value="sql" x-model="format" class="sr-only">SQL (.sql)
-                                                                </label>
-                                                                <label class="flex cursor-pointer items-center justify-center rounded px-3 py-1 text-sm font-medium transition" :class="format === 'gzip' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'">
-                                                                    <input type="radio" name="export_format" value="gzip" x-model="format" class="sr-only">GZIP (.sql.gz)
-                                                                </label>
-                                                            </div>
-                                                        </fieldset>
-
-                                                        <fieldset>
-                                                            <legend class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{$.T.Get "Destination:"}}</legend>
-                                                            <div class="grid grid-cols-2 rounded-md bg-gray-100 p-1 dark:bg-gray-900 mt-2">
-                                                                <label class="flex cursor-pointer items-center justify-center rounded px-3 py-1 text-sm font-medium transition" :class="mode === 'browser' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'">
-                                                                    <input type="radio" name="export_destination" value="browser" x-model="mode" class="sr-only">{{$.T.Get "Browser"}}
-                                                                </label>
-                                                                <label class="flex cursor-pointer items-center justify-center rounded px-3 py-1 text-sm font-medium transition" :class="mode === 'files' ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-950 dark:text-gray-50' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'">
-                                                                    <input type="radio" name="export_destination" value="files" x-model="mode" class="sr-only">{{$.T.Get "Files"}}
-                                                                </label>
-                                                            </div>
-                                                        </fieldset>
-
-                                                        <div x-show="mode === 'files'" x-transition class="flex">
-                                                            <span class="inline-flex shrink-0 items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-sm text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 font-mono text-xs">/var/www/html/</span>
-                                                            <input type="text" x-model="relativePath" placeholder="backups" aria-label="{{$.T.Get "Folder"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 rounded-l-none">
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex flex-col-reverse gap-2 border-t border-gray-200 dark:border-gray-800 px-4 py-3 sm:flex-row sm:justify-end">
-                                                        <button type="button" @click="open = false" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{$.T.Get "Cancel"}}</button>
-                                                        <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{$.T.Get "Export"}}</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <form method="POST" action="/postgresql/delete">
-                                        <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
-                                        <input type="hidden" name="database_name" value="{{$db.Database}}">
-                                        <button type="button" onclick="confirmDelete(this)" data-confirm-label="{{$.T.Get "Confirm"}}" class="btn-danger inline-flex h-8 min-w-8 shrink-0 gap-1 px-1.5 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-400/10 dark:hover:text-red-500 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" title="{{$.T.Get "Delete"}}" aria-label="{{$.T.Get "Delete"}} {{$db.Database}}"><i class="ri-delete-bin-line text-base" aria-hidden="true"></i></button>
-                                    </form>
-                                {{end}}
+                        <td class="op-cell-title"><div class="op-row-title"><span class="op-file-ico" style="--hue:{{if $db.IsSystem}}var(--color-faint){{else}}var(--color-hue-indigo){{end}}">{{template "op_icon" "db"}}</span><div><b><span class="op-mono select-text" style="font-size:13px">{{$db.Database}}</span></b></div></div></td>
+                        <td class="db_size is-num op-mono" data-label="{{$.T.Get "Size"}}">—</td>
+                        <td data-label="{{$.T.Get "Assigned Users"}}"><span style="display:flex;gap:4px;flex-wrap:wrap">
+                            {{if $db.IsSystem}}<span class="op-tag">{{$.T.Get "System Database"}}</span>{{end}}
+                            {{if $db.AssignedUsers}}{{range split $db.AssignedUsers ","}}<span class="op-tag op-mono">{{trimSpace .}}</span>{{end}}{{else if not $db.IsSystem}}<span class="op-faint">—</span>{{end}}
+                        </span></td>
+                        <td class="is-shrink op-cell-menu" style="position:relative">
+                        {{if not $db.IsSystem}}
+                        <div x-data="exportModal({{toJSON $db.Database}})" @db-export="open = true">
+                            <form method="POST" action="/postgresql/delete" hidden>
+                                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+                                <input type="hidden" name="database_name" value="{{$db.Database}}">
+                            </form>
+                            <div x-data="opMenu()" @click.outside="open = false" @keydown.escape="open = false">
+                                <button class="op-icon-btn" type="button" aria-label="{{$.T.Get "Actions for"}} {{$db.Database}}" :aria-expanded="open.toString()" x-ref="btn" @click="toggle()">{{template "op_icon" "dots"}}</button>
+                                <div class="op-menu" x-ref="menu" x-show="open" x-cloak>
+                                    <a href="/postgresql/assign?database_name={{$db.Database}}">{{template "op_icon" "user"}} {{$.T.Get "Assign user"}}</a>
+                                    {{if $.UserAllowed.postgresql_import}}<a href="/postgresql/import/{{$db.Database}}">{{template "op_icon" "upload"}} {{$.T.Get "Import"}}</a>{{end}}
+                                    <button type="button" @click="open = false; setTimeout(() => $dispatch('db-export'), 0)">{{template "op_icon" "download"}} {{$.T.Get "Export"}}</button>
+                                    <hr>
+                                    <button type="button" class="is-danger" @click="open = false; if (confirm({{toJSON ($.T.Get "Delete this database?")}} + ' ' + {{toJSON $db.Database}})) $root.parentElement.querySelector('form').submit()">{{template "op_icon" "trash"}} {{$.T.Get "Delete"}}</button>
+                                </div>
                             </div>
+                            <template x-teleport="body">
+                                <div x-show="open" x-cloak>
+                                    <div class="op-scrim" @click="open = false"></div>
+                                    <div class="op-sheet" role="dialog" aria-label="{{$.T.Get "Export"}}" @keydown.escape.window="open = false">
+                                        <h2>{{$.T.Get "Export"}} <span class="op-mono" x-text="database"></span></h2>
+                                        <form method="POST" action="/postgresql/export" @submit="handleSubmit" class="op-col" style="gap:14px;margin-top:16px">
+                                            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                                            <input type="hidden" name="database_name" :value="database">
+                                            <input type="hidden" name="local_path" :value="fullPath">
+                                            <div class="op-field"><span class="op-label">{{$.T.Get "Format:"}}</span>
+                                                <div class="op-segmented" role="group"><button type="button" :aria-pressed="(format === 'sql').toString()" @click="format = 'sql'">SQL (.sql)</button><button type="button" :aria-pressed="(format === 'gzip').toString()" @click="format = 'gzip'">GZIP (.sql.gz)</button></div>
+                                                <input type="hidden" name="export_format" :value="format">
+                                            </div>
+                                            <div class="op-field"><span class="op-label">{{$.T.Get "Destination:"}}</span>
+                                                <div class="op-segmented" role="group"><button type="button" :aria-pressed="(mode === 'browser').toString()" @click="mode = 'browser'">{{$.T.Get "Browser"}}</button><button type="button" :aria-pressed="(mode === 'files').toString()" @click="mode = 'files'">{{$.T.Get "Files"}}</button></div>
+                                                <input type="hidden" name="export_destination" :value="mode">
+                                            </div>
+                                            <label class="op-field" x-show="mode === 'files'" x-cloak><span class="op-label">{{$.T.Get "Folder"}}</span><span class="op-affix"><span class="op-affix-addon op-mono">/var/www/html/</span><input type="text" x-model="relativePath" placeholder="backups" class="op-input op-mono"></span></label>
+                                            <div class="op-actions" style="justify-content:flex-end"><button type="button" class="op-btn op-btn-secondary" @click="open = false">{{$.T.Get "Cancel"}}</button><button type="submit" class="op-btn op-btn-primary">{{template "op_icon" "download"}} {{$.T.Get "Export"}}</button></div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                        {{end}}
                         </td>
                     </tr>
-                    {{end}}
                     {{else}}
-                    <tr>
-                        <td colspan="5" class="border-b border-gray-200 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-500">
-                            <p>{{.T.Get "No databases yet."}}</p>
-                            <a href="/postgresql/new" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 mt-4 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Create your first database"}}</a>
-                        </td>
-                    </tr>
+                    <tr><td colspan="5"><div class="op-empty"><span class="op-ico-tile">{{template "op_icon" "db"}}</span><b>{{.T.Get "No databases yet."}}</b><a href="/postgresql/new" class="op-btn op-btn-primary">{{template "op_icon" "plus"}} {{.T.Get "Create your first database"}}</a></div></td></tr>
                     {{end}}
                 {{else}}
-                <tr>
-                    <td colspan="5" class="border-b border-gray-200 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-500">
-                        {{$.T.Get .StatusDetail}}
-                        <br><span id="refresh-message"></span>
-                    </td>
-                </tr>
+                    <tr><td colspan="5"><div class="op-empty"><span class="op-ico-tile">{{template "op_icon" "info"}}</span><b>{{$.T.Get .StatusDetail}}</b><span id="refresh-message" class="op-hint"></span></div></td></tr>
                 {{end}}
-            {{else}}
-                <tr>
-                    <td colspan="5" class="border-b border-gray-200 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-500">
-                        {{$.T.Get .StatusDetail}}
-                        <br>
-                        <span id="refresh-message"></span>
-                    </td>
-                </tr>
-            {{end}}
-            {{if ne .HealthStatus "healthy"}}
-            <script>
-                let countdown = 5;
-                const messageEl = document.getElementById('refresh-message');
-                const interval = setInterval(() => {
-                    if (countdown > 0) {
-                        messageEl.textContent = `{{.T.Get "The page will refresh in"}} ${countdown} {{.T.Get "seconds"}}`;
-                        countdown--;
-                    } else {
-                        clearInterval(interval);
-                        window.location.reload();
-                    }
-                }, 1000);
-            </script>
-            {{end}}
-            </tbody>
-        </table>
-    </div>
+                </tbody>
+            </table>
+        </div>
+        <div class="op-tfoot"><span>{{.T.Get "Total databases:"}} <span id="total_records_count">{{len .Databases}}</span></span></div>
 {{template "bulk_bar" .}}
 </div>
-</section>
+    </section>
+</div>
 
+{{if ne .HealthStatus "healthy"}}
 <script>
-function populateDatabasesTable() {
-    const showAllValue = sessionStorage.getItem('show_all');
-    const displaySizeSelect = document.getElementById('display-size');
-    const unit = sessionStorage.getItem('unit') || displaySizeSelect.value;
-    const url = `/json/postgresql-size?unit=${unit}${showAllValue ? '&show_all' : ''}`;
-
-    const sizeUnitSpan = document.getElementById('size_unit');
-    if (sizeUnitSpan) {
-        sizeUnitSpan.textContent = `(${unit.toUpperCase()})`;
-    }
-
-    fetch(url, { method: 'GET', headers: { 'X-CSRF-Token': csrf_token } })
-        .then(res => res.json())
-        .then(sizeResponse => {
-            document.querySelectorAll('#databases-table tbody tr').forEach(row => {
-                var databaseName = row.querySelector('td.db_size')?.previousElementSibling?.textContent.trim();
-                var databaseSizeInfo = sizeResponse.find(function (item) {
-                    return item.Database === databaseName;
-                });
-
-                var databaseSizeHere = 'N/A';
-                if (databaseSizeInfo) {
-                    for (var key in databaseSizeInfo) {
-                        if (key.toLowerCase().includes('size')) {
-                            databaseSizeHere = databaseSizeInfo[key];
-                            break;
-                        }
-                    }
-                }
-
-                var sizeCell = row.querySelector('.db_size');
-                if (sizeCell) sizeCell.textContent = databaseSizeHere;
-            });
-        })
-        .catch(function () {
-            console.error("Failed to fetch database size info");
-        });
-}
-
-populateDatabasesTable();
-</script>
-
-<script>
-function exportModal(dbName) {
-    return {
-        open: false,
-        mode: 'browser',
-        format: 'sql',
-        database: dbName,
-        basePath: '/var/www/html/',
-        relativePath: '',
-
-        get fullPath() {
-            return this.basePath + this.relativePath.replace(/^\/+/, '');
-        },
-
-        handleSubmit(event) {
-            if (this.mode === 'files') {
-                if (!this.fullPath.startsWith(this.basePath)) {
-                    event.preventDefault();
-                }
-            }
+    let countdown = 5;
+    const messageEl = document.getElementById('refresh-message');
+    const interval = setInterval(() => {
+        if (countdown > 0) {
+            messageEl.textContent = `{{.T.Get "The page will refresh in"}} ${countdown} {{.T.Get "seconds"}}`;
+            countdown--;
+        } else {
+            clearInterval(interval);
+            window.location.reload();
         }
-    }
-}
+    }, 1000);
 </script>
-
-<script src="{{static "js/table-sort.js"}}"></script>
-
-<script src="{{static "js/confirm-delete.js"}}"></script>
-<!-- END templates/psql/databases.html -->
 {{end}}
 
-{{define "sort_header"}}
-<button type="button" data-sort-key="{{.Key}}" data-sort-type="{{.Type}}" onclick="sortTableColumn(event, this);" class="group -mx-1.5 inline-flex cursor-pointer select-none items-center gap-1.5 whitespace-nowrap rounded px-1.5 py-1 text-xs font-semibold text-gray-900 transition hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2">{{.Label}}<i class="ri-arrow-up-down-line text-sm leading-none text-gray-400 group-hover:text-gray-600 dark:text-gray-600 dark:group-hover:text-gray-400" aria-hidden="true"></i></button>
+<script>
+    const showAllCheckbox = document.getElementById('showAllCheckbox');
+    const displaySizeSelect = document.getElementById('display-size');
+
+    function updateURL() {
+        const q = new URLSearchParams(window.location.search);
+        if (showAllCheckbox.checked) { q.set('show_all', 'true'); sessionStorage.setItem('show_all', 'true'); }
+        else { q.delete('show_all'); sessionStorage.removeItem('show_all'); }
+        const unit = displaySizeSelect.value;
+        if (unit) { q.set('unit', unit); sessionStorage.setItem('unit', unit); }
+        else { q.delete('unit'); sessionStorage.removeItem('unit'); }
+        window.location.search = q.toString();
+    }
+    displaySizeSelect.addEventListener('change', updateURL);
+    showAllCheckbox.addEventListener('change', updateURL);
+
+    // sizes come from a separate call, the KPI tile sums them
+    function populateDatabasesTable() {
+        const unit = displaySizeSelect.value || 'mb';
+        const url = `/json/postgresql-size?unit=${unit}${showAllCheckbox.checked ? '&show_all' : ''}`;
+        fetch(url, { method: 'GET', headers: { 'X-CSRF-Token': csrf_token } })
+            .then(res => res.json())
+            .then(rows => {
+                let total = 0, largest = null, largestSize = -1;
+                document.querySelectorAll('#databases-table tbody tr[data-db]').forEach(row => {
+                    const info = rows.find(item => item.Database === row.dataset.db);
+                    let size = null;
+                    if (info) for (const key in info) if (key.toLowerCase().includes('size')) { size = info[key]; break; }
+                    const cell = row.querySelector('.db_size');
+                    if (cell) cell.textContent = size === null ? '–' : size + ' ' + unit.toUpperCase().replace('BYTES', 'B');
+                    const n = parseFloat(size);
+                    if (!isNaN(n)) { total += n; if (n > largestSize) { largestSize = n; largest = row.dataset.db; } }
+                });
+                document.getElementById('kpi-total-size').innerHTML = (Math.round(total * 100) / 100) + ' <small>' + unit.toUpperCase().replace('BYTES', 'B') + '</small>';
+                if (largest) document.getElementById('kpi-largest').textContent = {{toJSON (.T.Get "Largest:")}} + ' ' + largest;
+            })
+            .catch(() => {
+                document.querySelectorAll('#databases-table tbody td.db_size').forEach(cell => { cell.textContent = '–'; });
+                document.getElementById('kpi-total-size').textContent = '—';
+            });
+    }
+    populateDatabasesTable();
+
+    function exportModal(dbName) {
+        return {
+            open: false,
+            mode: 'browser',
+            format: 'sql',
+            database: dbName,
+            basePath: '/var/www/html/',
+            relativePath: '',
+            get fullPath() { return this.basePath + this.relativePath.replace(/^\/+/, ''); },
+            handleSubmit(event) {
+                if (this.mode === 'files' && !this.fullPath.startsWith(this.basePath)) event.preventDefault();
+            }
+        };
+    }
+</script>
+
+<!-- END templates/psql/databases.html -->
 {{end}}

@@ -1,107 +1,75 @@
 {{define "alpine_plugins"}}{{end}}
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 
 {{define "content"}}
 <!-- START templates/emails/default_address.html -->
 
-{{if not .Domain}}
+<div class="op-content" x-data="{ confirmRm: false }">
 
-<!-- page header -->
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
+<div class="op-page-head">
     <div>
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Default email address"}}</h1>
-        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Catch any email that is sent to an invalid email address for your domain."}}</p>
+        <h1 class="op-title">{{.T.Get "Default Email Address"}}</h1>
+        <p class="op-meta punycode">{{if .Domain}}*@{{.Domain}}{{else}}{{.T.Get "Catch any email that is sent to an invalid email address for your domain."}}{{end}}</p>
+    </div>
+    <div class="op-actions">
+        <a href="/emails" class="op-btn op-btn-secondary">{{.T.Get "Back to Emails"}}</a>
     </div>
 </div>
-<!-- END page header -->
 
-{{if .Picks}}
-    {{template "domain_list" (dict "T" .T "Rows" .Picks "Base" "/emails/default/" "Action" "Edit" "Icon" "ri-pencil-line" "DetailLabel" "Delivers to" "LongDetail" true "EmptyText" "Not set" "Search" true)}}
-{{else}}
-    {{template "no_domain" .}}
-{{end}}
+<section class="op-card">
+    {{if .Domains}}<label class="op-field" style="max-width:520px"><span class="op-label">{{.T.Get "Domain"}}</span>
+        <select id="domains" class="op-select" name="domain_name" onchange="if (this.value) window.location.href = '/emails/default/' + this.value">
+            <option value="" disabled {{if not .Domain}}selected{{end}}>{{.T.Get "Select domain"}}</option>
+            {{range .Domains}}<option class="punycode" value="{{.DomainURL}}" {{if eq .DomainURL $.Domain}}selected{{end}}>{{.DomainURL}}</option>{{end}}
+        </select>
+    </label>{{end}}
 
-{{else}}
-
-<!-- page header -->
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
-    <div class="min-w-0">
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Default email address"}}</h1>
-        <p class="mt-1 truncate font-mono text-sm text-gray-500 punycode max-w-3xl">*@{{.Domain}}</p>
-    </div>
-    <div class="flex gap-2">
-        <a href="/emails/default" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
-            <i class="ri-arrow-left-line text-base text-gray-500" aria-hidden="true"></i>
-            {{.T.Get "All domains"}}
-        </a>
-    </div>
+{{if not .Domain}}
+    <div class="op-empty"><span class="op-ico-tile">{{template "op_icon" "mail"}}</span><b>{{.T.Get "Pick a domain"}}</b><span class="op-hint">{{.T.Get "Each domain has its own catch-all rule."}}</span></div>
+</section>
 </div>
-<!-- END page header -->
+{{else}}
 
-<input type="hidden" id="csrf_token" value="{{.CSRFToken}}"/>
-<div class="px-4 pb-8 sm:px-6 lg:px-8">
-    <div class="max-w-5xl divide-y divide-gray-200 dark:divide-gray-800">
-        <section aria-labelledby="catchall-current" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
-            <div>
-                <h2 id="catchall-current" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Current configuration"}}</h2>
-                <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Where mail to unknown addresses at this domain goes right now."}}</p>
-            </div>
-            <div class="md:col-span-2">
-                <dl class="divide-y divide-gray-200 rounded-md border border-gray-200 text-sm dark:divide-gray-800 dark:border-gray-800">
-                    <div class="flex items-center justify-between gap-4 px-4 py-3">
-                        <dt class="text-gray-500">{{.T.Get "Catch-all rule"}}</dt>
-                        <dd class="font-mono text-xs text-gray-900 dark:text-gray-50 punycode">*@{{.Domain}}</dd>
-                    </div>
-                    <div class="flex items-center justify-between gap-4 px-4 py-3">
-                        <dt class="text-gray-500">{{.T.Get "Delivers to"}}</dt>
-                        {{if .Current}}<dd class="break-all text-right text-gray-900 dark:text-gray-50" id="current-destination">{{.Current}}</dd>{{else}}<dd class="text-right text-gray-500">{{.T.Get "No catch-all configured — unmatched emails for this domain are rejected."}}</dd>{{end}}
-                    </div>
-                </dl>
-            </div>
-        </section>
-
-        <section aria-labelledby="catchall-set" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
-            <div>
-                <h2 id="catchall-set" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Set catch-all destination"}}</h2>
-                <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "All emails sent to any address at this domain will be forwarded here. Leave empty to reject unmatched emails."}}</p>
-            </div>
-            <div class="md:col-span-2">
-                <label for="destination" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Destination address"}}</label>
-                <div class="mt-2">
-                    <input
-                        type="email"
-                        id="destination"
-                        maxlength="254"
-                        value="{{.Current}}"
-                        aria-describedby="destination-help"
-                        placeholder="{{.T.Get "catchall@example.com"}}"
-                        pattern="^\S*$" title="{{.T.Get "No spaces allowed, use commas to separate addresses."}}"
-                        class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30"
-                    >
-                </div>
-                <p id="destination-help" class="mt-2 text-xs text-gray-500">{{.T.Get "Separate several addresses with commas."}}</p>
-                <div class="mt-6 flex justify-end">
-                    <button type="button" id="save-btn" class="relative inline-flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
-                        {{.T.Get "Save"}}
-                    </button>
-                </div>
-            </div>
-        </section>
+    <div class="op-section"{{if .Domains}} style="margin-top:18px"{{end}}><div><h3>{{.T.Get "Current configuration"}}</h3><p>{{.T.Get "What happens to mail for an address that doesn't exist at this domain."}}</p></div>
+        <div>
         {{if .Current}}
-        <section aria-labelledby="catchall-remove" class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
-            <div>
-                <h2 id="catchall-remove" class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Remove catch-all"}}</h2>
-                <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Deletes the catch-all rule. Emails to unknown addresses at this domain will be rejected."}}</p>
-            </div>
-            <div class="md:col-span-2 flex items-start">
-                <button
-                    type="button"
-                    id="delete-btn"
-                    class="relative inline-flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:opacity-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-transparent bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600"
-                ><i class="ri-delete-bin-line" aria-hidden="true"></i> {{.T.Get "Remove catch-all"}}</button>
-            </div>
-        </section>
+            <div class="op-table-wrap"><table class="op-table">
+                <thead><tr><th>{{.T.Get "Catch-all rule"}}</th><th>{{.T.Get "Delivers to"}}</th></tr></thead>
+                <tbody><tr><td class="op-cell-title"><b class="op-mono punycode">*@{{.Domain}}</b></td><td data-label="{{.T.Get "Delivers to"}}"><span class="op-mono" id="current-destination" style="overflow-wrap:anywhere">{{.Current}}</span></td></tr></tbody>
+            </table></div>
+        {{else}}
+            <div class="op-alert" role="status" style="--tone:var(--color-muted)">{{template "op_icon" "info"}}<span>{{.T.Get "No catch-all configured — unmatched emails for this domain are rejected."}}</span></div>
         {{end}}
+        </div>
     </div>
+
+    <input type="hidden" id="csrf_token" value="{{.CSRFToken}}"/>
+    <div class="op-section"><div><h3>{{.T.Get "Set catch-all destination"}}</h3><p>{{.T.Get "All emails sent to any address at this domain will be forwarded here. Leave empty to reject unmatched emails."}}</p></div>
+        <div class="op-col" style="gap:10px">
+            <label class="op-field" for="destination"><span class="op-label">{{.T.Get "Destination address"}}</span>
+                <input type="email" id="destination" maxlength="254" value="{{.Current}}" placeholder="{{.T.Get "catchall@example.com"}}" pattern="^\S*$" title="{{.T.Get "No spaces allowed, use commas to separate addresses."}}" class="op-input op-mono">
+                <span class="op-hint">{{.T.Get "No spaces allowed, use commas to separate addresses."}}</span>
+            </label>
+            <div class="op-actions"><button type="button" id="save-btn" class="op-btn op-btn-primary">{{.T.Get "Save"}}</button></div>
+        </div>
+    </div>
+
+    {{if .Current}}
+    <div class="op-section"><div><h3>{{.T.Get "Danger zone"}}</h3><p>{{.T.Get "Deletes the catch-all rule. Emails to unknown addresses at this domain will be rejected."}}</p></div>
+        <div><button type="button" class="op-btn op-btn-danger" @click="confirmRm = true">{{template "op_icon" "trash"}} {{.T.Get "Remove Catch-all"}}</button></div>
+    </div>
+    {{end}}
+</section>
+
+{{if .Current}}
+<div class="op-scrim" x-show="confirmRm" x-cloak @click="confirmRm = false"></div>
+<div class="op-sheet" role="dialog" aria-label="{{.T.Get "Remove Catch-all"}}" x-show="confirmRm" x-cloak @keydown.escape.window="confirmRm = false">
+    <h2>{{.T.Get "Remove catch-all"}}</h2>
+    <p class="op-meta">{{.T.Get "Deletes the catch-all rule. Emails to unknown addresses at this domain will be rejected."}}</p>
+    <div class="op-actions" style="margin-top:20px"><button class="op-btn op-btn-secondary" type="button" @click="confirmRm = false">{{.T.Get "Cancel"}}</button><button id="delete-btn" class="op-btn op-btn-danger" type="button" style="flex:1">{{.T.Get "Remove Catch-all"}}</button></div>
+</div>
+{{end}}
 </div>
 
 <script>
@@ -152,7 +120,6 @@
     if (deleteBtn) {
         deleteBtn.addEventListener('click', async function () {
             if (deleteBtn.disabled) return;
-            if (!confirm({{toJSON (.T.Get "Remove the catch-all for this domain? Emails to unknown addresses will be rejected.")}})) return;
 
             deleteBtn.disabled = true;
             const originalHTML = deleteBtn.innerHTML;

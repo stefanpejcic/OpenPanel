@@ -1,242 +1,111 @@
+{{define "main_class"}}op-scope{{end}}
+{{define "page_tabs"}}{{template "op_page_tabs" .}}{{end}}
 {{define "alpine_plugins"}}{{end}}
 {{define "flowbite_js"}}{{end}}
 
 {{define "content"}}
 <!-- START templates/system/services.html -->
 
-<!-- page header -->
-<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-4 dark:border-gray-800">
-    <div>
-        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">
-            {{if .Services}}{{.T.Get "Services"}}{{else}}{{.T.Get "Manage service"}}{{end}}
-        </h1>
-        <p class="mt-1 text-sm text-gray-500 max-w-3xl">
-            {{if .Services}}{{.T.Get "The services on your account. Open one to start, stop or restart it and see its usage."}}{{else}}{{.T.Get "Manage service and view real-time resource usage."}}{{end}}
-        </p>
-    </div>
-
-    {{if .Services}}
-    <dl aria-label="{{.T.Get "Summary"}}" class="flex shrink-0 flex-wrap items-start gap-x-10 gap-y-3">
-        <div>
-            <dt class="text-sm text-gray-500">{{.T.Get "Running"}}</dt>
-            <dd class="mt-1 flex items-center gap-2">
-                <span class="size-2 rounded-full {{if .Stopped}}bg-yellow-500{{else}}bg-emerald-500{{end}}" aria-hidden="true"></span>
-                <span class="text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.Running}}<span class="font-medium text-gray-400 dark:text-gray-600"> / {{len .Services}}</span></span>
-            </dd>
-        </div>
-        <div>
-            <dt class="text-sm text-gray-500">{{.T.Get "Stopped"}}</dt>
-            <dd class="mt-1 text-lg font-semibold text-gray-900 tabular-nums dark:text-gray-50">{{.Stopped}}</dd>
-        </div>
-        <div class="min-w-0">
-            <dt class="text-sm text-gray-500">{{.T.Get "Stack"}}</dt>
-            <dd class="mt-1 truncate text-lg font-semibold text-gray-900 dark:text-gray-50">{{if .Stack}}{{.Stack}}{{else}}<span class="text-gray-400 dark:text-gray-600">—</span>{{end}}</dd>
-        </div>
-    </dl>
-    {{end}}
-    {{if not .Services}}
-    <form method="post"{{if eq .ActionValue "disable"}} data-confirm="{{.T.Get "Disable service"}} {{.Service}}?"{{end}}>
-        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
-        <input type="hidden" name="action" value="{{.ActionValue}}">
-        <button type="submit" class="{{if eq .ActionValue "disable"}}relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600{{else}}relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:disabled:text-blue-400{{end}} w-full sm:w-auto border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
-            {{.ActionLabel}}
-        </button>
-    </form>
-    {{end}}
-</div>
-
-<!-- body -->
 {{if .Services}}
-<!-- service list, status and uptime come from the server -->
-<div x-data="serviceList()">
-
-    <div class="px-4 pb-4 sm:px-6 lg:px-8">
-        <div class="relative w-full sm:w-64">
-            <label for="service-search" class="sr-only">{{.T.Get "Search"}}</label>
-            <input id="service-search" x-model="q" type="search" placeholder="{{.T.Get "Search"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white py-1.5 pr-2.5 pl-8 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30">
-            <i class="ri-search-line pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-base leading-none text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
-        </div>
-    </div>
-
-{{template "bulk_open" (dict "T" .T "Table" "#services-table" "Endpoint" "/services/bulk")}}
-    <div class="overflow-x-auto">
-    <table id="services-table" class="w-full border-t border-gray-200 text-sm dark:border-gray-800 [&_th:first-child]:pl-4 sm:[&_th:first-child]:pl-6 lg:[&_th:first-child]:pl-8 [&_td:first-child]:pl-4 sm:[&_td:first-child]:pl-6 lg:[&_td:first-child]:pl-8 [&_th:last-child]:pr-4 sm:[&_th:last-child]:pr-6 lg:[&_th:last-child]:pr-8 [&_td:last-child]:pr-4 sm:[&_td:last-child]:pr-6 lg:[&_td:last-child]:pr-8">
-        <thead>
-            <tr>
-{{template "bulk_head_checkbox" .}}
-                <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{.T.Get "Service"}}</th>
-                <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{.T.Get "Status"}}</th>
-                <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800">{{.T.Get "Uptime"}}</th>
-                <th scope="col" class="border-b border-gray-200 px-4 py-2.5 text-right text-xs font-medium whitespace-nowrap text-gray-500 dark:border-gray-800"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
-            </tr>
-        </thead>
-        <tbody>
-            {{range .Services}}
-            {{$name := .}}{{$kind := ""}}{{$label := ""}}{{$tone := ""}}{{$up := ""}}{{$run := false}}
-            {{range $.Rows}}{{if eq .Name $name}}{{$kind = .Kind}}{{$label = .StatusLabel}}{{$tone = .StatusTone}}{{$up = .Uptime}}{{$run = .Running}}{{end}}{{end}}
-            <tr data-service="{{$name}}" data-kind="{{if $kind}}{{$.T.Get $kind}}{{end}}" x-show="show($el)" class="hover:bg-gray-50 dark:hover:bg-gray-900/60 [&>td]:border-b [&>td]:border-gray-200 dark:[&>td]:border-gray-800">
-{{template "bulk_row_checkbox" (dict "T" $.T "Key" $name "Label" $name "Skip" (or (and $run "start") "restart,stop"))}}
-                <td class="px-4 py-2.5 whitespace-nowrap">
-                    <a href="/services/{{$name}}" class="font-mono font-medium text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50">{{$name}}</a>
-                    {{if $kind}}<p class="text-xs text-gray-500">{{$.T.Get $kind}}</p>{{end}}
-                </td>
-                <td class="px-4 py-2.5 whitespace-nowrap">
-                    <span class="inline-flex items-center gap-1.5 text-gray-600 dark:text-gray-400">
-                        <span class="size-1.5 rounded-full {{if eq $tone "is-success"}}bg-emerald-500{{else if eq $tone "is-warning"}}bg-yellow-500{{else if eq $tone "is-danger"}}bg-red-500{{else}}bg-gray-400 dark:bg-gray-600{{end}}" aria-hidden="true"></span>
-                        {{if $label}}{{$label}}{{else}}—{{end}}
-                    </span>
-                </td>
-                <td class="px-4 py-2.5 whitespace-nowrap text-gray-600 tabular-nums dark:text-gray-400">{{if $up}}{{$up}}{{else}}<span class="text-gray-400 dark:text-gray-600">—</span>{{end}}</td>
-                <td class="px-4 py-2.5 text-right whitespace-nowrap">
-                    <div class="relative inline-block text-left" x-data="rowMenu" @click.outside="close()" @keydown.escape="close()">
-                        <button type="button" x-ref="btn" class="inline-flex size-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer" aria-label="{{$.T.Get "Actions for"}} {{$name}}" :aria-expanded="open.toString()" @click="toggle()"><i class="ri-more-2-line text-base leading-none" aria-hidden="true"></i></button>
-                        <div x-show="open" x-cloak x-ref="menu" :style="pos" class="absolute right-0 z-50 mt-1 w-44 rounded-md border border-gray-200 bg-white p-1 shadow-xl dark:border-gray-800 dark:bg-gray-950">
-                            <a href="/services/{{$name}}" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-settings-3-line" aria-hidden="true"></i>{{$.T.Get "Manage"}}</a>
-                            {{if $run}}
-                            <form method="post" action="/services/">
-                                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
-                                <input type="hidden" name="service" value="{{$name}}">
-                                <button type="submit" name="action" value="restart" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-restart-line" aria-hidden="true"></i>{{$.T.Get "Restart"}}</button>
-                            </form>
-                            <form method="post" action="/services/" data-confirm="{{$.T.Get "Disable service"}} {{$name}}?">
-                                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
-                                <input type="hidden" name="service" value="{{$name}}">
-                                <button type="submit" name="action" value="disable" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-red-600 hover:bg-gray-100 dark:text-red-500 dark:hover:bg-gray-900"><i class="ri-stop-circle-line" aria-hidden="true"></i>{{$.T.Get "Stop"}}</button>
-                            </form>
-                            {{else}}
-                            <form method="post" action="/services/">
-                                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
-                                <input type="hidden" name="service" value="{{$name}}">
-                                <button type="submit" name="action" value="enable" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-play-circle-line" aria-hidden="true"></i>{{$.T.Get "Start"}}</button>
-                            </form>
-                            {{end}}
-                            <a href="/services/{{$name}}#logs" class="flex w-full items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-900 hover:bg-gray-100 dark:text-gray-50 dark:hover:bg-gray-900"><i class="ri-file-list-3-line" aria-hidden="true"></i>{{$.T.Get "View logs"}}</a>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-            {{end}}
-        </tbody>
-    </table>
-    </div>
-    <p x-show="!anyShown()" x-cloak class="px-4 py-10 text-center text-sm text-gray-500">{{.T.Get "Nothing matches"}}</p>
-    <p class="px-4 pt-3 pb-6 text-xs text-gray-500 sm:px-6 lg:px-8"><span class="tabular-nums">{{len .Services}}</span> {{if eq (len .Services) 1}}{{.T.Get "service"}}{{else}}{{.T.Get "services"}}{{end}}</p>
-{{template "bulk_bar" .}}
-</div>
-</div>
-<script>
-function serviceList() {
-    return {
-        q: '',
-        show(row) {
-            const q = this.q.trim().toLowerCase();
-            return !q || row.dataset.service.toLowerCase().includes(q) || row.dataset.kind.toLowerCase().includes(q);
-        },
-        anyShown() {
-            return [...document.querySelectorAll('#services-table tbody tr')].some((r) => this.show(r));
-        },
-    };
-}
-</script>
-
+{{template "services_list" .}}
 {{else}}
-<div class="space-y-8 px-4 pb-8 sm:px-6 lg:px-8">
-    <!-- status -->
-    <div class="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-3">
+<div class="op-content">
+    <div class="op-page-head">
         <div>
-            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Status"}}</h2>
-            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Current service status."}}</p>
+            <div class="op-eyebrow">{{if .Kind}}{{.T.Get .Kind}} · {{end}}{{.T.Get "container"}} {{.Service}}</div>
+            <h1 class="op-title">{{.Service}}</h1>
+            <p class="op-meta">{{.T.Get "Manage service and view real-time resource usage."}}</p>
         </div>
-        <div class="flex items-center gap-2 md:col-span-2"
-            data-status-poll
-            data-status-key="{{.StatusKey}}"
-            data-status-map='{{.StatusMapJSON}}'
-            data-fetch-url="{{.RequestPath}}"
-            role="status"
-        >
-            <div class="flex gap-0.5" aria-hidden="true">
-                <div class="service-status-bar h-3.5 w-1 rounded-sm bg-{{.StatusColor}}"></div>
-                <div class="service-status-bar h-3.5 w-1 rounded-sm bg-{{.StatusColor}}"></div>
-                <div class="service-status-bar h-3.5 w-1 rounded-sm bg-{{.StatusColor}}"></div>
-            </div>
-            <p class="service-status-label text-lg font-semibold text-gray-900 dark:text-gray-50">{{.StatusLabel}}</p>
+        <div class="op-actions">
+            {{if and .IsRunning (index .UserAllowed "docker")}}
+            <a href="/containers?s={{.Service}}" class="op-btn op-btn-secondary">{{template "op_icon" "pencil"}} {{.T.Get "Edit limits"}}</a>
+            {{end}}
+            {{if ne .StatusKey "not_found"}}
+            <form method="post">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input type="hidden" name="action" value="restart">
+                <button type="submit" class="op-btn op-btn-secondary">{{template "op_icon" "refresh"}} {{.T.Get "Restart"}}</button>
+            </form>
+            {{end}}
         </div>
     </div>
 
-    <div class="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
-
-    <!-- service name -->
-    <div class="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-3">
-        <div>
-            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Service"}}</h2>
-            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Name for accessing the service from other containers."}}</p>
-        </div>
-        <div class="md:col-span-2">
-            <div class="rounded-md border border-gray-200 p-4 sm:max-w-sm dark:border-gray-800">
-                <p class="text-sm text-gray-500">{{.T.Get "Name:"}}</p>
-                <p class="mt-1 font-mono text-lg font-semibold text-gray-900 dark:text-gray-50">{{.Service}}</p>
-                {{if or .Kind .Uptime}}<p class="mt-2 text-sm text-gray-500">{{if .Kind}}{{.T.Get .Kind}}{{end}}{{if and .Kind .Uptime}} · {{end}}{{if .Uptime}}{{.T.Get "Up"}} <span class="tabular-nums">{{.Uptime}}</span>{{end}}</p>{{end}}
+    <div class="op-cols-2">
+        <section class="op-card" aria-labelledby="status">
+            <div class="op-glow" style="right:-260px;top:-300px"></div>
+            <div class="op-card-head">
+                <h2 id="status">{{.T.Get "Status"}}</h2>
+                <span data-status-poll data-status-key="{{.StatusKey}}" data-status-map='{{.StatusMapJSON}}' data-fetch-url="{{.RequestPath}}">
+                    <span class="service-status-label op-status {{.StatusTone}}">{{.StatusLabel}}</span>
+                </span>
             </div>
-        </div>
+            <p class="op-meta" style="margin:0 0 14px">
+                {{if eq .StatusKey "not_found"}}{{.T.Get "The service is turned off. Turn it on to start its container."}}
+                {{else if or (eq .StatusKey "running") (eq .StatusKey "healthy")}}{{if .Uptime}}{{.T.Get "Up"}} {{.Uptime}}. {{end}}{{.T.Get "The container is running in your account."}}
+                {{else if eq .StatusKey "unhealthy"}}{{.T.Get "The container runs, but its health check fails. Check the log."}}
+                {{else if or (eq .StatusKey "exited") (eq .StatusKey "dead")}}{{.T.Get "The container stopped. Restart it or check the log."}}
+                {{else}}{{.T.Get "The status refreshes on its own while the container changes state."}}{{end}}
+            </p>
+            <form method="post" class="op-pill-toggle">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+                <input type="hidden" name="action" value="{{.ActionValue}}">
+                <button type="submit" class="op-switch" role="switch" aria-checked="{{if eq .ActionValue "enable"}}false{{else}}true{{end}}" aria-label="{{.ActionLabel}}"></button>
+                <span>{{if eq .ActionValue "enable"}}{{.T.Get "Disabled, click to enable"}}{{else}}{{.T.Get "Enabled, click to disable"}}{{end}}</span>
+            </form>
+        </section>
+
+        <section class="op-card" aria-labelledby="service-name">
+            <div class="op-card-head"><h2 id="service-name">{{.T.Get "Service"}}</h2>{{if .Kind}}<span class="op-badge">{{.T.Get .Kind}}</span>{{end}}</div>
+            <p class="op-meta" style="margin:-4px 0 12px">{{.T.Get "Name for accessing the service from other containers."}}</p>
+            <dl class="op-dl" style="grid-template-columns:auto minmax(0,1fr);gap:10px 16px">
+                <dt>{{.T.Get "Name"}}</dt><dd class="op-mono" style="margin:0;text-align:right">{{.Service}}</dd>
+                {{if .Uptime}}<dt>{{.T.Get "Uptime"}}</dt><dd style="margin:0;text-align:right">{{.Uptime}}</dd>{{end}}
+            </dl>
+            <div style="margin-top:12px" x-data="{ copied: false }">
+                <button class="op-cmd" type="button" title="{{$.T.Get "Copy"}}" @click="navigator.clipboard && navigator.clipboard.writeText($el.querySelector('code').textContent).then(() => { copied = true; setTimeout(() => copied = false, 1500) })">
+                    <span x-show="!copied">{{template "op_icon" "copy"}}</span><span x-show="copied" x-cloak>{{template "op_icon" "check"}}</span><code>docker logs {{.Service}}</code>
+                </button>
+            </div>
+        </section>
     </div>
 
     {{if .IsRunning}}
-    <div class="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
-
-    <!-- container stats -->
-    <div class="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-3">
-        <div>
-            <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Container"}}</h2>
-            <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "Current real-time resource usage for the service."}}</p>
-            {{if index .UserAllowed "docker"}}
-            <a href="/containers?s={{.Service}}" class="mt-3 relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Edit limits"}}</a>
-            {{end}}
-        </div>
-        <div
-            x-data="containerStats()"
-            x-init="fetchStats()"
-            class="md:col-span-2"
-        >
-            <dl class="grid grid-cols-1 gap-px overflow-hidden rounded-md border border-gray-200 bg-gray-200 sm:max-w-3xl sm:grid-cols-2 dark:border-gray-800 dark:bg-gray-800">
-            <template x-for="[label, value] in Object.entries(stats)" :key="label">
-                <div class="flex items-center justify-between gap-4 bg-white px-4 py-3 dark:bg-gray-950">
-                    <dt class="text-sm text-gray-500" x-text="statLabels[label] || label"></dt>
-                    <dd class="min-w-0 text-sm font-medium text-gray-900 tabular-nums dark:text-gray-50" :class="{ 'truncate font-mono text-xs': label === 'ID' }" x-text="value"></dd>
-                </div>
-            </template>
-            </dl>
-        </div>
-    </div>
+    <section class="op-kpis" aria-label="{{.T.Get "Container"}}" x-data="containerStats()" x-init="fetchStats()">
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "cpu"}} {{.T.Get "CPU Usage"}}</div><div class="op-kpi-value" x-text="val('CPUPerc')">--</div><div class="op-kpi-note">{{.T.Get "Container CPU"}}</div><div class="op-progress"><span :style="{ width: pct('CPUPerc') + '%' }" style="width:0"></span></div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "memory"}} {{.T.Get "Memory Usage"}}</div><div class="op-kpi-value" x-text="part('MemUsage', 0)">--</div><div class="op-kpi-note" x-text="val('MemPerc') + ' · ' + i18n.limit + ' ' + part('MemUsage', 1)">&nbsp;</div><div class="op-progress"><span :style="{ width: pct('MemPerc') + '%' }" style="width:0"></span></div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "globe"}} {{.T.Get "Network I/O"}}</div><div class="op-kpi-value" x-text="part('NetIO', 0)">--</div><div class="op-kpi-note" x-text="i18n.received + ', ' + part('NetIO', 1) + ' ' + i18n.sent">&nbsp;</div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "apps"}} {{.T.Get "PIDs"}}</div><div class="op-kpi-value" x-text="val('PIDs')">--</div><div class="op-kpi-note" x-text="i18n.block + ' ' + val('BlockIO')">&nbsp;</div></div>
+    </section>
 
     <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('containerStats', () => ({
-            serviceName: '{{.Service}}',
-            stats: { ID:'--', Name:'--', 'CPU Usage':'--', 'Memory Usage':'--', 'Memory %':'--', 'Network I/O':'--', 'Block I/O':'--', PIDs:'--' },
-            statLabels: { ID: '{{.T.Get "ID"}}', Name: '{{.T.Get "Name"}}', 'CPU Usage': '{{.T.Get "CPU usage"}}', 'Memory Usage': '{{.T.Get "Memory usage"}}', 'Memory %': '{{.T.Get "Memory %"}}', 'Network I/O': '{{.T.Get "Network I/O"}}', 'Block I/O': '{{.T.Get "Block I/O"}}', PIDs: '{{.T.Get "PIDs"}}' },
+            serviceName: {{toJSON .Service}},
+            s: null,
+            failed: false,
+            i18n: { limit: {{toJSON (.T.Get "Limit")}}, block: {{toJSON (.T.Get "Block I/O")}}, received: {{toJSON (.T.Get "received")}}, sent: {{toJSON (.T.Get "sent")}} },
 
             async fetchStats() {
                 try {
-                    const s = await window.fetchServiceData(this.serviceName);
-
-                    if (s) {
-                        this.stats = {
-                            ID: s.ID,
-                            Name: s.Name,
-                            'CPU Usage': s.CPUPerc,
-                            'Memory Usage': s.MemUsage,
-                            'Memory %': s.MemPerc,
-                            'Network I/O': s.NetIO,
-                            'Block I/O': s.BlockIO,
-                            PIDs: s.PIDs
-                        };
-                    } else {
-                        Object.keys(this.stats).forEach(k => this.stats[k] = 'N/A');
-                    }
+                    this.s = await window.fetchServiceData(this.serviceName);
+                    if (!this.s) this.failed = true;
                 } catch {
-                    Object.keys(this.stats).forEach(k => this.stats[k] = 'Error');
+                    this.failed = true;
                 }
-            }
+            },
+            val(key) {
+                if (this.s && this.s[key] !== undefined && this.s[key] !== '') return String(this.s[key]);
+                return this.failed ? 'N/A' : '--';
+            },
+            // "38MiB / 256MiB" -> one side
+            part(key, i) {
+                const bits = this.val(key).split(/\s+\/\s+/);
+                return bits.length > 1 ? bits[i].trim() : this.val(key);
+            },
+            pct(key) {
+                const n = parseFloat(this.val(key));
+                return isNaN(n) ? 0 : Math.max(0, Math.min(100, n));
+            },
         }));
     });
     </script>
@@ -246,110 +115,232 @@ function serviceList() {
 </div>
 {{end}}
 
+
 <!-- END templates/system/services.html -->
+{{end}}
+
+{{define "services_list"}}
+<div class="op-content" x-data="servicesList()">
+    <div class="op-page-head">
+        <div>
+            <div class="op-eyebrow">{{.Running}} {{.T.Get "of"}} {{len .Rows}} {{.T.Get "running"}}</div>
+            <h1 class="op-title">{{.T.Get "Services"}}</h1>
+            <p class="op-meta">{{.T.Get "Start, stop and restart the services your sites depend on."}}</p>
+        </div>
+        {{if index .UserAllowed "process_manager"}}<div class="op-actions"><a href="/process-manager" class="op-btn op-btn-secondary">{{template "op_icon" "menu"}} {{.T.Get "Processes"}}</a></div>{{end}}
+    </div>
+
+    <section class="op-kpis" aria-label="{{.T.Get "Summary"}}">
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "check"}} {{.T.Get "Running"}}</div><div class="op-kpi-value">{{.Running}} <small>/ {{len .Rows}}</small></div><div class="op-kpi-note">{{if .Stopped}}{{.Stopped}} {{.T.Get "stopped"}}{{else}}{{.T.Get "All services are up"}}{{end}}</div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "chart"}} {{.T.Get "CPU"}}</div><div class="op-kpi-value" x-text="totals.cpu">…</div><div class="op-kpi-note">{{.T.Get "Across running services"}}</div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "layout"}} {{.T.Get "Memory"}}</div><div class="op-kpi-value" x-text="totals.mem">…</div><div class="op-kpi-note"><span x-show="totals.top" x-cloak>{{.T.Get "Most:"}} <span x-text="totals.top"></span></span>&nbsp;</div></div>
+        <div class="op-kpi"><div class="op-kpi-label">{{template "op_icon" "globe"}} {{.T.Get "Stack"}}</div><div class="op-kpi-value" style="font-size:20px">{{if .Stack}}{{.Stack}}{{else}}—{{end}}</div><div class="op-kpi-note">{{.T.Get "Web server and database"}}</div></div>
+    </section>
+
+    <section class="op-card" aria-label="{{.T.Get "Services"}}">
+        <div class="op-toolbar">
+            <label class="op-search">{{template "op_icon" "search"}}<input class="op-input" type="search" x-model="q" placeholder="{{.T.Get "Search services"}}" aria-label="{{.T.Get "Search services"}}"></label>
+            <div class="op-filter-row" role="group" aria-label="{{.T.Get "Filter by status"}}">
+                <button type="button" class="op-filter" :class="filter === 'all' && 'is-set'" :aria-pressed="(filter === 'all').toString()" @click="filter = 'all'">{{.T.Get "All"}} <span class="op-count">{{len .Rows}}</span></button>
+                <button type="button" class="op-filter" :class="filter === 'running' && 'is-set'" :aria-pressed="(filter === 'running').toString()" @click="filter = 'running'">{{.T.Get "Running"}} <span class="op-count">{{.Running}}</span></button>
+                <button type="button" class="op-filter" :class="filter === 'stopped' && 'is-set'" :aria-pressed="(filter === 'stopped').toString()" @click="filter = 'stopped'">{{.T.Get "Stopped"}} <span class="op-count">{{.Stopped}}</span></button>
+            </div>
+        </div>
+        {{template "bulk_open" (dict "T" .T "Table" "#services-table" "Endpoint" "/services/bulk")}}
+        <div class="op-table-wrap"><table class="op-table" id="services-table">
+            <thead><tr>
+                {{template "bulk_head_checkbox" .}}
+                <th>{{.T.Get "Service"}}</th>
+                <th>{{.T.Get "Status"}}</th>
+                <th>{{.T.Get "Uptime"}}</th>
+                <th class="is-num">{{.T.Get "CPU"}}</th>
+                <th class="is-num">{{.T.Get "Memory"}}</th>
+                <th class="is-num">{{.T.Get "PIDs"}}</th>
+                <th class="is-shrink"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
+            </tr></thead>
+            <tbody>
+            {{range .Rows}}
+            <tr data-href="/services/{{.Name}}" data-service="{{.Name}}" data-kind="{{$.T.Get .Kind}}" data-running="{{.Running}}" x-show="show($el)">
+                {{template "bulk_row_checkbox" (dict "Key" .Name "Label" .Name "Skip" (or (and .Running "start") "restart,stop") "T" $.T)}}
+                <td><div class="op-row-title"><span class="op-ico-tile is-sm" style="--hue:var(--color-hue-{{.Hue}})">{{template "op_icon" .Icon}}</span><div><b class="op-mono"><a class="op-site-link" href="/services/{{.Name}}">{{.Name}}</a></b><span class="op-sub">{{$.T.Get .Kind}}</span></div></div></td>
+                <td data-label="{{$.T.Get "Status"}}"><span class="op-status {{.StatusTone}}">{{.StatusLabel}}</span></td>
+                <td data-label="{{$.T.Get "Uptime"}}"><span class="op-svc-uptime">{{if .Uptime}}{{.Uptime}}{{else}}—{{end}}</span></td>
+                <td data-label="{{$.T.Get "CPU"}}" class="is-num"><span class="op-mono" data-stat="cpu">{{if .Running}}…{{else}}—{{end}}</span></td>
+                <td data-label="{{$.T.Get "Memory"}}" class="is-num"><div class="op-svc-mem"><span class="op-mono" data-stat="mem">{{if .Running}}…{{else}}—{{end}}</span>{{if .Running}}<div class="op-progress" hidden><span data-stat="memperc"></span></div>{{end}}</div></td>
+                <td data-label="{{$.T.Get "PIDs"}}" class="is-num"><span class="op-mono" data-stat="pids">{{if .Running}}…{{else}}—{{end}}</span></td>
+                <td class="is-shrink op-cell-menu" x-data="opMenu()" @click.outside="open = false" @keydown.escape="open = false">
+                    <button x-ref="btn" class="op-icon-btn" type="button" :aria-expanded="open.toString()" @click="toggle()" aria-label="{{$.T.Get "Actions for"}} {{.Name}}">{{template "op_icon" "dots"}}</button>
+                    <div x-ref="menu" class="op-menu" x-show="open" x-cloak>
+                        <a href="/services/{{.Name}}">{{template "op_icon" "info"}} {{$.T.Get "Manage"}}</a>
+                        <form method="post" action="/services/">
+                            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}"/>
+                            <input type="hidden" name="service" value="{{.Name}}">
+                            {{if .Running}}
+                            <button type="submit" name="action" value="restart">{{template "op_icon" "refresh"}} {{$.T.Get "Restart"}}</button>
+                            <button type="submit" name="action" value="disable" class="is-danger">{{template "op_icon" "ban"}} {{$.T.Get "Stop"}}</button>
+                            {{else}}
+                            <button type="submit" name="action" value="enable">{{template "op_icon" "check"}} {{$.T.Get "Start"}}</button>
+                            {{end}}
+                        </form>
+                        <a href="/services/{{.Name}}#logs">{{template "op_icon" "logs"}} {{$.T.Get "View logs"}}</a>
+                    </div>
+                </td>
+            </tr>
+            {{end}}
+            </tbody>
+        </table></div>
+        <div class="op-empty" x-show="!anyShown()" x-cloak><b>{{.T.Get "Nothing matches"}}</b><span class="op-hint">{{.T.Get "Try another search."}}</span></div>
+        <div class="op-tfoot"><span>{{len .Rows}} {{.T.Get "services"}}</span></div>
+        {{template "bulk_bar" .}}
+        </div>
+    </section>
+</div>
+
+<script>
+function servicesList() {
+    return {
+        q: '',
+        filter: 'all',
+        totals: { cpu: '…', mem: '…', top: '' },
+        show(row) {
+            const running = row.dataset.running === 'true';
+            if (this.filter === 'running' && !running) return false;
+            if (this.filter === 'stopped' && running) return false;
+            const q = this.q.trim().toLowerCase();
+            return !q || row.dataset.service.toLowerCase().includes(q) || row.dataset.kind.toLowerCase().includes(q);
+        },
+        anyShown() {
+            return [...document.querySelectorAll('#services-table tbody tr')].some((r) => this.show(r));
+        },
+        // "42.1MB / 2GB" -> bytes of the used part
+        bytes(s) {
+            const m = String(s || '').match(/([\d.]+)\s*([kmgt]?i?b)/i);
+            if (!m) return 0;
+            const p = { b: 0, kb: 1, kib: 1, mb: 2, mib: 2, gb: 3, gib: 3, tb: 4, tib: 4 }[m[2].toLowerCase()] || 0;
+            return parseFloat(m[1]) * Math.pow(1024, p);
+        },
+        human(b) {
+            const u = ['B', 'KB', 'MB', 'GB', 'TB'];
+            let i = 0;
+            while (b >= 1024 && i < u.length - 1) { b /= 1024; i++; }
+            return (i ? b.toFixed(b < 10 ? 1 : 0) : Math.round(b)) + ' ' + u[i];
+        },
+        async init() {
+            const rows = document.querySelectorAll('#services-table tbody tr');
+            try {
+                const r = await fetch('/json/services');
+                const data = await r.json();
+                const stats = data.container_stats || [];
+                let cpu = 0, mem = 0, top = null;
+                rows.forEach((row) => {
+                    const s = stats.find((c) => c.Name === row.dataset.service);
+                    if (!s) {
+                        row.querySelectorAll('[data-stat]').forEach((c) => { c.textContent = '—'; });
+                        return;
+                    }
+                    const used = this.bytes(String(s.MemUsage).split('/')[0]);
+                    row.querySelector('[data-stat="cpu"]').textContent = s.CPUPerc || '—';
+                    row.querySelector('[data-stat="mem"]').textContent = used ? this.human(used) : '—';
+                    row.querySelector('[data-stat="pids"]').textContent = s.PIDs || '—';
+                    const bar = row.querySelector('[data-stat="memperc"]');
+                    const pct = parseFloat(s.MemPerc);
+                    if (bar && pct >= 0) { bar.style.width = Math.min(100, pct) + '%'; bar.parentElement.hidden = false; }
+                    cpu += parseFloat(s.CPUPerc) || 0;
+                    mem += used;
+                    if (!top || used > top.used) top = { used: used, name: s.Name };
+                });
+                this.totals = { cpu: cpu.toFixed(1) + '%', mem: this.human(mem), top: top ? top.name : '' };
+            } catch (e) {
+                rows.forEach((row) => row.querySelectorAll('[data-stat]').forEach((c) => { c.textContent = '—'; }));
+                this.totals = { cpu: '—', mem: '—', top: '' };
+            }
+        },
+    };
+}
+</script>
 {{end}}
 
 {{define "servicelog"}}
 {{if .Service}}
-<!-- START templates/partials/_service_log.html -->
-
-<div class="h-px w-full bg-gray-200 dark:bg-gray-800"></div>
-<section aria-labelledby="logs" x-data="logViewer()" x-init="checkLogHealth()">
-  <div class="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-3">
-
-    <div>
-      <h2 id="logs" class="scroll-mt-10 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Logs"}}</h2>
-      <p class="mt-1 text-sm/6 text-gray-500">{{.T.Get "View logs for the service."}}</p>
+<section class="op-card" aria-labelledby="logs" x-data="logViewer()" x-init="checkLogHealth()">
+    <div class="op-card-head">
+        <h2 id="logs" class="scroll-mt-10">{{.T.Get "Logs"}}</h2>
+        <button type="button" @click="fetchLogs" x-text="buttonText" :disabled="loading" id="service-log" class="op-btn op-btn-ghost op-btn-sm"></button>
+    </div>
+    <p class="op-meta" style="margin:0" x-show="!showLogs">{{.T.Get "View logs for the service."}}</p>
+    <div x-show="showLogs" x-cloak id="log-container">
+        <div class="op-editor" style="max-height:300px">
+            <div class="op-gutter"><template x-for="n in lineCount()" :key="n"><div x-text="n"></div></template></div>
+            <pre id="log-content" x-text="logContent"></pre>
+        </div>
+        <div class="op-editor-bar"><span x-text="lineCount() + ' ' + {{toJSON (.T.Get "lines")}} + (errors ? ', ' + errors + ' ' + {{toJSON (.T.Get "with errors")}} : '')"></span><span class="op-mono">docker logs {{.Service}}</span></div>
     </div>
 
-    <div class="min-w-0 space-y-3 md:col-span-2">
-      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <button type="button" @click="fetchLogs" x-text="buttonText" :disabled="loading" id="service-log" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 w-full sm:w-fit"></button>
-        <code class="min-w-0 truncate font-mono text-xs text-gray-500" title="podman --url unix:///hostfs/run/user/$(id -u {{.UserContext}})/podman/podman.sock logs {{.Service}}">podman --url unix:///hostfs/run/user/$(id -u {{.UserContext}})/podman/podman.sock logs {{.Service}}</code>
-      </div>
-
-      <div
-        x-show="showLogs" x-cloak
-        x-transition
-        class="max-h-64 overflow-y-auto rounded-md bg-gray-950 p-4"
-        id="log-container"
-      >
-        <pre id="log-content" class="font-mono text-xs whitespace-pre-wrap text-gray-50" x-text="logContent"></pre>
-      </div>
-    </div>
-  </div>
-
-  <script>
+    <script>
     document.addEventListener('alpine:init', () => {
-      Alpine.data('logViewer', () => ({
-        showLogs: false,
-        logContent: '',
-        logFetched: false,
-        buttonText: "{{.T.Get "View container log"}}",
-        loading: false,
+        Alpine.data('logViewer', () => ({
+            showLogs: false,
+            logContent: '',
+            errors: 0,
+            buttonText: {{toJSON (.T.Get "View container log")}},
+            loading: false,
+            serviceName: {{toJSON .Service}},
 
-        async checkLogHealth() {
-          try {
-            const response = await fetch(`/json/containers/log/{{.Service}}`, {
-              headers: { 'X-CSRF-TOKEN': csrf_token },
-            });
-            if (!response.ok) return;
-            const data = await response.text();
-            this.logContent = data;
-            this.logFetched = true;
-            if (typeof reportHealthIssues !== 'function' || !data) return;
-            const errorLines = data.split('\n').filter(function (line) {
-              return /\b(error|fatal|failed|denied|refused|exception|panic|critical)\b/i.test(line);
-            });
-            if (errorLines.length) {
-              reportHealthIssues('service-log:{{.Service}}', [{
-                id: 'log-errors:{{.Service}}',
-                severity: 'warning',
-                message: "{{.T.Get "Service"}} {{.Service}} {{.T.Get "log contains"}} " + errorLines.length + " {{.T.Get "error line(s). Check the log."}}",
-              }], 24);
-            }
-          } catch (error) {
-            // background check, ignore failures
-          }
-        },
+            lineCount() {
+                return this.logContent ? this.logContent.replace(/\n+$/, '').split('\n').length : 0;
+            },
 
-        async fetchLogs() {
-          // reuse the log already fetched for the health check instead of requesting it again
-          if (this.logFetched) {
-            this.logContent = this.logContent || "{{.T.Get "No logs available."}}";
-            this.buttonText = "{{.T.Get "Click to refresh"}}";
-            this.showLogs = true;
-            this.logFetched = false;
-            return;
-          }
+            // the log is fetched once on load for the health check, so it shows right away
+            async checkLogHealth() {
+                try {
+                    const response = await fetch(`/json/containers/log/{{.Service}}`, {
+                        headers: { 'X-CSRF-Token': csrf_token },
+                    });
+                    if (!response.ok) return;
+                    const data = await response.text();
+                    if (!data) return;
+                    this.logContent = data;
+                    this.showLogs = true;
+                    this.buttonText = {{toJSON (.T.Get "Refresh")}};
+                    const errorLines = data.split('\n').filter(function (line) {
+                        return /\b(error|fatal|failed|denied|refused|exception|panic|critical)\b/i.test(line);
+                    });
+                    this.errors = errorLines.length;
+                    if (typeof reportHealthIssues !== 'function') return;
+                    if (errorLines.length) {
+                        reportHealthIssues('service-log:' + this.serviceName, [{
+                            id: 'log-errors:' + this.serviceName,
+                            severity: 'warning',
+                            message: {{toJSON (.T.Get "Service")}} + ' ' + this.serviceName + ' ' + {{toJSON (.T.Get "log contains")}} + ' ' + errorLines.length + ' ' + {{toJSON (.T.Get "error line(s). Check the log.")}},
+                        }], 24);
+                    }
+                } catch (error) {
+                    // background check, ignore failures
+                }
+            },
 
-          this.loading = true;
-          this.buttonText = "{{.T.Get "Loading..."}}";
-
-          try {
-            const response = await fetch(`/json/containers/log/{{.Service}}`, {
-              headers: { 'X-CSRF-TOKEN': csrf_token },
-            });
-
-            if (!response.ok) throw new Error('Request failed');
-
-            const data = await response.text();
-            this.logContent = data || "{{.T.Get "No logs available."}}";
-            this.buttonText = "{{.T.Get "Click to refresh"}}";
-          } catch (error) {
-            this.logContent = "{{.T.Get "No logs."}}";
-            this.buttonText = "{{.T.Get "Click to retry"}}";
-          } finally {
-            this.showLogs = true;
-            this.loading = false;
-          }
-        },
-      }));
+            async fetchLogs() {
+                this.loading = true;
+                this.buttonText = {{toJSON (.T.Get "Loading...")}};
+                try {
+                    const response = await fetch(`/json/containers/log/{{.Service}}`, {
+                        headers: { 'X-CSRF-Token': csrf_token },
+                    });
+                    if (!response.ok) throw new Error('Request failed');
+                    const data = await response.text();
+                    this.logContent = data || {{toJSON (.T.Get "No logs available.")}};
+                    this.buttonText = {{toJSON (.T.Get "Refresh")}};
+                } catch (error) {
+                    this.logContent = {{toJSON (.T.Get "No logs.")}};
+                    this.buttonText = {{toJSON (.T.Get "Click to retry")}};
+                } finally {
+                    this.showLogs = true;
+                    this.loading = false;
+                }
+            },
+        }));
     });
-  </script>
-
+    </script>
 </section>
-
-<!-- END templates/partials/_service_log.html -->
 {{end}}
 {{end}}

@@ -1,0 +1,309 @@
+{{define "alpine_plugins"}}{{end}}
+{{define "flowbite_js"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/files/clamav/scanner.html -->
+
+<!-- page header -->
+<section
+    aria-label="{{.T.Get "Files Header"}}"
+    x-data="{ searchQuery: '' }"
+>
+    <div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
+        <div>
+        <div class="flex items-center gap-x-3"><h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Malware scanner"}}</h1></div>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Scan files for malicious programs with the Clam AntiVirus Scanner (ClamAV) antivirus software."}}</p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+        <a href="/malware-scanner/logs" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"><i class="ri-file-list-3-line"></i> {{.T.Get "Scan logs"}}</a>
+        <a href="/malware-scanner/quarantine" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"><i class="ri-virus-line"></i> {{.T.Get "View quarantine"}}{{if .QuarantineCount}} <span class="inline-flex min-w-5 items-center justify-center rounded-full bg-red-50 px-1.5 text-xs font-medium text-red-600 tabular-nums ring-1 ring-red-600/20 ring-inset dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.QuarantineCount}}</span>{{end}}</a>
+    </div>
+</div>
+<!-- END page header -->
+
+
+
+<!-- form -->
+<div class="CrawlerStatusCard mb-6 px-4 sm:px-6 lg:px-8" id="toAddActive">
+    <div class="max-w-5xl divide-y divide-gray-200 dark:divide-gray-800">
+        <div class="grid grid-cols-1 gap-x-8 gap-y-6 py-8 md:grid-cols-3">
+            <div>
+                <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Folder to scan"}}</h2>
+                <p class="mt-1 text-sm/6 text-gray-500">{{if .UserAllowed.filemanager}}{{.T.Get "Click a folder to open it, the folder you are in is what gets scanned. Use the circle to pick a folder without opening it."}}{{else}}{{.T.Get "Type the folder to scan."}}{{end}} {{.T.Get "Every file in it and its subfolders is checked, and detected files go to quarantine right away."}}</p>
+            </div>
+            <div class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-6 md:col-span-2">
+                {{template "folder_picker" .}}
+            </div>
+        </div>
+
+        <div class="flex flex-wrap justify-end gap-2 pt-6">
+            <button id="start-scan-btn" type="button" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-shield-check-line"></i> {{.T.Get "Start scan"}}
+            </button>
+
+            <!-- Scanning Spinner Button (Initially hidden) -->
+            <button id="scanning-btn" tabindex="-1" type="button" style="display: none;" disabled class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
+
+<i class="ri-loader-4-line animate-spin" aria-hidden="true"></i> {{.T.Get "Scanning..."}}
+            </button>
+
+            <button id="stop-scan-btn" type="button" style="display: none;" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"><i class="ri-stop-circle-line"></i> {{.T.Get "Stop"}}</button>
+
+
+
+        </div>
+
+    </div>
+</div>
+<!-- END form -->
+
+
+    <!-- Scan Progress (Initially hidden) -->
+    <div id="scan-progress" class="mx-4 mb-6 max-w-2xl items-center gap-3 sm:mx-6 lg:mx-8" style="display: none;">
+        <div id="scan-radar" class="shrink-0 items-center" style="display: none;">
+            <svg aria-hidden="true" height="48" role="presentation" viewBox="0 0 48 48" width="48" class="text-blue-500">
+              <defs>
+                <radialGradient id="radarGlow" cx="0.5" cy="0.5" r="0.5">
+                  <stop offset="0" stop-color="currentColor" stop-opacity="0.45"></stop>
+                  <stop offset="1" stop-color="currentColor" stop-opacity="0"></stop>
+                </radialGradient>
+              </defs>
+
+              <style>
+                .radarSpinner {
+                  transform-origin: 24px 24px;
+                  animation: radarSpin 2s linear infinite;
+                }
+                @keyframes radarSpin {
+                  from { transform: rotate(0deg); }
+                  to { transform: rotate(360deg); }
+                }
+              </style>
+
+              <circle cx="24" cy="24" r="19" stroke-width="1.5" class="fill-white stroke-gray-200 dark:fill-gray-950 dark:stroke-gray-800"></circle>
+              <circle cx="24" cy="24" fill="none" r="12.54" class="stroke-gray-200 dark:stroke-gray-800" stroke-width="1"></circle>
+              <circle cx="24" cy="24" fill="none" r="6.27" class="stroke-gray-200 dark:stroke-gray-800" stroke-width="1"></circle>
+              <line class="stroke-gray-200 dark:stroke-gray-800" stroke-width="1" x1="6" x2="42" y1="24" y2="24"></line>
+              <line class="stroke-gray-200 dark:stroke-gray-800" stroke-width="1" x1="24" x2="24" y1="6" y2="42"></line>
+
+              <g class="radarSpinner">
+                <path d="M 24 24 L 24 6 A 19 19 0 0 1 40.45448267190433 14.499999999999998 Z" fill="url(#radarGlow)"></path>
+                <line stroke="currentColor" stroke-linecap="round" stroke-width="2" x1="24" x2="24" y1="24" y2="6"></line>
+              </g>
+
+              <circle cx="24" cy="24" fill="currentColor" r="2.6"></circle>
+            </svg>
+        </div>
+        <p style="word-break: break-all;" class="min-w-0 text-sm text-gray-600 dark:text-gray-400">
+            <span id="scan-progress-count">0</span> {{.T.Get "files scanned"}} &mdash;
+            <span id="scan-progress-current"></span>
+        </p>
+    </div>
+
+    <!-- Scan Complete Message (Initially hidden) -->
+    <div id="scan-complete-message" class="mx-4 mb-6 max-w-2xl sm:mx-6 lg:mx-8 flex gap-3 rounded-md p-4 text-sm bg-emerald-50 text-emerald-900 dark:bg-emerald-950/70 dark:text-emerald-500" role="status" style="display: none;"></div>
+
+    <!-- Scan Results Card (Initially hidden) -->
+    <div id="scan-results-card" class="mx-4 mb-8 max-w-4xl overflow-hidden rounded-md border border-gray-200 bg-white sm:mx-6 lg:mx-8 dark:border-gray-900 dark:bg-raised" style="display: none;">
+        <div class="border-b border-gray-200 px-4 py-3 dark:border-gray-800">
+            <h2 class="text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Scan results"}}</h2>
+        </div>
+        <div class="p-4">
+            <!-- plain text + fixed height so the browser never has to lay out/reflow an ever-growing HTML tree on scans with tens of thousands of hits -->
+            <pre id="scan-results" class="m-0 rounded-md bg-gray-50 p-4 font-mono text-xs text-gray-900 dark:bg-gray-900 dark:text-gray-50" style="max-height: 24rem; overflow-y: auto; white-space: pre-wrap; word-break: break-all;"></pre>
+        </div>
+    </div>
+
+<script>
+    const i18n = {
+        scanFailed: "{{.T.Get "Scan failed: "}}",
+        scanComplete: "{{.T.Get "Scan is complete!"}}",
+        filesScanned: "{{.T.Get "files scanned."}}",
+        noMalwareFound: "{{.T.Get "No malware found."}}",
+        stopped: {{toJSON (.T.Get "Stopped")}}
+    };
+    let scanAbort = null;
+
+
+    let scanLineBuffer = '';
+    let scannedCount = 0;
+    let malwareCount = 0;
+    let scanError = '';
+
+    function resetScanUI() {
+        scanLineBuffer = '';
+        scannedCount = 0;
+        malwareCount = 0;
+        scanError = '';
+        document.getElementById('scan-results').textContent = '';
+        document.getElementById('scan-progress-count').textContent = '0';
+        document.getElementById('scan-progress-current').textContent = '';
+        document.getElementById('scan-radar').style.display = 'flex';
+        document.getElementById('scan-progress').style.display = 'flex';
+        document.getElementById('scan-complete-message').style.display = 'none';
+    }
+
+    // appendChild a text node instead of `innerHTML +=`, which reparsed the whole accumulated string as HTML on every call and blew up tab memory on big scans
+    function appendScanResult(line) {
+        const scanResultsPre = document.getElementById('scan-results');
+        const text = (scanResultsPre.childNodes.length ? '\n' : '') + line;
+        scanResultsPre.appendChild(document.createTextNode(text));
+        scanResultsPre.scrollTop = scanResultsPre.scrollHeight;
+    }
+
+    // one "X - result" line per file, only malware/error lines go in the list so big scans don't hang the tab
+    function handleScanLine(line) {
+        if (!line) return;
+
+        if (line.startsWith('Scanning: ')) {
+            document.getElementById('scan-progress-current').textContent = line;
+            return;
+        }
+
+        if (line.startsWith('Error: ')) {
+            scanError = line.slice(7);
+            appendScanResult(i18n.scanFailed + scanError);
+            return;
+        }
+
+        scannedCount++;
+        document.getElementById('scan-progress-count').textContent = scannedCount;
+        document.getElementById('scan-progress-current').textContent = line;
+
+        if (!line.endsWith('No malware found')) {
+            appendScanResult(line);
+            if (line.includes(' - Malware detected')) {
+                malwareCount++;
+            }
+        }
+    }
+
+    function showScanCompleteMessage() {
+        document.getElementById('scan-radar').style.display = 'none';
+        document.getElementById('scan-progress').style.display = 'none';
+        const msg = document.getElementById('scan-complete-message');
+        if (scanError) {
+            msg.style.display = 'none';
+            if (typeof showToast === 'function') showToast(i18n.scanFailed + scanError, 'error');
+            return;
+        }
+        const summary = `${i18n.scanComplete} ${scannedCount} ${i18n.filesScanned}`;
+        msg.textContent = summary;
+        msg.style.display = 'flex';
+
+        if (scannedCount > 0 && document.getElementById('scan-results').textContent === '') {
+            appendScanResult(i18n.noMalwareFound);
+        }
+
+        if (typeof showToast === 'function') {
+            showToast(summary, malwareCount > 0 ? 'error' : 'success');
+        }
+    }
+
+    document.getElementById('start-scan-btn').addEventListener('click', function() {
+        document.getElementById('start-scan-btn').style.display = 'none';
+        document.getElementById('scanning-btn').style.display = 'inline-flex';
+        document.getElementById('stop-scan-btn').style.display = 'inline-flex';
+
+        const selectedDirectory = document.getElementById('directory-select').value;
+        folderPicker.lock(true);
+        scanAbort = new AbortController();
+
+        fetch(`/start-scan?directory=${encodeURIComponent(selectedDirectory)}`, { signal: scanAbort.signal })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('{{.T.Get "Network response was not ok"}}');
+                }
+                return response.body.getReader();
+            })
+            .then(reader => {
+                document.getElementById('scan-results-card').style.display = 'block';
+                resetScanUI();
+                const decoder = new TextDecoder('utf-8');
+                return reader.read().then(function processText({ done, value }) {
+                    if (done) {
+                        if (scanLineBuffer.trim()) handleScanLine(scanLineBuffer.trim());
+                        showScanCompleteMessage();
+                        return;
+                    }
+                    scanLineBuffer += decoder.decode(value, { stream: true });
+                    const lines = scanLineBuffer.split('\n');
+                    scanLineBuffer = lines.pop();
+                    lines.forEach(handleScanLine);
+                    return reader.read().then(processText);
+                });
+            })
+            .catch(error => {
+                // dropping the stream cancels the scan server-side
+                if (error.name === 'AbortError') {
+                    document.getElementById('scan-radar').style.display = 'none';
+                    appendScanResult(i18n.stopped);
+                    if (typeof showToast === 'function') showToast(i18n.stopped, 'warning');
+                    return;
+                }
+                console.error('Scan failed:', error);
+                document.getElementById('scan-radar').style.display = 'none';
+                appendScanResult(i18n.scanFailed + error.message);
+                if (typeof showToast === 'function') {
+                    showToast(i18n.scanFailed + error.message, 'error');
+                }
+                document.getElementById('start-scan-btn').style.display = '';
+            })
+            .finally(() => {
+                scanAbort = null;
+                folderPicker.lock(false);
+                document.getElementById('scanning-btn').style.display = 'none';
+                document.getElementById('stop-scan-btn').style.display = 'none';
+                document.getElementById('start-scan-btn').style.display = '';
+            });
+    });
+
+    document.getElementById('stop-scan-btn').addEventListener('click', function() {
+        if (scanAbort) scanAbort.abort();
+        // drop ?path so a reload doesn't start the scan again
+        const url = new URL(window.location.href);
+        if (url.searchParams.has('path')) {
+            url.searchParams.delete('path');
+            history.replaceState(null, '', url.toString());
+        }
+    });
+
+
+
+
+function inputScanDomain() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const pathValue = urlParams.get('path');
+
+  const directoryInput = document.getElementById("directory-select");
+
+  if (pathValue) {
+    directoryInput.value = pathValue;
+    // a ?path= link shows exactly what gets scanned
+    folderPicker.setManual(true);
+    document.getElementById('start-scan-btn').click();
+  }
+}
+
+window.addEventListener("hashchange", inputScanDomain);
+window.addEventListener("popstate", inputScanDomain);
+window.addEventListener("load", inputScanDomain);
+
+</script>
+
+{{if .QuarantineNote}}
+<script>
+// remind about quarantined files at most once a week per browser
+document.addEventListener('DOMContentLoaded', function () {
+    var key = 'malwareQuarantineToastAt';
+    try {
+        var last = parseInt(localStorage.getItem(key) || '0', 10);
+        if (Date.now() - last < 7 * 24 * 60 * 60 * 1000) return;
+        localStorage.setItem(key, String(Date.now()));
+    } catch (e) {}
+    showToast('{{.QuarantineNote}}', 'warning', true, { label: '{{.T.Get "Review"}}', href: '/malware-scanner/quarantine' });
+});
+</script>
+{{end}}
+
+<!-- END templates/files/clamav/scanner.html -->
+{{end}}

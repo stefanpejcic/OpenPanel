@@ -509,9 +509,6 @@ func apiDomainsGetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request
 	writeAPIDomainsJSON(w, http.StatusOK, map[string]string{"domain": domain, "redirect_url": getRedirectURL(domain)})
 }
 
-// apiHTTPURLRE is the same check as httpURLRE in redirect.go
-var apiHTTPURLRE = httpURLRE
-
 // apiDomainsSetRedirect sets or replaces a domain's redirect rule.
 func apiDomainsSetRedirect(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

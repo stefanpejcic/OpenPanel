@@ -1,0 +1,154 @@
+{{define "alpine_plugins"}}{{end}}
+{{define "flowbite_js"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/docker/logs.html -->
+
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Logs"}}</h1>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "View Docker container logs."}}</p>
+    </div>
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+        {{/* opened from a service's Logs tab, the service is already picked */}}
+        <div{{if .ServiceTool}} class="hidden"{{end}}>
+            <select id="log-select" aria-label="{{.T.Get "Container"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 cursor-pointer py-1.5 sm:w-48 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+                <option disabled selected value>{{.T.Get "Select a container"}}</option>
+                {{range .Services}}
+                <option value="{{.}}">{{.}}</option>
+                {{end}}
+            </select>
+        </div>
+        <div>
+            <select id="lines-select" aria-label="{{.T.Get "Lines"}}" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 cursor-pointer py-1.5 sm:w-48 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+                <option disabled selected value>{{.T.Get "Lines"}}</option>
+                <option value="20">20 {{.T.Get "lines"}}</option>
+                <option value="100">100 {{.T.Get "lines"}}</option>
+                <option value="500">500 {{.T.Get "lines"}}</option>
+                <option selected value="1000">1000 {{.T.Get "lines"}}</option>
+                <option value="2000">2000 {{.T.Get "lines"}}</option>
+                <option value="999999">{{.T.Get "All lines"}}</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="px-4 pb-8 sm:px-6 lg:px-8" x-data="{ rawMode: false }">
+
+    <div class="mb-3 flex items-center justify-between gap-4">
+        <h2 id="log-title" class="min-w-0 truncate text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Select a container to view its logs here."}}</h2>
+        <div class="flex shrink-0 items-center gap-1">
+            <button type="button" title="{{.T.Get "Change view"}}"
+                class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-1.5 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600"
+                @click="rawMode = !rawMode; window.__logRawMode = rawMode; renderLog(window.__loadedLog, rawMode)"
+                x-text="rawMode ? {{toJSON (.T.Get "Formatted view")}} : {{toJSON (.T.Get "Raw view")}}">
+            </button>
+            <button type="button" title="{{.T.Get "Copy to clipboard"}}" aria-label="{{.T.Get "Copy to clipboard"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" onclick="copyLog()"><i class="ri-file-copy-line text-base" aria-hidden="true"></i></button>
+            <button type="button" title="{{.T.Get "Open log in new tab"}}" aria-label="{{.T.Get "Open log in new tab"}}" class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2" onclick="openLogInNewTab()"><i class="ri-external-link-line text-base" aria-hidden="true"></i></button>
+        </div>
+    </div>
+
+    <div id="log-content" class="h-[65vh] overflow-y-auto rounded-md bg-gray-950 p-4 font-mono text-xs text-gray-50"></div>
+
+</div>
+
+<script>
+const logsI18n = {
+    emptyLog: {{toJSON (.T.Get "The log file is empty.")}},
+    fetchError: {{toJSON (.T.Get "Error fetching log data.")}},
+    title: {{toJSON (.T.Get "Logs")}},
+    copied: {{toJSON (.T.Get "Logs copied to clipboard.")}},
+    copyFailed: {{toJSON (.T.Get "Failed to copy logs.")}}
+};
+
+function logURL() {
+    const logName = document.getElementById('log-select').value;
+    const linesValue = document.getElementById('lines-select').value;
+    let url = `/containers/logs/${encodeURIComponent(logName)}`;
+    if (linesValue !== 'ALL') {
+        url += `?lines=${linesValue}`;
+    }
+    return url;
+}
+
+// SHOW LOG FILE CONTENT
+function fetchLog() {
+    const logName = document.getElementById('log-select').value;
+    if (!logName) return;
+    fetch(logURL())
+        .then(response => response.text())
+        .then(text => {
+            document.getElementById('log-title').textContent = logsI18n.title + ': ' + logName;
+            window.__loadedLog = text.trim();
+            renderLog(window.__loadedLog, window.__logRawMode);
+        })
+        .catch(error => {
+            console.error('Error fetching log:', error);
+            document.getElementById('log-content').textContent = logsI18n.fetchError;
+        });
+}
+
+// formatted view highlights error and warning lines, raw view shows the log as-is
+function renderLog(text, rawMode) {
+    const box = document.getElementById('log-content');
+    box.innerHTML = '';
+    const pre = document.createElement('pre');
+    pre.className = 'whitespace-pre-wrap';
+    if (!text) {
+        pre.textContent = logsI18n.emptyLog;
+    } else if (rawMode) {
+        pre.textContent = text;
+    } else {
+        text.split('\n').forEach(line => {
+            const span = document.createElement('span');
+            span.textContent = line + '\n';
+            // the first level word wins, so "[Warning] ... got an error" stays a warning
+            const level = line.match(/\b(error|fatal|panic|crit(ical)?|emerg(ency)?|alert|exception|warn(ing)?)\b/i);
+            if (level && /^warn/i.test(level[1])) {
+                span.classList.add('text-yellow-400', 'bg-yellow-500/10');
+            } else if (level) {
+                span.classList.add('text-red-400', 'bg-red-500/10');
+            }
+            pre.appendChild(span);
+        });
+    }
+    box.appendChild(pre);
+    box.scrollTop = box.scrollHeight;
+}
+
+function copyLog() {
+    if (!window.__loadedLog) return;
+    copyToClipboard(window.__loadedLog)
+        .then(() => showToast(logsI18n.copied, "success"))
+        .catch(err => {
+            console.error("Clipboard copy failed:", err);
+            showToast(logsI18n.copyFailed, "warning");
+        });
+}
+
+function openLogInNewTab() {
+    if (!document.getElementById('log-select').value) return;
+    window.open(logURL(), "_blank");
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const containerParam = urlParams.get('container');
+    const linesParam = urlParams.get('lines');
+
+    if (containerParam) {
+        document.getElementById('log-select').value = containerParam;
+        if (linesParam) {
+            document.getElementById('lines-select').value = linesParam;
+        }
+        fetchLog();
+    }
+
+    document.getElementById('log-select').addEventListener('change', fetchLog);
+    document.getElementById('lines-select').addEventListener('change', fetchLog);
+});
+</script>
+
+
+<!-- END templates/docker/logs.html -->
+{{end}}

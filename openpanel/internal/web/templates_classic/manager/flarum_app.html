@@ -1,0 +1,428 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "flowbite_js"}}
+<script defer src="{{static "vendor/flowbite/flowbite252.min.js"}}"></script>
+{{end}}
+
+{{define "content"}}
+{{template "cms_block" .}}
+        {{template "cms_block_2" .}}
+        {{template "cms_block_4" .}}
+    <div class="flex min-w-0 flex-col bg-white dark:bg-gray-950">
+
+        {{template "cms_block_7" .}}
+            {{template "cms_tabbtn_dashboard" .}}
+            {{template "cms_tabbtn_logs" .}}
+            {{template "cms_tabbtn_update" .}}
+            {{template "cms_tabbtn_clone" .}}
+            {{template "cms_tabbtn_backups" .}}
+            {{template "cms_tab_security" .}}
+        {{template "cms_tab_dashboard" .}}
+            <div>
+                <div class="hidden">
+                    <div class="flex flex-col space-y-2 w-full h-100 justify-center overflow-hidden rounded-md xl:col-span-3">
+                        {{template "cms_block_10" .}}
+                {{template "cms_block_13" .}}
+                {{template "cms_block_14" .}}
+                <div class="flex flex-col bg-white px-6 py-5 min-w-0 sm:row-span-2 sm:grid sm:grid-cols-1 sm:grid-rows-subgrid sm:gap-y-0 sm:[&>*:last-child]:self-start dark:bg-gray-950">
+                    <div class="relative -mx-6 -mt-5 mb-4 flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+                        <div class="min-w-0"><h2 class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Database"}}</h2>{{if .UserAllowed.mysql}}<a href="/mysql" target="_blank" class="ml-2 text-sm font-normal text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Manage"}} &rarr;</a>{{end}}<p class="text-sm/6 text-gray-500">{{.T.Get "The database the site uses."}}</p></div>
+                    </div>
+
+                    {{if .DBInfo.error}}
+                    <div class="flex items-center justify-between gap-4 rounded-md border border-gray-200 px-4 py-3 dark:border-gray-800">
+                        <span class="text-sm text-gray-500 dark:text-gray-500">{{.DBInfo.error}}</span>
+                    </div>
+                    {{else}}
+                    <div class="divide-y divide-gray-200 dark:divide-gray-800 [&>div]:px-0">
+                        <div class="flex items-center justify-between gap-4 px-4 py-3" id="database-size-row">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Database size"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50" id="databaseSize">{{.T.Get "Calculating.."}}</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Database host"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">{{.DBInfo.database_host}}</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Database name"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">
+                            {{if .UserAllowed.mysql}}
+                                <a href="/mysql" class="text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50">{{.DBInfo.database_name}}</a>
+                            {{else}}
+                                {{.DBInfo.database_name}}
+                            {{end}}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Database user"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50">
+                            {{if .UserAllowed.mysql}}
+                                <a href="/mysql/users" class="text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50">{{.DBInfo.database_user}}</a>
+                            {{else}}
+                                {{.DBInfo.database_user}}
+                            {{end}}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "Password"}}</span>
+                            <span class="text-sm font-medium text-gray-900 dark:text-gray-50" id="database-password" style="filter: blur(5px); cursor: pointer;" onclick="revealFlarumDBPassword()">{{.DBInfo.database_password}}</span>
+                        </div>
+
+                        {{if .UserAllowed.phpmyadmin}}
+                        <div class="flex items-center justify-between gap-4 px-4 py-3">
+                            <span class="text-sm text-gray-600 dark:text-gray-400">{{.T.Get "phpMyAdmin"}}</span>
+                            <span class="flex items-center gap-1.5 text-sm font-medium text-gray-900 dark:text-gray-50"><a
+                                        type="button"
+                                        id="phpmyadmin-link"
+                                        href="/phpmyadmin"
+                                        target="_blank"
+                                        data-tooltip-target="tooltip-phpmyadmin-link" data-tooltip-placement="left"
+                                        class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"
+                                    >
+                                        <i class="ri-arrow-right-up-line text-lg leading-none" aria-hidden="true"></i>
+                                    </a>
+                                    <div id="tooltip-phpmyadmin-link" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-md shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Open database in phpMyAdmin"}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div>
+                                    <a
+                                        type="button"
+                                        id="phpmyadmin-link-manual"
+                                        href="/phpmyadmin/link"
+                                        target="_blank"
+                                        data-tooltip-target="tooltip-phpmyadmin-link-manual" data-tooltip-placement="left"
+                                        class="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2"
+                                    >
+                                        <i class="ri-login-box-line text-lg leading-none" aria-hidden="true"></i>
+                                    </a>
+                                    <div id="tooltip-phpmyadmin-link-manual" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-md shadow-xs opacity-0 tooltip dark:bg-gray-700">
+                                        {{.T.Get "Open phpMyAdmin login form"}}
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div></span>
+                        </div>
+                        {{end}}
+                    </div>
+                    {{end}}
+                </div>
+                <!-- END database info -->
+
+                <script>
+                    function revealFlarumDBPassword() {
+                        var passwordSpan = document.getElementById("database-password");
+                        passwordSpan.style.filter = passwordSpan.style.filter === "blur(5px)" ? "none" : "blur(5px)";
+                    }
+                </script>
+</dl>
+            </div>
+            <div class="divide-y divide-gray-200 bg-white dark:divide-gray-800 dark:bg-gray-950 [&>div]:rounded-none [&>div]:border-x-0 [&>div]:border-t-0 [&>div:last-child]:border-b-0 [&>div]:bg-transparent [&>div]:px-6 [&>div]:py-5 dark:[&>div]:bg-transparent [&_[data-panel-head]]:-mx-6 [&_[data-panel-head]]:-mt-5 [&_[data-panel-head]]:mb-4 [&_[data-panel-head]]:border-b [&_[data-panel-head]]:border-gray-200 [&_[data-panel-head]]:px-6 [&_[data-panel-head]]:py-4 dark:[&_[data-panel-head]]:border-gray-800">
+
+        {{template "pagespeed_panel" .}}
+
+        {{template "visitors" .}}
+
+        {{template "waf_panel" .}}
+
+        {{template "flarum_cache" .}}
+
+        {{template "flarum_scheduler" .}}
+
+    </div>
+            </div>
+        </div>
+
+        <div class="hidden p-4 rounded-md" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="flarum-log-title" class="font-semibold text-gray-900 dark:text-gray-50">
+                    {{.T.Get "Loading log.."}}
+                </h3>
+                {{template "cms_block_22" .}}
+            <script>
+                let __flarumLogsLoaded = false;
+                let __flarumLogsText = '';
+
+                function loadFlarumLogs() {
+                    const domain = {{toJSON .CurrentDomain}};
+                    const docroot = {{toJSON .Docroot}};
+                    const titleEl = document.getElementById('flarum-log-title');
+                    const bodyEl = document.getElementById('flarum-log');
+                    titleEl.textContent = {{toJSON (.T.Get "Loading log..")}};
+
+                    fetch(`/flarum/logs?domain=${encodeURIComponent(domain)}&docroot=${encodeURIComponent(docroot)}`, {
+                        headers: { 'X-CSRF-Token': csrf_token }
+                    })
+                        .then(response => response.text())
+                        .then(data => {
+                            __flarumLogsText = data;
+                            titleEl.textContent = {{toJSON (.T.Get "Log for")}} + " " + domain;
+                            bodyEl.innerHTML = '';
+                            const pre = document.createElement('pre');
+                            pre.textContent = data;
+                            bodyEl.appendChild(pre);
+                        })
+                        .catch(error => {
+                            showToast({{toJSON (.T.Get "Error fetching log.")}}, 'warning');
+                            console.error({{toJSON (.T.Get "Error fetching log:")}}, error);
+                        });
+                }
+
+                function copyFlarumLogs() {
+                    if (!__flarumLogsText) return;
+                    copyToClipboard(__flarumLogsText)
+                        .then(() => { showToast({{toJSON (.T.Get "Logs copied to clipboard.")}}, "success"); })
+                        .catch(err => {
+                            console.error("Clipboard copy failed:", err);
+                            showToast({{toJSON (.T.Get "Failed to copy logs.")}}, "warning");
+                        });
+                }
+
+                document.querySelector('html').addEventListener('click', function(e) {
+                    if (!e.target.closest('#logs-tab')) return;
+                    if (__flarumLogsLoaded) return;
+                    __flarumLogsLoaded = true;
+                    loadFlarumLogs();
+                });
+            </script>
+        </div>
+
+        <div class="hidden p-4 rounded-md" id="update" role="tabpanel" aria-labelledby="update-tab">
+            {{template "cms_block_28" .}}
+            <script>
+                function compareFlarumVersionsDesc(a, b) {
+                    const pa = a.split('.').map(Number);
+                    const pb = b.split('.').map(Number);
+                    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+                        const na = pa[i] || 0, nb = pb[i] || 0;
+                        if (na !== nb) return nb - na;
+                    }
+                    return 0;
+                }
+
+                // isVersionOlder does a numeric per-segment comparison (not a
+                // naive string !== ), so a same-version-different-format quirk
+                // (e.g. a missing trailing ".0", a leading "v") doesn't falsely
+                // show the Update button when nothing is actually newer.
+                function isVersionOlder(installed, latest) {
+                    const pi = installed.replace(/^v/i, '').split('.').map(n => parseInt(n, 10) || 0);
+                    const pl = latest.replace(/^v/i, '').split('.').map(n => parseInt(n, 10) || 0);
+                    for (let i = 0; i < Math.max(pi.length, pl.length); i++) {
+                        const iv = pi[i] || 0, lv = pl[i] || 0;
+                        if (iv !== lv) return iv < lv;
+                    }
+                    return false;
+                }
+
+                function checkFlarumLatestVersion() {
+                    const installed = {{toJSON .Version}};
+                    const latestEl = document.getElementById('flarum-latest-version');
+                    const statusEl = document.getElementById('flarum-update-status');
+                    fetch('https://api.github.com/repos/flarum/core/tags?per_page=100')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!Array.isArray(data)) throw new Error('Unexpected response');
+                            const versionRe = /^v?(\d+\.\d+\.\d+)$/;
+                            const versions = data
+                                .map(t => t.name.match(versionRe))
+                                .filter(Boolean)
+                                .map(m => m[1])
+                                .filter((v, i, arr) => arr.indexOf(v) === i)
+                                .sort(compareFlarumVersionsDesc);
+                            const latest = versions[0];
+                            latestEl.textContent = latest || {{toJSON (.T.Get "Unknown")}};
+                            const updateBtn = document.getElementById('flarum-update-btn');
+                            if (latest && installed && isVersionOlder(installed, latest)) {
+                                statusEl.innerHTML = '<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">' + {{toJSON (.T.Get "A newer version is available.")}} + '</span>';
+                                updateBtn.classList.remove('hidden');
+                                updateBtn.classList.add('inline-flex');
+                                document.getElementById('flarum-update-hint').classList.remove('hidden');
+                            } else if (latest && installed) {
+                                statusEl.innerHTML = '<span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20">' + {{toJSON (.T.Get "You are running the latest version.")}} + '</span>';
+                            }
+                        })
+                        .catch(error => {
+                            latestEl.textContent = {{toJSON (.T.Get "Unknown")}};
+                            console.error('Error fetching Flarum versions:', error);
+                        });
+                }
+
+                let __flarumUpdateLoaded = false;
+                document.querySelector('html').addEventListener('click', function(e) {
+                    if (!e.target.closest('#update-tab')) return;
+                    if (__flarumUpdateLoaded) return;
+                    __flarumUpdateLoaded = true;
+                    checkFlarumLatestVersion();
+                });
+
+                document.getElementById('flarum-update-btn').addEventListener('click', function() {
+                    const btn = this;
+                    const log = document.getElementById('flarum-update-log');
+                    btn.disabled = true;
+                    btn.textContent = {{toJSON (.T.Get "Updating...")}};
+                    log.classList.remove('hidden');
+                    log.textContent = '';
+                    showToast({{toJSON (.T.Get "Flarum update started. Please wait.")}}, 'loading');
+
+                    const params = new URLSearchParams({ domain: {{toJSON .CurrentDomain}}, docroot: {{toJSON .Docroot}} });
+                    fetch('/flarum/update?' + params.toString(), { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } })
+                        .then(response => {
+                            const reader = response.body.getReader();
+                            const decoder = new TextDecoder('utf-8');
+                            function read() {
+                                reader.read().then(({ done, value }) => {
+                                    if (done) return;
+                                    const lines = decoder.decode(value, { stream: true }).split('\n').filter(Boolean);
+                                    lines.forEach(line => {
+                                        try {
+                                            const data = JSON.parse(line);
+                                            if (data.status) {
+                                                log.textContent += data.status + '\n';
+                                                log.scrollTop = log.scrollHeight;
+                                                if (data.status.startsWith('Update completed')) {
+                                                    showToast(data.status, 'success');
+                                                    btn.textContent = {{toJSON (.T.Get "Update now")}};
+                                                    btn.classList.add('hidden');
+                                                    setTimeout(() => window.location.reload(), 1500);
+                                                }
+                                            } else if (data.error) {
+                                                log.textContent += 'Error: ' + data.error + '\n';
+                                                showToast(data.error, 'error');
+                                                btn.disabled = false;
+                                                btn.textContent = {{toJSON (.T.Get "Retry update")}};
+                                            }
+                                        } catch (e) { /* non-JSON line, ignore */ }
+                                    });
+                                    read();
+                                }).catch(streamErr => {
+                                    showToast({{toJSON (.T.Get "Connection lost during update.")}}, 'error');
+                                    btn.disabled = false;
+                                    btn.textContent = {{toJSON (.T.Get "Retry update")}};
+                                    console.error('Stream read error:', streamErr);
+                                });
+                            }
+                            read();
+                        })
+                        .catch(error => {
+                            showToast({{toJSON (.T.Get "Fetch error. Please try again.")}}, 'error');
+                            btn.disabled = false;
+                            btn.textContent = {{toJSON (.T.Get "Retry update")}};
+                            console.error('Fetch error:', error);
+                        });
+                });
+            </script>
+        </div>
+
+        {{template "cms_tab_clone" .}}
+                {{template "cms_block_17" .}}
+                {{template "cms_block_24" .}}
+                {{template "cms_block_19" .}}
+            {{template "cms_script_4" .}}
+{{template "cms_block_21" .}}
+        <div class="hidden py-6" id="backups" role="tabpanel" aria-labelledby="backups-tab">
+            {{template "site_backups" (dict "T" .T "Domain" .CurrentDomain "Docroot" .Docroot "Base" (print "/" .App.Slug) "DB" .DBInfo "Intro" "Copies of this site's files and database. Restore, download or delete them here." "Empty" "Back up now saves this site.")}}
+        </div>
+
+        {{template "cms_tab_remove" .}}
+    
+
+</div>
+
+<script>
+const FLARUM_SITE_ID = {{toJSON .Container.ID}};
+
+function confirmRemoveFlarum() {
+    showToast({{toJSON (.T.Get "Flarum removal started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/flarum/remove', true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            window.location.href = '/sites';
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(FLARUM_SITE_ID));
+}
+
+function confirmDetachFlarum() {
+    showToast({{toJSON (.T.Get "Flarum detach process started. Please wait.")}}, 'loading');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/sites/detach', true);
+    xhr.setRequestHeader("X-CSRF-Token", csrf_token);
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                window.location.href = '/sites';
+            } else {
+                showToast({{toJSON (.T.Get "An error occurred while detaching Flarum. Please try again.")}}, 'error');
+            }
+        }
+    };
+    xhr.send('csrf_token=' + encodeURIComponent(csrf_token) + '&id=' + encodeURIComponent(FLARUM_SITE_ID));
+}
+</script>
+
+{{template "cms_script_11" .}}
+
+<!-- END templates/manager/flarum_app.html -->
+{{end}}
+
+{{define "flarum_cache"}}
+<!-- START flarum_cache widget -->
+<div x-data="flarumCacheComponent()" class="flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
+  {{template "cms_block_32" .}}
+    <div class="grid grid-cols-1 gap-2">
+        {{template "cms_block_33" .}}
+{{template "cms_script_13" .}}
+<!-- END flarum_cache widget -->
+{{end}}
+
+{{define "flarum_scheduler"}}
+<!-- START flarum_scheduler widget -->
+<div x-data="flarumSchedulerComponent()" x-init="load()" class="flex flex-col justify-center overflow-hidden rounded-md border border-gray-200 bg-white p-4 dark:border-gray-900 dark:bg-raised xl:col-span-1">
+    <div class="mb-3 flex items-center justify-between gap-4">
+        <h2 class="font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Scheduler"}}</h2>
+        <i class="ri-time-line text-lg leading-none text-gray-500 dark:text-gray-400" aria-hidden="true"></i>
+    </div>
+    <div class="flex items-center justify-between gap-4">
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Runs php flarum schedule:run every minute, needed by extensions that do scheduled tasks or queue jobs."}}</p>
+        <input type="checkbox" role="switch" aria-label="{{.T.Get "Scheduler on"}}" :checked="enabled" @change="toggle(); $el.checked = enabled" :disabled="!loaded || busy" class="shrink-0">
+    </div>
+    <a href="/cronjobs" class="mt-2 text-xs text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "View in cron jobs"}}</a>
+</div>
+<script>
+  function flarumSchedulerComponent() {
+    return {
+      domain: {{toJSON .CurrentDomain}},
+      docroot: {{toJSON .Docroot}},
+      enabled: false,
+      loaded: false,
+      busy: false,
+      url(extra) {
+        return `/flarum/scheduler?domain=${encodeURIComponent(this.domain)}&docroot=${encodeURIComponent(this.docroot)}` + (extra || '');
+      },
+      load() {
+        fetch(this.url(), { headers: { 'X-CSRF-Token': csrf_token } })
+          .then(res => res.json())
+          .then(data => { this.enabled = !!data.enabled; this.loaded = !data.error; });
+      },
+      toggle() {
+        this.busy = true;
+        fetch(this.url('&state=' + (this.enabled ? 'off' : 'on')), { method: 'POST', headers: { 'X-CSRF-Token': csrf_token } })
+          .then(res => res.json())
+          .then(data => {
+            if (data.error) {
+              showToast(data.error, 'danger');
+              return;
+            }
+            this.enabled = !!data.enabled;
+            showToast(data.message, 'success');
+          })
+          .catch(() => showToast({{toJSON (.T.Get "Failed to update the scheduler")}}, 'danger'))
+          .finally(() => { this.busy = false; });
+      }
+    }
+  }
+</script>
+<!-- END flarum_scheduler widget -->
+{{end}}

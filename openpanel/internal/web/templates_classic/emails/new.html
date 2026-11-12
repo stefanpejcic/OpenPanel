@@ -1,0 +1,261 @@
+{{define "alpine_plugins"}}{{end}}
+
+{{define "content"}}
+<!-- START templates/emails/new.html -->
+
+<div class="flex flex-col gap-4 px-4 pt-6 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
+    <div>
+        <h1 class="text-lg font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Create an email"}}</h1>
+        <p class="mt-1 text-sm text-gray-500 max-w-3xl">{{.T.Get "Create a new email account."}}</p>
+    </div>
+</div>
+
+<!-- form -->
+{{if .Domains}}
+<div class="max-w-2xl px-4 pb-8 sm:px-6 lg:px-8 CrawlerStatusCard" id="toAddActive">
+    <form method="POST" class="rounded-md border border-gray-200 bg-white p-4 sm:p-6 dark:border-gray-900 dark:bg-raised">
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
+
+        <div class="grid grid-cols-1 gap-y-6">
+
+            <div>
+                <label for="domain" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Domain"}}</label>
+                <select name="domain" id="domain" class="mt-2 block w-full appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]" required>
+                    <option value="" disabled></option>
+                    {{range .Domains}}
+                    <option class="punycode" value="{{.DomainURL}}">{{.DomainURL}}</option>
+                    {{end}}
+                </select>
+            </div>
+
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-900 dark:text-gray-50">{{.T.Get "Username"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span></label>
+                <div class="mt-2 flex">
+                    <input type="text" name="username" id="username" maxlength="60" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 min-w-0 flex-1 rounded-r-none focus:z-10" placeholder="{{.T.Get "info"}}" pattern="[a-zA-Z0-9._%+\-]+" title="{{.T.Get "Only letters, numbers, and the characters . _ % + - are allowed."}}" required>
+                    <input type="text" aria-label="{{.T.Get "Domain"}}" class="block min-w-0 flex-1 appearance-none rounded-r-md border border-l-0 border-gray-300 bg-gray-50 px-2.5 py-2 text-sm text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400" name="at_address" id="at_address" disabled>
+                </div>
+            </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const domainSelect = document.querySelector("#domain");
+    const adminEmailInput = document.querySelector("#at_address");
+
+    function updateAtAddress() {
+        var selectedDomain = domainSelect.value;
+        adminEmailInput.value = selectedDomain ? '@' + selectedDomain : '';
+    }
+
+    domainSelect.addEventListener('change', updateAtAddress);
+    updateAtAddress();
+});
+</script>
+
+            <div
+              x-data="passwordStrength({
+                weak: {{toJSON (.T.Get "Weak password")}},
+                medium: {{toJSON (.T.Get "Medium strength password")}},
+                strong: {{toJSON (.T.Get "Strong password")}},
+                tooWeak: {{toJSON (.T.Get "Password does not meet the required strength.")}}
+              }, {{.PasswordStrength}})"
+              x-init="checkStrength()"
+            >
+                <label for="password" class="block text-sm font-medium text-gray-900 dark:text-gray-50">
+                    {{.T.Get "Password"}} <span class="text-red-600 dark:text-red-500" aria-hidden="true">*</span>
+                </label>
+                <div class="mt-2 flex">
+                    <input
+                      type="text"
+                      name="password"
+                      id="password"
+                      maxlength="30"
+                      minlength="8"
+                      title="{{.T.Get "Password must be between 8 and 30 characters."}}"
+                      placeholder="{{.T.Get "New password"}}"
+                      aria-describedby="password_strength"
+                      class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 min-w-0 flex-1 rounded-r-none font-mono focus:z-10 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+                      x-model="password"
+                      x-ref="input"
+                      @input="checkStrength()"
+                    />
+                    <button type="button" id="generatePassword" title="{{.T.Get "Generate password"}}" aria-label="{{.T.Get "Generate password"}}"
+                        class="inline-flex items-center border border-l-0 border-gray-300 bg-white px-3 text-gray-900 hover:bg-gray-50 focus:z-10 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
+                        <i class="ri-shuffle-line" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" id="togglePassword" title="{{.T.Get "Show or hide password"}}" aria-label="{{.T.Get "Show or hide password"}}"
+                        class="inline-flex items-center rounded-r-md border border-l-0 border-gray-300 bg-white px-3 text-gray-900 hover:bg-gray-50 focus:z-10 outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60">
+                        <i class="ri-eye-line" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <!-- Password strength indicator -->
+                <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+                    <div
+                      class="h-full rounded-full transition-all duration-300"
+                      :class="{
+                        'bg-red-500': strength === 'Weak',
+                        'bg-yellow-500': strength === 'Medium',
+                        'bg-emerald-500': strength === 'Strong'
+                      }"
+                      style="width: 0%"
+                      :style="{
+                        width:
+                          strength === 'Weak'
+                            ? '33%'
+                            : strength === 'Medium'
+                            ? '66%'
+                            : strength === 'Strong'
+                            ? '100%'
+                            : '0%'
+                      }"
+                    ></div>
+                </div>
+                <p id="password_strength"
+                  class="mt-2 text-xs font-medium"
+                  :class="{
+                    'text-red-600 dark:text-red-500': strength === 'Weak',
+                    'text-yellow-700 dark:text-yellow-500': strength === 'Medium',
+                    'text-emerald-700 dark:text-emerald-500': strength === 'Strong'
+                  }"
+                >
+                    <span x-text="strengthMessage"></span>
+                </p>
+            </div>
+
+            <div>
+                <label for="gb" class="block text-sm font-medium text-gray-900 dark:text-gray-50">
+                    {{.T.Get "Storage quota"}}
+                </label>
+                <div class="mt-2 flex sm:w-1/2">
+                    <input
+                      type="number" min="0" name="gb" id="gb" value="0" step="any" aria-describedby="gb_help"
+                      class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 min-w-0 flex-1 rounded-r-none tabular-nums focus:z-10"
+                    >
+                    <select name="format" id="format" aria-label="{{.T.Get "Unit"}}"
+                      class="block appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 w-auto shrink-0 rounded-l-none border-l-0 hover:bg-gray-50 dark:hover:bg-gray-950/50 dark:[color-scheme:dark]">
+                        <option value="k">KiB</option>
+                        <option value="M">MiB</option>
+                        <option value="G" selected>GiB</option>
+                        <option value="T">TiB</option>
+                    </select>
+                </div>
+                <p id="gb_help" class="mt-2 text-xs text-gray-500">
+                    {{if ne .MaxEmailQuotaNumeric 0.0}}
+                      {{.T.Get "Maximum allowed: "}}{{.MaxEmailQuotaNumeric}}{{.AllocatedUnit}}
+                    {{else}}
+                      {{.T.Get "Set to 0 for unlimited."}}
+                    {{end}}
+                </p>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <input type="checkbox" name="send_welcome" id="send_welcome" value="1" checked>
+                <label for="send_welcome" class="text-sm text-gray-900 dark:text-gray-50">{{.T.Get "Send a welcome email with instructions to set up a mail client"}}</label>
+            </div>
+
+<script>
+(function () {
+  const quotaInput = document.getElementById('gb');
+  const unitSelect = document.getElementById('format');
+  const unitsHierarchy = { 'B': 0, 'k': 1, 'M': 2, 'G': 3, 'T': 4 };
+  const unitsMultiplier = { 'B': 1, 'k': 1024, 'M': 1024**2, 'G': 1024**3, 'T': 1024**4 };
+  const maxQuotaNumeric = {{.MaxEmailQuotaNumeric}};
+  const maxUnit = {{toJSON .AllocatedUnit}};
+
+  function getMaxInUnit(unit) {
+    if (maxQuotaNumeric === 0) return Infinity;
+    return maxQuotaNumeric * (unitsMultiplier[maxUnit] / unitsMultiplier[unit]);
+  }
+  function limitQuotaInput() {
+    const max = getMaxInUnit(unitSelect.value);
+    if (parseFloat(quotaInput.value) > max) quotaInput.value = max;
+  }
+  function limitUnits() {
+    unitSelect.querySelectorAll('option').forEach(opt => {
+      opt.disabled = maxQuotaNumeric !== 0 && unitsHierarchy[opt.value] > unitsHierarchy[maxUnit];
+    });
+    if (unitSelect.options[unitSelect.selectedIndex].disabled) unitSelect.value = maxUnit.toLowerCase();
+  }
+  quotaInput.addEventListener('input', limitQuotaInput);
+  unitSelect.addEventListener('change', limitQuotaInput);
+  // 0 means unlimited, which a capped plan refuses, so start at the plan's cap
+  if (maxQuotaNumeric !== 0 && parseFloat(quotaInput.value) === 0) {
+    quotaInput.value = maxQuotaNumeric;
+    unitSelect.value = maxUnit === 'K' ? 'k' : maxUnit;
+  }
+  limitUnits();
+  limitQuotaInput();
+})();
+</script>
+
+        </div>
+
+<script>
+
+    function generateRandomStrongPassword(length) {
+        const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+        let result = "";
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * charset.length);
+            result += charset.charAt(randomIndex);
+        }
+        return result;
+    }
+
+    function generateInitiallyUsernameAndPassword() {
+        const generatedPassword = generateRandomStrongPassword(16);
+
+        document.getElementById("password").value = generatedPassword;
+        const passwordField = document.getElementById("password");
+        passwordField.dispatchEvent(new Event('input', { bubbles: true }));
+
+    };
+    document.addEventListener("DOMContentLoaded", function () {
+        generateInitiallyUsernameAndPassword();
+    });
+
+
+    document.getElementById("generatePassword").addEventListener("click", function() {
+        const generatedPassword = generateRandomStrongPassword(16);
+        document.getElementById("password").value = generatedPassword;
+
+        const passwordField = document.getElementById("password");
+        passwordField.dispatchEvent(new Event('input', { bubbles: true }));
+
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+        }
+
+    });
+
+    document.getElementById("togglePassword").addEventListener("click", function() {
+        const passwordField = document.getElementById("password");
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+        } else {
+            passwordField.type = "password";
+        }
+    });
+</script>
+
+        <div class="mt-8 flex flex-col-reverse gap-2 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end sm:gap-3 dark:border-gray-800">
+            <a href="/emails" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600">{{.T.Get "Back to emails"}}</a>
+            <button type="submit" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">{{.T.Get "Create email"}} <i class="ri-arrow-right-line" aria-hidden="true"></i></button>
+        </div>
+
+    </form>
+</div>
+
+{{else}}
+<div class="mx-4 flex flex-col items-center justify-center rounded-md border border-dashed border-gray-300 py-16 text-center sm:mx-6 lg:mx-8 dark:border-gray-700">
+    <i class="ri-global-line text-3xl text-gray-400 dark:text-gray-600" aria-hidden="true"></i>
+    <p class="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "No domains yet"}}</p>
+    <p class="mt-1 text-sm text-gray-500">{{.T.Get "Add your first domain to get started"}}</p>
+    <a href="/domains/new" class="mt-4 relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600"><i class="ri-add-line" aria-hidden="true"></i> {{.T.Get "New domain"}}</a>
+</div>
+{{end}}
+
+<!-- END form -->
+
+<!-- END templates/emails/new.html -->
+{{end}}
