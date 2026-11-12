@@ -74,6 +74,10 @@ opencli docker-collect_stats
 Description: Collect resource usage information for user(s).
 Usage: opencli docker-collect_stats <username|--all>
 ------------------------
+opencli docker-hosts
+Description: Write the hosts file that users' new containers start with, so the panel and mail hostnames point at the server.
+Usage: opencli docker-hosts [--show | --apply [USERNAME]]
+------------------------
 opencli docker-logs
 Description: Display log sizes for user and system containers
 Usage: opencli docker-logs [--all|--system|--users|<USERNAME>]

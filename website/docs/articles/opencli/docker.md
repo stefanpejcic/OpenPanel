@@ -247,6 +247,61 @@ Examples:
 ```
 
 
+### Hosts
+
+Write the hosts file that users' containers start with. The panel domain and the mail hostname point at `169.254.1.2` there, the address under which rootless containers reach the server, so apps can connect to the server's mail (or the panel) by name and over TLS without `extra_hosts` in the compose file.
+
+The file is `/etc/openpanel/docker/container_hosts` and podman uses it for every container of a user whose `~/.config/containers/containers.conf` has `base_hosts_file` set. `opencli user-add` sets it for new users, `opencli domain set` and `opencli email-server` rewrite the file when the domain or mail hostname changes. Lines from `/etc/openpanel/docker/container_hosts.custom` are added to the end as they are.
+
+```bash
+opencli docker-hosts
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-hosts
+Updated /etc/openpanel/docker/container_hosts, new containers will use it.
+```
+</details>
+
+To print the file without writing it:
+```bash
+opencli docker-hosts --show
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-hosts --show
+# written by opencli docker-hosts, put your own lines in /etc/openpanel/docker/container_hosts.custom
+127.0.0.1	localhost
+::1	localhost ip6-localhost ip6-loopback
+169.254.1.2	srv.example.net mail.example.net
+```
+</details>
+
+Existing users don't get `base_hosts_file` on their own. To set it for all of them (or one user) and apply it right away, use `--apply`, it does a stop and start of their running `php-fpm-*` containers first and then the webserver from `WEB_SERVER` in their `.env`. Other containers pick the file up the next time they start.
+```bash
+opencli docker-hosts --apply [USERNAME]
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-hosts --apply stefan
+Updated /etc/openpanel/docker/container_hosts, new containers will use it.
+stefan:
+  restarted php-fpm-8.5
+  restarted php-fpm-8.3
+  restarted apache
+```
+</details>
+
+
 ### Collect Stats
 
 To collect container resource usage information (cpu, ram, i/o) for all users:

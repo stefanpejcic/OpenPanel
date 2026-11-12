@@ -231,3 +231,10 @@ else
     echo "Failed to download the new $APPS_YML, update it by hand from the openpanel-configuration repo"
 fi
 rm -f "$tmp"
+
+# hosts file for users' containers, new users get base_hosts_file pointing at it, existing ones only with: opencli docker-hosts --apply
+if [ -f /usr/local/opencli/docker/hosts.sh ]; then
+    opencli docker-hosts || echo "Failed to write /etc/openpanel/docker/container_hosts, run 'opencli docker-hosts' by hand"
+else
+    echo "opencli is older than 2.0.24, run 'opencli update --cli' and then 'opencli docker-hosts'"
+fi

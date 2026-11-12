@@ -38,6 +38,8 @@ Additional flags:
 
 Note: If domain is not pointed to the server via A record and SSL can not be generated, then `http://IP` will be used instead of `https://DOMAIN`.
 
+The new domain is also written to the hosts file that users' containers start with, see [`opencli docker-hosts`](/docs/articles/opencli/docker/#hosts).
+
 Set IP address to be used instead of domain:
 
 ```bash
