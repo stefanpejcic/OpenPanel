@@ -7,7 +7,6 @@ import {
     MonitorIcon,
     SelfHostedIcon,
     IdentityIcon,
-    ComponentsIcon,
 } from "@site/src/components/landing/icons";
 
 // The two items currently being worked on. Update this once they ship.
@@ -29,10 +28,6 @@ export const inProgress = [
 // Everything else that's planned. Keep this list up to date manually.
 export const plannedFeatures = [
     {
-        icon: <SecurityIcon />,
-        title: "ImunifyAV page for end-users",
-    },
-    {
         icon: <PhpIcon />,
         title: "PHP 8.6 version",
     },
@@ -45,7 +40,7 @@ export const plannedFeatures = [
         title: "Ongoing improvements in container isolation",
     },
     {
-        icon: <ComponentsIcon />,
+        icon: <SecurityIcon />,
         title: "Docker app templates: set up any Dockerized app in one click",
     },
     {
