@@ -53,12 +53,14 @@ type PageData struct {
 	NotRunning bool
 	// GUIReady links to imunify's own ui
 	GUIReady bool
-	Error    string
-	Scanning bool
-	LastScan string
-	Infected int
-	Hits     []HitRow
-	Scans    []ScanRow
+	// ScanAllowed follows imunify's allow_malware_scan permission
+	ScanAllowed bool
+	Error       string
+	Scanning    bool
+	LastScan    string
+	Infected    int
+	Hits        []HitRow
+	Scans       []ScanRow
 }
 
 type HitRow struct {

@@ -133,6 +133,23 @@ var fetchScans = func(userContext string) ([]scan, error) {
 }
 
 // queueScan puts the user's home on imunify's on-demand queue, the same scan OpenAdmin starts per user
+// scanAllowed is imunify's "users can start scans" setting, the root socket doesn't check it for us
+var scanAllowed = func() (bool, error) {
+	data, err := call([]string{"config", "show"}, map[string]any{})
+	if err != nil {
+		return false, err
+	}
+	var cfg struct {
+		Permissions struct {
+			AllowMalwareScan bool `json:"allow_malware_scan"`
+		} `json:"PERMISSIONS"`
+	}
+	if err := items(data, &cfg); err != nil {
+		return false, err
+	}
+	return cfg.Permissions.AllowMalwareScan, nil
+}
+
 var queueScan = func(userContext string) error {
 	_, err := call([]string{"malware", "on-demand", "queue", "put"}, map[string]any{"paths": []string{home(userContext)}})
 	return err
@@ -194,7 +211,15 @@ func handlePage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		scans             []scan
 		stErr, hErr, sErr error
 	)
-	wg.Add(3)
+	wg.Add(4)
+	go func() {
+		defer wg.Done()
+		allowed, err := scanAllowed()
+		if err != nil {
+			log.Printf("IMUNIFYAV - read scan permission: %v", err)
+		}
+		data.ScanAllowed = allowed
+	}()
 	go func() { defer wg.Done(); st, stErr = fetchStatus(userContext) }()
 	go func() { defer wg.Done(); hits, hErr = fetchHits(userContext) }()
 	go func() { defer wg.Done(); scans, sErr = fetchScans(userContext) }()
@@ -229,6 +254,13 @@ func handleScan(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	if !available() {
 		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "ImunifyAV is not running on this server."), summaryPath)
+		return
+	}
+	if allowed, err := scanAllowed(); err != nil || !allowed {
+		if err != nil {
+			log.Printf("IMUNIFYAV - read scan permission: %v", err)
+		}
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Starting scans is turned off on this server."), summaryPath)
 		return
 	}
 	// a second put while one is queued makes imunify abort the first, so don't stack them

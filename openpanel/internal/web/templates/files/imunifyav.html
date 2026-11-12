@@ -14,9 +14,13 @@
     <form method="post" action="/imunifyav/scan" class="flex flex-wrap items-center gap-2">
         <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
         {{if .GUIReady}}<a href="/imunifyav" id="imunifyav-open-gui" class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 border-gray-300 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:text-gray-600 mt-2 w-full sm:w-auto sm:mt-0">{{.T.Get "Open full ImunifyAV"}}</a>{{end}}
+        {{if not .ScanAllowed}}
+        <p id="imunifyav-scan-off" class="text-sm text-gray-500">{{.T.Get "Starting scans is turned off on this server."}}</p>
+        {{else}}
         <button type="submit" id="imunifyav-scan" {{if .Scanning}}disabled{{end}} class="relative inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-xs transition-all duration-100 ease-in-out disabled:pointer-events-none disabled:shadow-none outline outline-0 outline-offset-2 outline-blue-500 focus-visible:outline-2 mt-2 w-full sm:w-auto sm:mt-0 border-black bg-black text-white hover:bg-gray-800 disabled:border-gray-300 disabled:bg-gray-300 disabled:text-gray-500 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60 dark:disabled:bg-gray-900 dark:disabled:text-gray-600">
             {{if .Scanning}}{{.T.Get "Scan running…"}}{{else}}{{.T.Get "Scan my files"}}{{end}}
         </button>
+        {{end}}
     </form>
     {{end}}{{end}}
 </div>

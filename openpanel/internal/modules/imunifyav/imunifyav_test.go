@@ -124,6 +124,23 @@ func TestQueueScanPutsHome(t *testing.T) {
 	}
 }
 
+func TestScanAllowedReadsPermission(t *testing.T) {
+	for reply, want := range map[string]bool{
+		`{"result": "success", "data": {"items": {"PERMISSIONS": {"allow_malware_scan": true}}}}`:  true,
+		`{"result": "success", "data": {"items": {"PERMISSIONS": {"allow_malware_scan": false}}}}`: false,
+		`{"result": "success", "data": {"items": {}}}`:                                             false,
+	} {
+		got := fakeAgent(t, func(map[string]any) string { return reply })
+		allowed, err := scanAllowed()
+		if err != nil || allowed != want {
+			t.Errorf("%s: allowed = %v, err = %v", reply, allowed, err)
+		}
+		if cmd, _ := json.Marshal((*got)[0]["command"]); string(cmd) != `["config","show"]` {
+			t.Errorf("command = %s", cmd)
+		}
+	}
+}
+
 func TestDisplayPath(t *testing.T) {
 	for in, want := range map[string]string{
 		"/home/demo/docker-data/volumes/demo_html_data/_data/example.org/x.php": "/var/www/html/example.org/x.php",
@@ -183,8 +200,9 @@ func TestRenderPage(t *testing.T) {
 		not  []string
 	}{
 		"not running": {PageData{NotRunning: true}, []string{`id="imunifyav-not-running"`}, []string{`action="/imunifyav/scan"`}},
-		"clean":       {PageData{LastScan: "2026-11-10 08:00", GUIReady: true}, []string{`action="/imunifyav/scan"`, `name="csrf_token" value="test-csrf-token"`, `id="imunifyav-no-hits"`, `href="/imunifyav"`, `id="imunifyav-open-gui"`}, []string{"}, 15000)"}},
-		"infected": {PageData{Infected: 1, Scanning: true, Hits: []HitRow{{Path: "/var/www/html/<x>.php", Signature: "SMW-EICAR", Found: true}}, Scans: []ScanRow{{Started: "2026-11-10 08:00", Status: "done", Found: 1}}},
+		"clean":       {PageData{LastScan: "2026-11-10 08:00", GUIReady: true, ScanAllowed: true}, []string{`action="/imunifyav/scan"`, `name="csrf_token" value="test-csrf-token"`, `id="imunifyav-no-hits"`, `href="/imunifyav"`, `id="imunifyav-open-gui"`, `id="imunifyav-scan"`}, []string{"}, 15000)", `id="imunifyav-scan-off"`}},
+		"scans off":   {PageData{GUIReady: true}, []string{`id="imunifyav-scan-off"`, `id="imunifyav-open-gui"`}, []string{`id="imunifyav-scan"`}},
+		"infected": {PageData{Infected: 1, Scanning: true, ScanAllowed: true, Hits: []HitRow{{Path: "/var/www/html/<x>.php", Signature: "SMW-EICAR", Found: true}}, Scans: []ScanRow{{Started: "2026-11-10 08:00", Status: "done", Found: 1}}},
 			[]string{`id="imunifyav-hits"`, "/var/www/html/&lt;x&gt;.php", "SMW-EICAR", `id="imunifyav-scans"`, "}, 15000)", "disabled"}, nil},
 	}
 	for name, c := range cases {
