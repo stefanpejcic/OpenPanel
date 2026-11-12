@@ -47,3 +47,29 @@ func TestFilterContainerServicesMySQLVariant(t *testing.T) {
 		t.Error("mysqlType=mariadb: mariadb should remain")
 	}
 }
+
+func TestKeepUneditedKeys(t *testing.T) {
+	old := map[string]any{
+		"image":       "weblate/weblate:latest",
+		"labels":      map[string]any{"openpanel.domain": "translate.example.com"},
+		"extra_hosts": []any{"mail.example.com:169.254.1.2"},
+		"environment": map[string]any{"OLD": "1"},
+	}
+	updated := map[string]any{"image": "weblate/weblate:5", "environment": map[string]any{"NEW": "1"}}
+	keepUneditedKeys(old, updated)
+	if hosts, _ := updated["extra_hosts"].([]any); len(hosts) != 1 || hosts[0] != "mail.example.com:169.254.1.2" {
+		t.Fatalf("extra_hosts not kept: %#v", updated["extra_hosts"])
+	}
+	if _, ok := updated["labels"]; !ok {
+		t.Fatal("labels not kept")
+	}
+	if updated["image"] != "weblate/weblate:5" || updated["environment"].(map[string]any)["NEW"] != "1" {
+		t.Fatalf("edited keys overwritten: %#v", updated)
+	}
+
+	plain := map[string]any{}
+	keepUneditedKeys(map[string]any{"image": "x"}, plain)
+	if len(plain) != 0 {
+		t.Fatalf("added keys the service didn't have: %#v", plain)
+	}
+}

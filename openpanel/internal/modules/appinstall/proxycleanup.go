@@ -42,6 +42,11 @@ func stripServiceProxies(content string, names ...string) (string, bool) {
 		for _, line := range lines {
 			trimmed := strings.TrimSpace(line)
 			if apacheRE.MatchString(line) {
+				// editApacheConfig puts ProxyPreserveHost On right before the app's ProxyPass, it goes with it
+				if n := len(kept); n > 0 && strings.TrimSpace(kept[n-1]) == "ProxyPreserveHost On" {
+					line = kept[n-1]
+					kept = kept[:n-1]
+				}
 				if indent == "" {
 					indent = line[:len(line)-len(strings.TrimLeft(line, " "))]
 				}

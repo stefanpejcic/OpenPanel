@@ -210,3 +210,16 @@ func TestPerRequestStripLeavesOtherServiceAlone(t *testing.T) {
 		t.Fatalf("kuma2 not stripped:\n%s", back)
 	}
 }
+
+func TestStripApachePreserveHost(t *testing.T) {
+	// what editApacheConfig inserts for a root install, ProxyPreserveHost goes with the app's ProxyPass
+	// the insert goes right before the marker text, so its first line keeps the marker's indent
+	in := "<VirtualHost *:80>\n    \tProxyPreserveHost On\n\tProxyPass / http://kuma:3001/ upgrade=websocket\n\tProxyPassReverse / http://kuma:3001/\nDirectoryIndex index.php index.html default_page.html\n</VirtualHost>\n"
+	got, changed := stripServiceProxies(in, "kuma")
+	if !changed || strings.Contains(got, "ProxyPreserveHost") || strings.Contains(got, "kuma") {
+		t.Fatalf("bad strip:\n%s", got)
+	}
+	if !strings.Contains(got, "\n    DirectoryIndex index.php index.html default_page.html\n") {
+		t.Fatalf("marker indent not restored:\n%q", got)
+	}
+}

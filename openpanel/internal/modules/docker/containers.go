@@ -490,10 +490,7 @@ func handleEditContainer(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		if len(environmentVars) > 0 {
 			updatedService["environment"] = environmentVars
 		}
-		// keep the domain labels or delete won't know to remove the proxy
-		if labels, ok := svc["labels"]; ok {
-			updatedService["labels"] = labels
-		}
+		keepUneditedKeys(svc, updatedService)
 		if healthcheck != "" {
 			hc, err := parseYAMLString(healthcheck)
 			if err != nil {
@@ -717,4 +714,14 @@ func lastLines(out string, n int) string {
 		lines = lines[len(lines)-n:]
 	}
 	return strings.Join(lines, "\n")
+}
+
+// keepUneditedKeys carries over service keys the edit form doesn't show, so saving the form doesn't drop them:
+// the domain labels (or delete won't know to remove the proxy) and extra_hosts (e.g. mail.example.com:169.254.1.2 so an app can reach the server's mail over TLS)
+func keepUneditedKeys(old, updated map[string]any) {
+	for _, k := range []string{"labels", "extra_hosts"} {
+		if v, ok := old[k]; ok && v != nil {
+			updated[k] = v
+		}
+	}
 }

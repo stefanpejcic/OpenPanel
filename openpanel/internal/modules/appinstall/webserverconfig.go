@@ -93,12 +93,15 @@ func editApacheConfig(userContext, domainURL, subdirectory, serviceName string, 
 	if wsUpgrade {
 		proxyPassSuffix = " upgrade=websocket"
 	}
+	// apps get the visitor's Host (not "service:port"), otherwise Django/Rails style host and CSRF origin checks fail and apps build links to the container name
+	// stripServiceProxies removes this line together with the ProxyPass right after it
+	preserveHost := "\tProxyPreserveHost On\n"
 	if subdirectory != "" {
 		marker = "</VirtualHost>"
-		configLines = "\tProxyPass /" + subdirectory + "/ " + target + "/" + proxyPassSuffix + "\n\tProxyPassReverse /" + subdirectory + "/ " + target + "/"
+		configLines = preserveHost + "\tProxyPass /" + subdirectory + "/ " + target + "/" + proxyPassSuffix + "\n\tProxyPassReverse /" + subdirectory + "/ " + target + "/"
 	} else {
 		marker = "DirectoryIndex index.php index.html default_page.html"
-		configLines = "\tProxyPass / " + target + "/" + proxyPassSuffix + "\n\tProxyPassReverse / " + target + "/"
+		configLines = preserveHost + "\tProxyPass / " + target + "/" + proxyPassSuffix + "\n\tProxyPassReverse / " + target + "/"
 	}
 
 	backupPath := confPath + ".bak"
