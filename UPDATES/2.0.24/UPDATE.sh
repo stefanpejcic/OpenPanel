@@ -238,3 +238,12 @@ if [ -f /usr/local/opencli/docker/hosts.sh ]; then
 else
     echo "opencli is older than 2.0.24, run 'opencli update --cli' and then 'opencli docker-hosts'"
 fi
+
+# servers installed before the spool hook still run the old email-only iav_hook.sh, so scan results never reach Sentinel, rewrite it and the event rules
+if command -v imunify-antivirus >/dev/null 2>&1 && [ -d /etc/sysconfig/imunify360 ]; then
+    if grep -q "setup_av_hook" /usr/local/opencli/imunify.sh 2>/dev/null; then
+        opencli imunify hook || echo "Failed to set up the ImunifyAV hook, run 'opencli imunify hook' by hand"
+    else
+        echo "opencli is older than 2.0.24, run 'opencli update --cli' and then 'opencli imunify hook'"
+    fi
+fi
