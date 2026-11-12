@@ -72,6 +72,7 @@ To enable a specific blocklist:
 | [INTERSERVER_2D](https://sigs.interserver.net/ipslim.txt) | attacks | [interserver.net](https://sigs.interserver.net/) | Brute force/spam/malicious IPs (last 2 days). |  |
 | [INTERSERVER_7D](https://sigs.interserver.net/ip.txt) | attacks | [interserver.net](https://sigs.interserver.net/) | Same as above (last 7 days). |  |
 | [INTERSERVER_ALL](https://sigs.interserver.net/iprbl.txt) | attacks | [interserver.net](https://sigs.interserver.net/) | All known malicious IPs. |  |
+| [NETAPI](https://netapi.com/zf-api/f/compromised/ip/live/) | attacks | [netapi.com](https://netapi.com/compromised-ips/) | Attacking IPs seen by NetAPI's own honeypot sensors (last 48 hours, updated hourly). |  |
 | [SBLAM](https://sblam.com/blacklist.txt) | abuse | [sblam.com](https://sblam.com/) | Web form spammers. |  |
 | [SPAMDROP](https://www.spamhaus.org/drop/drop.lasso) | spam | [spamhaus.org](https://www.spamhaus.org/drop/) | DROP - Do not Route Or Peer List. |  |
 | [SPAMDROPV6](https://www.spamhaus.org/drop/dropv6.txt) | spam | [spamhaus.org](https://www.spamhaus.org/drop/) | DROPv6 for IPv6. |  |
