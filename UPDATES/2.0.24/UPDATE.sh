@@ -247,3 +247,11 @@ if command -v imunify-antivirus >/dev/null 2>&1 && [ -d /etc/sysconfig/imunify36
         echo "opencli is older than 2.0.24, run 'opencli update --cli' and then 'opencli imunify hook'"
     fi
 fi
+
+# sentinel checks yesterday's mail report for high bounces and deferrals, the settings page only saves keys that exist
+NOTIF_INI="/etc/openpanel/openadmin/config/notifications.ini"
+if [ -f "$NOTIF_INI" ]; then
+    for kv in mail=yes mail_bounce=20 mail_defer=20; do
+        grep -q "^${kv%%=*}=" "$NOTIF_INI" || sed -i "/^\[DEFAULT\]/a $kv" "$NOTIF_INI"
+    done
+fi
