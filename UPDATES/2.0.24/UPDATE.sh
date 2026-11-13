@@ -248,6 +248,24 @@ if command -v imunify-antivirus >/dev/null 2>&1 && [ -d /etc/sysconfig/imunify36
     fi
 fi
 
+# OpenSSH 9.8+ logs login failures as sshd-session[PID], Sentinel's SSH rules only match sshd[PID] so lfd never blocked SSH brute force (#1349)
+# the group is non-capturing so the IP/user capture numbers the rules read don't move, the file is put back if it no longer compiles, lfd only reads it on start
+SENTINEL_REGEX="/usr/local/csf/lib/Sentinel/RegexMain.pm"
+if [ -f "$SENTINEL_REGEX" ] && grep -qF 'sshd\[' "$SENTINEL_REGEX"; then
+    echo "Updating $SENTINEL_REGEX for OpenSSH 9.8+ log lines..."
+    cp -p "$SENTINEL_REGEX" "$SENTINEL_REGEX.bak"
+    perl -pi -e 's/sshd\\\[/sshd(?:-session)?\\[/g' "$SENTINEL_REGEX"
+    if perl -I/usr/local/csf/lib -c "$SENTINEL_REGEX" >/dev/null 2>&1 && ! grep -qF 'sshd\[' "$SENTINEL_REGEX"; then
+        rm -f "$SENTINEL_REGEX.bak"
+        if systemctl is-active --quiet lfd; then
+            systemctl restart lfd || echo "Failed to restart lfd, run 'systemctl restart lfd' by hand"
+        fi
+    else
+        mv -f "$SENTINEL_REGEX.bak" "$SENTINEL_REGEX"
+        echo "Failed to update $SENTINEL_REGEX, left it as it was"
+    fi
+fi
+
 # sentinel checks yesterday's mail report for high bounces and deferrals, the settings page only saves keys that exist
 NOTIF_INI="/etc/openpanel/openadmin/config/notifications.ini"
 if [ -f "$NOTIF_INI" ]; then

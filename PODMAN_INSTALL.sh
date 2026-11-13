@@ -805,6 +805,22 @@ setup_bind() {
     find /etc/bind/ -type f -print0 | xargs -0 chmod 644
 }
 
+# OpenSSH 9.8+ logs login failures as sshd-session[PID], Sentinel's SSH rules only match sshd[PID] so lfd never blocked SSH brute force (#1349)
+# the group is non-capturing so the IP/user capture numbers the rules read don't move, and the file is put back if it no longer compiles
+patch_sentinel_sshd_session() {
+    local regex=/usr/local/csf/lib/Sentinel/RegexMain.pm
+    [[ -f "$regex" ]] || return 0
+    grep -qF 'sshd\[' "$regex" || return 0
+    cp -p "$regex" "$regex.bak"
+    perl -pi -e 's/sshd\\\[/sshd(?:-session)?\\[/g' "$regex"
+    if perl -I/usr/local/csf/lib -c "$regex" >/dev/null 2>&1 && ! grep -qF 'sshd\[' "$regex"; then
+        rm -f "$regex.bak"
+    else
+        mv -f "$regex.bak" "$regex"
+        warn "Could not patch $regex for OpenSSH 9.8+ log lines, lfd may not block SSH brute force."
+    fi
+}
+
 setup_firewall() {
     if [[ "$SKIP_FIREWALL" == true ]]; then
         echo "Skipping firewall (--skip-firewall)."
@@ -832,6 +848,7 @@ setup_firewall() {
     else
         run apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
     fi
+    patch_sentinel_sshd_session
 
     if ! command -v iptables &>/dev/null; then
         pkg_install_with_retry iptables
