@@ -23,7 +23,7 @@ If both servers are in the same [multi-server cluster](/docs/admin/system/multi-
    * **Username**: SSH username for the remote server (usually `root`)
    * **Password**: SSH password for the specified user
 
-   [![2025-07-17-18-32.png](/img/docs-content/BvbcRp2k-2025-07-17-18-32.png)](/img/docs-content/BvbcRp2k-2025-07-17-18-32.png)
+   [![2025-07-17-18-32.png](/img/docs-content/BvbcRp2k-2025-07-17-18-32.png)](pathname:///img/docs-content/BvbcRp2k-2025-07-17-18-32.png)
 
 5. (Optional) Enable the **Live Transfer** option.
    If checked, the account will be suspended on the current server after migration, and DNS will be forwarded to the new server.

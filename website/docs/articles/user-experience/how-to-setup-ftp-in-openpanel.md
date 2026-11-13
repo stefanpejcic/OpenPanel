@@ -75,7 +75,7 @@ To restart:
 
 FTP is now enabled for all hosting plans that include the **ftp** feature. Affected users can access it under **OpenPanel > Files > FTP Accounts**.
 
-[![2025-07-09-11-42.png](/img/docs-content/rsjn8QYQ-2025-07-09-11-42.png)](/img/docs-content/rsjn8QYQ-2025-07-09-11-42.png)
+[![2025-07-09-11-42.png](/img/docs-content/rsjn8QYQ-2025-07-09-11-42.png)](pathname:///img/docs-content/rsjn8QYQ-2025-07-09-11-42.png)
 
 ---
 

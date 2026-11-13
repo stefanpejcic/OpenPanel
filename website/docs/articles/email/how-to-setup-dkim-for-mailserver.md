@@ -108,7 +108,7 @@ $ dig +short TXT mail._domainkey.example.com
 
 Currently mailserver needs to be stopped and started again in order to start signing your outgoing emails with DKIM. Navigate to **OpenAdmin > Services > Service Status** and click 'Stop' for mailserver, then again 'Start'.
 
-[![2025-07-17-15-37.png](/img/docs-content/d3hgY01F-2025-07-17-15-37.png)](/img/docs-content/d3hgY01F-2025-07-17-15-37.png)
+[![2025-07-17-15-37.png](/img/docs-content/d3hgY01F-2025-07-17-15-37.png)](pathname:///img/docs-content/d3hgY01F-2025-07-17-15-37.png)
 
 ---
 

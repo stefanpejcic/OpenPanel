@@ -19,7 +19,7 @@ Enabling Fail2Ban support requires granting at least the `NET_ADMIN` capability 
 
 To enable Fail2ban, navigate to **OpenAdmin > Emails > Settings** and under 'Enable Services' select **fail2ban** then click on 'Save Stack'.
 
-[![2025-07-17-14-33.png](/img/docs-content/G3q4ByVh-2025-07-17-14-33.png)](/img/docs-content/G3q4ByVh-2025-07-17-14-33.png)
+[![2025-07-17-14-33.png](/img/docs-content/G3q4ByVh-2025-07-17-14-33.png)](pathname:///img/docs-content/G3q4ByVh-2025-07-17-14-33.png)
 
 ---
 
@@ -27,7 +27,7 @@ To enable Fail2ban, navigate to **OpenAdmin > Emails > Settings** and under 'Ena
 
 Fail2ban requires that the mailserver container is stopped, and start again in order to activate. Navigate to **OpenAdmin > Services > Service Status** and click 'Stop' for mailserver, then again 'Start'.
 
-[![2025-07-17-15-37.png](/img/docs-content/d3hgY01F-2025-07-17-15-37.png)](/img/docs-content/d3hgY01F-2025-07-17-15-37.png)
+[![2025-07-17-15-37.png](/img/docs-content/d3hgY01F-2025-07-17-15-37.png)](pathname:///img/docs-content/d3hgY01F-2025-07-17-15-37.png)
 
 ---
 

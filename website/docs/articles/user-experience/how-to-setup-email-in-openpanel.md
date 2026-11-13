@@ -41,7 +41,7 @@ To start it:
 * Copy the command displayed on the page `opencli email-server install`
 * Paste it on Terminal and wait for the process to finish.
 
-[![2025-07-09-17-14.png](/img/docs-content/YCzMd1np-2025-07-09-17-14.png)](/img/docs-content/YCzMd1np-2025-07-09-17-14.png)
+[![2025-07-09-17-14.png](/img/docs-content/YCzMd1np-2025-07-09-17-14.png)](pathname:///img/docs-content/YCzMd1np-2025-07-09-17-14.png)
 
 ---
 
@@ -55,7 +55,7 @@ To do this:
 * Select the feature set you want to modify
 * Enable the **emails** feature
 
-[![2025-07-09-17-17.png](/img/docs-content/NjfzwmGG-2025-07-09-17-17.png)](/img/docs-content/NjfzwmGG-2025-07-09-17-17.png)
+[![2025-07-09-17-17.png](/img/docs-content/NjfzwmGG-2025-07-09-17-17.png)](pathname:///img/docs-content/NjfzwmGG-2025-07-09-17-17.png)
 
 ---
 
@@ -76,7 +76,7 @@ To restart:
 
 Email is now enabled for all hosting plans that include the **emails** feature. Affected users can access Webmail an Email accounts form access it under **OpenPanel > Email**.
 
-[![2025-07-09-17-19.png](/img/docs-content/44QPNySY-2025-07-09-17-19.png)](/img/docs-content/44QPNySY-2025-07-09-17-19.png)
+[![2025-07-09-17-19.png](/img/docs-content/44QPNySY-2025-07-09-17-19.png)](pathname:///img/docs-content/44QPNySY-2025-07-09-17-19.png)
 
 ---
 
