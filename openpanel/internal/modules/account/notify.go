@@ -2,10 +2,11 @@ package account
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
 	"encoding/json"
 	"log"
-	"math/rand"
+	"math/big"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -204,9 +205,16 @@ func checkIfUserShouldBeNotified(a *appctx.App, ctx context.Context, userID int,
 // generateRandomTokenOnce rewrites the *existing* mail_security_token= line in openpanel.config in place - a no-op if that line isn't already there, never appends a missing key
 func generateRandomTokenOnce() string {
 	const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+	// this token authenticates the panel to OpenAdmin's /send_email, so draw it from crypto/rand,
+	// not math/rand which is predictable
 	b := make([]byte, 64)
+	max := big.NewInt(int64(len(alphabet)))
 	for i := range b {
-		b[i] = alphabet[rand.Intn(len(alphabet))]
+		n, err := rand.Int(rand.Reader, max)
+		if err != nil {
+			return ""
+		}
+		b[i] = alphabet[n.Int64()]
 	}
 	token := string(b)
 
