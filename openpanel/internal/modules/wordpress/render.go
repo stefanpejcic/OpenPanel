@@ -37,7 +37,8 @@ func renderListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domai
 // InstallPageData is manager/wp/install.html's template context.
 type InstallPageData struct {
 	web.LayoutData
-	Domains []appctx.Domain
+	Domains    []appctx.Domain
+	WPProfiles []WPProfile
 }
 
 func renderInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request, domains []appctx.Domain) {
@@ -46,7 +47,7 @@ func renderInstallPage(a *appctx.App, w http.ResponseWriter, r *http.Request, do
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	data := InstallPageData{LayoutData: layout, Domains: domains}
+	data := InstallPageData{LayoutData: layout, Domains: domains, WPProfiles: listWPProfiles()}
 	if err := installPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("WORDPRESS - install template render error: %v", err)
 	}

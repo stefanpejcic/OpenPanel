@@ -95,6 +95,35 @@ func TestRenderInstallPage(t *testing.T) {
 		}
 	})
 
+	t.Run("wordpress profiles", func(t *testing.T) {
+		data := InstallPageData{
+			LayoutData: baseLayout(mgr, "/wordpress/install"),
+			Domains:    []appctx.Domain{{DomainID: 1, Docroot: "/var/www/html/example.com", DomainURL: "example.com"}},
+			WPProfiles: []WPProfile{{Slug: "shop", Name: "Shop & Store", Plugins: []string{"woocommerce"}}},
+		}
+		w := httptest.NewRecorder()
+		if err := installPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		for _, want := range []string{`name="wp_set"`, `<option value="shop">Shop &amp; Store</option>`, `value="none"`} {
+			if !strings.Contains(body, want) {
+				t.Errorf("expected %q in install page", want)
+			}
+		}
+	})
+
+	t.Run("no profiles hides the set picker", func(t *testing.T) {
+		data := InstallPageData{LayoutData: baseLayout(mgr, "/wordpress/install")}
+		w := httptest.NewRecorder()
+		if err := installPage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		if strings.Contains(w.Body.String(), `name="wp_set"`) {
+			t.Error("set picker shown without any profiles")
+		}
+	})
+
 	t.Run("enforced mysql prefix", func(t *testing.T) {
 		data := InstallPageData{
 			LayoutData: baseLayout(mgr, "/wordpress/install"),

@@ -85,6 +85,8 @@ For example, you might set up a default combo like:
 
 Every time you install a new site — boom, it’s ready with your preferred setup.
 
+Your hosting provider can also add ready-made sets, like *E-commerce* or *Blog*. When they have, the install form shows a **Plugins & themes set** field where you pick **Default** (your own sets, or the server's default ones if you have none), one of the provider's sets, or **None, clean WordPress** to install WordPress with no extra plugins or themes.
+
 📘 Read the full guide: [WordPress Plugin & Theme Sets in OpenPanel](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/)
 
 ### Bulk Actions

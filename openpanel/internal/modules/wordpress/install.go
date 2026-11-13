@@ -170,6 +170,16 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		emit(map[string]any{"error": msg})
 		return
 	}
+	// checked before anything is created so a gone profile doesn't leave a half-done site
+	wpSet := strings.TrimSpace(r.FormValue("wp_set"))
+	var wpProfile WPProfile
+	if wpSet != "" && wpSet != wpSetNone {
+		var ok bool
+		if wpProfile, ok = loadWPProfile(wpSet); !ok {
+			emit(map[string]any{"error": "The selected plugins and themes set no longer exists."})
+			return
+		}
+	}
 
 	installPath := docroot
 	if subdirectory != "" {
@@ -364,21 +374,30 @@ func handleInstallStream(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	emit(map[string]any{"status": "Enabling auto-login from SiteManager"})
 
 	emit(map[string]any{"status": "Checking for server-wide or user provided themes and plugins sets to be installed"})
-	systemWidePlugins := "/etc/openpanel/wordpress/sets/plugins.txt"
-	systemWideThemes := "/etc/openpanel/wordpress/sets/themes.txt"
-	userPlugins := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/wpcli_plugins.txt"
-	userThemes := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/wpcli_themes.txt"
+	switch {
+	case wpSet == wpSetNone:
+		emit(map[string]any{"status": "Skipping plugins and themes sets, clean install was selected"})
+	case wpProfile.Slug != "":
+		emit(map[string]any{"status": "Using the '" + wpProfile.Name + "' plugins and themes set"})
+		installSetItems(ctx, userContext, wpBaseCmd, installPath, wpProfile.Plugins, "plugin", emit)
+		installSetItems(ctx, userContext, wpBaseCmd, installPath, wpProfile.Themes, "theme", emit)
+	default:
+		systemWidePlugins := "/etc/openpanel/wordpress/sets/plugins.txt"
+		systemWideThemes := "/etc/openpanel/wordpress/sets/themes.txt"
+		userPlugins := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/wpcli_plugins.txt"
+		userThemes := "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/wpcli_themes.txt"
 
-	pluginFile := systemWidePlugins
-	if _, statErr := tenantfs.Stat(userPlugins); statErr == nil {
-		pluginFile = userPlugins
+		pluginFile := systemWidePlugins
+		if _, statErr := tenantfs.Stat(userPlugins); statErr == nil {
+			pluginFile = userPlugins
+		}
+		themeFile := systemWideThemes
+		if _, statErr := tenantfs.Stat(userThemes); statErr == nil {
+			themeFile = userThemes
+		}
+		processInstallSet(ctx, userContext, wpBaseCmd, installPath, pluginFile, "plugin", emit)
+		processInstallSet(ctx, userContext, wpBaseCmd, installPath, themeFile, "theme", emit)
 	}
-	themeFile := systemWideThemes
-	if _, statErr := tenantfs.Stat(userThemes); statErr == nil {
-		themeFile = userThemes
-	}
-	processInstallSet(ctx, userContext, wpBaseCmd, installPath, pluginFile, "plugin", emit)
-	processInstallSet(ctx, userContext, wpBaseCmd, installPath, themeFile, "theme", emit)
 
 	emit(map[string]any{"status": "Saving website information to SiteManager"})
 	if _, insertErr := a.DB.ExecContext(ctx,
@@ -570,9 +589,14 @@ func processInstallSet(ctx context.Context, userContext string, wpBaseCmd []stri
 	if err != nil {
 		return
 	}
-	for _, line := range strings.Split(string(content), "\n") {
-		item := strings.TrimSpace(line)
-		if item == "" {
+	installSetItems(ctx, userContext, wpBaseCmd, installPath, strings.Split(string(content), "\n"), wpType, emit)
+}
+
+// installSetItems installs and activates each plugin/theme slug or zip url
+func installSetItems(ctx context.Context, userContext string, wpBaseCmd []string, installPath string, items []string, wpType string, emit func(map[string]any)) {
+	for _, item := range items {
+		item = strings.TrimSpace(item)
+		if item == "" || strings.HasPrefix(item, "#") {
 			continue
 		}
 		emit(map[string]any{"status": "Installing " + wpType + ": " + item})

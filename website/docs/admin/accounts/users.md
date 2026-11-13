@@ -187,7 +187,7 @@ Example response:
 
 ## Single user
 
-To view detailed information about a user, and edit their settings, click on their username in the users table. The user page has tabs for Overview, Services, Storage, Resource usage, Activity and Login log, and a menu with Edit, Permissions, Export, Suspend (replaced by a single Unsuspend action if the account is already suspended) and Delete.
+To view detailed information about a user, and edit their settings, click on their username in the users table. The user page has tabs for Overview, Services, Storage, Volumes, Resource usage, Activity and Login log, and a menu with Edit, Permissions, Export, Suspend (replaced by a single Unsuspend action if the account is already suspended) and Delete.
 
 
 ### Statistics
@@ -253,14 +253,26 @@ Click an action, confirm it, and it runs on the selected services one after anot
 
 ### Storage
 
-Storage tab displays data from the [docker system df](https://docs.docker.com/reference/cli/docker/system/df/) command.
+Storage tab displays data from the [podman system df](https://docs.podman.io/en/latest/markdown/podman-system-df.1.html) command run as the user.
 
-- Volumes
-- Containers
-- Images
+- Volumes: the user's files, databases and other data. Click **Local Volumes** in the table or **Volumes (user files)** under the bar to open the [Volumes](#volumes) tab.
+- Containers: changes the user's containers made on top of their images.
+- Images: only the images the user pulled themselves. The images every account gets from the server's shared image store belong to root and aren't counted in the user's disk usage.
 
 ![Storage tab with the user volumes, containers and images from docker system df](/img/openadmin-screenshots/accounts/users-storage.png#gh-light-mode-only)
 ![Storage tab with the user volumes, containers and images from docker system df](/img/openadmin-screenshots/accounts/users-storage_dark.png#gh-dark-mode-only)
+
+### Volumes
+
+Volumes tab lists the user's podman volumes, biggest first, with the total count and size at the top:
+
+- **Volume**: the volume name and its description, for example *This volume holds the mysql/mariadb databases.*
+- **Purpose**: what the volume is for: storage, database or configuration.
+- **Used by**: the containers that mount the volume, with a green dot when the container is running. Hover a container to see the path it's mounted at.
+- **Created**: when the volume was created.
+- **Size**: the disk space the volume uses.
+
+Click a volume to see its mountpoint on the server, driver and scope, compose project, number of links, exact size in bytes, every container that mounts it (path inside the container and whether it's read-write or read-only), and all of its labels and options. **Refresh** reloads the list.
 
 ### Overview
 

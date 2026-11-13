@@ -814,6 +814,7 @@ func apiWordPressInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		DBUser           string `json:"db_user"`
 		DBPassword       string `json:"db_password"`
 		DBPrefix         string `json:"db_prefix"`
+		WPSet            string `json:"wp_set"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeAPIWPJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid JSON body"})
@@ -829,6 +830,7 @@ func apiWordPressInstall(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		"site_description": {body.SiteDescription}, "admin_username": {body.AdminUsername}, "admin_password": {body.AdminPassword},
 		"wordpress_version": {body.WordPressVersion}, "subdirectory": {body.Subdirectory},
 		"db_name": {body.DBName}, "db_user": {body.DBUser}, "db_password": {body.DBPassword}, "db_prefix": {body.DBPrefix},
+		"wp_set": {body.WPSet},
 	}
 	handleInstallPage(a, w, web.WithForm(r, form))
 }

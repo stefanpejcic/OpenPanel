@@ -49,6 +49,27 @@
             <select name="wordpress_version" id="wordpress_version"
                 class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 w-full truncate"></select>
         </div>
+
+        {{if .WPProfiles}}
+        <div class="mt-4" x-data="{ set: '', profiles: {{toJSON .WPProfiles}}, get picked() { return this.profiles.find(p => p.slug === this.set); } }">
+            <label class="mb-2 block text-sm font-medium text-gray-900 dark:text-gray-50" for="wp_set">
+                {{.T.Get "Plugins & themes set"}}
+            </label>
+            <select name="wp_set" id="wp_set" x-model="set" class="block w-full appearance-none rounded-md border border-gray-300 bg-white px-2.5 py-2 text-sm text-gray-900 shadow-xs outline-hidden transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:border-gray-300 disabled:bg-gray-100 disabled:text-gray-400 aria-[invalid=true]:border-red-500 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-red-200 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:placeholder:text-gray-500 dark:focus:border-blue-700 dark:focus:ring-blue-700/30 dark:disabled:border-gray-700 dark:disabled:bg-gray-800 dark:disabled:text-gray-500 w-full truncate">
+                <option value="">{{.T.Get "Default"}}</option>
+                {{range .WPProfiles}}<option value="{{.Slug}}">{{.Name}}</option>{{end}}
+                <option value="none">{{.T.Get "None, clean WordPress"}}</option>
+            </select>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-500" x-show="set === ''">{{.T.Get "Installs the server's default plugins and themes, or your own wpcli_plugins.txt and wpcli_themes.txt if you have them."}}</p>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-500" x-show="set === 'none'" x-cloak>{{.T.Get "No extra plugins or themes are installed."}}</p>
+            <template x-if="picked">
+                <div class="mt-1 space-y-0.5 text-xs text-gray-500 dark:text-gray-500">
+                    <p><span class="font-medium text-gray-700 dark:text-gray-300">{{.T.Get "Plugins"}}:</span> <span x-text="picked.plugins && picked.plugins.length ? picked.plugins.join(', ') : '-'"></span></p>
+                    <p><span class="font-medium text-gray-700 dark:text-gray-300">{{.T.Get "Themes"}}:</span> <span x-text="picked.themes && picked.themes.length ? picked.themes.join(', ') : '-'"></span></p>
+                </div>
+            </template>
+        </div>
+        {{end}}
     </div>
 
     <div class="p-4 sm:p-6">
