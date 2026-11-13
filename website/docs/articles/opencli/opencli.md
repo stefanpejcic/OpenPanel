@@ -320,7 +320,7 @@ Usage: opencli server-migrate -h <DESTINATION_IP> --user root --password <DESTIN
 ------------------------
 opencli update
 Description: Check if update is available, install updates.
-Usage: opencli update [--check | --force [--no-restart] | --admin | --panel | --cli | --translations | --system | --modules | --compose | --env | --php | --wp | --ols | --apache | --clamav | --phpmyadmin | --postgres | --skeleton | --ssh | --varnish | --cron]
+Usage: opencli update [--check | --force [--no-restart] | --admin | --panel | --cli | --translations | --system | --modules | --compose | --env | --php | --wp | --ols | --apache | --clamav | --phpmyadmin | --postgres | --skeleton | --ssh | --varnish | --cron | --caddy]
 ------------------------
 opencli user-2fa
 Description: Check or disable 2FA for a user.

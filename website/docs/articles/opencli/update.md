@@ -236,6 +236,25 @@ System package update ready to proceed. A full server backup is recommended befo
 
 You'll be asked to confirm before packages are updated. A full server backup is recommended beforehand.
 
+## Caddy
+
+Download a new image for the running `caddy` container (for example `openpanel/caddy-coraza:latest` when the WAF is enabled) and recreate the container with it:
+```bash
+opencli update --caddy
+```
+
+The new image first has to validate the current `/etc/openpanel/caddy/Caddyfile`. If the download or the validation fails, the running Caddy is left as it was. If the container already runs the newest image, nothing is restarted. Major version updates run this step automatically, after the system update.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli update --caddy
+[INFO] Downloading new caddy image docker.io/openpanel/caddy-coraza:latest
+[INFO] [✔] caddy already runs the newest docker.io/openpanel/caddy-coraza:latest
+```
+</details>
+
 ## Modules
 
 Update only the OpenAdmin modules/features list *(`/etc/openpanel/openadmin/config/features.json` from [stefanpejcic/openpanel-configuration](https://github.com/stefanpejcic/openpanel-configuration))*:
