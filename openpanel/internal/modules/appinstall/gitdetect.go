@@ -11,13 +11,29 @@ import (
 	"time"
 
 	"github.com/go-git/go-git/v5"
+	gitclient "github.com/go-git/go-git/v5/plumbing/transport/client"
+	githttp "github.com/go-git/go-git/v5/plumbing/transport/http"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/apiregistry"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/safenet"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
+
+// go-git is used only here (the git module shells out to the real git binary instead), so it is
+// safe to pin its HTTP(S) transport process-wide to safenet: that dials only public addresses and
+// re-checks the IP on every connection, so a user-supplied repo URL can't reach an internal
+// service via a redirect or DNS rebinding between the pre-check and the clone's own lookup.
+func init() {
+	safe := githttp.NewClient(&http.Client{
+		Transport: safenet.Transport(false),
+		Timeout:   30 * time.Second,
+	})
+	gitclient.InstallProtocol("http", safe)
+	gitclient.InstallProtocol("https", safe)
+}
 
 // RegisterGitDetect wires the startup-file detect helper, only registered when the "git" module is enabled
 func RegisterGitDetect(mux *http.ServeMux, a *appctx.App) {
