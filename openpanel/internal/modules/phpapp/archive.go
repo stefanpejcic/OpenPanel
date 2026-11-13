@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"gist.github.com/stefanpejcic/openpanel/internal/core/paths"
+	"gist.github.com/stefanpejcic/openpanel/internal/core/safenet"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 )
 
@@ -124,12 +125,18 @@ func firstMissingDir(p string) string {
 }
 
 // downloadFile fetches url into a new temp file under dir, returning its path - capped at 200MB to keep a misbehaving/huge remote file from filling disk
+// downloadTransport dials only public addresses: the URL is user-supplied and this runs as root,
+// and safenet re-checks the IP on every connection (including redirect hops), so neither a redirect
+// nor DNS rebinding to 127.0.0.1 / 169.254.169.254 / RFC1918 lands. Swappable so tests can point at
+// a loopback httptest server, matching the git module's remoteAddrOK.
+var downloadTransport http.RoundTripper = safenet.Transport(false)
+
 func downloadFile(ctx context.Context, url, dir, ext string) (string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return "", err
 	}
-	client := &http.Client{Timeout: 2 * time.Minute}
+	client := &http.Client{Timeout: 2 * time.Minute, Transport: downloadTransport}
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
