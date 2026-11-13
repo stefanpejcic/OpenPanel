@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/mail"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -22,6 +23,13 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/werkzeugpw"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
+
+// validContactEmail reports whether s is a usable single email address. The contact email is where
+// password-reset links go, so an empty or malformed value must be rejected rather than stored.
+func validContactEmail(s string) bool {
+	addr, err := mail.ParseAddress(s)
+	return err == nil && addr.Address == s
+}
 
 func updateEmailByID(ctx context.Context, a *appctx.App, userID int, newEmail string) error {
 	_, err := a.DB.ExecContext(ctx, "UPDATE users SET email = ? WHERE id = ?", newEmail, userID)
@@ -165,6 +173,12 @@ func handleAccountSettings(a *appctx.App, w http.ResponseWriter, r *http.Request
 		}
 
 		if newEmail != currentEmail {
+			if !validContactEmail(newEmail) {
+				flash.Add(sess, "error", web.Tr(a, r, "Enter a valid email address."))
+				_ = a.Sessions.Save(r, w, sess)
+				http.Redirect(w, r, "/account", http.StatusFound)
+				return
+			}
 			message := securityEmail(a, r, "Email address changed for account "+currentUsername,
 				"The contact email address for account "+currentUsername+" was changed from "+currentEmail+" to "+newEmail+". This is the last notification sent to this address, new ones go to "+newEmail+".",
 				"If you didn't change it, log in and set your email address back, then change your password.")
