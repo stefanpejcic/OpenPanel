@@ -1,0 +1,172 @@
+name: Release caddy-coraza
+
+# builds openpanel/caddy-coraza for amd64 + arm64, scans it with trivy and govulncheck,
+# pushes :<version> and :latest to docker hub and creates a github release with the scan report
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Caddy version (e.g. 2.11.9). Empty = CADDY_VERSION from caddy/Dockerfile"
+        required: false
+        type: string
+      revision:
+        description: "Image revision for rebuilds of the same caddy version (e.g. 1 -> 2.11.9-r1). Empty = none"
+        required: false
+        type: string
+      fail_on_vulns:
+        description: "Fail if trivy finds fixable HIGH/CRITICAL vulnerabilities"
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+env:
+  IMAGE_NAME: openpanel/caddy-coraza
+  TRIVY_VERSION: 0.76.2
+
+jobs:
+  caddy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set versions
+        id: vars
+        run: |
+          version="${{ inputs.version }}"
+          [ -z "$version" ] && version=$(sed -n 's/^ARG CADDY_VERSION=//p' caddy/Dockerfile)
+          version="${version#v}"
+          tag="$version"
+          [ -n "${{ inputs.revision }}" ] && tag="${version}-r${{ inputs.revision }}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Caddy $version -> ${{ env.IMAGE_NAME }}:$tag"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # amd64 build loaded locally, so it can be tested and scanned before anything is pushed
+      - name: Build amd64 image for testing
+        uses: docker/build-push-action@v6
+        with:
+          context: caddy
+          file: caddy/Dockerfile
+          platforms: linux/amd64
+          load: true
+          no-cache: true
+          pull: true
+          build-args: CADDY_VERSION=${{ steps.vars.outputs.version }}
+          tags: caddy-coraza:scan
+
+      - name: Check caddy version and modules
+        run: |
+          docker run --rm caddy-coraza:scan caddy version | tee version.txt
+          grep -q "v${{ steps.vars.outputs.version }}" version.txt || { echo "wrong caddy version"; exit 1; }
+          modules=$(docker run --rm caddy-coraza:scan caddy list-modules --skip-standard)
+          echo "$modules"
+          grep -q "http.handlers.rate_limit" <<< "$modules" || { echo "rate_limit module missing"; exit 1; }
+          grep -q "http.handlers.waf" <<< "$modules" || { echo "waf module missing"; exit 1; }
+
+      - name: Install trivy
+        run: |
+          V="${{ env.TRIVY_VERSION }}"
+          cd "$RUNNER_TEMP"
+          curl -fsSLO "https://github.com/aquasecurity/trivy/releases/download/v${V}/trivy_${V}_Linux-64bit.tar.gz"
+          curl -fsSLO "https://github.com/aquasecurity/trivy/releases/download/v${V}/trivy_${V}_checksums.txt"
+          grep " trivy_${V}_Linux-64bit.tar.gz$" "trivy_${V}_checksums.txt" | sha256sum -c -
+          tar -xzf "trivy_${V}_Linux-64bit.tar.gz" trivy
+          sudo install -m 0755 trivy /usr/local/bin/trivy
+          trivy --version
+
+      - name: Trivy scan
+        run: |
+          # full report (all severities) for the release notes
+          trivy image --no-progress --scanners vuln --format table \
+            --output trivy-report.txt caddy-coraza:scan
+          cat trivy-report.txt
+          # gate: fixable HIGH/CRITICAL
+          trivy image --no-progress --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed \
+            --format table --output trivy-high-critical.txt caddy-coraza:scan
+          if trivy image --no-progress --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed \
+               --exit-code 1 --quiet caddy-coraza:scan > /dev/null; then
+            echo "TRIVY_RESULT=No fixable HIGH or CRITICAL vulnerabilities found." >> "$GITHUB_ENV"
+          else
+            echo "TRIVY_RESULT=Fixable HIGH/CRITICAL vulnerabilities found, see trivy-report.txt." >> "$GITHUB_ENV"
+            cat trivy-high-critical.txt
+            if [ "${{ inputs.fail_on_vulns }}" = "true" ]; then exit 1; fi
+          fi
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "stable"
+          check-latest: true
+          cache: false
+
+      - name: govulncheck caddy binary
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          id=$(docker create caddy-coraza:scan)
+          docker cp "$id:/usr/bin/caddy" ./caddy-bin
+          docker rm "$id"
+          # report only: reachable vulns in third party modules are tracked here, trivy gates the release
+          govulncheck -mode=binary ./caddy-bin | tee govulncheck-report.txt || true
+          go version -m ./caddy-bin | head -3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push multi-arch image
+        uses: docker/build-push-action@v6
+        with:
+          context: caddy
+          file: caddy/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          no-cache: true
+          pull: true
+          build-args: CADDY_VERSION=${{ steps.vars.outputs.version }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.tag }}
+            ${{ env.IMAGE_NAME }}:latest
+
+      - name: Write release notes
+        run: |
+          {
+            echo "## openpanel/caddy-coraza ${{ steps.vars.outputs.tag }}"
+            echo
+            echo "- Caddy ${{ steps.vars.outputs.version }}, built with $(go version ./caddy-bin | awk '{print $2}')"
+            echo "- Coraza WAF (coraza-caddy v2.6.2) and caddy-ratelimit"
+            echo "- Alpine packages upgraded at build time"
+            echo "- Platforms: linux/amd64, linux/arm64"
+            echo
+            echo '```'
+            echo "docker pull ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.tag }}"
+            echo '```'
+            echo
+            echo "### Vulnerability scan"
+            echo "Trivy ${{ env.TRIVY_VERSION }}: ${TRIVY_RESULT}"
+            echo "Full reports are attached (trivy-report.txt, govulncheck-report.txt)."
+          } > release-notes.md
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: caddy-coraza-${{ steps.vars.outputs.tag }}
+          name: caddy-coraza ${{ steps.vars.outputs.tag }}
+          body_path: release-notes.md
+          # keep openpanel releases as the repo's "latest"
+          make_latest: false
+          files: |
+            trivy-report.txt
+            govulncheck-report.txt

@@ -1,6 +1,6 @@
 #!/bin/bash
 # builds openpanel/caddy-coraza for amd64 and arm64 into one manifest, and pushes it with --push
-# usage: bash build.sh [tag] [--push]   e.g. bash build.sh 2.11.7 --push  (also tags :latest)
+# usage: bash build.sh [tag] [--push]   e.g. bash build.sh 2.11.9 --push  (also tags :latest)
 set -euo pipefail
 cd "$(dirname "$0")"
 
