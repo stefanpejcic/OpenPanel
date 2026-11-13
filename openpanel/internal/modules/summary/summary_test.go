@@ -412,3 +412,28 @@ func TestCheckResources(t *testing.T) {
 		t.Errorf("process limit should need attention: %+v", b.s.Attention)
 	}
 }
+
+func TestCollectWAFReadsRotatedLogs(t *testing.T) {
+	b := testBuilder(t, "waf")
+	blocked := func(ts time.Time, uri string) string {
+		return fmt.Sprintf(`{"transaction":{"unix_timestamp":%d,"client_ip":"5.5.5.5","request":{"uri":"%s"},"is_interrupted":true}}`+"\n", ts.UnixNano(), uri)
+	}
+	at := b.from.Add(15 * time.Hour)
+	// the summary runs the morning after, the day's lines were rotated into .log.1 at midnight
+	write(t, wafLogDir+"a.com.log.1", blocked(at, "/xmlrpc.php")+blocked(at, "/blog/wp-login.php")+
+		`{"transaction":{"unix_timestamp":1,"client_ip":"5.5.5.5","is_interrupted":false}}`+"\n")
+	write(t, wafLogDir+"a.com.log", blocked(b.to.Add(time.Hour), "/next-day"))
+	// an older rotation untouched since before the day is skipped by its modification time
+	write(t, wafLogDir+"a.com.log.2.gz", "not read")
+	old := b.from.Add(-48 * time.Hour)
+	os.Chtimes(wafLogDir+"a.com.log.2.gz", old, old)
+	write(t, wafLogDir+"other.com.log.1", blocked(at, "/"))
+
+	b.collectWAF()
+	if w := b.buckets["a.com"]; w == nil || w.WAFBlocked != 1 {
+		t.Fatalf("a.com should have 1 block from .log.1: %+v", w)
+	}
+	if w := b.buckets["a.com/blog"]; w == nil || w.WAFBlocked != 1 {
+		t.Fatalf("the subfolder site keeps its own count: %+v", w)
+	}
+}

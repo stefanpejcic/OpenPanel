@@ -37,7 +37,12 @@ type accessLine struct {
 
 // logFiles are the domain's current log plus rotated ones that may still hold lines from the day, oldest first
 func logFiles(dir string, from time.Time) []string {
-	matches, _ := filepath.Glob(filepath.Join(dir, "access*.log*"))
+	return logFilesMatching(filepath.Join(dir, "access*.log*"), from)
+}
+
+// logFilesMatching is every file of a rotated log touched since from, oldest first, so yesterday's lines are found after the midnight rotation
+func logFilesMatching(pattern string, from time.Time) []string {
+	matches, _ := filepath.Glob(pattern)
 	type file struct {
 		path string
 		mod  time.Time
@@ -183,28 +188,31 @@ func (b *builder) collectWAF() {
 	}
 	total := 0
 	for _, d := range b.domains {
-		eachLine(wafLogDir+d.DomainURL+".log", func(raw []byte) {
-			// most lines are flagged, not blocked, skip those before decoding
-			if !bytes.Contains(raw, []byte(`"is_interrupted":true`)) {
-				return
-			}
-			var e wafEntry
-			if json.Unmarshal(raw, &e) != nil || !e.Transaction.IsInterrupted {
-				return
-			}
-			ts := time.Unix(0, e.Transaction.UnixTimestamp)
-			if ts.Before(b.from) || !ts.Before(b.to) {
-				return
-			}
-			name := d.DomainURL
-			if sub := errorlogs.SubsiteFor(d.DomainURL, e.Transaction.Request.URI, b.sites); sub != "" {
-				name = sub
-			}
-			w := b.website(name)
-			w.WAFBlocked++
-			w.wafIPs[e.Transaction.ClientIP]++
-			total++
-		})
+		// the audit logs rotate at midnight, yesterday is in .log.1 (or an older .gz) by the time the summary runs
+		for _, path := range logFilesMatching(wafLogDir+d.DomainURL+".log*", b.from) {
+			eachLine(path, func(raw []byte) {
+				// most lines are flagged, not blocked, skip those before decoding
+				if !bytes.Contains(raw, []byte(`"is_interrupted":true`)) {
+					return
+				}
+				var e wafEntry
+				if json.Unmarshal(raw, &e) != nil || !e.Transaction.IsInterrupted {
+					return
+				}
+				ts := time.Unix(0, e.Transaction.UnixTimestamp)
+				if ts.Before(b.from) || !ts.Before(b.to) {
+					return
+				}
+				name := d.DomainURL
+				if sub := errorlogs.SubsiteFor(d.DomainURL, e.Transaction.Request.URI, b.sites); sub != "" {
+					name = sub
+				}
+				w := b.website(name)
+				w.WAFBlocked++
+				w.wafIPs[e.Transaction.ClientIP]++
+				total++
+			})
+		}
 	}
 	if total > 0 {
 		b.good(fmt.Sprintf("The web firewall stopped %s on your websites.", plural(total, "attack", "attacks")))
