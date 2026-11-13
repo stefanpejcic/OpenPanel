@@ -145,7 +145,9 @@ func enforceAccessDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	switch {
 	case a.ForcePort != "":
 		portSuffix = ":" + a.ForcePort
-	case requestedPort != "":
+	case isNumericPort(requestedPort):
+		// only a real numeric port: net.SplitHostPort("x:@evil") yields port "@evil", which would make
+		// the redirect target "scheme://desiredDomain:@evil/..." - userinfo desiredDomain on host evil
 		portSuffix = ":" + requestedPort
 	}
 
@@ -153,4 +155,21 @@ func enforceAccessDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 	log.Printf("APP - The requested domain does not match the configured domain for panel access, redirecting to: %s", target)
 	http.Redirect(w, r, target, http.StatusMovedPermanently)
 	return true
+}
+
+// isNumericPort reports whether s is a decimal TCP port in 1..65535. net.SplitHostPort accepts a
+// non-numeric "port" (e.g. the "@evil.example" from a "host:@evil.example" Host header), so a port
+// taken from the request is only trusted when it passes this.
+func isNumericPort(s string) bool {
+	if s == "" || len(s) > 5 {
+		return false
+	}
+	n := 0
+	for _, c := range s {
+		if c < '0' || c > '9' {
+			return false
+		}
+		n = n*10 + int(c-'0')
+	}
+	return n >= 1 && n <= 65535
 }
