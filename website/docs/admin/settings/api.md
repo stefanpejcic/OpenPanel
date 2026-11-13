@@ -21,7 +21,7 @@ To begin:
 
 2. **Browse the API reference**
 
-   Once enabled, the page shows the interactive OpenAdmin API reference, with every endpoint grouped by section (Authentication, Users, Domains, Plans, Containers, DNS, Email, and more). Use **Download spec** to download the OpenAPI specification file, or **Disable API access** to turn the API off again.
+   Once enabled, the page shows the interactive OpenAdmin API reference, with every endpoint grouped by section (Authentication, Users, Domains, Plans, Containers, DNS, Email, and more). Use **Download spec** to download the OpenAPI specification file (also available [here](pathname:///openadmin-openapi.yaml)), or **Disable API access** to turn the API off again.
 
    ![API Access page with API access enabled, the Download spec and Disable API access buttons, and the interactive OpenAdmin API reference](/img/openadmin-screenshots/settings/api_server-enabled.png#gh-light-mode-only)
    ![API Access page with API access enabled, the Download spec and Disable API access buttons, and the interactive OpenAdmin API reference](/img/openadmin-screenshots/settings/api_server-enabled_dark.png#gh-dark-mode-only)
