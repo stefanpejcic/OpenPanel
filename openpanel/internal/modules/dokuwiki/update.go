@@ -37,6 +37,13 @@ func handleDokuwikiUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		emit(map[string]any{"error": "Missing required domain/docroot."})
 		return
 	}
+	// docroot is interpolated into the in-container apply script (mkdir/rm -rf/cp -a/chown),
+	// so it must be a plain path under /var/www/html with no shell metacharacters - the other
+	// CMS updaters (matomo/nextcloud/mediawiki) gate it the same way.
+	if !appkit.SafeDocroot(docroot) {
+		emit(map[string]any{"error": "Invalid docroot."})
+		return
+	}
 	domain := selectedDomain
 	if idx := strings.Index(selectedDomain, "/"); idx != -1 {
 		domain = selectedDomain[:idx]
