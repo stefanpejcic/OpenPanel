@@ -110,6 +110,18 @@ func apiContainerCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIDockerJSON(w, http.StatusConflict, map[string]string{"error": fmt.Sprintf("Service '%s' already exists in docker-compose.yml.", serviceName)})
 		return
 	}
+	// validate image and network the same way handleAddContainer does - the API skipped both,
+	// so an empty/malformed/flag-like image or a non-existent network could be written straight
+	// into the compose file (an empty network breaks parsing of the whole file for the account).
+	if !imageRefRE.MatchString(image) {
+		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": "Enter a valid image, for example nginx:latest or ghcr.io/owner/app:1.0."})
+		return
+	}
+	networks := selectedNetworks([]string{network}, GetAvailableNetworks(composeData))
+	if len(networks) == 0 {
+		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": "Choose a valid network."})
+		return
+	}
 	if !IsValidCPULimit(cpu) {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": "CPU limit must be a positive number."})
 		return
@@ -125,7 +137,6 @@ func apiContainerCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	cpuKey, ramKey := servicePrefix+"_CPU", servicePrefix+"_RAM"
 	newEnvVars[cpuKey] = cpu
 	newEnvVars[ramKey] = ram
-	UpdateEnvFileWithVars(userContext, newEnvVars)
 
 	if volErr := checkNewVolumes(GetAvailableVolumes(composeData), volNames); volErr != nil {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
@@ -135,6 +146,8 @@ func apiContainerCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
 		return
 	}
+	// only mutate .env once the request has passed validation, so a rejected request leaves it alone
+	UpdateEnvFileWithVars(userContext, newEnvVars)
 	declareNewVolumes(composeData, volNames, serviceName)
 	mappedVolumes := ParseVolumeEntries(volNames, volMounts, volReadonly, body.AddSocket)
 
@@ -144,7 +157,7 @@ func apiContainerCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		"deploy": map[string]any{"resources": map[string]any{"limits": map[string]any{
 			"cpus": "${" + cpuKey + ":-" + cpu + "}", "memory": "${" + ramKey + ":-" + ram + "}", "pids": 100,
 		}}},
-		"networks": []string{network},
+		"networks": networks,
 	}
 	if len(environmentVars) > 0 {
 		newService["environment"] = environmentVars
@@ -206,6 +219,17 @@ func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": "Service name cannot be changed."})
 		return
 	}
+	// validate image and network like handleEditContainer; an existing service may keep a
+	// ${VAR}-templated tag, so imageVarRE is accepted here as well as a plain ref.
+	if !imageRefRE.MatchString(image) && !imageVarRE.MatchString(image) {
+		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": "Enter a valid image, for example nginx:latest or ghcr.io/owner/app:1.0."})
+		return
+	}
+	networks := selectedNetworks([]string{strings.TrimSpace(network)}, GetAvailableNetworks(composeData))
+	if len(networks) == 0 {
+		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": "Choose a valid network."})
+		return
+	}
 	if !IsValidCPULimit(cpu) {
 		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": "CPU limit must be a positive number."})
 		return
@@ -222,6 +246,16 @@ func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	newEnvVars[cpuKey] = cpu
 	newEnvVars[ramKey] = ram
 
+	if volErr := checkNewVolumes(GetAvailableVolumes(composeData), volNames); volErr != nil {
+		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
+		return
+	}
+	if volErr := checkHostPaths(composeData, volNames, userContext, service); volErr != nil {
+		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
+		return
+	}
+
+	// write .env only after validation passes, so a rejected edit doesn't mutate it
 	currentEnv := LoadEnvFile(userContext)
 	prefix := servicePrefix + "_"
 	for k := range currentEnv {
@@ -234,26 +268,23 @@ func apiContainerEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	_ = SaveEnvFile(userContext, currentEnv)
 
-	if volErr := checkNewVolumes(GetAvailableVolumes(composeData), volNames); volErr != nil {
-		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
-		return
-	}
-	if volErr := checkHostPaths(composeData, volNames, userContext, service); volErr != nil {
-		writeAPIDockerJSON(w, http.StatusBadRequest, map[string]string{"error": volErr.Error()})
-		return
-	}
 	declareNewVolumes(composeData, volNames, serviceName)
 	mappedVolumes := ParseVolumeEntries(volNames, volMounts, volReadonly, body.AddSocket)
 
 	updatedService := map[string]any{
 		"image": image, "container_name": serviceName, "restart": "always",
-		"volumes": mappedVolumes, "networks": []string{network},
+		"volumes": mappedVolumes, "networks": networks,
 		"deploy": map[string]any{"resources": map[string]any{"limits": map[string]any{
 			"cpus": "${" + cpuKey + "}", "memory": "${" + ramKey + "}", "pids": 100,
 		}}},
 	}
 	if len(environmentVars) > 0 {
 		updatedService["environment"] = environmentVars
+	}
+	// carry over compose keys the edit form doesn't surface (labels like openpanel.domain/port,
+	// extra_hosts, etc.) so an API edit doesn't silently drop them, matching handleEditContainer.
+	if oldSvc, ok := services[service].(map[string]any); ok {
+		keepUneditedKeys(oldSvc, updatedService)
 	}
 	if healthcheck != "" {
 		hc, hcErr := parseYAMLString(healthcheck)
