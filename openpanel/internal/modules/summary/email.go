@@ -87,6 +87,14 @@ func (s Summary) Body(base string) string {
 		sb.WriteString("\n")
 	}
 
+	if len(s.Databases) > 0 {
+		sb.WriteString("YOUR DATABASES\n")
+		for _, d := range s.Databases {
+			sb.WriteString("- " + databaseLine(d) + "\n")
+		}
+		sb.WriteString("\n")
+	}
+
 	var account []string
 	account = append(account, s.Facts...)
 	// disk, CPU and memory go to the email as bars, not text

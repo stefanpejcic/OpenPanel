@@ -112,6 +112,7 @@ type Summary struct {
 	Look         []Item     `json:"look"`
 	Good         []string   `json:"good"`
 	Websites     []Website  `json:"websites"`
+	Databases    []Database `json:"databases"`
 	Logins       []Login    `json:"logins"`
 	Changes      []string   `json:"changes"`
 	Usage        []UsageBar `json:"usage"`
@@ -179,7 +180,7 @@ func Build(ctx context.Context, a *appctx.App, username string, day time.Time) (
 	from := time.Date(day.Year(), day.Month(), day.Day(), 0, 0, 0, 0, day.Location())
 	s := &Summary{
 		Username: username, Date: from.Format("2006-01-02"), From: from, To: from.AddDate(0, 0, 1), GeneratedAt: time.Now(),
-		Attention: []Item{}, Look: []Item{}, Good: []string{}, Websites: []Website{}, Logins: []Login{}, Changes: []string{}, Facts: []string{}, Usage: []UsageBar{},
+		Attention: []Item{}, Look: []Item{}, Good: []string{}, Websites: []Website{}, Databases: []Database{}, Logins: []Login{}, Changes: []string{}, Facts: []string{}, Usage: []UsageBar{},
 	}
 	b := &builder{a: a, username: username, userID: userID, userContext: userContext, allowed: allowed, from: s.From, to: s.To, s: s, buckets: map[string]*Website{}}
 	b.domains, _ = a.AllDomainsForUser(ctx, userID)
@@ -194,6 +195,7 @@ func Build(ctx context.Context, a *appctx.App, username string, day time.Time) (
 	b.checkSSL()
 	b.checkCrons(ctx)
 	b.checkServices(ctx)
+	b.collectDatabases(ctx)
 	b.checkDisk(ctx)
 	b.checkResources()
 	b.checkBackups()

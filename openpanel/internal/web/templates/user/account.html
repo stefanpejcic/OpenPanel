@@ -57,12 +57,12 @@
             {{if .ThisIP}}
             <div>
                 <dt class="text-gray-500">{{.T.Get "This session's IP"}}</dt>
-                <dd class="mt-1 font-mono text-gray-900 dark:text-gray-50">{{.ThisIP}}</dd>
+                <dd class="mt-1 flex items-center gap-2 font-mono text-gray-900 dark:text-gray-50">{{.ThisIP}}{{with .ThisCountry}}<img src="/static/flags/{{.}}.png" alt="{{upper .}}" title="{{upper .}}" class="h-3 w-4 shrink-0 rounded-xs" onerror="this.remove()">{{end}}</dd>
             </div>
             {{end}}
             <div>
                 <dt class="text-gray-500">{{.T.Get "Last login"}}</dt>
-                <dd class="mt-1 text-gray-900 dark:text-gray-50">{{if .LastIP}}<span class="font-mono">{{.LastIP}}</span>{{with .LastLoginTime}} <span class="text-gray-500 tabular-nums">· {{.}}</span>{{end}}{{else}}<span class="text-gray-500">–</span>{{end}}</dd>
+                <dd class="mt-1 text-gray-900 dark:text-gray-50">{{if .LastIP}}<span class="font-mono">{{.LastIP}}</span>{{with .LastCountry}} <img src="/static/flags/{{.}}.png" alt="{{upper .}}" title="{{upper .}}" class="inline h-3 w-4 rounded-xs align-[-1px]" onerror="this.remove()">{{end}}{{with .LastLoginTime}} <span class="text-gray-500 tabular-nums">· {{.}}</span>{{end}}{{else}}<span class="text-gray-500">–</span>{{end}}</dd>
             </div>
             {{with .MemberSinceLabel}}
             <div>

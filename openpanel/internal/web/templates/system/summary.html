@@ -196,6 +196,43 @@ function summaryWidget(key, extra) {
             </div>
         </section>
 
+        {{if .Databases}}
+        <section x-data="summaryWidget('databases')" class="bg-white dark:bg-gray-950 lg:col-span-2" aria-labelledby="summary-databases-title">
+            <div class="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
+                <div class="min-w-0">
+                    <h2 id="summary-databases-title" class="inline text-sm font-semibold text-gray-900 dark:text-gray-50">{{$.T.Get "Databases"}} <span class="font-normal text-gray-500 tabular-nums">({{len .Databases}})</span></h2>
+                    <p class="text-sm/6 text-gray-500" x-show="open">{{$.T.Get "Size, traffic and errors for each database server."}}</p>
+                </div>
+                <div class="flex shrink-0 items-center gap-3"><button type="button" @click="toggle()" :aria-expanded="open.toString()" :aria-label="open ? '{{$.T.Get "Collapse"}}' : '{{$.T.Get "Expand"}}'" class="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/80 dark:hover:text-gray-50 cursor-pointer"><i class="ri-arrow-up-s-line text-lg leading-none transition-transform" :class="open || 'rotate-180'" aria-hidden="true"></i></button></div>
+            </div>
+            <div x-show="open" class="px-4 pt-1 pb-5 sm:px-6 lg:px-8">
+            <ul id="summary-databases" class="mt-3 divide-y divide-gray-200 dark:divide-gray-800">
+                {{range .Databases}}
+                <li class="py-3 text-sm">
+                    <div class="flex items-center justify-between gap-4">
+                        <div class="flex min-w-0 items-center gap-2">
+                            <a href="{{.Link}}" class="truncate font-medium text-gray-900 hover:underline hover:underline-offset-4 dark:text-gray-50">{{.Engine}}</a>
+                            {{if .Errors}}<span class="shrink-0 inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{$.Summary.Num .Errors}} {{$.T.Get "errors"}}</span>{{end}}
+                            {{if gt .Refused 0}}<span class="shrink-0 inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.Num .Refused}} {{$.T.Get "refused"}}</span>{{end}}
+                        </div>
+                        {{if .Counters}}<span class="shrink-0 font-medium tabular-nums text-gray-900 dark:text-gray-50">{{.Sized}}</span>{{end}}
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">
+                        {{if .Counters}}{{$.Summary.Num .Databases}} {{$.T.Get "databases"}}{{end}}
+                        {{if ge .Queries 0}} · {{.Num .Queries}} {{$.T.Get .QueriesLabel}}{{end}}
+                        {{if ge .Connections 0}} · {{.Num .Connections}} {{$.T.Get "Connections"}}{{end}}
+                        {{if and (ge .PeakConnections 0) (gt .MaxConnections 0)}} · {{$.T.Get "Peak"}} {{.PeakConnections}} / {{.MaxConnections}}{{end}}
+                        {{if gt .FailedLogins 0}} · {{.Num .FailedLogins}} {{$.T.Get "Failed logins"}}{{end}}
+                        {{if gt .SlowQueries 0}} · {{.Num .SlowQueries}} {{$.T.Get "Slow queries"}}{{end}}
+                        {{if gt .Deadlocks 0}} · {{.Num .Deadlocks}} {{$.T.Get "Deadlocks"}}{{end}}
+                    </p>
+                </li>
+                {{end}}
+            </ul>
+            </div>
+        </section>
+        {{end}}
+
         {{if .Changes}}
         <section x-data="summaryWidget('changes', { all: false })" class="bg-white dark:bg-gray-950 lg:col-span-2" aria-labelledby="summary-changes-title">
             <div class="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8" :class="open && 'border-b border-gray-200 dark:border-gray-800'">

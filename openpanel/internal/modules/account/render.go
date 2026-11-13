@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
@@ -41,6 +42,8 @@ type AccountPageData struct {
 	MemberSince time.Time
 	// PasskeyCount is -1 when it couldn't be read
 	PasskeyCount int
+	// country codes for the flags next to the IPs, empty when unknown or the admin turned flags off
+	ThisCountry, LastCountry string
 }
 
 func renderAccountPage(a *appctx.App, w http.ResponseWriter, r *http.Request, permitUsernameChange string) {
@@ -67,6 +70,14 @@ func renderAccountPage(a *appctx.App, w http.ResponseWriter, r *http.Request, pe
 			last = logins[len(logins)-2]
 		}
 		data.LastIP, data.LastLoginTime = last.IP, last.LoginTime
+		if a.Config.Get("ip_county_flag", "yes") == "yes" {
+			data.LastCountry = flagCountry(last.CountryCode)
+			if cur := logins[len(logins)-1]; cur.IP == data.ThisIP {
+				data.ThisCountry = flagCountry(cur.CountryCode)
+			} else if data.ThisIP != "" {
+				data.ThisCountry = flagCountry(getCountryCode(a, r.Context(), data.ThisIP))
+			}
+		}
 	}
 	if err := accountPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("ACCOUNT - settings template render error: %v", err)
@@ -326,4 +337,12 @@ func renderAPISwaggerPage(a *appctx.App, w http.ResponseWriter, r *http.Request,
 	if err := apiSwaggerPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("ACCOUNT - api swagger template render error: %v", err)
 	}
+}
+
+// flagCountry keeps a 2 letter code that has a flag image, the lookup saves UNKNOWN when it fails
+func flagCountry(code string) string {
+	if len(code) != 2 {
+		return ""
+	}
+	return strings.ToLower(code)
 }
