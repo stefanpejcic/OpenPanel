@@ -131,7 +131,7 @@ func mysqlRows(ctx context.Context, a *appctx.App, userContext string) []Dashboa
 	var out []DashboardListRow
 	for _, r := range res {
 		if len(r) >= 2 {
-			out = append(out, dbRow(fmt.Sprint(r[0]), kind, "/mysql", int64(mysqlmanager.ToInt(r[1]))))
+			out = append(out, dbRow(mysqlmanager.ToString(r[0]), kind, "/mysql", int64(mysqlmanager.ToInt(r[1]))))
 		}
 	}
 	return out
