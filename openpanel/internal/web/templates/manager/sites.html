@@ -557,7 +557,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 ? `/wp-cli/login?domain=${encodeURIComponent(siteName)}`
                 : `/${siteType}/login?domain=${encodeURIComponent(siteName)}&docroot=${encodeURIComponent(docroot)}`;
 
-            fetch(url, { headers: { 'X-CSRF-Token': csrf_token } })
+            // wp-cli login writes a token so it's POST-only
+            fetch(url, { method: siteType === "wordpress" ? 'POST' : 'GET', headers: { 'X-CSRF-Token': csrf_token } })
                 .then(response => response.json())
                 .then(data => {
                     if (data && data.login_link) {

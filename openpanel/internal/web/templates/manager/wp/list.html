@@ -258,7 +258,7 @@
     function handleLoginClick(domain) {
         var xhr = new XMLHttpRequest();
 
-        xhr.open('GET', '/wp-cli/login?domain=' + encodeURIComponent(domain), true);
+        xhr.open('POST', '/wp-cli/login?domain=' + encodeURIComponent(domain), true);
         xhr.setRequestHeader("X-CSRF-Token", csrf_token);
 
         xhr.onreadystatechange = function () {

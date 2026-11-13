@@ -53,11 +53,9 @@ func handleDomainStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	// goaccess_single.html has no {% extends %} - the report is a complete standalone HTML document, not wrapped in the panel's own layout, so this writes the file's bytes directly rather than going through a web.Page
-	// the report is built by GoAccess from anonymous visitor data (User-Agent/Referer/URLs); serve it
-	// sandboxed so that if GoAccess ever fails to escape something, the injected script can't run with
-	// the viewer's panel session (no allow-same-origin).
+	// sandboxed since the report is built from visitor data; font-src for its embedded icon font, frame-ancestors since Set drops the global one
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Header().Set("Content-Security-Policy", "sandbox allow-scripts; default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:")
+	w.Header().Set("Content-Security-Policy", "sandbox allow-scripts; default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; font-src data:; frame-ancestors 'self'")
 	_, _ = w.Write(content)
 }
 
