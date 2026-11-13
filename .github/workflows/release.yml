@@ -125,3 +125,12 @@ jobs:
           push: true
           no-cache: true
           tags: ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.tag }}
+
+      # api caches latest_version for 12h, the installer and openadmin read it from there
+      - name: Purge api.openpanel.com latest version cache
+        if: ${{ !inputs.beta }}
+        continue-on-error: true
+        run: |
+          curl -fsS --max-time 30 "https://api.openpanel.com/v2/statistics/?action=purge"
+          echo
+          curl -fsS --max-time 30 "https://api.openpanel.com/v2/statistics/?field=latest_version"
