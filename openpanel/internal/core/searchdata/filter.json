@@ -378,6 +378,12 @@
       "name": "IP Blocker"
     }, 
     {
+      "description": "Allow, rate-limit, or block AI crawlers per website and inspect top bots.", 
+      "link": "/server/bot-control", 
+      "module": "bot_control", 
+      "name": "AI & Bot Control"
+    }, 
+    {
       "description": "Manage system services.", 
       "link": "/services/", 
       "module": "services", 

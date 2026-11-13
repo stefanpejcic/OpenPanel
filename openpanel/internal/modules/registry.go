@@ -13,6 +13,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/autoinstaller"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/backups"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/backupwizard"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/botcontrol"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/crons"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/dashboard"
@@ -249,6 +250,10 @@ var configured = map[string]Registrar{
 		waf.Register(mux, a)
 		waf.RegisterAPI(mux, a)
 		waf.RegisterAccountAPI(mux, a)
+	},
+	"bot_control": func(mux *http.ServeMux, a *appctx.App) {
+		botcontrol.Register(mux, a)
+		botcontrol.RegisterAPI(mux, a)
 	},
 	"account": func(mux *http.ServeMux, a *appctx.App) {
 		account.RegisterSettings(mux, a)
