@@ -68,6 +68,10 @@ func handleCronjobsRunWS(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "invalid container name", http.StatusBadRequest)
 		return
 	}
+	if !containerAllowed(r.Context(), userContext, job.Container) {
+		http.Error(w, "container is not one of your containers", http.StatusForbidden)
+		return
+	}
 
 	conn, err := runWsUpgrader.Upgrade(w, r, nil)
 	if err != nil {

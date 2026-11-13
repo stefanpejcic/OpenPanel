@@ -367,3 +367,24 @@ func cronContainers(ctx context.Context, userContext string) []string {
 	})
 	return names
 }
+
+// containerAllowed reports whether container is one of the user's own compose services.
+// The create form enforces this through newJobProblem, but every other write and run path
+// has to as well: FilterUserServices excludes internal containers like cron and docker-proxy,
+// and docker-proxy bind-mounts the account's podman socket, so "exec" into it is a
+// container-escape primitive. A job that targets an excluded container must never run.
+func containerAllowed(ctx context.Context, userContext, container string) bool {
+	return containsString(cronContainers(ctx, userContext), container)
+}
+
+// checkCronContainersAllowed verifies every [job-exec] block in content targets one of the
+// user's own containers. "" means fine. Used by the raw-file writers, which otherwise only
+// check the name's syntax (cronContainerRE), not that the container is the account's own.
+func checkCronContainersAllowed(content string, allowed []string) string {
+	for _, j := range ParseCronFile(content) {
+		if !containsString(allowed, j.Container) {
+			return "Container " + j.Container + " isn't one of your containers."
+		}
+	}
+	return ""
+}

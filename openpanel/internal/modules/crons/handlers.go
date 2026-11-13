@@ -336,6 +336,10 @@ func handleSaveCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Invalid crons file format: %(err_msg)s", "err_msg", errMsg), "/cronjobs/editor")
 		return
 	}
+	if msg := checkCronContainersAllowed(crontabContent, cronContainers(ctx, userContext)); msg != "" {
+		web.FlashRedirect(a, w, r, "error", msg, "/cronjobs/editor")
+		return
+	}
 
 	if writeErr := writeCronFile(resolvedPath, crontabContent, true); writeErr != nil {
 		web.FlashRedirect(a, w, r, "error", "Error saving cron job. Please try again.", "/cronjobs/editor")
@@ -383,6 +387,10 @@ func handleEditCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	if msg := checkCronJobFields(schedule, command, container, comment); msg != "" {
 		web.FlashRedirect(a, w, r, "error", msg, "/cronjobs")
+		return
+	}
+	if !containerAllowed(ctx, userContext, container) {
+		web.FlashRedirect(a, w, r, "error", web.Tr(a, r, "Container %(container)s isn't one of your containers.", "container", container), "/cronjobs")
 		return
 	}
 
