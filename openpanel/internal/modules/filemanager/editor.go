@@ -21,6 +21,20 @@ import (
 
 var allowedEditors = map[string]bool{"monaco": true, "ace": true, "codemirror": true, "text": true}
 
+// serveImageInline serves an image file for viewing in the browser. SVG is the exception:
+// it is an XML document that can carry <script>, and served inline from the panel's own
+// origin that script runs with the viewer's panel session. A tenant can drop an SVG into
+// its own webroot (upload form, cloned repo, extracted archive), so SVG is sent as a
+// sandboxed, non-sniffed attachment instead of rendered inline.
+func serveImageInline(w http.ResponseWriter, r *http.Request, name string, modTime time.Time, content io.ReadSeeker, mimeType string) {
+	if strings.Contains(mimeType, "svg") {
+		w.Header().Set("Content-Disposition", "attachment; filename="+strconv.Quote(name))
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("Content-Security-Policy", "sandbox; default-src 'none'")
+	}
+	http.ServeContent(w, r, name, modTime, content)
+}
+
 // isEditableFile is a crude binary-file sniff: no NUL byte in the first 8KB
 func isEditableFile(root *paths.UserRoot, rel string) bool {
 	f, err := openRegular(root, rel)
@@ -373,7 +387,7 @@ func handleViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filen
 
 	mimeType := mime.TypeByExtension(filepath.Ext(filename))
 	if strings.HasPrefix(mimeType, "image/") {
-		http.ServeContent(w, r, info.Name(), info.ModTime(), f)
+		serveImageInline(w, r, info.Name(), info.ModTime(), f, mimeType)
 		return
 	}
 
