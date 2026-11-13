@@ -47,6 +47,18 @@ const SITE_PAGES = [
             "OpenPanel Community edition is a free web hosting control panel, suitable for VPS and private use.",
     },
     {
+        permalink: "/solutions/for-hosting-providers/",
+        title: "OpenPanel for Hosting Providers: One Licence, Everything Built In",
+        description:
+            "Per-user isolation, WAF, malware scanning and backups in one €14.95/month licence. No add-on licences, no per-account fees.",
+    },
+    {
+        permalink: "/solutions/for-agencies/",
+        title: "OpenPanel for Agencies: Secure Client Hosting, No Add-ons",
+        description:
+            "Host every client on your own server: isolation, WAF, malware scanning, backups and a WordPress manager in one €14.95/month licence.",
+    },
+    {
         permalink: "/cpanel-alternative/",
         title: "OpenPanel vs cPanel/WHM: Alternative Hosting Panel Compared",
         description:

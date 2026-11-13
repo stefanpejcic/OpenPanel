@@ -6,8 +6,8 @@ export default function ForAgencies() {
         <SolutionPage
             slug="for-agencies"
             eventPrefix="solutions_agencies"
-            metaTitle="OpenPanel for Agencies: Secure Client Hosting Without Add-on Licences"
-            metaDescription="Host every client site on your own server with OpenPanel: per-client isolation, WAF, malware scanning, backups and a WordPress manager in one €14.95/month licence."
+            metaTitle="OpenPanel for Agencies: Secure Client Hosting, No Add-ons"
+            metaDescription="Host every client on your own server: isolation, WAF, malware scanning, backups and a WordPress manager in one €14.95/month licence."
             eyebrow="OpenPanel for agencies"
             heroTitle={
                 <>

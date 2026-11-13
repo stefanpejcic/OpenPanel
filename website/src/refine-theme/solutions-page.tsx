@@ -891,9 +891,15 @@ export const SolutionPage = (props: SolutionPageProps) => {
             <html data-active-page="index" />
             <title>{p.metaTitle}</title>
             <meta property="og:title" content={p.metaTitle} />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
+            <meta property="og:image:type" content="image/png" />
         </Head>
         <FaqSchema faq={p.faq} />
-        <CommonLayout description={p.metaDescription}>
+        <CommonLayout
+            description={p.metaDescription}
+            image={`/img/og/solutions/${p.slug}.png`}
+        >
             <div>
                 <CommonHeader />
                 <div

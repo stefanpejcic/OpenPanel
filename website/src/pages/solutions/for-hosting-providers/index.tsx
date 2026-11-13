@@ -11,7 +11,7 @@ export default function ForHostingProviders() {
             slug="for-hosting-providers"
             eventPrefix="solutions_hosting"
             metaTitle="OpenPanel for Hosting Providers: One Licence, Everything Built In"
-            metaDescription="OpenPanel gives hosting providers per-user isolation, a web application firewall, malware scanning and backups in one €14.95/month licence - no add-on licences, no per-account fees."
+            metaDescription="Per-user isolation, WAF, malware scanning and backups in one €14.95/month licence. No add-on licences, no per-account fees."
             eyebrow="OpenPanel for hosting providers"
             heroTitle={
                 <>
