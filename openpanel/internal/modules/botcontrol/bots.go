@@ -39,8 +39,6 @@ var knownBots = []BotSignature{
 	{ID: "meta-externalagent", Name: "Meta-ExternalAgent", Operator: "Meta", Category: CatAITraining, Token: "meta-externalagent"},
 	{ID: "meta-externalfetcher", Name: "Meta-ExternalFetcher", Operator: "Meta", Category: CatAISearch, Token: "meta-externalfetcher"},
 	{ID: "facebookbot", Name: "FacebookBot", Operator: "Meta", Category: CatAITraining, Token: "facebookbot"},
-	{ID: "google-extended", Name: "Google-Extended", Operator: "Google", Category: CatAITraining, Token: "google-extended"},
-	{ID: "applebot-extended", Name: "Applebot-Extended", Operator: "Apple", Category: CatAITraining, Token: "applebot-extended"},
 	{ID: "diffbot", Name: "Diffbot", Operator: "Diffbot", Category: CatScraper, Token: "diffbot"},
 	{ID: "omgilibot", Name: "Omgilibot", Operator: "Webz.io", Category: CatScraper, Token: "omgilibot"},
 	{ID: "cohere-ai", Name: "cohere-ai", Operator: "Cohere", Category: CatAITraining, Token: "cohere-ai"},

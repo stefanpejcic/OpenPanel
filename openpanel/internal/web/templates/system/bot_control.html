@@ -18,9 +18,9 @@
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="remixicon size-5 shrink-0 mt-0.5"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 11V17H13V11H11ZM11 7V9H13V7H11Z"></path></svg>
             <div class="space-y-1">
                 <p class="font-medium">{{.T.Get "How each policy works"}}</p>
-                <ul class="list-disc pl-5 space-y-0.5 text-xs/5">
+                <ul class="list-disc pl-5 space-y-0.5 text-xs leading-5">
                     <li><strong>{{.T.Get "Allow"}}</strong> &mdash; {{.T.Get "Lets known AI crawlers and search engines access the site normally."}}</li>
-                    <li><strong>{{.T.Get "Rate-limit (10/min)"}}</strong> &mdash; {{.T.Get "Caps known AI crawlers at 10 requests/minute per IP (HTTP 429); normal visitors and search engines (Googlebot, Bingbot) are unaffected."}}</li>
+                    <li><strong>{{.T.Get "Rate-limit (10/min)"}}</strong> &mdash; {{.T.Get "Caps known AI crawlers at 10 requests/minute per crawler per site (HTTP 429); normal visitors and search engines (Googlebot, Bingbot) are unaffected."}}</li>
                     <li><strong>{{.T.Get "Block (403)"}}</strong> &mdash; {{.T.Get "Immediately blocks known AI crawlers with HTTP 403; normal visitors and search engines are unaffected."}}</li>
                 </ul>
             </div>
@@ -31,7 +31,7 @@
         </div>
         {{else}}
         <div class="overflow-x-auto rounded-md border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800 text-sm">
+            <table class="w-full divide-y divide-gray-200 dark:divide-gray-800 text-sm">
                 <thead class="bg-gray-50 dark:bg-gray-900">
                     <tr>
                         <th class="px-4 py-3 text-left font-medium text-gray-600 dark:text-gray-300">{{.T.Get "Domain"}}</th>
@@ -41,17 +41,17 @@
                 </thead>
                 <tbody class="divide-y divide-gray-200 dark:divide-gray-800">
                     {{range .Rows}}
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/40">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/60">
                         <td class="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">
                             <a href="/server/bot-control/{{.DomainURL}}" class="hover:underline text-blue-600 dark:text-blue-400">{{.DomainURL}}</a>
                         </td>
                         <td class="px-4 py-3">
                             {{if eq (printf "%s" .Policy) "block"}}
-                            <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/40 dark:text-red-300">{{$.T.Get "Blocked (403)"}}</span>
+                            <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{$.T.Get "Blocked (403)"}}</span>
                             {{else if eq (printf "%s" .Policy) "ratelimit"}}
-                            <span class="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">{{$.T.Get "Rate-limited (10/min)"}}</span>
+                            <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">{{$.T.Get "Rate-limited (10/min)"}}</span>
                             {{else}}
-                            <span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">{{$.T.Get "Allowed"}}</span>
+                            <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20">{{$.T.Get "Allowed"}}</span>
                             {{end}}
                         </td>
                         <td class="px-4 py-3 text-right">

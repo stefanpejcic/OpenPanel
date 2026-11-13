@@ -36,9 +36,9 @@
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="remixicon size-5 shrink-0 mt-0.5"><path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 11V17H13V11H11ZM11 7V9H13V7H11Z"></path></svg>
             <div class="space-y-1">
                 <p class="font-medium">{{.T.Get "How each policy works"}}</p>
-                <ul class="list-disc pl-5 space-y-0.5 text-xs/5">
+                <ul class="list-disc pl-5 space-y-0.5 text-xs leading-5">
                     <li><strong>{{.T.Get "Allow"}}</strong> &mdash; {{.T.Get "Lets known AI crawlers and search engines access the site normally."}}</li>
-                    <li><strong>{{.T.Get "Rate-limit (10/min)"}}</strong> &mdash; {{.T.Get "Caps known AI crawlers at 10 requests/minute per IP (HTTP 429); normal visitors and search engines (Googlebot, Bingbot) are unaffected."}}</li>
+                    <li><strong>{{.T.Get "Rate-limit (10/min)"}}</strong> &mdash; {{.T.Get "Caps known AI crawlers at 10 requests/minute per crawler per site (HTTP 429); normal visitors and search engines (Googlebot, Bingbot) are unaffected."}}</li>
                     <li><strong>{{.T.Get "Block (403)"}}</strong> &mdash; {{.T.Get "Immediately blocks known AI crawlers with HTTP 403; normal visitors and search engines are unaffected."}}</li>
                 </ul>
             </div>
@@ -59,7 +59,7 @@
             </div>
             <div class="rounded-md border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
                 <div class="text-xs text-gray-500">{{.T.Get "AI crawler & scraper hits"}}</div>
-                <div class="mt-1 text-2xl font-semibold text-amber-600 dark:text-amber-400">{{.Report.AIRequests}}</div>
+                <div class="mt-1 text-2xl font-semibold text-yellow-700 dark:text-yellow-500">{{.Report.AIRequests}}</div>
             </div>
             <div class="rounded-md border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 p-4">
                 <div class="text-xs text-gray-500">{{.T.Get "Blocked / throttled (403 / 429)"}}</div>
@@ -75,7 +75,7 @@
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div class="rounded-md border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden">
                 <div class="border-b border-gray-200 dark:border-gray-800 px-4 py-3 font-medium text-sm text-gray-900 dark:text-gray-100">{{.T.Get "Top bots & user-agents"}}</div>
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800 text-xs">
+                <table class="w-full divide-y divide-gray-200 dark:divide-gray-800 text-xs">
                     <thead class="bg-gray-50 dark:bg-gray-900">
                         <tr>
                             <th class="px-3 py-2 text-left text-gray-600 dark:text-gray-300">{{.T.Get "Agent"}}</th>
@@ -89,8 +89,8 @@
                         <tr>
                             <td class="px-3 py-2 font-medium text-gray-900 dark:text-gray-100">{{.Name}} <span class="text-gray-400">({{.Operator}})</span></td>
                             <td class="px-3 py-2 text-gray-600 dark:text-gray-400">{{.Category}}</td>
-                            <td class="px-3 py-2 text-right font-mono">{{.Requests}} ({{.SharePct}}%)</td>
-                            <td class="px-3 py-2 text-right font-mono text-red-600 dark:text-red-400">{{.Blocked}}</td>
+                            <td class="px-3 py-2 text-right font-mono whitespace-nowrap">{{.Requests}} ({{.SharePct}}%)</td>
+                            <td class="px-3 py-2 text-right font-mono whitespace-nowrap text-red-600 dark:text-red-400">{{.Blocked}}</td>
                         </tr>
                         {{else}}
                         <tr><td colspan="4" class="px-3 py-4 text-center text-gray-500">{{$.T.Get "No requests in this window."}}</td></tr>
@@ -101,7 +101,7 @@
 
             <div class="rounded-md border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden">
                 <div class="border-b border-gray-200 dark:border-gray-800 px-4 py-3 font-medium text-sm text-gray-900 dark:text-gray-100">{{.T.Get "Top networks & ASNs"}}</div>
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800 text-xs">
+                <table class="w-full divide-y divide-gray-200 dark:divide-gray-800 text-xs">
                     <thead class="bg-gray-50 dark:bg-gray-900">
                         <tr>
                             <th class="px-3 py-2 text-left text-gray-600 dark:text-gray-300">{{.T.Get "Network"}}</th>
@@ -115,8 +115,8 @@
                         <tr>
                             <td class="px-3 py-2 font-mono text-gray-900 dark:text-gray-100">{{.Network}}</td>
                             <td class="px-3 py-2 text-gray-600 dark:text-gray-400">{{.ASN}}</td>
-                            <td class="px-3 py-2 text-right font-mono">{{.UniqueIPs}}</td>
-                            <td class="px-3 py-2 text-right font-mono">{{.Requests}}</td>
+                            <td class="px-3 py-2 text-right font-mono whitespace-nowrap">{{.UniqueIPs}}</td>
+                            <td class="px-3 py-2 text-right font-mono whitespace-nowrap">{{.Requests}}</td>
                         </tr>
                         {{else}}
                         <tr><td colspan="4" class="px-3 py-4 text-center text-gray-500">{{$.T.Get "No requests in this window."}}</td></tr>
@@ -128,7 +128,7 @@
 
         <div class="rounded-md border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 overflow-hidden">
             <div class="border-b border-gray-200 dark:border-gray-800 px-4 py-3 font-medium text-sm text-gray-900 dark:text-gray-100">{{.T.Get "Top hit URLs"}}</div>
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800 text-xs">
+            <table class="w-full divide-y divide-gray-200 dark:divide-gray-800 text-xs">
                 <thead class="bg-gray-50 dark:bg-gray-900">
                     <tr>
                         <th class="px-3 py-2 text-left text-gray-600 dark:text-gray-300">{{.T.Get "Path"}}</th>
@@ -141,9 +141,9 @@
                     {{range .Report.TopURLs}}
                     <tr>
                         <td class="px-3 py-2 font-mono text-gray-900 dark:text-gray-100">{{.Path}}</td>
-                        <td class="px-3 py-2 text-right font-mono">{{.Requests}}</td>
-                        <td class="px-3 py-2 text-right font-mono text-amber-600 dark:text-amber-400">{{.BotRequests}}</td>
-                        <td class="px-3 py-2 text-right font-mono text-red-600 dark:text-red-400">{{.Blocked}}</td>
+                        <td class="px-3 py-2 text-right font-mono whitespace-nowrap">{{.Requests}}</td>
+                        <td class="px-3 py-2 text-right font-mono whitespace-nowrap text-yellow-700 dark:text-yellow-500">{{.BotRequests}}</td>
+                        <td class="px-3 py-2 text-right font-mono whitespace-nowrap text-red-600 dark:text-red-400">{{.Blocked}}</td>
                     </tr>
                     {{else}}
                     <tr><td colspan="4" class="px-3 py-4 text-center text-gray-500">{{$.T.Get "No requests in this window."}}</td></tr>

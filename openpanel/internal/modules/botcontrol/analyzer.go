@@ -20,25 +20,25 @@ const (
 
 // TrafficReport holds the aggregated "Who's hitting me" breakdown for one domain.
 type TrafficReport struct {
-	Domain         string       `json:"domain"`
-	Window         string       `json:"window"`
-	TotalRequests  int          `json:"total_requests"`
-	AIRequests     int          `json:"ai_requests"`
-	BlockedCount   int          `json:"blocked_count"`
-	TopBots        []BotStat    `json:"top_bots"`
-	TopNetworks    []NetStat    `json:"top_networks"`
-	TopURLs        []URLStat    `json:"top_urls"`
-	LogMissing     bool         `json:"log_missing"`
+	Domain        string    `json:"domain"`
+	Window        string    `json:"window"`
+	TotalRequests int       `json:"total_requests"`
+	AIRequests    int       `json:"ai_requests"`
+	BlockedCount  int       `json:"blocked_count"`
+	TopBots       []BotStat `json:"top_bots"`
+	TopNetworks   []NetStat `json:"top_networks"`
+	TopURLs       []URLStat `json:"top_urls"`
+	LogMissing    bool      `json:"log_missing"`
 }
 
 // BotStat ranks traffic by classified bot or user-agent.
 type BotStat struct {
-	Name       string      `json:"name"`
-	Operator   string      `json:"operator"`
-	Category   BotCategory `json:"category"`
-	Requests   int         `json:"requests"`
-	Blocked    int         `json:"blocked"`
-	SharePct   float64     `json:"share_pct"`
+	Name     string      `json:"name"`
+	Operator string      `json:"operator"`
+	Category BotCategory `json:"category"`
+	Requests int         `json:"requests"`
+	Blocked  int         `json:"blocked"`
+	SharePct float64     `json:"share_pct"`
 }
 
 // NetStat ranks traffic by ASN (when available) or /24 / /48 IP network.
