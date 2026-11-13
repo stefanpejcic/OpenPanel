@@ -161,6 +161,12 @@ func apiWAFDomainRules(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			writeJSONError(w, http.StatusBadRequest, "removed_rules must contain only numeric IDs")
 			return
 		}
+		// mirror disableRuleForDomain: refuse the CRS anomaly-scoring rules, otherwise the WAF
+		// still shows enabled while blocking is off for the whole domain.
+		if isScoringRule(ruleID) {
+			writeJSONError(w, http.StatusBadRequest, errScoringRule.Error())
+			return
+		}
 	}
 	if len(body.RemovedTags) > 500 || len(body.RemovedRules) > 500 {
 		writeJSONError(w, http.StatusBadRequest, "too many rules or tags")

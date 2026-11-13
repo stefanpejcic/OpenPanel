@@ -77,6 +77,13 @@ func handleWAFDomain(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 				web.FlashRedirect(a, w, r, "error", "Error: IDs should only contain numbers separated by spaces.", "/server/waf/"+domainName)
 				return
 			}
+			// the single-rule path (disableRuleForDomain) refuses these; enforce it here too, or a
+			// tenant could remove the CRS anomaly-scoring rules and turn off blocking for the domain
+			// while the WAF still shows as enabled.
+			if isScoringRule(rule) {
+				web.FlashRedirect(a, w, r, "error", errScoringRule.Error(), "/server/waf/"+domainName)
+				return
+			}
 		}
 		for _, tag := range removedTags {
 			if !tagRE.MatchString(tag) {
