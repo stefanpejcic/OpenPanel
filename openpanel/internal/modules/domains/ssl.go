@@ -168,12 +168,21 @@ func handleCustomSSLUpload(a *appctx.App, w http.ResponseWriter, r *http.Request
 	displayCertPath := "/var/www/html/" + domainName + "_tmp.crt"
 	displayKeyPath := "/var/www/html/" + domainName + "_tmp.key"
 
-	_ = tenantfs.WriteFile(certPath, []byte(certificate), 0o644)
-	_ = tenantfs.WriteFile(keyPath, []byte(privateKey), 0o644)
+	// the key is staged inside the account's webroot volume for opencli to read, so keep it
+	// owner-only (0o600) rather than world-readable, and make sure it's removed even if we bail
+	// out before the explicit Remove below.
+	if err := tenantfs.WriteFile(certPath, []byte(certificate), 0o644); err != nil {
+		web.FlashRedirect(a, w, r, "error", "Could not stage the certificate: "+err.Error(), back)
+		return
+	}
+	defer func() { _ = tenantfs.Remove(certPath) }()
+	if err := tenantfs.WriteFile(keyPath, []byte(privateKey), 0o600); err != nil {
+		web.FlashRedirect(a, w, r, "error", "Could not stage the private key: "+err.Error(), back)
+		return
+	}
+	defer func() { _ = tenantfs.Remove(keyPath) }()
 
 	out, cmdErr := exec.CommandContext(ctx, "opencli", "domains-ssl", domainName, "custom", displayCertPath, displayKeyPath).CombinedOutput()
-	_ = tenantfs.Remove(certPath)
-	_ = tenantfs.Remove(keyPath)
 
 	if cmdErr == nil {
 		web.FlashRedirect(a, w, r, "success", strings.TrimSpace(string(out)), done)
