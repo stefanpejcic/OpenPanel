@@ -12,7 +12,6 @@ import { MobileMenuModal } from "./common-header/mobile-menu-modal";
 import { CommonThemeToggle } from "./common-theme-toggle";
 import { TopAnnouncement } from "./top-announcement";
 
-import { LandingGithubStarButton } from "./landing-github-star-button";
 
 type Props = {
     hasSticky?: boolean;
@@ -111,7 +110,7 @@ export const CommonHeader = ({ trackProgress }: Props) => {
                                 "hidden landing-md:flex",
                                 "flex-1",
                                 "items-center",
-                                "gap-8",
+                                "gap-6 landing-lg:gap-8",
                             )}
                         >
                             <Menu />
@@ -121,12 +120,44 @@ export const CommonHeader = ({ trackProgress }: Props) => {
                                 "hidden landing-md:flex",
                                 "items-center",
                                 "justify-end",
-                                "gap-4",
-                                "w-[130px]",
-                                "landing-lg:w-[200px]",
+                                "gap-3 landing-lg:gap-4",
+                                "shrink-0",
+                                "pl-4",
                             )}
                         >
-                            <LandingGithubStarButton />
+                            <a
+                                href="https://my.openpanel.com/clientarea.php"
+                                className={clsx(
+                                    "inline",
+                                    "text-sm font-medium",
+                                    "text-gray-900 dark:text-gray-300",
+                                    "hover:!no-underline hover:opacity-80",
+                                )}
+                            >
+                                Account
+                            </a>
+                            <Link
+                                to="/trial"
+                                onClick={() => {
+                                    if (
+                                        typeof window !== "undefined" &&
+                                        typeof window.gtag !== "undefined"
+                                    ) {
+                                        window.gtag("event", "trial_click_header");
+                                    }
+                                }}
+                                className={clsx(
+                                    "rounded-3xl",
+                                    "!text-gray-0 dark:!text-gray-900",
+                                    "bg-refine-blue dark:bg-refine-cyan-alt",
+                                    "transition-[filter] duration-150 ease-in-out",
+                                    "hover:brightness-110 hover:!no-underline",
+                                    "py-2 px-5",
+                                    "text-sm font-semibold whitespace-nowrap",
+                                )}
+                            >
+                                Start free trial
+                            </Link>
                             <CommonThemeToggle />
                         </div>
                         <MobileMenuModal

@@ -5,18 +5,18 @@ import { CommonLayout } from "@site/src/refine-theme/common-layout";
 import { RefineWeek } from "@site/src/components/refine-week";
 import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 
-const RefineWeekStrapi = () => {
+const RefineWeekSupabase = () => {
     return (
         <CommonLayout
-            description="Automate hosting account provisioning between FOSSBilling and OpenPanel - install, configure, and provision in about 5 minutes."
-            image="/img/og/fossbilling-module.png"
+            description="Automate hosting account provisioning between WHMCS and OpenPanel - install, configure, and provision in about 5 minutes."
+            image="/img/og/billing/whmcs-module.png"
         >
             <div className="refine-prose">
                 <Head>
-                    <title>FOSSBilling module for OpenPanel | OpenPanel</title>
+                    <title>WHMCS module for OpenPanel | OpenPanel</title>
                     <meta
                         property="og:title"
-                        content="FOSSBilling module for OpenPanel | OpenPanel"
+                        content="WHMCS module for OpenPanel | OpenPanel"
                     />
                     <meta property="og:image:width" content="1200" />
                     <meta property="og:image:height" content="630" />
@@ -25,11 +25,11 @@ const RefineWeekStrapi = () => {
                 </Head>
 
                 <CommonHeader hasSticky={true} />
-                <RefineWeek variant="strapi" />
+                <RefineWeek variant="supabase" />
                 <BlogFooter />
             </div>
         </CommonLayout>
     );
 };
 
-export default RefineWeekStrapi;
+export default RefineWeekSupabase;

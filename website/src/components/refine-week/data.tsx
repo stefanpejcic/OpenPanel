@@ -15,31 +15,31 @@ import { FooterTwitterIcon as TwitterIcon } from "../../refine-theme/icons/foote
 
 const hashtags = "opensource";
 const supabaseShareTweetURL = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-    "https://openpanel.com/whmcs-module/",
+    "https://openpanel.com/billing/whmcs-module/",
 )}&text=${encodeURIComponent(
     `📚 Setup WHMCS & OpenPanel account provisioning in just 5 minutes.\n\n`,
 )}&hashtags=${hashtags}`;
 
 const strapiShareTweetURL = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-    "https://openpanel.com/fossbilling-module/",
+    "https://openpanel.com/billing/fossbilling-module/",
 )}&text=${encodeURIComponent(
     `📚 Setup FOSSBilling & OpenPanel account provisioning in just 5 minutes.\n\n`,
 )}&hashtags=${hashtags}`;
 
 const blestaShareTweetURL = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-    "https://openpanel.com/blesta-module/",
+    "https://openpanel.com/billing/blesta-module/",
 )}&text=${encodeURIComponent(
     `📚 Setup Blesta & OpenPanel account provisioning in just 5 minutes.\n\n`,
 )}&hashtags=${hashtags}`;
 
 const clientexecShareTweetURL = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-    "https://openpanel.com/clientexec-module/",
+    "https://openpanel.com/billing/clientexec-module/",
 )}&text=${encodeURIComponent(
     `📚 Setup ClientExec & OpenPanel account provisioning in just 5 minutes.\n\n`,
 )}&hashtags=${hashtags}`;
 
 const wisecpShareTweetURL = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-    "https://openpanel.com/wisecp-module/",
+    "https://openpanel.com/billing/wisecp-module/",
 )}&text=${encodeURIComponent(
     `📚 Setup WISECP & OpenPanel account provisioning in just 5 minutes.\n\n`,
 )}&hashtags=${hashtags}`;

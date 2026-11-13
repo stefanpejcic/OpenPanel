@@ -19,6 +19,11 @@ export const NavbarPopoverItem: React.FC<NavbarPopoverItemProps> = ({
     const timeoutRef = React.useRef(null);
     const timeoutEnterRef = React.useRef(null);
     const location = useLocation();
+    const buttonRef = React.useRef<HTMLButtonElement>(null);
+    const [buttonWidth, setButtonWidth] = useState(80);
+    const align = item.align ?? "center";
+    // panel edge offset from the label for left/right aligned panels
+    const EDGE = 16;
 
     React.useEffect(() => {
         setIsShowing(false);
@@ -44,6 +49,11 @@ export const NavbarPopoverItem: React.FC<NavbarPopoverItemProps> = ({
             {() => (
                 <>
                     <Popover.Button
+                        ref={buttonRef}
+                        onMouseEnter={() =>
+                            buttonRef.current &&
+                            setButtonWidth(buttonRef.current.offsetWidth)
+                        }
                         className={clsx(
                             "inline-flex items-center",
                             "text-sm leading-6",
@@ -81,19 +91,35 @@ export const NavbarPopoverItem: React.FC<NavbarPopoverItemProps> = ({
                     >
                         <Popover.Panel
                             className={clsx("absolute", "z-50", "top-12", {
-                                "-left-32 center-point":
-                                    item.label === "Pricing" ||
-                                    item.label === "Company",
-                                "left-point": item.label === "Resources",
+                                "left-1/2 -translate-x-1/2": align === "center",
                             })}
+                            style={
+                                align === "left"
+                                    ? { left: -EDGE }
+                                    : align === "right"
+                                      ? { right: -EDGE }
+                                      : undefined
+                            }
                         >
                             <PointIcon
                                 id={item.label}
-                                className={clsx("absolute", "top-[-9px]", {
-                                    "left-1/2": item.label !== "Resources",
-                                    "left-12": item.label === "Resources",
-                                })}
-                                style={{ transform: "translateX(-50%)" }}
+                                className={clsx("absolute", "top-[-9px]")}
+                                style={
+                                    align === "left"
+                                        ? {
+                                              left: EDGE + buttonWidth / 2,
+                                              transform: "translateX(-50%)",
+                                          }
+                                        : align === "right"
+                                          ? {
+                                                right: EDGE + buttonWidth / 2,
+                                                transform: "translateX(50%)",
+                                            }
+                                          : {
+                                                left: "50%",
+                                                transform: "translateX(-50%)",
+                                            }
+                                }
                             />
                             <div
                                 className={clsx(

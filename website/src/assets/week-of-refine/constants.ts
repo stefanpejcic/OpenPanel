@@ -10,7 +10,7 @@ export const weekOfRefineCards: CardProps[] = [
         logo: StrapiWithText,
         bgLinearGradient:
             "bg-week-of-refine-strapi-card-light dark:bg-week-of-refine-strapi-card",
-        link: "/fossbilling-module",
+        link: "/billing/fossbilling-module/",
     },
     {
         title: "WHMCS",
@@ -20,7 +20,7 @@ export const weekOfRefineCards: CardProps[] = [
         logo: SupabaseWithText,
         bgLinearGradient:
             "bg-week-of-refine-supabase-card-light dark:bg-week-of-refine-supabase-card",
-        link: "/whmcs-module",
+        link: "/billing/whmcs-module/",
     },
     {
         title: "Blesta",
@@ -30,7 +30,7 @@ export const weekOfRefineCards: CardProps[] = [
         logo: StrapiWithText,
         bgLinearGradient:
             "bg-week-of-refine-strapi-card-light dark:bg-week-of-refine-strapi-card",
-        link: "/blesta-module",
+        link: "/billing/blesta-module/",
     },
     {
         title: "ClientExec",
@@ -40,7 +40,7 @@ export const weekOfRefineCards: CardProps[] = [
         logo: SupabaseWithText,
         bgLinearGradient:
             "bg-week-of-refine-supabase-card-light dark:bg-week-of-refine-supabase-card",
-        link: "/clientexec-module",
+        link: "/billing/clientexec-module/",
     },
     {
         title: "WISECP",
@@ -50,6 +50,6 @@ export const weekOfRefineCards: CardProps[] = [
         logo: SupabaseWithText,
         bgLinearGradient:
             "bg-week-of-refine-supabase-card-light dark:bg-week-of-refine-supabase-card",
-        link: "/wisecp-module",
+        link: "/billing/wisecp-module/",
     },
 ];

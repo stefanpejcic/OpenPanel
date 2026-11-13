@@ -147,6 +147,26 @@
     {
       "from": "/docs/articles/apps/install-n8n",
       "to": "/docs/panel/applications/autoinstaller/"
+    },
+    {
+      "from": "/whmcs-module",
+      "to": "/billing/whmcs-module/"
+    },
+    {
+      "from": "/blesta-module",
+      "to": "/billing/blesta-module/"
+    },
+    {
+      "from": "/fossbilling-module",
+      "to": "/billing/fossbilling-module/"
+    },
+    {
+      "from": "/clientexec-module",
+      "to": "/billing/clientexec-module/"
+    },
+    {
+      "from": "/wisecp-module",
+      "to": "/billing/wisecp-module/"
     }
   ]
 }

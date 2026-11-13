@@ -9,7 +9,7 @@ const RefineWeekClientExec = () => {
     return (
         <CommonLayout
             description="Automate hosting account provisioning between ClientExec and OpenPanel - install, configure, and provision in about 5 minutes."
-            image="/img/og/clientexec-module.png"
+            image="/img/og/billing/clientexec-module.png"
         >
             <div className="refine-prose">
                 <Head>

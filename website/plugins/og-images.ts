@@ -127,7 +127,7 @@ const SITE_PAGES: SitePageOgEntry[] = [
             "OpenPanel integrates with WHMCS, FOSSBilling, Blesta, ClientExec, and WISECP for automated hosting account provisioning, suspension, and termination.",
     },
     {
-        permalink: "/blesta-module/",
+        permalink: "/billing/blesta-module/",
         title: "Blesta module for OpenPanel | OpenPanel",
         description:
             "Automate hosting account provisioning between Blesta and OpenPanel - install, configure, and provision in about 5 minutes.",
@@ -145,7 +145,7 @@ const SITE_PAGES: SitePageOgEntry[] = [
             "How we benchmarked OpenPanel 2.0 (Podman) resource usage: test setup, the account-creation script used, and the raw opencli docker-collect_stats results.",
     },
     {
-        permalink: "/clientexec-module/",
+        permalink: "/billing/clientexec-module/",
         title: "ClientExec module for OpenPanel | OpenPanel",
         description:
             "Automate hosting account provisioning between ClientExec and OpenPanel - install, configure, and provision in about 5 minutes.",
@@ -169,7 +169,7 @@ const SITE_PAGES: SitePageOgEntry[] = [
             "See every feature built into OpenPanel: multiple PHP versions, per-user isolation, Nginx/OpenLiteSpeed, Podman, backups, and built-in security.",
     },
     {
-        permalink: "/fossbilling-module/",
+        permalink: "/billing/fossbilling-module/",
         title: "FOSSBilling module for OpenPanel | OpenPanel",
         description:
             "Automate hosting account provisioning between FOSSBilling and OpenPanel - install, configure, and provision in about 5 minutes.",
@@ -241,13 +241,13 @@ const SITE_PAGES: SitePageOgEntry[] = [
             "Get help with OpenPanel and OpenAdmin - search the docs, ask the community, open an Enterprise support ticket, or report a bug.",
     },
     {
-        permalink: "/whmcs-module/",
+        permalink: "/billing/whmcs-module/",
         title: "WHMCS module for OpenPanel | OpenPanel",
         description:
             "Automate hosting account provisioning between WHMCS and OpenPanel - install, configure, and provision in about 5 minutes.",
     },
     {
-        permalink: "/wisecp-module/",
+        permalink: "/billing/wisecp-module/",
         title: "WISECP module for OpenPanel | OpenPanel",
         description:
             "Automate hosting account provisioning between WISECP and OpenPanel - install, configure, and provision in about 5 minutes.",

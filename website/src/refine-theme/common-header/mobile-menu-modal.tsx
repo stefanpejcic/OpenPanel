@@ -181,6 +181,7 @@ const Tablet = (props: { className?: string }) => {
                     </div>
                 );
             })}
+            <MobileCta />
             <ThemeToggle />
             <Github id="tablet" />
         </div>
@@ -233,6 +234,7 @@ const Phone = (props: { className?: string }) => {
                     );
                 })}
             </div>
+            <MobileCta />
             <ThemeToggle />
             <Github id="phone" />
         </div>
@@ -260,6 +262,39 @@ const Github = (props: { id?: string }) => {
         </Link>
     );
 };
+
+const MobileCta = () => (
+    <div className={clsx("not-prose", "p-4", "grid grid-cols-2 gap-3")}>
+        <Link
+            to="/trial"
+            className={clsx(
+                "flex-1 text-center",
+                "rounded-3xl",
+                "!text-gray-0 dark:!text-gray-900",
+                "bg-refine-blue dark:bg-refine-cyan-alt",
+                "py-2.5 px-5",
+                "font-semibold",
+                "hover:!no-underline",
+            )}
+        >
+            Start free trial
+        </Link>
+        <a
+            href="https://my.openpanel.com/clientarea.php"
+            className={clsx(
+                "flex-1 text-center",
+                "rounded-3xl",
+                "border dark:border-gray-600 border-gray-300",
+                "py-2.5 px-5",
+                "font-semibold",
+                "text-gray-900 dark:text-gray-0",
+                "hover:!no-underline",
+            )}
+        >
+            Account
+        </a>
+    </div>
+);
 
 const ThemeToggle = () => {
     const { colorMode, setColorMode } = useColorMode();
