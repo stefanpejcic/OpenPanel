@@ -1,15 +1,18 @@
 {{define "alpine_plugins"}}{{end}}
 {{define "flowbite_js"}}{{end}}
 
+{{define "page_tabs_right"}}
+<a href="/imunifyav/summary" id="imunifyav-summary" class="my-1.5 inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-900 shadow-xs hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50 dark:hover:bg-gray-900/60"><i class="ri-file-list-3-line" aria-hidden="true"></i>{{.T.Get "Summary"}}</a>
+{{end}}
+
 {{define "content"}}
 <!-- START templates/files/imunifyav_gui.html -->
 
-<div class="flex items-center justify-between gap-3 border-b border-gray-200 px-4 py-2 sm:px-6 lg:px-8 dark:border-gray-800">
-    <h1 class="text-sm font-semibold text-gray-900 dark:text-gray-50">ImunifyAV</h1>
-    <a href="/imunifyav/summary" class="text-sm text-blue-500 hover:underline hover:underline-offset-4">{{.T.Get "Summary"}}</a>
-</div>
-
-<iframe id="imunifyav-gui" title="ImunifyAV" src="/imav/#/login?token={{.Token}}" class="block w-full border-0" style="height: calc(100vh - 7.5rem);"></iframe>
+{{if not .PageTabs}}
+<!-- classic menu has no tab bar, so the link gets its own strip -->
+<div class="flex justify-end border-b border-gray-200 px-4 sm:px-6 lg:px-8 dark:border-gray-800">{{template "page_tabs_right" .}}</div>
+{{end}}
+<iframe id="imunifyav-gui" title="ImunifyAV" src="/imav/#/login?token={{.Token}}" class="block w-full border-0" style="height: calc(100vh - {{if .PageTabs}}5rem{{else}}7.5rem{{end}});"></iframe>
 
 <!-- END templates/files/imunifyav_gui.html -->
 {{end}}
