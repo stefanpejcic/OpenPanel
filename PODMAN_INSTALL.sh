@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org/)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           31.10.2026
+# Last Modified:           13.11.2026
 ################################################################################
 # shellcheck disable=SC2015
 
@@ -243,11 +243,14 @@ get_server_ipv4() {
 
 set_panel_version() {
     if [[ "$CUSTOM_VERSION" == false ]]; then
-        local response
+        local response api_version
         response=$(curl --max-time 1 -4 -s "https://api.openpanel.com/v2/statistics/" || true)
-        PANEL_VERSION=$(echo "$response" | grep -oP '"latest_version":"\K[^"]+' || true)
-        [[ "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || PANEL_VERSION="$DEFAULT_PANEL_VERSION"
+        api_version=$(echo "$response" | grep -oP '"latest_version":"\K[^"]+' || true)
         PANEL_VERSION="$DEFAULT_PANEL_VERSION"
+        # whichever is newer wins, the api or the version this script ships with
+        if [[ "$api_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            PANEL_VERSION=$(printf '%s\n%s\n' "$api_version" "$DEFAULT_PANEL_VERSION" | sort -V | tail -n1)
+        fi
     fi
 }
 
