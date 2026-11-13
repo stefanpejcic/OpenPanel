@@ -138,7 +138,10 @@ func handleDomainsNew(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	docroot, docrootOK := resolveUnderVarWWWHTML(providedDocroot)
 	if !docrootOK {
-		docroot = userHomeDirectory
+		// reject rather than silently pointing the domain at the shared webroot root
+		// (/var/www/html/, which would expose backups/ and wp-config copies over HTTP)
+		web.FlashRedirect(a, w, r, "error", "Invalid document root. It must be a path inside /var/www/html/.", "/domains/new")
+		return
 	}
 
 	// LIMITS

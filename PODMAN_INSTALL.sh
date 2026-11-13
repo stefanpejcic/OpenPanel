@@ -805,7 +805,9 @@ setup_bind() {
     fi
 
     find /etc/bind/ -type d -print0 | xargs -0 chmod 755
-    find /etc/bind/ -type f -print0 | xargs -0 chmod 644
+    # rndc.key is the RNDC control secret for the shared DNS server; keep it owner-only, not world-readable
+    find /etc/bind/ -type f ! -name rndc.key -print0 | xargs -0 chmod 644
+    [[ -f "$rndc_key" ]] && chmod 640 "$rndc_key"
 }
 
 # OpenSSH 9.8+ logs login failures as sshd-session[PID], Sentinel's SSH rules only match sshd[PID] so lfd never blocked SSH brute force (#1349)
@@ -1006,9 +1008,11 @@ configure_waf() {
     /usr/local/bin/opencli waf "$([[ "$CORAZA" == true ]] && printf '%s' enable || printf '%s' disable)" -y
 }
 
-setup_redis() { 
-    install -d -m 777 /tmp/redis
-    echo "d /tmp/redis 0777 root root -" > /etc/tmpfiles.d/openpanel-redis.conf
+setup_redis() {
+    # sticky bit (1777, like /tmp): accounts' containers can still create their own redis sockets here,
+    # but can't rename, replace or delete another account's socket files
+    install -d -m 1777 /tmp/redis
+    echo "d /tmp/redis 1777 root root -" > /etc/tmpfiles.d/openpanel-redis.conf
 }
 
 enable_disk_quotas() {

@@ -98,6 +98,11 @@ func TestDownloadAndExtractInitialProject(t *testing.T) {
 		{"two folders stay as is", "p.zip", makeZip(t, "app/a.php", "lib/b.php"), []string{"app/a.php", "lib/b.php"}, nil},
 		{"tarball wrapper is dropped", "p.tar.gz", makeTarGz(t, "proj-1.0/composer.json", "proj-1.0/src/a.php"), []string{"composer.json", "src/a.php"}, []string{"proj-1.0", "pax_global_header"}},
 	}
+	// the real downloadTransport refuses loopback (SSRF guard); the test server is on 127.0.0.1
+	oldTransport := downloadTransport
+	downloadTransport = http.DefaultTransport
+	defer func() { downloadTransport = oldTransport }()
+
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write(c.body) }))

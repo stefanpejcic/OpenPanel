@@ -281,7 +281,10 @@ func apiDomainsCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	resolved, ok := resolveUnderVarWWWHTML(docroot)
 	if !ok {
-		resolved = "/var/www/html/"
+		// reject rather than silently serving the shared webroot root (/var/www/html/, which exposes
+		// backups/ and wp-config copies) when the submitted docroot is invalid or out of bounds
+		writeAPIDomainsJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid document root. It must be a path inside /var/www/html/."})
+		return
 	}
 
 	injectedData, _ := a.InjectData(ctx, userID)

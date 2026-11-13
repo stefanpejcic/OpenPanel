@@ -47,7 +47,10 @@ func cronBulkActions(t i18n.Translator, containers []string) []web.BulkAction {
 func runCronJobOnce(a *appctx.App, r *http.Request, userContext string, job CronJob) web.BulkResult {
 	ctx, cancel := context.WithTimeout(context.Background(), cronRunTimeout(a))
 	defer cancel()
-	argv := podmanmanager.PodmanArgv(userContext, "exec", job.Container, "sh", "-c", job.Command)
+	if !containerAllowed(ctx, userContext, job.Container) {
+		return web.BulkResult{Item: job.Comment, Message: web.Tr(a, r, "Container %(container)s isn't one of your containers.", "container", job.Container)}
+	}
+	argv := podmanmanager.PodmanArgv(userContext, "exec", "--", job.Container, "sh", "-c", job.Command)
 	out, err := podmanmanager.Command(ctx, userContext, argv).CombinedOutput()
 	lastLine := ""
 	if lines := strings.Split(strings.TrimSpace(string(out)), "\n"); len(lines) > 0 {

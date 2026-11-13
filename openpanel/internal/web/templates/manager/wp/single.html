@@ -108,7 +108,7 @@
         }
 
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
+        xhr.open('POST', url, true);
         xhr.setRequestHeader("X-CSRF-Token", csrf_token);
 
         xhr.onreadystatechange = function () {

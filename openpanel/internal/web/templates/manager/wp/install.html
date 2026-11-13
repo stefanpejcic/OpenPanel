@@ -674,7 +674,7 @@ document.getElementById("installForm").addEventListener("submit", function(event
                   stopHints();
                   setRunState('done');
                   showToast(data.status, 'success');
-                  showInstallSuccess(data, { autoLogin: '/wp-cli/login?domain=', primaryLabel: {{toJSON (.T.Get "Log in to wp-admin")}} });
+                  showInstallSuccess(data, { autoLogin: '/wp-cli/login?domain=', autoLoginMethod: 'POST', primaryLabel: {{toJSON (.T.Get "Log in to wp-admin")}} });
                 }
               } else if (data.error) {
                 markStepError(currentStepIndex);

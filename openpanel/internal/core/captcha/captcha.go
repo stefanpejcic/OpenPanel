@@ -56,7 +56,7 @@ func Verify(ctx context.Context, cfg config.Config, token, ip string) bool {
 		if token == "" {
 			return false
 		}
-		return verifyCustom(token)
+		return verifyCustom(ctx, cfg, token, ip)
 	default:
 		return true
 	}
@@ -89,7 +89,15 @@ func verifySiteverify(ctx context.Context, endpoint, secret, token, ip string) b
 	return result.Success
 }
 
-// verifyCustom is a placeholder for operators who want their own CAPTCHA provider - replace this with your own verification logic.
-func verifyCustom(token string) bool {
-	return true
+// verifyCustom checks a token against an operator-supplied siteverify-style endpoint
+// (custom_captcha_verify_url, with optional custom_captcha_secret_key). It MUST fail closed:
+// with no endpoint configured there is nothing verifying the token, so returning true would
+// let any non-empty "custom-captcha" value through and disable the CAPTCHA on public endpoints
+// like /reset_password. Configure a verify URL that returns {"success": true/false} to use it.
+func verifyCustom(ctx context.Context, cfg config.Config, token, ip string) bool {
+	endpoint := strings.TrimSpace(cfg.Get("custom_captcha_verify_url", ""))
+	if endpoint == "" {
+		return false
+	}
+	return verifySiteverify(ctx, endpoint, cfg.Get("custom_captcha_secret_key", ""), token, ip)
 }

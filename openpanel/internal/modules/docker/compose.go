@@ -124,7 +124,11 @@ func SaveEnvFile(userContext string, env map[string]string) error {
 	path := homePath(userContext, ".env")
 	existing, _ := tenantfs.ReadFile(path)
 	line := func(k string) string {
-		return k + `="` + strings.ReplaceAll(strings.NewReplacer("\r", "", "\n", "").Replace(env[k]), `"`, `\"`) + `"`
+		v := strings.NewReplacer("\r", "", "\n", "").Replace(env[k])
+		// escape backslashes before quotes, or a value ending in "\" would escape the closing quote
+		// (KEY="...\" ) and run into the next line; NewReplacer applies both in one non-overlapping pass
+		v = strings.NewReplacer(`\`, `\\`, `"`, `\"`).Replace(v)
+		return k + `="` + v + `"`
 	}
 
 	var out []string

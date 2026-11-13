@@ -81,7 +81,7 @@ document.getElementById('installLogToggle').addEventListener('click', e => {
   e.target.textContent = open ? {{toJSON (.T.Get "Hide installation log")}} : {{toJSON (.T.Get "Show installation log")}};
 });
 
-// opts: autoLogin (endpoint prefix returning {login_link}), primaryUrl, primaryLabel
+// opts: autoLogin (endpoint prefix returning {login_link}), autoLoginMethod, primaryUrl, primaryLabel
 function showInstallSuccess(data, opts = {}) {
   const form = document.getElementById('installForm');
   const field = name => (form && form.elements[name] && form.elements[name].value) || '';
@@ -134,7 +134,7 @@ function showInstallSuccess(data, opts = {}) {
     // open the tab right away so the popup blocker doesn't eat it after the fetch
     const win = window.open('about:blank', '_blank');
     const go = url => { if (win) win.location = url; else window.open(url, '_blank'); };
-    fetch(opts.autoLogin + encodeURIComponent(domain), { headers: { 'X-CSRF-Token': field('csrf_token') } })
+    fetch(opts.autoLogin + encodeURIComponent(domain), { method: opts.autoLoginMethod || 'GET', headers: { 'X-CSRF-Token': field('csrf_token') } })
       .then(r => r.json())
       .then(res => go(res && res.login_link ? res.login_link : (adminUrl || siteUrl)))
       .catch(() => go(adminUrl || siteUrl));

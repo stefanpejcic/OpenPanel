@@ -195,7 +195,7 @@ func apiViewFile(a *appctx.App, w http.ResponseWriter, r *http.Request, filename
 
 	mimeType := mime.TypeByExtension(filepath.Ext(filename))
 	if strings.HasPrefix(mimeType, "image/") {
-		http.ServeContent(w, r, info.Name(), info.ModTime(), f)
+		serveImageInline(w, r, info.Name(), info.ModTime(), f, mimeType)
 		return
 	}
 

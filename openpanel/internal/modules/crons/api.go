@@ -163,6 +163,14 @@ func apiCronsRawPut(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": "job-run, job-local, and job-service-run are not allowed in the crons file"})
 		return
 	}
+	if errMsg := ValidateCronFileFormat(content); errMsg != "" {
+		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": errMsg})
+		return
+	}
+	if msg := checkCronContainersAllowed(content, cronContainers(ctx, userContext)); msg != "" {
+		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": msg})
+		return
+	}
 
 	if writeErr := writeCronFile(path, content, true); writeErr != nil {
 		writeAPICronsJSON(w, http.StatusInternalServerError, map[string]string{"error": writeErr.Error()})
@@ -316,6 +324,10 @@ func apiCronsEdit(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	if msg := checkCronJobFields(schedule, command, container, comment); msg != "" {
 		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": msg})
+		return
+	}
+	if !containerAllowed(ctx, userContext, container) {
+		writeAPICronsJSON(w, http.StatusBadRequest, map[string]string{"error": "Container " + container + " isn't one of your containers."})
 		return
 	}
 

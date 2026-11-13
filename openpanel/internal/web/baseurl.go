@@ -32,9 +32,27 @@ func PublicBaseURL(ctx context.Context, a *appctx.App, r *http.Request) string {
 	switch {
 	case a.ForcePort != "":
 		portSuffix = ":" + a.ForcePort
-	case requestPort != "":
+	case isNumericPort(requestPort):
+		// only a real numeric port: net.SplitHostPort("x:@evil") yields port "@evil", which would put
+		// attacker-controlled authority into the dynamic-DNS / git URLs built from this base
 		portSuffix = ":" + requestPort
 	}
 
 	return scheme + "://" + host + portSuffix + "/"
+}
+
+// isNumericPort reports whether s is a decimal TCP port in 1..65535 - net.SplitHostPort accepts a
+// non-numeric "port" such as the "@evil.example" from a "host:@evil.example" Host header.
+func isNumericPort(s string) bool {
+	if s == "" || len(s) > 5 {
+		return false
+	}
+	n := 0
+	for _, c := range s {
+		if c < '0' || c > '9' {
+			return false
+		}
+		n = n*10 + int(c-'0')
+	}
+	return n >= 1 && n <= 65535
 }

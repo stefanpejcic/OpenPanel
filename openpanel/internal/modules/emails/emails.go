@@ -34,7 +34,19 @@ import (
 // emailRegex mirrors EMAIL_REGEX.
 var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
 
-func isValidEmail(s string) bool { return emailRegex.MatchString(s) }
+func isValidEmail(s string) bool {
+	if !emailRegex.MatchString(s) {
+		return false
+	}
+	// the regex permits a local part of "." or "..", which resolveSievePath joins into a mail path
+	// (".."@owned.tld -> <baseMailPath>/home/.dovecot.sieve, escaping the mailbox dir). Reject the
+	// leading/trailing/consecutive dots that allow it; such local parts are invalid anyway.
+	local, _, _ := strings.Cut(s, "@")
+	if strings.HasPrefix(local, ".") || strings.HasSuffix(local, ".") || strings.Contains(local, "..") {
+		return false
+	}
+	return true
+}
 
 // baseMailPath is read once from admin.ini at package init.
 var baseMailPath = readEmailStorageLocation()

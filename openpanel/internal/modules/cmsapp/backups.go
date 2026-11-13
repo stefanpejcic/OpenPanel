@@ -43,11 +43,18 @@ func htmlVolume(userContext string) string {
 	return "/home/" + userContext + "/docker-data/volumes/" + userContext + "_html_data/_data/"
 }
 
-// ownsSelectedDomain checks the domain part of "domain.tld/sub" belongs to the user
+// ownsSelectedDomain checks the domain part of "domain.tld/sub" belongs to the user and that the
+// optional subdirectory part is a plain path. The whole selected_domain gets interpolated into
+// shell commands and filesystem paths (e.g. the tar step's bash -c in HandleRunBackup), so the
+// prefix being an owned domain isn't enough - the suffix must carry no shell metacharacters or ".."
+// either, otherwise "owned.tld/x$(...)" would inject into that command.
 func ownsSelectedDomain(a *appctx.App, r *http.Request, userID int, selectedDomain string) bool {
-	domain := selectedDomain
+	domain, sub := selectedDomain, ""
 	if idx := strings.Index(selectedDomain, "/"); idx != -1 {
-		domain = selectedDomain[:idx]
+		domain, sub = selectedDomain[:idx], selectedDomain[idx+1:]
+	}
+	if !IsValidSubdirectory(sub) {
+		return false
 	}
 	return a.CheckDomainBelongsToUser(r.Context(), userID, domain)
 }
@@ -67,9 +74,13 @@ func phpContainerFor(a *appctx.App, r *http.Request, userContext, selectedDomain
 func (app *App) HandleGetBackupDates(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	selectedDomain := r.PathValue("selected_domain")
 
-	_, _, userContext, err := auth.Injected(a, r)
+	userID, _, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	if !ownsSelectedDomain(a, r, userID, selectedDomain) {
+		http.Error(w, "domain not found, or you do not own this domain", http.StatusForbidden)
 		return
 	}
 

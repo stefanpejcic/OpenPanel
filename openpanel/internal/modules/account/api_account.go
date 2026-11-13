@@ -95,6 +95,10 @@ func apiAccountUpdate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 
 	if newEmail != "" && newEmail != currentEmail {
+		if !validContactEmail(newEmail) {
+			writeAPIAccountJSON(w, http.StatusBadRequest, map[string]string{"error": "Enter a valid email address."})
+			return
+		}
 		// sent before the update so it goes to the old address, same as the Account page
 		checkIfUserShouldBeNotified(a, ctx, userID, currentUsername, "notify_contact_address_change",
 			securityEmail(a, r, "Email address changed for account "+currentUsername,

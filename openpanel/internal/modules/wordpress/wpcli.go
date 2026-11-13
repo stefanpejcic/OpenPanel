@@ -426,6 +426,13 @@ func handleWPCLI(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 
 	switch action {
 	case "login":
+		// login mutates state (writes openpanel-login.php, inserts an op_login_* token into
+		// wp_options), so it must not run on a cross-site top-level GET - require POST, which
+		// SameSite=Lax plus the CSRF token then protect, same as the other write actions below.
+		if r.Method != http.MethodPost {
+			web.WriteJSON(w, http.StatusMethodNotAllowed, map[string]string{"error": "This action requires POST."})
+			return
+		}
 		handleWPCLILogin(a, w, r, currentUsername, userContext, domainParam, realPath, adminUsername)
 		return
 	case "users":
