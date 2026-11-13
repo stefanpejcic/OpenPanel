@@ -9,6 +9,7 @@ import (
 	"time"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
@@ -112,8 +113,17 @@ func visitorsSeconds(r *http.Request) int {
 	return seconds
 }
 
-// handleVisitors returns the recent unique-visitor-IP count/list for a domain - notably, this doesn't check domain ownership, any logged-in user can query any domain's recent visitor count/IPs.
+// handleVisitors returns the recent unique-visitor-IP count/list for a domain. The visitor
+// IPs are another tenant's data, so ownership is enforced here just as apiVisitors does -
+// without it any logged-in user could read any domain's recent visitor IPs.
 func handleVisitors(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID, _ := auth.UserID(r)
 	domain := r.PathValue("domain")
+	domainRoot, _ := splitDomainAndFolder(domain)
+	if !a.CheckDomainBelongsToUser(ctx, userID, domainRoot) {
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
+		return
+	}
 	web.WriteJSON(w, http.StatusOK, visitorsForDomain(domain, visitorsSeconds(r)))
 }
