@@ -238,7 +238,7 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 	}
 
 	// Advanced group
-	if has("crons", "services", "ssh", "usage", "error_logs", "summary", "process_manager", "webserver_conf", "timezone", "waf", "imunifyav", "ip_blocker", "info") {
+	if has("crons", "services", "ssh", "usage", "error_logs", "summary", "process_manager", "webserver_conf", "timezone", "waf", "bot_control", "imunifyav", "ip_blocker", "info") {
 		var links []NavLink
 		links = add(links, "services", "/services", "Services", strings.HasPrefix(path, "/services"), "")
 		links = add(links, "crons", "/cronjobs", "Cron jobs", strings.HasPrefix(path, "/cronjobs"), "")
@@ -246,6 +246,7 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 		links = add(links, "process_manager", "/process-manager", "Process manager", path == "/process-manager", "")
 		links = add(links, "webserver_conf", "/server/webserver_conf", "Web server settings", path == "/server/webserver_conf", "")
 		links = add(links, "waf", "/server/waf", "WAF", strings.HasPrefix(path, "/server/waf"), "")
+		links = add(links, "bot_control", "/server/bot-control", "AI & Bot Control", strings.HasPrefix(path, "/server/bot-control"), "")
 		links = add(links, "imunifyav", "/imunifyav", "ImunifyAV", strings.HasPrefix(path, "/imunifyav"), "")
 		links = add(links, "usage", "/server/usage", "Resource usage", strings.HasPrefix(path, "/server/usage"), "")
 		links = add(links, "error_logs", "/error-logs", "Error logs", strings.HasPrefix(path, "/error-logs"), "")
