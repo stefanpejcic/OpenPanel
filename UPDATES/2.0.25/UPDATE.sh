@@ -1,5 +1,56 @@
 #!/bin/bash
 
+# AI & bot control: existing servers need the botcontrol snippets and their import, or the first block/rate-limit a user picks fails the caddy reload
+# the file only defines snippets, so it's valid on caddy images without the rate_limit module too; domain configs aren't touched, the panel adds the line when a policy is set
+BC_CONF=/etc/openpanel/caddy/botcontrol.conf
+CADDYFILE=/etc/openpanel/caddy/Caddyfile
+if [ -f "$CADDYFILE" ]; then
+    if [ ! -f "$BC_CONF" ]; then
+        echo "Adding $BC_CONF..."
+        cat > "$BC_CONF" <<'BOTCONTROL'
+# AI & bot crawler control snippets for per-domain Caddy configs
+# a domain config holds one of: "# botcontrol: allow", "import botcontrol_block" or "import botcontrol_ratelimit <domain>"
+# keep the list in sync with knownBots in the panel and OpenAdmin; Google-Extended and Applebot-Extended are left out, they are robots.txt tokens and never sent as a User-Agent
+
+(ai_crawler_matcher) {
+    @ai_crawlers {
+        header_regexp ai_ua User-Agent (?i)(GPTBot|ChatGPT-User|OAI-SearchBot|ClaudeBot|Claude-Web|anthropic-ai|Bytespider|CCBot|PerplexityBot|Perplexity-User|Amazonbot|Meta-ExternalAgent|Meta-ExternalFetcher|FacebookBot|Diffbot|Omgilibot|cohere-ai|YouBot|DuckAssistBot|Timpibot|Scrapy)
+    }
+}
+
+(botcontrol_block) {
+    import ai_crawler_matcher
+    respond @ai_crawlers "Forbidden" 403
+}
+
+# args[0] = domain
+# keyed on the User-Agent, not the IP: crawlers spread over hundreds of addresses, so a per-IP limit never kicks in
+# 10 requests per minute per crawler per domain, over that the visitor gets 429
+(botcontrol_ratelimit) {
+    import ai_crawler_matcher
+    handle @ai_crawlers {
+        rate_limit {
+            zone botcontrol_{args[0]} {
+                key {http.request.header.User-Agent}
+                events 10
+                window 1m
+            }
+        }
+    }
+}
+BOTCONTROL
+    fi
+    if ! grep -q "^import $BC_CONF" "$CADDYFILE"; then
+        echo "Adding the bot control snippets import to $CADDYFILE..."
+        # written in place, caddy bind-mounts this single file and would keep the old inode after sed -i
+        sed "s|^import /etc/openpanel/caddy/domains/\*|# import AI \& bot crawler control snippets\nimport $BC_CONF\n\n&|" "$CADDYFILE" > /tmp/op_2025_caddyfile \
+            && grep -q "^import $BC_CONF" /tmp/op_2025_caddyfile \
+            && cat /tmp/op_2025_caddyfile > "$CADDYFILE"
+        rm -f /tmp/op_2025_caddyfile
+        grep -q "^import $BC_CONF" "$CADDYFILE" || echo "Could not add the import, add 'import $BC_CONF' above 'import /etc/openpanel/caddy/domains/*' in $CADDYFILE"
+    fi
+fi
+
 # openpanel/caddy-coraza was rebuilt on caddy 2.11.9 with the newest go and patched alpine packages (brotli, curl, musl, zlib),
 # servers on the WAF image pull the new :latest and recreate caddy with it.
 # the new image is pulled and has to validate the current Caddyfile before the running container is touched,

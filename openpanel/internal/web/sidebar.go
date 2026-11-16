@@ -134,7 +134,7 @@ func isProcessesPath(path string) bool {
 }
 
 func isSecurityPath(path string) bool {
-	return hasAnyPrefix(path, "/server/waf", "/security/ip-blocker", "/malware-scanner", "/imunifyav") || isAccountSecurityPath(path) || isAccountActivityPath(path)
+	return hasAnyPrefix(path, "/server/waf", "/server/bot-control", "/security/ip-blocker", "/malware-scanner", "/imunifyav") || isAccountSecurityPath(path) || isAccountActivityPath(path)
 }
 
 func isAccountPath(path string) bool {
@@ -374,6 +374,7 @@ var sidebarAreas = []navArea{
 		tabs: func(g navGate, path string, _ TabContext) []NavLink {
 			var tabs []NavLink
 			tabs = g.add(tabs, "waf", "/server/waf", "Web firewall", strings.HasPrefix(path, "/server/waf"), "")
+			tabs = g.add(tabs, "bot_control", "/server/bot-control", "AI & bot control", strings.HasPrefix(path, "/server/bot-control"), "")
 			tabs = g.add(tabs, "ip_blocker", "/security/ip-blocker", "IP blocker", strings.HasPrefix(path, "/security/ip-blocker"), "")
 			tabs = g.add(tabs, "malware_scan", "/malware-scanner", "Malware scanner", strings.HasPrefix(path, "/malware-scanner"), "")
 			tabs = g.add(tabs, "imunifyav", "/imunifyav", "ImunifyAV", strings.HasPrefix(path, "/imunifyav"), "")

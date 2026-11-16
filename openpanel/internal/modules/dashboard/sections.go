@@ -195,6 +195,7 @@ func allSections() []Section {
 		{Key: "security", Title: "Security", Icon: "ri-shield-keyhole-line", Items: []SectionItem{
 			{"waf", "/server/waf", "ri-shield-keyhole-line", "Web firewall", "", false},
 			{"waf", "/server/waf/log", "ri-error-warning-line", "Web firewall logs", "", false},
+			{"bot_control", "/server/bot-control", "ri-robot-2-line", "AI & Bot Control", "", false},
 			{"ip_blocker", "/security/ip-blocker", "ri-forbid-line", "IP blocker", "", false},
 			{"malware_scan", "/malware-scanner", "ri-barcode-line", "Malware scanner", "", false},
 			{"imunifyav", "/imunifyav", "ri-shield-check-line", "ImunifyAV", "", false},
@@ -319,6 +320,7 @@ func classicSections() []Section {
 			{"webserver_conf", "/server/webserver_conf", "ri-server-line", "Webserver configuration", "", false},
 			{"waf", "/server/waf", "ri-shield-keyhole-line", "WAF settings", "", false},
 			{"waf", "/server/waf/log", "ri-error-warning-line", "WAF logs", "", false},
+			{"bot_control", "/server/bot-control", "ri-robot-2-line", "AI & Bot Control", "", false},
 			{"imunifyav", "/imunifyav", "ri-shield-check-line", "ImunifyAV", "", false},
 			{"info", "/server/info", "ri-information-line", "Server information", "", false},
 		}},
