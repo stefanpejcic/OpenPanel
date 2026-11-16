@@ -30,10 +30,34 @@ Saving to Daily/Weekly/Monthly also drops an empty `admin.backups` marker file i
 This only affects **new** accounts — it doesn't touch any account that already exists. To hand an existing account's backups to the Administrator after the fact, create an empty `admin.backups` file yourself in that account's own config directory:
 
 ```bash
-touch /etc/openpanel/openpanel/core/users/<username>/admin.backups
+touch /etc/openpanel/openpanel/core/users/<context>/admin.backups
 ```
 
-`opencli docker-backup` only backs up accounts that have this file, accounts without it manage their own backups and are skipped. Removing the file returns the account to user-configured (assuming the Backups module itself is still enabled for it).
+`<context>` is the account's context: the name of its home directory (`/home/<context>`) and system user. It's the same as the username, unless the account was renamed with `opencli user-rename`, which only changes the username. The panel, `opencli docker-backup` and the Restore & Download page all look for the marker under the context.
+
+`opencli docker-backup` only backs up accounts that have this file, accounts without it manage their own backups and are skipped (*Skipping user: … (manages its own backups)* in the [Runs](#runs) log). Removing the file returns the account to user-configured (assuming the Backups module itself is still enabled for it).
+
+:::info Renamed accounts
+Before 2.0.25, `opencli user-rename` moved the marker to a folder named after the new username, so a renamed admin-configured account was skipped by `opencli docker-backup` and its **Restore & Download** page failed with *openat …: no such file or directory* (the panel looked for the SSH key inside the account's website files). Since 2.0.25 the marker stays under the context. For accounts renamed earlier, check that the marker exists and create it if it doesn't:
+
+```bash
+ls /etc/openpanel/openpanel/core/users/<context>/admin.backups
+```
+:::
+
+### Restore speed on SSH/SFTP
+
+When users restore from an SSH/SFTP destination, the panel streams the archive from the destination. For admin-configured accounts it downloads with OpenSSH (`ssh … cat <archive>`) when all of these are true:
+
+- the account has the `admin.backups` marker,
+- the destination logs in with a key (`SSH_IDENTITY_FILE`), without `SSH_PASSWORD` and without `SSH_IDENTITY_PASSPHRASE`,
+- the `ssh` client is available in the OpenPanel container.
+
+The key is copied to a temporary file readable only by the panel (OpenSSH refuses keys other users can read) and removed after the download. When `SSH_HOST_PUBLIC_KEY` is set, OpenSSH only connects to a server with that key, without it the host key isn't checked, the same as the built-in client.
+
+In every other case, and automatically when OpenSSH fails before the download starts (for example a storage that allows SFTP only and refuses commands, or a login error), the panel uses its built-in SFTP client. Accounts that configure their own destination always use the built-in client, so their destination can't point the panel at private or internal addresses.
+
+On the same link OpenSSH is usually 2-3x faster: in our tests 8-15 MB/s, the built-in client about 4-5 MB/s. A restore that stops halfway because the connection dropped is logged as failed, never as done.
 
 ### Configuration
 

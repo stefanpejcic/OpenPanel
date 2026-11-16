@@ -19,7 +19,7 @@
 <p x-show="j.database || (j.items || []).length" class="max-w-xl truncate text-xs text-gray-500 dark:text-gray-400" x-text="j.database || (j.items || []).map(i => itemLabel(i, j.target)).join(', ')"></p>{{end}}
 
 {{define "bk_job_by"}}<span x-text="j.by || '–'"></span>
-<p x-show="j.ip" class="text-xs text-gray-500 dark:text-gray-400 tabular-nums" x-text="j.ip"></p>{{end}}
+<p x-show="j.ip" class="text-xs text-gray-500 dark:text-gray-400" x-text="j.ip"></p>{{end}}
 
 {{define "content"}}
 <!-- START templates/files/backup_restore.html -->
@@ -1092,7 +1092,7 @@
                     <p x-show="logJob.message" class="text-xs" :class="logJob.status === 'failed' ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'" x-text="logJob.message"></p>
                     <dl class="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
                         <dt class="text-gray-500 dark:text-gray-400">{{.T.Get "From backup"}}</dt><dd class="tabular-nums text-gray-900 dark:text-gray-50" x-text="fmtDate(logJob.created) || '–'"></dd>
-                        <dt class="text-gray-500 dark:text-gray-400">{{.T.Get "Started by"}}</dt><dd class="text-gray-900 dark:text-gray-50"><span x-text="logJob.by || '–'"></span> <span x-show="logJob.ip" class="tabular-nums text-gray-500 dark:text-gray-400" x-text="'(' + logJob.ip + ')'"></span></dd>
+                        <dt class="text-gray-500 dark:text-gray-400">{{.T.Get "Started by"}}</dt><dd class="text-gray-900 dark:text-gray-50"><span x-text="logJob.by || '–'"></span> <span x-show="logJob.ip" class="text-gray-500 dark:text-gray-400" x-text="'(' + logJob.ip + ')'"></span></dd>
                         <dt class="text-gray-500 dark:text-gray-400">{{.T.Get "Restored"}}</dt><dd class="tabular-nums text-gray-900 dark:text-gray-50" x-text="fmtDate(logJob.finished)"></dd>
                         <dt class="text-gray-500 dark:text-gray-400">{{.T.Get "Took"}}</dt><dd class="tabular-nums text-gray-900 dark:text-gray-50" x-text="fmtDuration(logJob.started, logJob.finished)"></dd>
                         <template x-if="logJob.size">

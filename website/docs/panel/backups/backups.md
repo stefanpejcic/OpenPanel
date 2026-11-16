@@ -501,22 +501,77 @@ These tabs list every database, email account and domain found in your backups, 
 
 Select a backup (or databases, email accounts, domains or files) and click **Restore**. The **Restore summary** lists the items that will be restored; click **Restore selected items** to add them to the queue. Restores run in the background, one at a time per account, so you can close the page while they run. Each database is dropped, recreated and its dump is piped into the `mysql`/`mariadb` or `psql` client inside your database container.
 
+Restoring a single database or one part of a backup (website files, emails, domains, cron jobs, DNS zones) streams the archive from the destination and stops reading as soon as that part is restored, nothing is saved to disk first. **Everything** and all website files are downloaded first and then restored from the local copy, so a dropped connection can't leave the site half restored.
+
 :::danger
 Restoring overwrites existing data and cannot be undone.
 :::
 
-### Queue and logs
+### Queue
+
+Under **Restore activity** on the overview (or the **Queue** tab at the top) you see what is being restored right now and what is waiting. The page refreshes it every few seconds while something is in the queue.
+
+For each restore the queue shows what is restored, from which backup, when it was added and who started it (**Started by**: the username and the IP address the restore was started from).
+
+The running restore shows what it is doing and how far it got:
+
+- **The current step**, for example *Reading the backup*, *Downloading the backup*, *Restoring database* with the database name, *Restoring files*, *Restoring domain* with the domain, or *Applying cron jobs, DNS and vhosts* at the end.
+- **A progress bar and percentage**, based on how much of the backup archive has been read. A restore of **Everything** reads the archive three times (download, files, databases) and **Website files** twice, so these show **Step 1/3**, **2/3**… and the percentage covers all steps.
+- **Size and speed**: how much has been read out of the archive size, for example *92.0 MB / 195.5 MB · 4.8 MB/s*, and how many files were restored so far.
+- **Time running and time left**: the estimate shows up after a few seconds and gets more accurate as the restore goes on.
+
+Restores waiting in the queue show the archive size and **Starts in ~…**, an estimate based on the time left of the running restore and the speed of the current or last finished restore. When there is nothing to go on yet (for example before the first restore of the account), they show *Starts after the restores above*.
+
+:::info
+The percentage, size and time left need the archive size from the last **Reindex destination**. For an archive the index has no size for, the queue shows the current step, how much was read and the speed, without a percentage.
+:::
+
+#### Cancelling a restore
+
+Click **Cancel** next to a restore in the queue and confirm:
+
+- A restore that is **waiting** is removed from the queue and logged as *Cancelled before it started*.
+- A restore that is **running** stops within a second or two: the download is closed and the database import inside your database container is stopped. It's logged as **Cancelled**.
+
+:::warning
+Cancelling a running restore doesn't undo what was already restored. A database that was being restored is left incomplete (its old content was already dropped), so restore it again or restore it from another backup.
+:::
+
+### Logs
 
 ![Logs tab with the latest restores, the backup each came from, how long it took and whether it worked](/img/openpanel-screenshots/files/backups_list-logs.png#gh-light-mode-only)
 ![Logs tab with the latest restores, the backup each came from, how long it took and whether it worked](/img/openpanel-screenshots/files/backups_list-logs_dark.png#gh-dark-mode-only)
 
-Under **Restore activity** on the overview (or the tabs at the top), **Queue** shows what is waiting or being restored and **Logs** shows your latest 100 restores: what was restored, from which backup, when it finished, how long it took and whether it worked, with the result or the error. The summary at the top shows when the last restore finished, or how many are in the queue. A restore that was running when the panel restarted is logged as failed, the ones still waiting in the queue continue.
+**Logs** shows your latest 100 restores: what was restored, from which backup, when it finished, who started it, how long it took and the status (**Done**, **Failed** or **Cancelled**) with the result or the error. The summary at the top of the overview shows when the last restore finished, or how many are in the queue.
+
+Click **View log** next to the status to open the **Restore log** of that restore:
+
+- what was restored and the result message,
+- the backup it came from, who started it and from which IP address,
+- when it finished and how long it took,
+- the archive size and the average speed,
+- how many files were restored,
+- **Steps**: each step with how long it took, for example *Reading the backup · 0s*, *Restoring database `wp_db` · 46s*. Use it to see where the time went, downloading or importing.
+
+A restore that was running when the panel restarted is logged as failed (*Interrupted, the panel restarted while this was running.*), the ones still waiting in the queue continue.
 
 ### Downloading
 
 Select a backup and click **Download** to stream the archive from the destination straight to your browser. On **Databases**, **Emails** and **Domains**, **Download** gives you only what you selected: a single database as its `.sql` dump, anything else as a `.tar.gz` with just those items (one per backup you picked from).
 
 ## Troubleshooting
+
+### Restore is slow on SSH/SFTP
+
+Restores read the archive from the destination while they restore it, so the speed depends on the connection to the destination and on how fast your database server imports the dump. The **View log** dialog shows how long each step took and the average speed.
+
+If the account's backups are configured by the administrator (**Admin Configured**) on an SSH/SFTP destination with a key, the panel downloads through OpenSSH, which is usually 2-3x faster than the built-in SFTP client. See [User backups](/docs/admin/backups/user/#restore-speed-on-sshsftp) for when it's used.
+
+### Backups list shows *openat ...: no such file or directory*
+
+On an account with **Admin Configured** backups, this means the account lost its `admin.backups` marker, so the panel looks for the SSH key inside your website files instead of using the administrator's key. Ask your administrator to check the marker as described in [User backups](/docs/admin/backups/user/#settings).
+
+### Destination directory doesn't exist
 
 Error *error copying archive: ssh.(*sshStorage).Copy: error creating file: file does not exist* indicates that the configured directory does not exist on destination:
 
