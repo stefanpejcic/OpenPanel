@@ -20,7 +20,7 @@
                 <p class="font-medium">{{.T.Get "How each policy works"}}</p>
                 <ul class="list-disc pl-5 space-y-0.5 text-xs leading-5">
                     <li><strong>{{.T.Get "Allow"}}</strong> &mdash; {{.T.Get "Lets known AI crawlers and search engines access the site normally."}}</li>
-                    <li><strong>{{.T.Get "Rate-limit (10/min)"}}</strong> &mdash; {{.T.Get "Caps known AI crawlers at 10 requests/minute per crawler per site (HTTP 429); normal visitors and search engines (Googlebot, Bingbot) are unaffected."}}</li>
+                    <li><strong>{{.T.Get "Rate-limit (%(limit)s/min)" "limit" (print .RateLimit)}}</strong> &mdash; {{.T.Get "Caps known AI crawlers at %(limit)s requests/minute per crawler per site (HTTP 429); normal visitors and search engines (Googlebot, Bingbot) are unaffected." "limit" (print .RateLimit)}}</li>
                     <li><strong>{{.T.Get "Block (403)"}}</strong> &mdash; {{.T.Get "Immediately blocks known AI crawlers with HTTP 403; normal visitors and search engines are unaffected."}}</li>
                 </ul>
             </div>
@@ -49,7 +49,7 @@
                             {{if eq (printf "%s" .Policy) "block"}}
                             <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{$.T.Get "Blocked (403)"}}</span>
                             {{else if eq (printf "%s" .Policy) "ratelimit"}}
-                            <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">{{$.T.Get "Rate-limited (10/min)"}}</span>
+                            <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-yellow-50 text-yellow-900 ring-yellow-600/30 dark:bg-yellow-400/10 dark:text-yellow-500 dark:ring-yellow-400/20">{{$.T.Get "Rate-limited (%(limit)s/min)" "limit" (print $.RateLimit)}}</span>
                             {{else}}
                             <span class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20">{{$.T.Get "Allowed"}}</span>
                             {{end}}

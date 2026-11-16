@@ -37,7 +37,7 @@ func apiListPolicies(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			"policy": getDomainPolicy(d.DomainURL),
 		})
 	}
-	web.WriteJSON(w, http.StatusOK, map[string]any{"domains": items})
+	web.WriteJSON(w, http.StatusOK, map[string]any{"domains": items, "rate_limit": RateLimit()})
 }
 
 func apiSetPolicy(a *appctx.App, w http.ResponseWriter, r *http.Request) {
@@ -92,7 +92,8 @@ func apiDomainStats(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	web.WriteJSON(w, http.StatusOK, map[string]any{
-		"policy": getDomainPolicy(domainName),
-		"report": report,
+		"policy":     getDomainPolicy(domainName),
+		"rate_limit": RateLimit(),
+		"report":     report,
 	})
 }

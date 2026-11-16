@@ -48,6 +48,8 @@ tags:
   description: Requires the `change_image` feature to be enabled on the account's plan.
 - name: WAF
   description: Requires the `waf` feature to be enabled on the account's plan.
+- name: AI & Bot Control
+  description: Requires the `bot_control` feature to be enabled on the account's plan.
 - name: IP Blocker
   description: Requires the `ip_blocker` feature to be enabled on the account's plan.
 - name: PHP
@@ -4327,6 +4329,93 @@ paths:
       operationId: waf_ids_tags
       tags:
       - WAF
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/bot-control:
+    get:
+      summary: 'AI crawler policy (allow, ratelimit or block) of every domain on the account, plus rate_limit:
+        the requests per minute a crawler gets on a rate-limited domain, set by the server administrator.'
+      operationId: bot_control
+      tags:
+      - AI & Bot Control
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/bot-control/{domain}:
+    post:
+      summary: 'Set the AI crawler policy of a domain: allow, ratelimit (crawlers get rate_limit requests
+        per minute, then HTTP 429) or block (HTTP 403). Caddy is reloaded and the old config is put back
+        if it rejects the change.'
+      operationId: bot_control_domain
+      tags:
+      - AI & Bot Control
+      parameters:
+      - name: domain
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                policy:
+                  type: string
+                  example: block
+              example:
+                policy: block
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/bot-control/{domain}/stats:
+    get:
+      summary: 'Policy, rate_limit and the "Who''s hitting me" report of a domain from its Caddy access
+        log: top bots and user agents, networks and hit URLs.'
+      operationId: bot_control_domain_stats
+      tags:
+      - AI & Bot Control
+      parameters:
+      - name: domain
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: window
+        in: query
+        required: false
+        schema:
+          type: string
       responses:
         '200':
           description: Success.

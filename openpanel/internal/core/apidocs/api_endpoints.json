@@ -1084,6 +1084,31 @@
     ]
   },
   {
+    "group": "AI & Bot Control",
+    "feature": "bot_control",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/bot-control",
+        "description": "AI crawler policy (allow, ratelimit or block) of every domain on the account, plus rate_limit: the requests per minute a crawler gets on a rate-limited domain, set by the server administrator."
+      },
+      {
+        "method": "POST",
+        "path": "/api/bot-control/<domain>",
+        "description": "Set the AI crawler policy of a domain: allow, ratelimit (crawlers get rate_limit requests per minute, then HTTP 429) or block (HTTP 403). Caddy is reloaded and the old config is put back if it rejects the change.",
+        "body": {
+          "policy": "block"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/bot-control/<domain>/stats",
+        "description": "Policy, rate_limit and the \"Who's hitting me\" report of a domain from its Caddy access log: top bots and user agents, networks and hit URLs.",
+        "params": "?window=24h"
+      }
+    ]
+  },
+  {
     "group": "IP Blocker",
     "feature": "ip_blocker",
     "endpoints": [

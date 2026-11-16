@@ -79,6 +79,7 @@ QUERY_PARAMS = {
     ("GET", "/api/containers/{service}/logs"): ["lines"],
     ("GET", "/api/waf/log/{domain}"): ["page", "per_page"],
     ("GET", "/api/waf/stats/{domain}"): ["seconds"],
+    ("GET", "/api/bot-control/{domain}/stats"): ["window"],
     ("GET", "/api/php/{version}/extensions/install/status"): ["install_id"],
     ("GET", "/api/usage/history"): ["page", "per_page"],
     ("GET", "/api/files/{path_param}"): ["hidden_files", "page"],

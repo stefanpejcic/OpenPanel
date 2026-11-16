@@ -24,6 +24,7 @@ type ListPageData struct {
 	web.LayoutData
 	Rows          []DomainPolicyRow
 	KnownCrawlers []BotSignature
+	RateLimit     int
 }
 
 // DomainPageData is system/bot_control_domain.html's template context.
@@ -33,6 +34,7 @@ type DomainPageData struct {
 	Policy        Policy
 	Report        TrafficReport
 	KnownCrawlers []BotSignature
+	RateLimit     int
 }
 
 func renderListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, rows []DomainPolicyRow) {
@@ -45,6 +47,7 @@ func renderListPage(a *appctx.App, w http.ResponseWriter, r *http.Request, rows 
 		LayoutData:    layout,
 		Rows:          rows,
 		KnownCrawlers: KnownAICrawlers(),
+		RateLimit:     RateLimit(),
 	}
 	if err := botControlListPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("BOTCONTROL - template render error: %v", err)
@@ -63,6 +66,7 @@ func renderDomainPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dom
 		Policy:        policy,
 		Report:        report,
 		KnownCrawlers: KnownAICrawlers(),
+		RateLimit:     RateLimit(),
 	}
 	if err := botControlDomainPage.Render(w, http.StatusOK, data); err != nil {
 		log.Printf("BOTCONTROL - domain template render error: %v", err)

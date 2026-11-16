@@ -894,6 +894,42 @@ Irreversible from the web UI/API — the panel can only be re-enabled from the t
 { "rule_name": "REQUEST-901-INITIALIZATION", "action": "off" }
 ```
 
+### AI & Bot Control
+
+`GET /api/security/bot-control`
+`POST /api/security/bot-control`
+
+Resellers can use both, limited to the domains of their own users. Query parameters for `GET`: `domain` (limits the traffic report to one domain) and `window` (`1h`, `24h` or `7d`, default `24h`).
+
+```json
+{
+  "module_enabled": true,
+  "rate_limit": 10,
+  "domains": [{"domain": "example.com", "owner": "stefan", "policy": "ratelimit", "requests": 1520, "ai_requests": 312, "blocked_count": 40}],
+  "policy_counts": {"allow": 3, "ratelimit": 1, "block": 0},
+  "report": {"scope": "All domains", "window": "24h", "total_requests": 1520, "ai_requests": 312, "blocked_count": 40, "top_bots": [], "top_networks": [], "top_urls": []}
+}
+```
+
+**Request Body** for `POST`, `action` is one of:
+
+| `action` | Fields | Who |
+|---|---|---|
+| `set_policy` | `domain`, `policy` (`allow`, `ratelimit` or `block`) | admin, reseller |
+| `apply_all` | `policy` | admin, reseller (their users' domains only) |
+| `set_rate_limit` | `rate_limit` (1-100000 requests per minute, default 10) | admin |
+| `enable_module` / `disable_module` | | admin |
+
+```json
+{ "action": "set_policy", "domain": "example.com", "policy": "block" }
+```
+
+```json
+{ "success": true, "message": "Updated AI & bot policy for example.com to 'block'.", "rate_limit": 10 }
+```
+
+A reseller calling an admin-only action gets `403`, a domain outside the caller's scope `404`, and policy changes while the module is off `409`. `apply_all` answers `207` with the skipped domains in `message` when some configs have no place for the rule.
+
 ### Two-Factor Authentication
 
 `GET /api/security/2fa` — returns `{"totp_enabled": true}`, or a fresh `secret` + `qr_data_uri` to scan if 2FA isn't enabled yet

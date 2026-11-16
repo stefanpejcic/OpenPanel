@@ -23,7 +23,7 @@
                 {{.T.Get "Allow"}}
             </button>
             <button type="submit" name="policy" value="ratelimit" class="rounded-md border px-3 py-1.5 text-sm font-medium {{if eq (printf "%s" .Policy) "ratelimit"}}border-blue-600 bg-blue-600 text-white{{else}}border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200{{end}}">
-                {{.T.Get "Rate-limit (10/min)"}}
+                {{.T.Get "Rate-limit (%(limit)s/min)" "limit" (print .RateLimit)}}
             </button>
             <button type="submit" name="policy" value="block" class="rounded-md border px-3 py-1.5 text-sm font-medium {{if eq (printf "%s" .Policy) "block"}}border-blue-600 bg-blue-600 text-white{{else}}border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200{{end}}">
                 {{.T.Get "Block (403)"}}
@@ -38,7 +38,7 @@
                 <p class="font-medium">{{.T.Get "How each policy works"}}</p>
                 <ul class="list-disc pl-5 space-y-0.5 text-xs leading-5">
                     <li><strong>{{.T.Get "Allow"}}</strong> &mdash; {{.T.Get "Lets known AI crawlers and search engines access the site normally."}}</li>
-                    <li><strong>{{.T.Get "Rate-limit (10/min)"}}</strong> &mdash; {{.T.Get "Caps known AI crawlers at 10 requests/minute per crawler per site (HTTP 429); normal visitors and search engines (Googlebot, Bingbot) are unaffected."}}</li>
+                    <li><strong>{{.T.Get "Rate-limit (%(limit)s/min)" "limit" (print .RateLimit)}}</strong> &mdash; {{.T.Get "Caps known AI crawlers at %(limit)s requests/minute per crawler per site (HTTP 429); normal visitors and search engines (Googlebot, Bingbot) are unaffected." "limit" (print .RateLimit)}}</li>
                     <li><strong>{{.T.Get "Block (403)"}}</strong> &mdash; {{.T.Get "Immediately blocks known AI crawlers with HTTP 403; normal visitors and search engines are unaffected."}}</li>
                 </ul>
             </div>

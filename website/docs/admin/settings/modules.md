@@ -1370,6 +1370,19 @@ When disabled:
 Customize options:
 * [**WAF commmands**](https://dev.openpanel.com/cli/waf.html#CorazaWAF)
 
+## AI & Bot Control {#bot-control}
+
+The **`bot_control`** module lets users allow, rate-limit or block known AI crawlers (GPTBot, ClaudeBot, PerplexityBot, Bytespider, CCBot and others) per website, without affecting search engines or normal visitors.
+
+When enabled:
+* Users with the `bot_control` feature can access the [**AI & bot control** page](/docs/panel/security/bot-control/) and its API.
+* Resellers can access the [**Security > AI & Bot Control** page](/docs/admin/security/bot-control/#resellers) for their users' domains.
+* Administrators can set the [rate limit](/docs/admin/security/bot-control/#rate-limit) for AI crawlers, 10 requests per minute by default.
+
+When disabled:
+* Every domain is put back on **Allow**.
+* Users can not access the *AI & bot control* page.
+
 ## PHP
 
 The **`php`** module allows users to manage PHP versions and settings.

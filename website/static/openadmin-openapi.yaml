@@ -3007,6 +3007,189 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/security/bot-control:
+    get:
+      summary: 'AI & bot control state: whether the bot_control module is on, the rate limit (requests
+        per minute per AI crawler per domain), the policy of every domain and the "Who''s hitting the
+        server" traffic report from the Caddy access logs. A reseller only gets the domains of their own
+        users and their logs.'
+      description: '**Access:** Administrator/user role, or a reseller limited to their own accounts and
+        assigned plans.'
+      operationId: get_security_bot_control
+      tags:
+      - Security
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  module_enabled:
+                    type: boolean
+                    example: true
+                  rate_limit:
+                    type: integer
+                    example: 10
+                  domains:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        domain:
+                          type: string
+                          example: example.com
+                        owner:
+                          type: string
+                          example: stefan
+                        policy:
+                          type: string
+                          example: ratelimit
+                        requests:
+                          type: integer
+                          example: 1520
+                        ai_requests:
+                          type: integer
+                          example: 312
+                        blocked_count:
+                          type: integer
+                          example: 40
+                      example:
+                        domain: example.com
+                        owner: stefan
+                        policy: ratelimit
+                        requests: 1520
+                        ai_requests: 312
+                        blocked_count: 40
+                    example:
+                    - domain: example.com
+                      owner: stefan
+                      policy: ratelimit
+                      requests: 1520
+                      ai_requests: 312
+                      blocked_count: 40
+                  policy_counts:
+                    type: object
+                    properties:
+                      allow:
+                        type: integer
+                        example: 3
+                      ratelimit:
+                        type: integer
+                        example: 1
+                      block:
+                        type: integer
+                        example: 0
+                    example:
+                      allow: 3
+                      ratelimit: 1
+                      block: 0
+                  report:
+                    type: object
+                    properties:
+                      window:
+                        type: string
+                        example: 24h
+                      scope:
+                        type: string
+                        example: All domains
+                      total_requests:
+                        type: integer
+                        example: 1520
+                      ai_requests:
+                        type: integer
+                        example: 312
+                      blocked_count:
+                        type: integer
+                        example: 40
+                    example:
+                      window: 24h
+                      scope: All domains
+                      total_requests: 1520
+                      ai_requests: 312
+                      blocked_count: 40
+                example:
+                  module_enabled: true
+                  rate_limit: 10
+                  domains:
+                  - domain: example.com
+                    owner: stefan
+                    policy: ratelimit
+                    requests: 1520
+                    ai_requests: 312
+                    blocked_count: 40
+                  policy_counts:
+                    allow: 3
+                    ratelimit: 1
+                    block: 0
+                  report:
+                    window: 24h
+                    scope: All domains
+                    total_requests: 1520
+                    ai_requests: 312
+                    blocked_count: 40
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+    post:
+      summary: Change AI & bot control. action set_policy sets one domain to allow, ratelimit or block;
+        apply_all sets every domain (a reseller's own users' domains only); set_rate_limit changes the
+        requests per minute (1-100000, default 10) saved in /etc/openpanel/caddy/botcontrol.conf; enable_module
+        and disable_module toggle the bot_control module, disabling puts every domain back on allow. set_rate_limit,
+        enable_module and disable_module are administrator only, a reseller gets 403. Caddy is reloaded
+        and the files are put back if it rejects the change.
+      description: '**Access:** Administrator/user role, or a reseller limited to their own accounts and
+        assigned plans.'
+      operationId: post_security_bot_control
+      tags:
+      - Security
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  example: set_policy
+                domain:
+                  type: string
+                  example: example.com
+                policy:
+                  type: string
+                  example: block
+              example:
+                action: set_policy
+                domain: example.com
+                policy: block
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Updated AI & bot policy for example.com to 'block'.
+                  rate_limit:
+                    type: integer
+                    example: 10
+                example:
+                  success: true
+                  message: Updated AI & bot policy for example.com to 'block'.
+                  rate_limit: 10
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/security/waf:
     get:
       summary: Returns whether CorazaWAF is enabled and a summary count of total/active/inactive WAF rule
