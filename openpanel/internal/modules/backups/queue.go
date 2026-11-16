@@ -28,6 +28,22 @@ type restoreJob struct {
 	Queued   time.Time      `json:"queued"`
 	Started  *time.Time     `json:"started,omitempty"`
 	Finished *time.Time     `json:"finished,omitempty"`
+	// Size is the archive size from the index, Progress what the finished job reported, kept for the log
+	Size     int64         `json:"size,omitempty"`
+	Progress *progressView `json:"progress,omitempty"`
+	progress *restoreProgress
+}
+
+// archiveSize is the size the reindex saw, 0 when the index doesn't have it, swapped in tests
+var archiveSize = func(userContext, backup string) int64 {
+	config, _ := readBackupEnv(userContext)
+	backups, _ := loadOwnBackups(userContext, config)
+	for _, b := range backups {
+		if b.BackupFile == backup {
+			return b.Size
+		}
+	}
+	return 0
 }
 
 // how many finished restores the log keeps
@@ -131,7 +147,7 @@ func (q *accountQueue) enqueue(a *appctx.App, req restoreRequest) *restoreJob {
 	defer q.mu.Unlock()
 	q.setOwner(req)
 	q.load()
-	job := &restoreJob{ID: newJobID(), Request: req, Status: "queued", Queued: time.Now().UTC()}
+	job := &restoreJob{ID: newJobID(), Request: req, Status: "queued", Queued: time.Now().UTC(), Size: archiveSize(req.UserContext, req.Form.Get("backup_file"))}
 	q.jobs = append(q.jobs, job)
 	q.save()
 	q.startLocked(a)
@@ -180,6 +196,8 @@ func (q *accountQueue) work(a *appctx.App) {
 		job.Request.UserID, job.Request.Username, job.Request.UserContext = q.owner.UserID, q.owner.Username, q.owner.UserContext
 		ctx, cancel := context.WithCancel(context.Background())
 		q.cancel, q.cancelled = cancel, false
+		job.progress = newRestoreProgress(job.Size)
+		ctx = withProgress(ctx, job.progress)
 		q.save()
 		q.mu.Unlock()
 
@@ -187,9 +205,13 @@ func (q *accountQueue) work(a *appctx.App) {
 		status, body := runRestore(ctx, a, job.Request)
 		q.restore.Unlock()
 
+		job.progress.finish()
+
 		q.mu.Lock()
 		cancel()
 		q.cancel = nil
+		job.Progress, job.progress = job.progress.view(), nil
+		job.Progress.Percent, job.Progress.ETA, job.Progress.Step, job.Progress.Detail = -1, -1, "", ""
 		done := time.Now().UTC()
 		job.Finished = &done
 		job.Status = "done"
@@ -253,6 +275,11 @@ type jobView struct {
 	Queued   time.Time  `json:"queued"`
 	Started  *time.Time `json:"started,omitempty"`
 	Finished *time.Time `json:"finished,omitempty"`
+	// By and IP are who queued it, Size the archive size, Progress live while running and the step timings after
+	By       string        `json:"by,omitempty"`
+	IP       string        `json:"ip,omitempty"`
+	Size     int64         `json:"size,omitempty"`
+	Progress *progressView `json:"progress,omitempty"`
 }
 
 func viewOf(j *restoreJob) jobView {
@@ -260,11 +287,16 @@ func viewOf(j *restoreJob) jobView {
 	if target == "" {
 		target = "all"
 	}
-	return jobView{
+	v := jobView{
 		ID: j.ID, Created: archiveCreated(j.Request.Form.Get("backup_file")), Target: target,
 		Database: j.Request.Form.Get("database"), Items: j.Request.Form["items"],
 		Status: j.Status, Message: j.Message, Queued: j.Queued, Started: j.Started, Finished: j.Finished,
+		By: j.Request.Username, IP: j.Request.IP, Size: j.Size, Progress: j.Progress,
 	}
+	if j.progress != nil {
+		v.Progress = j.progress.view()
+	}
+	return v
 }
 
 // snapshot returns the queue oldest first and the log newest first

@@ -110,7 +110,7 @@ func fetchArchive(ctx context.Context, store remoteStore, filename string) (loca
 	}
 	defer localFile.Close()
 
-	if _, err := io.Copy(localFile, rc); err != nil {
+	if _, err := io.Copy(localFile, progressFrom(ctx).reader(rc)); err != nil {
 		cleanup()
 		return "", nil, err
 	}

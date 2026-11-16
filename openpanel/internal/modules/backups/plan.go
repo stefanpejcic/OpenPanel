@@ -27,6 +27,7 @@ type restorePlan struct {
 	zonesDir  string
 	// suspended reports a suspended domain, its vhost is never restored
 	suspended func(domain string) bool
+	progress  *restoreProgress
 }
 
 // domainSuspended reads the live caddy file, opencli domains-suspend swaps it for one serving suspended_domain.html
@@ -54,7 +55,7 @@ func mailStoreRoot(userContext string) func(string) string {
 }
 
 func newRestorePlan(ctx context.Context, a *appctx.App, userID int, userContext string) (*restorePlan, error) {
-	plan := &restorePlan{sections: restoreFilesPathMap(userContext), domains: map[string]bool{}, mailStore: mailStoreRoot(userContext), zonesDir: "/etc/bind/zones", suspended: domainSuspended}
+	plan := &restorePlan{sections: restoreFilesPathMap(userContext), domains: map[string]bool{}, mailStore: mailStoreRoot(userContext), zonesDir: "/etc/bind/zones", suspended: domainSuspended, progress: progressFrom(ctx)}
 	domains, err := a.AllDomainsForUser(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -232,7 +233,7 @@ func restoreSelected(ctx context.Context, store remoteStore, backup string, plan
 		return nil, err
 	}
 	defer rc.Close()
-	gz, err := gzip.NewReader(rc)
+	gz, err := gzip.NewReader(plan.progress.reader(rc))
 	if err != nil {
 		return nil, err
 	}
@@ -264,6 +265,7 @@ func restoreSelected(ctx context.Context, store remoteStore, backup string, plan
 					failures.add(name, err)
 				} else if dest != "" {
 					extracted = append(extracted, dest)
+					plan.progress.item()
 				}
 				break
 			}

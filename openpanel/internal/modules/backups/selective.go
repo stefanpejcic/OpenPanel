@@ -134,7 +134,7 @@ func collectEntries(ctx context.Context, store remoteStore, backup string, targe
 		return nil, err
 	}
 	defer rc.Close()
-	gz, err := gzip.NewReader(rc)
+	gz, err := gzip.NewReader(progressFrom(ctx).reader(rc))
 	if err != nil {
 		return nil, err
 	}
@@ -252,6 +252,8 @@ func restoreSelectedItems(ctx context.Context, a *appctx.App, req restoreRequest
 		return http.StatusBadRequest, map[string]any{"error": err.Error()}
 	}
 	uid, _ := a.GetUID(ctx, userContext)
+	progress := progressFrom(ctx)
+	progress.startPhase(restoreTarget)
 
 	// failed is what couldn't be restored, reported even when other items were
 	var extracted, failed []string
@@ -267,6 +269,7 @@ func restoreSelectedItems(ctx context.Context, a *appctx.App, req restoreRequest
 			if !isVhost || !ok {
 				continue
 			}
+			progress.setStep("domains", domain)
 			if err := addMissingDomain(ctx, a, userID, username, domain, vhostDocroot(content, domain), vhostPHPVersion(content), plan); err != nil {
 				failed = append(failed, err.Error())
 				continue
@@ -303,6 +306,7 @@ func restoreSelectedItems(ctx context.Context, a *appctx.App, req restoreRequest
 		return http.StatusNotFound, map[string]any{"error": "The selected items were not found in this backup."}
 	}
 
+	progress.setStep("apply", "")
 	applyRestored(ctx, userContext, extracted, plan)
 	_ = logger.RecordUserAction(a.Config, username, "restored "+strings.Join(req.Form["items"], ", ")+" from backup "+backup, req.IP)
 	message := "Restored (" + strconv.Itoa(len(extracted)) + " items)."

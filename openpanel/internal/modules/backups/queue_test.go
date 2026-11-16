@@ -16,6 +16,9 @@ import (
 
 func testQueue(t *testing.T) *accountQueue {
 	t.Helper()
+	old := archiveSize
+	archiveSize = func(string, string) int64 { return 0 }
+	t.Cleanup(func() { archiveSize = old })
 	return &accountQueue{path: filepath.Join(t.TempDir(), "backup_restores.json")}
 }
 

@@ -133,6 +133,7 @@ func restoreDatabasesFromTar(ctx context.Context, userContext string, archive io
 		if !ok || (only != "" && dbName != only) {
 			continue
 		}
+		progressFrom(ctx).setStep("database", dbName)
 
 		var dump io.Reader = tr
 		if strings.HasSuffix(name, ".gz") {
@@ -222,6 +223,7 @@ func restoreFilesFromTar(archive io.Reader, plan *restorePlan, uid int, only []s
 			failures.add(name, err)
 		} else if dest != "" {
 			extracted = append(extracted, dest)
+			plan.progress.item()
 		}
 	}
 	return extracted, failures.err()
@@ -350,12 +352,14 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 	}
 
 	uid, _ := a.GetUID(ctx, req.UserContext)
+	progress := plan.progress
 
 	// a single database or section is streamed, reading stops once it's restored and everything but html/ comes before the website files
 	if restoreTarget != "all" && restoreTarget != "files" {
 		if restoreTarget == "database" && database == "" {
 			return http.StatusBadRequest, map[string]any{"error": "No database specified."}
 		}
+		progress.startPhase("reading")
 		rc, err := store.Open(ctx, safeName)
 		if err != nil {
 			return http.StatusInternalServerError, map[string]any{"error": err.Error()}
@@ -363,7 +367,7 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 		defer rc.Close()
 
 		if restoreTarget == "database" {
-			restored, err := restoreDatabasesFromTar(ctx, req.UserContext, rc, database, engine)
+			restored, err := restoreDatabasesFromTar(ctx, req.UserContext, progress.reader(rc), database, engine)
 			if err != nil {
 				return http.StatusInternalServerError, map[string]any{"error": err.Error()}
 			}
@@ -375,7 +379,8 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 		}
 
 		section := restoreSections[restoreTarget]
-		extracted, err := restoreFilesFromTar(rc, plan, uid, section.prefixes)
+		progress.setStep(restoreTarget, "")
+		extracted, err := restoreFilesFromTar(progress.reader(rc), plan, uid, section.prefixes)
 		var failures *writeFailures
 		if err != nil && (!errors.As(err, &failures) || len(extracted) == 0) {
 			return http.StatusInternalServerError, map[string]any{"error": err.Error()}
@@ -383,12 +388,19 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 		if len(extracted) == 0 {
 			return http.StatusNotFound, map[string]any{"error": section.label + " not found in this backup."}
 		}
+		progress.setStep("apply", "")
 		applyRestored(ctx, req.UserContext, extracted, plan)
 		_ = logger.RecordUserAction(a.Config, req.Username, "restored "+strings.ToLower(section.label)+" from backup "+safeName, req.IP)
 		return http.StatusOK, map[string]any{"success": true, "message": withWriteFailures(section.label+" restored ("+strconv.Itoa(len(extracted))+" items).", failures)}
 	}
 
 	// full and all-files restores download first, a dropped connection then can't leave the site half restored
+	if restoreTarget == "files" {
+		progress.setPhases(2)
+	} else {
+		progress.setPhases(3)
+	}
+	progress.startPhase("download")
 	localPath, cleanup, fetchErr := fetchArchive(ctx, store, safeName)
 	if fetchErr != nil {
 		return http.StatusInternalServerError, map[string]any{"error": fetchErr.Error()}
@@ -400,11 +412,13 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 	}
 	defer f.Close()
 
-	extracted, err := restoreFilesFromTar(f, plan, uid, nil)
+	progress.startPhase("files")
+	extracted, err := restoreFilesFromTar(progress.reader(f), plan, uid, nil)
 	var failures *writeFailures
 	if err != nil && (!errors.As(err, &failures) || len(extracted) == 0) {
 		return http.StatusInternalServerError, map[string]any{"error": err.Error()}
 	}
+	progress.setStep("apply", "")
 	applyRestored(ctx, req.UserContext, extracted, plan)
 	if restoreTarget == "files" {
 		_ = logger.RecordUserAction(a.Config, req.Username, "restored files from backup "+safeName, req.IP)
@@ -414,7 +428,8 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 	if _, err := f.Seek(0, io.SeekStart); err != nil {
 		return http.StatusInternalServerError, map[string]any{"error": err.Error()}
 	}
-	if _, err := restoreDatabasesFromTar(ctx, req.UserContext, f, "", ""); err != nil {
+	progress.startPhase("databases")
+	if _, err := restoreDatabasesFromTar(ctx, req.UserContext, progress.reader(f), "", ""); err != nil {
 		return http.StatusInternalServerError, map[string]any{"error": err.Error()}
 	}
 	_ = logger.RecordUserAction(a.Config, req.Username, "restored full backup from "+safeName, req.IP)
