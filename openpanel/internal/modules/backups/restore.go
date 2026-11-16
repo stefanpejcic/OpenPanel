@@ -328,6 +328,9 @@ func performRestore(ctx context.Context, a *appctx.App, req restoreRequest) (int
 	if backupFile == "" {
 		return http.StatusBadRequest, map[string]any{"error": "No backup file specified."}
 	}
+	if !targetAllowed(loadAllowed(ctx, a, req.Username, req.UserContext), restoreTarget, engine) {
+		return http.StatusForbidden, map[string]any{"error": targetNotAllowed}
+	}
 	safeName := filepath.Base(backupFile)
 	if safeName != backupFile {
 		return http.StatusBadRequest, map[string]any{"error": "Invalid backup filename."}

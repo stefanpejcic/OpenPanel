@@ -200,7 +200,8 @@ func (s *sshStore) List(ctx context.Context) ([]remoteFile, error) {
 
 // sftpFile streams the file through WriteTo so pkg/sftp keeps concurrent requests in flight, plain 4 KB reads from gzip wait a full round trip each
 type sftpFile struct {
-	*sftp.File
+	// a named field, embedding would promote File.WriteTo and io.Copy would call it while the goroutine below holds the file's lock
+	file       *sftp.File
 	pr         *io.PipeReader
 	r          *bufio.Reader
 	sftpClient *sftp.Client
@@ -215,7 +216,7 @@ func newSFTPFile(ctx context.Context, f *sftp.File, sftpClient *sftp.Client, cli
 	}()
 	// a cancelled restore fails the next read instead of waiting for the whole file
 	context.AfterFunc(ctx, func() { pr.CloseWithError(ctx.Err()) })
-	return &sftpFile{File: f, pr: pr, r: bufio.NewReaderSize(pr, 1<<20), sftpClient: sftpClient, client: client}
+	return &sftpFile{file: f, pr: pr, r: bufio.NewReaderSize(pr, 1<<20), sftpClient: sftpClient, client: client}
 }
 
 func (f *sftpFile) Read(p []byte) (int, error) { return f.r.Read(p) }
@@ -223,7 +224,7 @@ func (f *sftpFile) Read(p []byte) (int, error) { return f.r.Read(p) }
 // closes the sftp session and ssh connection along with the file
 func (f *sftpFile) Close() error {
 	f.pr.Close()
-	err := f.File.Close()
+	err := f.file.Close()
 	f.sftpClient.Close()
 	f.client.Close()
 	return err

@@ -49,7 +49,6 @@ Once backup is selected, it's options are available on **Backups > Configuration
 | **SSH_IDENTITY_FILE**    | The private key path inside `/var/www/html/` for SSH server. Non-RSA keys (e.g. ed25519) will also work.  |
 | **SSH_IDENTITY_PASSPHRASE**    | The passphrase for the identity file if applicable. Example: `pass`  |
 
-
 ### S3
 
 | Setting | Description |
@@ -64,7 +63,6 @@ Once backup is selected, it's options are available on **Backups > Configuration
 | **AWS_ENDPOINT_CA_CERT**    | If you wish to use self signed certificates your S3 server, you can pass the location of a PEM encoded CA certificate and it will be used for validating your certificates. Alternatively, pass a PEM encoded string containing the certificate. Example: `/var/www/html/cert.pem` |
 | **AWS_STORAGE_CLASS**    | Setting a value for this key will change the S3 storage class header. Default behavior is to use the standard class when no value is given. Example: `GLACIER` |
 | **AWS_PART_SIZE**    | Setting this variable will change the S3 default part size for the copy step. This value is useful when you want to upload large files. Note: While using Scaleway as S3 provider, be aware that the parts counter is set to 1.000. While Minio uses a hard coded value to 10.000. As a workaround, try to set a higher value. Defaults to `16` (MB) if unset (from minio), you can set this value according to your needs. The unit is in MB and an integer. |
-
 
 ### WebDAV
 
@@ -87,7 +85,6 @@ Once backup is selected, it's options are available on **Backups > Configuration
 | **AZURE_STORAGE_ENDPOINT**    | The service endpoint when using Azure Blob Storage. This is a template that can be passed the account name.  Example: `https://{{ .AccountName }}.blob.core.windows.net/` |
 | **AZURE_STORAGE_ACCESS_TIER**    | The access tier when using Azure Blob Storage. Possible values are [listed here](https://github.com/Azure/azure-sdk-for-go/blob/sdk/storage/azblob/v1.3.2/sdk/storage/azblob/internal/generated/zz_constants.go#L14-L30) Example: `Cold` |
 
-
 ### Dropbox
 
 | Setting | Description |
@@ -96,7 +93,6 @@ Once backup is selected, it's options are available on **Backups > Configuration
 | **DROPBOX_APP_KEY**  **DROPBOX_APP_SECRET**   | App key and app secret from your app created at [https://www.dropbox.com/developers/apps](https://www.dropbox.com/developers/apps) |
 | **DROPBOX_CONCURRENCY_LEVEL**    | Number of concurrent chunked uploads for Dropbox. Values above 6 usually result in no enhancements. |
 | **DROPBOX_REFRESH_TOKEN**    |  Refresh token to request new short-lived tokens (OAuth2) |
-
 
 Set up Dropbox storage backend:
 
@@ -128,13 +124,11 @@ Set up Dropbox storage backend:
 Important: If you chose `App folder` access during the creation of your Dropbox app in step 1 above, `DROPBOX_REMOTE_PATH` will be a relative path under the App folder! (For example, DROPBOX_REMOTE_PATH=/somedir means the backup file will be uploaded to /Apps/myapp/somedir) On the other hand if you chose Full Dropbox access, the value for `DROPBOX_REMOTE_PATH` will represent an absolute path inside your Dropbox storage area. (Still considering the same example above, the backup file will be uploaded to /somedir in your Dropbox root)
 :::
 
-
 ## Encryption
 
 Backup encryption is by default disabled and needs to be enabled by the Administrator first.
 
 All of the encryption options are mutually exclusive. Provide a single option for the encryption scheme of your choice.
-
 
 | Setting | Description |
 |----------|----------|
@@ -170,12 +164,9 @@ By default, everything will be backed up. In case you need to backup only a spec
 | **PostgreSQL databases**    | `/backup/01-postgres` |  Backups only PostgreSQL databases. |
 | **Cron jobs**    | `/backup/crons.ini` |  Backups only the `crons.ini` file. |
 
-Before 2.0.16 the emails, VirtualHosts and database values were `/backup/mail`, `/backup/vhosts`, `/backup/mysql` and `/backup/postgres`, the update changes them in `backup.env` automatically.
+Databases are not copied from their live data directories. Right before the archive is created, every MySQL/MariaDB database is dumped with `mysqldump`/`mariadb-dump` (`--single-transaction --routines --triggers --events`) and every PostgreSQL database with `pg_dump`, into `backup/01-mysql/<database>.sql` and `backup/01-postgres/<database>.sql`. Everything except the website files is stored before `backup/html/` in the archive (`backup/01-mail/`, `backup/01-vhosts/`, `crons.ini`, `dns/`, `emails/`), so restoring a database, domains, emails or cron jobs stops reading the archive early instead of going through the website files. If any database fails to dump, the whole backup run fails so it doesn't go unnoticed. The names of the dumped databases are also written to a small `backup/00-meta/` folder that is always the first thing in the archive, so the panel can index a backup without downloading it.
 
-Databases are not copied from their live data directories. Right before the archive is created, every MySQL/MariaDB database is dumped with `mysqldump`/`mariadb-dump` (`--single-transaction --routines --triggers --events`) and every PostgreSQL database with `pg_dump`, into `backup/01-mysql/<database>.sql` and `backup/01-postgres/<database>.sql`. Everything except the website files is stored before `backup/html/` in the archive (`backup/01-mail/`, `backup/01-vhosts/`, `crons.ini`, `dns/`, `emails/`), so restoring a database, domains, emails or cron jobs stops reading the archive early instead of going through the website files. Archives made before 2.0.16 have the dumps, mail and vhosts after the website files, under `backup/mysql/`, `backup/postgres/`, `backup/mail/` and `backup/vhosts/`, and are still restored. If any database fails to dump, the whole backup run fails so it doesn't go unnoticed. The names of the dumped databases are also written to a small `backup/00-meta/` folder that is always the first thing in the archive, so the panel can index a backup without downloading it.
-
-Emails and DNS zones are backed up too. Each domain's mailboxes are mounted into the backup at `backup/emails/<domain>/` (the older `backup/01-mail/` folder, `backup/mail/` in archives made before 2.0.16, only holds links to them) and each domain's DNS zone at `backup/dns/<domain>.zone`. The `backup/00-meta/` folder also lists the website files, mailboxes, domains and DNS zones in the backup, so single items can be restored without downloading the whole archive.
-
+Emails and DNS zones are backed up too. Each domain's mailboxes are mounted into the backup at `backup/emails/<domain>/` (the older `backup/01-mail/` folder only holds links to them) and each domain's DNS zone at `backup/dns/<domain>.zone`. The `backup/00-meta/` folder also lists the website files, mailboxes, domains and DNS zones in the backup, so single items can be restored without downloading the whole archive.
 
 ## Schedule
 
@@ -191,13 +182,11 @@ Backups can be run on fixed scheduled that are defined as a cron expression.
 | Month        | Yes        | 1-12 or JAN-DEC | `* / , -` |
 | Day of week  | Yes        | 0-6 or SUN-SAT  | `* / , - ?` |
 
-
 Month and Day-of-week field values are case insensitive. "SUN", "Sun", and "sun" are equally accepted. Refer to sites like [crontab.guru](https://crontab.guru) for help.
 
 If no value is set, `@daily` will be used, which runs every day at midnight.
 
 ## Compression
-
 
 | Setting | Description |
 |----------|----------|
@@ -211,7 +200,6 @@ Options here are available byt disabled by default and need to be manually enabl
 | Setting | Description |
 |----------|----------|
 | `BACKUP_FILENAME`    |  The desired name of the backup file including the extension. Format verbs will be replaced as in `strftime`. Omitting all verbs will result in the same filename for every backup run, which means previous versions will be overwritten on subsequent runs. Extension can be defined literally or via `{{ .Extension }}` template,  in which case it will become either "tar.gz", "tar.zst" or ".tar" (depending on your `BACKUP_COMPRESSION` setting). The default `backup-%Y-%m-%dT%H-%M-%S.{{ .Extension }}` results in filenames like: `backup-2021-08-29T04-00-00.tar.gz`. |
-
 
 ## Exclude
 
@@ -430,12 +418,9 @@ Creating a Webhook in Discord:
                                              token                                    webhook id
    ```
 
-
-
 ### NOTIFICATION_LEVEL
 
 By default, notifications would only be sent out when a backup run fails. To receive notifications for every run, set `NOTIFICATION_LEVEL` to `info` instead of the default `error`.
-
 
 ## Triggering a Backup
 
@@ -461,9 +446,18 @@ Click **Reindex destination** to connect to the remote destination and list the 
 
 The page opens with an overview: the number of backups, the latest backup, their total size and the last restore, followed by a tile for each type of data you can restore. Click a tile to see its backups, newest first, each with the date it was taken (shown in your browser's time zone) and its size. The tabs at the top switch between types, **Overview** goes back to the tiles, and the **Search** box above each list filters it.
 
-:::info Backups made before 2.0.16
-Older backups don't list their emails and domains, so the **Emails** and **Domains** tabs don't show them: restore those from the **Everything** tab. **Choose files** is also unavailable for them (the button is greyed out with *This backup was made before single items could be restored.*), but you can still restore all website files from them.
-:::
+The tabs and tiles follow the features enabled for your account (plan or feature set):
+
+| Tab | Shown when the account has |
+|---|---|
+| **Everything**, **Queue**, **Logs** | always |
+| **Website files** | File Manager (`filemanager`) |
+| **Databases** | MySQL (`mysql`) or PostgreSQL (`postgresql`), and only lists databases of the engines you have |
+| **Emails** | Emails (`emails`) |
+| **Domains** | Domains (`domains`), DNS zones also need DNS (`dns`) |
+| **Cron jobs** | Cron Jobs (`crons`) |
+
+The same rules apply when restoring or downloading single items, a request for a part that isn't enabled is refused with *This is not available on your plan.* **Everything** restores the whole backup, whatever features are enabled.
 
 ### Everything, Website Files and Cron Jobs
 

@@ -82,6 +82,18 @@ func handleDownloadItems(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return
 	}
+	allowed := loadAllowed(r.Context(), a, username, userContext)
+	ok := targetAllowed(allowed, kind, "")
+	if kind == "databases" {
+		for _, v := range r.Form["items"] {
+			engine, _, _ := strings.Cut(v, "/")
+			ok = ok && targetAllowed(allowed, "database", engine)
+		}
+	}
+	if !ok {
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": targetNotAllowed})
+		return
+	}
 	config, _ := readBackupEnv(userContext)
 	if !mayAccessBackup(userContext, config, backup) {
 		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": "This backup does not belong to your account."})

@@ -191,6 +191,31 @@ func TestRenderBackupRestorePage(t *testing.T) {
 		}
 	})
 
+	t.Run("tabs follow the account's features", func(t *testing.T) {
+		items := restoreItems([]BackupInfo{{BackupFile: "site-2026-01-01T02-03-04.tar.gz", Types: []string{"mysql"}, Databases: []string{"wp_db"}}}, "", nil)
+		layout := baseLayout(mgr, "/backups/list")
+		layout.UserAllowed = map[string]bool{"mysql": true, "crons": true}
+		data := BackupRestorePageData{LayoutData: layout, Backups: items, PageJSON: jsonJS(items)}
+		w := httptest.NewRecorder()
+		if err := backupRestorePage.Render(w, 200, data); err != nil {
+			t.Fatalf("Render: %v", err)
+		}
+		body := w.Body.String()
+		for _, tab := range []string{"full", "databases", "crons", "queue", "logs"} {
+			if !strings.Contains(body, "setTab('"+tab+"')") {
+				t.Errorf("tab %s missing", tab)
+			}
+		}
+		for _, tab := range []string{"html", "mail", "vhosts"} {
+			if strings.Contains(body, "setTab('"+tab+"')") {
+				t.Errorf("tab %s shown without its feature", tab)
+			}
+		}
+		if !strings.Contains(body, "engines: ['mysql',]") {
+			t.Error("only mysql databases should be listed")
+		}
+	})
+
 	t.Run("reindex error", func(t *testing.T) {
 		data := BackupRestorePageData{LayoutData: baseLayout(mgr, "/backups/list"), PageJSON: jsonJS([]any{}), ReindexError: "connection refused"}
 		w := httptest.NewRecorder()

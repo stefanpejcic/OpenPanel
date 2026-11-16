@@ -4,6 +4,7 @@ import (
 	"crypto/ed25519"
 	"crypto/rand"
 	"errors"
+	"io"
 	"net"
 	"path/filepath"
 	"strings"
@@ -141,5 +142,13 @@ func TestPinSSHHostKey(t *testing.T) {
 	})
 	if _, set := updated["SSH_HOST_PUBLIC_KEY"]; set {
 		t.Error("a failed fetch must not write a key")
+	}
+}
+
+// io.Copy deadlocked on a promoted File.WriteTo while newSFTPFile's goroutine held the file lock
+func TestSFTPFileIsNotWriterTo(t *testing.T) {
+	var r io.Reader = &sftpFile{}
+	if _, ok := r.(io.WriterTo); ok {
+		t.Fatal("sftpFile must not implement io.WriterTo, io.Copy would bypass the pipe and deadlock")
 	}
 }

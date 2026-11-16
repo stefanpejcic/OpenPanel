@@ -234,9 +234,13 @@ func backupFileParams(r *http.Request, backupKey string) (string, string, bool) 
 
 // handleBackupFiles lists one folder of a backup's website files from the list saved at reindex
 func handleBackupFiles(a *appctx.App, w http.ResponseWriter, r *http.Request) {
-	_, _, userContext, err := auth.Injected(a, r)
+	_, username, userContext, err := auth.Injected(a, r)
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	if !targetAllowed(loadAllowed(r.Context(), a, username, userContext), "paths", "") {
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": targetNotAllowed})
 		return
 	}
 	_ = r.ParseForm()
@@ -268,6 +272,10 @@ func handleDownloadBackupFile(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	backup, rel, ok := backupFileParams(r, "backup_file")
 	if !ok || rel == "" {
 		web.WriteJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid backup or path."})
+		return
+	}
+	if !targetAllowed(loadAllowed(r.Context(), a, currentUsername, userContext), "paths", "") {
+		web.WriteJSON(w, http.StatusForbidden, map[string]string{"error": targetNotAllowed})
 		return
 	}
 	config, _ := readBackupEnv(userContext)

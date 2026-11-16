@@ -26,7 +26,9 @@
 
 <div x-data="{
     backups: {{.PageJSON}},
-    tab: (['full','html','databases','mail','vhosts','crons','queue','logs'].includes(new URLSearchParams(window.location.search).get('tab')) ? new URLSearchParams(window.location.search).get('tab') : ''),
+    tabs: ['full'{{if index .UserAllowed "filemanager"}},'html'{{end}}{{if or (index .UserAllowed "mysql") (index .UserAllowed "postgresql")}},'databases'{{end}}{{if index .UserAllowed "emails"}},'mail'{{end}}{{if index .UserAllowed "domains"}},'vhosts'{{end}}{{if index .UserAllowed "crons"}},'crons'{{end}},'queue','logs'],
+    engines: [{{if index .UserAllowed "mysql"}}'mysql',{{end}}{{if index .UserAllowed "postgresql"}}'postgres'{{end}}],
+    tab: '',
     search: '',
     selectedFile: null,
     selected: {},
@@ -47,6 +49,8 @@
     jobsTimer: null,
     pollInterval: null,
     init() {
+        const want = new URLSearchParams(window.location.search).get('tab');
+        if (this.tabs.includes(want)) this.tab = want;
         if (this.reindexing) this.startPolling();
         this.loadJobs();
     },
@@ -269,6 +273,7 @@
         for (const b of this.backups) {
             for (const it of (b[field] || [])) {
                 const engine = kind === 'databases' ? (it.engine || 'mysql') : '';
+                if (kind === 'databases' && !this.engines.includes(engine)) continue;
                 const key = kind + ':' + engine + ':' + it.name;
                 if (!byKey[key]) byKey[key] = { key: key, name: it.name, engine: engine, on_server: kind === 'databases' || !!it.on_server, suspended: !!it.suspended, backups: [] };
                 // a domain restore brings its dns zone along when that backup has it
@@ -522,6 +527,7 @@
                     <span class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="backupsFor('full').length"></span>
                 </button>
             </li>
+            {{if index .UserAllowed "filemanager"}}
             <li class="shrink-0">
                 <button type="button" role="tab" @click="setTab('html')" :aria-selected="tab === 'html'"
                     :class="tab === 'html' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
@@ -531,6 +537,8 @@
                     <span class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="backupsFor('html').length"></span>
                 </button>
             </li>
+            {{end}}
+            {{if or (index .UserAllowed "mysql") (index .UserAllowed "postgresql")}}
             <li class="shrink-0">
                 <button type="button" role="tab" @click="setTab('databases')" :aria-selected="tab === 'databases'"
                     :class="tab === 'databases' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
@@ -540,6 +548,8 @@
                     <span class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="itemsFor('databases').length"></span>
                 </button>
             </li>
+            {{end}}
+            {{if index .UserAllowed "emails"}}
             <li class="shrink-0">
                 <button type="button" role="tab" @click="setTab('mail')" :aria-selected="tab === 'mail'"
                     :class="tab === 'mail' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
@@ -549,6 +559,8 @@
                     <span class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="itemsFor('mail').length"></span>
                 </button>
             </li>
+            {{end}}
+            {{if index .UserAllowed "domains"}}
             <li class="shrink-0">
                 <button type="button" role="tab" @click="setTab('vhosts')" :aria-selected="tab === 'vhosts'"
                     :class="tab === 'vhosts' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
@@ -558,6 +570,8 @@
                     <span class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="itemsFor('vhosts').length"></span>
                 </button>
             </li>
+            {{end}}
+            {{if index .UserAllowed "crons"}}
             <li class="shrink-0">
                 <button type="button" role="tab" @click="setTab('crons')" :aria-selected="tab === 'crons'"
                     :class="tab === 'crons' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
@@ -567,6 +581,7 @@
                     <span class="rounded-md bg-gray-100 px-1.5 text-xs tabular-nums text-gray-600 dark:bg-gray-800 dark:text-gray-400" x-text="backupsFor('crons').length"></span>
                 </button>
             </li>
+            {{end}}
             <li class="shrink-0">
                 <button type="button" role="tab" @click="setTab('queue')" :aria-selected="tab === 'queue'"
                     :class="tab === 'queue' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
@@ -628,6 +643,7 @@
                         <span class="block text-xs text-gray-500 dark:text-gray-400"><span x-text="backupsFor('full').length"></span> {{.T.Get "backups"}}</span>
                     </span>
                 </button>
+                {{if index .UserAllowed "filemanager"}}
                 <button type="button" @click="setTab('html')"
                     class="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
                     <span class="size-5 shrink-0 text-gray-500 dark:text-gray-400">{{template "bk_icon" "html"}}</span>
@@ -636,6 +652,8 @@
                         <span class="block text-xs text-gray-500 dark:text-gray-400"><span x-text="backupsFor('html').length"></span> {{.T.Get "backups"}}</span>
                     </span>
                 </button>
+                {{end}}
+                {{if or (index .UserAllowed "mysql") (index .UserAllowed "postgresql")}}
                 <button type="button" @click="setTab('databases')"
                     class="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
                     <span class="size-5 shrink-0 text-gray-500 dark:text-gray-400">{{template "bk_icon" "databases"}}</span>
@@ -644,6 +662,8 @@
                         <span class="block text-xs text-gray-500 dark:text-gray-400"><span x-text="itemsFor('databases').length"></span> {{.T.Get "databases"}}</span>
                     </span>
                 </button>
+                {{end}}
+                {{if index .UserAllowed "emails"}}
                 <button type="button" @click="setTab('mail')"
                     class="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
                     <span class="size-5 shrink-0 text-gray-500 dark:text-gray-400">{{template "bk_icon" "mail"}}</span>
@@ -652,6 +672,8 @@
                         <span class="block text-xs text-gray-500 dark:text-gray-400"><span x-text="itemsFor('mail').length"></span> {{.T.Get "email accounts"}}</span>
                     </span>
                 </button>
+                {{end}}
+                {{if index .UserAllowed "domains"}}
                 <button type="button" @click="setTab('vhosts')"
                     class="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
                     <span class="size-5 shrink-0 text-gray-500 dark:text-gray-400">{{template "bk_icon" "vhosts"}}</span>
@@ -660,6 +682,8 @@
                         <span class="block text-xs text-gray-500 dark:text-gray-400"><span x-text="itemsFor('vhosts').length"></span> {{.T.Get "domains"}}</span>
                     </span>
                 </button>
+                {{end}}
+                {{if index .UserAllowed "crons"}}
                 <button type="button" @click="setTab('crons')"
                     class="flex items-center gap-3 rounded-md border border-gray-200 bg-white p-4 text-left transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:hover:bg-gray-900">
                     <span class="size-5 shrink-0 text-gray-500 dark:text-gray-400">{{template "bk_icon" "crons"}}</span>
@@ -668,6 +692,7 @@
                         <span class="block text-xs text-gray-500 dark:text-gray-400"><span x-text="backupsFor('crons').length"></span> {{.T.Get "backups"}}</span>
                     </span>
                 </button>
+                {{end}}
         </div>
 
         <h2 class="mt-8 font-semibold text-gray-900 dark:text-gray-50">{{.T.Get "Restore activity"}}</h2>
