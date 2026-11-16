@@ -105,3 +105,45 @@ func TestQueueKeepsLogSize(t *testing.T) {
 		t.Errorf("kept %d jobs", len(q.jobs))
 	}
 }
+
+func TestQueueCancelRunningAndQueued(t *testing.T) {
+	started := make(chan struct{})
+	runRestore = func(ctx context.Context, a *appctx.App, req restoreRequest) (int, map[string]any) {
+		if req.Form.Get("database") == "slow" {
+			close(started)
+			<-ctx.Done()
+			return http.StatusInternalServerError, map[string]any{"error": ctx.Err().Error()}
+		}
+		return http.StatusOK, map[string]any{"message": "ok"}
+	}
+	defer func() { runRestore = performRestore }()
+
+	q := testQueue(t)
+	form := func(db string) url.Values {
+		return url.Values{"backup_file": {"u-2026-10-15T10-58-27.tar.gz"}, "restore_target": {"database"}, "database": {db}}
+	}
+	slow := q.enqueue(nil, restoreRequest{Form: form("slow")})
+	waiting := q.enqueue(nil, restoreRequest{Form: form("next")})
+	<-started
+
+	if !q.cancelJob(restoreRequest{}, waiting.ID) {
+		t.Fatal("queued job not cancelled")
+	}
+	if !q.cancelJob(restoreRequest{}, slow.ID) {
+		t.Fatal("running job not cancelled")
+	}
+	waitIdle(t, q)
+
+	if q.cancelJob(restoreRequest{}, slow.ID) || q.cancelJob(restoreRequest{}, "nope") {
+		t.Error("finished or unknown job cancelled again")
+	}
+	queue, logs := q.snapshot(nil, restoreRequest{})
+	if len(queue) != 0 || len(logs) != 2 {
+		t.Fatalf("queue %d, logs %d", len(queue), len(logs))
+	}
+	for _, l := range logs {
+		if l.Status != "cancelled" || l.Message == "" {
+			t.Errorf("job %s = %s %q, want cancelled", l.Database, l.Status, l.Message)
+		}
+	}
+}

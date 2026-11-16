@@ -39,6 +39,7 @@
     reindexing: {{if .Reindexing}}true{{else}}false{{end}},
     barStyle: {},
     jobs: { queue: [], logs: [] },
+    cancelling: {},
     jobsTimer: null,
     pollInterval: null,
     init() {
@@ -53,6 +54,27 @@
             if (resp.ok) this.jobs = await resp.json();
         } catch (e) {}
         if (this.jobs.queue.length) this.jobsTimer = setTimeout(() => opVisible(() => this.loadJobs()), 3000);
+    },
+    // a running restore stops at its next read or import step, the queue refresh shows when it's gone
+    async cancelJob(j) {
+        const msg = j.status === 'running' ? this.$refs.cancelRunningMsg.textContent : this.$refs.cancelQueuedMsg.textContent;
+        if (!confirm(msg)) return;
+        this.cancelling[j.id] = true;
+        try {
+            const formData = new FormData();
+            formData.append('csrf_token', document.querySelector('[name=csrf_token]').value);
+            formData.append('id', j.id);
+            const resp = await fetch('/backups/jobs/cancel', { method: 'POST', body: formData });
+            const data = await resp.json();
+            if (!data.cancelled) {
+                delete this.cancelling[j.id];
+                showToast(data.error || resp.statusText, 'error');
+            }
+        } catch (e) {
+            delete this.cancelling[j.id];
+            showToast(e.toString(), 'error');
+        }
+        this.loadJobs();
     },
     fmtDuration(from, to) {
         if (!from) return '–';
@@ -370,11 +392,13 @@
 }">
 
     <span x-ref="queuedMsg" class="hidden">{{.T.Get "Added to the queue."}}</span>
+    <span x-ref="cancelQueuedMsg" class="hidden">{{.T.Get "Remove this restore from the queue?"}}</span>
+    <span x-ref="cancelRunningMsg" class="hidden">{{.T.Get "Stop this restore? Whatever was restored so far stays, and a database that was being restored will be left incomplete."}}</span>
     <!-- Hidden CSRF token for JS fetch calls -->
     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}"/>
 
     <!-- Header -->
-    <div class="px-4 pt-6 pb-4 sm:px-6 lg:px-8 border-b border-gray-200 mb-6 dark:border-gray-800">
+    <div class="px-4 pt-6 pb-4 sm:px-6 lg:px-8 border-b border-gray-200 dark:border-gray-800{{if not .Backups}} mb-6{{end}}">
         <header>
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -523,6 +547,7 @@
                 <p class="flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400"><i class="ri-history-line shrink-0 text-sm leading-none" aria-hidden="true"></i>{{.T.Get "Last Restore"}}
                     <span x-show="!jobs.queue.length && jobs.logs[0]?.status === 'done'">· {{.T.Get "Done"}}</span>
                     <span x-show="!jobs.queue.length && jobs.logs[0]?.status === 'failed'" class="text-red-600 dark:text-red-400">· {{.T.Get "Failed"}}</span>
+                    <span x-show="!jobs.queue.length && jobs.logs[0]?.status === 'cancelled'">· {{.T.Get "Cancelled"}}</span>
                 </p>
                 <p class="mt-1 truncate text-xl font-semibold tabular-nums text-gray-900 dark:text-gray-50">
                     <span x-show="jobs.queue.length" class="inline-flex items-center gap-1.5"><i class="ri-loop-right-line animate-spin"></i><span x-text="jobs.queue.length"></span> {{.T.Get "in queue"}}</span>
@@ -622,6 +647,7 @@
                         <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "From backup"}}</th>
                         <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Added"}}</th>
                         <th class="border-b border-gray-200 px-4 py-2.5 text-left text-xs font-semibold whitespace-nowrap text-gray-900 dark:border-gray-800 dark:text-gray-50">{{.T.Get "Status"}}</th>
+                        <th class="w-px border-b border-gray-200 px-4 py-2.5 dark:border-gray-800"><span class="sr-only">{{.T.Get "Actions"}}</span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -634,10 +660,18 @@
                                 <span x-show="j.status === 'running'" class="inline-flex items-center gap-1.5 text-gray-900 dark:text-gray-50"><i class="ri-loop-right-line animate-spin"></i>{{.T.Get "Restoring..."}} <span class="text-gray-500 dark:text-gray-400" x-text="fmtDuration(j.started, null)"></span></span>
                                 <span x-show="j.status === 'queued'">{{.T.Get "Waiting"}}</span>
                             </td>
+                            <td class="border-b border-gray-200 px-4 py-2.5 text-right whitespace-nowrap dark:border-gray-800">
+                                <button type="button" @click="cancelJob(j)" :disabled="cancelling[j.id]"
+                                    class="inline-flex items-center gap-1 rounded-md border border-red-200 bg-white px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-900 dark:bg-gray-950 dark:text-red-400 dark:hover:bg-red-900/20">
+                                    <i class="ri-close-circle-line" aria-hidden="true"></i>
+                                    <span x-show="!cancelling[j.id]">{{.T.Get "Cancel"}}</span>
+                                    <span x-show="cancelling[j.id]">{{.T.Get "Stopping..."}}</span>
+                                </button>
+                            </td>
                         </tr>
                     </template>
                     <tr x-show="!jobs.queue.length">
-                        <td colspan="4" class="border-b border-gray-200 py-10 text-center text-sm text-gray-500 dark:border-gray-800">{{.T.Get "Nothing is being restored right now."}}</td>
+                        <td colspan="5" class="border-b border-gray-200 py-10 text-center text-sm text-gray-500 dark:border-gray-800">{{.T.Get "Nothing is being restored right now."}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -670,6 +704,7 @@
                             <td class="border-b border-gray-200 px-4 py-2.5 text-gray-600 dark:border-gray-800 dark:text-gray-400">
                                 <span x-show="j.status === 'done'" class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-900 ring-emerald-600/30 dark:bg-emerald-400/10 dark:text-emerald-400 dark:ring-emerald-400/20">{{.T.Get "Done"}}</span>
                                 <span x-show="j.status === 'failed'" class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-red-50 text-red-900 ring-red-600/20 dark:bg-red-400/10 dark:text-red-400 dark:ring-red-400/20">{{.T.Get "Failed"}}</span>
+                                <span x-show="j.status === 'cancelled'" class="inline-flex items-center gap-x-1 whitespace-nowrap rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset bg-gray-50 text-gray-700 ring-gray-500/30 dark:bg-gray-400/10 dark:text-gray-400 dark:ring-gray-400/20">{{.T.Get "Cancelled"}}</span>
                                 <p x-show="j.message" class="mt-1 max-w-xl text-xs" :class="j.status === 'failed' ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'" x-text="j.message"></p>
                             </td>
                         </tr>

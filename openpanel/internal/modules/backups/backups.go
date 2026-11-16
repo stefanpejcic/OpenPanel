@@ -33,6 +33,7 @@ func Register(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("POST /backups/download-items", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleDownloadItems(a, w, r) }))
 	mux.Handle("POST /backups/queue", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleQueueRestore(a, w, r) }))
 	mux.Handle("GET /backups/jobs", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleRestoreJobs(a, w, r) }))
+	mux.Handle("POST /backups/jobs/cancel", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleCancelRestore(a, w, r) }))
 }
 
 // homeRoot is where account homes live, tests point it at a temp dir

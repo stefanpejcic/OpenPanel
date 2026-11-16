@@ -23,7 +23,7 @@ import (
 type restoreJob struct {
 	ID       string         `json:"id"`
 	Request  restoreRequest `json:"request"`
-	Status   string         `json:"status"` // queued, running, done, failed
+	Status   string         `json:"status"` // queued, running, done, failed, cancelled
 	Message  string         `json:"message,omitempty"`
 	Queued   time.Time      `json:"queued"`
 	Started  *time.Time     `json:"started,omitempty"`
@@ -41,6 +41,9 @@ type accountQueue struct {
 	jobs    []*restoreJob
 	loaded  bool
 	working bool
+	// cancel stops the running job, cancelled says it was the user and not a failure
+	cancel    context.CancelFunc
+	cancelled bool
 	// owner is the account identity from the session, jobs always run as it whatever the saved file says
 	owner    restoreRequest
 	ownerSet bool
@@ -175,14 +178,18 @@ func (q *accountQueue) work(a *appctx.App) {
 			continue
 		}
 		job.Request.UserID, job.Request.Username, job.Request.UserContext = q.owner.UserID, q.owner.Username, q.owner.UserContext
+		ctx, cancel := context.WithCancel(context.Background())
+		q.cancel, q.cancelled = cancel, false
 		q.save()
 		q.mu.Unlock()
 
 		q.restore.Lock()
-		status, body := runRestore(context.Background(), a, job.Request)
+		status, body := runRestore(ctx, a, job.Request)
 		q.restore.Unlock()
 
 		q.mu.Lock()
+		cancel()
+		q.cancel = nil
 		done := time.Now().UTC()
 		job.Finished = &done
 		job.Status = "done"
@@ -195,9 +202,43 @@ func (q *accountQueue) work(a *appctx.App) {
 		if msg, ok := body["error"].(string); ok {
 			job.Message = msg
 		}
+		if q.cancelled {
+			job.Status, job.Message = "cancelled", cancelledRunningMessage
+		}
 		q.save()
 		q.mu.Unlock()
 	}
+}
+
+const cancelledRunningMessage = "Cancelled while restoring, anything restored before that stays and a database can be left incomplete."
+
+// cancelJob drops a queued job or stops the running one, false when the id isn't in the queue anymore
+func (q *accountQueue) cancelJob(owner restoreRequest, id string) bool {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	q.setOwner(owner)
+	q.load()
+	for _, j := range q.jobs {
+		if j.ID != id {
+			continue
+		}
+		switch j.Status {
+		case "queued":
+			now := time.Now().UTC()
+			j.Status, j.Message, j.Finished = "cancelled", "Cancelled before it started.", &now
+			q.save()
+			return true
+		case "running":
+			if q.cancel == nil {
+				return false
+			}
+			q.cancelled = true
+			q.cancel()
+			return true
+		}
+		return false
+	}
+	return false
 }
 
 // jobView is what the restore page shows for a job, without the request internals
@@ -265,6 +306,21 @@ func handleQueueRestore(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	form.Del("csrf_token")
 	job := queueFor(userContext).enqueue(a, restoreRequest{UserID: userID, Username: username, UserContext: userContext, IP: reqip.ClientIP(r), Form: form})
 	web.WriteJSON(w, http.StatusOK, map[string]any{"queued": true, "id": job.ID})
+}
+
+// handleCancelRestore cancels a queued or running restore of the account
+func handleCancelRestore(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	userID, username, userContext, err := auth.Injected(a, r)
+	if err != nil {
+		http.Error(w, "internal error", http.StatusInternalServerError)
+		return
+	}
+	id := strings.TrimSpace(r.FormValue("id"))
+	if id == "" || !queueFor(userContext).cancelJob(restoreRequest{UserID: userID, Username: username, UserContext: userContext}, id) {
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "This restore isn't in the queue anymore."})
+		return
+	}
+	web.WriteJSON(w, http.StatusOK, map[string]any{"cancelled": true})
 }
 
 // handleRestoreJobs lists the account's restore queue and log for the restore page

@@ -1,6 +1,7 @@
 package backups
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
@@ -197,14 +198,31 @@ func (s *sshStore) List(ctx context.Context) ([]remoteFile, error) {
 	return files, nil
 }
 
-// sftpFile closes the sftp session and ssh connection along with the file
+// sftpFile streams the file through WriteTo so pkg/sftp keeps concurrent requests in flight, plain 4 KB reads from gzip wait a full round trip each
 type sftpFile struct {
 	*sftp.File
+	pr         *io.PipeReader
+	r          *bufio.Reader
 	sftpClient *sftp.Client
 	client     *ssh.Client
 }
 
+func newSFTPFile(ctx context.Context, f *sftp.File, sftpClient *sftp.Client, client *ssh.Client) *sftpFile {
+	pr, pw := io.Pipe()
+	go func() {
+		_, err := f.WriteTo(pw)
+		pw.CloseWithError(err)
+	}()
+	// a cancelled restore fails the next read instead of waiting for the whole file
+	context.AfterFunc(ctx, func() { pr.CloseWithError(ctx.Err()) })
+	return &sftpFile{File: f, pr: pr, r: bufio.NewReaderSize(pr, 1<<20), sftpClient: sftpClient, client: client}
+}
+
+func (f *sftpFile) Read(p []byte) (int, error) { return f.r.Read(p) }
+
+// closes the sftp session and ssh connection along with the file
 func (f *sftpFile) Close() error {
+	f.pr.Close()
 	err := f.File.Close()
 	f.sftpClient.Close()
 	f.client.Close()
@@ -212,6 +230,11 @@ func (f *sftpFile) Close() error {
 }
 
 func (s *sshStore) Open(ctx context.Context, filename string) (io.ReadCloser, error) {
+	remotePath := strings.TrimRight(s.config["SSH_REMOTE_PATH"], "/")
+	return openSFTPOrSSH(ctx, s.config, remotePath+"/"+filename, func() (io.ReadCloser, error) { return s.openSFTP(ctx, filename) })
+}
+
+func (s *sshStore) openSFTP(ctx context.Context, filename string) (io.ReadCloser, error) {
 	client, err := dialSSH(s.config)
 	if err != nil {
 		return nil, err
@@ -230,7 +253,7 @@ func (s *sshStore) Open(ctx context.Context, filename string) (io.ReadCloser, er
 		client.Close()
 		return nil, err
 	}
-	return &sftpFile{File: remoteFile, sftpClient: sftpClient, client: client}, nil
+	return newSFTPFile(ctx, remoteFile, sftpClient, client), nil
 }
 
 // ListMembers runs `tar -tzf` on the remote host, so archives without a manifest can still be indexed without downloading them

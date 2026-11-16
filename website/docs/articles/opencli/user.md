@@ -448,6 +448,8 @@ opencli user-rename <USERNAME> <NEW_USERNAME>
 
 Only the username used to log in and in `opencli` commands changes. The account's context stays the same, so its home directory, system user, containers, volumes, FTP accounts and quotas keep using the original name.
 
+The admin-managed backups setting stays with the account too, so its backups are still listed after the rename.
+
 <details>
   <summary>Example output</summary>
 
