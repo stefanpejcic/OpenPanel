@@ -25,7 +25,7 @@ if [ -f "$CADDYFILE" ]; then
 
 # args[0] = domain
 # keyed on the User-Agent, not the IP: crawlers spread over hundreds of addresses, so a per-IP limit never kicks in
-# 10 requests per minute per crawler per domain, over that the visitor gets 429
+# events is the limit per crawler per domain, over that the visitor gets 429; default 10, OpenAdmin > Security > AI & Bot Control changes it
 (botcontrol_ratelimit) {
     import ai_crawler_matcher
     handle @ai_crawlers {
