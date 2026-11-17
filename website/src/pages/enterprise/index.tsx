@@ -21,6 +21,8 @@ import { PlanFeaturesList } from "@site/src/refine-theme/plan-features-list";
 
 const Enterprise: React.FC = () => {
     const title = "OpenPanel Enterprise | Next Generation Hosting Panel";
+    // tawk.to chat widget, disabled for now — uncomment to re-enable
+    /*
     useEffect(() => {
         const w = window as any;
         const onEnterprise = () =>
@@ -49,6 +51,7 @@ const Enterprise: React.FC = () => {
             w.Tawk_API?.hideWidget?.();
         };
     }, []);
+    */
     return (
         <>
             <Head>
