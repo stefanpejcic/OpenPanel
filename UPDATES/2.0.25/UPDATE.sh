@@ -64,6 +64,24 @@ BOTCONTROL
     fi
 fi
 
+# FTP passive mode: start_vsftpd.sh passed vsftpd.conf after the -o options, so the file overrode them and
+# PASV sent the container IP (172.20.0.6) and a random port, uploads and listings hung and quotas were ignored.
+# the script is bind-mounted from /etc/openpanel/ftp, so existing servers need the new one and a restart.
+FTP_SCRIPT="/etc/openpanel/ftp/start_vsftpd.sh"
+if [[ -f "$FTP_SCRIPT" ]] && grep -q 'PASV_OPTS /etc/vsftpd/vsftpd.conf$' "$FTP_SCRIPT"; then
+    tmp=$(mktemp)
+    if wget -q -O "$tmp" "https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/ftp/start_vsftpd.sh" \
+            && grep -q '^  vsftpd /etc/vsftpd/vsftpd.conf -o' "$tmp" && sh -n "$tmp"; then
+        cat "$tmp" > "$FTP_SCRIPT"   # in place, the container bind-mounts this single file
+        chmod 755 "$FTP_SCRIPT"
+        echo "Updated $FTP_SCRIPT, FTP passive mode now uses the public IP and the configured port range"
+        podman container exists openadmin_ftp && timeout 60 podman restart openadmin_ftp >/dev/null 2>&1
+    else
+        echo "Failed to download the new $FTP_SCRIPT, update it by hand from the openpanel-configuration repo and run: podman restart openadmin_ftp"
+    fi
+    rm -f "$tmp"
+fi
+
 # openpanel/caddy-coraza was rebuilt on caddy 2.11.9 with the newest go and patched alpine packages (brotli, curl, musl, zlib),
 # servers on the WAF image pull the new :latest and recreate caddy with it.
 # the new image is pulled and has to validate the current Caddyfile before the running container is touched,
