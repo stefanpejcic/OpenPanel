@@ -26,10 +26,12 @@ Edit the template from **OpenAdmin > Settings > [User Defaults](/docs/admin/sett
 
 ```yaml
   php-fpm-5.6:
-    image: shinsenter/php:5.6-fpm
+    image: openpanel/php-fpm:5.6
     container_name: php-fpm-5.6
     ...
-    command: php-fpm --allow-to-run-as-root
+    networks:
+      - www
+      - db
 ```
 
 Or remove them with a script. Set `VERSIONS` to the versions you want to remove:

@@ -30,7 +30,7 @@ Checks for image updates across root's stack and every non-suspended user's stac
 opencli docker-update [IMAGE] [options]
 ```
 
-With `IMAGE` (e.g. `shinsenter/php:8.4-fpm`) only that image is checked, pulled, and only the running containers that use it are recreated. After a php-fpm container is recreated, the user's webserver is reloaded so it connects to the new container. Containers created depending on the recreated one (e.g. a webserver with `depends_on` on php-fpm) are recreated with it. Containers that aren't running are left alone and use the new image on their next start.
+With `IMAGE` (e.g. `openpanel/php-fpm:8.4`) only that image is checked, pulled, and only the running containers that use it are recreated. After a php-fpm container is recreated, the user's webserver is reloaded so it connects to the new container. Containers created depending on the recreated one (e.g. a webserver with `depends_on` on php-fpm) are recreated with it. Containers that aren't running are left alone and use the new image on their next start.
 
 After pulling an image with PHP in it, the PHP version inside it is checked. If it's older than its branch's latest security release, the image's containers are not recreated and the run is reported as failed, run the command again once the image is rebuilt.
 
@@ -38,8 +38,8 @@ After pulling an image with PHP in it, the PHP version inside it is checked. If 
   <summary>Example output</summary>
 
 ```bash
-# opencli docker-update shinsenter/php:8.5-fpm -y
-shinsenter/php:8.5-fpm
+# opencli docker-update openpanel/php-fpm:8.5 -y
+openpanel/php-fpm:8.5
   registry: sha256:9acaa2a26e7aa41cb873c7766fb68b480c18fff118627070c8fee952d3f33f7d
   shared store: newer image available, will be pulled
   recreate: user: stefan: php-fpm-8.5, then reload its webserver
@@ -47,7 +47,7 @@ shinsenter/php:8.5-fpm
   not running, left alone: user: test: php-fpm-8.5
 1 pull(s), 2 container(s) to recreate.
 2026-10-21 15:54:07 : === Update run started ===
-2026-10-21 15:54:07 : pull shinsenter/php:8.5-fpm into the shared store
+2026-10-21 15:54:07 : pull openpanel/php-fpm:8.5 into the shared store
 2026-10-21 15:54:17 : recreating php-fpm-8.5 for user: stefan
 2026-10-21 15:54:30 :   reloaded apache (USR1) for user: stefan
 2026-10-21 15:54:30 : recreating php-fpm-8.5 for user: demo
@@ -60,7 +60,7 @@ Update every PHP version used on the server:
 
 ```bash
 for v in 5.6 7.0 7.1 7.2 7.3 7.4 8.0 8.1 8.2 8.3 8.4 8.5; do
-  opencli docker-update shinsenter/php:${v}-fpm -y
+  opencli docker-update openpanel/php-fpm:${v} -y
 done
 ```
 
@@ -92,7 +92,7 @@ Compose services with images: 24
 pull   mysql -> docker.io/library/mysql:latest ... OK
 pull   nginx -> docker.io/library/nginx:latest ... OK
 skip   openlitespeed (not in autostart)
-pull   php-fpm-8.3 -> docker.io/shinsenter/php:8.3-fpm ... OK
+pull   php-fpm-8.3 -> docker.io/openpanel/php-fpm:8.3 ... OK
 skip   redis (not in autostart)
 ...
 
@@ -103,7 +103,7 @@ Store contents:
 REPOSITORY                  TAG         IMAGE ID      CREATED      SIZE
 docker.io/library/mysql     latest      a1b2c3d4e5f6  2 weeks ago  803 MB
 docker.io/library/nginx     latest      b2c3d4e5f6a7  3 weeks ago  197 MB
-docker.io/shinsenter/php    8.3-fpm     c3d4e5f6a7b8  5 days ago   512 MB
+docker.io/openpanel/php-fpm  8.3         c3d4e5f6a7b8  5 days ago   242 MB
 
 Shared store disk usage: 1.5G (1.47 GB) at /var/lib/containers/shared-storage
 ```

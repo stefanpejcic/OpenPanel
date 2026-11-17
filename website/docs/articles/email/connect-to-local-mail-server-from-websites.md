@@ -69,7 +69,7 @@ Each PHP service now contains:
 
 ```yaml
     php-fpm-8.3:
-        command: php-fpm --allow-to-run-as-root
+        image: openpanel/php-fpm:8.3
         container_name: php-fpm-8.3
         extra_hosts:
             - "mail.example.com:169.254.1.2"

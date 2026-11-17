@@ -4,7 +4,9 @@ sidebar_label: "How to install a PHP extension in OpenPanel"
 
 # How to Install a PHP Extension
 
-OpenPanel uses the [`shinsenter/php`](https://github.com/shinsenter/php) Docker images for PHP services. These images include many commonly used PHP extensions out of the box and provide a simple way to install additional extensions when needed.
+OpenPanel uses the [`openpanel/php-fpm`](https://github.com/stefanpejcic/php-fpm) Docker images for PHP services, one image per PHP version from 5.6 to 8.5. These images include many commonly used PHP extensions out of the box and provide a simple way to install additional extensions when needed.
+
+Users can also install, enable and disable extensions themselves from **OpenPanel > PHP > Extensions**.
 
 ## Pre-installed PHP Extensions
 
@@ -22,15 +24,14 @@ dom
 exif
 fileinfo
 filter
+ftp
 gd
 gettext
-gmp
 hash
 iconv
 igbinary
 intl
 json
-lexbor
 libxml
 mbstring
 msgpack
@@ -46,7 +47,6 @@ pdo_sqlite
 pgsql
 Phar
 posix
-random
 readline
 redis
 Reflection
@@ -58,7 +58,6 @@ sqlite3
 standard
 tidy
 tokenizer
-uri
 uuid
 xml
 xmlreader
@@ -69,7 +68,8 @@ zip
 zlib
 ```
 
-and OpenPanel adds the `Zend OPcache` extension.
+The exact list depends on the PHP version (for example `random`, `lexbor` and `uri` exist only in newer PHP versions), and the [ionCube Loader](https://www.ioncube.com/loaders.php) is added by OpenPanel for every version that has one.
+
 
 ----
 ## Enabling installed PHP Extensions
@@ -80,11 +80,15 @@ and OpenPanel adds the `Zend OPcache` extension.
    opencli docker USERNAME_HERE php-fpm-8.5
 ```
  
-3. **Enable the extension** using `docker-php-ext-enable`:
+3. **Enable the extension** using `phpaddmod` (re-enables an installed but disabled extension, or installs it if it's missing):
 ```
-   docker-php-ext-enable mysqli pdo_mysql
+   phpaddmod mysqli pdo_mysql
 ```
- 
+   To disable one, use `phpdelmod`:
+```
+   phpdelmod mysqli
+```
+
 4. **Exit and restart** the PHP container:
 ```
    exit
@@ -94,7 +98,7 @@ and OpenPanel adds the `Zend OPcache` extension.
 
 ## Adding Custom PHP Extensions
 
-The PHP images include a helper command called `phpaddmod` to install PHP extensions: it installs the extension and edits the `php.ini` file to enable it.
+The PHP images include a helper command called `phpaddmod` to install PHP extensions: it installs any system libraries the extension needs, compiles the extension if needed, and enables it. It uses [install-php-extensions](https://github.com/mlocati/docker-php-extension-installer), so every extension listed there can be installed.
 
 
 ### Install a PHP Extension for a Single User
@@ -122,8 +126,6 @@ If the **Docker** module is enabled:
 Example: installing the **GMP** extension:
 
 ```
-apt update
-apt install -y libgmp-dev
 phpaddmod gmp
 ```
 
@@ -138,8 +140,6 @@ phpaddmod gmp
 Example: installing the **GMP** extension:
 
 ```
-apt update
-apt install -y libgmp-dev
 phpaddmod gmp
 ```
 
@@ -159,8 +159,6 @@ opencli docker USERNAME_HERE php-fpm-8.5
 Example: installing the **GMP** extension:
 
 ```
-apt update
-apt install -y libgmp-dev
 phpaddmod gmp
 ```
 
@@ -182,13 +180,18 @@ Or by checking your application or website.
 
 To have a PHP extension automatically available for **all newly created users**, you have two options:
 
-1. **Modify the startup command** in the `docker-compose.yml` template to install the extension on container startup
+1. **Use a custom PHP Docker image** built from `openpanel/php-fpm` with the required extensions pre-installed, and set it as the `image:` of the `php-fpm-X.Y` services in the `docker-compose.yml` template:
 
-   * This increases PHP container startup time
-
-2. **Use a custom PHP Docker image** with the required extensions pre-installed
+   ```dockerfile
+   FROM openpanel/php-fpm:8.5
+   RUN phpaddmod gmp imagick
+   ```
 
    * Recommended for production environments
+
+2. **Modify the startup command** in the `docker-compose.yml` template to install the extension on container startup
+
+   * This increases PHP container startup time by the time needed to compile the extension
 
 > These approaches are intended for advanced users. If you need help, please contact the OpenPanel community forum or Discord channel.
 

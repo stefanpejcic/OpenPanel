@@ -6,6 +6,10 @@ keywords: [PHP2Shell, CVE-2026-109618, CVE-2026-109619, PHP, PHP-FPM, phpMyAdmin
 
 # PHP2Shell (CVE-2026-109618, CVE-2026-109619): patch PHP before the images are rebuilt
 
+:::info
+This guide was written for the October 2026 incident, when users' PHP ran on `shinsenter/php` images. Since OpenPanel 2.0.26, new installations and new accounts use [`openpanel/php-fpm`](https://github.com/stefanpejcic/php-fpm) images, which are rebuilt every night with the latest PHP patch release, so `opencli docker-update openpanel/php-fpm:<version>` picks up a PHP fix within a day. The steps below still apply to accounts that use `shinsenter/php` images.
+:::
+
 PHP 8.5.12, 8.4.27, 8.3.36 and 8.2.35 fix PHP2Shell, two unauthenticated remote code execution bugs in PHP itself ([blog post](/blog/php-security-update-openpanel)). On OpenPanel, PHP serves requests in three places, and all three come from images OpenPanel does not build:
 
 | Where | Image | Runs PHP as |
