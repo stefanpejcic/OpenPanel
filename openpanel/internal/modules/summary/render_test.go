@@ -159,3 +159,33 @@ func TestSizeParts(t *testing.T) {
 		}
 	}
 }
+
+// The right column spans one row per left-hand section, a short span leaves the grid's gray gap showing under it (#1355)
+func TestRenderSummaryRightColumnSpan(t *testing.T) {
+	mgr := i18n.NewManager(t.TempDir(), nil)
+	db := []Database{{Engine: "MariaDB", Databases: 2, Size: 784 << 10}}
+	ch := []string{"09:05 added domain b.com"}
+	for _, tc := range []struct {
+		name      string
+		databases []Database
+		changes   []string
+		want      string
+	}{
+		{"neither", nil, nil, "lg:row-span-2"},
+		{"changes", nil, ch, "lg:row-span-3"},
+		{"databases", db, nil, "lg:row-span-3"},
+		{"both", db, ch, "lg:row-span-4"},
+	} {
+		s := Summary{Username: "stefan", Date: "2026-11-16", Databases: tc.databases, Changes: tc.changes}
+		body := render(t, PageData{LayoutData: testLayout(mgr), Summary: s, Found: true, Dates: []string{"2026-11-16"}})
+		var got []string
+		for _, c := range []string{"lg:row-span-2", "lg:row-span-3", "lg:row-span-4"} {
+			if strings.Contains(body, c) {
+				got = append(got, c)
+			}
+		}
+		if len(got) != 1 || got[0] != tc.want {
+			t.Errorf("%s: row spans %v, want only %s", tc.name, got, tc.want)
+		}
+	}
+}
