@@ -532,6 +532,8 @@ const opcacheProbePHP = `
 $probe = '/tmp/.openpanel_opcache_probe.php';
 file_put_contents($probe, '<?php $s = function_exists("opcache_get_status") ? @opcache_get_status(false) : false; echo json_encode(["enable" => (bool) ini_get("opcache.enable"), "memory" => (int) ini_get("opcache.memory_consumption"), "status" => $s]);');
 $fp = @fsockopen('127.0.0.1', 9000, $en, $es, 3);
+// socket mode (opencli php-listen socket): php-fpm listens only on /run/php/php-fpm-X.Y/www.sock
+if (!$fp) { foreach (glob('/run/php/php-fpm-*/www.sock') ?: [] as $sock) { $fp = @fsockopen('unix://' . $sock, -1, $en, $es, 3); if ($fp) break; } }
 if (!$fp) { @unlink($probe); fwrite(STDERR, "php-fpm is not reachable: $es"); exit(1); }
 stream_set_timeout($fp, 5);
 $rec = function ($t, $c) { $l = strlen($c); return chr(1) . chr($t) . "\x00\x01" . chr($l >> 8) . chr($l & 255) . "\x00\x00" . $c; };

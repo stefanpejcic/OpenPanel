@@ -20,8 +20,8 @@ import (
 
 var phpVersionFormRE = regexp.MustCompile(`^\d+\.\d+$`)
 
-// domainConfDeclaredVersionRE extracts the PHP version from a domain's vhost upstream line, distinct from domainConfVersionRE (php.go) which matches the looser pattern against just the first line
-var domainConfDeclaredVersionRE = regexp.MustCompile(`php-fpm-(\d+\.\d+):\d+`)
+// domainConfDeclaredVersionRE extracts the PHP version from a domain's vhost upstream line (php-fpm-X.Y:9000, or /run/php/php-fpm-X.Y/www.sock in socket mode), distinct from domainConfVersionRE (php.go) which matches the looser pattern against just the first line
+var domainConfDeclaredVersionRE = regexp.MustCompile(`php-fpm-(\d+\.\d+)(?::\d+|/www\.sock)`)
 
 // PHPDomainRow is one row of php/settings.html's table.
 type PHPDomainRow struct {

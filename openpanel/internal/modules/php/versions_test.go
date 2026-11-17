@@ -1,6 +1,9 @@
 package php
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestCheckDefaultVersion(t *testing.T) {
 	installed := []string{"8.5", "8.4"}
@@ -87,5 +90,18 @@ func TestVhostVersionSwitch(t *testing.T) {
 	}
 	if v := currentVhostVersion("<VirtualHost *:80>\n</VirtualHost>\n"); v != "" {
 		t.Errorf("vhost without php-fpm = %q, want empty", v)
+	}
+	// socket mode (opencli php-listen socket), apache and nginx
+	for _, sock := range []string{
+		"        SetHandler \"proxy:unix:/run/php/php-fpm-8.3/www.sock|fcgi://localhost\"\n",
+		"        fastcgi_pass unix:/run/php/php-fpm-8.3/www.sock;\n",
+	} {
+		if v := currentVhostVersion(sock); v != "8.3" {
+			t.Errorf("socket vhost %q: currentVhostVersion = %q, want 8.3", sock, v)
+		}
+		updated, ok := switchVhostVersion(sock, "8.3", "8.5")
+		if !ok || currentVhostVersion(updated) != "8.5" || !strings.Contains(updated, "/run/php/php-fpm-8.5/www.sock") {
+			t.Errorf("socket switch 8.3 -> 8.5: ok=%v got %q", ok, updated)
+		}
 	}
 }
