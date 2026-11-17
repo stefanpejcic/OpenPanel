@@ -71,7 +71,7 @@ function summaryWidget(key, extra) {
         </div>
     </dl>
 
-    <!-- one surface split by lines: checks, websites and account changes on the left, usage and logins on the right -->
+    <!-- one surface split by lines: checks, websites, databases and account changes on the left, usage and logins on the right -->
     <div class="grid grid-cols-1 gap-px border-y border-gray-200 bg-gray-200 lg:grid-cols-3 dark:border-gray-800 dark:bg-gray-800">
 
         <section x-data="summaryWidget('checks')" class="bg-white dark:bg-gray-950 lg:col-span-2" aria-labelledby="summary-checks-title">
@@ -103,7 +103,7 @@ function summaryWidget(key, extra) {
             </div>
         </section>
 
-        <div class="divide-y divide-gray-200 bg-white {{if .Changes}}lg:row-span-3{{else}}lg:row-span-2{{end}} dark:divide-gray-800 dark:bg-gray-950">
+        <div class="divide-y divide-gray-200 bg-white {{if and .Databases .Changes}}lg:row-span-4{{else if or .Databases .Changes}}lg:row-span-3{{else}}lg:row-span-2{{end}} dark:divide-gray-800 dark:bg-gray-950">
             {{if or .Usage .Facts}}
             <section x-data="summaryWidget('usage')" aria-labelledby="summary-usage-title">
                 <div class="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8" :class="open && 'border-b border-gray-200 dark:border-gray-800'">
