@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# daily summary and error report crons are only in the cron of fresh installs, existing servers never saved summaries, so OpenAdmin > Daily summary stayed empty
+CRON_FILE="/etc/cron.d/openpanel"
+if [ -f "$CRON_FILE" ]; then
+    if ! grep -q "opencli user-daily_summary" "$CRON_FILE"; then
+        echo "Adding the daily summary cron to $CRON_FILE..."
+        echo '15 6 * * * root /usr/local/bin/opencli user-daily_summary --all && echo "$(date) Saved daily summaries and emailed them to users who turned them on" >> /var/log/openpanel/admin/cron.log' >> "$CRON_FILE"
+    fi
+    if ! grep -q "opencli user-error_report" "$CRON_FILE"; then
+        echo "Adding the daily error report cron to $CRON_FILE..."
+        echo '30 7 * * * root /usr/local/bin/opencli user-error_report --all && echo "$(date) Emailed daily error reports to users who turned them on" >> /var/log/openpanel/admin/cron.log' >> "$CRON_FILE"
+    fi
+fi
+
 # AI & bot control: existing servers need the botcontrol snippets and their import, or the first block/rate-limit a user picks fails the caddy reload
 # the file only defines snippets, so it's valid on caddy images without the rate_limit module too; domain configs aren't touched, the panel adds the line when a policy is set
 BC_CONF=/etc/openpanel/caddy/botcontrol.conf
