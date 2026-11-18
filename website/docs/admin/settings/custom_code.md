@@ -193,6 +193,6 @@ Add custom bash code to be executed before starting OpenPanel.
 ![Before startup script editor](/img/openadmin-screenshots/settings/custom_code-before.png#gh-light-mode-only)
 ![Before startup script editor](/img/openadmin-screenshots/settings/custom_code-before_dark.png#gh-dark-mode-only)
 
-Stored in `/root/openpanel_run_on_startup` file.
+Stored in `/etc/openpanel/openpanel/custom_code/run_on_startup` file. A script saved in the old `/root/openpanel_run_on_startup` location is moved there the first time Custom code is opened.
 
 

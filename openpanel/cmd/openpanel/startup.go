@@ -19,13 +19,14 @@ import (
 // startup side effects live here: log dirs, dev_mode logging, restart flag, custom startup script, GOMAXPROCS sizing, Redis flush, and direct TLS termination when Caddy isn't already on it
 
 const (
-	restartFlagPath     = "/root/openpanel_restart_needed"
-	customStartupScript = "/root/openpanel_run_on_startup"
-
-	errorLogPath   = "/var/log/openpanel/user/error.log"
-	accessLogPath  = "/var/log/openpanel/user/access.log"
-	opencliLogPath = "/var/log/openpanel/admin/opencli.log"
+	restartFlagPath = "/root/openpanel_restart_needed"
+	errorLogPath    = "/var/log/openpanel/user/error.log"
+	accessLogPath   = "/var/log/openpanel/user/access.log"
+	opencliLogPath  = "/var/log/openpanel/admin/opencli.log"
 )
+
+// OpenAdmin saves it under /etc/openpanel, which is mounted, /root never was
+var customStartupScripts = []string{"/etc/openpanel/openpanel/custom_code/run_on_startup", "/root/openpanel_run_on_startup"}
 
 // fatalLogger always writes to stderr, even when configureLogging silenced the default logger, so a real boot failure never gets swallowed
 var fatalLogger = log.New(os.Stderr, "", log.LstdFlags)
@@ -64,17 +65,23 @@ func emptyRestartFlag() {
 	}
 }
 
-// runCustomStartupScript runs /root/openpanel_run_on_startup with bash if present, capped at 60s
+// runCustomStartupScript runs the first startup script that exists with bash, capped at 60s
 func runCustomStartupScript() {
-	info, err := os.Stat(customStartupScript)
-	if err != nil || info.IsDir() {
+	script := ""
+	for _, p := range customStartupScripts {
+		if info, err := os.Stat(p); err == nil && !info.IsDir() && info.Size() > 0 {
+			script = p
+			break
+		}
+	}
+	if script == "" {
 		return
 	}
-	log.Printf("BOOTSTRAP - executing custom startup script: %s", customStartupScript)
+	log.Printf("BOOTSTRAP - executing custom startup script: %s", script)
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
-	if out, runErr := exec.CommandContext(ctx, "bash", customStartupScript).CombinedOutput(); runErr != nil {
-		log.Printf("BOOTSTRAP - error executing %s: %v\n%s", customStartupScript, runErr, string(out))
+	if out, runErr := exec.CommandContext(ctx, "bash", script).CombinedOutput(); runErr != nil {
+		log.Printf("BOOTSTRAP - error executing %s: %v\n%s", script, runErr, string(out))
 	} else {
 		log.Printf("BOOTSTRAP - executed custom startup script successfully")
 	}
