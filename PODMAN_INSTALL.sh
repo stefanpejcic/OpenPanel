@@ -207,6 +207,32 @@ detect_installed_panels() {
     ok "No conflicting panels or web servers found."
 }
 
+# --repair wipes /etc/openpanel and the panel database but leaves Linux users and their homes behind, so never run it over existing accounts
+refuse_repair_with_users() {
+    [[ "$REPAIR" == true ]] || return 0
+
+    local -A found=()
+    local name dir
+    if command -v mariadb &>/dev/null && [[ -f /etc/my.cnf ]]; then
+        while read -r name; do
+            [[ -n "$name" ]] && found["$name"]=1
+        done < <(timeout 10 mariadb --defaults-extra-file=/etc/my.cnf -D panel -N -se "SELECT username FROM users" 2>/dev/null)
+    fi
+    # db can be down or already gone, so also look for users on disk
+    for dir in "${ETC_DIR}openpanel/core/users"/*/ /home/*/; do
+        name=$(basename "$dir")
+        [[ "$dir" == /home/* && ! -f "${dir}docker-compose.yml" ]] && continue
+        id "$name" &>/dev/null && found["$name"]=1
+    done
+
+    (( ${#found[@]} == 0 )) && return 0
+
+    echo -e "${RED}REPAIR REFUSED${RESET} - OpenPanel users already exist on this server: ${!found[*]}" >&2
+    echo "--repair reinstalls from scratch: it deletes /etc/openpanel and the panel database (users, plans, domains) but leaves Linux users and /home behind." >&2
+    echo "It is only meant to retry a failed first install. To update or fix an existing server, run: opencli update --force" >&2
+    exit 1
+}
+
 detect_os_and_package_manager() {
     [[ -f /etc/os-release ]] || die 1 "Cannot detect OS: /etc/os-release not found."
     # shellcheck disable=SC1091
@@ -1353,6 +1379,7 @@ set_panel_version
 print_header
 check_requirements
 detect_installed_panels
+refuse_repair_with_users
 echo -e "Starting OpenPanel installation process..."
 start=$(date +%s)
 
