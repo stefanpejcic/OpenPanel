@@ -680,6 +680,18 @@ IP successfully changed for user stefan to dedicated IP address: 203.0.113.11
 </details>
 
 
+Setting the server's main IP address is the same as removing the dedicated IP: the user goes back to the shared IP and the Caddy `bind` lines are removed from their domains.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli user-ip stefan 203.0.113.10
+IP configuration deleted for user stefan.
+IP successfully changed for user stefan to shared IP address: 203.0.113.10
+```
+</details>
+
 To remove dedicated IP address from a user run:
 
 ```bash
