@@ -75,6 +75,15 @@ jobs:
             artifacts/openpanel-amd64
             artifacts/openpanel-arm64
 
+  # keeps github.com/stefanpejcic/bootstrap-openpanel-theme equal to this release's built-in templates
+  bootstrap-theme:
+    needs: release
+    if: ${{ !inputs.beta }}
+    uses: ./.github/workflows/sync-bootstrap-theme.yml
+    with:
+      version: ${{ inputs.version }}
+    secrets: inherit
+
   docker:
     needs: build
     runs-on: ubuntu-latest
