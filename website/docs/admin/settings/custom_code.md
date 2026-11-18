@@ -7,11 +7,11 @@ sidebar_position: 10
 The Custom Code section, accessible via OpenAdmin > Settings > Custom Code, allows you to inject and manage custom code that extends or modifies the behavior and appearance of the OpenPanel UI.
 
 :::info
-Custom CSS, Custom JS, Code in Header, Code in Footer, Custom Section, and Welcome Email below require an active **Enterprise** license (and a non-reseller account) to edit. The remaining options on this page (WordPress Plugins/Themes Sets, WordPress profiles, After Update, Before Startup) are available on all license types.
+Custom CSS, Custom JS, Code in Header, Code in Footer, Custom Section, and Welcome Email below require an active **Enterprise** license (and a non-reseller account) to edit. The remaining options on this page (After Update, Before Startup) are available on all license types.
 :::
 
 :::info
-How-to Articles, PageSpeed API Key, Forbidden Usernames, and Restricted Domains moved to [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel).
+How-to Articles, PageSpeed API Key, Forbidden Usernames, and Restricted Domains moved to [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel). The WordPress plugins set, themes set and profiles moved to [OpenAdmin > Settings > OpenPanel > WordPress](/docs/admin/settings/openpanel#wordpress).
 :::
 
 ## Custom CSS
@@ -170,56 +170,6 @@ These placeholders are replaced when the message is created:
 If the file is empty or missing, no welcome message is added and the email account is still created.
 
 Stored in `/etc/openpanel/openpanel/custom_code/welcome.html` file.
-
-## WordPress plugins set
-
-The global default list of WordPress plugins, installed on new WordPress sites when the user keeps **Default** in the *Plugins & themes set* field of the install form (or when there are no [WordPress profiles](#wordpress-profiles)). If the user has their own [plugins set](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/), theirs is used instead.
-Enter one item per row. Supported formats:
-
-* **wp\_org\_slug** — the plugin slug from the WordPress.org plugin page
-* **URL** — a direct link to a `.zip` plugin file hosted online
-
-![WordPress Plugins Set editor](/img/openadmin-screenshots/settings/custom_code-plugins.png#gh-light-mode-only)
-![WordPress Plugins Set editor](/img/openadmin-screenshots/settings/custom_code-plugins_dark.png#gh-dark-mode-only)
-
-Stored in `/etc/openpanel/wordpress/sets/plugins.txt` file.
-
-## WordPress themes set
-
-The global default list of WordPress themes, installed on new WordPress sites when the user keeps **Default** in the *Plugins & themes set* field of the install form (or when there are no [WordPress profiles](#wordpress-profiles)). If the user has their own [themes set](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/), theirs is used instead.
-Enter one item per row. Supported formats:
-
-* **wp\_org\_slug** — the theme slug from the WordPress.org themes page
-* **URL** — a direct link to a `.zip` theme file hosted online
-
-![WordPress Themes Set editor](/img/openadmin-screenshots/settings/custom_code-themes.png#gh-light-mode-only)
-![WordPress Themes Set editor](/img/openadmin-screenshots/settings/custom_code-themes_dark.png#gh-dark-mode-only)
-
-Stored in `/etc/openpanel/wordpress/sets/themes.txt` file.
-
-## WordPress profiles
-
-Named sets of plugins and themes, for example *E-commerce (WooCommerce)*, *Blog* or *Business website*. When at least one profile exists, users get a **Plugins & themes set** field on *OpenPanel > WordPress > Install* where they pick:
-
-- **Default**: the global [plugins set](#wordpress-plugins-set) and [themes set](#wordpress-themes-set) above, or the user's own sets.
-- One of your profiles: only that profile's plugins and themes are installed.
-- **None, clean WordPress**: no extra plugins or themes are installed.
-
-There are no profiles by default, and until you add one the install form looks the same as before.
-
-To add a profile, open **Add WordPress profile**, enter a name and list the plugins and themes, one per line, in the same formats as the global sets (WordPress.org slug or a URL to a `.zip` file, lines starting with `#` are ignored). Click **Save files**. Existing profiles are listed above it: open one to rename it or change its plugins and themes and click **Save files**, or click **Delete** to remove it.
-
-Each profile is stored as a JSON file in `/etc/openpanel/wordpress/sets/profiles/`, for example:
-
-```json
-{
-  "name": "E-commerce (WooCommerce)",
-  "plugins": ["woocommerce", "woocommerce-payments"],
-  "themes": ["storefront"]
-}
-```
-
-The file name (without `.json`) is the profile's ID, which can also be passed as `wp_set` to the [WordPress install API](/docs/panel/api/#install-wordpress) together with `none` for a clean install.
 
 ## After update
 Define custom bash commands that will automatically run after each OpenPanel update. Ideal for restoring customizations or triggering automation scripts.

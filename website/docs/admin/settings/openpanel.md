@@ -201,6 +201,54 @@ A warning is shown when Terminal Commands Timeout is under 30 seconds (it applie
 ![Statistics section with the resource usage and statistics options](/img/openadmin-screenshots/settings/openpanel-statistics.png#gh-light-mode-only)
 ![Statistics section with the resource usage and statistics options](/img/openadmin-screenshots/settings/openpanel-statistics_dark.png#gh-dark-mode-only)
 
+## WordPress
+
+Plugins and themes installed on new WordPress sites, and the profiles users can pick from on *OpenPanel > WordPress > Install*. These options are available on all license types and are saved together with the rest of the page.
+
+### Default plugins set
+
+The global default list of WordPress plugins, installed on new WordPress sites when the user keeps **Default** in the *Plugins & themes set* field of the install form (or when there are no [WordPress profiles](#wordpress-profiles)). If the user has their own [plugins set](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/), theirs is used instead.
+Enter one item per row. Supported formats:
+
+* **wp\_org\_slug** — the plugin slug from the WordPress.org plugin page
+* **URL** — a direct link to a `.zip` plugin file hosted online
+
+Stored in `/etc/openpanel/wordpress/sets/plugins.txt` file.
+
+### Default themes set
+
+The global default list of WordPress themes, installed on new WordPress sites when the user keeps **Default** in the *Plugins & themes set* field of the install form (or when there are no [WordPress profiles](#wordpress-profiles)). If the user has their own [themes set](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/), theirs is used instead.
+Enter one item per row. Supported formats:
+
+* **wp\_org\_slug** — the theme slug from the WordPress.org themes page
+* **URL** — a direct link to a `.zip` theme file hosted online
+
+Stored in `/etc/openpanel/wordpress/sets/themes.txt` file.
+
+### WordPress profiles
+
+Named sets of plugins and themes, for example *E-commerce (WooCommerce)*, *Blog* or *Business website*. When at least one profile exists, users get a **Plugins & themes set** field on *OpenPanel > WordPress > Install* where they pick:
+
+- **Default**: the global [plugins set](#default-plugins-set) and [themes set](#default-themes-set) above, or the user's own sets.
+- One of your profiles: only that profile's plugins and themes are installed.
+- **None, clean WordPress**: no extra plugins or themes are installed.
+
+There are no profiles by default, and until you add one the install form looks the same as before.
+
+To add a profile, open **Add WordPress profile**, enter a name and list the plugins and themes, one per line, in the same formats as the global sets (WordPress.org slug or a URL to a `.zip` file, lines starting with `#` are ignored). Click **Save changes**. Existing profiles are listed above it: open one to rename it or change its plugins and themes and click **Save changes**, or click **Delete** to remove it.
+
+Each profile is stored as a JSON file in `/etc/openpanel/wordpress/sets/profiles/`, for example:
+
+```json
+{
+  "name": "E-commerce (WooCommerce)",
+  "plugins": ["woocommerce", "woocommerce-payments"],
+  "themes": ["storefront"]
+}
+```
+
+The file name (without `.json`) is the profile's ID, which can also be passed as `wp_set` to the [WordPress install API](/docs/panel/api/#install-wordpress) together with `none` for a clean install.
+
 ## AI assistant
 
 Settings for the [AI Assistant](/docs/panel/dashboard/dashboard#ai-assistant), the chat users open from the **AI** button in the OpenPanel header. It answers questions about the panel using the OpenPanel documentation, the user's plan features and the page they're on, and can look things up or make changes in the user's account.

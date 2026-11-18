@@ -7,7 +7,7 @@ The 'filemanager' and 'wordpress' features need to be enabled for your account i
 :::
 
 :::tip
-Your hosting provider can also offer ready-made sets, for example *E-commerce* or *Blog*. When they do, the WordPress install form has a **Plugins & themes set** field: keep **Default** to use your own sets from this page (or the server's default sets if you haven't made any), pick one of the provider's sets to install only its plugins and themes, or pick **None, clean WordPress** to skip all of them. Admins add these sets in [OpenAdmin > Settings > Custom code](/docs/admin/settings/custom_code/#wordpress-profiles).
+Your hosting provider can also offer ready-made sets, for example *E-commerce* or *Blog*. When they do, the WordPress install form has a **Plugins & themes set** field: keep **Default** to use your own sets from this page (or the server's default sets if you haven't made any), pick one of the provider's sets to install only its plugins and themes, or pick **None, clean WordPress** to skip all of them. Admins add these sets in [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#wordpress-profiles).
 :::
 ---
 
