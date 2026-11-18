@@ -293,6 +293,8 @@ Google PageSpeed data saved to /etc/openpanel/openpanel/websites/pejcic.rs_blog.
 ```
 </details>
 
+The report is overwritten on every check. A copy also goes to `/etc/openpanel/openpanel/websites/history/<YYYY-MM-DD>/`, kept for 35 days, which OpenAdmin's daily summary reads for the *Slowest websites* of that day.
+
 Get Google PageSpeed data for all websites hosted on server:
 
 ```bash
