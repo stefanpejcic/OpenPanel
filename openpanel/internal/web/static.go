@@ -44,6 +44,15 @@ func NewStaticAssets(fsys fs.FS, overrideDir string, customCode bool) (*StaticAs
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rel := strings.TrimPrefix(r.URL.Path, "/")
+		// the template= theme can ship its own static files
+		if diskPath := themeStaticPath(rel); diskPath != "" {
+			if h := assetHash(rel); h != "" {
+				w.Header().Set("ETag", `"`+h+`"`)
+			}
+			w.Header().Set("Cache-Control", staticCacheControl(rel, r.URL.Query().Get("v") != ""))
+			http.ServeFile(w, r, diskPath)
+			return
+		}
 		if diskPath, ok := overrides[rel]; ok {
 			w.Header().Set("Cache-Control", "no-cache")
 			http.ServeFile(w, r, diskPath)
@@ -88,7 +97,7 @@ func StaticURL(rel string) string {
 	return "/static/" + rel
 }
 
-// assetHash is a short content hash of an embedded file, "" for overridable files, directories and missing files
+// assetHash is a short content hash of an embedded or theme file, "" for overridable files, directories and missing files
 func assetHash(rel string) string {
 	if assetFS == nil {
 		return ""
@@ -100,7 +109,12 @@ func assetHash(rel string) string {
 		return v.(string)
 	}
 	h := ""
-	if b, err := fs.ReadFile(assetFS, rel); err == nil {
+	if diskPath := themeStaticPath(rel); diskPath != "" {
+		if b, err := os.ReadFile(diskPath); err == nil {
+			sum := sha256.Sum256(b)
+			h = hex.EncodeToString(sum[:6])
+		}
+	} else if b, err := fs.ReadFile(assetFS, rel); err == nil {
 		sum := sha256.Sum256(b)
 		h = hex.EncodeToString(sum[:6])
 	}

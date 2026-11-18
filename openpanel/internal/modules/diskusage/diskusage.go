@@ -17,6 +17,9 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/cache"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/dashboard"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/trash"
+	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
 const cacheTTL = 5 * time.Second
@@ -93,7 +96,16 @@ func handleDiskUsage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderDiskUsagePage(a, w, r, output)
+	// the quota tiles are only on the modern theme's page
+	var quota *dashboard.DiskInodes
+	var trashBytes int64
+	var trashOK bool
+	if web.Theme() == web.ThemeModern {
+		username, _ := injected["current_username"].(string)
+		quota, _ = dashboard.DiskAndInodesForUser(a, ctx, username)
+		trashBytes, trashOK = trash.SizeBytes(ctx, userContext)
+	}
+	renderDiskUsagePage(a, w, r, output, quota, trashBytes, trashOK)
 }
 
 // parseHumanSize converts a `du -sh` size like "4.0K", "132M" or "0" into a byte count, for sorting only - not for display

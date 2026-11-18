@@ -198,7 +198,7 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	phpDefaultVersion := webserver.GetEnvFileValue(userContext, "DEFAULT_PHP_VERSION")
 
 	domainsList, _ := a.AllDomainsForUser(ctx, userID)
-	rows, _, outdated := buildPHPDomainRows(userContext, domainsList, phpVersionsData)
+	rows, counts, outdated := buildPHPDomainRows(userContext, domainsList, phpVersionsData)
 
 	if r.URL.Query().Get("output") == "json" {
 		phpVersions := make(map[int]string, len(rows))
@@ -215,7 +215,7 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	renderPHPSettingsPage(a, w, r, rows, outdated, installedVersions)
+	renderPHPSettingsPage(a, w, r, rows, counts, outdated, installedVersions)
 }
 
 // buildPHPDomainRows resolves each domain's PHP version from its vhost config's php-fpm-X.Y:port upstream line (falling back to "/"), and tallies per-version counts plus the number of domains on an outdated version

@@ -27,7 +27,7 @@ var unsuspendPage = loadPage("domains/unsuspend.html")
 var docrootPage = loadPage("domains/docroot.html")
 var domainLogsPage = loadPage("domains/logs.html")
 var capitalizePage = loadPage("domains/capitalize.html")
-var vhostPage = loadPage("domains/vhost.html")
+var vhostPage = loadPage("partials/_conf_editor.html", "domains/vhost.html")
 var redirectPage = loadPage("domains/redirect.html")
 var sslPage = loadPage("domains/ssl.html")
 
@@ -52,6 +52,7 @@ type DomainsPageData struct {
 type DomainsSummary struct {
 	Subdomains, SSLChecked, SSLValid, SSLExpiring, SSLBroken, WAFOn, Suspended int
 	FirstSuspended                                                             string
+	FirstSSLIssue                                                              string // the SSL note links here
 }
 
 func (d DomainsPageData) Summary() DomainsSummary {
@@ -82,6 +83,10 @@ func (d DomainsPageData) Summary() DomainsSummary {
 			s.SSLBroken++
 		default:
 			s.SSLValid++
+			continue
+		}
+		if s.FirstSSLIssue == "" {
+			s.FirstSSLIssue = r.DomainURL
 		}
 	}
 	return s

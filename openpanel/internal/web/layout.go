@@ -40,6 +40,7 @@ type LayoutData struct {
 	BrandName     string
 	Favicon       string
 	Logo          string
+	LogoDark      string // logo_dark, for dark backgrounds; empty means Logo everywhere
 	CSRFToken     string
 	PanelDir      string
 	FoundABugLink string
@@ -79,12 +80,39 @@ type LayoutData struct {
 
 	Service string // set by pages that manage a single service; "" on the dashboard, so {{if .Service}} partials render nothing there
 
+	// DashboardIconView is the user's saved dashboard icon-section layout ("icon" or "list"), read server-side from the dashboard_icon_view cookie on every page (not just /dashboard) so the sidebar toggle and the dashboard's icon_section template both render the saved choice on first paint with no Alpine/localStorage hydration flicker
+	DashboardIconView string
+
 	// FilemanagerView is the resolved filemanager button style ("classic" or "modern"), read server-side on every page (not just /files) so the account menu's style toggle (only shown on /files) highlights the active choice with no flicker
 	FilemanagerView string
 
 	BulkActions []BulkAction // buttons for partials/_bulk.html, set by pages that have bulk selection
 
 	T i18n.Translator
+}
+
+// ActivateTab marks the page tab linking to href as current and puts it in the header trail instead of the old one, for pages whose path doesn't say which tab they belong to
+func (l *LayoutData) ActivateTab(href string) {
+	idx := -1
+	for i, t := range l.PageTabs {
+		if t.Href == href && !t.Disabled {
+			idx = i
+		}
+	}
+	if idx < 0 {
+		return
+	}
+	for i := range l.PageTabs {
+		if l.PageTabs[i].Active && i != idx {
+			// the last crumb is the page itself, only the tab crumbs before it are swapped
+			for j := 0; j < len(l.NavTrail)-1; j++ {
+				if l.NavTrail[j].Label == l.PageTabs[i].Label {
+					l.NavTrail[j] = NavLink{Href: href, Label: l.PageTabs[idx].Label}
+				}
+			}
+		}
+		l.PageTabs[i].Active = i == idx
+	}
 }
 
 // UserAllowedList renders m's keys as a JSON array, for embedding the user's permission flags into the page as a client-side JS value.

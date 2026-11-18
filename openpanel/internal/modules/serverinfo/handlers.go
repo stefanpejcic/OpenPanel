@@ -7,10 +7,12 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/auth"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/flash"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/session"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/webserver"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/dashboard"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -39,7 +41,11 @@ func handleContainerUsage(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	}
 	_ = a.Sessions.Save(r, w, sess)
 
-	renderStatsPage(a, w, r, stats)
+	var history []UsagePoint
+	if web.Theme() == web.ThemeModern {
+		history = usageHistory(readUsageLines(userContext))
+	}
+	renderStatsPage(a, w, r, stats, history)
 }
 
 // handleUsageHistory serves the paginated resource-usage history page.
@@ -50,6 +56,10 @@ func handleUsageHistory(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	userContext, _ := data["context"].(string)
+	if web.Theme() == web.ThemeModern {
+		renderModernUsageHistory(a, w, r, userContext)
+		return
+	}
 	usageFilePath := "/home/" + userContext + "/resource_usage.txt"
 	chartsMode := a.Config.Get("resource_usage_charts_mode", "one")
 
@@ -186,7 +196,14 @@ func handleSystemHostingPlan(a *appctx.App, w http.ResponseWriter, r *http.Reque
 	userContext, _ := data["context"].(string)
 	planID, _ := data["hosting_plan"].(int)
 
-	web.WriteJSON(w, http.StatusOK, buildHostingPlan(a, r, userContext, planID))
+	plan := buildHostingPlan(a, r, userContext, planID)
+	// the modern theme's Plan tab shows usage next to each limit
+	if web.Theme() == web.ThemeModern {
+		if userID, ok := auth.UserID(r); ok {
+			plan["usage"] = dashboard.PlanUsage(a, r.Context(), userID, data)
+		}
+	}
+	web.WriteJSON(w, http.StatusOK, plan)
 }
 
 // getEnvPort reads /home/<context>/.env and, for host:port style values, returns just the port segment
@@ -233,4 +250,66 @@ func handleSystemHostingPorts(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	username, _ := data["current_username"].(string)
 
 	web.WriteJSON(w, http.StatusOK, buildHostingPorts(username))
+}
+
+// readUsageLines parses every JSON line of /home/<context>/resource_usage.txt, skipping bad ones
+func readUsageLines(userContext string) []ResourceUsageLine {
+	content, err := tenantfs.ReadFile("/home/" + userContext + "/resource_usage.txt")
+	if err != nil {
+		return nil
+	}
+	var lines []ResourceUsageLine
+	for _, line := range strings.Split(string(content), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		var entry ResourceUsageLine
+		if json.Unmarshal([]byte(line), &entry) == nil {
+			lines = append(lines, entry)
+		}
+	}
+	return lines
+}
+
+// renderModernUsageHistory is the modern theme's history page, every hourly sample with the range picked client-side
+func renderModernUsageHistory(a *appctx.App, w http.ResponseWriter, r *http.Request, userContext string) {
+	samples, limits := historySamples(readUsageLines(userContext))
+	// collect_stats keeps 100 lines when the setting is missing
+	retention, convErr := strconv.Atoi(a.Config.Get("resource_usage_retention", "100"))
+	if convErr != nil || retention < 0 {
+		retention = 100
+	}
+	rowLimit, _ := strconv.Atoi(a.Config.Get("resource_usage_items_per_page", "25"))
+	if rowLimit <= 0 {
+		rowLimit = 25
+	}
+	renderModernUsageHistoryPage(a, w, r, ModernUsageHistoryPageData{
+		Samples: samples, Limits: limits, Retention: retention, Ranges: historyRanges(retention), RowLimit: rowLimit,
+	})
+}
+
+// readFeatures returns the file as-is when it holds a JSON array
+func readFeatures(path string) ([]byte, bool) {
+	raw, err := tenantfs.ReadFile(path)
+	if err != nil {
+		return nil, false
+	}
+	var list []json.RawMessage
+	if json.Unmarshal(raw, &list) != nil {
+		return nil, false
+	}
+	return raw, true
+}
+
+// handleSystemFeatures serves the local features list, 404 tells the page to use the GitHub copy
+func handleSystemFeatures(w http.ResponseWriter, _ *http.Request) {
+	raw, ok := readFeatures(featuresFile)
+	if !ok {
+		web.WriteJSON(w, http.StatusNotFound, map[string]string{"error": "features list not found"})
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "private, max-age=3600")
+	_, _ = w.Write(raw)
 }

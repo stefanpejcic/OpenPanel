@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	appctx "gist.github.com/stefanpejcic/openpanel/internal/app"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/dashboard"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -122,6 +123,7 @@ type DiskUsagePageData struct {
 	Rows        []Row
 	ShowUpLink  bool
 	UpLink      string
+	KPIs        DiskKPIs
 }
 
 // pagePath is the request path with a trailing slash, what the row links are built on
@@ -132,7 +134,7 @@ func pagePath(r *http.Request) string {
 	return r.URL.Path
 }
 
-func renderDiskUsagePage(a *appctx.App, w http.ResponseWriter, r *http.Request, duOutput string) {
+func renderDiskUsagePage(a *appctx.App, w http.ResponseWriter, r *http.Request, duOutput string, quota *dashboard.DiskInodes, trashBytes int64, trashOK bool) {
 	layout, _, err := web.BuildLayoutData(a, w, r, "Disk usage")
 	if err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
@@ -145,6 +147,10 @@ func renderDiskUsagePage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		LayoutData:  layout,
 		Breadcrumbs: buildBreadcrumbs("disk-usage", urlPath),
 		Rows:        parseDuOutput(duOutput, urlPath),
+	}
+	data.KPIs = buildDiskKPIs(quota, data.Rows, urlPath == "/disk-usage/", trashBytes, trashOK)
+	if layout.UserAllowed["trash"] {
+		data.KPIs.TrashHref = "/files.trash"
 	}
 	if urlPath != "/disk-usage/" {
 		data.ShowUpLink = true

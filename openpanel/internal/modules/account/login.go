@@ -111,6 +111,7 @@ type loginPageData struct {
 	Title             string
 	BrandName         string
 	Logo              string
+	LogoDark          string
 	Favicon           string
 	CSRFToken         string
 	Locales           []localeOption
@@ -142,6 +143,7 @@ func basePageData(a *appctx.App, r *http.Request, t i18n.Translator) loginPageDa
 		Title:            "Login",
 		BrandName:        a.Config.Get("brand_name", ""),
 		Logo:             a.Config.Get("logo", ""),
+		LogoDark:         a.Config.Get("logo_dark", ""),
 		PasswordReset:    a.Config.Get("password_reset", "yes"),
 		LoginLayout:      a.Config.Get("login_layout", "card"),
 		IsEnterprise:     strings.HasPrefix(a.LicenseKey, "enterprise"),

@@ -71,6 +71,7 @@ func main() {
 		fatalLogger.Fatalf("BOOTSTRAP - failed to initialize app: %v", err)
 	}
 	defer a.Close()
+	web.SetTheme(a.Config.Get("template", ""))
 
 	// opencli's daily error report reads a user's errors through this, so it uses the same parsing as the Error Logs page
 	if len(os.Args) > 1 && os.Args[1] == "error-logs-digest" {

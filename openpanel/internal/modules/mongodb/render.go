@@ -11,12 +11,12 @@ import (
 
 var (
 	databasesPage   = web.LoadPage("mongodb/databases.html")
-	newDatabasePage = web.LoadPage("mongodb/new.html", "partials/_db_created.html")
+	newDatabasePage = web.LoadPage("mongodb/new.html", "partials/_db_create.html", "partials/_db_created.html")
 	usersPage       = web.LoadPage("mongodb/users.html")
-	createUserPage  = web.LoadPage("mongodb/mongodb_user.html", "partials/_db_created.html")
+	createUserPage  = web.LoadPage("mongodb/mongodb_user.html", "partials/_db_create.html", "partials/_db_created.html")
 	passwordPage    = web.LoadPage("mongodb/password.html")
-	wizardPage      = web.LoadPage("mongodb/wizard.html")
-	assignPage      = web.LoadPage("mongodb/assign.html")
+	wizardPage      = web.LoadPage("mongodb/wizard.html", "partials/_db_create.html")
+	assignPage      = web.LoadPage("mongodb/assign.html", "partials/_db_create.html")
 	removePage      = web.LoadPage("mongodb/remove.html")
 	importPage      = web.LoadPage("mongodb/import.html")
 	processlistPage = web.LoadPage("mongodb/processlist.html")
@@ -47,6 +47,17 @@ func (d DatabasesPageData) TotalSize() string {
 		}
 	}
 	return formatSize(total)
+}
+
+// LargestDatabase is the user's biggest database, "" when there's none
+func (d DatabasesPageData) LargestDatabase() string {
+	name, size := "", int64(-1)
+	for _, db := range d.Databases {
+		if !db.IsSystem && db.SizeBytes > size {
+			name, size = db.Database, db.SizeBytes
+		}
+	}
+	return name
 }
 
 // UserDatabaseCount is the number of non-system databases, for the summary tile

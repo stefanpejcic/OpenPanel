@@ -87,7 +87,7 @@ type App struct {
 }
 
 func New(app App) *App {
-	app.installPage = web.LoadPage("manager/_cms_install_shared.html", "manager/"+app.Slug+"_install.html")
+	app.installPage = web.LoadPage("manager/_install_wizard.html", "manager/_cms_install_shared.html", "manager/"+app.Slug+"_install.html")
 	return &app
 }
 

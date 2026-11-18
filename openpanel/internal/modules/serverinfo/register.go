@@ -23,6 +23,7 @@ func RegisterHostingJSON(mux *http.ServeMux, a *appctx.App) {
 	mux.Handle("GET /json/system/hosting/info", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleSystemHostingInfo(a, w, r) }))
 	mux.Handle("GET /json/system/hosting/plan", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleSystemHostingPlan(a, w, r) }))
 	mux.Handle("GET /json/system/hosting/ports", requireLogin(func(w http.ResponseWriter, r *http.Request) { handleSystemHostingPorts(a, w, r) }))
+	mux.Handle("GET /json/system/features", requireLogin(handleSystemFeatures))
 }
 
 // RegisterUsage wires the resource-usage page routes onto mux.

@@ -31,3 +31,6 @@ func FormatBytes(n int64) string {
 	}
 	return fmt.Sprintf("%.1f TB", size)
 }
+
+// DomainURL lets templates written for appctx.Domain read a pick the same way
+func (p DomainPick) DomainURL() string { return p.Domain }

@@ -15,6 +15,7 @@ To customize OpenPanel, you have the following options:
 - [Localize the interface](#localize-the-interface)
 - [Set custom branding](#set-custom-branding)
 - [Set a custom color scheme](#set-a-custom-color-scheme)
+- [Create or install a theme](/docs/articles/dev-experience/openpanel-themes/)
 - [Replace How-to articles with your knowledge base](#replace-how-to-articles-with-your-knowledge-base)
 - [Add custom CSS or JS code to the interface](#add-custom-css-or-js-code)
 - [Create a custom module for OpenPanel](#create-openpanel-module)
