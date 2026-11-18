@@ -157,6 +157,10 @@ func apiFTPCreate(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		writeAPIFTPJSON(w, http.StatusForbidden, map[string]string{"error": "You do not own this domain"})
 		return
 	}
+	if ftpLimitReached(ctx, a, userID, userContext) {
+		writeAPIFTPJSON(w, http.StatusConflict, map[string]string{"error": ftpLimitMessage})
+		return
+	}
 
 	cleanPath, pathOK := cleanFTPPath(ftpPath)
 	if !pathOK {

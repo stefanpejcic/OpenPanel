@@ -285,6 +285,10 @@ func handleAddFTPAccount(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 			http.Error(w, "You do not own this domain.", http.StatusForbidden)
 			return
 		}
+		if ftpLimitReached(ctx, a, userID, userContext) {
+			web.FlashRedirect(a, w, r, "error", ftpLimitMessage, back)
+			return
+		}
 		if ftpPath == "" {
 			web.FlashRedirect(a, w, r, "error", "FTP path not provided.", back)
 			return
