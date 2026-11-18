@@ -109,6 +109,7 @@ Once an hour Sentinel starts any stopped containers for root and every non-suspe
 - `cron` and `docker-proxy` run while `crons.ini` has at least one enabled job (fully commented-out, disabled jobs don't count).
 - `backup` and `docker-proxy` run while `backup.env` has a remote backup destination set. `docker-proxy` is left running while a backup from `opencli docker-backup` is in progress.
 - `mysql` or `mariadb` (the one set in `MYSQL_TYPE` in the user's `.env`) runs while the user has at least one database. Databases are counted from folders in the user's MySQL data volume, so Sentinel never connects to the user's MySQL to check. If there are no databases and the account is older than 2 hours, it's stopped. It's started again when the user opens the Databases page. The type the account doesn't use is never started, since both share the same data volume.
+- For root, `openadmin_ftp` runs only while at least one FTP account exists (a line in any `/etc/openpanel/ftp/users/<user>/users.list`). Without FTP accounts it's stopped and not started again, `opencli ftp-add` starts it when the first account is added.
 
 Containers Sentinel stopped this way aren't counted or emailed to the user as restarted.
 
@@ -118,6 +119,7 @@ Containers Sentinel stopped this way aren't counted or emailed to the user as re
 ```bash
 # opencli sentinel
 ...
+root: stopping openadmin_ftp (no FTP accounts)
 stefan: stopping cron (not needed)
 stefan: stopping docker-proxy (not needed)
 stefan: stopping mariadb (not needed)
