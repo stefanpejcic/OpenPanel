@@ -160,6 +160,24 @@ var baselineFeatures = []string{
 	"screenshots", "favicons", "logout", "errors", "search", "app",
 }
 
+// featureOnlyModules aren't registered as modules of their own, so switching them off in OpenAdmin only works by dropping the feature
+var featureOnlyModules = map[string]bool{
+	"ssl": true, "redirects": true, "php_options": true, "php_ini": true, "php_extensions": true, "phpmyadmin": true,
+	"edit_vhost": true, "docroot": true, "domain_logs": true, "capitalize_domains": true, "domain_suspend": true, "temporary_links": true,
+}
+
+// withoutDisabledModules drops the feature-only modules that are switched off on Settings > Modules
+func (a *App) withoutDisabledModules(features []string) []string {
+	out := make([]string, 0, len(features))
+	for _, f := range features {
+		if featureOnlyModules[f] && !a.ModuleEnabled(f) {
+			continue
+		}
+		out = append(out, f)
+	}
+	return out
+}
+
 // LoadUserFeatures returns a user's feature list (features.txt, else the plan's set, else default.txt) plus the baseline, cached 24h
 func (a *App) LoadUserFeatures(ctx context.Context, username, userContext string) ([]string, error) {
 	if userContext == "" {
@@ -171,7 +189,7 @@ func (a *App) LoadUserFeatures(ctx context.Context, username, userContext string
 	}
 
 	key := "load_user_features:" + username + ":" + userContext
-	return cache.Memoize(ctx, a.Cache, key, 24*time.Hour, func() ([]string, error) {
+	features, err := cache.Memoize(ctx, a.Cache, key, 24*time.Hour, func() ([]string, error) {
 		features, _ := loadFeaturesFromFile(fmt.Sprintf("/home/%s/features.txt", userContext))
 
 		if features == nil {
@@ -189,6 +207,10 @@ func (a *App) LoadUserFeatures(ctx context.Context, username, userContext string
 		result = append(result, baselineFeatures...)
 		return result, nil
 	})
+	if err != nil {
+		return nil, err
+	}
+	return a.withoutDisabledModules(features), nil
 }
 
 func loadFeaturesFromFile(path string) ([]string, error) {
