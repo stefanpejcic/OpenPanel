@@ -15,7 +15,7 @@ Under **Sync settings** on the master, each server shows when it was last synced
 
 Select the servers and click **Sync to selected**. Settings always synced are the shared OpenPanel and OpenAdmin options, feature sets, custom code, blocked user agents, forbidden usernames, notification settings and DNS zone templates. Two groups are optional:
 
-- **SMTP, captcha, AI and Cloudflare** credentials.
+- **SMTP, captcha, AI, Cloudflare and Google PageSpeed** credentials (the PageSpeed key is the file `/etc/openpanel/openpanel/service/pagespeed.api`).
 - **Nameservers**.
 
 License, ports, domains and SSL never sync.
