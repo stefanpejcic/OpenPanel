@@ -518,7 +518,17 @@ func handleLogout(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	}
 	_ = a.Sessions.Save(r, w, sess)
 
-	http.Redirect(w, r, a.Config.Get("logout_redirect", "/login"), http.StatusFound)
+	http.Redirect(w, r, logoutTarget(a), http.StatusFound)
+}
+
+// logoutTarget is where users land after logout, OpenAdmin saves it as logout_url and old configs had logout_redirect
+func logoutTarget(a *appctx.App) string {
+	for _, key := range []string{"logout_url", "logout_redirect"} {
+		if v := strings.TrimSpace(a.Config.Get(key, "")); v != "" {
+			return v
+		}
+	}
+	return "/login"
 }
 
 var logoutConfirmPage = template.Must(template.New("logout").Parse(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sign out</title></head>
@@ -529,7 +539,7 @@ var logoutConfirmPage = template.Must(template.New("logout").Parse(`<!doctype ht
 // handleLogoutConfirm is the no-JS fallback for GET /logout, the layout JS turns logout links into a POST directly
 func handleLogoutConfirm(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	if userID, ok := auth.UserID(r); !ok || userID == 0 {
-		http.Redirect(w, r, a.Config.Get("logout_redirect", "/login"), http.StatusFound)
+		http.Redirect(w, r, logoutTarget(a), http.StatusFound)
 		return
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

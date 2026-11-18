@@ -235,7 +235,7 @@ Named sets of plugins and themes, for example *E-commerce (WooCommerce)*, *Blog*
 
 There are no profiles by default, and until you add one the install form looks the same as before.
 
-To add a profile, open **Add WordPress profile**, enter a name and list the plugins and themes, one per line, in the same formats as the global sets (WordPress.org slug or a URL to a `.zip` file, lines starting with `#` are ignored). Click **Save changes**. Existing profiles are listed above it: open one to rename it or change its plugins and themes and click **Save changes**, or click **Delete** to remove it.
+To add a profile, open **Add WordPress profile**, enter a name and list the plugins and themes (click **+ Add another profile** to add more in the same save), one per line, in the same formats as the global sets (WordPress.org slug or a URL to a `.zip` file, lines starting with `#` are ignored). Click **Save changes**. Existing profiles are listed above it: open one to rename it or change its plugins and themes and click **Save changes**, or click **Delete** to remove it.
 
 Each profile is stored as a JSON file in `/etc/openpanel/wordpress/sets/profiles/`, for example:
 
