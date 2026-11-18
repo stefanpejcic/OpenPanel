@@ -23,18 +23,19 @@ Each theme is a folder in `/etc/openpanel/openpanel/templates/`:
     └── static/
 ```
 
-The active theme is set with `template=` in the `[PANEL]` section of `/etc/openpanel/openpanel/conf/openpanel.config`, using the folder name:
-
-```ini
-[PANEL]
-template=modern
-```
-
-Leave it empty to use the templates built into OpenPanel. If the value doesn't match a folder that has a `readme.txt`, OpenPanel also uses the built-in templates. The theme is loaded when OpenPanel starts, so restart it after changing the theme:
+The active theme is set with `template=` in `/etc/openpanel/openpanel/conf/openpanel.config`, using the folder name. Set it with:
 
 ```bash
-podman restart openpanel
+opencli config update template modern
 ```
+
+OpenPanel restarts on its own and loads the theme. To go back to the templates built into OpenPanel, set it to an empty value:
+
+```bash
+opencli config update template ""
+```
+
+If the value doesn't match a folder that has a `readme.txt`, OpenPanel also uses the built-in templates.
 
 ## Pick a theme from OpenAdmin
 
@@ -82,7 +83,7 @@ Only `Theme Name` is really needed; without it the folder name is shown. Links m
 
 ### 5. Test it
 
-Copy the folder to `/etc/openpanel/openpanel/templates/<your-theme>/`, select it in OpenAdmin (or set `template=<your-theme>`) and restart OpenPanel.
+Copy the folder to `/etc/openpanel/openpanel/templates/<your-theme>/`, select it in OpenAdmin or run `opencli config update template <your-theme>`.
 
 If a page in your theme fails to parse or render, OpenPanel shows the built-in version of that page instead of a broken page, and logs the reason:
 
