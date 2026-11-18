@@ -287,6 +287,14 @@ Additional flags:
 
 - `--startup` - run the actions performed after a server reboot: start stopped containers for root and all users and send the reboot notification.
 
+  The *SYSTEM REBOOT!* notification says why the server went down, from the logs of the previous boot (journal, `auth.log`, `kern.log`, `syslog` and their rotated copies): the power button pressed from outside (ACPI power key, usually the provider's panel or the host node), a reboot or poweroff command run on the server (with the sudo user when there is one), an automatic reboot by unattended-upgrades, a kernel panic or a freeze (out of memory, CPU lockup), a clean shutdown with no known initiator, or no clean shutdown at all (power loss or hard reset). When the logs from before the reboot are gone it says the cause is unknown. It also says how long the server was down, from the last log line before the reboot to the boot time.
+
+  ```
+  System was rebooted. 16:36:02 up 0 min, 0 users, load average: 2.10, 0.61, 0.21
+  Cause: the power button was pressed (ACPI power key) from outside the server, usually the hosting provider's panel or the host node in the data center, nothing on this server shut it down.
+  Down from 2026-11-17 16:34:11 until 2026-11-17 16:35:06 (0m 55s).
+  ```
+
   User containers are started in stages so 50+ accounts don't all hit the disk at once after a reboot: up to half the CPU cores worth of users at a time (min 2, max 8), 2 seconds apart, and the next user waits (up to 60s) while IO pressure is above 40% or load is above 2x the cores. Regular 5-minute runs skip the user container check until the staged start is done.
 
 <details>
