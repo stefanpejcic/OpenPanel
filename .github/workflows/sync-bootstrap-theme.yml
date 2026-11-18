@@ -1,0 +1,68 @@
+name: Sync bootstrap theme
+
+# copies the built-in user panel templates into github.com/stefanpejcic/bootstrap-openpanel-theme, so the starter theme always matches a release
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "OpenPanel version tag to sync from (e.g. 2.0.26)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ inputs.version }}
+      THEME_REPO: stefanpejcic/bootstrap-openpanel-theme
+    steps:
+      - name: Checkout OpenPanel at the release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version }}
+          path: openpanel-src
+
+      - name: Checkout bootstrap theme
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.THEME_REPO }}
+          token: ${{ secrets.BOOTSTRAP_THEME_TOKEN || secrets.TOKEN }}
+          path: theme
+          fetch-depth: 0
+
+      - name: Copy templates
+        run: |
+          # the theme keeps its own readme.txt, screenshot and README, everything else mirrors the built-in templates
+          rsync -a --delete \
+            --exclude .git --exclude .github \
+            --exclude readme.txt --exclude screenshot.png --exclude README.md --exclude 'LICENSE*' \
+            openpanel-src/openpanel/internal/web/templates/ theme/
+          sed -i "s/^Version:.*/Version: ${VERSION}/" theme/readme.txt
+          grep -q '^Version:' theme/readme.txt || echo "Version: ${VERSION}" >> theme/readme.txt
+
+      - name: Commit, tag and push
+        working-directory: theme
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Templates already match OpenPanel ${VERSION}"
+          else
+            git commit -m "sync templates from OpenPanel ${VERSION}"
+            git push origin HEAD
+          fi
+          if git rev-parse -q --verify "refs/tags/${VERSION}" >/dev/null; then
+            echo "Tag ${VERSION} already exists"
+          else
+            git tag "${VERSION}"
+            git push origin "${VERSION}"
+          fi
