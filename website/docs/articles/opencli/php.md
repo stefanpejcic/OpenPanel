@@ -30,8 +30,11 @@ opencli php-domain <DOMAIN-NAME> --update <PHP-VERSION>
 <details>
   <summary>Example output</summary>
 
+Cron jobs of that domain that ran in the old `php-fpm-X.Y` container move to the new one: jobs whose command has the domain in a `Host:` header or URL, or a path in the domain's document root. Jobs of other domains stay where they are. The PHP version switch in the user panel does the same.
+
 ```bash
 # opencli php-domain pejcic.rs --update 8.3
+Moved 1 cron job(s) of pejcic.rs from php-fpm-8.5 to php-fpm-8.3
 Updated PHP version in the configuration file to 8.3
 ```
 </details>

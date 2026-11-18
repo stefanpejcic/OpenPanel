@@ -83,6 +83,9 @@ func versionPicks(ctx context.Context, installed []string) []PHPVersionPick {
 }
 
 // handlePHPDomains renders the per-domain PHP version table and handles the version-switch POST from it
+// DomainSwitchHooks run after a domain moved to another PHP version, crons uses it to move that domain's jobs to the new php-fpm container
+var DomainSwitchHooks []func(ctx context.Context, userContext, domain, docroot, from, to string)
+
 func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	userID, _ := auth.UserID(r)
@@ -174,6 +177,11 @@ func handlePHPDomains(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		}
 
 		_, _ = a.DB.ExecContext(ctx, "UPDATE domains SET php_version = ? WHERE domain_url = ?", newPHPVersion, domainURL)
+		var docroot string
+		_ = a.DB.QueryRowContext(ctx, "SELECT docroot FROM domains WHERE domain_url = ?", domainURL).Scan(&docroot)
+		for _, hook := range DomainSwitchHooks {
+			hook(ctx, userContext, domainURL, docroot, "php-fpm-"+oldPHPVersion, newPHPContainer)
+		}
 
 		// old php only goes down once the webserver points elsewhere
 		reloadErr := webserver.ReloadWebserver(ctx, userContext, webServer)

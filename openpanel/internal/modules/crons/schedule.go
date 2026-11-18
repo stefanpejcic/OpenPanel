@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -18,6 +19,7 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/core/reqip"
 	"gist.github.com/stefanpejcic/openpanel/internal/core/tenantfs"
 	"gist.github.com/stefanpejcic/openpanel/internal/modules/docker"
+	"gist.github.com/stefanpejcic/openpanel/internal/modules/php"
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
@@ -212,6 +214,54 @@ func handleToggleCronjob(a *appctx.App, w http.ResponseWriter, r *http.Request) 
 
 func init() {
 	docker.ServiceSwitchHooks = append(docker.ServiceSwitchHooks, moveCronJobsToService)
+	php.DomainSwitchHooks = append(php.DomainSwitchHooks, moveDomainCronJobs)
+}
+
+// moveDomainCronJobs points the jobs of one domain that ran in its old php-fpm container at the new one, jobs of other domains stay where they are
+func moveDomainCronJobs(ctx context.Context, userContext, domain, docroot, from, to string) {
+	path := cronFilePath(userContext)
+	content, err := tenantfs.ReadFile(path)
+	if err != nil {
+		return
+	}
+	newContent, moved, restart := moveDomainJobs(string(content), domain, docroot, from, to)
+	if moved == 0 {
+		return
+	}
+	if err := tenantfs.WriteFile(path, []byte(newContent), 0o644); err != nil {
+		log.Printf("CRONS - moving %s jobs from %s to %s: %v", domain, from, to, err)
+		return
+	}
+	if restart && docker.IsServiceRunning(ctx, userContext, "cron") {
+		docker.ComposeContainer(ctx, userContext, "cron", "restart")
+	}
+}
+
+// moveDomainJobs moves the jobs in from whose command names the domain (Host header or url) or works in its docroot
+func moveDomainJobs(content, domain, docroot, from, to string) (newContent string, moved int, restart bool) {
+	var res []*regexp.Regexp
+	if domain != "" {
+		d := regexp.QuoteMeta(domain)
+		res = append(res, regexp.MustCompile(`(?i)(Host:\s*|://)`+d+`([/:\s'"]|$)`))
+	}
+	if docroot != "" && docroot != "/" {
+		res = append(res, regexp.MustCompile(`(^|[\s'"=:])`+regexp.QuoteMeta(strings.TrimRight(docroot, "/"))+`(/|[\s'"]|$)`))
+	}
+	if len(res) == 0 {
+		return content, 0, false
+	}
+	var out []string
+	for _, block := range splitCronBlocks(content) {
+		if jobs := ParseCronFile(block); len(jobs) == 1 && jobs[0].Container == from && containsAnyPattern(jobs[0].Command, res) {
+			j := jobs[0]
+			j.Container = to
+			block = cronBlock(j)
+			moved++
+			restart = restart || !j.Disabled
+		}
+		out = append(out, block)
+	}
+	return strings.Join(out, "\n\n") + "\n\n", moved, restart
 }
 
 // moveCronJobsToService points the jobs that ran in the old web server or MySQL container at the new one after a type switch

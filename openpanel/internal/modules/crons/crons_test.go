@@ -237,3 +237,42 @@ func TestCronContainerMissing(t *testing.T) {
 		t.Error("expected false for other podman errors")
 	}
 }
+
+func TestMoveDomainJobs(t *testing.T) {
+	content := `[job-exec "wp-cron-a.com"]
+schedule = 0 2/15 * * * *
+container = php-fpm-7.4
+command = curl -s -o /dev/null -H Host:a.com http://apache/wp-cron.php
+
+[job-exec "wp-cron-b.com"]
+schedule = 0 2/15 * * * *
+container = php-fpm-7.4
+command = curl -s -o /dev/null -H Host:b.com http://apache/wp-cron.php
+
+[job-exec "a-script"]
+schedule = @daily
+container = php-fpm-7.4
+command = php /var/www/html/a.com/cron.php
+
+[job-exec "other-docroot"]
+schedule = @daily
+container = php-fpm-7.4
+command = php /var/www/html/a.com2/cron.php
+
+[job-exec "a-in-other-php"]
+schedule = @daily
+container = php-fpm-8.2
+command = php /var/www/html/a.com/x.php
+`
+	out, moved, restart := moveDomainJobs(content, "a.com", "/var/www/html/a.com", "php-fpm-7.4", "php-fpm-8.3")
+	if moved != 2 || !restart {
+		t.Fatalf("moved %d restart %v\n%s", moved, restart, out)
+	}
+	jobs := ParseCronFile(out)
+	want := map[string]string{"wp-cron-a.com": "php-fpm-8.3", "wp-cron-b.com": "php-fpm-7.4", "a-script": "php-fpm-8.3", "other-docroot": "php-fpm-7.4", "a-in-other-php": "php-fpm-8.2"}
+	for _, j := range jobs {
+		if want[j.Comment] != j.Container {
+			t.Errorf("%s: %s, want %s", j.Comment, j.Container, want[j.Comment])
+		}
+	}
+}
