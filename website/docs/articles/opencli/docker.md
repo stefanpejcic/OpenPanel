@@ -32,6 +32,32 @@ opencli docker-update [IMAGE] [options]
 
 With `IMAGE` (e.g. `openpanel/php-fpm:8.4`) only that image is checked, pulled, and only the running containers that use it are recreated. After a php-fpm container is recreated, the user's webserver is reloaded so it connects to the new container. Containers created depending on the recreated one (e.g. a webserver with `depends_on` on php-fpm) are recreated with it. Containers that aren't running are left alone and use the new image on their next start.
 
+Existing accounts still on `shinsenter/php` are moved to `openpanel/php-fpm`: every `php-fpm-X.Y` service on a `shinsenter/php` image gets the matching block from the compose template (`/etc/openpanel/docker/compose/1.0/docker-compose.yml`), keeping keys the admin added to the old block (e.g. `extra_hosts`). Running php-fpm containers are recreated on the new image and the user's webserver is reloaded. A copy of the old file is saved as `docker-compose.yml.bak-php-image-<date>`. Users without `PHP_FPM_LISTEN` in their `.env` get `PHP_FPM_LISTEN="port"`, so their vhosts keep using port 9000; switch them to the socket with `opencli php-listen <user> socket`. A service is left on `shinsenter/php` (with a warning) if a file its new block mounts is missing on the server, e.g. the ionCube loader for that PHP version. This is skipped when `IMAGE` is given, unless it's an `openpanel/php-fpm` image.
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli docker-update openpanel/php-fpm:8.5 -y
+php-fpm moving from shinsenter/php to openpanel/php-fpm:
+  user: demo: php-fpm-8.4 shinsenter/php:8.4-fpm -> openpanel/php-fpm:8.4
+  user: demo: php-fpm-8.5 shinsenter/php:8.5-fpm -> openpanel/php-fpm:8.5
+
+openpanel/php-fpm:8.5
+  registry: sha256:9acaa2a26e7aa41cb873c7766fb68b480c18fff118627070c8fee952d3f33f7d
+  shared store: newer image available, will be pulled
+  recreate: user: demo: php-fpm-8.5, then reload its webserver
+1 pull(s), 1 container(s) to recreate, 2 php-fpm service(s) to move to openpanel/php-fpm.
+2026-11-18 11:02:10 : === Update run started ===
+2026-11-18 11:02:10 :   PHP_FPM_LISTEN="port" added to .env for user: demo, its vhosts use port 9000
+2026-11-18 11:02:10 : moved php-fpm-8.4 php-fpm-8.5 to openpanel/php-fpm for user: demo
+2026-11-18 11:02:10 : pull openpanel/php-fpm:8.5 into the shared store
+2026-11-18 11:02:18 : recreating php-fpm-8.5 for user: demo
+2026-11-18 11:02:20 :   reloaded apache (USR1) for user: demo
+2026-11-18 11:02:20 : === Update run finished ===
+```
+</details>
+
 After pulling an image with PHP in it, the PHP version inside it is checked. If it's older than its branch's latest security release, the image's containers are not recreated and the run is reported as failed, run the command again once the image is rebuilt.
 
 <details>
@@ -45,7 +71,7 @@ openpanel/php-fpm:8.5
   recreate: user: stefan: php-fpm-8.5, then reload its webserver
   recreate: user: demo: php-fpm-8.5, then reload its webserver
   not running, left alone: user: test: php-fpm-8.5
-1 pull(s), 2 container(s) to recreate.
+1 pull(s), 2 container(s) to recreate, 0 php-fpm service(s) to move to openpanel/php-fpm.
 2026-10-21 15:54:07 : === Update run started ===
 2026-10-21 15:54:07 : pull openpanel/php-fpm:8.5 into the shared store
 2026-10-21 15:54:17 : recreating php-fpm-8.5 for user: stefan
