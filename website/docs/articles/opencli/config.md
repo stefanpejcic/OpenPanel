@@ -1701,6 +1701,52 @@ Updated menu_style to modern
 ```
 </details>
 
+### `template`
+
+The theme for the OpenPanel user panel: the name of a folder in `/etc/openpanel/openpanel/templates/` that has a `readme.txt`. Empty, or a folder that doesn't exist, uses the templates built into OpenPanel. OpenPanel restarts after the change and loads the theme. The same setting is under OpenAdmin > Settings > OpenPanel > Theme. To build your own theme, see [How to create and install themes](/docs/articles/dev-experience/openpanel-themes/).
+
+**Check current value**:
+```bash
+opencli config get template
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config get template
+modern
+```
+</details>
+
+Use the 'modern' theme:
+```bash
+opencli config update template modern
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config update template modern
+Updated template to modern
+```
+</details>
+
+Use the built-in templates:
+```bash
+opencli config update template ""
+```
+
+<details>
+  <summary>Example output</summary>
+
+```bash
+# opencli config update template ""
+Updated template to 
+```
+</details>
+
 ### `applications_dashboard_items`
 
 Items shown in the **Websites** section of the OpenPanel dashboard, in this order, separated by spaces or commas. Available: `websites`, `wordpress`, `autoinstaller`, `git`, and the apps `joomla`, `drupal`, `website_builder`, `prestashop`, `opencart`, `phpbb`, `flarum`, `mediawiki`, `dokuwiki`, `sofawiki`, `matomo`, `nextcloud`, `tinyphotogallery`, `tinyfilemanager`, `moodle`, `ojs`, `nodejs`, `python`, `ruby`, `java`, `php`, `docker`. Unknown items are ignored and users still only see items for features on their plan. Empty shows the default items. Default is `websites wordpress autoinstaller`.
@@ -2555,4 +2601,4 @@ Two optional keys aren't in the default config but are read when added to the `[
 
 ### Unused keys
 
-`template` and `admin_template` in `[PANEL]` and `wp_autodownload` in `[APPS]` are still in the default config, but current OpenPanel and OpenAdmin versions don't read them, so changing them has no effect.
+`admin_template` in `[PANEL]` and `wp_autodownload` in `[APPS]` are still in the default config, but current OpenPanel and OpenAdmin versions don't read them, so changing them has no effect.
