@@ -260,16 +260,18 @@ fetch("/domains/new", {
 
                     } else if (text.toLowerCase().includes("warning") && !toastDisplayed) {
                         const wrapper = document.querySelector('[x-ref="statusWrapper"]');
-                        if (wrapper && wrapper.__x) {
-                            wrapper.__x.$data.addDomainDebug = true;
+                        // Alpine 3 has no __x, the details never opened on their own
+                        if (wrapper && window.Alpine) {
+                            Alpine.$data(wrapper).addDomainDebug = true;
                         }
                     } else if (text.toLowerCase().includes("error") && !toastDisplayed) {
                         const toastMessage = `{{.T.Get "Error adding domain name"}} ${domainUrlInput.value} {{.T.Get "Click on Show details above to view the log."}}`;
                         showToast(toastMessage, 'warning');
 
                         const wrapper = document.querySelector('[x-ref="statusWrapper"]');
-                        if (wrapper && wrapper.__x) {
-                            wrapper.__x.$data.addDomainDebug = true;
+                        // Alpine 3 has no __x, the details never opened on their own
+                        if (wrapper && window.Alpine) {
+                            Alpine.$data(wrapper).addDomainDebug = true;
                         }
 
                         toastDisplayed = true; // Mark toast as displayed
