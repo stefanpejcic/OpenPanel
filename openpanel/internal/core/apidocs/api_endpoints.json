@@ -670,6 +670,56 @@
     ]
   },
   {
+    "group": "Email Migration",
+    "feature": "email_migrate",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/emails/migrate/test",
+        "description": "Test the source IMAP login and the destination mailbox login before a migration, waits for the result.",
+        "body": {
+          "source_host": "imap.oldhost.com",
+          "source_port": 993,
+          "source_security": "ssl",
+          "source_user": "info@example.com",
+          "source_password": "...",
+          "destination": "info@example.com",
+          "destination_password": "..."
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/api/emails/migrate",
+        "description": "Start an IMAP migration (imapsync) into one of your mailboxes in the background, same body as /api/emails/migrate/test. source_security is ssl (default), starttls or none; exclude_junk (default true) skips Spam, Junk and Trash. One migration at a time per account.",
+        "body": {
+          "source_host": "imap.oldhost.com",
+          "source_port": 993,
+          "source_security": "ssl",
+          "source_user": "info@example.com",
+          "source_password": "...",
+          "destination": "info@example.com",
+          "destination_password": "...",
+          "exclude_junk": true
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/emails/migrate",
+        "description": "Status of the running migration and the last 10 migrations (running, completed, failed or cancelled), with the end of the newest log."
+      },
+      {
+        "method": "POST",
+        "path": "/api/emails/migrate/cancel",
+        "description": "Cancel the running migration, messages copied so far are kept."
+      },
+      {
+        "method": "GET",
+        "path": "/api/emails/migrate/log/<id>",
+        "description": "Full log of one migration."
+      }
+    ]
+  },
+  {
     "group": "FTP",
     "feature": "ftp",
     "endpoints": [
@@ -708,6 +758,14 @@
         "description": "Change FTP home path.",
         "body": {
           "path": "/var/www/html"
+        }
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/ftp/<username>/quota",
+        "description": "Set the FTP account's disk quota: a number of MB, a value like 500M or 2G, or unlimited.",
+        "body": {
+          "quota": "2G"
         }
       },
       {
@@ -1761,6 +1819,39 @@
         "description": "Save webserver config and restart service.",
         "body": {
           "content": "...conf content..."
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/webserver-conf/litespeed-license",
+        "description": "LiteSpeed Enterprise license status (only when the account's web server is litespeed)."
+      },
+      {
+        "method": "POST",
+        "path": "/api/webserver-conf/litespeed-license",
+        "description": "Set a LiteSpeed Enterprise serial ({\"serial\": \"...\"}) or go back to a trial license ({\"trial\": true}).",
+        "body": {
+          "serial": "XXXX-XXXX-XXXX-XXXX"
+        }
+      }
+    ]
+  },
+  {
+    "group": "Git",
+    "feature": "git",
+    "endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/git",
+        "description": "List the account's git repositories with branch, deploy mode, target folder, last pull/deploy and webhook URL. Optional ?domain= filters by domain."
+      },
+      {
+        "method": "POST",
+        "path": "/api/git",
+        "description": "Run a repository action: create (source remote or local, name, remote_url, remote_user, remote_pass, branch, domain, target_dir, deploy_mode automatic|manual|none, actions), pull, deploy, settings, reset_password or delete (repo = repository name). create and reset_password return push_password once.",
+        "body": {
+          "action": "deploy",
+          "repo": "mysite"
         }
       }
     ]
@@ -3028,17 +3119,6 @@
         "method": "POST",
         "path": "/api/dashboard/tour/complete",
         "description": "Mark the onboarding tour as completed so it doesn't reappear."
-      }
-    ]
-  },
-  {
-    "group": "Plugins",
-    "feature": "app",
-    "endpoints": [
-      {
-        "method": "GET",
-        "path": "/api/plugins",
-        "description": "List installed plugins."
       }
     ]
   },

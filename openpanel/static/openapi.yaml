@@ -26,12 +26,16 @@ tags:
   description: Requires the `mysql` feature to be enabled on the account's plan.
 - name: MySQL Root Password
   description: Requires the `mysql_root_password` feature to be enabled on the account's plan.
+- name: phpMyAdmin
+  description: Requires the `phpmyadmin` feature to be enabled on the account's plan.
 - name: PostgreSQL
   description: Requires the `postgresql` feature to be enabled on the account's plan.
 - name: Domains
   description: Requires the `domains` feature to be enabled on the account's plan.
 - name: Email
   description: Requires the `emails` feature to be enabled on the account's plan.
+- name: Email Migration
+  description: Requires the `email_migrate` feature to be enabled on the account's plan.
 - name: FTP
   description: Requires the `ftp` feature to be enabled on the account's plan.
 - name: Cron Jobs
@@ -88,6 +92,8 @@ tags:
   description: Requires the `trash` feature to be enabled on the account's plan.
 - name: Webserver Config
   description: Requires the `webserver_conf` feature to be enabled on the account's plan.
+- name: Git
+  description: Requires the `git` feature to be enabled on the account's plan.
 - name: Process Manager
   description: Requires the `process_manager` feature to be enabled on the account's plan.
 - name: Fix Permissions
@@ -153,8 +159,6 @@ tags:
   description: Requires the `website_builder` feature to be enabled on the account's plan.
 - name: Dashboard
   description: Requires the `dashboard` feature to be enabled on the account's plan.
-- name: Plugins
-  description: Requires the `app` feature to be enabled on the account's plan.
 - name: Search
   description: Requires the `search` feature to be enabled on the account's plan.
 - name: Activity Log
@@ -628,37 +632,6 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
-  /api/phpmyadmin:
-    get:
-      summary: Get a phpMyAdmin autologin link.
-      description: Mints an autologin token and returns a link that logs straight into phpMyAdmin. The link stays valid until a new one is generated. Requires the phpmyadmin feature.
-      operationId: phpmyadmin_autologin
-      tags:
-      - MySQL
-      parameters:
-      - name: db
-        in: query
-        required: false
-        schema:
-          type: string
-      responses:
-        '200':
-          description: Success.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  url:
-                    type: string
-                  login_url:
-                    type: string
-        '503':
-          description: phpMyAdmin is not running.
-        default:
-          $ref: '#/components/responses/Error'
-      security:
-      - bearerAuth: []
   /api/mysql/processlist:
     get:
       summary: Show full MySQL processlist.
@@ -1016,6 +989,24 @@ paths:
                   example: newRootPass123
               example:
                 password: newRootPass123
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/phpmyadmin:
+    get:
+      summary: Get a phpMyAdmin autologin link, valid until a new one is generated.
+      operationId: phpmyadmin
+      tags:
+      - phpMyAdmin
       responses:
         '200':
           description: Success.
@@ -1540,8 +1531,8 @@ paths:
       security:
       - bearerAuth: []
     post:
-      summary: Add a new domain (docroot defaults to /var/www/html/; .onion domains also require hs_ed25519_public_key
-        and hs_ed25519_secret_key).
+      summary: Add a new domain (docroot defaults to /var/www/html/<domain>; .onion domains also require
+        hs_ed25519_public_key and hs_ed25519_secret_key).
       operationId: post_domains
       tags:
       - Domains
@@ -2853,6 +2844,181 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/emails/migrate/test:
+    post:
+      summary: Test the source IMAP login and the destination mailbox login before a migration, waits
+        for the result.
+      operationId: emails_migrate_test
+      tags:
+      - Email Migration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                source_host:
+                  type: string
+                  example: imap.oldhost.com
+                source_port:
+                  type: integer
+                  example: 993
+                source_security:
+                  type: string
+                  example: ssl
+                source_user:
+                  type: string
+                  example: info@example.com
+                source_password:
+                  type: string
+                  example: '...'
+                destination:
+                  type: string
+                  example: info@example.com
+                destination_password:
+                  type: string
+                  example: '...'
+              example:
+                source_host: imap.oldhost.com
+                source_port: 993
+                source_security: ssl
+                source_user: info@example.com
+                source_password: '...'
+                destination: info@example.com
+                destination_password: '...'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/emails/migrate:
+    post:
+      summary: Start an IMAP migration (imapsync) into one of your mailboxes in the background, same body
+        as /api/emails/migrate/test. source_security is ssl (default), starttls or none; exclude_junk
+        (default true) skips Spam, Junk and Trash. One migration at a time per account.
+      operationId: post_emails_migrate
+      tags:
+      - Email Migration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                source_host:
+                  type: string
+                  example: imap.oldhost.com
+                source_port:
+                  type: integer
+                  example: 993
+                source_security:
+                  type: string
+                  example: ssl
+                source_user:
+                  type: string
+                  example: info@example.com
+                source_password:
+                  type: string
+                  example: '...'
+                destination:
+                  type: string
+                  example: info@example.com
+                destination_password:
+                  type: string
+                  example: '...'
+                exclude_junk:
+                  type: boolean
+                  example: true
+              example:
+                source_host: imap.oldhost.com
+                source_port: 993
+                source_security: ssl
+                source_user: info@example.com
+                source_password: '...'
+                destination: info@example.com
+                destination_password: '...'
+                exclude_junk: true
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+    get:
+      summary: Status of the running migration and the last 10 migrations (running, completed, failed
+        or cancelled), with the end of the newest log.
+      operationId: get_emails_migrate
+      tags:
+      - Email Migration
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/emails/migrate/cancel:
+    post:
+      summary: Cancel the running migration, messages copied so far are kept.
+      operationId: emails_migrate_cancel
+      tags:
+      - Email Migration
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/emails/migrate/log/{id}:
+    get:
+      summary: Full log of one migration.
+      operationId: emails_migrate_log_id
+      tags:
+      - Email Migration
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/ftp:
     get:
       summary: List FTP accounts.
@@ -3008,6 +3174,42 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/ftp/{username}/quota:
+    patch:
+      summary: 'Set the FTP account''s disk quota: a number of MB, a value like 500M or 2G, or unlimited.'
+      operationId: ftp_username_quota
+      tags:
+      - FTP
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quota:
+                  type: string
+                  example: 2G
+              example:
+                quota: 2G
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/ftp/connections:
     get:
       summary: List active FTP connections.
@@ -3098,7 +3300,7 @@ paths:
                   type: string
                   example: my job
               example:
-                schedule: 0 * * * *
+                schedule: 0 0 * * * *
                 command: /usr/bin/php script.php
                 container: php-fpm-8.1
                 comment: my job
@@ -3151,7 +3353,7 @@ paths:
                   type: string
                   example: my job
               example:
-                original_schedule: 0 * * * *
+                original_schedule: 0 0 * * * *
                 original_command: '...'
                 original_container: php-fpm-8.1
                 original_comment: my job
@@ -3196,7 +3398,7 @@ paths:
                   type: string
                   example: my job
               example:
-                schedule: 0 * * * *
+                schedule: 0 0 * * * *
                 command: '...'
                 container: php-fpm-8.1
                 comment: my job
@@ -3214,7 +3416,7 @@ paths:
       - bearerAuth: []
   /api/crons/raw:
     get:
-      summary: Get raw crontab.
+      summary: Get the raw cron file.
       operationId: get_crons_raw
       tags:
       - Cron Jobs
@@ -3231,7 +3433,7 @@ paths:
       security:
       - bearerAuth: []
     put:
-      summary: Save the raw cron file.
+      summary: Save the raw cron file, one [job-exec "name"] section per job with a 6-field schedule.
       operationId: put_crons_raw
       tags:
       - Cron Jobs
@@ -3244,10 +3446,17 @@ paths:
               properties:
                 content:
                   type: string
-                  description: The whole cron file, one [job-exec "name"] section per job with a 6-field schedule (seconds first).
-                  example: "[job-exec \"my job\"]\nschedule = 0 0 * * * *\ncontainer = php-fpm-8.3\ncommand = /usr/bin/php script.php\n"
+                  example: |
+                    [job-exec "my job"]
+                    schedule = 0 0 * * * *
+                    container = php-fpm-8.3
+                    command = /usr/bin/php script.php
               example:
-                content: "[job-exec \"my job\"]\nschedule = 0 0 * * * *\ncontainer = php-fpm-8.3\ncommand = /usr/bin/php script.php\n"
+                content: |
+                  [job-exec "my job"]
+                  schedule = 0 0 * * * *
+                  container = php-fpm-8.3
+                  command = /usr/bin/php script.php
       responses:
         '200':
           description: Success.
@@ -6674,6 +6883,109 @@ paths:
                   example: '...conf content...'
               example:
                 content: '...conf content...'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/webserver-conf/litespeed-license:
+    get:
+      summary: LiteSpeed Enterprise license status (only when the account's web server is litespeed).
+      operationId: get_webserver_conf_litespeed_license
+      tags:
+      - Webserver Config
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+    post:
+      summary: 'Set a LiteSpeed Enterprise serial ({"serial": "..."}) or go back to a trial license ({"trial":
+        true}).'
+      operationId: post_webserver_conf_litespeed_license
+      tags:
+      - Webserver Config
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                serial:
+                  type: string
+                  example: XXXX-XXXX-XXXX-XXXX
+              example:
+                serial: XXXX-XXXX-XXXX-XXXX
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/git:
+    get:
+      summary: List the account's git repositories with branch, deploy mode, target folder, last pull/deploy
+        and webhook URL. Optional ?domain= filters by domain.
+      operationId: get_git
+      tags:
+      - Git
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+    post:
+      summary: 'Run a repository action: create (source remote or local, name, remote_url, remote_user,
+        remote_pass, branch, domain, target_dir, deploy_mode automatic|manual|none, actions), pull, deploy,
+        settings, reset_password or delete (repo = repository name). create and reset_password return
+        push_password once.'
+      operationId: post_git
+      tags:
+      - Git
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  example: deploy
+                repo:
+                  type: string
+                  example: mysite
+              example:
+                action: deploy
+                repo: mysite
       responses:
         '200':
           description: Success.
@@ -11492,24 +11804,6 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
-  /api/plugins:
-    get:
-      summary: List installed plugins.
-      operationId: plugins
-      tags:
-      - Plugins
-      responses:
-        '200':
-          description: Success.
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: true
-        default:
-          $ref: '#/components/responses/Error'
-      security:
-      - bearerAuth: []
   /api/search/{what}:
     get:
       summary: Search the sidebar entity index (files, folders, features, websites, mysql_databases, mysql_users,
@@ -11714,18 +12008,11 @@ paths:
       - bearerAuth: []
   /api/backups/list:
     get:
-      summary: List backups available at the configured destination.
+      summary: List backups available at the configured destination. Add ?status=1 to get reindex progress
+        instead.
       operationId: backups_list
       tags:
       - Backups
-      parameters:
-      - name: status
-        in: query
-        required: false
-        description: Set to 1 to return reindex progress (reindexing, error, count) instead of the list.
-        schema:
-          type: string
-          example: '1'
       responses:
         '200':
           description: Success.
@@ -11745,15 +12032,8 @@ paths:
       tags:
       - Backups
       responses:
-        '202':
-          description: Reindex started.
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: true
-        '409':
-          description: Reindex already in progress.
+        '200':
+          description: Success.
           content:
             application/json:
               schema:
@@ -11765,7 +12045,9 @@ paths:
       - bearerAuth: []
   /api/backups/restore:
     post:
-      summary: Restore all files, a single database, or files only from a backup archive.
+      summary: 'Restore from a backup archive. restore_target is all, database (set database), files,
+        one part: html, mail, vhosts, dns, crons, or single items in items: paths, mailboxes, domains,
+        dns_zones.'
       operationId: backups_restore
       tags:
       - Backups
@@ -11789,6 +12071,65 @@ paths:
                 backup_file: user-2026-08-01T00-00-00.tar.gz
                 restore_target: all
                 database: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/queue:
+    post:
+      summary: Add a restore to the account's restore queue, same body as /api/backups/restore. Answers
+        right away with the job id, the restore shows on the Restore page with progress; poll /api/backups/jobs
+        for the result.
+      operationId: backups_queue
+      tags:
+      - Backups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                backup_file:
+                  type: string
+                  example: user-2026-08-01T00-00-00.tar.gz
+                restore_target:
+                  type: string
+                  example: all
+                database:
+                  type: string
+                  example: ''
+              example:
+                backup_file: user-2026-08-01T00-00-00.tar.gz
+                restore_target: all
+                database: ''
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/jobs:
+    get:
+      summary: List the account's restore queue (queued and running, with live progress) and log (finished
+        restores with status, message and step timings).
+      operationId: backups_jobs
+      tags:
+      - Backups
       responses:
         '200':
           description: Success.
