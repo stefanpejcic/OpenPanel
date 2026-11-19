@@ -237,7 +237,7 @@ System package update ready to proceed. A full server backup is recommended befo
 
 You'll be asked to confirm before packages are updated. A full server backup is recommended beforehand.
 
-Packages are upgraded without prompts, changed config files keep the server's version. Old kernels are removed with their modules and headers, the running kernel and the 2 newest others are always kept. When a reboot is needed (a newer kernel is installed than the one running, `/var/run/reboot-required` exists, or `needs-restarting -r` says so) a **Reboot required** notification is sent to OpenAdmin > Notifications and by email/webhook, it follows the **update** toggle on OpenAdmin > Settings > Notifications. The server is never rebooted automatically. This also runs on major version updates. The full log is in `/var/log/openpanel/updates/`.
+Packages are upgraded without prompts, changed config files keep the server's version. Old kernels are removed with their modules and headers, the running kernel and the newest installed one are always kept. On Ubuntu `apt autoremove` already leaves only those two, elsewhere up to 2 kernels besides the running one stay. When a reboot is needed (a newer kernel is installed than the one running, `/var/run/reboot-required` exists, or `needs-restarting -r` says so) a **Reboot required** notification is sent to OpenAdmin > Notifications and by email/webhook, it follows the **update** toggle on OpenAdmin > Settings > Notifications. The server is never rebooted automatically. This also runs on major version updates. The full log is in `/var/log/openpanel/updates/`.
 
 ## Caddy
 
