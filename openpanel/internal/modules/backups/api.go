@@ -36,6 +36,12 @@ func RegisterAPI(mux *http.ServeMux, a *appctx.App) {
 	apiregistry.Handle(mux, a, "backups", "POST /api/backups/restore", func(w http.ResponseWriter, r *http.Request) {
 		apiRestoreFromBackup(a, w, r)
 	})
+	apiregistry.Handle(mux, a, "backups", "POST /api/backups/queue", func(w http.ResponseWriter, r *http.Request) {
+		apiQueueRestore(a, w, r)
+	})
+	apiregistry.Handle(mux, a, "backups", "GET /api/backups/jobs", func(w http.ResponseWriter, r *http.Request) {
+		handleRestoreJobs(a, w, r)
+	})
 	apiregistry.Handle(mux, a, "backups", "POST /api/backups/download", func(w http.ResponseWriter, r *http.Request) {
 		apiDownloadBackup(a, w, r)
 	})
@@ -119,6 +125,31 @@ func apiRestoreFromBackup(a *appctx.App, w http.ResponseWriter, r *http.Request)
 		"items":          body.Items,
 	}
 	handleRestoreFromBackup(a, w, web.WithForm(r, form))
+}
+
+// apiQueueRestore takes the same JSON body as /api/backups/restore but adds the restore to the account's queue like the restore page does, so it shows in the panel with progress and step timings, and answers right away with the job id (poll /api/backups/jobs)
+func apiQueueRestore(a *appctx.App, w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		BackupFile    string   `json:"backup_file"`
+		RestoreTarget string   `json:"restore_target"`
+		Database      string   `json:"database"`
+		Engine        string   `json:"engine"`
+		Items         []string `json:"items"`
+	}
+	if err := decodeJSONBody(r, &body); err != nil {
+		writeAPIError(w, http.StatusBadRequest, "invalid JSON body")
+		return
+	}
+	form := url.Values{"backup_file": {body.BackupFile}}
+	for k, v := range map[string]string{"restore_target": body.RestoreTarget, "database": body.Database, "engine": body.Engine} {
+		if v != "" {
+			form.Set(k, v)
+		}
+	}
+	if len(body.Items) > 0 {
+		form["items"] = body.Items
+	}
+	handleQueueRestore(a, w, web.WithForm(r, form))
 }
 
 // apiDownloadBackup translates the API's JSON body into the backup_file form field handleDownloadBackup expects from the UI's multipart POST, then delegates to it (streams the archive back as the response body)

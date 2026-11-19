@@ -3126,6 +3126,21 @@
       },
       {
         "method": "POST",
+        "path": "/api/backups/queue",
+        "description": "Add a restore to the account's restore queue, same body as /api/backups/restore. Answers right away with the job id, the restore shows on the Restore page with progress; poll /api/backups/jobs for the result.",
+        "body": {
+          "backup_file": "user-2026-08-01T00-00-00.tar.gz",
+          "restore_target": "all",
+          "database": ""
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/api/backups/jobs",
+        "description": "List the account's restore queue (queued and running, with live progress) and log (finished restores with status, message and step timings)."
+      },
+      {
+        "method": "POST",
         "path": "/api/backups/download",
         "description": "Download a backup archive.",
         "body": {
