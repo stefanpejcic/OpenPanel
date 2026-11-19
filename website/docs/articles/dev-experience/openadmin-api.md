@@ -30,6 +30,20 @@ This token must be sent in header for all other API endpoints:
 
 💡 Hint: Use `opencli api list` command to view usage examples for all the endpoints available on your OpenPanel version.
 
+### Check the API and the token
+
+`GET /api/` answers without a token, to check that the API is enabled and reachable:
+
+```json
+{"message": "API is working!"}
+```
+
+`GET /api/whoami` returns the username in the token:
+
+```json
+{"logged_in_as": "bob"}
+```
+
 ### Single Sign-On (SSO) into OpenAdmin
 
 `POST /api/login` exchanges an OpenAdmin username/password for a one-time SSO token instead of a JWT — useful for integrations (like the WHMCS module's "Login to Panel" button) that need to open a real, logged-in OpenAdmin browser session rather than just call the API. Posting the admin's credentials straight to the `/login` page from an auto-submitting form on another site doesn't work, since that request hits OpenAdmin's CSRF protection.
@@ -133,7 +147,13 @@ To create the account for a reseller add `"reseller": "<reseller>"`, the reselle
 
 ### Autologin to User Account
 
-`CONNECT /api/users/{username}`
+`POST /api/users/{username}/autologin`
+
+Returns a one-time link that logs in to the user's OpenPanel account.
+
+```json
+{"link": "http://203.0.113.10:2083/login_autologin?username=bob&admin_token=aBcD1234..."}
+```
 
 ### List Users with Dedicated IPs
 
@@ -472,21 +492,6 @@ Before 2.0.16 the VirtualHost keys were read and saved through `/api/domains/fil
 
 ## Usage
 
-### API Usage Info
-
-`GET /api/usage`
-
-### Current Usage Stats
-
-`GET /api/usage/stats`
-**Response:**
-
-```json
-{
-  "usage_stats": "{\"timestamp\": \"2024-09-03\", \"users\": 1, \"domains\": 2, \"websites\": 0}"
-}
-```
-
 ### CPU Usage
 
 `GET /api/usage/cpu`
@@ -721,6 +726,24 @@ Pass `?command=mark_all_as_read` to mark every notification as read in one call.
 `DELETE /api/notifications/{line_number}`
 
 Pass `?command=delete_all` to clear the whole log.
+
+### Pause / Resume Notifications
+
+`GET /api/notifications/pause` — whether email/webhook alerts are paused and until when (unix timestamp)
+`POST /api/notifications/pause` — pauses email/webhook alerts, `duration` is `10m`, `30m`, `1h`, `6h` or `1d`
+`POST /api/notifications/resume` — resumes alerts right away
+
+**Request Body (pause):**
+
+```json
+{ "duration": "1h" }
+```
+
+```json
+{"success": true, "paused": true, "until": 1789999382}
+```
+
+Events are still written to the notification log while paused, only the emails and webhooks are skipped.
 
 ---
 
@@ -1154,6 +1177,16 @@ Other supported actions: `suspend`, `unsuspend`, `delete`, `rename_user`, `reset
 ```
 
 The master on/off switch gating whether reseller accounts can be created at all — off by default. Turning it off is refused with `409` while any reseller account still exists; delete them first.
+
+### Log In as a Reseller
+
+`POST /api/settings/resellers/{username}/login`
+
+Admin only. Returns a one-time OpenAdmin login link for the reseller without their password, for billing integrations. Open `login_path` on the same OpenAdmin domain within `expires_in` seconds. `404` if the account isn't a reseller, `403` if it's suspended.
+
+```json
+{"token": "3f9c...", "login_path": "/login/sso/3f9c...", "expires_in": 120}
+```
 
 ### General Settings
 

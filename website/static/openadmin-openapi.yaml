@@ -35,6 +35,8 @@ tags:
 - name: Two-Factor Authentication
 - name: Passkeys
 - name: Services
+- name: Podman
+- name: Backups
 - name: System
 - name: Notifications
 - name: Cron Jobs
@@ -860,9 +862,164 @@ paths:
                 properties:
                   link:
                     type: string
-                    example: http://203.0.113.10:2087/login_autologin?username=bob&admin_token=aBcD1234...
+                    example: http://203.0.113.10:2083/login_autologin?username=bob&admin_token=aBcD1234...
                 example:
-                  link: http://203.0.113.10:2087/login_autologin?username=bob&admin_token=aBcD1234...
+                  link: http://203.0.113.10:2083/login_autologin?username=bob&admin_token=aBcD1234...
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/users/{username}/permissions/reset:
+    post:
+      summary: Deletes the user's per-account permission overrides, so their permissions follow their
+        plan's feature-set defaults again.
+      description: '**Access:** Administrator/user role, or a reseller who owns the target account.'
+      operationId: users_username_permissions_reset
+      tags:
+      - Users
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                example:
+                  success: true
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/users/{username}/export/status:
+    get:
+      summary: Whether a full-account backup (opencli user-backup) is running for the user, plus the existing
+        backup archives (name, size, created time).
+      description: '**Access:** Administrator/user role, or a reseller who owns the target account.'
+      operationId: users_username_export_status
+      tags:
+      - Users
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/users/{username}/export/create:
+    post:
+      summary: Starts a new full-account backup in the background, the same one the user's own Backup
+        Wizard makes. 409 if one is already running.
+      description: '**Access:** Administrator/user role, or a reseller who owns the target account.'
+      operationId: users_username_export_create
+      tags:
+      - Users
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/users/{username}/export/download/{filename}:
+    get:
+      summary: Downloads a full-account backup archive.
+      description: '**Access:** Administrator/user role, or a reseller who owns the target account.'
+      operationId: users_username_export_download_filename
+      tags:
+      - Users
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: filename
+        in: path
+        required: true
+        schema:
+          type: string
+        description: May contain '/' - this segment matches the rest of the path.
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/users/{username}/export/delete:
+    post:
+      summary: Deletes a full-account backup archive.
+      description: '**Access:** Administrator/user role, or a reseller who owns the target account.'
+      operationId: users_username_export_delete
+      tags:
+      - Users
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filename:
+                  type: string
+                  example: alice_backup_2026-08-20_23-31-03.tar.gz
+              example:
+                filename: alice_backup_2026-08-20_23-31-03.tar.gz
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
         default:
           $ref: '#/components/responses/Error'
       security:
@@ -1287,6 +1444,58 @@ paths:
                 example:
                   success: true
                   message: Templates updated successfully!
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/domains/vhost-templates:
+    get:
+      summary: 'VirtualHost configuration templates used for new domains: docker_nginx_domain, docker_openresty_domain,
+        docker_apache_domain, docker_varnish, docker_caddy.'
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: get_domains_vhost_templates
+      tags:
+      - Domain Files
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+    post:
+      summary: Updates VirtualHost templates for new domains, send only the keys to change.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: post_domains_vhost_templates
+      tags:
+      - Domain Files
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                docker_nginx_domain:
+                  type: string
+                  example: server { ... }
+              example:
+                docker_nginx_domain: server { ... }
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
         default:
           $ref: '#/components/responses/Error'
       security:
@@ -3727,6 +3936,617 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/services/podman:
+    get:
+      summary: podman info text, every image, volume and network, and disk usage in one call.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: services_podman
+      tags:
+      - Podman
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/services/podman/images:
+    get:
+      summary: Every image in the shared podman store, with system/user container usage, update-check
+        and vulnerability-scan status.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: services_podman_images
+      tags:
+      - Podman
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/services/podman/volumes:
+    get:
+      summary: Every podman volume.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: services_podman_volumes
+      tags:
+      - Podman
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/services/podman/networks:
+    get:
+      summary: Every podman network.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: services_podman_networks
+      tags:
+      - Podman
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/services/podman/disk-usage:
+    get:
+      summary: 'podman system df: disk used by images, containers and volumes.'
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: services_podman_disk_usage
+      tags:
+      - Podman
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/services/podman/images/{action}/{id}:
+    post:
+      summary: action is delete (id = full image ID) or pull (id = repository:tag). Runs in the background,
+        poll /api/services/podman/images/action-status. Never affects running containers.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: services_podman_images_action_id
+      tags:
+      - Podman
+      parameters:
+      - name: action
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: May contain '/' - this segment matches the rest of the path.
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/services/podman/images/action-status:
+    get:
+      summary: Progress of an image delete/pull.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: services_podman_images_action_status
+      tags:
+      - Podman
+      parameters:
+      - name: id
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/services/podman/images/check-update:
+    get:
+      summary: Compares the local manifest digest of an image with the registry, only runs on demand.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: services_podman_images_check_update
+      tags:
+      - Podman
+      parameters:
+      - name: ref
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/services/podman/images/bulk/{action}:
+    post:
+      summary: action is pull-missing, delete-unused, check-updates or check-vulnerabilities (Trivy HIGH/CRITICAL
+        scan, Trivy is installed on first use). Runs in the background across all applicable images, poll
+        /api/services/podman/images/bulk-status.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: services_podman_images_bulk_action
+      tags:
+      - Podman
+      parameters:
+      - name: action
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/services/podman/images/bulk-status:
+    get:
+      summary: Progress of the running bulk image action.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: services_podman_images_bulk_status
+      tags:
+      - Podman
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/services/podman/images/vulnerabilities:
+    get:
+      summary: Cached findings of the last check-vulnerabilities run for an image, never starts a scan.
+        checked is false if the image was never scanned.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: services_podman_images_vulnerabilities
+      tags:
+      - Podman
+      parameters:
+      - name: ref
+        in: query
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  checked:
+                    type: boolean
+                    example: true
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: CVE-2024-12345
+                        package:
+                          type: string
+                          example: openssl
+                        installed_version:
+                          type: string
+                          example: 1.1.1
+                        fixed_version:
+                          type: string
+                          example: 1.1.2
+                        severity:
+                          type: string
+                          example: CRITICAL
+                        title:
+                          type: string
+                          example: Buffer overflow in OpenSSL
+                        url:
+                          type: string
+                          example: https://avd.aquasec.com/nvd/cve-2024-12345
+                      example:
+                        id: CVE-2024-12345
+                        package: openssl
+                        installed_version: 1.1.1
+                        fixed_version: 1.1.2
+                        severity: CRITICAL
+                        title: Buffer overflow in OpenSSL
+                        url: https://avd.aquasec.com/nvd/cve-2024-12345
+                    example:
+                    - id: CVE-2024-12345
+                      package: openssl
+                      installed_version: 1.1.1
+                      fixed_version: 1.1.2
+                      severity: CRITICAL
+                      title: Buffer overflow in OpenSSL
+                      url: https://avd.aquasec.com/nvd/cve-2024-12345
+                example:
+                  checked: true
+                  details:
+                  - id: CVE-2024-12345
+                    package: openssl
+                    installed_version: 1.1.1
+                    fixed_version: 1.1.2
+                    severity: CRITICAL
+                    title: Buffer overflow in OpenSSL
+                    url: https://avd.aquasec.com/nvd/cve-2024-12345
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/system:
+    get:
+      summary: System (config-only) backup destination and retention settings, run history and existing
+        archives.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: backups_system
+      tags:
+      - Backups
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/system/settings:
+    post:
+      summary: Saves the system backup destination and retention.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: backups_system_settings
+      tags:
+      - Backups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                destination:
+                  type: string
+                  example: /var/backups/openpanel
+                retention_days:
+                  type: string
+                  example: '30'
+              example:
+                destination: /var/backups/openpanel
+                retention_days: '30'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/system/run:
+    post:
+      summary: Starts a new config-only system backup (opencli backup) in the background, poll /api/backups/system/action-status.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: backups_system_run
+      tags:
+      - Backups
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/system/restore/{filename}:
+    post:
+      summary: Restores a system backup archive in the background, poll /api/backups/system/action-status.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: backups_system_restore_filename
+      tags:
+      - Backups
+      parameters:
+      - name: filename
+        in: path
+        required: true
+        schema:
+          type: string
+        description: May contain '/' - this segment matches the rest of the path.
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/system/delete/{filename}:
+    post:
+      summary: Deletes a system backup archive.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: backups_system_delete_filename
+      tags:
+      - Backups
+      parameters:
+      - name: filename
+        in: path
+        required: true
+        schema:
+          type: string
+        description: May contain '/' - this segment matches the rest of the path.
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/system/action-status:
+    get:
+      summary: Progress of the running system backup or restore.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: backups_system_action_status
+      tags:
+      - Backups
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/user:
+    get:
+      summary: 'The central per-user backup schedule: disabled (each user manages their own backups),
+        daily, weekly or monthly.'
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: backups_user
+      tags:
+      - Backups
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/user/settings:
+    post:
+      summary: Sets the central per-user backup schedule.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: backups_user_settings
+      tags:
+      - Backups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                schedule_choice:
+                  type: string
+                  example: daily
+              example:
+                schedule_choice: daily
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/user/configuration:
+    get:
+      summary: Raw contents of the backup.env template new accounts are provisioned with.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: get_backups_user_configuration
+      tags:
+      - Backups
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+    post:
+      summary: Saves the backup.env template, applies to new users only.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: post_backups_user_configuration
+      tags:
+      - Backups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                backup_env:
+                  type: string
+                  example: '...'
+              example:
+                backup_env: '...'
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/user/run:
+    post:
+      summary: Starts a central opencli docker-backup run in the background. 400 unless the schedule is
+        daily, weekly or monthly. Poll /api/backups/user/action-status.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: backups_user_run
+      tags:
+      - Backups
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/backups/user/action-status:
+    get:
+      summary: Progress of the running central user backup.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: backups_user_action_status
+      tags:
+      - Backups
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/docker/info:
     get:
       summary: Returns the raw JSON output of 'podman info --format json', passed through unmodified.
@@ -4655,6 +5475,87 @@ paths:
           $ref: '#/components/responses/Error'
       security:
       - bearerAuth: []
+  /api/server/swap:
+    get:
+      summary: Swap total/used/free/percent, every active swap device, the alert threshold and whether
+        a managed swap file exists.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: server_swap
+      tags:
+      - Server
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/server/swap/action/{action}:
+    post:
+      summary: action is resize (recreate the managed swap file at size_mb, minimum 128, and enable it,
+        adding it to /etc/fstab if needed) or drop (swapoff -a; swapon -a). Runs in the background, poll
+        /api/server/swap/action-status.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: server_swap_action_action
+      tags:
+      - Server
+      parameters:
+      - name: action
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                size_mb:
+                  type: integer
+                  example: 2048
+              example:
+                size_mb: 2048
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/server/swap/action-status:
+    get:
+      summary: Progress of the running swap resize/drop.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: server_swap_action_status
+      tags:
+      - Server
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
   /api/server/processes:
     get:
       summary: 'Lists all running system processes parsed from /proc (PID, name, CPU%, memory%, priority,
@@ -5199,6 +6100,70 @@ paths:
                   token: 3f9c...
                   login_path: /login/sso/3f9c...
                   expires_in: 120
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/settings/resellers/enabled:
+    get:
+      summary: Whether reseller accounts can be created (off by default).
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: get_settings_resellers_enabled
+      tags:
+      - Settings - Resellers
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enabled:
+                    type: boolean
+                    example: false
+                example:
+                  enabled: false
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+    post:
+      summary: Turns reseller accounts on or off. Turning it off is refused with 409 while any reseller
+        account exists.
+      description: '**Access:** Administrator or user role (the reseller role is blocked).'
+      operationId: post_settings_resellers_enabled
+      tags:
+      - Settings - Resellers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                enabled:
+                  type: boolean
+                  example: true
+              example:
+                enabled: true
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  enabled:
+                    type: boolean
+                    example: true
+                example:
+                  success: true
+                  enabled: true
         default:
           $ref: '#/components/responses/Error'
       security:
@@ -7346,6 +8311,28 @@ paths:
                 example:
                   status: success
                   log: transfer log
+        default:
+          $ref: '#/components/responses/Error'
+      security:
+      - bearerAuth: []
+  /api/import/upload:
+    post:
+      summary: Uploads an OpenPanel backup (.tar.gz in a multipart 'file' field) to /home/reseller_imports/<username>/;
+        the response has the path to pass to POST /api/import/openpanel.
+      description: '**Access:** Administrator/user role, or a reseller limited to their own accounts and
+        assigned plans.'
+      operationId: import_upload
+      tags:
+      - Import & Transfers
+      responses:
+        '200':
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                example: {}
         default:
           $ref: '#/components/responses/Error'
       security:
