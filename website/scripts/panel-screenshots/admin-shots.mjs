@@ -184,6 +184,62 @@ const tidyShell = async page => {
 
 export const globalPrepare = all(rename(DEMO_NAMES, 'body'), maskIPs('main'), hideNotices, maskSecrets, tidyShell);
 
+// AI & bot control on a real server: every domain, owner, path and address becomes an example one, and only the first rows of each table stay
+const fakeBotControl = async page => {
+  // visitor addresses first, the network column is written over afterwards so maskIPs doesn't touch it again
+  await maskIPs()(page);
+  await page.evaluate(() => {
+    const words = ['shop', 'blog', 'news', 'store', 'docs', 'app', 'travel', 'photos', 'forum', 'events', 'studio', 'market', 'media', 'portal', 'games', 'jobs', 'music', 'food', 'garden', 'sport'];
+    const fakeDomains = ['example.com', 'example.org', 'example.net'].flatMap(tld => words.map(w => `${w}.${tld}`));
+    const fakeUsers = ['john', 'anna', 'lucas', 'maria', 'david', 'sofia', 'peter', 'emma', 'mark', 'olivia', 'paul', 'nina'];
+    const fakePaths = ['/shop/', '/blog/', '/contact/', '/products/', '/about/', '/category/news/', '/cart/', '/checkout/', '/my-account/', '/search/'];
+    const keepPath = p => p === '/' || /^\/(wp-login\.php|xmlrpc\.php|wp-cron\.php|robots\.txt|favicon\.ico|sitemap[^/]*\.xml|\.env|\.git\/config|wp-admin\/[a-z-]*\.php|wp-admin\/|wp-json\/?|feed\/?)$/.test(p);
+    const main = document.querySelector('main');
+    // every real domain the page names: the policy table, the domain picker and the hit URLs
+    const domains = new Set();
+    const policy = [...main.querySelectorAll('section')].find(s => /Per-site AI crawler policies/.test(s.querySelector('h2')?.textContent || ''));
+    policy?.querySelectorAll('tbody tr').forEach(tr => { const d = tr.querySelector('td a')?.textContent.trim(); if (d) domains.add(d); });
+    main.querySelectorAll('select option').forEach(o => { if (/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(o.textContent.trim())) domains.add(o.textContent.trim()); });
+    const domainMap = new Map([...domains].sort((a, b) => b.length - a.length).map((d, i) => [d, i < fakeDomains.length ? fakeDomains[i] : `site${i + 1}.example.com`]));
+    const swapDomains = s => { for (const [from, to] of domainMap) s = s.split(from).join(to); return s; };
+    const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
+    for (let n; (n = walker.nextNode()); ) { const next = swapDomains(n.textContent); if (next !== n.textContent) n.textContent = next; }
+    main.querySelectorAll('a[href]').forEach(a => { a.href = swapDomains(a.getAttribute('href')); });
+    // owners only live in the policy table's second column
+    const userMap = new Map();
+    policy?.querySelectorAll('tbody tr').forEach(tr => {
+      const td = tr.querySelectorAll('td')[1];
+      const u = td?.textContent.trim();
+      if (!u || u === '-') return;
+      if (!userMap.has(u)) userMap.set(u, fakeUsers[userMap.size % fakeUsers.length]);
+      td.textContent = userMap.get(u);
+    });
+    // site specific paths in Top hit URLs give the site away, common ones stay
+    const tableWith = head => [...main.querySelectorAll('table')].find(t => [...t.querySelectorAll('thead th')].some(th => th.textContent.trim() === head));
+    const urlTable = tableWith('Target');
+    let k = 0;
+    urlTable?.querySelectorAll('tbody tr').forEach(tr => {
+      const td = tr.querySelector('td');
+      if (!td) return;
+      const t = td.textContent.trim();
+      const slash = t.indexOf('/');
+      const host = slash >= 0 ? t.slice(0, slash) : '', path = slash >= 0 ? t.slice(slash) : t;
+      if (!keepPath(path)) td.textContent = host + fakePaths[k++ % fakePaths.length];
+    });
+    // networks: maskIPs misses an IPv6 prefix ending in "::", every network gets a documentation range
+    let v4 = 0, v6 = 0;
+    tableWith('Network')?.querySelectorAll('tbody tr').forEach(tr => {
+      const td = tr.querySelector('td');
+      const t = td?.textContent.trim() || '';
+      if (t.includes(':')) td.textContent = `2001:db8:${(++v6).toString(16)}::/48`;
+      else if (/^\d+\.\d+\.\d+\.\d+/.test(t)) td.textContent = `198.51.100.${++v4 * 8}` + (t.includes('/') ? '/' + t.split('/')[1] : '');
+    });
+    // the screenshot shows the controls as they are when the module is on
+    policy?.querySelectorAll('select[disabled]').forEach(s => s.removeAttribute('disabled'));
+    main.querySelectorAll('table').forEach(t => [...t.querySelectorAll('tbody tr')].slice(8).forEach(tr => tr.remove()));
+  });
+};
+
 export const pages = {
   'accounts/users': {
     url: '/users',
@@ -518,6 +574,17 @@ export const pages = {
   'security/passkeys': {
     url: '/security/passkeys',
     shots: [{ name: 'page', alt: 'Passkeys page with the registered passkeys and the Add a passkey form', prepare: fillVisible(['Work laptop']), crop: 'content' }],
+  },
+  // ADMIN_URL=https://s2.example:2087 node shoot.mjs --admin security/bot-control (needs real traffic, the demo has none)
+  'security/bot-control': {
+    url: '/security/bot-control',
+    prepare: fakeBotControl,
+    shots: [
+      { name: 'page', alt: 'AI & Bot Control page header with the box saying the module is disabled and the Enable module button', crop: { content: 'main', maxHeight: 290 } },
+      { name: 'rate-limit', alt: 'Rate limit for AI crawlers box with the requests per minute field and the Save button', crop: { from: '#bot_rate_limit', to: '#bot_rate_limit', pad: 8 } },
+      { name: 'traffic', alt: "Who's hitting the server section with the totals, top bots and user-agents, top networks and top hit URLs", crop: { from: 'main section:has(h2:text-is("Who\'s hitting the server"))', to: 'main section:has(h2:text-is("Who\'s hitting the server"))', pad: 8 } },
+      { name: 'policies', alt: 'Per-site AI crawler policies table with the hits, AI hits and blocked requests of each domain, its policy and the Change policy dropdown', crop: { from: 'main section:has(h2:text-is("Per-site AI crawler policies"))', to: 'main section:has(h2:text-is("Per-site AI crawler policies"))', pad: 8 } },
+    ],
   },
   'security/waf': {
     url: '/security/waf',

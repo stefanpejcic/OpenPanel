@@ -55,7 +55,10 @@ export const selectFirst = (wait = 800) => async page => {
 export const maskIPs = (scope = 'main') => async page => {
   await page.evaluate(scope => {
     const seen = new Map();
+    // documentation ranges are already fake, a prepare() step may have put them there on purpose
+    const isDoc = ip => /^(192\.0\.2\.|198\.51\.100\.|203\.0\.113\.|2001:db8:)/i.test(ip);
     const fake = (ip, v6) => {
+      if (isDoc(ip)) return ip;
       if (!seen.has(ip)) seen.set(ip, v6 ? `2001:db8::${(seen.size + 1).toString(16)}` : `203.0.113.${10 + seen.size}`);
       return seen.get(ip);
     };

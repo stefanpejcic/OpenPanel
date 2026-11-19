@@ -10,6 +10,9 @@ Search engines like Googlebot and Bingbot and normal visitors are never affected
 
 The page needs the `bot_control` module. While it's off, a box at the top of the page says so, with an **Enable module** button. Turning the module on also shows the [AI & bot control page](/docs/panel/security/bot-control/) to users whose plan has the `bot_control` feature.
 
+![AI & Bot Control page header with the box saying the module is disabled and the Enable module button](/img/openadmin-screenshots/security/bot-control-page.png#gh-light-mode-only)
+![AI & Bot Control page header with the box saying the module is disabled and the Enable module button](/img/openadmin-screenshots/security/bot-control-page_dark.png#gh-dark-mode-only)
+
 ## Policies
 
 Each domain has one of three policies:
@@ -24,11 +27,17 @@ The policy is one line in the domain's Caddy config, `/etc/openpanel/caddy/domai
 
 Change the policy of one domain from the **Change policy** column of the **Per-site AI crawler policies** table. To set every domain at once, pick a policy next to **Apply to all domains** at the top of the page.
 
+![Per-site AI crawler policies table with the hits, AI hits and blocked requests of each domain, its policy and the Change policy dropdown](/img/openadmin-screenshots/security/bot-control-policies.png#gh-light-mode-only)
+![Per-site AI crawler policies table with the hits, AI hits and blocked requests of each domain, its policy and the Change policy dropdown](/img/openadmin-screenshots/security/bot-control-policies_dark.png#gh-dark-mode-only)
+
 Caddy is reloaded after every change. If Caddy rejects the new config, every changed file is put back and the error message shows Caddy's reason. Domains whose config has no place for the rule (suspended domains or empty configs) are skipped and listed in the message instead of failing the whole change.
 
 ## Rate limit
 
 The **Rate limit for AI crawlers** box sets how many requests per minute each AI crawler gets on a domain set to **Rate-limit**. The default is **10**, the allowed range is 1 to 100000.
+
+![Rate limit for AI crawlers box with the requests per minute field and the Save button](/img/openadmin-screenshots/security/bot-control-rate-limit.png#gh-light-mode-only)
+![Rate limit for AI crawlers box with the requests per minute field and the Save button](/img/openadmin-screenshots/security/bot-control-rate-limit_dark.png#gh-dark-mode-only)
 
 The limit is counted separately for every crawler on every domain, so GPTBot hitting its limit on one site doesn't slow down ClaudeBot or GPTBot on other sites. It's keyed on the User-Agent instead of the IP address, because crawlers come from hundreds of addresses.
 
@@ -43,7 +52,10 @@ The **Who's hitting the server** section reads the Caddy access logs of all doma
 - **Top networks & ASNs** with the number of IPs and hits from each network. ASN names come from `/etc/openpanel/asn_prefixes.tsv` when that file exists.
 - **Top hit URLs** with total, bot and blocked hits.
 
-The **Per-site AI crawler policies** table shows the same counts for each domain, click a domain to see the report for just that domain. Click a column header to sort by domain, owner, hits, AI hits, blocked hits or policy (from Allow to Block), the time window and the picked domain stay. On a [multi-server](/docs/admin/system/multi-server/) master the tables also have a **Server** column, and the server picker is on the right of the page title.
+![Who's hitting the server section with the totals, top bots and user-agents, top networks and top hit URLs](/img/openadmin-screenshots/security/bot-control-traffic.png#gh-light-mode-only)
+![Who's hitting the server section with the totals, top bots and user-agents, top networks and top hit URLs](/img/openadmin-screenshots/security/bot-control-traffic_dark.png#gh-dark-mode-only)
+
+The **Per-site AI crawler policies** table shows the same counts for each domain, click a domain to see the report for just that domain. Click a column header to sort by domain, owner, hits, AI hits, blocked hits or policy (from Allow to Block), the time window and the picked domain stay. On a [multi-server](/docs/admin/system/multi-server/) master the totals, the domain picker and the tables cover every server, the tables have a **Server** column and the server picker is on the right of the page title.
 
 ## Resellers
 
