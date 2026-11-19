@@ -150,7 +150,7 @@ Special thanks to all [contributors](https://github.com/stefanpejcic/OpenPanel/g
 
 ## Version
 
-Latest OpenPanel version is: **2.0.26** - [View Changelog](https://openpanel.com/docs/changelog/2.0.26/)
+Latest OpenPanel version is: **2.0.27** - [View Changelog](https://openpanel.com/docs/changelog/2.0.27/)
 
 ## Contribute
 

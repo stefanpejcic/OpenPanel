@@ -8,7 +8,7 @@
 
 | Version| Release date | 
 |---|---|
-|__[2.0.26](/docs/changelog/2.0.26)__| November 18, 2026 |
+|__[2.0.27](/docs/changelog/2.0.27)__| November 19, 2026 |
 
 | Version| Release date |
 |---|---|
@@ -16,6 +16,7 @@
 
 | Version| Release date | 
 |---|---|
+|__[2.0.26](/docs/changelog/2.0.26)__| November 18, 2026 |
 |__[2.0.25](/docs/changelog/2.0.25)__| November 17, 2026 |
 |__[2.0.24](/docs/changelog/2.0.24)__| November 13, 2026 |
 |__[2.0.23](/docs/changelog/2.0.23)__| November 11, 2026 |
