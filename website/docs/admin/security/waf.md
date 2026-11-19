@@ -64,7 +64,7 @@ When any profile is missing, a recommendation to install them is shown above the
 
 ### Most hit domains
 
-The domains blocked the most and the rules that blocked the most requests, from the newest 500 log entries of each domain. Click a domain to open [its logs](#logs-of-a-user-or-domain), or **View all logs** to open the [Logs](#logs) tab.
+The domains blocked the most and the rules that blocked the most requests, from the newest 500 log entries of each domain. Click a domain to open [its logs](#logs-of-a-user-or-domain), or **View all logs** to open the [Logs](#logs) tab. On a [multi-server](/docs/admin/system/multi-server/) master the totals at the top of the page and these lists add up every server: the same rule on several servers is one row with the hits added up.
 
 ![Most hit domains and the rules triggered most across all domains on the server](/img/openadmin-screenshots/security/waf-activity.png#gh-light-mode-only)
 ![Most hit domains and the rules triggered most across all domains on the server](/img/openadmin-screenshots/security/waf-activity_dark.png#gh-dark-mode-only)
@@ -157,7 +157,7 @@ The table below shows the mode, level, disabled rules and disabled tags of each 
 
 ## Logs
 
-The Logs tab shows what the firewall stopped across all domains on the server, from the newest 500 log entries of each domain. Pick a user from the dropdown to see only their domains.
+The Logs tab shows what the firewall stopped across all domains on the server, from the newest 500 log entries of each domain. Pick a user from the dropdown to see only their domains. On a multi-server master the totals, the user dropdown and the tables cover every server.
 
 ![WAF Logs tab with the user filter, the blocked, would block and flagged totals and the domains hit the most](/img/openadmin-screenshots/security/waf-logs.png#gh-light-mode-only)
 ![WAF Logs tab with the user filter, the blocked, would block and flagged totals and the domains hit the most](/img/openadmin-screenshots/security/waf-logs_dark.png#gh-dark-mode-only)
