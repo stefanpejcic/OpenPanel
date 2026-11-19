@@ -43,6 +43,7 @@ type LayoutData struct {
 	LogoDark      string // logo_dark, for dark backgrounds; empty means Logo everywhere
 	CSRFToken     string
 	PanelDir      string
+	Lang          string // resolved locale for <html lang>, empty means en
 	FoundABugLink string
 	PanelVersion  string
 	CustomCSS     bool

@@ -157,6 +157,7 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 		Favicon:           a.Config.Get("favicon", ""),
 		CSRFToken:         csrf.Token(r),
 		PanelDir:          panelDir,
+		Lang:              locale,
 		FoundABugLink:     a.Config.Get("found_a_bug_link", ""),
 		PanelVersion:      panelVersion,
 		CustomCSS:         a.CustomCSS,

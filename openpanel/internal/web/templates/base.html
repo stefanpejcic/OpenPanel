@@ -5,7 +5,7 @@
 * Copyright 2023-2026 Stefan Pejcic <stefan@pejcic.rs>
 * Licensed under MIT
 -->
-<html lang="en" class="h-full" style="color-scheme: " dir="{{.PanelDir}}">
+<html lang="{{if .Lang}}{{.Lang}}{{else}}en{{end}}" class="h-full" style="color-scheme: " dir="{{.PanelDir}}">
 
 <head>
     <meta charset="utf-8" />
