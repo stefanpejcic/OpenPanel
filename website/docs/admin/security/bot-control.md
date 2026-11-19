@@ -8,7 +8,7 @@ The **Security > AI & Bot Control** page lets you allow, rate-limit or block kno
 
 Search engines like Googlebot and Bingbot and normal visitors are never affected, the rules only match the user agents of known AI crawlers: GPTBot, ChatGPT-User, OAI-SearchBot, ClaudeBot, Claude-Web, anthropic-ai, PerplexityBot, Perplexity-User, Bytespider, CCBot, Amazonbot, Meta-ExternalAgent, Meta-ExternalFetcher, FacebookBot, Diffbot, Omgilibot, cohere-ai, YouBot, DuckAssistBot, Timpibot and Scrapy.
 
-The page needs the `bot_control` module. While it's off, the page shows a **Module disabled** badge and an **Enable module** button. Turning the module on also shows the [AI & bot control page](/docs/panel/security/bot-control/) to users whose plan has the `bot_control` feature.
+The page needs the `bot_control` module. While it's off, a box at the top of the page says so, with an **Enable module** button. Turning the module on also shows the [AI & bot control page](/docs/panel/security/bot-control/) to users whose plan has the `bot_control` feature.
 
 ## Policies
 
@@ -43,7 +43,7 @@ The **Who's hitting the server** section reads the Caddy access logs of all doma
 - **Top networks & ASNs** with the number of IPs and hits from each network. ASN names come from `/etc/openpanel/asn_prefixes.tsv` when that file exists.
 - **Top hit URLs** with total, bot and blocked hits.
 
-The **Per-site AI crawler policies** table shows the same counts for each domain, click a domain to see the report for just that domain.
+The **Per-site AI crawler policies** table shows the same counts for each domain, click a domain to see the report for just that domain. Click a column header to sort by domain, owner, hits, AI hits, blocked hits or policy (from Allow to Block), the time window and the picked domain stay. On a [multi-server](/docs/admin/system/multi-server/) master the tables also have a **Server** column, and the server picker is on the right of the page title.
 
 ## Resellers
 
