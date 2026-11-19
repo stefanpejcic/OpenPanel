@@ -32,7 +32,7 @@ opencli docker-update [IMAGE] [options]
 
 With `IMAGE` (e.g. `openpanel/php-fpm:8.4`) only that image is checked, pulled, and only the running containers that use it are recreated. After a php-fpm container is recreated, the user's webserver is reloaded so it connects to the new container. Containers created depending on the recreated one (e.g. a webserver with `depends_on` on php-fpm) are recreated with it. Containers that aren't running are left alone and use the new image on their next start.
 
-Existing accounts still on `shinsenter/php` are moved to `openpanel/php-fpm`: every `php-fpm-X.Y` service on a `shinsenter/php` image gets the matching block from the compose template (`/etc/openpanel/docker/compose/1.0/docker-compose.yml`), keeping keys the admin added to the old block (e.g. `extra_hosts`). Running php-fpm containers are recreated on the new image and the user's webserver is reloaded. A copy of the old file is saved as `docker-compose.yml.bak-php-image-<date>`. Users without `PHP_FPM_LISTEN` in their `.env` get `PHP_FPM_LISTEN="port"`, so their vhosts keep using port 9000; switch them to the socket with `opencli php-listen <user> socket`. A service is left on `shinsenter/php` (with a warning) if a file its new block mounts is missing on the server, e.g. the ionCube loader for that PHP version. This is skipped when `IMAGE` is given, unless it's an `openpanel/php-fpm` image.
+Existing accounts still on `shinsenter/php` are moved to `openpanel/php-fpm`: every `php-fpm-X.Y` service on a `shinsenter/php` image gets the matching block from the compose template (`/etc/openpanel/docker/compose/1.0/docker-compose.yml`), keeping keys the admin added to the old block (e.g. `extra_hosts`). Running php-fpm containers are recreated on the new image and the user's webserver is reloaded. A copy of the old file is saved as `docker-compose.yml.bak-php-image-<date>`. Users without `PHP_FPM_LISTEN` in their `.env` get `PHP_FPM_LISTEN="port"`, so their vhosts keep using port 9000; switch them to the socket with `opencli php-listen <user> socket`. A service is left on `shinsenter/php` (with a warning) if a file its new block mounts is missing on the server, e.g. the ionCube loader for that PHP version. This is skipped when `IMAGE` is given, unless it's an `openpanel/php-fpm` image, and with `--no-php-move`.
 
 <details>
   <summary>Example output</summary>
@@ -94,6 +94,14 @@ Options:
 
 - `-y`, `--yes` - apply updates without prompting for confirmation.
 - `--dry-run` - only check and print available updates, never prompt or apply.
+- `--no-php-move` - keep every php-fpm service on the image it uses (`shinsenter/php` stays `shinsenter/php`), only the new build of that image is pulled and the containers on it recreated.
+
+Pull the new builds of the PHP images an account uses, without moving anyone to another image:
+
+```bash
+opencli docker-update shinsenter/php:8.3-fpm -y --no-php-move
+opencli docker-update openpanel/php-fpm:8.3 -y --no-php-move
+```
 
 With no options, available updates are printed and confirmation is asked for 10 seconds — if there's no answer in that time, the script exits without changing anything. Every run is logged to `/var/log/openpanel/admin/docker/<date>.log`.
 
