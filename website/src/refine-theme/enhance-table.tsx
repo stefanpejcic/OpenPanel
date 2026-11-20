@@ -667,7 +667,7 @@ const tableData = [
             {
                 description: "Supported versions",
                 enhance: <TableText>Legacy to latest</TableText>,
-                openpanel: <TableText>5.6 - 8.5</TableText>,
+                openpanel: <TableText>5.6 - 8.6</TableText>,
                 valueType: {
                     enhance: "text",
                     openpanel: "text",

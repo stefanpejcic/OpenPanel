@@ -667,7 +667,7 @@ const tableData = [
             {
                 description: "Supported versions",
                 directadmin: <TableText>5.6 - 8.3</TableText>,
-                openpanel: <TableText>5.6 - 8.5</TableText>,
+                openpanel: <TableText>5.6 - 8.6</TableText>,
                 valueType: {
                     directadmin: "text",
                     openpanel: "text",

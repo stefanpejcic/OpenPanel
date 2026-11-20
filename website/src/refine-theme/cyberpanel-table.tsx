@@ -667,7 +667,7 @@ const tableData = [
             {
                 description: "Supported versions",
                 cyberpanel: <TableText>5.6 - 8.3</TableText>,
-                openpanel: <TableText>5.6 - 8.5</TableText>,
+                openpanel: <TableText>5.6 - 8.6</TableText>,
                 valueType: {
                     cyberpanel: "text",
                     openpanel: "text",

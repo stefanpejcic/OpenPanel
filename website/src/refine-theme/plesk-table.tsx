@@ -677,7 +677,7 @@ const tableData = [
             {
                 description: "Supported versions",
                 plesk: <TableText>8.1 - 8.4</TableText>,
-                openpanel: <TableText>5.6 - 8.5</TableText>,
+                openpanel: <TableText>5.6 - 8.6</TableText>,
                 valueType: {
                     plesk: "text",
                     openpanel: "text",

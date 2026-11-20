@@ -677,7 +677,7 @@ const tableData = [
             {
                 description: "Supported versions",
                 cpanel: <TableText>8.1 - 8.4</TableText>,
-                openpanel: <TableText>5.6 - 8.5</TableText>,
+                openpanel: <TableText>5.6 - 8.6</TableText>,
                 valueType: {
                     cpanel: "text",
                     openpanel: "text",
