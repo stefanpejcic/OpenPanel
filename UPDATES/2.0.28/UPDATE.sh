@@ -3,3 +3,16 @@
 # remove the backups 2.0.22 made: docker-compose.yml files (docker-proxy restart line) and the Caddyfile (reuse_private_keys)
 rm -f /etc/openpanel/docker/compose/1.0/docker-compose.yml.bak-2.0.22 /home/*/docker-compose.yml.bak-2.0.22
 rm -f /etc/openpanel/caddy/Caddyfile.bak-2.0.22
+
+# fresh themes.yml so the Saturn theme shows under Available themes, OpenAdmin falls back to this copy when github can't be reached
+CONFIG_RAW="${CONFIG_RAW:-https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main}"
+mkdir -p /etc/openpanel/openpanel/templates
+tmp=$(mktemp)
+if wget --timeout=15 --tries=2 -q -O "$tmp" "$CONFIG_RAW/openpanel/templates/themes.yml" && grep -q "^themes:" "$tmp"; then
+    echo "Updating /etc/openpanel/openpanel/templates/themes.yml..."
+    cat "$tmp" > /etc/openpanel/openpanel/templates/themes.yml
+    chmod 644 /etc/openpanel/openpanel/templates/themes.yml
+else
+    echo "Failed to download $CONFIG_RAW/openpanel/templates/themes.yml"
+fi
+rm -f "$tmp"
