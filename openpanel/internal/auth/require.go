@@ -112,7 +112,8 @@ func RequireLogin(a *appctx.App, featureNames ...string) func(http.Handler) http
 				return
 			}
 
-			if r.Method != http.MethodGet && a.DemoMode {
+			// picking a theme only changes how the panel looks, demo visitors can try the themes
+			if r.Method != http.MethodGet && a.DemoMode && r.URL.Path != "/account/theme" {
 				log.Printf("APP - user %d (%s): write blocked by demo mode (%s %s)", userID, details.Username, r.Method, r.URL.Path)
 				flash.Add(sess, "warning", a.I18n.Get(a.I18n.SystemDefaultLocale(ctx), "Disabled in demo mode."))
 				_ = a.Sessions.Save(r, w, sess)
