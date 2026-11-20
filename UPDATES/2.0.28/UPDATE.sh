@@ -104,9 +104,13 @@ php86_add_service() {
 import re, sys
 path = sys.argv[1]
 lines = open(path).read().split("\n")
-start = next(i for i, l in enumerate(lines) if re.match(r"^  php-fpm-8\.5:\s*$", l))
+# service indent as the file has it: 2 spaces in our templates, 4 in files re-dumped by a yaml library
+indent = lambda l: len(l) - len(l.lstrip(" "))
+svc = next(i for i, l in enumerate(lines) if re.match(r"^services:\s*$", l))
+ind = " " * next(indent(l) for l in lines[svc + 1:] if l.strip() and not l.lstrip().startswith("#"))
+start = next(i for i, l in enumerate(lines) if re.match(r"^" + ind + r"php-fpm-8\.5:\s*$", l))
 end = start + 1
-while end < len(lines) and not re.match(r"^(  )?[^ #\s]", lines[end]):
+while end < len(lines) and not (lines[end].strip() and not lines[end].lstrip().startswith("#") and indent(lines[end]) <= len(ind)):
     end += 1
 while lines[end - 1].strip() == "":
     end -= 1
@@ -118,7 +122,7 @@ for l in block:
     for a, b in subs:
         l = l.replace(a, b)
     new.append(l)
-images = [l.split("image:", 1)[1].strip().strip("'\"") for l in new if l.startswith("    image:")]
+images = [l.split("image:", 1)[1].strip().strip("'\"") for l in new if re.match(r"^" + ind + r"\s+image:", l)]
 if len(images) != 1 or not re.fullmatch(r"(docker\.io/)?(openpanel/php-fpm:8\.6|shinsenter/php:8\.6-fpm)", images[0]):
     print(images[0] if images else "no image"); sys.exit(2)
 if any(re.search(r"8[._]5\b", l) for l in new):
@@ -152,11 +156,16 @@ php86_add_env() {
     cat "$tmp" > "$env" && rm -f "$tmp"
 }
 
+# image of service $2 in compose file $1 (parsed as yaml, any indentation), "none" when there's no such service
+php86_image() {
+    python3 -c 'import sys, yaml; s = (yaml.safe_load(open(sys.argv[1])) or {}).get("services") or {}; print((s[sys.argv[2]] or {}).get("image", "") if sys.argv[2] in s else "none")' "$1" "$2" 2>/dev/null || echo "none"
+}
+
 for dir in /etc/openpanel/docker/compose/1.0 /home/*; do
     f="$dir/docker-compose.yml"; env="$dir/.env"
     [ -f "$f" ] && [ -f "$env" ] || continue
-    grep -q "^  php-fpm-8\.5:[[:space:]]*$" "$f" || continue
-    grep -q "^  php-fpm-8\.6:[[:space:]]*$" "$f" && continue
+    [ "$(php86_image "$f" php-fpm-8.5)" != "none" ] || continue
+    [ "$(php86_image "$f" php-fpm-8.6)" = "none" ] || continue
     if ! php86_compose_ok "$f"; then
         echo "$f fails config check before the change, skipping PHP 8.6"
         continue
@@ -187,8 +196,7 @@ done
 # an admin's own choice stays, existing accounts keep their own DEFAULT_PHP_VERSION
 TPL=/etc/openpanel/docker/compose/1.0
 if [ -f "$TPL/.env" ] && grep -qE "^DEFAULT_PHP_VERSION=['\"]?8\.5['\"]?[[:space:]]*$" "$TPL/.env" \
-   && sed -n '/^  php-fpm-8\.6:[[:space:]]*$/,/^  [^ #]/p' "$TPL/docker-compose.yml" 2>/dev/null \
-      | grep -qE "^    image:[[:space:]]*['\"]?(docker\.io/)?openpanel/php-fpm:8\.6"; then
+   && php86_image "$TPL/docker-compose.yml" php-fpm-8.6 | grep -qE "^(docker\.io/)?openpanel/php-fpm:8\.6$"; then
     sed -i -E "s/^DEFAULT_PHP_VERSION=(['\"]?)8\.5(['\"]?)[[:space:]]*$/DEFAULT_PHP_VERSION=\18.6\2/" "$TPL/.env"
     echo "Default PHP version for new users changed from 8.5 to 8.6 in $TPL/.env"
 fi
