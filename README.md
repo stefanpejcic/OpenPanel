@@ -88,7 +88,7 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 | AlmaLinux | 10 | 2026-11-20 07:00 UTC | ✅ Pass | 10m18s |  |
 | OracleLinux | 10 | |  |  |  |
 | RockyLinux | 9.6 | | | |  |
-| RockyLinux | 10 | 2026-11-19 08:22 UTC | ❌ Fail |  |  |
+| RockyLinux | 10 | 2026-11-20 08:04 UTC | ❌ Fail |  |  |
 | CentOS | 9.5 | | | |  |
 | CentOS | 10 | 2026-11-20 07:25 UTC | ✅ Pass | 8m54s |  |
 
