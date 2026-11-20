@@ -3,7 +3,6 @@ import {
     FolderIcon,
     WizardsIcon,
     SecurityIcon,
-    PhpIcon,
     MonitorIcon,
     SelfHostedIcon,
     IdentityIcon,
@@ -27,10 +26,6 @@ export const inProgress = [
 
 // Everything else that's planned. Keep this list up to date manually.
 export const plannedFeatures = [
-    {
-        icon: <PhpIcon />,
-        title: "PHP 8.6 version",
-    },
     {
         icon: <MonitorIcon />,
         title: "Export OpenAdmin settings",

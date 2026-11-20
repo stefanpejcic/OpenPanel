@@ -4,7 +4,7 @@ sidebar_label: "How to install a PHP extension in OpenPanel"
 
 # How to Install a PHP Extension
 
-OpenPanel uses the [`openpanel/php-fpm`](https://github.com/stefanpejcic/php-fpm) Docker images for PHP services, one image per PHP version from 5.6 to 8.5. These images include many commonly used PHP extensions out of the box and provide a simple way to install additional extensions when needed.
+OpenPanel uses the [`openpanel/php-fpm`](https://github.com/stefanpejcic/php-fpm) Docker images for PHP services, one image per PHP version from 5.6 to 8.6. These images include many commonly used PHP extensions out of the box and provide a simple way to install additional extensions when needed.
 
 Users can also install, enable and disable extensions themselves from **OpenPanel > PHP > Extensions**.
 

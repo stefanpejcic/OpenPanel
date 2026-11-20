@@ -136,6 +136,7 @@ Currently reserved usernames:
 - php-fpm-8.3
 - php-fpm-8.4
 - php-fpm-8.5
+- php-fpm-8.6
 - phpmyadmin
 - podman
 - postgres

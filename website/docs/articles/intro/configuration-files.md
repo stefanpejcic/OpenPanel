@@ -168,7 +168,7 @@ Manually editing these files can break the panel or be overwritten during update
 
 | Path | Format | Purpose |
 |---|---|---|
-| `/etc/openpanel/php/ini/<version>.ini` | php.ini | Default php.ini per PHP version (5.6–8.5), mounted into containers |
+| `/etc/openpanel/php/ini/<version>.ini` | php.ini | Default php.ini per PHP version (5.6–8.6), mounted into containers |
 | `/etc/openpanel/php/options.txt` | text | Default PHP option definitions shown in the panel |
 | `/etc/openpanel/php/ini.txt`, `extensions.txt` | text | Selectable php.ini directives / extensions |
 | `/etc/openpanel/php/extensions_table.json` | JSON | Table of installable PHP extensions |
