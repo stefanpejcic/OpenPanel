@@ -182,11 +182,13 @@ for dir in /etc/openpanel/docker/compose/1.0 /home/*; do
     fi
 done
 
-# 8.6 is the default PHP for new accounts: only on servers still on the old default 8.5 and only once the template has php-fpm-8.6,
+# 8.6 is the default PHP for new accounts: only on servers still on the old default 8.5 and only once the template has php-fpm-8.6
+# on openpanel/php-fpm (shinsenter/php:8.6-fpm has no mysqli, gd, intl... yet, new accounts would get a PHP WordPress can't run on),
 # an admin's own choice stays, existing accounts keep their own DEFAULT_PHP_VERSION
 TPL=/etc/openpanel/docker/compose/1.0
 if [ -f "$TPL/.env" ] && grep -qE "^DEFAULT_PHP_VERSION=['\"]?8\.5['\"]?[[:space:]]*$" "$TPL/.env" \
-   && grep -q "^  php-fpm-8\.6:[[:space:]]*$" "$TPL/docker-compose.yml" 2>/dev/null; then
+   && sed -n '/^  php-fpm-8\.6:[[:space:]]*$/,/^  [^ #]/p' "$TPL/docker-compose.yml" 2>/dev/null \
+      | grep -qE "^    image:[[:space:]]*['\"]?(docker\.io/)?openpanel/php-fpm:8\.6"; then
     sed -i -E "s/^DEFAULT_PHP_VERSION=(['\"]?)8\.5(['\"]?)[[:space:]]*$/DEFAULT_PHP_VERSION=\18.6\2/" "$TPL/.env"
     echo "Default PHP version for new users changed from 8.5 to 8.6 in $TPL/.env"
 fi
