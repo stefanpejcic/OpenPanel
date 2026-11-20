@@ -26,7 +26,6 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
                     "transition-[min-height,height]",
                     "duration-300",
                     "ease-out",
-                    "min-h-[515px]",
                 )}
             >
                 <LandingTryItOptionsSection

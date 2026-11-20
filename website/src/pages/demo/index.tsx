@@ -5,6 +5,7 @@ import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
 import clsx from "clsx";
 import { LandingTryItSection } from "@site/src/refine-theme/demo-section";
+import { DemoInstallCta } from "@site/src/refine-theme/demo-install-cta";
 
 const Demo: React.FC = () => {
     return (
@@ -26,12 +27,11 @@ const Demo: React.FC = () => {
                 <div
                     className={clsx(
                         "not-prose",
-                        "xl:max-w-[944px] xl:py-16",
-                        "lg:max-w-[912px] lg:py-10",
-                        "md:max-w-[624px] md:text-4xl  md:pb-6 pt-6",
-                        "sm:max-w-[480px] text-xl",
-                        "max-w-[328px]",
-                        "w-full mx-auto",
+                        "xl:py-16 lg:py-10",
+                        "md:text-4xl md:pb-6 pt-6 text-xl",
+                        "w-full max-w-[592px] landing-sm:max-w-[656px] landing-md:max-w-[896px] landing-lg:max-w-[1200px]",
+                        "px-4 landing-sm:px-0",
+                        "mx-auto",
                     )}
                 >
                     <h1
@@ -54,6 +54,8 @@ const Demo: React.FC = () => {
                     </h1>
                     
                     <LandingTryItSection />
+
+                    <DemoInstallCta className="mt-10 landing-md:mt-16 mb-12 md:mb-6" />
                 </div>
                 <BlogFooter />
             </div>
