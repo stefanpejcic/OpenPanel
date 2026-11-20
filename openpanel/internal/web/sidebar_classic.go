@@ -17,6 +17,11 @@ type NavGroup struct {
 
 // BuildClassicSidebarNav builds the classic (menu_style=classic) sidebar's feature-conditional menu groups from user_allowed/user_upsell_allowed and the current request path, one group per feature area, each included only when the user has access to (or could upsell into) at least one feature in it.
 func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string) []NavGroup {
+	return BuildClassicSidebarNavKit(allowed, upsellAllowed, path, defaultTheme.kit())
+}
+
+// BuildClassicSidebarNavKit is BuildClassicSidebarNav with the icons for kit, the theme the request renders with
+func BuildClassicSidebarNavKit(allowed, upsellAllowed map[string]bool, path, kit string) []NavGroup {
 	var groups []NavGroup
 
 	has := func(keys ...string) bool {
@@ -289,7 +294,7 @@ func BuildClassicSidebarNav(allowed, upsellAllowed map[string]bool, path string)
 	}
 
 	for i := range groups {
-		groups[i].Icon = themedIcon(groups[i].Icon)
+		groups[i].Icon = themedIcon(groups[i].Icon, kit)
 	}
 	return groups
 }

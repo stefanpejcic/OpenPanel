@@ -192,7 +192,7 @@ func handleWebsiteDispatch(a *appctx.App, w http.ResponseWriter, r *http.Request
 			}
 			data.MySQLType = webserver.GetEnvFileValue(userContext, "MYSQL_TYPE")
 		}
-		if web.Theme() == web.ThemeModern {
+		if web.Theme(r) == web.ThemeModern {
 			data.Switch = cmsSiteSwitch(r, a, userID)
 		}
 		_, cmsHTTPS, cmsCert := domains.SiteStatus(ctx, a, domainNameUsed)

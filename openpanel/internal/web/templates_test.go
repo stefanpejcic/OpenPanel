@@ -9,7 +9,7 @@ func TestPageCacheDropsLeastRecentlyUsed(t *testing.T) {
 	pages := make([]*Page, pageCacheSize+3)
 	for i := range pages {
 		pages[i] = MustLoadPage("partials/_footer.html")
-		pages[i].template()
+		pages[i].template(defaultTheme)
 	}
 	pagesMu.Lock()
 	n := len(loadedPages)
@@ -23,7 +23,7 @@ func TestPageCacheDropsLeastRecentlyUsed(t *testing.T) {
 	if pages[len(pages)-1].tmpl == nil {
 		t.Error("newest page not cached")
 	}
-	if tmpl, err := pages[0].template(); err != nil || tmpl == nil {
+	if tmpl, err := pages[0].template(defaultTheme); err != nil || tmpl == nil {
 		t.Error("dropped page didn't parse again")
 	}
 }
@@ -33,7 +33,7 @@ func TestBrokenPageDoesNotLock(t *testing.T) {
 	p := MustLoadPage("does/not/exist.html")
 	for i := 0; i < 2; i++ {
 		done := make(chan error, 1)
-		go func() { _, err := p.template(); done <- err }()
+		go func() { _, err := p.template(defaultTheme); done <- err }()
 		select {
 		case err := <-done:
 			if err == nil {

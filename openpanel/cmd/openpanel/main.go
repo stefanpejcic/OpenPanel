@@ -72,6 +72,7 @@ func main() {
 	}
 	defer a.Close()
 	web.SetTheme(a.Config.Get("template", ""))
+	web.SetAllowUserTheme(a.Config.Get("allow_user_theme", ""))
 
 	// opencli's daily error report reads a user's errors through this, so it uses the same parsing as the Error Logs page
 	if len(os.Args) > 1 && os.Args[1] == "error-logs-digest" {

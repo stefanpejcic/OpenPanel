@@ -282,7 +282,7 @@ func TestRenderGitPage(t *testing.T) {
 			{Name: "blog", Source: SourceRemote, RemoteURL: "https://github.com/u/blog.git", Branch: "trunk", Branches: []string{"trunk", "dev"}, DeployMode: DeployManual, WebhookURL: "https://x/git-webhook/bob/t", Actions: "echo", ActionsContainer: "php-fpm-8.3", LastError: "boom"},
 		},
 		pageExtras:  pageExtras{NewPassword: "pw123", NewPasswordRepo: "site"},
-		BulkActions: gitBulkActions(mgr.Translator("en")),
+		BulkActions: gitBulkActions(mgr.Translator("en"), web.ThemeClassic),
 	}
 	w := httptest.NewRecorder()
 	if err := gitPage.Render(w, 200, data); err != nil {

@@ -28,13 +28,13 @@ type Section struct {
 }
 
 // buildDashboardSections builds the dashboard's section/item list, keeping only items whose key is in allowed (or in upsellAllowed, marked Disabled), for dashboard.html's {{range .Sections}}. Section order matches this slice's literal order. Titles/Labels are run through t.Get so the icon grid picks up the same catalog as the sidebar, instead of staying hardcoded English.
-func buildDashboardSections(t i18n.Translator, allowed, upsellAllowed map[string]bool, menuStyle string, appKeys []string) []Section {
+func buildDashboardSections(t i18n.Translator, allowed, upsellAllowed map[string]bool, menuStyle string, appKeys []string, kit string) []Section {
 	all := classicSections()
 	if menuStyle == "modern" {
 		all = allSections()
 	}
 	// the built-in templates keep their own sections and Remix icons, the modern theme maps the bi- names through dash_icon
-	if web.Theme() == web.ThemeClassic {
+	if kit == web.ThemeClassic {
 		all = plannerClassicSections()
 		if menuStyle == "modern" {
 			all = plannerSections()

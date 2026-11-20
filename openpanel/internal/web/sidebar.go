@@ -416,6 +416,11 @@ func areaEntry(g navGate, a navArea, path string) (NavLink, bool) {
 
 // BuildSidebarNav builds the sidebar from user_allowed/user_upsell_allowed and the current request path, one link per feature area shown when the user has access to (or could upsell into) any page in it.
 func BuildSidebarNav(allowed, upsellAllowed map[string]bool, path string) []NavItem {
+	return BuildSidebarNavKit(allowed, upsellAllowed, path, defaultTheme.kit())
+}
+
+// BuildSidebarNavKit is BuildSidebarNav with the icons for kit, the theme the request renders with
+func BuildSidebarNavKit(allowed, upsellAllowed map[string]bool, path, kit string) []NavItem {
 	g := navGate{allowed, upsellAllowed}
 	var items []NavItem
 	pendingSection := ""
@@ -427,7 +432,7 @@ func BuildSidebarNav(allowed, upsellAllowed map[string]bool, path string) []NavI
 		if !ok {
 			continue
 		}
-		items = append(items, NavItem{Label: a.label, Icon: themedIcon(a.icon), MenuID: a.menuID, Href: entry.Href,
+		items = append(items, NavItem{Label: a.label, Icon: themedIcon(a.icon, kit), MenuID: a.menuID, Href: entry.Href,
 			Active: entry.Active, Disabled: entry.Disabled, Section: pendingSection})
 		pendingSection = ""
 	}

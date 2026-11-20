@@ -47,6 +47,12 @@ Go to **OpenAdmin > Settings > OpenPanel > Display > Theme**. The cards show:
 
 Select a theme, click **Save**, and restart OpenPanel when OpenAdmin asks you to. See [OpenPanel settings](/docs/admin/settings/openpanel#display).
 
+## Let users pick their own theme
+
+Under the theme cards, **Users can switch theme** (`allow_user_theme` in `openpanel.config`) is off by default, so everyone sees the theme selected above. Turn it on and each user can pick any installed theme for themselves from the account menu at the bottom left of the sidebar (on Saturn, from the General Information widget on the dashboard).
+
+The choice is saved per user in `/home/<context>/theme`. If that theme is uninstalled, invalid, or switching is turned off again, the user gets the default theme.
+
 ## Create a theme
 
 ### 1. Start from the built-in templates

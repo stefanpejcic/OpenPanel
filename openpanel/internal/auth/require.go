@@ -124,9 +124,17 @@ func RequireLogin(a *appctx.App, featureNames ...string) func(http.Handler) http
 				return
 			}
 
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(w, r.WithContext(context.WithValue(ctx, userContextKey{}, details.Context)))
 		})
 	}
+}
+
+type userContextKey struct{}
+
+// UserContext is the logged-in account's context (its /home folder), "" outside RequireLogin
+func UserContext(r *http.Request) string {
+	c, _ := r.Context().Value(userContextKey{}).(string)
+	return c
 }
 
 func refreshLastActive(ctx context.Context, a *appctx.App, sessionKey, lastActiveRaw string) {

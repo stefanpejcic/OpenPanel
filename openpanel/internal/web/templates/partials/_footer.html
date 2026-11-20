@@ -25,6 +25,19 @@
                 <!-- Theme Switcher -->
                 {{template "themeswitcher" .}}
 
+                {{if and .ThemeSwitch (gt (len .ThemeOptions) 1)}}
+                <!-- panel theme, allow_user_theme=yes -->
+                <div role="group">
+                    <form method="post" action="/account/theme" role="menuitem" id="user-theme" class="flex justify-between gap-3 group/DropdownMenuItem relative select-none items-center rounded-md py-1.5 pl-2 pr-1 outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50">
+                        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                        <label for="user-theme-select">{{.T.Get "Panel theme"}}:</label>
+                        <select id="user-theme-select" name="theme" onchange="this.form.submit()" style="max-width:9rem" class="truncate rounded-md border border-gray-300 bg-white py-0.5 pl-2 pr-6 text-xs text-gray-900 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-50">
+                            {{range .ThemeOptions}}<option value="{{.Folder}}"{{if eq .Folder $.ThemeFolder}} selected{{end}}>{{.Name}}</option>{{end}}
+                        </select>
+                    </form>
+                </div>
+                {{end}}
+
                 <div role="group">
                     <span role="menuitem" id="tour-menu-style" class="flex justify-between group/DropdownMenuItem relative select-none items-center rounded-md py-1.5 pl-2 pr-1 outline-none transition-colors sm:text-sm text-gray-900 dark:text-gray-50">
                         <span>{{.T.Get "Menu style"}}:</span>

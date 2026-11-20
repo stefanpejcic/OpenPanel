@@ -52,7 +52,7 @@ func renderPHPAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, dat
 	}
 	data.LayoutData = layout
 	// the classic site page has its own tabs, so its area bar above the heading is left out
-	if web.Theme() == web.ThemeClassic {
+	if web.Theme(r) == web.ThemeClassic {
 		data.PageTabs = nil
 	}
 	if err := phpAppPage.Render(w, http.StatusOK, data); err != nil {
@@ -82,7 +82,7 @@ func renderWebsiteBuilderPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 	data.LayoutData = layout
 	// the classic site page has its own tabs, so its area bar above the heading is left out
-	if web.Theme() == web.ThemeClassic {
+	if web.Theme(r) == web.ThemeClassic {
 		data.PageTabs = nil
 	}
 	if err := websiteBuilderPage.Render(w, http.StatusOK, data); err != nil {
@@ -189,12 +189,12 @@ func renderWPSinglePage(a *appctx.App, w http.ResponseWriter, r *http.Request, d
 		return
 	}
 	// a WordPress site lives under /website, but it belongs to the WordPress tab
-	if web.Theme() == web.ThemeModern {
+	if web.Theme(r) == web.ThemeModern {
 		layout.ActivateTab("/wordpress")
 	}
 	data.LayoutData = layout
 	// the classic site page has its own tabs, so its area bar above the heading is left out
-	if web.Theme() == web.ThemeClassic {
+	if web.Theme(r) == web.ThemeClassic {
 		data.PageTabs = nil
 	}
 	data.SecurityToggles = wpSecurityToggles
@@ -237,7 +237,7 @@ func renderPythonNodeAppsPage(a *appctx.App, w http.ResponseWriter, r *http.Requ
 	}
 	data.LayoutData = layout
 	// the classic site page has its own tabs, so its area bar above the heading is left out
-	if web.Theme() == web.ThemeClassic {
+	if web.Theme(r) == web.ThemeClassic {
 		data.PageTabs = nil
 	}
 
@@ -350,7 +350,7 @@ func renderCMSAppPage(a *appctx.App, w http.ResponseWriter, r *http.Request, cms
 	}
 	data.LayoutData = layout
 	// the classic site page has its own tabs, so its area bar above the heading is left out
-	if web.Theme() == web.ThemeClassic {
+	if web.Theme(r) == web.ThemeClassic {
 		data.PageTabs = nil
 	}
 	data.App = web.NewAppNames(cmsType, cmsPages[cmsType].name)

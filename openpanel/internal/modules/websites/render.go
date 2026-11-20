@@ -38,7 +38,7 @@ func renderSitesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, doma
 		return
 	}
 	data := SitesPageData{LayoutData: layout, Domains: domains, Groups: groups, ViewMode: viewMode}
-	if web.Theme() == web.ThemeModern {
+	if web.Theme(r) == web.ThemeModern {
 		fillSitesSummary(a, r, &data)
 	}
 	if _, _, userContext, err := auth.Injected(a, r); err == nil {

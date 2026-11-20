@@ -100,7 +100,7 @@ func handleDiskUsage(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	var quota *dashboard.DiskInodes
 	var trashBytes int64
 	var trashOK bool
-	if web.Theme() == web.ThemeModern {
+	if web.Theme(r) == web.ThemeModern {
 		username, _ := injected["current_username"].(string)
 		quota, _ = dashboard.DiskAndInodesForUser(a, ctx, username)
 		trashBytes, trashOK = trash.SizeBytes(ctx, userContext)

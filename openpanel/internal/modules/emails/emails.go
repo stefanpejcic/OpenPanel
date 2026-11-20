@@ -774,7 +774,7 @@ func handleEmails(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 			connect.Created, connect.Welcome = created, r.URL.Query().Get("welcome") == "1"
 		}
 	}
-	if web.Theme() == web.ThemeModern {
+	if web.Theme(r) == web.ThemeModern {
 		connect.Host, connect.Secure = mailConnectHost(ctx, a, currentUsername)
 	}
 	// classic shows the same mailbox through its own Created block

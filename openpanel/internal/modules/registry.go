@@ -79,6 +79,7 @@ var alwaysOn = []Registrar{
 	account.RegisterAPILogin,      // /api/login, no additional API-key gate
 	api.Register,                  // /api/endpoints, gated internally via apiregistry.Handle
 	dashboard.Register,
+	account.RegisterTheme,             // the theme picker, turned on by allow_user_theme
 	dashboard.RegisterAPI,             // gated internally via apiregistry.Handle
 	serverinfo.RegisterHostingJSON,    // core helper endpoint, always available
 	serverinfo.RegisterHostingAPI,     // API twin of RegisterHostingJSON, always available

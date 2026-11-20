@@ -11,7 +11,6 @@ import (
 	"html/template"
 	"io"
 	"net/http"
-	"path/filepath"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -111,10 +110,9 @@ const aiPartial = "partials/_ai_assistant.html"
 type Page struct {
 	paths []string
 	mu    sync.Mutex
-	tmpl  *template.Template
-	// built-in set, only parsed when the theme's version of this page fails to render
-	builtin *template.Template
-	used    atomic.Int64
+	// one parsed set per theme folder, "default" is the built-in templates
+	tmpl map[string]*template.Template
+	used atomic.Int64
 }
 
 // pageCacheSize is how many parsed pages stay in memory, the least recently used one gets parsed again on its next visit
@@ -157,30 +155,34 @@ func MustLoadPage(files ...string) *Page {
 	return p
 }
 
-func (p *Page) parse() (*template.Template, error) {
-	t, err := template.New("layout").Funcs(funcMap).ParseFS(pageFS, existingPaths(pageFS, pagePaths(p.paths))...)
-	if err != nil && customTemplateDir != "" {
+func (p *Page) parse(d *themeDef) (*template.Template, error) {
+	t, err := template.New("layout").Funcs(d.funcMap()).ParseFS(d.fsys, existingPaths(d.fsys, d.pagePaths(p.paths))...)
+	if err != nil && d.dir != "" {
 		// a broken custom template shouldn't take the page down, use the built-in one instead
-		themeLog.Printf("theme %s: %s failed to parse, using the built-in page: %v", filepath.Base(customTemplateDir), p.name(), err)
-		return template.New("layout").Funcs(funcMap).ParseFS(templateFS, existingPaths(templateFS, p.paths)...)
+		themeLog.Printf("theme %s: %s failed to parse, using the built-in page: %v", d.name, p.name(), err)
+		return template.New("layout").Funcs(builtinTheme.funcMap()).ParseFS(templateFS, existingPaths(templateFS, p.paths)...)
 	}
 	return t, err
 }
 
-// template returns the parsed set, parsing it now if it isn't cached
-func (p *Page) template() (*template.Template, error) {
+// template returns the set parsed for theme d, parsing it now if it isn't cached
+func (p *Page) template(d *themeDef) (*template.Template, error) {
 	p.used.Store(pageClock.Add(1))
+	key := d.folder()
 	p.mu.Lock()
-	t := p.tmpl
+	t := p.tmpl[key]
 	fresh := t == nil
 	if fresh {
 		var err error
-		if t, err = p.parse(); err != nil {
-			// leave tmpl nil and unlock, a panic here used to keep the page locked forever
+		if t, err = p.parse(d); err != nil {
+			// leave the cache empty and unlock, a panic here used to keep the page locked forever
 			p.mu.Unlock()
 			return nil, err
 		}
-		p.tmpl = t
+		if p.tmpl == nil {
+			p.tmpl = map[string]*template.Template{}
+		}
+		p.tmpl[key] = t
 	}
 	p.mu.Unlock()
 	if fresh {
@@ -212,7 +214,6 @@ func trackLoadedPage(p *Page) {
 	loadedPages = append(loadedPages[:oldest], loadedPages[oldest+1:]...)
 	victim.mu.Lock()
 	victim.tmpl = nil
-	victim.builtin = nil
 	victim.mu.Unlock()
 }
 
@@ -223,7 +224,7 @@ func ParseAllPages() error {
 	pagesMu.Unlock()
 	var errs []error
 	for _, p := range pages {
-		if _, err := p.parse(); err != nil {
+		if _, err := p.parse(defaultTheme); err != nil {
 			errs = append(errs, err)
 		}
 	}
@@ -251,13 +252,21 @@ func LoadPage(files ...string) *Page {
 	return MustLoadPage(append(append([]string{}, layoutFiles...), files...)...)
 }
 
+// themed is LayoutData, any page data built on it says which theme it's for
+type themed interface{ pageTheme() *themeDef }
+
 func (p *Page) Render(w http.ResponseWriter, status int, data any) error {
-	t, err := p.template()
+	d := defaultTheme
+	if td, ok := data.(themed); ok {
+		d = td.pageTheme()
+	}
+	t, err := p.template(d)
 	if err != nil {
 		http.Error(w, "page template failed to load", http.StatusInternalServerError)
 		return err
 	}
-	if customTemplateDir == "" {
+	setThemeCookie(w, d)
+	if d.dir == "" {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.WriteHeader(status)
 		return t.ExecuteTemplate(w, "layout", data)
@@ -266,8 +275,8 @@ func (p *Page) Render(w http.ResponseWriter, status int, data any) error {
 	var buf bytes.Buffer
 	err = t.ExecuteTemplate(&buf, "layout", data)
 	if err != nil {
-		themeLog.Printf("theme %s: %s failed to render, using the built-in page: %v", filepath.Base(customTemplateDir), p.name(), err)
-		if bt, perr := p.builtinTemplate(); perr == nil {
+		themeLog.Printf("theme %s: %s failed to render, using the built-in page: %v", d.name, p.name(), err)
+		if bt, perr := p.template(builtinTheme); perr == nil {
 			buf.Reset()
 			err = bt.ExecuteTemplate(&buf, "layout", data)
 		}
@@ -286,21 +295,6 @@ func (p *Page) name() string {
 		}
 	}
 	return p.paths[len(p.paths)-1]
-}
-
-// builtinTemplate is the page parsed from the embedded templates, ignoring the theme
-func (p *Page) builtinTemplate() (*template.Template, error) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	if p.builtin != nil {
-		return p.builtin, nil
-	}
-	t, err := template.New("layout").Funcs(funcMap).ParseFS(templateFS, existingPaths(templateFS, p.paths)...)
-	if err != nil {
-		return nil, err
-	}
-	p.builtin = t
-	return t, nil
 }
 
 // Fragment is a standalone template set like an email body, rendered with ExecuteTemplate(name, ...) instead of a "layout" wrapper
@@ -322,9 +316,9 @@ func MustLoadFragment(files ...string) *Fragment {
 
 func (f *Fragment) ExecuteTemplate(w io.Writer, name string, data any) error {
 	f.once.Do(func() {
-		t, err := template.New("fragment").Funcs(funcMap).ParseFS(pageFS, f.paths...)
+		t, err := template.New("fragment").Funcs(defaultTheme.funcMap()).ParseFS(defaultTheme.fsys, f.paths...)
 		if err != nil {
-			themeLog.Printf("theme %s: fragment failed to parse, using the built-in one: %v", filepath.Base(customTemplateDir), err)
+			themeLog.Printf("theme %s: fragment failed to parse, using the built-in one: %v", defaultTheme.name, err)
 			t = template.Must(template.New("fragment").Funcs(funcMap).ParseFS(templateFS, f.paths...))
 		}
 		f.tmpl = t

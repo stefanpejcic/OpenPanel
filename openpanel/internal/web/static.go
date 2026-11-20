@@ -44,9 +44,10 @@ func NewStaticAssets(fsys fs.FS, overrideDir string, customCode bool) (*StaticAs
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		rel := strings.TrimPrefix(r.URL.Path, "/")
-		// the template= theme can ship its own static files
-		if diskPath := themeStaticPath(rel); diskPath != "" {
-			if h := assetHash(rel); h != "" {
+		// a theme can ship its own static files, the request says which theme through ?t= or the page's cookie
+		theme := staticTheme(r)
+		if diskPath := theme.staticPath(rel); diskPath != "" {
+			if h := themeAssetHash(theme, rel); h != "" {
 				w.Header().Set("ETag", `"`+h+`"`)
 			}
 			w.Header().Set("Cache-Control", staticCacheControl(rel, r.URL.Query().Get("v") != ""))
@@ -59,7 +60,7 @@ func NewStaticAssets(fsys fs.FS, overrideDir string, customCode bool) (*StaticAs
 			return
 		}
 		// embedded files have no mod time, so without an ETag the browser downloads them again on every page
-		if h := assetHash(rel); h != "" {
+		if h := themeAssetHash(builtinTheme, rel); h != "" {
 			w.Header().Set("ETag", `"`+h+`"`)
 		}
 		w.Header().Set("Cache-Control", staticCacheControl(rel, r.URL.Query().Get("v") != ""))
@@ -89,27 +90,40 @@ var (
 	assetHashes sync.Map
 )
 
-// StaticURL is the {{static}} template func, embedded files get ?v=<content hash> so browsers can keep them for good
-func StaticURL(rel string) string {
-	if h := assetHash(rel); h != "" {
-		return "/static/" + rel + "?v=" + h
+// StaticURL is the {{static}} template func of the default theme, embedded files get ?v=<content hash> so browsers can keep them for good
+func StaticURL(rel string) string { return themeStaticURL(defaultTheme, rel) }
+
+// themeStaticURL is {{static}} for theme d, ?t= names the theme when users can switch so a cached file never comes from another theme
+func themeStaticURL(d *themeDef, rel string) string {
+	u := "/static/" + rel
+	sep := "?"
+	if h := themeAssetHash(d, rel); h != "" {
+		u += sep + "v=" + h
+		sep = "&"
 	}
-	return "/static/" + rel
+	if AllowUserTheme {
+		u += sep + "t=" + d.folder()
+	}
+	return u
 }
 
-// assetHash is a short content hash of an embedded or theme file, "" for overridable files, directories and missing files
-func assetHash(rel string) string {
+// assetHash is themeAssetHash for the default theme
+func assetHash(rel string) string { return themeAssetHash(defaultTheme, rel) }
+
+// themeAssetHash is a short content hash of an embedded or theme file, "" for overridable files, directories and missing files
+func themeAssetHash(d *themeDef, rel string) string {
 	if assetFS == nil {
 		return ""
 	}
 	if _, ok := overridablePaths[rel]; ok {
 		return ""
 	}
-	if v, ok := assetHashes.Load(rel); ok {
+	key := d.folder() + "|" + rel
+	if v, ok := assetHashes.Load(key); ok {
 		return v.(string)
 	}
 	h := ""
-	if diskPath := themeStaticPath(rel); diskPath != "" {
+	if diskPath := d.staticPath(rel); diskPath != "" {
 		if b, err := os.ReadFile(diskPath); err == nil {
 			sum := sha256.Sum256(b)
 			h = hex.EncodeToString(sum[:6])
@@ -118,7 +132,7 @@ func assetHash(rel string) string {
 		sum := sha256.Sum256(b)
 		h = hex.EncodeToString(sum[:6])
 	}
-	assetHashes.Store(rel, h)
+	assetHashes.Store(key, h)
 	return h
 }
 

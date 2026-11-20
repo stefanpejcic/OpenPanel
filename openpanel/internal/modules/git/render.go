@@ -132,7 +132,7 @@ func renderGitPage(a *appctx.App, w http.ResponseWriter, r *http.Request, userID
 		PublicKey:   pub,
 		Username:    username,
 		pageExtras:  extras,
-		BulkActions: gitBulkActions(web.RequestTranslator(a, r)),
+		BulkActions: gitBulkActions(web.RequestTranslator(a, r), web.Theme(r)),
 	}
 	if extras.LogRepo != "" {
 		for i := range data.Repos {

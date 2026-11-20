@@ -10,11 +10,11 @@ import (
 	"gist.github.com/stefanpejcic/openpanel/internal/web"
 )
 
-func gitBulkActions(t i18n.Translator) []web.BulkAction {
+func gitBulkActions(t i18n.Translator, kit string) []web.BulkAction {
 	return []web.BulkAction{
-		{Key: "pull", Label: t.Get("Pull updates"), Confirm: t.Get("Pull updates for the selected repositories? Automatic ones are deployed too."), Icon: web.ByTheme("bi-cloud-download", "ri-download-cloud-2-line")},
-		{Key: "deploy", Label: t.Get("Deploy"), Confirm: t.Get("Deploy the selected repositories now?"), Icon: web.ByTheme("bi-rocket-takeoff", "ri-rocket-line")},
-		{Key: "mode", Label: t.Get("Change deployment mode"), Confirm: t.Get("Deployment mode for the selected repositories:"), Icon: web.ByTheme("bi-sliders", "ri-equalizer-line"),
+		{Key: "pull", Label: t.Get("Pull updates"), Confirm: t.Get("Pull updates for the selected repositories? Automatic ones are deployed too."), Icon: web.ByKit(kit, "bi-cloud-download", "ri-download-cloud-2-line")},
+		{Key: "deploy", Label: t.Get("Deploy"), Confirm: t.Get("Deploy the selected repositories now?"), Icon: web.ByKit(kit, "bi-rocket-takeoff", "ri-rocket-line")},
+		{Key: "mode", Label: t.Get("Change deployment mode"), Confirm: t.Get("Deployment mode for the selected repositories:"), Icon: web.ByKit(kit, "bi-sliders", "ri-equalizer-line"),
 			Input: &web.BulkInput{Type: "select", Options: []web.BulkOption{
 				{Value: DeployAutomatic, Label: t.Get("Automatic")},
 				{Value: DeployManual, Label: t.Get("Manual")},
@@ -31,7 +31,7 @@ func handleGitBulk(a *appctx.App, mux http.Handler, w http.ResponseWriter, r *ht
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
-	web.ServeBulkDispatch(a, mux, w, r, gitBulkActions(web.RequestTranslator(a, r)), func(action, value, name string) (*web.BulkCall, web.BulkResult) {
+	web.ServeBulkDispatch(a, mux, w, r, gitBulkActions(web.RequestTranslator(a, r), web.Theme(r)), func(action, value, name string) (*web.BulkCall, web.BulkResult) {
 		repo, ok := getRepo(userContext, name)
 		if !ok {
 			return web.Skip("Repository not found, reload the page.")

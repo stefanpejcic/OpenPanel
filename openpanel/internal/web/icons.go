@@ -50,9 +50,9 @@ var plannerIcons = map[template.HTML]template.HTML{
 	classicAccountIcon: `<i class="ri-book-open-line shrink-0 text-lg leading-none" aria-hidden="true"></i>`,
 }
 
-// themedIcon swaps a sidebar icon for the classic theme's one when that theme is on
-func themedIcon(icon template.HTML) template.HTML {
-	if Theme() == ThemeClassic {
+// themedIcon swaps a sidebar icon for the classic theme's one when kit is the classic theme
+func themedIcon(icon template.HTML, kit string) template.HTML {
+	if kit == ThemeClassic {
 		if c, ok := plannerIcons[icon]; ok {
 			return c
 		}

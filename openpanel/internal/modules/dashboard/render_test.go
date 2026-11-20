@@ -40,7 +40,7 @@ func TestRenderDashboardPage(t *testing.T) {
 			AdminPort:       "2087",
 			T:               mgr.Translator("en"),
 		},
-		Sections:           buildDashboardSections(mgr.Translator("en"), userAllowed, nil, "modern", nil),
+		Sections:           buildDashboardSections(mgr.Translator("en"), userAllowed, nil, "modern", nil, web.ThemeClassic),
 		TourShow:           true,
 		TwofaEnabled:       false,
 		TwofaNag:           "yes",
@@ -109,7 +109,7 @@ func TestRenderDashboardPageUpsellEligible(t *testing.T) {
 			AdminPort:       "2087",
 			T:               mgr.Translator("en"),
 		},
-		Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, upsellAllowed, "classic", nil),
+		Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, upsellAllowed, "classic", nil, web.ThemeClassic),
 	}
 
 	w := httptest.NewRecorder()
@@ -166,7 +166,7 @@ func TestRenderDashboardPageMinimalUser(t *testing.T) {
 			AdminPort:       "2087",
 			T:               mgr.Translator("en"),
 		},
-		Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, nil, "classic", nil),
+		Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, nil, "classic", nil, web.ThemeClassic),
 	}
 
 	w := httptest.NewRecorder()
@@ -200,7 +200,7 @@ func TestRenderDashboardPageWithFlashAndImpersonation(t *testing.T) {
 			},
 			T: mgr.Translator("en"),
 		},
-		Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, nil, "classic", nil),
+		Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, nil, "classic", nil, web.ThemeClassic),
 	}
 
 	w := httptest.NewRecorder()
@@ -233,7 +233,7 @@ func TestRenderDashboardPageOnboarding(t *testing.T) {
 			HostingPlanName: "Starter", AvatarType: "letter", RequestPath: "/dashboard", AdminPort: "2087",
 			T: mgr.Translator("en"),
 		},
-		Sections:           buildDashboardSections(mgr.Translator("en"), userAllowed, nil, "modern", nil),
+		Sections:           buildDashboardSections(mgr.Translator("en"), userAllowed, nil, "modern", nil, web.ThemeClassic),
 		OnboardingShow:     true,
 		TwofaStatusMessage: twofaStatusMessage(mgr.Translator("en"), false),
 		IPAddress:          "1.2.3.4",
@@ -259,7 +259,7 @@ func TestRenderDashboardUsageTilesFollowUsageModule(t *testing.T) {
 				UserAllowedJSON: web.UserAllowedList(userAllowed), CurrentUsername: "u",
 				RequestPath: "/dashboard", T: mgr.Translator("en"),
 			},
-			Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, nil, "modern", nil),
+			Sections: buildDashboardSections(mgr.Translator("en"), userAllowed, nil, "modern", nil, web.ThemeClassic),
 		}
 		w := httptest.NewRecorder()
 		if err := dashboardPage.Render(w, 200, data); err != nil {

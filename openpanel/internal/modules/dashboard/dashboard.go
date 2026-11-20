@@ -160,10 +160,10 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		navTrail  []web.NavLink
 	)
 	if menuStyle == "modern" {
-		navItems = web.BuildSidebarNav(userAllowed, upsellAllowed, web.NavPath(r))
+		navItems = web.BuildSidebarNavKit(userAllowed, upsellAllowed, web.NavPath(r), web.Theme(r))
 		navTrail = []web.NavLink{{Label: "Dashboard"}}
 	} else {
-		navGroups = web.BuildClassicSidebarNav(userAllowed, upsellAllowed, web.NavPath(r))
+		navGroups = web.BuildClassicSidebarNavKit(userAllowed, upsellAllowed, web.NavPath(r), web.Theme(r))
 	}
 
 	layout := web.LayoutData{
@@ -202,9 +202,10 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		DashboardIconView: web.ReadDashboardIconView(r),
 		T:                 t,
 	}
+	web.ApplyTheme(&layout, r)
 
 	// classic keeps a Dashboard tab without an upsell, its bar also holds the Overview/Tools switch
-	if web.Theme() == web.ThemeClassic {
+	if web.Theme(r) == web.ThemeClassic {
 		layout.PageTabs = dashboardTabs(r.URL.Path, upsellPlanName != "" && upsellURL != "")
 	}
 
@@ -224,7 +225,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 	return DashboardPageData{
 		LayoutData:            layout,
 		View:                  dashboardView(r),
-		Sections:              buildDashboardSections(t, userAllowed, upsellAllowed, menuStyle, dashboardAppKeys),
+		Sections:              buildDashboardSections(t, userAllowed, upsellAllowed, menuStyle, dashboardAppKeys, web.Theme(r)),
 		TourShow:              d.TourShow,
 		OnboardingShow:        d.OnboardingShow,
 		OnboardingSkip:        d.OnboardingSkip,
@@ -249,7 +250,7 @@ func buildDashboardPageData(a *appctx.App, w http.ResponseWriter, r *http.Reques
 		HowToTopics:           convertHowToTopics(d.HowToTopics),
 		KnowledgeBaseLink:     d.KnowledgeBaseLink,
 		UserWebsitesCount:     len(d.UserWebsites),
-		Websites:              dashboardSites(r.Context(), a, currentUsername, userContext, d.UserWebsites),
+		Websites:              dashboardSites(r.Context(), a, currentUsername, userContext, web.Theme(r), d.UserWebsites),
 		ShowSites:             showSites,
 		AltList:               altList,
 		MainDomainsCount:      len(d.MainDomains),

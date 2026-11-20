@@ -16,3 +16,14 @@ else
     echo "Failed to download $CONFIG_RAW/openpanel/templates/themes.yml"
 fi
 rm -f "$tmp"
+
+# allow_user_theme=no for existing installs, users only get the theme picker once the admin turns it on
+CONF=/etc/openpanel/openpanel/conf/openpanel.config
+if [ -f "$CONF" ] && ! grep -q "^allow_user_theme=" "$CONF"; then
+    echo "Adding allow_user_theme=no to $CONF..."
+    if grep -q "^template=" "$CONF"; then
+        sed -i '/^template=/a allow_user_theme=no' "$CONF"
+    else
+        sed -i '/^\[PANEL\]/a allow_user_theme=no' "$CONF"
+    fi
+fi

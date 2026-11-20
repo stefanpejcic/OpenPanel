@@ -25,7 +25,7 @@ func ReadDashboardIconView(r *http.Request) string {
 		return c.Value
 	}
 	// the redesign opens on link rows, the classic theme keeps its icon grid
-	if Theme() == ThemeClassic {
+	if Theme(r) == ThemeClassic {
 		return "icon"
 	}
 	return "list"
@@ -48,9 +48,12 @@ func ReadFilemanagerView(a *appctx.App, r *http.Request) string {
 // MenuStyleCookie is the browser cookie storing the user's own navigation style ("classic" or "modern"), set client-side by the user menu's toggle and read server-side by ReadMenuStyle.
 const MenuStyleCookie = "menu_style"
 
-// ReadMenuStyle resolves the navigation style: the user's menu_style cookie wins, then the admin-configured menu_style, falling back to "classic" for a missing or unknown value.
+// ReadMenuStyle resolves the navigation style: a theme whose readme.txt sets Menu Style always gets that, else the user's menu_style cookie wins, then the admin-configured menu_style, falling back to "classic" for a missing or unknown value.
 // classic is the collapsible-group sidebar, modern the one-link-per-area sidebar with page tabs, area breadcrumbs and the matching dashboard sections.
 func ReadMenuStyle(a *appctx.App, r *http.Request) string {
+	if ms := RequestTheme(r).menuStyle; ms != "" {
+		return ms
+	}
 	cookie := ""
 	if c, err := r.Cookie(MenuStyleCookie); err == nil {
 		cookie = c.Value
@@ -121,6 +124,8 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 	}
 
 	menuStyle := ReadMenuStyle(a, r)
+	theme := userTheme(userContext)
+	kit := theme.kit()
 	var (
 		navItems    []NavItem
 		navGroups   []NavGroup
@@ -138,10 +143,10 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 		if strings.HasPrefix(navPath, "/dashboard") {
 			pageTabs = DashboardTabs(navPath, upsellPlanName != "" && upsellURL != "")
 		}
-		navItems = BuildSidebarNav(userAllowed, upsellAllowed, navPath)
+		navItems = BuildSidebarNavKit(userAllowed, upsellAllowed, navPath, kit)
 		navTrail = BuildNavTrail(userAllowed, upsellAllowed, navPath, r.URL.Path, t.Get(title), pageTabs)
 	} else {
-		navGroups = BuildClassicSidebarNav(userAllowed, upsellAllowed, NavPath(r))
+		navGroups = BuildClassicSidebarNavKit(userAllowed, upsellAllowed, NavPath(r), kit)
 		// the Dashboard/Upgrade tabs belong to the upgrade page, not the menu, so classic keeps them too
 		if strings.HasPrefix(r.URL.Path, "/dashboard") {
 			pageTabs = DashboardTabs(r.URL.Path, upsellPlanName != "" && upsellURL != "")
@@ -189,6 +194,7 @@ func BuildLayoutData(a *appctx.App, w http.ResponseWriter, r *http.Request, titl
 		FilemanagerView:   ReadFilemanagerView(a, r),
 		T:                 t,
 	}
+	ApplyTheme(&layout, r)
 
 	return layout, injected, nil
 }

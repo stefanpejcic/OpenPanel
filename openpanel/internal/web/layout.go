@@ -89,7 +89,24 @@ type LayoutData struct {
 
 	BulkActions []BulkAction // buttons for partials/_bulk.html, set by pages that have bulk selection
 
+	// ThemeKit is "classic" when the page renders from the built-in templates and "modern" on a theme folder
+	ThemeKit string
+	// ThemeFolder is the theme this user sees, "default" for the built-in templates
+	ThemeFolder string
+	// ThemeSwitch is allow_user_theme=yes, the account menu then shows ThemeOptions
+	ThemeSwitch  bool
+	ThemeOptions []ThemeOption
+	theme        *themeDef
+
 	T i18n.Translator
+}
+
+// pageTheme is the theme this page renders with, the default one when the layout was built by hand
+func (l LayoutData) pageTheme() *themeDef {
+	if l.theme != nil {
+		return l.theme
+	}
+	return defaultTheme
 }
 
 // ActivateTab marks the page tab linking to href as current and puts it in the header trail instead of the old one, for pages whose path doesn't say which tab they belong to

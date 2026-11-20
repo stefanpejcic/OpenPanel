@@ -61,13 +61,24 @@ var plannerBulkIcons = map[string]string{
 	"detach": "ri-plug-line", "cpu": "ri-cpu-line", "ram": "ri-ram-2-line", "pids": "ri-list-ordered", "quota": "ri-hard-drive-3-line", "add_target": "ri-add-circle-line",
 }
 
-// IconClass is the explicit Icon, the default for its Key, or a generic one
-func (b BulkAction) IconClass() string {
+// IconClass is IconFor the default theme, for themes whose _bulk.html doesn't pass the page
+func (b BulkAction) IconClass() string { return b.iconForKit(defaultTheme.kit()) }
+
+// IconFor is the explicit Icon, the default for its Key, or a generic one, in the icon set of page's theme
+func (b BulkAction) IconFor(page any) string {
+	kit := defaultTheme.kit()
+	if td, ok := page.(themed); ok {
+		kit = td.pageTheme().kit()
+	}
+	return b.iconForKit(kit)
+}
+
+func (b BulkAction) iconForKit(kit string) string {
 	if b.Icon != "" {
 		return b.Icon
 	}
 	icons, fallback := bulkIcons, "bi-lightning-charge"
-	if Theme() == ThemeClassic {
+	if kit == ThemeClassic {
 		icons, fallback = plannerBulkIcons, "ri-flashlight-line"
 	}
 	if icon, ok := icons[b.Key]; ok {

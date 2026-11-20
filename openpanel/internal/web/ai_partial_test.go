@@ -15,7 +15,7 @@ func TestHeaderRendersAIAssistantOnlyWhenAllowed(t *testing.T) {
 	for _, allowed := range []bool{true, false} {
 		var b bytes.Buffer
 		data := LayoutData{UserAllowed: map[string]bool{"ai_assistant": allowed}, T: tr, RequestPath: "/dashboard"}
-		tmpl, err := page.template()
+		tmpl, err := page.template(defaultTheme)
 		if err != nil {
 			t.Fatal(err)
 		}

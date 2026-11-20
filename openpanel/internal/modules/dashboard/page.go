@@ -101,6 +101,7 @@ func twofaStatusMessage(t i18n.Translator, enabled bool) template.HTML {
 // DashboardSite is one row of the Overview's websites card
 type DashboardSite struct {
 	Name, Type, PHP, Href string
+	Kit                   string // web.ThemeClassic or web.ThemeModern, which icon set TileIcon returns
 	Suspended             bool
 	// Service and Port are set for apps in their own container, State is its podman state when known
 	Service, Port, State string
@@ -153,7 +154,7 @@ func (s DashboardSite) plannerTileIcon() string {
 // TileIcon is the site type's icon, an op_icon name in Modern and a Remix class in the classic theme
 func (s DashboardSite) TileIcon() string {
 	i, _ := s.Tile()
-	return web.ByTheme(i, s.plannerTileIcon())
+	return web.ByKit(s.Kit, i, s.plannerTileIcon())
 }
 
 // TileHue is the tile colour Modern uses
@@ -185,7 +186,7 @@ func (s DashboardSite) StateLabel() string {
 }
 
 // dashboardSites keeps the six busiest sites by the latest daily summary, newest first on a tie, and marks the ones whose domain is suspended
-func dashboardSites(ctx context.Context, a *appctx.App, username, userContext string, sites []UserWebsite) []DashboardSite {
+func dashboardSites(ctx context.Context, a *appctx.App, username, userContext, kit string, sites []UserWebsite) []DashboardSite {
 	sites = byTraffic(sites, siteRequests(username))
 	if len(sites) > 6 {
 		sites = sites[:6]
@@ -195,7 +196,7 @@ func dashboardSites(ctx context.Context, a *appctx.App, username, userContext st
 	for _, s := range sites {
 		php := s.PHPVersion
 		row := DashboardSite{
-			Name: s.SiteName, Type: siteTypeLabel(s.Type),
+			Name: s.SiteName, Type: siteTypeLabel(s.Type), Kit: kit,
 			Href:      "/website?domain=" + url.QueryEscape(s.SiteName),
 			Suspended: s.DomainURL != "" && domains.IsSuspended(ctx, a, s.DomainURL),
 		}
@@ -323,23 +324,23 @@ func (d DashboardPageData) PlanTiles() []PlanTile {
 	}
 	var tiles []PlanTile
 	if allowed["wordpress"] || allowed["website_builder"] || allowed["nodejs"] || allowed["python"] {
-		tiles = append(tiles, tile("websites", "Websites", "/sites", web.ByTheme("browser", "ri-window-line"), d.UserWebsitesCount, d.WebsitesLimit))
+		tiles = append(tiles, tile("websites", "Websites", "/sites", web.ByKit(d.ThemeKit, "browser", "ri-window-line"), d.UserWebsitesCount, d.WebsitesLimit))
 	}
 	if allowed["domains"] {
-		tiles = append(tiles, tile("domains", "Domains", "/domains", web.ByTheme("globe", "ri-global-line"), d.MainDomainsCount, d.DomainsLimit))
+		tiles = append(tiles, tile("domains", "Domains", "/domains", web.ByKit(d.ThemeKit, "globe", "ri-global-line"), d.MainDomainsCount, d.DomainsLimit))
 	}
 	if allowed["mysql"] || allowed["postgresql"] {
 		href := "/postgresql"
 		if allowed["mysql"] {
 			href = "/mysql"
 		}
-		tiles = append(tiles, tile("databases", "Databases", href, web.ByTheme("db", "ri-database-2-line"), d.DBUsage, d.DBLimit))
+		tiles = append(tiles, tile("databases", "Databases", href, web.ByKit(d.ThemeKit, "db", "ri-database-2-line"), d.DBUsage, d.DBLimit))
 	}
 	if allowed["emails"] {
-		tiles = append(tiles, tile("emails", "Email accounts", "/emails", web.ByTheme("mail", "ri-mail-line"), d.EmailCount, d.EmailLimit))
+		tiles = append(tiles, tile("emails", "Email accounts", "/emails", web.ByKit(d.ThemeKit, "mail", "ri-mail-line"), d.EmailCount, d.EmailLimit))
 	}
 	if allowed["ftp"] {
-		tiles = append(tiles, tile("ftp", "FTP accounts", "/ftp", web.ByTheme("ftp", "ri-folder-shared-line"), d.FTPCount, d.FTPLimit))
+		tiles = append(tiles, tile("ftp", "FTP accounts", "/ftp", web.ByKit(d.ThemeKit, "ftp", "ri-folder-shared-line"), d.FTPCount, d.FTPLimit))
 	}
 	return tiles
 }

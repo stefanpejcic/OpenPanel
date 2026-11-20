@@ -73,7 +73,7 @@ func TestBrokenThemeTemplateFallsBack(t *testing.T) {
 	SetTheme("broken")
 
 	p := &Page{paths: []string{"templates/user/email_template.html"}}
-	if _, err := p.parse(); err != nil {
+	if _, err := p.parse(defaultTheme); err != nil {
 		t.Fatalf("broken theme template should fall back to the built-in one: %v", err)
 	}
 

@@ -13,14 +13,14 @@ func testTranslator(t *testing.T) i18n.Translator {
 }
 
 func TestBuildDashboardSectionsEmpty(t *testing.T) {
-	sections := buildDashboardSections(testTranslator(t), map[string]bool{}, nil, "classic", nil)
+	sections := buildDashboardSections(testTranslator(t), map[string]bool{}, nil, "classic", nil, web.ThemeClassic)
 	if len(sections) != 0 {
 		t.Errorf("expected no sections for an empty allowed set, got %d: %+v", len(sections), sections)
 	}
 }
 
 func TestBuildDashboardSectionsFilesOnly(t *testing.T) {
-	sections := buildDashboardSections(testTranslator(t), map[string]bool{"filemanager": true}, nil, "classic", nil)
+	sections := buildDashboardSections(testTranslator(t), map[string]bool{"filemanager": true}, nil, "classic", nil, web.ThemeClassic)
 	if len(sections) != 1 || sections[0].Key != "files" {
 		t.Fatalf("expected exactly one 'files' section, got %+v", sections)
 	}
@@ -37,7 +37,7 @@ func TestBuildDashboardSectionsFilesOnly(t *testing.T) {
 
 func TestBuildDashboardSectionsPreservesOrder(t *testing.T) {
 	allowed := map[string]bool{"docker": true, "filemanager": true, "account": true}
-	sections := buildDashboardSections(testTranslator(t), allowed, nil, "classic", nil)
+	sections := buildDashboardSections(testTranslator(t), allowed, nil, "classic", nil, web.ThemeClassic)
 
 	var keys []string
 	for _, s := range sections {
@@ -55,7 +55,7 @@ func TestBuildDashboardSectionsPreservesOrder(t *testing.T) {
 }
 
 func TestBuildDashboardSectionsTargetBlank(t *testing.T) {
-	sections := buildDashboardSections(testTranslator(t), map[string]bool{"phpmyadmin": true}, nil, "classic", nil)
+	sections := buildDashboardSections(testTranslator(t), map[string]bool{"phpmyadmin": true}, nil, "classic", nil, web.ThemeClassic)
 	if len(sections) != 1 {
 		t.Fatalf("expected one section, got %+v", sections)
 	}
@@ -76,7 +76,7 @@ func TestBuildDashboardSectionsMatchSidebarOrder(t *testing.T) {
 	}
 
 	var titles, labels []string
-	for _, s := range buildDashboardSections(testTranslator(t), allowed, nil, "modern", nil) {
+	for _, s := range buildDashboardSections(testTranslator(t), allowed, nil, "modern", nil, web.ThemeClassic) {
 		titles = append(titles, s.Title)
 	}
 	for _, item := range web.BuildSidebarNav(allowed, nil, "/dashboard") {
@@ -88,7 +88,7 @@ func TestBuildDashboardSectionsMatchSidebarOrder(t *testing.T) {
 		t.Errorf("dashboard sections %v don't match the sidebar %v", titles, labels)
 	}
 
-	for _, s := range buildDashboardSections(testTranslator(t), allowed, nil, "modern", nil) {
+	for _, s := range buildDashboardSections(testTranslator(t), allowed, nil, "modern", nil, web.ThemeClassic) {
 		if len(s.Items) < 2 {
 			t.Errorf("section %q has a single icon, it should join a neighbouring section", s.Title)
 		}
@@ -100,7 +100,7 @@ func TestBuildDashboardSectionsAppKeys(t *testing.T) {
 	keys := parseAppKeys("wordpress joomla,nodejs bogus python")
 	for _, style := range []string{"classic", "modern"} {
 		var got []string
-		for _, s := range buildDashboardSections(testTranslator(t), allowed, nil, style, keys) {
+		for _, s := range buildDashboardSections(testTranslator(t), allowed, nil, style, keys, web.ThemeClassic) {
 			if s.Key == "websites" {
 				for _, item := range s.Items {
 					got = append(got, item.Key)
@@ -115,11 +115,11 @@ func TestBuildDashboardSectionsAppKeys(t *testing.T) {
 
 func TestBuildDashboardSectionsSitesNeedsAnApp(t *testing.T) {
 	for _, style := range []string{"classic", "modern"} {
-		sections := buildDashboardSections(testTranslator(t), map[string]bool{"websites": true}, nil, style, nil)
+		sections := buildDashboardSections(testTranslator(t), map[string]bool{"websites": true}, nil, style, nil, web.ThemeClassic)
 		if len(sections) != 0 {
 			t.Errorf("%s: expected no Websites section without any app enabled, got %+v", style, sections)
 		}
-		sections = buildDashboardSections(testTranslator(t), map[string]bool{"websites": true, "nodejs": true}, nil, style, nil)
+		sections = buildDashboardSections(testTranslator(t), map[string]bool{"websites": true, "nodejs": true}, nil, style, nil, web.ThemeClassic)
 		if len(sections) != 1 || len(sections[0].Items) != 1 || sections[0].Items[0].Key != "websites" {
 			t.Errorf("%s: expected only the Sites tile with nodejs enabled, got %+v", style, sections)
 		}

@@ -94,7 +94,7 @@ func renderDatabasesPage(a *appctx.App, w http.ResponseWriter, r *http.Request, 
 		StatusDetail: postgresContainerStatusDetail(status.State, status.Health),
 		ServerInfo:   info,
 	}
-	if web.Theme() == web.ThemeModern {
+	if web.Theme(r) == web.ThemeModern {
 		data.DBLimit = planDBLimit(r.Context(), a, injectedData)
 	}
 	if err := databasesPage.Render(w, http.StatusOK, data); err != nil {

@@ -42,7 +42,7 @@ func handleContainerUsage(a *appctx.App, w http.ResponseWriter, r *http.Request)
 	_ = a.Sessions.Save(r, w, sess)
 
 	var history []UsagePoint
-	if web.Theme() == web.ThemeModern {
+	if web.Theme(r) == web.ThemeModern {
 		history = usageHistory(readUsageLines(userContext))
 	}
 	renderStatsPage(a, w, r, stats, history)
@@ -56,7 +56,7 @@ func handleUsageHistory(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	userContext, _ := data["context"].(string)
-	if web.Theme() == web.ThemeModern {
+	if web.Theme(r) == web.ThemeModern {
 		renderModernUsageHistory(a, w, r, userContext)
 		return
 	}
@@ -198,7 +198,7 @@ func handleSystemHostingPlan(a *appctx.App, w http.ResponseWriter, r *http.Reque
 
 	plan := buildHostingPlan(a, r, userContext, planID)
 	// the modern theme's Plan tab shows usage next to each limit
-	if web.Theme() == web.ThemeModern {
+	if web.Theme(r) == web.ThemeModern {
 		if userID, ok := auth.UserID(r); ok {
 			plan["usage"] = dashboard.PlanUsage(a, r.Context(), userID, data)
 		}
