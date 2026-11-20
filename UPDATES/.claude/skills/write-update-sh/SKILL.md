@@ -61,6 +61,14 @@ the same style.
 - Write in place with `cat tmp > file` (not `mv`), to keep owner,
   permissions and bind mounts. New files in a user's home get
   `chown --reference=<dir>`.
+- The panel memoizes data in redis (`openpanel_cache_<key>`, see
+  `cache.Memoize` calls in openpanel/ and `opencli/lib/redis.sh`). When the
+  update changes something the panel caches (e.g. the account's PHP versions
+  come from compose services, cached for an hour as
+  `openpanel_cache_fetch_php_versions:<user>`), drop **only those exact keys**
+  for the accounts that changed:
+  `podman exec openpanel_redis redis-cli DEL "<key>"`. Never FLUSHALL or
+  delete `openpanel_cache_*`, the same redis holds sessions and rate limits.
 - Don't restart or start containers unless the change needs it.
 - Print one line per change or skip, so the update log says what happened.
 

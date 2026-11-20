@@ -183,6 +183,8 @@ for dir in /etc/openpanel/docker/compose/1.0 /home/*; do
             chown --reference="$dir/php.ini" "$dir/php.ini/8.6.ini"
         fi
         rm -f "$f.bak-2.0.28" "$env.bak-2.0.28"
+        # the panel keeps the account's PHP versions in redis for an hour (FetchPHPVersions), drop just that key so 8.6 shows up right away
+        case "$dir" in /home/*) podman exec openpanel_redis redis-cli DEL "openpanel_cache_fetch_php_versions:$(basename "$dir")" >/dev/null 2>&1 || true ;; esac
         echo "Added php-fpm-8.6 ($image) to $f"
     else
         cat "$f.bak-2.0.28" > "$f"; cat "$env.bak-2.0.28" > "$env"
