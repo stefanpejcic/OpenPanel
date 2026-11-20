@@ -44,8 +44,29 @@ func handleAccountTheme(a *appctx.App, w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, redirectTo, http.StatusFound)
 }
 
+// handleThemeScreenshot serves a theme's screenshot.png for the onboarding picker, Default gets the built-in panel's picture
+func handleThemeScreenshot(w http.ResponseWriter, r *http.Request) {
+	if !web.AllowUserTheme {
+		http.NotFound(w, r)
+		return
+	}
+	folder := r.PathValue("folder")
+	if folder == "default" {
+		http.Redirect(w, r, web.StaticURL("images/default-theme.png"), http.StatusFound)
+		return
+	}
+	p := web.ThemeScreenshot(folder)
+	if p == "" {
+		http.NotFound(w, r)
+		return
+	}
+	w.Header().Set("Cache-Control", "private, max-age=3600")
+	http.ServeFile(w, r, p)
+}
+
 // RegisterTheme wires the theme picker's POST route, every user has the dashboard feature so the picker works for all of them
 func RegisterTheme(mux *http.ServeMux, a *appctx.App) {
+	mux.Handle("GET /account/theme/screenshot/{folder}", auth.RequireLogin(a, "dashboard")(http.HandlerFunc(handleThemeScreenshot)))
 	mux.Handle("POST /account/theme", auth.RequireLogin(a, "dashboard")(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleAccountTheme(a, w, r)
 	})))

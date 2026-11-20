@@ -68,6 +68,19 @@ func readmeHeader(path, key string) string {
 	return ""
 }
 
+// ThemeScreenshot is the screenshot.png of an installed theme, "" for Default and anything that isn't a theme
+func ThemeScreenshot(folder string) string {
+	d := themeByName(folder)
+	if d == nil || d.dir == "" {
+		return ""
+	}
+	p := filepath.Join(d.dir, "screenshot.png")
+	if info, err := os.Stat(p); err != nil || info.IsDir() {
+		return ""
+	}
+	return p
+}
+
 // userThemeFile holds the theme folder a user picked, next to their locale file
 func userThemeFile(userContext string) string {
 	return filepath.Join("/home", userContext, "theme")

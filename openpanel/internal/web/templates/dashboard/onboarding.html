@@ -20,6 +20,8 @@
         filemanager: {{if .UserAllowed.filemanager}}true{{else}}false{{end}},
         mysql: {{if .UserAllowed.mysql}}true{{else}}false{{end}},
         autoinstaller: {{if .UserAllowed.autoinstaller}}true{{else}}false{{end}},
+        themes: {{if and .ThemeSwitch (gt (len .ThemeOptions) 1)}}{{toJSON .ThemeOptions}}{{else}}[]{{end}},
+        theme: {{toJSON .ThemeFolder}},
         csrf: {{toJSON .CSRFToken}},
         username: {{toJSON .CurrentUsername}},
         passkeyDefaultName: {{if .CurrentUsername}}{{toJSON (.T.Get "%(name)s's passkey" "name" .CurrentUsername)}}{{else}}{{toJSON (.T.Get "My passkey")}}{{end}}
@@ -66,6 +68,29 @@
 
                 <template x-if="error">
                     <div class="mb-4 flex gap-3 rounded-md bg-red-50 p-4 text-sm text-red-900 dark:bg-red-950/70 dark:text-red-500" role="alert"><i class="ri-error-warning-line text-base leading-5" aria-hidden="true"></i><span x-text="error"></span></div>
+                </template>
+
+                <!-- Step: theme, only when allow_user_theme=yes -->
+                <template x-if="currentStep() === 'theme'">
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{.T.Get "Pick how your panel looks, click a theme to switch to it."}}</p>
+                        <template x-if="themeApplied">
+                            <p class="mt-3 rounded-md bg-emerald-50 p-3 text-sm text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-400">{{.T.Get "Theme applied."}} {{if eq .ThemeFolder "saturn"}}{{.T.Get "You can switch back any time from Theme in the General Information box on the dashboard."}}{{else}}{{.T.Get "You can switch back any time from Panel theme in the account menu at the bottom left."}}{{end}}</p>
+                        </template>
+                        <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <template x-for="t in opts.themes" :key="t.Folder">
+                                <button type="button" @click="pickTheme(t.Folder)" :disabled="loading"
+                                        class="overflow-hidden rounded-md border text-left transition"
+                                        :class="opts.theme === t.Folder ? 'border-blue-500 ring-2 ring-blue-500' : 'border-gray-200 hover:border-gray-300 dark:border-gray-800'">
+                                    <img :src="'/account/theme/screenshot/' + encodeURIComponent(t.Folder)" :alt="t.Name" loading="lazy" class="w-full object-cover object-top bg-gray-100 dark:bg-gray-900" style="height:8.5rem">
+                                    <span class="flex items-center justify-between gap-2 px-3 py-2">
+                                        <span class="text-sm font-medium text-gray-900 dark:text-gray-50" x-text="t.Name"></span>
+                                        <span x-show="opts.theme === t.Folder" class="text-xs font-medium text-blue-500">{{.T.Get "Current"}}</span>
+                                    </span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
                 </template>
 
                 <!-- Step: webserver -->
@@ -593,7 +618,11 @@ function onboardingWizard(opts) {
         // static/js/custom.js without forking this template.
         customSteps: {},
 
+        // set by pickTheme before the reload, read once here since init() runs twice (Alpine and x-init)
+        themeApplied: (function () { try { const v = localStorage.getItem('onboarding_theme_applied') === '1'; localStorage.removeItem('onboarding_theme_applied'); return v; } catch (e) { return false; } })(),
+
         stepTitles: {
+            theme: '{{.T.Get "Theme"}}',
             webserver: '{{.T.Get "Webserver"}}',
             php: '{{.T.Get "PHP"}}',
             database: '{{.T.Get "Database"}}',
@@ -665,6 +694,7 @@ function onboardingWizard(opts) {
 
         init() {
             let s = [];
+            if ((this.opts.themes || []).length > 1) s.push('theme');
             if (this.opts.webserver) s.push('webserver');
             if (this.opts.php) s.push('php');
             if (this.opts.database) s.push('database');
@@ -790,6 +820,16 @@ function onboardingWizard(opts) {
             let data = {};
             try { data = await resp.json(); } catch (e) {}
             return { ok: resp.ok, data: data };
+        },
+
+        // pickTheme saves the theme and reloads, the new theme only shows on a fresh page
+        async pickTheme(folder) {
+            if (folder === this.opts.theme) return;
+            this.loading = true;
+            const { ok } = await this.formPost('/account/theme', { theme: folder });
+            if (!ok) { this.loading = false; this.error = '{{.T.Get "Could not change the theme."}}'; return; }
+            try { localStorage.setItem('onboarding_theme_applied', '1'); } catch (e) {}
+            window.location.reload();
         },
 
         changeBackupTarget() {
