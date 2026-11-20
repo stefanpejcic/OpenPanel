@@ -382,6 +382,8 @@ install_packages() {
         apt-get)
             local kernel_pkg="linux-image-amd64"
             [[ "$OS_ID" == "ubuntu" ]] && kernel_pkg="linux-generic"
+            # #1359: the full kernel metapackage is ~250MB (image+modules+headers) and the batch install is silent, so on slow mirrors it looks frozen; only pull it when the running kernel lacks the quota modules
+            modinfo quota_v2 >/dev/null 2>&1 && kernel_pkg=""
             [[ -f /etc/needrestart/needrestart.conf ]] && run sed -i "s/#\$nrconf{restart} = 'i';/\$nrconf{restart} = 'a';/g" /etc/needrestart/needrestart.conf
             run $PACKAGE_MANAGER -qq install -y apt-transport-https ca-certificates
             echo 'APT::Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries
@@ -393,7 +395,7 @@ install_packages() {
                 run ln -sf /opt/podman-compose/bin/podman-compose /usr/local/bin/podman-compose
                 run hash -r
             fi
-            packages=(curl openssl git logrotate cron tar dbus-user-session systemd dbus systemd-container systemd-oomd quota uidmap iptables podman crun netavark aardvark-dns slirp4netns passt fuse-overlayfs "$kernel_pkg" default-mysql-client sqlite3)
+            packages=(curl openssl git logrotate cron tar dbus-user-session systemd dbus systemd-container systemd-oomd quota uidmap iptables podman crun netavark aardvark-dns slirp4netns passt fuse-overlayfs ${kernel_pkg:+"$kernel_pkg"} default-mysql-client sqlite3)
             # on 12, apt's 1.0.3 next to the venv one got used by the rest of the install (setup_opencli puts /usr/bin first in PATH), so everything after it saw those containers as changed and recreated them
             [[ "$OS_VERSION_ID" == "12" && -x /opt/podman-compose/bin/podman-compose ]] || packages+=(podman-compose)
             ;;
@@ -549,7 +551,7 @@ install_openadmin() {
     run systemctl enable --now admin
 
     local waited=0
-    until ss -tuln | grep -q ":$ADMIN_PORT" || (( waited >= 30 )); do
+    until ss -tuln | grep -q ":$ADMIN_PORT" || (( waited >= 120 )); do
         sleep 1; (( waited++ ))
     done
     ss -tuln | grep -q ":$ADMIN_PORT" && ok "OpenAdmin is running on port $ADMIN_PORT." || die 1 "OpenAdmin is not listening on port $ADMIN_PORT."
