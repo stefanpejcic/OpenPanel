@@ -202,3 +202,6 @@ if [ -f "$TPL/.env" ] && grep -qE "^DEFAULT_PHP_VERSION=['\"]?8\.5['\"]?[[:space
     sed -i -E "s/^DEFAULT_PHP_VERSION=(['\"]?)8\.5(['\"]?)[[:space:]]*$/DEFAULT_PHP_VERSION=\18.6\2/" "$TPL/.env"
     echo "Default PHP version for new users changed from 8.5 to 8.6 in $TPL/.env"
 fi
+
+# the panel keeps api.openpanel.com/php-versions for 72h, drop it so 8.6 shows as the latest version right away
+rm -f /etc/openpanel/openpanel/php/api_versions.json

@@ -689,7 +689,8 @@ function onboardingWizard(opts) {
             if (label.indexOf('supported') !== -1) {
                 return '{{.T.Get "Fully supported - use this if your apps aren't yet tested on the latest version."}}';
             }
-            return '{{.T.Get "No longer receives any patches - you should definitely plan an upgrade."}}';
+            // other labels (e.g. "Upcoming Release") get no hint, like phpVersionDescription in render.go, not the end of life one
+            return '';
         },
 
         init() {
