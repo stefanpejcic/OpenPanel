@@ -67,8 +67,10 @@ jobs:
       - name: Install deps
         working-directory: tests
         run: |
-          npm ci || npm install
-          npx playwright install --with-deps chromium
+          # mirrors INSTALL.sh: the tests repo ships no package.json, deps are installed fresh
+          npm init -y >/dev/null 2>&1 || true
+          npm install --yes @playwright/test dotenv basic-ftp otplib
+          npx --yes playwright install --with-deps chromium
 
       - name: Write .env
         working-directory: tests
