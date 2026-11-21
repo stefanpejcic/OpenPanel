@@ -103,6 +103,11 @@ jobs:
 
       - name: Run user panel suite
         working-directory: tests
+        env:
+          # whole-suite wall clock (ms): normal run is ~70m, so abort at 120m.
+          # Playwright exits cleanly and still writes the json/html reports, so
+          # a stuck spec can't silently burn the job's 180m cap with no output.
+          PW_GLOBAL_TIMEOUT: "7200000"
         run: ./openpanel/run-tests.sh || echo "TESTS_FAILED=1" >> "$GITHUB_ENV"
 
       - uses: actions/upload-artifact@v4
@@ -112,6 +117,7 @@ jobs:
           path: |
             tests/logs/html-report-*
             tests/logs/*.json
+            tests/logs/*.log
           if-no-files-found: ignore
 
       - name: Release box lock
