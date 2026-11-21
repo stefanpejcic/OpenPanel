@@ -31,6 +31,8 @@ concurrency:
 jobs:
   deploy-and-test:
     runs-on: ubuntu-latest
+    # hard cap so a hung installer/spec can't run for hours
+    timeout-minutes: 180
     steps:
       - name: Checkout tests
         uses: actions/checkout@v4
@@ -44,6 +46,24 @@ jobs:
           printf '%s\n' "${{ secrets.TEST_SSH_KEY }}" > ~/.ssh/id
           chmod 600 ~/.ssh/id
           ssh-keyscan -H "${{ secrets.TEST_SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Acquire exclusive box lock
+        # user-panel (this repo) and the admin suite (openadmin repo) share one
+        # box; GitHub concurrency can't span repos, so serialize via a lock on it
+        run: |
+          ssh -i ~/.ssh/id "root@${{ secrets.TEST_SSH_HOST }}" '
+            for i in $(seq 1 300); do
+              if mkdir /tmp/e2e-box.lock 2>/dev/null; then
+                echo "${{ github.repository }}#${{ github.run_id }}" > /tmp/e2e-box.lock/owner
+                echo "lock acquired"; exit 0
+              fi
+              if [ -d /tmp/e2e-box.lock ] && [ $(( $(date +%s) - $(stat -c %Y /tmp/e2e-box.lock) )) -gt 9600 ]; then
+                echo "breaking stale lock held by $(cat /tmp/e2e-box.lock/owner 2>/dev/null)"; rm -rf /tmp/e2e-box.lock
+              fi
+              echo "box busy (held by $(cat /tmp/e2e-box.lock/owner 2>/dev/null)), waiting..."; sleep 15
+            done
+            echo "could not acquire box lock in time"; exit 1
+          '
 
       - name: Deploy ${{ inputs.image_tag }} to the test box
         run: |
@@ -94,6 +114,11 @@ jobs:
             tests/logs/*.json
           if-no-files-found: ignore
 
+      - name: Release box lock
+        if: always()
+        run: |
+          ssh -i ~/.ssh/id "root@${{ secrets.TEST_SSH_HOST }}" 'rm -rf /tmp/e2e-box.lock; echo "lock released"' || true
+
       - name: Open/update issue on failure
         if: always() && env.TESTS_FAILED == '1'
         uses: actions/github-script@v7
@@ -105,15 +130,19 @@ jobs:
               ``,
               `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
             ].join('\n');
-            const existing = await github.rest.issues.listForRepo({
-              owner: context.repo.owner, repo: context.repo.repo,
-              state: 'open', labels: 'e2e-failure', per_page: 100,
-            });
-            const hit = existing.data.find(i => i.title === title);
-            if (hit) {
-              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: hit.number, body });
-            } else {
-              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['e2e-failure'] });
+            try {
+              const existing = await github.rest.issues.listForRepo({
+                owner: context.repo.owner, repo: context.repo.repo,
+                state: 'open', labels: 'e2e-failure', per_page: 100,
+              });
+              const hit = existing.data.find(i => i.title === title);
+              if (hit) {
+                await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: hit.number, body });
+              } else {
+                await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['e2e-failure'] });
+              }
+            } catch (e) {
+              core.warning(`could not file an issue (are issues enabled on this repo?): ${e.message}`);
             }
 
       - name: Fail the job if tests failed
