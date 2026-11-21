@@ -143,3 +143,12 @@ jobs:
           curl -fsS --max-time 30 "https://api.openpanel.com/v2/statistics/?action=purge"
           echo
           curl -fsS --max-time 30 "https://api.openpanel.com/v2/statistics/?field=latest_version"
+
+  # beta builds get the user-panel E2E suite run against the shared test box
+  e2e:
+    needs: docker
+    if: ${{ inputs.beta }}
+    uses: ./.github/workflows/e2e-user-panel.yml
+    with:
+      image_tag: ${{ inputs.version }}-beta
+    secrets: inherit

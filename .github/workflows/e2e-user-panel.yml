@@ -1,0 +1,119 @@
+name: E2E (user panel)
+
+# Runs the OpenPanel (user panel) Playwright suite against the shared test
+# server. Called from release.yml on a beta build, and runnable on demand with
+# any image tag. Deploys the image to the test box first, then runs the suite
+# from the runner over the network. A failing run opens/updates a persistent
+# issue on this repo.
+
+on:
+  workflow_call:
+    inputs:
+      image_tag:
+        description: "openpanel/openpanel image tag to deploy and test"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "openpanel/openpanel image tag to deploy and test (e.g. 1.2.3-beta)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: e2e-user-panel-shared-box
+  cancel-in-progress: true
+
+jobs:
+  deploy-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tests
+        uses: actions/checkout@v4
+        with:
+          repository: stefanpejcic/openpanel-tests
+          path: tests
+
+      - name: Setup SSH to test box
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.TEST_SSH_KEY }}" > ~/.ssh/id
+          chmod 600 ~/.ssh/id
+          ssh-keyscan -H "${{ secrets.TEST_SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Deploy ${{ inputs.image_tag }} to the test box
+        run: |
+          # mirrors `opencli update` panel step: pull image, pin VERSION, recreate the panel service.
+          # per-user panel containers may need recreating too -- if /root/after-test-deploy.sh exists on
+          # the box it's run with the tag, so box-specific recreate logic lives there, not hardcoded here.
+          ssh -i ~/.ssh/id "root@${{ secrets.TEST_SSH_HOST }}" '
+            set -e
+            TAG="'"${{ inputs.image_tag }}"'"
+            podman pull "openpanel/openpanel:$TAG"
+            [ -f /root/.env ] && sed -i "s/^VERSION=.*/VERSION=\"$TAG\"/" /root/.env
+            cd /root && (podman-compose up -d --force-recreate openpanel || true)
+            [ -x /root/after-test-deploy.sh ] && /root/after-test-deploy.sh "$TAG" || true
+            echo "deployed $TAG"
+          '
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install deps
+        working-directory: tests
+        run: |
+          npm ci || npm install
+          npx playwright install --with-deps chromium
+
+      - name: Write .env
+        working-directory: tests
+        run: |
+          cat > openpanel/.env <<EOF
+          BASE_URL=${{ secrets.PANEL_BASE_URL }}
+          PANEL_USERNAME=${{ secrets.PANEL_USERNAME }}
+          PANEL_PASSWORD=${{ secrets.PANEL_PASSWORD }}
+          EOF
+
+      - name: Run user panel suite
+        working-directory: tests
+        run: ./openpanel/run-tests.sh || echo "TESTS_FAILED=1" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-user-panel
+          path: |
+            tests/logs/html-report-*
+            tests/logs/*.json
+          if-no-files-found: ignore
+
+      - name: Open/update issue on failure
+        if: always() && env.TESTS_FAILED == '1'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'E2E: user panel suite failing';
+            const body = [
+              `The user panel E2E suite failed for image tag \`${{ inputs.image_tag }}\`.`,
+              ``,
+              `Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+            ].join('\n');
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: 'open', labels: 'e2e-failure', per_page: 100,
+            });
+            const hit = existing.data.find(i => i.title === title);
+            if (hit) {
+              await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: hit.number, body });
+            } else {
+              await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title, body, labels: ['e2e-failure'] });
+            }
+
+      - name: Fail the job if tests failed
+        if: always() && env.TESTS_FAILED == '1'
+        run: exit 1
