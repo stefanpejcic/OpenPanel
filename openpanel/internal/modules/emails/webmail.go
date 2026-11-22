@@ -1,9 +1,9 @@
 package emails
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
-	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -220,12 +220,14 @@ func createWebmailToken(ctx context.Context, email string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	encoded := base64.StdEncoding.EncodeToString(payloadBytes)
 	tokenFile := "/tmp/wmt_" + token
 
 	// autologin.php only reads the file, so tokens nobody used are swept here
-	cmd := "find /tmp -maxdepth 1 -name 'wmt_*' -mmin +2 -delete 2>/dev/null; umask 077 && echo " + encoded + " | base64 -d > " + tokenFile + " && chown www-data:www-data " + tokenFile
-	if err := exec.CommandContext(ctx, "podman", "exec", roundcubeContainerName, "sh", "-lc", cmd).Run(); err != nil {
+	// the payload holds the dovecot master password, so it goes in on stdin instead of the command line where ps would show it
+	script := "find /tmp -maxdepth 1 -name 'wmt_*' -mmin +2 -delete 2>/dev/null; umask 077 && cat > \"$1\" && chown www-data:www-data \"$1\""
+	c := exec.CommandContext(ctx, "podman", "exec", "-i", roundcubeContainerName, "sh", "-c", script, "sh", tokenFile)
+	c.Stdin = bytes.NewReader(payloadBytes)
+	if err := c.Run(); err != nil {
 		return "", err
 	}
 	return token, nil
