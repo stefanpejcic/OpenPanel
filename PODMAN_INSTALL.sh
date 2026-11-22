@@ -30,7 +30,7 @@ USE_SELFSIGNED=false
 SETUP_SWAP_ANYWAY=false
 CORAZA=true
 IMUNIFY_AV=false
-SWAP_FILE=1
+SWAP_FILE=""     # empty: sized by RAM in setup_swap
 SET_PREMIUM=false
 SET_ADMIN_USERNAME=false
 SET_ADMIN_PASSWORD=false
@@ -110,7 +110,7 @@ Available options:
   --skip-dns-server           Skip DNS (Bind9) setup.
   --no-waf                    Disable CorazaWAF / OWASP ruleset.
   --post_install=<path>       Post-install script path or URL.
-  --swap=<1-10>               Swap size in GB.
+  --swap=<1-10>               Swap size in GB (default: sized by RAM).
   --selfsigned                Use a self-signed SSL certificate.
   --repair | --retry          Retry and overwrite existing installation.
   -h, --help                  Show this help message.
@@ -1179,7 +1179,9 @@ setup_swap() {
     }
 
     if [[ "$SETUP_SWAP_ANYWAY" == true ]] || (( ram_gb <= 32 )); then
-        if ! [[ "$SWAP_FILE" =~ ^[0-9]+$ && "$SWAP_FILE" -ge 1 && "$SWAP_FILE" -le 10 ]]; then
+        if [[ -z "$SWAP_FILE" ]]; then
+            auto_size || return
+        elif ! [[ "$SWAP_FILE" =~ ^[0-9]+$ && "$SWAP_FILE" -ge 1 && "$SWAP_FILE" -le 10 ]]; then
             warn "Invalid swap size '$SWAP_FILE'. Auto-sizing based on RAM."
             auto_size || return
         fi

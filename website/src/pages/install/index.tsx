@@ -149,23 +149,16 @@ const GROUPS: Group[] = [
         ],
     },
     {
-        title: "Services",
-        description: "What else runs on the server after the install.",
+        title: "Advanced",
+        description: "For special setups and troubleshooting, the defaults are right for a normal install.",
         options: [
-            {
-                flag: "skip-dns-server",
-                label: "Skip the DNS server",
-                kind: "toggle",
-                description: "Don't set up the local BIND9 DNS server, for example when DNS is hosted elsewhere.",
-                docs: "/docs/admin/domains/dns/",
-            },
             {
                 flag: "swap",
                 label: "Swap size (GB)",
                 kind: "number",
-                placeholder: "e.g. 2",
-                description: "Create a swap file of this size.",
-                validate: (v) => (/^\d+$/.test(v) && +v > 0 ? undefined : "A whole number of GB."),
+                placeholder: "Sized by RAM",
+                description: "Swap file size, 1 to 10 GB. By default it's sized by RAM: twice the RAM up to 2 GB, then 4 GB up to 8 GB of RAM and 8 GB up to 32 GB. Servers with more than 32 GB of RAM get no swap unless you set a size.",
+                validate: (v) => (/^\d+$/.test(v) && +v >= 1 && +v <= 10 ? undefined : "A whole number from 1 to 10."),
             },
             {
                 flag: "post-install",
@@ -175,12 +168,13 @@ const GROUPS: Group[] = [
                 description: "Path or URL of a script to run when the install finishes.",
                 quote: true,
             },
-        ],
-    },
-    {
-        title: "Advanced",
-        description: "For troubleshooting and special setups, leave these off for a normal install.",
-        options: [
+            {
+                flag: "skip-dns-server",
+                label: "Skip the DNS server",
+                kind: "toggle",
+                description: "Don't set up the local BIND9 DNS server, for example when DNS is hosted elsewhere.",
+                docs: "/docs/admin/domains/dns/",
+            },
             {
                 flag: "skip-requirements",
                 label: "Skip the requirements check",
@@ -303,7 +297,7 @@ const Install: React.FC = () => {
 
                     <div
                         className={clsx(
-                            "sticky top-[72px] z-10",
+                            "sticky top-[72px] z-[5]",
                             "rounded-2xl",
                             "border border-gray-300 dark:border-gray-700",
                             "bg-gray-0/95 dark:bg-gray-900/95 backdrop-blur",
