@@ -1,3 +1,7 @@
+---
+sidebar_position: 4
+---
+
 # Plans
 
 Scripts for creating and editing hosting plans (packages).

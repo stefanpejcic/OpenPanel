@@ -1,3 +1,7 @@
+---
+sidebar_position: 18
+---
+
 # Domain 
 
 `opencli domain` command is used to set domain name for accessing the OpenPanel and OpenAdmin interfaces.

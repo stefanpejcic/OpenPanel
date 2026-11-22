@@ -1,3 +1,7 @@
+---
+sidebar_position: 13
+---
+
 # phpMyAdmin
 
 `opencli phpmyadmin` views and sets the domain (or IP) used to access phpMyAdmin.

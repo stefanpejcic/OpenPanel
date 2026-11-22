@@ -1,3 +1,7 @@
+---
+sidebar_position: 12
+---
+
 # Podman
 
 `opencli podman` runs `podman` or `podman-compose` against an OpenPanel user's rootless podman, so you don't need to find the user's socket yourself.

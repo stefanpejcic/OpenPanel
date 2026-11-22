@@ -1,3 +1,7 @@
+---
+sidebar_position: 31
+---
+
 # Version 
 
 `opencli version` will display installed OpenPanel version:

@@ -1,3 +1,7 @@
+---
+sidebar_position: 26
+---
+
 # Error 
 
 `opencli error` command allows Administrators to trace OpenPanel error IDs.

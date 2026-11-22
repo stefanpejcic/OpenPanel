@@ -1,3 +1,7 @@
+---
+sidebar_position: 15
+---
+
 # Backup
 
 `opencli backup` backs up (and restores) OpenPanel/OpenAdmin **system configuration** — panel settings, per-domain webserver/DNS config, the root `docker-compose.yml`/`.env` stacks, PHP/MySQL/FTP/SSH config, etc.

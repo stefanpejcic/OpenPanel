@@ -1,3 +1,7 @@
+---
+sidebar_position: 20
+---
+
 # Proxy 
 
 `opencli proxy` command is used to change `/openpanel` suffix to something else. 

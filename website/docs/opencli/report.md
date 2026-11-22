@@ -1,3 +1,7 @@
+---
+sidebar_position: 25
+---
+
 # Check server info
 
 To check current server info you can use the following command:

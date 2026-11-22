@@ -1,3 +1,7 @@
+---
+sidebar_position: 11
+---
+
 # Containers
 
 Manage containers: open a shell into them, check for and apply image updates, prefetch autostart images, back them up, view log sizes, and collect resource usage stats.

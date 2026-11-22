@@ -1,3 +1,7 @@
+---
+sidebar_position: 16
+---
+
 # Server
 
 Scripts for managing the server.

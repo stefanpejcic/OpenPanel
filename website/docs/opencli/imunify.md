@@ -1,3 +1,7 @@
+---
+sidebar_position: 24
+---
+
 # Imunify 
 
 `opencli imunify` command enables administrators to install, start, manage, and uninstall the [ImunifyAV standalone service](https://cloudlinux.zendesk.com/hc/en-us/articles/4716287786396-Imunify360-Standalone-installation-guide-with-integration-conf-examples).

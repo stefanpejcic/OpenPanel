@@ -1,3 +1,7 @@
+---
+sidebar_position: 23
+---
+
 # CorazaWAF
 
 `opencli waf` command can be used to enable/disable CorazaWAF on the server, enable/disable WAF per domain, view rules, view statistics, etc.

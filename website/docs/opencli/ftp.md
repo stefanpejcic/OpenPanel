@@ -1,3 +1,7 @@
+---
+sidebar_position: 9
+---
+
 # FTP
 
 Enable and manage FTP server shared for all OpenPanel users.

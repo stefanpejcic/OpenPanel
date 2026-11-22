@@ -1,3 +1,7 @@
+---
+sidebar_position: 14
+---
+
 # Update 
 
 `opencli update` command is used to check if new update is available and to update.

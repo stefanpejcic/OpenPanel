@@ -1,3 +1,7 @@
+---
+sidebar_position: 17
+---
+
 # Config
 
 `opencli config` allows you to change the settings for the user interface.

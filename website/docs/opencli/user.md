@@ -1,3 +1,7 @@
+---
+sidebar_position: 3
+---
+
 # Users
 
 Manage users: Add, Delete, Suspend, Unsuspend, etc.

@@ -1,3 +1,7 @@
+---
+sidebar_position: 2
+---
+
 # FAQ 
 
 `opencli faq` displays answers to the most frequently asked questions:

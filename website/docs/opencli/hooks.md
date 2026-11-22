@@ -1,3 +1,7 @@
+---
+sidebar_position: 28
+---
+
 ## Hooks
 
 OpenPanel supports hooks: your own bash scripts that run before or after an opencli command.

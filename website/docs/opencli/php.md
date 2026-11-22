@@ -1,3 +1,7 @@
+---
+sidebar_position: 7
+---
+
 # PHP
 
 Manage users' PHP versions: list enabled, list available, change version, etc.

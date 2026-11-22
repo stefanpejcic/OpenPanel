@@ -1,3 +1,7 @@
+---
+sidebar_position: 8
+---
+
 # Emails 
 
 The following commands are available **for OpenPanel Enterprise** users:
