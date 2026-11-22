@@ -1,0 +1,532 @@
+[
+ {
+  "name": "admin",
+  "desc": "Manage OpenAdmin service and Administrators.",
+  "usage": "opencli admin <command> [options]"
+ },
+ {
+  "name": "api",
+  "desc": "Check status, enable or disable OpenAdmin API access, and list available API endpoints.",
+  "usage": "opencli api <status|on|off|list>"
+ },
+ {
+  "name": "backup",
+  "desc": "Backs up (and restores) OpenPanel/OpenAdmin SYSTEM AND USER",
+  "usage": "opencli backup [--restore <ARCHIVE>] [--quiet]"
+ },
+ {
+  "name": "config",
+  "desc": "Get or update a value in the OpenPanel configuration file.",
+  "usage": "opencli config <get|update> <setting_name> [new_value]"
+ },
+ {
+  "name": "docker",
+  "desc": "Open an interactive shell inside a system or user container, picking the user and container via fzf if not given.",
+  "usage": "opencli docker [<user> [<container>]]"
+ },
+ {
+  "name": "docker-autostart",
+  "desc": "Prefetch (pull) container images for services listed as autostart, skipping if free disk space is low.",
+  "usage": "opencli docker-autostart [-f|--force]"
+ },
+ {
+  "name": "docker-backup",
+  "desc": "Backs up every account whose backups the hosting provider manages, or one with --account.",
+  "usage": "opencli docker-backup [--parallel=N | --account=USERNAME]   (skip a user: touch /home/<context>/backup.off)"
+ },
+ {
+  "name": "docker-collect_stats",
+  "desc": "Collect resource usage information for user(s).",
+  "usage": "opencli docker-collect_stats <username|--all>"
+ },
+ {
+  "name": "docker-hosts",
+  "desc": "Write the hosts file that users' new containers start with, so the panel and mail hostnames point at the server.",
+  "usage": "opencli docker-hosts [--show | --apply [USERNAME]]"
+ },
+ {
+  "name": "docker-logs",
+  "desc": "Display log sizes for user and system containers",
+  "usage": "opencli docker-logs [--all|--system|--users|<USERNAME>]"
+ },
+ {
+  "name": "docker-update",
+  "desc": "Check for image updates across root's stack and every",
+  "usage": "opencli docker-update [IMAGE] [-y|--yes] [--dry-run] [--no-php-move]"
+ },
+ {
+  "name": "domain",
+  "desc": "View and set domain/ip for accessing panels.",
+  "usage": "opencli domain [set <domain_name> | ip] [--debug] [--no-restart]"
+ },
+ {
+  "name": "domains-add",
+  "desc": "Add a domain name for user.",
+  "usage": "opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy] [--skip_vhost] [--skip_containers] [--skip_dns] [--skip-sentinel] [--debug] [--hs_ed25519_public_key KEY --hs_ed25519_secret_key KEY]"
+ },
+ {
+  "name": "domains-all",
+  "desc": "Lists all domain names currently hosted on the server.",
+  "usage": "opencli domains-all [--docroot] [--php_version] [--json]"
+ },
+ {
+  "name": "domains-cloudflare",
+  "desc": "Enable/disable/check Cloudflare-only access to domains.",
+  "usage": "opencli domains-cloudflare <enable|disable|status> <DOMAIN_NAME [DOMAIN_NAME...]|--all> [-y]"
+ },
+ {
+  "name": "domains-delete",
+  "desc": "Delete a domain name.",
+  "usage": "opencli domains-delete <DOMAIN_NAME> [--debug]"
+ },
+ {
+  "name": "domains-dns",
+  "desc": "Manage DNS zones and the DNS server via subcommands (create, delete, reload, list, check, start/stop/restart, etc).",
+  "usage": "opencli domains-dns <reconfig|check|reload|show|list|create|delete|default|count|config|start|restart|hard-restart|stop> [DOMAIN] [-y]"
+ },
+ {
+  "name": "domains-dnssec",
+  "desc": "Enable DNSSEC for a domain, re-sign the zone after changes, or check its DNSSEC status.",
+  "usage": "opencli domains-dnssec <DOMAIN> [--update | --check]"
+ },
+ {
+  "name": "domains-docroot",
+  "desc": "View and change docroot for a domain.",
+  "usage": "opencli domains-docroot <DOMAIN_NAME> [update <DOCROOT>] [--debug]"
+ },
+ {
+  "name": "domains-edit",
+  "desc": "Open a domain's docroot directory, or its webserver vhost config file in nano with --ws.",
+  "usage": "opencli domains-edit <DOMAIN_NAME> [--ws]"
+ },
+ {
+  "name": "domains-hsts",
+  "desc": "Manage HSTS for a domain",
+  "usage": "opencli domains-hsts <domain> [enable|disable]"
+ },
+ {
+  "name": "domains-ratelimit",
+  "desc": "Set the per-ip and per-domain request rate limits in Caddy, server default or per domain.",
+  "usage": "opencli domains-ratelimit [status] [--json]"
+ },
+ {
+  "name": "domains-ssl",
+  "desc": "Check SSL for domain, add custom certificate, view files.",
+  "usage": "opencli domains-ssl <DOMAIN_NAME> [status|info|logs|auto|selfsigned|custom] [path/to/fullchain.pem path/to/key.pem] | opencli domains-ssl --notify"
+ },
+ {
+  "name": "domains-stats",
+  "desc": "Parse caddy access logs for users domains and generate static html",
+  "usage": "opencli domains-stats [USERNAME] [--debug]"
+ },
+ {
+  "name": "domains-suspend",
+  "desc": "Suspend a domain name",
+  "usage": "opencli domains-suspend <DOMAIN-NAME> [--comment=\"<COMMENT>\"] [--by=admin|user] [--template=<NAME>]"
+ },
+ {
+  "name": "domains-test",
+  "desc": "Test a website speed through every layer (DNS, Caddy/WAF, Varnish, webserver, PHP, database), check limits and settings, and show the biggest issue with a fix.",
+  "usage": "opencli domains-test <DOMAIN_NAME>[/SUBFOLDER] [RUNS] [--load <N|auto>]"
+ },
+ {
+  "name": "domains-unsuspend",
+  "desc": "Unsuspend a domain name",
+  "usage": "opencli domains-unsuspend <DOMAIN-NAME> [--by=admin|user]"
+ },
+ {
+  "name": "domains-update_ns",
+  "desc": "Change nameservers for a single or all dns zones.",
+  "usage": "opencli domains-update_ns <DOMAIN_NAME | --all> [-y]"
+ },
+ {
+  "name": "domains-user",
+  "desc": "Lists all domain names currently owned by a specific user.",
+  "usage": "opencli domains-user <USERNAME> [--docroot|--php_version]"
+ },
+ {
+  "name": "domains-varnish",
+  "desc": "Check Varnish status for domain, enable/disable Varnish caching.",
+  "usage": "opencli domains-varnish <DOMAIN-NAME> [on|off] [--short]"
+ },
+ {
+  "name": "domains-whoowns",
+  "desc": "Check which username owns a certain domain name.",
+  "usage": "opencli domains-whoowns <DOMAIN-NAME> [--context] [--docroot]"
+ },
+ {
+  "name": "email-default_sync",
+  "desc": "Writes the default (catch-all) email addresses to docker-mailserver's postfix-regexp.cf.",
+  "usage": "opencli email-default_sync"
+ },
+ {
+  "name": "email-manage",
+  "desc": "Pass commands through to docker-mailserver's setup CLI inside the mailserver container.",
+  "usage": "opencli email-manage <COMMAND> [<ARGS>...]"
+ },
+ {
+  "name": "email-quotas",
+  "desc": "Fixes email permission issues for all domains.",
+  "usage": "opencli email-quotas"
+ },
+ {
+  "name": "email-ratelimit",
+  "desc": "Configure rate-limiting using postfwd for domains and users.",
+  "usage": "opencli email-ratelimit [--username=<user>] [--domain=<domain>] [--all-users] [--delete-user=<user>] [--delete-domain=<domain>] [--skip-reload] [--notify]"
+ },
+ {
+  "name": "email-server",
+  "desc": "Manage mailserver",
+  "usage": "opencli email-server <status|config|install|uninstall|start|stop|restart|queue|flush|view|unhold|delete|fail2ban|ports|postconf|logs|login|supervisor|postfwd|pflogsumm|update-check|update-packages|versions> [args] [--debug]"
+ },
+ {
+  "name": "email-setup",
+  "desc": "Setup email addresses, forwarders, filters..",
+  "usage": "opencli email-setup <COMMAND> <ATTRIBUTES>"
+ },
+ {
+  "name": "email-usage",
+  "desc": "Refresh the cached email accounts and quota usage file for users.",
+  "usage": "opencli email-usage <USERNAME|--all>"
+ },
+ {
+  "name": "email-webmail",
+  "desc": "Display or update the domain used for accessing webmail.",
+  "usage": "opencli email-webmail [--debug] [domain <domain>]"
+ },
+ {
+  "name": "error",
+  "desc": "Displays information for specific error ID received in OpenPanel UI.",
+  "usage": "opencli error <ID_HERE>"
+ },
+ {
+  "name": "faq",
+  "desc": "Display answers to most frequently asked questions.",
+  "usage": "opencli faq"
+ },
+ {
+  "name": "files-calculate_resellers_storage",
+  "desc": "Calculates total disk usage for all resellers.",
+  "usage": "opencli files-calculate_resellers_storage"
+ },
+ {
+  "name": "files-fix_permissions",
+  "desc": "Fix permissions for users /home directory files inside the container.",
+  "usage": "opencli files-fix_permissions <USERNAME|--all> [PATH] [--debug]"
+ },
+ {
+  "name": "files-malware_scan",
+  "desc": "Scan a user's (or every user's) html_data files for malware",
+  "usage": "opencli files-malware_scan <USERNAME> OR opencli files-malware_scan --all"
+ },
+ {
+  "name": "files-purge_trash",
+  "desc": "Auto-purge .Trash folders for users.",
+  "usage": "opencli files-purge_trash [--user USERNAME] [--force] [--dry-run]"
+ },
+ {
+  "name": "ftp-add",
+  "desc": "Create FTP sub-user for openpanel user.",
+  "usage": "opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME> [--quota=<MB>] [--debug]"
+ },
+ {
+  "name": "ftp-connections",
+  "desc": "Display all active FTP connections, or only those for domains owned by an OpenPanel user.",
+  "usage": "opencli ftp-connections [OPENPANEL_USERNAME]"
+ },
+ {
+  "name": "ftp-delete",
+  "desc": "Delete FTP sub-user for openpanel user.",
+  "usage": "opencli ftp-delete <username> <openpanel_username> [--debug]"
+ },
+ {
+  "name": "ftp-list",
+  "desc": "List FTP sub-users for openpanel user.",
+  "usage": "opencli ftp-list [OPENPANEL_USERNAME] [--json]"
+ },
+ {
+  "name": "ftp-logs",
+  "desc": "View the FTP server log",
+  "usage": "opencli ftp-logs"
+ },
+ {
+  "name": "ftp-password",
+  "desc": "Change password for FTP sub-user of openpanel user.",
+  "usage": "opencli ftp-password <username> <new_password> <openpanel_username> [--debug]"
+ },
+ {
+  "name": "ftp-path",
+  "desc": "Change FTP path for a user.",
+  "usage": "opencli ftp-path <username> <path> <openpanel_username> [--debug]"
+ },
+ {
+  "name": "ftp-quota",
+  "desc": "Show or set the disk quota for an FTP sub-user.",
+  "usage": "opencli ftp-quota <username> [<quota>] <openpanel_username> [--debug]"
+ },
+ {
+  "name": "imunify",
+  "desc": "Install and manage ImunifyAV service.",
+  "usage": "opencli imunify [status|start|stop|install|update|uninstall|hook]"
+ },
+ {
+  "name": "license",
+  "desc": "Manage OpenPanel Enterprise license.",
+  "usage": "opencli license [key|verify|info|delete|<LICENSE_KEY>] [--json] [--no-restart]"
+ },
+ {
+  "name": "locale",
+  "desc": "Install locales (Languages) for OpenPanel UI.",
+  "usage": "opencli locale <CODE>"
+ },
+ {
+  "name": "php-default",
+  "desc": "View or change the default PHP version used for new domains added by user.",
+  "usage": "opencli php-default <USERNAME> [--update <PHP_VERSION>]"
+ },
+ {
+  "name": "php-domain",
+  "desc": "View or change the PHP version used for a single domain name.",
+  "usage": "opencli php-domain <DOMAIN_NAME> [--update <PHP_VERSION>]"
+ },
+ {
+  "name": "php-listen",
+  "desc": "View or change how a user's websites reach php-fpm: TCP port 9000, a unix socket, or Caddy talking to the socket directly without a webserver container.",
+  "usage": "opencli php-listen <USERNAME> [port|socket|caddy] [--webserver nginx|apache|openresty]"
+ },
+ {
+  "name": "phpmyadmin",
+  "desc": "View and set domain/ip for phpmyadmin access.",
+  "usage": "opencli phpmyadmin [set <domain_name> | ip]"
+ },
+ {
+  "name": "plan-apply",
+  "desc": "Change plan for a user and apply new plan limits.",
+  "usage": "opencli plan-apply <PLAN_ID> <USERNAME>... [--all] [--cpu] [--ram] [--dsk] [--net] [--email] [--debug]"
+ },
+ {
+  "name": "plan-create",
+  "desc": "Create a new hosting plan (Package) and set its limits.",
+  "usage": "opencli plan-create name=\"<TEXT>\" description=\"<TEXT>\" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT> max_hourly_email=<COUNT> [reseller=<USERNAME>]"
+ },
+ {
+  "name": "plan-delete",
+  "desc": "Delete hosting plan",
+  "usage": "opencli plan-delete <PLAN_NAME> [--json]"
+ },
+ {
+  "name": "plan-edit",
+  "desc": "Edit an existing hosting plan (Package) and modify its parameters.",
+  "usage": "opencli plan-edit id=<ID> name=\"<TEXT>\" description=\"<TEXT>\" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT> max_hourly_email=<COUNT> [--debug]"
+ },
+ {
+  "name": "plan-list",
+  "desc": "Display all plans: id, name, description, limits..",
+  "usage": "opencli plan-list [--json]"
+ },
+ {
+  "name": "plan-usage",
+  "desc": "Display all users that are currently using the plan.",
+  "usage": "opencli plan-usage <PLAN_NAME> [--json]"
+ },
+ {
+  "name": "podman",
+  "desc": "Run podman or podman-compose against a user's rootless podman, replaces podman_user and podman_compose_user from lib/podman.sh.",
+  "usage": "opencli podman <USERNAME> [compose] <ARGS...> | opencli podman <USERNAME> --socket"
+ },
+ {
+  "name": "port",
+  "desc": "View and change port for accessing openpanel.",
+  "usage": "opencli port [set <port> | default] [--no-restart]"
+ },
+ {
+  "name": "proxy",
+  "desc": "View and change proxy path '/openpanel' for accessing openpanel.",
+  "usage": "opencli proxy [set <path>|default] [--no-restart]"
+ },
+ {
+  "name": "report",
+  "desc": "Generate a system report and send it to OpenPanel support team.",
+  "usage": "opencli report [--non-interactive] [--user <USERNAME>]"
+ },
+ {
+  "name": "sentinel",
+  "desc": "Check system services, traffic and resource usage, and log/send custom notifications on request.",
+  "usage": "opencli sentinel [--startup] [--report] [--action=<name> --title=<title> --message=<msg> [--severity=<level>] [--details=<json> [--merge-key=<key>]] [--no-send]]"
+ },
+ {
+  "name": "server-logrotate",
+  "desc": "Configures logrotate for caddy, openpanel, syslog and limits the journald size.",
+  "usage": "opencli server-logrotate"
+ },
+ {
+  "name": "server-migrate",
+  "desc": "Migrates all data from this server to another.",
+  "usage": "opencli server-migrate -h <DESTINATION_IP> --user root --password <DESTINATION_PASSWORD> [--force] [--exclude-* options]"
+ },
+ {
+  "name": "update",
+  "desc": "Check if update is available, install updates.",
+  "usage": "opencli update [--check | --force [--no-restart] | --admin | --panel | --cli | --translations | --system | --modules | --compose | --env | --php | --wp | --ols | --litespeed | --apache | --clamav | --phpmyadmin | --postgres | --skeleton | --ssh | --varnish | --cron | --caddy]"
+ },
+ {
+  "name": "user-2fa",
+  "desc": "Check or disable 2FA for a user.",
+  "usage": "opencli user-2fa <username> [disable]"
+ },
+ {
+  "name": "user-add",
+  "desc": "Create a new user with the provided plan_name.",
+  "usage": "opencli user-add <USERNAME> <PASSWORD|generate> <EMAIL> \"<PLAN_NAME>\" [--send-email] [--debug] [--webserver=\"<nginx|apache|openresty|openlitespeed|litespeed|varnish+nginx|varnish+apache|varnish+openresty|varnish+openlitespeed>\"] [--sql=<mysql|mariadb>] [--reseller=<RESELLER_USERNAME>] [--private-note=\"this user..\"] [--no-sentinel]"
+ },
+ {
+  "name": "user-backup",
+  "desc": "Creates a full account .tar.gz backup of a single OpenPanel user account.",
+  "usage": "opencli user-backup --account <USER> [--output <DIR>] [--quiet] [--no-throttle]"
+ },
+ {
+  "name": "user-block_ip",
+  "desc": "View, add, or remove blocked IP addresses for a user's domains.",
+  "usage": "opencli user-block_ip <username> [--list='ip_here another_ip' | --delete-all]"
+ },
+ {
+  "name": "user-change_plan",
+  "desc": "Change plan for a user and apply new plan limits.",
+  "usage": "opencli user-change_plan <USERNAME> <NEW_PLAN_NAME> [--debug]"
+ },
+ {
+  "name": "user-check",
+  "desc": "Performs comprehensive security checks on user files, rootless Podman instance and containers.",
+  "usage": "opencli user-check <USERNAME>"
+ },
+ {
+  "name": "user-daily_summary",
+  "desc": "Save yesterday's summary for users with the Summary module and email it to those who turned it on.",
+  "usage": "opencli user-daily_summary <USERNAME> [--date YYYY-MM-DD] [--dry-run] OR opencli user-daily_summary --all [--date YYYY-MM-DD] [--dry-run]"
+ },
+ {
+  "name": "user-delete",
+  "desc": "Delete user account and permanently remove all their data.",
+  "usage": "opencli user-delete <username> [-y]"
+ },
+ {
+  "name": "user-email",
+  "desc": "Change email for user",
+  "usage": "opencli user-email <USERNAME> <NEW_EMAIL>"
+ },
+ {
+  "name": "user-error_report",
+  "desc": "Email users the errors found in their websites' logs in the last 24 hours.",
+  "usage": "opencli user-error_report <USERNAME> [--dry-run] OR opencli user-error_report --all [--dry-run]"
+ },
+ {
+  "name": "user-ip",
+  "desc": "Assign or remove dedicated IP to a user.",
+  "usage": "opencli user-ip <USERNAME> <IP | DELETE> [-y] [--debug]"
+ },
+ {
+  "name": "user-list",
+  "desc": "Display all users: id, username, email, plan, registered date,",
+  "usage": "opencli user-list [--json] [--total] [--quota]"
+ },
+ {
+  "name": "user-litespeed",
+  "desc": "Show or set the LiteSpeed Enterprise license of a user.",
+  "usage": "opencli user-litespeed <USERNAME> [status|serial <SERIAL>|trial] [--json]"
+ },
+ {
+  "name": "user-login",
+  "desc": "Generate an auto-login link for OpenPanel user.",
+  "usage": "opencli user-login <username> [--open|--delete]"
+ },
+ {
+  "name": "user-loginlog",
+  "desc": "View user's .lastlogin file with last 20 successfull logins.",
+  "usage": "opencli user-loginlog <USERNAME> [--table|--text|--json]"
+ },
+ {
+  "name": "user-password",
+  "desc": "Reset password for a user.",
+  "usage": "opencli user-password <USERNAME> <NEW_PASSWORD | random>"
+ },
+ {
+  "name": "user-quota",
+  "desc": "Report or set disk and inodes for users.",
+  "usage": "opencli user-quota [--update <username|--all>]"
+ },
+ {
+  "name": "user-rename",
+  "desc": "Rename username.",
+  "usage": "opencli user-rename <old_username> <new_username>"
+ },
+ {
+  "name": "user-report",
+  "desc": "Prints a health report for a user: what is working and what needs attention.",
+  "usage": "opencli user-report <USERNAME|--all> [--section <name,...>] [--json]"
+ },
+ {
+  "name": "user-restore",
+  "desc": "Restores a single OpenPanel user account from a full account .tar.gz backup.",
+  "usage": "opencli user-restore --file <ARCHIVE> [--force] [--new-username=NAME] [--reseller=NAME] [--quiet] [--temp-dir=<PATH> ]"
+ },
+ {
+  "name": "user-suspend",
+  "desc": "Suspend user: stop all containers and suspend domains.",
+  "usage": "opencli user-suspend <USERNAME> [-y] [--debug]"
+ },
+ {
+  "name": "user-transfer",
+  "desc": "Transfers a single user account from this server to another.",
+  "usage": "opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--port <SSH_PORT>] [--force] [--live-transfer]"
+ },
+ {
+  "name": "user-unsuspend",
+  "desc": "Unsuspend user: start all containers and unsuspend domains",
+  "usage": "opencli user-unsuspend <USERNAME> [--debug]"
+ },
+ {
+  "name": "user-varnish",
+  "desc": "Enable/disable Varnish Caching for user and display current status.",
+  "usage": "opencli user-varnish <USERNAME> [enable|disable|status]"
+ },
+ {
+  "name": "version",
+  "desc": "Displays the current (installed) version of OpenPanel container image.",
+  "usage": "opencli version"
+ },
+ {
+  "name": "waf",
+  "desc": "Manage CorazaWAF",
+  "usage": "opencli waf <status|enable|disable|domain|user|plugins|tags|ids|update|stats|count> [options]"
+ },
+ {
+  "name": "websites-all",
+  "desc": "Lists all websites currently hosted on the server.",
+  "usage": "opencli websites-all [TYPE]"
+ },
+ {
+  "name": "websites-pagespeed",
+  "desc": "Check Google PageSpeed data for website(s)",
+  "usage": "opencli websites-pagespeed <DOMAIN | -all>"
+ },
+ {
+  "name": "websites-scan",
+  "desc": "Scan user files for WP sites and add them to SiteManager interface.",
+  "usage": "opencli websites-scan <USERNAME|-all>"
+ },
+ {
+  "name": "websites-secure",
+  "desc": "WP Manager security rules for domain.",
+  "usage": "opencli websites-secure <DOMAIN> [--rules='RULE1 RULE2' | --disable-all | --list-active-rules]"
+ },
+ {
+  "name": "websites-user",
+  "desc": "Lists all websites and domains owned by a specific user.",
+  "usage": "opencli websites-user <USERNAME> [--type=] [--domains=] [--json]"
+ },
+ {
+  "name": "websites-vulnerability",
+  "desc": "Scan WP site for vulnerabilities.",
+  "usage": "opencli websites-vulnerability <DOMAIN | --all>"
+ }
+]
