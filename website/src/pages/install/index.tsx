@@ -16,7 +16,10 @@ interface InstallOption {
     docs?: string;
     // the value goes in single quotes so spaces and special characters reach the installer as typed
     quote?: boolean;
-    validate?: (v: string) => string | undefined;
+    min?: number;
+    max?: number;
+    // same rules as PODMAN_INSTALL.sh, all holds the other fields for checks that compare them
+    validate?: (v: string, all: Record<string, string | boolean>) => string | undefined;
 }
 
 interface Group {
@@ -26,8 +29,12 @@ interface Group {
 }
 
 const domainRe = /^(?!-)(?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z]{2,}$/;
-const port = (v: string) =>
-    /^\d+$/.test(v) && +v >= 1000 && +v <= 30000 ? undefined : "A port between 1000 and 30000.";
+const str = (v: string | boolean | undefined) => (typeof v === "string" ? v.trim() : "");
+const port = (other: string, otherLabel: string) => (v: string, all: Record<string, string | boolean>) => {
+    if (!/^\d+$/.test(v) || +v < 1000 || +v > 30000) return "A port between 1000 and 30000, the installer stops on anything else.";
+    if (str(all[other]) === v) return `Can't be the same as the ${otherLabel} port.`;
+    return undefined;
+};
 
 const GROUPS: Group[] = [
     {
@@ -41,7 +48,7 @@ const GROUPS: Group[] = [
                 placeholder: "enterprise-...",
                 description: "Activates the Enterprise edition during the install.",
                 docs: "/docs/admin/license/#license-key",
-                validate: (v) => (v.startsWith("enterprise-") ? undefined : "The key starts with enterprise-."),
+                validate: (v) => (/^(enterprise|noc|lifetime)-\S+$/.test(v) ? undefined : "A license key starts with enterprise-."),
             },
             {
                 flag: "join-cluster",
@@ -50,6 +57,7 @@ const GROUPS: Group[] = [
                 placeholder: "Code from the master server",
                 description: "Paste the code from Generate install command on the master server. Needs a license key.",
                 docs: "/docs/admin/system/multi-server/add-servers/#install-a-new-server-straight-into-the-cluster",
+                validate: (_v, all) => (str(all.key) ? undefined : "Needs the Enterprise license key above, the installer stops without it."),
             },
         ],
     },
@@ -73,7 +81,11 @@ const GROUPS: Group[] = [
                 placeholder: "panel.example.com",
                 description: "Use a different domain for OpenPanel only.",
                 docs: "/docs/admin/settings/general/#domain",
-                validate: (v) => (domainRe.test(v) ? undefined : "Enter a domain like panel.example.com."),
+                validate: (v, all) => {
+                    if (!/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v)) return "Enter a domain like panel.example.com.";
+                    if (v === str(all.domain)) return "Has to differ from the domain for both panels, otherwise it's ignored.";
+                    return undefined;
+                },
             },
             {
                 flag: "admin-port",
@@ -82,7 +94,9 @@ const GROUPS: Group[] = [
                 placeholder: "2087",
                 description: "Custom port for OpenAdmin.",
                 docs: "/docs/admin/settings/general/#ports",
-                validate: port,
+                min: 1000,
+                max: 30000,
+                validate: port("user-port", "OpenPanel"),
             },
             {
                 flag: "user-port",
@@ -91,7 +105,9 @@ const GROUPS: Group[] = [
                 placeholder: "2083",
                 description: "Custom port for OpenPanel.",
                 docs: "/docs/admin/settings/general/#ports",
-                validate: port,
+                min: 1000,
+                max: 30000,
+                validate: port("admin-port", "OpenAdmin"),
             },
         ],
     },
@@ -107,7 +123,7 @@ const GROUPS: Group[] = [
                 description: "Username for the first OpenAdmin administrator.",
                 docs: "/docs/admin/accounts/administrators/",
                 quote: true,
-                validate: (v) => (/^[a-zA-Z0-9_]{5,30}$/.test(v) ? undefined : "5 to 30 letters, numbers or underscores."),
+                validate: (v) => (/^[a-zA-Z0-9_]{5,30}$/.test(v) ? undefined : "5 to 30 letters, numbers or underscores, otherwise the admin account isn't created."),
             },
             {
                 flag: "password",
@@ -117,7 +133,7 @@ const GROUPS: Group[] = [
                 description: "Password for that administrator.",
                 docs: "/docs/admin/accounts/administrators/",
                 quote: true,
-                validate: (v) => (v.includes("'") ? "Single quotes can't be used here." : undefined),
+                validate: (v) => (/^[A-Za-z0-9]{5,30}$/.test(v) ? undefined : "5 to 30 letters and numbers, the installer replaces anything else with a random password."),
             },
         ],
     },
@@ -157,15 +173,18 @@ const GROUPS: Group[] = [
                 label: "Swap size (GB)",
                 kind: "number",
                 placeholder: "Sized by RAM",
+                min: 1,
+                max: 10,
                 description: "Swap file size, 1 to 10 GB. By default it's sized by RAM.",
-                validate: (v) => (/^\d+$/.test(v) && +v >= 1 && +v <= 10 ? undefined : "A whole number from 1 to 10."),
+                validate: (v) => (/^\d+$/.test(v) && +v >= 1 && +v <= 10 ? undefined : "A whole number from 1 to 10, the installer sizes it by RAM otherwise."),
             },
             {
-                flag: "post-install",
+                flag: "post_install",
                 label: "Post-install script",
                 kind: "text",
                 placeholder: "/root/after.sh or https://...",
                 description: "Path or URL of a script to run when the install finishes.",
+                docs: "/docs/articles/install-update/openpanel-post-install-hook/",
                 quote: true,
             },
             {
@@ -234,7 +253,7 @@ const Install: React.FC = () => {
         for (const o of ALL) {
             const v = values[o.flag];
             if (typeof v === "string" && v.trim() && o.validate) {
-                const e = o.validate(v.trim());
+                const e = o.validate(v.trim(), values);
                 if (e) out[o.flag] = e;
             }
         }
@@ -402,6 +421,10 @@ const Install: React.FC = () => {
                                                     id={o.flag}
                                                     name={o.flag}
                                                     type={o.kind}
+                                                    min={o.min}
+                                                    max={o.max}
+                                                    step={o.kind === "number" ? 1 : undefined}
+                                                    inputMode={o.kind === "number" ? "numeric" : undefined}
                                                     value={typeof v === "string" ? v : ""}
                                                     placeholder={o.placeholder}
                                                     onChange={(e) => set(o.flag, e.target.value)}
