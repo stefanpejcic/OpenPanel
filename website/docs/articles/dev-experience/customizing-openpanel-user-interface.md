@@ -18,7 +18,7 @@ To customize OpenPanel, you have the following options:
 - [Create or install a theme](/docs/articles/dev-experience/openpanel-themes/)
 - [Replace How-to articles with your knowledge base](#replace-how-to-articles-with-your-knowledge-base)
 - [Add custom CSS or JS code to the interface](#add-custom-css-or-js-code)
-- [Create a custom module for OpenPanel](#create-openpanel-module)
+- [Add a custom section to the Dashboard and a custom welcome email](#custom-dashboard-section-and-welcome-email)
 - [Self-hosted temporary links for SiteManager](/docs/articles/dev-experience/selfhosted-temporary-links-api/)
 - [Self-hosted screenshots for SiteManager](/docs/articles/dev-experience/selfhosted-screenshots-api/)
 - [Customize robots.txt and security.txt](/docs/articles/security/robots-and-security-txt/)
@@ -27,13 +27,13 @@ To customize OpenPanel, you have the following options:
 
 ## Personalized messages
 
-Administrators can set a custom message to be displayed for any OpenPanel uer from their **OpenAdmin > Accounts > Users** page.
+Administrators can set a custom message to be displayed for any OpenPanel user from their **OpenAdmin > Accounts > Users** page.
 
 ![custom img](/img/docs-content/9CCgHGG2-2025-06-11-12-26.png)
 
 ## Enable/disable features
 
-Administrators have the ability to enable or disable each feature (page) in the OpenPanel interface per plan or per-user base. 
+Administrators have the ability to enable or disable each feature (page) in the OpenPanel interface per plan or per-user base: modules are turned on or off server-wide from [OpenAdmin > Settings > Modules](/docs/admin/settings/modules/) and per plan with the [Feature Manager](/docs/admin/plans/feature-manager/).
 
 Once enabled, the feature becomes instantly available to all users, appearing in the OpenPanel interface sidebar, search results, and dashboard icons.
 
@@ -46,7 +46,7 @@ OpenPanel uses compose files as the base for each user. Based on the container i
 
 OpenPanel is localization ready and can easily be translated into any language.
 
-OpenPanel is shipped with the EN locale, [additional locales can be installed by the Administrator](https://dev.openpanel.com/localization.html#How-to-translate).
+OpenPanel is shipped with the EN locale, [additional locales can be installed, edited or created by the Administrator](/docs/admin/settings/locales/) from OpenAdmin > Settings > Locales or with [`opencli locale`](/docs/articles/opencli/locale/).
 
 
 ## Set custom branding
@@ -66,23 +66,21 @@ You can customize all templates that are displayed to users, from [OpenAdmin > D
 - [Apache VirtualHost Template](/docs/admin/domains/vhost_templates/#apache-virtualhost)
 - [Nginx VirtualHost Template](/docs/admin/domains/vhost_templates/#nginx-virtualhost)
 - [OpenResty VirtualHost Template](/docs/admin/domains/vhost_templates/#openresty-virtualhost)
-
-## Create OpenPanel Module
-
-To create a custom module (plugin) for OpenPanel follow this guide: [Example Module](https://dev.openpanel.com/modules/#Example-Module)
+- [Varnish Template](/docs/admin/domains/vhost_templates/#varnish-template)
+- [Caddy VirtualHost Template](/docs/admin/domains/vhost_templates/#caddy-vhosts)
 
 ## Set a custom color scheme
 
-To set a custom color-scheme for OpenPanel interface, edit the `/etc/openpanel/openpanel/custom_code/custom.css` file and in it set your preferred color scheme.
+To set a custom color-scheme for OpenPanel interface, add your CSS in [OpenAdmin > Settings > Custom Code > Custom CSS](/docs/admin/settings/custom_code/#custom-css), or edit the `/etc/openpanel/openpanel/custom_code/custom.css` file directly:
 
 ```bash
 nano /etc/openpanel/openpanel/custom_code/custom.css
 ```
 
-Set the custom css code, save and restart openpanel to apply changes:
+OpenPanel reads the file when it starts, restart it to apply changes:
 
 ```bash
-cd /root && podman-compose up -d openpanel
+podman restart openpanel
 ```
 
 Example:
@@ -97,7 +95,7 @@ Example:
 
 [OpenPanel Dashboard page](/docs/panel/dashboard) displays [How-to articles](/docs/panel/dashboard/#how-to-guides) from the OpenPanel Docs, however these can be changed to display your knowledgebase articles instead. 
 
-Edit the file `/etc/openpanel/openpanel/conf/knowledge_base_articles.json` and in it set your links:
+Edit the file `/etc/openpanel/openpanel/conf/knowledge_base_articles.json` (also editable in OpenAdmin > Settings > Custom Code) and in it set your links:
 
 ```json
 {
@@ -115,6 +113,8 @@ Edit the file `/etc/openpanel/openpanel/conf/knowledge_base_articles.json` and i
 
 
 ## Add custom CSS or JS code
+
+Custom code is available on the [Enterprise edition](https://openpanel.com/enterprise/) and is managed from [OpenAdmin > Settings > Custom Code](/docs/admin/settings/custom_code/), which saves it to the files below. OpenPanel loads them when it starts, so run `podman restart openpanel` after editing the files by hand.
 
 To add custom CSS code to the OpenPanel interface, edit the file `/etc/openpanel/openpanel/custom_code/custom.css`:
 
@@ -140,6 +140,10 @@ To insert custom code within the `<footer>` tag of the OpenPanel interface, modi
 nano /etc/openpanel/openpanel/custom_code/in_footer.html
 ```
 
+
+## Custom dashboard section and welcome email
+
+From [OpenAdmin > Settings > Custom Code](/docs/admin/settings/custom_code/) you can also add a [custom section to the OpenPanel Dashboard](/docs/admin/settings/custom_code/#custom-section) and set the [welcome email](/docs/admin/settings/custom_code/#welcome-email) sent to new users.
 
 ## Customize Email templates
 
