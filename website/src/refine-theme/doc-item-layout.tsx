@@ -10,6 +10,7 @@ import { SourceCodeBadge } from "./doc-sourcecode-badge";
 import { SwizzleBadge } from "./doc-swizzle-badge";
 import { DocTOC } from "./doc-toc";
 import { DocTOCMobile } from "./doc-toc-mobile";
+import { DocAudienceSwitch } from "./doc-audience-switch";
 import { DocVersionBadge } from "./doc-version-badge";
 import { DocSurveyWidget } from "./doc-survey-widget";
 import { FULL_WIDTH_TABLE_VARIABLE_NAME } from "./common-table";
@@ -77,6 +78,7 @@ export const DocItemLayout = ({ children }) => {
                             {source && <SourceCodeBadge path={source} />}
                         </div>
                     </div>
+                    <DocAudienceSwitch className="lg:hidden mb-6 max-w-[260px]" />
                     <DocTOCMobile />
                     <div className={clsx("refine-prose")}>
                         <DocItemContent>{children}</DocItemContent>

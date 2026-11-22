@@ -11,6 +11,7 @@ import { HEADER_HEIGHT } from "./doc-header";
 import { ChevronDownIcon } from "./icons/chevron-down";
 import { DashIcon } from "./icons/dash";
 import { NewBadgePurple } from "./icons/new-badge-purple";
+import { DocAudienceSwitch } from "./doc-audience-switch";
 
 const SIDEBAR_WIDTH = 260;
 
@@ -559,6 +560,7 @@ export const DocSidebar = () => {
                     "flex flex-col gap-6",
                 )}
             >
+                <DocAudienceSwitch />
                 {renderItems({
                     items: sidebar?.items,
                     path: pathname,
