@@ -46,7 +46,7 @@ OpenPanel uses compose files as the base for each user. Based on the container i
 
 OpenPanel is localization ready and can easily be translated into any language.
 
-OpenPanel is shipped with the EN locale, [additional locales can be installed, edited or created by the Administrator](/docs/admin/settings/locales/) from OpenAdmin > Settings > Locales or with [`opencli locale`](/docs/articles/opencli/locale/).
+OpenPanel is shipped with the EN locale, [additional locales can be installed, edited or created by the Administrator](/docs/admin/settings/locales/) from OpenAdmin > Settings > Locales or with [`opencli locale`](/docs/opencli/locale/).
 
 
 ## Set custom branding

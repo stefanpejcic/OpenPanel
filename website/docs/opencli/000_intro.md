@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # OpenCLI
 OpenPanel uses OpenCLI, a command line interface designed for administrators to manage server from the terminal.
 

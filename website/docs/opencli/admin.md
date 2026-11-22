@@ -154,7 +154,7 @@ The username must be 5-30 letters, numbers or underscores, and the same rule app
 ```bash
 # opencli admin new support abc
 ERROR: Password is invalid. It must be between 6 and 30 characters and can't contain spaces.
-       docs: https://openpanel.com/docs/articles/opencli/admin/#create-new-admin
+       docs: https://openpanel.com/docs/opencli/admin/#create-new-admin
 ```
 </details>
 

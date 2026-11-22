@@ -210,7 +210,7 @@ A domain suspended by an Administrator is locked for the user. In OpenPanel the 
 
 To unsuspend, open the actions menu and click **Unsuspend domain**. The domain's original configuration is put back.
 
-From the terminal, use [`opencli domains-suspend`](/docs/articles/opencli/domains/#suspend) with `--by=admin`, `--template=<reason>` and `--comment="..."`, and `opencli domains-unsuspend <domain> --by=admin`. Without `--by=admin` the suspension counts as the user's own.
+From the terminal, use [`opencli domains-suspend`](/docs/opencli/domains/#suspend) with `--by=admin`, `--template=<reason>` and `--comment="..."`, and `opencli domains-unsuspend <domain> --by=admin`. Without `--by=admin` the suspension counts as the user's own.
 
 ## Move domain
 

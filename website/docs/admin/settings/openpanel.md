@@ -80,7 +80,7 @@ What changes for users:
 - Existing records of other types stay in the zone and keep working. Users can't edit them, but they can delete them.
 - The [Advanced Editor](/docs/panel/domains/dns/#advanced-editor) edits the zone file directly, so it isn't limited by this setting.
 
-The value is saved as `dns_record_types` and can also be [set with OpenCLI](/docs/articles/opencli/config/#dns_record_types).
+The value is saved as `dns_record_types` and can also be [set with OpenCLI](/docs/opencli/config/#dns_record_types).
 
 ## Display
 

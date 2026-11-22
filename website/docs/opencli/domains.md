@@ -1,7 +1,7 @@
 # Domains
 
 :::tip Multi-Server
-On a Multi-Server master these commands also reach the other servers, see [OpenCLI on Multi-Server](/docs/articles/opencli/#multi-server).
+On a Multi-Server master these commands also reach the other servers, see [OpenCLI on Multi-Server](/docs/opencli/intro/#multi-server).
 :::
 
 

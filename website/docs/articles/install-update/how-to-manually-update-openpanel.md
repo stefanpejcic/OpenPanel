@@ -21,7 +21,7 @@ To update OpenPanel manually from the terminal, run the following command:
 ```bash
 opencli update --force
 ```
-[Documentation for `opencli update` command](/docs/articles/opencli/update/)
+[Documentation for `opencli update` command](/docs/opencli/update/)
 
   </TabItem>
   

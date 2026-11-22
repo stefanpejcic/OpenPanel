@@ -137,7 +137,7 @@ max_login_records=20
 
 ### default_php_version
 
-The default PHP version for new users is no longer set in `openpanel.config`. It is set with `DEFAULT_PHP_VERSION` in the `.env` template for new users: `/etc/openpanel/docker/compose/1.0/.env`. To change it for an existing user, use [`opencli php-default`](/docs/articles/opencli/php/#change-the-default-version).
+The default PHP version for new users is no longer set in `openpanel.config`. It is set with `DEFAULT_PHP_VERSION` in the `.env` template for new users: `/etc/openpanel/docker/compose/1.0/.env`. To change it for an existing user, use [`opencli php-default`](/docs/opencli/php/#change-the-default-version).
 
 ### domains_per_page
 
@@ -506,7 +506,7 @@ Updated validate_ip_address_cookie to no
 </details>
 
 ### `key`
-The OpenPanel Enterprise license key. Use [`opencli license`](/docs/articles/opencli/license/) to add, verify or delete the key instead of setting it directly.
+The OpenPanel Enterprise license key. Use [`opencli license`](/docs/opencli/license/) to add, verify or delete the key instead of setting it directly.
 
 **Check current value**:
 ```bash

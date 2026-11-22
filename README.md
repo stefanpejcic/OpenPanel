@@ -112,7 +112,7 @@ For full installation options and configuration flags: [https://openpanel.com/in
 - [OpenAdmin - Admin panel documentation](https://openpanel.com/docs/admin/intro/)
 - [OpenPanel - End-user panel documentation](https://openpanel.com/docs/panel/intro/)
 - [Guides and How-to](https://openpanel.com/docs/articles/intro/)
-- [OpenCLI - Terminal commands](https://openpanel.com/docs/articles/opencli/)
+- [OpenCLI - Terminal commands](https://openpanel.com/docs/opencli/intro/)
 
 
 ## Team

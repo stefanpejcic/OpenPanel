@@ -216,7 +216,7 @@ FTP_PORT_RANGE="21000-21010"
 
 OpenPanel Enterprise supports mailserver. [Docker Mailserver](https://docker-mailserver.github.io/docker-mailserver/latest/) is used as a fullstack mail server (SMTP, IMAP, LDAP, Anti-spam, Anti-virus, etc.)
 
-OpenPanel provides [terminal commands](/docs/articles/opencli/email/) and [UI](https://openpanel.com/docs/panel/intro/) for users to manage emails.
+OpenPanel provides [terminal commands](/docs/opencli/email/) and [UI](https://openpanel.com/docs/panel/intro/) for users to manage emails.
 
 ## Webmail
 

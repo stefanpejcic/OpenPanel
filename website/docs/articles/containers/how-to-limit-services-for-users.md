@@ -105,7 +105,7 @@ The service's data volume, for example `es_data`, is not deleted. Remove it your
 
 ## Don't run `opencli update --compose`
 
-[`opencli update --compose`](/docs/articles/opencli/update/#templates) replaces the whole template with the latest upstream version, which brings back every removed service for new users. Existing users aren't affected. If you run it, remove the services again. The previous template is saved at `/etc/openpanel/docker/compose/1.0/docker-compose.yml.bak`.
+[`opencli update --compose`](/docs/opencli/update/#templates) replaces the whole template with the latest upstream version, which brings back every removed service for new users. Existing users aren't affected. If you run it, remove the services again. The previous template is saved at `/etc/openpanel/docker/compose/1.0/docker-compose.yml.bak`.
 
 To add a removed service back later, copy its block from the [upstream template](https://github.com/stefanpejcic/openpanel-configuration/blob/main/docker/compose/1.0/docker-compose.yml).
 

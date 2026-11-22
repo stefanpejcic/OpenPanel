@@ -3,10 +3,11 @@ import { useLocation } from "@docusaurus/router";
 import clsx from "clsx";
 import React from "react";
 
-// User / Admin switch on the panel and admin docs only, like Virtualizor's End User / Admin toggle
+// User / Admin / CLI switch on the panel, admin and opencli docs only, like Virtualizor's End User / Admin toggle
 const SECTIONS = [
     { key: "panel", label: "User", to: "/docs/panel/intro/" },
     { key: "admin", label: "Admin", to: "/docs/admin/intro/" },
+    { key: "opencli", label: "CLI", to: "/docs/opencli/intro/" },
 ];
 
 export const useDocAudience = (): string | undefined => {
@@ -25,7 +26,7 @@ export const DocAudienceSwitch = ({ className }: { className?: string }) => {
             role="tablist"
             aria-label="Documentation for"
             className={clsx(
-                "grid grid-cols-2",
+                "grid grid-cols-3",
                 "p-1",
                 "rounded-full",
                 "border border-gray-300 dark:border-gray-700",
@@ -43,7 +44,8 @@ export const DocAudienceSwitch = ({ className }: { className?: string }) => {
                         aria-selected={active}
                         className={clsx(
                             "text-center",
-                            "py-1.5 px-4",
+                            "py-1.5 px-2",
+                            "whitespace-nowrap",
                             "rounded-full",
                             "no-underline hover:no-underline",
                             "transition-colors duration-200 ease-in-out",

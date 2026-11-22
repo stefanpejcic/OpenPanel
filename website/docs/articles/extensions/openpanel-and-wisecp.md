@@ -102,7 +102,7 @@ On WISECP:
 2. Errors returned by the module are shown directly on the relevant admin action
 
 On OpenPanel server:
-1. [Enable `DEV_MODE` on OpenAdmin](/docs/articles/opencli/config/#dev_mode)
+1. [Enable `DEV_MODE` on OpenAdmin](/docs/opencli/config/#dev_mode)
 2. Send requests from the WISECP server
 3. View the logs in: `/var/log/openpanel/admin/api.log`
 

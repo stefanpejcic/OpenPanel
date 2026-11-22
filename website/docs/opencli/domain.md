@@ -44,9 +44,9 @@ When the mailserver is installed, it is switched to the domain's SSL certificate
 SSL certificate for srv7.openpanel.org is not issued yet, mailserver will switch to it once Caddy gets one.
 ```
 
-If `/webmail` points to the default webmail address (`http://IP:8080` or `https://webmail.<old domain>`), it is changed to `https://webmail.<DOMAIN>`, and back to `http://IP:8080` with `opencli domain ip`. A webmail domain set with [`opencli email-webmail domain`](/docs/articles/opencli/email/) is left unchanged.
+If `/webmail` points to the default webmail address (`http://IP:8080` or `https://webmail.<old domain>`), it is changed to `https://webmail.<DOMAIN>`, and back to `http://IP:8080` with `opencli domain ip`. A webmail domain set with [`opencli email-webmail domain`](/docs/opencli/email/) is left unchanged.
 
-The new domain is also written to the hosts file that users' containers start with, see [`opencli docker-hosts`](/docs/articles/opencli/docker/#hosts).
+The new domain is also written to the hosts file that users' containers start with, see [`opencli docker-hosts`](/docs/opencli/docker/#hosts).
 
 Set IP address to be used instead of domain:
 

@@ -1094,7 +1094,7 @@ Customize options:
 
 ## ImunifyAV {#imunifyav}
 
-The **`imunifyav`** module gives users their own ImunifyAV page. It needs ImunifyAV installed from *OpenAdmin > Security > ImunifyAV* or with [`opencli imunify install`](/docs/articles/opencli/imunify/).
+The **`imunifyav`** module gives users their own ImunifyAV page. It needs ImunifyAV installed from *OpenAdmin > Security > ImunifyAV* or with [`opencli imunify install`](/docs/opencli/imunify/).
 
 When enabled:
 * Users can access the **Security > ImunifyAV** page. It opens ImunifyAV's own interface logged in as the user, so they see and scan only their own files, and get whatever the server's ImunifyAV license offers users.

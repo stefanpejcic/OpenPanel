@@ -73,7 +73,7 @@ opencli php-domain example.com --update 8.4
 opencli php-default USERNAME --update 8.4
 ```
 
-See [opencli php](/docs/articles/opencli/php/).
+See [opencli php](/docs/opencli/php/).
 
 ---
 

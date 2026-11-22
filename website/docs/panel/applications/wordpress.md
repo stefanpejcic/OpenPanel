@@ -288,7 +288,7 @@ Server-level rules that harden the site. They are applied by the webserver befor
 | **Disable PHP in Cache** | Blocks PHP scripts stored in cache directories, stopping cache poisoning and file inclusion exploits. |
 | **Disable Script Concatenation** | Blocks `load-scripts.php` and `load-styles.php` to prevent a known ReDoS attack that spikes server CPU. |
 
-Rules can also be managed from the terminal with [`opencli websites-secure`](/docs/articles/opencli/websites/#secure).
+Rules can also be managed from the terminal with [`opencli websites-secure`](/docs/opencli/websites/#secure).
 
 ### Updates
 

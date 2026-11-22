@@ -44,7 +44,7 @@ Only problems, like a server going offline or a failed sync, are also sent by em
 
 ## From the terminal
 
-On the master, OpenCLI lists accounts, domains and plans from all servers, runs account commands on the server that has the account, and takes `--server=<NAME>` and `--all-servers` for the rest. See [OpenCLI on Multi-Server](/docs/articles/opencli/#multi-server).
+On the master, OpenCLI lists accounts, domains and plans from all servers, runs account commands on the server that has the account, and takes `--server=<NAME>` and `--all-servers` for the rest. See [OpenCLI on Multi-Server](/docs/opencli/intro/#multi-server).
 
 ```bash
 opencli user-list

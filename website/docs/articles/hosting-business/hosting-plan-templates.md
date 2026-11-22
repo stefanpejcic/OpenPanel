@@ -52,7 +52,7 @@ opencli plan-create name="Pro" description="20 websites, 75 GB NVMe" emails=100 
 opencli plan-create name="WordPressPro" description="Managed WordPress, 3 sites" emails=10 ftp=3 domains=3 websites=3 disk=40 inodes=500000 databases=5 cpu=2 ram=3 bandwidth=200 feature_set=default max_email_quota=5G max_hourly_email=200
 ```
 
-Or create them in **OpenAdmin → Hosting Plans → User Packages → Create New**. See [opencli plan](/docs/articles/opencli/plan/).
+Or create them in **OpenAdmin → Hosting Plans → User Packages → Create New**. See [opencli plan](/docs/opencli/plan/).
 
 Use a [Feature Set](/docs/admin/plans/feature-manager/) that matches the tier - for example hide advanced features like the web terminal, containers or PHP.INI editor on the Starter plan, and enable them on Pro.
 

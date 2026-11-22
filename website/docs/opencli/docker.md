@@ -147,7 +147,7 @@ Shared store disk usage: 1.5G (1.47 GB) at /var/lib/containers/shared-storage
 
 ### Backup
 
-Backs up every account whose backups the hosting provider manages, or one with `--account`. This is the bulk/system-wide counterpart to `opencli user-backup`, see [Users](/docs/articles/opencli/user/#backup-user).
+Backs up every account whose backups the hosting provider manages, or one with `--account`. This is the bulk/system-wide counterpart to `opencli user-backup`, see [Users](/docs/opencli/user/#backup-user).
 
 The provider manages an account's backups when the account has an `admin.backups` marker in `/etc/openpanel/openpanel/core/users/<context>/`, see [User Backups](/docs/admin/backups/user/). Accounts without it manage their own backups and are skipped:
 
@@ -367,4 +367,4 @@ opencli docker-collect_stats <USERNAME>
 ```
 </details>
 
-`collect_stats` script will also rotate data according to [`resource_usage_retention` setting](/docs/articles/opencli/config/#resource_usage_retention)
+`collect_stats` script will also rotate data according to [`resource_usage_retention` setting](/docs/opencli/config/#resource_usage_retention)
