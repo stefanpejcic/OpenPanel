@@ -57,6 +57,7 @@ The result: VPS-level isolation on shared hosting infrastructure, without the VP
 **Why use OpenPanel for your hosting business?**
 
 - focus on [security](https://openpanel.com/docs/articles/security/securing-openpanel/)
+- lightweight: OpenPanel, OpenAdmin and OpenCLI are Go binaries, together **~331 MB on disk** (OpenPanel image 285 MB, OpenAdmin 34.5 MB, OpenCLI 11.4 MB) and **~59 MB of RAM at idle** (OpenPanel ~29 MB, OpenAdmin ~30 MB, OpenCLI runs only when called) with ~0% CPU[^3]
 - billing integrations: [FOSSBilling](https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/), [WHMCS](https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/), [Blesta](https://openpanel.com/docs/articles/extensions/openpanel-and-blesta/), paymenter.org[^1]
 - dedicated [MySQL, Percona or MariaDB per user](https://openpanel.com/docs/articles/containers/how-to-set-mysql-mariadb-per-user-in-openpanel/)
 - dedicated [Apache, Nginx, OpenLitespeed, Openresty + Varnish per user](https://openpanel.com/docs/articles/containers/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
@@ -67,6 +68,7 @@ The result: VPS-level isolation on shared hosting infrastructure, without the VP
 
 
 [^1]: not actively maintained
+[^3]: Measured on OpenPanel 2.0.28 with 25 users. RAM is the resident memory of the `openpanel` and `openadmin` processes; the whole OpenPanel container uses ~122 MB with the tools it runs.
 
 ## OpenPanel vs OpenAdmin
 
