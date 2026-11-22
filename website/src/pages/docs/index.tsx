@@ -14,7 +14,6 @@ const MAIN = [
         lead: "Using the panel: domains, websites, email, databases, files and backups.",
         href: "/docs/panel/intro/",
         screenshot: "/img/openpanel-screenshots/dashboard/dashboard-window.png",
-        accent: "from-[#0FBDBD] to-[#26D97F]",
         links: [
             ["Domains", "/docs/panel/domains/"],
             ["WordPress", "/docs/panel/applications/wordpress/"],
@@ -29,7 +28,6 @@ const MAIN = [
         lead: "Running the server: install, users and plans, security, settings and multi-server.",
         href: "/docs/admin/intro/",
         screenshot: "/img/openadmin-screenshots/001_dashboard-window.png",
-        accent: "from-[#FF9933] to-[#FF4C4D]",
         links: [
             ["Install & post-install steps", "/docs/admin/intro/"],
             ["Users", "/docs/admin/accounts/users/"],
@@ -43,7 +41,6 @@ const MAIN = [
         who: "For the terminal",
         lead: "Every opencli command with its flags and example output, plus hooks for your own scripts.",
         href: "/docs/opencli/intro/",
-        accent: "from-[#6366F1] to-[#A855F7]",
         links: [
             ["All commands", "/docs/opencli/intro/"],
             ["Users", "/docs/opencli/user/"],
@@ -128,7 +125,7 @@ const Docs: React.FC = () => {
                                         <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">{m.who}</span>
                                         <h2 className="text-2xl font-bold m-0">
                                             <a href={m.href} className="no-underline">
-                                                <span className={clsx("text-transparent bg-clip-text bg-gradient-to-r", m.accent)}>{m.name}</span>
+                                                <span className="text-gray-900 dark:text-gray-0">{m.name}</span>
                                             </a>
                                         </h2>
                                         <p className="text-sm text-gray-600 dark:text-gray-400 m-0">{m.lead}</p>

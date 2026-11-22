@@ -22,7 +22,6 @@ const DEMOS = [
             "Browse files, backups and resource usage",
         ],
         docs: "/docs/panel/intro/",
-        accent: "from-[#0FBDBD] to-[#26D97F]",
     },
     {
         name: "OpenAdmin",
@@ -39,7 +38,6 @@ const DEMOS = [
             "Change branding and OpenPanel settings",
         ],
         docs: "/docs/admin/intro/",
-        accent: "from-[#FF9933] to-[#FF4C4D]",
     },
 ];
 
@@ -98,7 +96,7 @@ const Demo: React.FC = () => {
                                             {d.who}
                                         </span>
                                         <h2 className="text-2xl font-bold m-0">
-                                            <span className={clsx("text-transparent bg-clip-text bg-gradient-to-r", d.accent)}>
+                                            <span className="text-gray-900 dark:text-gray-0">
                                                 {d.name}
                                             </span>
                                         </h2>
